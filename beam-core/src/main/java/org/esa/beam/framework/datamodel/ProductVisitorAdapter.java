@@ -27,50 +27,68 @@ import java.util.Stack;
  */
 public class ProductVisitorAdapter implements ProductVisitor {
 
-    protected Stack stack = new Stack();
+    protected Stack<ProductNode> stack = new Stack<ProductNode>();
 
     public ProductVisitorAdapter() {
     }
 
-    protected void push(Object node) {
+    protected void push(ProductNode node) {
         stack.push(node);
     }
 
-    protected Object pop() {
+    protected ProductNode pop() {
         return stack.pop();
     }
 
-    protected Object peek() {
+    protected ProductNode peek() {
         return stack.peek();
     }
 
+    @Override
     public void visit(Product product) {
     }
 
+    @Override
     public void visit(TiePointGrid grid) {
     }
 
+    @Override
     public void visit(Band band) {
     }
 
+    @Override
     public void visit(VirtualBand virtualBand) {
     }
 
+    @Override
     public void visit(MetadataAttribute attribute) {
     }
 
+    @Override
     public void visit(MetadataElement group) {
     }
 
+    @Override
     public void visit(FlagCoding flagCoding) {
     }
 
+    @Override
     public void visit(IndexCoding indexCoding) {
     }
 
+    @Override
     public void visit(BitmaskDef bitmaskDef) {
     }
 
+    @Override
     public void visit(ProductNodeGroup group) {
+    }
+
+    @Override
+    public void visit(Mask mask) {
+    }
+
+    @Override
+    public void visit(VectorData data) {
     }
 }

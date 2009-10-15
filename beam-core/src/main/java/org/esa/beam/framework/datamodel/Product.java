@@ -25,6 +25,9 @@ import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.dataio.ProductFlipper;
 import org.esa.beam.framework.dataio.ProductProjectionBuilder;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -46,6 +49,9 @@ import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
@@ -141,6 +147,8 @@ public class Product extends ProductNode {
     private final ProductNodeList<FlagCoding> flagCodings;
     private final ProductNodeList<BitmaskDef> bitmaskDefs;
 
+    private final ProductNodeGroup<Mask> maskGroup;
+    private final ProductNodeGroup<VectorData> vectorDataGroup;
     private final ProductNodeGroup<FlagCoding> flagCodingGroup;
     private final ProductNodeGroup<IndexCoding> indexCodingGroup;
 
@@ -157,7 +165,7 @@ public class Product extends ProductNode {
      */
     private String refStr;
 
-    // todo - rename or change to "ProductContext" (nf - 20090123)
+    // todo - rename or change to "ProductContext" (nf - 01.2009)
     private ProductManager productManager;
 
     private Map<String, BitRaster> validMasks;
@@ -216,22 +224,98 @@ public class Product extends ProductNode {
         this.sceneRasterHeight = sceneRasterHeight;
         metadataRoot = new MetadataElement(METADATA_ROOT_NAME);
         metadataRoot.setOwner(this);
+
+        // todo - convert into groups (nf, 10.2009)
         bands = new ProductNodeList<Band>();
         tiePointGrids = new ProductNodeList<TiePointGrid>();
         flagCodings = new ProductNodeList<FlagCoding>();
         bitmaskDefs = new ProductNodeList<BitmaskDef>();
 
+        vectorDataGroup = new ProductNodeGroup<VectorData>(this,
+                                                           "vector_data",
+                                                           "A group which stores all vector data");
+        maskGroup = new ProductNodeGroup<Mask>(this,
+                                               "masks",
+                                               "A group which stores all masks");
         indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "index_codings",
-                                                             "The group which stores index codings.");
+                                                             "A group which stores all index codings.");
         flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flag_codings",
-                                                           "The group which stores flag codings.");
+                                                           "A group which stores all flag codings.");
 
         pinGroup = new ProductNodeGroup<Pin>(this, "pins", "The group which stores pins.");
         gcpGroup = new ProductNodeGroup<Pin>(this, "ground_control_points",
                                              "The group which stores ground control points.");
+
         addProductNodeListener(createNameChangedHandler());
         addProductNodeListener(createGeoCodingChangedHandler());
     }
+
+//    /**
+//     * todo - This is test code for new vector data group - don't remove! (nf, 10.2009)
+//     */
+//    private void initDummyVDNs() {
+//        final SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
+//        ftb.setCRS(getGeoCoding().getModelCRS());
+//        ftb.setName("PinType");
+//        ftb.add("label", String.class);
+//        ftb.add("geoPoint", Point.class, getGeoCoding().getModelCRS());
+//        ftb.add("pixelPoint", Point.class, getGeoCoding().getModelCRS());
+//        ftb.setDefaultGeometry("pixelPoint");
+//        final SimpleFeatureType pinType = ftb.buildFeatureType();
+//
+//        final VectorData pinoekls = new VectorData("Pinökels", pinType);
+//        for (int i = 0; i < 1000; i++) {
+//            SimpleFeatureBuilder fb = new SimpleFeatureBuilder(pinType);
+//            GeometryFactory gf = new GeometryFactory();
+//            PixelPos pixelPos = new PixelPos(
+//                    (float) (Math.random() * (getSceneRasterWidth() - 1)),
+//                    (float) (Math.random() * (getSceneRasterHeight() - 1)));
+//            GeoPos geoPos = getGeoCoding().getGeoPos(pixelPos, null);
+//            fb.add("P" + i);
+//            fb.add(gf.createPoint(new Coordinate(geoPos.lon, geoPos.lat)));
+//            fb.add(gf.createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
+//
+//            try {
+//                pinoekls.getFeatureCollection().add(fb.buildFeature("FID" + i));
+//            } catch (IOException e) {
+//                throw new IllegalStateException(e);
+//            }
+//        }
+//        vectorDataGroup.add(pinoekls);
+//
+//        vectorDataGroup.add(new VectorData("Pins", pinType));
+//        addProductNodeListener(new ProductNodeListenerAdapter() {
+//            @Override
+//            public void nodeAdded(ProductNodeEvent event) {
+//                if (event.getSourceNode() instanceof Pin) {
+//                    System.out.println("Pin added: event = " + event);
+//                    final Pin pin = (Pin) event.getSourceNode();
+//                    final SimpleFeatureBuilder fb = new SimpleFeatureBuilder(pinType);
+//                    final GeometryFactory gf = new GeometryFactory();
+//                    fb.add(pin.getLabel());
+//                    fb.add(gf.createPoint(new Coordinate(pin.getGeoPos().lon, pin.getGeoPos().lat)));
+//                    fb.add(gf.createPoint(new Coordinate(pin.getPixelPos().x, pin.getPixelPos().y)));
+//                    try {
+//                        final VectorData vectorData = vectorDataGroup.get("Pins");
+//                        vectorData.getFeatureCollection().add(fb.buildFeature(pin.toString()));
+//                    } catch (IOException e) {
+//                        throw new IllegalStateException(e);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void nodeRemoved(ProductNodeEvent event) {
+//                if (event.getSourceNode() instanceof Pin) {
+//                    System.out.println("Pin removed: event = " + event);
+//                    final Pin pin = (Pin) event.getSourceNode();
+//                    final String fid = pin.toString();
+//                    // todo - how to obtain a given feature for fid?!?
+//                    // todo - how to remove features from a feature source?!?
+//                }
+//            }
+//        });
+//    }
 
     private ProductNodeListenerAdapter createGeoCodingChangedHandler() {
         return new ProductNodeListenerAdapter() {
@@ -247,7 +331,11 @@ public class Product extends ProductNode {
                         pinDescriptor.updateGeoPos(getGeoCoding(), pin.getPixelPos(), geoPos);
                         pin.setGeoPos(geoPos);
                     }
+//                    if (vectorDataGroup.getNodeCount() == 0) {
+//                        initDummyVDNs();
+//                    }
                 }
+
 
             }
         };
@@ -491,10 +579,13 @@ public class Product extends ProductNode {
         bitmaskDefs.dispose();
         flagCodings.dispose();
         metadataRoot.dispose();
-        pointingFactory = null;
-        productManager = null;
+        maskGroup.dispose();
+        vectorDataGroup.dispose();
         pinGroup.dispose();
         gcpGroup.dispose();
+
+        pointingFactory = null;
+        productManager = null;
 
         if (geoCoding != null) {
             geoCoding.dispose();
@@ -706,7 +797,7 @@ public class Product extends ProductNode {
     public void addTiePointGrid(final TiePointGrid tiePointGrid) {
         if (containsRasterDataNode(tiePointGrid.getName())) {
             throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
-                                               "a tie-point grid with the name '" + tiePointGrid.getName() + "'.");
+                    "a tie-point grid with the name '" + tiePointGrid.getName() + "'.");
         }
         addNamedNode(tiePointGrid, tiePointGrids);
     }
@@ -820,12 +911,12 @@ public class Product extends ProductNode {
     public void addBand(final Band band) {
         Guardian.assertNotNull("band", band);
         if (band.getSceneRasterWidth() != getSceneRasterWidth()
-            || band.getSceneRasterHeight() != getSceneRasterHeight()) {
+                || band.getSceneRasterHeight() != getSceneRasterHeight()) {
             throw new IllegalArgumentException("illegal raster dimensions");
         }
         if (containsRasterDataNode(band.getName())) {
             throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
-                                               "a band with the name '" + band.getName() + "'.");
+                    "a band with the name '" + band.getName() + "'.");
         }
         addNamedNode(band, bands);
     }
@@ -978,7 +1069,21 @@ public class Product extends ProductNode {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    // Flag-coding support
+    // Mask support
+
+    public ProductNodeGroup<Mask> getMaskGroup() {
+        return maskGroup;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Vector data support
+
+    public ProductNodeGroup<VectorData> getVectorDataGroup() {
+        return vectorDataGroup;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Sample-coding support
 
     public ProductNodeGroup<FlagCoding> getFlagCodingGroup() {
         return flagCodingGroup;
@@ -1003,7 +1108,7 @@ public class Product extends ProductNode {
      */
     public boolean containsPixel(final float x, final float y) {
         return x >= 0.0f && x <= getSceneRasterWidth() &&
-               y >= 0.0f && y <= getSceneRasterHeight();
+                y >= 0.0f && y <= getSceneRasterHeight();
     }
 
     /**
@@ -1343,141 +1448,6 @@ public class Product extends ProductNode {
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////
-    // Valid-mask Support
-
-    /**
-     * Gets a valid-mask for the given ID.
-     *
-     * @param id the ID
-     *
-     * @return a cached valid mask for the given ID or null
-     *
-     * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
-     */
-    public BitRaster getValidMask(final String id) {
-        if (validMasks != null) {
-            return validMasks.get(id);
-        }
-        return null;
-    }
-
-    /**
-     * Sets a valid-mask for the given ID.
-     *
-     * @param id        the ID
-     * @param validMask the pixel mask
-     *
-     * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
-     */
-    public void setValidMask(final String id, final BitRaster validMask) {
-        if (validMask != null) {
-            Guardian.assertEquals("validMask", validMask.getWidth(), getSceneRasterWidth());
-            Guardian.assertEquals("validMask", validMask.getHeight(), getSceneRasterHeight());
-            if (validMasks == null) {
-                validMasks = new HashMap<String, BitRaster>();
-            }
-            validMasks.put(id, validMask);
-        } else {
-            if (validMasks != null) {
-                validMasks.remove(id);
-            }
-        }
-    }
-
-    /**
-     * Creates a bit-packed valid-mask for all pixels of the scene covered by this product.
-     * The given expression is considered to be boolean, if it evaluates to <code>true</code>
-     * the related bit in the mask is set.
-     *
-     * @param expression the boolean expression, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
-     * @param pm         a progress monitor
-     *
-     * @return a bit-packed mask for all pixels of the scene, never null
-     *
-     * @throws IOException if an I/O error occurs
-     * @see #createTerm(String)
-     * @see #createValidMask(com.bc.jexp.Term,com.bc.ceres.core.ProgressMonitor)
-     */
-    public BitRaster createValidMask(final String expression, final ProgressMonitor pm) throws IOException {
-        try {
-            final Term term = getProduct().createTerm(expression);
-            return createValidMask(term, pm);
-        } catch (ParseException e) {
-            final IOException ioException = new IOException(
-                    "Unable to load the valid pixel mask, parse error: " + e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
-        }
-    }
-
-    /**
-     * Creates a bit-packed mask for all pixels of the scene covered by this product.
-     * The given term is considered to be boolean, if it evaluates to <code>true</code>
-     * the related bit in the mask is set.
-     * <p>Since the masks created by this method are cached, the method {@link #releaseValidMask(org.esa.beam.util.BitRaster)}
-     * should be called in order to release it.
-     *
-     * @param term the boolean term, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
-     * @param pm   a progress monitor
-     *
-     * @return a bit-packed mask for all pixels of the scene, never null
-     *
-     * @throws IOException if an I/O error occurs
-     * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
-     */
-    public BitRaster createValidMask(final Term term, final ProgressMonitor pm) throws IOException {
-        final String id = term.toString();
-        BitRaster cachedValidMask = getValidMask(id);
-        if (cachedValidMask != null) {
-            return cachedValidMask;
-        }
-        Debug.trace("createValidMask: " + id);
-        final int productWidth = getSceneRasterWidth();
-        final int productHeight = getSceneRasterHeight();
-        final BitRaster validMask = new BitRaster(productWidth, productHeight);
-
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        final RasterDataLoop loop = new RasterDataLoop(0, 0,
-                                                       productWidth, productHeight,
-                                                       new Term[]{term}, pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                if (term.evalB(env)) {
-                    validMask.set(pixelIndex);
-                }
-            }
-        }, "Computing valid-mask..."); /*I18N*/
-
-        setValidMask(id, validMask);
-
-        stopWatch.stopAndTrace("createValidMask");
-
-        return validMask;
-    }
-
-    /**
-     * Releases a valid-mask previously allocated with the {@link #createValidMask(String,com.bc.ceres.core.ProgressMonitor) createValidMask()} method.
-     *
-     * @param validMask the pixel mask to be released
-     *
-     * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
-     */
-    public void releaseValidMask(final BitRaster validMask) {
-        if (validMasks != null) {
-            final Collection<BitRaster> bitRasters = validMasks.values();
-            for (Iterator<BitRaster> iterator = bitRasters.iterator(); iterator.hasNext();) {
-                final BitRaster bitRaster = iterator.next();
-                if (validMask == bitRaster) {
-                    iterator.remove();
-                    break;
-                }
-            }
-        }
-    }
-
     /**
      * Parses a mathematical expression given as a text string.
      *
@@ -1490,272 +1460,6 @@ public class Product extends ProductNode {
     public Term parseExpression(final String expression) throws ParseException {
         final Parser parser = createBandArithmeticParser();
         return parser.parse(expression);
-    }
-
-    /**
-     * @see #readBitmask(int,int,int,int,com.bc.jexp.Term,boolean[],com.bc.ceres.core.ProgressMonitor)
-     */
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final Term bitmaskTerm,
-                            final boolean[] bitmask) throws IOException {
-        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, ProgressMonitor.NULL);
-    }
-
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
-     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
-     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
-     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
-     * elements.
-     * </p>
-     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
-     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     * </p>
-     * <p> The {@link #createTerm(String)} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     * </p>
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)} method
-     * @param bitmask     a buffer used to hold the results of the bit-mask evaluations for each pixel in the given
-     *                    spatial subset
-     * @param pm          a monitor to inform the user about progress
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #createTerm(String)
-     */
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final Term bitmaskTerm,
-                            final boolean[] bitmask, ProgressMonitor pm) throws IOException {
-        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
-                                                       width, height,
-                                                       new Term[]{bitmaskTerm}, pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                bitmask[pixelIndex] = bitmaskTerm.evalB(env);
-            }
-        });
-    }
-
-    /**
-     * @see #readBitmask(int,int,int,int,com.bc.jexp.Term,byte[],byte,byte,com.bc.ceres.core.ProgressMonitor)
-     */
-    public synchronized void readBitmask(final int offsetX,
-                                         final int offsetY,
-                                         final int width,
-                                         final int height,
-                                         final Term bitmaskTerm,
-                                         final byte[] bitmask,
-                                         final byte trueValue,
-                                         final byte falseValue) throws IOException {
-        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, trueValue, falseValue, ProgressMonitor.NULL);
-    }
-
-
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p/>
-     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
-     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
-     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
-     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
-     * elements.
-     * </p>
-     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
-     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     * </p>
-     * <p> The {@link #createTerm(String)} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
-     *                    method
-     * @param bitmask     a byte buffer used to hold the results of the bit-mask evaluations for each pixel in the given
-     *                    spatial subset
-     * @param trueValue   the byte value to be set if the bitmask-term evauates to <code>true</code>
-     * @param falseValue  the byte value to be set if the bitmask-term evauates to <code>false</code>
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #createTerm(String)
-     * @see #readBitmask(int,int,int,int,Term,int[],int,int)
-     */
-    public synchronized void readBitmask(final int offsetX,
-                                         final int offsetY,
-                                         final int width,
-                                         final int height,
-                                         final Term bitmaskTerm,
-                                         final byte[] bitmask,
-                                         final byte trueValue,
-                                         final byte falseValue,
-                                         ProgressMonitor pm) throws IOException {
-        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
-                                                       width, height,
-                                                       new Term[]{bitmaskTerm}, pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                if (bitmaskTerm.evalB(env)) {
-                    bitmask[pixelIndex] = trueValue;
-                } else {
-                    bitmask[pixelIndex] = falseValue;
-                }
-            }
-        }, "Reading bitmask...");  /*I18N*/
-    }
-
-
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p/>
-     * <p> The method works exactly like {@link #readBitmask(int,int,int,int,Term,byte[],byte,byte)},
-     * but in this method the bitmnask is represented by an array of integers to be filled.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
-     *                    method
-     * @param bitmask     an integer buffer used to hold the results of the bit-mask evaluations for each pixel in the
-     *                    given spatial subset
-     * @param trueValue   the integer value to be set if the bitmask-term evauates to <code>true</code>
-     * @param falseValue  the integer value to be set if the bitmask-term evauates to <code>false</code>
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #createTerm(String)
-     * @see #readBitmask(int,int,int,int,Term,byte[],byte,byte)
-     */
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final Term bitmaskTerm,
-                            final int[] bitmask,
-                            final int trueValue,
-                            final int falseValue) throws IOException {
-        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, trueValue, falseValue, ProgressMonitor.NULL);
-    }
-
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p/>
-     * <p> The method works exactly like {@link #readBitmask(int,int,int,int,Term,byte[],byte,byte)},
-     * but in this method the bitmnask is represented by an array of integers to be filled.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
-     *                    method
-     * @param bitmask     an integer buffer used to hold the results of the bit-mask evaluations for each pixel in the
-     *                    given spatial subset
-     * @param trueValue   the integer value to be set if the bitmask-term evauates to <code>true</code>
-     * @param falseValue  the integer value to be set if the bitmask-term evauates to <code>false</code>
-     * @param pm          a monitor to inform the user about progress
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #createTerm(String)
-     * @see #readBitmask(int,int,int,int,Term,byte[],byte,byte)
-     */
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final Term bitmaskTerm,
-                            final int[] bitmask,
-                            final int trueValue,
-                            final int falseValue,
-                            ProgressMonitor pm) throws IOException {
-        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY, width, height, new Term[]{bitmaskTerm}, pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                if (bitmaskTerm.evalB(env)) {
-                    bitmask[pixelIndex] = trueValue;
-                } else {
-                    bitmask[pixelIndex] = falseValue;
-                }
-            }
-        });
-    }
-
-    /**
-     * @see #maskProductData(int,int,int,int,com.bc.jexp.Term,ProductData,boolean,double,com.bc.ceres.core.ProgressMonitor)
-     */
-    public void maskProductData(final int offsetX,
-                                final int offsetY,
-                                final int width,
-                                final int height,
-                                final Term bitmaskTerm,
-                                final ProductData rasterData,
-                                final boolean termValue,
-                                final double maskValue) throws IOException {
-        maskProductData(offsetX, offsetY,
-                        width, height,
-                        bitmaskTerm,
-                        rasterData,
-                        termValue, maskValue,
-                        ProgressMonitor.NULL);
-    }
-
-    /**
-     * Masks the given raster data for the specified region using the a given bit-mask term.
-     * <p> The method evaluates the term for each pixel in the subset (line-by-line, X varies fastest).
-     * If the bit-mask term evaluates to <code>termValue</code> at the current pixel position, then <code>maskValue</code> is set at the corrresponding
-     * position in <code>rasterData</code> instead of the original pixel value. If the bit-mask term does not forEachPixel
-     * to <code>termValue</code> then the original pixel value in <code>rasterData</code> remains unchanged. The
-     * buffer must at least have a length equal to <code>width * height</code> elements.
-     * </p>
-     * <p> The {@link #createTerm(String) createTerm} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String) createTerm}
-     *                    method
-     * @param rasterData  the raster data which is masked with  <code>maskPixelValue</code> if the term evaluates to
-     *                    <code>termValue</code> at a given pixel position
-     * @param termValue   the term evaluation value which controls the masking
-     * @param maskValue   the pixel value which is set if the term evaluates to <code>termValue</code>
-     * @param pm          a monitor to inform the user about progress
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #createTerm(String)
-     */
-    public void maskProductData(final int offsetX,
-                                final int offsetY,
-                                final int width,
-                                final int height,
-                                final Term bitmaskTerm,
-                                final ProductData rasterData,
-                                final boolean termValue,
-                                final double maskValue,
-                                final ProgressMonitor pm) throws IOException {
-        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
-                                                       width, height,
-                                                       new Term[]{bitmaskTerm},
-                                                       pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                if (bitmaskTerm.evalB(env) == termValue) {
-                    rasterData.setElemDoubleAt(pixelIndex, maskValue);
-                }
-            }
-        });
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2046,7 +1750,7 @@ public class Product extends ProductNode {
      * @throws IOException if an I/O error occurs
      */
     public Product createSubset(final ProductSubsetDef subsetDef, final String name, final String desc) throws
-                                                                                                        IOException {
+            IOException {
         return ProductSubsetBuilder.createProductSubset(this, subsetDef, name, desc);
     }
 
@@ -2063,7 +1767,7 @@ public class Product extends ProductNode {
      * @throws IOException if an I/O error occurs
      */
     public Product createProjectedProduct(final MapInfo mapInfo, final String name, final String desc) throws
-                                                                                                       IOException {
+            IOException {
         return ProductProjectionBuilder.createProductProjection(this, false, mapInfo, name, desc);
     }
 
@@ -2091,6 +1795,8 @@ public class Product extends ProductNode {
             setNotModified(tiePointGrids);
             setNotModified(bitmaskDefs);
 
+            setNotModified(maskGroup);
+            setNotModified(vectorDataGroup);
             setNotModified(flagCodingGroup);
             setNotModified(indexCodingGroup);
             setNotModified(pinGroup);
@@ -2100,7 +1806,7 @@ public class Product extends ProductNode {
         }
     }
 
-    private void setNotModified(ProductNodeList<?> nodeList) {
+    private static void setNotModified(ProductNodeList<?> nodeList) {
         for (int i = 0; i < nodeList.size(); i++) {
             nodeList.getAt(i).setModified(false);
         }
@@ -2132,8 +1838,8 @@ public class Product extends ProductNode {
         for (int i = 0; i < getNumTiePointGrids(); i++) {
             size += getTiePointGridAt(i).getRawStorageSize(subsetDef);
         }
-        for (int i = 0; i < getNumFlagCodings(); i++) {
-            size += getFlagCodingAt(i).getRawStorageSize(subsetDef);
+        for (int i = 0; i < getFlagCodingGroup().getNodeCount(); i++) {
+            size += getFlagCodingGroup().get(i).getRawStorageSize(subsetDef);
         }
         for (int i = 0; i < getNumBitmaskDefs(); i++) {
             size += getBitmaskDefAt(i).getRawStorageSize(subsetDef);
@@ -2224,7 +1930,7 @@ public class Product extends ProductNode {
         }
 
         if (pixelX >= 0 && pixelX < getSceneRasterWidth()
-            && pixelY >= 0 && pixelY < getSceneRasterHeight()) {
+                && pixelY >= 0 && pixelY < getSceneRasterHeight()) {
 
             sb.append("\n");
 
@@ -2340,6 +2046,8 @@ public class Product extends ProductNode {
         removedNodes.addAll(bitmaskDefs.getRemovedNodes());
         removedNodes.addAll(flagCodings.getRemovedNodes());
         removedNodes.addAll(tiePointGrids.getRemovedNodes());
+        removedNodes.addAll(maskGroup.getRemovedNodes());
+        removedNodes.addAll(vectorDataGroup.getRemovedNodes());
         removedNodes.addAll(pinGroup.getRemovedNodes());
         removedNodes.addAll(gcpGroup.getRemovedNodes());
         return removedNodes.toArray(new ProductNode[removedNodes.size()]);
@@ -2674,160 +2382,426 @@ public class Product extends ProductNode {
     }
 
     /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public boolean addPin(final Pin pin) {
-        return pinGroup.add(pin);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public boolean removePin(final Pin pin) {
-        return pinGroup.remove(pin);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public int getNumPins() {
-        return pinGroup.getNodeCount();
-    }
-
-    /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public Pin getPinAt(final int index) {
-        return pinGroup.get(index);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public Pin getPin(final String name) {
-        return pinGroup.get(name);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public boolean containsPin(final String name) {
-        return pinGroup.contains(name);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public int getPinIndex(final String name) {
-        return pinGroup.indexOf(name);
-    }
-
-    /**
-     * Gets all defined pins of this product.
+     * Gets a valid-mask for the given ID.
      *
-     * @return all defined pins of this product, never null
+     * @param id the ID
      *
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()}
+     * @return a cached valid mask for the given ID or null
+     *
+     * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
     @Deprecated
-    public Pin[] getPins() {
-        return pinGroup.toArray(new Pin[0]);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public String[] getPinNames() {
-        return pinGroup.getNodeNames();
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public void setSelectedPin(final int index) {
-        pinGroup.setSelectedNode(index);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public void setSelectedPin(final String name) {
-        pinGroup.setSelectedNode(name);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public Pin getSelectedPin() {
-        return pinGroup.getSelectedNode();
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
-     */
-    @Deprecated
-    public Pin[] getSelectedPins() {
-        Collection<Pin> selectedNodes = pinGroup.getSelectedNodes();
-        return selectedNodes.toArray(new Pin[0]);
-    }
-
-    /**
-     * @deprecated in BEAM 4.1, no replacement
-     */
-    @Deprecated
-    public final int getBytePackedBitmaskRasterWidth() {
-        int _bytePackedBitmaskRasterWidth = getSceneRasterWidth() / 8;
-        if (getSceneRasterWidth() % 8 != 0) {
-            _bytePackedBitmaskRasterWidth++;
+    public BitRaster getValidMask(final String id) {
+        if (validMasks != null) {
+            return validMasks.get(id);
         }
-        return _bytePackedBitmaskRasterWidth;
+        return null;
     }
 
     /**
-     * @deprecated in BEAM 4.1, use {@link #getValidMask(String)}
+     * Sets a valid-mask for the given ID.
+     *
+     * @param id        the ID
+     * @param validMask the pixel mask
+     *
+     * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
     @Deprecated
-    public byte[] getValidMask(final Object id) {
+    public void setValidMask(final String id, final BitRaster validMask) {
+        if (validMask != null) {
+            Guardian.assertEquals("validMask", validMask.getWidth(), getSceneRasterWidth());
+            Guardian.assertEquals("validMask", validMask.getHeight(), getSceneRasterHeight());
+            if (validMasks == null) {
+                validMasks = new HashMap<String, BitRaster>();
+            }
+            validMasks.put(id, validMask);
+        } else {
+            if (validMasks != null) {
+                validMasks.remove(id);
+            }
+        }
+    }
+
+    /**
+     * Creates a bit-packed valid-mask for all pixels of the scene covered by this product.
+     * The given expression is considered to be boolean, if it evaluates to <code>true</code>
+     * the related bit in the mask is set.
+     *
+     * @param expression the boolean expression, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
+     * @param pm         a progress monitor
+     *
+     * @return a bit-packed mask for all pixels of the scene, never null
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #createTerm(String)
+     * @see #createValidMask(com.bc.jexp.Term,com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitRaster createValidMask(final String expression, final ProgressMonitor pm) throws IOException {
         try {
-            return createPixelMask(id.toString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            final Term term = getProduct().createTerm(expression);
+            return createValidMask(term, pm);
+        } catch (ParseException e) {
+            final IOException ioException = new IOException(
+                    "Unable to load the valid pixel mask, parse error: " + e.getMessage());
+            ioException.initCause(e);
+            throw ioException;
         }
     }
 
     /**
-     * @deprecated in BEAM 4.1, use {@link #createValidMask(String,com.bc.ceres.core.ProgressMonitor)}
+     * Creates a bit-packed mask for all pixels of the scene covered by this product.
+     * The given term is considered to be boolean, if it evaluates to <code>true</code>
+     * the related bit in the mask is set.
+     * <p>Since the masks created by this method are cached, the method {@link #releaseValidMask(org.esa.beam.util.BitRaster)}
+     * should be called in order to release it.
+     *
+     * @param term the boolean term, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
+     * @param pm   a progress monitor
+     *
+     * @return a bit-packed mask for all pixels of the scene, never null
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
     @Deprecated
-    public byte[] createPixelMask(final String expression) throws IOException {
-        return createValidMask(expression, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
+    public BitRaster createValidMask(final Term term, final ProgressMonitor pm) throws IOException {
+        final String id = term.toString();
+        BitRaster cachedValidMask = getValidMask(id);
+        if (cachedValidMask != null) {
+            return cachedValidMask;
+        }
+        Debug.trace("createValidMask: " + id);
+        final int productWidth = getSceneRasterWidth();
+        final int productHeight = getSceneRasterHeight();
+        final BitRaster validMask = new BitRaster(productWidth, productHeight);
+
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        final RasterDataLoop loop = new RasterDataLoop(0, 0,
+                                                       productWidth, productHeight,
+                                                       new Term[]{term}, pm);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
+                if (term.evalB(env)) {
+                    validMask.set(pixelIndex);
+                }
+            }
+        }, "Computing valid-mask..."); /*I18N*/
+
+        setValidMask(id, validMask);
+
+        stopWatch.stopAndTrace("createValidMask");
+
+        return validMask;
     }
 
     /**
-     * @deprecated in BEAM 4.1, use {@link #createValidMask(com.bc.jexp.Term,com.bc.ceres.core.ProgressMonitor)}
+     * Releases a valid-mask previously allocated with the {@link #createValidMask(String,com.bc.ceres.core.ProgressMonitor) createValidMask()} method.
+     *
+     * @param validMask the pixel mask to be released
+     *
+     * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
     @Deprecated
-    public byte[] createPixelMask(final Term term) throws IOException {
-        return createValidMask(term, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
+    public void releaseValidMask(final BitRaster validMask) {
+        if (validMasks != null) {
+            final Collection<BitRaster> bitRasters = validMasks.values();
+            for (Iterator<BitRaster> iterator = bitRasters.iterator(); iterator.hasNext();) {
+                final BitRaster bitRaster = iterator.next();
+                if (validMask == bitRaster) {
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
     }
 
     /**
-     * @deprecated in BEAM 4.1, use {@link #releaseValidMask(org.esa.beam.util.BitRaster)}
+     * @see #readBitmask(int,int,int,int,com.bc.jexp.Term,boolean[],com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
     @Deprecated
-    public void releasePixelMask(final byte[] pixelMask) {
-        // do nothing
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final Term bitmaskTerm,
+                            final boolean[] bitmask) throws IOException {
+        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
+     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
+     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
+     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
+     * elements.
+     * </p>
+     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
+     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
+     * </p>
+     * <p> The {@link #createTerm(String)} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     * </p>
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)} method
+     * @param bitmask     a buffer used to hold the results of the bit-mask evaluations for each pixel in the given
+     *                    spatial subset
+     * @param pm          a monitor to inform the user about progress
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final Term bitmaskTerm,
+                            final boolean[] bitmask, ProgressMonitor pm) throws IOException {
+        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
+                                                       width, height,
+                                                       new Term[]{bitmaskTerm}, pm);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
+                bitmask[pixelIndex] = bitmaskTerm.evalB(env);
+            }
+        });
+    }
+
+    /**
+     * @see #readBitmask(int,int,int,int,com.bc.jexp.Term,byte[],byte,byte,com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    public synchronized void readBitmask(final int offsetX,
+                                         final int offsetY,
+                                         final int width,
+                                         final int height,
+                                         final Term bitmaskTerm,
+                                         final byte[] bitmask,
+                                         final byte trueValue,
+                                         final byte falseValue) throws IOException {
+        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, trueValue, falseValue, ProgressMonitor.NULL);
+    }
+
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p/>
+     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
+     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
+     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
+     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
+     * elements.
+     * </p>
+     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
+     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
+     * </p>
+     * <p> The {@link #createTerm(String)} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
+     *                    method
+     * @param bitmask     a byte buffer used to hold the results of the bit-mask evaluations for each pixel in the given
+     *                    spatial subset
+     * @param trueValue   the byte value to be set if the bitmask-term evauates to <code>true</code>
+     * @param falseValue  the byte value to be set if the bitmask-term evauates to <code>false</code>
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     * @see #readBitmask(int,int,int,int,Term,int[],int,int)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public synchronized void readBitmask(final int offsetX,
+                                         final int offsetY,
+                                         final int width,
+                                         final int height,
+                                         final Term bitmaskTerm,
+                                         final byte[] bitmask,
+                                         final byte trueValue,
+                                         final byte falseValue,
+                                         ProgressMonitor pm) throws IOException {
+        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
+                                                       width, height,
+                                                       new Term[]{bitmaskTerm}, pm);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
+                if (bitmaskTerm.evalB(env)) {
+                    bitmask[pixelIndex] = trueValue;
+                } else {
+                    bitmask[pixelIndex] = falseValue;
+                }
+            }
+        }, "Reading bitmask...");  /*I18N*/
+    }
+
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p/>
+     * <p> The method works exactly like {@link #readBitmask(int,int,int,int,Term,byte[],byte,byte)},
+     * but in this method the bitmnask is represented by an array of integers to be filled.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
+     *                    method
+     * @param bitmask     an integer buffer used to hold the results of the bit-mask evaluations for each pixel in the
+     *                    given spatial subset
+     * @param trueValue   the integer value to be set if the bitmask-term evauates to <code>true</code>
+     * @param falseValue  the integer value to be set if the bitmask-term evauates to <code>false</code>
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     * @see #readBitmask(int,int,int,int,Term,byte[],byte,byte)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final Term bitmaskTerm,
+                            final int[] bitmask,
+                            final int trueValue,
+                            final int falseValue) throws IOException {
+        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, trueValue, falseValue, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p/>
+     * <p> The method works exactly like {@link #readBitmask(int,int,int,int,Term,byte[],byte,byte)},
+     * but in this method the bitmnask is represented by an array of integers to be filled.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
+     *                    method
+     * @param bitmask     an integer buffer used to hold the results of the bit-mask evaluations for each pixel in the
+     *                    given spatial subset
+     * @param trueValue   the integer value to be set if the bitmask-term evauates to <code>true</code>
+     * @param falseValue  the integer value to be set if the bitmask-term evauates to <code>false</code>
+     * @param pm          a monitor to inform the user about progress
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     * @see #readBitmask(int,int,int,int,Term,byte[],byte,byte)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final Term bitmaskTerm,
+                            final int[] bitmask,
+                            final int trueValue,
+                            final int falseValue,
+                            ProgressMonitor pm) throws IOException {
+        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY, width, height, new Term[]{bitmaskTerm}, pm);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
+                if (bitmaskTerm.evalB(env)) {
+                    bitmask[pixelIndex] = trueValue;
+                } else {
+                    bitmask[pixelIndex] = falseValue;
+                }
+            }
+        });
+    }
+
+    /**
+     * @see #maskProductData(int,int,int,int,com.bc.jexp.Term,ProductData,boolean,double,com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void maskProductData(final int offsetX,
+                                final int offsetY,
+                                final int width,
+                                final int height,
+                                final Term bitmaskTerm,
+                                final ProductData rasterData,
+                                final boolean termValue,
+                                final double maskValue) throws IOException {
+        maskProductData(offsetX, offsetY,
+                        width, height,
+                        bitmaskTerm,
+                        rasterData,
+                        termValue, maskValue,
+                        ProgressMonitor.NULL);
+    }
+
+    /**
+     * Masks the given raster data for the specified region using the a given bit-mask term.
+     * <p> The method evaluates the term for each pixel in the subset (line-by-line, X varies fastest).
+     * If the bit-mask term evaluates to <code>termValue</code> at the current pixel position, then <code>maskValue</code> is set at the corrresponding
+     * position in <code>rasterData</code> instead of the original pixel value. If the bit-mask term does not forEachPixel
+     * to <code>termValue</code> then the original pixel value in <code>rasterData</code> remains unchanged. The
+     * buffer must at least have a length equal to <code>width * height</code> elements.
+     * </p>
+     * <p> The {@link #createTerm(String) createTerm} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String) createTerm}
+     *                    method
+     * @param rasterData  the raster data which is masked with  <code>maskPixelValue</code> if the term evaluates to
+     *                    <code>termValue</code> at a given pixel position
+     * @param termValue   the term evaluation value which controls the masking
+     * @param maskValue   the pixel value which is set if the term evaluates to <code>termValue</code>
+     * @param pm          a monitor to inform the user about progress
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void maskProductData(final int offsetX,
+                                final int offsetY,
+                                final int width,
+                                final int height,
+                                final Term bitmaskTerm,
+                                final ProductData rasterData,
+                                final boolean termValue,
+                                final double maskValue,
+                                final ProgressMonitor pm) throws IOException {
+        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
+                                                       width, height,
+                                                       new Term[]{bitmaskTerm},
+                                                       pm);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
+                if (bitmaskTerm.evalB(env) == termValue) {
+                    rasterData.setElemDoubleAt(pixelIndex, maskValue);
+                }
+            }
+        });
     }
 
 }

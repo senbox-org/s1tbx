@@ -98,4 +98,18 @@ public interface ProductVisitor {
      * @param group the group to be visited
      */
     void visit(ProductNodeGroup group);
+
+    /**
+     * Visits a node group.
+     *
+     * @param mask the mask to be visited
+     */
+    void visit(Mask mask);
+
+    /**
+     * Visits a node group.
+     *
+     * @param vectorData the group to be visited
+     */
+    void visit(VectorData vectorData);
 }
