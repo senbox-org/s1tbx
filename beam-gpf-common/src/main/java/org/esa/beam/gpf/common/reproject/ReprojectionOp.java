@@ -1,9 +1,24 @@
+/*
+ * Copyright (C) 2009 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 package org.esa.beam.gpf.common.reproject;
 
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -18,8 +33,13 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.dataop.dem.ElevationModel;
+import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
+import org.esa.beam.framework.dataop.dem.Orthorectifier;
+import org.esa.beam.framework.dataop.dem.Orthorectifier2;
+import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -42,11 +62,6 @@ import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -57,6 +72,12 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
 import java.text.MessageFormat;
+
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.operator.ConstantDescriptor;
 
 /**
  * @author Marco Zuehlke
@@ -131,12 +152,19 @@ public class ReprojectionOp extends Operator {
     @Parameter(description = "The height of the output product.")
     private Integer height;
 
-    // todo use these parameters 
     @Parameter(description = "Wether the source product should be orthorectified. (Currently only applicable for MERIS and AATSR)",
                defaultValue = "false")
     private boolean orthorectify;
     @Parameter(description = "The name of the elevation model for the orthorectification. If not given tie-point data is used.")
     private String elevationModelName;
+    
+    @Parameter(description = "The value used to indicate no-data.")
+    private Double noDataValue;
+    @Parameter(description = "Generates an out-of-source region mask to indicate which pixel don't belong to the source product.",
+               defaultValue = "false")
+    private boolean generateOutOfSourceRegion;
+    
+    private ElevationModel elevationModel;
 
 
     @Override
@@ -167,6 +195,9 @@ public class ReprojectionOp extends Operator {
         /*
         * 4. Define some target properties
         */
+        if (orthorectify) {
+            elevationModel = createElevationModel();
+        }
         // todo: also query operatorContext rendering hints for tile size
         final Dimension tileSize = ImageManager.getPreferredTileSize(targetProduct);
         targetProduct.setPreferredTileSize(tileSize);
@@ -185,24 +216,16 @@ public class ReprojectionOp extends Operator {
         * 5. Create target bands
         */
         final MultiLevelModel srcModel = ImageManager.getInstance().getMultiLevelModel(sourceProduct.getBandAt(0));
-        boolean reprojectionFlagRequired = false;
-        for (Band sourceBand : sourceProduct.getBands()) {
-            if (handleSourceRaster(sourceBand, srcModel)) {
-                reprojectionFlagRequired = true;
-            }
-        }
+        reprojectRasterDataNodes(sourceProduct.getBands(), srcModel);
         if (includeTiePointGrids) {
-            for (TiePointGrid tiePointGrid : sourceProduct.getTiePointGrids()) {
-                if (handleSourceRaster(tiePointGrid, srcModel)) {
-                    reprojectionFlagRequired = true;
-                }
-            }
+            reprojectRasterDataNodes(sourceProduct.getTiePointGrids(), srcModel);
         }
-        if (reprojectionFlagRequired && !sourceProduct.containsBand("reproject_flag")) {
+        if (generateOutOfSourceRegion && !sourceProduct.containsBand("reproject_flag")) {
             /*
             * 6. Create reprojection valid flag band
             */
-            // todo consider products with more than ONE GeoCoding (mz)
+            // todo consider products with more than one GeoCoding (mz) 
+            // Avnir2 has no int bands ==> so this is not applicable
             String reprojFlagBandName = "reproject_flag";
             Band reprojectValidBand = targetProduct.addBand(reprojFlagBandName, ProductData.TYPE_INT8);
             final FlagCoding flagCoding = new FlagCoding(reprojFlagBandName);
@@ -214,8 +237,9 @@ public class ReprojectionOp extends Operator {
             flagCoding.addAttribute(reprojAttr);
             targetProduct.getFlagCodingGroup().add(flagCoding);
             reprojectValidBand.setSampleCoding(flagCoding);
-            reprojectValidBand.setSourceImage(createProjectedImage(createConstSourceImage(srcModel),
-                                                                   reprojectValidBand, srcModel));
+            GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceProduct.getBandAt(0));
+            reprojectValidBand.setSourceImage(createProjectedImage(sourceGeoCoding, createConstSourceImage(srcModel),
+                                                                   srcModel, reprojectValidBand));
         }
 
         /*
@@ -227,44 +251,80 @@ public class ReprojectionOp extends Operator {
         copyPlacemarks(sourceProduct.getGcpGroup(), targetProduct.getGcpGroup(),
                        PlacemarkSymbol.createDefaultGcpSymbol());
     }
+    
+    private ElevationModel createElevationModel() throws OperatorException {
+        if (elevationModelName != null) {
+            final ElevationModelDescriptor demDescriptor = ElevationModelRegistry.getInstance().getDescriptor(
+                    elevationModelName);
+            if (!demDescriptor.isDemInstalled()) {
+                throw new OperatorException("DEM not installed: " + elevationModelName);
+            }
+            return demDescriptor.createDem(Resampling.BILINEAR_INTERPOLATION);
+        }
+        return null; // force use of elevation from tie-points
+    }
+    
+    private GeoCoding getSourceGeoCoding(final RasterDataNode sourceBand) {
+        if (orthorectify && sourceBand.canBeOrthorectified()) {
+            return createOrthorectifier(sourceBand, elevationModel);
+        } else {
+            return sourceBand.getGeoCoding();
+        }
+    }    
+    
+    private Orthorectifier createOrthorectifier(final RasterDataNode sourceBand, ElevationModel elevationModel) {
+        return new Orthorectifier2(sourceBand.getSceneRasterWidth(),
+                                   sourceBand.getSceneRasterHeight(),
+                                   sourceBand.getPointing(),
+                                   elevationModel, 25);
+    }
+    
 
-    private boolean handleSourceRaster(RasterDataNode sourceRaster, MultiLevelModel srcModel) {
+    private void reprojectRasterDataNodes(RasterDataNode[] rasterDataNodes, MultiLevelModel srcModel) {
+        for (RasterDataNode raster : rasterDataNodes) {
+            reprojectSourceRaster(raster, srcModel);
+        }
+    }
+
+    private void reprojectSourceRaster(RasterDataNode sourceRaster, MultiLevelModel srcModel) {
         int geophysicalDataType = sourceRaster.getGeophysicalDataType();
         Band targetBand;
-        boolean reprojectionFlagRequired = false;
-        MultiLevelImage sourceImage;
+        MultiLevelImage projectedImage; 
+        GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceRaster);
         if (ProductData.isFloatingPointType(geophysicalDataType)) {
             targetBand = targetProduct.addBand(sourceRaster.getName(),
                                                sourceRaster.getGeophysicalDataType());
             targetBand.setDescription(sourceRaster.getDescription());
             targetBand.setUnit(sourceRaster.getUnit());
-            if (geophysicalDataType == ProductData.TYPE_FLOAT32) {
-                targetBand.setNoDataValue(Float.NaN);
-            } else {
-                targetBand.setNoDataValue(Double.NaN);
-            }
+            double targetNoDataValue = getTargetNoDataValue(sourceRaster);
+            targetBand.setNoDataValue(targetNoDataValue);
             targetBand.setNoDataValueUsed(true);
-            sourceImage = sourceRaster.getGeophysicalImage();
+            MultiLevelImage sourceImage = sourceRaster.getGeophysicalImage();
             String exp = sourceRaster.getValidMaskExpression();
             if (exp != null) {
                 exp = String.format("(%s) ? %s : NaN", exp, BandArithmetic.createExternalName(sourceRaster.getName()));
                 sourceImage = createVirtualSourceImage(exp, geophysicalDataType, targetBand.getNoDataValue(),
                                                        sourceProduct, srcModel);
             }
+            projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, srcModel, targetBand);
+            if (sourceRaster.isNoDataValueUsed() || noDataValue != null) {
+                projectedImage = createNaNReplacedImage(srcModel, projectedImage, targetNoDataValue);
+            }
         } else {
             targetBand = targetProduct.addBand(sourceRaster.getName(), sourceRaster.getDataType());
             ProductUtils.copyRasterDataNodeProperties(sourceRaster, targetBand);
-            String validPixelExpression = targetBand.getValidPixelExpression();
-            if (validPixelExpression == null) {
-                validPixelExpression = "reproject_flag.valid";
-            } else {
-                validPixelExpression = String.format("reproject_flag.valid && %s", validPixelExpression);
+            if (generateOutOfSourceRegion) {
+                String validPixelExpression = targetBand.getValidPixelExpression();
+                if (validPixelExpression == null) {
+                    validPixelExpression = "reproject_flag.valid";
+                } else {
+                    validPixelExpression = String.format("reproject_flag.valid && %s", validPixelExpression);
+                }
+                targetBand.setValidPixelExpression(validPixelExpression);
             }
-            targetBand.setValidPixelExpression(validPixelExpression);
-            sourceImage = sourceRaster.getSourceImage();
-            reprojectionFlagRequired = true;
+            projectedImage = createProjectedImage(sourceGeoCoding, sourceRaster.getSourceImage(), srcModel, targetBand);
         }
-        targetBand.setSourceImage(createProjectedImage(sourceImage, targetBand, srcModel));
+        targetBand.setSourceImage(projectedImage);
 
         /*
         * Flag and index codings
@@ -286,9 +346,30 @@ public class ReprojectionOp extends Operator {
                 targetBand.setSampleCoding(destIndexCoding);
             }
         }
-        return reprojectionFlagRequired;
     }
 
+    private double getTargetNoDataValue(RasterDataNode sourceRaster) {
+        double targetNoDataValue = Double.NaN;
+        if (noDataValue != null) {
+            targetNoDataValue = noDataValue;
+        } else if (sourceRaster.isNoDataValueUsed()) {
+            targetNoDataValue = sourceRaster.getNoDataValue();
+        }
+        return targetNoDataValue;
+    }
+
+    private MultiLevelImage createNaNReplacedImage(final MultiLevelModel srcModel, final MultiLevelImage srcImage, final double value) {
+
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
+
+            @Override
+            public RenderedImage createImage(int level) {
+                return new ReplaceNaNOpImage(srcImage.getImage(level), value);
+            }
+        });
+    }    
+    
+    
     private MultiLevelImage createConstSourceImage(final MultiLevelModel srcModel) {
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
@@ -318,8 +399,7 @@ public class ReprojectionOp extends Operator {
         });
     }
 
-    private MultiLevelImage createProjectedImage(final MultiLevelImage sourceImage, final Band targetBand,
-                                                 final MultiLevelModel srcModel) {
+    private MultiLevelImage createProjectedImage(final GeoCoding sourceGeoCoding, final MultiLevelImage sourceImage, final MultiLevelModel srcModel, final Band targetBand) {
         final MultiLevelModel targetModel = ImageManager.getInstance().getMultiLevelModel(targetBand);
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
@@ -332,9 +412,8 @@ public class ReprojectionOp extends Operator {
                 }
                 Rectangle2D sourceRect = createLevelBounds(srcModel, sourceLevel);
                 Rectangle2D targetRect = createLevelBounds(targetModel, targetLevel);
-
                 GridGeometry sourceGridGeometry = new GridGeometry(sourceRect,
-                                                                   sourceProduct.getGeoCoding().getModelCRS(),
+                                                                   sourceGeoCoding.getModelCRS(),
                                                                    srcModel.getImageToModelTransform(sourceLevel));
                 GridGeometry targetGridGeometry = new GridGeometry(targetRect,
                                                                    targetProduct.getGeoCoding().getModelCRS(),
