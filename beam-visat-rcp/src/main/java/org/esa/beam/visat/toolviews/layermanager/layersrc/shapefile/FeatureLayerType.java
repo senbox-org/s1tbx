@@ -15,29 +15,20 @@ import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.referencing.CRS;
 import org.geotools.styling.SLDParser;
 import org.geotools.styling.SLDTransformer;
 import org.geotools.styling.Style;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.xml.transform.TransformerException;
-import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The type of a {@link FeatureLayer}.
@@ -69,7 +60,7 @@ public class FeatureLayerType extends LayerType {
                 configuration.setValue(PROPERTY_NAME_FEATURE_COLLECTION_CRS, ctx.getCoordinateReferenceSystem());
             }
         } catch (ValidationException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(e);
         }
         return new FeatureLayer(this, configuration);
     }
@@ -78,24 +69,26 @@ public class FeatureLayerType extends LayerType {
     public ValueContainer getConfigurationTemplate() {
         final ValueContainer configuration = new ValueContainer();
 
-        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_URL, URL.class));
+        // Mandatory Parameters
 
-        configuration.addModel(
-                createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CRS, CoordinateReferenceSystem.class));
-        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setDomConverter(new CRSDomConverter());
-        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setTransient(true);
-
-
-        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, Geometry.class));
-        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY).setDomConverter(
-                new GeometryDomConverter());
+        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION, FeatureCollection.class));
+        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION).setTransient(true);
+        //configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION).setNotNull(true);
 
         configuration.addModel(createDefaultValueModel(PROPERTY_NAME_SLD_STYLE, Style.class));
         configuration.getDescriptor(PROPERTY_NAME_SLD_STYLE).setDomConverter(new StyleDomConverter());
+        configuration.getDescriptor(PROPERTY_NAME_SLD_STYLE).setNotNull(true);
 
-        //optional
-        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION, FeatureCollection.class));
-        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION).setTransient(true);
+        // Optional Parameters
+
+        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, Geometry.class));
+        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY).setDomConverter(new GeometryDomConverter());
+
+        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_URL, URL.class));
+
+        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CRS, CoordinateReferenceSystem.class));
+        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setDomConverter(new CRSDomConverter());
+        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setTransient(true);
 
         return configuration;
     }
@@ -109,7 +102,7 @@ public class FeatureLayerType extends LayerType {
 
         @Override
         public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                       ValidationException {
+                ValidationException {
             final DomElement child = parentElement.getChild(0);
             SLDParser s = new SLDParser(CommonFactoryFinder.getStyleFactory(null), new StringReader(child.toXml()));
             final Style[] styles = s.readXML();
@@ -141,7 +134,7 @@ public class FeatureLayerType extends LayerType {
 
         @Override
         public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                       ValidationException {
+                ValidationException {
             try {
                 value = CRS.parseWKT(parentElement.getValue());
             } catch (FactoryException e) {
@@ -167,7 +160,7 @@ public class FeatureLayerType extends LayerType {
 
         @Override
         public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                       ValidationException {
+                ValidationException {
             com.vividsolutions.jts.geom.GeometryFactory gf = new com.vividsolutions.jts.geom.GeometryFactory();
             final DefaultDomConverter domConverter = new DefaultDomConverter(Coordinate.class);
             final DomElement[] children = parentElement.getChildren("coordinate");
