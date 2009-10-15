@@ -1,7 +1,5 @@
 package org.esa.beam.framework.ui.application;
 
-import org.esa.beam.framework.ui.application.support.SelectionProviderFactory;
-
 /**
  * Mediator between the application and the view. The application uses this
  * class to get the view's local action handlers. The view uses this class to
