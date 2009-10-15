@@ -6,6 +6,7 @@
  */
 package org.esa.beam.framework.dataop.dem;
 
+import org.esa.beam.framework.datamodel.AngularDirection;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Pointing;
@@ -67,21 +68,24 @@ public class Orthorectifier2 extends Orthorectifier {
             return false;
         }
 
-        double phiTrue = MathUtils.DTOR * geoPos.lat;
-        double lamTrue = MathUtils.DTOR * geoPos.lon;
+        final double phiTrue = MathUtils.DTOR * geoPos.lat;
+        final double lamTrue = MathUtils.DTOR * geoPos.lon;
 
         final double reCosPhi = RE * Math.cos(phiTrue);
 
         // Compute elevation above true polar earth coordinate on earth ellipsoid (a,b)
         final double hTrue = getElevation(geoPos, pixelPos);
 
+        final AngularDirection vd = new AngularDirection();
+        final GeoPos gp = new GeoPos();
+
         final int maxIterationCount = getMaxIterationCount();
         for (int iter = 1; iter <= maxIterationCount; iter++) {
 
             // Compute vieving azimuth and zenith from source tie-points
-            getPointing().getViewDir(pixelPos, _vg);
-            double thetaV = MathUtils.DTOR * _vg.zenith;
-            double phiV = MathUtils.DTOR * _vg.azimuth;
+            getPointing().getViewDir(pixelPos, vd);
+            double thetaV = MathUtils.DTOR * vd.zenith;
+            double phiV = MathUtils.DTOR * vd.azimuth;
 
             // Compute polar correction assuming flat earth surface and flat, constant elevation surface
             double t = hTrue * Math.tan(thetaV);
@@ -92,13 +96,13 @@ public class Orthorectifier2 extends Orthorectifier {
             double phi = phiTrue - deltaPhi;
             double lam = lamTrue - deltaLam;
 
-            _gp.lat = (float) (MathUtils.RTOD * phi);
-            _gp.lon = (float) (MathUtils.RTOD * lam);
+            gp.lat = (float) (MathUtils.RTOD * phi);
+            gp.lon = (float) (MathUtils.RTOD * lam);
 
             // Compute new pixel coordinates of intersection point
             float iOld = pixelPos.x;
             float jOld = pixelPos.y;
-            getGeoCoding().getPixelPos(_gp, pixelPos);
+            getGeoCoding().getPixelPos(gp, pixelPos);
             float iNew = pixelPos.x;
             float jNew = pixelPos.y;
 

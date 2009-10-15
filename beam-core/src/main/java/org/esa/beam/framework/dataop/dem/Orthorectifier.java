@@ -35,18 +35,13 @@ public class Orthorectifier implements GeoCoding {
     public static final float PIXEL_EPS = 0.1f;
     public static final float PIXEL_EPS_SQR = PIXEL_EPS * PIXEL_EPS;
 
-    private final int _sceneRasterWidth;
-    private final int _sceneRasterHeight;
+    private final int sceneRasterWidth;
+    private final int sceneRasterHeight;
 
-    private final Pointing _pointing;
-    private final GeoCoding _geoCoding;
-    private final ElevationModel _elevationModel;
-    private final int _maxIterationCount;
-
-    protected final PixelPos _pp = new PixelPos();
-    protected final PixelPos _pp2 = new PixelPos();
-    protected final GeoPos _gp = new GeoPos();
-    protected final AngularDirection _vg = new AngularDirection();
+    private final Pointing pointing;
+    private final GeoCoding geoCoding;
+    private final ElevationModel elevationModel;
+    private final int maxIterationCount;
 
     /**
      * Constructs a new <code>Orthorectifier</code>.
@@ -69,14 +64,13 @@ public class Orthorectifier implements GeoCoding {
         Guardian.assertGreaterThan("sceneRasterHeight", sceneRasterHeight, 0);
         Guardian.assertNotNull("pointing", pointing);
         Guardian.assertNotNull("pointing.getGeoCoding()", pointing.getGeoCoding());
-//        Guardian.assertNotNull("elevationModelel", elevationModelel);
         Guardian.assertGreaterThan("maxIterationCount", maxIterationCount, 1);
-        _sceneRasterWidth = sceneRasterWidth;
-        _sceneRasterHeight = sceneRasterHeight;
-        _pointing = pointing;
-        _geoCoding = pointing.getGeoCoding();
-        _elevationModel = elevationModel;
-        _maxIterationCount = maxIterationCount;
+        this.sceneRasterWidth = sceneRasterWidth;
+        this.sceneRasterHeight = sceneRasterHeight;
+        this.pointing = pointing;
+        geoCoding = pointing.getGeoCoding();
+        this.elevationModel = elevationModel;
+        this.maxIterationCount = maxIterationCount;
     }
 
     /**
@@ -84,44 +78,45 @@ public class Orthorectifier implements GeoCoding {
      *
      * @return the datum
      */
+    @Override
     public Datum getDatum() {
-        return _geoCoding.getDatum();
+        return geoCoding.getDatum();
     }
 
     @Override
     public CoordinateReferenceSystem getBaseCRS() {
-        return _geoCoding.getBaseCRS();
+        return geoCoding.getBaseCRS();
     }
 
     @Override
     public CoordinateReferenceSystem getImageCRS() {
-        return _geoCoding.getImageCRS();
+        return geoCoding.getImageCRS();
     }
 
     @Override
     public CoordinateReferenceSystem getModelCRS() {
-        return _geoCoding.getModelCRS();
+        return geoCoding.getModelCRS();
     }
 
     @Override
     public AffineTransform getImageToModelTransform() {
-        return _geoCoding.getImageToModelTransform();
+        return geoCoding.getImageToModelTransform();
     }
 
     public Pointing getPointing() {
-        return _pointing;
+        return pointing;
     }
 
     public GeoCoding getGeoCoding() {
-        return _geoCoding;
+        return geoCoding;
     }
 
     public ElevationModel getElevationModel() {
-        return _elevationModel;
+        return elevationModel;
     }
 
     public int getMaxIterationCount() {
-        return _maxIterationCount;
+        return maxIterationCount;
     }
 
     /**
@@ -139,6 +134,7 @@ public class Orthorectifier implements GeoCoding {
      *
      * @return the source pixel coordinate
      */
+    @Override
     public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
         pixelPos = performReverseLocationModel(geoPos, pixelPos);
         if (!isPixelPosValid(pixelPos)) {
@@ -147,9 +143,9 @@ public class Orthorectifier implements GeoCoding {
         if (!mustCorrect(geoPos, pixelPos)) {
             return pixelPos;
         }
-        if (performPredictionCorrection(pixelPos)) {
-            pixelPos.x = _pp.x;
-            pixelPos.y = _pp.y;
+        final PixelPos correctedPixelPos = performPredictionCorrection(pixelPos);
+        if (correctedPixelPos != null) {
+            pixelPos.setLocation(correctedPixelPos);
         }
         return pixelPos;
 
@@ -164,6 +160,7 @@ public class Orthorectifier implements GeoCoding {
      *
      * @return the <i>true (corrected)</i>  geographical coordinate as lat/lon.
      */
+    @Override
     public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
         return performDirectLocationModel(pixelPos, 1f, geoPos);
     }
@@ -174,6 +171,7 @@ public class Orthorectifier implements GeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean canGetGeoPos() {
         return getGeoCoding().canGetGeoPos();
     }
@@ -183,6 +181,7 @@ public class Orthorectifier implements GeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean canGetPixelPos() {
         return getGeoCoding().canGetPixelPos();
     }
@@ -192,6 +191,7 @@ public class Orthorectifier implements GeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean isCrossingMeridianAt180() {
         return getGeoCoding().isCrossingMeridianAt180();
     }
@@ -203,34 +203,38 @@ public class Orthorectifier implements GeoCoding {
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
      */
+    @Override
     public void dispose() {
     }
 
 
-    private boolean performPredictionCorrection(final PixelPos pixelPos) {
-        if (correctPrediction(pixelPos, 1.0)) {
-            return true;
+    private PixelPos performPredictionCorrection(final PixelPos pixelPos) {
+        PixelPos correctedPixelPos = new PixelPos();
+        if (correctPrediction(pixelPos, 1.0, correctedPixelPos)
+                || correctPrediction(pixelPos, 0.5, correctedPixelPos)
+                || correctPrediction(pixelPos, 2.0, correctedPixelPos)) {
+            return correctedPixelPos;
         }
-        if (correctPrediction(pixelPos, 0.5)) {
-            return true;
-        }
-        return correctPrediction(pixelPos, 2.0);
+        return null;
     }
 
-    private boolean correctPrediction(final PixelPos pixelPos, double factor) {
-        _pp.x = pixelPos.x;
-        _pp.y = pixelPos.y;
+    private boolean correctPrediction(final PixelPos pixelPos,
+                                      double factor,
+                                      final PixelPos correctedPixelPos) {
+        final PixelPos pp = new PixelPos();
+        final GeoPos gp = new GeoPos();
         float dx;
         float dy;
         float r;
-        for (int i = 0; i < _maxIterationCount; i++) {
-            performDirectLocationModel(_pp, factor, _gp);
-            performReverseLocationModel(_gp, _pp2);
+        correctedPixelPos.setLocation(pixelPos);
+        for (int i = 0; i < maxIterationCount; i++) {
+            performDirectLocationModel(correctedPixelPos, factor, gp);
+            performReverseLocationModel(gp, pp);
             // Refinement of pixel position
-            dx = pixelPos.x - _pp2.x;
-            dy = pixelPos.y - _pp2.y;
-            _pp.x += dx;
-            _pp.y += dy;
+            dx = pixelPos.x - pp.x;
+            dy = pixelPos.y - pp.y;
+            correctedPixelPos.x += dx;
+            correctedPixelPos.y += dy;
             r = dx * dx + dy * dy;
             if (r < PIXEL_EPS_SQR) {
                 return true;
@@ -240,7 +244,7 @@ public class Orthorectifier implements GeoCoding {
     }
 
     private PixelPos performReverseLocationModel(GeoPos geoPos, PixelPos pixelPos) {
-        return _geoCoding.getPixelPos(geoPos, pixelPos);
+        return geoCoding.getPixelPos(geoPos, pixelPos);
     }
 
 
@@ -251,44 +255,46 @@ public class Orthorectifier implements GeoCoding {
      * page 39, equations 6a and 6b.
      *
      * @param pixelPos the pixel position to be corrected
-     * @param geoPos
+     * @param factor   A factor. Must be greater than zero.
+     * @param geoPos   an existing geo position or null
      *
-     * @return
+     * @return the geo position
      */
     private GeoPos performDirectLocationModel(PixelPos pixelPos, double factor, GeoPos geoPos) {
-        geoPos = _geoCoding.getGeoPos(pixelPos, geoPos);
+        geoPos = geoCoding.getGeoPos(pixelPos, geoPos);
         final float h = getElevation(geoPos, pixelPos);
-        _pointing.getViewDir(pixelPos, _vg);
-        RsMathUtils.applyGeodeticCorrection(geoPos, factor * h, _vg.zenith, _vg.azimuth);
+        final AngularDirection vg = pointing.getViewDir(pixelPos, null);
+        RsMathUtils.applyGeodeticCorrection(geoPos, factor * h, vg.zenith, vg.azimuth);
         return geoPos;
     }
 
     protected final boolean isPixelPosValid(PixelPos pixelPos) {
-        return pixelPos.x >= 0 && pixelPos.x <= _sceneRasterWidth &&
-               pixelPos.y >= 0 && pixelPos.y <= _sceneRasterHeight;
+        return pixelPos.x >= 0 && pixelPos.x <= sceneRasterWidth &&
+                pixelPos.y >= 0 && pixelPos.y <= sceneRasterHeight;
     }
 
     protected final float getElevation(GeoPos geoPos, PixelPos pixelPos) {
         float h = 0.0f;
-        if (_elevationModel != null) {
+        if (elevationModel != null) {
             try {
-                h = _elevationModel.getElevation(geoPos);
-            } catch (Exception e) {
+                h = elevationModel.getElevation(geoPos);
+            } catch (Exception ignored) {
+                // ignored
             }
-            if (h == _elevationModel.getDescriptor().getNoDataValue()) {   // todo (nf) - optimize
+            if (h == elevationModel.getDescriptor().getNoDataValue()) {
                 h = 0.0f;
             }
-        } else if (_pointing.canGetElevation()) {
+        } else if (pointing.canGetElevation()) {
             if (pixelPos == null) {
-                pixelPos = _geoCoding.getPixelPos(geoPos, null);
+                pixelPos = geoCoding.getPixelPos(geoPos, null);
             }
-            h = _pointing.getElevation(pixelPos);
+            h = pointing.getElevation(pixelPos);
         }
         return h;
     }
 
 
-    private boolean mustCorrect(GeoPos geoPos, PixelPos pixelPos) {
+    private static boolean mustCorrect(GeoPos geoPos, PixelPos pixelPos) {
         return true;
 //        _pointing.getViewDir(pixelPos, _vg);
 //        final float elevation = getElevation(geoPos, pixelPos);
