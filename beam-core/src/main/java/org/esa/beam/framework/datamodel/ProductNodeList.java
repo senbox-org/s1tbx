@@ -279,7 +279,7 @@ public final class ProductNodeList<T extends ProductNode> {
     /**
      * Returns the list of named nodes as an array. If this list is empty a zero-length array is returned.
      *
-     * @param array the array into which the elements of the Vector are to be stored, if it is big enough; otherwise, a
+     * @param array the array into which the elements of the list are to be stored, if it is big enough; otherwise, a
      *              new array of the same runtime type is allocated for this purpose.
      *
      * @return an array containing the elements of the list. never <code>null</code>

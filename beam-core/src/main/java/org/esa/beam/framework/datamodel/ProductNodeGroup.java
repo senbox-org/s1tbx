@@ -5,7 +5,6 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * A type-safe container for elements of the type <code>ProductNode</code>.
@@ -19,6 +18,10 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 
     /**
      * Constructs an product manager with an empty list of products.
+     *
+     * @param owner       The owner of the group.
+     * @param name        The group name.
+     * @param description A descriptive text.
      */
     public ProductNodeGroup(ProductNode owner, String name, String description) {
         super(name, description);
@@ -27,14 +30,16 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
     }
 
     /**
-     * Returns the number of products in this product manager.
+     * @return The number of product nodes in this product group.
      */
     public int getNodeCount() {
         return nodeList.size();
     }
 
     /**
-     * Returns the product at the given index.
+     * @param index The node index.
+     *
+     * @return The product node at the given index.
      */
     public T get(int index) {
         return nodeList.getAt(index);
@@ -70,12 +75,13 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
     }
 
     /**
-     * Returns an array of all products currently managed.
+     * @param array the array into which the elements of the list are to be stored, if it is big enough; otherwise, a
+     *              new array of the same runtime type is allocated for this purpose.
      *
-     * @return an array containing the products, never <code>null</code>, but the array can have zero length
+     * @return an array containing the product nodes, never <code>null</code>, but the array can have zero length
      */
-    public T[] toArray(T[] a) {
-        return nodeList.toArray(a);
+    public T[] toArray(T[] array) {
+        return nodeList.toArray(array);
     }
 
     public int indexOf(String name) {
@@ -83,14 +89,18 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
     }
 
     /**
-     * Returns the product with the given display name.
+     * @param displayName the display name
+     *
+     * @return the product node with the given display name.
      */
     public T getByDisplayName(final String displayName) {
         return nodeList.getByDisplayName(displayName);
     }
 
     /**
-     * Returns the product with the given name.
+     * @param name the name
+     *
+     * @return the product node with the given name.
      */
     public T get(String name) {
         return nodeList.get(name);
@@ -98,7 +108,9 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 
     /**
      * Tests whether a node with the given name is contained in this group.
+     *
      * @param name the name
+     *
      * @return true, if so
      */
     public boolean contains(String name) {
@@ -107,7 +119,9 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 
     /**
      * Tests whether the given product is contained in this list.
+     *
      * @param node the node
+     *
      * @return true, if so
      */
     public boolean contains(final T node) {
@@ -118,6 +132,8 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
      * Adds the given node to this group.
      *
      * @param node the node to be added, ignored if <code>null</code>
+     *
+     * @return true, if the node has been added
      */
     public boolean add(T node) {
         Assert.notNull(node, "node");
@@ -137,6 +153,7 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
      * Removes the given node from this group.
      *
      * @param node the node to be removed
+     *
      * @return true, if the node was removed
      */
     public boolean remove(T node) {
@@ -219,9 +236,9 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 
     public T getSelectedNode() {
         final ProductNode[] nodes = toArray();
-        for (final ProductNode  node : nodes) {
-            if ( node.isSelected()) {
-                return  (T) node;
+        for (final ProductNode node : nodes) {
+            if (node.isSelected()) {
+                return (T) node;
             }
         }
         return null;
@@ -230,7 +247,7 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
     public Collection<T> getSelectedNodes() {
         final Collection<T> selectedNodes = new ArrayList<T>(16);
         final ProductNode[] nodes = toArray();
-        for (final ProductNode  node : nodes) {
+        for (final ProductNode node : nodes) {
             if (node.isSelected()) {
                 selectedNodes.add((T) node);
             }
@@ -240,7 +257,7 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 
     @Override
     public void updateExpression(final String oldExternalName, final String newExternalName) {
-        for (final ProductNode  node : toArray()) {
+        for (final ProductNode node : toArray()) {
             node.updateExpression(oldExternalName, newExternalName);
         }
     }
