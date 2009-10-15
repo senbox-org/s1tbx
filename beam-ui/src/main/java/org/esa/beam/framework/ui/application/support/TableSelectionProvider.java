@@ -1,6 +1,5 @@
 package org.esa.beam.framework.ui.application.support;
 
-import org.esa.beam.framework.ui.application.support.DefaultSelection;
 import org.esa.beam.framework.ui.application.Selection;
 
 import javax.swing.JTable;
@@ -33,8 +32,10 @@ public class TableSelectionProvider extends AbstractSelectionProvider {
      * The default implementation returns the selected row indices of the table.
      * If overridden, make sure also {@link #setSelection(org.esa.beam.framework.ui.application.Selection)} and {@link #handleTableSelectionChanged(javax.swing.event.ListSelectionEvent)}
      * are appropriately overridden.
+     *
      * @return The current selection.
      */
+    @Override
     public Selection getSelection() {
         int[] indexes = table.getSelectedRows();
         if (indexes.length == 0) {
@@ -52,8 +53,10 @@ public class TableSelectionProvider extends AbstractSelectionProvider {
      * The default implementation expects the selected row indices of the table in the given selection.
      * If overridden, make sure also {@link #getSelection()} and {@link #handleTableSelectionChanged(javax.swing.event.ListSelectionEvent)}
      * are appropriately overridden.
+     *
      * @param selection The current selection.
      */
+    @Override
     public void setSelection(Selection selection) {
         if (selection.isEmpty()) {
             table.getSelectionModel().clearSelection();
@@ -99,6 +102,7 @@ public class TableSelectionProvider extends AbstractSelectionProvider {
     }
 
     private class TableSelectionModelChangeListener implements PropertyChangeListener {
+        @Override
         public void propertyChange(PropertyChangeEvent evt) {
             final ListSelectionModel oldSelectionModel = (ListSelectionModel) evt.getOldValue();
             if (oldSelectionModel != null) {
@@ -113,6 +117,7 @@ public class TableSelectionProvider extends AbstractSelectionProvider {
 
     private class TableSelectionListener implements ListSelectionListener {
 
+        @Override
         public void valueChanged(ListSelectionEvent e) {
             handleTableSelectionChanged(e);
         }

@@ -23,6 +23,7 @@ public class TreeSelectionProvider extends AbstractSelectionProvider {
         this.tree.addTreeSelectionListener(treeSelectionListener);
     }
 
+    @Override
     public Selection getSelection() {
         final TreePath[] treePaths = tree.getSelectionPaths();
         final Selection selection;
@@ -39,6 +40,7 @@ public class TreeSelectionProvider extends AbstractSelectionProvider {
         return selection;
     }
 
+    @Override
     public void setSelection(Selection selection) {
         final Object[] elements = selection.getElements();
         if (elements.length > 0) {
@@ -71,6 +73,7 @@ public class TreeSelectionProvider extends AbstractSelectionProvider {
     }
 
     private class TreeSelectionHandler implements TreeSelectionListener {
+        @Override
         public void valueChanged(TreeSelectionEvent e) {
             handleTreeSelectionChanged(e);
         }
