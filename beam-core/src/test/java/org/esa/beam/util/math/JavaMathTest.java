@@ -27,14 +27,6 @@ import junit.framework.TestSuite;
  */
 public class JavaMathTest extends TestCase {
 
-    public JavaMathTest(String s) {
-        super(s);
-    }
-
-    public static Test suite() {
-        return new TestSuite(JavaMathTest.class);
-    }
-
     public void testUnsignedIntegerArithmetic() {
 
         assertEquals(0xff, 0xff);
