@@ -10,6 +10,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.lite.LabelCacheDefault;
 import org.geotools.renderer.lite.StreamingRenderer;
@@ -20,7 +21,6 @@ import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.styling.visitor.DuplicatingStyleVisitor;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.expression.Expression;
@@ -145,9 +145,9 @@ public class FeatureLayer extends Layer {
     }
 
     private void workaroundLabelCacheBug() {
-        Map hints = renderer.getRendererHints();
+        Map<Object, Object> hints = (Map<Object, Object>) renderer.getRendererHints();
         if (hints == null) {
-            hints = new HashMap();
+            hints = new HashMap<Object, Object>();
         }
         if (hints.containsKey(StreamingRenderer.LABEL_CACHE_KEY)) {
             labelCache = (LabelCache) hints.get(StreamingRenderer.LABEL_CACHE_KEY);
