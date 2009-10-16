@@ -30,47 +30,30 @@ import java.util.List;
  */
 public final class ProductNodeList<T extends ProductNode> {
 
-    private final List<T> _nodes;
-    private final List<T> _removedNodes;
+    private final List<T> nodes;
+    private final List<T> removedNodes;
 
     /**
      * Constructs a new list named nodes.
      */
     public ProductNodeList() {
-        _nodes = new ArrayList<T>();
-        _removedNodes = new ArrayList<T>();
+        nodes = new ArrayList<T>();
+        removedNodes = new ArrayList<T>();
     }
 
     /**
-     * Constructs a new list named nodes.
-     * @deprecated in 4.1, not required anymore
-     */
-    public ProductNodeList(final Class<T> elemType) {
-        this();
-    }
-
-    /**
-     * Gets the element type of this list.
-     * @deprecated in 4.1, not required anymore
-     */
-    public Class<? extends ProductNode> getElemType() {
-        return ProductNode.class;
-    }
-
-    /**
-     * Gets the size of this list.
+     * @return the size of this list.
      */
     public final int size() {
-        return _nodes.size();
+        return nodes.size();
     }
 
     /**
-     * Gets the element at the spcified index.
-     *
      * @param index the index, must be in the range zero to <code>size()</code>
+     * @return  the element at the spcified index.
      */
     public final T getAt(int index) {
-        return _nodes.get(index);
+        return nodes.get(index);
     }
 
     /**
@@ -79,9 +62,9 @@ public final class ProductNodeList<T extends ProductNode> {
      * @return a string array containing all node names, never <code>null</code>
      */
     public final String[] getNames() {
-        String[] names = new String[_nodes.size()];
-        for (int i = 0; i < _nodes.size(); i++) {
-            names[i] = _nodes.get(i).getName();
+        String[] names = new String[nodes.size()];
+        for (int i = 0; i < nodes.size(); i++) {
+            names[i] = nodes.get(i).getName();
         }
         return names;
     }
@@ -94,9 +77,9 @@ public final class ProductNodeList<T extends ProductNode> {
      * @see ProductNode#getDisplayName()
      */
     public String[] getDisplayNames() {
-        String[] displayNames = new String[_nodes.size()];
-        for (int i = 0; i < _nodes.size(); i++) {
-            displayNames[i] = _nodes.get(i).getDisplayName();
+        String[] displayNames = new String[nodes.size()];
+        for (int i = 0; i < nodes.size(); i++) {
+            displayNames[i] = nodes.get(i).getDisplayName();
         }
         return displayNames;
     }
@@ -113,7 +96,7 @@ public final class ProductNodeList<T extends ProductNode> {
      */
     public final T get(String name) {
         int index = indexOf(name);
-        return index >= 0 ? _nodes.get(index) : null;
+        return index >= 0 ? nodes.get(index) : null;
     }
 
     /**
@@ -129,7 +112,7 @@ public final class ProductNodeList<T extends ProductNode> {
      */
     public T getByDisplayName(String displayName) {
         Guardian.assertNotNull("displayName", displayName);
-        for (T node : _nodes) {
+        for (T node : nodes) {
             if (node.getDisplayName().equals(displayName)) {
                 return node;
             }
@@ -160,10 +143,7 @@ public final class ProductNodeList<T extends ProductNode> {
      * @throws IllegalArgumentException if the node is <code>null</code>
      */
     public final boolean contains(T node) {
-        if (node == null) {
-            return false;
-        }
-        return _nodes.contains(node);
+        return node != null && nodes.contains(node);
     }
 
     /**
@@ -174,10 +154,22 @@ public final class ProductNodeList<T extends ProductNode> {
      * @return true if the node was added, otherwise false.
      */
     public final boolean add(T node) {
-        if (node != null) {
-            return _nodes.add(node);
-        }
-        return false;
+        return node != null && nodes.add(node);
+    }
+
+    /**
+     * Inserts a new node to this list at the given index. Note that <code>null</code> nodes are not added to this
+     * list.
+     *
+     * @param node  the node to be added, ignored if <code>null</code>
+     * @param index the insert index
+     *
+     * @throws ArrayIndexOutOfBoundsException if the index was invalid.
+     * @deprecated since BEAM 4.7, use {@link #add(int, ProductNode)} instead
+     */
+    @Deprecated
+    public final void insert(T node, int index) {
+        add(index, node);
     }
 
     /**
@@ -189,9 +181,9 @@ public final class ProductNodeList<T extends ProductNode> {
      *
      * @throws ArrayIndexOutOfBoundsException if the index was invalid.
      */
-    public final void insert(T node, int index) {
+    public final void add(int index, T node) {
         if (node != null) {
-            _nodes.add(index, node);
+            nodes.add(index, node);
         }
     }
 
@@ -199,7 +191,7 @@ public final class ProductNodeList<T extends ProductNode> {
      * Clears the internal removed product nodes list.
      */
     public void clearRemovedList() {
-        _removedNodes.clear();
+        removedNodes.clear();
     }
 
     /**
@@ -208,7 +200,7 @@ public final class ProductNodeList<T extends ProductNode> {
      * @return a collection of all removed product nodes.
      */
     public Collection<T> getRemovedNodes() {
-        return _removedNodes;
+        return removedNodes;
     }
 
     /**
@@ -222,8 +214,8 @@ public final class ProductNodeList<T extends ProductNode> {
      */
     public final boolean remove(T node) {
         if (node != null) {
-            _removedNodes.add(node);
-            return _nodes.remove(node);
+            removedNodes.add(node);
+            return nodes.remove(node);
         }
         return false;
     }
@@ -232,8 +224,8 @@ public final class ProductNodeList<T extends ProductNode> {
      * Removes all nodes from this list.
      */
     public final void removeAll() {
-        _removedNodes.addAll(_nodes);
-        _nodes.clear();
+        removedNodes.addAll(nodes);
+        nodes.clear();
     }
 
     /**
@@ -255,6 +247,7 @@ public final class ProductNodeList<T extends ProductNode> {
      * Creates a subset of this list using the given filter.
      *
      * @param filter the product node filter to be used, if <code>null</code> a clone of this list is created
+     * @return the subset
      */
     public ProductNodeList<T> createSubset(ProductNodeFilter filter) {
         ProductNodeList<T> list = new ProductNodeList<T>();
@@ -273,7 +266,7 @@ public final class ProductNodeList<T extends ProductNode> {
      * @return a string array containing all node names, never <code>null</code>
      */
     public final ProductNode[] toArray() {
-        return _nodes.toArray(new ProductNode[0]);
+        return nodes.toArray(new ProductNode[nodes.size()]);
     }
 
     /**
@@ -285,7 +278,7 @@ public final class ProductNodeList<T extends ProductNode> {
      * @return an array containing the elements of the list. never <code>null</code>
      */
     public final T[] toArray(T[] array) {
-        return _nodes.toArray(array);
+        return nodes.toArray(array);
     }
 
     /**
@@ -335,11 +328,11 @@ public final class ProductNodeList<T extends ProductNode> {
      */
     public final int indexOf(T node) {
         Guardian.assertNotNull("node", node);
-        return _nodes.indexOf(node);
+        return nodes.indexOf(node);
     }
 
     private void disposeRemovedList() {
-        for (T removedNode : _removedNodes) {
+        for (T removedNode : removedNodes) {
             removedNode.dispose();
         }
         clearRemovedList();

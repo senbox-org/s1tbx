@@ -7,12 +7,13 @@ import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
+import org.esa.beam.jai.ImageManager;
 
 import java.awt.Color;
-import java.awt.image.RenderedImage;
 import java.awt.image.DataBuffer;
-
-import org.esa.beam.jai.ImageManager;
+import java.awt.image.RenderedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * A {@code Mask} is used to mask image pixels of other raster data nodes.
@@ -24,51 +25,31 @@ import org.esa.beam.jai.ImageManager;
  * @since BEAM 4.7
  */
 public class Mask extends Band {
-    private static final Color DEFAULT_COLOR = Color.RED;
-    private static final float DEFAULT_TRANSPARENCY = 0.5f;
 
     private final ImageType imageType;
+    private final PropertyChangeListener imageConfigListener;
     private volatile ValueContainer imageConfig;
 
     /**
      * Constructs a new mask.
      *
-     * @param name        The new mask's name.
-     * @param width       The new mask's raster width.
-     * @param height      The new mask's raster height.
-     * @param imageType   The new mask's image type.
-     * @param imageConfig The new mask's image configuration.
+     * @param name      The new mask's name.
+     * @param width     The new mask's raster width.
+     * @param height    The new mask's raster height.
+     * @param imageType The new mask's image type.
      */
-    public Mask(String name,
-                int width, int height,
-                ImageType imageType,
-                ValueContainer imageConfig) {
+    public Mask(String name, int width, int height, ImageType imageType) {
         super(name, ProductData.TYPE_INT8, width, height);
-        Assert.notNull(imageType, "type");
+        Assert.notNull(imageType, "imageType");
         this.imageType = imageType;
-        this.imageConfig = imageConfig;
-    }
-
-    /**
-     * Constructs a new mask.
-     *
-     * @param name         The new mask's name.
-     * @param width        The new mask's raster width.
-     * @param height       The new mask's raster height.
-     * @param imageType    The new mask's image type.
-     * @param color        The new mask's image color.
-     * @param transparency The new mask's image transparency.
-     */
-    public Mask(String name,
-                int width, int height,
-                ImageType imageType,
-                Color color,
-                float transparency) {
-        super(name, ProductData.TYPE_INT8, width, height);
-        Assert.notNull(imageType, "type");
-        this.imageType = imageType;
+        this.imageConfigListener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                fireProductNodeChanged(evt.getPropertyName(), evt.getOldValue());
+            }
+        };
         this.imageConfig = imageType.createImageConfig();
-        setImageStyle(this.imageConfig, color, transparency);
+        this.imageConfig.addPropertyChangeListener(imageConfigListener);
     }
 
     /**
@@ -90,6 +71,30 @@ public class Mask extends Band {
             }
         }
         return imageConfig;
+    }
+
+    public Color getImageColor() {
+        return (Color) imageConfig.getValue(ImageType.PROPERTY_NAME_COLOR);
+    }
+
+    public void setImageColor(Color color) {
+        try {
+            imageConfig.setValue(ImageType.PROPERTY_NAME_COLOR, color);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public float getImageTransparency() {
+        return (Float) imageConfig.getValue(ImageType.PROPERTY_NAME_TRANSPARENCY);
+    }
+
+    public void setImageTransparency(float transparency) {
+        try {
+            imageConfig.setValue(ImageType.PROPERTY_NAME_TRANSPARENCY, transparency);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     /**
@@ -120,10 +125,16 @@ public class Mask extends Band {
         visitor.visit(this);
     }
 
+    @Override
+    public void dispose() {
+        imageConfig.removePropertyChangeListener(imageConfigListener);
+        super.dispose();
+    }
+
     private static void setImageStyle(ValueContainer imageConfig, Color color, float transparency) {
         try {
-            imageConfig.setValue("color", color);
-            imageConfig.setValue("transparency", transparency);
+            imageConfig.setValue(ImageType.PROPERTY_NAME_COLOR, color);
+            imageConfig.setValue(ImageType.PROPERTY_NAME_TRANSPARENCY, transparency);
         } catch (ValidationException e) {
             throw new IllegalStateException(e);
         }
@@ -133,6 +144,10 @@ public class Mask extends Band {
      * Specifies a factory for the {@link RasterDataNode#getSourceImage() source image} used by a {@link Mask}.
      */
     public static abstract class ImageType {
+        public static final String PROPERTY_NAME_COLOR = "color";
+        public static final String PROPERTY_NAME_TRANSPARENCY = "transparency";
+        private static final Color DEFAULT_COLOR = Color.RED;
+        private static final float DEFAULT_TRANSPARENCY = 0.5f;
 
         /**
          * Creates the image.
@@ -151,11 +166,11 @@ public class Mask extends Band {
         @SuppressWarnings({"MethodMayBeStatic"})
         public ValueContainer createImageConfig() {
 
-            ValueDescriptor colorType = new ValueDescriptor("color", Color.class);
+            ValueDescriptor colorType = new ValueDescriptor(PROPERTY_NAME_COLOR, Color.class);
             colorType.setNotNull(true);
             colorType.setDefaultValue(DEFAULT_COLOR);
 
-            ValueDescriptor transparencyType = new ValueDescriptor("transparency", Float.TYPE);
+            ValueDescriptor transparencyType = new ValueDescriptor(PROPERTY_NAME_TRANSPARENCY, Float.TYPE);
             transparencyType.setDefaultValue(DEFAULT_TRANSPARENCY);
 
             ValueContainer imageConfig = new ValueContainer();
@@ -172,6 +187,8 @@ public class Mask extends Band {
      * A mask image type which is based on band math.
      */
     public static class BandMathImageType extends ImageType {
+        public static final String PROPERTY_NAME_EXPRESSION = "expression";
+
         /**
          * Creates the image.
          *
@@ -181,7 +198,7 @@ public class Mask extends Band {
          */
         @Override
         public MultiLevelImage createImage(Mask mask) {
-            String expression = (String) mask.getImageConfig().getValue("expression");
+            String expression = (String) mask.getImageConfig().getValue(PROPERTY_NAME_EXPRESSION);
             // todo - this is not the preferred way to create mask images (nf, 10.2009)
             return ImageManager.getInstance().getMaskImage(expression, mask.getProduct());
         }
@@ -194,7 +211,7 @@ public class Mask extends Band {
         @Override
         public ValueContainer createImageConfig() {
 
-            ValueDescriptor expressionDescriptor = new ValueDescriptor("expression", String.class);
+            ValueDescriptor expressionDescriptor = new ValueDescriptor(PROPERTY_NAME_EXPRESSION, String.class);
             expressionDescriptor.setNotNull(true);
             expressionDescriptor.setNotEmpty(true);
 

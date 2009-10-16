@@ -14,16 +14,15 @@ public class MaskTest {
     @Test
     public void testMask() {
         Mask.ImageType imageType = new BufferedImageType();
-        Mask mask = new Mask("WATER", 256, 128, imageType, Color.BLUE, 0.7f);
+        Mask mask = new Mask("WATER", 256, 128, imageType);
         assertEquals("WATER", mask.getName());
         assertEquals(256, mask.getRasterWidth());
         assertEquals(128, mask.getRasterHeight());
         assertSame(imageType, mask.getImageType());
         ValueContainer imageConfig = mask.getImageConfig();
         assertNotNull(imageConfig);
-        assertEquals(Color.BLUE, mask.getImageConfig().getValue("color"));
-        assertEquals(0.7f, mask.getImageConfig().getValue("transparency"));
-
+        assertEquals(Color.RED, mask.getImageConfig().getValue("color"));
+        assertEquals(0.5f, mask.getImageConfig().getValue("transparency"));
         MultiLevelImage image = mask.getSourceImage();
         assertNotNull(image);
         assertSame(image, mask.getGeophysicalImage());

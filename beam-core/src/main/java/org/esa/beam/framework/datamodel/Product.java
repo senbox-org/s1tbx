@@ -18,7 +18,7 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
@@ -26,6 +26,7 @@ import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
+import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.dataio.ProductFlipper;
 import org.esa.beam.framework.dataio.ProductProjectionBuilder;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -47,6 +48,9 @@ import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
@@ -229,6 +233,9 @@ public class Product extends ProductNode {
         vectorDataGroup = new ProductNodeGroup<VectorData>(this,
                                                            "vector_data",
                                                            "A group which stores all vector data");
+        vectorDataGroup.add(new VectorData("Pins", createPlacemarkFeaureType("PinType", "pixelPoint")));
+        vectorDataGroup.add(new VectorData("Ground control points", createPlacemarkFeaureType("GCPType", "geoPoint")));
+
         maskGroup = new ProductNodeGroup<Mask>(this,
                                                "masks",
                                                "A group which stores all masks");
@@ -245,72 +252,17 @@ public class Product extends ProductNode {
         addProductNodeListener(createGeoCodingChangedHandler());
     }
 
-//    /**
-//     * todo - This is test code for new vector data group - don't remove! (nf, 10.2009)
-//     */
-//    private void initDummyVDNs() {
-//        final SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
-//        ftb.setCRS(getGeoCoding().getModelCRS());
-//        ftb.setName("PinType");
-//        ftb.add("label", String.class);
-//        ftb.add("geoPoint", Point.class, getGeoCoding().getModelCRS());
-//        ftb.add("pixelPoint", Point.class, getGeoCoding().getModelCRS());
-//        ftb.setDefaultGeometry("pixelPoint");
-//        final SimpleFeatureType pinType = ftb.buildFeatureType();
-//
-//        final VectorData pinoekls = new VectorData("Pinoekels", pinType);
-//        for (int i = 0; i < 1000; i++) {
-//            SimpleFeatureBuilder fb = new SimpleFeatureBuilder(pinType);
-//            GeometryFactory gf = new GeometryFactory();
-//            PixelPos pixelPos = new PixelPos(
-//                    (float) (Math.random() * (getSceneRasterWidth() - 1)),
-//                    (float) (Math.random() * (getSceneRasterHeight() - 1)));
-//            GeoPos geoPos = getGeoCoding().getGeoPos(pixelPos, null);
-//            fb.add("P" + i);
-//            fb.add(gf.createPoint(new Coordinate(geoPos.lon, geoPos.lat)));
-//            fb.add(gf.createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
-//
-//            try {
-//                pinoekls.getFeatureCollection().add(fb.buildFeature("FID" + i));
-//            } catch (IOException e) {
-//                throw new IllegalStateException(e);
-//            }
-//        }
-//        vectorDataGroup.add(pinoekls);
-//
-//        vectorDataGroup.add(new VectorData("Pins", pinType));
-//        addProductNodeListener(new ProductNodeListenerAdapter() {
-//            @Override
-//            public void nodeAdded(ProductNodeEvent event) {
-//                if (event.getSourceNode() instanceof Pin) {
-//                    System.out.println("Pin added: event = " + event);
-//                    final Pin pin = (Pin) event.getSourceNode();
-//                    final SimpleFeatureBuilder fb = new SimpleFeatureBuilder(pinType);
-//                    final GeometryFactory gf = new GeometryFactory();
-//                    fb.add(pin.getLabel());
-//                    fb.add(gf.createPoint(new Coordinate(pin.getGeoPos().lon, pin.getGeoPos().lat)));
-//                    fb.add(gf.createPoint(new Coordinate(pin.getPixelPos().x, pin.getPixelPos().y)));
-//                    try {
-//                        final VectorData vectorData = vectorDataGroup.get("Pins");
-//                        vectorData.getFeatureCollection().add(fb.buildFeature(pin.toString()));
-//                    } catch (IOException e) {
-//                        throw new IllegalStateException(e);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void nodeRemoved(ProductNodeEvent event) {
-//                if (event.getSourceNode() instanceof Pin) {
-//                    System.out.println("Pin removed: event = " + event);
-//                    final Pin pin = (Pin) event.getSourceNode();
-//                    final String fid = pin.toString();
-//                    // todo - how to obtain a given feature for fid?!?
-//                    // todo - how to remove features from a feature source?!?
-//                }
-//            }
-//        });
-//    }
+    private static SimpleFeatureType createPlacemarkFeaureType(String typeName, String defaultGeometryName) {
+        SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
+        DefaultGeographicCRS crs = DefaultGeographicCRS.WGS84;
+        ftb.setCRS(crs);
+        ftb.setName(typeName);
+        ftb.add("label", String.class);
+        ftb.add("geoPoint", Point.class, crs);
+        ftb.add("pixelPoint", Point.class, crs);
+        ftb.setDefaultGeometry(defaultGeometryName);
+        return ftb.buildFeatureType();
+    }
 
     private ProductNodeListenerAdapter createGeoCodingChangedHandler() {
         return new ProductNodeListenerAdapter() {
@@ -326,12 +278,7 @@ public class Product extends ProductNode {
                         pinDescriptor.updateGeoPos(getGeoCoding(), pin.getPixelPos(), geoPos);
                         pin.setGeoPos(geoPos);
                     }
-//                    if (vectorDataGroup.getNodeCount() == 0) {
-//                        initDummyVDNs();
-//                    }
                 }
-
-
             }
         };
     }
@@ -1040,10 +987,7 @@ public class Product extends ProductNode {
      *         <code>false</code> otherwise
      */
     public boolean containsRasterDataNode(final String name) {
-        if (containsBand(name)) {
-            return true;
-        }
-        return containsTiePointGrid(name);
+        return containsBand(name) || containsTiePointGrid(name) || getMaskGroup().contains(name);
     }
 
     /**
@@ -1056,11 +1000,15 @@ public class Product extends ProductNode {
      *         is not contained in this product.
      */
     public RasterDataNode getRasterDataNode(final String name) {
-        final RasterDataNode rasterDataNode = getBand(name);
+        RasterDataNode rasterDataNode = getBand(name);
         if (rasterDataNode != null) {
             return rasterDataNode;
         }
-        return getTiePointGrid(name);
+        rasterDataNode = getTiePointGrid(name);
+        if (rasterDataNode != null) {
+            return rasterDataNode;
+        }
+        return getMaskGroup().get(name);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1150,33 +1098,50 @@ public class Product extends ProductNode {
      * Adds the given bitmask definition to this product.
      *
      * @param bitmaskDef the bitmask definition to added, ignored if <code>null</code>
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
+    @Deprecated
     public void addBitmaskDef(final BitmaskDef bitmaskDef) {
         if (StringUtils.isNullOrEmpty(bitmaskDef.getDescription())) {
             final String defaultDescription = getSuitableBitmaskDefDescription(bitmaskDef);
             bitmaskDef.setDescription(defaultDescription);
         }
         addNamedNode(bitmaskDef, bitmaskDefs);
-        getMaskGroup().add(new Mask(bitmaskDef.getName(),
-                                    getSceneRasterWidth(),
-                                    getSceneRasterHeight(),
-                                    new Mask.BandMathImageType(), 
-                                    bitmaskDef.getColor(),
-                                    bitmaskDef.getTransparency()));
+        Mask mask = new Mask(bitmaskDef.getName(),
+                             getSceneRasterWidth(),
+                             getSceneRasterHeight(),
+                             new Mask.BandMathImageType());
+
+        try {
+            mask.getImageConfig().setValue("color", bitmaskDef.getColor());
+            mask.getImageConfig().setValue("transparency", bitmaskDef.getTransparency());
+            mask.getImageConfig().setValue("expression", bitmaskDef.getExpr());
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e);
+        }
+
+        getMaskGroup().add(mask);
     }
 
     /**
      * Moves the given bitmask definition to the given index.
      *
-     * @param bitmaskdef the bitmask definition which is to move
+     * @param bitmaskDef the bitmask definition which is to move
      * @param index      the destination index for the given bitmask definition
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
-    public void moveBitmaskDef(final BitmaskDef bitmaskdef, final int index) {
-        if (bitmaskDefs.remove(bitmaskdef)) {
-            fireNodeRemoved(bitmaskdef);
+    @Deprecated
+    public void moveBitmaskDef(final BitmaskDef bitmaskDef, final int index) {
+        Mask mask = getMaskGroup().get(bitmaskDef.getName());
+        if (bitmaskDefs.remove(bitmaskDef)) {
+            fireNodeRemoved(bitmaskDef);
+            getMaskGroup().remove(mask);
         }
-        bitmaskDefs.insert(bitmaskdef, index);
-        fireNodeAdded(bitmaskdef);
+        bitmaskDefs.insert(bitmaskDef, index);
+        fireNodeAdded(bitmaskDef);
+        getMaskGroup().add(index, mask);
     }
 
     /**
@@ -1185,11 +1150,18 @@ public class Product extends ProductNode {
      * @param bitmaskDef the bitmask definition to be removed, ignored if <code>null</code>
      *
      * @return <code>true</code> on success
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
+    @Deprecated
     public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
         final boolean result = removeNamedNode(bitmaskDef, bitmaskDefs);
         removeBitmaskDef(getBands(), bitmaskDef);
         removeBitmaskDef(getTiePointGrids(), bitmaskDef);
+
+        Mask mask = getMaskGroup().get(bitmaskDef.getName());
+        getMaskGroup().remove(mask);
+
         return result;
     }
 
@@ -1206,7 +1178,10 @@ public class Product extends ProductNode {
      * Gets the number of bitmask definitions contained in this product.
      *
      * @return the number of bitmask definitions
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
+    @Deprecated
     public int getNumBitmaskDefs() {
         return bitmaskDefs.size();
     }
@@ -1219,7 +1194,9 @@ public class Product extends ProductNode {
      * @return the bitmask definition at the given index
      *
      * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
+    @Deprecated
     public BitmaskDef getBitmaskDefAt(final int index) {
         return bitmaskDefs.getAt(index);
     }
@@ -1229,7 +1206,10 @@ public class Product extends ProductNode {
      *
      * @return a string array containing the names of the bitmask definitions contained in this product. If this product
      *         has no bitmask definitions a zero-length-array is returned.
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
+    @Deprecated
     public String[] getBitmaskDefNames() {
         return bitmaskDefs.getNames();
     }
@@ -1241,7 +1221,10 @@ public class Product extends ProductNode {
      *
      * @return the bitmask definition with the given name or <code>null</code> if a bitmask definition with the given
      *         name is not contained in this product.
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
+    @Deprecated
     public BitmaskDef getBitmaskDef(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
         return bitmaskDefs.get(name);
@@ -1252,7 +1235,10 @@ public class Product extends ProductNode {
      *
      * @return an array of bitmask definition contained in this product. If this product has no bitmask definitions a
      *         zero-length-array is returned.
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
+    @Deprecated
     public BitmaskDef[] getBitmaskDefs() {
         final BitmaskDef[] bitmaskDefs = new BitmaskDef[getNumBitmaskDefs()];
         for (int i = 0; i < bitmaskDefs.length; i++) {
@@ -1268,7 +1254,10 @@ public class Product extends ProductNode {
      *
      * @return <code>true</code> if a bitmask definition with the given name is contained in this product,
      *         <code>false</code> otherwise
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
+    @Deprecated
     public boolean containsBitmaskDef(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
         return bitmaskDefs.contains(name);
@@ -1280,7 +1269,10 @@ public class Product extends ProductNode {
      * @param def the bitmask definition, must not be <code>null</code>
      *
      * @return <code>true</code> if the bitmask definition is contained in this cotainer, <code>false</code> otherwise
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
+    @Deprecated
     public boolean containsBitmaskDef(final BitmaskDef def) {
         if (def != null) {
             final BitmaskDef containedDef = getBitmaskDef(def.getName());

@@ -1,10 +1,14 @@
 package org.esa.beam.framework.datamodel;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -22,16 +26,17 @@ public class VectorDataTest {
     @Test
     public void testVectorDataGroup() throws TransformException, FactoryException {
         Product p = new Product("p", "pt", 512, 512);
+        assertEquals(2, p.getVectorDataGroup().getNodeCount());
 
         SimpleFeatureType pinType = createPlacemarkFeaureType("PinType", "pixelPoint");
         SimpleFeatureType gcpType = createPlacemarkFeaureType("GcpType", "geoPoint");
 
-        p.getVectorDataGroup().add(new VectorData("Pins", pinType));
-        p.getVectorDataGroup().add(new VectorData("GCPs", gcpType));
-        assertEquals(2, p.getVectorDataGroup().getNodeCount());
+        p.getVectorDataGroup().add(new VectorData("Pins2", pinType));
+        p.getVectorDataGroup().add(new VectorData("GCPs2", gcpType));
+        assertEquals(4, p.getVectorDataGroup().getNodeCount());
 
-        testVectorData(p, "Pins", pinType);
-        testVectorData(p, "GCPs", gcpType);
+        testVectorData(p, "Pins2", pinType);
+        testVectorData(p, "GCPs2", gcpType);
     }
 
     private static void testVectorData(Product p, String expectedName, SimpleFeatureType expectedType) {
@@ -58,5 +63,16 @@ public class VectorDataTest {
         ftb.setDefaultGeometry(defaultGeometryName);
         return ftb.buildFeatureType();
     }
+
+    private static SimpleFeature createFeature(SimpleFeatureType type, GeoPos geoPos, PixelPos pixelPos) {
+        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(type);
+        GeometryFactory gf = new GeometryFactory();
+        String id = "P_" + System.nanoTime();
+        fb.add(id);
+        fb.add(gf.createPoint(new Coordinate(geoPos.lon, geoPos.lat)));
+        fb.add(gf.createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
+        return fb.buildFeature(id);
+    }
+
 
 }

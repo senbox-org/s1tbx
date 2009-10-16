@@ -150,6 +150,23 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
     }
 
     /**
+     * Adds the given node to this group.
+     *
+     * @param index the index.
+     * @param node  the node to be added, ignored if <code>null</code>
+     */
+    public void add(int index, T node) {
+        Assert.notNull(node, "node");
+        nodeList.add(index, node);
+        node.setOwner(this);
+        Product product = getProduct();
+        if (product != null) {
+            product.fireNodeAdded(node);
+        }
+        setModified(true);
+    }
+
+    /**
      * Removes the given node from this group.
      *
      * @param node the node to be removed
