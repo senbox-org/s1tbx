@@ -25,9 +25,6 @@ import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.dataio.ProductFlipper;
 import org.esa.beam.framework.dataio.ProductProjectionBuilder;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -49,9 +46,6 @@ import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
@@ -263,7 +257,7 @@ public class Product extends ProductNode {
 //        ftb.setDefaultGeometry("pixelPoint");
 //        final SimpleFeatureType pinType = ftb.buildFeatureType();
 //
-//        final VectorData pinoekls = new VectorData("Pinökels", pinType);
+//        final VectorData pinoekls = new VectorData("Pinoekels", pinType);
 //        for (int i = 0; i < 1000; i++) {
 //            SimpleFeatureBuilder fb = new SimpleFeatureBuilder(pinType);
 //            GeometryFactory gf = new GeometryFactory();
