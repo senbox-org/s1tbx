@@ -312,7 +312,7 @@ public class ReprojectionOp extends Operator {
                                                        sourceProduct, srcModel);
             }
             projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, srcModel, targetBand);
-            if (sourceRaster.isNoDataValueUsed() || noDataValue != null) {
+            if ((sourceRaster.isNoDataValueUsed() || noDataValue != null) && !Double.isNaN(targetNoDataValue)) {
                 projectedImage = createNaNReplacedImage(srcModel, projectedImage, targetNoDataValue);
             }
         } else {
