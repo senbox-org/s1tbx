@@ -18,6 +18,7 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
@@ -1156,6 +1157,12 @@ public class Product extends ProductNode {
             bitmaskDef.setDescription(defaultDescription);
         }
         addNamedNode(bitmaskDef, bitmaskDefs);
+        getMaskGroup().add(new Mask(bitmaskDef.getName(),
+                                    getSceneRasterWidth(),
+                                    getSceneRasterHeight(),
+                                    new Mask.BandMathImageType(), 
+                                    bitmaskDef.getColor(),
+                                    bitmaskDef.getTransparency()));
     }
 
     /**

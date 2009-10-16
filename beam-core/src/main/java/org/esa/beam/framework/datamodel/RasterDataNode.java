@@ -2237,6 +2237,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final RenderedImage oldValue = this.sourceImage;
         if (oldValue != sourceImage) {
             this.sourceImage = sourceImage;
+            resetGeophysicalImage();
             fireProductNodeChanged("sourceImage", oldValue);
         }
     }
@@ -2263,7 +2264,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (geophysicalImage == null) {
             synchronized (this) {
                 if (geophysicalImage == null) {
-                    this.geophysicalImage = createGeophysicalImage();
+                    if (isScalingApplied()) {
+                        this.geophysicalImage = createGeophysicalImage();
+                    } else {
+                        this.geophysicalImage = getSourceImage();
+                    }
                 }
             }
         }
@@ -2305,7 +2310,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public synchronized void setGeophysicalImage(MultiLevelImage geophysicalImage) {
         final MultiLevelImage oldValue = this.geophysicalImage;
         if (oldValue != geophysicalImage) {
-            this.geophysicalImage.dispose();
+            if (this.geophysicalImage != null) {
+                this.geophysicalImage.dispose();
+            }
             this.geophysicalImage = geophysicalImage;
             fireProductNodeChanged("geophysicalImage", oldValue);
         }

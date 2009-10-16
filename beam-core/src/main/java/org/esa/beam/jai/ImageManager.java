@@ -281,8 +281,8 @@ public class ImageManager {
         Assert.notNull(rasterDataNodes,
                        "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
-                     || rasterDataNodes.length == 3
-                     || rasterDataNodes.length == 4,
+                || rasterDataNodes.length == 3
+                || rasterDataNodes.length == 4,
                      "invalid number of bands");
 
         prepareImageInfos(rasterDataNodes, ProgressMonitor.NULL);
@@ -606,7 +606,7 @@ public class ImageManager {
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 
@@ -643,6 +643,7 @@ public class ImageManager {
         }
     }
 
+    @Deprecated
     public MultiLevelImage createValidMaskMultiLevelImage(final RasterDataNode rasterDataNode) {
         final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(rasterDataNode);
         final MultiLevelSource mls = new AbstractMultiLevelSource(model) {
@@ -662,8 +663,13 @@ public class ImageManager {
     }
 
     public RenderedImage getMaskImage(final String expression, final Product product, int level) {
-        final MaskKey key = new MaskKey(product, expression);
+        MultiLevelImage mli = getMaskImage(expression, product);
+        return mli.getImage(level);
+    }
+
+    public MultiLevelImage getMaskImage(final String expression, final Product product) {
         synchronized (maskImageMap) {
+            final MaskKey key = new MaskKey(product, expression);
             MultiLevelImage mli = maskImageMap.get(key);
             if (mli == null) {
                 MultiLevelSource mls = new AbstractMultiLevelSource(createMultiLevelModel(product)) {
@@ -679,7 +685,7 @@ public class ImageManager {
                 product.addProductNodeListener(rasterDataChangeListener);
                 maskImageMap.put(key, mli);
             }
-            return mli.getImage(level);
+            return mli;
         }
     }
 
@@ -816,7 +822,7 @@ public class ImageManager {
         if (roiDefinition.isValueRangeEnabled()) {
             final String escapedName = BandArithmetic.createExternalName(rasterDataNode.getName());
             String rangeExpr = escapedName + " >= " + roiDefinition.getValueRangeMin() + " && "
-                               + escapedName + " <= " + roiDefinition.getValueRangeMax();
+                    + escapedName + " <= " + roiDefinition.getValueRangeMax();
             final String validMaskExpression = rasterDataNode.getValidMaskExpression();
             if (validMaskExpression != null) {
                 rangeExpr += " && " + validMaskExpression;
