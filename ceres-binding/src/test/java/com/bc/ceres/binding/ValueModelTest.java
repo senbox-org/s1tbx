@@ -1,6 +1,8 @@
 package com.bc.ceres.binding;
 
 import com.bc.ceres.binding.validators.TypeValidator;
+import com.bc.ceres.binding.validators.MultiValidator;
+import com.bc.ceres.binding.validators.NotNullValidator;
 import junit.framework.TestCase;
 
 import java.beans.PropertyChangeEvent;
@@ -59,8 +61,13 @@ public class ValueModelTest extends TestCase {
         assertNotNull(vm.getDescriptor());
         assertEquals("plong", vm.getDescriptor().getName());
         assertSame(Long.TYPE, vm.getDescriptor().getType());
+        assertEquals(true, vm.getDescriptor().isNotNull());
         assertNotNull(vm.getDescriptor().getConverter());
-        assertTrue(vm.getValidator() instanceof TypeValidator);
+        assertSame(MultiValidator.class, vm.getValidator().getClass());
+        Validator[] validators = ((MultiValidator) vm.getValidator()).getValidators();
+        assertEquals(2, validators.length);
+        assertSame(NotNullValidator.class, validators[0].getClass());
+        assertSame(TypeValidator.class, validators[1].getClass());
         assertTrue(vm.getValue() instanceof Long);
         assertEquals(expectedValue, vm.getValue());
         testSetLegalValue(vm);
@@ -70,9 +77,10 @@ public class ValueModelTest extends TestCase {
     private void testOLong(ValueModel vm, Object expectedValue) throws ValidationException {
         assertNotNull(vm.getDescriptor());
         assertEquals("olong", vm.getDescriptor().getName());
+        assertEquals(false, vm.getDescriptor().isNotNull());
         assertSame(Long.class, vm.getDescriptor().getType());
         assertNotNull(vm.getDescriptor().getConverter());
-        assertTrue(vm.getValidator() instanceof TypeValidator);
+        assertSame(TypeValidator.class, vm.getValidator().getClass());
         assertEquals(expectedValue, vm.getValue());
         testSetLegalValue(vm);
         testSetIllegalValue(vm);

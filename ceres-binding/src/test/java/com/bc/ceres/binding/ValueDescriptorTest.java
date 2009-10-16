@@ -26,4 +26,20 @@ public class ValueDescriptorTest extends TestCase {
             // ok
         }
     }
+
+    public void testThatPrimitiveTypesAreAlwaysNotNull() {
+        assertThatPrimitiveTypesAreAlwaysNotNull(Character.TYPE, Character.class);
+        assertThatPrimitiveTypesAreAlwaysNotNull(Byte.TYPE, Byte.class);
+        assertThatPrimitiveTypesAreAlwaysNotNull(Short.TYPE, Short.class);
+        assertThatPrimitiveTypesAreAlwaysNotNull(Integer.TYPE, Integer.class);
+        assertThatPrimitiveTypesAreAlwaysNotNull(Long.TYPE, Long.class);
+        assertThatPrimitiveTypesAreAlwaysNotNull(Float.TYPE, Float.class);
+        assertThatPrimitiveTypesAreAlwaysNotNull(Double.TYPE, Double.class);
+        assertThatPrimitiveTypesAreAlwaysNotNull(Void.TYPE, Void.class);
+    }
+
+    private static void assertThatPrimitiveTypesAreAlwaysNotNull(Class<?> primitiveType, Class<?> wrapperType) {
+        assertEquals(true, new ValueDescriptor("vd", primitiveType).isNotNull());
+        assertEquals(false, new ValueDescriptor("vd", wrapperType).isNotNull());
+    }
 }

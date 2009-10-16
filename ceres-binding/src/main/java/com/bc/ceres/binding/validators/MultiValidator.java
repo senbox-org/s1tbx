@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MultiValidator implements Validator {
-    private List<Validator> validators;
+    private final List<Validator> validators;
 
     public MultiValidator() {
         this.validators = new ArrayList<Validator>(3);
@@ -16,6 +16,10 @@ public class MultiValidator implements Validator {
 
     public MultiValidator(List<Validator> validators) {
         this.validators = validators;
+    }
+
+    public Validator[] getValidators() {
+        return validators.toArray(new Validator[validators.size()]);
     }
 
     public void addValidator(Validator validator) {
