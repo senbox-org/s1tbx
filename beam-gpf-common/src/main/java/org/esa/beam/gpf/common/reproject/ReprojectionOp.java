@@ -252,6 +252,13 @@ public class ReprojectionOp extends Operator {
                        PlacemarkSymbol.createDefaultGcpSymbol());
     }
     
+    @Override
+    public void dispose() {
+        if (elevationModel != null) {
+            elevationModel.dispose();
+        }
+    }
+    
     private ElevationModel createElevationModel() throws OperatorException {
         if (elevationModelName != null) {
             final ElevationModelDescriptor demDescriptor = ElevationModelRegistry.getInstance().getDescriptor(
