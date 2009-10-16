@@ -1,6 +1,5 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.Layer;
@@ -45,11 +44,7 @@ public class RoiLayerType extends ImageLayer.Type {
             } else {
                 multiLevelSource = MultiLevelSource.NULL;
             }
-            try {
-                configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-            } catch (ValidationException e) {
-                throw new IllegalArgumentException(e);
-            }
+            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         }
 
         final ImageLayer roiLayer = new ImageLayer(this, configuration);

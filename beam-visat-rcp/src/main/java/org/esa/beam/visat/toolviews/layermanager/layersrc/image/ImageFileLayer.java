@@ -1,6 +1,5 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
@@ -26,14 +25,10 @@ class ImageFileLayer extends Layer {
 
         final LayerType imageLayerType = LayerType.getLayerType(ImageLayer.Type.class.getName());
         final ValueContainer template = imageLayerType.getConfigurationTemplate();
-        try {
-            template.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-            template.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
-                              multiLevelSource.getModel().getImageToModelTransform(0));
-            template.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
-        } catch (ValidationException e) {
-            throw new IllegalStateException(e);
-        }
+        template.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+        template.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
+                          multiLevelSource.getModel().getImageToModelTransform(0));
+        template.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
         layerDelegate = new ImageLayer((ImageLayer.Type) imageLayerType, template);
         setName(getName());
     }

@@ -1,6 +1,5 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
@@ -47,11 +46,7 @@ public class NoDataLayerType extends ImageLayer.Type {
             } else {
                 multiLevelSource = MultiLevelSource.NULL;
             }
-            try {
-                configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-            } catch (ValidationException e) {
-                throw new IllegalArgumentException(e);
-            }
+            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         }
 
         final ImageLayer noDataLayer = new ImageLayer(this, configuration);

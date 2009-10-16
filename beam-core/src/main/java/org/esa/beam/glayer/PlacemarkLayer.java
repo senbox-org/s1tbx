@@ -1,6 +1,5 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
@@ -67,14 +66,9 @@ public class PlacemarkLayer extends Layer {
     private static ValueContainer initConfiguration(ValueContainer configurationTemplate, Product product,
                                                     PlacemarkDescriptor placemarkDescriptor,
                                                     AffineTransform imageToModelTransform) {
-        try {
-            configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_PRODUCT, product);
-            configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_PLACEMARK_DESCRIPTOR, placemarkDescriptor);
-            configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
-        }
-
+        configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_PRODUCT, product);
+        configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_PLACEMARK_DESCRIPTOR, placemarkDescriptor);
+        configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
         return configurationTemplate;
     }
 
@@ -214,11 +208,7 @@ public class PlacemarkLayer extends Layer {
     }
 
     public final void setTextEnabled(boolean enabled) {
-        try {
-            getConfiguration().setValue(PROPERTY_NAME_TEXT_ENABLED, enabled);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
-        }
+        getConfiguration().setValue(PROPERTY_NAME_TEXT_ENABLED, enabled);
     }
 
     public Font getTextFont() {
@@ -226,11 +216,7 @@ public class PlacemarkLayer extends Layer {
     }
 
     public final void setTextFont(Font font) {
-        try {
-            getConfiguration().setValue(PROPERTY_NAME_TEXT_FONT, font);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
-        }
+        getConfiguration().setValue(PROPERTY_NAME_TEXT_FONT, font);
     }
 
     public Color getTextFgColor() {
@@ -238,11 +224,7 @@ public class PlacemarkLayer extends Layer {
     }
 
     public final void setTextFgColor(Color color) {
-        try {
-            getConfiguration().setValue(PROPERTY_NAME_TEXT_FG_COLOR, color);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
-        }
+        getConfiguration().setValue(PROPERTY_NAME_TEXT_FG_COLOR, color);
     }
 
     public Color getTextBgColor() {
@@ -250,11 +232,7 @@ public class PlacemarkLayer extends Layer {
     }
 
     public final void setTextBgColor(Color color) {
-        try {
-            getConfiguration().setValue(PROPERTY_NAME_TEXT_BG_COLOR, color);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
-        }
+        getConfiguration().setValue(PROPERTY_NAME_TEXT_BG_COLOR, color);
     }
 
     public void setOutlineColor(Color color) {
@@ -344,7 +322,7 @@ public class PlacemarkLayer extends Layer {
 
         private void maybeFireLayerDataChanged(ProductNodeEvent event) {
             if (event.getSourceNode() instanceof Pin &&
-                !ProductNode.PROPERTY_NAME_OWNER.equals(event.getPropertyName())) {
+                    !ProductNode.PROPERTY_NAME_OWNER.equals(event.getPropertyName())) {
                 fireLayerDataChanged(getLayerModelBounds());
             }
         }

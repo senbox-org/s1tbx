@@ -1,17 +1,18 @@
 package org.esa.beam.collocation.visat;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import org.esa.beam.collocation.CollocateOp;
 import org.esa.beam.collocation.ResamplingType;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import java.io.File;
-import java.lang.reflect.Field;
 
 /**
  * @author Ralf Quast
@@ -41,7 +42,7 @@ class CollocationFormModel {
     }
 
     // todo - this is a generally useful helper method!
-    public static ValueContainer createValueContainer(String operatorName, Object object)  {
+    public static ValueContainer createValueContainer(String operatorName, Object object) {
         ValueContainer vc1 = ValueContainer.createObjectBacked(object);
         ValueContainer vc0 = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(operatorName);
         try {
@@ -177,11 +178,7 @@ class CollocationFormModel {
     }
 
     private void setValueContainerValue(String name, Object value) {
-        try {
-            valueContainer.setValue(name, value);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
-        }
+        valueContainer.setValue(name, value);
     }
 
     private boolean isValidPixelExpressionUsed() {

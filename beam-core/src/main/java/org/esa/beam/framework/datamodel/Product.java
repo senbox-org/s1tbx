@@ -18,7 +18,6 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.binding.ValidationException;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
@@ -1113,13 +1112,9 @@ public class Product extends ProductNode {
                              getSceneRasterHeight(),
                              new Mask.BandMathImageType());
 
-        try {
-            mask.getImageConfig().setValue("color", bitmaskDef.getColor());
-            mask.getImageConfig().setValue("transparency", bitmaskDef.getTransparency());
-            mask.getImageConfig().setValue("expression", bitmaskDef.getExpr());
-        } catch (ValidationException e) {
-            throw new IllegalStateException(e);
-        }
+        mask.getImageConfig().setValue("color", bitmaskDef.getColor());
+        mask.getImageConfig().setValue("transparency", bitmaskDef.getTransparency());
+        mask.getImageConfig().setValue("expression", bitmaskDef.getExpr());
 
         getMaskGroup().add(mask);
     }

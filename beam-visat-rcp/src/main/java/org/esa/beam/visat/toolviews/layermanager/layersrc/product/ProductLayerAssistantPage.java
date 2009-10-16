@@ -1,7 +1,6 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.product;
 
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
@@ -91,21 +90,16 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
         LayerType type = LayerType.getLayerType(RasterImageLayerType.class.getName());
         ValueContainer configuration = type.getConfigurationTemplate();
-        try {
-            configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, rasterDataNode);
-            final GeoCoding geoCoding = rasterDataNode.getGeoCoding();
-            AffineTransform i2mTransform = new AffineTransform();
-            if (geoCoding != null) {
-                i2mTransform = geoCoding.getImageToModelTransform();
-            }
-            configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
-
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
+        configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, rasterDataNode);
+        final GeoCoding geoCoding = rasterDataNode.getGeoCoding();
+        AffineTransform i2mTransform = new AffineTransform();
+        if (geoCoding != null) {
+            i2mTransform = geoCoding.getImageToModelTransform();
         }
+        configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
         final ImageLayer imageLayer = (ImageLayer) type.createLayer(getContext().getLayerContext(),
                                                                     configuration);
         imageLayer.setName(rasterDataNode.getDisplayName());

@@ -1,6 +1,5 @@
 package org.esa.beam.framework.datamodel;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
@@ -78,11 +77,7 @@ public class Mask extends Band {
     }
 
     public void setImageColor(Color color) {
-        try {
-            imageConfig.setValue(ImageType.PROPERTY_NAME_COLOR, color);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
-        }
+        imageConfig.setValue(ImageType.PROPERTY_NAME_COLOR, color);
     }
 
     public float getImageTransparency() {
@@ -90,11 +85,7 @@ public class Mask extends Band {
     }
 
     public void setImageTransparency(float transparency) {
-        try {
-            imageConfig.setValue(ImageType.PROPERTY_NAME_TRANSPARENCY, transparency);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
-        }
+        imageConfig.setValue(ImageType.PROPERTY_NAME_TRANSPARENCY, transparency);
     }
 
     /**
@@ -132,12 +123,8 @@ public class Mask extends Band {
     }
 
     private static void setImageStyle(ValueContainer imageConfig, Color color, float transparency) {
-        try {
-            imageConfig.setValue(ImageType.PROPERTY_NAME_COLOR, color);
-            imageConfig.setValue(ImageType.PROPERTY_NAME_TRANSPARENCY, transparency);
-        } catch (ValidationException e) {
-            throw new IllegalStateException(e);
-        }
+        imageConfig.setValue(ImageType.PROPERTY_NAME_COLOR, color);
+        imageConfig.setValue(ImageType.PROPERTY_NAME_TRANSPARENCY, transparency);
     }
 
     /**

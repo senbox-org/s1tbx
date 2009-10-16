@@ -1,9 +1,9 @@
 package org.esa.beam.framework.gpf.ui;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.validators.NotEmptyValidator;
 import com.bc.ceres.binding.validators.NotNullValidator;
-
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -12,7 +12,6 @@ import org.esa.beam.util.StringUtils;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.Iterator;
 
 /**
@@ -57,7 +56,7 @@ public class TargetProductSelectorModel {
         ValueDescriptor productDirDescriptor = valueContainer.getDescriptor("productDir");
         productDirDescriptor.setValidator(new NotNullValidator());
         productDirDescriptor.setDisplayName("target product directory");
-        
+
         setOpenInAppSelected(true);
         setSaveToFileSelected(true);
         formatNames = ProductIOPlugInManager.getInstance().getAllProductWriterFormatStrings();
@@ -141,11 +140,7 @@ public class TargetProductSelectorModel {
     }
 
     private void setValueContainerValue(String name, Object value) {
-        try {
-            valueContainer.setValue(name, value);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
-        }
+        valueContainer.setValue(name, value);
     }
 
 }

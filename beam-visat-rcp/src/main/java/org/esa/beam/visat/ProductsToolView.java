@@ -178,13 +178,8 @@ public class ProductsToolView extends AbstractToolView {
                 Graphic g = builder.createGraphic(null, mark, null);
                 Symbolizer s = builder.createPointSymbolizer(g);
                 Style style = builder.createStyle(s);
-                try {
-                    conf.setValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE, style);
-                    conf.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION, vectorData.getFeatureCollection());
-                } catch (Exception e) {
-                    visatApp.handleError(e);
-                    return;
-                }
+                conf.setValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE, style);
+                conf.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION, vectorData.getFeatureCollection());
                 final Layer layer = flt.createLayer(sceneView, conf);
                 layer.setName(vectorData.getName());
                 layer.setVisible(true);

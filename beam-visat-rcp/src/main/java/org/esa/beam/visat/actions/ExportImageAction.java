@@ -16,7 +16,6 @@
  */
 package org.esa.beam.visat.actions;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
@@ -280,8 +279,8 @@ public class ExportImageAction extends AbstractExportImageAction {
                 private int showQuestionDialog() {
                     return VisatApp.getApp().showQuestionDialog(
                             "There may not be enough memory to export the image because\n" +
-                            "the image dimension is too large.\n\n" +
-                            "Do you really want to keep the image dimension?", null);
+                                    "the image dimension is too large.\n\n" +
+                                    "Do you really want to keep the image dimension?", null);
                 }
             };
 
@@ -317,11 +316,7 @@ public class ExportImageAction extends AbstractExportImageAction {
         }
 
         private void setWidth(Object value) {
-            try {
-                valueContainer.setValue(PROPERTY_NAME_WIDTH, value);
-            } catch (ValidationException e) {
-                throw new IllegalArgumentException(e);
-            }
+            valueContainer.setValue(PROPERTY_NAME_WIDTH, value);
         }
 
         private int getHeight() {
@@ -329,11 +324,7 @@ public class ExportImageAction extends AbstractExportImageAction {
         }
 
         private void setHeight(Object value) {
-            try {
-                valueContainer.setValue(PROPERTY_NAME_HEIGHT, value);
-            } catch (ValidationException e) {
-                throw new IllegalArgumentException(e);
-            }
+            valueContainer.setValue(PROPERTY_NAME_HEIGHT, value);
         }
     }
 }

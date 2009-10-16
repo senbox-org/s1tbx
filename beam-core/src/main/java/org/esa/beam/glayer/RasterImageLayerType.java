@@ -1,6 +1,5 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
@@ -29,11 +28,7 @@ public class RasterImageLayerType extends ImageLayer.Type {
                     ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
             final MultiLevelSource multiLevelSource = BandImageMultiLevelSource.create(raster, i2mTransform,
                                                                                        ProgressMonitor.NULL);
-            try {
-                configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-            } catch (ValidationException e) {
-                throw new IllegalArgumentException(e);
-            }
+            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         }
 
         return new ImageLayer(this, configuration);
@@ -52,19 +47,13 @@ public class RasterImageLayerType extends ImageLayer.Type {
 
     public Layer createLayer(RasterDataNode raster, MultiLevelSource multiLevelSource) {
         final ValueContainer configuration = getConfigurationTemplate();
-
-        try {
-            configuration.setValue(PROPERTY_NAME_RASTER, raster);
-            if (multiLevelSource == null) {
-                multiLevelSource = BandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);
-            }
-            configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
-                                   multiLevelSource.getModel().getImageToModelTransform(0));
-            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
+        configuration.setValue(PROPERTY_NAME_RASTER, raster);
+        if (multiLevelSource == null) {
+            multiLevelSource = BandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);
         }
-
+        configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
+                               multiLevelSource.getModel().getImageToModelTransform(0));
+        configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         return createLayer(null, configuration);
     }
 }

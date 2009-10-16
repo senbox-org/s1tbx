@@ -1,6 +1,5 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -35,17 +34,12 @@ public class BitmaskLayerType extends ImageLayer.Type {
                                            AffineTransform i2mTransform) {
         final LayerType type = LayerType.getLayerType(BitmaskLayerType.class.getName());
         final ValueContainer configuration = type.getConfigurationTemplate();
-        try {
-            configuration.setValue(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF, bitmaskDef);
-            configuration.setValue(BitmaskLayerType.PROPERTY_NAME_PRODUCT, raster.getProduct());
-            configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
-        } catch (ValidationException e) {
-            throw new IllegalStateException(e);
-        }
+        configuration.setValue(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF, bitmaskDef);
+        configuration.setValue(BitmaskLayerType.PROPERTY_NAME_PRODUCT, raster.getProduct());
+        configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
         final Layer layer = type.createLayer(null, configuration);
         final BitmaskOverlayInfo overlayInfo = raster.getBitmaskOverlayInfo();
         layer.setVisible(overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDef));
-
         return layer;
     }
 
@@ -53,11 +47,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
     protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
         if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
             final MultiLevelSource multiLevelSource = createMultiLevelSource(configuration);
-            try {
-                configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-            } catch (ValidationException e) {
-                throw new IllegalArgumentException(e);
-            }
+            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         }
         final ImageLayer layer = new ImageLayer(this, configuration);
         final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_NAME_BITMASK_DEF);
@@ -92,15 +82,9 @@ public class BitmaskLayerType extends ImageLayer.Type {
 
     public Layer createLayer(BitmaskDef bitmaskDef, Product product, AffineTransform i2m) {
         final ValueContainer configuration = getConfigurationTemplate();
-
-        try {
-            configuration.setValue(PROPERTY_NAME_BITMASK_DEF, bitmaskDef);
-            configuration.setValue(PROPERTY_NAME_PRODUCT, product);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2m);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
-        }
-
+        configuration.setValue(PROPERTY_NAME_BITMASK_DEF, bitmaskDef);
+        configuration.setValue(PROPERTY_NAME_PRODUCT, product);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2m);
         return createLayer(null, configuration);
     }
 

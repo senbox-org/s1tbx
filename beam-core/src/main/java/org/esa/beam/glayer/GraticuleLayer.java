@@ -16,11 +16,9 @@
  */
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.Style;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.Graticule;
@@ -74,12 +72,8 @@ public class GraticuleLayer extends Layer {
 
     private static ValueContainer initConfiguration(ValueContainer configurationTemplate, RasterDataNode raster,
                                                     AffineTransform i2mTransform) {
-        try {
-            configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_RASTER, raster);
-            configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM, i2mTransform);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
-        }
+        configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_RASTER, raster);
+        configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM, i2mTransform);
         return configurationTemplate;
     }
 
@@ -211,17 +205,13 @@ public class GraticuleLayer extends Layer {
     protected void fireLayerPropertyChanged(PropertyChangeEvent event) {
         String propertyName = event.getPropertyName();
         if (propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_AUTO) ||
-            propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_LAT) ||
-            propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_LON) ||
-            propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS)) {
+                propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_LAT) ||
+                propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_LON) ||
+                propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS)) {
             graticule = null;
         }
         if (getConfiguration().getModel(propertyName) != null) {
-            try {
-                getConfiguration().setValue(propertyName, event.getNewValue());
-            } catch (ValidationException e) {
-                throw new IllegalArgumentException(e);
-            }
+            getConfiguration().setValue(propertyName, event.getNewValue());
         }
         super.fireLayerPropertyChanged(event);
     }

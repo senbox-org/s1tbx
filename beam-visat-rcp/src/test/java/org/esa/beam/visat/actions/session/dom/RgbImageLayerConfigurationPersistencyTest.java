@@ -24,13 +24,11 @@ public class RgbImageLayerConfigurationPersistencyTest extends AbstractLayerConf
         addVirtualBand(product, "b", ProductData.TYPE_INT32, "11");
         addVirtualBand(product, "c", ProductData.TYPE_INT32, "67");
         getProductManager().addProduct(product);
-
         configuration.setValue("product", product);
         configuration.setValue("expressionR", "a + b");
         configuration.setValue("expressionG", "b + c");
         configuration.setValue("expressionB", "a - c");
         configuration.setValue("imageToModelTransform", new AffineTransform());
-
         return layerType.createLayer(null, configuration);
     }
 }

@@ -1,6 +1,5 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.windfield;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
@@ -19,18 +18,13 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 public class WindFieldLayerType extends LayerType {
     // todo - weird!!!
     // todo - got NPE, although SPI registered
- //   static LayerType instance = getLayerType(WindFieldLayerType.class.getName());
+    //   static LayerType instance = getLayerType(WindFieldLayerType.class.getName());
     static LayerType instance = new WindFieldLayerType();
 
     public static WindFieldLayer createLayer(RasterDataNode windu, RasterDataNode windv) {
-        // todo - weird!!!
         final ValueContainer template = instance.getConfigurationTemplate();
-        try {
-            template.setValue("windu", windu);
-            template.setValue("windv", windv);
-        } catch (ValidationException e) {
-            throw new IllegalStateException(e);
-        }
+        template.setValue("windu", windu);
+        template.setValue("windv", windv);
         return new WindFieldLayer(template);
     }
 

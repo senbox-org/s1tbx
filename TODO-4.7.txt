@@ -28,7 +28,7 @@ Several problems:
 
 h2. API changes:
 
-h3. Data Model Changes
+h3. Product Data Model Changes
 * Introduced Mask class
 * Introduced VectorDataNode class
 * Product class
@@ -37,5 +37,10 @@ h3. Data Model Changes
 **# ProductNodeGroup<Mask> getMaskGroup()
 ** Deprecated a lot of old methods deling with {{BitRaster}} and bitmasks in general
 * Added new methods to ProductVisitor interface:
-*# void visit(Mask mask) {
-*# void visit(VectorDataNode dataNode) {
+*# void visit(Mask mask)
+*# void visit(VectorDataNode dataNode)
+
+h3. Ceres Binding Changes
+
+* ValueContainer.setValue(String propertyName, Object value) now throws IllegalArgumentException
+ by wrapping a previously thrown ValidationException.

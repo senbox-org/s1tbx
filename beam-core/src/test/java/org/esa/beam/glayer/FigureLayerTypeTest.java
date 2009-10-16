@@ -47,7 +47,7 @@ public class FigureLayerTypeTest extends LayerTypeTest {
     }
 
     @Test
-    public void testCreateLayer() throws ValidationException {
+    public void testCreateLayer() {
         final Product product = new Product("N", "T", 10, 10);
         final Band raster = new VirtualBand("A", ProductData.TYPE_INT32, 10, 10, "42");
         product.addBand(raster);

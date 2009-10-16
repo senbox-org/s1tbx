@@ -1,6 +1,5 @@
 package org.esa.beam.worldmap;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.Layer;
@@ -55,13 +54,9 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
                 configuration.addModel(model);
             }
         }
-        try {
-            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-            final AffineTransform imageToModelTransform = multiLevelSource.getModel().getImageToModelTransform(0);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
-        } catch (ValidationException e) {
-            throw new IllegalStateException(e);
-        }
+        configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+        final AffineTransform imageToModelTransform = multiLevelSource.getModel().getImageToModelTransform(0);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
 
         return new BlueMarbleWorldMapLayer(configuration);
     }

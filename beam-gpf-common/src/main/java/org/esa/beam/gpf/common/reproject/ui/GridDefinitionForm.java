@@ -1,9 +1,15 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import static org.esa.beam.gpf.common.reproject.ui.GridDefinitionFormModel.*;
+import org.esa.beam.util.math.MathUtils;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.metadata.extent.GeographicBoundingBox;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -14,21 +20,8 @@ import javax.swing.SwingUtilities;
 import java.awt.Container;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.FactoryException;
-import org.opengis.metadata.extent.GeographicBoundingBox;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.CRS;
-
-import static org.esa.beam.gpf.common.reproject.ui.GridDefinitionFormModel.ADJUST_SIZE_TO_SOURCE_REGION_NAME;
-import static org.esa.beam.gpf.common.reproject.ui.GridDefinitionFormModel.GRID_HEIGHT_NAME;
-import static org.esa.beam.gpf.common.reproject.ui.GridDefinitionFormModel.GRID_WIDTH_NAME;
-import static org.esa.beam.gpf.common.reproject.ui.GridDefinitionFormModel.PIXEL_SIZE_X_NAME;
-import static org.esa.beam.gpf.common.reproject.ui.GridDefinitionFormModel.PIXEL_SIZE_Y_NAME;
-import org.esa.beam.util.math.MathUtils;
+import java.beans.PropertyChangeListener;
 
 
 /**
@@ -36,9 +29,10 @@ import org.esa.beam.util.math.MathUtils;
  * @version $ Revision $ Date $
  * @since BEAM 4.6
  */
-public class GridDefinitionForm extends JPanel{
+public class GridDefinitionForm extends JPanel {
     private GridDefinitionFormModel model;
     private ValueContainer valueContainer;
+
     // for testing the UI
     public static void main(String[] args) throws FactoryException {
         final JFrame jFrame = new JFrame("Grid Definition Form");
@@ -141,25 +135,21 @@ public class GridDefinitionForm extends JPanel{
             }
             final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
             final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
-            try {
-                valueContainer.setValue(GRID_WIDTH_NAME, targetW);
-                valueContainer.setValue(GRID_HEIGHT_NAME, targetH);
-            } catch (ValidationException e) {
-                e.printStackTrace();
-            }
+            valueContainer.setValue(GRID_WIDTH_NAME, targetW);
+            valueContainer.setValue(GRID_HEIGHT_NAME, targetH);
         }
     }
 
     private class PixelSizeChangedListener implements PropertyChangeListener {
 
         @Override
-            public void propertyChange(PropertyChangeEvent evt) {
+        public void propertyChange(PropertyChangeEvent evt) {
             String propertyName = evt.getPropertyName();
             boolean pixelSizeChanged = PIXEL_SIZE_X_NAME.equals(propertyName) ||
-                                       PIXEL_SIZE_Y_NAME.equals(propertyName);
+                    PIXEL_SIZE_Y_NAME.equals(propertyName);
             boolean adjustGridEnabled = Boolean.TRUE.equals(valueContainer.getValue(ADJUST_SIZE_TO_SOURCE_REGION_NAME));
             if (pixelSizeChanged && adjustGridEnabled) {
-               updateGridDiemension();
+                updateGridDiemension();
             }
         }
     }

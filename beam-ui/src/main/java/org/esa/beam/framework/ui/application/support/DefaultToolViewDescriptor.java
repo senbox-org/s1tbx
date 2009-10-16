@@ -1,11 +1,10 @@
 package org.esa.beam.framework.ui.application.support;
 
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurableExtension;
 import com.bc.ceres.core.runtime.ConfigurationElement;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValidationException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import org.esa.beam.framework.ui.UIUtils;
@@ -469,12 +468,8 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
     public void configure(ConfigurationElement config) throws CoreException {
     }
 
-    private void setValue(String key, Object value)  {
-        try {
-            valueContainer.setValue(key, value);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
-        }
+    private void setValue(String key, Object value) {
+        valueContainer.setValue(key, value);
     }
 
 }

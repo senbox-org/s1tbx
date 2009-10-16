@@ -1,6 +1,5 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.core.ProgressMonitor;
@@ -47,14 +46,10 @@ public class RgbImageLayerType extends ImageLayer.Type {
                     ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
             final MultiLevelSource multiLevelSource = BandImageMultiLevelSource.create(rasters, i2mTransform,
                                                                                        ProgressMonitor.NULL);
-            try {
-                configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-                configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);
-                configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
-                configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
-            } catch (ValidationException e) {
-                throw new IllegalArgumentException(e);
-            }
+            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);
+            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
         }
 
         return new ImageLayer(this, configuration);
@@ -99,28 +94,24 @@ public class RgbImageLayerType extends ImageLayer.Type {
         }
         final ValueContainer configuration = getConfigurationTemplate();
 
-        try {
-            final String expressionR = getExpression(rasters[0]);
-            final String expressionG = getExpression(rasters[1]);
-            final String expressionB = getExpression(rasters[2]);
+        final String expressionR = getExpression(rasters[0]);
+        final String expressionG = getExpression(rasters[1]);
+        final String expressionB = getExpression(rasters[2]);
 
-            configuration.setValue(PROPERTY_NAME_PRODUCT, product);
-            configuration.setValue(PROPERTY_NAME_EXPRESSION_R, expressionR);
-            configuration.setValue(PROPERTY_NAME_EXPRESSION_G, expressionG);
-            configuration.setValue(PROPERTY_NAME_EXPRESSION_B, expressionB);
+        configuration.setValue(PROPERTY_NAME_PRODUCT, product);
+        configuration.setValue(PROPERTY_NAME_EXPRESSION_R, expressionR);
+        configuration.setValue(PROPERTY_NAME_EXPRESSION_G, expressionG);
+        configuration.setValue(PROPERTY_NAME_EXPRESSION_B, expressionB);
 
-            if (multiLevelSource == null) {
-                multiLevelSource = BandImageMultiLevelSource.create(rasters, ProgressMonitor.NULL);
-            }
-            configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
-                                   multiLevelSource.getModel().getImageToModelTransform(0));
-            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
+        if (multiLevelSource == null) {
+            multiLevelSource = BandImageMultiLevelSource.create(rasters, ProgressMonitor.NULL);
         }
+        configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
+                               multiLevelSource.getModel().getImageToModelTransform(0));
+        configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
 
         return createLayer(null, configuration);
     }

@@ -28,7 +28,6 @@ public class FigureLayerConfigurationPersistencyTest extends AbstractLayerConfig
         final ArrayList<Figure> figureList = new ArrayList<Figure>();
         figureList.add(createFigure());
         configuration.setValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST, figureList);
-
         return layerType.createLayer(null, configuration);
     }
 
@@ -38,7 +37,6 @@ public class FigureLayerConfigurationPersistencyTest extends AbstractLayerConfig
         attributes.put("Color", Color.RED);
         attributes.put("Composite", AlphaComposite.Clear);
         attributes.put("Stroke", new BasicStroke(0.7f));
-
         return new LineFigure(new Rectangle(0, 0, 10, 10), attributes);
     }
 
