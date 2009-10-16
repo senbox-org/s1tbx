@@ -25,7 +25,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertEquals(50, targetPoduct.getSceneRasterHeight());
         assertNotNull(targetPoduct.getGeoCoding());
 
-        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
+        testPixelValueFloat(targetPoduct, 23.5f, 13.5f, 299, EPS);
     }
     
     @Test
@@ -34,7 +34,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
         
         assertNotNull(targetPoduct);
-        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
+        testPixelValueFloat(targetPoduct, 23.5f, 13.5f, 299, EPS);
     }
     
     @Test
@@ -43,7 +43,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
 
         assertNotNull(targetPoduct);
-        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
+        testPixelValueFloat(targetPoduct, 23.5f, 13.5f, 299, EPS);
     }
     
     @Test
@@ -68,7 +68,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
         
         assertNotNull(targetPoduct);
-        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
+        testPixelValueFloat(targetPoduct, 23.5f, 13.5f, 299, EPS);
     }
     
     @Test
@@ -82,7 +82,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         // 299, 312
         // 322, 336
         // interpolated = 317.25 for pixel (24, 14)
-        testPixelValue(targetPoduct, 24.0f, 14.0f, 317.25, 1.0e-2);
+        testPixelValueFloat(targetPoduct, 24.0f, 14.0f, 317.25, 1.0e-2);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertEquals(width, targetPoduct.getSceneRasterWidth());
         assertEquals(height, targetPoduct.getSceneRasterHeight());
 
-        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
+        testPixelValueFloat(targetPoduct, 23.5f, 13.5f, 299, EPS);
     }
 
     @Test
@@ -111,10 +111,8 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
         
         assertNotNull(targetPoduct);
-        // 20° Width / 5° PixelSizeX = 4 SceneWidth
-        assertEquals(4, targetPoduct.getSceneRasterWidth());
-        // 20° Height / 10° PixelSizeX = 2 SceneHeight
-        assertEquals(2, targetPoduct.getSceneRasterHeight());
+        assertEquals(5, targetPoduct.getSceneRasterWidth());
+        assertEquals(3, targetPoduct.getSceneRasterHeight());
     }
     
     @Test
@@ -130,7 +128,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertNotNull(targetPoduct);
         final GeoPos geoPos = targetPoduct.getGeoCoding().getGeoPos(new PixelPos(0.5f, 0.5f), null);
         assertEquals(new GeoPos(52.0f, 9.0f), geoPos);
-        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
+        testPixelValueFloat(targetPoduct, 23.5f, 13.5f, 299, EPS);
     }
 
     @Test

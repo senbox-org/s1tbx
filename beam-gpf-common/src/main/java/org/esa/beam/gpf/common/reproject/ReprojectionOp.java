@@ -18,7 +18,6 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -62,6 +61,11 @@ import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -72,12 +76,6 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
 import java.text.MessageFormat;
-
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.operator.ConstantDescriptor;
 
 /**
  * @author Marco Zuehlke
@@ -595,20 +593,22 @@ public class ReprojectionOp extends Operator {
         double mapH = mapBoundary.getHeight();
 
         if (pixelSizeX == null && pixelSizeY == null) {
-            double pixelSize = Math.min(mapW / sourceProduct.getSceneRasterWidth(),
-                                        mapH / sourceProduct.getSceneRasterHeight());
+            // used float here to preserve same behavior as in old map-projection implementation
+            // if double would be used scene size would differ sometimes by one pixel
+            float pixelSize = (float) Math.min(mapW / sourceProduct.getSceneRasterWidth(),
+                                               mapH / sourceProduct.getSceneRasterHeight());
             if (MathUtils.equalValues(pixelSize, 0.0f)) {
                 pixelSize = 1.0f;
             }
-            pixelSizeX = pixelSize;
-            pixelSizeY = pixelSize;
+            pixelSizeX = (double)pixelSize;
+            pixelSizeY = (double)pixelSize;
         }
 
         if (width == null) {
-            width = (int) Math.floor(mapW / pixelSizeX);
+            width = 1 + (int) Math.floor(mapW / pixelSizeX);
         }
         if (height == null) {
-            height = (int) Math.floor(mapH / pixelSizeY);
+            height = 1 + (int) Math.floor(mapH / pixelSizeY);
         }
 
         if (easting == null) {

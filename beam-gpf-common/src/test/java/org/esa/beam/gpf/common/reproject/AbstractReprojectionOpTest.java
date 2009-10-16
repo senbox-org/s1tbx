@@ -1,5 +1,6 @@
 package org.esa.beam.gpf.common.reproject;
 
+import static junit.framework.Assert.*;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -60,23 +61,25 @@ public abstract class AbstractReprojectionOpTest {
             6.0f, 26.0f,
             6.0f, 26.0f
     };
-    private static final String FLOAT_BAND_NAME = "floatData";
-    private static final String INT_BAND_NAME = "intData";
-
-    protected static Product sourceProduct;
-    protected static Map<String, Object> parameterMap;
+    protected static final String FLOAT_BAND_NAME = "floatData";
+    protected static final String INT_BAND_NAME = "intData";
 
     private static OperatorSpi spi;
+
+    protected Product sourceProduct;
+    protected Map<String, Object> parameterMap;
+    protected static final double EPS = 1.0e-6;
 
     @BeforeClass
     public static void setup() throws URISyntaxException {
         spi = new ReprojectionOp.Spi();
-        parameterMap = new HashMap<String, Object>(5);
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         registry.addOperatorSpi(spi);
 
         wktFile = new File(AbstractReprojectionOpTest.class.getResource("test.wkt").toURI());
+    }
 
+    private void createSourceProduct() {
         sourceProduct = new Product("source", "t", 50, 50);
         final TiePointGrid latGrid = new TiePointGrid("latGrid", 2, 2, 0.5f, 0.5f, 49, 49, LATS);
         final TiePointGrid lonGrid = new TiePointGrid("lonGrid", 2, 2, 0.5f, 0.5f, 49, 49, LONS);
@@ -99,7 +102,8 @@ public abstract class AbstractReprojectionOpTest {
 
     @Before
     public void setupTestMethod(){
-        parameterMap.clear();
+        parameterMap = new HashMap<String, Object>(5);
+        createSourceProduct();
     }
 
 
@@ -113,7 +117,7 @@ public abstract class AbstractReprojectionOpTest {
         return GPF.createProduct(operatorName, parameterMap, sourceProduct);
     }
 
-    protected void testPixelValue(Product targetPoduct, float sourceX, float sourceY, double expectedPixelValue, double delta) throws
+    protected void testPixelValueFloat(Product targetPoduct, float sourceX, float sourceY, double expectedPixelValue, double delta) throws
                                                                                                                                IOException {
         final Band sourceBand = sourceProduct.getBand(FLOAT_BAND_NAME);
         final Band targetBand = targetPoduct.getBand(FLOAT_BAND_NAME);
@@ -121,8 +125,8 @@ public abstract class AbstractReprojectionOpTest {
         final GeoPos geoPos = sourceBand.getGeoCoding().getGeoPos(sourcePP, null);
         final PixelPos targetPP = targetBand.getGeoCoding().getPixelPos(geoPos, null);
         final double[] pixels = new double[1];
-        targetBand.readPixels((int) targetPP.x, (int) targetPP.y, 1,1, pixels);
-        org.junit.Assert.assertEquals(expectedPixelValue, pixels[0], delta);
+        targetBand.readPixels((int) Math.floor(targetPP.x), (int) Math.floor(targetPP.y), 1,1, pixels);
+        assertEquals(expectedPixelValue, pixels[0], delta);
     }
 
     private static ProductData createDataFor(Band dataBand) {
