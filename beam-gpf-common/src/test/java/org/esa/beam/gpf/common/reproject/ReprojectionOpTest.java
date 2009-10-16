@@ -118,11 +118,12 @@ public class ReprojectionOpTest {
     }
     
     @Test
-    public void testWithWktFile() {
+    public void testWithWktFile() throws IOException {
         parameterMap.put("wktFile", wktFile);
         final Product targetPoduct = createReprojectedProduct();
 
         assertNotNull(targetPoduct);
+        testPixelValue(targetPoduct, 23.5f, 13.5f, 299, 1.0e-6);
     }
     
     @Test
@@ -137,8 +138,8 @@ public class ReprojectionOpTest {
         productMap.put("collocate", collocationProduct);
         parameterMap.remove("crsCode");
         final Product targetProduct = createReprojectedProduct(productMap);
-
         assertNotNull(targetProduct);
+        assertTrue(targetProduct.isCompatibleProduct(collocationProduct, 1.0e-6f));
     }
     
     @Test(expected = OperatorException.class)
