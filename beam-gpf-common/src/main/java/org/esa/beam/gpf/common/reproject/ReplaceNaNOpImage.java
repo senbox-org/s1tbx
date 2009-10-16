@@ -28,7 +28,7 @@ final class ReplaceNaNOpImage extends PointOpImage {
     private final double replacementValue;
     
     public ReplaceNaNOpImage(RenderedImage source, double value) {
-        super(source, null, null, false);
+        super(source, null, null, true);
         this.replacementValue = value;
     }
 
