@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ReprojectionOpTest extends AbstractReprojectionTest {
+public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testGeoLatLon() throws IOException {

@@ -25,7 +25,7 @@ import java.util.Map;
  * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
-public class AbstractReprojectionTest {
+public class AbstractReprojectionOpTest {
 
     protected static final String WGS84_CODE = "EPSG:4326";
     protected static final String UTM33N_CODE = "EPSG:32633";
@@ -75,7 +75,7 @@ public class AbstractReprojectionTest {
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         registry.addOperatorSpi(spi);
 
-        wktFile = new File(AbstractReprojectionTest.class.getResource("test.wkt").toURI());
+        wktFile = new File(AbstractReprojectionOpTest.class.getResource("test.wkt").toURI());
 
         sourceProduct = new Product("source", "t", 50, 50);
         final TiePointGrid latGrid = new TiePointGrid("latGrid", 2, 2, 0.5f, 0.5f, 49, 49, LATS);
