@@ -25,7 +25,7 @@ import java.util.Map;
  * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
-public class AbstractReprojectionOpTest {
+public abstract class AbstractReprojectionOpTest {
 
     protected static final String WGS84_CODE = "EPSG:4326";
     protected static final String UTM33N_CODE = "EPSG:32633";
