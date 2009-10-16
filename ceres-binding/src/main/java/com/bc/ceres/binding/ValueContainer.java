@@ -3,6 +3,7 @@ package com.bc.ceres.binding;
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
 import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
+import com.bc.ceres.core.Assert;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -138,6 +139,7 @@ public class ValueContainer {
 
     // todo - rename - getValueModel (nf 05.2009)
     public ValueModel getModel(String name) {
+        Assert.notNull(name, "name");
         return valueModelMap.get(name);
     }
 
@@ -176,13 +178,12 @@ public class ValueContainer {
     }
 
     public void addValueContainer(ValueContainer vc) {
-        final ValueModel[] nestedModels = vc.getModels();
-        for (int i = 0; i < nestedModels.length; i++) {
-            ValueModel current = nestedModels[i];
-            if (getModel(current.getDescriptor().getName()) != null) {
-                throw new IllegalStateException("Duplicate ValueModel name: " + current.toString());
+        final ValueModel[] models = vc.getModels();
+        for (ValueModel model : models) {
+            if (getModel(model.getDescriptor().getName()) != null) {
+                throw new IllegalStateException("Duplicate ValueModel name: " + model.toString());
             }
-            addModel(current);
+            addModel(model);
         }
     }
 
@@ -202,6 +203,13 @@ public class ValueContainer {
         propertyChangeSupport.removePropertyChangeListener(name, l);
     }
 
+    /**
+     * Gets the value of a property.
+     *
+     * @param propertyName The property name.
+     *
+     * @return The property value.
+     */
     public Object getValue(String propertyName) {
         final ValueModel model = getModel(propertyName);
         if (model == null) {
@@ -210,8 +218,20 @@ public class ValueContainer {
         return model.getValue();
     }
 
-    public void setValue(String propertyName, Object value) throws ValidationException {
-        getModel(propertyName).setValue(value);
+    /**
+     * Sets the value of a property.
+     *
+     * @param propertyName The property name.
+     * @param value        The new property value.
+     *
+     * @throws IllegalArgumentException if the value is illegal. The cause will always be a {@link ValidationException}.
+     */
+    public void setValue(String propertyName, Object value) throws IllegalArgumentException {
+        try {
+            getModel(propertyName).setValue(value);
+        } catch (ValidationException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     public ValueDescriptor getDescriptor(String propertyName) {

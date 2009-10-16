@@ -101,8 +101,10 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
         try {
             context.getValueContainer().setValue(getPropertyName(), value);
             clearProblem();
-        } catch (ValidationException e) {
-            reportProblem(e);
+        } catch (IllegalArgumentException e) {
+            if (e.getCause() instanceof BindingException) {
+                reportProblem((BindingException) e.getCause());
+            }
         }
     }
 

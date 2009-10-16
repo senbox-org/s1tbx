@@ -55,12 +55,8 @@ public class ShapeLayer extends Layer {
 
     private static ValueContainer initConfiguration(ValueContainer template, Shape[] shapes,
                                                     AffineTransform shapeToModelTransform) {
-        try {
-            template.setValue(Type.PROPERTY_SHAPE_LIST, Arrays.asList(shapes));
-            template.setValue(Type.PROPTERY_SHAPE_TO_MODEL_TRANSFORM, shapeToModelTransform.clone());
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
-        }
+        template.setValue(Type.PROPERTY_SHAPE_LIST, Arrays.asList(shapes));
+        template.setValue(Type.PROPTERY_SHAPE_TO_MODEL_TRANSFORM, shapeToModelTransform.clone());
         return template;
     }
 

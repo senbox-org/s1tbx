@@ -1,6 +1,5 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.core.Assert;
@@ -269,14 +268,9 @@ public class ImageLayer extends Layer {
     }
 
     private static ValueContainer configure(ValueContainer configuration, MultiLevelSource multiLevelSource) {
-        try {
-            configuration.setValue(PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-            final AffineTransform imageToModelTransform = multiLevelSource.getModel().getImageToModelTransform(0);
-            configuration.setValue(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
-        }
-
+        configuration.setValue(PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+        final AffineTransform imageToModelTransform = multiLevelSource.getModel().getImageToModelTransform(0);
+        configuration.setValue(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
         return configuration;
     }
 

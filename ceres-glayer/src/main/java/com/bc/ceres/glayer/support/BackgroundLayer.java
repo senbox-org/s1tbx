@@ -1,6 +1,5 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -30,11 +29,7 @@ public class BackgroundLayer extends Layer {
     }
 
     private static ValueContainer initConfiguration(ValueContainer configuration, Color color) {
-        try {
-            configuration.setValue(Type.COLOR, color);
-        } catch (ValidationException e) {
-            e.printStackTrace();
-        }
+        configuration.setValue(Type.COLOR, color);
         return configuration;
     }
 
@@ -43,12 +38,7 @@ public class BackgroundLayer extends Layer {
     }
 
     void setColor(Color color) {
-        try {
-            getConfiguration().setValue(Type.COLOR, color);
-        } catch (ValidationException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
-        }
+        getConfiguration().setValue(Type.COLOR, color);
     }
 
     @Override
