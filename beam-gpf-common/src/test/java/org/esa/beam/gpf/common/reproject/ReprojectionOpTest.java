@@ -2,7 +2,9 @@ package org.esa.beam.gpf.common.reproject;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import static org.junit.Assert.*;
@@ -25,7 +27,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertEquals(50, targetPoduct.getSceneRasterHeight());
         assertNotNull(targetPoduct.getGeoCoding());
 
-        testPixelValueFloat(targetPoduct, 23.5f, 13.5f, 299, EPS);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
     }
     
     @Test
@@ -34,7 +36,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
         
         assertNotNull(targetPoduct);
-        testPixelValueFloat(targetPoduct, 23.5f, 13.5f, 299, EPS);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
     }
     
     @Test
@@ -43,7 +45,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
 
         assertNotNull(targetPoduct);
-        testPixelValueFloat(targetPoduct, 23.5f, 13.5f, 299, EPS);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
     }
     
     @Test
@@ -68,7 +70,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
         
         assertNotNull(targetPoduct);
-        testPixelValueFloat(targetPoduct, 23.5f, 13.5f, 299, EPS);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
     }
     
     @Test
@@ -82,7 +84,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         // 299, 312
         // 322, 336
         // interpolated = 317.25 for pixel (24, 14)
-        testPixelValueFloat(targetPoduct, 24.0f, 14.0f, 317.25, 1.0e-2);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 24.0f, 14.0f, 317.25, 1.0e-2);
     }
 
     @Test
@@ -98,7 +100,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertEquals(width, targetPoduct.getSceneRasterWidth());
         assertEquals(height, targetPoduct.getSceneRasterHeight());
 
-        testPixelValueFloat(targetPoduct, 23.5f, 13.5f, 299, EPS);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
     }
 
     @Test
@@ -128,7 +130,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertNotNull(targetPoduct);
         final GeoPos geoPos = targetPoduct.getGeoCoding().getGeoPos(new PixelPos(0.5f, 0.5f), null);
         assertEquals(new GeoPos(52.0f, 9.0f), geoPos);
-        testPixelValueFloat(targetPoduct, 23.5f, 13.5f, 299, EPS);
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
     }
 
     @Test
@@ -151,4 +153,29 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertNull(latGrid);
     }
 
+    @Test
+    public void testCopyPlacemarkGroups() throws IOException {
+        final PlacemarkSymbol defaultPinSymbol = PlacemarkSymbol.createDefaultPinSymbol();
+        final Pin pin = new Pin("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol);
+        final Pin gcp = new Pin("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol);
+
+        sourceProduct.getPinGroup().add(pin);
+        sourceProduct.getGcpGroup().add(gcp);
+
+        parameterMap.put("crsCode", WGS84_CODE);
+        Product targetPoduct = createReprojectedProduct();
+
+        assertEquals(1, targetPoduct.getPinGroup().getNodeCount());
+        assertEquals(1, targetPoduct.getGcpGroup().getNodeCount());
+        final Pin pin2 = targetPoduct.getPinGroup().get(0);
+        final Pin gcp2 = targetPoduct.getGcpGroup().get(0);
+
+        assertEquals("P1", pin2.getName());
+        assertEquals("G1", gcp2.getName());
+
+        assertEquals(pin.getGeoPos(), pin2.getGeoPos());
+        assertEquals(gcp.getGeoPos(), gcp2.getGeoPos());
+        assertNotNull(pin2.getPixelPos());
+        assertNotNull(gcp2.getPixelPos());
+    }
 }

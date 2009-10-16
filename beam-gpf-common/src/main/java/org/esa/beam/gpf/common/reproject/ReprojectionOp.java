@@ -24,7 +24,6 @@ import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
@@ -158,10 +157,7 @@ public class ReprojectionOp extends Operator {
     
     @Parameter(description = "The value used to indicate no-data.")
     private Double noDataValue;
-    @Parameter(description = "Generates an out-of-source region mask to indicate which pixel don't belong to the source product.",
-               defaultValue = "false")
-    private boolean generateOutOfSourceRegion;
-    
+
     private ElevationModel elevationModel;
 
 
@@ -218,26 +214,6 @@ public class ReprojectionOp extends Operator {
         if (includeTiePointGrids) {
             reprojectRasterDataNodes(sourceProduct.getTiePointGrids(), srcModel);
         }
-        if (generateOutOfSourceRegion && !sourceProduct.containsBand("reproject_flag")) {
-            /*
-            * 6. Create reprojection valid flag band
-            */
-            String reprojFlagBandName = "reproject_flag";
-            Band reprojectValidBand = targetProduct.addBand(reprojFlagBandName, ProductData.TYPE_INT8);
-            final FlagCoding flagCoding = new FlagCoding(reprojFlagBandName);
-            flagCoding.setDescription("Reprojection Flag Coding");
-
-            MetadataAttribute reprojAttr = new MetadataAttribute("valid", ProductData.TYPE_UINT8);
-            reprojAttr.getData().setElemInt(1);
-            reprojAttr.setDescription("valid data from reprojection");
-            flagCoding.addAttribute(reprojAttr);
-            targetProduct.getFlagCodingGroup().add(flagCoding);
-            reprojectValidBand.setSampleCoding(flagCoding);
-            GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceProduct.getBandAt(0));
-            reprojectValidBand.setSourceImage(createProjectedImage(sourceGeoCoding, createConstSourceImage(srcModel),
-                                                                   srcModel, reprojectValidBand));
-        }
-
         /*
         * Bitmask definitions and placemarks
         */
@@ -290,42 +266,28 @@ public class ReprojectionOp extends Operator {
     }
 
     private void reprojectSourceRaster(RasterDataNode sourceRaster, MultiLevelModel srcModel) {
-        int geophysicalDataType = sourceRaster.getGeophysicalDataType();
-        Band targetBand;
-        MultiLevelImage projectedImage; 
+        int geoDataType = sourceRaster.getGeophysicalDataType();
+        double targetNoDataValue = getTargetNoDataValue(sourceRaster);
+        Band targetBand = targetProduct.addBand(sourceRaster.getName(), geoDataType);
+        targetBand.setNoDataValue(targetNoDataValue);
+        targetBand.setNoDataValueUsed(true);
+        targetBand.setDescription(sourceRaster.getDescription());
+        targetBand.setUnit(sourceRaster.getUnit());
+        
         GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceRaster);
-        if (ProductData.isFloatingPointType(geophysicalDataType)) {
-            targetBand = targetProduct.addBand(sourceRaster.getName(),
-                                               sourceRaster.getGeophysicalDataType());
-            targetBand.setDescription(sourceRaster.getDescription());
-            targetBand.setUnit(sourceRaster.getUnit());
-            double targetNoDataValue = getTargetNoDataValue(sourceRaster);
-            targetBand.setNoDataValue(targetNoDataValue);
-            targetBand.setNoDataValueUsed(true);
-            MultiLevelImage sourceImage = sourceRaster.getGeophysicalImage();
-            String exp = sourceRaster.getValidMaskExpression();
-            if (exp != null) {
-                exp = String.format("(%s) ? %s : NaN", exp, BandArithmetic.createExternalName(sourceRaster.getName()));
-                sourceImage = createVirtualSourceImage(exp, geophysicalDataType, targetBand.getNoDataValue(),
-                                                       sourceProduct, srcModel);
-            }
-            projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, srcModel, targetBand);
-            if ((sourceRaster.isNoDataValueUsed() || noDataValue != null) && !Double.isNaN(targetNoDataValue)) {
-                projectedImage = createNaNReplacedImage(srcModel, projectedImage, targetNoDataValue);
-            }
-        } else {
-            targetBand = targetProduct.addBand(sourceRaster.getName(), sourceRaster.getDataType());
-            ProductUtils.copyRasterDataNodeProperties(sourceRaster, targetBand);
-            if (generateOutOfSourceRegion) {
-                String validPixelExpression = targetBand.getValidPixelExpression();
-                if (validPixelExpression == null) {
-                    validPixelExpression = "reproject_flag.valid";
-                } else {
-                    validPixelExpression = String.format("reproject_flag.valid && %s", validPixelExpression);
-                }
-                targetBand.setValidPixelExpression(validPixelExpression);
-            }
-            projectedImage = createProjectedImage(sourceGeoCoding, sourceRaster.getSourceImage(), srcModel, targetBand);
+        MultiLevelImage sourceImage = sourceRaster.getGeophysicalImage();
+        String exp = sourceRaster.getValidMaskExpression();
+        if (exp != null) {
+            final String externalName = BandArithmetic.createExternalName(sourceRaster.getName());
+            exp = String.format("(%s) ? %s : %s", exp, externalName, Double.toString(targetNoDataValue));
+            sourceImage = createVirtualSourceImage(exp, geoDataType, targetNoDataValue, sourceProduct, srcModel);
+        }
+
+        final Interpolation resampling = getResampling(targetBand);
+        MultiLevelImage projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, srcModel, targetBand,
+                                                              resampling);
+        if (mustReplaceNaN(sourceRaster, geoDataType, targetNoDataValue)) {
+            projectedImage = createNaNReplacedImage(srcModel, projectedImage, targetNoDataValue);
         }
         targetBand.setSourceImage(projectedImage);
 
@@ -334,9 +296,7 @@ public class ReprojectionOp extends Operator {
         */
         if (sourceRaster instanceof Band) {
             Band sourceBand = (Band) sourceRaster;
-            if (ProductData.isFloatingPointType(geophysicalDataType)) {
-                ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
-            }
+            ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
             FlagCoding sourceFlagCoding = sourceBand.getFlagCoding();
             IndexCoding sourceIndexCoding = sourceBand.getIndexCoding();
             if (sourceFlagCoding != null) {
@@ -349,6 +309,13 @@ public class ReprojectionOp extends Operator {
                 targetBand.setSampleCoding(destIndexCoding);
             }
         }
+    }
+
+    private boolean mustReplaceNaN(RasterDataNode sourceRaster, int geophysicalDataType, double targetNoDataValue) {
+        final boolean isFloat = ProductData.isFloatingPointType(geophysicalDataType);
+        final boolean isNoDataGiven = sourceRaster.isNoDataValueUsed() || noDataValue != null;
+        final boolean isNoDataNaN = Double.isNaN(targetNoDataValue);
+        return isFloat && isNoDataGiven && !isNoDataNaN;
     }
 
     private double getTargetNoDataValue(RasterDataNode sourceRaster) {
@@ -402,7 +369,9 @@ public class ReprojectionOp extends Operator {
         });
     }
 
-    private MultiLevelImage createProjectedImage(final GeoCoding sourceGeoCoding, final MultiLevelImage sourceImage, final MultiLevelModel srcModel, final Band targetBand) {
+    private MultiLevelImage createProjectedImage(final GeoCoding sourceGeoCoding, final MultiLevelImage sourceImage,
+                                                 final MultiLevelModel srcModel, final Band targetBand,
+                                                 final Interpolation resampling) {
         final MultiLevelModel targetModel = ImageManager.getInstance().getMultiLevelModel(targetBand);
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
@@ -422,12 +391,7 @@ public class ReprojectionOp extends Operator {
                                                                    targetProduct.getGeoCoding().getModelCRS(),
                                                                    getModel().getImageToModelTransform(targetLevel));
 
-                Interpolation usedResampling = getResampling();
                 int dataType = targetBand.getDataType();
-                if (!ProductData.isFloatingPointType(dataType)) {
-                    usedResampling = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
-                }
-
                 Rectangle targetRectInt = targetGridGeometry.getBounds2D().getBounds();
                 ImageLayout imageLayout = createImageLayout(dataType,
                                                             targetRectInt.width,
@@ -438,7 +402,7 @@ public class ReprojectionOp extends Operator {
 
                 try {
                     return Reproject.reproject(leveledSourceImage, sourceGridGeometry, targetGridGeometry,
-                                               targetBand.getNoDataValue(), usedResampling, hints);
+                                               targetBand.getNoDataValue(), resampling, hints);
                 } catch (FactoryException e) {
                     e.printStackTrace();
                     throw new RuntimeException(e);
@@ -540,8 +504,12 @@ public class ReprojectionOp extends Operator {
         }
     }
 
-    private Interpolation getResampling() {
-        return Interpolation.getInstance(getResampleType(resamplingName));
+    private Interpolation getResampling(Band band) {
+        int resampleType = getResampleType(resamplingName);
+        if (!ProductData.isFloatingPointType(band.getDataType())) {
+            resampleType = Interpolation.INTERP_NEAREST;
+        }
+        return Interpolation.getInstance(resampleType);
     }
 
     private int getResampleType(String resamplingName) {
