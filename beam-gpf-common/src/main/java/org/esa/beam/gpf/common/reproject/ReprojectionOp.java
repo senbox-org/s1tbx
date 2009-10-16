@@ -224,8 +224,6 @@ public class ReprojectionOp extends Operator {
             /*
             * 6. Create reprojection valid flag band
             */
-            // todo consider products with more than one GeoCoding (mz) 
-            // Avnir2 has no int bands ==> so this is not applicable
             String reprojFlagBandName = "reproject_flag";
             Band reprojectValidBand = targetProduct.addBand(reprojFlagBandName, ProductData.TYPE_INT8);
             final FlagCoding flagCoding = new FlagCoding(reprojFlagBandName);
