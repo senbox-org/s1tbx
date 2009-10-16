@@ -12,7 +12,6 @@ import java.awt.Color;
 import java.awt.image.RenderedImage;
 import java.awt.image.DataBuffer;
 
-import sun.plugin.dom.exception.InvalidStateException;
 import org.esa.beam.jai.ImageManager;
 
 /**
@@ -104,7 +103,7 @@ public class Mask extends Band {
     protected RenderedImage createSourceImage() {
         final MultiLevelImage image = getImageType().createImage(this);
         if (isMaskImageValid(image)) {
-            throw new InvalidStateException("Invalid mask image.");
+            throw new IllegalStateException("Invalid mask image.");
         }
         return image;
     }
