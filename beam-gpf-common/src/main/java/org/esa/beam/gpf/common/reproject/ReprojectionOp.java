@@ -284,8 +284,8 @@ public class ReprojectionOp extends Operator {
         }
 
         final Interpolation resampling = getResampling(targetBand);
-        MultiLevelImage projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, srcModel, targetBand,
-                                                              resampling);
+        MultiLevelImage projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, srcModel,
+                                                              targetBand, resampling);
         if (mustReplaceNaN(sourceRaster, geoDataType, targetNoDataValue)) {
             projectedImage = createNaNReplacedImage(srcModel, projectedImage, targetNoDataValue);
         }
@@ -391,9 +391,8 @@ public class ReprojectionOp extends Operator {
                                                                    targetProduct.getGeoCoding().getModelCRS(),
                                                                    getModel().getImageToModelTransform(targetLevel));
 
-                int dataType = targetBand.getDataType();
                 Rectangle targetRectInt = targetGridGeometry.getBounds2D().getBounds();
-                ImageLayout imageLayout = createImageLayout(dataType,
+                ImageLayout imageLayout = createImageLayout(targetBand.getDataType(),
                                                             targetRectInt.width,
                                                             targetRectInt.height,
                                                             targetProduct.getPreferredTileSize());
