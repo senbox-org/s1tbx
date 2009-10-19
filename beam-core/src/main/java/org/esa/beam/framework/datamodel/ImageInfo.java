@@ -7,9 +7,6 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.math.Histogram;
-import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Color;
 import java.awt.Transparency;
@@ -18,7 +15,9 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class contains information about how a product's raster data node is displayed as an image.
@@ -55,21 +54,9 @@ public class ImageInfo implements Cloneable {
     private Color noDataColor;
     private HistogramMatching histogramMatching;
 
-    // The following properties have been moved to org.esa.beam.visat.toolviews.imageinfo.ImageInfoEditorModel
-    @Deprecated
-    private Float histogramViewGain;
-    @Deprecated
-    private Float minHistogramViewSample;
-    @Deprecated
-    private Float maxHistogramViewSample;
-
-    // The following properties have been moved to RasterDataNode.Stx.
-    @Deprecated
-    private float minSample;
-    @Deprecated
-    private float maxSample;
-    @Deprecated
-    private int[] histogramBins; // raw data!
+    // Introduced in BEAM 4.7  (nf)
+    private List<String> maskRefList;
+    private Set<String> maskRefSet;
 
     /**
      * Constructs a new image information instance.
@@ -203,6 +190,80 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
+     * @return The array of all mask references. The array may be empty.
+     */
+    public String[] getMaskReferences() {
+        if (maskRefList != null) {
+            return maskRefList.toArray(new String[maskRefList.size()]);
+        } else {
+            return new String[0];
+        }
+    }
+
+    /**
+     * Adds a new mask reference.
+     *
+     * @param maskRef The mask reference to be added.
+     *
+     * @return <tt>true</tt> if the mask reference was not already a member.
+     */
+    public boolean addMaskReference(String maskRef) {
+        if (maskRefSet == null) {
+            maskRefSet = new HashSet<String>();
+            maskRefList = new ArrayList<String>();
+        }
+        if (!maskRefSet.contains(maskRef)) {
+            maskRefSet.add(maskRef);
+            return maskRefList.add(maskRef);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Removes an existing mask reference.
+     *
+     * @param maskRef The mask reference to be removed.
+     *
+     * @return <tt>true</tt> if the mask reference was a member.
+     */
+    public boolean removeMaskReference(String maskRef) {
+        if (maskRefSet != null) {
+            maskRefSet.remove(maskRef);
+            return maskRefList.remove(maskRef);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param maskRef The mask reference.
+     *
+     * @return <tt>true</tt> if the mask reference is a member.
+     */
+    public boolean containsMaskReference(String maskRef) {
+        return maskRefSet != null && maskRefSet.contains(maskRef);
+    }
+
+    public boolean renameMaskReference(String oldName, String newName) {
+        if (maskRefList != null) {
+            synchronized (this) {
+                for (int i = 0; i < maskRefList.size(); i++) {
+                    String maskRef = maskRefList.get(i);
+                    if (maskRef.equals(oldName)) {
+                        maskRefList.set(i, newName);
+                        maskRefSet.remove(maskRef);
+                        maskRefSet.add(newName);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+    /**
      * Creates and returns a copy of this object.
      *
      * @return a copy of this object
@@ -216,6 +277,10 @@ public class ImageInfo implements Cloneable {
             }
             if (rgbChannelDef != null) {
                 imageInfo.rgbChannelDef = (RGBChannelDef) rgbChannelDef.clone();
+            }
+            if (maskRefSet != null) {
+                imageInfo.maskRefSet = new HashSet<String>(maskRefSet);
+                imageInfo.maskRefList = new ArrayList<String>(maskRefList);
             }
             return imageInfo;
         } catch (CloneNotSupportedException e) {
@@ -251,34 +316,6 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
-     * Transfers the colour palette from the given image info into this image info.
-     *
-     * @param imageInfo        another image info object
-     * @param changeColorsOnly true, if only colours shall be changed
-     * @deprecated since BEAM 4.5.1, use {@link #setColors(java.awt.Color[])} or {@link #setColorPaletteDef(ColorPaletteDef,double,double,boolean)}
-     */
-    @Deprecated
-    public void transferColorPaletteDef(final ImageInfo imageInfo, boolean changeColorsOnly) {
-        transferColorPaletteDef(imageInfo.getColorPaletteDef(), changeColorsOnly);
-    }
-
-    /**
-     * Transfers the colour palette from the given image info into this image info.
-     *
-     * @param colorPaletteDef  another colour palette
-     * @param changeColorsOnly true, if only colours shall be changed
-     * @deprecated since BEAM 4.5.1, use {@link #setColors(java.awt.Color[])} or {@link #setColorPaletteDef(ColorPaletteDef,double,double,boolean)}
-     */
-    @Deprecated
-    public void transferColorPaletteDef(final ColorPaletteDef colorPaletteDef, boolean changeColorsOnly) {
-        if (changeColorsOnly) {
-            setColors(colorPaletteDef.getColors());
-        } else {
-            setColorPaletteDef(colorPaletteDef, getMinSample(), getMaxSample(), false);
-        }
-    }
-
-    /**
      * Sets the colours of the colour palette of this image info.
      *
      * @param colors the new colours
@@ -298,7 +335,7 @@ public class ImageInfo implements Cloneable {
      * @param colorPaletteDef another colour palette
      * @param minSample       the minium allowed sample value in the new colour palette
      * @param maxSample       the maximum allowed sample value in the new colour palette
-     * @param autoDistribute if true, points are distributed between minSample/maxSample.
+     * @param autoDistribute  if true, points are distributed between minSample/maxSample.
      */
     public void setColorPaletteDef(ColorPaletteDef colorPaletteDef,
                                    double minSample,
@@ -346,6 +383,7 @@ public class ImageInfo implements Cloneable {
      * Converts a string to a histogram matching.
      *
      * @param mode the histogram matching string
+     *
      * @return the histogram matching. {@link ImageInfo.HistogramMatching#None} if {@code maode} is not "Equalize" or "Normalize".
      */
     public static ImageInfo.HistogramMatching getHistogramMatching(String mode) {
@@ -359,445 +397,43 @@ public class ImageInfo implements Cloneable {
     }
 
     /////////////////////////////////////////////////////////////////////////
-    // DEPRECATED API!!!
-
+    // Deprecated API
+    /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Gets the histogram.
+     * Transfers the colour palette from the given image info into this image info.
      *
-     * @return the histogram, or <code>null</code> if a histogram is not available.
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public Histogram getHistogram() {
-        return isHistogramAvailable() ? new Histogram(histogramBins, Scaling.IDENTITY.scaleInverse((double) minSample),
-                                                      Scaling.IDENTITY.scaleInverse((double) maxSample)) : null;
-    }
-
-    /**
-     * Gets a suitable round factor for the given number of digits.
+     * @param imageInfo        another image info object
+     * @param changeColorsOnly true, if only colours shall be changed
      *
-     * @param numDigits the number of digits.
-     * @return a suitable round factor
-     * @see org.esa.beam.util.math.MathUtils#computeRoundFactor(double, double, int)
-     * @deprecated since BEAM 4.2, no replacement, this is GUI related
+     * @deprecated since BEAM 4.5.1, use {@link #setColors(java.awt.Color[])} or {@link #setColorPaletteDef(ColorPaletteDef,double,double,boolean)}
      */
     @Deprecated
-    public double getRoundFactor(int numDigits) {
-        return MathUtils.computeRoundFactor(getMinSample(), getMaxSample(), numDigits);
-    }
-
-    /**
-     * @deprecated since BEAM 4.2, scaling is only used for statistical information which is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public Scaling getScaling() {
-        return Scaling.IDENTITY;
-    }
-
-    /**
-     * @deprecated since BEAM 4.2, scaling is only used for statistical information which is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public void setScaling(Scaling scaling) {
-    }
-
-
-    /**
-     * @return the minimum sample value.
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public float getMinSample() {
-        return minSample;
-    }
-
-    /**
-     * Sets the minimum sample value.
-     *
-     * @param minSample the minimum sample value.
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public void setMinSample(float minSample) {
-        this.minSample = minSample;
-    }
-
-    /**
-     * @return the maximum sample value.
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public float getMaxSample() {
-        return maxSample;
-    }
-
-
-    /**
-     * Sets the maximum sample value.
-     *
-     * @param maxSample the maximum sample value.
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public void setMaxSample(float maxSample) {
-        this.maxSample = maxSample;
-    }
-
-    /**
-     * Gets the minimum display sample value for a linear contrast stretch operation.
-     *
-     * @return the minimum display sample
-     * @deprecated since BEAM 4.2, use {@link ColorPaletteDef#getMinDisplaySample}
-     */
-    @Deprecated
-    public double getMinDisplaySample() {
-        return getColorPaletteDef().getMinDisplaySample();
-    }
-
-    /**
-     * Gets the maximum display sample value for a linear contrast stretch operation.
-     *
-     * @return the maximum display sample
-     * @deprecated since BEAM 4.2, use {@link ColorPaletteDef#getMaxDisplaySample}
-     */
-    @Deprecated
-    public double getMaxDisplaySample() {
-        return getColorPaletteDef().getMaxDisplaySample();
-    }
-
-    /**
-     * Gets the minimum sample value used for a histogram view.
-     *
-     * @return the minimum histogram view sample
-     * @deprecated since BEAM 4.2, no replacement, this is GUI related
-     */
-    @Deprecated
-    public float getMinHistogramViewSample() {
-        if (minHistogramViewSample != null) {
-            return minHistogramViewSample;
+    public void transferColorPaletteDef(final ImageInfo imageInfo, boolean changeColorsOnly) {
+        final ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
+        if (changeColorsOnly) {
+            setColors(colorPaletteDef.getColors());
+        } else {
+            setColorPaletteDef(colorPaletteDef, 0, 1, false);
         }
-        return getMinSample();
     }
 
     /**
-     * Sets the minimum sample value used for a histogram view.
+     * Transfers the colour palette from the given image info into this image info.
      *
-     * @param minViewSample the minimum histogram view sample
-     * @deprecated since BEAM 4.2, no replacement, this is GUI related
+     * @param colorPaletteDef  another colour palette
+     * @param changeColorsOnly true, if only colours shall be changed
+     *
+     * @deprecated since BEAM 4.5.1, use {@link #setColors(java.awt.Color[])} or {@link #setColorPaletteDef(ColorPaletteDef,double,double,boolean)}
      */
     @Deprecated
-    public void setMinHistogramViewSample(float minViewSample) {
-        minHistogramViewSample = minViewSample;
-    }
-
-    /**
-     * Gets the maximum sample value used for a histogram view.
-     *
-     * @return the maximum histogram view sample
-     * @deprecated since BEAM 4.2, no replacement, this is GUI related
-     */
-    @Deprecated
-    public float getMaxHistogramViewSample() {
-        if (maxHistogramViewSample != null) {
-            return maxHistogramViewSample;
+    public void transferColorPaletteDef(final ColorPaletteDef colorPaletteDef, boolean changeColorsOnly) {
+        if (changeColorsOnly) {
+            setColors(colorPaletteDef.getColors());
+        } else {
+            setColorPaletteDef(colorPaletteDef, 0, 1, false);
         }
-        return getMaxSample();
     }
 
-    /**
-     * Sets the maximum sample value used for a histogram view.
-     *
-     * @param maxViewSample the maximum histogram view sample
-     * @deprecated since BEAM 4.2, no replacement, this is GUI related
-     */
-    @Deprecated
-    public void setMaxHistogramViewSample(float maxViewSample) {
-        maxHistogramViewSample = maxViewSample;
-    }
-
-    /**
-     * Gets the gain (Y-axis scale factor) used for a histogram view.
-     *
-     * @return the histogram view gain
-     * @deprecated since BEAM 4.2, no replacement, this is GUI related
-     */
-    @Deprecated
-    public float getHistogramViewGain() {
-        if (histogramViewGain != null) {
-            return histogramViewGain;
-        }
-        return 1.0f;
-    }
-
-    /**
-     * Sets the maximum sample value used for a histogram view.
-     *
-     * @param gain the histogram view gain
-     * @deprecated since BEAM 4.2, no replacement, this is GUI related
-     */
-    @Deprecated
-    public void setHistogramViewGain(float gain) {
-        histogramViewGain = gain;
-    }
-
-    /**
-     * @deprecated since BEAM 4.2, use {@link RGBChannelDef#setGamma(int, double)}
-     */
-    @Deprecated
-    public boolean isGammaActive() {
-        return false;
-    }
-
-    /**
-     * @deprecated since BEAM 4.2, use {@link RGBChannelDef#setGamma(int, double)}
-     */
-    @Deprecated
-    public float getGamma() {
-        return 1.0f;
-    }
-
-    /**
-     * @deprecated since BEAM 4.2, use {@link RGBChannelDef#setGamma(int, double)}
-     */
-    @Deprecated
-    public void setGamma(float gamma) {
-    }
-
-    /**
-     * Gets the histogram pixel counts.
-     *
-     * @return the histogram pixel counts, can be <code>null</code> if not available
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public int[] getHistogramBins() {
-        return histogramBins;
-    }
-
-    /**
-     * Sets the histogram pixel counts.
-     *
-     * @param histogramBins the histogram pixel counts, may be <code>null</code> to signal inavailibility
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public void setHistogramBins(int[] histogramBins) {
-        this.histogramBins = histogramBins;
-    }
-
-
-    /**
-     * Gets whether or not a histogram is available.
-     *
-     * @return <code>true</code> if so
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public boolean isHistogramAvailable() {
-        return histogramBins != null && histogramBins.length > 0;
-    }
-
-    /**
-     * Gets the number of bins which are visible in the histogram view.
-     *
-     * @return the number of bins which are visible, <code>-1</code> if a histogram is not available.
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public float getHistogramViewBinCount() {
-        if (!isHistogramAvailable()) {
-            return -1;
-        }
-        if (getMinSample() != getMinHistogramViewSample() || getMaxSample() != getMaxHistogramViewSample()) {
-            return (float)
-                    (getHistogramBins().length
-                            / (Scaling.IDENTITY.scaleInverse((double) getMaxSample()) - Scaling.IDENTITY.scaleInverse(
-                            (double) getMinSample()))
-                            * (Scaling.IDENTITY.scaleInverse((double) getMaxHistogramViewSample()) - Scaling.IDENTITY.scaleInverse(
-                            (double) getMinHistogramViewSample()))
-                    );
-        }
-        return getHistogramBins().length;
-    }
-
-    /**
-     * Returns the float offset in the bins array for the first bin which are visible in the histogram view.
-     *
-     * @return the float offset in the bins array, <code>-1</code> if a histogram is not available.
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    public float getFirstHistogramViewBinIndex() {
-        if (!isHistogramAvailable()) {
-            return -1;
-        }
-        if (getMinSample() != getMinHistogramViewSample()) {
-            return (float) ((getHistogramBins().length - 1)
-                    / (Scaling.IDENTITY.scaleInverse((double) getMaxSample()) - Scaling.IDENTITY.scaleInverse(
-                    (double) getMinSample()))
-                    * (Scaling.IDENTITY.scaleInverse((double) getMinHistogramViewSample()) - Scaling.IDENTITY.scaleInverse(
-                    (double) getMinSample())));
-        }
-        return 0;
-    }
-
-    /**
-     * @return the number of colors used to compute the color palette.
-     * @deprecated since BEAM 4.2, use {link #getColorPaletteDef}
-     */
-    @Deprecated
-    public int getNumColors() {
-        return colorPaletteDef.getNumColors();
-    }
-
-    /**
-     * @return the color palette. If no such exists a new one is computed from the gradation curve.
-     * @deprecated since BEAM 4.2, use {link #createColourPalette()}
-     */
-    @Deprecated
-    public Color[] getColorPalette() {
-        return colorPaletteDef.createColorPalette(Scaling.IDENTITY);
-    }
-
-    /**
-     * @deprecated since BEAM 4.2, use {link #createColourPalette()}
-     */
-    @Deprecated
-    public void computeColorPalette() {
-    }
-
-    @Deprecated
-    public void setColorPaletteDef(ColorPaletteDef cpd) {
-    }
-
-    /**
-     * @deprecated since BEAM 4.2, GUI code
-     */
-    @Deprecated
-    public double getNormalizedHistogramViewSampleValue(double sample) {
-        return sample;
-    }
-
-    /**
-     * @deprecated since BEAM 4.2, GUI code
-     */
-    @Deprecated
-    public double getNormalizedDisplaySampleValue(double sample) {
-        final double minDisplaySample = Scaling.IDENTITY.scaleInverse(getColorPaletteDef().getMinDisplaySample());
-        final double maxDisplaySample = Scaling.IDENTITY.scaleInverse(getColorPaletteDef().getMaxDisplaySample());
-        sample = Scaling.IDENTITY.scaleInverse(sample);
-        double delta = maxDisplaySample - minDisplaySample;
-        if (delta == 0 || Double.isNaN(delta)) {
-            delta = 1;
-        }
-        return (sample - minDisplaySample) / delta;
-    }
-
-    /**
-     * (Re-)Computes the color palette for this basic display information instance.
-     *
-     * @return the color palette
-     * @deprecated since BEAM 4.2, use {@link #getColorPaletteDef()}.{@link ColorPaletteDef#createColorPalette(Scaling) createColorPalette(Scaling)}
-     */
-    @Deprecated
-    public Color[] createColorPalette() {
-        return colorPaletteDef != null ? colorPaletteDef.createColorPalette(Scaling.IDENTITY) : new Color[0];
-    }
-
-    /**
-     * (Re-)Computes the color palette for this basic display information instance.
-     *
-     * @return the color model
-     * @deprecated since BEAM 4.2, use {@link #getColorPaletteDef()}.{@link ColorPaletteDef#createColorPalette(Scaling) createColorPalette(Scaling)}
-     */
-    @Deprecated
-    public IndexColorModel createColorModel() {
-        return createIndexColorModel(Scaling.IDENTITY);
-    }
-
-    /**
-     * Constructs a new basic display information instance.
-     *
-     * @param minSample     the statistical minimum sample value
-     * @param maxSample     the statistical maximum sample value
-     * @param histogramBins the histogram pixel counts, can be <code>null</code>
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public ImageInfo(float minSample,
-                     float maxSample,
-                     int[] histogramBins) {
-        this(minSample,
-             maxSample,
-             histogramBins,
-             new ColorPaletteDef(256, minSample, maxSample));
-    }
-
-    /**
-     * Constructs a new basic display information instance.
-     *
-     * @param minSample          the statistical minimum sample value
-     * @param maxSample          the statistical maximum sample value
-     * @param histogramBins      the histogram pixel counts, can be <code>null</code>
-     * @param numColors          the number of colors for the color palette
-     * @param colorPalettePoints the points of the gradation curve
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public ImageInfo(float minSample,
-                     float maxSample,
-                     int[] histogramBins,
-                     int numColors,
-                     ColorPaletteDef.Point[] colorPalettePoints) {
-        this(minSample,
-             maxSample,
-             histogramBins,
-             new ColorPaletteDef(colorPalettePoints, numColors));
-    }
-
-    /**
-     * Constructs a new basic display information instance.
-     *
-     * @param minSample       the statistical minimum sample value
-     * @param maxSample       the statistical maximum sample value
-     * @param histogramBins   the histogram pixel counts, can be <code>null</code>
-     * @param numColors       the number of colors for the color palette
-     * @param colorPaletteDef the color palette definition
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public ImageInfo(float minSample,
-                     float maxSample,
-                     int[] histogramBins,
-                     int numColors,
-                     ColorPaletteDef colorPaletteDef) {
-        this(minSample, maxSample, histogramBins, colorPaletteDef);
-        this.colorPaletteDef.setNumColors(numColors);
-    }
-
-    /**
-     * Constructs a new basic display information instance.
-     *
-     * @param minSample       the statistical minimum sample value
-     * @param maxSample       the statistical maximum sample value
-     * @param histogramBins   the histogram pixel counts, can be <code>null</code>
-     * @param colorPaletteDef the color palette definition
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public ImageInfo(float minSample,
-                     float maxSample,
-                     int[] histogramBins,
-                     ColorPaletteDef colorPaletteDef) {
-        Guardian.assertNotNull("colorPaletteDef", colorPaletteDef);
-        this.rgbChannelDef = null;
-        this.colorPaletteDef = colorPaletteDef;
-        this.noDataColor = null;
-        this.histogramMatching = HistogramMatching.None;
-
-        this.minSample = minSample;
-        this.maxSample = maxSample;
-        this.histogramBins = histogramBins;
-    }
 
 }
