@@ -24,6 +24,11 @@ Several problems:
 - Target-CRS called FC-CRS, which is actually a view CRS.
 - Clipping done against WGS84-CRS geometry if and only if feature ceollection has not been loaded from a shapefile (?!?).
 
+Mask DIMAP I/O
+==============
+- Product.masks
+- RasterDataNode.imageInfo.maskReferenceList
+
 
 
 h2. API changes:
@@ -39,8 +44,13 @@ h3. Product Data Model Changes
 * Added new methods to ProductVisitor interface:
 *# void visit(Mask mask)
 *# void visit(VectorDataNode dataNode)
+* ProductNode class
+** Rename updateExpression(s1, s2) to handleRename(node, s1, s2)  (TODO!)
 
 h3. Ceres Binding Changes
 
 * ValueContainer.setValue(String propertyName, Object value) now throws IllegalArgumentException
  by wrapping a previously thrown ValidationException.
+
+
+
