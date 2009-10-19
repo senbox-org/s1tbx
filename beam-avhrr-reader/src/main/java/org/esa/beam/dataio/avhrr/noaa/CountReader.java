@@ -52,26 +52,32 @@ abstract class CountReader implements BandReader {
         lineOfCounts = new int[AvhrrConstants.RAW_SCENE_RASTER_WIDTH];
     }
 
+    @Override
     public String getBandName() {
         return calibrator.getBandName();
     }
 
+    @Override
     public String getBandUnit() {
         return calibrator.getBandUnit();
     }
 
+    @Override
     public String getBandDescription() {
         return calibrator.getBandDescription();
     }
 
+    @Override
     public float getScalingFactor() {
         return 1f;
     }
 
+    @Override
     public int getDataType() {
         return ProductData.TYPE_FLOAT32;
     }
 
+    @Override
     public synchronized void readBandRasterData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                                    int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm) throws
                                                                                                                  IOException {

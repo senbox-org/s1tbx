@@ -29,26 +29,32 @@ public class CountsCalibrator extends AbstractCalibrator {
         super(channel);
     }
 
+    @Override
     public String getBandName() {
         return AvhrrConstants.COUNTS_BAND_NAME_PREFIX + AvhrrConstants.CH_STRINGS[channel];
     }
 
+    @Override
     public String getBandUnit() {
         return AvhrrConstants.COUNTS_UNIT;
     }
 
+    @Override
     public String getBandDescription() {
         return AvhrrReader.format(AvhrrConstants.COUNTS_DESCRIPTION, AvhrrConstants.CH_STRINGS[channel]);
     }
 
+    @Override
     public boolean requiresCalibrationData() {
         return false;
     }
 
+    @Override
     public boolean processCalibrationData(int[] calibrationData) {
         return true;
     }
 
+    @Override
     public float calibrate(int counts) {
         return counts;
     }

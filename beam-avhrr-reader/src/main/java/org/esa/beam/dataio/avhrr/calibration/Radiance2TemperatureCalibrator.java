@@ -41,7 +41,8 @@ public class Radiance2TemperatureCalibrator implements RadianceCalibrator {
 		this.c1vc3 = C1 * vc * vc * vc;
 	}
 
-	public float calibrate(float radiances) {
+	@Override
+    public float calibrate(float radiances) {
 		final double teStar = c2vc / (Math.log(1.0 + (c1vc3 / radiances)));
 		final double te = constant1 + constant2 * teStar;
 		return (float) te;

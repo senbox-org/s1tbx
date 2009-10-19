@@ -42,22 +42,27 @@ public class ReflectanceFactorCalibrator extends AbstractCalibrator {
         this.dataRequired = true;
     }
 
+    @Override
     public String getBandName() {
         return AvhrrConstants.REFLECTANCE_BAND_NAME_PREFIX + AvhrrConstants.CH_STRINGS[channel];
     }
 
+    @Override
     public String getBandUnit() {
         return AvhrrConstants.REFLECTANCE_UNIT;
     }
 
+    @Override
     public String getBandDescription() {
         return AvhrrReader.format(AvhrrConstants.REFLECTANCE_FACTOR_DESCRIPTION, AvhrrConstants.CH_STRINGS[channel]);
     }
 
+    @Override
     public boolean requiresCalibrationData() {
         return dataRequired;
     }
 
+    @Override
     public boolean processCalibrationData(int[] calibrationData) {
         final int offset = OPERATIONAL_DATA_OFFSET[operationalDataIndex];
         boolean valid = calibrationData[offset + 0] != 0 &&
@@ -76,6 +81,7 @@ public class ReflectanceFactorCalibrator extends AbstractCalibrator {
         return valid;
     }
 
+    @Override
     public float calibrate(int counts) {
         final double reflectanceFactor;
         if (counts <= intersection) {

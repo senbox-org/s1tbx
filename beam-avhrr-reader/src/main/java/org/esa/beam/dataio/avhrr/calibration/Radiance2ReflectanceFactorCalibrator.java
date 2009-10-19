@@ -26,7 +26,8 @@ public class Radiance2ReflectanceFactorCalibrator implements RadianceCalibrator 
 				* equivalentWidth * earthSunDistance * earthSunDistance));
 	}
 
-	public float calibrate(float radiances) {
+	@Override
+    public float calibrate(float radiances) {
 		return radiances / conversionFactor;
 	}
 	

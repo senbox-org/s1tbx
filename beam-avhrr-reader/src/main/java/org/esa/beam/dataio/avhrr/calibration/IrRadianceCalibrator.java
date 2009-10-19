@@ -39,22 +39,27 @@ public class IrRadianceCalibrator extends AbstractCalibrator {
         this.operationalDataIndex = channel - AvhrrConstants.CH_3B;
     }
 
+    @Override
     public String getBandName() {
         return AvhrrConstants.RADIANCE_BAND_NAME_PREFIX + AvhrrConstants.CH_STRINGS[channel];
     }
 
+    @Override
     public String getBandUnit() {
         return AvhrrConstants.IR_RADIANCE_UNIT;
     }
 
+    @Override
     public String getBandDescription() {
         return AvhrrReader.format(AvhrrConstants.RADIANCE_DESCRIPTION_IR, AvhrrConstants.CH_STRINGS[channel]);
     }
 
+    @Override
     public boolean requiresCalibrationData() {
         return true;
     }
 
+    @Override
     public boolean processCalibrationData(int[] calibrationData) {
         final int offset = OPERATIONAL_DATA_OFFSET[operationalDataIndex];
         // coeff 3 is zero for channel 3b, so it is not included in this check
@@ -67,6 +72,7 @@ public class IrRadianceCalibrator extends AbstractCalibrator {
         return valid;
     }
 
+    @Override
     public float calibrate(int counts) {
         final double ne = a1 + a2 * counts + a3 * counts * counts;
         return (float) ne;
