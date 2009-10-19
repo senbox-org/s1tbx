@@ -247,8 +247,16 @@ public class Product extends ProductNode {
         gcpGroup = new ProductNodeGroup<Pin>(this, "ground_control_points",
                                              "The group which stores ground control points.");
 
-        addProductNodeListener(createNameChangedHandler());
-        addProductNodeListener(createGeoCodingChangedHandler());
+        addProductNodeListener(new ProductNodeListenerAdapter() {
+            @Override
+            public void nodeChanged(final ProductNodeEvent event) {
+                if (ProductNode.PROPERTY_NAME_NAME.equals(event.getPropertyName())) {
+                    handleNameChange(event);
+                } else if (PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
+                    handleGeoCodingChange();
+                }
+            }
+        });
     }
 
     private static SimpleFeatureType createPlacemarkFeaureType(String typeName, String defaultGeometryName) {
@@ -263,73 +271,76 @@ public class Product extends ProductNode {
         return ftb.buildFeatureType();
     }
 
-    private ProductNodeListenerAdapter createGeoCodingChangedHandler() {
+    private ProductNodeListener createNodeChangeHandler() {
         return new ProductNodeListenerAdapter() {
-
             @Override
-            public void nodeChanged(ProductNodeEvent event) {
-                if (PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
-                    final ProductNodeGroup<Pin> pinGroup = getPinGroup();
-                    for (int i = 0; i < pinGroup.getNodeCount(); i++) {
-                        final Pin pin = pinGroup.get(i);
-                        final PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
-                        final GeoPos geoPos = pin.getGeoPos();
-                        pinDescriptor.updateGeoPos(getGeoCoding(), pin.getPixelPos(), geoPos);
-                        pin.setGeoPos(geoPos);
-                    }
+            public void nodeChanged(final ProductNodeEvent event) {
+                if (ProductNode.PROPERTY_NAME_NAME.equals(event.getPropertyName())) {
+                    handleNameChange(event);
+                } else if (PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
+                    handleGeoCodingChange();
                 }
             }
         };
     }
 
-    private ProductNodeListener createNameChangedHandler() {
-        return new ProductNodeListenerAdapter() {
+    private void handleGeoCodingChange() {
+        final ProductNodeGroup<Pin> pinGroup = getPinGroup();
+        for (int i = 0; i < pinGroup.getNodeCount(); i++) {
+            final Pin pin = pinGroup.get(i);
+            final PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+            final GeoPos geoPos = pin.getGeoPos();
+            pinDescriptor.updateGeoPos(getGeoCoding(), pin.getPixelPos(), geoPos);
+            pin.setGeoPos(geoPos);
+        }
+    }
+
+    private void handleNameChange(final ProductNodeEvent event) {
+        final String oldName = (String) event.getOldValue();
+        final String newName = event.getSourceNode().getName();
+
+        final String oldExternName = BandArithmetic.createExternalName(oldName);
+        final String newExternName = BandArithmetic.createExternalName(newName);
+
+        final ProductVisitorAdapter productVisitorAdapter = new ProductVisitorAdapter() {
             @Override
-            public void nodeChanged(final ProductNodeEvent event) {
-                if (ProductNode.PROPERTY_NAME_NAME.equalsIgnoreCase(event.getPropertyName())) {
-                    final String oldName = (String) event.getOldValue();
-                    final String newName = event.getSourceNode().getName();
-
-                    final String oldExternName = BandArithmetic.createExternalName(oldName);
-                    final String newExternName = BandArithmetic.createExternalName(newName);
-
-                    final ProductVisitorAdapter productVisitorAdapter = new ProductVisitorAdapter() {
-                        @Override
-                        public void visit(Product product) {
-                            if (product == event.getSourceNode()) {
-                                product.setFileLocation(null);
-                            }
-                        }
-
-                        @Override
-                        public void visit(TiePointGrid grid) {
-                            grid.updateExpression(oldExternName, newExternName);
-                        }
-
-                        @Override
-                        public void visit(Band band) {
-                            band.updateExpression(oldExternName, newExternName);
-                        }
-
-                        @Override
-                        public void visit(VirtualBand virtualBand) {
-                            virtualBand.updateExpression(oldExternName, newExternName);
-                        }
-
-                        @Override
-                        public void visit(BitmaskDef bitmaskDef) {
-                            bitmaskDef.updateExpression(oldExternName, newExternName);
-                        }
-
-                        @Override
-                        public void visit(ProductNodeGroup group) {
-                            group.updateExpression(oldExternName, newExternName);
-                        }
-                    };
-                    acceptVisitor(productVisitorAdapter);
+            public void visit(Product product) {
+                if (product == event.getSourceNode()) {
+                    product.setFileLocation(null);
                 }
             }
+
+            @Override
+            public void visit(TiePointGrid grid) {
+                grid.updateExpression(oldExternName, newExternName);
+            }
+
+            @Override
+            public void visit(Band band) {
+                band.updateExpression(oldExternName, newExternName);
+            }
+
+            @Override
+            public void visit(Mask mask) {
+                mask.updateExpression(oldExternName, newExternName);
+            }
+
+            @Override
+            public void visit(VirtualBand virtualBand) {
+                virtualBand.updateExpression(oldExternName, newExternName);
+            }
+
+            @Override
+            public void visit(BitmaskDef bitmaskDef) {
+                bitmaskDef.updateExpression(oldExternName, newExternName);
+            }
+
+            @Override
+            public void visit(ProductNodeGroup group) {
+                group.updateExpression(oldExternName, newExternName);
+            }
         };
+        acceptVisitor(productVisitorAdapter);
     }
 
     /**
@@ -1110,7 +1121,7 @@ public class Product extends ProductNode {
         Mask mask = new Mask(bitmaskDef.getName(),
                              getSceneRasterWidth(),
                              getSceneRasterHeight(),
-                             new Mask.BandMathImageType());
+                             new Mask.BandMathType());
 
         mask.getImageConfig().setValue("color", bitmaskDef.getColor());
         mask.getImageConfig().setValue("transparency", bitmaskDef.getTransparency());
@@ -1472,8 +1483,10 @@ public class Product extends ProductNode {
         for (int i = 0; i < getNumTiePointGrids(); i++) {
             getTiePointGridAt(i).acceptVisitor(visitor);
         }
+        getMaskGroup().acceptVisitor(visitor);
         getFlagCodingGroup().acceptVisitor(visitor);
         getIndexCodingGroup().acceptVisitor(visitor);
+        getVectorDataGroup().acceptVisitor(visitor);
         for (int i = 0; i < getNumBitmaskDefs(); i++) {
             getBitmaskDefAt(i).acceptVisitor(visitor);
         }

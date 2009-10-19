@@ -22,57 +22,72 @@ import java.util.List;
 
 public class LinkedListProductVisitor extends ProductVisitorAdapter {
 
-    private List<String> _visitedList = new LinkedList<String>();
+    private List<String> visitedList = new LinkedList<String>();
 
     public LinkedListProductVisitor() {
     }
 
     @Override
     public void visit(Product product) {
-        _visitedList.add(product.getName());
+        visitedList.add(product.getName());
     }
 
     @Override
     public void visit(MetadataElement group) {
-        _visitedList.add(group.getName());
+        visitedList.add(group.getName());
     }
 
     @Override
     public void visit(Band band) {
-        _visitedList.add(band.getName());
+        visitedList.add(band.getName());
     }
 
     @Override
     public void visit(VirtualBand virtualBand) {
-        _visitedList.add(virtualBand.getName());
+        visitedList.add(virtualBand.getName());
     }
 
     @Override
     public void visit(TiePointGrid grid) {
-        _visitedList.add(grid.getName());
+        visitedList.add(grid.getName());
     }
 
     @Override
     public void visit(FlagCoding flagCoding) {
-        _visitedList.add(flagCoding.getName());
+        visitedList.add(flagCoding.getName());
     }
 
     @Override
     public void visit(MetadataAttribute attribute) {
-        _visitedList.add(attribute.getName());
+        visitedList.add(attribute.getName());
     }
 
     @Override
     public void visit(BitmaskDef bitmaskDef) {
-        _visitedList.add(bitmaskDef.getName());
+        visitedList.add(bitmaskDef.getName());
     }
 
     @Override
     public void visit(ProductNodeGroup group) {
-        _visitedList.add(group.getName());
+        visitedList.add(group.getName());
+    }
+
+    @Override
+    public void visit(IndexCoding indexCoding) {
+        visitedList.add(indexCoding.getName());
+    }
+
+    @Override
+    public void visit(Mask mask) {
+        visitedList.add(mask.getName());
+    }
+
+    @Override
+    public void visit(VectorData data) {
+        visitedList.add(data.getName()); 
     }
 
     public List<String> getVisitedList() {
-        return _visitedList;
+        return visitedList;
     }
 }

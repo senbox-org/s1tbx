@@ -37,7 +37,7 @@ public class ProductManager {
     private Vector<Listener> listeners;
 
     private final ProductNodeList<Product> productList;
-    private ProductManager.ProductNodeNamesListener productNodeNamesListener;
+    private ProductNodeNameChangeListener productNodeNameChangeListener;
 
 
     /**
@@ -45,15 +45,7 @@ public class ProductManager {
      */
     public ProductManager() {
         productList = new ProductNodeList<Product>();
-        productNodeNamesListener = new ProductNodeNamesListener();
-    }
-
-    /**
-     * @deprecated Since BEAM 4.2 use {@link #getProductCount()} instead.
-     */
-    @Deprecated
-    public int getNumProducts() {
-        return getProductCount();
+        productNodeNameChangeListener = new ProductNodeNameChangeListener();
     }
 
     /**
@@ -61,14 +53,6 @@ public class ProductManager {
      */
     public int getProductCount() {
         return productList.size();
-    }
-
-    /**
-     * @deprecated Since BEAM 4.2 use {@link #getProduct(int)} instead.
-     */
-    @Deprecated
-    public Product getProductAt(int index) {
-        return getProduct(index);
     }
 
     /**
@@ -189,7 +173,7 @@ public class ProductManager {
                 if (product.getRefNo() <= 0) {
                     product.setRefNo(getNextRefNo() + 1);
                 }
-                product.addProductNodeListener(productNodeNamesListener);
+                product.addProductNodeListener(productNodeNameChangeListener);
                 fireEvent(product, PRODUCT_ADDED);
             }
         }
@@ -220,7 +204,7 @@ public class ProductManager {
             if (index >= 0) {
                 if (productList.remove(product)) {
                     productList.clearRemovedList();
-                    product.removeProductNodeListener(productNodeNamesListener);
+                    product.removeProductNodeListener(productNodeNameChangeListener);
                     product.resetRefNo();
                     clearProductManager(product);
                     fireEvent(product, PRODUCT_REMOVED);
@@ -317,18 +301,6 @@ public class ProductManager {
         return false;
     }
 
-    /**
-     * Removes a <code>ProductManagerListener</code> from this product manager.
-     *
-     * @param listener The listener.
-     *
-     * @deprecated use #removeListener
-     */
-    @Deprecated
-    public void removeProductListener(Listener listener) {
-        removeListener(listener);
-    }
-
     private boolean hasListeners() {
         return listeners != null && !listeners.isEmpty();
     }
@@ -374,14 +346,6 @@ public class ProductManager {
     }
 
     /**
-     * @deprecated use {@link Listener} instead
-     */
-    @Deprecated
-    public interface ProductManagerListener extends Listener {
-
-    }
-
-    /**
      * An event object passed into the {@link Listener} methods.
      */
     public static class Event extends EventObject {
@@ -402,17 +366,6 @@ public class ProductManager {
          */
         public Product getProduct() {
             return (Product) getSource();
-        }
-    }
-
-    /**
-     * @deprecated use {@link Event} instead
-     */
-    @Deprecated
-    public static class ProductManagerEvent extends Event {
-
-        public ProductManagerEvent(Product product) {
-            super(product);
         }
     }
 
@@ -447,12 +400,17 @@ public class ProductManager {
         }
 
         @Override
+        public void visit(Mask mask) {
+            mask.updateExpression(oldExternName, newExternName);
+        }
+
+        @Override
         public void visit(ProductNodeGroup group) {
             group.updateExpression(oldExternName, newExternName);
         }
     }
 
-    private class ProductNodeNamesListener extends ProductNodeListenerAdapter {
+    private class ProductNodeNameChangeListener extends ProductNodeListenerAdapter {
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {

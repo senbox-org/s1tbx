@@ -7,6 +7,7 @@ import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.StringUtils;
 
 import java.awt.Color;
 import java.awt.image.DataBuffer;
@@ -128,6 +129,15 @@ public class Mask extends Band {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateExpression(final String oldExternalName, final String newExternalName) {
+        getImageType().handleRename(this, oldExternalName, newExternalName);
+        super.updateExpression(oldExternalName, newExternalName);
+    }
+
+    /**
      * Specifies a factory for the {@link RasterDataNode#getSourceImage() source image} used by a {@link Mask}.
      */
     public static abstract class ImageType {
@@ -168,12 +178,15 @@ public class Mask extends Band {
 
             return imageConfig;
         }
+
+        public void handleRename(Mask mask, String oldExternalName, String newExternalName) {
+        }
     }
 
     /**
      * A mask image type which is based on band math.
      */
-    public static class BandMathImageType extends ImageType {
+    public static class BandMathType extends ImageType {
         public static final String PROPERTY_NAME_EXPRESSION = "expression";
 
         /**
@@ -185,7 +198,7 @@ public class Mask extends Band {
          */
         @Override
         public MultiLevelImage createImage(Mask mask) {
-            String expression = (String) mask.getImageConfig().getValue(PROPERTY_NAME_EXPRESSION);
+            String expression = getExpression(mask);
             // todo - this is not the preferred way to create mask images (nf, 10.2009)
             return ImageManager.getInstance().getMaskImage(expression, mask.getProduct());
         }
@@ -207,5 +220,23 @@ public class Mask extends Band {
 
             return imageConfig;
         }
+
+        @Override
+        public void handleRename(Mask mask, String oldExternalName, String newExternalName) {
+            String oldExpression = getExpression(mask);
+            final String newExpression = StringUtils.replaceWord(oldExpression, oldExternalName, newExternalName);
+            setExpression(mask, newExpression);
+
+            super.handleRename(mask, oldExternalName, newExternalName);
+        }
+
+        private static String getExpression(Mask mask) {
+            return (String) mask.getImageConfig().getValue(PROPERTY_NAME_EXPRESSION);
+        }
+
+        private static void setExpression(Mask mask, String expression) {
+            mask.getImageConfig().setValue(PROPERTY_NAME_EXPRESSION, expression);
+        }
     }
+
 }
