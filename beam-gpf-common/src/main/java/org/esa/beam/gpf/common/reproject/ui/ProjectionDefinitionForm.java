@@ -12,6 +12,8 @@ import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ValueEditorsPane;
 import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterDescriptor;
@@ -20,8 +22,12 @@ import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.AuthorityFactory;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.IdentifiedObject;
+import org.opengis.referencing.crs.CRSFactory;
+import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.datum.DatumAuthorityFactory;
 import org.opengis.referencing.datum.GeodeticDatum;
+import org.opengis.referencing.operation.Conversion;
+import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.OperationMethod;
 import org.opengis.referencing.operation.Projection;
@@ -39,6 +45,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -77,6 +84,19 @@ public class ProjectionDefinitionForm extends JPanel {
         vc.addPropertyChangeListener(new UpdateListener());
 
         creatUI();
+    }
+
+    public ProjectedCRS getProcjetedCRS() throws FactoryException {
+        final CRSFactory crsFactory = ReferencingFactoryFinder.getCRSFactory(null);
+        final CoordinateOperationFactory coFactory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
+
+        final HashMap<String, Object> properties = new HashMap<String, Object>();
+        properties.put("name", model.transformation.getName().getCode() + " / " + model.datum.getName().getCode());
+        final Conversion conversion = coFactory.createDefiningConversion(properties,
+                                                                         model.transformation,
+                                                                         model.parameters);
+        return crsFactory.createProjectedCRS(properties, DefaultGeographicCRS.WGS84,
+                                             conversion, DefaultCartesianCS.PROJECTED);
     }
 
     private void creatUI() {
