@@ -55,6 +55,9 @@ public class ProjectionDefinitionForm extends JPanel {
     private ProjectionDefinitionForm.Model model;
     private ValueContainer vc;
     private final Window parent;
+    private JComboBox operationComboBox;
+    private JComboBox datumComboBox;
+    private JButton paramButton;
 
     public ProjectionDefinitionForm(Window parent, List<OperationMethod> operationMethodList,
                                     List<GeodeticDatum> datumList) {
@@ -75,45 +78,51 @@ public class ProjectionDefinitionForm extends JPanel {
 
         creatUI();
     }
-
     private void creatUI() {
         final TableLayout tableLayout = new TableLayout(2);
         setLayout(tableLayout);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayout.setTablePadding(4, 4);
-        tableLayout.setTableWeightY(0.5);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
 
         tableLayout.setColumnWeightX(0, 0.0);
         tableLayout.setColumnWeightX(1, 1.0);
-        tableLayout.setCellAnchor(2, 1, TableLayout.Anchor.EAST);
-        tableLayout.setCellFill(2, 1, TableLayout.Fill.NONE);
+        tableLayout.setCellColspan(2, 0, 2);
+        tableLayout.setCellAnchor(2, 0, TableLayout.Anchor.EAST);
+        tableLayout.setCellFill(2, 0, TableLayout.Fill.NONE);
 
         final JLabel transformLabel = new JLabel("Transform:");
         final JLabel datumLabel = new JLabel("Datum:");
 
-        final JComboBox operationComboBox = new JComboBox(operationMethodList.toArray());
+        operationComboBox = new JComboBox(operationMethodList.toArray());
         operationComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
         final ComboBoxSearchable methodSearchable = new IdentifiedObjectSearchable(operationComboBox);
         methodSearchable.installListeners();
         operationComboBox.setRenderer(new IdentifiedObjectCellRenderer());
 
-        final JComboBox datumComboBox = new JComboBox(datumList.toArray());
+        datumComboBox = new JComboBox(datumList.toArray());
         datumComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
         SearchableUtils.installSearchable(datumComboBox);
         datumComboBox.setRenderer(new IdentifiedObjectCellRenderer());
         final ComboBoxSearchable datumSearchable = new IdentifiedObjectSearchable(datumComboBox);
         datumSearchable.installListeners();
 
-        final JButton paramButton = new JButton("Parameters");
+        paramButton = new JButton("Parameters");
         paramButton.addActionListener(new ParameterButtonListener());
         add(transformLabel);
         add(operationComboBox);
         add(datumLabel);
         add(datumComboBox);
-        add(tableLayout.createHorizontalSpacer());
         add(paramButton);
-
+        add(tableLayout.createVerticalSpacer());
+        addPropertyChangeListener("enabled", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                operationComboBox.setEnabled((Boolean)evt.getNewValue());
+                datumComboBox.setEnabled((Boolean)evt.getNewValue());
+                paramButton.setEnabled((Boolean)evt.getNewValue());
+            }
+        });
         final BindingContext context = new BindingContext(vc);
         context.bind("transformation", operationComboBox);
         context.bind("datum", datumComboBox);
@@ -158,13 +167,13 @@ public class ProjectionDefinitionForm extends JPanel {
 
     }
 
-    private static List<OperationMethod> createProjectionMethodList() {
+    static List<OperationMethod> createProjectionMethodList() {
         MathTransformFactory factory = ReferencingFactoryFinder.getMathTransformFactory(null);
         Set<OperationMethod> methods = factory.getAvailableMethods(Projection.class);
         return new ArrayList<OperationMethod>(methods);
     }
 
-    private static List<GeodeticDatum> createDatumList() {
+    static List<GeodeticDatum> createDatumList() {
         DatumAuthorityFactory factory = ReferencingFactoryFinder.getDatumAuthorityFactory("EPSG", null);
         List<String> datumCodes = retrieveCodes(GeodeticDatum.class, factory);
         List<GeodeticDatum> datumList = new ArrayList<GeodeticDatum>(datumCodes.size());
@@ -186,7 +195,7 @@ public class ProjectionDefinitionForm extends JPanel {
         }
     }
 
-    public static ValueContainer createValueContainer(ParameterValueGroup valueGroup) {
+    private static ValueContainer createValueContainer(ParameterValueGroup valueGroup) {
         final ValueContainer vc = new ValueContainer();
 
         final List<GeneralParameterValue> values = valueGroup.values();
