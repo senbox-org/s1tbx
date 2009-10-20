@@ -84,7 +84,7 @@ public class ProjectionDefinitionForm extends JPanel {
         setLayout(tableLayout);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayout.setTablePadding(4, 4);
-        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
 
         tableLayout.setColumnWeightX(0, 0.0);
         tableLayout.setColumnWeightX(1, 1.0);
