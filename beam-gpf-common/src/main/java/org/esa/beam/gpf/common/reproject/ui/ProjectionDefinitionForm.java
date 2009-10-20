@@ -78,6 +78,7 @@ public class ProjectionDefinitionForm extends JPanel {
 
         creatUI();
     }
+
     private void creatUI() {
         final TableLayout tableLayout = new TableLayout(2);
         setLayout(tableLayout);
@@ -118,9 +119,9 @@ public class ProjectionDefinitionForm extends JPanel {
         addPropertyChangeListener("enabled", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                operationComboBox.setEnabled((Boolean)evt.getNewValue());
-                datumComboBox.setEnabled((Boolean)evt.getNewValue());
-                paramButton.setEnabled((Boolean)evt.getNewValue());
+                operationComboBox.setEnabled((Boolean) evt.getNewValue());
+                datumComboBox.setEnabled((Boolean) evt.getNewValue());
+                paramButton.setEnabled((Boolean) evt.getNewValue());
             }
         });
         final BindingContext context = new BindingContext(vc);
