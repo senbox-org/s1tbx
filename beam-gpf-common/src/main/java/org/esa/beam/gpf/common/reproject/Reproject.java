@@ -74,7 +74,7 @@ final class Reproject {
      *          The source grid coverage.
      * @param targetCRS
      *          Coordinate reference system for the new grid coverage, or {@code null}.
-     * @param targetGG
+     * @param targetGeometry
      *          The target grid geometry, or {@code null} for default.
      * @param backgroundValue no-data-value 
      * @param interpolation
@@ -91,8 +91,8 @@ final class Reproject {
      *          if a transformation failed.
      */
     public static RenderedImage reproject(RenderedImage sourceImage, 
-                                          GridGeometry sourceGG,
-                                          GridGeometry targetGG,
+                                          ImageGeometry sourceGeometry,
+                                          ImageGeometry targetGeometry,
                                           double backgroundValue,
                                           final Interpolation interpolation, 
                                           final Hints hints) throws FactoryException, TransformException {
@@ -130,12 +130,12 @@ final class Reproject {
          *                 step 1         step 3
          */
         final MathTransform allSteps;
-        MathTransform step1 = new AffineTransform2D(targetGG.getGridToModel());
-        MathTransform step3 = new AffineTransform2D(sourceGG.getGridToModel()).inverse();
-        if (CRS.equalsIgnoreMetadata(sourceGG.getModelCRS(), targetGG.getModelCRS())) {
+        MathTransform step1 = new AffineTransform2D(targetGeometry.getImage2Model());
+        MathTransform step3 = new AffineTransform2D(sourceGeometry.getImage2Model()).inverse();
+        if (CRS.equalsIgnoreMetadata(sourceGeometry.getModelCrs(), targetGeometry.getModelCrs())) {
             allSteps = mtFactory.createConcatenatedTransform(step1, step3);
         } else {
-            MathTransform step2 = factory.createOperation(targetGG.getModelCRS(), sourceGG.getModelCRS()).getMathTransform();
+            MathTransform step2 = factory.createOperation(targetGeometry.getModelCrs(), sourceGeometry.getModelCrs()).getMathTransform();
             /*
              * Computes the final transform.
              */
@@ -195,8 +195,8 @@ final class Reproject {
         if (allSteps.isIdentity() || (allSteps instanceof AffineTransform &&
                 XAffineTransform.isIdentity((AffineTransform) allSteps, EPS))) {
 
-            final Rectangle sourceBB = sourceGG.getBounds();
-            final Rectangle targetBB = targetGG.getBounds();
+            final Rectangle sourceBB = sourceGeometry.getImageRect();
+            final Rectangle targetBB = targetGeometry.getImageRect();
             /*
              * Since there is no interpolation to perform, use the native view (which may be
              * packed or geophysics - it is just the view which is closest to original data).

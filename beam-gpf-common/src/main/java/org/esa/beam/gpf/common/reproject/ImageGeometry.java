@@ -47,11 +47,17 @@ public class ImageGeometry {
     private double pixelSizeY;
     
     private AffineTransform i2m;
-    
-    private int width;
-    private int height;
-    
+    private Rectangle bounds;
     private CoordinateReferenceSystem modelCrs;
+    
+    private ImageGeometry() {
+    }
+    
+    ImageGeometry(Rectangle bounds, CoordinateReferenceSystem modelCrs, AffineTransform grid2model) {
+        this.i2m = grid2model;
+        this.bounds = bounds;
+        this.modelCrs = modelCrs;
+    }
     
     public AffineTransform getImage2Model() {
         if (i2m != null) {
@@ -67,7 +73,7 @@ public class ImageGeometry {
     }
     
     public Rectangle getImageRect() {
-        return new Rectangle(width, height);
+        return bounds;
     }
     
     public CoordinateReferenceSystem getModelCrs() {
@@ -97,21 +103,23 @@ public class ImageGeometry {
             ig.pixelSizeX = pixelSizeX;
             ig.pixelSizeY = pixelSizeY;
         }
-
+        int rectWidth;
         if (width == null) {
-            ig.width = 1 + (int) Math.floor(mapW / ig.pixelSizeX);
+            rectWidth = 1 + (int) Math.floor(mapW / ig.pixelSizeX);
         } else {
-            ig.width = width;
+            rectWidth = width;
         }
+        int rectHeight;
         if (height == null) {
-            ig.height = 1 + (int) Math.floor(mapH / ig.pixelSizeY);
+            rectHeight = 1 + (int) Math.floor(mapH / ig.pixelSizeY);
         } else {
-            ig.height = height;
+            rectHeight = height;
         }
+        ig.bounds = new Rectangle(rectWidth, rectHeight);
 
         if (referencePixelX == null && referencePixelY == null) {
-            ig.referencePixelX = 0.5 * ig.width;
-            ig.referencePixelY = 0.5 * ig.height;
+            ig.referencePixelX = 0.5 * rectWidth;
+            ig.referencePixelY = 0.5 * rectHeight;
         } else {
             ig.referencePixelX = referencePixelX;
             ig.referencePixelY = referencePixelY;
@@ -130,11 +138,11 @@ public class ImageGeometry {
         GeoCoding geoCoding = collocationProduct.getGeoCoding();
         AffineTransform i2m = (AffineTransform) geoCoding.getImageToModelTransform().clone();
         CoordinateReferenceSystem modelCRS = geoCoding.getModelCRS();
+        Rectangle bounds = new Rectangle(collocationProduct.getSceneRasterWidth(), collocationProduct.getSceneRasterHeight());
         ImageGeometry imageGeometry = new ImageGeometry();
         imageGeometry.modelCrs = modelCRS;
         imageGeometry.i2m = i2m;
-        imageGeometry.width = collocationProduct.getSceneRasterWidth();
-        imageGeometry.height = collocationProduct.getSceneRasterHeight();
+        imageGeometry.bounds = bounds;
         return imageGeometry;
     }
 

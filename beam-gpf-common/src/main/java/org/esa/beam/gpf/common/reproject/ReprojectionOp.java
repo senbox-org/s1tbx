@@ -381,10 +381,10 @@ public class ReprojectionOp extends Operator {
                 }
                 Rectangle sourceRect = createLevelBounds(srcModel, sourceLevel);
                 Rectangle targetRect = createLevelBounds(targetModel, targetLevel);
-                GridGeometry sourceGridGeometry = new GridGeometry(sourceRect,
+                ImageGeometry sourceGeometry = new ImageGeometry(sourceRect,
                                                                    sourceGeoCoding.getModelCRS(),
                                                                    srcModel.getImageToModelTransform(sourceLevel));
-                GridGeometry targetGridGeometry = new GridGeometry(targetRect,
+                ImageGeometry targetGeometry = new ImageGeometry(targetRect,
                                                                    targetProduct.getGeoCoding().getModelCRS(),
                                                                    getModel().getImageToModelTransform(targetLevel));
 
@@ -396,7 +396,7 @@ public class ReprojectionOp extends Operator {
                 RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
 
                 try {
-                    return Reproject.reproject(leveledSourceImage, sourceGridGeometry, targetGridGeometry,
+                    return Reproject.reproject(leveledSourceImage, sourceGeometry, targetGeometry,
                                                targetBand.getNoDataValue(), resampling, hints);
                 } catch (FactoryException e) {
                     e.printStackTrace();
