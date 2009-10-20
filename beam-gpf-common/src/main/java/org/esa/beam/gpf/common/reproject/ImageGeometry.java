@@ -80,6 +80,10 @@ public class ImageGeometry {
         return modelCrs;
     }
     
+    void changeYAxisDirection() {
+        pixelSizeY = -pixelSizeY;
+    }
+    
     public static ImageGeometry createTargetGeometry(Product sourceProduct, CoordinateReferenceSystem targetCrs,
                                               Double pixelSizeX, Double pixelSizeY, Integer width, Integer height,
                                               Double easting, Double northing, Double referencePixelX, Double referencePixelY) {
@@ -200,8 +204,26 @@ public class ImageGeometry {
         }
         return new Point2D[]{min, max};
     }
-
-    void changeYAxisDirection() {
-        pixelSizeY = -pixelSizeY;
-    }
+    
+    // This code is simpler as the code currently used, but it does not consider the crossing of the 180° meridian.
+    // This results in a map coverage of the whole earth.
+    // todo - suggestion to simplify the currently used code are welcome
+//    private Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
+//        try {
+//            final CoordinateReferenceSystem sourceCrs = product.getGeoCoding().getImageCRS();
+//            final int sourceW = product.getSceneRasterWidth();
+//            final int sourceH = product.getSceneRasterHeight();
+//
+//            Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
+//            int pointsPerSide = Math.min(sourceH, sourceW) / 10;
+//            pointsPerSide = Math.max(9, pointsPerSide);
+//
+//            final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
+//            final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
+//            return new Rectangle2D.Double(targetEnvelope.getMinX(), targetEnvelope.getMinY(),
+//                                          targetEnvelope.getWidth(), targetEnvelope.getHeight());
+//        } catch (Exception e) {
+//            throw new OperatorException(e);
+//        }
+//    }
 }
