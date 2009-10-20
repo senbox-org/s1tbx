@@ -6,6 +6,8 @@ import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import com.jidesoft.swing.ComboBoxSearchable;
+import com.jidesoft.swing.SearchableUtils;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ValueEditorsPane;
@@ -17,6 +19,7 @@ import org.opengis.parameter.ParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.AuthorityFactory;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.datum.DatumAuthorityFactory;
 import org.opengis.referencing.datum.GeodeticDatum;
 import org.opengis.referencing.operation.MathTransformFactory;
@@ -54,13 +57,13 @@ public class ProjectionDefinitionForm extends JPanel {
     private final Window parent;
 
     public ProjectionDefinitionForm(Window parent, List<OperationMethod> operationMethodList,
-                                List<GeodeticDatum> datumList) {
+                                    List<GeodeticDatum> datumList) {
         this.parent = parent;
         this.operationMethodList = new ArrayList<OperationMethod>(operationMethodList);
         this.datumList = new ArrayList<GeodeticDatum>(datumList);
         Collections.sort(this.operationMethodList, new IdentifiedObjectComparator());
         Collections.sort(this.datumList, new IdentifiedObjectComparator());
-        
+
         model = new Model();
         // todo - set Lat/Lon WGS84
         model.transformation = this.operationMethodList.get(0);
@@ -88,11 +91,20 @@ public class ProjectionDefinitionForm extends JPanel {
 
         final JLabel transformLabel = new JLabel("Transform:");
         final JLabel datumLabel = new JLabel("Datum:");
-        final JComboBox operationComboBox = new JComboBox(operationMethodList.toArray());
-        operationComboBox.setRenderer(new IdentifiedObjectCellRenderer());
-        final JComboBox datumComboBox = new JComboBox(datumList.toArray());
 
+        final JComboBox operationComboBox = new JComboBox(operationMethodList.toArray());
+        operationComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
+        final ComboBoxSearchable methodSearchable = new IdentifiedObjectSearchable(operationComboBox);
+        methodSearchable.installListeners();
+        operationComboBox.setRenderer(new IdentifiedObjectCellRenderer());
+
+        final JComboBox datumComboBox = new JComboBox(datumList.toArray());
+        datumComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
+        SearchableUtils.installSearchable(datumComboBox);
         datumComboBox.setRenderer(new IdentifiedObjectCellRenderer());
+        final ComboBoxSearchable datumSearchable = new IdentifiedObjectSearchable(datumComboBox);
+        datumSearchable.installListeners();
+
         final JButton paramButton = new JButton("Parameters");
         paramButton.addActionListener(new ParameterButtonListener());
         add(transformLabel);
@@ -231,6 +243,23 @@ public class ProjectionDefinitionForm extends JPanel {
             modalDialog.setContent(new ValueEditorsPane(valueContainer).createPanel());
             if (modalDialog.show() == AbstractDialog.ID_OK) {
                 vc.setValue("parameters", workCopy);
+            }
+        }
+    }
+
+    private static class IdentifiedObjectSearchable extends ComboBoxSearchable {
+
+        private IdentifiedObjectSearchable(JComboBox operationComboBox) {
+            super(operationComboBox);
+        }
+
+        @Override
+        protected String convertElementToString(Object o) {
+            if (o instanceof IdentifiedObject) {
+                IdentifiedObject identifiedObject = (IdentifiedObject) o;
+                return identifiedObject.getName().getCode();
+            } else {
+                return super.convertElementToString(o);
             }
         }
     }
