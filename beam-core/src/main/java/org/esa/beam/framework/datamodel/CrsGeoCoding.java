@@ -28,7 +28,7 @@ import java.awt.geom.Rectangle2D;
 
 public class CrsGeoCoding extends AbstractGeoCoding {
 
-    private final Rectangle2D imageBounds2D;
+    private final Rectangle imageBounds;
     private final AffineTransform imageToModel;
 
     private final MathTransform image2Base;
@@ -37,10 +37,10 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     private final boolean crossingMeridianAt180;
 
     public CrsGeoCoding(final CoordinateReferenceSystem modelCRS,
-                        final Rectangle2D imageBounds2D,
+                        final Rectangle imageBounds,
                         final AffineTransform imageToModel) throws FactoryException,
             TransformException {
-        this.imageBounds2D = imageBounds2D;
+        this.imageBounds = imageBounds;
         this.imageToModel = imageToModel;
         setModelCRS(modelCRS);
         org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(getModelCRS());
@@ -79,7 +79,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     @Override
     public boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
         final AffineTransform destTransform = new AffineTransform(getImageToModelTransform());
-        Rectangle2D destBounds = new Rectangle2D.Double(0, 0, destScene.getRasterWidth(), destScene.getRasterHeight());
+        Rectangle destBounds = new Rectangle(destScene.getRasterWidth(), destScene.getRasterHeight());
 
         if (subsetDef != null) {
             final Rectangle region = subsetDef.getRegion();
@@ -171,7 +171,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     }
 
     private boolean detect180MeridianCrossing() throws TransformException, FactoryException {
-        ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(this.imageBounds2D, getImageCRS());
+        ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(this.imageBounds, getImageCRS());
         referencedEnvelope = referencedEnvelope.transform(getBaseCRS(), true);
         final Rectangle2D.Double meridian180 = new Rectangle2D.Double(180 - 1.0e-3, 90, 2 * 1.0e-3, -180);
         final BoundingBox meridian180Envelop = new ReferencedEnvelope(meridian180, getBaseCRS());

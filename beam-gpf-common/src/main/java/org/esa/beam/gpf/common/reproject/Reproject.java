@@ -195,8 +195,8 @@ final class Reproject {
         if (allSteps.isIdentity() || (allSteps instanceof AffineTransform &&
                 XAffineTransform.isIdentity((AffineTransform) allSteps, EPS))) {
 
-            final Rectangle sourceBB = sourceGG.getBounds2D().getBounds();
-            final Rectangle targetBB = targetGG.getBounds2D().getBounds();
+            final Rectangle sourceBB = sourceGG.getBounds();
+            final Rectangle targetBB = targetGG.getBounds();
             /*
              * Since there is no interpolation to perform, use the native view (which may be
              * packed or geophysics - it is just the view which is closest to original data).

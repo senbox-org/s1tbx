@@ -25,7 +25,6 @@ import org.esa.beam.util.math.MathUtils;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
@@ -67,8 +66,8 @@ public class ImageGeometry {
         }
     }
     
-    public Rectangle2D getImageRect() {
-        return new Rectangle2D.Double(0, 0, width, height);
+    public Rectangle getImageRect() {
+        return new Rectangle(width, height);
     }
     
     public CoordinateReferenceSystem getModelCrs() {

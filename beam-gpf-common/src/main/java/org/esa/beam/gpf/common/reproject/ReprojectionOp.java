@@ -18,6 +18,7 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -51,30 +52,27 @@ import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.math.MathUtils;
 import org.geotools.factory.Hints;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.AxisDirection;
-import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
+
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.image.ColorModel;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.io.File;
+import java.text.MessageFormat;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.ColorModel;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
-import java.io.File;
-import java.text.MessageFormat;
 
 /**
  * @author Marco Zuehlke
@@ -181,11 +179,11 @@ public class ReprojectionOp extends Operator {
         /*
         * 3. Create the target product
         */
-        Rectangle targetGridRect = targetImageGeometry.getImageRect().getBounds();
+        Rectangle targetRect = targetImageGeometry.getImageRect();
         targetProduct = new Product("projected_" + sourceProduct.getName(),
                                     "projection of: " + sourceProduct.getDescription(),
-                                    targetGridRect.width,
-                                    targetGridRect.height);
+                                    targetRect.width,
+                                    targetRect.height);
         /*
         * 4. Define some target properties
         */
@@ -200,7 +198,7 @@ public class ReprojectionOp extends Operator {
         copyIndexCoding();
         try {
             targetProduct.setGeoCoding(new CrsGeoCoding(targetImageGeometry.getModelCrs(),
-                                                        targetImageGeometry.getImageRect(),
+                                                        targetRect,
                                                         targetImageGeometry.getImage2Model()));
         } catch (Exception e) {
             throw new OperatorException(e);
@@ -346,9 +344,8 @@ public class ReprojectionOp extends Operator {
 
             @Override
             public RenderedImage createImage(int level) {
-                Rectangle2D bounds2D = createLevelBounds(getModel(), level);
-                Rectangle intBounds = bounds2D.getBounds();
-                return ConstantDescriptor.create((float) intBounds.width, (float) intBounds.height, new Integer[]{1}, null);
+                Rectangle bounds = createLevelBounds(getModel(), level);
+                return ConstantDescriptor.create((float) bounds.width, (float) bounds.height, new Integer[]{1}, null);
             }
         });
     }
@@ -382,8 +379,8 @@ public class ReprojectionOp extends Operator {
                 if (sourceLevelCount - 1 < targetLevel) {
                     sourceLevel = sourceLevelCount - 1;
                 }
-                Rectangle2D sourceRect = createLevelBounds(srcModel, sourceLevel);
-                Rectangle2D targetRect = createLevelBounds(targetModel, targetLevel);
+                Rectangle sourceRect = createLevelBounds(srcModel, sourceLevel);
+                Rectangle targetRect = createLevelBounds(targetModel, targetLevel);
                 GridGeometry sourceGridGeometry = new GridGeometry(sourceRect,
                                                                    sourceGeoCoding.getModelCRS(),
                                                                    srcModel.getImageToModelTransform(sourceLevel));
@@ -391,10 +388,9 @@ public class ReprojectionOp extends Operator {
                                                                    targetProduct.getGeoCoding().getModelCRS(),
                                                                    getModel().getImageToModelTransform(targetLevel));
 
-                Rectangle targetRectInt = targetGridGeometry.getBounds2D().getBounds();
                 ImageLayout imageLayout = createImageLayout(targetBand.getDataType(),
-                                                            targetRectInt.width,
-                                                            targetRectInt.height,
+                                                            targetRect.width,
+                                                            targetRect.height,
                                                             targetProduct.getPreferredTileSize());
                 Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
                 RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
@@ -413,9 +409,9 @@ public class ReprojectionOp extends Operator {
         });
     }
 
-    private Rectangle2D createLevelBounds(MultiLevelModel model, int level) {
+    private Rectangle createLevelBounds(MultiLevelModel model, int level) {
         final AffineTransform m2i = model.getModelToImageTransform(level);
-        return m2i.createTransformedShape(model.getModelBounds()).getBounds2D();
+        return m2i.createTransformedShape(model.getModelBounds()).getBounds();
     }
 
     private void copyIndexCoding() {

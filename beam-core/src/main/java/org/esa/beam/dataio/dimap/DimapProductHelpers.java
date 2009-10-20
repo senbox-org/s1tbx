@@ -70,13 +70,9 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 import org.xml.sax.SAXException;
 
-import javax.swing.filechooser.FileFilter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -88,6 +84,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+
+import javax.swing.filechooser.FileFilter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * This class defines some static methods used to create and access BEAM DIMAP XML documents.
@@ -402,7 +403,7 @@ public class DimapProductHelpers {
                     matrix[i] = Double.valueOf(parameters[i]);
                 }
                 final AffineTransform i2m = new AffineTransform(matrix);
-                Rectangle2D imageBounds = new Rectangle2D.Double(0, 0, product.getSceneRasterWidth(),
+                Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(),
                                                                  product.getSceneRasterHeight());
                 try {
                     final CrsGeoCoding geoCoding = new CrsGeoCoding(crs, imageBounds, i2m);

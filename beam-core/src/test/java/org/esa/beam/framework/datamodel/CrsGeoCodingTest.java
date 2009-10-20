@@ -1,13 +1,18 @@
 package org.esa.beam.framework.datamodel;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 
 public class CrsGeoCodingTest {
 
@@ -17,7 +22,7 @@ public class CrsGeoCodingTest {
 
     @Before
     public void setup() throws Exception {
-        final Rectangle2D.Double imageBounds = new Rectangle2D.Double(0, 0, 10, 20);
+        final Rectangle imageBounds = new Rectangle(10, 20);
         srcGeoCoding = createCrsGeoCoding(imageBounds);
 
         final Band srcNode = new Band("srcDummy", ProductData.TYPE_INT8, 10, 20);
@@ -106,7 +111,7 @@ public class CrsGeoCodingTest {
 
     @Test
     public void testCrossing180() throws Exception {
-        final Rectangle2D.Double imageBounds = new Rectangle2D.Double(0, 0, 10, 20);
+        final Rectangle imageBounds = new Rectangle(10, 20);
         srcGeoCoding = createCrsGeoCodingCross180(imageBounds);
 
         assertTrue(srcGeoCoding.isCrossingMeridianAt180());
@@ -136,7 +141,7 @@ public class CrsGeoCodingTest {
         assertEquals(srcPos, destPos);
     }
 
-    private CrsGeoCoding createCrsGeoCoding(Rectangle2D.Double imageBounds) throws Exception{
+    private CrsGeoCoding createCrsGeoCoding(Rectangle imageBounds) throws Exception{
         AffineTransform i2m = new AffineTransform();
         final int northing = 60;
         final int easting = 5;
@@ -147,7 +152,7 @@ public class CrsGeoCodingTest {
         return new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, i2m);
     }
 
-    private CrsGeoCoding createCrsGeoCodingCross180(Rectangle2D.Double imageBounds) throws Exception {
+    private CrsGeoCoding createCrsGeoCodingCross180(Rectangle imageBounds) throws Exception {
         AffineTransform i2m = new AffineTransform();
         final int northing = 60;
         final int easting = 175;

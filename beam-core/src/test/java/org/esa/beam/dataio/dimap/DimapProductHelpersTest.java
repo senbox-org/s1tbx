@@ -17,7 +17,7 @@
 package org.esa.beam.dataio.dimap;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FXYGeoCoding;
@@ -42,12 +42,14 @@ import org.geotools.referencing.CRS;
 import org.jdom.Document;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Vector;
+
+import junit.framework.TestCase;
 
 public class DimapProductHelpersTest extends TestCase {
 
@@ -619,7 +621,7 @@ public class DimapProductHelpersTest extends TestCase {
     }
 
     public void testCreateGeoCodingForCrsGeoCoding() throws Exception {
-        final Rectangle2D.Double imageBounds = new Rectangle2D.Double(0, 0, product.getSceneRasterWidth(),
+        final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(),
                                                                       product.getSceneRasterHeight());
         final AffineTransform expectedI2m = new AffineTransform(0.12, 1.23, 2.34, 3.45, 4.56, 5.67);
         final CoordinateReferenceSystem expectedCrs = CRS.decode("EPSG:4326");

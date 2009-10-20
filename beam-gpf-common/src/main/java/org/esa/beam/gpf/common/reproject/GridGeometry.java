@@ -16,6 +16,7 @@ package org.esa.beam.gpf.common.reproject;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
@@ -23,12 +24,12 @@ import java.awt.geom.Rectangle2D;
 class GridGeometry {
 
     private final AffineTransform i2m;
-    private final Rectangle2D bounds2D;
+    private final Rectangle bounds;
     private final CoordinateReferenceSystem modelCrs;
 
-    GridGeometry(Rectangle2D bounds2D, CoordinateReferenceSystem modelCrs, AffineTransform grid2model) {
+    GridGeometry(Rectangle bounds, CoordinateReferenceSystem modelCrs, AffineTransform grid2model) {
         this.i2m = grid2model;
-        this.bounds2D = bounds2D;
+        this.bounds = bounds;
         this.modelCrs = modelCrs;
     }
 
@@ -36,8 +37,8 @@ class GridGeometry {
         return i2m;
     }
     
-    public Rectangle2D getBounds2D() {
-        return bounds2D;
+    public Rectangle getBounds() {
+        return bounds;
     }
     
     public CoordinateReferenceSystem getModelCRS() {

@@ -17,7 +17,7 @@
 package org.esa.beam.dataio.dimap;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
@@ -47,10 +47,12 @@ import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.StringWriter;
+
+import junit.framework.TestCase;
 
 public class DimapHeaderWriterTest extends TestCase {
 
@@ -1018,7 +1020,7 @@ public class DimapHeaderWriterTest extends TestCase {
 
     private String setCrsGeoCodingAndGetExpected() throws Exception {
 
-        final Rectangle2D.Double imageBounds = new Rectangle2D.Double(0, 0, product.getSceneRasterWidth(),
+        final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(),
                                                                       product.getSceneRasterHeight());
         final AffineTransform i2m = new AffineTransform(0.12, 1.23, 2.34, 3.45, 4.56, 5.67);
         final CoordinateReferenceSystem crs = CRS.decode("EPSG:4326");
