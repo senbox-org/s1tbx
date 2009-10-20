@@ -22,9 +22,6 @@ import java.awt.geom.Rectangle2D;
 
 class GridGeometry {
 
-    public static final int dimensionXIndex = 0;
-    public static final int dimensionYIndex = 1;
-    
     private final AffineTransform i2m;
     private final Rectangle2D bounds2D;
     private final CoordinateReferenceSystem modelCrs;

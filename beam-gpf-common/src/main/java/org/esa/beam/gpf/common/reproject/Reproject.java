@@ -57,6 +57,8 @@ import java.awt.image.renderable.ParameterBlock;
  */
 final class Reproject {
 
+    private static final int DIMENSION_X_INDEX = 0;
+    private static final int DIMENSION_Y_INDEX = 1;
     /**
      * Small tolerance threshold for floating point number comparaisons.
      */
@@ -312,14 +314,14 @@ final class Reproject {
                                                      final MathTransformFactory mtFactory) throws FactoryException
     {
         final DimensionFilter filter = new DimensionFilter(mtFactory);
-        filter.addSourceDimension(GridGeometry.dimensionXIndex);
-        filter.addSourceDimension(GridGeometry.dimensionYIndex);
+        filter.addSourceDimension(DIMENSION_X_INDEX);
+        filter.addSourceDimension(DIMENSION_Y_INDEX);
         MathTransform candidate = filter.separate(transform);
         if (candidate instanceof MathTransform2D) {
             return (MathTransform2D) candidate;
         }
-        filter.addTargetDimension(GridGeometry.dimensionXIndex);
-        filter.addTargetDimension(GridGeometry.dimensionYIndex);
+        filter.addTargetDimension(DIMENSION_X_INDEX);
+        filter.addTargetDimension(DIMENSION_Y_INDEX);
         candidate = filter.separate(transform);
         if (candidate instanceof MathTransform2D) {
             return (MathTransform2D) candidate;
