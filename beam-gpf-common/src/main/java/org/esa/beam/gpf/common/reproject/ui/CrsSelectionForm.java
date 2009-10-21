@@ -22,9 +22,7 @@ import com.bc.ceres.swing.TableLayout.Fill;
 import com.jidesoft.list.FilterableListModel;
 import com.jidesoft.list.QuickListFilterField;
 import com.jidesoft.utils.Lm;
-import org.esa.beam.framework.datamodel.Product;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -41,16 +39,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 public class CrsSelectionForm extends JPanel {
-    public static final String PROPERTY_SELECTED_CRS_CODE = "selectedCrsCode";
-
+    
     private final CrsInfoListModel crsListModel;
-    private Product sourceProduct;
     private JTextArea infoArea;
     private JList crsList;
-    private JButton defineCrsBtn;
     private QuickListFilterField filterField;
 
-    private String selectedCrsCode;
+    private CrsInfo selectedCrsInfo;
+
 
     // for testing the UI
     public static void main(String[] args) {
@@ -96,7 +92,6 @@ public class CrsSelectionForm extends JPanel {
         infoArea.setEditable(false);
         crsList.addListSelectionListener(new CrsListSelectionListener());
         final JScrollPane infoAreaScrollPane = new JScrollPane(infoArea);
-        defineCrsBtn = new JButton("Create User Defined Projection");
 
         TableLayout tableLayout = new TableLayout(3);
         setLayout(tableLayout);
@@ -117,7 +112,6 @@ public class CrsSelectionForm extends JPanel {
         add(infoLabel);
         add(crsListScrollPane);
         add(infoAreaScrollPane);
-        add(defineCrsBtn);
         addPropertyChangeListener("enabled", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -128,42 +122,39 @@ public class CrsSelectionForm extends JPanel {
                 crsListScrollPane.setEnabled((Boolean) evt.getNewValue());
                 infoArea.setEnabled((Boolean) evt.getNewValue());
                 infoAreaScrollPane.setEnabled((Boolean) evt.getNewValue());
-                defineCrsBtn.setEnabled((Boolean) evt.getNewValue());
             }
         });
 
     }
 
     private class CrsListSelectionListener implements ListSelectionListener {
+
+
         @Override
         public void valueChanged(ListSelectionEvent e) {
             final JList list = (JList) e.getSource();
-            CrsInfo crsInfo = (CrsInfo) list.getSelectedValue();
-            String oldCrsCode = selectedCrsCode;
-            if (crsInfo != null) {
+            selectedCrsInfo = (CrsInfo) list.getSelectedValue();
+            if (selectedCrsInfo != null) {
                 try {
-                    setInfoText(crsInfo.getCrs(sourceProduct).toString());
-                    selectedCrsCode = crsInfo.getCrsCode();
+                    setInfoText(selectedCrsInfo.getDescription());
                 } catch (Exception e1) {
-                    selectedCrsCode = null;
                     String message = e1.getMessage();
                     if (message != null) {
                         setInfoText("Error while creating CRS:\n\n" + message);
                     }
                 }
             }
-            firePropertyChange(PROPERTY_SELECTED_CRS_CODE, oldCrsCode, selectedCrsCode);
         }
 
     }
 
+    CrsInfo getSelectedCrsInfo() {
+        return selectedCrsInfo;
+    }
+
+
     private void setInfoText(String infoText) {
         infoArea.setText(infoText);
         infoArea.setCaretPosition(0);
-    }
-
-    public void setSelectedProduct(Product sourceProduct) {
-        this.sourceProduct = sourceProduct;
-        crsList.setSelectedValue(null, false);
     }
 }
