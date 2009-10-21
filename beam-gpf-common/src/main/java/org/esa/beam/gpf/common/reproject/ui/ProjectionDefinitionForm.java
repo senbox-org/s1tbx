@@ -135,7 +135,6 @@ public class ProjectionDefinitionForm extends JPanel {
         add(datumLabel);
         add(datumComboBox);
         add(paramButton);
-        add(tableLayout.createVerticalSpacer());
         addPropertyChangeListener("enabled", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
