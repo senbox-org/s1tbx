@@ -81,6 +81,14 @@ class CrsInfo implements Comparable<CrsInfo> {
         return crsDescription;
     }
 
+    public String getDescription() {
+        try {
+            return getCrs(null).toString();
+        } catch (FactoryException e) {
+            return e.getMessage();
+        }
+    }
+
     private static class AutoCrsInfo extends CrsInfo {
 
         AutoCrsInfo(String epsgCode, CRSAuthorityFactory factory) {
@@ -110,6 +118,13 @@ class CrsInfo implements Comparable<CrsInfo> {
             }
             return crsDescription;
         }
+
+        @Override
+        public String getDescription() {
+            return toString();
+        }
+
+
     }
 
     static List<CrsInfo> generateCRSList() {
