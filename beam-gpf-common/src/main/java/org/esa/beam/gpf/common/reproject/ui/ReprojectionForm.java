@@ -33,7 +33,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -180,15 +179,16 @@ public class ReprojectionForm extends JTabbedPane {
         buttonGroup.add(crsRadioButton);
         buttonGroup.add(collocateRadioButton);
 
-        final TableLayout tableLayout = new TableLayout(1);
+        final TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTablePadding(4, 4);
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayout.setTableWeightX(1.0);
         tableLayout.setTableWeightY(0.0);
-        tableLayout.setCellPadding(1, 0, new Insets(4, 20, 4, 4));
-        tableLayout.setCellPadding(3, 0, new Insets(4, 20, 4, 4));
-        tableLayout.setCellPadding(5, 0, new Insets(4, 20, 4, 4));
+        tableLayout.setCellColspan(0,0,2);
+        tableLayout.setCellColspan(1,0,2);
+        tableLayout.setCellWeightX(2,0,0.0);
+        tableLayout.setCellWeightX(3,0,0.0);
 
         final JPanel projectionPanel = new JPanel(tableLayout);
         projectionPanel.setBorder(BorderFactory.createTitledBorder("Projection"));
