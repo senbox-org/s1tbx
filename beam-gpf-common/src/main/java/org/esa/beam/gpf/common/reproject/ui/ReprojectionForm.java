@@ -20,7 +20,6 @@ import org.opengis.referencing.datum.GeodeticDatum;
 import org.opengis.referencing.operation.OperationMethod;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
@@ -67,7 +66,6 @@ public class ReprojectionForm extends JTabbedPane {
     private JTextField crsCodeField;
     private JPanel crsSelectionPanel;
 
-    private String resamplingName;
     private Product sourceProduct;
     private CrsInfo selectedCrsInfo;
     private DemSelector demSelector;
@@ -77,14 +75,13 @@ public class ReprojectionForm extends JTabbedPane {
         orthoMode = orthorectify;
         this.appContext = appContext;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
-        resamplingName = "Nearest";
         createUI();
         updateUIState();
     }
 
     public Map<String, Object> getParameterMap() {
         Map<String, Object> parameterMap = new HashMap<String, Object>(5);
-        parameterMap.put("resamplingName", resamplingName);
+        parameterMap.put("resamplingName", resampleComboBox.getSelectedItem().toString());
         parameterMap.put("includeTiePointGrids", includeTPcheck.isSelected());
         try {
             if (crsButtonModel.isSelected()) {
@@ -149,7 +146,11 @@ public class ReprojectionForm extends JTabbedPane {
 
     private JPanel createParameterPanel() {
         final JPanel parameterPanel = new JPanel();
-        final BoxLayout layout = new BoxLayout(parameterPanel, BoxLayout.Y_AXIS);
+        final TableLayout layout = new TableLayout(1);
+        layout.setTablePadding(4, 4);
+        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        layout.setTableAnchor(TableLayout.Anchor.WEST);
+        layout.setTableWeightX(1.0);
         parameterPanel.setLayout(layout);
 
         parameterPanel.add(createProjectionPanel());
@@ -212,17 +213,27 @@ public class ReprojectionForm extends JTabbedPane {
     }
 
     private JPanel createOuputSettingsPanel() {
-        final JPanel outputSettingsPanel = new JPanel(new BorderLayout(3, 3));
-        outputSettingsPanel.setBorder(BorderFactory.createTitledBorder("Output Settings"));
+
+        final JButton outputParamBtn = new JButton("Output Parameter");
+
         final JPanel resamplePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
         resamplePanel.add(new JLabel("Resampling Method:"));
         resampleComboBox = new JComboBox(RESAMPLING_IDENTIFIER);
         resampleComboBox.setPrototypeDisplayValue(RESAMPLING_IDENTIFIER[0]);
-        resampleComboBox.addActionListener(new UpdateStateListener());
         resamplePanel.add(resampleComboBox);
-        includeTPcheck = new JCheckBox("Include Tie Point Grids", true);
-        outputSettingsPanel.add(resamplePanel, BorderLayout.NORTH);
-        outputSettingsPanel.add(includeTPcheck, BorderLayout.SOUTH);
+        includeTPcheck = new JCheckBox("Include Tie-Point Grids", true);
+
+        final TableLayout tableLayout = new TableLayout(3);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTablePadding(8, 4);
+        tableLayout.setTableWeightX(1.0);
+
+        final JPanel outputSettingsPanel = new JPanel(tableLayout);
+        outputSettingsPanel.setBorder(BorderFactory.createTitledBorder("Output Settings"));
+        outputSettingsPanel.add(outputParamBtn);
+        outputSettingsPanel.add(resamplePanel);
+        outputSettingsPanel.add(includeTPcheck);
         return outputSettingsPanel;
     }
 
@@ -300,7 +311,6 @@ public class ReprojectionForm extends JTabbedPane {
         projDefPanel.setEnabled(projButtonModel.isSelected());
         crsSelectionPanel.setEnabled(crsButtonModel.isSelected());
         collocationPanel.setEnabled(collocateButtonModel.isSelected());
-        resamplingName = resampleComboBox.getSelectedItem().toString();
     }
 
 
