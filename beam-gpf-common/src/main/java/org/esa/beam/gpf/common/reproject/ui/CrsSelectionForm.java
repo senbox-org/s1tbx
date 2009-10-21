@@ -37,6 +37,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 public class CrsSelectionForm extends JPanel {
     public static final String PROPERTY_SELECTED_CRS_CODE = "selectedCrsCode";
@@ -75,13 +77,6 @@ public class CrsSelectionForm extends JPanel {
         createUI();
     }
 
-    public void setFormEnabled(boolean enable) {
-        filterField.setEnabled(enable);
-        crsList.setEnabled(enable);
-        infoArea.setEnabled(enable);
-        defineCrsBtn.setEnabled(enable);
-    }
-
     private void createUI() {
         filterField = new QuickListFilterField(crsListModel);
         filterField.setHintText("Type here to filter Projections");
@@ -95,12 +90,12 @@ public class CrsSelectionForm extends JPanel {
 
         final JLabel filterLabel = new JLabel("Filter:");
         final JLabel infoLabel = new JLabel("CRS Info:");
-        JScrollPane crsListScrollPane = new JScrollPane(crsList);
+        final JScrollPane crsListScrollPane = new JScrollPane(crsList);
         crsListScrollPane.setPreferredSize(new Dimension(200, 150));
         infoArea = new JTextArea(15, 30);
         infoArea.setEditable(false);
         crsList.addListSelectionListener(new CrsListSelectionListener());
-        JScrollPane infoAreaScrollPane = new JScrollPane(infoArea);
+        final JScrollPane infoAreaScrollPane = new JScrollPane(infoArea);
         defineCrsBtn = new JButton("Create User Defined Projection");
 
         TableLayout tableLayout = new TableLayout(3);
@@ -123,6 +118,20 @@ public class CrsSelectionForm extends JPanel {
         add(crsListScrollPane);
         add(infoAreaScrollPane);
         add(defineCrsBtn);
+        addPropertyChangeListener("enabled", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                filterLabel.setEnabled((Boolean) evt.getNewValue());
+                filterField.setEnabled((Boolean) evt.getNewValue());
+                infoLabel.setEnabled((Boolean) evt.getNewValue());
+                crsList.setEnabled((Boolean) evt.getNewValue());
+                crsListScrollPane.setEnabled((Boolean) evt.getNewValue());
+                infoArea.setEnabled((Boolean) evt.getNewValue());
+                infoAreaScrollPane.setEnabled((Boolean) evt.getNewValue());
+                defineCrsBtn.setEnabled((Boolean) evt.getNewValue());
+            }
+        });
+
     }
 
     private class CrsListSelectionListener implements ListSelectionListener {
