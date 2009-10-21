@@ -38,6 +38,11 @@ public class MaskTest {
     }
 
     private static class NullImageType extends Mask.ImageType {
+
+        private NullImageType() {
+            super("Null");
+        }
+
         @Override
         public MultiLevelImage createImage(Mask mask) {
             return null;
@@ -45,6 +50,11 @@ public class MaskTest {
     }
 
     private static class BufferedImageType extends Mask.ImageType {
+
+        private BufferedImageType() {
+            super("Buffered");
+        }
+
         @Override
         public MultiLevelImage createImage(Mask mask) {
             BufferedImage image = new BufferedImage(mask.getSceneRasterWidth(), mask.getSceneRasterHeight(), BufferedImage.TYPE_BYTE_GRAY);

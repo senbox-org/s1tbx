@@ -49,10 +49,6 @@ public class MaskManagerFormTest {
         frame.setVisible(true);
     }
 
-    private static void verifyJideLicense() {
-        Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
-    }
-
     private static MaskManagerForm createTestForm() {
         Product product = createTestProduct();
 

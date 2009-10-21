@@ -145,6 +145,11 @@ public class Mask extends Band {
         public static final String PROPERTY_NAME_TRANSPARENCY = "transparency";
         private static final Color DEFAULT_COLOR = Color.RED;
         private static final float DEFAULT_TRANSPARENCY = 0.5f;
+        private final String name;
+
+        protected ImageType(String name) {
+            this.name = name;
+        }
 
         /**
          * Creates the image.
@@ -181,6 +186,10 @@ public class Mask extends Band {
 
         public void handleRename(Mask mask, String oldExternalName, String newExternalName) {
         }
+
+        public  String getName() {
+            return name;
+        }
     }
 
     /**
@@ -188,6 +197,10 @@ public class Mask extends Band {
      */
     public static class BandMathType extends ImageType {
         public static final String PROPERTY_NAME_EXPRESSION = "expression";
+
+        public BandMathType() {
+            super("Band math");
+        }
 
         /**
          * Creates the image.
