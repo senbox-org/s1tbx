@@ -240,7 +240,7 @@ public class ReprojectionForm extends JTabbedPane {
     }
 
     private JPanel createOuputSettingsPanel() {
-
+        // todo - not working well yet (mp, 21102009)
         final JButton outputParamBtn = new JButton("Output Parameter");
         outputParamBtn.addActionListener(new ActionListener() {
             @Override
