@@ -15,9 +15,9 @@ public class ReprojectionDialog extends SingleTargetProductDialog {
 
     private ReprojectionForm form;
 
-    public ReprojectionDialog(AppContext appContext) {
-        super(appContext, "Reproject", "reproject");
-        form = new ReprojectionForm(getTargetProductSelector(), appContext);
+    public ReprojectionDialog(boolean orthorectify, final String title, final String helpID, AppContext appContext) {
+        super(appContext, title, helpID);
+        form = new ReprojectionForm(getTargetProductSelector(), orthorectify, appContext);
     }
 
     @Override

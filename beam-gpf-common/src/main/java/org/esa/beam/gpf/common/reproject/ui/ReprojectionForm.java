@@ -33,6 +33,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -50,6 +51,7 @@ public class ReprojectionForm extends JTabbedPane {
 
     private static final String[] RESAMPLING_IDENTIFIER = {"Nearest", "Bilinear", "Bicubic"};
 
+    private final boolean orthoMode;
     private final AppContext appContext;
 
     private SourceProductSelector sourceProductSelector;
@@ -71,9 +73,10 @@ public class ReprojectionForm extends JTabbedPane {
     private CrsInfo selectedCrsInfo;
     private DemSelector demSelector;
 
-    public ReprojectionForm(TargetProductSelector targetProductSelector, AppContext appContext) {
-        this.appContext = appContext;
+    public ReprojectionForm(TargetProductSelector targetProductSelector, boolean orthorectify, AppContext appContext) {
         this.targetProductSelector = targetProductSelector;
+        orthoMode = orthorectify;
+        this.appContext = appContext;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
         resamplingName = "Nearest";
         createUI();
@@ -94,6 +97,15 @@ public class ReprojectionForm extends JTabbedPane {
             }
         } catch (FactoryException e) {
             throw new IllegalStateException(e);
+        }
+        if (orthoMode) {
+            parameterMap.put("orthorectify", orthoMode);
+            if (demSelector.isUsingExternalDem()) {
+                parameterMap.put("elevationModelName", demSelector.getDemName());
+            } else {
+                parameterMap.put("elevationModelName", null);
+            }
+
         }
         return parameterMap;
     }
@@ -140,9 +152,11 @@ public class ReprojectionForm extends JTabbedPane {
         final JPanel parameterPanel = new JPanel();
         final BoxLayout layout = new BoxLayout(parameterPanel, BoxLayout.Y_AXIS);
         parameterPanel.setLayout(layout);
-        
+
         parameterPanel.add(createProjectionPanel());
-        parameterPanel.add(createOrthorectifyPanel());
+        if (orthoMode) {
+            parameterPanel.add(createOrthorectifyPanel());
+        }
         parameterPanel.add(createOuputSettingsPanel());
         return parameterPanel;
     }
@@ -172,6 +186,9 @@ public class ReprojectionForm extends JTabbedPane {
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayout.setTableWeightX(1.0);
         tableLayout.setTableWeightY(0.0);
+        tableLayout.setCellPadding(1, 0, new Insets(4, 20, 4, 4));
+        tableLayout.setCellPadding(3, 0, new Insets(4, 20, 4, 4));
+        tableLayout.setCellPadding(5, 0, new Insets(4, 20, 4, 4));
 
         final JPanel projectionPanel = new JPanel(tableLayout);
         projectionPanel.setBorder(BorderFactory.createTitledBorder("Projection"));
@@ -185,23 +202,13 @@ public class ReprojectionForm extends JTabbedPane {
     }
 
     private JPanel createOrthorectifyPanel() {
-        final JPanel orthorectifyPanel = new JPanel(new BorderLayout(3, 3));
-        orthorectifyPanel.setBorder(BorderFactory.createTitledBorder("Orthorectify"));
         demSelector = new DemSelector(new ParamChangeListener() {
             @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 updateUIState();
             }
         });
-
-// update state
-//        if (_orthorectificationMode && _demSelector.isUsingExternalDem()) {
-//            _outputMapInfo.setElevationModelName(_demSelector.getDemName());
-//        } else {
-//            _outputMapInfo.setElevationModelName(null);
-//        }
-
-        return orthorectifyPanel;
+        return demSelector;
     }
 
     private JPanel createOuputSettingsPanel() {
@@ -272,8 +279,8 @@ public class ReprojectionForm extends JTabbedPane {
         panel.addPropertyChangeListener("enabled", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                crsCodeField.setEnabled((Boolean)evt.getNewValue());
-                crsButton.setEnabled((Boolean)evt.getNewValue());
+                crsCodeField.setEnabled((Boolean) evt.getNewValue());
+                crsButton.setEnabled((Boolean) evt.getNewValue());
             }
         });
         return panel;
@@ -293,7 +300,6 @@ public class ReprojectionForm extends JTabbedPane {
         projDefPanel.setEnabled(projButtonModel.isSelected());
         crsSelectionPanel.setEnabled(crsButtonModel.isSelected());
         collocationPanel.setEnabled(collocateButtonModel.isSelected());
-
         resamplingName = resampleComboBox.getSelectedItem().toString();
     }
 

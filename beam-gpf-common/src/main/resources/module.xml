@@ -35,6 +35,11 @@
             <class>org.esa.beam.gpf.common.reproject.ui.ReprojectionAction</class>
             <text>Reprojection (SPIKE)...</text>
         </action>
+        <action>
+            <id>orthorectifyAction</id>
+            <class>org.esa.beam.gpf.common.reproject.ui.OrthorectifyAction</class>
+            <text>Orthorectify (SPIKE)...</text>
+        </action>
     </extension>
 
 </module>
