@@ -47,7 +47,8 @@ public class ImageGeometry {
     private double pixelSizeY;
     
     private AffineTransform i2m;
-    private Rectangle bounds;
+    private int width;
+    private int height;
     private CoordinateReferenceSystem modelCrs;
     
     private ImageGeometry() {
@@ -55,7 +56,8 @@ public class ImageGeometry {
     
     ImageGeometry(Rectangle bounds, CoordinateReferenceSystem modelCrs, AffineTransform grid2model) {
         this.i2m = grid2model;
-        this.bounds = bounds;
+        this.width = bounds.width;
+        this.height = bounds.height;
         this.modelCrs = modelCrs;
     }
     
@@ -73,7 +75,7 @@ public class ImageGeometry {
     }
     
     public Rectangle getImageRect() {
-        return bounds;
+        return new Rectangle(width, height);
     }
     
     public CoordinateReferenceSystem getModelCrs() {
@@ -86,10 +88,12 @@ public class ImageGeometry {
     
     public static ImageGeometry createTargetGeometry(Product sourceProduct, CoordinateReferenceSystem targetCrs,
                                               Double pixelSizeX, Double pixelSizeY, Integer width, Integer height,
-                                              Double easting, Double northing, Double referencePixelX, Double referencePixelY) {
+                                              Double orientation, Double easting, Double northing,
+                                              Double referencePixelX, Double referencePixelY) {
         Rectangle2D mapBoundary = createMapBoundary(sourceProduct, targetCrs);
         ImageGeometry ig = new ImageGeometry();
         ig.modelCrs = targetCrs;
+        ig.orientation = orientation == null ? 0.0 : orientation;
         double mapW = mapBoundary.getWidth();
         double mapH = mapBoundary.getHeight();
 
@@ -107,23 +111,20 @@ public class ImageGeometry {
             ig.pixelSizeX = pixelSizeX;
             ig.pixelSizeY = pixelSizeY;
         }
-        int rectWidth;
         if (width == null) {
-            rectWidth = 1 + (int) Math.floor(mapW / ig.pixelSizeX);
+            ig.width = 1 + (int) Math.floor(mapW / ig.pixelSizeX);
         } else {
-            rectWidth = width;
+            ig.width = width;
         }
-        int rectHeight;
         if (height == null) {
-            rectHeight = 1 + (int) Math.floor(mapH / ig.pixelSizeY);
+            ig.height = 1 + (int) Math.floor(mapH / ig.pixelSizeY);
         } else {
-            rectHeight = height;
+            ig.height = height;
         }
-        ig.bounds = new Rectangle(rectWidth, rectHeight);
 
         if (referencePixelX == null && referencePixelY == null) {
-            ig.referencePixelX = 0.5 * rectWidth;
-            ig.referencePixelY = 0.5 * rectHeight;
+            ig.referencePixelX = 0.5 * ig.width;
+            ig.referencePixelY = 0.5 * ig.height;
         } else {
             ig.referencePixelX = referencePixelX;
             ig.referencePixelY = referencePixelY;
@@ -142,11 +143,11 @@ public class ImageGeometry {
         GeoCoding geoCoding = collocationProduct.getGeoCoding();
         AffineTransform i2m = (AffineTransform) geoCoding.getImageToModelTransform().clone();
         CoordinateReferenceSystem modelCRS = geoCoding.getModelCRS();
-        Rectangle bounds = new Rectangle(collocationProduct.getSceneRasterWidth(), collocationProduct.getSceneRasterHeight());
         ImageGeometry imageGeometry = new ImageGeometry();
         imageGeometry.modelCrs = modelCRS;
         imageGeometry.i2m = i2m;
-        imageGeometry.bounds = bounds;
+        imageGeometry.width = collocationProduct.getSceneRasterWidth();
+        imageGeometry.height = collocationProduct.getSceneRasterHeight();
         return imageGeometry;
     }
 

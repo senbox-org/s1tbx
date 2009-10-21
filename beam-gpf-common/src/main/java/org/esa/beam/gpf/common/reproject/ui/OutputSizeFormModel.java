@@ -21,7 +21,6 @@ import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.ValueSet;
-
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.gpf.common.reproject.ImageGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -48,6 +47,7 @@ class OutputSizeFormModel {
             Double northing = (Double)valueContainer.getValue("northing");
             Double referencePixelX = (Double)valueContainer.getValue("referencePixelX");
             Double referencePixelY = (Double)valueContainer.getValue("referencePixelY");
+            Double orientation = (Double)valueContainer.getValue("orientation");
             if (fitProductSize) {
                 width = null;
                 height = null;
@@ -65,7 +65,7 @@ class OutputSizeFormModel {
             }
             ImageGeometry ig = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs, 
                                                                   pixelSizeX, pixelSizeY, 
-                                                                  width, height, 
+                                                                  width, height, orientation, 
                                                                   easting, northing, 
                                                                   referencePixelX, referencePixelY);
             
@@ -86,7 +86,8 @@ class OutputSizeFormModel {
     OutputSizeFormModel(Product sourceProduct, CoordinateReferenceSystem targetCrs) {
         this.sourceProduct = sourceProduct;
         this.targetCrs = targetCrs;
-        imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs, null, null, null, null, null, null, null, null);
+        imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs,
+                                                           null, null, null, null, null, null, null, null, null);
         valueContainer =  ValueContainer.createObjectBacked(imageGeometry);
         ValueContainer thisVC = ValueContainer.createObjectBacked(this);
         valueContainer.addModels(thisVC.getModels());
@@ -95,10 +96,14 @@ class OutputSizeFormModel {
         valueContainer.addPropertyChangeListener(new ChangeListener());
     }
     
-    ValueContainer getvalueContainer() {
+    ValueContainer getValueContainer() {
         return valueContainer;
     }
-    
+
+    public ImageGeometry getImageGeometry() {
+        return imageGeometry;
+    }
+
     private void updateImgaeGeometry(ImageGeometry newImageGeometry) {
         ValueContainer newVC=  ValueContainer.createObjectBacked(newImageGeometry);
         ValueModel[] valueModels = newVC.getModels();

@@ -18,7 +18,6 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -59,6 +58,11 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.operation.TransformException;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -67,12 +71,6 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
 import java.text.MessageFormat;
-
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.operator.ConstantDescriptor;
 
 /**
  * @author Marco Zuehlke
@@ -547,7 +545,11 @@ public class ReprojectionOp extends Operator {
             return ImageGeometry.createCollocationTargetGeometry(collocationProduct);
 
         } else {
-            ImageGeometry imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs, pixelSizeX, pixelSizeY, width, height, easting, northing, referencePixelX, referencePixelY);
+            ImageGeometry imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs,
+                                                                             pixelSizeX, pixelSizeY,
+                                                                             width, height, orientation,
+                                                                             easting, northing,
+                                                                             referencePixelX, referencePixelY);
             final AxisDirection targetAxisDirection = targetCrs.getCoordinateSystem().getAxis(1).getDirection();
             // When collocating the Y-Axis is DISPLAY_DOWN, then pixelSizeY must not negated
             if (!AxisDirection.DISPLAY_DOWN.equals(targetAxisDirection)) {

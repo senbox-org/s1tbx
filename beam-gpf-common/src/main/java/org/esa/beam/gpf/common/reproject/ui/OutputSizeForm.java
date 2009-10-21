@@ -20,23 +20,11 @@ import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ValueEditor;
 import com.bc.ceres.binding.swing.ValueEditorRegistry;
-
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.ValueEditorsPane;
-import org.esa.beam.gpf.common.reproject.ImageGeometry;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import java.awt.Container;
-import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
@@ -46,6 +34,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
 
 /**
  * @author Marco Zuehlke
@@ -59,8 +49,8 @@ class OutputSizeForm extends JPanel {
     private JRadioButton pixelRefCenterButton;
     private JRadioButton pixelRefOtherButton;
 
-    public OutputSizeForm(OutputSizeFormModel model) {
-        context = new BindingContext(model.getvalueContainer());
+    OutputSizeForm(OutputSizeFormModel model) {
+        context = new BindingContext(model.getValueContainer());
         createUI();
     }
     
@@ -183,7 +173,7 @@ class OutputSizeForm extends JPanel {
         final JFrame jFrame = new JFrame("Output parameter Definition Form");
         Container contentPane = jFrame.getContentPane();
         
-        Product sourceProduct = ProductIO.readProduct("/home/marcoz/EOData/Meris/Pairs/MER_RR__1alpen.N1", null);
+        Product sourceProduct = ProductIO.readProduct("C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\MER_RR__1PPBCM20090804__Kinneret_FUB.dim", null);
         CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");
         OutputSizeFormModel model = new OutputSizeFormModel(sourceProduct, targetCrs);
         OutputSizeForm form = new OutputSizeForm(model);

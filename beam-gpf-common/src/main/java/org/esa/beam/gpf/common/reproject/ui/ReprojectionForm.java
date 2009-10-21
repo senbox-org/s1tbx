@@ -1,5 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -69,6 +70,7 @@ public class ReprojectionForm extends JTabbedPane {
     private Product sourceProduct;
     private CrsInfo selectedCrsInfo;
     private DemSelector demSelector;
+    private ValueContainer outputParameterContainer;
 
     public ReprojectionForm(TargetProductSelector targetProductSelector, boolean orthorectify, AppContext appContext) {
         this.targetProductSelector = targetProductSelector;
@@ -101,9 +103,34 @@ public class ReprojectionForm extends JTabbedPane {
             } else {
                 parameterMap.put("elevationModelName", null);
             }
+        }
 
+        if (outputParameterContainer != null) {
+            parameterMap.put("referencePixelX", outputParameterContainer.getValue("referencePixelX"));
+            parameterMap.put("referencePixelY", outputParameterContainer.getValue("referencePixelY"));
+            parameterMap.put("easting", outputParameterContainer.getValue("easting"));
+            parameterMap.put("northing", outputParameterContainer.getValue("northing"));
+            parameterMap.put("orientation", outputParameterContainer.getValue("orientation"));
+            parameterMap.put("pixelSizeX", outputParameterContainer.getValue("pixelSizeX"));
+            parameterMap.put("pixelSizeY", outputParameterContainer.getValue("pixelSizeY"));
+            parameterMap.put("height", outputParameterContainer.getValue("height"));
+            parameterMap.put("noDataValue", outputParameterContainer.getValue("noData"));
         }
         return parameterMap;
+    }
+
+    private CoordinateReferenceSystem getTargetCrs() throws FactoryException {
+            if (crsButtonModel.isSelected()) {
+                return selectedCrsInfo.getCrs(sourceProduct);
+
+            }
+            if (projButtonModel.isSelected()) {
+                return projDefPanel.getProcjetedCRS();
+            }
+            if (collocateButtonModel.isSelected()) {
+                return collocationProduct.getGeoCoding().getModelCRS();
+            }
+        return null;
     }
 
     public Map<String, Product> getProductMap() {
@@ -215,7 +242,26 @@ public class ReprojectionForm extends JTabbedPane {
     private JPanel createOuputSettingsPanel() {
 
         final JButton outputParamBtn = new JButton("Output Parameter");
-
+        outputParamBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    final CoordinateReferenceSystem crs = getTargetCrs();
+                    final OutputSizeFormModel formModel = new OutputSizeFormModel(sourceProduct, crs);
+                    final OutputSizeForm form = new OutputSizeForm(formModel);
+                    final ModalDialog modalDialog = new ModalDialog(appContext.getApplicationWindow(),
+                                                                    "Output Parameters",
+                                                                    ModalDialog.ID_OK_CANCEL, null);
+                    modalDialog.setContent(form);
+                    if (modalDialog.show() == ModalDialog.ID_OK) {
+                        outputParameterContainer = formModel.getValueContainer();
+                    }
+                } catch (FactoryException fe) {
+                    appContext.handleError("Could not create target CRS.\n" +
+                                           fe.getMessage(), fe);
+                }
+            }
+        });
         final JPanel resamplePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
         resamplePanel.add(new JLabel("Resampling Method:"));
         resampleComboBox = new JComboBox(RESAMPLING_IDENTIFIER);
