@@ -10,10 +10,14 @@ import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.datum.GeodeticDatum;
+import org.opengis.referencing.operation.OperationMethod;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -29,6 +33,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,13 +50,17 @@ public class ReprojectionForm extends JTabbedPane {
     private TargetProductSelector targetProductSelector;
     private SourceProductSelector collocateProductSelector;
     private CrsSelectionForm crsSelectionForm;
-    private JRadioButton collocateRadioButton;
+    private ProjectionDefinitionForm projDefForm;
     private String resamplingName;
     private Product sourceProduct;
     private JComboBox resampleComboBox;
     private JCheckBox includeTPcheck;
     private String crsCode;
     private Product collocationProduct;
+    private ButtonModel projButtonModel;
+    private ButtonModel crsButtonModel;
+    private ButtonModel collocateButtonModel;
+    private JPanel collocationForm;
 
     public ReprojectionForm(TargetProductSelector targetProductSelector, AppContext appContext) {
         this.appContext = appContext;
@@ -66,8 +75,13 @@ public class ReprojectionForm extends JTabbedPane {
         Map<String, Object> parameterMap = new HashMap<String, Object>(5);
         parameterMap.put("resamplingName", resamplingName);
         parameterMap.put("includeTiePointGrids", includeTPcheck.isSelected());
-        if(!collocateRadioButton.isSelected()) {
+        if (!collocateButtonModel.isSelected()) {
             parameterMap.put("crsCode", crsCode);
+            try {
+                parameterMap.put("wkt", projDefForm.getProcjetedCRS().toWKT());
+            } catch (FactoryException e) {
+                throw new IllegalStateException(e);
+            }
         }
         return parameterMap;
     }
@@ -75,7 +89,7 @@ public class ReprojectionForm extends JTabbedPane {
     public Map<String, Product> getProductMap() {
         final Map<String, Product> productMap = new HashMap<String, Product>(5);
         productMap.put("source", sourceProduct);
-        if(collocateRadioButton.isSelected()) {
+        if (collocateButtonModel.isSelected()) {
             productMap.put("collocate", collocationProduct);
         }
         return productMap;
@@ -123,43 +137,28 @@ public class ReprojectionForm extends JTabbedPane {
     }
 
     private JPanel createProjectionPanel() {
-        collocateProductSelector = new SourceProductSelector(appContext, "Product:");
-        collocateProductSelector.setProductFilter(new CollocateProductFilter());
-        collocateProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
-            @Override
-            public void selectionChanged(SelectionChangeEvent event) {
-                updateUIState();
-            }
-        });
+        collocationForm = createCollocationPanel();
         crsSelectionForm = createCrsSelectionForm();
-        final ButtonGroup group = new ButtonGroup();
-        collocateRadioButton = new JRadioButton("Collocate with Product");
+        projDefForm = createProjDefForm();
+        JRadioButton projectionRadioButton = new JRadioButton("Transformation", true);
+        projectionRadioButton.addActionListener(new UpdateStateListener());
+        JRadioButton crsRadioButton = new JRadioButton("CRS");
+        crsRadioButton.addActionListener(new UpdateStateListener());
+        JRadioButton collocateRadioButton = new JRadioButton("Collocate");
+        collocateRadioButton.addActionListener(new UpdateStateListener());
+        projButtonModel = projectionRadioButton.getModel();
+        crsButtonModel = crsRadioButton.getModel();
+        collocateButtonModel = collocateRadioButton.getModel();
 
-        collocateRadioButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateUIState();
-            }
-        });
-        JRadioButton projectionRadioButton = new JRadioButton("Define Projection", true);
-        projectionRadioButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateUIState();
-            }
-        });
-        
-        group.add(collocateRadioButton);
-        group.add(projectionRadioButton);
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(projectionRadioButton);
+        buttonGroup.add(crsRadioButton);
+        buttonGroup.add(collocateRadioButton);
 
         resampleComboBox = new JComboBox(RESAMPLING_IDENTIFIER);
         resampleComboBox.setPrototypeDisplayValue(RESAMPLING_IDENTIFIER[0]);
-        resampleComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateUIState();
-            }
-        });
+        resampleComboBox.addActionListener(new UpdateStateListener());
+        
         final JPanel settingsPanel = new JPanel(new BorderLayout(3, 3));
         final JPanel resamplePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
         resamplePanel.add(new JLabel("Resampling Method:"));
@@ -168,44 +167,72 @@ public class ReprojectionForm extends JTabbedPane {
         settingsPanel.add(resamplePanel, BorderLayout.NORTH);
         settingsPanel.add(includeTPcheck, BorderLayout.SOUTH);
 
-        final TableLayout tableLayout = new TableLayout(2);
-        tableLayout.setTablePadding(3, 3);
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTablePadding(4, 4);
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
-        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayout.setTableWeightX(1.0);
         tableLayout.setTableWeightY(0.0);
-        tableLayout.setCellColspan(0, 0, 2);
-        tableLayout.setCellColspan(1, 0, 2);
-        tableLayout.setRowWeightY(1, 1.0);
-        tableLayout.setCellPadding(1, 0, new Insets(3, 15, 3, 3));
-        tableLayout.setRowPadding(1, new Insets(3, 3, 15, 3));
-        tableLayout.setCellColspan(2, 0, 2);
-        tableLayout.setCellPadding(3, 0, new Insets(3, 15, 3, 3));
-        tableLayout.setCellWeightX(3, 1, 0.0);
-        tableLayout.setCellColspan(4, 0, 2);
 
         final JPanel panel = new JPanel(tableLayout);
         panel.setBorder(BorderFactory.createTitledBorder("Projection"));
         // row 0
-        panel.add(projectionRadioButton);                                       // col 0
+        panel.add(projectionRadioButton);
         // row 1
-        panel.add(crsSelectionForm);
+        panel.add(projDefForm);
         // row 2
-        panel.add(collocateRadioButton);                                        // col 0
+        panel.add(collocateRadioButton);
         // row 3
-        panel.add(collocateProductSelector.getProductNameComboBox());           // col 0
-        panel.add(collocateProductSelector.getProductFileChooserButton());      // col 1
+        panel.add(collocationForm);
         // row 4
+        panel.add(crsRadioButton);
+        // row 5
+        panel.add(crsSelectionForm);
+        // row 6
         panel.add(settingsPanel);
         return panel;
     }
 
+    private JPanel createCollocationPanel() {
+        collocateProductSelector = new SourceProductSelector(appContext, "Product:");
+        collocateProductSelector.setProductFilter(new CollocateProductFilter());
+        collocateProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
+            @Override
+            public void selectionChanged(SelectionChangeEvent event) {
+                updateUIState();
+            }
+        });
+        final TableLayout tableLayout = new TableLayout(2);
+        tableLayout.setTablePadding(4, 4);
+        tableLayout.setTableFill(TableLayout.Fill.BOTH);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+        tableLayout.setTableWeightY(1.0);
+        tableLayout.setCellWeightX(0, 0, 1.0);
+        tableLayout.setCellPadding(0, 0, new Insets(3, 15, 3, 3));
+        tableLayout.setCellWeightX(0, 1, 0.0);
+
+        final JPanel panel = new JPanel(tableLayout);
+        panel.add(collocateProductSelector.getProductNameComboBox());           // col 0
+        panel.add(collocateProductSelector.getProductFileChooserButton());      // col 1
+        panel.addPropertyChangeListener("enabled", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                collocateProductSelector.getProductNameComboBox().setEnabled(panel.isEnabled());
+                collocateProductSelector.getProductFileChooserButton().setEnabled(panel.isEnabled());
+            }
+        });
+        return panel;
+
+    }
+
     private void updateUIState() {
-        final boolean collocate = collocateRadioButton.isSelected();
+        final boolean collocate = collocateButtonModel.isSelected();
         collocateProductSelector.getProductNameComboBox().setEnabled(collocate);
         collocateProductSelector.getProductFileChooserButton().setEnabled(collocate);
-        crsSelectionForm.setFormEnabled(!collocate);
         collocationProduct = collocate ? collocateProductSelector.getSelectedProduct() : null;
+        projDefForm.setEnabled(projButtonModel.isSelected());
+        crsSelectionForm.setEnabled(crsButtonModel.isSelected());
+        collocationForm.setEnabled(collocateButtonModel.isSelected());
 
         resamplingName = resampleComboBox.getSelectedItem().toString();
     }
@@ -222,6 +249,12 @@ public class ReprojectionForm extends JTabbedPane {
             }
         });
         return crsForm;
+    }
+
+    private ProjectionDefinitionForm createProjDefForm() {
+        final List<OperationMethod> methods = ProjectionDefinitionForm.createProjectionMethodList();
+        final List<GeodeticDatum> datums = ProjectionDefinitionForm.createDatumList();
+        return new ProjectionDefinitionForm(appContext.getApplicationWindow(), methods, datums);
     }
 
     public void prepareShow() {
@@ -262,6 +295,7 @@ public class ReprojectionForm extends JTabbedPane {
     }
 
     private class CollocateProductFilter implements ProductFilter {
+
         @Override
         public boolean accept(Product product) {
             if (product == null) {
@@ -272,6 +306,14 @@ public class ReprojectionForm extends JTabbedPane {
             final boolean hasGeoCoding = geoCoding != null;
             final boolean geoCodingUsable = hasGeoCoding && geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos();
             return !sameProduct && geoCodingUsable;
+        }
+    }
+
+    private class UpdateStateListener implements ActionListener {
+
+        @Override
+            public void actionPerformed(ActionEvent e) {
+            updateUIState();
         }
     }
 }
