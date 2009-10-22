@@ -38,7 +38,6 @@ import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.crs.CRSFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
-import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.datum.DatumAuthorityFactory;
 import org.opengis.referencing.datum.Ellipsoid;
 import org.opengis.referencing.datum.GeodeticDatum;
@@ -107,12 +106,12 @@ public class ProjectionDefinitionForm extends JPanel {
         model = new Model();
         model.operationWrapper = defaultMethod;
         model.datum = this.datumList.get(0);
-        updateModel();
 
         vc = ValueContainer.createObjectBacked(model);
         vc.addPropertyChangeListener(new UpdateListener());
 
         creatUI();
+        updateModel();
     }
 
     public CoordinateReferenceSystem getProcjetedCRS() throws FactoryException {
@@ -134,7 +133,7 @@ public class ProjectionDefinitionForm extends JPanel {
 
         final JLabel transformLabel = new JLabel("Transform:");
         final JLabel datumLabel = new JLabel("Datum:");
-
+        
         operationComboBox = new JComboBox(operationMethodWrapperList.toArray());
         operationComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
         final ComboBoxSearchable methodSearchable = new OperationMethodWrapperSearchable(operationComboBox);
@@ -158,9 +157,7 @@ public class ProjectionDefinitionForm extends JPanel {
         addPropertyChangeListener("enabled", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                operationComboBox.setEnabled((Boolean) evt.getNewValue());
-                datumComboBox.setEnabled((Boolean) evt.getNewValue());
-                paramButton.setEnabled((Boolean) evt.getNewValue());
+                updateEnableState((Boolean) evt.getNewValue());
             }
         });
         final BindingContext context = new BindingContext(vc);
@@ -169,13 +166,24 @@ public class ProjectionDefinitionForm extends JPanel {
 
     }
 
+    private void updateEnableState(boolean componentEnabled) {
+        operationComboBox.setEnabled(componentEnabled);
+        datumComboBox.setEnabled(componentEnabled);
+        paramButton.setEnabled(componentEnabled && model.operationWrapper.hasParameters());
+    }
+    
     private void updateModel() {
-        model.parameters = model.operationWrapper.getParameter();
-        if (model.datum != null && hasParameter("semi_major") && hasParameter("semi_minor")) {
-            Ellipsoid ellipsoid = model.datum.getEllipsoid();
-            model.parameters.parameter("semi_major").setValue(ellipsoid.getSemiMajorAxis());
-            model.parameters.parameter("semi_minor").setValue(ellipsoid.getSemiMinorAxis());
+        boolean hasParameters = model.operationWrapper.hasParameters();
+        if (hasParameters) {
+            model.parameters = model.operationWrapper.getParameter();
+            if (model.datum != null && hasParameter("semi_major") && hasParameter("semi_minor")) {
+                Ellipsoid ellipsoid = model.datum.getEllipsoid();
+                model.parameters.parameter("semi_major").setValue(ellipsoid.getSemiMajorAxis());
+                model.parameters.parameter("semi_minor").setValue(ellipsoid.getSemiMinorAxis());
+            }
         }
+        updateEnableState(true);
+        
     }
     
     private boolean hasParameter(String name) {
@@ -331,6 +339,7 @@ public class ProjectionDefinitionForm extends JPanel {
     
     private static interface OperationMethodWrapper {
         String getName();
+        boolean hasParameters();
         ParameterValueGroup getParameter();
         CoordinateReferenceSystem getCRS(ParameterValueGroup parameter, GeodeticDatum datum) throws FactoryException;
     }
@@ -339,6 +348,12 @@ public class ProjectionDefinitionForm extends JPanel {
         public String getName() {
             return "Geographic Lat/Lon (WGS 84)";
         }
+
+        @Override
+        public boolean hasParameters() {
+            return false;
+        }
+        
         public ParameterValueGroup getParameter() {
             return ParameterGroup.EMPTY;
         }
@@ -360,7 +375,13 @@ public class ProjectionDefinitionForm extends JPanel {
         public String getName() {
             return delegate.getName().getCode();
         }
-        
+    
+
+        @Override
+        public boolean hasParameters() {
+            return true;
+        }
+
         @Override
         public ParameterValueGroup getParameter() {
             return delegate.getParameters().createValue();
@@ -406,6 +427,11 @@ public class ProjectionDefinitionForm extends JPanel {
             return NAME;
         }
         
+        @Override
+        public boolean hasParameters() {
+            return true;
+        }
+
         @Override
         public ParameterValueGroup getParameter() {
             return PARAMETERS.createValue();
