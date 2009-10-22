@@ -21,6 +21,7 @@ import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.ExpressionPane;
 import org.esa.beam.util.PropertyMap;
@@ -50,10 +51,13 @@ public class ProductExpressionPane extends ExpressionPane {
     private JComboBox productBox;
     private JList nodeList;
     private JCheckBox inclBandsCheck;
+    private JCheckBox inclMasksCheck;
     private JCheckBox inclGridsCheck;
     private JCheckBox inclFlagsCheck;
 
-    protected ProductExpressionPane(boolean booleanExpr, Product[] products, Product currentProduct,
+    protected ProductExpressionPane(boolean booleanExpr,
+                                    Product[] products,
+                                    Product currentProduct,
                                     PropertyMap preferences) {
         super(booleanExpr, null, preferences);
         if (products == null || products.length == 0) {
@@ -65,12 +69,14 @@ public class ProductExpressionPane extends ExpressionPane {
         init();
     }
 
-    public static ProductExpressionPane createBooleanExpressionPane(Product[] products, Product currentProduct,
+    public static ProductExpressionPane createBooleanExpressionPane(Product[] products, 
+                                                                    Product currentProduct,
                                                                     PropertyMap preferences) {
         return new ProductExpressionPane(true, products, currentProduct, preferences);
     }
 
-    public static ProductExpressionPane createGeneralExpressionPane(Product[] products, Product currentProduct,
+    public static ProductExpressionPane createGeneralExpressionPane(Product[] products,
+                                                                    Product currentProduct,
                                                                     PropertyMap preferences) {
         return new ProductExpressionPane(false, products, currentProduct, preferences);
     }
@@ -98,16 +104,22 @@ public class ProductExpressionPane extends ExpressionPane {
             }
         };
 
-        inclBandsCheck = new JCheckBox("Show bands"); /*I18N*/
+        inclBandsCheck = new JCheckBox("Show bands");
         inclBandsCheck.addActionListener(resetNodeListAL);
         if (!isBooleanExpressionPreferred()) {
             inclBandsCheck.setSelected(true);
         }
 
-        inclGridsCheck = new JCheckBox("Show tie-point grids"); /*I18N*/
+        inclMasksCheck = new JCheckBox("Show masks");
+        inclMasksCheck.addActionListener(resetNodeListAL);
+        if (!isBooleanExpressionPreferred()) {
+            inclMasksCheck.setSelected(true);
+        }
+
+        inclGridsCheck = new JCheckBox("Show tie-point grids");
         inclGridsCheck.addActionListener(resetNodeListAL);
 
-        inclFlagsCheck = new JCheckBox("Show single flags"); /*I18N*/
+        inclFlagsCheck = new JCheckBox("Show single flags");
         inclFlagsCheck.addActionListener(resetNodeListAL);
         if (isBooleanExpressionPreferred()) {
             inclFlagsCheck.setSelected(true);
@@ -118,11 +130,12 @@ public class ProductExpressionPane extends ExpressionPane {
 
         Box inclNodeBox = Box.createVerticalBox();
         inclNodeBox.add(inclBandsCheck);
+        inclNodeBox.add(inclMasksCheck);
         inclNodeBox.add(inclGridsCheck);
         inclNodeBox.add(inclFlagsCheck);
 
         JPanel nodeListPane = new JPanel(new BorderLayout());
-        nodeListPane.add(new JLabel("Data sources: "), BorderLayout.NORTH); /*I18N*/
+        nodeListPane.add(new JLabel("Data sources: "), BorderLayout.NORTH);
         nodeListPane.add(scrollableNodeList, BorderLayout.CENTER);
         nodeListPane.add(inclNodeBox, BorderLayout.SOUTH);
 
@@ -172,9 +185,11 @@ public class ProductExpressionPane extends ExpressionPane {
         if (currentProduct != null) {
             String[] flagNames = currentProduct.getAllFlagNames();
             boolean hasBands = currentProduct.getNumBands() > 0;
+            boolean hasMasks = currentProduct.getMaskGroup().getNodeCount() > 0;
             boolean hasGrids = currentProduct.getNumTiePointGrids() > 0;
             boolean hasFlags = flagNames.length > 0;
             boolean inclBands = inclBandsCheck.isSelected();
+            boolean inclMasks = inclMasksCheck.isSelected();
             boolean inclGrids = inclGridsCheck.isSelected();
             boolean inclFlags = inclFlagsCheck.isSelected();
             inclBandsCheck.setEnabled(hasBands);
@@ -184,6 +199,10 @@ public class ProductExpressionPane extends ExpressionPane {
                 inclBandsCheck.setSelected(false);
                 inclBands = false;
             }
+            if (!hasMasks && inclMasks) {
+                inclMasksCheck.setSelected(false);
+                inclMasks = false;
+            }
             if (!hasGrids && inclGrids) {
                 inclGridsCheck.setSelected(false);
                 inclGrids = false;
@@ -192,10 +211,13 @@ public class ProductExpressionPane extends ExpressionPane {
                 inclFlagsCheck.setSelected(false);
                 inclFlags = false;
             }
-            nodeList.setEnabled(inclBands || inclGrids || inclFlags);
+            nodeList.setEnabled(inclBands || inclMasks || inclGrids || inclFlags);
             final String namePrefix = getNodeNamePrefix();
             if (inclBands) {
                 addBandNameRefs(currentProduct, namePrefix, listEntries);
+            }
+            if (inclMasks) {
+                addMaskNameRefs(currentProduct, namePrefix, listEntries);
             }
             if (inclGrids) {
                 addGridNameRefs(currentProduct, namePrefix, listEntries);
@@ -206,6 +228,7 @@ public class ProductExpressionPane extends ExpressionPane {
         } else {
             nodeList.setEnabled(false);
             inclBandsCheck.setEnabled(false);
+            inclMasksCheck.setEnabled(false);
             inclGridsCheck.setEnabled(false);
             inclFlagsCheck.setEnabled(false);
         }
@@ -237,6 +260,13 @@ public class ProductExpressionPane extends ExpressionPane {
         for (int j = 0; j < product.getNumBands(); j++) {
             Band band = product.getBandAt(j);
             list.add(namePrefix + band.getName());
+        }
+    }
+
+    private static void addMaskNameRefs(Product product, String namePrefix, List<String> list) {
+        for (int j = 0; j < product.getMaskGroup().getNodeCount(); j++) {
+            Mask mask = product.getMaskGroup().get(j);
+            list.add(namePrefix + mask.getName());
         }
     }
 
