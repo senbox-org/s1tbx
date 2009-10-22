@@ -22,6 +22,7 @@ import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.cs.DefaultEllipsoidalCS;
+import org.geotools.referencing.datum.DefaultGeodeticDatum;
 import org.geotools.referencing.operation.projection.TransverseMercator;
 import org.geotools.referencing.operation.projection.MapProjection.AbstractProvider;
 import org.opengis.metadata.citation.Citation;
@@ -38,6 +39,7 @@ import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.crs.CRSFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
+import org.opengis.referencing.datum.Datum;
 import org.opengis.referencing.datum.DatumAuthorityFactory;
 import org.opengis.referencing.datum.Ellipsoid;
 import org.opengis.referencing.datum.GeodeticDatum;
@@ -111,7 +113,7 @@ public class ProjectionDefinitionForm extends JPanel {
         vc.addPropertyChangeListener(new UpdateListener());
 
         creatUI();
-        updateModel();
+        updateModel(null);
     }
 
     public CoordinateReferenceSystem getProcjetedCRS() throws FactoryException {
@@ -168,11 +170,17 @@ public class ProjectionDefinitionForm extends JPanel {
 
     private void updateEnableState(boolean componentEnabled) {
         operationComboBox.setEnabled(componentEnabled);
-        datumComboBox.setEnabled(componentEnabled);
+        datumComboBox.setEnabled(componentEnabled && model.operationWrapper.isDatumChangable());
         paramButton.setEnabled(componentEnabled && model.operationWrapper.hasParameters());
     }
     
-    private void updateModel() {
+    private void updateModel(String propertyName) {
+        if ("transformation".equals(propertyName)) {
+            GeodeticDatum defaultDatum = model.operationWrapper.getDefaultDatum();
+            if (defaultDatum != null) {
+                vc.setValue("datum", defaultDatum);
+            }
+        }
         boolean hasParameters = model.operationWrapper.hasParameters();
         if (hasParameters) {
             model.parameters = model.operationWrapper.getParameter();
@@ -199,10 +207,11 @@ public class ProjectionDefinitionForm extends JPanel {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if ("parameters".equals(evt.getPropertyName())) {
+            String propertyName = evt.getPropertyName();
+            if ("parameters".equals(propertyName)) {
                 return;
             }
-            updateModel();
+            updateModel(propertyName);
         }
     }
 
@@ -340,6 +349,8 @@ public class ProjectionDefinitionForm extends JPanel {
     private static interface OperationMethodWrapper {
         String getName();
         boolean hasParameters();
+        boolean isDatumChangable();
+        GeodeticDatum getDefaultDatum();
         ParameterValueGroup getParameter();
         CoordinateReferenceSystem getCRS(ParameterValueGroup parameter, GeodeticDatum datum) throws FactoryException;
     }
@@ -360,6 +371,16 @@ public class ProjectionDefinitionForm extends JPanel {
 
         public CoordinateReferenceSystem getCRS(ParameterValueGroup parameter, GeodeticDatum datum) throws FactoryException {
             return DefaultGeographicCRS.WGS84;
+        }
+
+        @Override
+        public GeodeticDatum getDefaultDatum() {
+            return DefaultGeodeticDatum.WGS84;
+        }
+
+        @Override
+        public boolean isDatumChangable() {
+            return false;
         }
     }
     
@@ -399,6 +420,16 @@ public class ProjectionDefinitionForm extends JPanel {
             baseCrsProperties.put("name", datum.getName().getCode());
             final GeographicCRS baseCrs = crsFactory.createGeographicCRS(baseCrsProperties, datum, DefaultEllipsoidalCS.GEODETIC_2D);
             return crsFactory.createProjectedCRS(projProperties, baseCrs, conversion, DefaultCartesianCS.PROJECTED);
+        }
+
+        @Override
+        public GeodeticDatum getDefaultDatum() {
+            return null;
+        }
+
+        @Override
+        public boolean isDatumChangable() {
+            return true;
         }
 
     }
@@ -484,6 +515,16 @@ public class ProjectionDefinitionForm extends JPanel {
          */
         private static double getCentralMeridian(int zoneIndex) {
             return (zoneIndex - 0.5) * 6.0 - 180.0;
+        }
+
+        @Override
+        public GeodeticDatum getDefaultDatum() {
+            return DefaultGeodeticDatum.WGS84;
+        }
+
+        @Override
+        public boolean isDatumChangable() {
+            return true;
         }
 
     }
