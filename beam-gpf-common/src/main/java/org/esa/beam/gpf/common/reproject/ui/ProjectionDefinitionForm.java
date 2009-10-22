@@ -16,8 +16,10 @@ import org.esa.beam.framework.ui.ValueEditorsPane;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
+import org.geotools.parameter.ParameterGroup;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.cs.DefaultEllipsoidalCS;
 import org.geotools.referencing.operation.projection.TransverseMercator;
@@ -34,6 +36,7 @@ import org.opengis.referencing.AuthorityFactory;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.crs.CRSFactory;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.datum.DatumAuthorityFactory;
@@ -93,6 +96,7 @@ public class ProjectionDefinitionForm extends JPanel {
             operationMethodWrapperList.add(new OperationMethodDelegate(method));
         }
         operationMethodWrapperList.add(new UTMZonesOperationMethod());
+        operationMethodWrapperList.add(new WGS84OperationMethod());
         Collections.sort(this.operationMethodWrapperList, new OperationMethodWrapperComparator());
         
         this.datumList = new ArrayList<GeodeticDatum>(datumList);
@@ -110,8 +114,8 @@ public class ProjectionDefinitionForm extends JPanel {
         creatUI();
     }
 
-    public ProjectedCRS getProcjetedCRS() throws FactoryException {
-        return model.operationWrapper.getProcjetedCRS(model.parameters, model.datum);
+    public CoordinateReferenceSystem getProcjetedCRS() throws FactoryException {
+        return model.operationWrapper.getCRS(model.parameters, model.datum);
     }
 
     private void creatUI() {
@@ -317,9 +321,23 @@ public class ProjectionDefinitionForm extends JPanel {
     private static interface OperationMethodWrapper {
         String getName();
         ParameterValueGroup getParameter();
-        ProjectedCRS getProcjetedCRS(ParameterValueGroup parameter, GeodeticDatum datum) throws FactoryException;
+        CoordinateReferenceSystem getCRS(ParameterValueGroup parameter, GeodeticDatum datum) throws FactoryException;
     }
     
+    private static class WGS84OperationMethod implements  OperationMethodWrapper {
+        public String getName() {
+            return "WGS 84";
+        }
+        public ParameterValueGroup getParameter() {
+            return ParameterGroup.EMPTY;
+        }
+
+        public CoordinateReferenceSystem getCRS(ParameterValueGroup parameter, GeodeticDatum datum) throws FactoryException {
+            return DefaultGeographicCRS.WGS84;
+        }
+    }
+    
+
     private static class OperationMethodDelegate implements OperationMethodWrapper {
         OperationMethod delegate;
 
@@ -338,7 +356,7 @@ public class ProjectionDefinitionForm extends JPanel {
         }
 
         @Override
-        public ProjectedCRS getProcjetedCRS(ParameterValueGroup parameters, GeodeticDatum datum) throws FactoryException {
+        public CoordinateReferenceSystem getCRS(ParameterValueGroup parameters, GeodeticDatum datum) throws FactoryException {
             final CRSFactory crsFactory = ReferencingFactoryFinder.getCRSFactory(null);
             final CoordinateOperationFactory coFactory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
 
@@ -383,7 +401,7 @@ public class ProjectionDefinitionForm extends JPanel {
         }
 
         @Override
-        public ProjectedCRS getProcjetedCRS(ParameterValueGroup parameters, GeodeticDatum datum) throws FactoryException {
+        public CoordinateReferenceSystem getCRS(ParameterValueGroup parameters, GeodeticDatum datum) throws FactoryException {
             final CRSFactory crsFactory = ReferencingFactoryFinder.getCRSFactory(null);
             final CoordinateOperationFactory coFactory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
 
