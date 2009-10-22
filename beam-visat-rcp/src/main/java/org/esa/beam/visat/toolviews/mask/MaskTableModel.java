@@ -15,6 +15,7 @@ package org.esa.beam.visat.toolviews.mask;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
@@ -23,6 +24,45 @@ import javax.swing.table.TableColumnModel;
 import java.awt.Color;
 
 class MaskTableModel extends AbstractTableModel {
+
+    private static final int IDX_VIS = 0;
+    private static final int IDX_NAME = 1;
+    private static final int IDX_TYPE = 2;
+    private static final int IDX_COLOR = 3;
+    private static final int IDX_TRANSP = 4;
+    private static final int IDX_DESCR = 5;
+
+    private static final int[] IDXS_MODE_1 = {
+            IDX_NAME,
+            IDX_COLOR,
+            IDX_TRANSP,
+            IDX_DESCR,
+    };
+
+    private static final int[] IDXS_MODE_2 = {
+            IDX_VIS,
+            IDX_NAME,
+            IDX_COLOR,
+            IDX_TRANSP,
+            IDX_DESCR,
+    };
+
+    private static final int[] IDXS_MODE_3 = {
+            IDX_NAME,
+            IDX_TYPE,
+            IDX_COLOR,
+            IDX_TRANSP,
+            IDX_DESCR,
+    };
+
+    private static final int[] IDXS_MODE_4 = {
+            IDX_VIS,
+            IDX_TYPE,
+            IDX_NAME,
+            IDX_COLOR,
+            IDX_TRANSP,
+            IDX_DESCR,
+    };
 
     private static final Class[] COLUMN_CLASSES = {
             Boolean.class,
@@ -53,63 +93,47 @@ class MaskTableModel extends AbstractTableModel {
 
     static int[] COLUMN_WIDTHS = {
             24,
-            80,
-            40,
+            60,
+            60,
             60,
             40,
             320,
     };
 
 
-    private ProductNodeGroup<Mask> maskGroup;
+    private final boolean noTypeMode;
+    private int[] modeIdxs;
+    private Product product;
     private RasterDataNode visibleBand;
 
-    MaskTableModel() {
+    MaskTableModel(boolean noTypeMode) {
+        this.noTypeMode = noTypeMode;
+        updateModeIdxs();
+    }
+
+    Product getProduct() {
+        return product;
     }
 
     ProductNodeGroup<Mask> getMaskGroup() {
-        return maskGroup;
+        return product != null ? product.getMaskGroup() : null;
     }
 
-    void reconfigure(ProductNodeGroup<Mask> maskGroup, RasterDataNode visibleBand) {
-        this.maskGroup = maskGroup;
+    void reconfigure(Product product, RasterDataNode visibleBand) {
+        this.product = product;
         this.visibleBand = visibleBand;
+        updateModeIdxs();
         fireTableStructureChanged();
     }
 
+    private void updateModeIdxs() {
+        this.modeIdxs = noTypeMode
+                ? (this.visibleBand == null ? IDXS_MODE_1 : IDXS_MODE_2)
+                : (this.visibleBand == null ? IDXS_MODE_3 : IDXS_MODE_4);
+    }
 
     void clear() {
         reconfigure(null, null);
-    }
-
-
-    void setMaskGroup(ProductNodeGroup<Mask> maskGroup) {
-        if (this.maskGroup != maskGroup) {
-            this.maskGroup = maskGroup;
-            fireTableStructureChanged();
-        }
-    }
-
-    RasterDataNode getVisibleBand() {
-        return visibleBand;
-    }
-
-
-    void setVisibleBand(RasterDataNode visibleBand) {
-        if (this.visibleBand != visibleBand) {
-            if (visibleBand != null && visibleBand.getProduct() != null) {
-                this.maskGroup = visibleBand.getProduct().getMaskGroup();
-                this.visibleBand = visibleBand;
-            } else {
-                this.maskGroup = null;
-                this.visibleBand = null;
-            }
-            fireTableStructureChanged();
-        }
-    }
-
-    boolean isVisibleFlagColumnEnabled() {
-        return visibleBand != null;
     }
 
     String getToolTipText(int rowIndex) {
@@ -119,20 +143,12 @@ class MaskTableModel extends AbstractTableModel {
     }
 
     void configureColumnModel(TableColumnModel columnModel) {
-        if (isVisibleFlagColumnEnabled()) {
+        if (modeIdxs[0] == IDX_VIS) {
             columnModel.getColumn(0).setHeaderRenderer(new VisibleFlagHeaderRenderer());
-            for (int i = 0; i < COLUMN_WIDTHS.length; i++) {
-                columnModel.getColumn(i).setPreferredWidth(COLUMN_WIDTHS[i]);
-            }
-        } else {
-            for (int i = 0; i < COLUMN_WIDTHS.length - 1; i++) {
-                columnModel.getColumn(i).setPreferredWidth(COLUMN_WIDTHS[i + 1]);
-            }
         }
-    }
-
-    private int getColumnOffset() {
-        return (isVisibleFlagColumnEnabled() ? 0 : 1);
+        for (int i = 0; i < modeIdxs.length; i++) {
+            columnModel.getColumn(i).setPreferredWidth(COLUMN_WIDTHS[modeIdxs[i]]);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -140,49 +156,52 @@ class MaskTableModel extends AbstractTableModel {
 
     @Override
     public Class getColumnClass(int columnIndex) {
-        return COLUMN_CLASSES[columnIndex + getColumnOffset()];
+        return COLUMN_CLASSES[modeIdxs[columnIndex]];
     }
 
     @Override
     public String getColumnName(int columnIndex) {
-        return COLUMN_NAMES[columnIndex + getColumnOffset()];
+        return COLUMN_NAMES[modeIdxs[columnIndex]];
     }
+
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return COLUMN_EDITABLE_STATES[columnIndex + getColumnOffset()];
+        return COLUMN_EDITABLE_STATES[modeIdxs[columnIndex]];
     }
 
     @Override
     public int getColumnCount() {
-        return COLUMN_NAMES.length - getColumnOffset();
+        return modeIdxs.length;
     }
 
     @Override
     public int getRowCount() {
+        ProductNodeGroup<Mask> maskGroup = getMaskGroup();
         return maskGroup != null ? maskGroup.getNodeCount() : 0;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        int column = isVisibleFlagColumnEnabled() ? columnIndex : columnIndex + 1;
 
         Mask mask = getMaskGroup().get(rowIndex);
+        int column = modeIdxs[columnIndex];
 
-        if (column == 0) {
-            if (visibleBand != null) {
-                return visibleBand.getImageInfo(ProgressMonitor.NULL).containsMaskReference(mask.getName()) ? Boolean.TRUE : Boolean.FALSE;
+        if (column == IDX_VIS) {
+            if (visibleBand.getImageInfo(ProgressMonitor.NULL).containsMaskReference(mask.getName())) {
+                return Boolean.TRUE;
+            } else {
+                return Boolean.FALSE;
             }
-            return Boolean.FALSE;
-        } else if (column == 1) {
+        } else if (column == IDX_NAME) {
             return mask.getName();
-        } else if (column == 2) {
+        } else if (column == IDX_TYPE) {
             return mask.getImageType().getName();
-        } else if (column == 3) {
+        } else if (column == IDX_COLOR) {
             return mask.getImageColor();
-        } else if (column == 4) {
+        } else if (column == IDX_TRANSP) {
             return mask.getImageTransparency();
-        } else if (column == 5) {
+        } else if (column == IDX_DESCR) {
             return mask.getDescription();
         }
 
@@ -192,11 +211,10 @@ class MaskTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 
-        int column = isVisibleFlagColumnEnabled() ? columnIndex : columnIndex + 1;
-
         Mask mask = getMaskGroup().get(rowIndex);
+        int column = modeIdxs[columnIndex];
 
-        if (column == 0) {
+        if (column == IDX_VIS) {
             boolean visible = (Boolean) aValue;
             if (visible) {
                 visibleBand.getImageInfo().addMaskReference(mask.getName());
@@ -204,18 +222,18 @@ class MaskTableModel extends AbstractTableModel {
                 visibleBand.getImageInfo().removeMaskReference(mask.getName());
             }
             fireTableCellUpdated(rowIndex, columnIndex);
-        } else if (column == 1) {
+        } else if (column == IDX_NAME) {
             mask.setName((String) aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
-        } else if (column == 2) {
+        } else if (column == IDX_TYPE) {
             // type is not editable!
-        } else if (column == 3) {
+        } else if (column == IDX_COLOR) {
             mask.setImageColor((Color) aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
-        } else if (column == 4) {
+        } else if (column == IDX_TRANSP) {
             mask.setImageTransparency((Float) aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
-        } else if (column == 5) {
+        } else if (column == IDX_DESCR) {
             mask.setDescription((String) aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
         }

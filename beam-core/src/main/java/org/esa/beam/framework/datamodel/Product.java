@@ -232,8 +232,8 @@ public class Product extends ProductNode {
         vectorDataGroup = new ProductNodeGroup<VectorData>(this,
                                                            "vector_data",
                                                            "A group which stores all vector data");
-        vectorDataGroup.add(new VectorData("Pins", createPlacemarkFeaureType("PinType", "pixelPoint")));
-        vectorDataGroup.add(new VectorData("Ground control points", createPlacemarkFeaureType("GCPType", "geoPoint")));
+        vectorDataGroup.add(new VectorData("pins", createPlacemarkFeaureType("PinType", "pixelPoint")));
+        vectorDataGroup.add(new VectorData("ground_control_points", createPlacemarkFeaureType("GCPType", "geoPoint")));
 
         maskGroup = new ProductNodeGroup<Mask>(this,
                                                "masks",

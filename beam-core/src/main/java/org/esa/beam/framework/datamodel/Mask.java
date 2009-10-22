@@ -243,13 +243,61 @@ public class Mask extends Band {
             super.handleRename(mask, oldExternalName, newExternalName);
         }
 
-        private static String getExpression(Mask mask) {
+        public static String getExpression(Mask mask) {
             return (String) mask.getImageConfig().getValue(PROPERTY_NAME_EXPRESSION);
         }
 
-        private static void setExpression(Mask mask, String expression) {
+        public static void setExpression(Mask mask, String expression) {
             mask.getImageConfig().setValue(PROPERTY_NAME_EXPRESSION, expression);
         }
     }
 
+    /**
+     * A mask image type which is based on band math.
+     */
+    public static class GeometryType extends ImageType {
+        public static final String PROPERTY_NAME_VECTOR_DATA = "vectorData";
+
+        public GeometryType() {
+            super("Geometry");
+        }
+
+        /**
+         * Creates the image.
+         *
+         * @param mask The mask which requests creation of its image.
+         *
+         * @return The image.
+         */
+        @Override
+        public MultiLevelImage createImage(Mask mask) {
+            // todo
+            return null;
+        }
+
+        /**
+         * Creates a prototype image configuration.
+         *
+         * @return The image configuration.
+         */
+        @Override
+        public ValueContainer createImageConfig() {
+
+            ValueDescriptor vectorDataDescriptor = new ValueDescriptor(PROPERTY_NAME_VECTOR_DATA, VectorData.class);
+            vectorDataDescriptor.setNotNull(true);
+
+            ValueContainer imageConfig = super.createImageConfig();
+            imageConfig.addModel(new ValueModel(vectorDataDescriptor, new DefaultValueAccessor()));
+
+            return imageConfig;
+        }
+
+        public static VectorData getVectorData(Mask mask) {
+            return (VectorData) mask.getImageConfig().getValue(PROPERTY_NAME_VECTOR_DATA);
+        }
+
+        public static void setVectorData(Mask mask, VectorData vectorData) {
+            mask.getImageConfig().setValue(PROPERTY_NAME_VECTOR_DATA, vectorData);
+        }
+    }
 }

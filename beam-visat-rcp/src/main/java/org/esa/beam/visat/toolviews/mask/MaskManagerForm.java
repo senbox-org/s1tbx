@@ -19,16 +19,26 @@ package org.esa.beam.visat.toolviews.mask;
 import com.jidesoft.combobox.ColorComboBox;
 import com.jidesoft.grid.ColorCellEditor;
 import com.jidesoft.grid.ColorCellRenderer;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,37 +46,42 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelListener;
+import javax.swing.event.TableModelEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.URL;
 
 class MaskManagerForm {
-
-    private ProductSceneView sceneView;
 
     private final JTable maskTable;
 
     private final MaskTableModel maskTableModel;
 
-    private final AbstractButton newButton;
-    private final AbstractButton copyButton;
-    private final AbstractButton editButton;
-    private final AbstractButton removeButton;
-    private final AbstractButton importButton;
-    private final AbstractButton exportButton;
-    private final AbstractButton moveUpButton;
-    private final AbstractButton moveDownButton;
     private final AbstractButton helpButton;
+
+    private final MaskAction[] maskActions;
+
+    private ProductSceneView sceneView;
 
     public MaskManagerForm() {
 
-        maskTableModel = new MaskTableModel();
+        maskTableModel = new MaskTableModel(false);
+        maskTableModel.addTableModelListener(new TableModelListener() {
+             @Override
+             public void tableChanged(TableModelEvent e) {
+                 if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == TableModelEvent.ALL_COLUMNS) {
+                     maskTableModel.configureColumnModel(maskTable.getColumnModel());
+                 }
+             }
+         });
+        
 
         maskTable = new JTable(maskTableModel);
         maskTable.setName("maskTable");
@@ -100,7 +115,10 @@ class MaskManagerForm {
             public void mouseClicked(final MouseEvent e) {
                 updateState();
                 if (e.getClickCount() == 2) {
-                    // todo
+                    MaskAction action = getMaskAction(EditAction.class);
+                    if (action.isEnabled()) {
+                        action.actionPerformed(new ActionEvent(e.getSource(), e.getID(), null));
+                    }
                 }
             }
         });
@@ -112,97 +130,36 @@ class MaskManagerForm {
         });
         maskTableModel.configureColumnModel(maskTable.getColumnModel());
 
-        newButton = createButton("icons/New24.gif");
-        newButton.setName("newButton");
-        newButton.setToolTipText("Create new mask."); /*I18N*/
-        newButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                // todo
-            }
-        });
-
-        copyButton = createButton("icons/Copy24.gif");
-        copyButton.setName("copyButton");
-        copyButton.setToolTipText("Copy the selected mask."); /*I18N*/
-        copyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                // todo
-            }
-        });
-
-        editButton = createButton("icons/Edit24.gif");
-        editButton.setName("editButton");
-        editButton.setToolTipText("Edit the selected mask."); /*I18N*/
-        editButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                // todo
-            }
-        });
-
-        removeButton = createButton("icons/Remove24.gif");
-        removeButton.setName("removeButton");
-        removeButton.setToolTipText("Remove the selected masks."); /*I18N*/
-        removeButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                // todo
-            }
-        });
-
-        importButton = createButton("icons/Import24.gif");
-        importButton.setName("importButton");
-        importButton.setToolTipText("Import masks from file."); /*I18N*/
-        importButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                // todo
-            }
-        });
-
-        exportButton = createButton("icons/Export24.gif");
-        exportButton.setName("exportButton");
-        exportButton.setToolTipText("Export masks to file."); /*I18N*/
-        exportButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                // todo
-            }
-        });
-
-        moveUpButton = createButton("icons/Up24.gif");
-        moveUpButton.setName("moveUpButton");
-        moveUpButton.setToolTipText("Moves up the selected mask."); /*I18N*/
-        moveUpButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                // todo
-            }
-        });
-
-        moveDownButton = createButton("icons/Down24.gif");
-        moveDownButton.setName("moveDownButton");
-        moveDownButton.setToolTipText("Moves down the selected mask."); /*I18N*/
-        moveDownButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                // todo
-            }
-        });
+        maskActions = new MaskAction[]{
+                new NewBandMathAction(), new NewRangeAction(),
+                new NewUnionAction(), new NewIntersectionAction(),
+                new NewSubtractionAction(), new NewInversionAction(),
+                new CopyAction(), new NullAction(),
+                new EditAction(), new RemoveAction(),
+                new ImportAction(), new ExportAction(),
+                new MoveUpAction(), new MoveDownAction(),
+        };
 
         helpButton = createButton("icons/Help24.gif");
         helpButton.setName("helpButton");
+
+        updateState();
     }
 
-    private Component configureColorComboBox(ColorComboBox comboBox) {
+    private Product getProduct() {
+        return maskTableModel.getMaskGroup().getProduct();
+    }
+
+    private MaskAction getMaskAction(Class<?> type) {
+        for (MaskAction maskAction : maskActions) {
+            if (type.getName().equals(maskAction.getValue(Action.ACTION_COMMAND_KEY))) {
+                return maskAction;
+            }
+        }
+        return null;
+    }
+
+    private static Component configureColorComboBox(ColorComboBox comboBox) {
         comboBox.setColorValueVisible(false);
         comboBox.setUseAlphaColorButtons(false);
         comboBox.setAllowDefaultColor(false);
@@ -218,22 +175,83 @@ class MaskManagerForm {
         return sceneView;
     }
 
+    private String createCode(String op) {
+          return createCode(op, 0);
+    }
+
+    private Mask getSelectedMask() {
+        int selectedRow = maskTable.getSelectedRow();
+        return getMask(selectedRow);
+    }
+
+    private Mask[] getSelectedMasks() {
+        int[] rows = maskTable.getSelectedRows();
+        Mask[] masks = new Mask[rows.length];
+        for (int i = 0; i < rows.length; i++) {
+            int row = rows[i];
+            masks[i] = getMask(row);
+        }
+        return masks;
+    }
+
+
+    private String createCode(String op, int off) {
+        return createCode(op, getSelectedMasks(), off);
+    }
+
+    private static String createCode(String op, Mask[] selectedMasks, int off) {
+        StringBuilder code = new StringBuilder();
+        for (int i = off; i < selectedMasks.length; i++) {
+            Mask mask = selectedMasks[i];
+            if (code.length() > 0) {
+                code.append(" ");
+                code.append(op);
+                code.append(" ");
+            }
+            code.append(BandArithmetic.createExternalName(mask.getName()));
+        }
+        return code.toString();
+    }
+
+    private String createSubtractionCode() {
+        Mask[] selectedMasks = getSelectedMasks();
+        StringBuilder code = new StringBuilder();
+        code.append(BandArithmetic.createExternalName(selectedMasks[0].getName()));
+        if (selectedMasks.length > 1) {
+            code.append(" && !(");
+            code.append(createCode("||",selectedMasks, 1));
+            code.append(")");
+        }
+        return code.toString();
+    }
+
+    private String createInversionCode() {
+        Mask[] selectedMasks = getSelectedMasks();
+        StringBuilder code = new StringBuilder();
+        code.append("!");
+        code.append(BandArithmetic.createExternalName(selectedMasks[0].getName()));
+        if (selectedMasks.length > 1) {
+            code.append(" || ");
+            code.append(createCode("||",selectedMasks, 1));
+        }
+        return code.toString();
+    }
+
     void setSceneView(final ProductSceneView sceneView) {
         if (this.sceneView != sceneView) {
             this.sceneView = sceneView;
             if (this.sceneView != null) {
                 ProductNodeGroup<Mask> maskGroup = this.sceneView.getProduct().getMaskGroup();
                 RasterDataNode visibleBand = this.sceneView.getRaster();
-                reconfigureMasks(maskGroup, visibleBand);
+                reconfigureMasks(sceneView.getProduct(), visibleBand);
             } else {
                 clearMasks();
             }
         }
     }
 
-    void reconfigureMasks(ProductNodeGroup<Mask> maskGroup, RasterDataNode visibleBand) {
-        maskTableModel.reconfigure(maskGroup, visibleBand);
-        maskTableModel.configureColumnModel(maskTable.getColumnModel());
+    void reconfigureMasks(Product product, RasterDataNode visibleBand) {
+        maskTableModel.reconfigure(product, visibleBand);
     }
 
     void clearMasks() {
@@ -242,27 +260,53 @@ class MaskManagerForm {
     }
 
     void updateState() {
+        for (MaskAction maskAction : maskActions) {
+            maskAction.updateState();
+        }
+    }
 
-        final int selectedRowCount = maskTable.getSelectedRowCount();
-        final boolean maskSinkAvailable = maskTableModel.getMaskGroup() != null;
-        final boolean masksSelected = selectedRowCount > 0;
-        final boolean singleMaskSelected = selectedRowCount == 1;
-
-        final int rowCount = maskTable.getRowCount();
-        final int selectedRow = maskTable.getSelectedRow();
-
-        newButton.setEnabled(maskSinkAvailable);
-        copyButton.setEnabled(singleMaskSelected);
-        editButton.setEnabled(singleMaskSelected);
-        removeButton.setEnabled(masksSelected);
-        importButton.setEnabled(maskSinkAvailable);
-        exportButton.setEnabled(masksSelected);
-        moveUpButton.setEnabled(singleMaskSelected && selectedRow > 0);
-        moveDownButton.setEnabled(singleMaskSelected && selectedRow < rowCount - 1);
+    Mask getMask(int selectedRow) {
+        return maskTableModel.getMaskGroup().get(selectedRow);
     }
 
     static AbstractButton createButton(final String path) {
         return ToolButtonFactory.createButton(UIUtils.loadImageIcon(path), false);
+    }
+
+    private void addNewBandMathMask(String code) {
+        Mask.BandMathType type = new Mask.BandMathType();
+        Mask mask = new Mask("M_" + Long.toHexString(System.nanoTime()),
+                             getProduct().getSceneRasterWidth(),
+                             getProduct().getSceneRasterHeight(),
+                             type);
+        mask.getImageConfig().setValue("expression", code);
+        mask.setDescription(code);
+        addNewMask(mask);
+    }
+
+    private void addNewMaskCopy() {
+        Mask selectedMask = getSelectedMask();
+        Mask mask = new Mask("Copy_of_" + selectedMask.getName(),
+                             selectedMask.getSceneRasterWidth(),
+                             selectedMask.getSceneRasterHeight(),
+                             selectedMask.getImageType());
+        mask.setDescription(selectedMask.getDescription());
+        ValueContainer selectedConfig = selectedMask.getImageConfig();
+        ValueModel[] models = selectedConfig.getModels();
+        for (ValueModel model : models) {
+            mask.getImageConfig().setValue(model.getDescriptor().getName(),
+                                           model.getValue());
+        }
+        addNewMask(mask);
+    }
+
+    private void addNewMask(Mask mask) {
+        getProduct().getMaskGroup().add(mask);
+
+        maskTableModel.fireTableDataChanged();
+        int rowIndex = maskTableModel.getMaskGroup().indexOf(mask.getName());
+        maskTable.getSelectionModel().addSelectionInterval(rowIndex, rowIndex);
+        maskTable.scrollRectToVisible(maskTable.getCellRect(rowIndex, 0, true));
     }
 
     JPanel createContentPanel() {
@@ -276,18 +320,13 @@ class MaskManagerForm {
 
         gbc.insets.bottom = 0;
         gbc.gridwidth = 1;
-        buttonPanel.add(newButton, gbc);
-        buttonPanel.add(copyButton, gbc);
-        gbc.gridy++;
-        buttonPanel.add(editButton, gbc);
-        buttonPanel.add(removeButton, gbc);
-        gbc.gridy++;
-        buttonPanel.add(importButton, gbc);
-        buttonPanel.add(exportButton, gbc);
-        gbc.gridy++;
-        buttonPanel.add(moveUpButton, gbc);
-        buttonPanel.add(moveDownButton, gbc);
-        gbc.gridy++;
+
+        for (int i = 0; i < maskActions.length; i += 2) {
+            buttonPanel.add(maskActions[i].createComponent(), gbc);
+            buttonPanel.add(maskActions[i + 1].createComponent(), gbc);
+            gbc.gridy++;
+        }
+
         gbc.fill = GridBagConstraints.VERTICAL;
         gbc.weighty = 1.0;
         gbc.gridwidth = 2;
@@ -311,4 +350,292 @@ class MaskManagerForm {
 
         return contentPane1;
     }
+
+    public abstract class MaskAction extends AbstractAction {
+        MaskAction(String iconPath, String buttonName, String description) {
+            putValue(ACTION_COMMAND_KEY, getClass().getName());
+            putValue(LARGE_ICON_KEY, loadIcon(iconPath));
+            putValue(SHORT_DESCRIPTION, description);
+            putValue("componentName", buttonName);
+        }
+
+        private ImageIcon loadIcon(String iconPath) {
+            final ImageIcon icon;
+            URL resource = MaskManagerForm.class.getResource(iconPath);
+            if (resource != null) {
+                icon = new ImageIcon(resource);
+            } else {
+                icon = UIUtils.loadImageIcon(iconPath);
+            }
+            return icon;
+        }
+
+        JComponent createComponent() {
+            AbstractButton button = ToolButtonFactory.createButton(this, false);
+            button.setName((String) getValue("componentName"));
+            return button;
+        }
+
+        void updateState() {
+        }
+    }
+
+    public class NewBandMathAction extends MaskAction {
+        public NewBandMathAction() {
+            super("BandMath24.png", "bandMathButton", "Creates a new mask based on a band math expression");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Product product = getProduct();
+            ProductExpressionPane expressionPane = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product, null);
+            expressionPane.setCode("");
+            if (expressionPane.showModalDialog(null, "New Band-Math Mask") == ModalDialog.ID_OK) {
+                String code = expressionPane.getCode();
+                addNewBandMathMask(code);
+            }
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(maskTableModel.getMaskGroup() != null);
+        }
+    }
+
+    public class NewRangeAction extends MaskAction {
+        public NewRangeAction() {
+            super("Range24.png", "rangeButton",
+                  "Creates a new mask based on a value range");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // todo - implement
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(maskTableModel.getMaskGroup() != null);
+        }
+    }
+
+    public class NewUnionAction extends MaskAction {
+        public NewUnionAction() {
+            super("Union24.png", "unionButton",
+                  "Creates the union of the selected masks");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            addNewBandMathMask(createCode("||"));
+        }
+
+
+        @Override
+        void updateState() {
+            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() > 1);
+        }
+    }
+
+    public class NewIntersectionAction extends MaskAction {
+        public NewIntersectionAction() {
+            super("Intersect24.png", "intersectionButton",
+                  "Creates the intersection of the selected masks");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            addNewBandMathMask(createCode("&&"));
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() > 1);
+        }
+    }
+
+    public class NewSubtractionAction extends MaskAction {
+        public NewSubtractionAction() {
+            super("Subtract24.png", "subtractButton",
+                  "Creates the subtraction of the selected masks");
+        }
+
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            addNewBandMathMask(createSubtractionCode());
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() > 1);
+        }
+    }
+
+    public class NewInversionAction extends MaskAction {
+        public NewInversionAction() {
+            super("Invert24.png", "intersectionButton",
+                  "Creates the inversion of subtraction of the selected masks");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            addNewBandMathMask(createInversionCode());
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() >= 1);
+        }
+    }
+
+    public class CopyAction extends MaskAction {
+        public CopyAction() {
+            super("icons/Copy24.gif", "copyButton", "Copy the selected mask.");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            addNewMaskCopy();
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() == 1);
+        }
+    }
+
+    public class EditAction extends MaskAction {
+        public EditAction() {
+            super("icons/Edit24.gif", "editButton", "Edit the selected mask.");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Mask selectedMask = getSelectedMask();
+            Mask.ImageType type = selectedMask.getImageType();
+            if (type instanceof Mask.BandMathType) {
+                Product product = getProduct();
+                ProductExpressionPane expressionPane = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product, null);
+                expressionPane.setCode((String) selectedMask.getImageConfig().getValue("expression"));
+                if (expressionPane.showModalDialog(null, "Edit Band-Math Mask") == ModalDialog.ID_OK) {
+                    String code = expressionPane.getCode();
+                    selectedMask.getImageConfig().setValue("expression", code);
+                }
+            }
+            // todo - implement for other types too
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() == 1);
+        }
+    }
+
+    public class RemoveAction extends MaskAction {
+        public RemoveAction() {
+            super("icons/Remove24.gif", "editButton", "Edit the selected mask.");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // todo - ask user
+            Mask[] selectedMasks = getSelectedMasks();
+            for (Mask selectedMask : selectedMasks) {
+                getProduct().getMaskGroup().remove(selectedMask);
+            }
+            maskTableModel.fireTableDataChanged();
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() > 0);
+        }
+    }
+
+    public class ImportAction extends MaskAction {
+        public ImportAction() {
+            super("icons/Import24.gif", "importButton", "Import masks from file.");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // todo - implement
+            maskTableModel.fireTableDataChanged();
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(maskTableModel.getMaskGroup() != null);
+        }
+    }
+
+    public class ExportAction extends MaskAction {
+        public ExportAction() {
+            super("icons/Export24.gif", "exportButton", "Export masks from file.");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // todo - implement
+            maskTableModel.fireTableDataChanged();
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(maskTableModel.getMaskGroup() != null
+                    && maskTable.getSelectedRowCount() > 0);
+        }
+    }
+
+    public class MoveUpAction extends MaskAction {
+        public MoveUpAction() {
+            super("icons/Up24.gif", "moveUpButton", "Moves up the selected mask.");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // todo - implement
+            maskTableModel.fireTableDataChanged();
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(maskTable.getSelectedRowCount() == 1 && maskTable.getSelectedRow() > 0);
+        }
+    }
+
+    public class MoveDownAction extends MaskAction {
+        public MoveDownAction() {
+            super("icons/Down24.gif", "moveDownButton", "Moves down the selected mask.");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // todo - implement
+            maskTableModel.fireTableDataChanged();
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(maskTable.getSelectedRowCount() == 1
+                    && maskTable.getSelectedRow() < maskTable.getRowCount() - 1);
+        }
+    }
+
+    public class NullAction extends MaskAction {
+        public NullAction() {
+            super("", "", "");
+        }
+
+        @Override
+        JComponent createComponent() {
+            return new JPanel();
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+        }
+    }
+
 }
