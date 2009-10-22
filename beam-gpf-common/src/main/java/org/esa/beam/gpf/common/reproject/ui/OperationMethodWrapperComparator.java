@@ -11,7 +11,7 @@ import java.util.Comparator;
  * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
-class IdentifiedObjectComparator implements Comparator<IdentifiedObject> {
+class OperationMethodWrapperComparator implements Comparator<IdentifiedObject> {
 
     @Override
     public int compare(IdentifiedObject o1, IdentifiedObject o2) {
