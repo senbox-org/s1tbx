@@ -22,7 +22,7 @@ import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.util.Debug;
+import org.esa.beam.framework.datamodel.Mask;
 
 /**
  * Represents a read-only symbol. A symbol can be a named constant or variable.
@@ -35,59 +35,110 @@ import org.esa.beam.util.Debug;
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  * @version $Revision$ $Date$
  */
-
 public class RasterDataSymbol implements Symbol {
+    public static final Source RAW = Source.RAW;
+    public static final Source GEOPHYSICAL = Source.GEOPHYSICAL;
 
-    private final String _symbolName;
-    private final int _symbolType;
-    private final RasterDataNode _raster;
-    protected ProductData _data;
+    /**
+     * Lists possible source image types.
+     */
+    public enum Source {
+        /**
+         * Raw sample data (e.g. measurement counts).
+         */
+        RAW,
+        /**
+         * Geophysically interpreted data (e.g. calibration scaling applied).
+         */
+        GEOPHYSICAL,
+    }
 
+    private final String symbolName;
+    private final int symbolType;
+    private final RasterDataNode raster;
+    private final Source source;
+    protected ProductData data;
+
+    @Deprecated
     public RasterDataSymbol(final String symbolName, final RasterDataNode raster) {
-        _symbolName = symbolName;
-        _symbolType = raster.isFloatingPointType() ? Term.TYPE_D : Term.TYPE_I;
-        _raster = raster;
+        this(symbolName, raster, GEOPHYSICAL);
     }
 
+    public RasterDataSymbol(final String symbolName, final Mask mask) {
+        this(symbolName, Term.TYPE_B, mask, RAW);
+    }
+
+    public RasterDataSymbol(final String symbolName, final RasterDataNode raster, final Source source) {
+        this(symbolName, computeSymbolType(raster), raster, source);
+    }
+
+    private RasterDataSymbol(String symbolName, int symbolType, RasterDataNode raster, Source source) {
+        this.symbolName = symbolName;
+        this.symbolType = symbolType;
+        this.raster = raster;
+        this.source = source;
+    }
+
+    private static int computeSymbolType(RasterDataNode raster) {
+        if (raster instanceof Mask) {
+            return Term.TYPE_B;
+        }
+        return raster.isFloatingPointType() ? Term.TYPE_D : Term.TYPE_I;
+    }
+
+    @Override
     public String getName() {
-        return _symbolName;
+        return symbolName;
     }
 
+    @Override
     public int getRetType() {
-        return _symbolType;
+        return symbolType;
+    }
+
+    /**
+     * @return The source image type.
+     * @since BEAM 4.7
+     */
+    public Source getSource() {
+        return source;
     }
 
     public RasterDataNode getRaster() {
-        return _raster;
+        return raster;
     }
 
     public void setData(final Object data) {
-    	if (ProductData.class.isAssignableFrom(data.getClass())) {
-    		_data = (ProductData) data;
-    	}else if (data instanceof float[]) {
-            _data = ProductData.createInstance((float[]) data);
+        if (ProductData.class.isAssignableFrom(data.getClass())) {
+            this.data = (ProductData) data;
+        } else if (data instanceof float[]) {
+            this.data = ProductData.createInstance((float[]) data);
         } else if (data instanceof int[]) {
-            _data = ProductData.createInstance((int[]) data);
+            this.data = ProductData.createInstance((int[]) data);
         } else {
             throw new IllegalArgumentException("illegal data type");
         }
     }
 
+    @Override
     public boolean evalB(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
-        return Term.toB(_data.getElemDoubleAt(elemIndex));
+        return Term.toB(data.getElemDoubleAt(elemIndex));
     }
 
+    @Override
     public int evalI(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
-        return _data.getElemIntAt(elemIndex);
+        return data.getElemIntAt(elemIndex);
     }
 
+    @Override
     public double evalD(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
-        return _data.getElemDoubleAt(elemIndex);
+        return data.getElemDoubleAt(elemIndex);
     }
 
+    @Override
     public String evalS(EvalEnv env) throws EvalException {
         final double value = evalD(env);
         return Double.toString(value);

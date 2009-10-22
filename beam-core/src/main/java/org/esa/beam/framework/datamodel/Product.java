@@ -2242,7 +2242,8 @@ public class Product extends ProductNode {
                 }
             }
             if (!registered) {
-                namespace.registerSymbol(new RasterDataSymbol(extraRaster.getName(), extraRaster));
+                namespace.registerSymbol(new RasterDataSymbol(extraRaster.getName(), 
+                                                              extraRaster, RasterDataSymbol.GEOPHYSICAL));
             }
         }
         final Parser parser = new ParserImpl(namespace, false);
@@ -2360,9 +2361,7 @@ public class Product extends ProductNode {
      *         never <code>null</code>.
      *
      * @see #createTerm(String)
-     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
      */
-    @Deprecated
     public String[] getAllFlagNames() {
         final List<String> l = new ArrayList<String>(32);
         for (int i = 0; i < getNumBands(); i++) {

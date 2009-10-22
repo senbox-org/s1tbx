@@ -33,6 +33,7 @@ import com.bc.jexp.impl.NamespaceImpl;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.Tokenizer;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -132,7 +133,9 @@ public class BandArithmetic {
      * @param products            the array of input products
      * @param defaultProductIndex the index of the product for which also symbols without the
      *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
+     *
      * @return the compiled expression
+     *
      * @throws ParseException if a parse error occurs
      */
     public static Term parseExpression(String expression, Product[] products, int defaultProductIndex) throws ParseException {
@@ -150,6 +153,7 @@ public class BandArithmetic {
      * @param products            the array of input products
      * @param defaultProductIndex the index of the product for which also symbols without the
      *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
+     *
      * @return a default namespace, never <code>null</code>
      */
     public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex) {
@@ -171,6 +175,7 @@ public class BandArithmetic {
      * @param defaultProductIndex the index of the product for which also symbols without the
      *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
      * @param prefixProvider      a product prefix provider
+     *
      * @return a default namespace, never <code>null</code>
      */
     public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex, ProductPrefixProvider prefixProvider) {
@@ -379,6 +384,7 @@ public class BandArithmetic {
      * e.g. if multilple {@link SingleFlagSymbol}s refer to the same raster.
      *
      * @param rasterDataSymbols the array to be analysed
+     *
      * @return the array of raster data nodes, never <code>null</code> but may be empty
      */
     public static RasterDataNode[] getRefRasters(RasterDataSymbol[] rasterDataSymbols) {
@@ -398,6 +404,7 @@ public class BandArithmetic {
      * Utility method which returns all raster data symbols references in a given term.
      *
      * @param term the term to be analysed
+     *
      * @return the array of raster data symbols, never <code>null</code> but may be empty
      */
     public static RasterDataSymbol[] getRefRasterDataSymbols(Term term) {
@@ -409,6 +416,7 @@ public class BandArithmetic {
      * The order of the returned rasters is the order they appear in the given terms.
      *
      * @param terms the term array to be analysed
+     *
      * @return the array of raster data symbols, never <code>null</code> but may be empty
      */
     public static RasterDataSymbol[] getRefRasterDataSymbols(Term[] terms) {
@@ -429,6 +437,7 @@ public class BandArithmetic {
      * <p>The method simply delgates to {@link Tokenizer#createExternalName(String)}.
      *
      * @param name the name
+     *
      * @return a valid external name
      */
     public static String createExternalName(final String name) {
@@ -441,6 +450,7 @@ public class BandArithmetic {
      * number returned by {@link org.esa.beam.framework.datamodel.Product#getRefNo()}.
      *
      * @param product the product, must not be <code>null</code>
+     *
      * @return a node name prefix, never null.
      */
     public static String getProductNodeNamePrefix(Product product) {
@@ -457,6 +467,7 @@ public class BandArithmetic {
                                                String namePrefix) {
         registerTiePointGridSymbols(namespace, product, namePrefix);
         registerBandSymbols(namespace, product, namePrefix);
+        registerMaskSymbols(namespace, product, namePrefix);
         registerSingleFlagSymbols(namespace, product, namePrefix);
         informNamespaceExtenders(namespace, product, namePrefix);
     }
@@ -467,8 +478,7 @@ public class BandArithmetic {
         for (int i = 0; i < product.getNumTiePointGrids(); i++) {
             final TiePointGrid grid = product.getTiePointGridAt(i);
             final String symbolName = namePrefix + grid.getName();
-            final Symbol symbol = new RasterDataSymbol(symbolName, grid);
-            namespace.registerSymbol(symbol);
+            namespace.registerSymbol(new RasterDataSymbol(symbolName, grid, RasterDataSymbol.GEOPHYSICAL));
         }
     }
 
@@ -478,8 +488,18 @@ public class BandArithmetic {
         for (int i = 0; i < product.getNumBands(); i++) {
             final Band band = product.getBandAt(i);
             final String symbolName = namePrefix + band.getName();
-            final Symbol symbol = new RasterDataSymbol(symbolName, band);
-            namespace.registerSymbol(symbol);
+            namespace.registerSymbol(new RasterDataSymbol(symbolName, band, RasterDataSymbol.GEOPHYSICAL));
+            namespace.registerSymbol(new RasterDataSymbol(symbolName + ".raw", band, RasterDataSymbol.RAW));
+        }
+    }
+
+    private static void registerMaskSymbols(WritableNamespace namespace,
+                                            Product product,
+                                            String namePrefix) {
+        for (int i = 0; i < product.getMaskGroup().getNodeCount(); i++) {
+            final Mask mask = product.getMaskGroup().get(i);
+            final String symbolName = namePrefix + mask.getName();
+            namespace.registerSymbol(new RasterDataSymbol(symbolName, mask));
         }
     }
 
@@ -553,7 +573,9 @@ public class BandArithmetic {
      *
      * @param products   the array of input products
      * @param expression the expression
+     *
      * @return the compiled expression
+     *
      * @throws ParseException if a parse error occurs
      * @deprecated since BEAM 4.5.1. Use {@link #createDefaultNamespace(org.esa.beam.framework.datamodel.Product[], int)}
      */
@@ -569,7 +591,9 @@ public class BandArithmetic {
      * will have a prefix according to each product's reference number.
      *
      * @param products the array of input products
+     *
      * @return a default namespace, never <code>null</code>
+     *
      * @deprecated since BEAM 4.5.1. Use {@link #createDefaultNamespace(org.esa.beam.framework.datamodel.Product[], int)}
      */
     @Deprecated

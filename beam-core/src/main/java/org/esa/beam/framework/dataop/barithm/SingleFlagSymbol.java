@@ -33,18 +33,17 @@ import com.bc.jexp.Term;
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  * @version $Revision$ $Date$
  */
+public final  class SingleFlagSymbol extends RasterDataSymbol {
 
-public class SingleFlagSymbol extends RasterDataSymbol {
-
-    private int _flagMask;
+    private final int flagMask;
 
     public SingleFlagSymbol(final String symbolName, final RasterDataNode raster, final int flagMask) {
-        super(symbolName, raster);
-        _flagMask = flagMask;
+        super(symbolName, raster, RAW);
+        this.flagMask = flagMask;
     }
 
     @Override
-    public int getRetType() {
+    public final  int getRetType() {
         return Term.TYPE_B;
     }
 
@@ -53,25 +52,25 @@ public class SingleFlagSymbol extends RasterDataSymbol {
      *
      * @return the flag mask.
      */
-    public int getFlagMask() {
-        return _flagMask;
+    public final  int getFlagMask() {
+        return flagMask;
     }
 
     @Override
-    public boolean evalB(final EvalEnv env) throws EvalException {
+    public final  boolean evalB(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
-        return (_data.getElemIntAt(elemIndex) & _flagMask) == _flagMask;
+        return (data.getElemIntAt(elemIndex) & flagMask) == flagMask;
     }
 
     @Override
-    public int evalI(final EvalEnv env) throws EvalException {
+    public final int evalI(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
-        return (_data.getElemIntAt(elemIndex) & _flagMask) == _flagMask ? 1 : 0;
+        return (data.getElemIntAt(elemIndex) & flagMask) == flagMask ? 1 : 0;
     }
 
     @Override
-    public double evalD(final EvalEnv env) throws EvalException {
+    public final double evalD(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
-        return (_data.getElemIntAt(elemIndex) & _flagMask) == _flagMask ? 1.0 : 0.0;
+        return (data.getElemIntAt(elemIndex) & flagMask) == flagMask ? 1.0 : 0.0;
     }
 }

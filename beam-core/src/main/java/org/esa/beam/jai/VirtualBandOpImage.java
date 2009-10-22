@@ -250,7 +250,15 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         RasterDataSymbol[] rasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
         for (RasterDataSymbol rasterDataSymbol : rasterDataSymbols) {
             RasterDataNode sourceRDN = rasterDataSymbol.getRaster();
-            RenderedImage sourceImage = ImageManager.getInstance().getGeophysicalImage(sourceRDN, getLevel());
+            RenderedImage sourceImage;
+            int productDataType;
+            if (rasterDataSymbol.getSource() == RasterDataSymbol.GEOPHYSICAL) {
+                sourceImage = ImageManager.getInstance().getGeophysicalImage(sourceRDN, getLevel());
+                productDataType = sourceRDN.getGeophysicalDataType();
+            } else {
+                sourceImage = ImageManager.getInstance().getSourceImage(sourceRDN, getLevel());
+                productDataType = sourceRDN.getDataType();
+            }
             Raster sourceRaster = sourceImage.getData(destRect);
             DataBuffer dataBuffer = sourceRaster.getDataBuffer();
             if (dataBuffer.getSize() != destRect.width * destRect.height) {
@@ -260,7 +268,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                 dataBuffer = wr.getDataBuffer();
             }
             Object sourceArray = ImageUtils.getPrimitiveArray(dataBuffer);
-            ProductData productData = ProductData.createInstance(sourceRDN.getGeophysicalDataType(), sourceArray);
+            ProductData productData = ProductData.createInstance(productDataType, sourceArray);
             rasterDataSymbol.setData(productData);
         }
     }
