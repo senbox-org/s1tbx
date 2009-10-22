@@ -113,6 +113,7 @@ public class ReprojectionForm extends JTabbedPane {
             parameterMap.put("orientation", outputParameterContainer.getValue("orientation"));
             parameterMap.put("pixelSizeX", outputParameterContainer.getValue("pixelSizeX"));
             parameterMap.put("pixelSizeY", outputParameterContainer.getValue("pixelSizeY"));
+            parameterMap.put("width", outputParameterContainer.getValue("width"));
             parameterMap.put("height", outputParameterContainer.getValue("height"));
             parameterMap.put("noDataValue", outputParameterContainer.getValue("noData"));
         }
