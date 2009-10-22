@@ -40,6 +40,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.datum.DatumAuthorityFactory;
+import org.opengis.referencing.datum.Ellipsoid;
 import org.opengis.referencing.datum.GeodeticDatum;
 import org.opengis.referencing.operation.Conversion;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
@@ -95,18 +96,18 @@ public class ProjectionDefinitionForm extends JPanel {
         for (OperationMethod method : operationMethodList) {
             operationMethodWrapperList.add(new OperationMethodDelegate(method));
         }
+        OperationMethodWrapper defaultMethod = new WGS84OperationMethod();
+        operationMethodWrapperList.add(defaultMethod);
         operationMethodWrapperList.add(new UTMZonesOperationMethod());
-        operationMethodWrapperList.add(new WGS84OperationMethod());
         Collections.sort(this.operationMethodWrapperList, new OperationMethodWrapperComparator());
         
         this.datumList = new ArrayList<GeodeticDatum>(datumList);
         Collections.sort(this.datumList, AbstractIdentifiedObject.NAME_COMPARATOR);
 
         model = new Model();
-        // todo - set Lat/Lon WGS84
-        model.operationWrapper = this.operationMethodWrapperList.get(0);
+        model.operationWrapper = defaultMethod;
         model.datum = this.datumList.get(0);
-        updateModel(model);
+        updateModel();
 
         vc = ValueContainer.createObjectBacked(model);
         vc.addPropertyChangeListener(new UpdateListener());
@@ -168,12 +169,22 @@ public class ProjectionDefinitionForm extends JPanel {
 
     }
 
-    private void updateModel(final Model model) {
+    private void updateModel() {
         model.parameters = model.operationWrapper.getParameter();
-        if (model.datum != null) {
-            model.parameters.parameter("semi_major").setValue(model.datum.getEllipsoid().getSemiMajorAxis());
-            model.parameters.parameter("semi_minor").setValue(model.datum.getEllipsoid().getSemiMinorAxis());
+        if (model.datum != null && hasParameter("semi_major") && hasParameter("semi_minor")) {
+            Ellipsoid ellipsoid = model.datum.getEllipsoid();
+            model.parameters.parameter("semi_major").setValue(ellipsoid.getSemiMajorAxis());
+            model.parameters.parameter("semi_minor").setValue(ellipsoid.getSemiMinorAxis());
         }
+    }
+    
+    private boolean hasParameter(String name) {
+        try {
+            model.parameters.parameter(name);
+        } catch (ParameterNotFoundException e) {
+            return false;
+        }
+        return true;
     }
 
     private class UpdateListener implements PropertyChangeListener {
@@ -183,7 +194,7 @@ public class ProjectionDefinitionForm extends JPanel {
             if ("parameters".equals(evt.getPropertyName())) {
                 return;
             }
-            updateModel(model);
+            updateModel();
         }
     }
 
@@ -326,7 +337,7 @@ public class ProjectionDefinitionForm extends JPanel {
     
     private static class WGS84OperationMethod implements  OperationMethodWrapper {
         public String getName() {
-            return "WGS 84";
+            return "Geographic Lat/Lon (WGS 84)";
         }
         public ParameterValueGroup getParameter() {
             return ParameterGroup.EMPTY;
