@@ -361,6 +361,8 @@ public class ReprojectionForm extends JTabbedPane {
     }
 
     private void updateUIState() {
+        boolean collocationEnabled = (collocateProductSelector.getProductCount()>0);
+        collocateButtonModel.setEnabled(collocationEnabled);
         final boolean collocate = collocateButtonModel.isSelected();
         collocateProductSelector.getProductNameComboBox().setEnabled(collocate);
         collocateProductSelector.getProductFileChooserButton().setEnabled(collocate);
