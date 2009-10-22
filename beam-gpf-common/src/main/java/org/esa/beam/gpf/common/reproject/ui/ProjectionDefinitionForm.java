@@ -80,6 +80,10 @@ import javax.swing.SwingUtilities;
  */
 public class ProjectionDefinitionForm extends JPanel {
 
+    private static final String OPERATION_WRAPPER = "operationWrapper";
+    private static final String DATUM = "datum";
+    private static final String PARAMETERS = "parameters";
+    
     private final List<GeodeticDatum> datumList;
     private final List<OperationMethodWrapper> operationMethodWrapperList;
     private ProjectionDefinitionForm.Model model;
@@ -93,17 +97,25 @@ public class ProjectionDefinitionForm extends JPanel {
                                     List<GeodeticDatum> datumList) {
         this.parent = parent;
 
+        this.datumList = new ArrayList<GeodeticDatum>(datumList);
+        Collections.sort(this.datumList, AbstractIdentifiedObject.NAME_COMPARATOR);
+        GeodeticDatum wgs84Datum = null;
+        for (GeodeticDatum geodeticDatum : datumList) {
+            if (geodeticDatum.getName().getCode().equals("World Geodetic System 1984")) {
+                wgs84Datum = geodeticDatum;
+                break;
+            }
+        }
+
         this.operationMethodWrapperList = new ArrayList<OperationMethodWrapper>(operationMethodList.size() + 2);
         for (OperationMethod method : operationMethodList) {
             operationMethodWrapperList.add(new OperationMethodDelegate(method));
         }
-        OperationMethodWrapper defaultMethod = new WGS84OperationMethod();
+        OperationMethodWrapper defaultMethod = new WGS84OperationMethod(wgs84Datum);
         operationMethodWrapperList.add(defaultMethod);
-        operationMethodWrapperList.add(new UTMZonesOperationMethod());
+        operationMethodWrapperList.add(new UTMZonesOperationMethod(wgs84Datum));
         Collections.sort(this.operationMethodWrapperList, new OperationMethodWrapperComparator());
-        
-        this.datumList = new ArrayList<GeodeticDatum>(datumList);
-        Collections.sort(this.datumList, AbstractIdentifiedObject.NAME_COMPARATOR);
+       
 
         model = new Model();
         model.operationWrapper = defaultMethod;
@@ -113,7 +125,7 @@ public class ProjectionDefinitionForm extends JPanel {
         vc.addPropertyChangeListener(new UpdateListener());
 
         creatUI();
-        updateModel(null);
+        updateModel(OPERATION_WRAPPER);
     }
 
     public CoordinateReferenceSystem getProcjetedCRS() throws FactoryException {
@@ -163,9 +175,8 @@ public class ProjectionDefinitionForm extends JPanel {
             }
         });
         final BindingContext context = new BindingContext(vc);
-        context.bind("operationWrapper", operationComboBox);
-        context.bind("datum", datumComboBox);
-
+        context.bind(OPERATION_WRAPPER, operationComboBox);
+        context.bind(DATUM, datumComboBox);
     }
 
     private void updateEnableState(boolean componentEnabled) {
@@ -175,10 +186,10 @@ public class ProjectionDefinitionForm extends JPanel {
     }
     
     private void updateModel(String propertyName) {
-        if ("transformation".equals(propertyName)) {
+        if (OPERATION_WRAPPER.equals(propertyName)) {
             GeodeticDatum defaultDatum = model.operationWrapper.getDefaultDatum();
             if (defaultDatum != null) {
-                vc.setValue("datum", defaultDatum);
+                vc.setValue(DATUM, defaultDatum);
             }
         }
         boolean hasParameters = model.operationWrapper.hasParameters();
@@ -191,7 +202,6 @@ public class ProjectionDefinitionForm extends JPanel {
             }
         }
         updateEnableState(true);
-        
     }
     
     private boolean hasParameter(String name) {
@@ -208,7 +218,7 @@ public class ProjectionDefinitionForm extends JPanel {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             String propertyName = evt.getPropertyName();
-            if ("parameters".equals(propertyName)) {
+            if (PARAMETERS.equals(propertyName)) {
                 return;
             }
             updateModel(propertyName);
@@ -230,8 +240,6 @@ public class ProjectionDefinitionForm extends JPanel {
                 frame.setVisible(true);
             }
         });
-
-
     }
 
     static List<OperationMethod> createProjectionMethodList() {
@@ -306,11 +314,9 @@ public class ProjectionDefinitionForm extends JPanel {
     }
 
     private static class Model {
-
         private OperationMethodWrapper operationWrapper;
         private GeodeticDatum datum;
         private ParameterValueGroup parameters;
-
     }
 
     private class ParameterButtonListener implements ActionListener {
@@ -356,6 +362,12 @@ public class ProjectionDefinitionForm extends JPanel {
     }
     
     private static class WGS84OperationMethod implements  OperationMethodWrapper {
+        private final GeodeticDatum wgs84Datum;
+
+        public WGS84OperationMethod(GeodeticDatum wgs84Datum) {
+            this.wgs84Datum = wgs84Datum;
+        }
+
         public String getName() {
             return "Geographic Lat/Lon (WGS 84)";
         }
@@ -375,7 +387,7 @@ public class ProjectionDefinitionForm extends JPanel {
 
         @Override
         public GeodeticDatum getDefaultDatum() {
-            return DefaultGeodeticDatum.WGS84;
+            return wgs84Datum;
         }
 
         @Override
@@ -446,7 +458,13 @@ public class ProjectionDefinitionForm extends JPanel {
         
         private static final ParameterDescriptor<String> HEMISPHERE = 
             new DefaultParameterDescriptor<String>("hemisphere", String.class, new String[] {"N", "S"}, "N");
+
+        private final GeodeticDatum wgs84Datum;
         
+        UTMZonesOperationMethod(GeodeticDatum wgs84Datum) {
+            this.wgs84Datum = wgs84Datum;
+        }
+
         private static ParameterDescriptorGroup createDescriptorGroup() {
             return new DefaultParameterDescriptorGroup(NAME, new ParameterDescriptor[] { ZONE, HEMISPHERE });
         }
@@ -519,7 +537,7 @@ public class ProjectionDefinitionForm extends JPanel {
 
         @Override
         public GeodeticDatum getDefaultDatum() {
-            return DefaultGeodeticDatum.WGS84;
+            return wgs84Datum;
         }
 
         @Override
