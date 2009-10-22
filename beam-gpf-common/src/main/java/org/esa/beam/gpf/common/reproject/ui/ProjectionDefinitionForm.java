@@ -12,8 +12,8 @@ import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ValueEditorsPane;
 import org.geotools.referencing.ReferencingFactoryFinder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
+import org.geotools.referencing.cs.DefaultEllipsoidalCS;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterDescriptor;
@@ -23,6 +23,7 @@ import org.opengis.referencing.AuthorityFactory;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.crs.CRSFactory;
+import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.datum.DatumAuthorityFactory;
 import org.opengis.referencing.datum.GeodeticDatum;
@@ -90,12 +91,16 @@ public class ProjectionDefinitionForm extends JPanel {
         final CRSFactory crsFactory = ReferencingFactoryFinder.getCRSFactory(null);
         final CoordinateOperationFactory coFactory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
 
-        final HashMap<String, Object> properties = new HashMap<String, Object>();
-        properties.put("name", model.transformation.getName().getCode() + " / " + model.datum.getName().getCode());
-        final Conversion conversion = coFactory.createDefiningConversion(properties,
+        final HashMap<String, Object> projProperties = new HashMap<String, Object>();
+        projProperties.put("name", model.transformation.getName().getCode() + " / " + model.datum.getName().getCode());
+        final Conversion conversion = coFactory.createDefiningConversion(projProperties,
                                                                          model.transformation,
                                                                          model.parameters);
-        return crsFactory.createProjectedCRS(properties, DefaultGeographicCRS.WGS84,
+        final HashMap<String, Object> baseCrsProperties = new HashMap<String, Object>();
+        baseCrsProperties.put("name", model.datum.getName().getCode());
+        final GeographicCRS baseCrs = crsFactory.createGeographicCRS(baseCrsProperties, model.datum,
+                                                                           DefaultEllipsoidalCS.GEODETIC_2D);
+        return crsFactory.createProjectedCRS(projProperties, baseCrs,
                                              conversion, DefaultCartesianCS.PROJECTED);
     }
 
