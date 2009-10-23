@@ -15,10 +15,8 @@ import org.esa.beam.framework.ui.DemSelector;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.datum.GeodeticDatum;
 import org.opengis.referencing.operation.OperationMethod;
 
@@ -120,15 +118,6 @@ public class ReprojectionForm extends JTabbedPane {
             parameterMap.put("noDataValue", outputParameterContainer.getValue("noData"));
         }
         return parameterMap;
-    }
-
-    private GeographicCRS getGeographicCrs() {
-        final CoordinateReferenceSystem baseCRS = sourceProduct.getGeoCoding().getBaseCRS();
-        GeographicCRS geographicCRS = DefaultGeographicCRS.WGS84;
-        if (baseCRS instanceof GeographicCRS) {
-            geographicCRS = (GeographicCRS) baseCRS;
-        }
-        return geographicCRS;
     }
 
     private CoordinateReferenceSystem getTargetCrs() throws FactoryException {
