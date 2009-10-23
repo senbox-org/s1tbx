@@ -27,6 +27,10 @@ public class DemSelector extends JPanel {
     private Parameter _paramExternalDem;
     private Parameter _paramDem;
 
+    public DemSelector() {
+        this(null);
+    }
+
     public DemSelector(ParamChangeListener paramChangeListener) {
         createParameter(paramChangeListener);
         createUI();
@@ -78,7 +82,9 @@ public class DemSelector extends JPanel {
         ParamChangeListener paramChangeListener = new ParamChangeListener() {
             public void parameterValueChanged(final ParamChangeEvent event) {
                 updateUIState();
-                delegate.parameterValueChanged(event);
+                if (delegate != null) {
+                    delegate.parameterValueChanged(event);
+                }
             }
         };
 
