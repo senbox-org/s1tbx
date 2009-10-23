@@ -132,13 +132,13 @@ public class ReprojectionForm extends JTabbedPane {
     }
 
     private CoordinateReferenceSystem getTargetCrs() throws FactoryException {
-            if (crsButtonModel.isSelected()) {
+            if (crsButtonModel.isSelected() && selectedCrsInfo != null) {
                 return selectedCrsInfo.getCrs(sourceProduct);
             }
             if (projButtonModel.isSelected()) {
                 return projDefPanel.getProcjetedCRS();
             }
-            if (collocateButtonModel.isSelected()) {
+            if (collocateButtonModel.isSelected() && collocationProduct != null) {
                 return collocationProduct.getGeoCoding().getModelCRS();
             }
         return null;
@@ -257,7 +257,15 @@ public class ReprojectionForm extends JTabbedPane {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    if (sourceProduct == null) {
+                        appContext.handleError("Please select a product to project.\n", new NullPointerException());
+                        return;
+                    }
                     final CoordinateReferenceSystem crs = getTargetCrs();
+                    if (crs == null) {
+                        appContext.handleError("Please specify a target CRS first.\n", new NullPointerException());
+                        return;
+                    }
                     final OutputSizeFormModel formModel = new OutputSizeFormModel(sourceProduct, crs);
                     final OutputSizeForm form = new OutputSizeForm(formModel);
                     final ModalDialog modalDialog = new ModalDialog(appContext.getApplicationWindow(),
@@ -267,7 +275,7 @@ public class ReprojectionForm extends JTabbedPane {
                     if (modalDialog.show() == ModalDialog.ID_OK) {
                         outputParameterContainer = formModel.getValueContainer();
                     }
-                } catch (FactoryException fe) {
+                } catch (Exception fe) {
                     appContext.handleError("Could not create target CRS.\n" +
                                            fe.getMessage(), fe);
                 }
