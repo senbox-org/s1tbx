@@ -41,15 +41,15 @@ import java.awt.GridBagConstraints;
  * @author Marco Zuehlke
  * @since BEAM 4.7
  */
-class OutputSizeForm extends JPanel {
+class OutputGeometryForm extends JPanel {
     
     private final BindingContext context;
 
-    OutputSizeForm(OutputSizeFormModel model) {
+    OutputGeometryForm(OutputGeometryFormModel model) {
         context = new BindingContext(model.getValueContainer());
         createUI();
     }
-    
+
     private void createUI() {
         int line = 0;
         JPanel dialogPane = GridBagUtils.createPanel();
@@ -119,8 +119,8 @@ class OutputSizeForm extends JPanel {
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
         gbc.gridy = ++line;
         components = createComponents("fitProductSize");
-        context.bindEnabledState("width", true, "fitProductSize", true);
-        context.bindEnabledState("height", true, "fitProductSize", true);
+        context.bindEnabledState("width", false, "fitProductSize", true);
+        context.bindEnabledState("height", false, "fitProductSize", true);
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "insets.top=12, gridwidth=3,fill=HORIZONTAL,weightx=1");
         gbc.gridy = ++line;
         components = createComponents("width");
@@ -132,12 +132,6 @@ class OutputSizeForm extends JPanel {
         components = createComponents("height");
         unitcomponent = createUnitComponent("height");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc);
-        GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
-        GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
-        gbc.gridy = ++line;
-        components = createComponents("noDataValue");
-        unitcomponent = createUnitComponent("noDataValue");
-        GridBagUtils.addToPanel(dialogPane, components[1], gbc, "insets.top=12, gridwidth=1");
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
 
@@ -166,8 +160,8 @@ class OutputSizeForm extends JPanel {
         
         Product sourceProduct = ProductIO.readProduct("C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\MER_RR__1PPBCM20090804__Kinneret_FUB.dim", null);
         CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");
-        OutputSizeFormModel model = new OutputSizeFormModel(sourceProduct, targetCrs);
-        OutputSizeForm form = new OutputSizeForm(model);
+        OutputGeometryFormModel model = new OutputGeometryFormModel(sourceProduct, targetCrs);
+        OutputGeometryForm form = new OutputGeometryForm(model);
         contentPane.add(form);
         
         jFrame.setSize(400, 600);

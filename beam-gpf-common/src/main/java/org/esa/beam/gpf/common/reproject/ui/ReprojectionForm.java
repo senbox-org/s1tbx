@@ -1,6 +1,7 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
@@ -15,7 +16,6 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.BorderFactory;
-import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -26,6 +26,8 @@ import javax.swing.JTextField;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,28 +45,31 @@ class ReprojectionForm extends JTabbedPane {
 
     private SourceProductSelector sourceProductSelector;
     private TargetProductSelector targetProductSelector;
-    private JComboBox resampleComboBox;
-    private JCheckBox includeTPcheck;
 
     private Product sourceProduct;
     private DemSelector demSelector;
     private ValueContainer outputParameterContainer;
-    private ButtonModel resolutionBtnModel;
 
     private CrsForm crsForm;
+
+    private Model outputModel;
+    private ValueContainer modelContainer;
 
     ReprojectionForm(TargetProductSelector targetProductSelector, boolean orthorectify, AppContext appContext) {
         this.targetProductSelector = targetProductSelector;
         orthoMode = orthorectify;
         this.appContext = appContext;
         sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
+        outputModel = new Model();
+        modelContainer = ValueContainer.createObjectBacked(outputModel);
         createUI();
     }
 
     public Map<String, Object> getParameterMap() {
         Map<String, Object> parameterMap = new HashMap<String, Object>(5);
-        parameterMap.put("resamplingName", resampleComboBox.getSelectedItem().toString());
-        parameterMap.put("includeTiePointGrids", includeTPcheck.isSelected());
+        parameterMap.put("resamplingName", outputModel.resamplingMethod);
+        parameterMap.put("includeTiePointGrids", outputModel.reprojTiePoints);
+        parameterMap.put("noDataValue", outputModel.noDataValue);
         try {
             if (!crsForm.isCollocate()) {
                 final CoordinateReferenceSystem crs = crsForm.getCrs();
@@ -92,7 +97,6 @@ class ReprojectionForm extends JTabbedPane {
             parameterMap.put("pixelSizeY", outputParameterContainer.getValue("pixelSizeY"));
             parameterMap.put("width", outputParameterContainer.getValue("width"));
             parameterMap.put("height", outputParameterContainer.getValue("height"));
-            parameterMap.put("noDataValue", outputParameterContainer.getValue("noData"));
         }
         return parameterMap;
     }
@@ -170,23 +174,40 @@ class ReprojectionForm extends JTabbedPane {
         final JPanel outputSettingsPanel = new JPanel(tableLayout);
         outputSettingsPanel.setBorder(BorderFactory.createTitledBorder("Output Settings"));
 
+        final BindingContext context = new BindingContext(modelContainer);
+
         final JCheckBox preserveResolutionCheckBox = new JCheckBox("Preserve resolution");
-        resolutionBtnModel = preserveResolutionCheckBox.getModel();
+        context.bind(Model.PRESERVE_RESOLUTION, preserveResolutionCheckBox);
         outputSettingsPanel.add(preserveResolutionCheckBox);
-        includeTPcheck = new JCheckBox("Reproject tie-point grids", true);
+
+        JCheckBox includeTPcheck = new JCheckBox("Reproject tie-point grids", true);
+        context.bind(Model.REPROJ_TIEPOINTS, includeTPcheck);
         outputSettingsPanel.add(includeTPcheck);
 
-        final JButton outputParamBtn = new JButton("Output Parameter ...");
+        final JButton outputParamBtn = new JButton("Output Parameter...");
+        outputParamBtn.setEnabled(!outputModel.preserveResolution);
         outputParamBtn.addActionListener(new OutputParamActionListener());
         outputSettingsPanel.add(outputParamBtn);
-        outputSettingsPanel.add(new JLabel("No-data value:"));
-        outputSettingsPanel.add(new JTextField());
 
+        outputSettingsPanel.add(new JLabel("No-data value:"));
+        final JTextField noDataField = new JTextField();
+
+        outputSettingsPanel.add(noDataField);
+        context.bind(Model.NO_DATA_VALUE, noDataField);
         outputSettingsPanel.add(new JPanel());
+
         outputSettingsPanel.add(new JLabel("Resampling method:"));
-        resampleComboBox = new JComboBox(RESAMPLING_IDENTIFIER);
+        JComboBox resampleComboBox = new JComboBox(RESAMPLING_IDENTIFIER);
         resampleComboBox.setPrototypeDisplayValue(RESAMPLING_IDENTIFIER[0]);
+        context.bind(Model.RESAMPLING_METHOD, resampleComboBox);
         outputSettingsPanel.add(resampleComboBox);
+
+        modelContainer.addPropertyChangeListener(Model.PRESERVE_RESOLUTION, new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                outputParamBtn.setEnabled(!outputModel.preserveResolution);
+            }
+        });
 
         return outputSettingsPanel;
     }
@@ -232,8 +253,8 @@ class ReprojectionForm extends JTabbedPane {
                                            new IllegalStateException());
                     return;
                 }
-                final OutputSizeFormModel formModel = new OutputSizeFormModel(sourceProduct, crs);
-                final OutputSizeForm form = new OutputSizeForm(formModel);
+                final OutputGeometryFormModel formModel = new OutputGeometryFormModel(sourceProduct, crs);
+                final OutputGeometryForm form = new OutputGeometryForm(formModel);
                 final ModalDialog modalDialog = new ModalDialog(appContext.getApplicationWindow(),
                                                                 "Output Parameters",
                                                                 ModalDialog.ID_OK_CANCEL, null);
@@ -246,5 +267,17 @@ class ReprojectionForm extends JTabbedPane {
                                        fe.getMessage(), fe);
             }
         }
+    }
+
+    private static class Model {
+        private static final String PRESERVE_RESOLUTION = "preserveResolution";
+        private static final String REPROJ_TIEPOINTS = "reprojTiePoints";
+        private static final String NO_DATA_VALUE = "noDataValue";
+        private static final String RESAMPLING_METHOD = "resamplingMethod";
+
+        private boolean preserveResolution = true;
+        private boolean reprojTiePoints = true;
+        private double noDataValue = Double.NaN;
+        private String resamplingMethod = RESAMPLING_IDENTIFIER[0];
     }
 }

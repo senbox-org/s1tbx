@@ -32,11 +32,9 @@ import java.beans.PropertyChangeListener;
  * @author Marco Zuehlke
  * @since BEAM 4.7
  */
-class OutputSizeFormModel {
+class OutputGeometryFormModel {
 
     private class ChangeListener implements PropertyChangeListener {
-
-
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             Double pixelSizeX = (Double)valueContainer.getValue("pixelSizeX");
@@ -77,13 +75,12 @@ class OutputSizeFormModel {
     private final transient CoordinateReferenceSystem targetCrs;
 
     private boolean fitProductSize = true;
-    private double noDataValue = Double.NaN;
     private int referencePixelLocation = 1;
     
     private transient ValueContainer valueContainer;
     private transient ImageGeometry imageGeometry;
 
-    OutputSizeFormModel(Product sourceProduct, CoordinateReferenceSystem targetCrs) {
+    OutputGeometryFormModel(Product sourceProduct, CoordinateReferenceSystem targetCrs) {
         this.sourceProduct = sourceProduct;
         this.targetCrs = targetCrs;
         imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs,

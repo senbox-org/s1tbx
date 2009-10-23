@@ -142,7 +142,7 @@ public class CustomCrsForm extends JPanel {
         final ComboBoxSearchable datumSearchable = new IdentifiedObjectSearchable(datumComboBox);
         datumSearchable.installListeners();
 
-        paramButton = new JButton("Transformation Parameters ...");
+        paramButton = new JButton("Transformation Parameters...");
         paramButton.addActionListener(new ParameterButtonListener());
         add(transformLabel);
         add(operationComboBox);

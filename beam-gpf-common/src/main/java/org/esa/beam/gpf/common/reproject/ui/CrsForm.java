@@ -172,7 +172,7 @@ class CrsForm extends JPanel {
 
         crsCodeField = new JTextField();
         crsCodeField.setEditable(false);
-        final JButton crsButton = new JButton("Select ...");
+        final JButton crsButton = new JButton("Select...");
         crsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
