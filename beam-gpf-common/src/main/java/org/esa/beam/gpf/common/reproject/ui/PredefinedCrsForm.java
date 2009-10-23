@@ -38,7 +38,7 @@ import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-class CrsSelectionForm extends JPanel {
+class PredefinedCrsForm extends JPanel {
     
     private final CrsInfoListModel crsListModel;
     private JTextArea infoArea;
@@ -55,8 +55,8 @@ class CrsSelectionForm extends JPanel {
         Container contentPane = frame.getContentPane();
 
         final CrsInfoListModel listModel = new CrsInfoListModel(CrsInfo.generateCRSList());
-        CrsSelectionForm CrsSelectionForm = new CrsSelectionForm(listModel);
-        contentPane.add(CrsSelectionForm);
+        PredefinedCrsForm predefinedCrsForm = new PredefinedCrsForm(listModel);
+        contentPane.add(predefinedCrsForm);
         frame.setSize(600, 400);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -68,7 +68,7 @@ class CrsSelectionForm extends JPanel {
         });
     }
 
-    CrsSelectionForm(CrsInfoListModel model) {
+    PredefinedCrsForm(CrsInfoListModel model) {
         crsListModel = model;
         createUI();
     }
