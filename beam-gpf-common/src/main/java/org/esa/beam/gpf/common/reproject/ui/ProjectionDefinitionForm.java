@@ -462,12 +462,12 @@ public class ProjectionDefinitionForm extends JPanel {
         private static final int MIN_UTM_ZONE = 1;
         private static final int MAX_UTM_ZONE = 60;
         private static final String NAME = "Universal Transverse Mercator";
-        private static final Citation BC = Citations.fromName("BC");
+        private static final Citation BEAM = Citations.fromName("BEAM");
         private static final String NORTH_HEMISPHERE = "North";
         private static final String SOUTH_HEMISPHERE = "South";
 
         private static final ParameterDescriptor[] DESCRIPTORS = new ParameterDescriptor[]{
-                new DefaultParameterDescriptor<Integer>(BC, "zone", Integer.class, null, 1,
+                new DefaultParameterDescriptor<Integer>(BEAM, "zone", Integer.class, null, 1,
                                                         MIN_UTM_ZONE, MAX_UTM_ZONE, Unit.ONE, true),
                 new DefaultParameterDescriptor<String>("hemisphere", String.class,
                                                        new String[]{NORTH_HEMISPHERE, SOUTH_HEMISPHERE},
