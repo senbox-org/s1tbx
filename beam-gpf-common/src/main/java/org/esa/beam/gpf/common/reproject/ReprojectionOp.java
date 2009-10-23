@@ -330,7 +330,8 @@ public class ReprojectionOp extends Operator {
 
             @Override
             public RenderedImage createImage(int level) {
-                return new ReplaceNaNOpImage(srcImage.getImage(level), value);
+                final int sourceLevel = getSourceLevel(srcModel, level);
+                return new ReplaceNaNOpImage(srcImage.getImage(sourceLevel), value);
             }
         });
     }    
@@ -372,11 +373,7 @@ public class ReprojectionOp extends Operator {
 
             @Override
             public RenderedImage createImage(int targetLevel) {
-                int sourceLevel = targetLevel;
-                int sourceLevelCount = srcModel.getLevelCount();
-                if (sourceLevelCount - 1 < targetLevel) {
-                    sourceLevel = sourceLevelCount - 1;
-                }
+                int sourceLevel = getSourceLevel(srcModel, targetLevel);
                 Rectangle sourceRect = createLevelBounds(srcModel, sourceLevel);
                 Rectangle targetRect = createLevelBounds(targetModel, targetLevel);
                 ImageGeometry sourceGeometry = new ImageGeometry(sourceRect,
@@ -405,6 +402,15 @@ public class ReprojectionOp extends Operator {
                 }
             }
         });
+    }
+
+    private int getSourceLevel(MultiLevelModel srcModel, int targetLevel) {
+        int sourceLevel = targetLevel;
+        int sourceLevelCount = srcModel.getLevelCount();
+        if (sourceLevelCount - 1 < targetLevel) {
+            sourceLevel = sourceLevelCount - 1;
+        }
+        return sourceLevel;
     }
 
     private Rectangle createLevelBounds(MultiLevelModel model, int level) {
