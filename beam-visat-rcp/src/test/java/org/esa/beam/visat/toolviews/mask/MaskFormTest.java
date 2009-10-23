@@ -1,63 +1,52 @@
 package org.esa.beam.visat.toolviews.mask;
 
 import com.jidesoft.utils.Lm;
+import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.VectorData;
-import org.junit.Assert;
-import org.junit.Test;
 
-import javax.swing.JFrame;
-import javax.swing.UIManager;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.Locale;
 
-public class MaskManagerFormTest {
+public class MaskFormTest extends TestCase {
+    private Product product;
+    private MaskManagerForm maskManagerForm;
+    private MaskViewerForm maskViewerForm;
+
     static {
         Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
     }
 
-    @Test
-    public void testForm() {
-        MaskManagerForm form = createTestForm();
-        Assert.assertNull(form.getSceneView());
-        Assert.assertNotNull(form.getHelpButton());
-        Assert.assertEquals("helpButton", form.getHelpButton().getName());
-        Assert.assertNotNull(form.createContentPanel());
+    @Override
+    public void setUp() {
+        product = createTestProduct();
+
+        maskManagerForm = new MaskManagerForm();
+        maskManagerForm.reconfigureMaskTable(product, null);
+
+        maskViewerForm = new MaskViewerForm();
+        maskViewerForm.reconfigureMaskTable(product, null);
     }
 
-    public static void main(String[] args) {
-        Locale.setDefault(Locale.UK);
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {
-            // ignore
-        }
-
-
-        MaskManagerForm form = createTestForm();
-
-        JFrame frame = new JFrame(MaskManagerFormTest.class.getName());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(form.createContentPanel());
-        frame.pack();
-        frame.setVisible(true);
+    public void testMaskManagerForm() {
+        assertSame(product, maskManagerForm.getProduct());
+        assertNotNull(maskManagerForm.getHelpButton());
+        assertEquals("helpButton", maskManagerForm.getHelpButton().getName());
+        assertNotNull(maskManagerForm.createContentPanel());
+        assertEquals(12, maskManagerForm.getRowCount());
     }
 
-    private static MaskManagerForm createTestForm() {
-        Product product = createTestProduct();
-
-        MaskManagerForm form = new MaskManagerForm();
-        form.reconfigureMasks(product, product.getBand("B"));
-        return form;
+    public void testMaskViewerForm() {
+        assertSame(product, maskViewerForm.getProduct());
+        assertNull(maskViewerForm.getHelpButton());
+        assertNotNull(maskViewerForm.createContentPanel());
+        assertEquals(12, maskViewerForm.getRowCount());
     }
 
-    private static Product createTestProduct() {
+    static Product createTestProduct() {
         Color[] colors = {
                 Color.WHITE,
                 Color.BLACK,
@@ -104,28 +93,6 @@ public class MaskManagerFormTest {
             mask.getImageConfig().setValue("vectorData", vectorData);
             product.getMaskGroup().add(mask);
         }
-
-        product.addProductNodeListener(new ProductNodeListenerAdapter() {
-            @Override
-            public void nodeChanged(ProductNodeEvent event) {
-                System.out.println("event = " + event);
-            }
-
-            @Override
-            public void nodeDataChanged(ProductNodeEvent event) {
-                System.out.println("event = " + event);
-            }
-
-            @Override
-            public void nodeAdded(ProductNodeEvent event) {
-                System.out.println("event = " + event);
-            }
-
-            @Override
-            public void nodeRemoved(ProductNodeEvent event) {
-                System.out.println("event = " + event);
-            }
-        });
         return product;
     }
 }

@@ -16,21 +16,15 @@
  */
 package org.esa.beam.visat.toolviews.mask;
 
-import com.jidesoft.combobox.ColorComboBox;
-import com.jidesoft.grid.ColorCellEditor;
-import com.jidesoft.grid.ColorCellRenderer;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
 import javax.swing.AbstractAction;
@@ -42,93 +36,23 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelListener;
-import javax.swing.event.TableModelEvent;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URL;
 
-class MaskManagerForm {
-
-    private final JTable maskTable;
-
-    private final MaskTableModel maskTableModel;
+class MaskManagerForm extends MaskForm {
 
     private final AbstractButton helpButton;
 
     private final MaskAction[] maskActions;
 
-    private ProductSceneView sceneView;
-
     public MaskManagerForm() {
-
-        maskTableModel = new MaskTableModel(false);
-        maskTableModel.addTableModelListener(new TableModelListener() {
-             @Override
-             public void tableChanged(TableModelEvent e) {
-                 if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == TableModelEvent.ALL_COLUMNS) {
-                     maskTableModel.configureColumnModel(maskTable.getColumnModel());
-                 }
-             }
-         });
-        
-
-        maskTable = new JTable(maskTableModel);
-        maskTable.setName("maskTable");
-
-        maskTable.setPreferredScrollableViewportSize(new Dimension(200, 150));
-        maskTable.setDefaultRenderer(Color.class, new ColorCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                ColorComboBox comboBox = (ColorComboBox) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                return configureColorComboBox(comboBox);
-            }
-        });
-        ColorCellEditor cellEditor = new ColorCellEditor() {
-            @Override
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                ColorComboBox comboBox = (ColorComboBox) super.getTableCellEditorComponent(table, value, isSelected, row, column);
-                return configureColorComboBox(comboBox);
-            }
-        };
-
-        maskTable.setDefaultEditor(Color.class, cellEditor);
-        maskTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        maskTable.getTableHeader().setReorderingAllowed(false);
-        maskTable.getTableHeader().setResizingAllowed(true);
-        maskTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        TableToolTipHandler toolTipSetter = new TableToolTipHandler(maskTable);
-        maskTable.addMouseListener(toolTipSetter);
-        maskTable.addMouseMotionListener(toolTipSetter);
-        maskTable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(final MouseEvent e) {
-                updateState();
-                if (e.getClickCount() == 2) {
-                    MaskAction action = getMaskAction(EditAction.class);
-                    if (action.isEnabled()) {
-                        action.actionPerformed(new ActionEvent(e.getSource(), e.getID(), null));
-                    }
-                }
-            }
-        });
-        maskTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                updateState();
-            }
-        });
-        maskTableModel.configureColumnModel(maskTable.getColumnModel());
+        super(true);
 
         maskActions = new MaskAction[]{
                 new NewBandMathAction(), new NewRangeAction(),
@@ -140,176 +64,31 @@ class MaskManagerForm {
                 new MoveUpAction(), new MoveDownAction(),
         };
 
-        helpButton = createButton("icons/Help24.gif");
+        helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"), false);
         helpButton.setName("helpButton");
 
         updateState();
     }
 
-    private Product getProduct() {
-        return maskTableModel.getMaskGroup().getProduct();
+    @Override
+    public Action getDoubleClickAction() {
+        return getMaskAction(EditAction.class);
     }
 
-    private MaskAction getMaskAction(Class<?> type) {
-        for (MaskAction maskAction : maskActions) {
-            if (type.getName().equals(maskAction.getValue(Action.ACTION_COMMAND_KEY))) {
-                return maskAction;
-            }
-        }
-        return null;
-    }
-
-    private static Component configureColorComboBox(ColorComboBox comboBox) {
-        comboBox.setColorValueVisible(false);
-        comboBox.setUseAlphaColorButtons(false);
-        comboBox.setAllowDefaultColor(false);
-        comboBox.setAllowMoreColors(true);
-        return comboBox;
-    }
-
-    AbstractButton getHelpButton() {
+    @Override
+    public AbstractButton getHelpButton() {
         return helpButton;
     }
 
-    ProductSceneView getSceneView() {
-        return sceneView;
-    }
-
-    private String createCode(String op) {
-          return createCode(op, 0);
-    }
-
-    private Mask getSelectedMask() {
-        int selectedRow = maskTable.getSelectedRow();
-        return getMask(selectedRow);
-    }
-
-    private Mask[] getSelectedMasks() {
-        int[] rows = maskTable.getSelectedRows();
-        Mask[] masks = new Mask[rows.length];
-        for (int i = 0; i < rows.length; i++) {
-            int row = rows[i];
-            masks[i] = getMask(row);
-        }
-        return masks;
-    }
-
-
-    private String createCode(String op, int off) {
-        return createCode(op, getSelectedMasks(), off);
-    }
-
-    private static String createCode(String op, Mask[] selectedMasks, int off) {
-        StringBuilder code = new StringBuilder();
-        for (int i = off; i < selectedMasks.length; i++) {
-            Mask mask = selectedMasks[i];
-            if (code.length() > 0) {
-                code.append(" ");
-                code.append(op);
-                code.append(" ");
-            }
-            code.append(BandArithmetic.createExternalName(mask.getName()));
-        }
-        return code.toString();
-    }
-
-    private String createSubtractionCode() {
-        Mask[] selectedMasks = getSelectedMasks();
-        StringBuilder code = new StringBuilder();
-        code.append(BandArithmetic.createExternalName(selectedMasks[0].getName()));
-        if (selectedMasks.length > 1) {
-            code.append(" && !(");
-            code.append(createCode("||",selectedMasks, 1));
-            code.append(")");
-        }
-        return code.toString();
-    }
-
-    private String createInversionCode() {
-        Mask[] selectedMasks = getSelectedMasks();
-        StringBuilder code = new StringBuilder();
-        code.append("!");
-        code.append(BandArithmetic.createExternalName(selectedMasks[0].getName()));
-        if (selectedMasks.length > 1) {
-            code.append(" || ");
-            code.append(createCode("||",selectedMasks, 1));
-        }
-        return code.toString();
-    }
-
-    void setSceneView(final ProductSceneView sceneView) {
-        if (this.sceneView != sceneView) {
-            this.sceneView = sceneView;
-            if (this.sceneView != null) {
-                ProductNodeGroup<Mask> maskGroup = this.sceneView.getProduct().getMaskGroup();
-                RasterDataNode visibleBand = this.sceneView.getRaster();
-                reconfigureMasks(sceneView.getProduct(), visibleBand);
-            } else {
-                clearMasks();
-            }
-        }
-    }
-
-    void reconfigureMasks(Product product, RasterDataNode visibleBand) {
-        maskTableModel.reconfigure(product, visibleBand);
-    }
-
-    void clearMasks() {
-        maskTableModel.clear();
-        maskTableModel.configureColumnModel(maskTable.getColumnModel());
-    }
-
-    void updateState() {
+    @Override
+    public void updateState() {
         for (MaskAction maskAction : maskActions) {
             maskAction.updateState();
         }
     }
 
-    Mask getMask(int selectedRow) {
-        return maskTableModel.getMaskGroup().get(selectedRow);
-    }
-
-    static AbstractButton createButton(final String path) {
-        return ToolButtonFactory.createButton(UIUtils.loadImageIcon(path), false);
-    }
-
-    private void addNewBandMathMask(String code) {
-        Mask.BandMathType type = new Mask.BandMathType();
-        Mask mask = new Mask("M_" + Long.toHexString(System.nanoTime()),
-                             getProduct().getSceneRasterWidth(),
-                             getProduct().getSceneRasterHeight(),
-                             type);
-        mask.getImageConfig().setValue("expression", code);
-        mask.setDescription(code);
-        addNewMask(mask);
-    }
-
-    private void addNewMaskCopy() {
-        Mask selectedMask = getSelectedMask();
-        Mask mask = new Mask("Copy_of_" + selectedMask.getName(),
-                             selectedMask.getSceneRasterWidth(),
-                             selectedMask.getSceneRasterHeight(),
-                             selectedMask.getImageType());
-        mask.setDescription(selectedMask.getDescription());
-        ValueContainer selectedConfig = selectedMask.getImageConfig();
-        ValueModel[] models = selectedConfig.getModels();
-        for (ValueModel model : models) {
-            mask.getImageConfig().setValue(model.getDescriptor().getName(),
-                                           model.getValue());
-        }
-        addNewMask(mask);
-    }
-
-    private void addNewMask(Mask mask) {
-        getProduct().getMaskGroup().add(mask);
-
-        maskTableModel.fireTableDataChanged();
-        int rowIndex = maskTableModel.getMaskGroup().indexOf(mask.getName());
-        maskTable.getSelectionModel().addSelectionInterval(rowIndex, rowIndex);
-        maskTable.scrollRectToVisible(maskTable.getCellRect(rowIndex, 0, true));
-    }
-
-    JPanel createContentPanel() {
+    @Override
+    public JPanel createContentPanel() {
 
         JPanel buttonPanel = GridBagUtils.createPanel();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -339,7 +118,7 @@ class MaskManagerForm {
         buttonPanel.add(helpButton, gbc);
 
         JPanel tablePanel = new JPanel(new BorderLayout(4, 4));
-        tablePanel.add(new JScrollPane(maskTable), BorderLayout.CENTER);
+        tablePanel.add(new JScrollPane(getMaskTable()), BorderLayout.CENTER);
 
         JPanel contentPane1 = new JPanel(new BorderLayout(4, 4));
         contentPane1.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
@@ -349,6 +128,15 @@ class MaskManagerForm {
         updateState();
 
         return contentPane1;
+    }
+
+    private MaskAction getMaskAction(Class<?> type) {
+        for (MaskAction maskAction : maskActions) {
+            if (type.getName().equals(maskAction.getValue(Action.ACTION_COMMAND_KEY))) {
+                return maskAction;
+            }
+        }
+        return null;
     }
 
     public abstract class MaskAction extends AbstractAction {
@@ -380,112 +168,184 @@ class MaskManagerForm {
         }
     }
 
-    public class NewBandMathAction extends MaskAction {
+    public abstract class BandMathAction extends MaskAction {
+        BandMathAction(String iconPath, String buttonName, String description) {
+            super(iconPath, buttonName, description);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String code = getCode(e);
+            if (code != null) {
+                addBandMathMask(code);
+            }
+        }
+
+        abstract String getCode(ActionEvent e);
+
+        String createCodeFromSelection(String op) {
+            return createCodeFromSelection(op, 0);
+        }
+
+        String createCodeFromSelection(String op, int selectionOffset) {
+            return createCodeFromSelection(op, getSelectedMasks(), selectionOffset);
+        }
+
+        String createCodeFromSelection(String op, Mask[] selectedMasks, int selectionOffset) {
+            StringBuilder code = new StringBuilder();
+            for (int i = selectionOffset; i < selectedMasks.length; i++) {
+                Mask mask = selectedMasks[i];
+                if (code.length() > 0) {
+                    code.append(" ");
+                    code.append(op);
+                    code.append(" ");
+                }
+                code.append(BandArithmetic.createExternalName(mask.getName()));
+            }
+            return code.toString();
+        }
+
+
+        void addBandMathMask(String code) {
+            Mask.BandMathType type = new Mask.BandMathType();
+            Mask mask = new Mask("M_" + Long.toHexString(System.nanoTime()),
+                                 getProduct().getSceneRasterWidth(),
+                                 getProduct().getSceneRasterHeight(),
+                                 type);
+            mask.getImageConfig().setValue("expression", code);
+            mask.setDescription(code);
+            addMask(mask);
+        }
+
+    }
+
+    public class NewBandMathAction extends BandMathAction {
         public NewBandMathAction() {
             super("BandMath24.png", "bandMathButton", "Creates a new mask based on a band math expression");
         }
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        String getCode(ActionEvent e) {
             Product product = getProduct();
             ProductExpressionPane expressionPane = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product, null);
             expressionPane.setCode("");
-            if (expressionPane.showModalDialog(null, "New Band-Math Mask") == ModalDialog.ID_OK) {
-                String code = expressionPane.getCode();
-                addNewBandMathMask(code);
+            if (expressionPane.showModalDialog(null, "New Band-Math Mask") == AbstractDialog.ID_OK) {
+                return expressionPane.getCode();
+            } else {
+                return null;
             }
         }
 
         @Override
         void updateState() {
-            setEnabled(maskTableModel.getMaskGroup() != null);
+            setEnabled(isInManagmentMode());
         }
+
     }
 
-    public class NewRangeAction extends MaskAction {
+    public class NewRangeAction extends BandMathAction {
         public NewRangeAction() {
             super("Range24.png", "rangeButton",
                   "Creates a new mask based on a value range");
         }
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        String getCode(ActionEvent e) {
             // todo - implement
+            return null;
         }
 
         @Override
         void updateState() {
-            setEnabled(maskTableModel.getMaskGroup() != null);
+            setEnabled(isInManagmentMode());
         }
     }
 
-    public class NewUnionAction extends MaskAction {
+    public class NewUnionAction extends BandMathAction {
         public NewUnionAction() {
             super("Union24.png", "unionButton",
                   "Creates the union of the selected masks");
         }
 
         @Override
-        public void actionPerformed(ActionEvent e) {
-            addNewBandMathMask(createCode("||"));
+        String getCode(ActionEvent e) {
+            return createCodeFromSelection("||");
         }
-
 
         @Override
         void updateState() {
-            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() > 1);
+            setEnabled(isInManagmentMode() && getSelectedRowCount() > 1);
         }
     }
 
-    public class NewIntersectionAction extends MaskAction {
+    public class NewIntersectionAction extends BandMathAction {
         public NewIntersectionAction() {
             super("Intersect24.png", "intersectionButton",
                   "Creates the intersection of the selected masks");
         }
 
         @Override
-        public void actionPerformed(ActionEvent e) {
-            addNewBandMathMask(createCode("&&"));
+        String getCode(ActionEvent e) {
+            return createCodeFromSelection("&&");
         }
 
         @Override
         void updateState() {
-            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() > 1);
+            setEnabled(isInManagmentMode()
+                    && getSelectedRowCount() > 1);
         }
     }
 
-    public class NewSubtractionAction extends MaskAction {
+    public class NewSubtractionAction extends BandMathAction {
         public NewSubtractionAction() {
             super("Subtract24.png", "subtractButton",
                   "Creates the subtraction of the selected masks");
         }
 
-
         @Override
-        public void actionPerformed(ActionEvent e) {
-            addNewBandMathMask(createSubtractionCode());
+        String getCode(ActionEvent e) {
+            Mask[] selectedMasks = getSelectedMasks();
+            StringBuilder code = new StringBuilder();
+            code.append(BandArithmetic.createExternalName(selectedMasks[0].getName()));
+            if (selectedMasks.length > 1) {
+                code.append(" && !(");
+                code.append(createCodeFromSelection("||", selectedMasks, 1));
+                code.append(")");
+            }
+            return code.toString();
         }
 
         @Override
         void updateState() {
-            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() > 1);
+            setEnabled(isInManagmentMode()
+                    && getSelectedRowCount() > 1);
         }
+
     }
 
-    public class NewInversionAction extends MaskAction {
+    public class NewInversionAction extends BandMathAction {
         public NewInversionAction() {
             super("Invert24.png", "intersectionButton",
                   "Creates the inversion of subtraction of the selected masks");
         }
 
         @Override
-        public void actionPerformed(ActionEvent e) {
-            addNewBandMathMask(createInversionCode());
+        String getCode(ActionEvent e) {
+            Mask[] selectedMasks = getSelectedMasks();
+            StringBuilder code = new StringBuilder();
+            code.append("!");
+            code.append(BandArithmetic.createExternalName(selectedMasks[0].getName()));
+            if (selectedMasks.length > 1) {
+                code.append(" || ");
+                code.append(createCodeFromSelection("||", selectedMasks, 1));
+            }
+            return code.toString();
         }
 
         @Override
         void updateState() {
-            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() >= 1);
+            setEnabled(isInManagmentMode()
+                    && getSelectedRowCount() >= 1);
         }
     }
 
@@ -501,7 +361,24 @@ class MaskManagerForm {
 
         @Override
         void updateState() {
-            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() == 1);
+            setEnabled(isInManagmentMode()
+                    && getSelectedRowCount() == 1);
+        }
+
+        private void addNewMaskCopy() {
+            Mask selectedMask = getSelectedMask();
+            Mask mask = new Mask("Copy_of_" + selectedMask.getName(),
+                                 selectedMask.getSceneRasterWidth(),
+                                 selectedMask.getSceneRasterHeight(),
+                                 selectedMask.getImageType());
+            mask.setDescription(selectedMask.getDescription());
+            ValueContainer selectedConfig = selectedMask.getImageConfig();
+            ValueModel[] models = selectedConfig.getModels();
+            for (ValueModel model : models) {
+                mask.getImageConfig().setValue(model.getDescriptor().getName(),
+                                               model.getValue());
+            }
+            addMask(mask);
         }
     }
 
@@ -518,17 +395,19 @@ class MaskManagerForm {
                 Product product = getProduct();
                 ProductExpressionPane expressionPane = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product, null);
                 expressionPane.setCode((String) selectedMask.getImageConfig().getValue("expression"));
-                if (expressionPane.showModalDialog(null, "Edit Band-Math Mask") == ModalDialog.ID_OK) {
+                if (expressionPane.showModalDialog(null, "Edit Band-Math Mask") == AbstractDialog.ID_OK) {
                     String code = expressionPane.getCode();
                     selectedMask.getImageConfig().setValue("expression", code);
                 }
+            } else {
+                // todo - implement for other types too
             }
-            // todo - implement for other types too
         }
 
         @Override
         void updateState() {
-            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() == 1);
+            setEnabled(isInManagmentMode()
+                    && getSelectedRowCount() == 1);
         }
     }
 
@@ -542,14 +421,13 @@ class MaskManagerForm {
             // todo - ask user
             Mask[] selectedMasks = getSelectedMasks();
             for (Mask selectedMask : selectedMasks) {
-                getProduct().getMaskGroup().remove(selectedMask);
+                removeMask(selectedMask);
             }
-            maskTableModel.fireTableDataChanged();
         }
 
         @Override
         void updateState() {
-            setEnabled(maskTableModel.getMaskGroup() != null && maskTable.getSelectedRowCount() > 0);
+            setEnabled(isInManagmentMode() && getSelectedRowCount() > 0);
         }
     }
 
@@ -561,12 +439,11 @@ class MaskManagerForm {
         @Override
         public void actionPerformed(ActionEvent e) {
             // todo - implement
-            maskTableModel.fireTableDataChanged();
         }
 
         @Override
         void updateState() {
-            setEnabled(maskTableModel.getMaskGroup() != null);
+            setEnabled(isInManagmentMode());
         }
     }
 
@@ -578,13 +455,12 @@ class MaskManagerForm {
         @Override
         public void actionPerformed(ActionEvent e) {
             // todo - implement
-            maskTableModel.fireTableDataChanged();
         }
 
         @Override
         void updateState() {
-            setEnabled(maskTableModel.getMaskGroup() != null
-                    && maskTable.getSelectedRowCount() > 0);
+            setEnabled(isInManagmentMode()
+                    && getSelectedRowCount() > 0);
         }
     }
 
@@ -596,12 +472,12 @@ class MaskManagerForm {
         @Override
         public void actionPerformed(ActionEvent e) {
             // todo - implement
-            maskTableModel.fireTableDataChanged();
         }
 
         @Override
         void updateState() {
-            setEnabled(maskTable.getSelectedRowCount() == 1 && maskTable.getSelectedRow() > 0);
+            setEnabled(getSelectedRowCount() == 1
+                    && getSelectedRow() > 0);
         }
     }
 
@@ -613,13 +489,12 @@ class MaskManagerForm {
         @Override
         public void actionPerformed(ActionEvent e) {
             // todo - implement
-            maskTableModel.fireTableDataChanged();
         }
 
         @Override
         void updateState() {
-            setEnabled(maskTable.getSelectedRowCount() == 1
-                    && maskTable.getSelectedRow() < maskTable.getRowCount() - 1);
+            setEnabled(getSelectedRowCount() == 1
+                    && getSelectedRow() < getRowCount() - 1);
         }
     }
 

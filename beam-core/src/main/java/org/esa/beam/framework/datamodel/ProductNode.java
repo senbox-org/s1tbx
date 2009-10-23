@@ -444,11 +444,11 @@ public abstract class ProductNode {
         return removed;
     }
 
-    protected void fireProductNodeChanged(final String propertyName) {
+    public void fireProductNodeChanged(final String propertyName) {
         fireProductNodeChanged(propertyName, null);
     }
 
-    protected void fireProductNodeChanged(String propertyName, final Object oldValue) {
+    public void fireProductNodeChanged(String propertyName, final Object oldValue) {
         final Product product = getProduct();
         if (product != null) {
             product.fireNodeChanged(this, propertyName, oldValue);

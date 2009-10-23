@@ -16,11 +16,11 @@
  */
 package org.esa.beam.visat.toolviews.mask;
 
-public class MaskManagerToolView extends MaskToolView {
-    public static final String ID = MaskManagerToolView.class.getName();
+public class MaskViewerToolView extends MaskToolView {
+    public static final String ID = MaskViewerToolView.class.getName();
 
     @Override
     protected MaskForm createMaskForm() {
-        return new MaskManagerForm();
+        return new MaskViewerForm();
     }
 }

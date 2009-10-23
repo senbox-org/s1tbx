@@ -1610,10 +1610,18 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (this.imageInfo != imageInfo) {
             this.imageInfo = imageInfo;
             if (change) {
-                fireProductNodeChanged(PROPERTY_NAME_IMAGE_INFO);
-                setModified(true);
+                fireImageInfoChanged();
             }
         }
+    }
+
+    /**
+     * Notifies listeners that the image (display) information has changed.
+     * @since BEAM 4.7
+     */
+    public void fireImageInfoChanged() {
+        fireProductNodeChanged(PROPERTY_NAME_IMAGE_INFO);
+        setModified(true);
     }
 
     /**

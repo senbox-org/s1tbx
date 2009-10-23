@@ -1,7 +1,7 @@
 /*
- * $Id: MaskManagerToolView.java,v 1.1 2007/04/19 10:41:38 norman Exp $
+ * $Id: BitmaskOverlayToolView.java,v 1.1 2007/04/19 10:41:38 norman Exp $
  *
- * Copyright (C) 2009 by Brockmann Consult (info@brockmann-consult.de)
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,11 +16,22 @@
  */
 package org.esa.beam.visat.toolviews.mask;
 
-public class MaskManagerToolView extends MaskToolView {
-    public static final String ID = MaskManagerToolView.class.getName();
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import java.awt.BorderLayout;
+
+class MaskViewerForm extends MaskForm {
+
+    public MaskViewerForm() {
+        super(false);
+    }
 
     @Override
-    protected MaskForm createMaskForm() {
-        return new MaskManagerForm();
+    public JPanel createContentPanel() {
+        JPanel tablePanel = new JPanel(new BorderLayout(4, 4));
+        tablePanel.add(new JScrollPane(getMaskTable()), BorderLayout.CENTER);
+        tablePanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        return tablePanel;
     }
 }
