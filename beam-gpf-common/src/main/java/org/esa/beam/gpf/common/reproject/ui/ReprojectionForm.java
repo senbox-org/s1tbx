@@ -15,10 +15,9 @@ import org.esa.beam.framework.ui.DemSelector;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
+import org.esa.beam.gpf.common.reproject.ui.projdef.ProjectionDefinitionForm;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.datum.GeodeticDatum;
-import org.opengis.referencing.operation.OperationMethod;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -39,7 +38,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -91,7 +89,7 @@ public class ReprojectionForm extends JTabbedPane {
                 parameterMap.put("wkt", crs.toWKT());
             }
             if (projButtonModel.isSelected()) {
-                parameterMap.put("wkt", projDefPanel.getProcjetedCRS().toWKT());
+                parameterMap.put("wkt", projDefPanel.getProcjetedCRS(sourceProduct).toWKT());
             }
         } catch (FactoryException e) {
             throw new IllegalStateException(e);
@@ -125,7 +123,7 @@ public class ReprojectionForm extends JTabbedPane {
                 return selectedCrsInfo.getCrs(sourceProduct);
             }
             if (projButtonModel.isSelected()) {
-                return projDefPanel.getProcjetedCRS();
+                return projDefPanel.getProcjetedCRS(sourceProduct);
             }
             if (collocateButtonModel.isSelected() && collocationProduct != null) {
                 return collocationProduct.getGeoCoding().getModelCRS();
@@ -351,9 +349,7 @@ public class ReprojectionForm extends JTabbedPane {
     }
 
     private ProjectionDefinitionForm createProjectionDefinitionPanel() {
-        final List<OperationMethod> methods = ProjectionDefinitionForm.createProjectionMethodList();
-        final List<GeodeticDatum> datums = ProjectionDefinitionForm.createDatumList();
-        return new ProjectionDefinitionForm(appContext.getApplicationWindow(), methods, datums);
+        return new ProjectionDefinitionForm(appContext.getApplicationWindow());
     }
 
     private void updateUIState() {
