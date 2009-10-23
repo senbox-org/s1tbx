@@ -240,19 +240,18 @@ public class ReprojectionForm extends JTabbedPane {
     }
 
     private JPanel createOuputSettingsPanel() {
-        // todo - not working well yet (mp, 21102009)
         final JButton outputParamBtn = new JButton("Output Parameter");
         outputParamBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     if (sourceProduct == null) {
-                        appContext.handleError("Please select a product to project.\n", new NullPointerException());
+                        appContext.handleError("Please select a product to project.\n", new IllegalStateException());
                         return;
                     }
                     final CoordinateReferenceSystem crs = getTargetCrs();
                     if (crs == null) {
-                        appContext.handleError("Please specify a target CRS first.\n", new NullPointerException());
+                        appContext.handleError("Please specify a target CRS first.\n", new IllegalStateException());
                         return;
                     }
                     final OutputSizeFormModel formModel = new OutputSizeFormModel(sourceProduct, crs);
