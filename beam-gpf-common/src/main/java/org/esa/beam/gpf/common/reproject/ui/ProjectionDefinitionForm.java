@@ -9,7 +9,6 @@ import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 import com.jidesoft.swing.ComboBoxSearchable;
 import com.jidesoft.swing.SearchableUtils;
-
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ValueEditorsPane;
@@ -22,9 +21,8 @@ import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.cs.DefaultEllipsoidalCS;
-import org.geotools.referencing.datum.DefaultGeodeticDatum;
-import org.geotools.referencing.operation.projection.TransverseMercator;
 import org.geotools.referencing.operation.projection.MapProjection.AbstractProvider;
+import org.geotools.referencing.operation.projection.TransverseMercator;
 import org.opengis.metadata.citation.Citation;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.GeneralParameterValue;
@@ -39,7 +37,6 @@ import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.crs.CRSFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
-import org.opengis.referencing.datum.Datum;
 import org.opengis.referencing.datum.DatumAuthorityFactory;
 import org.opengis.referencing.datum.Ellipsoid;
 import org.opengis.referencing.datum.GeodeticDatum;
@@ -49,6 +46,15 @@ import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.OperationMethod;
 import org.opengis.referencing.operation.Projection;
 
+import javax.measure.unit.Unit;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -62,16 +68,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import javax.measure.unit.Unit;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
 /**
  * @author Marco Peters
  * @author Marco Zühlke
@@ -83,7 +79,7 @@ public class ProjectionDefinitionForm extends JPanel {
     private static final String OPERATION_WRAPPER = "operationWrapper";
     private static final String DATUM = "datum";
     private static final String PARAMETERS = "parameters";
-    
+
     private final List<GeodeticDatum> datumList;
     private final List<OperationMethodWrapper> operationMethodWrapperList;
     private ProjectionDefinitionForm.Model model;
@@ -101,7 +97,7 @@ public class ProjectionDefinitionForm extends JPanel {
         Collections.sort(this.datumList, AbstractIdentifiedObject.NAME_COMPARATOR);
         GeodeticDatum wgs84Datum = null;
         for (GeodeticDatum geodeticDatum : datumList) {
-            if (geodeticDatum.getName().getCode().equals("World Geodetic System 1984")) {
+            if ("World Geodetic System 1984".equals(geodeticDatum.getName().getCode())) {
                 wgs84Datum = geodeticDatum;
                 break;
             }
@@ -115,7 +111,7 @@ public class ProjectionDefinitionForm extends JPanel {
         operationMethodWrapperList.add(defaultMethod);
         operationMethodWrapperList.add(new UTMZonesOperationMethod(wgs84Datum));
         Collections.sort(this.operationMethodWrapperList, new OperationMethodWrapperComparator());
-       
+
 
         model = new Model();
         model.operationWrapper = defaultMethod;
@@ -147,7 +143,7 @@ public class ProjectionDefinitionForm extends JPanel {
 
         final JLabel transformLabel = new JLabel("Transform:");
         final JLabel datumLabel = new JLabel("Datum:");
-        
+
         operationComboBox = new JComboBox(operationMethodWrapperList.toArray());
         operationComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
         final ComboBoxSearchable methodSearchable = new OperationMethodWrapperSearchable(operationComboBox);
@@ -184,7 +180,7 @@ public class ProjectionDefinitionForm extends JPanel {
         datumComboBox.setEnabled(componentEnabled && model.operationWrapper.isDatumChangable());
         paramButton.setEnabled(componentEnabled && model.operationWrapper.hasParameters());
     }
-    
+
     private void updateModel(String propertyName) {
         if (OPERATION_WRAPPER.equals(propertyName)) {
             GeodeticDatum defaultDatum = model.operationWrapper.getDefaultDatum();
@@ -203,11 +199,11 @@ public class ProjectionDefinitionForm extends JPanel {
         }
         updateEnableState(true);
     }
-    
+
     private boolean hasParameter(String name) {
         try {
             model.parameters.parameter(name);
-        } catch (ParameterNotFoundException e) {
+        } catch (ParameterNotFoundException ignored) {
             return false;
         }
         return true;
@@ -295,7 +291,7 @@ public class ProjectionDefinitionForm extends JPanel {
             if (validValues != null) {
                 vd.setValueSet(new ValueSet(validValues.toArray()));
             }
-            
+
             vd.setDefaultConverter();
             final ValueModel valueModel = new ValueModel(vd, new ValueAccessor() {
                 @Override
@@ -314,6 +310,7 @@ public class ProjectionDefinitionForm extends JPanel {
     }
 
     private static class Model {
+
         private OperationMethodWrapper operationWrapper;
         private GeodeticDatum datum;
         private ParameterValueGroup parameters;
@@ -351,23 +348,31 @@ public class ProjectionDefinitionForm extends JPanel {
             }
         }
     }
-    
-    private static interface OperationMethodWrapper {
+
+    private interface OperationMethodWrapper {
+
         String getName();
+
         boolean hasParameters();
+
         boolean isDatumChangable();
+
         GeodeticDatum getDefaultDatum();
+
         ParameterValueGroup getParameter();
+
         CoordinateReferenceSystem getCRS(ParameterValueGroup parameter, GeodeticDatum datum) throws FactoryException;
     }
-    
-    private static class WGS84OperationMethod implements  OperationMethodWrapper {
+
+    private static class WGS84OperationMethod implements OperationMethodWrapper {
+
         private final GeodeticDatum wgs84Datum;
 
-        public WGS84OperationMethod(GeodeticDatum wgs84Datum) {
+        private WGS84OperationMethod(GeodeticDatum wgs84Datum) {
             this.wgs84Datum = wgs84Datum;
         }
 
+        @Override
         public String getName() {
             return "Geographic Lat/Lon (WGS 84)";
         }
@@ -376,12 +381,15 @@ public class ProjectionDefinitionForm extends JPanel {
         public boolean hasParameters() {
             return false;
         }
-        
+
+        @Override
         public ParameterValueGroup getParameter() {
             return ParameterGroup.EMPTY;
         }
 
-        public CoordinateReferenceSystem getCRS(ParameterValueGroup parameter, GeodeticDatum datum) throws FactoryException {
+        @Override
+        public CoordinateReferenceSystem getCRS(ParameterValueGroup parameter, GeodeticDatum datum) throws
+                                                                                                    FactoryException {
             return DefaultGeographicCRS.WGS84;
         }
 
@@ -395,20 +403,21 @@ public class ProjectionDefinitionForm extends JPanel {
             return false;
         }
     }
-    
+
 
     private static class OperationMethodDelegate implements OperationMethodWrapper {
-        OperationMethod delegate;
+
+        private OperationMethod delegate;
 
         OperationMethodDelegate(OperationMethod method) {
             this.delegate = method;
         }
-        
+
         @Override
         public String getName() {
             return delegate.getName().getCode();
         }
-    
+
 
         @Override
         public boolean hasParameters() {
@@ -421,7 +430,8 @@ public class ProjectionDefinitionForm extends JPanel {
         }
 
         @Override
-        public CoordinateReferenceSystem getCRS(ParameterValueGroup parameters, GeodeticDatum datum) throws FactoryException {
+        public CoordinateReferenceSystem getCRS(ParameterValueGroup parameters, GeodeticDatum datum) throws
+                                                                                                     FactoryException {
             final CRSFactory crsFactory = ReferencingFactoryFinder.getCRSFactory(null);
             final CoordinateOperationFactory coFactory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
 
@@ -430,7 +440,8 @@ public class ProjectionDefinitionForm extends JPanel {
             final Conversion conversion = coFactory.createDefiningConversion(projProperties, delegate, parameters);
             final HashMap<String, Object> baseCrsProperties = new HashMap<String, Object>();
             baseCrsProperties.put("name", datum.getName().getCode());
-            final GeographicCRS baseCrs = crsFactory.createGeographicCRS(baseCrsProperties, datum, DefaultEllipsoidalCS.GEODETIC_2D);
+            final GeographicCRS baseCrs = crsFactory.createGeographicCRS(baseCrsProperties, datum,
+                                                                         DefaultEllipsoidalCS.GEODETIC_2D);
             return crsFactory.createProjectedCRS(projProperties, baseCrs, conversion, DefaultCartesianCS.PROJECTED);
         }
 
@@ -445,37 +456,37 @@ public class ProjectionDefinitionForm extends JPanel {
         }
 
     }
-    
+
     private static class UTMZonesOperationMethod implements OperationMethodWrapper {
-        /**
-         * The maximum UTM zone number.
-         */
+
+        private static final int MIN_UTM_ZONE = 1;
         private static final int MAX_UTM_ZONE = 60;
         private static final String NAME = "Universal Transverse Mercator";
-        private static Citation BC = Citations.fromName("BC");
-        private static final ParameterDescriptor<Integer> ZONE =
-            new DefaultParameterDescriptor<Integer>(BC, "zone", Integer.class, null, 1, 1, 60, Unit.ONE, true);
-        
-        private static final ParameterDescriptor<String> HEMISPHERE = 
-            new DefaultParameterDescriptor<String>("hemisphere", String.class, new String[] {"N", "S"}, "N");
+        private static final Citation BC = Citations.fromName("BC");
+        private static final String NORTH_HEMISPHERE = "North";
+        private static final String SOUTH_HEMISPHERE = "South";
 
+        private static final ParameterDescriptor[] DESCRIPTORS = new ParameterDescriptor[]{
+                new DefaultParameterDescriptor<Integer>(BC, "zone", Integer.class, null, 1,
+                                                        MIN_UTM_ZONE, MAX_UTM_ZONE, Unit.ONE, true),
+                new DefaultParameterDescriptor<String>("hemisphere", String.class,
+                                                       new String[]{NORTH_HEMISPHERE, SOUTH_HEMISPHERE},
+                                                       NORTH_HEMISPHERE)
+        };
+
+        private static final ParameterDescriptorGroup UTM_PARAMETERS = new DefaultParameterDescriptorGroup(NAME,
+                                                                                                           DESCRIPTORS);
         private final GeodeticDatum wgs84Datum;
-        
+
         UTMZonesOperationMethod(GeodeticDatum wgs84Datum) {
             this.wgs84Datum = wgs84Datum;
         }
 
-        private static ParameterDescriptorGroup createDescriptorGroup() {
-            return new DefaultParameterDescriptorGroup(NAME, new ParameterDescriptor[] { ZONE, HEMISPHERE });
-        }
-
-        private static final ParameterDescriptorGroup PARAMETERS = createDescriptorGroup();
-        
         @Override
         public String getName() {
             return NAME;
         }
-        
+
         @Override
         public boolean hasParameters() {
             return true;
@@ -483,30 +494,35 @@ public class ProjectionDefinitionForm extends JPanel {
 
         @Override
         public ParameterValueGroup getParameter() {
-            return PARAMETERS.createValue();
+            return UTM_PARAMETERS.createValue();
         }
 
         @Override
-        public CoordinateReferenceSystem getCRS(ParameterValueGroup parameters, GeodeticDatum datum) throws FactoryException {
+        public CoordinateReferenceSystem getCRS(ParameterValueGroup parameters, GeodeticDatum datum) throws
+                                                                                                     FactoryException {
             final CRSFactory crsFactory = ReferencingFactoryFinder.getCRSFactory(null);
             final CoordinateOperationFactory coFactory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
 
             parameters = convertToTransverseMercator(parameters, datum);
-            
+
             final HashMap<String, Object> projProperties = new HashMap<String, Object>();
             projProperties.put("name", getName() + " / " + datum.getName().getCode());
-            final Conversion conversion = coFactory.createDefiningConversion(projProperties, new TransverseMercator.Provider(), parameters);
+            final Conversion conversion = coFactory.createDefiningConversion(projProperties,
+                                                                             new TransverseMercator.Provider(),
+                                                                             parameters);
             final HashMap<String, Object> baseCrsProperties = new HashMap<String, Object>();
             baseCrsProperties.put("name", datum.getName().getCode());
-            final GeographicCRS baseCrs = crsFactory.createGeographicCRS(baseCrsProperties, datum, DefaultEllipsoidalCS.GEODETIC_2D);
+            final GeographicCRS baseCrs = crsFactory.createGeographicCRS(baseCrsProperties, datum,
+                                                                         DefaultEllipsoidalCS.GEODETIC_2D);
             return crsFactory.createProjectedCRS(projProperties, baseCrs, conversion, DefaultCartesianCS.PROJECTED);
         }
-        
-        private ParameterValueGroup convertToTransverseMercator(final ParameterValueGroup parameters, GeodeticDatum datum) throws ParameterNotFoundException {
+
+        private ParameterValueGroup convertToTransverseMercator(final ParameterValueGroup parameters,
+                                                                GeodeticDatum datum) throws ParameterNotFoundException {
             int zoneIndex = parameters.parameter("zone").intValue();
             String hemisphere = parameters.parameter("hemisphere").stringValue();
-            boolean south = (hemisphere == "S");
-            
+            boolean south = (SOUTH_HEMISPHERE.equals(hemisphere));
+
             ParameterDescriptorGroup tmParameters = new TransverseMercator.Provider().getParameters();
             ParameterValueGroup tmValues = tmParameters.createValue();
 
@@ -519,11 +535,11 @@ public class ProjectionDefinitionForm extends JPanel {
             setValue(tmValues, AbstractProvider.FALSE_NORTHING, south ? 10000000.0 : 0.0);
             return tmValues;
         }
-        
+
         private static void setValue(ParameterValueGroup values, ParameterDescriptor<Double> descriptor, double value) {
             values.parameter(descriptor.getName().getCode()).setValue(value);
         }
-        
+
         /**
          * Computes the central meridian from the given UTM zone index.
          *
@@ -546,7 +562,7 @@ public class ProjectionDefinitionForm extends JPanel {
         }
 
     }
-    
+
     private static class OperationMethodWrapperComparator implements Comparator<OperationMethodWrapper> {
 
         @Override
@@ -556,7 +572,7 @@ public class ProjectionDefinitionForm extends JPanel {
             return name1.compareTo(name2);
         }
     }
-    
+
     private static class OperationMethodWrapperCellRenderer extends DefaultListCellRenderer {
 
         @Override
