@@ -38,7 +38,7 @@ import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class CrsSelectionForm extends JPanel {
+class CrsSelectionForm extends JPanel {
     
     private final CrsInfoListModel crsListModel;
     private JTextArea infoArea;
@@ -75,7 +75,7 @@ public class CrsSelectionForm extends JPanel {
 
     private void createUI() {
         filterField = new QuickListFilterField(crsListModel);
-        filterField.setHintText("Type here to filter Projections");
+        filterField.setHintText("Type here to filter CRS");
         filterField.setWildcardEnabled(true);
         final FilterableListModel listModel = filterField.getDisplayListModel();
         crsList = new JList(listModel);
@@ -85,7 +85,7 @@ public class CrsSelectionForm extends JPanel {
         crsList.setSelectedValue(crsListModel.getElementAt(0), true);
 
         final JLabel filterLabel = new JLabel("Filter:");
-        final JLabel infoLabel = new JLabel("CRS Info:");
+        final JLabel infoLabel = new JLabel("Well-Known Text (WKT):");
         final JScrollPane crsListScrollPane = new JScrollPane(crsList);
         crsListScrollPane.setPreferredSize(new Dimension(200, 150));
         infoArea = new JTextArea(15, 30);

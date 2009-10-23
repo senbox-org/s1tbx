@@ -2,6 +2,7 @@ package org.esa.beam.gpf.common.reproject.ui;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 
@@ -11,11 +12,17 @@ import java.util.Map;
  * User: Marco
  * Date: 16.08.2009
  */
-public class ReprojectionDialog extends SingleTargetProductDialog {
+class ReprojectionDialog extends SingleTargetProductDialog {
 
-    private ReprojectionForm form;
+    private final ReprojectionForm form;
 
-    public ReprojectionDialog(boolean orthorectify, final String title, final String helpID, AppContext appContext) {
+    public static void main(String[] args) {
+        final DefaultAppContext context = new DefaultAppContext("Reproj");
+        final ReprojectionDialog dialog = new ReprojectionDialog(true, "ReproTestDialog", null, context);
+        dialog.show();
+
+    }
+    ReprojectionDialog(boolean orthorectify, final String title, final String helpID, AppContext appContext) {
         super(appContext, title, helpID);
         form = new ReprojectionForm(getTargetProductSelector(), orthorectify, appContext);
     }

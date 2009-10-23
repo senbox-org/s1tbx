@@ -44,10 +44,6 @@ import java.awt.GridBagConstraints;
 class OutputSizeForm extends JPanel {
     
     private final BindingContext context;
-    
-    private JRadioButton pixelRefULeftButton;
-    private JRadioButton pixelRefCenterButton;
-    private JRadioButton pixelRefOtherButton;
 
     OutputSizeForm(OutputSizeFormModel model) {
         context = new BindingContext(model.getValueContainer());
@@ -61,9 +57,9 @@ class OutputSizeForm extends JPanel {
         final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
         GridBagUtils.setAttributes(gbc, "insets.top=0,gridwidth=3");
 
-        pixelRefULeftButton = new JRadioButton("Reference pixel is at scene upper left", false);
-        pixelRefCenterButton = new JRadioButton("Reference pixel is at scene center", false);
-        pixelRefOtherButton = new JRadioButton("Other reference pixel position", false);
+        JRadioButton pixelRefULeftButton = new JRadioButton("Reference pixel is at scene upper left", false);
+        JRadioButton pixelRefCenterButton = new JRadioButton("Reference pixel is at scene center", false);
+        JRadioButton pixelRefOtherButton = new JRadioButton("Other reference pixel position", false);
         ButtonGroup g = new ButtonGroup();
         g.add(pixelRefULeftButton);
         g.add(pixelRefCenterButton);
@@ -80,66 +76,66 @@ class OutputSizeForm extends JPanel {
         GridBagUtils.addToPanel(dialogPane, pixelRefOtherButton, gbc);
 
         gbc.gridy = ++line;
-        JComponent[] components = createComponents("referencePixelX", null);
+        JComponent[] components = createComponents("referencePixelX");
         JComponent unitcomponent = createUnitComponent("referencePixelX");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc, "insets.top=1,gridwidth=1,fill=NONE,weightx=0");
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
         gbc.gridy = ++line;
-        components = createComponents("referencePixelY", null);
+        components = createComponents("referencePixelY");
         unitcomponent = createUnitComponent("referencePixelY");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc, "insets.top=3");
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
         gbc.gridy = ++line;
-        components = createComponents("northing", null);
+        components = createComponents("northing");
         unitcomponent = createUnitComponent("northing");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc, "insets.top=12");
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
         gbc.gridy = ++line;
-        components = createComponents("easting", null);
+        components = createComponents("easting");
         unitcomponent = createUnitComponent("easting");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc, "insets.top=3");
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
         gbc.gridy = ++line;
-        components = createComponents("orientation", null);
+        components = createComponents("orientation");
         unitcomponent = createUnitComponent("orientation");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc, "insets.top=3");
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
         gbc.gridy = ++line;
-        components = createComponents("pixelSizeX", null);
+        components = createComponents("pixelSizeX");
         unitcomponent = createUnitComponent("pixelSizeX");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc, "insets.top=12");
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
         gbc.gridy = ++line;
-        components = createComponents("pixelSizeY", null);
+        components = createComponents("pixelSizeY");
         unitcomponent = createUnitComponent("pixelSizeY");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc, "insets.top=3");
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
         gbc.gridy = ++line;
-        components = createComponents("fitProductSize", null);
+        components = createComponents("fitProductSize");
         context.bindEnabledState("width", true, "fitProductSize", true);
         context.bindEnabledState("height", true, "fitProductSize", true);
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "insets.top=12, gridwidth=3,fill=HORIZONTAL,weightx=1");
         gbc.gridy = ++line;
-        components = createComponents("width", null);
+        components = createComponents("width");
         unitcomponent = createUnitComponent("width");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc, "insets.top=3, gridwidth=1,fill=NONE,weightx=0");
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
         gbc.gridy = ++line;
-        components = createComponents("height", null);
+        components = createComponents("height");
         unitcomponent = createUnitComponent("height");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc);
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
         gbc.gridy = ++line;
-        components = createComponents("noDataValue", null);
+        components = createComponents("noDataValue");
         unitcomponent = createUnitComponent("noDataValue");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc, "insets.top=12, gridwidth=1");
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
@@ -148,15 +144,10 @@ class OutputSizeForm extends JPanel {
         add(dialogPane);
     }
     
-    private JComponent[] createComponents(String propertyName, Class<? extends ValueEditor> editorClass) {
+    private JComponent[] createComponents(String propertyName) {
         ValueDescriptor descriptor = context.getValueContainer().getDescriptor(propertyName);
         ValueEditorRegistry valueEditorRegistry = ValueEditorRegistry.getInstance();
-        ValueEditor editor;
-        if (editorClass == null) {
-            editor = valueEditorRegistry.findValueEditor(descriptor);
-        } else {
-            editor = valueEditorRegistry.getValueEditor(editorClass.getName());
-        }
+        ValueEditor editor = valueEditorRegistry.findValueEditor(descriptor);
         return editor.createComponents(descriptor, context);
     }
 

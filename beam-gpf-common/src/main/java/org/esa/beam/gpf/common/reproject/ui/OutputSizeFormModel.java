@@ -100,10 +100,6 @@ class OutputSizeFormModel {
         return valueContainer;
     }
 
-    public ImageGeometry getImageGeometry() {
-        return imageGeometry;
-    }
-
     private void updateImgaeGeometry(ImageGeometry newImageGeometry) {
         ValueContainer newVC=  ValueContainer.createObjectBacked(newImageGeometry);
         ValueModel[] valueModels = newVC.getModels();

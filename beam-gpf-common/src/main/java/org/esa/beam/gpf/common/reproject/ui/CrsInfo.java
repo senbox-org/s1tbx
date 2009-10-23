@@ -37,10 +37,6 @@ class CrsInfo implements Comparable<CrsInfo> {
         this.factory = factory;
     }
 
-    public String getCrsCode() {
-        return crsCode;
-    }
-
     public CoordinateReferenceSystem getCrs(Product product) throws FactoryException {
         return factory.createCoordinateReferenceSystem(crsCode);
     }

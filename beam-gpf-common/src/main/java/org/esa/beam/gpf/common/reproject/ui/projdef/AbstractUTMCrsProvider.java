@@ -27,24 +27,24 @@ import java.util.HashMap;
  */
 abstract class AbstractUTMCrsProvider extends AbstractCrsProvider {
 
-    protected static final int MIN_UTM_ZONE = 1;
-    protected static final int MAX_UTM_ZONE = 60;
+    static final int MIN_UTM_ZONE = 1;
+    static final int MAX_UTM_ZONE = 60;
 
-    protected AbstractUTMCrsProvider(String name, boolean hasParameters, boolean datumChangable,
+    AbstractUTMCrsProvider(String name, boolean hasParameters, boolean datumChangable,
                                   GeodeticDatum defaultDatum) {
         super(name, hasParameters, datumChangable, defaultDatum);
     }
 
-    protected static String getProjectionName(int zoneIndex, boolean south) {
+    static String getProjectionName(int zoneIndex, boolean south) {
         return "UTM Zone " + zoneIndex + (south ? ", South" : "");
     }
 
-    protected static int getZoneIndex(float longitude) {
+    static int getZoneIndex(float longitude) {
         final float zoneIndex = ((longitude + 180.0f) / 6.0f - 0.5f) + 1;
         return MathUtils.roundAndCrop(zoneIndex, MIN_UTM_ZONE, MAX_UTM_ZONE);
     }
 
-    protected static void setValue(ParameterValueGroup values, ParameterDescriptor<Double> descriptor, double value) {
+    private static void setValue(ParameterValueGroup values, ParameterDescriptor<Double> descriptor, double value) {
         values.parameter(descriptor.getName().getCode()).setValue(value);
     }
 
@@ -53,7 +53,7 @@ abstract class AbstractUTMCrsProvider extends AbstractCrsProvider {
     }
 
 
-    protected ParameterValueGroup createTransverseMercatorParameters(int zoneIndex, boolean south,
+    ParameterValueGroup createTransverseMercatorParameters(int zoneIndex, boolean south,
                                                                      GeodeticDatum datum) {
         ParameterDescriptorGroup tmParameters = new TransverseMercator.Provider().getParameters();
         ParameterValueGroup tmValues = tmParameters.createValue();
@@ -68,7 +68,7 @@ abstract class AbstractUTMCrsProvider extends AbstractCrsProvider {
         return tmValues;
     }
 
-    protected CoordinateReferenceSystem createCrs(String crsName, OperationMethod method,
+    CoordinateReferenceSystem createCrs(String crsName, OperationMethod method,
                                                   ParameterValueGroup parameters,
                                                   GeodeticDatum datum) throws FactoryException {
         final CRSFactory crsFactory = ReferencingFactoryFinder.getCRSFactory(null);

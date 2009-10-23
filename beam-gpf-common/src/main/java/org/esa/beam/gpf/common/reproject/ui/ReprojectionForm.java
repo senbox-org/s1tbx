@@ -31,7 +31,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -44,7 +44,7 @@ import java.util.Map;
  * User: Marco
  * Date: 16.08.2009
  */
-public class ReprojectionForm extends JTabbedPane {
+class ReprojectionForm extends JTabbedPane {
 
     private static final String[] RESAMPLING_IDENTIFIER = {"Nearest", "Bilinear", "Bicubic"};
 
@@ -69,8 +69,9 @@ public class ReprojectionForm extends JTabbedPane {
     private CrsInfo selectedCrsInfo;
     private DemSelector demSelector;
     private ValueContainer outputParameterContainer;
+    private ButtonModel resolutionBtnModel;
 
-    public ReprojectionForm(TargetProductSelector targetProductSelector, boolean orthorectify, AppContext appContext) {
+    ReprojectionForm(TargetProductSelector targetProductSelector, boolean orthorectify, AppContext appContext) {
         this.targetProductSelector = targetProductSelector;
         orthoMode = orthorectify;
         this.appContext = appContext;
@@ -152,7 +153,7 @@ public class ReprojectionForm extends JTabbedPane {
 
     private void createUI() {
         addTab("I/O Parameter", createIOPanel());
-        addTab("Projection Parameter", createParameterPanel());
+        addTab("Reprojection Parameter", createParameterPanel());
     }
 
     private JPanel createIOPanel() {
@@ -190,11 +191,11 @@ public class ReprojectionForm extends JTabbedPane {
         collocationPanel = createCollocationPanel();
         crsSelectionPanel = createCrsSelectionPanel();
         projDefPanel = createProjectionDefinitionPanel();
-        JRadioButton projectionRadioButton = new JRadioButton("Transformation", true);
+        JRadioButton projectionRadioButton = new JRadioButton("Custom CRS", true);
         projectionRadioButton.addActionListener(new UpdateStateListener());
-        JRadioButton crsRadioButton = new JRadioButton("CRS");
+        JRadioButton crsRadioButton = new JRadioButton("Predefined CRS");
         crsRadioButton.addActionListener(new UpdateStateListener());
-        JRadioButton collocateRadioButton = new JRadioButton("Collocate");
+        JRadioButton collocateRadioButton = new JRadioButton("Use CRS of");
         collocateRadioButton.addActionListener(new UpdateStateListener());
         projButtonModel = projectionRadioButton.getModel();
         crsButtonModel = crsRadioButton.getModel();
@@ -215,9 +216,10 @@ public class ReprojectionForm extends JTabbedPane {
         tableLayout.setCellColspan(1,0,2);
         tableLayout.setCellWeightX(2,0,0.0);
         tableLayout.setCellWeightX(3,0,0.0);
+        tableLayout.setCellPadding(1, 0, new Insets(4, 24, 4, 4));
 
         final JPanel projectionPanel = new JPanel(tableLayout);
-        projectionPanel.setBorder(BorderFactory.createTitledBorder("Projection"));
+        projectionPanel.setBorder(BorderFactory.createTitledBorder("Coordinate Reference System (CRS)"));
         projectionPanel.add(projectionRadioButton);
         projectionPanel.add(projDefPanel);
         projectionPanel.add(crsRadioButton);
@@ -238,53 +240,39 @@ public class ReprojectionForm extends JTabbedPane {
     }
 
     private JPanel createOuputSettingsPanel() {
-        final JButton outputParamBtn = new JButton("Output Parameter");
-        outputParamBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    if (sourceProduct == null) {
-                        appContext.handleError("Please select a product to project.\n", new IllegalStateException());
-                        return;
-                    }
-                    final CoordinateReferenceSystem crs = getTargetCrs();
-                    if (crs == null) {
-                        appContext.handleError("Please specify a target CRS first.\n", new IllegalStateException());
-                        return;
-                    }
-                    final OutputSizeFormModel formModel = new OutputSizeFormModel(sourceProduct, crs);
-                    final OutputSizeForm form = new OutputSizeForm(formModel);
-                    final ModalDialog modalDialog = new ModalDialog(appContext.getApplicationWindow(),
-                                                                    "Output Parameters",
-                                                                    ModalDialog.ID_OK_CANCEL, null);
-                    modalDialog.setContent(form);
-                    if (modalDialog.show() == ModalDialog.ID_OK) {
-                        outputParameterContainer = formModel.getValueContainer();
-                    }
-                } catch (Exception fe) {
-                    appContext.handleError("Could not create target CRS.\n" +
-                                           fe.getMessage(), fe);
-                }
-            }
-        });
-        final JPanel resamplePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
-        resamplePanel.add(new JLabel("Resampling Method:"));
-        resampleComboBox = new JComboBox(RESAMPLING_IDENTIFIER);
-        resampleComboBox.setPrototypeDisplayValue(RESAMPLING_IDENTIFIER[0]);
-        resamplePanel.add(resampleComboBox);
-        includeTPcheck = new JCheckBox("Include Tie-Point Grids", true);
-
         final TableLayout tableLayout = new TableLayout(3);
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        tableLayout.setTablePadding(8, 4);
-        tableLayout.setTableWeightX(1.0);
+        tableLayout.setColumnFill(0, TableLayout.Fill.NONE);
+        tableLayout.setTablePadding(4, 4);
+        tableLayout.setColumnPadding(0, new Insets(4, 4, 4, 20));
+        tableLayout.setColumnWeightX(0, 0.0);
+        tableLayout.setColumnWeightX(1, 0.0);
+        tableLayout.setColumnWeightX(2, 1.0);
+        tableLayout.setCellColspan(0, 1, 2);
+        tableLayout.setCellPadding(1, 0, new Insets(4, 24, 4, 20));
 
         final JPanel outputSettingsPanel = new JPanel(tableLayout);
         outputSettingsPanel.setBorder(BorderFactory.createTitledBorder("Output Settings"));
-        outputSettingsPanel.add(outputParamBtn);
-        outputSettingsPanel.add(resamplePanel);
+
+        final JCheckBox preserveResolutionCheckBox = new JCheckBox("Preserve resolution");
+        resolutionBtnModel = preserveResolutionCheckBox.getModel();
+        outputSettingsPanel.add(preserveResolutionCheckBox);
+        includeTPcheck = new JCheckBox("Reproject tie-point grids", true);
         outputSettingsPanel.add(includeTPcheck);
+
+        final JButton outputParamBtn = new JButton("Output Parameter ...");
+        outputParamBtn.addActionListener(new OutputParamActionListener());
+        outputSettingsPanel.add(outputParamBtn);
+        outputSettingsPanel.add(new JLabel("No-data value:"));
+        outputSettingsPanel.add(new JTextField());
+
+        outputSettingsPanel.add(new JPanel());
+        outputSettingsPanel.add(new JLabel("Resampling method:"));
+        resampleComboBox = new JComboBox(RESAMPLING_IDENTIFIER);
+        resampleComboBox.setPrototypeDisplayValue(RESAMPLING_IDENTIFIER[0]);
+        outputSettingsPanel.add(resampleComboBox);
+
         return outputSettingsPanel;
     }
 
@@ -323,12 +311,12 @@ public class ReprojectionForm extends JTabbedPane {
 
         crsCodeField = new JTextField();
         crsCodeField.setEditable(false);
-        final JButton crsButton = new JButton("Select CRS");
+        final JButton crsButton = new JButton("Select ...");
         crsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final CrsSelectionForm crsForm = new CrsSelectionForm(new CrsInfoListModel(CrsInfo.generateCRSList()));
-                final ModalDialog dialog = new ModalDialog(appContext.getApplicationWindow(), "Select CRS", crsForm,
+                final ModalDialog dialog = new ModalDialog(appContext.getApplicationWindow(), "Select Coordinate Reference System", crsForm,
                                                            ModalDialog.ID_OK_CANCEL, null);
                 if (dialog.show() == ModalDialog.ID_OK) {
                     selectedCrsInfo = crsForm.getSelectedCrsInfo();
@@ -409,6 +397,36 @@ public class ReprojectionForm extends JTabbedPane {
         @Override
         public void actionPerformed(ActionEvent e) {
             updateUIState();
+        }
+    }
+
+    private class OutputParamActionListener implements ActionListener {
+
+        @Override
+            public void actionPerformed(ActionEvent e) {
+            try {
+                if (sourceProduct == null) {
+                    appContext.handleError("Please select a product to project.\n", new IllegalStateException());
+                    return;
+                }
+                final CoordinateReferenceSystem crs = getTargetCrs();
+                if (crs == null) {
+                    appContext.handleError("Please specify a 'Coordinate Reference System' first.\n", new IllegalStateException());
+                    return;
+                }
+                final OutputSizeFormModel formModel = new OutputSizeFormModel(sourceProduct, crs);
+                final OutputSizeForm form = new OutputSizeForm(formModel);
+                final ModalDialog modalDialog = new ModalDialog(appContext.getApplicationWindow(),
+                                                                "Output Parameters",
+                                                                ModalDialog.ID_OK_CANCEL, null);
+                modalDialog.setContent(form);
+                if (modalDialog.show() == ModalDialog.ID_OK) {
+                    outputParameterContainer = formModel.getValueContainer();
+                }
+            } catch (Exception fe) {
+                appContext.handleError("Could not create a 'Coordinate Reference System'.\n" +
+                                       fe.getMessage(), fe);
+            }
         }
     }
 }

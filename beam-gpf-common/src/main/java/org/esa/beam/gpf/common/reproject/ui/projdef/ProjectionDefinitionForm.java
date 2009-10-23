@@ -66,8 +66,8 @@ public class ProjectionDefinitionForm extends JPanel {
 
     private final List<GeodeticDatum> datumList;
     private final List<AbstractCrsProvider> crsProviderList;
-    private ProjectionDefinitionForm.Model model;
-    private ValueContainer vc;
+    private final ProjectionDefinitionForm.Model model;
+    private final ValueContainer vc;
     private final Window parent;
     private JComboBox operationComboBox;
     private JComboBox datumComboBox;
@@ -126,8 +126,8 @@ public class ProjectionDefinitionForm extends JPanel {
         tableLayout.setCellAnchor(2, 0, TableLayout.Anchor.EAST);
         tableLayout.setCellFill(2, 0, TableLayout.Fill.NONE);
 
-        final JLabel transformLabel = new JLabel("Transform:");
-        final JLabel datumLabel = new JLabel("Datum:");
+        final JLabel transformLabel = new JLabel("Transformation:");
+        final JLabel datumLabel = new JLabel("Geodetic datum:");
 
         operationComboBox = new JComboBox(crsProviderList.toArray());
         operationComboBox.setEditable(false); // combobox searchable only works when combobox is not editable.
@@ -142,7 +142,7 @@ public class ProjectionDefinitionForm extends JPanel {
         final ComboBoxSearchable datumSearchable = new IdentifiedObjectSearchable(datumComboBox);
         datumSearchable.installListeners();
 
-        paramButton = new JButton("Parameters");
+        paramButton = new JButton("Transformation Parameters ...");
         paramButton.addActionListener(new ParameterButtonListener());
         add(transformLabel);
         add(operationComboBox);
@@ -310,7 +310,7 @@ public class ProjectionDefinitionForm extends JPanel {
             final ValueContainer valueContainer = createValueContainer(workCopy);
             modalDialog.setContent(new ValueEditorsPane(valueContainer).createPanel());
             if (modalDialog.show() == AbstractDialog.ID_OK) {
-                vc.setValue("parameters", workCopy);
+                vc.setValue(PARAMETERS, workCopy);
             }
         }
     }
