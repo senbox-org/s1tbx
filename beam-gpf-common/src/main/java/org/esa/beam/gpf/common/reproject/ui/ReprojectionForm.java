@@ -64,14 +64,14 @@ class ReprojectionForm extends JTabbedPane {
         createUI();
     }
 
-    public Map<String, Object> getParameterMap() {
+    Map<String, Object> getParameterMap() {
         Map<String, Object> parameterMap = new HashMap<String, Object>(5);
         parameterMap.put("resamplingName", outputModel.resamplingMethod);
         parameterMap.put("includeTiePointGrids", outputModel.reprojTiePoints);
         parameterMap.put("noDataValue", outputModel.noDataValue);
         try {
             if (!crsForm.isCollocate()) {
-                final CoordinateReferenceSystem crs = crsForm.getCrs(sourceProductSelector.getSelectedProduct());
+                final CoordinateReferenceSystem crs = getSelectedCrs();
                 parameterMap.put("wkt", crs.toWKT());
             }
         } catch (FactoryException e) {
@@ -100,21 +100,29 @@ class ReprojectionForm extends JTabbedPane {
         return parameterMap;
     }
 
-    public Map<String, Product> getProductMap() {
+    Map<String, Product> getProductMap() {
         final Map<String, Product> productMap = new HashMap<String, Product>(5);
-        productMap.put("source", sourceProductSelector.getSelectedProduct());
+        productMap.put("source", getSourceProduct());
         if (crsForm.isCollocate()) {
             productMap.put("collocate", crsForm.getCollocationProduct());
         }
         return productMap;
     }
 
-    public void prepareShow() {
+    Product getSourceProduct() {
+        return sourceProductSelector.getSelectedProduct();
+    }
+
+    CoordinateReferenceSystem getSelectedCrs() throws FactoryException {
+        return crsForm.getCrs(getSourceProduct());
+    }
+
+    void prepareShow() {
         sourceProductSelector.initProducts();
         crsForm.prepareShow();
     }
 
-    public void prepareHide() {
+    void prepareHide() {
         sourceProductSelector.releaseProducts();
         crsForm.prepareHide();
     }
@@ -219,7 +227,7 @@ class ReprojectionForm extends JTabbedPane {
         sourceProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
-                updateTargetProductName(sourceProductSelector.getSelectedProduct());
+                updateTargetProductName(getSourceProduct());
             }
         });
         return panel;
@@ -240,7 +248,7 @@ class ReprojectionForm extends JTabbedPane {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                final Product sourceProduct = sourceProductSelector.getSelectedProduct();
+                final Product sourceProduct = getSourceProduct();
                 if (sourceProduct == null) {
                     appContext.handleError("Please select a product to project.\n", new IllegalStateException());
                     return;
