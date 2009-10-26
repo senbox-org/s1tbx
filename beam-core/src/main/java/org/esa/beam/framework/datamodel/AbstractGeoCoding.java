@@ -63,6 +63,10 @@ public abstract class AbstractGeoCoding implements GeoCoding {
         return imageCRS;
     }
 
+    /**
+     *
+     * @deprecated since BEAM 4.7, use {@link #setImageCRS(CoordinateReferenceSystem)} instead.
+     */
     @Deprecated
     protected final void setGridCRS(CoordinateReferenceSystem gridCRS) {
         setImageCRS(gridCRS);
