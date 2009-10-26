@@ -4,6 +4,7 @@ import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
@@ -56,6 +57,9 @@ class ReprojectionForm extends JTabbedPane {
         this.orthoMode = orthorectify;
         this.appContext = appContext;
         this.sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
+        if (orthoMode) {
+            this.sourceProductSelector.setProductFilter(new OrthorectifyProductFilter());
+        }
         this.reprojectionModel = new Model();
         this.reprojectionlContainer = ValueContainer.createObjectBacked(reprojectionModel);
         createUI();
@@ -290,5 +294,13 @@ class ReprojectionForm extends JTabbedPane {
         private boolean reprojTiePoints = true;
         private double noDataValue = Double.NaN;
         private String resamplingMethod = RESAMPLING_IDENTIFIER[0];
+    }
+
+    private static class OrthorectifyProductFilter implements ProductFilter {
+
+        @Override
+                public boolean accept(Product product) {
+            return product.canBeOrthorectified();
+        }
     }
 }
