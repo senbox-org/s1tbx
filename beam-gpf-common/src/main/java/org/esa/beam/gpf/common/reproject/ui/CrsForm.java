@@ -44,7 +44,6 @@ class CrsForm extends JPanel {
     private JTextField crsCodeField;
     private JPanel crsSelectionPanel;
 
-    private Product collocationProduct;
     private Product sourceProduct;
     private CrsInfo selectedCrsInfo;
 
@@ -62,8 +61,8 @@ class CrsForm extends JPanel {
         if (projButtonModel.isSelected()) {
             return projDefPanel.getProcjetedCRS(sourceProduct);
         }
-        if (collocateButtonModel.isSelected() && collocationProduct != null) {
-            return collocationProduct.getGeoCoding().getModelCRS();
+        if (isCollocate()) {
+            return getCollocationProduct().getGeoCoding().getModelCRS();
         }
         return null;
     }
@@ -73,7 +72,7 @@ class CrsForm extends JPanel {
     }
 
     Product getCollocationProduct() {
-        return collocationProduct;
+        return isCollocate() ? collocateProductSelector.getSelectedProduct() : null;
     }
 
     void setSourceProduct(Product sourceProduct) {
@@ -89,10 +88,9 @@ class CrsForm extends JPanel {
     }
 
     private void updateUIState() {
-        final boolean collocate = collocateButtonModel.isSelected();
+        final boolean collocate = isCollocate();
         collocateProductSelector.getProductNameComboBox().setEnabled(collocate);
         collocateProductSelector.getProductFileChooserButton().setEnabled(collocate);
-        collocationProduct = collocate ? collocateProductSelector.getSelectedProduct() : null;
         projDefPanel.setEnabled(projButtonModel.isSelected());
         crsSelectionPanel.setEnabled(crsButtonModel.isSelected());
         collocationPanel.setEnabled(collocateButtonModel.isSelected());
