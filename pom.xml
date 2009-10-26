@@ -81,6 +81,7 @@
         <module>ceres-binio</module>
         <module>ceres-launcher</module>
         <module>ceres-site</module>
+        <module>ceres-jai</module>
     </modules>
 
     <dependencyManagement>
