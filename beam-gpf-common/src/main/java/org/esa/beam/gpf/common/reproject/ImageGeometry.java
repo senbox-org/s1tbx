@@ -97,7 +97,7 @@ public class ImageGeometry {
         double mapW = mapBoundary.getWidth();
         double mapH = mapBoundary.getHeight();
 
-        if (pixelSizeX == null && pixelSizeY == null) {
+        if (pixelSizeX == null || pixelSizeY == null) {
             // used float here to preserve same behavior as in old map-projection implementation
             // if double would be used scene size would differ sometimes by one pixel
             float pixelSize = (float) Math.min(mapW / sourceProduct.getSceneRasterWidth(),
@@ -122,14 +122,14 @@ public class ImageGeometry {
             ig.height = height;
         }
 
-        if (referencePixelX == null && referencePixelY == null) {
+        if (referencePixelX == null || referencePixelY == null) {
             ig.referencePixelX = 0.5 * ig.width;
             ig.referencePixelY = 0.5 * ig.height;
         } else {
             ig.referencePixelX = referencePixelX;
             ig.referencePixelY = referencePixelY;
         }
-        if(easting == null && northing == null){
+        if(easting == null || northing == null){
             ig.easting = mapBoundary.getX() + ig.referencePixelX * ig.pixelSizeX;
             ig.northing = (mapBoundary.getY() + mapBoundary.getHeight()) - ig.referencePixelY * ig.pixelSizeY;
         } else {
