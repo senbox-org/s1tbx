@@ -452,10 +452,8 @@ public class ReprojectionOp extends Operator {
                     crsCode = "EPSG:" + crsCode;
                 }
                 if (crsCode.matches("AUTO:[0-9]*")) {  // if AUTO code, then appen center Lon/Lat
-                    PixelPos pixelPos = new PixelPos(sourceProduct.getSceneRasterWidth() / 2,
-                                                     sourceProduct.getSceneRasterHeight() / 2);
-                    GeoPos geoPos = sourceProduct.getGeoCoding().getGeoPos(pixelPos, null);
-                    crsCode = String.format("%s,%s,%s", crsCode, geoPos.lon, geoPos.lat);
+                    GeoPos centerGeoPos = ProductUtils.getCenterGeoPos(sourceProduct);
+                    crsCode = String.format("%s,%s,%s", crsCode, centerGeoPos.lon, centerGeoPos.lat);
                 }
                 // to force longitude==xAxis and latitude==yAxis
                 crs = CRS.decode(crsCode, true);

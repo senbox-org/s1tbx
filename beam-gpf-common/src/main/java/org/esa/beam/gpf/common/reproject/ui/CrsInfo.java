@@ -3,6 +3,7 @@ package org.esa.beam.gpf.common.reproject.ui;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.util.ProductUtils;
 import org.geotools.factory.Hints;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.ReferencingFactoryFinder;
@@ -95,8 +96,7 @@ class CrsInfo implements Comparable<CrsInfo> {
         public CoordinateReferenceSystem getCrs(Product product) throws FactoryException {
             GeoPos geoPos = new GeoPos(0, 0);
             if (product != null) {
-                PixelPos pixelPos = new PixelPos(product.getSceneRasterWidth() / 2, product.getSceneRasterHeight() / 2);
-                geoPos = product.getGeoCoding().getGeoPos(pixelPos, null);
+                geoPos = ProductUtils.getCenterGeoPos(product);
             }
 
             String code = String.format("%s,%s,%s", super.crsCode, geoPos.lon, geoPos.lat);
