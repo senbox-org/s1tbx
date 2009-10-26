@@ -46,7 +46,6 @@ class ReprojectionForm extends JTabbedPane {
     private SourceProductSelector sourceProductSelector;
     private TargetProductSelector targetProductSelector;
 
-    private Product sourceProduct;
     private DemSelector demSelector;
     private ValueContainer outputParameterContainer;
 
@@ -72,7 +71,7 @@ class ReprojectionForm extends JTabbedPane {
         parameterMap.put("noDataValue", outputModel.noDataValue);
         try {
             if (!crsForm.isCollocate()) {
-                final CoordinateReferenceSystem crs = crsForm.getCrs();
+                final CoordinateReferenceSystem crs = crsForm.getCrs(sourceProductSelector.getSelectedProduct());
                 parameterMap.put("wkt", crs.toWKT());
             }
         } catch (FactoryException e) {
@@ -103,7 +102,7 @@ class ReprojectionForm extends JTabbedPane {
 
     public Map<String, Product> getProductMap() {
         final Map<String, Product> productMap = new HashMap<String, Product>(5);
-        productMap.put("source", sourceProduct);
+        productMap.put("source", sourceProductSelector.getSelectedProduct());
         if (crsForm.isCollocate()) {
             productMap.put("collocate", crsForm.getCollocationProduct());
         }
@@ -148,7 +147,7 @@ class ReprojectionForm extends JTabbedPane {
         layout.setTableWeightX(1.0);
         parameterPanel.setLayout(layout);
 
-        crsForm = new CrsForm(appContext);
+        crsForm = new CrsForm(appContext, sourceProductSelector);
         parameterPanel.add(crsForm);
         if (orthoMode) {
             demSelector = new DemSelector();
@@ -220,9 +219,7 @@ class ReprojectionForm extends JTabbedPane {
         sourceProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
-                sourceProduct = sourceProductSelector.getSelectedProduct();
-                updateTargetProductName(sourceProduct);
-                crsForm.setSourceProduct(sourceProduct);
+                updateTargetProductName(sourceProductSelector.getSelectedProduct());
             }
         });
         return panel;
@@ -243,11 +240,12 @@ class ReprojectionForm extends JTabbedPane {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
+                final Product sourceProduct = sourceProductSelector.getSelectedProduct();
                 if (sourceProduct == null) {
                     appContext.handleError("Please select a product to project.\n", new IllegalStateException());
                     return;
                 }
-                final CoordinateReferenceSystem crs = crsForm.getCrs();
+                final CoordinateReferenceSystem crs = crsForm.getCrs(sourceProduct);
                 if (crs == null) {
                     appContext.handleError("Please specify a 'Coordinate Reference System' first.\n",
                                            new IllegalStateException());

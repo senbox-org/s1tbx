@@ -44,17 +44,18 @@ class CrsForm extends JPanel {
     private JTextField crsCodeField;
     private JPanel crsSelectionPanel;
 
-    private Product sourceProduct;
     private CrsInfo selectedCrsInfo;
 
     private final AppContext appContext;
+    private final SourceProductSelector sourceProductSelector;
 
-    CrsForm(AppContext appContext) {
+    CrsForm(AppContext appContext, SourceProductSelector sourceProductSelector) {
         this.appContext = appContext;
+        this.sourceProductSelector = sourceProductSelector;
         createUI();
     }
 
-    CoordinateReferenceSystem getCrs() throws FactoryException {
+    CoordinateReferenceSystem getCrs(Product sourceProduct) throws FactoryException {
         if (crsButtonModel.isSelected() && selectedCrsInfo != null) {
             return selectedCrsInfo.getCrs(sourceProduct);
         }
@@ -73,10 +74,6 @@ class CrsForm extends JPanel {
 
     Product getCollocationProduct() {
         return isCollocate() ? collocateProductSelector.getSelectedProduct() : null;
-    }
-
-    void setSourceProduct(Product sourceProduct) {
-        this.sourceProduct = sourceProduct;
     }
 
     void prepareShow() {
@@ -209,11 +206,12 @@ class CrsForm extends JPanel {
             if (product == null) {
                 return false;
             }
-            final boolean sameProduct = (sourceProduct == product);
+            if (sourceProductSelector.getSelectedProduct() == product) {
+                return false;
+            }
             final GeoCoding geoCoding = product.getGeoCoding();
             final boolean hasGeoCoding = geoCoding != null;
-            final boolean geoCodingUsable = hasGeoCoding && geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos();
-            return !sameProduct && geoCodingUsable;
+            return hasGeoCoding && geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos();
         }
     }
 
