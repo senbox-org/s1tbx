@@ -186,11 +186,12 @@ class ReprojectionForm extends JTabbedPane {
 
         final JCheckBox preserveResolutionCheckBox = new JCheckBox("Preserve resolution");
         context.bind(Model.PRESERVE_RESOLUTION, preserveResolutionCheckBox);
-        crsForm.addPropertyChangeListener("collocate", new PropertyChangeListener(){
+        crsForm.addPropertyChangeListener("collocate", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final boolean collocate = (Boolean) evt.getNewValue();
-                reprojectionlContainer.setValue(Model.PRESERVE_RESOLUTION, collocate || reprojectionModel.preserveResolution);
+                reprojectionlContainer.setValue(Model.PRESERVE_RESOLUTION,
+                                                collocate || reprojectionModel.preserveResolution);
                 preserveResolutionCheckBox.setEnabled(!collocate);
             }
         });
@@ -285,6 +286,7 @@ class ReprojectionForm extends JTabbedPane {
     }
 
     private static class Model {
+
         private static final String PRESERVE_RESOLUTION = "preserveResolution";
         private static final String REPROJ_TIEPOINTS = "reprojTiePoints";
         private static final String NO_DATA_VALUE = "noDataValue";
@@ -299,7 +301,7 @@ class ReprojectionForm extends JTabbedPane {
     private static class OrthorectifyProductFilter implements ProductFilter {
 
         @Override
-                public boolean accept(Product product) {
+        public boolean accept(Product product) {
             return product.canBeOrthorectified();
         }
     }
