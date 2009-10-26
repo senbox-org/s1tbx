@@ -17,7 +17,17 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
     private final ProductNodeList<T> nodeList;
 
     /**
-     * Constructs an product manager with an empty list of products.
+     * Constructs a node group.
+     *
+     * @param owner       The owner of the group.
+     * @param name        The group name.
+     */
+    public ProductNodeGroup(ProductNode owner, String name) {
+        this(owner, name, "");
+    }
+
+    /**
+     * Constructs a node group.
      *
      * @param owner       The owner of the group.
      * @param name        The group name.
@@ -86,6 +96,10 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 
     public int indexOf(String name) {
         return nodeList.indexOf(name);
+    }
+
+    public int indexOf(T element) {
+        return nodeList.indexOf(element);
     }
 
     /**
