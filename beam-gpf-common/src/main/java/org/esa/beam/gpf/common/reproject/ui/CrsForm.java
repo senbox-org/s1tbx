@@ -86,6 +86,7 @@ class CrsForm extends JPanel {
 
     private void updateUIState() {
         final boolean collocate = isCollocate();
+        firePropertyChange("collocate", !collocate, collocate);
         collocateProductSelector.getProductNameComboBox().setEnabled(collocate);
         collocateProductSelector.getProductFileChooserButton().setEnabled(collocate);
         projDefPanel.setEnabled(projButtonModel.isSelected());

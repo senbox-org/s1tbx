@@ -42,33 +42,30 @@ class ReprojectionForm extends JTabbedPane {
 
     private final boolean orthoMode;
     private final AppContext appContext;
-
-    private SourceProductSelector sourceProductSelector;
-    private TargetProductSelector targetProductSelector;
+    private final SourceProductSelector sourceProductSelector;
+    private final TargetProductSelector targetProductSelector;
+    private final Model reprojectionModel;
+    private final ValueContainer reprojectionlContainer;
 
     private DemSelector demSelector;
-    private ValueContainer outputParameterContainer;
-
     private CrsForm crsForm;
-
-    private Model outputModel;
-    private ValueContainer modelContainer;
+    private ValueContainer outputParameterContainer;
 
     ReprojectionForm(TargetProductSelector targetProductSelector, boolean orthorectify, AppContext appContext) {
         this.targetProductSelector = targetProductSelector;
-        orthoMode = orthorectify;
+        this.orthoMode = orthorectify;
         this.appContext = appContext;
-        sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
-        outputModel = new Model();
-        modelContainer = ValueContainer.createObjectBacked(outputModel);
+        this.sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
+        this.reprojectionModel = new Model();
+        this.reprojectionlContainer = ValueContainer.createObjectBacked(reprojectionModel);
         createUI();
     }
 
     Map<String, Object> getParameterMap() {
         Map<String, Object> parameterMap = new HashMap<String, Object>(5);
-        parameterMap.put("resamplingName", outputModel.resamplingMethod);
-        parameterMap.put("includeTiePointGrids", outputModel.reprojTiePoints);
-        parameterMap.put("noDataValue", outputModel.noDataValue);
+        parameterMap.put("resamplingName", reprojectionModel.resamplingMethod);
+        parameterMap.put("includeTiePointGrids", reprojectionModel.reprojTiePoints);
+        parameterMap.put("noDataValue", reprojectionModel.noDataValue);
         try {
             if (!crsForm.isCollocate()) {
                 final CoordinateReferenceSystem crs = getSelectedCrs();
@@ -181,10 +178,18 @@ class ReprojectionForm extends JTabbedPane {
         final JPanel outputSettingsPanel = new JPanel(tableLayout);
         outputSettingsPanel.setBorder(BorderFactory.createTitledBorder("Output Settings"));
 
-        final BindingContext context = new BindingContext(modelContainer);
+        final BindingContext context = new BindingContext(reprojectionlContainer);
 
         final JCheckBox preserveResolutionCheckBox = new JCheckBox("Preserve resolution");
         context.bind(Model.PRESERVE_RESOLUTION, preserveResolutionCheckBox);
+        crsForm.addPropertyChangeListener("collocate", new PropertyChangeListener(){
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                final boolean collocate = (Boolean) evt.getNewValue();
+                reprojectionlContainer.setValue(Model.PRESERVE_RESOLUTION, collocate || reprojectionModel.preserveResolution);
+                preserveResolutionCheckBox.setEnabled(!collocate);
+            }
+        });
         outputSettingsPanel.add(preserveResolutionCheckBox);
 
         JCheckBox includeTPcheck = new JCheckBox("Reproject tie-point grids", true);
@@ -192,7 +197,7 @@ class ReprojectionForm extends JTabbedPane {
         outputSettingsPanel.add(includeTPcheck);
 
         final JButton outputParamBtn = new JButton("Output Parameter...");
-        outputParamBtn.setEnabled(!outputModel.preserveResolution);
+        outputParamBtn.setEnabled(!reprojectionModel.preserveResolution);
         outputParamBtn.addActionListener(new OutputParamActionListener());
         outputSettingsPanel.add(outputParamBtn);
 
@@ -209,10 +214,10 @@ class ReprojectionForm extends JTabbedPane {
         context.bind(Model.RESAMPLING_METHOD, resampleComboBox);
         outputSettingsPanel.add(resampleComboBox);
 
-        modelContainer.addPropertyChangeListener(Model.PRESERVE_RESOLUTION, new PropertyChangeListener() {
+        reprojectionlContainer.addPropertyChangeListener(Model.PRESERVE_RESOLUTION, new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                outputParamBtn.setEnabled(!outputModel.preserveResolution);
+                outputParamBtn.setEnabled(!reprojectionModel.preserveResolution);
             }
         });
 
