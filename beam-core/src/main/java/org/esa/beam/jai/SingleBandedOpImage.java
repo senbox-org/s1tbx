@@ -1,9 +1,14 @@
 package org.esa.beam.jai;
 
+import com.bc.ceres.jai.NoDataRaster;
+
 import javax.media.jai.ImageLayout;
-import javax.media.jai.SourcelessOpImage;
 import javax.media.jai.JAI;
-import java.awt.*;
+import javax.media.jai.SourcelessOpImage;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.util.Map;
@@ -83,6 +88,31 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
 
     protected final int getSourceCoord(double destCoord, int min, int max) {
         return levelImageSupport.getSourceCoord(destCoord, min, max);
+    }
+
+    /**
+     * Creates a new raster containing no interpretable data. The raster's
+     * data buffer is filled with the given no-data value.
+     * <p/>
+     * The raster's origin is (0, 0). In order to translate the raster,
+     * use {@link Raster#createTranslatedChild(int x, int y)}.
+     *
+     * @param noDataValue The no-data value used to fill the data buffer
+     *                    of the raster created.
+     *
+     * @return the raster created.
+     *
+     * @see {@link NoDataRaster}.
+     */
+    protected NoDataRaster createNoDataRaster(double noDataValue) {
+        final Raster raster = createWritableRaster(getSampleModel(), new Point(0, 0));
+        final DataBuffer buffer = raster.getDataBuffer();
+
+        for (int i = 0; i < buffer.getSize(); i++) {
+            buffer.setElemDouble(i, noDataValue);
+        }
+
+        return new NoDataRaster(raster);
     }
 
     /**

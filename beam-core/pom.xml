@@ -27,6 +27,10 @@
             <artifactId>ceres-glayer</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-jai</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.media.jai</groupId>
             <artifactId>jai-core</artifactId>
         </dependency>
