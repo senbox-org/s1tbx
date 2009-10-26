@@ -115,7 +115,7 @@ public class VisatMain implements RuntimeRunnable {
                 }
             });
         }
-
+        JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
 
         final VisatApp app = createApplication(applicationDescriptor);
         app.startUp(progressMonitor);
