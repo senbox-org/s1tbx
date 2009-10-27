@@ -38,6 +38,8 @@ import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glayer.RoiLayerType;
+import org.esa.beam.glayer.MaskCollectionLayerType;
+import org.esa.beam.glayer.MaskCollectionLayer;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.util.Guardian;
@@ -78,8 +80,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
-// todo - Layer API: make it implement ProductSceneViewContext 
-
 /**
  * The class <code>ProductSceneView</code> is a high-level image display component for color index/RGB images created
  * from one or more raster datasets of a data product.
@@ -96,6 +96,7 @@ public class ProductSceneView extends BasicView
     public static final String BASE_IMAGE_LAYER_ID = "org.esa.beam.layers.baseImage";
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
     public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
+    public static final String MASKS_LAYER_ID = MaskCollectionLayer.ID;
     public static final String ROI_LAYER_ID = "org.esa.beam.layers.roi";
     public static final String GRATICULE_LAYER_ID = "org.esa.beam.layers.graticule";
     public static final String GCP_LAYER_ID = "org.esa.beam.layers.gcp";
@@ -223,6 +224,8 @@ public class ProductSceneView extends BasicView
 
         this.rasterChangeHandler = new RasterChangeHandler();
         getRaster().getProduct().addProductNodeListener(rasterChangeHandler);
+
+        setMaskOverlayEnabled(true);
     }
 
     private AdjustableViewScrollPane createScrollPane() {
@@ -558,14 +561,27 @@ public class ProductSceneView extends BasicView
         }
     }
 
+    @Deprecated
     public boolean isBitmaskOverlayEnabled() {
         final Layer bitmaskLayer = getBitmaskLayer(false);
         return bitmaskLayer != null && bitmaskLayer.isVisible();
     }
 
+    @Deprecated
     public void setBitmaskOverlayEnabled(boolean enabled) {
         if (isBitmaskOverlayEnabled() != enabled) {
             getBitmaskLayer(true).setVisible(enabled);
+        }
+    }
+
+    public boolean isMaskOverlayEnabled() {
+        final Layer layer = getMaskCollectionLayer(false);
+        return layer != null && layer.isVisible();
+    }
+
+    public void setMaskOverlayEnabled(boolean enabled) {
+        if (isMaskOverlayEnabled() != enabled) {
+            getMaskCollectionLayer(true).setVisible(enabled);
         }
     }
 
@@ -1077,8 +1093,13 @@ public class ProductSceneView extends BasicView
         return getSceneImage().getFigureLayer(create);
     }
 
+    @Deprecated
     private Layer getBitmaskLayer(boolean create) {
         return getSceneImage().getBitmaskLayer(create);
+    }
+
+    private Layer getMaskCollectionLayer(boolean create) {
+        return getSceneImage().getMaskCollectionLayer(create);
     }
 
     private ImageLayer getRoiLayer(boolean create) {

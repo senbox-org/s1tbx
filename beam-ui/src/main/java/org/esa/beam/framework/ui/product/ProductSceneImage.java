@@ -16,6 +16,8 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.BitmaskCollectionLayer;
 import org.esa.beam.glayer.BitmaskLayerType;
@@ -28,6 +30,8 @@ import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glayer.RasterImageLayerType;
 import org.esa.beam.glayer.RgbImageLayerType;
 import org.esa.beam.glayer.RoiLayerType;
+import org.esa.beam.glayer.MaskLayerType;
+import org.esa.beam.glayer.MaskCollectionLayerType;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.util.PropertyMap;
 
@@ -163,10 +167,21 @@ public class ProductSceneImage implements LayerContext {
         return layer;
     }
 
+    @Deprecated
     Layer getBitmaskLayer(boolean create) {
         Layer layer = getLayer(ProductSceneView.BITMASK_LAYER_ID);
         if (layer == null && create) {
             layer = createBitmaskCollectionLayer(getImageToModelTransform());
+            addLayer(getFirstImageLayerIndex(), layer);
+        }
+        return layer;
+    }
+
+
+    Layer getMaskCollectionLayer(boolean create) {
+        Layer layer = getLayer(ProductSceneView.MASKS_LAYER_ID);
+        if (layer == null && create) {
+            layer = createMaskCollectionLayer();
             addLayer(getFirstImageLayerIndex(), layer);
         }
         return layer;
@@ -226,12 +241,20 @@ public class ProductSceneImage implements LayerContext {
         addLayer(0, createBaseImageLayer());
     }
 
+    @Deprecated
     public void initBitmaskLayer() {
         if (mustEnableBitmaskLayer()) {
             getBitmaskLayer(true);
         }
     }
 
+    public void initMaskCollectionLayer() {
+        if (mustEnableMaskCollectionLayer()) {
+            getMaskCollectionLayer(true);
+        }
+    }
+
+    @Deprecated
     private boolean mustEnableBitmaskLayer() {
         final BitmaskOverlayInfo overlayInfo = getRaster().getBitmaskOverlayInfo();
         if (overlayInfo != null) {
@@ -243,6 +266,10 @@ public class ProductSceneImage implements LayerContext {
             }
         }
         return false;
+    }
+
+    private boolean mustEnableMaskCollectionLayer() {
+        return getRaster().getOverlayMaskGroup().getNodeCount() > 0;
     }
 
     private AffineTransform getImageToModelTransform() {
@@ -293,6 +320,7 @@ public class ProductSceneImage implements LayerContext {
         return noDatatype.createLayer(this, configTemplate);
     }
 
+    @Deprecated
     private Layer createBitmaskCollectionLayer(AffineTransform i2mTransform) {
         final LayerType bitmaskCollectionType = LayerType.getLayerType(BitmaskCollectionLayer.Type.class.getName());
         final ValueContainer layerConfig = bitmaskCollectionType.getConfigurationTemplate();
@@ -305,6 +333,19 @@ public class ProductSceneImage implements LayerContext {
             bitmaskCollectionLayer.getChildren().add(layer);
         }
         return bitmaskCollectionLayer;
+    }
+
+    private synchronized Layer createMaskCollectionLayer() {
+        final LayerType maskCollectionType = LayerType.getLayerType(MaskCollectionLayerType.class);
+        final ValueContainer layerConfig = maskCollectionType.getConfigurationTemplate();
+        layerConfig.setValue(MaskCollectionLayerType.PROPERTY_NAME_RASTER, getRaster());
+        final Layer maskCollectionLayer = maskCollectionType.createLayer(this, layerConfig);
+        ProductNodeGroup<Mask> productNodeGroup = getRaster().getProduct().getMaskGroup();
+        for (int i = 0; i < productNodeGroup.getNodeCount(); i++) {
+            Layer layer = MaskLayerType.createLayer(getRaster(), productNodeGroup.get(i));
+            maskCollectionLayer.getChildren().add(layer);
+        }
+        return maskCollectionLayer;
     }
 
     private FigureLayer createFigureLayer(AffineTransform i2mTransform) {

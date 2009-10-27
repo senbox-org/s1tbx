@@ -783,14 +783,61 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
         @Override
         public void nodeAdded(final ProductNodeEvent event) {
-            final ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode instanceof AbstractBand) {
-                final DefaultMutableTreeNode rootTNode = getRootTreeNode();
-                final Product product = sourceNode.getProduct();
-                final DefaultMutableTreeNode productTNode = getTreeNodeFor(product, rootTNode);
-                final DefaultMutableTreeNode bandGroupTNode = getBandGroupTNode(sourceNode, productTNode);
-                bandGroupTNode.add(new DefaultMutableTreeNode(sourceNode));
-                getTreeModel().nodeStructureChanged(bandGroupTNode);
+            final ProductNode group = event.getGroup();
+            if (isRootGroup(group)) {
+                final ProductNode sourceNode = event.getSourceNode();
+                if (sourceNode instanceof AbstractBand) {
+                    final DefaultMutableTreeNode rootTNode = getRootTreeNode();
+                    final Product product = sourceNode.getProduct();
+                    final DefaultMutableTreeNode productTNode = getTreeNodeFor(product, rootTNode);
+                    final DefaultMutableTreeNode bandGroupTNode = getBandGroupTNode(sourceNode, productTNode);
+                    bandGroupTNode.add(new DefaultMutableTreeNode(sourceNode));
+                    getTreeModel().nodeStructureChanged(bandGroupTNode);
+                }
+            }
+        }
+
+        @Override
+        public void nodeRemoved(final ProductNodeEvent event) {
+            final ProductNode group = event.getGroup();
+            if (isRootGroup(group)) {
+                final ProductNode sourceNode = event.getSourceNode();
+                if (sourceNode instanceof AbstractBand) {
+                    final DefaultMutableTreeNode rootTNode = getRootTreeNode();
+
+                    final Product product = sourceNode.getProduct();
+                    final DefaultMutableTreeNode productTNode = getTreeNodeFor(product, rootTNode);
+                    final DefaultMutableTreeNode bandGroupTNode = getBandGroupTNode(sourceNode, productTNode);
+                    final DefaultMutableTreeNode sourceTNode = getTreeNodeFor(sourceNode, bandGroupTNode);
+                    if (sourceTNode != null) {
+                        final TreePath path = findTreePathFor(sourceNode);
+                        final boolean nodeIsSelected = getSelectionModel().isPathSelected(path);
+                        final DefaultMutableTreeNode node;
+                        if (nodeIsSelected) {
+                            final int selectionIndex = bandGroupTNode.getIndex(sourceTNode);
+                            final int childCount = bandGroupTNode.getChildCount();
+                            if (childCount - 1 == selectionIndex) {
+                                if (childCount > 1) {
+                                    final TreeNode toSelectTNode = bandGroupTNode.getChildAt(selectionIndex - 1);
+                                    node = (DefaultMutableTreeNode) toSelectTNode;
+                                } else {
+                                    node = productTNode;
+                                }
+                            } else {
+                                final TreeNode toSelectTNode = bandGroupTNode.getChildAt(selectionIndex + 1);
+                                node = (DefaultMutableTreeNode) toSelectTNode;
+                            }
+                        } else {
+                            node = null;
+                        }
+
+                        bandGroupTNode.remove(sourceTNode);
+                        getTreeModel().nodeStructureChanged(bandGroupTNode);
+                        if (node != null) {
+                            select(node.getUserObject());
+                        }
+                    }
+                }
             }
         }
 
@@ -804,45 +851,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             return groupTNode;
         }
 
-        @Override
-        public void nodeRemoved(final ProductNodeEvent event) {
-            final ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode instanceof AbstractBand) {
-                final DefaultMutableTreeNode rootTNode = getRootTreeNode();
 
-                final Product product = sourceNode.getProduct();
-                final DefaultMutableTreeNode productTNode = getTreeNodeFor(product, rootTNode);
-                final DefaultMutableTreeNode bandGroupTNode = getBandGroupTNode(sourceNode, productTNode);
-                final DefaultMutableTreeNode sourceTNode = getTreeNodeFor(sourceNode, bandGroupTNode);
-                if (sourceTNode != null) {
-                    final TreePath path = findTreePathFor(sourceNode);
-                    final boolean nodeIsSelected = getSelectionModel().isPathSelected(path);
-                    final DefaultMutableTreeNode node;
-                    if (nodeIsSelected) {
-                        final int selectionIndex = bandGroupTNode.getIndex(sourceTNode);
-                        final int childCount = bandGroupTNode.getChildCount();
-                        if (childCount - 1 == selectionIndex) {
-                            if (childCount > 1) {
-                                final TreeNode toSelectTNode = bandGroupTNode.getChildAt(selectionIndex - 1);
-                                node = (DefaultMutableTreeNode) toSelectTNode;
-                            } else {
-                                node = productTNode;
-                            }
-                        } else {
-                            final TreeNode toSelectTNode = bandGroupTNode.getChildAt(selectionIndex + 1);
-                            node = (DefaultMutableTreeNode) toSelectTNode;
-                        }
-                    } else {
-                        node = null;
-                    }
-
-                    bandGroupTNode.remove(sourceTNode);
-                    getTreeModel().nodeStructureChanged(bandGroupTNode);
-                    if (node != null) {
-                        select(node.getUserObject());
-                    }
-                }
-            }
+        private boolean isRootGroup(ProductNode group) {
+            return group != null && group.getOwner() == group.getProduct();
         }
     }
 }
