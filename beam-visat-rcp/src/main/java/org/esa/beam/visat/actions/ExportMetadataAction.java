@@ -270,18 +270,19 @@ public class ExportMetadataAction extends ExecCommand {
 
         private String createAttributeName(MetadataAttribute attribute) {
             StringBuilder sb = new StringBuilder();
-            if (attribute.getOwner() instanceof MetadataElement) {
-                prependParentName((MetadataElement) attribute.getOwner(), sb);
+            MetadataElement metadataElement = attribute.getParentElement();
+            if (metadataElement != null) {
+                prependParentName(metadataElement, sb);
             }
             sb.append(attribute.getName());
             return sb.toString();
         }
 
         private void prependParentName(MetadataElement element, StringBuilder sb) {
-            final ProductNode owner = element.getOwner();
-            if (owner instanceof MetadataElement) {
+            final MetadataElement owner = element.getParentElement();
+            if (owner != null) {
                 if (owner != rootElement) {
-                    prependParentName((MetadataElement) owner, sb);
+                    prependParentName(owner, sb);
                 } else if (owner.getName() != null) {
                     sb.insert(0, owner.getName()).append(".");
                 }

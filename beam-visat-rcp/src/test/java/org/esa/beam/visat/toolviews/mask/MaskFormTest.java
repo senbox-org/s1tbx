@@ -76,7 +76,7 @@ public class MaskFormTest extends TestCase {
                                  product.getSceneRasterHeight(),
                                  new Mask.BandMathType());
             mask.getImageConfig().setValue("color", colors[i]);
-            mask.getImageConfig().setValue("transparency", 1.0f - 1.0f / (1 + (i % 4)));
+            mask.getImageConfig().setValue("transparency", 1.0 - 1.0 / (1 + (i % 4)));
             mask.getImageConfig().setValue("expression", expression);
             mask.setDescription(expression);
             product.getMaskGroup().add(mask);
@@ -89,7 +89,7 @@ public class MaskFormTest extends TestCase {
                                  product.getSceneRasterHeight(),
                                  new Mask.GeometryType());
             mask.getImageConfig().setValue("color", colors[i % colors.length].brighter());
-            mask.getImageConfig().setValue("transparency", 0.1f);
+            mask.getImageConfig().setValue("transparency", 0.1);
             mask.getImageConfig().setValue("vectorData", vectorData);
             product.getMaskGroup().add(mask);
         }

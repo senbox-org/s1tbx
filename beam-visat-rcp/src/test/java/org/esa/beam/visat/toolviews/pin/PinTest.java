@@ -80,32 +80,31 @@ public class PinTest extends TestCase {
 
         product.getPinGroup().add(pin1);
         assertEquals(1, product.getPinGroup().getNodeCount());
+        assertEquals(1, events.size());
+        assertEquals(1, eventTypes.size());
+
+        pin1.setDescription("descPin1");
+        assertEquals(1, product.getPinGroup().getNodeCount());
         assertEquals(2, events.size());
         assertEquals(2, eventTypes.size());
 
-        pin1.setDescription("descPin1");
+        pin1.setGeoPos(new GeoPos(4, 4));
         assertEquals(1, product.getPinGroup().getNodeCount());
         assertEquals(3, events.size());
         assertEquals(3, eventTypes.size());
 
-        pin1.setGeoPos(new GeoPos(4, 4));
+        pin1.setSymbol(new PlacemarkSymbol("symb1", new Line2D.Float(4, 5, 6, 7)));
         assertEquals(1, product.getPinGroup().getNodeCount());
         assertEquals(4, events.size());
         assertEquals(4, eventTypes.size());
 
-        pin1.setSymbol(new PlacemarkSymbol("symb1", new Line2D.Float(4, 5, 6, 7)));
-        assertEquals(1, product.getPinGroup().getNodeCount());
+        product.getPinGroup().remove(pin1);
+        assertEquals(0, product.getPinGroup().getNodeCount());
         assertEquals(5, events.size());
         assertEquals(5, eventTypes.size());
 
-        product.getPinGroup().remove(pin1);
-        assertEquals(0, product.getPinGroup().getNodeCount());
-        assertEquals(6, events.size());
-        assertEquals(6, eventTypes.size());
-
 
         final String[] expectedEventTypes = new String[]{
-                _NODE_CHANGED,
                 _NODE_ADDED,
                 _NODE_CHANGED,
                 _NODE_CHANGED,
@@ -118,7 +117,6 @@ public class PinTest extends TestCase {
         }
 
         final String[] expectedPropertyNames = new String[]{
-                ProductNode.PROPERTY_NAME_OWNER,
                 null,
                 ProductNode.PROPERTY_NAME_DESCRIPTION,
                 Pin.PROPERTY_NAME_GEOPOS,

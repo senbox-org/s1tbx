@@ -743,19 +743,8 @@ public class BitmaskOverlayToolView extends AbstractToolView {
     }
 
     private boolean isBitmaskDefOfAnotherProduct(final BitmaskDef bitmaskDefOld) {
-        final Product product = getSelectedProduct();
-        if (product == null) {
-            return false;
-        }
-        final ProductNode owner = bitmaskDefOld.getOwner();
-        if (owner == null) {
-            return false;
-        }
-        //noinspection SimplifiableIfStatement
-        if (owner.getProduct() == null) {
-            return false;
-        }
-        return owner.getProduct() != product;
+        final Product selectedProduct = getSelectedProduct();
+        return selectedProduct != null && bitmaskDefOld.getProduct() != selectedProduct;
     }
 
 

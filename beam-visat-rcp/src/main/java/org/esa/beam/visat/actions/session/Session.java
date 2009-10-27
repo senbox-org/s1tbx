@@ -128,11 +128,11 @@ public class Session {
                 MetadataElement metadataRoot = metadataView.getProduct().getMetadataRoot();
                 MetadataElement metadataElement = metadataView.getMetadataElement();
                 StringBuilder sb = new StringBuilder(metadataElement.getName());
-                ProductNode owner = metadataElement.getOwner();
-                while (owner != metadataRoot) {
+                MetadataElement parent = metadataElement.getParentElement();
+                while (parent != metadataRoot) {
                     sb.append('|');
-                    sb.append(owner.getName());
-                    owner = owner.getOwner();
+                    sb.append(parent.getName());
+                    parent = parent.getParentElement();
                 }
                 productNodeName = sb.toString();
                 productRefNo = view.getVisibleProductNode().getProduct().getRefNo();
@@ -151,11 +151,10 @@ public class Session {
         }
     }
 
+    // todo - code duplication in RgbImageLayerType.java (nf 10.2009)
     private static String getExpression(RasterDataNode raster) {
-        final ProductNode owner = raster.getOwner();
-
-        if (owner instanceof Product) {
-            final Product product = (Product) owner;
+        final Product product = raster.getProduct();
+        if (product != null) {
             if (product.containsBand(raster.getName())) {
                 return raster.getName();
             } else {
@@ -164,7 +163,6 @@ public class Session {
                 }
             }
         }
-
         return null;
     }
 

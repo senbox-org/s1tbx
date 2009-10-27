@@ -82,7 +82,7 @@ class MaskTableModel extends AbstractTableModel {
             String.class,
             String.class,
             Color.class,
-            Float.class,
+            Double.class,
             String.class,
     };
 
@@ -239,7 +239,7 @@ class MaskTableModel extends AbstractTableModel {
         int column = modeIdxs[columnIndex];
 
         if (column == IDX_VISIBILITY) {
-            if (visibleBand.getImageInfo(ProgressMonitor.NULL).containsMaskReference(mask.getName())) {
+            if (visibleBand.getOverlayMaskGroup().contains(mask)) {
                 return Boolean.TRUE;
             } else {
                 return Boolean.FALSE;
@@ -268,9 +268,9 @@ class MaskTableModel extends AbstractTableModel {
         if (column == IDX_VISIBILITY) {
             boolean visible = (Boolean) aValue;
             if (visible) {
-                visibleBand.getImageInfo().addMaskReference(mask.getName());
+                visibleBand.getOverlayMaskGroup().add(mask);
             } else {
-                visibleBand.getImageInfo().removeMaskReference(mask.getName());
+                visibleBand.getOverlayMaskGroup().remove(mask);
             }
             visibleBand.fireImageInfoChanged();
             fireTableCellUpdated(rowIndex, columnIndex);
@@ -283,7 +283,7 @@ class MaskTableModel extends AbstractTableModel {
             mask.setImageColor((Color) aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
         } else if (column == IDX_TRANSPARENCY) {
-            mask.setImageTransparency((Float) aValue);
+            mask.setImageTransparency((Double) aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
         } else if (column == IDX_DESCRIPTION) {
             mask.setDescription((String) aValue);
