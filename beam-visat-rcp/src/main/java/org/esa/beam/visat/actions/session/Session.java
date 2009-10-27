@@ -23,7 +23,6 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
@@ -452,7 +451,7 @@ public class Session {
     public static class ProductRef {
 
         final int refNo;
-        @XStreamConverter(URIConnverterWrapper.class)
+        @XStreamConverter(URIConverterWrapper.class)
         final URI uri;
 
         public ProductRef(int refNo, URI uri) {
@@ -579,14 +578,14 @@ public class Session {
         }
     }
 
-    public static class URIConnverterWrapper extends SingleValueConverterWrapper {
+    public static class URIConverterWrapper extends SingleValueConverterWrapper {
 
-        public URIConnverterWrapper() {
-            super(new URIConnverter());
+        public URIConverterWrapper() {
+            super(new URIConverter());
         }
     }
 
-    public static class URIConnverter extends AbstractSingleValueConverter {
+    public static class URIConverter extends AbstractSingleValueConverter {
 
         @Override
         public boolean canConvert(Class type) {
@@ -600,24 +599,6 @@ public class Session {
             } catch (URISyntaxException e) {
                 throw new com.thoughtworks.xstream.converters.ConversionException(e);
             }
-        }
-    }
-
-    public static class SessionAccessor {
-
-        private final Product[] products;
-
-        public SessionAccessor(Product[] products) {
-            this.products = products;
-        }
-
-        Product getProduct(int refNo) {
-            return getProductForRefNo(products, refNo);
-        }
-
-        RasterDataNode getRasterDataNode(int refNo, String nodeName) {
-            final Product product = getProductForRefNo(products, refNo);
-            return product.getRasterDataNode(nodeName);
         }
     }
 }
