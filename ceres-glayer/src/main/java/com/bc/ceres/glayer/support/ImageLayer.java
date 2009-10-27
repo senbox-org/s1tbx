@@ -318,7 +318,7 @@ public class ImageLayer extends Layer {
                 configuration.addModel(createDefaultValueModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
                                                                AffineTransform.class));
             }
-            configuration.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
+            // configuration.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
 
             return configuration.getModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
         }
