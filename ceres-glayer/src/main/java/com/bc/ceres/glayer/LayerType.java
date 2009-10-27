@@ -80,6 +80,10 @@ public abstract class LayerType extends ExtensibleObject {
         return REGISTRY.getService(layerTypeClassName);
     }
 
+    public static <T extends LayerType>  T getLayerType(Class<T> layerTypeClass) {
+        return (T) REGISTRY.getService(layerTypeClass.getName());
+    }
+
     static {
         final ServiceRegistry<LayerType> typeServiceRegistry = ServiceRegistryFactory.getInstance().getServiceRegistry(LayerType.class);
         final ServiceLoader<LayerType> serviceLoader = ServiceLoader.load(LayerType.class);
