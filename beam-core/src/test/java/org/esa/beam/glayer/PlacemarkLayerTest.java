@@ -35,19 +35,6 @@ public class PlacemarkLayerTest extends TestCase {
 
         assertTrue(type instanceof PlacemarkLayerType);
         assertNotNull(type.getName());
-
-        final ValueContainer configuration = type.getConfigurationCopy(null, placemarkLayer);
-        assertNotNull(configuration);
-        assertEquals(product, configuration.getValue("product"));
-        assertEquals(pmd, configuration.getValue("placemarkDescriptor"));
-        assertEquals(i2m, configuration.getValue("imageToModelTransform"));
-
-        final Layer layerCopy = type.createLayer(null, configuration);
-        assertTrue(layerCopy instanceof PlacemarkLayer);
-        final PlacemarkLayer placemarkLayerCopy = (PlacemarkLayer) layerCopy;
-        assertEquals(product, placemarkLayerCopy.getProduct());
-        assertEquals(pmd, placemarkLayerCopy.getPlacemarkDescriptor());
-        assertEquals(i2m, placemarkLayerCopy.getImageToModelTransform());
     }
 
     public void testLayerDataChanges() {
