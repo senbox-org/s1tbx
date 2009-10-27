@@ -44,7 +44,7 @@ public class ShapeLayer extends Layer {
     }
 
     public ShapeLayer(Shape[] shapes, AffineTransform shapeToModelTransform) {
-        this(LAYER_TYPE, initConfiguration(LAYER_TYPE.getConfigurationTemplate(), shapes, shapeToModelTransform));
+        this(LAYER_TYPE, initConfiguration(LAYER_TYPE.createLayerConfig(null), shapes, shapeToModelTransform));
     }
 
     public ShapeLayer(Type layerType, ValueContainer configuration) {
@@ -137,7 +137,7 @@ public class ShapeLayer extends Layer {
         }
 
         @Override
-        public ValueContainer getConfigurationTemplate() {
+        public ValueContainer createLayerConfig(LayerContext ctx) {
             final ValueContainer vc = new ValueContainer();
 
             final ValueModel shapeListModel = createDefaultValueModel(PROPERTY_SHAPE_LIST, List.class);

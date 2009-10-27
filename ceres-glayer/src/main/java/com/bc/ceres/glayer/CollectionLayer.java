@@ -25,7 +25,7 @@ public class CollectionLayer extends Layer {
     }
 
     public CollectionLayer(String name) {
-        this(LAYER_TYPE, LAYER_TYPE.getConfigurationTemplate(), name);
+        this(LAYER_TYPE, LAYER_TYPE.createLayerConfig(null), name);
     }
 
     public CollectionLayer(Type type, ValueContainer configuration, String name) {
@@ -51,7 +51,7 @@ public class CollectionLayer extends Layer {
         }
 
         @Override
-        public ValueContainer getConfigurationTemplate() {
+        public ValueContainer createLayerConfig(LayerContext ctx) {
             return new ValueContainer();
         }
 

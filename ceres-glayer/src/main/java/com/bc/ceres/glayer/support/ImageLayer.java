@@ -92,7 +92,7 @@ public class ImageLayer extends Layer {
      * @param multiLevelSource the multi-resolution-level image.
      */
     public ImageLayer(Type type, MultiLevelSource multiLevelSource) {
-        this(type, configure(type.getConfigurationTemplate(), multiLevelSource));
+        this(type, initConfiguration(type.createLayerConfig(null), multiLevelSource));
     }
 
     public ImageLayer(Type layerType, ValueContainer configuration) {
@@ -267,7 +267,7 @@ public class ImageLayer extends Layer {
         return getConfigurationProperty(PROPERTY_NAME_BORDER_COLOR, DEFAULT_BORDER_COLOR);
     }
 
-    private static ValueContainer configure(ValueContainer configuration, MultiLevelSource multiLevelSource) {
+    private static ValueContainer initConfiguration(ValueContainer configuration, MultiLevelSource multiLevelSource) {
         configuration.setValue(PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         final AffineTransform imageToModelTransform = multiLevelSource.getModel().getImageToModelTransform(0);
         configuration.setValue(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
@@ -292,7 +292,7 @@ public class ImageLayer extends Layer {
         }
 
         @Override
-        public ValueContainer getConfigurationTemplate() {
+        public ValueContainer createLayerConfig(LayerContext ctx) {
             final ValueContainer template = new ValueContainer();
 
             addMultiLevelSourceModel(template);

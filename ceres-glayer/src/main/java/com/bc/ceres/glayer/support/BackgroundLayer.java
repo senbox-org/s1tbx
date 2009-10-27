@@ -21,7 +21,7 @@ public class BackgroundLayer extends Layer {
     private static final Type LAYER_TYPE = LayerType.getLayerType(Type.class);
 
     public BackgroundLayer(Color color) {
-        this(LAYER_TYPE, initConfiguration(LAYER_TYPE.getConfigurationTemplate(), color));
+        this(LAYER_TYPE, initConfiguration(LAYER_TYPE.createLayerConfig(null), color));
     }
 
     public BackgroundLayer(Type type, ValueContainer configuration) {
@@ -66,7 +66,7 @@ public class BackgroundLayer extends Layer {
         }
 
         @Override
-        public ValueContainer getConfigurationTemplate() {
+        public ValueContainer createLayerConfig(LayerContext ctx) {
             final ValueContainer template = new ValueContainer();
             template.addModel(createDefaultValueModel(COLOR, Color.class));
 

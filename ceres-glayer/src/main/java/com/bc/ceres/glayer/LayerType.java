@@ -29,15 +29,22 @@ public abstract class LayerType extends ExtensibleObject {
     // todo - Layer API: this seems to be the only framework usage of getConfigurationTemplate()! (nf)
     // todo - Layer API: why is this final? assume overriding it in order to cast ctx into an application-specific ctx (nf)
     public final Layer createLayer(LayerContext ctx, ValueContainer configuration) {
-        for (final ValueModel expectedModel : getConfigurationTemplate().getModels()) {
-            final String propertyName = expectedModel.getDescriptor().getName();
-            final ValueModel actualModel = configuration.getModel(propertyName);
+
+        validateConfiguration(ctx, configuration);
+        return createLayerImpl(ctx, configuration);
+    }
+
+    protected void validateConfiguration(LayerContext ctx, ValueContainer config) {
+        ValueContainer prototypeConfig = createLayerConfig(ctx);
+        for (final ValueModel prototypeModel : prototypeConfig.getModels()) {
+            final String propertyName = prototypeModel.getDescriptor().getName();
+            final ValueModel actualModel = config.getModel(propertyName);
             if (actualModel != null) {
                 try {
                     if (actualModel.getValue() == null && actualModel.getDescriptor().isNotNull()) {
                         actualModel.setValue(actualModel.getDescriptor().getDefaultValue());
                     }
-                    expectedModel.validate(actualModel.getValue());
+                    prototypeModel.validate(actualModel.getValue());
                 } catch (ValidationException e) {
                     throw new IllegalArgumentException(String.format(
                             "Invalid value for property '%s': %s", propertyName, e.getMessage()), e);
@@ -48,8 +55,6 @@ public abstract class LayerType extends ExtensibleObject {
                         "No model defined for property '%s'", propertyName));
             }
         }
-
-        return createLayerImpl(ctx, configuration);
     }
 
     // todo - Layer API: why is LayerContext not used in implementations? (mp)
@@ -57,11 +62,9 @@ public abstract class LayerType extends ExtensibleObject {
 
     // todo - Layer API: why not use annotations? (nf)
     // todo - Layer API: check IDEA ALT+F7: is this a utility or framework API? Only framework usage is in createLayer(). How must clients use this? (nf)
-    // todo - Layer API: shouldn't it be createLayerConfiguration(LayerContext ctx)? (nf)
     // todo - Layer API: how can clients know whether my value model can be serialized or not? when to impl. a converter? (nf)
-    public abstract ValueContainer getConfigurationTemplate();
+    public abstract ValueContainer createLayerConfig(LayerContext ctx);
 
-    // todo - Layer API: check ALT+F7: Has no framework usage. (nf)
     public static LayerType getLayerType(String layerTypeClassName) {
         return REGISTRY.getService(layerTypeClassName);
     }
