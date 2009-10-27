@@ -3,6 +3,9 @@ package org.esa.beam.visat.actions.session;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.DomElementXStreamConverter;
@@ -33,6 +36,7 @@ import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.actions.session.dom.SessionDomConverter;
+import org.esa.beam.glayer.MaskCollectionLayerType;
 
 import javax.swing.JComponent;
 import javax.swing.RootPaneContainer;
@@ -93,7 +97,7 @@ public class Session {
                                               viewport.getZoomFactor(),
                                               viewport.getOrientation());
                 final List<Layer> layers = sceneView.getRootLayer().getChildren();
-                layerRefs = getLayerRefs(sceneView, layers, productManager);
+                layerRefs = getLayerRefs(layers, productManager);
             }
 
             Rectangle viewBounds = new Rectangle(0, 0, 200, 200);
@@ -177,28 +181,45 @@ public class Session {
         return rootURI.relativize(uri);
     }
 
-    private static LayerRef[] getLayerRefs(LayerContext layerContext, List<Layer> layers, ProductManager productManager) {
-        final LayerRef[] layerRefs = new LayerRef[layers.size()];
+    private static LayerRef[] getLayerRefs(List<Layer> layers, ProductManager productManager) {
+        final ArrayList<LayerRef> layerRefs = new ArrayList<LayerRef>(layers.size());
         for (int i = 0; i < layers.size(); i++) {
             Layer layer = layers.get(i);
-            final ValueContainer configuration = getConfiguration(layerContext, layer);
-            final SessionDomConverter domConverter = new SessionDomConverter(productManager);
-            final DomElement element = new DefaultDomElement("configuration");
-            try {
-                domConverter.convertValueToDom(configuration, element);
-            } catch (ConversionException e) {
-                e.printStackTrace();
+            if (isSerializableLayer(layer)) {
+                ValueContainer configuration = layer.getConfiguration();
+                // todo - check - why create a configuration copy here?! (nf, 10.2009)
+                ValueContainer configurationCopy = getConfigurationCopy(configuration);
+                SessionDomConverter domConverter = new SessionDomConverter(productManager);
+                DomElement element = new DefaultDomElement("configuration");
+                try {
+                    domConverter.convertValueToDom(configurationCopy, element);
+                } catch (ConversionException e) {
+                    e.printStackTrace();
+                }
+                layerRefs.add(new LayerRef(layer, i, element,
+                                            getLayerRefs(layer.getChildren(), productManager)));
             }
-            layerRefs[i] = new LayerRef(layer, i, element,
-                                        getLayerRefs(layerContext, layer.getChildren(), productManager));
         }
-        return layerRefs;
+        return layerRefs.toArray(new LayerRef[layerRefs.size()]);
+    }
+
+    private static boolean isSerializableLayer(Layer layer) {
+        // todo - check, this could be solved in a generic way (nf, 10.2009)
+        return !(layer.getLayerType() instanceof MaskCollectionLayerType);
     }
 
 
-    private static ValueContainer getConfiguration(LayerContext ctx, Layer layer) {
-        // todo - check - why create a copy here?! (nf, 10.2009)         
-        return layer.getLayerType().getConfigurationCopy(ctx, layer);
+    private static ValueContainer getConfigurationCopy(ValueContainer valueContainer) {
+        final ValueContainer configuration = new ValueContainer();
+
+        for (ValueModel model : valueContainer.getModels()) {
+            final ValueDescriptor descriptor = new ValueDescriptor(model.getDescriptor());
+            final DefaultValueAccessor valueAccessor = new DefaultValueAccessor();
+            valueAccessor.setValue(model.getValue());
+            configuration.addModel(new ValueModel(descriptor, valueAccessor));
+        }
+
+        return configuration;
     }
 
     public String getModelVersion() {
