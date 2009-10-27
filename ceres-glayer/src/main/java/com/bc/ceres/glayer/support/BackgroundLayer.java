@@ -18,7 +18,7 @@ import java.awt.Rectangle;
  */
 public class BackgroundLayer extends Layer {
 
-    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
+    private static final Type LAYER_TYPE = LayerType.getLayerType(Type.class);
 
     public BackgroundLayer(Color color) {
         this(LAYER_TYPE, initConfiguration(LAYER_TYPE.getConfigurationTemplate(), color));

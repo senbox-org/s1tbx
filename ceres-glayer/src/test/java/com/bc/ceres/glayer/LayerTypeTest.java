@@ -6,7 +6,9 @@ import junit.framework.TestCase;
 
 public class LayerTypeTest extends TestCase {
     public void testDefaultRegistration() {
+        assertTrue(LayerType.getLayerType(CollectionLayer.Type.class) != null);
         assertTrue(LayerType.getLayerType(CollectionLayer.Type.class.getName()) instanceof CollectionLayer.Type);
+        assertTrue(LayerType.getLayerType(ImageLayer.Type.class) != null);
         assertTrue(LayerType.getLayerType(ImageLayer.Type.class.getName()) instanceof ImageLayer.Type);
     }
 }

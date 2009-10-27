@@ -1,8 +1,8 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -28,7 +28,12 @@ import java.util.List;
  */
 public class ShapeLayer extends Layer {
 
-    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
+    private static final Type LAYER_TYPE;
+
+    static {
+        LAYER_TYPE = LayerType.getLayerType(Type.class);
+        Assert.notNull(LAYER_TYPE, "LAYER_TYPE");
+    }
 
     private final List<Shape> shapeList;
     private final AffineTransform shapeToModelTransform;

@@ -36,7 +36,7 @@ import java.awt.image.RenderedImage;
  */
 public class ImageLayer extends Layer {
 
-    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
+    private static final Type LAYER_TYPE = LayerType.getLayerType(Type.class);
 
     public static final String PROPERTY_NAME_MULTI_LEVEL_SOURCE = "multiLevelSource";
     public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
@@ -318,7 +318,7 @@ public class ImageLayer extends Layer {
                 configuration.addModel(createDefaultValueModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
                                                                AffineTransform.class));
             }
-            //configuration.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
+            configuration.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
 
             return configuration.getModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
         }

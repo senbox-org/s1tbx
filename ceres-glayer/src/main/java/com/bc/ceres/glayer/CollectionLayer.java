@@ -1,6 +1,7 @@
 package com.bc.ceres.glayer;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.core.Assert;
 
 
 /**
@@ -12,7 +13,12 @@ import com.bc.ceres.binding.ValueContainer;
  */
 public class CollectionLayer extends Layer {
 
-    private static final Type LAYER_TYPE = (Type) LayerType.getLayerType(Type.class.getName());
+    private static final Type LAYER_TYPE;
+
+    static {
+        LAYER_TYPE = LayerType.getLayerType(Type.class);
+        Assert.notNull(LAYER_TYPE, "LAYER_TYPE");
+    }
 
     public CollectionLayer() {
         this(LAYER_TYPE.getName());

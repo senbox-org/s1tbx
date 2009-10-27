@@ -14,7 +14,7 @@ public class LayerTest {
 
         assertNotNull(layer1.getLayerType());
         assertSame(layer1.getLayerType(), layer2.getLayerType());
-        assertSame(layer1.getLayerType(), LayerType.getLayerType(CollectionLayer.Type.class.getName()));
+        assertSame(layer1.getLayerType(), LayerType.getLayerType(CollectionLayer.Type.class));
     }
 
     @Test
