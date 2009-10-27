@@ -61,20 +61,6 @@ public abstract class LayerType extends ExtensibleObject {
     // todo - Layer API: how can clients know whether my value model can be serialized or not? when to impl. a converter? (nf)
     public abstract ValueContainer getConfigurationTemplate();
 
-    // todo - Layer API: check IDEA ALT+F7: is this a utility or framework API? move to BEAM Session?  (nf)
-    public ValueContainer getConfigurationCopy(LayerContext ctx, Layer layer) {
-        final ValueContainer configuration = new ValueContainer();
-
-        for (ValueModel model : layer.getConfiguration().getModels()) {
-            final ValueDescriptor descriptor = new ValueDescriptor(model.getDescriptor());
-            final DefaultValueAccessor valueAccessor = new DefaultValueAccessor();
-            valueAccessor.setValue(model.getValue());
-            configuration.addModel(new ValueModel(descriptor, valueAccessor));
-        }
-
-        return configuration;
-    }
-
     // todo - Layer API: check ALT+F7: Has no framework usage. (nf)
     public static LayerType getLayerType(String layerTypeClassName) {
         return REGISTRY.getService(layerTypeClassName);
