@@ -14,6 +14,7 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 
 import java.awt.geom.AffineTransform;
@@ -116,20 +117,18 @@ public class RgbImageLayerType extends ImageLayer.Type {
         return createLayer(null, configuration);
     }
 
+    // todo - code duplication in Session.java (nf 10.2009)
     private static String getExpression(RasterDataNode raster) {
-        final ProductNode owner = raster.getOwner();
-
-        if (owner instanceof Product) {
-            final Product product = (Product) owner;
+        final Product product = raster.getProduct();
+        if (product != null) {
             if (product.containsBand(raster.getName())) {
-                return raster.getName();
+                return BandArithmetic.createExternalName(raster.getName());
             } else {
                 if (raster instanceof VirtualBand) {
                     return ((VirtualBand) raster).getExpression();
                 }
             }
         }
-
         return null;
     }
 

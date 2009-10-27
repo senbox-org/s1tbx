@@ -32,6 +32,7 @@ import java.awt.geom.AffineTransform;
 import java.util.List;
 
 
+@Deprecated
 public class BitmaskCollectionLayer extends CollectionLayer {
 
 

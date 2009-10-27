@@ -321,8 +321,7 @@ public class PlacemarkLayer extends Layer {
         }
 
         private void maybeFireLayerDataChanged(ProductNodeEvent event) {
-            if (event.getSourceNode() instanceof Pin &&
-                    !ProductNode.PROPERTY_NAME_OWNER.equals(event.getPropertyName())) {
+            if (event.getSourceNode() instanceof Pin) {
                 fireLayerDataChanged(getLayerModelBounds());
             }
         }

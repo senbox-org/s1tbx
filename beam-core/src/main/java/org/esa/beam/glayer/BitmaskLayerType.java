@@ -19,7 +19,9 @@ import java.awt.geom.AffineTransform;
  * @author Marco Peters
  * @version $ Revision: $ Date: $
  * @since BEAM 4.6
+ * @deprecated since 4.7, use {@link MaskLayerType}
  */
+@Deprecated
 public class BitmaskLayerType extends ImageLayer.Type {
 
     public static final String PROPERTY_NAME_BITMASK_DEF = "bitmaskDef";

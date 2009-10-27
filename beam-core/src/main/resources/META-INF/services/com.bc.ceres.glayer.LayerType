@@ -7,3 +7,5 @@ org.esa.beam.glayer.RasterImageLayerType
 org.esa.beam.glayer.RgbImageLayerType
 org.esa.beam.glayer.RoiLayerType
 org.esa.beam.glayer.BitmaskLayerType
+org.esa.beam.glayer.MaskCollectionLayerType
+org.esa.beam.glayer.MaskLayerType
