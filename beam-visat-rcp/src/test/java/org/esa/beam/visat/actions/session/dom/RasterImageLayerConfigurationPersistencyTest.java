@@ -11,7 +11,7 @@ import java.awt.geom.AffineTransform;
 public class RasterImageLayerConfigurationPersistencyTest extends AbstractLayerConfigurationPersistencyTest {
 
     public RasterImageLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(RasterImageLayerType.class.getName()));
+        super(LayerType.getLayerType(RasterImageLayerType.class));
     }
 
     @Override

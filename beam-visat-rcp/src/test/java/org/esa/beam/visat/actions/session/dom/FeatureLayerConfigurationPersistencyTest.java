@@ -22,7 +22,7 @@ import org.opengis.filter.FilterFactory;
 public class FeatureLayerConfigurationPersistencyTest extends AbstractLayerConfigurationPersistencyTest {
 
     public FeatureLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(FeatureLayerType.class.getName()));
+        super(LayerType.getLayerType(FeatureLayerType.class));
     }
 
     @Override

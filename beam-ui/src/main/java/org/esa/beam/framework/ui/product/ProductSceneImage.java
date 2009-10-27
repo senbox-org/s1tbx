@@ -279,12 +279,10 @@ public class ProductSceneImage implements LayerContext {
     private Layer createBaseImageLayer() {
         final Layer layer;
         if (getRasters().length == 1) {
-            final RasterImageLayerType type = (RasterImageLayerType) LayerType.getLayerType(
-                    RasterImageLayerType.class.getName());
+            final RasterImageLayerType type = LayerType.getLayerType(RasterImageLayerType.class);
             layer = type.createLayer(getRaster(), bandImageMultiLevelSource);
         } else {
-            final RgbImageLayerType type = (RgbImageLayerType) LayerType.getLayerType(
-                    RgbImageLayerType.class.getName());
+            final RgbImageLayerType type = LayerType.getLayerType(RgbImageLayerType.class);
             layer = type.createLayer(getRasters(), bandImageMultiLevelSource);
         }
 
@@ -310,7 +308,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private Layer createNoDataLayer(AffineTransform imageToModelTransform) {
-        final LayerType noDatatype = LayerType.getLayerType(NoDataLayerType.class.getName());
+        final LayerType noDatatype = LayerType.getLayerType(NoDataLayerType.class);
         final ValueContainer configTemplate = noDatatype.getConfigurationTemplate();
 
         final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
@@ -322,7 +320,7 @@ public class ProductSceneImage implements LayerContext {
 
     @Deprecated
     private Layer createBitmaskCollectionLayer(AffineTransform i2mTransform) {
-        final LayerType bitmaskCollectionType = LayerType.getLayerType(BitmaskCollectionLayer.Type.class.getName());
+        final LayerType bitmaskCollectionType = LayerType.getLayerType(BitmaskCollectionLayer.Type.class);
         final ValueContainer layerConfig = bitmaskCollectionType.getConfigurationTemplate();
         layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_RASTER, getRaster());
         layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
@@ -349,7 +347,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private FigureLayer createFigureLayer(AffineTransform i2mTransform) {
-        final LayerType figureType = LayerType.getLayerType(FigureLayerType.class.getName());
+        final LayerType figureType = LayerType.getLayerType(FigureLayerType.class);
         final ValueContainer template = figureType.getConfigurationTemplate();
         template.setValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST, new ArrayList<Figure>());
         template.setValue(FigureLayer.PROPERTY_NAME_TRANSFORM, i2mTransform);
@@ -406,7 +404,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private ImageLayer createRoiLayer(AffineTransform imageToModelTransform) {
-        final LayerType roiLayerType = LayerType.getLayerType(RoiLayerType.class.getName());
+        final LayerType roiLayerType = LayerType.getLayerType(RoiLayerType.class);
 
         final Color color = configuration.getPropertyColor(RoiLayerType.PROPERTY_NAME_COLOR, Color.RED);
         final double transparency = configuration.getPropertyDouble(RoiLayerType.PROPERTY_NAME_TRANSPARENCY, 0.5);
@@ -420,7 +418,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private GraticuleLayer createGraticuleLayer(AffineTransform i2mTransform) {
-        final LayerType layerType = LayerType.getLayerType(GraticuleLayerType.class.getName());
+        final LayerType layerType = LayerType.getLayerType(GraticuleLayerType.class);
         final ValueContainer template = layerType.getConfigurationTemplate();
         template.setValue(GraticuleLayerType.PROPERTY_NAME_RASTER, getRaster());
         template.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM, i2mTransform);

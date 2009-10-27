@@ -20,7 +20,7 @@ public class PlacemarkLayerConfigurationPersistencyTest extends AbstractLayerCon
     private Product product;
 
     public PlacemarkLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(PlacemarkLayerType.class.getName()));
+        super(LayerType.getLayerType(PlacemarkLayerType.class));
     }
 
     @Before

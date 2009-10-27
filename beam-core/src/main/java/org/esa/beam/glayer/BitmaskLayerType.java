@@ -34,7 +34,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
 
     public static Layer createBitmaskLayer(RasterDataNode raster, final BitmaskDef bitmaskDef,
                                            AffineTransform i2mTransform) {
-        final LayerType type = LayerType.getLayerType(BitmaskLayerType.class.getName());
+        final LayerType type = LayerType.getLayerType(BitmaskLayerType.class);
         final ValueContainer configuration = type.getConfigurationTemplate();
         configuration.setValue(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF, bitmaskDef);
         configuration.setValue(BitmaskLayerType.PROPERTY_NAME_PRODUCT, raster.getProduct());

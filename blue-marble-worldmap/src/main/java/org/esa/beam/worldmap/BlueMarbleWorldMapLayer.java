@@ -16,7 +16,7 @@ public class BlueMarbleWorldMapLayer extends ImageLayer {
     private static final String WORLD_MAP_LAYER_NAME = "World Map (NASA Blue Marble)";
 
     BlueMarbleWorldMapLayer(ValueContainer multiLevelSource) {
-        super((Type) LayerType.getLayerType(BlueMarbleLayerType.class.getName()), multiLevelSource);
+        super(LayerType.getLayerType(BlueMarbleLayerType.class), multiLevelSource);
 
         setName(WORLD_MAP_LAYER_NAME);
         setVisible(true);

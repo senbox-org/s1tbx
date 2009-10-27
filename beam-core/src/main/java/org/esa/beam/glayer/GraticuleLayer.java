@@ -46,7 +46,7 @@ import java.beans.PropertyChangeEvent;
 public class GraticuleLayer extends Layer {
 
     private static final GraticuleLayerType LAYER_TYPE = (GraticuleLayerType) LayerType.getLayerType(
-            GraticuleLayerType.class.getName());
+            GraticuleLayerType.class);
 
     private RasterDataNode raster;
     private final AffineTransform i2mTransform;

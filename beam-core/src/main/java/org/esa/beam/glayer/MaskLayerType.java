@@ -35,7 +35,7 @@ public class MaskLayerType extends ImageLayer.Type {
     }
 
     public static Layer createLayer(RasterDataNode raster, Mask mask) {
-        LayerType type = LayerType.getLayerType(MaskLayerType.class.getName());
+        LayerType type = LayerType.getLayerType(MaskLayerType.class);
         ValueContainer configuration = type.getConfigurationTemplate();
         configuration.setValue(MaskLayerType.PROPERTY_NAME_MASK, mask);
         Layer layer = type.createLayer(null, configuration);

@@ -170,7 +170,7 @@ public class ProductsToolView extends AbstractToolView {
                 return;
             }
             if (clickCount == 2) {
-                LayerType flt = LayerType.getLayerType(FeatureLayerType.class.getName());
+                LayerType flt = LayerType.getLayerType(FeatureLayerType.class);
 
                 final ValueContainer conf = flt.getConfigurationTemplate();
                 final StyleBuilder builder = new StyleBuilder();

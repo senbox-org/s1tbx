@@ -268,8 +268,7 @@ public class SessionTest extends TestCase {
         graticuleLayer.setVisible(true);
         sceneViewD.getRootLayer().getChildren().add(graticuleLayer);
 
-        final BitmaskCollectionLayer.Type type = (BitmaskCollectionLayer.Type) LayerType.getLayerType(
-                BitmaskCollectionLayer.Type.class.getName());
+        final BitmaskCollectionLayer.Type type = LayerType.getLayerType(BitmaskCollectionLayer.Type.class);
         final ValueContainer template = type.getConfigurationTemplate();
         template.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_RASTER, bandD);
         template.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, new AffineTransform());

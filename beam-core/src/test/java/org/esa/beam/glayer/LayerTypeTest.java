@@ -19,7 +19,7 @@ public abstract class LayerTypeTest {
     }
 
     public LayerType getLayerType() {
-        return LayerType.getLayerType(getLayerTypeClass().getName());
+        return LayerType.getLayerType(getLayerTypeClass());
     }
 
     @Test

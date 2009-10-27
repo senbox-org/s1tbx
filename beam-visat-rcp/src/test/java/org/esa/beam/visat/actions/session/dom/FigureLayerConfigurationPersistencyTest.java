@@ -19,7 +19,7 @@ import java.util.Map;
 public class FigureLayerConfigurationPersistencyTest extends AbstractLayerConfigurationPersistencyTest {
 
     public FigureLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(FigureLayerType.class.getName()));
+        super(LayerType.getLayerType(FigureLayerType.class));
     }
 
     @Override

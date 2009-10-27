@@ -23,7 +23,7 @@ public class PlacemarkLayerTest extends TestCase {
         final PinDescriptor pmd = PinDescriptor.INSTANCE;
         final AffineTransform i2m = new AffineTransform();
 
-        final LayerType type = LayerType.getLayerType(PlacemarkLayerType.class.getName());
+        final LayerType type = LayerType.getLayerType(PlacemarkLayerType.class);
         final ValueContainer template = type.getConfigurationTemplate();
         template.setValue("product", product);
         template.setValue("placemarkDescriptor", pmd);

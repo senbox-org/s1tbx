@@ -27,8 +27,7 @@ import java.util.Collection;
 
 public class PlacemarkLayer extends Layer {
 
-    private static final PlacemarkLayerType LAYER_TYPE = (PlacemarkLayerType) LayerType.getLayerType(
-            PlacemarkLayerType.class.getName());
+    private static final PlacemarkLayerType LAYER_TYPE = (PlacemarkLayerType) LayerType.getLayerType(PlacemarkLayerType.class);
 
     public static final String PROPERTY_NAME_TEXT_FONT = "text.font";
     public static final String PROPERTY_NAME_TEXT_ENABLED = "text.enabled";

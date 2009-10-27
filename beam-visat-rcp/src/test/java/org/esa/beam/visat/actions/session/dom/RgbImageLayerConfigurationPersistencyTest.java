@@ -12,7 +12,7 @@ import java.awt.geom.AffineTransform;
 public class RgbImageLayerConfigurationPersistencyTest extends AbstractLayerConfigurationPersistencyTest {
 
     public RgbImageLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(RgbImageLayerType.class.getName()));
+        super(LayerType.getLayerType(RgbImageLayerType.class));
     }
 
     @Override

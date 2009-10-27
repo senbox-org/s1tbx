@@ -19,7 +19,7 @@ public class NoDataLayerConfigurationPersistencyTest extends AbstractLayerConfig
     private RasterDataNode raster;
 
     public NoDataLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(NoDataLayerType.class.getName()));
+        super(LayerType.getLayerType(NoDataLayerType.class));
     }
 
     @Before

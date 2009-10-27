@@ -18,7 +18,7 @@ public class BitmaskLayerConfigurationPersistencyTest extends AbstractLayerConfi
     private BitmaskDef bitmaskDef;
 
     public BitmaskLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(BitmaskLayerType.class.getName()));
+        super(LayerType.getLayerType(BitmaskLayerType.class));
     }
 
     @Before
