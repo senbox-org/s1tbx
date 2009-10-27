@@ -65,18 +65,18 @@ public abstract class AbstractRasterDataNodeTest extends AbstractDataNodeTest {
         node.setValidPixelExpression(initialExpression);
         final int width = node.getSceneRasterWidth();
         final int height = node.getSceneRasterHeight();
-        final boolean[] isActiv = {false};
+        final boolean[] isActive = {false};
         final Product product = new Product("n", "t", width, height) {
             @Override
             protected void fireNodeAdded(ProductNode sourceNode) {
-                if (isActiv[0]) {
+                if (isActive[0]) {
                     fail("Event not expected.");
                 }
             }
 
             @Override
             protected void fireNodeChanged(ProductNode sourceNode, String propertyName, Object oldValue) {
-                if (isActiv[0] && !ProductNode.PROPERTY_NAME_MODIFIED.equalsIgnoreCase(propertyName)
+                if (isActive[0]
                 && !RasterDataNode.PROPERTY_NAME_ROI_DEFINITION.equalsIgnoreCase(propertyName)) {
                     fail("Event for property '" + propertyName + "' not expected.");
                 }
@@ -84,14 +84,14 @@ public abstract class AbstractRasterDataNodeTest extends AbstractDataNodeTest {
 
             @Override
             protected void fireNodeDataChanged(DataNode sourceNode) {
-                if (isActiv[0]) {
+                if (isActive[0]) {
                     fail("Event not expected.");
                 }
             }
 
             @Override
             protected void fireNodeRemoved(ProductNode sourceNode) {
-                if (isActiv[0]) {
+                if (isActive[0]) {
                     fail("Event not expected.");
                 }
             }
@@ -101,13 +101,13 @@ public abstract class AbstractRasterDataNodeTest extends AbstractDataNodeTest {
         assertFalse(node.isModified());
         assertEquals(initialExpression, node.getValidPixelExpression());
 
-        isActiv[0] = true;
+        isActive[0] = true;
         node.updateExpression(oldIdentifier, newIdentifier);
         assertTrue(node.isModified());
         assertEquals(renamedExpression, node.getValidPixelExpression());
     }
 
-    private void addRasterDataNodeToProduct(final Product product, final RasterDataNode rasterDataNode) {
+    private static void addRasterDataNodeToProduct(final Product product, final RasterDataNode rasterDataNode) {
         if (rasterDataNode instanceof Band) {
             product.addBand((Band) rasterDataNode);
         } else if (rasterDataNode instanceof TiePointGrid) {

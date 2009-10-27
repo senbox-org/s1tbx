@@ -42,7 +42,6 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,7 +51,7 @@ public class ProductTest extends TestCase {
     private static final int _sceneWidth = 20;
     private static final int _sceneHeight = 30;
 
-    private Product _product;
+    private Product product;
 
     public ProductTest(String testName) {
         super(testName);
@@ -67,26 +66,27 @@ public class ProductTest extends TestCase {
      */
     @Override
     protected void setUp() {
-        _product = new Product("product", _prodType, _sceneWidth, _sceneHeight);
-        _product.setModified(false);
+        product = new Product("product", _prodType, _sceneWidth, _sceneHeight);
+        product.setModified(false);
     }
 
     public void testAcceptVisitor() {
         LinkedListProductVisitor visitor = new LinkedListProductVisitor();
-        List<String> expectedList = new LinkedList<String>();
-        assertEquals(expectedList, visitor.getVisitedList());
-
-        _product.acceptVisitor(visitor);
-        expectedList.add("masks");
-        expectedList.add("flag_codings");
-        expectedList.add("index_codings");
-        expectedList.add("vector_data");
-        expectedList.add("metadata");
-        expectedList.add("product");
-        assertEquals(expectedList, visitor.getVisitedList());
+        product.acceptVisitor(visitor);
+        List<String> visitedList = visitor.getVisitedList();
+    
+        assertEquals(true, visitedList.contains("bandGroup"));
+        assertEquals(true, visitedList.contains("tiePointGridGroup"));
+        assertEquals(true, visitedList.contains("bitmaskDefGroup"));
+        assertEquals(true, visitedList.contains("maskGroup"));
+        assertEquals(true, visitedList.contains("indexCodingGroup"));
+        assertEquals(true, visitedList.contains("flagCodingGroup"));
+        assertEquals(true, visitedList.contains("pinGroup"));
+        assertEquals(true, visitedList.contains("gcpGroup"));
+        assertEquals(true, visitedList.contains("vectorDataGroup"));
 
         try {
-            _product.acceptVisitor(null);
+            product.acceptVisitor(null);
             fail("Null argument for visitor not allowed");
         } catch (IllegalArgumentException ignored) {
         }
@@ -94,9 +94,9 @@ public class ProductTest extends TestCase {
 
     public void testAddProductNodeListener() {
         ProductNodeListener listener = new DummyProductNodeListener();
-        assertEquals("addProductNodeListener null", false, _product.addProductNodeListener(null));
-        assertEquals("addProductNodeListener", true, _product.addProductNodeListener(listener));
-        assertEquals("addProductNodeListener contained listener", false, _product.addProductNodeListener(listener));
+        assertEquals("addProductNodeListener null", false, product.addProductNodeListener(null));
+        assertEquals("addProductNodeListener", true, product.addProductNodeListener(listener));
+        assertEquals("addProductNodeListener contained listener", false, product.addProductNodeListener(listener));
     }
 
     public void testFireNodeAdded() {
@@ -142,20 +142,20 @@ public class ProductTest extends TestCase {
     }
 
     public void testAddBandWithBandParameters() {
-        assertEquals(0, _product.getNumBands());
-        assertEquals(0, _product.getBandNames().length);
-        assertNull(_product.getBand("band1"));
-        assertEquals(false, _product.containsBand("band1"));
+        assertEquals(0, product.getNumBands());
+        assertEquals(0, product.getBandNames().length);
+        assertNull(product.getBand("band1"));
+        assertEquals(false, product.containsBand("band1"));
 
-        _product.addBand(new Band("band1", ProductData.TYPE_FLOAT32, _sceneWidth, _sceneHeight));
+        product.addBand(new Band("band1", ProductData.TYPE_FLOAT32, _sceneWidth, _sceneHeight));
 
-        assertEquals(1, _product.getNumBands());
-        assertEquals("band1", _product.getBandNames()[0]);
-        assertEquals(true, _product.containsBand("band1"));
-        assertNotNull(_product.getBandAt(0));
-        assertEquals("band1", _product.getBandAt(0).getName());
-        assertNotNull(_product.getBand("band1"));
-        assertEquals("band1", _product.getBand("band1").getName());
+        assertEquals(1, product.getNumBands());
+        assertEquals("band1", product.getBandNames()[0]);
+        assertEquals(true, product.containsBand("band1"));
+        assertNotNull(product.getBandAt(0));
+        assertEquals("band1", product.getBandAt(0).getName());
+        assertNotNull(product.getBand("band1"));
+        assertEquals("band1", product.getBand("band1").getName());
     }
 
     /**
@@ -358,10 +358,10 @@ public class ProductTest extends TestCase {
     }
 
     public void testGetAndSetRefNo() {
-        assertEquals(0, _product.getRefNo());
+        assertEquals(0, product.getRefNo());
 
         try {
-            _product.setRefNo(0);
+            product.setRefNo(0);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ignored) {
             // expectet if value out of range
@@ -370,16 +370,16 @@ public class ProductTest extends TestCase {
         }
 
         try {
-            _product.setRefNo(14);
+            product.setRefNo(14);
         } catch (IllegalArgumentException ignored) {
             fail("IllegalArgumentException not expected");
         } catch (IllegalStateException ignored) {
             fail("IllegalStateException not expected");
         }
-        assertEquals(14, _product.getRefNo());
+        assertEquals(14, product.getRefNo());
 
         try {
-            _product.setRefNo(23);
+            product.setRefNo(23);
             fail("IllegalStateException expected");
         } catch (IllegalArgumentException ignored) {
             fail("IllegalArgumentException not expected");
@@ -389,7 +389,7 @@ public class ProductTest extends TestCase {
 
         // no exception expected when the reference number to be set is the same as the one already set
         try {
-            _product.setRefNo(14);
+            product.setRefNo(14);
         } catch (IllegalArgumentException ignored) {
             fail("IllegalArgumentException not expected");
         } catch (IllegalStateException ignored) {
@@ -400,47 +400,47 @@ public class ProductTest extends TestCase {
 
     public void testModifiedProperty() {
 
-        assertEquals("product should be initially un-modified", false, _product.isModified());
-        _product.setModified(true);
-        assertEquals(true, _product.isModified());
-        _product.setModified(false);
-        assertEquals(false, _product.isModified());
+        assertEquals("product should be initially un-modified", false, product.isModified());
+        product.setModified(true);
+        assertEquals(true, product.isModified());
+        product.setModified(false);
+        assertEquals(false, product.isModified());
     }
 
     public void testModifiedFlagAfterBandHasBeenAddedAndRemoved() {
 
         Band band = new Band("band1", ProductData.TYPE_FLOAT32, _sceneWidth, _sceneHeight);
 
-        assertEquals(null, _product.getBand("band1"));
+        assertEquals(null, product.getBand("band1"));
 
         //
-        _product.addBand(band);
-        assertEquals(band, _product.getBand("band1"));
-        assertEquals("added band, modified flag should be set", true, _product.isModified());
-        _product.setModified(false);
+        product.addBand(band);
+        assertEquals(band, product.getBand("band1"));
+        assertEquals("added band, modified flag should be set", true, product.isModified());
+        product.setModified(false);
 
-        _product.removeBand(band);
-        assertEquals(null, _product.getBand("band1"));
-        assertEquals("removed band, modified flag should be set", true, _product.isModified());
+        product.removeBand(band);
+        assertEquals(null, product.getBand("band1"));
+        assertEquals("removed band, modified flag should be set", true, product.isModified());
     }
 
     public void testModifiedFlagAfterBandHasBeenModified() {
 
         Band band = new Band("band1", ProductData.TYPE_FLOAT32, _sceneWidth, _sceneHeight);
-        _product.addBand(band);
-        _product.setModified(false);
+        product.addBand(band);
+        product.setModified(false);
 
         band.setData(ProductData.createInstance(new float[_sceneWidth * _sceneHeight]));
-        assertEquals("data initialized, modified flag should not be set", false, _product.isModified());
+        assertEquals("data initialized, modified flag should not be set", false, product.isModified());
 
         band.setData(ProductData.createInstance(new float[_sceneWidth * _sceneHeight]));
-        assertEquals("data modified, modified flag should be set", true, _product.isModified());
+        assertEquals("data modified, modified flag should be set", true, product.isModified());
 
         band.setModified(false);
-        _product.setModified(false);
+        product.setModified(false);
 
         band.setData(null);
-        assertEquals("data set to null, modified flag should be set", true, _product.isModified());
+        assertEquals("data set to null, modified flag should be set", true, product.isModified());
     }
 
     public void testModifiedFlagDelegation() {
@@ -448,24 +448,24 @@ public class ProductTest extends TestCase {
         Band band1 = new Band("band1", ProductData.TYPE_FLOAT32, _sceneWidth, _sceneHeight);
         Band band2 = new Band("band2", ProductData.TYPE_FLOAT32, _sceneWidth, _sceneHeight);
 
-        _product.addBand(band1);
-        _product.addBand(band2);
-        _product.setModified(false);
+        product.addBand(band1);
+        product.addBand(band2);
+        product.setModified(false);
 
         band1.setModified(true);
         assertEquals(true, band1.isModified());
         assertEquals(false, band2.isModified());
-        assertEquals(true, _product.isModified());
+        assertEquals(true, product.isModified());
 
         band2.setModified(true);
         assertEquals(true, band1.isModified());
         assertEquals(true, band2.isModified());
-        assertEquals(true, _product.isModified());
+        assertEquals(true, product.isModified());
 
-        _product.setModified(false);
+        product.setModified(false);
         assertEquals(false, band1.isModified());
         assertEquals(false, band2.isModified());
-        assertEquals(false, _product.isModified());
+        assertEquals(false, product.isModified());
     }
 
     public void testSetGeocoding() {

@@ -31,10 +31,8 @@ import org.esa.beam.util.ObjectUtils;
  */
 public abstract class ProductNode {
 
-    public final static String PROPERTY_NAME_OWNER = "owner";
     public final static String PROPERTY_NAME_NAME = "name";
     public final static String PROPERTY_NAME_DESCRIPTION = "description";
-    public final static String PROPERTY_NAME_MODIFIED = "modified";
     public final static String PROPERTY_NAME_SELECTED = "selected";
 
     private transient Product product;
@@ -82,8 +80,6 @@ public abstract class ProductNode {
         if (owner != this.owner) {
             this.owner = owner;
             product = null;
-            fireProductNodeChanged(PROPERTY_NAME_OWNER);
-            setModified(true);
         }
     }
 
@@ -114,18 +110,8 @@ public abstract class ProductNode {
             if (!isValidNodeName(trimmedName)) {
                 throw new IllegalArgumentException("The given name '" + trimmedName + "' is not a valid node name.");
             }
-            additionalNameCheck(trimmedName);
             setNodeName(trimmedName);
         }
-    }
-
-    /**
-     * @param trimmedName The trimmed name.
-     *
-     * @deprecated Since 4.1. Don't use this anymore.
-     */
-    @Deprecated
-    protected void additionalNameCheck(String trimmedName) {
     }
 
     private void setNodeName(String trimmedName) {
@@ -180,15 +166,14 @@ public abstract class ProductNode {
      * @see org.esa.beam.framework.datamodel.Product#fireNodeChanged
      */
     public void setModified(boolean modified) {
-        boolean oldValue = this.modified;
-        if (oldValue != modified) {
+        boolean oldState = this.modified;
+        if (oldState != modified) {
             this.modified = modified;
-            if (this.modified) {
-                if (getOwner() != null) {
-                    getOwner().setModified(true);
-                }
+
+            // If this node is modified, the owner is also modified.
+            if (this.modified && getOwner() != null) {
+                getOwner().setModified(true);
             }
-            fireProductNodeChanged(PROPERTY_NAME_MODIFIED);
         }
     }
 
@@ -242,14 +227,18 @@ public abstract class ProductNode {
      */
     public Product getProduct() {
         if (product == null) {
-            ProductNode owner = this;
-            do {
-                if (owner instanceof Product) {
-                    product = (Product) owner;
-                    break;
+            synchronized (this) {
+                if (product == null) {
+                    ProductNode owner = this;
+                    do {
+                        if (owner instanceof Product) {
+                            product = (Product) owner;
+                            break;
+                        }
+                        owner = owner.getOwner();
+                    } while (owner != null);
                 }
-                owner = owner.getOwner();
-            } while (owner != null);
+            }
         }
         return product;
     }
@@ -385,65 +374,6 @@ public abstract class ProductNode {
     public void updateExpression(final String oldExternalName, final String newExternalName) {
     }
 
-    /**
-     * Utility method which adds the given node tho the supplied node list.
-     * <p/>
-     * <p>Note that this method automatically sets the owner of the given <code>node</code> to this node instance.
-     * Therefore this method should only be called on <code>ProductNode</code>s which own the given
-     * <code>nodeList</code>
-     * <p/>
-     * <p>If the given node has already a parent product, it's modified flag is set and a 'NodeAdded' event is fired.
-     *
-     * @param node     the node to be added
-     * @param nodeList the node list to which to add the node
-     *
-     * @see #removeNamedNode
-     */
-    protected void addNamedNode(ProductNode node, ProductNodeList nodeList) {
-        if (node != null && nodeList != null) {
-            nodeList.add(node);
-            node.setOwner(this);
-            Product product = getProduct();
-            if (product != null) {
-                product.fireNodeAdded(node);
-            }
-            setModified(true);
-        }
-    }
-
-    /**
-     * Utility method which removes  the given node tho the supplied node list. The method fires a 'NodeRemoved' event.
-     * <p/>
-     * <p>Note that this method automatically sets the owner of the given <code>node</code> to <code>null</code>.
-     * Therefore this method should only be called on <code>ProductNode</code>s which own the given
-     * <code>nodeList</code>
-     * <p/>
-     * <p>If the given node has already a parent product and the given node could be removed, the node's modified flag
-     * is set and a 'NodeRemoved' event is fired.
-     *
-     * @param node     the node to be removed
-     * @param nodeList the node list from which to remove the node
-     *
-     * @return <code>true</code> if the node has been removed
-     *
-     * @see #addNamedNode
-     */
-    protected boolean removeNamedNode(ProductNode node, ProductNodeList nodeList) {
-        boolean removed = false;
-        if (node != null && nodeList != null) {
-            removed = nodeList.remove(node);
-            if (removed) {
-                Product product = getProduct();
-                if (product != null) {
-                    product.setModified(true);
-                    product.fireNodeRemoved(node);
-                }
-                node.setOwner(null);
-            }
-        }
-        return removed;
-    }
-
     public void fireProductNodeChanged(final String propertyName) {
         fireProductNodeChanged(propertyName, null);
     }
@@ -489,6 +419,22 @@ public abstract class ProductNode {
     public void removeFromFile(ProductWriter productWriter) {
     }
 
+    /////////////////////////////////////////////////////////////////////////
+    // Deprecated API
+
+    /**
+     * @deprecated since BEAM 4.7, not used anymore
+     */
+    @Deprecated
+    public final static String PROPERTY_NAME_OWNER = "owner";
+
+    /**
+     * @deprecated since BEAM 4.7, not used anymore
+     */
+    @Deprecated
+    public final static String PROPERTY_NAME_MODIFIED = "modified";
+
+
     /**
      * No API - don't use.
      *
@@ -515,6 +461,70 @@ public abstract class ProductNode {
             fireProductNodeChanged(PROPERTY_NAME_SELECTED);
         }
     }
+
+    /**
+     * Utility method which adds the given node tho the supplied node list.
+     * <p/>
+     * <p>Note that this method automatically sets the owner of the given <code>node</code> to this node instance.
+     * Therefore this method should only be called on <code>ProductNode</code>s which own the given
+     * <code>nodeList</code>
+     * <p/>
+     * <p>If the given node has already a parent product, it's modified flag is set and a 'NodeAdded' event is fired.
+     *
+     * @param node     the node to be added
+     * @param nodeList the node list to which to add the node
+     *
+     * @see #removeNamedNode
+     * @deprecated since BEAM 4.7, don't use anymore
+     */
+    @Deprecated
+    protected void addNamedNode(ProductNode node, ProductNodeList nodeList) {
+        if (node != null && nodeList != null) {
+            nodeList.add(node);
+            node.setOwner(this);
+            Product product = getProduct();
+            if (product != null) {
+                product.fireNodeAdded(node);
+            }
+            setModified(true);
+        }
+    }
+
+    /**
+     * Utility method which removes  the given node tho the supplied node list. The method fires a 'NodeRemoved' event.
+     * <p/>
+     * <p>Note that this method automatically sets the owner of the given <code>node</code> to <code>null</code>.
+     * Therefore this method should only be called on <code>ProductNode</code>s which own the given
+     * <code>nodeList</code>
+     * <p/>
+     * <p>If the given node has already a parent product and the given node could be removed, the node's modified flag
+     * is set and a 'NodeRemoved' event is fired.
+     *
+     * @param node     the node to be removed
+     * @param nodeList the node list from which to remove the node
+     *
+     * @return <code>true</code> if the node has been removed
+     *
+     * @see #addNamedNode
+     * @deprecated since BEAM 4.7, don't use anymore
+     */
+    @Deprecated
+    protected boolean removeNamedNode(ProductNode node, ProductNodeList nodeList) {
+        boolean removed = false;
+        if (node != null && nodeList != null) {
+            removed = nodeList.remove(node);
+            if (removed) {
+                Product product = getProduct();
+                if (product != null) {
+                    product.setModified(true);
+                    product.fireNodeRemoved(node);
+                }
+                node.setOwner(null);
+            }
+        }
+        return removed;
+    }
+
 }
 
 

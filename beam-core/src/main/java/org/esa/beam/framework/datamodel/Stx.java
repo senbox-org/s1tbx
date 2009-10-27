@@ -312,25 +312,25 @@ public class Stx {
                                                           dataImage.getWidth(), dataImage.getHeight()).intersection(
                                 dataTile.getBounds());
                         switch (dataAccessor.sampleType) {
-                        case PixelAccessor.TYPE_BIT:
-                        case DataBuffer.TYPE_BYTE:
-                            op.accumulateDataUByte(dataAccessor, dataTile, maskAccessor, maskTile, r);
-                            break;
-                        case DataBuffer.TYPE_USHORT:
-                            op.accumulateDataUShort(dataAccessor, dataTile, maskAccessor, maskTile, r);
-                            break;
-                        case DataBuffer.TYPE_SHORT:
-                            op.accumulateDataShort(dataAccessor, dataTile, maskAccessor, maskTile, r);
-                            break;
-                        case DataBuffer.TYPE_INT:
-                            op.accumulateDataInt(dataAccessor, dataTile, maskAccessor, maskTile, r);
-                            break;
-                        case DataBuffer.TYPE_FLOAT:
-                            op.accumulateDataFloat(dataAccessor, dataTile, maskAccessor, maskTile, r);
-                            break;
-                        case DataBuffer.TYPE_DOUBLE:
-                            op.accumulateDataDouble(dataAccessor, dataTile, maskAccessor, maskTile, r);
-                            break;
+                            case PixelAccessor.TYPE_BIT:
+                            case DataBuffer.TYPE_BYTE:
+                                op.accumulateDataUByte(dataAccessor, dataTile, maskAccessor, maskTile, r);
+                                break;
+                            case DataBuffer.TYPE_USHORT:
+                                op.accumulateDataUShort(dataAccessor, dataTile, maskAccessor, maskTile, r);
+                                break;
+                            case DataBuffer.TYPE_SHORT:
+                                op.accumulateDataShort(dataAccessor, dataTile, maskAccessor, maskTile, r);
+                                break;
+                            case DataBuffer.TYPE_INT:
+                                op.accumulateDataInt(dataAccessor, dataTile, maskAccessor, maskTile, r);
+                                break;
+                            case DataBuffer.TYPE_FLOAT:
+                                op.accumulateDataFloat(dataAccessor, dataTile, maskAccessor, maskTile, r);
+                                break;
+                            case DataBuffer.TYPE_DOUBLE:
+                                op.accumulateDataDouble(dataAccessor, dataTile, maskAccessor, maskTile, r);
+                                break;
                         }
                     }
                     pm.worked(1);

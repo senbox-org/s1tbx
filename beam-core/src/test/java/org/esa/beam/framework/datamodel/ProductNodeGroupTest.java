@@ -2,32 +2,15 @@ package org.esa.beam.framework.datamodel;
 
 import junit.framework.TestCase;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class ProductNodeGroupTest extends TestCase {
-    String s = "";
 
     public void testAddRemoveAreObservable() {
         Product p = new Product("p", "t", 10, 10);
-        p.addProductNodeListener(new ProductNodeListener() {
-            public void nodeChanged(ProductNodeEvent event) {
-            }
 
-            public void nodeDataChanged(ProductNodeEvent event) {
-            }
+        assertEquals(false, p.isModified());
 
-            public void nodeAdded(ProductNodeEvent event) {
-                s += "+"+event.getSourceNode().getName() + ";";
-            }
-
-            public void nodeRemoved(ProductNodeEvent event) {
-                s += "-"+event.getSourceNode().getName() + ";";
-            }
-        });
+        PNL listener = new PNL();
+        p.addProductNodeListener(listener);
         ProductNodeGroup<Pin> pinGroup = p.getPinGroup();
 
         assertNotNull(pinGroup);
@@ -42,8 +25,14 @@ public class ProductNodeGroupTest extends TestCase {
         pinGroup.add(pin1);
         pinGroup.add(pin2);
         pinGroup.add(pin3);
+        assertEquals(true, p.isModified());
         assertEquals(3, pinGroup.getNodeCount());
-        assertEquals("+p1;+p2;+p3;", s);
+        assertEquals("+p1;+p2;+p3;", listener.trace);
+        listener.trace = "";
+
+        p.setModified(false);
+        assertEquals(false, p.isModified());
+        assertEquals("", listener.trace);
 
         assertSame(pin1, pinGroup.get(0));
         assertSame(pin2, pinGroup.get(1));
@@ -53,11 +42,79 @@ public class ProductNodeGroupTest extends TestCase {
         pinGroup.remove(pin2);
         pinGroup.remove(pin3);
         assertEquals(0, pinGroup.getNodeCount());
-        assertEquals("+p1;+p2;+p3;-p1;-p2;-p3;", s);
+        assertEquals("-p1;-p2;-p3;", listener.trace);
+        listener.trace = "";
 
         p.addBand("b1", ProductData.TYPE_FLOAT32);
-        assertEquals("+p1;+p2;+p3;-p1;-p2;-p3;+b1;", s);
+        p.addBand("b2", ProductData.TYPE_INT8);
+        p.addBand("b3", ProductData.TYPE_FLOAT32);
+        assertEquals("+b1;+b2;+b3;", listener.trace);
+        listener.trace = "";
 
+        p.setModified(false);
+        assertEquals(false, p.isModified());
+        assertEquals("", listener.trace);
+
+        p.getBand("b2").setUnit("m/s");
+        assertEquals("c:b2.unit;", listener.trace);
+        listener.trace = "";
+
+        assertEquals(true, p.isModified());
+
+        p.removeBand(p.getBand("b1"));
+        p.removeBand(p.getBand("b2"));
+        p.removeBand(p.getBand("b3"));
+
+        assertEquals("-b1;-b2;-b3;", listener.trace);
+        listener.trace = "";
     }
 
+    public void testOwnership() {
+        MetadataElement root = new MetadataElement("root");
+        MetadataElement child = new MetadataElement("child");
+
+        ProductNodeGroup<MetadataElement> referencingGroup = new ProductNodeGroup<MetadataElement>(null, "metadataElements", false);
+        child.setOwner(root);
+        assertSame(root, child.getOwner());
+        referencingGroup.add(child);
+        assertEquals(true, referencingGroup.contains(child));
+        assertSame(root, child.getOwner());
+        referencingGroup.remove(child);
+        assertEquals(false, referencingGroup.contains(child));
+        assertSame(root, child.getOwner());
+
+        ProductNodeGroup<MetadataElement> owningGroup = new ProductNodeGroup<MetadataElement>(null, "metadataElements", true);
+        child.setOwner(root);
+        assertSame(root, child.getOwner());
+        owningGroup.add(child);
+        assertEquals(true, owningGroup.contains(child));
+        assertSame(owningGroup, child.getOwner());
+        owningGroup.remove(child);
+        assertEquals(false, owningGroup.contains(child));
+        assertSame(null, child.getOwner());
+    }
+
+    private static class PNL implements ProductNodeListener {
+        String trace = "";
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            trace += "c:" + event.getSourceNode().getName() + "." + event.getPropertyName() + ";";
+        }
+
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+            trace += "dc:" + event.getSourceNode().getName() + ";";
+        }
+
+        @Override
+        public void nodeAdded(ProductNodeEvent event) {
+            trace += "+" + event.getSourceNode().getName() + ";";
+        }
+
+        @Override
+        public void nodeRemoved(ProductNodeEvent event) {
+            trace += "-" + event.getSourceNode().getName() + ";";
+        }
+    }
 }

@@ -65,33 +65,33 @@ public class VirtualBandTest extends AbstractRasterDataNodeTest {
         final String renamedExpression = "identifier_1 + newIdentifier - identifier_3";
         final VirtualBand virtualBand = new VirtualBand("vb", ProductData.TYPE_UINT16, 10, 10, initialExpression);
 
-        final boolean[] isActiv = new boolean[]{false};
+        final boolean[] isActive = new boolean[]{false};
         final Product product = new Product("prod", "NO_TYPE", 10, 10) {
 
             @Override
             protected void fireNodeChanged(ProductNode sourceNode, String propertyName, Object oldValue) {
-                if (isActiv[0] && !propertyName.equalsIgnoreCase(Product.PROPERTY_NAME_MODIFIED)) {
+                if (isActive[0]) {
                     fail("Event '" + propertyName + "' not expected");
                 }
             }
 
             @Override
             protected void fireNodeAdded(ProductNode sourceNode) {
-                if (isActiv[0]) {
+                if (isActive[0]) {
                     fail("Event not expected");
                 }
             }
 
             @Override
             protected void fireNodeDataChanged(DataNode sourceNode) {
-                if (isActiv[0]) {
+                if (isActive[0]) {
                     fail("Event not expected");
                 }
             }
 
             @Override
             protected void fireNodeRemoved(ProductNode sourceNode) {
-                if (isActiv[0]) {
+                if (isActive[0]) {
                     fail("Event not expected");
                 }
             }
@@ -102,7 +102,7 @@ public class VirtualBandTest extends AbstractRasterDataNodeTest {
         assertFalse(virtualBand.isModified());
         assertEquals(initialExpression, virtualBand.getExpression());
 
-        isActiv[0] = true;
+        isActive[0] = true;
         virtualBand.updateExpression(oldIdentifier, newIdentifier);
         assertEquals(renamedExpression, virtualBand.getExpression());
         assertTrue(virtualBand.isModified());

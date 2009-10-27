@@ -22,7 +22,7 @@ public class MaskTest {
         ValueContainer imageConfig = mask.getImageConfig();
         assertNotNull(imageConfig);
         assertEquals(Color.RED, mask.getImageConfig().getValue("color"));
-        assertEquals(0.5f, mask.getImageConfig().getValue("transparency"));
+        assertEquals(0.5, mask.getImageConfig().getValue("transparency"));
         MultiLevelImage image = mask.getSourceImage();
         assertNotNull(image);
         assertSame(image, mask.getGeophysicalImage());
@@ -34,7 +34,7 @@ public class MaskTest {
         Mask.ImageType type = new NullImageType();
         ValueContainer imageConfig = type.createImageConfig();
         assertEquals(Color.RED, imageConfig.getValue("color"));
-        assertEquals(0.5f, imageConfig.getValue("transparency"));
+        assertEquals(0.5, imageConfig.getValue("transparency"));
     }
 
     private static class NullImageType extends Mask.ImageType {

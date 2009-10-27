@@ -140,16 +140,12 @@ public class Product extends ProductNode {
     private ProductData.UTC endTime;
 
     private final MetadataElement metadataRoot;
-    private final ProductNodeList<Band> bands;
-    private final ProductNodeList<TiePointGrid> tiePointGrids;
-    private final ProductNodeList<FlagCoding> flagCodings;
-    private final ProductNodeList<BitmaskDef> bitmaskDefs;
-
-    private final ProductNodeGroup<Mask> maskGroup;
+    private final ProductNodeGroup<Band> bandGroup;
+    private final ProductNodeGroup<TiePointGrid> tiePointGridGroup;
     private final ProductNodeGroup<VectorData> vectorDataGroup;
     private final ProductNodeGroup<FlagCoding> flagCodingGroup;
     private final ProductNodeGroup<IndexCoding> indexCodingGroup;
-
+    private final ProductNodeGroup<Mask> maskGroup;
     private final ProductNodeGroup<Pin> pinGroup;
     private final ProductNodeGroup<Pin> gcpGroup;
 
@@ -165,8 +161,6 @@ public class Product extends ProductNode {
 
     // todo - rename or change to "ProductContext" (nf - 01.2009)
     private ProductManager productManager;
-
-    private Map<String, BitRaster> validMasks;
 
     private PointingFactory pointingFactory;
 
@@ -216,36 +210,27 @@ public class Product extends ProductNode {
         super(name);
         Guardian.assertNotNullOrEmpty("type", type);
         this.fileLocation = fileLocation;
-        productType = type;
+        this.productType = type;
         this.reader = reader;
         this.sceneRasterWidth = sceneRasterWidth;
         this.sceneRasterHeight = sceneRasterHeight;
-        metadataRoot = new MetadataElement(METADATA_ROOT_NAME);
-        metadataRoot.setOwner(this);
+        this.metadataRoot = new MetadataElement(METADATA_ROOT_NAME);
+        this.metadataRoot.setOwner(this);
 
-        // todo - convert into groups (nf, 10.2009)
-        bands = new ProductNodeList<Band>();
-        tiePointGrids = new ProductNodeList<TiePointGrid>();
-        flagCodings = new ProductNodeList<FlagCoding>();
-        bitmaskDefs = new ProductNodeList<BitmaskDef>();
+        this.bandGroup = new ProductNodeGroup<Band>(this, "bandGroup", true);
+        this.tiePointGridGroup = new ProductNodeGroup<TiePointGrid>(this, "tiePointGridGroup", true);
+        this.bitmaskDefGroup = new ProductNodeGroup<BitmaskDef>(this, "bitmaskDefGroup", true);
+        this.vectorDataGroup = new ProductNodeGroup<VectorData>(this, "vectorDataGroup", true);
+        this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
+        this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
+        this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
+        this.pinGroup = new ProductNodeGroup<Pin>(this, "pinGroup", true);
+        this.gcpGroup = new ProductNodeGroup<Pin>(this, "gcpGroup", true);
 
-        vectorDataGroup = new ProductNodeGroup<VectorData>(this,
-                                                           "vector_data",
-                                                           "A group which stores all vector data");
-        vectorDataGroup.add(new VectorData("pins", createPlacemarkFeaureType("PinType", "pixelPoint")));
-        vectorDataGroup.add(new VectorData("ground_control_points", createPlacemarkFeaureType("GCPType", "geoPoint")));
-
-        maskGroup = new ProductNodeGroup<Mask>(this,
-                                               "masks",
-                                               "A group which stores all masks");
-        indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "index_codings",
-                                                             "A group which stores all index codings.");
-        flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flag_codings",
-                                                           "A group which stores all flag codings.");
-
-        pinGroup = new ProductNodeGroup<Pin>(this, "pins", "The group which stores pins.");
-        gcpGroup = new ProductNodeGroup<Pin>(this, "ground_control_points",
-                                             "The group which stores ground control points.");
+        // todo - review me, this is test code (nf 10.2009)
+        this.vectorDataGroup.add(new VectorData("pins", createPlacemarkFeaureType("PinType", "pixelPoint")));
+        this.vectorDataGroup.add(new VectorData("ground_control_points", createPlacemarkFeaureType("GcpType", "geoPoint")));
+        setModified(false);
 
         addProductNodeListener(new ProductNodeListenerAdapter() {
             @Override
@@ -269,19 +254,6 @@ public class Product extends ProductNode {
         ftb.add("pixelPoint", Point.class, crs);
         ftb.setDefaultGeometry(defaultGeometryName);
         return ftb.buildFeatureType();
-    }
-
-    private ProductNodeListener createNodeChangeHandler() {
-        return new ProductNodeListenerAdapter() {
-            @Override
-            public void nodeChanged(final ProductNodeEvent event) {
-                if (ProductNode.PROPERTY_NAME_NAME.equals(event.getPropertyName())) {
-                    handleNameChange(event);
-                } else if (PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
-                    handleGeoCodingChange();
-                }
-            }
-        };
     }
 
     private void handleGeoCodingChange() {
@@ -526,11 +498,12 @@ public class Product extends ProductNode {
         reader = null;
         writer = null;
 
-        bands.dispose();
-        tiePointGrids.dispose();
-        bitmaskDefs.dispose();
-        flagCodings.dispose();
         metadataRoot.dispose();
+        bandGroup.dispose();
+        tiePointGridGroup.dispose();
+        bitmaskDefGroup.dispose();
+        flagCodingGroup.dispose();
+        indexCodingGroup.dispose();
         maskGroup.dispose();
         vectorDataGroup.dispose();
         pinGroup.dispose();
@@ -751,7 +724,7 @@ public class Product extends ProductNode {
             throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
                     "a tie-point grid with the name '" + tiePointGrid.getName() + "'.");
         }
-        addNamedNode(tiePointGrid, tiePointGrids);
+        tiePointGridGroup.add(tiePointGrid);
     }
 
     /**
@@ -762,7 +735,7 @@ public class Product extends ProductNode {
      * @return <code>true</code> if node could be removed
      */
     public boolean removeTiePointGrid(final TiePointGrid tiePointGrid) {
-        return removeNamedNode(tiePointGrid, tiePointGrids);
+        return tiePointGridGroup.remove(tiePointGrid);
     }
 
     /**
@@ -771,7 +744,7 @@ public class Product extends ProductNode {
      * @return the number of tie-point grids
      */
     public int getNumTiePointGrids() {
-        return tiePointGrids.size();
+        return tiePointGridGroup.getNodeCount();
     }
 
     /**
@@ -784,7 +757,7 @@ public class Product extends ProductNode {
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public TiePointGrid getTiePointGridAt(final int index) {
-        return tiePointGrids.getAt(index);
+        return tiePointGridGroup.get(index);
     }
 
     /**
@@ -794,7 +767,7 @@ public class Product extends ProductNode {
      *         no tie-point grids a zero-length-array is returned.
      */
     public String[] getTiePointGridNames() {
-        return tiePointGrids.getNames();
+        return tiePointGridGroup.getNodeNames();
     }
 
     /**
@@ -821,7 +794,7 @@ public class Product extends ProductNode {
      */
     public TiePointGrid getTiePointGrid(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return tiePointGrids.get(name);
+        return tiePointGridGroup.get(name);
     }
 
     /**
@@ -836,7 +809,7 @@ public class Product extends ProductNode {
      */
     public int getTiePointGridIndex(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return tiePointGrids.indexOf(name);
+        return tiePointGridGroup.indexOf(name);
     }
 
     /**
@@ -849,7 +822,7 @@ public class Product extends ProductNode {
      */
     public boolean containsTiePointGrid(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return tiePointGrids.contains(name);
+        return tiePointGridGroup.contains(name);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -870,7 +843,7 @@ public class Product extends ProductNode {
             throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
                     "a band with the name '" + band.getName() + "'.");
         }
-        addNamedNode(band, bands);
+        bandGroup.add(band);
     }
 
     /**
@@ -896,14 +869,14 @@ public class Product extends ProductNode {
      * @return {@code true} if removed succesfully, otherwise {@code false}
      */
     public boolean removeBand(final Band band) {
-        return removeNamedNode(band, bands);
+        return bandGroup.remove(band);
     }
 
     /**
      * @return the number of bands contained in this product.
      */
     public int getNumBands() {
-        return bands.size();
+        return bandGroup.getNodeCount();
     }
 
     /**
@@ -916,7 +889,7 @@ public class Product extends ProductNode {
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public Band getBandAt(final int index) {
-        return bands.getAt(index);
+        return bandGroup.get(index);
     }
 
     /**
@@ -926,7 +899,7 @@ public class Product extends ProductNode {
      *         a zero-length-array is returned.
      */
     public String[] getBandNames() {
-        return bands.getNames();
+        return bandGroup.getNodeNames();
     }
 
     /**
@@ -936,7 +909,7 @@ public class Product extends ProductNode {
      *         returned.
      */
     public Band[] getBands() {
-        return bands.toArray(new Band[getNumBands()]);
+        return bandGroup.toArray(new Band[getNumBands()]);
     }
 
 
@@ -952,7 +925,7 @@ public class Product extends ProductNode {
      */
     public Band getBand(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return bands.get(name);
+        return bandGroup.get(name);
     }
 
     /**
@@ -966,7 +939,7 @@ public class Product extends ProductNode {
      */
     public int getBandIndex(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return bands.indexOf(name);
+        return bandGroup.indexOf(name);
     }
 
     /**
@@ -981,7 +954,7 @@ public class Product extends ProductNode {
      */
     public boolean containsBand(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return bands.contains(name);
+        return bandGroup.contains(name);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1101,210 +1074,10 @@ public class Product extends ProductNode {
         return pinGroup;
     }
 
-    //////////////////////////////////////////////////////////////////////////
-    // Bitmask definitions support
-
-    /**
-     * Adds the given bitmask definition to this product.
-     *
-     * @param bitmaskDef the bitmask definition to added, ignored if <code>null</code>
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void addBitmaskDef(final BitmaskDef bitmaskDef) {
-        if (StringUtils.isNullOrEmpty(bitmaskDef.getDescription())) {
-            final String defaultDescription = getSuitableBitmaskDefDescription(bitmaskDef);
-            bitmaskDef.setDescription(defaultDescription);
-        }
-        addNamedNode(bitmaskDef, bitmaskDefs);
-        Mask mask = new Mask(bitmaskDef.getName(),
-                             getSceneRasterWidth(),
-                             getSceneRasterHeight(),
-                             new Mask.BandMathType());
-
-        mask.getImageConfig().setValue("color", bitmaskDef.getColor());
-        mask.getImageConfig().setValue("transparency", bitmaskDef.getTransparency());
-        mask.getImageConfig().setValue("expression", bitmaskDef.getExpr());
-
-        getMaskGroup().add(mask);
-    }
-
-    /**
-     * Moves the given bitmask definition to the given index.
-     *
-     * @param bitmaskDef the bitmask definition which is to move
-     * @param index      the destination index for the given bitmask definition
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void moveBitmaskDef(final BitmaskDef bitmaskDef, final int index) {
-        Mask mask = getMaskGroup().get(bitmaskDef.getName());
-        if (bitmaskDefs.remove(bitmaskDef)) {
-            fireNodeRemoved(bitmaskDef);
-            getMaskGroup().remove(mask);
-        }
-        bitmaskDefs.insert(bitmaskDef, index);
-        fireNodeAdded(bitmaskDef);
-        getMaskGroup().add(index, mask);
-    }
-
-    /**
-     * Removes the given bitmask definition from this product.
-     *
-     * @param bitmaskDef the bitmask definition to be removed, ignored if <code>null</code>
-     *
-     * @return <code>true</code> on success
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
-        final boolean result = removeNamedNode(bitmaskDef, bitmaskDefs);
-        removeBitmaskDef(getBands(), bitmaskDef);
-        removeBitmaskDef(getTiePointGrids(), bitmaskDef);
-
-        Mask mask = getMaskGroup().get(bitmaskDef.getName());
-        getMaskGroup().remove(mask);
-
-        return result;
-    }
-
-    private static void removeBitmaskDef(RasterDataNode[] bands, BitmaskDef bitmaskDef) {
-        for (RasterDataNode band : bands) {
-            final BitmaskOverlayInfo bitmaskOverlayInfo = band.getBitmaskOverlayInfo();
-            if (bitmaskOverlayInfo != null) {
-                bitmaskOverlayInfo.removeBitmaskDef(bitmaskDef);
-            }
-        }
-    }
-
-    /**
-     * Gets the number of bitmask definitions contained in this product.
-     *
-     * @return the number of bitmask definitions
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public int getNumBitmaskDefs() {
-        return bitmaskDefs.size();
-    }
-
-    /**
-     * Returns the bitmask definition at the given index.
-     *
-     * @param index the bitmask definition index
-     *
-     * @return the bitmask definition at the given index
-     *
-     * @throws IndexOutOfBoundsException if the index is out of bounds
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitmaskDef getBitmaskDefAt(final int index) {
-        return bitmaskDefs.getAt(index);
-    }
-
-    /**
-     * Returns a string array containing the names of the bitmask definitions contained in this product.
-     *
-     * @return a string array containing the names of the bitmask definitions contained in this product. If this product
-     *         has no bitmask definitions a zero-length-array is returned.
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public String[] getBitmaskDefNames() {
-        return bitmaskDefs.getNames();
-    }
-
-    /**
-     * Returns the bitmask definition with the given name.
-     *
-     * @param name the bitmask definition name
-     *
-     * @return the bitmask definition with the given name or <code>null</code> if a bitmask definition with the given
-     *         name is not contained in this product.
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitmaskDef getBitmaskDef(final String name) {
-        Guardian.assertNotNullOrEmpty("name", name);
-        return bitmaskDefs.get(name);
-    }
-
-    /**
-     * Returns an array of bitmask definitions contained in this product
-     *
-     * @return an array of bitmask definition contained in this product. If this product has no bitmask definitions a
-     *         zero-length-array is returned.
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitmaskDef[] getBitmaskDefs() {
-        final BitmaskDef[] bitmaskDefs = new BitmaskDef[getNumBitmaskDefs()];
-        for (int i = 0; i < bitmaskDefs.length; i++) {
-            bitmaskDefs[i] = getBitmaskDefAt(i);
-        }
-        return bitmaskDefs;
-    }
-
-    /**
-     * Tests if a bitmask definition with the given name is contained in this product.
-     *
-     * @param name the name, must not be <code>null</code>
-     *
-     * @return <code>true</code> if a bitmask definition with the given name is contained in this product,
-     *         <code>false</code> otherwise
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public boolean containsBitmaskDef(final String name) {
-        Guardian.assertNotNullOrEmpty("name", name);
-        return bitmaskDefs.contains(name);
-    }
-
-    /**
-     * Tests if the given bitmask definition is contained in this container.
-     *
-     * @param def the bitmask definition, must not be <code>null</code>
-     *
-     * @return <code>true</code> if the bitmask definition is contained in this cotainer, <code>false</code> otherwise
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public boolean containsBitmaskDef(final BitmaskDef def) {
-        if (def != null) {
-            final BitmaskDef containedDef = getBitmaskDef(def.getName());
-            return def == containedDef;
-        }
-        return false;
-    }
-
-    /**
-     * Checks whether or not the given bitmask definition is compatible with this product.
-     *
-     * @return <code>false</code> if the bitmask has a valid expression and(!) the flag name is not contained in this
-     *         data product, <code>true</code> otherwise.
-     */
-    public boolean isCompatibleBitmaskDef(final BitmaskDef bitmaskDef) {
-        try {
-            createTerm(bitmaskDef.getExpr());
-        } catch (ParseException e) {
-            return false;
-        }
-        return true;
-    }
-
     /**
      * Checks whether or not the given term is compatible with this product.
      *
+     * @param term The term to examine.
      * @return <code>false</code> if the term has an expression referencing nodes which are not contained in
      *         this product, <code>true</code> otherwise.
      */
@@ -1418,14 +1191,14 @@ public class Product extends ProductNode {
      */
     public void replaceBitmaskDef(final BitmaskDef bitmaskDefOld, final BitmaskDef bitmaskDefNew) {
         if (bitmaskDefNew != null) {
-            final int insertIndex = bitmaskDefs.indexOf(bitmaskDefOld);
+            final int insertIndex = bitmaskDefGroup.indexOf(bitmaskDefOld);
             if (insertIndex == -1) {
                 addBitmaskDef(bitmaskDefNew);
             } else {
-                if (bitmaskDefs.remove(bitmaskDefOld)) {
+                if (bitmaskDefGroup.remove(bitmaskDefOld)) {
                     fireNodeRemoved(bitmaskDefOld);
                 }
-                bitmaskDefs.insert(bitmaskDefNew, insertIndex);
+                bitmaskDefGroup.add(insertIndex, bitmaskDefNew);
                 fireNodeAdded(bitmaskDefNew);
             }
         }
@@ -1477,20 +1250,16 @@ public class Product extends ProductNode {
     @Override
     public void acceptVisitor(final ProductVisitor visitor) {
         Guardian.assertNotNull("visitor", visitor);
-        for (int i = 0; i < getNumBands(); i++) {
-            getBandAt(i).acceptVisitor(visitor);
-        }
-        for (int i = 0; i < getNumTiePointGrids(); i++) {
-            getTiePointGridAt(i).acceptVisitor(visitor);
-        }
-        getMaskGroup().acceptVisitor(visitor);
-        getFlagCodingGroup().acceptVisitor(visitor);
-        getIndexCodingGroup().acceptVisitor(visitor);
-        getVectorDataGroup().acceptVisitor(visitor);
-        for (int i = 0; i < getNumBitmaskDefs(); i++) {
-            getBitmaskDefAt(i).acceptVisitor(visitor);
-        }
-        getMetadataRoot().acceptVisitor(visitor);
+        bandGroup.acceptVisitor(visitor);
+        tiePointGridGroup.acceptVisitor(visitor);
+        flagCodingGroup.acceptVisitor(visitor);
+        indexCodingGroup.acceptVisitor(visitor);
+        vectorDataGroup.acceptVisitor(visitor);
+        bitmaskDefGroup.acceptVisitor(visitor);
+        maskGroup.acceptVisitor(visitor);
+        pinGroup.acceptVisitor(visitor);
+        gcpGroup.acceptVisitor(visitor);
+        metadataRoot.acceptVisitor(visitor);
         visitor.visit(this);
     }
 
@@ -1558,9 +1327,9 @@ public class Product extends ProductNode {
         fireEvent(sourceNode, ProductNodeEvent.NODE_REMOVED);
     }
 
-    private void fireEvent(final ProductNode sourceNode, final int eventId) {
+    private void fireEvent(final ProductNode sourceNode, final int eventType) {
         if (hasProductNodeListeners()) {
-            final ProductNodeEvent event = new ProductNodeEvent(sourceNode, eventId);
+            final ProductNodeEvent event = new ProductNodeEvent(sourceNode, eventType);
             fireEvent(event);
         }
     }
@@ -1583,7 +1352,7 @@ public class Product extends ProductNode {
     }
 
     static void fireEvent(final ProductNodeEvent event, final ProductNodeListener listener) {
-        switch (event.getId()) {
+        switch (event.getType()) {
             case ProductNodeEvent.NODE_CHANGED:
                 listener.nodeChanged(event);
                 break;
@@ -1600,7 +1369,7 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Returns the reference number of this product.
+     * @return The reference number of this product.
      */
     public int getRefNo() {
         return refNo;
@@ -1789,38 +1558,22 @@ public class Product extends ProductNode {
 
     @Override
     public void setModified(final boolean modified) {
-        super.setModified(modified);
-
-        if (!modified) {
-            setNotModified(bands);
-            setNotModified(tiePointGrids);
-            setNotModified(bitmaskDefs);
-
-            setNotModified(maskGroup);
-            setNotModified(vectorDataGroup);
-            setNotModified(flagCodingGroup);
-            setNotModified(indexCodingGroup);
-            setNotModified(pinGroup);
-            setNotModified(gcpGroup);
-
-            getMetadataRoot().setModified(false);
+        boolean oldSttate = isModified();
+        if (oldSttate != modified) {
+            super.setModified(modified);
+            if (!modified) {
+                bandGroup.setModified(false);
+                tiePointGridGroup.setModified(false);
+                bitmaskDefGroup.setModified(false);
+                maskGroup.setModified(false);
+                vectorDataGroup.setModified(false);
+                flagCodingGroup.setModified(false);
+                indexCodingGroup.setModified(false);
+                pinGroup.setModified(false);
+                gcpGroup.setModified(false);
+                getMetadataRoot().setModified(false);
+            }
         }
-    }
-
-    private static void setNotModified(ProductNodeList<?> nodeList) {
-        for (int i = 0; i < nodeList.size(); i++) {
-            nodeList.getAt(i).setModified(false);
-        }
-        nodeList.clearRemovedList();
-    }
-
-    // TODO: think about overriding setModified in class ProductNodeGroup (rq-2009-05-11)
-    private static void setNotModified(ProductNodeGroup<?> nodeGroup) {
-        nodeGroup.setModified(false);
-        for (int i = 0; i < nodeGroup.getNodeCount(); i++) {
-            nodeGroup.get(i).setModified(false);
-        }
-        nodeGroup.clearRemovedList();
     }
 
     /**
@@ -2039,14 +1792,15 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Gets all removed child nodes
+     * @return All removed child nodes. Array may be empty.
      */
     public ProductNode[] getRemovedChildNodes() {
         final ArrayList<ProductNode> removedNodes = new ArrayList<ProductNode>();
-        removedNodes.addAll(bands.getRemovedNodes());
-        removedNodes.addAll(bitmaskDefs.getRemovedNodes());
-        removedNodes.addAll(flagCodings.getRemovedNodes());
-        removedNodes.addAll(tiePointGrids.getRemovedNodes());
+        removedNodes.addAll(bandGroup.getRemovedNodes());
+        removedNodes.addAll(bitmaskDefGroup.getRemovedNodes());
+        removedNodes.addAll(flagCodingGroup.getRemovedNodes());
+        removedNodes.addAll(indexCodingGroup.getRemovedNodes());
+        removedNodes.addAll(tiePointGridGroup.getRemovedNodes());
         removedNodes.addAll(maskGroup.getRemovedNodes());
         removedNodes.addAll(vectorDataGroup.getRemovedNodes());
         removedNodes.addAll(pinGroup.getRemovedNodes());
@@ -2185,8 +1939,48 @@ public class Product extends ProductNode {
         this.preferredTileSize = preferredTileSize;
     }
 
+    /**
+     * Returns the names of all flags of all flag datasets contained this product.
+     * <p/>
+     * <p>A flag name contains the dataset (a band of this product) and the actual flag name as defined in the
+     * flag-coding associated with the dataset. The general format for the flag name strings returned is therefore
+     * <code>"<i>dataset</i>.<i>flag_name</i>"</code>.
+     * </p>
+     * <p>The method is used to find out which flags a product has in order to use them in bit-mask expressions.
+     *
+     * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
+     *         never <code>null</code>.
+     *
+     * @see #createTerm(String)
+     */
+    public String[] getAllFlagNames() {
+        final List<String> l = new ArrayList<String>(32);
+        for (int i = 0; i < getNumBands(); i++) {
+            final Band band = getBandAt(i);
+            if (band.getFlagCoding() != null) {
+                for (int j = 0; j < band.getFlagCoding().getNumAttributes(); j++) {
+                    final MetadataAttribute attribute = band.getFlagCoding().getAttributeAt(j);
+                    l.add(band.getName() + "." + attribute.getName());
+                }
+            }
+        }
+        final String[] flagNames = new String[l.size()];
+        for (int i = 0; i < flagNames.length; i++) {
+            flagNames[i] = l.get(i);
+        }
+        l.clear();
+        return flagNames;
+    }
+
     /////////////////////////////////////////////////////////////////////////
     // Deprecated API
+
+    @Deprecated
+    private final ProductNodeGroup<BitmaskDef> bitmaskDefGroup;
+
+    @Deprecated
+    private Map<String, BitRaster> validMasks;
+
 
     /**
      * Parses a mathematical expression given as a text string.
@@ -2348,37 +2142,209 @@ public class Product extends ProductNode {
         return getFlagCodingGroup().contains(name);
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    // Bitmask definitions support
+
     /**
-     * Returns the names of all flags of all flag datasets contained this product.
-     * <p/>
-     * <p>A flag name contains the dataset (a band of this product) and the actual flag name as defined in the
-     * flag-coding associated with the dataset. The general format for the flag name strings returned is therefore
-     * <code>"<i>dataset</i>.<i>flag_name</i>"</code>.
-     * </p>
-     * <p>The method is used to find out which flags a product has in order to use them in bit-mask expressions.
+     * Adds the given bitmask definition to this product.
      *
-     * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
-     *         never <code>null</code>.
+     * @param bitmaskDef the bitmask definition to added, ignored if <code>null</code>
      *
-     * @see #createTerm(String)
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
-    public String[] getAllFlagNames() {
-        final List<String> l = new ArrayList<String>(32);
-        for (int i = 0; i < getNumBands(); i++) {
-            final Band band = getBandAt(i);
-            if (band.getFlagCoding() != null) {
-                for (int j = 0; j < band.getFlagCoding().getNumAttributes(); j++) {
-                    final MetadataAttribute attribute = band.getFlagCoding().getAttributeAt(j);
-                    l.add(band.getName() + "." + attribute.getName());
-                }
+    @Deprecated
+    public void addBitmaskDef(final BitmaskDef bitmaskDef) {
+        if (StringUtils.isNullOrEmpty(bitmaskDef.getDescription())) {
+            final String defaultDescription = getSuitableBitmaskDefDescription(bitmaskDef);
+            bitmaskDef.setDescription(defaultDescription);
+        }
+        bitmaskDefGroup.add(bitmaskDef);
+
+        Mask mask = new Mask(bitmaskDef.getName(),
+                             getSceneRasterWidth(),
+                             getSceneRasterHeight(),
+                             new Mask.BandMathType());
+        mask.setDescription(bitmaskDef.getDescription());
+        mask.getImageConfig().setValue("color", bitmaskDef.getColor());
+        mask.getImageConfig().setValue("transparency", (double) bitmaskDef.getTransparency());
+        mask.getImageConfig().setValue("expression", bitmaskDef.getExpr());
+        getMaskGroup().add(mask);
+    }
+
+    /**
+     * Moves the given bitmask definition to the given index.
+     *
+     * @param bitmaskDef the bitmask definition which is to move
+     * @param index      the destination index for the given bitmask definition
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public void moveBitmaskDef(final BitmaskDef bitmaskDef, final int index) {
+        Mask mask = getMaskGroup().get(bitmaskDef.getName());
+        if (bitmaskDefGroup.remove(bitmaskDef)) {
+            fireNodeRemoved(bitmaskDef);
+            getMaskGroup().remove(mask);
+        }
+        bitmaskDefGroup.add(index, bitmaskDef);
+        fireNodeAdded(bitmaskDef);
+        getMaskGroup().add(index, mask);
+    }
+
+    /**
+     * Removes the given bitmask definition from this product.
+     *
+     * @param bitmaskDef the bitmask definition to be removed, ignored if <code>null</code>
+     *
+     * @return <code>true</code> on success
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
+        final boolean result = bitmaskDefGroup.remove(bitmaskDef);
+        removeBitmaskDef(getBands(), bitmaskDef);
+        removeBitmaskDef(getTiePointGrids(), bitmaskDef);
+
+        Mask mask = getMaskGroup().get(bitmaskDef.getName());
+        getMaskGroup().remove(mask);
+
+        return result;
+    }
+
+    @Deprecated
+    private static void removeBitmaskDef(RasterDataNode[] bands, BitmaskDef bitmaskDef) {
+        for (RasterDataNode band : bands) {
+            final BitmaskOverlayInfo bitmaskOverlayInfo = band.getBitmaskOverlayInfo();
+            if (bitmaskOverlayInfo != null) {
+                bitmaskOverlayInfo.removeBitmaskDef(bitmaskDef);
             }
         }
-        final String[] flagNames = new String[l.size()];
-        for (int i = 0; i < flagNames.length; i++) {
-            flagNames[i] = l.get(i);
+    }
+
+    /**
+     * Gets the number of bitmask definitions contained in this product.
+     *
+     * @return the number of bitmask definitions
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public int getNumBitmaskDefs() {
+        return bitmaskDefGroup.getNodeCount();
+    }
+
+    /**
+     * Returns the bitmask definition at the given index.
+     *
+     * @param index the bitmask definition index
+     *
+     * @return the bitmask definition at the given index
+     *
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitmaskDef getBitmaskDefAt(final int index) {
+        return bitmaskDefGroup.get(index);
+    }
+
+    /**
+     * Returns a string array containing the names of the bitmask definitions contained in this product.
+     *
+     * @return a string array containing the names of the bitmask definitions contained in this product. If this product
+     *         has no bitmask definitions a zero-length-array is returned.
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public String[] getBitmaskDefNames() {
+        return bitmaskDefGroup.getNodeNames();
+    }
+
+    /**
+     * Returns the bitmask definition with the given name.
+     *
+     * @param name the bitmask definition name
+     *
+     * @return the bitmask definition with the given name or <code>null</code> if a bitmask definition with the given
+     *         name is not contained in this product.
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitmaskDef getBitmaskDef(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return bitmaskDefGroup.get(name);
+    }
+
+    /**
+     * Returns an array of bitmask definitions contained in this product
+     *
+     * @return an array of bitmask definition contained in this product. If this product has no bitmask definitions a
+     *         zero-length-array is returned.
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public BitmaskDef[] getBitmaskDefs() {
+        final BitmaskDef[] bitmaskDefs = new BitmaskDef[getNumBitmaskDefs()];
+        for (int i = 0; i < bitmaskDefs.length; i++) {
+            bitmaskDefs[i] = getBitmaskDefAt(i);
         }
-        l.clear();
-        return flagNames;
+        return bitmaskDefs;
+    }
+
+    /**
+     * Tests if a bitmask definition with the given name is contained in this product.
+     *
+     * @param name the name, must not be <code>null</code>
+     *
+     * @return <code>true</code> if a bitmask definition with the given name is contained in this product,
+     *         <code>false</code> otherwise
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public boolean containsBitmaskDef(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return bitmaskDefGroup.contains(name);
+    }
+
+    /**
+     * Tests if the given bitmask definition is contained in this container.
+     *
+     * @param def the bitmask definition, must not be <code>null</code>
+     *
+     * @return <code>true</code> if the bitmask definition is contained in this cotainer, <code>false</code> otherwise
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
+     */
+    @Deprecated
+    public boolean containsBitmaskDef(final BitmaskDef def) {
+        if (def != null) {
+            final BitmaskDef containedDef = getBitmaskDef(def.getName());
+            return def == containedDef;
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether or not the given bitmask definition is compatible with this product.
+     *
+     * @param bitmaskDef The bitmask definition.
+     * @return <code>false</code> if the bitmask has a valid expression and(!) the flag name is not contained in this
+     *         data product, <code>true</code> otherwise.
+     * @deprecated since BEAM 4.7, use {@link #isCompatibleMask()} instead
+     */
+    @Deprecated
+    public boolean isCompatibleBitmaskDef(final BitmaskDef bitmaskDef) {
+        try {
+            createTerm(bitmaskDef.getExpr());
+        } catch (ParseException e) {
+            return false;
+        }
+        return true;
     }
 
     /**

@@ -39,6 +39,10 @@ public class MetadataAttribute extends DataNode {
         super(name, data, readOnly);
     }
 
+    public MetadataElement getParentElement() {
+        return MetadataElement.getParentElement(this);
+    }
+
     @Override
     public boolean equals(Object object) {
 

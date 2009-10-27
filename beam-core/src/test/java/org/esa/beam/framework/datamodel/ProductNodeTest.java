@@ -36,28 +36,26 @@ public class ProductNodeTest extends TestCase {
     }
 
     public void testSetOwnerToNullAfterNodeRemoval() {
-        final ProductNode[] owner = new Product[1];
+        final ProductNode[] owners = new ProductNode[1];
         final Product product = new Product("product", "t", 10, 10);
+        product.addBand("band1", ProductData.TYPE_INT16);
+        final Band addedBand = product.getBandAt(0);
+
         product.addProductNodeListener(new ProductNodeListenerAdapter() {
             @Override
             public void nodeRemoved(ProductNodeEvent event) {
                 ProductNode sourceNode = event.getSourceNode();
-                owner[0] = sourceNode.getOwner();
+                assertSame(addedBand, sourceNode);
+                assertNotNull(sourceNode.getOwner());
             }
         });
 
-        product.addBand("band1", ProductData.TYPE_INT16);
-        Band addedBand = product.getBandAt(0);
-        assertSame(product, addedBand.getOwner());
+        assertNotNull(addedBand.getOwner());
+        assertSame(product, addedBand.getOwner().getProduct());
+        assertSame(product, addedBand.getProduct());
 
         product.removeBand(addedBand);
-        // ensures that the given source node
-        // in the node removed event has an owner
-        // at the time the event fired.
-        assertSame(product, owner[0]);
-        // After all listeners notified, that the
-        // node was removed, the owner of the node
-        // must be set to null
+        assertNull(addedBand.getProduct());
         assertNull(addedBand.getOwner());
     }
 
@@ -71,7 +69,7 @@ public class ProductNodeTest extends TestCase {
         final Product p1 = new Product("p1", "t", 10, 10);
         p1.addBand(band);
 
-        assertSame(p1, band.getOwner());
+        assertNotNull(band.getOwner());
         assertSame(p1, band.getProduct());
 
         p1.removeBand(band);
@@ -82,7 +80,7 @@ public class ProductNodeTest extends TestCase {
         final Product p2 = new Product("p2", "t", 10, 10);
         p2.addBand(band);
 
-        assertSame(p2, band.getOwner());
+        assertNotNull(band.getOwner());
         assertSame(p2, band.getProduct());
 
         p2.removeBand(band);

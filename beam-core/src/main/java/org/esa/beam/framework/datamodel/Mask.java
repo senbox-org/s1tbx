@@ -81,11 +81,11 @@ public class Mask extends Band {
         imageConfig.setValue(ImageType.PROPERTY_NAME_COLOR, color);
     }
 
-    public float getImageTransparency() {
-        return (Float) imageConfig.getValue(ImageType.PROPERTY_NAME_TRANSPARENCY);
+    public double getImageTransparency() {
+        return (Double) imageConfig.getValue(ImageType.PROPERTY_NAME_TRANSPARENCY);
     }
 
-    public void setImageTransparency(float transparency) {
+    public void setImageTransparency(double transparency) {
         imageConfig.setValue(ImageType.PROPERTY_NAME_TRANSPARENCY, transparency);
     }
 
@@ -123,7 +123,7 @@ public class Mask extends Band {
         super.dispose();
     }
 
-    private static void setImageStyle(ValueContainer imageConfig, Color color, float transparency) {
+    private static void setImageStyle(ValueContainer imageConfig, Color color, double transparency) {
         imageConfig.setValue(ImageType.PROPERTY_NAME_COLOR, color);
         imageConfig.setValue(ImageType.PROPERTY_NAME_TRANSPARENCY, transparency);
     }
@@ -144,7 +144,7 @@ public class Mask extends Band {
         public static final String PROPERTY_NAME_COLOR = "color";
         public static final String PROPERTY_NAME_TRANSPARENCY = "transparency";
         private static final Color DEFAULT_COLOR = Color.RED;
-        private static final float DEFAULT_TRANSPARENCY = 0.5f;
+        private static final double DEFAULT_TRANSPARENCY = 0.5;
         private final String name;
 
         protected ImageType(String name) {
@@ -172,7 +172,7 @@ public class Mask extends Band {
             colorType.setNotNull(true);
             colorType.setDefaultValue(DEFAULT_COLOR);
 
-            ValueDescriptor transparencyType = new ValueDescriptor(PROPERTY_NAME_TRANSPARENCY, Float.TYPE);
+            ValueDescriptor transparencyType = new ValueDescriptor(PROPERTY_NAME_TRANSPARENCY, Double.TYPE);
             transparencyType.setDefaultValue(DEFAULT_TRANSPARENCY);
 
             ValueContainer imageConfig = new ValueContainer();

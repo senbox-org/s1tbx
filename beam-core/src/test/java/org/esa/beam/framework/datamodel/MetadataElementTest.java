@@ -202,12 +202,12 @@ public class MetadataElementTest extends TestCase {
         annot.addAttribute(att);
         assertEquals(1, annot.getNumAttributes());
         annot.addAttribute(att2);
-        assertEquals(1, annot.getNumAttributes());
+        assertEquals(2, annot.getNumAttributes());
 
         // try to remove non existent attribute
         att2 = new MetadataAttribute("DifferentName", ProductData.createInstance(ProductData.TYPE_INT32), false);
         annot.removeAttribute(att2);
-        assertEquals(1, annot.getNumAttributes());
+        assertEquals(2, annot.getNumAttributes());
     }
 
     public void testSetAtributeInt() {
@@ -241,30 +241,20 @@ public class MetadataElementTest extends TestCase {
         _propertyNameList.clear();
         _propertySourceList.clear();
 
-        elem.setAttributeInt("name", 3);
+        elem.setAttributeInt("counter", 3);
 
         assertEquals(1, elem.getNumAttributes());
         final MetadataAttribute attrib = elem.getAttributeAt(0);
         assertNotNull(attrib);
-        assertEquals("name", attrib.getName());
+        assertEquals("counter", attrib.getName());
         assertEquals(3, attrib.getData().getElemInt());
 
         assertNotNull(_addedNode);
         assertNotNull(_nodeDataChanged);
         assertSame(_addedNode, attrib);
         assertSame(_nodeDataChanged, attrib);
-        assertEquals(5, _propertyNameList.size());
-        assertEquals(5, _propertySourceList.size());
-        assertEquals("owner", _propertyNameList.get(0));
-        assertSame(attrib, _propertySourceList.get(0));
-        assertEquals("modified", _propertyNameList.get(1));
-        assertSame(product, _propertySourceList.get(1));
-        assertEquals("modified", _propertyNameList.get(2));
-        assertSame(product.getMetadataRoot(), _propertySourceList.get(2));
-        assertEquals("modified", _propertyNameList.get(3));
-        assertSame(elem, _propertySourceList.get(3));
-        assertEquals("modified", _propertyNameList.get(4));
-        assertSame(attrib, _propertySourceList.get(4));
+        assertEquals(0, _propertyNameList.size());
+        assertEquals(0, _propertySourceList.size());
 
         product.setModified(false);
         _addedNode = null;
@@ -272,19 +262,16 @@ public class MetadataElementTest extends TestCase {
         _propertyNameList.clear();
         assertFalse(elem.isModified());
 
-        elem.setAttributeInt("name", -3);
+        elem.setAttributeInt("counter", -3);
 
         assertNull(_addedNode);
         assertNotNull(_nodeDataChanged);
         assertSame(_nodeDataChanged, attrib);
-        assertEquals(3, _propertyNameList.size());
-        assertEquals("modified", _propertyNameList.get(0));
-        assertEquals("modified", _propertyNameList.get(1));
-        assertEquals("modified", _propertyNameList.get(2));
+        assertEquals(0, _propertyNameList.size());
 
         assertEquals(1, elem.getNumAttributes());
         assertSame(attrib, elem.getAttributeAt(0));
-        assertEquals("name", attrib.getName());
+        assertEquals("counter", attrib.getName());
         assertEquals(-3, attrib.getData().getElemInt());
     }
 }

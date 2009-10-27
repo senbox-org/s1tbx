@@ -15,15 +15,20 @@ import java.util.Collection;
 public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 
     private final ProductNodeList<T> nodeList;
+    private final boolean takingOverNodeOwnership;
 
     /**
      * Constructs a node group.
      *
-     * @param owner       The owner of the group.
-     * @param name        The group name.
+     * @param owner                   The owner of the group.
+     * @param name                    The group name.
+     * @param takingOverNodeOwnership If {@code true}, nodes will have this group as owner after adding.
      */
-    public ProductNodeGroup(ProductNode owner, String name) {
-        this(owner, name, "");
+    public ProductNodeGroup(ProductNode owner, String name, boolean takingOverNodeOwnership) {
+        super(name, "");
+        this.nodeList = new ProductNodeList<T>();
+        this.takingOverNodeOwnership = takingOverNodeOwnership;
+        setOwner(owner);
     }
 
     /**
@@ -32,11 +37,20 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
      * @param owner       The owner of the group.
      * @param name        The group name.
      * @param description A descriptive text.
+     *
+     * @deprecated since BEAM 4.7
      */
+    @Deprecated
     public ProductNodeGroup(ProductNode owner, String name, String description) {
-        super(name, description);
-        nodeList = new ProductNodeList<T>();
-        setOwner(owner);
+        this(owner, name, true);
+        setDescription(description);
+    }
+
+    /**
+     * @return {@code true}, if nodes will have this group as owner after adding.
+     */
+    public boolean isTakingOverNodeOwnership() {
+        return takingOverNodeOwnership;
     }
 
     /**
@@ -153,12 +167,7 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
         Assert.notNull(node, "node");
         boolean added = nodeList.add(node);
         if (added) {
-            node.setOwner(this);
-            Product product = getProduct();
-            if (product != null) {
-                product.fireNodeAdded(node);
-            }
-            setModified(true);
+            notifyAdded(node);
         }
         return added;
     }
@@ -172,12 +181,7 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
     public void add(int index, T node) {
         Assert.notNull(node, "node");
         nodeList.add(index, node);
-        node.setOwner(this);
-        Product product = getProduct();
-        if (product != null) {
-            product.fireNodeAdded(node);
-        }
-        setModified(true);
+        notifyAdded(node);
     }
 
     /**
@@ -191,12 +195,7 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
         Assert.notNull(node, "node");
         boolean removed = nodeList.remove(node);
         if (removed) {
-            Product product = getProduct();
-            if (product != null) {
-                product.setModified(true);
-                product.fireNodeRemoved(node);
-            }
-            node.setOwner(null);
+            notifyRemoved(node);
         }
         return removed;
     }
@@ -238,7 +237,26 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
     }
 
     @Override
+    public void setModified(boolean modified) {
+        boolean oldState = isModified();
+        if (oldState != modified) {
+            if (!modified) {
+                for (ProductNode node : toArray()) {
+                    node.setModified(false);
+                }
+                clearRemovedList();
+            }
+            super.setModified(modified);
+        }
+    }
+
+    @Override
     public void acceptVisitor(ProductVisitor visitor) {
+        if (takingOverNodeOwnership) {
+            for (final ProductNode node : toArray()) {
+                node.acceptVisitor(visitor);
+            }
+        }
         visitor.visit(this);
     }
 
@@ -288,8 +306,43 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 
     @Override
     public void updateExpression(final String oldExternalName, final String newExternalName) {
-        for (final ProductNode node : toArray()) {
-            node.updateExpression(oldExternalName, newExternalName);
+        if (takingOverNodeOwnership) {
+            for (final ProductNode node : toArray()) {
+                node.updateExpression(oldExternalName, newExternalName);
+            }
         }
     }
+
+    private void notifyAdded(T node) {
+        // Intended: set owner=this before notifying listeners
+        if (takingOverNodeOwnership) {
+            node.setOwner(this);
+        }
+
+        // notify listeners
+        Product product = getProduct();
+        if (product != null) {
+            product.fireNodeAdded(node);
+        }
+
+        // Intended: set modified=true is last operation
+        setModified(true);
+    }
+
+    private void notifyRemoved(T node) {
+        // notify listeners
+        Product product = getProduct();
+        if (product != null) {
+            product.fireNodeRemoved(node);
+        }
+
+        // Intended: set owner=null after notifying listeners
+        if (takingOverNodeOwnership && node.getOwner() == this) {
+            node.setOwner(null);
+        }
+
+        // Intended: set modified=true is last operation
+        setModified(true);
+    }
+
 }

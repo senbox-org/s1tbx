@@ -14,10 +14,6 @@ import java.awt.color.ColorSpace;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * This class contains information about how a product's raster data node is displayed as an image.
@@ -53,10 +49,6 @@ public class ImageInfo implements Cloneable {
     private RGBChannelDef rgbChannelDef;
     private Color noDataColor;
     private HistogramMatching histogramMatching;
-
-    // Introduced in BEAM 4.7  (nf)
-    private List<String> maskRefList;
-    private Set<String> maskRefSet;
 
     /**
      * Constructs a new image information instance.
@@ -190,80 +182,6 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
-     * @return The array of all mask references. The array may be empty.
-     */
-    public String[] getMaskReferences() {
-        if (maskRefList != null) {
-            return maskRefList.toArray(new String[maskRefList.size()]);
-        } else {
-            return new String[0];
-        }
-    }
-
-    /**
-     * Adds a new mask reference.
-     *
-     * @param maskRef The mask reference to be added.
-     *
-     * @return <tt>true</tt> if the mask reference was not already a member.
-     */
-    public boolean addMaskReference(String maskRef) {
-        if (maskRefSet == null) {
-            maskRefSet = new HashSet<String>();
-            maskRefList = new ArrayList<String>();
-        }
-        if (!maskRefSet.contains(maskRef)) {
-            maskRefSet.add(maskRef);
-            return maskRefList.add(maskRef);
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Removes an existing mask reference.
-     *
-     * @param maskRef The mask reference to be removed.
-     *
-     * @return <tt>true</tt> if the mask reference was a member.
-     */
-    public boolean removeMaskReference(String maskRef) {
-        if (maskRefSet != null) {
-            maskRefSet.remove(maskRef);
-            return maskRefList.remove(maskRef);
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @param maskRef The mask reference.
-     *
-     * @return <tt>true</tt> if the mask reference is a member.
-     */
-    public boolean containsMaskReference(String maskRef) {
-        return maskRefSet != null && maskRefSet.contains(maskRef);
-    }
-
-    public boolean renameMaskReference(String oldName, String newName) {
-        if (maskRefList != null) {
-            synchronized (this) {
-                for (int i = 0; i < maskRefList.size(); i++) {
-                    String maskRef = maskRefList.get(i);
-                    if (maskRef.equals(oldName)) {
-                        maskRefList.set(i, newName);
-                        maskRefSet.remove(maskRef);
-                        maskRefSet.add(newName);
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-
-    /**
      * Creates and returns a copy of this object.
      *
      * @return a copy of this object
@@ -277,10 +195,6 @@ public class ImageInfo implements Cloneable {
             }
             if (rgbChannelDef != null) {
                 imageInfo.rgbChannelDef = (RGBChannelDef) rgbChannelDef.clone();
-            }
-            if (maskRefSet != null) {
-                imageInfo.maskRefSet = new HashSet<String>(maskRefSet);
-                imageInfo.maskRefList = new ArrayList<String>(maskRefList);
             }
             return imageInfo;
         } catch (CloneNotSupportedException e) {

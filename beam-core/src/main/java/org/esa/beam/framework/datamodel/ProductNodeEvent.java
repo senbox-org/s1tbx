@@ -29,48 +29,66 @@ import org.esa.beam.util.Guardian;
  */
 public class ProductNodeEvent extends EventObject {
 
-    private final int _id;
-    private final String _propertyName;
-    private Object _oldValue;
     public final static int NODE_CHANGED = 0;
     public final static int NODE_ADDED = 1;
     public final static int NODE_REMOVED = 2;
     public final static int NODE_DATA_CHANGED = 3;
 
+    private final int type;
+    private final String propertyName;
+    private Object oldValue;
+
     /**
-     * Constructs a productEvent object.
+     * Constructs a product node event.
      *
-     * @param sourceNode the source class where the object originates
-     * @param id         the event type
+     * @param sourceNode The product node on which the Event initially occurred.
+     * @param type         the event type
      */
-    public ProductNodeEvent(ProductNode sourceNode, int id) {
+    public ProductNodeEvent(ProductNode sourceNode, int type) {
         super(sourceNode);
-        _propertyName = id == NODE_DATA_CHANGED ? "data" : null;
-        _id = id;
+        propertyName = type == NODE_DATA_CHANGED ? "data" : null;
+        this.type = type;
     }
 
     /**
      * Constructs a productEvent object.
      *
-     * @param sourceNode   the source class where the object originates.
+     * @param sourceNode   the product node whose property has changed
      * @param propertyName the name of the property that was changed.
      * @param oldValue     the old value.
      */
     public ProductNodeEvent(final ProductNode sourceNode, final String propertyName, final Object oldValue) {
         super(sourceNode);
         Guardian.assertNotNull("propertyName", propertyName);
-        _propertyName = propertyName;
-        _id = NODE_CHANGED;
-        _oldValue = oldValue;
+        this.propertyName = propertyName;
+        type = NODE_CHANGED;
+        this.oldValue = oldValue;
     }
 
     /**
-     * Retrieves a reference to the originating object, i.e. the one who fired the event.
-     *
-     * @return the originating object
+     * @return The event type.
      */
-    public ProductNode getSourceNode() {
+    public int getType() {
+        return type;
+    }
+
+    /**
+     * @return A reference to the originating product node, i.e. the one who fired the event.
+     */
+    public final ProductNode getSourceNode() {
         return (ProductNode) getSource();
+    }
+
+    /**
+     * @return A reference to the group on which a {@link #NODE_ADDED} or {@link #NODE_REMOVED} event occured. May be null.
+     */
+    public ProductNodeGroup getGroup() {
+        ProductNode node = getSourceNode();
+        ProductNode owner = node.getOwner();
+        if (owner instanceof ProductNodeGroup) {
+            return (ProductNodeGroup) owner;
+        }
+        return null;
     }
 
     /**
@@ -79,16 +97,7 @@ public class ProductNodeEvent extends EventObject {
      * @return the name of the property that was changed.
      */
     public String getPropertyName() {
-        return _propertyName;
-    }
-
-    /**
-     * Gets the event type.
-     *
-     * @return the event type.
-     */
-    public int getId() {
-        return _id;
+        return propertyName;
     }
 
     /**
@@ -97,14 +106,28 @@ public class ProductNodeEvent extends EventObject {
      * @return the old value.
      */
     public Object getOldValue() {
-        return _oldValue;
+        return oldValue;
     }
 
     @Override
     public String toString() {
-        return getClass().getName() +
-               " [sourceNode=" + getSourceNode() +
-               ", propertyName=" + getPropertyName() +
-               ", id=" + getId() + "]";
+        return String.format("%s [sourceNode=%s, propertyName=%s, type=%d]", 
+                             getClass().getName(),
+                             getSourceNode(),
+                             getPropertyName(),
+                             getType());
     }
+
+
+    /**
+     * Gets the event type.
+     *
+     * @return the event type.
+     * @deprecated since BEAM 4.7, use {@link #getType()} instead
+     */
+    @Deprecated
+    public final int getId() {
+        return type;
+    }
+
 }

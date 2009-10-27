@@ -31,9 +31,9 @@ import java.text.ParseException;
  */
 public class MetadataElement extends ProductNode {
 
-    private ProductNodeList<MetadataAttribute> _attributes;
+    private ProductNodeGroup<MetadataAttribute> _attributes;
 
-    private ProductNodeList<MetadataElement> _elements;
+    private ProductNodeGroup<MetadataElement> _elements;
 
     //////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -50,6 +50,11 @@ public class MetadataElement extends ProductNode {
     //////////////////////////////////////////////////////////////////////////
     // Element support ('Composite' pattern support)
 
+
+    public MetadataElement getParentElement() {
+        return getParentElement(this);
+    }
+
     /**
      * Adds the given element to this element.
      *
@@ -60,9 +65,9 @@ public class MetadataElement extends ProductNode {
             return;
         }
         if (_elements == null) {
-            _elements = new ProductNodeList<MetadataElement>();
+            _elements = new ProductNodeGroup<MetadataElement>(this, "elements", true);
         }
-        addNamedNode(element, _elements);
+        _elements.add(element);
     }
 
     /**
@@ -76,21 +81,9 @@ public class MetadataElement extends ProductNode {
             return;
         }
         if (_elements == null) {
-            _elements = new ProductNodeList<MetadataElement>();
+            _elements = new ProductNodeGroup<MetadataElement>(this, "elements", true);
         }
-        if (index < 0) {
-            index = 0;
-        } else if (index > _elements.size()) {
-            index = _elements.size();
-        }
-
-        _elements.insert(element, index);
-        element.setOwner(this);
-        final Product product = getProduct();
-        if (product != null) {
-            product.fireNodeAdded(element);
-        }
-        setModified(true);
+        _elements.add(index, element);
     }
 
     /**
@@ -100,13 +93,7 @@ public class MetadataElement extends ProductNode {
      * @return true, if so
      */
     public boolean removeElement(MetadataElement element) {
-        if (element == null) {
-            return false;
-        }
-        if (_elements == null) {
-            return false;
-        }
-        return removeNamedNode(element, _elements);
+        return element != null && _elements != null && _elements.remove(element);
     }
 
     /**
@@ -116,7 +103,7 @@ public class MetadataElement extends ProductNode {
         if (_elements == null) {
             return 0;
         }
-        return _elements.size();
+        return _elements.getNodeCount();
     }
 
     /**
@@ -130,7 +117,7 @@ public class MetadataElement extends ProductNode {
         if (_elements == null) {
             throw new IndexOutOfBoundsException();
         }
-        return _elements.getAt(index);
+        return _elements.get(index);
     }
 
     /**
@@ -143,7 +130,7 @@ public class MetadataElement extends ProductNode {
         if (_elements == null) {
             return new String[0];
         }
-        return _elements.getNames();
+        return _elements.getNodeNames();
     }
 
     /**
@@ -153,11 +140,10 @@ public class MetadataElement extends ProductNode {
      *         returned.
      */
     public MetadataElement[] getElements() {
-        MetadataElement[] elements = new MetadataElement[getNumElements()];
-        for (int i = 0; i < elements.length; i++) {
-            elements[i] = getElementAt(i);
+        if (_elements == null) {
+            return new MetadataElement[0];
         }
-        return elements;
+        return _elements.toArray(new MetadataElement[0]);
     }
 
     /**
@@ -191,7 +177,7 @@ public class MetadataElement extends ProductNode {
     // Attribute list support
 
     /**
-     * Adds an attribute to this node. If an attribute with the same name already exists, the method does nothing.
+     * Adds an attribute to this node.
      *
      * @param attribute the attribute to be added, <code>null</code> is ignored
      */
@@ -200,31 +186,9 @@ public class MetadataElement extends ProductNode {
             return;
         }
         if (_attributes == null) {
-            _attributes = new ProductNodeList<MetadataAttribute>();
-        }
-        // only add if the list does not contain it already
-        if (_attributes.contains(attribute.getName())) {
-            return;
-        }
-        addNamedNode(attribute, _attributes);
-    }
-
-    /**
-     * Adds an attribute to this node. It will not check if a node exists
-     *
-     * @param attribute the attribute to be added, <code>null</code> is ignored
-     */
-    public void addAttributeFast(MetadataAttribute attribute) {
-        if (_attributes == null) {
-            _attributes = new ProductNodeList<MetadataAttribute>();
+            _attributes = new ProductNodeGroup<MetadataAttribute>(this, "attributes", true);
         }
         _attributes.add(attribute);
-        //attribute.setOwner(this);
-    }
-
-    @Override
-    public void setOwner(ProductNode own) {
-        super.setOwner(own);
     }
 
     /**
@@ -235,13 +199,7 @@ public class MetadataElement extends ProductNode {
      * @return <code>true</code> if it was removed
      */
     public boolean removeAttribute(MetadataAttribute attribute) {
-        if (attribute == null) {
-            return false;
-        }
-        if (_attributes == null) {
-            return false;
-        }
-        return removeNamedNode(attribute, _attributes);
+        return attribute != null && _attributes != null && _attributes.remove(attribute);
     }
 
 
@@ -254,7 +212,7 @@ public class MetadataElement extends ProductNode {
         if (_attributes == null) {
             return 0;
         }
-        return _attributes.size();
+        return _attributes.getNodeCount();
     }
 
     /**
@@ -268,7 +226,7 @@ public class MetadataElement extends ProductNode {
         if (_attributes == null) {
             throw new IndexOutOfBoundsException();
         }
-        return _attributes.getAt(index);
+        return _attributes.get(index);
     }
 
     /**
@@ -280,7 +238,7 @@ public class MetadataElement extends ProductNode {
         if (_attributes == null) {
             return new String[0];
         }
-        return _attributes.getNames();
+        return _attributes.getNodeNames();
     }
 
     /**
@@ -290,11 +248,10 @@ public class MetadataElement extends ProductNode {
      *         is returned.
      */
     public MetadataAttribute[] getAttributes() {
-        MetadataAttribute[] attributes = new MetadataAttribute[getNumAttributes()];
-        for (int i = 0; i < attributes.length; i++) {
-            attributes[i] = getAttributeAt(i);
+        if (_attributes == null) {
+            return new MetadataAttribute[0];
         }
-        return attributes;
+        return _attributes.toArray(new MetadataAttribute[_attributes.getNodeCount()]);
     }
 
     /**
@@ -401,10 +358,6 @@ public class MetadataElement extends ProductNode {
             throw new IllegalArgumentException("Unable to parse metadata attribute " + name);
         }
         throw new IllegalArgumentException(getAttributeNotFoundMessage(name));
-    }
-
-    private String getAttributeNotFoundMessage(String name) {
-        return "Metadata attribute " + name + " not found";
     }
 
     /**
@@ -539,24 +492,19 @@ public class MetadataElement extends ProductNode {
         setModified(true);
     }
 
-    /**
-     * Calls the base class version of this method, then if <code>modified</code> if <code>false</code>, sets the
-     * modified flag of all children to <code>false</code>.
-     *
-     * @param modified <code>true</code> if this node has been modified, <code>false otherwise</code>
-     * @see ProductNode#setModified
-     */
     @Override
     public void setModified(boolean modified) {
-        super.setModified(modified);
-        if (!modified) {
-            // inform children
-            for (int i = 0; i < getNumElements(); i++) {
-                getElementAt(i).setModified(false);
+        boolean oldState = isModified();
+        if (oldState != modified) {
+            if (!modified) {
+                if (_elements != null) {
+                    _elements.setModified(false);
+                }
+                if (_attributes != null) {
+                    _attributes.setModified(false);
+                }
             }
-            for (int i = 0; i < getNumAttributes(); i++) {
-                getAttributeAt(i).setModified(false);
-            }
+            super.setModified(modified);
         }
     }
 
@@ -654,6 +602,36 @@ public class MetadataElement extends ProductNode {
         }
         super.dispose();
     }
+
+    static MetadataElement getParentElement(ProductNode node) {
+        node = node.getOwner();
+        while (node != null) {
+            if (node instanceof MetadataElement) {
+                return (MetadataElement) node;
+            }
+            node = node.getOwner();
+        }
+        return null;
+    }
+
+    private static String getAttributeNotFoundMessage(String name) {
+        return "Metadata attribute '" + name + "' not found";
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    // Deprecated API
+
+    /**
+     * Adds an attribute to this node. It will not check if a node exists
+     *
+     * @param attribute the attribute to be added, <code>null</code> is ignored
+     * @deprecated since BEAM 4.7, {@link #addAttribute(MetadataAttribute)} should now be fast enough
+     */
+    @Deprecated
+    public void addAttributeFast(MetadataAttribute attribute) {
+        addAttribute(attribute);
+    }
+
 }
 
 
