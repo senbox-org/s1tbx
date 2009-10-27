@@ -41,6 +41,7 @@ h3. Product Data Model Changes
 **# ProductNodeGroup<VectorData> getVectorDataGroup()
 **# ProductNodeGroup<Mask> getMaskGroup()
 ** Deprecated a lot of old methods deling with {{BitRaster}} and bitmasks in general
+** Change events for the following "properties" are not fired anymore: modified, owner 
 * Added new methods to ProductVisitor interface:
 *# void visit(Mask mask)
 *# void visit(VectorDataNode dataNode)
