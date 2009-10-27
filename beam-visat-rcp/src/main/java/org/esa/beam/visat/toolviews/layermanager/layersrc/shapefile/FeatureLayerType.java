@@ -62,7 +62,7 @@ public class FeatureLayerType extends LayerType {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
+    public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer configuration = new ValueContainer();
 
         // Mandatory Parameters

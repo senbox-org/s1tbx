@@ -17,7 +17,7 @@ public class RgbImageLayerConfigurationPersistencyTest extends AbstractLayerConf
 
     @Override
     protected Layer createLayer(LayerType layerType) throws Exception {
-        final ValueContainer configuration = layerType.getConfigurationTemplate();
+        final ValueContainer configuration = layerType.createLayerConfig(null);
 
         final Product product = createTestProduct("Test", "TEST");
         addVirtualBand(product, "a", ProductData.TYPE_INT32, "17");

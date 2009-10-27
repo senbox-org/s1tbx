@@ -48,7 +48,7 @@ public class WmsLayerConfigurationPersistencyTest {
     @Test
     public void testPersistency() throws ValidationException, ConversionException, MalformedURLException {
         final WmsLayerType wmsLayerType = (WmsLayerType) LayerType.getLayerType(WmsLayerType.class.getName());
-        final ValueContainer configuration = wmsLayerType.getConfigurationTemplate();
+        final ValueContainer configuration = wmsLayerType.createLayerConfig(null);
         configuration.setValue(WmsLayerType.PROPERTY_NAME_STYLE_NAME, "FancyStyle");
         configuration.setValue(WmsLayerType.PROPERTY_NAME_URL, new URL("http://www.mapserver.org"));
         configuration.setValue(WmsLayerType.PROPERTY_NAME_CRS_ENVELOPE, new CRSEnvelope("EPSG:4324", -10, 20, 15, 50));
@@ -63,7 +63,7 @@ public class WmsLayerConfigurationPersistencyTest {
 //        System.out.println(originalDomElement.toXml());
 
         final ValueContainer restoredConfiguration = (ValueContainer) domConverter.convertDomToValue(originalDomElement,
-                                                                                                     wmsLayerType.getConfigurationTemplate());
+                                                                                                     wmsLayerType.createLayerConfig(null));
         compareConfigurations(configuration, restoredConfiguration);
 
     }

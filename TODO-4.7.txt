@@ -48,10 +48,12 @@ h3. Product Data Model Changes
 * ProductNode class
 ** Rename updateExpression(s1, s2) to handleRename(node, s1, s2)  (TODO!)
 
-h3. Ceres Binding Changes
+h3. Ceres Binding API Changes
 
 * ValueContainer.setValue(String propertyName, Object value) now throws IllegalArgumentException
  by wrapping a previously thrown ValidationException.
 
 
+h3. Ceres Layer API Changes
 
+* Renamed LayerType.getConfigurationTemplate() to  createLayerConfiguration()

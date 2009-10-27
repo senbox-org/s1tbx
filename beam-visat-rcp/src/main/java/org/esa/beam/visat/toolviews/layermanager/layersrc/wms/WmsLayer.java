@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 
+// todo - remove this class, code here belongs to WmsLayerType, which shall simply create an ImageLayer (nf,mp 10.2009)
 public class WmsLayer extends Layer {
 
     private final ImageLayer layerDelegate;
@@ -47,7 +48,7 @@ public class WmsLayer extends Layer {
 
         final ImageLayer.Type imageLayerType = (ImageLayer.Type) LayerType.getLayerType(
                 ImageLayer.Type.class.getName());
-        final ValueContainer template = imageLayerType.getConfigurationTemplate();
+        final ValueContainer template = imageLayerType.createLayerConfig(null); // todo - pass correct context
         template.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         template.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
                           multiLevelSource.getModel().getImageToModelTransform(0));

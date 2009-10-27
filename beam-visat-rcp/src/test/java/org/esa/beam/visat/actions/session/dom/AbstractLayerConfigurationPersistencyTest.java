@@ -68,7 +68,7 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
         System.out.println(originalDomElement.toXml());
         
         final ValueContainer restoredConfiguration = (ValueContainer) domConverter.convertDomToValue(originalDomElement,
-                                                                                                     layerType.getConfigurationTemplate());
+                                                                                                     layerType.createLayerConfig(null));
         compareConfigurations(layer.getConfiguration(), restoredConfiguration);
 
         final DomElement restoredDomElement = new DefaultDomElement("configuration");

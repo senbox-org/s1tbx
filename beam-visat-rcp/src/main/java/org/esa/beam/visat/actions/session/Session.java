@@ -428,7 +428,7 @@ public class Session {
                                     ProductManager productManager) throws ConversionException, ValidationException {
         final LayerType type = LayerType.getLayerType(layerRef.layerTypeName);
         final SessionDomConverter converter = new SessionDomConverter(productManager);
-        final ValueContainer template = type.getConfigurationTemplate();
+        final ValueContainer template = type.createLayerConfig(layerContext);
         converter.convertDomToValue(layerRef.configuration, template);
         final Layer layer = type.createLayer(layerContext, template);
         layer.setId(layerRef.id);

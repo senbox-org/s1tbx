@@ -35,8 +35,8 @@ public class RasterImageLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
-        final ValueContainer template = super.getConfigurationTemplate();
+    public ValueContainer createLayerConfig(LayerContext ctx) {
+        final ValueContainer template = super.createLayerConfig(ctx);
 
         template.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
         template.getDescriptor(PROPERTY_NAME_RASTER).setItemAlias("raster");
@@ -46,7 +46,7 @@ public class RasterImageLayerType extends ImageLayer.Type {
     }
 
     public Layer createLayer(RasterDataNode raster, MultiLevelSource multiLevelSource) {
-        final ValueContainer configuration = getConfigurationTemplate();
+        final ValueContainer configuration = createLayerConfig(null);
         configuration.setValue(PROPERTY_NAME_RASTER, raster);
         if (multiLevelSource == null) {
             multiLevelSource = BandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);

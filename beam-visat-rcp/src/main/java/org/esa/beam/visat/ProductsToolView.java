@@ -172,7 +172,7 @@ public class ProductsToolView extends AbstractToolView {
             if (clickCount == 2) {
                 LayerType flt = LayerType.getLayerType(FeatureLayerType.class);
 
-                final ValueContainer conf = flt.getConfigurationTemplate();
+                final ValueContainer conf = flt.createLayerConfig(sceneView);
                 final StyleBuilder builder = new StyleBuilder();
                 Mark mark = builder.createMark("circle", Color.RED);
                 Graphic g = builder.createGraphic(null, mark, null);

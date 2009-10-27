@@ -85,11 +85,11 @@ public class ImageFileLayerSource implements LayerSource {
         try {
             ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
             final LayerType type = LayerType.getLayerType(ImageFileLayerType.class.getName());
-            final ValueContainer configuration = type.getConfigurationTemplate();
+            final ValueContainer configuration = type.createLayerConfig(sceneView);
             configuration.setValue(ImageFileLayerType.PROPERTY_NAME_IMAGE, image);
             configuration.setValue(ImageFileLayerType.PROPERTY_NAME_IMAGE_FILE, new File(imageFilePath));
             configuration.setValue(ImageFileLayerType.PROPERTY_NAME_WORLD_TRANSFORM, transform);
-            Layer layer = type.createLayer(sceneView.getLayerContext(), configuration);
+            Layer layer = type.createLayer(sceneView, configuration);
             layer.setName(FileUtils.getFileNameFromPath(imageFilePath));
             Layer rootLayer = sceneView.getRootLayer();
             rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), layer);

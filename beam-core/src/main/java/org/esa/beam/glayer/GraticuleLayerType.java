@@ -62,7 +62,7 @@ public class GraticuleLayerType extends LayerType {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
+    public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer vc = new ValueContainer();
 
         final ValueModel rasterModel = createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class);

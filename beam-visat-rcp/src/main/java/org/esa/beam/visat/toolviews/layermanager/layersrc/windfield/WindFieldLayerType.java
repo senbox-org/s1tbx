@@ -22,7 +22,7 @@ public class WindFieldLayerType extends LayerType {
     static LayerType instance = new WindFieldLayerType();
 
     public static WindFieldLayer createLayer(RasterDataNode windu, RasterDataNode windv) {
-        final ValueContainer template = instance.getConfigurationTemplate();
+        final ValueContainer template = instance.createLayerConfig(null);
         template.setValue("windu", windu);
         template.setValue("windv", windv);
         return new WindFieldLayer(template);
@@ -46,7 +46,7 @@ public class WindFieldLayerType extends LayerType {
 
     // todo - rename getDefaultConfiguration  ? (nf)
     @Override
-    public ValueContainer getConfigurationTemplate() {
+    public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer valueContainer = new ValueContainer();
         // todo - how do I know whether my value model type can be serialized or not? (nf)
         valueContainer.addModel(new ValueModel(new ValueDescriptor("windu", RasterDataNode.class), new DefaultValueAccessor()));

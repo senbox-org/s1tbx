@@ -39,7 +39,7 @@ public class PlacemarkLayerConfigurationPersistencyTest extends AbstractLayerCon
 
     @Override
     protected Layer createLayer(LayerType layerType) throws Exception {
-        final ValueContainer configuration = layerType.getConfigurationTemplate();
+        final ValueContainer configuration = layerType.createLayerConfig(null);
         configuration.setValue("product", product);
         configuration.setValue("placemarkDescriptor", PinDescriptor.INSTANCE);
         configuration.setValue("imageToModelTransform", new AffineTransform());

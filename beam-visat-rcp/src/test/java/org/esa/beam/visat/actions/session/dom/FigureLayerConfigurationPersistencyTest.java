@@ -24,7 +24,7 @@ public class FigureLayerConfigurationPersistencyTest extends AbstractLayerConfig
 
     @Override
     protected Layer createLayer(LayerType layerType) throws Exception {
-        final ValueContainer configuration = layerType.getConfigurationTemplate();
+        final ValueContainer configuration = layerType.createLayerConfig(null);
         final ArrayList<Figure> figureList = new ArrayList<Figure>();
         figureList.add(createFigure());
         configuration.setValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST, figureList);

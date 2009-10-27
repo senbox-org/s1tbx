@@ -10,7 +10,6 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
@@ -57,26 +56,26 @@ public class RgbImageLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
-        final ValueContainer template = super.getConfigurationTemplate();
+    public ValueContainer createLayerConfig(LayerContext ctx) {
+        final ValueContainer prototype = super.createLayerConfig(ctx);
 
         final ValueModel productModel = createDefaultValueModel(PROPERTY_NAME_PRODUCT, Product.class);
         productModel.getDescriptor().setNotNull(true);
-        template.addModel(productModel);
+        prototype.addModel(productModel);
 
         final ValueModel redModel = createDefaultValueModel(PROPERTY_NAME_EXPRESSION_R, String.class);
         redModel.getDescriptor().setNotNull(true);
-        template.addModel(redModel);
+        prototype.addModel(redModel);
 
         final ValueModel greenModel = createDefaultValueModel(PROPERTY_NAME_EXPRESSION_G, String.class);
         greenModel.getDescriptor().setNotNull(true);
-        template.addModel(greenModel);
+        prototype.addModel(greenModel);
 
         final ValueModel blueModel = createDefaultValueModel(PROPERTY_NAME_EXPRESSION_B, String.class);
         blueModel.getDescriptor().setNotNull(true);
-        template.addModel(blueModel);
+        prototype.addModel(blueModel);
 
-        return template;
+        return prototype;
     }
 
     public Layer createLayer(RasterDataNode[] rasters, BandImageMultiLevelSource multiLevelSource) {
@@ -93,7 +92,7 @@ public class RgbImageLayerType extends ImageLayer.Type {
         if (product != rasters[2].getProduct()) {
             throw new IllegalArgumentException("rasters[0].getProduct() != rasters[2].getProduct()");
         }
-        final ValueContainer configuration = getConfigurationTemplate();
+        final ValueContainer configuration = createLayerConfig(null);
 
         final String expressionR = getExpression(rasters[0]);
         final String expressionG = getExpression(rasters[1]);

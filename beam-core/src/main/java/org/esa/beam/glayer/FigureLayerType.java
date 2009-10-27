@@ -43,7 +43,7 @@ public class FigureLayerType extends LayerType {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
+    public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer vc = new ValueContainer();
 
         vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,

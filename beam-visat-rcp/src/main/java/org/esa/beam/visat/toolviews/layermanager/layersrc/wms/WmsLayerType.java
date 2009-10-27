@@ -42,7 +42,7 @@ public class WmsLayerType extends LayerType {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
+    public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer template = new ValueContainer();
 
         template.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));

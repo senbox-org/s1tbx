@@ -35,7 +35,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
     public static Layer createBitmaskLayer(RasterDataNode raster, final BitmaskDef bitmaskDef,
                                            AffineTransform i2mTransform) {
         final LayerType type = LayerType.getLayerType(BitmaskLayerType.class);
-        final ValueContainer configuration = type.getConfigurationTemplate();
+        final ValueContainer configuration = type.createLayerConfig(null);
         configuration.setValue(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF, bitmaskDef);
         configuration.setValue(BitmaskLayerType.PROPERTY_NAME_PRODUCT, raster.getProduct());
         configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
@@ -70,8 +70,8 @@ public class BitmaskLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
-        final ValueContainer vc = super.getConfigurationTemplate();
+    public ValueContainer createLayerConfig(LayerContext ctx) {
+        final ValueContainer vc = super.createLayerConfig(ctx);
 
         vc.addModel(createDefaultValueModel(PROPERTY_NAME_BITMASK_DEF, BitmaskDef.class));
         vc.getModel(PROPERTY_NAME_BITMASK_DEF).getDescriptor().setNotNull(true);
@@ -83,7 +83,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
     }
 
     public Layer createLayer(BitmaskDef bitmaskDef, Product product, AffineTransform i2m) {
-        final ValueContainer configuration = getConfigurationTemplate();
+        final ValueContainer configuration = createLayerConfig(null);
         configuration.setValue(PROPERTY_NAME_BITMASK_DEF, bitmaskDef);
         configuration.setValue(PROPERTY_NAME_PRODUCT, product);
         configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2m);

@@ -36,7 +36,7 @@ public class BitmaskLayerConfigurationPersistencyTest extends AbstractLayerConfi
 
     @Override
     protected Layer createLayer(LayerType layerType) throws Exception {
-        final ValueContainer originalConfiguration = layerType.getConfigurationTemplate();
+        final ValueContainer originalConfiguration = layerType.createLayerConfig(null);
         assertNotNull(originalConfiguration);
 
         originalConfiguration.setValue("bitmaskDef", bitmaskDef);

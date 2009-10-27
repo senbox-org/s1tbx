@@ -24,7 +24,7 @@ public class RasterImageLayerTypeTest extends LayerTypeTest {
     public void testDefaultConfiguration() {
         final LayerType layerType = getLayerType();
 
-        final ValueContainer template = layerType.getConfigurationTemplate();
+        final ValueContainer template = layerType.createLayerConfig(null);
         assertNotNull(template);
 
         ensurePropertyIsDeclaredButNotDefined(template, "raster", RasterDataNode.class);
@@ -36,7 +36,7 @@ public class RasterImageLayerTypeTest extends LayerTypeTest {
     @Test
     public void testCreateLayerWithConfigurationTemplate() {
         final LayerType layerType = getLayerType();
-        final ValueContainer configuration = layerType.getConfigurationTemplate();
+        final ValueContainer configuration = layerType.createLayerConfig(null);
 
         try {
             layerType.createLayer(null, configuration);

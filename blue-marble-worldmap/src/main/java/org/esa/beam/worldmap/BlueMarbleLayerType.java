@@ -49,7 +49,7 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
                 }
             }
         }
-        for (final ValueModel model : super.getConfigurationTemplate().getModels()) {
+        for (final ValueModel model : super.createLayerConfig(ctx).getModels()) {
             if (configuration.getModel(model.getDescriptor().getName()) == null) {
                 configuration.addModel(model);
             }
@@ -62,7 +62,7 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
+    public ValueContainer createLayerConfig(LayerContext ctx) {
         return new ValueContainer();
     }
 

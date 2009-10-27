@@ -45,7 +45,7 @@ public class PlacemarkLayerType extends LayerType {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
+    public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer valueContainer = new ValueContainer();
 
         final ValueModel textBgColorModel = LayerType.createDefaultValueModel(

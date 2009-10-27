@@ -33,7 +33,7 @@ public class ImageFileLayerType extends LayerType{
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
+    public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer template = new ValueContainer();
 
         final ValueModel imageModel = createDefaultValueModel(PROPERTY_NAME_IMAGE, RenderedImage.class);

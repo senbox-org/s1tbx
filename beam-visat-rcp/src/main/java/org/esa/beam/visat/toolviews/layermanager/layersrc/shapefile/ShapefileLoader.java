@@ -77,7 +77,7 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
             Style selectedStyle = getSelectedStyle(styles);
 
             final LayerType type = LayerType.getLayerType(FeatureLayerType.class.getName());
-            final ValueContainer configuration = type.getConfigurationTemplate();
+            final ValueContainer configuration = type.createLayerConfig(sceneView);
             configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL, file.toURI().toURL());
             configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CRS, targetCrs);
             configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, clipGeometry);

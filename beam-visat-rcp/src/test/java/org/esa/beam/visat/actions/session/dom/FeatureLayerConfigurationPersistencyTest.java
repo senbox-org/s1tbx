@@ -28,7 +28,7 @@ public class FeatureLayerConfigurationPersistencyTest extends AbstractLayerConfi
     @Override
     protected Layer createLayer(LayerType layerType) throws Exception {
 
-        final ValueContainer configuration = layerType.getConfigurationTemplate();
+        final ValueContainer configuration = layerType.createLayerConfig(null);
 
         configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL,
                                getClass().getResource("bundeslaender.shp"));

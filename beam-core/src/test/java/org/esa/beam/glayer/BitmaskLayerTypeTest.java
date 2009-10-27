@@ -25,7 +25,7 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
 
     @Test
     public void testConfigurationTemplate() {
-        final ValueContainer template = getLayerType().getConfigurationTemplate();
+        final ValueContainer template = getLayerType().createLayerConfig(null);
 
         assertNotNull(template);
         ensurePropertyIsDeclaredButNotDefined(template, "bitmaskDef", BitmaskDef.class);
@@ -45,7 +45,7 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
         final BitmaskDef bitmaskDef = new BitmaskDef("bitmask", "description", "A == 42", Color.BLUE, 0.4f);
         product.addBitmaskDef(bitmaskDef);
 
-        final ValueContainer config = getLayerType().getConfigurationTemplate();
+        final ValueContainer config = getLayerType().createLayerConfig(null);
         config.setValue("product", product);
         config.setValue("imageToModelTransform", new AffineTransform());
         config.setValue("bitmaskDef", bitmaskDef);

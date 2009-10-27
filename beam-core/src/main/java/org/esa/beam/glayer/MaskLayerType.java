@@ -6,15 +6,11 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.jai.ImageManager;
 
-import java.awt.geom.AffineTransform;
 import java.awt.Color;
 import java.awt.image.RenderedImage;
 
@@ -36,7 +32,7 @@ public class MaskLayerType extends ImageLayer.Type {
 
     public static Layer createLayer(RasterDataNode raster, Mask mask) {
         MaskLayerType type = LayerType.getLayerType(MaskLayerType.class);
-        ValueContainer configuration = type.getConfigurationTemplate();
+        ValueContainer configuration = type.createLayerConfig(null);
         configuration.setValue(MaskLayerType.PROPERTY_NAME_MASK, mask);
         Layer layer = type.createLayer(null, configuration);
         layer.setVisible(raster.getOverlayMaskGroup().contains(mask));
@@ -77,8 +73,8 @@ public class MaskLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
-        final ValueContainer vc = super.getConfigurationTemplate();
+    public ValueContainer createLayerConfig(LayerContext ctx) {
+        final ValueContainer vc = super.createLayerConfig(ctx);
 
         vc.addModel(createDefaultValueModel(PROPERTY_NAME_MASK, Mask.class));
         vc.getModel(PROPERTY_NAME_MASK).getDescriptor().setNotNull(true);

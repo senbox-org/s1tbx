@@ -89,7 +89,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         final RasterDataNode rasterDataNode = (RasterDataNode) tree.getSelectionPath().getLastPathComponent();
 
         LayerType type = LayerType.getLayerType(RasterImageLayerType.class.getName());
-        ValueContainer configuration = type.getConfigurationTemplate();
+        ValueContainer configuration = type.createLayerConfig(getContext().getLayerContext());
         configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, rasterDataNode);
         final GeoCoding geoCoding = rasterDataNode.getGeoCoding();
         AffineTransform i2mTransform = new AffineTransform();

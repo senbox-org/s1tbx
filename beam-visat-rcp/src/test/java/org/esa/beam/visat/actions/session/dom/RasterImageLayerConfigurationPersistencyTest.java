@@ -16,7 +16,7 @@ public class RasterImageLayerConfigurationPersistencyTest extends AbstractLayerC
 
     @Override
     protected Layer createLayer(LayerType layerType) throws Exception {
-        final ValueContainer configuration = layerType.getConfigurationTemplate();
+        final ValueContainer configuration = layerType.createLayerConfig(null);
         final Band raster = getProductManager().getProduct(0).getBandAt(0);
         configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, raster);
         configuration.setValue("imageToModelTransform", new AffineTransform());

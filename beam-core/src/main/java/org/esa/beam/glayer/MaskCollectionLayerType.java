@@ -6,8 +6,6 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.binding.ValueContainer;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
-import java.awt.geom.AffineTransform;
-
 
 public class MaskCollectionLayerType extends CollectionLayer.Type {
 
@@ -24,8 +22,8 @@ public class MaskCollectionLayerType extends CollectionLayer.Type {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
-        final ValueContainer template = super.getConfigurationTemplate();
+    public ValueContainer createLayerConfig(LayerContext ctx) {
+        final ValueContainer template = super.createLayerConfig(ctx);
         template.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
         template.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
         return template;

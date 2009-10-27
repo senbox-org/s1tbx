@@ -9,7 +9,6 @@ import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
@@ -74,7 +73,7 @@ public class PlacemarkLayer extends Layer {
     protected PlacemarkLayer(PlacemarkLayerType type, Product product, PlacemarkDescriptor placemarkDescriptor,
                              AffineTransform imageToModelTransform) {
         this(type,
-             initConfiguration(type.getConfigurationTemplate(), product, placemarkDescriptor, imageToModelTransform));
+             initConfiguration(type.createLayerConfig(null), product, placemarkDescriptor, imageToModelTransform));
     }
 
     @Override

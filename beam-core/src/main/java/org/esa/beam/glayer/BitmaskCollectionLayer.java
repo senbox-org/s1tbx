@@ -173,16 +173,16 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
 
         @Override
-        public ValueContainer getConfigurationTemplate() {
-            final ValueContainer template = super.getConfigurationTemplate();
+        public ValueContainer createLayerConfig(LayerContext ctx) {
+            final ValueContainer prototype = super.createLayerConfig(ctx);
 
-            template.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
-            template.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
+            prototype.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
+            prototype.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
 
-            template.addModel(createDefaultValueModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
-            template.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
+            prototype.addModel(createDefaultValueModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
+            prototype.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
 
-            return template;
+            return prototype;
 
         }
     }

@@ -86,7 +86,7 @@ public class DefaultLayerSourceDescriptorTest {
         }
 
         @Override
-        public ValueContainer getConfigurationTemplate() {
+        public ValueContainer createLayerConfig(LayerContext ctx) {
             return new ValueContainer();
         }
     }

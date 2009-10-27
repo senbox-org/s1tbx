@@ -57,16 +57,16 @@ public class NoDataLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
-        final ValueContainer template = super.getConfigurationTemplate();
+    public ValueContainer createLayerConfig(LayerContext ctx) {
+        final ValueContainer prototype = super.createLayerConfig(ctx);
 
-        template.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
-        template.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
+        prototype.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
+        prototype.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
 
-        template.addModel(createDefaultValueModel(PROPERTY_NAME_COLOR, Color.class));
-        template.getDescriptor(PROPERTY_NAME_COLOR).setNotNull(true);
+        prototype.addModel(createDefaultValueModel(PROPERTY_NAME_COLOR, Color.class));
+        prototype.getDescriptor(PROPERTY_NAME_COLOR).setNotNull(true);
 
-        return template;
+        return prototype;
 
     }
 }

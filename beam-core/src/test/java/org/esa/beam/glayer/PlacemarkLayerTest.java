@@ -24,7 +24,7 @@ public class PlacemarkLayerTest extends TestCase {
         final AffineTransform i2m = new AffineTransform();
 
         final LayerType type = LayerType.getLayerType(PlacemarkLayerType.class);
-        final ValueContainer template = type.getConfigurationTemplate();
+        final ValueContainer template = type.createLayerConfig(null);
         template.setValue("product", product);
         template.setValue("placemarkDescriptor", pmd);
         template.setValue("imageToModelTransform", i2m);

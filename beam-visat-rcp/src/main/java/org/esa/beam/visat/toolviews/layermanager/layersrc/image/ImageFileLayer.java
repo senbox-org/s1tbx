@@ -15,6 +15,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
 
+// todo - remove this class, code here belongs to ImageFileLayerType, which shall simply create an ImageLayer (nf,mp 10.2009)
 class ImageFileLayer extends Layer {
 
     private ImageLayer layerDelegate;
@@ -24,7 +25,7 @@ class ImageFileLayer extends Layer {
         final MultiLevelSource multiLevelSource = createMultiLevelSource();
 
         final LayerType imageLayerType = LayerType.getLayerType(ImageLayer.Type.class.getName());
-        final ValueContainer template = imageLayerType.getConfigurationTemplate();
+        final ValueContainer template = imageLayerType.createLayerConfig(null); // todo - pass correct context
         template.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         template.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
                           multiLevelSource.getModel().getImageToModelTransform(0));

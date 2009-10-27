@@ -55,16 +55,16 @@ public class RoiLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer getConfigurationTemplate() {
-        final ValueContainer template = super.getConfigurationTemplate();
+    public ValueContainer createLayerConfig(LayerContext ctx) {
+        final ValueContainer prototype = super.createLayerConfig(ctx);
 
         final ValueModel rasterModel = createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class);
         rasterModel.getDescriptor().setNotNull(true);
-        template.addModel(rasterModel);
+        prototype.addModel(rasterModel);
 
-        template.addModel(createDefaultValueModel(PROPERTY_NAME_COLOR, Color.class, Color.RED));
-        template.addModel(createDefaultValueModel(PROPERTY_NAME_TRANSPARENCY, Double.class, 0.5));
+        prototype.addModel(createDefaultValueModel(PROPERTY_NAME_COLOR, Color.class, Color.RED));
+        prototype.addModel(createDefaultValueModel(PROPERTY_NAME_TRANSPARENCY, Double.class, 0.5));
 
-        return template;
+        return prototype;
     }
 }

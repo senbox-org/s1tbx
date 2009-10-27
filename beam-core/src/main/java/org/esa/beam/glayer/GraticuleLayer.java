@@ -55,7 +55,7 @@ public class GraticuleLayer extends Layer {
     private Graticule graticule;
 
     public GraticuleLayer(RasterDataNode raster, AffineTransform i2mTransform) {
-        this(LAYER_TYPE, initConfiguration(LAYER_TYPE.getConfigurationTemplate(), raster, i2mTransform));
+        this(LAYER_TYPE, initConfiguration(LAYER_TYPE.createLayerConfig(null), raster, i2mTransform));
     }
 
 
