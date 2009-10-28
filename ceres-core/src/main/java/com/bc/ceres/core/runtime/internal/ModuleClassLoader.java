@@ -110,14 +110,18 @@ class ModuleClassLoader extends URLClassLoader {
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        for (ClassLoader delegate : delegates) {
-            try {
-                return delegate.loadClass(name);
-            } catch (ClassNotFoundException e) {
-                // ignore, we still can try more
+        try {
+            return super.findClass(name);
+        } catch (ClassNotFoundException e) {
+            for (ClassLoader delegate : delegates) {
+                try {
+                    return delegate.loadClass(name);
+                } catch (ClassNotFoundException e2) {
+                    // ignore, we still can try more
+                }
             }
+            throw e;
         }
-        return super.findClass(name);
     }
 
     public ClassLoader[] getDelegates() {
