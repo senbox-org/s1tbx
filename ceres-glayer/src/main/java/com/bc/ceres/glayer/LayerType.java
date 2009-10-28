@@ -26,39 +26,7 @@ public abstract class LayerType extends ExtensibleObject {
     // todo - Layer API: it shall be safe for BEAM layers to cast ctx into a ProductSceneViewContext, otherwise there can be no reasonable implementations of this method beside CRS checkings (nf)
     public abstract boolean isValidFor(LayerContext ctx);
 
-    // todo - Layer API: this seems to be the only framework usage of getConfigurationTemplate()! (nf)
-    // todo - Layer API: why is this final? assume overriding it in order to cast ctx into an application-specific ctx (nf)
-    public final Layer createLayer(LayerContext ctx, ValueContainer configuration) {
-
-        validateConfiguration(ctx, configuration);
-        return createLayerImpl(ctx, configuration);
-    }
-
-    protected void validateConfiguration(LayerContext ctx, ValueContainer config) {
-        ValueContainer prototypeConfig = createLayerConfig(ctx);
-        for (final ValueModel prototypeModel : prototypeConfig.getModels()) {
-            final String propertyName = prototypeModel.getDescriptor().getName();
-            final ValueModel actualModel = config.getModel(propertyName);
-            if (actualModel != null) {
-                try {
-                    if (actualModel.getValue() == null && actualModel.getDescriptor().isNotNull()) {
-                        actualModel.setValue(actualModel.getDescriptor().getDefaultValue());
-                    }
-                    prototypeModel.validate(actualModel.getValue());
-                } catch (ValidationException e) {
-                    throw new IllegalArgumentException(String.format(
-                            "Invalid value for property '%s': %s", propertyName, e.getMessage()), e);
-                }
-            } else {
-                // todo - Layer API: why not copy from template if not present? (nf)
-                throw new IllegalArgumentException(String.format(
-                        "No model defined for property '%s'", propertyName));
-            }
-        }
-    }
-
-    // todo - Layer API: why is LayerContext not used in implementations? (mp)
-    protected abstract Layer createLayerImpl(LayerContext ctx, ValueContainer configuration);
+    public abstract Layer createLayer(LayerContext ctx, ValueContainer configuration);
 
     // todo - Layer API: why not use annotations? (nf)
     // todo - Layer API: check IDEA ALT+F7: is this a utility or framework API? Only framework usage is in createLayer(). How must clients use this? (nf)

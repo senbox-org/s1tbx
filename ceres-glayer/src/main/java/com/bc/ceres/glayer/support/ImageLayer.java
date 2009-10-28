@@ -287,7 +287,7 @@ public class ImageLayer extends Layer {
         }
 
         @Override
-        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
             return new ImageLayer(this, configuration);
         }
 

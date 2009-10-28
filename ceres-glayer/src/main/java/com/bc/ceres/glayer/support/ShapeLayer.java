@@ -132,7 +132,7 @@ public class ShapeLayer extends Layer {
         }
 
         @Override
-        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
             return new ShapeLayer(this, configuration);
         }
 

@@ -75,7 +75,7 @@ public class BackgroundLayer extends Layer {
         }
 
         @Override
-        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
             return new BackgroundLayer(this, configuration);
         }
     }
