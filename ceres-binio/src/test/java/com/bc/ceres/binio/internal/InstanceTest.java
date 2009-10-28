@@ -334,8 +334,6 @@ public class InstanceTest extends TestCase {
                 final CompoundData kjData = kData.getCompound(j);
                 final SequenceData coordsData = kjData.getSequence("Coords");
                 for (int i = 0; i < ni; i++) {
-                    System.out.println("i=" + i + ",j=" + j + ",k=" + k);
-
                     assertEquals("i=" + i + ",j=" + j + ",k=" + k,
                                  10.0 * i + 0.1 * j + 0.2 * k,
                                  coordsData.getDouble(i), 1e-10);
