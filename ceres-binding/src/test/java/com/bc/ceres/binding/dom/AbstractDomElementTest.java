@@ -104,7 +104,7 @@ public abstract class AbstractDomElementTest extends TestCase {
         element.getChild("configuration").createChild("fillColor").setValue("123, 64,30");
         element.getChild("configuration").createChild("transparency").setValue("0.6");
         String xml = element.toXml();
-        System.out.println("xml = " + xml);
+        //System.out.println("xml = " + xml);
 
         assertEquals("" +
                 "<layer id=\"a62b98ff5\">\n" +
