@@ -65,7 +65,7 @@ public class BandArithmeticPerformanceTest extends TestCase {
         long dt = (t3 - t2) - (t2 - t1);
         long numOps = Math.round(numLoops * (1000.0 / dt));
 
-        System.out.println("BandArithmeticPerformanceTest: " + numOps + " ops per second for term '" + code + "'");
+        //System.out.println("BandArithmeticPerformanceTest: " + numOps + " ops per second for term '" + code + "'");
         assertTrue("Low evaluation performance detected: Term implementation change?",
                    numOps > 2500000);
     }

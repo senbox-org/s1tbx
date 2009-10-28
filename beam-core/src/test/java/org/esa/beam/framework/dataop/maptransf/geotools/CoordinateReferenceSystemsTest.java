@@ -40,10 +40,10 @@ public class CoordinateReferenceSystemsTest extends TestCase {
         final DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
         Set<OperationMethod> methods = mtf.getAvailableMethods(Projection.class);
         for (OperationMethod method : methods) {
-            System.out.println("method.getName() = " + method.getName());
+            //System.out.println("method.getName() = " + method.getName());
             for (final GenericName name : method.getAlias()) {
                 if (name.toString().startsWith("EPSG")) {
-                    System.out.println("method.getAlias() = " + name);
+                    //System.out.println("method.getAlias() = " + name);
                 }
             }
         }

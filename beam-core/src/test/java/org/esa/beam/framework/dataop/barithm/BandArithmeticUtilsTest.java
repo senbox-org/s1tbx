@@ -101,7 +101,6 @@ public class BandArithmeticUtilsTest extends TestCase {
                                                     new Product[]{p1, p2}, 0,
                                                     null);
         assertEquals("($2.f.WATER && !$2.f.INVALID)", vme);
-        System.out.println(vme);
     }
 
     private FlagCoding createFlagCoding() {
