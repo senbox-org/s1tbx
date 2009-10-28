@@ -8,8 +8,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -31,19 +30,6 @@ public class RasterImageLayerTypeTest extends LayerTypeTest {
         ensurePropertyIsDefined(template, "borderShown", Boolean.class);
         ensurePropertyIsDefined(template, "borderWidth", Double.class);
         ensurePropertyIsDefined(template, "borderColor", Color.class);
-    }
-
-    @Test
-    public void testCreateLayerWithConfigurationTemplate() {
-        final LayerType layerType = getLayerType();
-        final ValueContainer configuration = layerType.createLayerConfig(null);
-
-        try {
-            layerType.createLayer(null, configuration);
-            fail();
-        } catch (IllegalArgumentException expected) {
-            System.out.println("expected.getMessage() = " + expected.getMessage());
-        }
     }
 
     @Test
