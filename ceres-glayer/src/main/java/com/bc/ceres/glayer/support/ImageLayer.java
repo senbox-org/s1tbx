@@ -39,16 +39,18 @@ public class ImageLayer extends Layer {
     private static final Type LAYER_TYPE = LayerType.getLayerType(Type.class);
 
     public static final String PROPERTY_NAME_MULTI_LEVEL_SOURCE = "multiLevelSource";
-    public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
     public static final String PROPERTY_NAME_BORDER_SHOWN = "borderShown";
     public static final String PROPERTY_NAME_BORDER_WIDTH = "borderWidth";
     public static final String PROPERTY_NAME_BORDER_COLOR = "borderColor";
+    // tdod - remove
+    public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
 
     public static final boolean DEFAULT_BORDER_SHOWN = false;
     public static final double DEFAULT_BORDER_WIDTH = 1.0;
     public static final Color DEFAULT_BORDER_COLOR = new Color(204, 204, 255);
 
     private MultiLevelSource multiLevelSource;
+
     private MultiLevelRenderer multiLevelRenderer;
     private boolean debug;
 
@@ -92,13 +94,19 @@ public class ImageLayer extends Layer {
      * @param multiLevelSource the multi-resolution-level image.
      */
     public ImageLayer(Type type, MultiLevelSource multiLevelSource) {
-        this(type, initConfiguration(type.createLayerConfig(null), multiLevelSource));
+        this(type, multiLevelSource, initConfiguration(type.createLayerConfig(null), multiLevelSource));
     }
 
     public ImageLayer(Type layerType, ValueContainer configuration) {
         super(layerType, configuration);
         multiLevelSource = (MultiLevelSource) configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         Assert.notNull(multiLevelSource);
+    }
+
+    public ImageLayer(Type layerType, MultiLevelSource multiLevelSource, ValueContainer configuration) {
+        super(layerType, configuration);
+        Assert.notNull(multiLevelSource);
+        this.multiLevelSource = multiLevelSource;
     }
 
     @Override
