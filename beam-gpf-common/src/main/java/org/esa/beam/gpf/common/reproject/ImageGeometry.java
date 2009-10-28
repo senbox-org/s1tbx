@@ -49,19 +49,19 @@ public class ImageGeometry {
     private AffineTransform i2m;
     private int width;
     private int height;
-    private CoordinateReferenceSystem modelCrs;
-    
+    private CoordinateReferenceSystem mapCrs;
+
     private ImageGeometry() {
     }
     
-    ImageGeometry(Rectangle bounds, CoordinateReferenceSystem modelCrs, AffineTransform grid2model) {
-        this.i2m = grid2model;
+    ImageGeometry(Rectangle bounds, CoordinateReferenceSystem mapCrs, AffineTransform image2map) {
+        this.i2m = image2map;
         this.width = bounds.width;
         this.height = bounds.height;
-        this.modelCrs = modelCrs;
+        this.mapCrs = mapCrs;
     }
     
-    public AffineTransform getImage2Model() {
+    public AffineTransform getImage2Map() {
         if (i2m != null) {
             return i2m;
         } else {
@@ -78,8 +78,8 @@ public class ImageGeometry {
         return new Rectangle(width, height);
     }
     
-    public CoordinateReferenceSystem getModelCrs() {
-        return modelCrs;
+    public CoordinateReferenceSystem getMapCrs() {
+        return mapCrs;
     }
     
     void changeYAxisDirection() {
@@ -92,7 +92,7 @@ public class ImageGeometry {
                                               Double referencePixelX, Double referencePixelY) {
         Rectangle2D mapBoundary = createMapBoundary(sourceProduct, targetCrs);
         ImageGeometry ig = new ImageGeometry();
-        ig.modelCrs = targetCrs;
+        ig.mapCrs = targetCrs;
         ig.orientation = orientation == null ? 0.0 : orientation;
         double mapW = mapBoundary.getWidth();
         double mapH = mapBoundary.getHeight();
@@ -141,11 +141,11 @@ public class ImageGeometry {
 
     public static ImageGeometry createCollocationTargetGeometry(Product collocationProduct) {
         GeoCoding geoCoding = collocationProduct.getGeoCoding();
-        AffineTransform i2m = (AffineTransform) geoCoding.getImageToModelTransform().clone();
-        CoordinateReferenceSystem modelCRS = geoCoding.getModelCRS();
+        AffineTransform i2m = (AffineTransform) geoCoding.getImageToMapTransform();
+        CoordinateReferenceSystem mapCRS = geoCoding.getMapCRS();
         ImageGeometry imageGeometry = new ImageGeometry();
-        imageGeometry.modelCrs = modelCRS;
-        imageGeometry.i2m = i2m;
+        imageGeometry.mapCrs = mapCRS;
+        imageGeometry.i2m = (AffineTransform) i2m.clone();
         imageGeometry.width = collocationProduct.getSceneRasterWidth();
         imageGeometry.height = collocationProduct.getSceneRasterHeight();
         return imageGeometry;
@@ -157,7 +157,7 @@ public class ImageGeometry {
         final int step = Math.min(sourceW, sourceH) / 2;
         MathTransform mathTransform;
         try {
-            mathTransform = CRS.findMathTransform(product.getGeoCoding().getBaseCRS(), targetCrs);
+            mathTransform = CRS.findMathTransform(product.getGeoCoding().getMapCRS(), targetCrs);
         } catch (FactoryException e) {
             throw new OperatorException(e);
         }

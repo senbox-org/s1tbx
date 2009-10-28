@@ -1,13 +1,8 @@
 package org.esa.beam.framework.datamodel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,8 +38,8 @@ public class CrsGeoCodingTest {
         assertNotSame(srcGeoCoding, destGeoCoding);
 
         assertEquals(srcGeoCoding.getDatum(), destGeoCoding.getDatum());
-        assertEquals(srcGeoCoding.getModelCRS(), destGeoCoding.getModelCRS());
-        assertEquals(srcGeoCoding.getImageToModelTransform(), destGeoCoding.getImageToModelTransform());
+        assertEquals(srcGeoCoding.getMapCRS(), destGeoCoding.getMapCRS());
+        assertEquals(srcGeoCoding.getGeoCRS(), destGeoCoding.getGeoCRS());
 
         assertEquals(srcGeoCoding.getGeoPos(new PixelPos(3.5f, 0.5f), null),
                      destGeoCoding.getGeoPos(new PixelPos(3.5f, 0.5f), null));
@@ -62,7 +57,7 @@ public class CrsGeoCodingTest {
         assertNotSame(srcGeoCoding, destGeoCoding);
 
         assertEquals(srcGeoCoding.getDatum(), destGeoCoding.getDatum());
-        assertEquals(srcGeoCoding.getModelCRS(), destGeoCoding.getModelCRS());
+        assertEquals(srcGeoCoding.getMapCRS(), destGeoCoding.getMapCRS());
 
         // position (3,3) in source equals (1,1) in dest
         comparePixelPos(destGeoCoding, new PixelPos(3, 3), new PixelPos(1, 1));
@@ -80,7 +75,8 @@ public class CrsGeoCodingTest {
         assertNotSame(srcGeoCoding, destGeoCoding);
 
         assertEquals(srcGeoCoding.getDatum(), destGeoCoding.getDatum());
-        assertEquals(srcGeoCoding.getModelCRS(), destGeoCoding.getModelCRS());
+        assertEquals(srcGeoCoding.getMapCRS(), destGeoCoding.getMapCRS());
+        assertEquals(srcGeoCoding.getGeoCRS(), destGeoCoding.getGeoCRS());
 
         comparePixelPos(destGeoCoding, new PixelPos(0, 0), new PixelPos(0, 0));
         comparePixelPos(destGeoCoding, new PixelPos(8, 0), new PixelPos(4, 0));
@@ -101,7 +97,8 @@ public class CrsGeoCodingTest {
         assertNotSame(srcGeoCoding, destGeoCoding);
 
         assertEquals(srcGeoCoding.getDatum(), destGeoCoding.getDatum());
-        assertEquals(srcGeoCoding.getModelCRS(), destGeoCoding.getModelCRS());
+        assertEquals(srcGeoCoding.getMapCRS(), destGeoCoding.getMapCRS());
+        assertEquals(srcGeoCoding.getGeoCRS(), destGeoCoding.getGeoCRS());
 
         comparePixelPos(destGeoCoding, new PixelPos( 2, 2), new PixelPos(0, 0));
         comparePixelPos(destGeoCoding, new PixelPos(10, 2), new PixelPos(4, 0));

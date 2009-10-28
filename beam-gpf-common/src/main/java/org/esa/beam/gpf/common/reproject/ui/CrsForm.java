@@ -1,6 +1,7 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.swing.TableLayout;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
@@ -63,7 +64,7 @@ class CrsForm extends JPanel {
             return projDefPanel.getProcjetedCRS(sourceProduct);
         }
         if (isCollocate()) {
-            return getCollocationProduct().getGeoCoding().getModelCRS();
+            return getCollocationProduct().getGeoCoding().getMapCRS();
         }
         return null;
     }
@@ -212,7 +213,7 @@ class CrsForm extends JPanel {
             }
             final GeoCoding geoCoding = product.getGeoCoding();
             final boolean hasGeoCoding = geoCoding != null;
-            return hasGeoCoding && geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos();
+            return hasGeoCoding && geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos() && (geoCoding instanceof CrsGeoCoding);
         }
     }
 

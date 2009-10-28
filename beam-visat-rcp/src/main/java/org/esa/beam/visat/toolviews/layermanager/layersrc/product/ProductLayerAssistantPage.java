@@ -15,7 +15,9 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.RasterImageLayerType;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JLabel;
@@ -92,10 +94,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         ValueContainer configuration = type.createLayerConfig(getContext().getLayerContext());
         configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, rasterDataNode);
         final GeoCoding geoCoding = rasterDataNode.getGeoCoding();
-        AffineTransform i2mTransform = new AffineTransform();
-        if (geoCoding != null) {
-            i2mTransform = geoCoding.getImageToModelTransform();
-        }
+        AffineTransform i2mTransform = ImageManager.getImageToModelTransform(geoCoding);
         configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
@@ -128,12 +127,8 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private ProductTreeModel createTreeModel(AppContext ctx) {
         Product selectedProduct = ctx.getSelectedProductSceneView().getProduct();
-        RasterDataNode raster = ctx.getSelectedProductSceneView().getRaster();
-        GeoCoding geoCoding = raster.getGeoCoding();
-        CoordinateReferenceSystem modelCRS = geoCoding != null ? geoCoding.getModelCRS() : null;
 
         ArrayList<CompatibleNodeList> compatibleNodeLists = new ArrayList<CompatibleNodeList>(3);
-
         List<RasterDataNode> compatibleNodes = new ArrayList<RasterDataNode>();
         compatibleNodes.addAll(Arrays.asList(selectedProduct.getBands()));
         compatibleNodes.addAll(Arrays.asList(selectedProduct.getTiePointGrids()));
@@ -141,6 +136,9 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
             compatibleNodeLists.add(new CompatibleNodeList(selectedProduct.getDisplayName(), compatibleNodes));
         }
 
+        RasterDataNode raster = ctx.getSelectedProductSceneView().getRaster();
+        GeoCoding geoCoding = raster.getGeoCoding();
+        CoordinateReferenceSystem modelCRS = geoCoding != null ? ImageManager.getModelCrs(geoCoding) : null;
         if (modelCRS != null) {
             final ProductManager productManager = ctx.getProductManager();
             final Product[] products = productManager.getProducts();
@@ -163,7 +161,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
                                                   Collection<RasterDataNode> rasterDataNodes) {
         for (RasterDataNode node : bands) {
             GeoCoding geoCoding = node.getGeoCoding();
-            if (geoCoding != null && node.getGeoCoding().getModelCRS().equals(crs)) {
+            if (geoCoding != null && CRS.equalsIgnoreMetadata(crs, ImageManager.getModelCrs(geoCoding))) {
                 rasterDataNodes.add(node);
             }
         }

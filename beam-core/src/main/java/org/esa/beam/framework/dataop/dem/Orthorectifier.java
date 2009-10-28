@@ -12,9 +12,11 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Pointing;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.RsMathUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.geom.AffineTransform;
 
@@ -83,9 +85,10 @@ public class Orthorectifier implements GeoCoding {
         return geoCoding.getDatum();
     }
 
+    @Deprecated
     @Override
     public CoordinateReferenceSystem getBaseCRS() {
-        return geoCoding.getBaseCRS();
+        return geoCoding.getMapCRS();
     }
 
     @Override
@@ -93,14 +96,37 @@ public class Orthorectifier implements GeoCoding {
         return geoCoding.getImageCRS();
     }
 
+    /**
+     * @deprecated since BEAM 4.7, use {@link #getMapCRS()} instead.
+     */
+    @Deprecated
     @Override
     public CoordinateReferenceSystem getModelCRS() {
-        return geoCoding.getModelCRS();
+        return getMapCRS();
+    }
+
+    /**
+     * @deprecated since BEAM 4.7, use {@link ????} instead. TODO
+     */
+    @Deprecated
+    @Override
+    public AffineTransform getImageToModelTransform() {
+        return ImageManager.getImageToModelTransform(geoCoding);
     }
 
     @Override
-    public AffineTransform getImageToModelTransform() {
-        return geoCoding.getImageToModelTransform();
+    public CoordinateReferenceSystem getMapCRS() {
+        return geoCoding.getMapCRS();
+    }
+
+    @Override
+    public CoordinateReferenceSystem getGeoCRS() {
+        return geoCoding.getGeoCRS();
+    }
+
+    @Override
+    public MathTransform getImageToMapTransform() {
+        return geoCoding.getImageToMapTransform();
     }
 
     public Pointing getPointing() {

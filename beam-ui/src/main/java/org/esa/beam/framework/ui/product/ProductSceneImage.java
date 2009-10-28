@@ -14,10 +14,10 @@ import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.BitmaskCollectionLayer;
 import org.esa.beam.glayer.BitmaskLayerType;
@@ -25,14 +25,15 @@ import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.FigureLayerType;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.GraticuleLayerType;
+import org.esa.beam.glayer.MaskCollectionLayerType;
+import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glayer.RasterImageLayerType;
 import org.esa.beam.glayer.RgbImageLayerType;
 import org.esa.beam.glayer.RoiLayerType;
-import org.esa.beam.glayer.MaskLayerType;
-import org.esa.beam.glayer.MaskCollectionLayerType;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.PropertyMap;
 
 import java.awt.Color;
@@ -132,7 +133,7 @@ public class ProductSceneImage implements LayerContext {
     public Object getCoordinateReferenceSystem() {
         final GeoCoding geoCoding = rasters[0].getGeoCoding();
         if (geoCoding != null) {
-            return geoCoding.getModelCRS();
+            return ImageManager.getModelCrs(geoCoding);
         }
         return null;
     }

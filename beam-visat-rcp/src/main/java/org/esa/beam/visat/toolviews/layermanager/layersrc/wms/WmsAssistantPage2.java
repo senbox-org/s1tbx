@@ -1,8 +1,8 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import com.jidesoft.tree.AbstractTreeModel;
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.ows.CRSEnvelope;
@@ -24,9 +24,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Rectangle;
-import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
@@ -169,8 +169,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
                     infoLabel.setText("Coordinate system not supported.");
                 } else {
                     RasterDataNode raster = context.getAppContext().getSelectedProductSceneView().getRaster();
-                    GeoCoding geoCoding = raster.getGeoCoding();
-                    AffineTransform g2mTransform = geoCoding.getImageToModelTransform();
+                    AffineTransform g2mTransform = ImageManager.getImageToModelTransform(raster.getGeoCoding());
                     Rectangle2D bounds = g2mTransform.createTransformedShape(
                             new Rectangle(0, 0, raster.getSceneRasterWidth(),
                                           raster.getSceneRasterHeight())).getBounds2D();

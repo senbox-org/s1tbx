@@ -130,12 +130,12 @@ final class Reproject {
          *                 step 1         step 3
          */
         final MathTransform allSteps;
-        MathTransform step1 = new AffineTransform2D(targetGeometry.getImage2Model());
-        MathTransform step3 = new AffineTransform2D(sourceGeometry.getImage2Model()).inverse();
-        if (CRS.equalsIgnoreMetadata(sourceGeometry.getModelCrs(), targetGeometry.getModelCrs())) {
+        MathTransform step1 = new AffineTransform2D(targetGeometry.getImage2Map());
+        MathTransform step3 = new AffineTransform2D(sourceGeometry.getImage2Map()).inverse();
+        if (CRS.equalsIgnoreMetadata(sourceGeometry.getMapCrs(), targetGeometry.getMapCrs())) {
             allSteps = mtFactory.createConcatenatedTransform(step1, step3);
         } else {
-            MathTransform step2 = factory.createOperation(targetGeometry.getModelCrs(), sourceGeometry.getModelCrs()).getMathTransform();
+            MathTransform step2 = factory.createOperation(targetGeometry.getMapCrs(), sourceGeometry.getMapCrs()).getMathTransform();
             /*
              * Computes the final transform.
              */

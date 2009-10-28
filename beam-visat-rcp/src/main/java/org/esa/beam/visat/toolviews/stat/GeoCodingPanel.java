@@ -286,11 +286,11 @@ class GeoCodingPanel extends TextPagePanel {
         sb.append("\n");
 
         sb.append(String.format("%1$-20s \t%2$s\n",
-                                "Model CRS Name:",
-                                mgc.getModelCRS().getName()));
-        sb.append("Model CRS WKT:\n");
+                                "Map CRS Name:",
+                                mgc.getMapCRS().getName()));
+        sb.append("Map CRS WKT:\n");
         sb.append(String.format("\t%s\n",
-                                mgc.getModelCRS().toWKT().replace("\n", "\n\t")));
+                                mgc.getMapCRS().toWKT().replace("\n", "\n\t")));
         sb.append("\n");
 
         sb.append("Output parameters:\n");

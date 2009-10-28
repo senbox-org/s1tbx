@@ -12,6 +12,7 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.PinDescriptor;
@@ -35,6 +36,8 @@ import org.esa.beam.util.IntMap;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.MathUtils;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 import javax.media.jai.Histogram;
 import javax.media.jai.ImageLayout;
@@ -110,6 +113,28 @@ public class ImageManager {
             return rasterDataNode.getSourceImage().getModel();
         }
         return createMultiLevelModel(rasterDataNode);
+    }
+
+    public static AffineTransform getImageToModelTransform(GeoCoding geoCoding) {
+        if (geoCoding == null) {
+            return new AffineTransform();
+        }
+        final MathTransform image2Map = geoCoding.getImageToMapTransform();
+        if (image2Map instanceof AffineTransform) {
+            return (AffineTransform) image2Map;
+        }
+        return new AffineTransform();
+    }
+
+    public static CoordinateReferenceSystem getModelCrs(GeoCoding geoCoding) {
+        if (geoCoding == null) {
+            return null;
+        }
+        final MathTransform image2Map = geoCoding.getImageToMapTransform();
+        if (image2Map instanceof AffineTransform) {
+            return geoCoding.getMapCRS();
+        }
+        return geoCoding.getImageCRS();
     }
 
     public PlanarImage getSourceImage(RasterDataNode rasterDataNode, int level) {
@@ -301,13 +326,7 @@ public class ImageManager {
         final int w = scene.getRasterWidth();
         final int h = scene.getRasterHeight();
 
-        final AffineTransform i2mTransform;
-        if (scene.getGeoCoding() != null) {
-            i2mTransform = scene.getGeoCoding().getImageToModelTransform();
-        } else {
-            i2mTransform = new AffineTransform();
-        }
-
+        final AffineTransform i2mTransform = getImageToModelTransform(scene.getGeoCoding());
         return new DefaultMultiLevelModel(i2mTransform, w, h);
     }
 

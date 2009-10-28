@@ -18,6 +18,7 @@ package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.geom.AffineTransform;
 
@@ -97,25 +98,52 @@ public interface GeoCoding {
     void dispose();
 
     /**
-     * @return The base coordinate reference system (CRS). It may be either a geographical CRS (nominal case is
-     *         "WGS-84") or a derived projected CRS, e.g. "UTM 32 - North".
-     */
-    CoordinateReferenceSystem getBaseCRS();
-
-    /**
      * @return The image coordinate reference system (CRS). It is usually derived from the base CRS by including
      *         a linear or non-linear transformation from base (geodetic) coordinates to image coordinates.
      */
     CoordinateReferenceSystem getImageCRS();
 
     /**
+     * @return The map coordinate reference system (CRS). It may be either a geographical CRS (nominal case is
+     *         "WGS-84") or a derived projected CRS, e.g. "UTM 32 - North".
+     */
+    CoordinateReferenceSystem getMapCRS();
+
+    /**
+     * @return The geographical coordinate reference system (CRS). It may be either "WGS-84" (nominal case) or
+     *         any other geographical CRS.
+     */
+    CoordinateReferenceSystem getGeoCRS();
+
+    /**
+     * @return The math transformation used to convert image coordinates to map coordinates.
+     */
+    MathTransform getImageToMapTransform();
+
+    /**
+     * @return The base coordinate reference system (CRS). It may be either a geographical CRS (nominal case is
+     *         "WGS-84") or a derived projected CRS, e.g. "UTM 32 - North".
+     *
+     * @deprecated since BEAM 4.7, use {@link #getMapCRS()} instead.
+     */
+    @Deprecated
+    CoordinateReferenceSystem getBaseCRS();
+
+    /**
      * @return The model coordinate reference system (CRS). It may be the same as the base CRS for rectified,
      *         geo-referenced images or may be same as the image CRS for unrectified images still in satellite coordinates.
+     *
+     * @deprecated since BEAM 4.7, use {@link org.esa.beam.jai.ImageManager#getModelCrs(GeoCoding)} instead.
      */
+    @Deprecated
     CoordinateReferenceSystem getModelCRS();
 
     /**
      * @return The affine transformation used to convert image coordinates to model coordinates.
+     *
+     * @deprecated since BEAM 4.7, use {@link org.esa.beam.jai.ImageManager#getImageToModelTransform(GeoCoding)} instead.
      */
+    @Deprecated
     AffineTransform getImageToModelTransform();
+
 }

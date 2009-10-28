@@ -9,6 +9,7 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Rendering;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.jai.ImageManager;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.wms.WebMapServer;
 import org.geotools.data.wms.request.GetMapRequest;
@@ -112,8 +113,7 @@ public class WmsLayer extends Layer {
 
             final int sceneWidth = raster.getSceneRasterWidth();
             final int sceneHeight = raster.getSceneRasterHeight();
-            final AffineTransform g2mTransform = raster.getGeoCoding().getImageToModelTransform();
-            AffineTransform i2mTransform = new AffineTransform(g2mTransform);
+            AffineTransform i2mTransform = ImageManager.getImageToModelTransform(raster.getGeoCoding());
             i2mTransform.scale((double) sceneWidth / image.getWidth(), (double) sceneHeight / image.getHeight());
             final Rectangle2D bounds = DefaultMultiLevelModel.getModelBounds(i2mTransform, image);
             final DefaultMultiLevelModel multiLevelModel = new DefaultMultiLevelModel(1, i2mTransform, bounds);

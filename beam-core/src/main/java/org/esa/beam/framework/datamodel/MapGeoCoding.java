@@ -23,8 +23,11 @@ import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.framework.dataop.maptransf.geotools.CoordinateReferenceSystems;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.DerivedCRS;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -41,8 +44,8 @@ public class MapGeoCoding extends AbstractGeoCoding {
 
     private final MapInfo mapInfo;
     private final MapTransform mapTransform;
-    private final AffineTransform imageToModelTransform;
-    private final AffineTransform modelToImageTransform;
+    private final AffineTransform imageToMapTransform;
+    private final AffineTransform mapToImageTransform;
 
     private final boolean normalized;
     private final double normalizedLonMin;
@@ -59,9 +62,9 @@ public class MapGeoCoding extends AbstractGeoCoding {
 
         this.mapInfo = mapInfo;
 
-        imageToModelTransform = this.mapInfo.getPixelToMapTransform();
+        imageToMapTransform = this.mapInfo.getPixelToMapTransform();
         try {
-            modelToImageTransform = this.mapInfo.getPixelToMapTransform().createInverse();
+            mapToImageTransform = this.mapInfo.getPixelToMapTransform().createInverse();
         } catch (NoninvertibleTransformException e) {
             throw new IllegalArgumentException("mapInfo", e);
         }
@@ -81,11 +84,19 @@ public class MapGeoCoding extends AbstractGeoCoding {
             normalizedLonMin = -180;
         }
 
-        final CoordinateReferenceSystem baseCRS = CoordinateReferenceSystems.getCRS(mapInfo.getMapProjection(),
+        final CoordinateReferenceSystem mapCRS = CoordinateReferenceSystems.getCRS(mapInfo.getMapProjection(),
                                                                                     mapInfo.getDatum());
-        setBaseCRS(baseCRS);
-        setImageCRS(createImageCRS(baseCRS, new AffineTransform2D(modelToImageTransform)));
-        setModelCRS(baseCRS);
+        setMapCRS(mapCRS);
+        setImageCRS(createImageCRS(mapCRS, new AffineTransform2D(mapToImageTransform)));
+
+        //TODO -- is this ok ?
+        if (mapCRS instanceof DerivedCRS) {
+            DerivedCRS derivedCRS = (DerivedCRS) mapCRS;
+            CoordinateReferenceSystem baseCRS = derivedCRS.getBaseCRS();
+            setGeoCRS(baseCRS);
+        } else {
+            setGeoCRS(DefaultGeographicCRS.WGS84);
+        }
     }
 
     /**
@@ -200,16 +211,16 @@ public class MapGeoCoding extends AbstractGeoCoding {
 
     private PixelPos mapToPixel(final Point2D mapPos, PixelPos pixelPos) {
         if (pixelPos != null) {
-            modelToImageTransform.transform(mapPos, pixelPos);
+            mapToImageTransform.transform(mapPos, pixelPos);
             return pixelPos;
         } else {
-            Point2D point2D = modelToImageTransform.transform(mapPos, pixelPos);
+            Point2D point2D = mapToImageTransform.transform(mapPos, pixelPos);
             return new PixelPos((float) point2D.getX(), (float) point2D.getY());
         }
     }
 
     private Point2D pixelToMap(final PixelPos pixelPos, Point2D mapPos) {
-        return imageToModelTransform.transform(pixelPos, mapPos);
+        return imageToMapTransform.transform(pixelPos, mapPos);
     }
 
     private GeoPos normGeoPos(final GeoPos geoPos, final GeoPos geoPosNorm) {
@@ -318,7 +329,8 @@ public class MapGeoCoding extends AbstractGeoCoding {
     }
 
     @Override
-    public AffineTransform getImageToModelTransform() {
-        return imageToModelTransform;
+    public MathTransform getImageToMapTransform() {
+        return new AffineTransform2D(imageToMapTransform);
+
     }
 }

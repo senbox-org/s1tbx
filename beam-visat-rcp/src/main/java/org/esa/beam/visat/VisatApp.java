@@ -36,7 +36,9 @@ import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.PinDescriptor;
@@ -1907,9 +1909,9 @@ public class VisatApp extends BasicApp implements AppContext {
         }
         final RasterDataNode raster = sceneView.getRaster();
         final String csName;
-        if (raster.getGeoCoding() instanceof MapGeoCoding) {
-            MapGeoCoding mapGeoCoding = (MapGeoCoding) raster.getGeoCoding();
-            csName = mapGeoCoding.getModelCRS().getName().toString();
+        final GeoCoding geoCoding = raster.getGeoCoding();
+        if (geoCoding instanceof MapGeoCoding || geoCoding instanceof CrsGeoCoding) {
+            csName = geoCoding.getMapCRS().getName().toString();
         } else {
             csName = "Satellite coordinates";
         }

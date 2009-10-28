@@ -17,7 +17,7 @@
 package org.esa.beam.dataio.dimap;
 
 import com.bc.ceres.core.ProgressMonitor;
-
+import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FXYGeoCoding;
@@ -41,6 +41,7 @@ import org.esa.beam.util.math.FXYSum;
 import org.geotools.referencing.CRS;
 import org.jdom.Document;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -48,8 +49,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Vector;
-
-import junit.framework.TestCase;
 
 public class DimapProductHelpersTest extends TestCase {
 
@@ -633,11 +632,11 @@ public class DimapProductHelpersTest extends TestCase {
         assertEquals(CrsGeoCoding.class, geoCoding.getClass());
         final CrsGeoCoding crsGeoCoding = (CrsGeoCoding) geoCoding;
 
-        final CoordinateReferenceSystem modelCRS = crsGeoCoding.getModelCRS();
+        final CoordinateReferenceSystem mapCRS = crsGeoCoding.getMapCRS();
         // ignoring metadata because scope and domainOfValidity are not restored
         // but not important for our GeoCoding
-        assertTrue(CRS.equalsIgnoreMetadata(expectedCrs, modelCRS));
-        assertEquals(expectedI2m, crsGeoCoding.getImageToModelTransform());
+        assertTrue(CRS.equalsIgnoreMetadata(expectedCrs, mapCRS));
+        assertEquals(expectedI2m, crsGeoCoding.getImageToMapTransform());
     }
 
     public void testReadingGeoCodingPerBand() {
@@ -803,12 +802,15 @@ public class DimapProductHelpersTest extends TestCase {
 
     private String createCrsGeoCodingString(CrsGeoCoding geoCoding) {
         final double[] matrix = new double[6];
-        geoCoding.getImageToModelTransform().getMatrix(matrix);
+        final MathTransform transform = geoCoding.getImageToMapTransform();
+        if (transform instanceof AffineTransform) {
+            ((AffineTransform)transform).getMatrix(matrix);
+        }
 
         return "<" + DimapProductConstants.TAG_ROOT + ">" + LS +
                "    <Coordinate_Reference_System>" + LS +
                "        <WKT>" + LS +
-               geoCoding.getModelCRS().toString() +
+               geoCoding.getMapCRS().toString() +
                "        </WKT>" + LS +
                "    </Coordinate_Reference_System>" + LS +
                "    <Geoposition>" + LS +

@@ -57,8 +57,10 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
@@ -689,9 +691,12 @@ public final class DimapHeaderWriter extends XmlWriter {
 
     private void writeCrsGeoCoding(GeoCoding geoCoding, int indent, int index) {
         final CrsGeoCoding crsGeoCoding = (CrsGeoCoding) geoCoding;
-        final CoordinateReferenceSystem crs = crsGeoCoding.getModelCRS();
+        final CoordinateReferenceSystem crs = crsGeoCoding.getMapCRS();
         final double[] matrix = new double[6];
-        crsGeoCoding.getImageToModelTransform().getMatrix(matrix);
+        final MathTransform transform = crsGeoCoding.getImageToMapTransform();
+        if (transform instanceof AffineTransform) {
+            ((AffineTransform)transform).getMatrix(matrix);
+        }
 
         final String[] crsTags = createTags(indent, DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
         println(crsTags[0]);

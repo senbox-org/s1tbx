@@ -29,40 +29,41 @@ import java.awt.geom.Rectangle2D;
 public class CrsGeoCoding extends AbstractGeoCoding {
 
     private final Rectangle imageBounds;
-    private final AffineTransform imageToModel;
-
-    private final MathTransform image2Base;
-    private final MathTransform base2image;
+    private final AffineTransform imageToMap;
+    private final MathTransform imageToGeo;
+    private final MathTransform geoToImage;
     private final Datum datum;
     private final boolean crossingMeridianAt180;
 
-    public CrsGeoCoding(final CoordinateReferenceSystem modelCRS,
+    public CrsGeoCoding(final CoordinateReferenceSystem mapCRS,
                         final Rectangle imageBounds,
-                        final AffineTransform imageToModel) throws FactoryException,
+                        final AffineTransform imageToMap) throws FactoryException,
             TransformException {
         this.imageBounds = imageBounds;
-        this.imageToModel = imageToModel;
-        setModelCRS(modelCRS);
-        org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(getModelCRS());
+        this.imageToMap = imageToMap;
+        setMapCRS(mapCRS);
+        org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(mapCRS);
         String ellipsoidName = gtEllipsoid.getName().getCode();
         Ellipsoid ellipsoid = new Ellipsoid(ellipsoidName, gtEllipsoid.getSemiMajorAxis(),
                                             gtEllipsoid.getSemiMinorAxis());
-        org.opengis.referencing.datum.Datum gtDatum = CRSUtilities.getDatum(getModelCRS());
+        org.opengis.referencing.datum.Datum gtDatum = CRSUtilities.getDatum(mapCRS);
         String datumName = gtDatum.getName().getCode();
         this.datum = new Datum(datumName, ellipsoid, 0, 0, 0);
 
-        MathTransform i2m = new AffineTransform2D(imageToModel);
+        MathTransform i2m = new AffineTransform2D(imageToMap);
 
-        if (modelCRS instanceof DerivedCRS) {
-            DerivedCRS derivedCRS = (DerivedCRS) modelCRS;
+        //TODO -- is this ok ?
+        if (mapCRS instanceof DerivedCRS) {
+            DerivedCRS derivedCRS = (DerivedCRS) mapCRS;
             CoordinateReferenceSystem baseCRS = derivedCRS.getBaseCRS();
-            setBaseCRS(baseCRS);
+            setGeoCRS(baseCRS);
         } else {
-            setBaseCRS(DefaultGeographicCRS.WGS84);
+            setGeoCRS(DefaultGeographicCRS.WGS84);
         }
-        setImageCRS(createImageCRS(getBaseCRS(), i2m.inverse()));
+        
+        setImageCRS(createImageCRS(mapCRS, i2m.inverse()));
 
-        MathTransform model2Base = CRS.findMathTransform(getModelCRS(), getBaseCRS());
+        MathTransform map2Geo = CRS.findMathTransform(mapCRS, getGeoCRS());
 
         final CoordinateOperationFactory factory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
         final MathTransformFactory mtFactory;
@@ -71,14 +72,19 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         } else {
             mtFactory = ReferencingFactoryFinder.getMathTransformFactory(null);
         }
-        image2Base = mtFactory.createConcatenatedTransform(i2m, model2Base);
-        base2image = image2Base.inverse();
+        imageToGeo = mtFactory.createConcatenatedTransform(i2m, map2Geo);
+        geoToImage = imageToGeo.inverse();
         crossingMeridianAt180 = detect180MeridianCrossing();
     }
 
     @Override
+    public MathTransform getImageToMapTransform() {
+        return new AffineTransform2D(imageToMap);
+    }
+
+    @Override
     public boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef) {
-        final AffineTransform destTransform = new AffineTransform(getImageToModelTransform());
+        final AffineTransform destTransform = new AffineTransform(imageToMap);
         Rectangle destBounds = new Rectangle(destScene.getRasterWidth(), destScene.getRasterHeight());
 
         if (subsetDef != null) {
@@ -93,7 +99,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         }
 
         try {
-            destScene.setGeoCoding(new CrsGeoCoding(getModelCRS(), destBounds, destTransform));
+            destScene.setGeoCoding(new CrsGeoCoding(getMapCRS(), destBounds, destTransform));
         } catch (Exception e) {
             Debug.trace(e);
             return false;
@@ -128,7 +134,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         }
         try {
             DirectPosition directPixelPos = new DirectPosition2D(pixelPos);
-            DirectPosition directGeoPos = image2Base.transform(directPixelPos, null);
+            DirectPosition directGeoPos = imageToGeo.transform(directPixelPos, null);
             geoPos.setLocation((float) directGeoPos.getOrdinate(1), (float) directGeoPos.getOrdinate(0));
         } catch (Exception ignored) {
             geoPos.setInvalid();
@@ -143,7 +149,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         }
         try {
             DirectPosition directGeoPos = new DirectPosition2D(geoPos.getLon(), geoPos.getLat());
-            DirectPosition directPixelPos = base2image.transform(directGeoPos, null);
+            DirectPosition directPixelPos = geoToImage.transform(directGeoPos, null);
             pixelPos.setLocation((float) directPixelPos.getOrdinate(0), (float) directPixelPos.getOrdinate(1));
         } catch (Exception ignored) {
             pixelPos.setInvalid();
@@ -157,24 +163,20 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     }
 
     @Override
-    public AffineTransform getImageToModelTransform() {
-        return imageToModel;
-    }
-
-    @Override
     public String toString() {
         final String s = super.toString();
         return s + "\n\n" +
-                "Model CRS:\n" + getModelCRS().toString() + "\n" +
-                "Image To Model:\n" + imageToModel.toString();
+                "Map CRS:\n" + getMapCRS().toString() + "\n" +
+                "Image To Map:\n" + imageToMap.toString();
 
     }
 
     private boolean detect180MeridianCrossing() throws TransformException, FactoryException {
         ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(this.imageBounds, getImageCRS());
-        referencedEnvelope = referencedEnvelope.transform(getBaseCRS(), true);
+        referencedEnvelope = referencedEnvelope.transform(getGeoCRS(), true);
         final Rectangle2D.Double meridian180 = new Rectangle2D.Double(180 - 1.0e-3, 90, 2 * 1.0e-3, -180);
-        final BoundingBox meridian180Envelop = new ReferencedEnvelope(meridian180, getBaseCRS());
+        final BoundingBox meridian180Envelop = new ReferencedEnvelope(meridian180, getGeoCRS());
         return referencedEnvelope.intersects(meridian180Envelop);
     }
+
 }

@@ -25,7 +25,6 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -195,9 +194,9 @@ public class ReprojectionOp extends Operator {
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
         copyIndexCoding();
         try {
-            targetProduct.setGeoCoding(new CrsGeoCoding(targetImageGeometry.getModelCrs(),
+            targetProduct.setGeoCoding(new CrsGeoCoding(targetImageGeometry.getMapCrs(),
                                                         targetRect,
-                                                        targetImageGeometry.getImage2Model()));
+                                                        targetImageGeometry.getImage2Map()));
         } catch (Exception e) {
             throw new OperatorException(e);
         }
@@ -377,11 +376,11 @@ public class ReprojectionOp extends Operator {
                 Rectangle sourceRect = createLevelBounds(srcModel, sourceLevel);
                 Rectangle targetRect = createLevelBounds(targetModel, targetLevel);
                 ImageGeometry sourceGeometry = new ImageGeometry(sourceRect,
-                                                                   sourceGeoCoding.getModelCRS(),
-                                                                   srcModel.getImageToModelTransform(sourceLevel));
+                                                                 ImageManager.getModelCrs(sourceGeoCoding),
+                                                                 srcModel.getImageToModelTransform(sourceLevel));
                 ImageGeometry targetGeometry = new ImageGeometry(targetRect,
-                                                                   targetProduct.getGeoCoding().getModelCRS(),
-                                                                   getModel().getImageToModelTransform(targetLevel));
+                                                                 ImageManager.getModelCrs(targetProduct.getGeoCoding()),
+                                                                 getModel().getImageToModelTransform(targetLevel));
 
                 ImageLayout imageLayout = createImageLayout(targetBand.getDataType(),
                                                             targetRect.width,
@@ -402,6 +401,14 @@ public class ReprojectionOp extends Operator {
                 }
             }
         });
+    }
+
+    private AffineTransform getImageToMapTransform(AffineTransform transformLevelZero, MultiLevelModel mlModel,
+                                                     int level) {
+        AffineTransform transform = new AffineTransform(transformLevelZero);
+        final double s = mlModel.getScale(level);
+        transform.scale(s, s);
+        return transform;
     }
 
     private int getSourceLevel(MultiLevelModel srcModel, int targetLevel) {
@@ -462,7 +469,7 @@ public class ReprojectionOp extends Operator {
             } else if (wkt != null) {
                 crs = CRS.parseWKT(wkt);
             } else if (collocationProduct != null && collocationProduct.getGeoCoding() != null) {
-                crs = collocationProduct.getGeoCoding().getModelCRS();
+                crs = collocationProduct.getGeoCoding().getMapCRS(); // TODO ?????
             }
         } catch (Exception e) {
             throw new OperatorException(e);

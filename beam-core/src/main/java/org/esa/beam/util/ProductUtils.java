@@ -62,6 +62,7 @@ import org.esa.beam.framework.dataop.maptransf.StereographicDescriptor;
 import org.esa.beam.framework.dataop.maptransf.TransverseMercatorDescriptor;
 import org.esa.beam.framework.dataop.maptransf.UTM;
 import org.esa.beam.glayer.BitmaskLayerType;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.geotiff.EPSGCodes;
 import org.esa.beam.util.geotiff.GeoTIFFCodes;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
@@ -1671,10 +1672,7 @@ public class ProductUtils {
             for (BitmaskDef bitmaskDef : bitmaskDefs) {
                 pm.setSubTaskName(String.format("Applying bitmask '%s'", bitmaskDef.getName()));
                 final GeoCoding geoCoding = raster.getGeoCoding();
-                AffineTransform transform = new AffineTransform();
-                if (geoCoding != null) {
-                    transform = geoCoding.getImageToModelTransform();
-                }
+                AffineTransform transform = ImageManager.getImageToModelTransform(geoCoding);
                 final Layer layer = BitmaskLayerType.createBitmaskLayer(raster, bitmaskDef, transform);
                 layer.render(imageRendering);
                 pm.worked(1);

@@ -56,11 +56,11 @@ class CursorOverlay implements LayerCanvas.Overlay {
 
         final Viewport viewport = canvas.getViewport();
 
-        drawCursor(graphics, geoCoding, viewport, pixelPos);
+        drawCursor(graphics, viewport, pixelPos);
     }
 
-    private void drawCursor(Graphics2D graphics, GeoCoding geoCoding, Viewport viewport, PixelPos pixelPos) {
-        AffineTransform i2mTransform = geoCoding.getImageToModelTransform();
+    private void drawCursor(Graphics2D graphics, Viewport viewport, PixelPos pixelPos) {
+        AffineTransform i2mTransform = sceneView.getBaseImageLayer().getImageToModelTransform();
         AffineTransform m2vTransform = viewport.getModelToViewTransform();
         AffineTransform i2vTransform = new AffineTransform(m2vTransform);
         i2vTransform.concatenate(i2mTransform);
