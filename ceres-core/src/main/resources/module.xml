@@ -9,6 +9,7 @@
     <changelog>
         <![CDATA[
         Changes in 0.10<br/>
+        [CERES-044] Speedup service provider registration<br/>
         [CERES-035] Typo in classname com.bc.ceres.core.runtime.ConfigurationShemaElement<br/>
         Changes in 0.9<br/>
         [CERES-029] ExtensionManager shall consider complete type hierarchy<br/>

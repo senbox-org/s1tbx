@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import java.util.logging.Level;
 
 public class RuntimeActivator implements Activator {
@@ -49,12 +51,14 @@ public class RuntimeActivator implements Activator {
         return moduleContext;
     }
 
+    @Override
     public void start(ModuleContext moduleContext) throws CoreException {
         this.moduleContext = moduleContext;
         initApplications();
         initServiceProviders();
     }
 
+    @Override
     public void stop(ModuleContext moduleContext) throws CoreException {
         disposeServiceProviders();
         disposeApplications();
@@ -63,6 +67,7 @@ public class RuntimeActivator implements Activator {
 
 
     private void initServiceProviders() {
+        ClassLoader providerLoader = initProviderLoader();
         serviceRegistrations = new ArrayList<ServiceRegistration>(32);
         ExtensionPoint extensionPoint = moduleContext.getModule().getExtensionPoint("serviceProviders");
         Extension[] extensions = extensionPoint.getExtensions();
@@ -74,22 +79,39 @@ public class RuntimeActivator implements Activator {
                 if (declaringModule.getState().is(ModuleState.RESOLVED)) {
                     Class<?> providerClass = getProviderClass(declaringModule, providerClassName);
                     if (providerClass != null) {
-                        Set<ServiceRegistration> serviceRegistrations = getServiceRegistrations(providerClass);
-                        for (ServiceRegistration serviceRegistration : serviceRegistrations) {
-                            String[] providerImplClassNames = getProviderImplClassNames(serviceRegistration);
-                            if (providerImplClassNames != null) {
-                                for (String providerImplClassName : providerImplClassNames) {
-                                    Class<?> providerImplClass = getProviderImplClass(serviceRegistration, providerImplClassName);
-                                    if (providerImplClass != null) {
-                                        registerProviderImpl(serviceRegistration, providerImplClass);
+                        try {
+                            Set<ServiceRegistration> serviceRegistrationsForClass = getServiceRegistrations(providerClass, providerLoader);
+                            for (ServiceRegistration serviceRegistration : serviceRegistrationsForClass) {
+                                String[] providerImplClassNames = getProviderImplClassNames(serviceRegistration);
+                                if (providerImplClassNames != null) {
+                                    for (String providerImplClassName : providerImplClassNames) {
+                                        Class<?> providerImplClass = getProviderImplClass(serviceRegistration, providerImplClassName);
+                                        if (providerImplClass != null) {
+                                            registerProviderImpl(serviceRegistration, providerImplClass);
+                                        }
                                     }
                                 }
                             }
+                        } catch (IOException e) {
+                            moduleContext.getLogger().log(Level.SEVERE,
+                                                          String.format("Failed to load service provider [%s]",
+                                                                        providerClassName), e);
                         }
                     }
                 }
             }
         }
+    }
+
+    private ClassLoader initProviderLoader() {
+        ArrayList<URL> urlArrayList = new ArrayList<URL>();
+        for (Module module : moduleContext.getModules()) {
+            if (module.getState().is(ModuleState.RESOLVED)) {
+                URL location = module.getLocation();
+                urlArrayList.add(location);
+            }
+        }
+        return new URLClassLoader(urlArrayList.toArray(new URL[urlArrayList.size()]), new NullClassLoader());
     }
 
     private void registerProviderImpl(ServiceRegistration serviceRegistration, Class<?> providerImplClass) {
@@ -100,7 +122,7 @@ public class RuntimeActivator implements Activator {
                 serviceRegistration.serviceRegistry.addService(providerImpl);
                 serviceRegistration.providerImpl = providerImpl;
                 moduleContext.getLogger().info("Service " + providerImplClass + " registered");
-                this.serviceRegistrations.add(serviceRegistration);
+                serviceRegistrations.add(serviceRegistration);
             }
         } else {
             moduleContext.getLogger().severe(String.format("Service [%s] is not of type [%s]",
@@ -159,37 +181,49 @@ public class RuntimeActivator implements Activator {
         return providerClass;
     }
 
-    private Set<ServiceRegistration> getServiceRegistrations(Class<?> providerClass) {
+    private Set<ServiceRegistration> getServiceRegistrations(Class<?> providerClass, ClassLoader providerLoader) throws IOException {
         ServiceRegistry serviceRegistry = ServiceRegistryFactory.getInstance().getServiceRegistry(providerClass);
+        HashSet<ServiceRegistration> serviceRegistrationsForClass = new HashSet<ServiceRegistration>(10);
         String resourcePath = "META-INF/services/" + providerClass.getName();
-        Module[] modules = moduleContext.getModules();
-        HashSet<ServiceRegistration> serviceRegistrations = new HashSet<ServiceRegistration>(10);
-        for (Module module : modules) {
-            if (module.getState().is(ModuleState.RESOLVED)) {
-                Enumeration<URL> resources = null;
-                try {
-                    resources = module.getResources(resourcePath);
-                } catch (IOException e) {
-                    moduleContext.getLogger().log(Level.SEVERE,
-                                                  String.format(
-                                                          "Failed to load configuration [%s] from module [%s].",
-                                                          resourcePath, module.getName()), e);
-                }
-                if (resources != null) {
-                    while (resources.hasMoreElements()) {
-                        URL url = resources.nextElement();
-                        ServiceRegistration serviceRegistration = new ServiceRegistration(url, module, serviceRegistry);
-                        if (!serviceRegistrations.contains(serviceRegistration)) {
-                            serviceRegistrations.add(serviceRegistration);
-                        } else {
-                            // todo - if we come here (we do!), services are registered multiple times, avoid this!
-                            //moduleContext.getLogger().warning(String.format("Service already registered: [%s].", serviceRegistration));
-                        }
+
+        Enumeration<URL> resources = providerLoader.getResources(resourcePath);
+        if (resources != null) {
+            while (resources.hasMoreElements()) {
+                URL url = resources.nextElement();
+                Module module = getModule(url);
+                if (module != null) {
+                    ServiceRegistration serviceRegistration = new ServiceRegistration(url, module, serviceRegistry);
+                    if (!serviceRegistrationsForClass.contains(serviceRegistration)) {
+                        serviceRegistrationsForClass.add(serviceRegistration);
+                    } else {
+                        moduleContext.getLogger().warning(String.format("Service already registered: [%s].", serviceRegistration));
                     }
+                } else {
+                    moduleContext.getLogger().warning("Module not found for service provider URL " + url);
                 }
             }
         }
-        return serviceRegistrations;
+
+        return serviceRegistrationsForClass;
+    }
+
+    private Module getModule(URL url) {
+        String urlString = url.toExternalForm();
+        Module module = getModule(urlString);
+        if (module == null && urlString.startsWith("jar:")) {
+            urlString = urlString.substring(4);
+            module = getModule(urlString);
+        }
+        return module;
+    }
+    
+    private Module getModule(String urlAsString) {
+        for (Module module : moduleContext.getModules()) {
+            if (urlAsString.startsWith(module.getLocation().toExternalForm())) {
+                return module;
+            }
+        }
+        return null;
     }
 
     private static class ServiceRegistration {
@@ -303,6 +337,28 @@ public class RuntimeActivator implements Activator {
             return classNames.toArray(new String[classNames.size()]);
         } finally {
             bufferedReader.close();
+        }
+    }
+
+    private static class NullClassLoader extends ClassLoader {
+        @Override
+        protected Class<?> findClass(String name) throws ClassNotFoundException {
+            throw new ClassNotFoundException(name);
+        }
+
+        @Override
+        protected URL findResource(String name) {
+            return null;
+        }
+
+        @Override
+        protected String findLibrary(String libname) {
+            return null;
+        }
+
+        @Override
+        protected Enumeration<URL> findResources(String name) throws IOException {
+            return new Vector<URL>().elements();
         }
     }
 }
