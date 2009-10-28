@@ -10,7 +10,6 @@ import org.esa.beam.glevel.TiledFileMultiLevelSource;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
-import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -25,6 +24,7 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
 
     private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.worldImageDir";
     private MultiLevelSource multiLevelSource;
+    private static final String WORLD_MAP_LAYER_NAME = "World Map (NASA Blue Marble)";
 
     @Override
     public String getName() {
@@ -55,10 +55,12 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
             }
         }
         configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-        final AffineTransform imageToModelTransform = multiLevelSource.getModel().getImageToModelTransform(0);
-        configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
 
-        return new BlueMarbleWorldMapLayer(configuration);
+        final ImageLayer layer = new ImageLayer(this, multiLevelSource, configuration);
+        layer.setName(WORLD_MAP_LAYER_NAME);
+        layer.setVisible(true);
+
+        return layer;
     }
 
     @Override
@@ -84,7 +86,7 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
     }
 
     private static String getDirPathFromModule() {
-        final URL resource = BlueMarbleWorldMapLayer.class.getResource("image.properties");
+        final URL resource = BlueMarbleLayerType.class.getResource("image.properties");
         try {
             return new File(resource.toURI()).getParent();
         } catch (URISyntaxException e) {
