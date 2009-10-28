@@ -32,7 +32,7 @@ public class RgbImageLayerType extends ImageLayer.Type {
     }
 
     @Override
-    protected ImageLayer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+    public ImageLayer createLayer(LayerContext ctx, ValueContainer configuration) {
         if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
             final Product product = (Product) configuration.getValue(PROPERTY_NAME_PRODUCT);
 

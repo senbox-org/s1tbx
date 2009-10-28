@@ -54,7 +54,7 @@ public class FeatureLayerType extends LayerType {
     }
 
     @Override
-    protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
         if (configuration.getValue(PROPERTY_NAME_FEATURE_COLLECTION_CRS) == null && ctx != null) {
             configuration.setValue(PROPERTY_NAME_FEATURE_COLLECTION_CRS, ctx.getCoordinateReferenceSystem());
         }

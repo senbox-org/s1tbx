@@ -17,7 +17,7 @@ public class MaskCollectionLayerType extends CollectionLayer.Type {
     }
 
     @Override
-    protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
         return new MaskCollectionLayer(this, configuration);
     }
 

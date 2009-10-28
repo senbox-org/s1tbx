@@ -41,7 +41,7 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
     }
 
     @Override
-    protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
         if (multiLevelSource == null) {
             synchronized (this) {
                 if (multiLevelSource == null) {

@@ -36,7 +36,7 @@ public class WmsLayerType extends LayerType {
     }
 
     @Override
-    protected com.bc.ceres.glayer.Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+    public com.bc.ceres.glayer.Layer createLayer(LayerContext ctx, ValueContainer configuration) {
         return new WmsLayer(configuration);
 
     }

@@ -40,7 +40,7 @@ public class WindFieldLayerType extends LayerType {
     }
 
     @Override
-    protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
         return new WindFieldLayer(configuration);
     }
 

@@ -30,7 +30,7 @@ public class NoDataLayerType extends ImageLayer.Type {
     }
 
     @Override
-    protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
         final Color color = (Color) configuration.getValue(PROPERTY_NAME_COLOR);
         Assert.notNull(color, PROPERTY_NAME_COLOR);
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);

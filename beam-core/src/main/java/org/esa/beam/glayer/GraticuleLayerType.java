@@ -5,7 +5,6 @@ import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.support.DefaultStyle;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import java.awt.Color;
@@ -57,7 +56,7 @@ public class GraticuleLayerType extends LayerType {
     }
 
     @Override
-    protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
         return new GraticuleLayer(this, configuration);
     }
 

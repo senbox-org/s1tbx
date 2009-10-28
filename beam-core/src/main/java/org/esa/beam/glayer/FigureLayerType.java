@@ -9,7 +9,6 @@ import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.Style;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -35,7 +34,7 @@ public class FigureLayerType extends LayerType {
     }
 
     @Override
-    protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
         final FigureLayer layer = new FigureLayer(this, configuration);
         layer.setId(FIGURE_LAYER_ID);
 

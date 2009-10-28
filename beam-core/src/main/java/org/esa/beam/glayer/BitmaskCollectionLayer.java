@@ -166,7 +166,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
 
         @Override
-        protected Layer createLayerImpl(LayerContext ctx, ValueContainer configuration) {
+        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
             final BitmaskCollectionLayer bitmaskCollectionLayer = new BitmaskCollectionLayer(this, configuration);
             bitmaskCollectionLayer.setId(BITMASK_LAYER_ID);
             return bitmaskCollectionLayer;
