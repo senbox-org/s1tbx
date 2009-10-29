@@ -1,22 +1,20 @@
 package com.bc.ceres.swing.update;
 
-import com.bc.ceres.core.runtime.ModuleState;
-import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.core.runtime.internal.ModuleImpl;
-import com.bc.ceres.core.runtime.internal.ModuleManifestParser;
-import com.bc.ceres.core.runtime.internal.RuntimeActivator;
-import com.bc.ceres.core.runtime.Version;
-import com.bc.ceres.core.runtime.ModuleContext;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.ModuleContext;
+import com.bc.ceres.core.runtime.ModuleState;
+import com.bc.ceres.core.runtime.Version;
+import com.bc.ceres.core.runtime.internal.ModuleImpl;
+import com.bc.ceres.core.runtime.internal.ModuleManifestParser;
 import junit.framework.Assert;
+import org.junit.Ignore;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.text.MessageFormat;
-
-import org.junit.Ignore;
+import java.util.ArrayList;
 
 @Ignore
 public class TestHelpers {
@@ -55,8 +53,7 @@ public class TestHelpers {
 
     static ModuleManager createModuleManager(final String[] installedResourcePaths,
                                               final String[] repositoryResourcePaths) {
-        ModuleContext moduleContext = new RuntimeActivator().getModuleContext();
-        return new DefaultModuleManager(moduleContext) {
+        return new DefaultModuleManager((ModuleContext) null) {
             private ModuleImpl[] installedModules;
             private Module[] repositoryModules;
 

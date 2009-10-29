@@ -63,6 +63,7 @@ public class RuntimeActivator implements Activator {
         disposeServiceProviders();
         disposeApplications();
         this.moduleContext = null;
+        instance = null;
     }
 
 
