@@ -12,14 +12,16 @@ import com.bc.ceres.binding.PropertyContainer;
  */
 public class CollectionLayer extends Layer {
 
-    private static final Type LAYER_TYPE= LayerTypeRegistry.getLayerType(Type.class);
+    private static Type type() {
+        return LayerTypeRegistry.getLayerType(Type.class);
+    }
 
     public CollectionLayer() {
-        this(LAYER_TYPE.getName());
+        this(type().getName());
     }
 
     public CollectionLayer(String name) {
-        this(LAYER_TYPE, LAYER_TYPE.createLayerConfig(null), name);
+        this(type(), type().createLayerConfig(null), name);
     }
 
     public CollectionLayer(Type type, PropertyContainer configuration, String name) {

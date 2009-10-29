@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// todo - use style here
-
 /**
  * A shape layer is used to draw {@link Shape}s.
  *
@@ -28,7 +26,10 @@ import java.util.List;
  */
 public class ShapeLayer extends Layer {
 
-    private static final Type LAYER_TYPE = LayerTypeRegistry.getLayerType(Type.class);
+
+    private static Type type() {
+        return LayerTypeRegistry.getLayerType(Type.class);
+    }
 
     private final List<Shape> shapeList;
     private final AffineTransform shapeToModelTransform;
@@ -39,7 +40,7 @@ public class ShapeLayer extends Layer {
     }
 
     public ShapeLayer(Shape[] shapes, AffineTransform shapeToModelTransform) {
-        this(LAYER_TYPE, initConfiguration(LAYER_TYPE.createLayerConfig(null), shapes, shapeToModelTransform));
+        this(type(), initConfiguration(type().createLayerConfig(null), shapes, shapeToModelTransform));
     }
 
     public ShapeLayer(Type layerType, PropertyContainer configuration) {
@@ -135,12 +136,12 @@ public class ShapeLayer extends Layer {
         public PropertyContainer createLayerConfig(LayerContext ctx) {
             final PropertyContainer vc = new PropertyContainer();
 
-            final Property shapeListModel = Property.create(PROPERTY_SHAPE_LIST, List.class);
-            shapeListModel.getDescriptor().setDefaultValue(new ArrayList<Shape>());
-            vc.addProperty(shapeListModel);
+            final Property shapeList = Property.create(PROPERTY_SHAPE_LIST, List.class);
+            shapeList.getDescriptor().setDefaultValue(new ArrayList<Shape>());
+            vc.addProperty(shapeList);
 
-            final Property transformModel = Property.create(PROPTERY_SHAPE_TO_MODEL_TRANSFORM, AffineTransform.class, new AffineTransform(), true);
-            vc.addProperty(transformModel);
+            final Property transform = Property.create(PROPTERY_SHAPE_TO_MODEL_TRANSFORM, AffineTransform.class, new AffineTransform(), true);
+            vc.addProperty(transform);
 
             return vc;
         }

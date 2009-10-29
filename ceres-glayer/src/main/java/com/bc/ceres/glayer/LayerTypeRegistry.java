@@ -18,7 +18,7 @@ package com.bc.ceres.glayer;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import com.bc.ceres.core.runtime.internal.RuntimeActivator;
+import com.bc.ceres.core.runtime.RuntimeContext;
 
 import java.util.ServiceLoader;
 
@@ -38,9 +38,8 @@ public class LayerTypeRegistry {
 
     /**
      * Return the instance for the given layerType class name.
-     * 
-     * @param layerTypeClassName
-     *            The class name of the layer type.
+     *
+     * @param layerTypeClassName The class name of the layer type.
      * @return the instance
      */
     public static LayerType getLayerType(String layerTypeClassName) {
@@ -49,9 +48,8 @@ public class LayerTypeRegistry {
 
     /**
      * Return the instance for the given layerType class.
-     * 
-     * @param layerTypeClass
-     *            The class of the layer type.
+     *
+     * @param layerTypeClass The class of the layer type.
      * @return the instance
      */
     public static <T extends LayerType> T getLayerType(Class<T> layerTypeClass) {
@@ -64,7 +62,7 @@ public class LayerTypeRegistry {
 
     private LayerTypeRegistry() {
         registry = ServiceRegistryManager.getInstance().getServiceRegistry(LayerType.class);
-        if (RuntimeActivator.getInstance() == null) {
+        if (!RuntimeContext.isAvailable()) {
             final ServiceLoader<LayerType> serviceLoader = ServiceLoader.load(LayerType.class);
             for (final LayerType layerType : serviceLoader) {
                 registry.addService(layerType);
