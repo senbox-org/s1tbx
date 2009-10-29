@@ -2,7 +2,7 @@ package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.ceres.core.runtime.Activator;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import com.bc.ceres.core.runtime.Extension;
@@ -182,7 +182,7 @@ public class RuntimeActivator implements Activator {
     }
 
     private Set<ServiceRegistration> getServiceRegistrations(Class<?> providerClass, ClassLoader providerLoader) throws IOException {
-        ServiceRegistry serviceRegistry = ServiceRegistryFactory.getInstance().getServiceRegistry(providerClass);
+        ServiceRegistry serviceRegistry = ServiceRegistryManager.getInstance().getServiceRegistry(providerClass);
         HashSet<ServiceRegistration> serviceRegistrationsForClass = new HashSet<ServiceRegistration>(10);
         String resourcePath = "META-INF/services/" + providerClass.getName();
 

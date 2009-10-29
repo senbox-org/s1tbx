@@ -20,7 +20,7 @@ import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.swing.internal.TextFieldEditor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.ServiceRegistryManager;
 
 import java.util.ServiceLoader;
 
@@ -39,7 +39,7 @@ public class ValueEditorRegistry {
     private final ValueEditor defaultEditor;
 
     private ValueEditorRegistry() {
-        registry = ServiceRegistryFactory.getInstance().getServiceRegistry(ValueEditor.class);
+        registry = ServiceRegistryManager.getInstance().getServiceRegistry(ValueEditor.class);
 
         final ServiceLoader<ValueEditor> serviceLoader = ServiceLoader.load(ValueEditor.class);
         for (final ValueEditor valueEditor : serviceLoader) {

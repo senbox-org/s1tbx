@@ -1,13 +1,9 @@
 package com.bc.ceres.glayer;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.accessors.DefaultValueAccessor;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.ServiceRegistryManager;
 
 import java.util.ServiceLoader;
 
@@ -57,7 +53,7 @@ public abstract class LayerType extends ExtensibleObject {
 
     // todo - Layer API: move to LayerTypeRegistry (nf)
     static {
-        final ServiceRegistry<LayerType> typeServiceRegistry = ServiceRegistryFactory.getInstance().getServiceRegistry(LayerType.class);
+        final ServiceRegistry<LayerType> typeServiceRegistry = ServiceRegistryManager.getInstance().getServiceRegistry(LayerType.class);
         final ServiceLoader<LayerType> serviceLoader = ServiceLoader.load(LayerType.class);
         for (final LayerType layerType : serviceLoader) {
             typeServiceRegistry.addService(layerType);

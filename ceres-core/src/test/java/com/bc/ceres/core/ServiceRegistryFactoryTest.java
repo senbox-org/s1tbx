@@ -9,7 +9,7 @@ public class ServiceRegistryFactoryTest extends TestCase {
 
 
     public void testGetServiceRegistry() {
-        ServiceRegistryFactory instance = ServiceRegistryFactory.getInstance();
+        ServiceRegistryManager instance = ServiceRegistryManager.getInstance();
         assertNotNull(instance);
 
         ServiceRegistry<A> serviceRegistryA = instance.getServiceRegistry(A.class);

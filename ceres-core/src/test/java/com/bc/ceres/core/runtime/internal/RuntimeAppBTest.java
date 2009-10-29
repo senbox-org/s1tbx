@@ -3,7 +3,7 @@ package com.bc.ceres.core.runtime.internal;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.ceres.core.runtime.Constants;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.RuntimeConfigException;
@@ -78,14 +78,14 @@ public class RuntimeAppBTest extends TestCase {
 
 
     public void testServicesLoaded() {
-        ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
+        ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
 
-        ServiceRegistry<com.acme.TestSpi1> serviceRegistry1 = factory.getServiceRegistry(com.acme.TestSpi1.class);
+        ServiceRegistry<com.acme.TestSpi1> serviceRegistry1 = serviceRegistryManager.getServiceRegistry(com.acme.TestSpi1.class);
         Set<com.acme.TestSpi1> services1 = serviceRegistry1.getServices();
         assertEquals(1, services1.size());
         assertTrue(services1.toArray()[0] instanceof com.foo.TestSpi1Impl);
 
-        ServiceRegistry<com.acme.TestSpi2> serviceRegistry2 = factory.getServiceRegistry(com.acme.TestSpi2.class);
+        ServiceRegistry<com.acme.TestSpi2> serviceRegistry2 = serviceRegistryManager.getServiceRegistry(com.acme.TestSpi2.class);
         Set<com.acme.TestSpi2> services2 = serviceRegistry2.getServices();
         assertEquals(1, services2.size());
         assertTrue(services2.toArray()[0] instanceof com.foo.TestSpi2Impl);

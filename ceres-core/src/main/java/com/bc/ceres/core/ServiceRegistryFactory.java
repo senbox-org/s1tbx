@@ -5,8 +5,11 @@ import com.bc.ceres.core.ServiceRegistry;
 import java.util.*;
 
 /**
+ * A manager for serive registries.
  * @since 0.6
+ * @deprecated since Ceres 0.10, use {@link com.bc.ceres.core.ServiceRegistryManager} instead
  */
+@Deprecated
 public class ServiceRegistryFactory {
 
     private HashMap<Class, ServiceRegistry> serviceRegistries = new HashMap<Class, ServiceRegistry>(10);
