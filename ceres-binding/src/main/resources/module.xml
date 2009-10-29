@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 0.10</p>
+        [CERES-45] Terminology change in the Ceres Binding API<br/>
         [CERES-40] Inconsitent handling of focus-lost events on text components<br/>
         <p>Changes in 0.7</p>
         [CERES-23] Default value for primitive types is not set<br/>
