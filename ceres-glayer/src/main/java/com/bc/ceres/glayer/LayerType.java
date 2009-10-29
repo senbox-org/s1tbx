@@ -2,37 +2,56 @@ package com.bc.ceres.glayer;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.ExtensibleObject;
-import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryManager;
 
-import java.util.ServiceLoader;
-
-// todo - Layer API: the API of this class is confusing and it is hard to implement subclasses. (nf)
-
-// todo - Layer API: carefully javadoc it (nf)
+/**
+ * A layer type is a factory for layer instances and layer (default) configurations.
+ * In order to register new layer types, use the standard {@code META-INF/services}
+ * JAR service provider interface (SPI). The service priovider name is identical to this
+ * class' fully qualified name: {@code com.bc.ceres.glayer.LayerType}.
+ */
 public abstract class LayerType extends ExtensibleObject {
 
     protected LayerType() {
     }
 
     // todo - Layer API: remove, no framework use (nf)
+    /**
+     * Gets the name for this layer type.
+     *
+     * @return A name.
+     */
     public abstract String getName();
 
     /**
-     * Tests if this type can create layers for the given, application-dependent layer context.
+     * Tests if this type can create layers for the given application provided context.
      * Note that some applications may provide their context through the extension object interface
      * (see {@link #getExtension(Class)}).
+     *
      * @param ctx An application-dependent layer context.
      * @return {@code true} if the type is valid with respect to the given context.
      */
     public abstract boolean isValidFor(LayerContext ctx);
 
-    // todo - Layer API: doc it (nf)
-    public abstract Layer createLayer(LayerContext ctx, PropertyContainer configuration);
+    /**
+     * Creates a layer instance for the given application provided context and the given layer configuration.
+     * The configuration may contain both, inmutable construction parameters passed to specific layer constructor
+     * as well as mutable layer properties.
+     *
+     * @param ctx         An application provided context, may be {@code null}. The parameter may be ignored by many layer types.
+     * @param layerConfig The layer configuration.
+     * @return A new layer instance.
+     */
+    public abstract Layer createLayer(LayerContext ctx, PropertyContainer layerConfig);
 
-    // todo - Layer API: why not use annotations? (nf)
-    // todo - Layer API: check IDEA ALT+F7: is this a utility or framework API? Only framework usage is in createLayer(). How must clients use this? (nf)
-    // todo - Layer API: how can clients know whether my value model can be serialized or not? when to impl. a converter? (nf)
-    // todo - Layer API: doc it (nf)
+    /**
+     * Creates a default configuration instance for the type of layers this type can create.
+     * After a default configuration has been created it is usually modified to specify a layer's
+     * construction parameters, e.g. for an image layer this could be the file path to the image file.
+     * Then, an application will pass the configuration to the {@link #createLayer} method in order
+     * to create a new layer instance.
+     *
+     * @param ctx An application provided context, may be {@code null}. The parameter may be ignored by many layer types.
+     * @return A new layer (default) configuration.
+     */
     public abstract PropertyContainer createLayerConfig(LayerContext ctx);
 }
