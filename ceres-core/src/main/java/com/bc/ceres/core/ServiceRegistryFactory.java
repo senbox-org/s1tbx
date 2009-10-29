@@ -5,7 +5,7 @@ import com.bc.ceres.core.ServiceRegistry;
 import java.util.*;
 
 /**
- * A manager for serive registries.
+ * A manager for service registries.
  * @since 0.6
  * @deprecated since Ceres 0.10, use {@link com.bc.ceres.core.ServiceRegistryManager} instead
  */
