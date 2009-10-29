@@ -53,26 +53,27 @@ public class GraticuleLayer extends Layer {
     private ProductNodeHandler productNodeHandler;
     private Graticule graticule;
 
-    public GraticuleLayer(RasterDataNode raster, AffineTransform i2mTransform) {
-        this(LAYER_TYPE, initConfiguration(LAYER_TYPE.createLayerConfig(null), raster, i2mTransform));
+    public GraticuleLayer(RasterDataNode raster) {
+        this(LAYER_TYPE, raster, initConfiguration(LAYER_TYPE.createLayerConfig(null), raster));
     }
 
-
-    public GraticuleLayer(GraticuleLayerType type, PropertyContainer configuration) {
+    public GraticuleLayer(GraticuleLayerType type, RasterDataNode raster, PropertyContainer configuration) {
         super(type, configuration);
+        this.raster = raster;
+        
         this.i2mTransform = (AffineTransform) getConfiguration().getValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM);
-        this.raster = (RasterDataNode) getConfiguration().getValue(GraticuleLayerType.PROPERTY_NAME_RASTER);
 
         productNodeHandler = new ProductNodeHandler();
         raster.getProduct().addProductNodeListener(productNodeHandler);
 
         setTransparency(0.5);
+
     }
 
-    private static PropertyContainer initConfiguration(PropertyContainer configurationTemplate, RasterDataNode raster,
-                                                    AffineTransform i2mTransform) {
+    private static PropertyContainer initConfiguration(PropertyContainer configurationTemplate, RasterDataNode raster) {
         configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_RASTER, raster);
-        configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM, i2mTransform);
+        configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM,
+                                       raster.getSourceImage().getModel().getImageToModelTransform(0));
         return configurationTemplate;
     }
 

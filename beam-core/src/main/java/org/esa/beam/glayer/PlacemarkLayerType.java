@@ -2,8 +2,8 @@ package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -41,7 +41,13 @@ public class PlacemarkLayerType extends LayerType {
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-        return new PlacemarkLayer(this, configuration);
+        final Product product = (Product) configuration.getValue(PlacemarkLayerType.PROPERTY_PRODUCT);
+        final String descriptorName = PlacemarkLayerType.PROPERTY_PLACEMARK_DESCRIPTOR;
+        PlacemarkDescriptor placemarkDescriptor = (PlacemarkDescriptor)configuration.getValue(descriptorName);
+        final String transformName = PlacemarkLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM;
+        AffineTransform imageToModelTransform = (AffineTransform)configuration.getValue(transformName);
+
+        return new PlacemarkLayer(this, product, placemarkDescriptor, imageToModelTransform, configuration);
     }
 
     @Override

@@ -1,12 +1,10 @@
 package org.esa.beam.visat.actions.session;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.core.CanceledException;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
-
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.BitmaskDef;
@@ -265,7 +263,7 @@ public class SessionTest extends TestCase {
         sceneViewD.setBounds(new Rectangle(200, 100, 200, 100));
 
         // todo - add more layers (nf)
-        GraticuleLayer graticuleLayer = new GraticuleLayer(bandD, new AffineTransform());
+        GraticuleLayer graticuleLayer = new GraticuleLayer(bandD);
         graticuleLayer.setName("Graticule"); // todo - place in GraticuleLayer constructor (nf)
         graticuleLayer.setVisible(true);
         sceneViewD.getRootLayer().getChildren().add(graticuleLayer);

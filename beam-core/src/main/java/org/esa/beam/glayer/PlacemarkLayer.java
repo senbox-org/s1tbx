@@ -46,19 +46,18 @@ public class PlacemarkLayer extends Layer {
 
     public PlacemarkLayer(Product product, PlacemarkDescriptor placemarkDescriptor,
                           AffineTransform imageToModelTransform) {
-        this(LAYER_TYPE, product, placemarkDescriptor, imageToModelTransform);
+        this(LAYER_TYPE, product, placemarkDescriptor, imageToModelTransform,
+             initConfiguration(LAYER_TYPE.createLayerConfig(null), product, placemarkDescriptor, imageToModelTransform));
     }
 
-    protected PlacemarkLayer(LayerType layerType, PropertyContainer configuration) {
+    protected PlacemarkLayer(LayerType layerType, Product product, PlacemarkDescriptor placemarkDescriptor,
+                             AffineTransform imageToModelTransform, PropertyContainer configuration) {
         super(layerType, configuration);
-        this.product = (Product) configuration.getValue(PlacemarkLayerType.PROPERTY_PRODUCT);
-        this.placemarkDescriptor = (PlacemarkDescriptor) configuration.getValue(
-                PlacemarkLayerType.PROPERTY_PLACEMARK_DESCRIPTOR);
-        this.imageToModelTransform = (AffineTransform) configuration.getValue(
-                PlacemarkLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM);
+        this.product = product;
+        this.placemarkDescriptor = placemarkDescriptor;
+        this.imageToModelTransform = imageToModelTransform;
         this.pnl = new MyProductNodeListenerAdapter();
         product.addProductNodeListener(pnl);
-
     }
 
 
@@ -69,12 +68,6 @@ public class PlacemarkLayer extends Layer {
         configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_PLACEMARK_DESCRIPTOR, placemarkDescriptor);
         configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
         return configurationTemplate;
-    }
-
-    protected PlacemarkLayer(PlacemarkLayerType type, Product product, PlacemarkDescriptor placemarkDescriptor,
-                             AffineTransform imageToModelTransform) {
-        this(type,
-             initConfiguration(type.createLayerConfig(null), product, placemarkDescriptor, imageToModelTransform));
     }
 
     @Override

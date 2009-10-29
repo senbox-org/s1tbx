@@ -1,10 +1,10 @@
 package org.esa.beam.glayer;
 
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.Property;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 
@@ -19,7 +19,8 @@ public class MaskCollectionLayerType extends CollectionLayer.Type {
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-        return new MaskCollectionLayer(this, configuration);
+        return new MaskCollectionLayer(this, (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER),
+                                       configuration);
     }
 
     @Override

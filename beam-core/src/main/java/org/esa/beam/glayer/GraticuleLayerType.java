@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -57,7 +57,8 @@ public class GraticuleLayerType extends LayerType {
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-        return new GraticuleLayer(this, configuration);
+        return new GraticuleLayer(this, (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER),
+                                  configuration);
     }
 
     @Override
