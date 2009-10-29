@@ -5,9 +5,7 @@ import com.bc.ceres.core.ExtensibleObject;
 
 /**
  * A layer type is a factory for layer instances and layer (default) configurations.
- * In order to register new layer types, use the standard {@code META-INF/services}
- * JAR service provider interface (SPI). The service priovider name is identical to this
- * class' fully qualified name: {@code com.bc.ceres.glayer.LayerType}.
+ * Layer types are managed by the {@link LayerTypeRegistry}.
  */
 public abstract class LayerType extends ExtensibleObject {
 
