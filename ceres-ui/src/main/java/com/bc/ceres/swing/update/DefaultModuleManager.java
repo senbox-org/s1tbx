@@ -6,6 +6,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ModuleContext;
 import com.bc.ceres.core.runtime.ProxyConfig;
+import com.bc.ceres.core.runtime.RuntimeContext;
 import com.bc.ceres.core.runtime.internal.ModuleImpl;
 import com.bc.ceres.core.runtime.internal.RepositoryScanner;
 import com.bc.ceres.core.runtime.internal.RuntimeActivator;
@@ -26,7 +27,7 @@ public class DefaultModuleManager implements ModuleManager {
     private ModuleItem[] availableModuleItems;
 
     public DefaultModuleManager() {
-        this(RuntimeActivator.getInstance().getModuleContext());
+        this(RuntimeContext.getModuleContext());
     }
 
     public DefaultModuleManager(ModuleContext context) {

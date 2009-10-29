@@ -2,6 +2,7 @@ package com.bc.ceres.swing.update;
 
 import com.bc.ceres.core.runtime.RuntimeRunnable;
 import com.bc.ceres.core.runtime.RuntimeConfig;
+import com.bc.ceres.core.runtime.RuntimeContext;
 import com.bc.ceres.core.runtime.internal.RuntimeActivator;
 import com.bc.ceres.core.ProgressMonitor;
 
@@ -55,7 +56,7 @@ public class ModuleManagerMain implements RuntimeRunnable {
     }
 
     private static URL getDefaultRepositoryUrl() {
-        RuntimeConfig runtimeConfig = RuntimeActivator.getInstance().getModuleContext().getRuntimeConfig();
+        RuntimeConfig runtimeConfig = RuntimeContext.getModuleContext().getRuntimeConfig();
         try {
             return new URL(runtimeConfig.getContextProperty("repository.url", ""));
         } catch (MalformedURLException e) {
