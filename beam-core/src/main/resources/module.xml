@@ -19,6 +19,9 @@
     <dependency>
         <module>ceres-glayer</module>
     </dependency>
+    <dependency>
+        <module>ceres-jai</module>
+    </dependency>
 
     <changelog>
         <![CDATA[
