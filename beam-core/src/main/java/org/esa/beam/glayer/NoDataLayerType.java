@@ -1,6 +1,7 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -60,10 +61,10 @@ public class NoDataLayerType extends ImageLayer.Type {
     public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer prototype = super.createLayerConfig(ctx);
 
-        prototype.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
+        prototype.addModel(ValueModel.createValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
         prototype.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
 
-        prototype.addModel(createDefaultValueModel(PROPERTY_NAME_COLOR, Color.class));
+        prototype.addModel(ValueModel.createValueModel(PROPERTY_NAME_COLOR, Color.class));
         prototype.getDescriptor(PROPERTY_NAME_COLOR).setNotNull(true);
 
         return prototype;

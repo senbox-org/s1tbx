@@ -36,15 +36,15 @@ public class ImageFileLayerType extends LayerType{
     public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer template = new ValueContainer();
 
-        final ValueModel imageModel = createDefaultValueModel(PROPERTY_NAME_IMAGE, RenderedImage.class);
+        final ValueModel imageModel = ValueModel.createValueModel(PROPERTY_NAME_IMAGE, RenderedImage.class);
         imageModel.getDescriptor().setTransient(true);
         template.addModel(imageModel);
 
-        final ValueModel filePathModel = createDefaultValueModel(PROPERTY_NAME_IMAGE_FILE, File.class);
+        final ValueModel filePathModel = ValueModel.createValueModel(PROPERTY_NAME_IMAGE_FILE, File.class);
         filePathModel.getDescriptor().setNotNull(true);
         template.addModel(filePathModel);
 
-        final ValueModel worldTransformModel = createDefaultValueModel(PROPERTY_NAME_WORLD_TRANSFORM, AffineTransform.class);
+        final ValueModel worldTransformModel = ValueModel.createValueModel(PROPERTY_NAME_WORLD_TRANSFORM, AffineTransform.class);
         worldTransformModel.getDescriptor().setNotNull(true);
         template.addModel(worldTransformModel);
 

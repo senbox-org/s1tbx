@@ -48,32 +48,23 @@ public class PlacemarkLayerType extends LayerType {
     public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer valueContainer = new ValueContainer();
 
-        final ValueModel textBgColorModel = LayerType.createDefaultValueModel(
-                PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR,
-                Color.class, PlacemarkLayer.DEFAULT_TEXT_BG_COLOR);
+        final ValueModel textBgColorModel = ValueModel.createValueModel(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR, Color.class, PlacemarkLayer.DEFAULT_TEXT_BG_COLOR, true);
         valueContainer.addModel(textBgColorModel);
 
-        final ValueModel textFgColorModel = LayerType.createDefaultValueModel(
-                PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR,
-                Color.class, PlacemarkLayer.DEFAULT_TEXT_FG_COLOR);
+        final ValueModel textFgColorModel = ValueModel.createValueModel(PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR, Color.class, PlacemarkLayer.DEFAULT_TEXT_FG_COLOR, true);
         valueContainer.addModel(textFgColorModel);
 
-        final ValueModel textEnabledModel = LayerType.createDefaultValueModel(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED,
-                                                                              Boolean.class,
-                                                                              PlacemarkLayer.DEFAULT_TEXT_ENABLED);
+        final ValueModel textEnabledModel = ValueModel.createValueModel(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED, Boolean.class, PlacemarkLayer.DEFAULT_TEXT_ENABLED, true);
         valueContainer.addModel(textEnabledModel);
 
-        final ValueModel textFontModel = LayerType.createDefaultValueModel(PlacemarkLayer.PROPERTY_NAME_TEXT_FONT,
-                                                                           Font.class,
-                                                                           PlacemarkLayer.DEFAULT_TEXT_FONT);
+        final ValueModel textFontModel = ValueModel.createValueModel(PlacemarkLayer.PROPERTY_NAME_TEXT_FONT, Font.class, PlacemarkLayer.DEFAULT_TEXT_FONT, true);
         valueContainer.addModel(textFontModel);
 
-        final ValueModel productModel = createDefaultValueModel(PROPERTY_PRODUCT, Product.class);
+        final ValueModel productModel = ValueModel.createValueModel(PROPERTY_PRODUCT, Product.class);
         productModel.getDescriptor().setNotNull(true);
         valueContainer.addModel(productModel);
 
-        final ValueModel placemarkModel = createDefaultValueModel(PROPERTY_PLACEMARK_DESCRIPTOR,
-                                                                  PlacemarkDescriptor.class);
+        final ValueModel placemarkModel = ValueModel.createValueModel(PROPERTY_PLACEMARK_DESCRIPTOR, PlacemarkDescriptor.class);
         placemarkModel.getDescriptor().setConverter(new Converter<Object>() {
             @Override
             public Class<?> getValueType() {
@@ -101,8 +92,7 @@ public class PlacemarkLayerType extends LayerType {
         placemarkModel.getDescriptor().setNotNull(true);
         valueContainer.addModel(placemarkModel);
 
-        final ValueModel transformModel = createDefaultValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM,
-                                                                  AffineTransform.class);
+        final ValueModel transformModel = ValueModel.createValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class);
         placemarkModel.getDescriptor().setNotNull(true);
         valueContainer.addModel(transformModel);
 

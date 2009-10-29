@@ -10,7 +10,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 
-import java.awt.*;
+import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
@@ -45,41 +45,23 @@ public class FigureLayerType extends LayerType {
     public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer vc = new ValueContainer();
 
-        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                                            Boolean.class,
-                                            FigureLayer.DEFAULT_SHAPE_OUTLINED));
+        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED, Boolean.class, FigureLayer.DEFAULT_SHAPE_OUTLINED, true));
 
-        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                                            Color.class,
-                                            FigureLayer.DEFAULT_SHAPE_OUTL_COLOR));
+        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR, Color.class, FigureLayer.DEFAULT_SHAPE_OUTL_COLOR, true));
 
-        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
-                                            Double.class,
-                                            FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
+        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY, Double.class, FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY, true));
 
-        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                                            Double.class,
-                                            FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH));
+        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH, Double.class, FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH, true));
 
-        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
-                                            Boolean.class,
-                                            FigureLayer.DEFAULT_SHAPE_FILLED));
+        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILLED, Boolean.class, FigureLayer.DEFAULT_SHAPE_FILLED, true));
 
-        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                                            Color.class,
-                                            FigureLayer.DEFAULT_SHAPE_FILL_COLOR));
+        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR, Color.class, FigureLayer.DEFAULT_SHAPE_FILL_COLOR, true));
 
-        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
-                                            Double.class,
-                                            FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
+        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY, Double.class, FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY, true));
 
-        vc.addModel(createDefaultValueModel(FigureLayer.PROPERTY_NAME_TRANSFORM,
-                                            AffineTransform.class,
-                                            new AffineTransform()));
+        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_TRANSFORM, AffineTransform.class, new AffineTransform(), true));
 
-        final ValueModel figureListModel = createDefaultValueModel(FigureLayer.PROPERTY_NAME_FIGURE_LIST,
-                                                                   ArrayList.class,
-                                                                   new ArrayList());
+        final ValueModel figureListModel = ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_FIGURE_LIST, ArrayList.class, new ArrayList(), true);
         figureListModel.getDescriptor().setDomConverter(new FigureListDomConverter());
         vc.addModel(figureListModel);
         return vc;
@@ -94,7 +76,7 @@ public class FigureLayerType extends LayerType {
 
         @Override
         public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                       ValidationException {
+                ValidationException {
             final DomElement[] listElements = parentElement.getChildren("figure");
             final ArrayList figureList = new ArrayList();
             final DomConverter figureDomConverter = new AbstractFigureDomConverter();

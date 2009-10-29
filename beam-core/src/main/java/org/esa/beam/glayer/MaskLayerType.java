@@ -1,6 +1,7 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -76,7 +77,7 @@ public class MaskLayerType extends ImageLayer.Type {
     public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer vc = super.createLayerConfig(ctx);
 
-        vc.addModel(createDefaultValueModel(PROPERTY_NAME_MASK, Mask.class));
+        vc.addModel(ValueModel.createValueModel(PROPERTY_NAME_MASK, Mask.class));
         vc.getModel(PROPERTY_NAME_MASK).getDescriptor().setNotNull(true);
 
         return vc;

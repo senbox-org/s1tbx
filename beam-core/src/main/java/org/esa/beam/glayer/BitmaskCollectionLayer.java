@@ -17,6 +17,7 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -176,10 +177,10 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         public ValueContainer createLayerConfig(LayerContext ctx) {
             final ValueContainer prototype = super.createLayerConfig(ctx);
 
-            prototype.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
+            prototype.addModel(ValueModel.createValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
             prototype.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
 
-            prototype.addModel(createDefaultValueModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
+            prototype.addModel(ValueModel.createValueModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
             prototype.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
 
             return prototype;

@@ -59,19 +59,19 @@ public class RgbImageLayerType extends ImageLayer.Type {
     public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer prototype = super.createLayerConfig(ctx);
 
-        final ValueModel productModel = createDefaultValueModel(PROPERTY_NAME_PRODUCT, Product.class);
+        final ValueModel productModel = ValueModel.createValueModel(PROPERTY_NAME_PRODUCT, Product.class);
         productModel.getDescriptor().setNotNull(true);
         prototype.addModel(productModel);
 
-        final ValueModel redModel = createDefaultValueModel(PROPERTY_NAME_EXPRESSION_R, String.class);
+        final ValueModel redModel = ValueModel.createValueModel(PROPERTY_NAME_EXPRESSION_R, String.class);
         redModel.getDescriptor().setNotNull(true);
         prototype.addModel(redModel);
 
-        final ValueModel greenModel = createDefaultValueModel(PROPERTY_NAME_EXPRESSION_G, String.class);
+        final ValueModel greenModel = ValueModel.createValueModel(PROPERTY_NAME_EXPRESSION_G, String.class);
         greenModel.getDescriptor().setNotNull(true);
         prototype.addModel(greenModel);
 
-        final ValueModel blueModel = createDefaultValueModel(PROPERTY_NAME_EXPRESSION_B, String.class);
+        final ValueModel blueModel = ValueModel.createValueModel(PROPERTY_NAME_EXPRESSION_B, String.class);
         blueModel.getDescriptor().setNotNull(true);
         prototype.addModel(blueModel);
 

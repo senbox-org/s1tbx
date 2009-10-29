@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -45,12 +46,12 @@ public class WmsLayerType extends LayerType {
     public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer template = new ValueContainer();
 
-        template.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
-        template.addModel(createDefaultValueModel(PROPERTY_NAME_URL, URL.class));
-        template.addModel(createDefaultValueModel(PROPERTY_NAME_LAYER_INDEX, Integer.class));
-        template.addModel(createDefaultValueModel(PROPERTY_NAME_STYLE_NAME, String.class));
-        template.addModel(createDefaultValueModel(PROPERTY_NAME_IMAGE_SIZE, Dimension.class));
-        template.addModel(createDefaultValueModel(PROPERTY_NAME_CRS_ENVELOPE, CRSEnvelope.class));
+        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
+        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_URL, URL.class));
+        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_LAYER_INDEX, Integer.class));
+        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_STYLE_NAME, String.class));
+        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_IMAGE_SIZE, Dimension.class));
+        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_CRS_ENVELOPE, CRSEnvelope.class));
 
         return template;
     }

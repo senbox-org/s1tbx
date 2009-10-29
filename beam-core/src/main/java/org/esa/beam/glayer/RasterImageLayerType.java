@@ -1,6 +1,7 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -38,7 +39,7 @@ public class RasterImageLayerType extends ImageLayer.Type {
     public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer template = super.createLayerConfig(ctx);
 
-        template.addModel(createDefaultValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
+        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
         template.getDescriptor(PROPERTY_NAME_RASTER).setItemAlias("raster");
         template.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
 

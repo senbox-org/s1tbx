@@ -676,12 +676,7 @@ public class ImageManager {
         return new DefaultMultiLevelImage(mls);
     }
 
-    @Deprecated
     public RenderedImage getMaskImage(final Product product, final String expression, int level) {
-        return getMaskImage(expression, product, level);
-    }
-
-    public RenderedImage getMaskImage(final String expression, final Product product, int level) {
         MultiLevelImage mli = getMaskImage(expression, product);
         return mli.getImage(level);
     }
@@ -706,6 +701,11 @@ public class ImageManager {
             }
             return mli;
         }
+    }
+
+    @Deprecated
+    public RenderedImage getMaskImage(final String expression, final Product product, int level) {
+        return getMaskImage(product, expression, level);
     }
 
     public ImageInfo getImageInfo(RasterDataNode[] rasters) {
@@ -765,16 +765,16 @@ public class ImageManager {
         return statisticsLevel;
     }
 
-    @Deprecated
     public PlanarImage createColoredMaskImage(Product product, String expression, Color color, boolean invertMask,
                                               int level) {
-        return createColoredMaskImage(expression, product, color, invertMask, level);
+        RenderedImage image = getMaskImage(product, expression, level);
+        return createColoredMaskImage(color, image, invertMask);
     }
 
+    @Deprecated
     public PlanarImage createColoredMaskImage(String expression, Product product, Color color, boolean invertMask,
                                               int level) {
-        RenderedImage image = getMaskImage(expression, product, level);
-        return createColoredMaskImage(color, image, invertMask);
+        return createColoredMaskImage(product, expression, color, invertMask, level);
     }
 
     public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage, boolean invertAlpha) {

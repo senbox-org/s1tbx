@@ -1,6 +1,7 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -73,10 +74,10 @@ public class BitmaskLayerType extends ImageLayer.Type {
     public ValueContainer createLayerConfig(LayerContext ctx) {
         final ValueContainer vc = super.createLayerConfig(ctx);
 
-        vc.addModel(createDefaultValueModel(PROPERTY_NAME_BITMASK_DEF, BitmaskDef.class));
+        vc.addModel(ValueModel.createValueModel(PROPERTY_NAME_BITMASK_DEF, BitmaskDef.class));
         vc.getModel(PROPERTY_NAME_BITMASK_DEF).getDescriptor().setNotNull(true);
 
-        vc.addModel(createDefaultValueModel(PROPERTY_NAME_PRODUCT, Product.class));
+        vc.addModel(ValueModel.createValueModel(PROPERTY_NAME_PRODUCT, Product.class));
         vc.getModel(PROPERTY_NAME_PRODUCT).getDescriptor().setNotNull(true);
 
         return vc;

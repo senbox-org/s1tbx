@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
@@ -67,22 +68,22 @@ public class FeatureLayerType extends LayerType {
 
         // Mandatory Parameters
 
-        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION, FeatureCollection.class));
+        configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_FEATURE_COLLECTION, FeatureCollection.class));
         configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION).setTransient(true);
         //configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION).setNotNull(true);
 
-        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_SLD_STYLE, Style.class));
+        configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_SLD_STYLE, Style.class));
         configuration.getDescriptor(PROPERTY_NAME_SLD_STYLE).setDomConverter(new StyleDomConverter());
         configuration.getDescriptor(PROPERTY_NAME_SLD_STYLE).setNotNull(true);
 
         // Optional Parameters
 
-        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, Geometry.class));
+        configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, Geometry.class));
         configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY).setDomConverter(new GeometryDomConverter());
 
-        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_URL, URL.class));
+        configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_FEATURE_COLLECTION_URL, URL.class));
 
-        configuration.addModel(createDefaultValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CRS, CoordinateReferenceSystem.class));
+        configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CRS, CoordinateReferenceSystem.class));
         configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setDomConverter(new CRSDomConverter());
         configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setTransient(true);
 
