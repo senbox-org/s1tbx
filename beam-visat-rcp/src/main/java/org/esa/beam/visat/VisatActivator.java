@@ -2,7 +2,7 @@ package org.esa.beam.visat;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.ceres.core.runtime.Activator;
 import com.bc.ceres.core.runtime.ModuleContext;
 import org.esa.beam.BeamCoreActivator;
@@ -66,7 +66,7 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
     public void start(ModuleContext moduleContext) throws CoreException {
         instance = this;
         this.moduleContext = moduleContext;
-        visatPluginRegistry = ServiceRegistryFactory.getInstance().getServiceRegistry(VisatPlugIn.class);
+        visatPluginRegistry = ServiceRegistryManager.getInstance().getServiceRegistry(VisatPlugIn.class);
         registerLayerEditors(this.moduleContext);
         registerLayerSources(this.moduleContext);
     }

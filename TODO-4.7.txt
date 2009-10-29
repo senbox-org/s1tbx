@@ -56,4 +56,8 @@ h3. Ceres Binding API Changes
 
 h3. Ceres Layer API Changes
 
-* Renamed LayerType.getConfigurationTemplate() to  createLayerConfiguration()
+* Renamed method LayerType.getConfigurationTemplate() to  createLayerConfig()
+* Moved methods LayerType.createDefaultValueModel() ValueModel.createValueModel()
+
+h3. Ceres Core API Changes
+* Renamed class ServiceRegistryFactory to ServiceRegistryManager

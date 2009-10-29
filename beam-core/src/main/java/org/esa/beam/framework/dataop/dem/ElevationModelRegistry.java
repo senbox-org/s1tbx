@@ -7,7 +7,7 @@
 package org.esa.beam.framework.dataop.dem;
 
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.util.Guardian;
 
@@ -26,7 +26,7 @@ public class ElevationModelRegistry {
     private final ServiceRegistry<ElevationModelDescriptor> descriptors;
 
     private ElevationModelRegistry() {
-        descriptors = ServiceRegistryFactory.getInstance().getServiceRegistry(ElevationModelDescriptor.class);
+        descriptors = ServiceRegistryManager.getInstance().getServiceRegistry(ElevationModelDescriptor.class);
         if (!BeamCoreActivator.isStarted()) {
             BeamCoreActivator.loadServices(descriptors);
         }

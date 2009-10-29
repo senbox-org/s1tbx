@@ -17,7 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.util.Guardian;
 
@@ -43,8 +43,8 @@ public class PointingFactoryRegistry {
     public synchronized static PointingFactoryRegistry getInstance() {
         if (instance == null) {
             instance = new PointingFactoryRegistry();
-            ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
-            typeToFactoryMap = factory.getServiceRegistry(PointingFactory.class);
+            ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
+            typeToFactoryMap = serviceRegistryManager.getServiceRegistry(PointingFactory.class);
             if (!BeamCoreActivator.isStarted()) {
                 BeamCoreActivator.loadServices(typeToFactoryMap);
             }

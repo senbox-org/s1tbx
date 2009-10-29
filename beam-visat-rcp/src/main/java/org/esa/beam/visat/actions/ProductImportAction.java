@@ -18,7 +18,7 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.DecodeQualification;
@@ -37,7 +37,6 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.JButton;
@@ -100,7 +99,7 @@ public class ProductImportAction extends ExecCommand {
 
         readerPlugInClassName = getConfigString(config, "readerPlugin");
         if (readerPlugInClassName != null) {
-            ServiceRegistry<ProductReaderPlugIn> serviceRegistry = ServiceRegistryFactory.getInstance().getServiceRegistry(ProductReaderPlugIn.class);
+            ServiceRegistry<ProductReaderPlugIn> serviceRegistry = ServiceRegistryManager.getInstance().getServiceRegistry(ProductReaderPlugIn.class);
             readerPlugIn = serviceRegistry.getService(readerPlugInClassName);
             if (readerPlugIn == null) {
                 throw new CoreException(getMessage(MessageFormat.format("Configuration error: Product reader ''{0}'' is not a known service.", readerPlugInClassName)));

@@ -16,14 +16,12 @@
  */
 package org.esa.beam.dataio.dimap.spi;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.esa.beam.util.Debug;
-import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.BeamCoreActivator;
-import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.ceres.core.ServiceRegistry;
 
 
@@ -40,7 +38,7 @@ public final class DimapPersistableSpiRegistry {
     private static DimapPersistableSpiRegistry instance;
 
     private DimapPersistableSpiRegistry() {
-        providers = ServiceRegistryFactory.getInstance().getServiceRegistry(DimapPersistableSpi.class);
+        providers = ServiceRegistryManager.getInstance().getServiceRegistry(DimapPersistableSpi.class);
         if (!BeamCoreActivator.isStarted()) {
             BeamCoreActivator.loadServices(providers);
         }
@@ -54,8 +52,8 @@ public final class DimapPersistableSpiRegistry {
     public static DimapPersistableSpiRegistry getInstance(){
         if(instance == null) {
             instance = new DimapPersistableSpiRegistry();
-            ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
-            ServiceRegistry<DimapPersistableSpi> persistableRegistry = factory.getServiceRegistry(DimapPersistableSpi.class);
+            ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
+            ServiceRegistry<DimapPersistableSpi> persistableRegistry = serviceRegistryManager.getServiceRegistry(DimapPersistableSpi.class);
             Set<DimapPersistableSpi> persistableSpis = persistableRegistry.getServices();
             Debug.trace("registering dimap persistable service provider...");
             for (DimapPersistableSpi spi : persistableSpis) {

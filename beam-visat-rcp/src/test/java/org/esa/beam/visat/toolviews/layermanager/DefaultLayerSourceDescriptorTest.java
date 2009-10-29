@@ -2,7 +2,7 @@ package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -19,15 +19,15 @@ public class DefaultLayerSourceDescriptorTest {
 
     @BeforeClass
     public static void setUp() {
-        final ServiceRegistryFactory serviceRegistryFactory = ServiceRegistryFactory.getInstance();
-        final ServiceRegistry<LayerType> registry = serviceRegistryFactory.getServiceRegistry(LayerType.class);
+        final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
+        final ServiceRegistry<LayerType> registry = serviceRegistryManager.getServiceRegistry(LayerType.class);
         registry.addService(layerType);
     }
 
     @AfterClass
     public static void tearDown() {
-        final ServiceRegistryFactory serviceRegistryFactory = ServiceRegistryFactory.getInstance();
-        final ServiceRegistry<LayerType> registry = serviceRegistryFactory.getServiceRegistry(LayerType.class);
+        final ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
+        final ServiceRegistry<LayerType> registry = serviceRegistryManager.getServiceRegistry(LayerType.class);
         registry.removeService(layerType);
     }
 

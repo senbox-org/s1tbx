@@ -17,7 +17,7 @@
 package org.esa.beam.framework.dataio;
 
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -192,9 +192,9 @@ public class ProductIOPlugInManager {
      * Protected constructor - singleton
      */
     protected ProductIOPlugInManager() {
-        ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
-        readerPlugIns = factory.getServiceRegistry(ProductReaderPlugIn.class);
-        writerPlugIns = factory.getServiceRegistry(ProductWriterPlugIn.class);
+        ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
+        readerPlugIns = serviceRegistryManager.getServiceRegistry(ProductReaderPlugIn.class);
+        writerPlugIns = serviceRegistryManager.getServiceRegistry(ProductWriterPlugIn.class);
 
         if (!BeamCoreActivator.isStarted()) {
             BeamCoreActivator.loadServices(readerPlugIns);
