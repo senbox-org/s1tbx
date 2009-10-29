@@ -57,11 +57,22 @@ public class FigureLayer extends Layer {
     private final List<Figure> figureList;
     private final AffineTransform shapeToModelTransform;
 
+    /**
+     * @deprecated since BEAM 4.7, use {@link #FigureLayer(FigureLayerType, List, AffineTransform, PropertyContainer)} instead.
+     */
+    @Deprecated
     public FigureLayer(FigureLayerType type, PropertyContainer configuration) {
+        this(type, (List<Figure>) configuration.getValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST),
+             (AffineTransform) configuration.getValue(PROPERTY_NAME_TRANSFORM), configuration);
+    }
+
+    public FigureLayer(FigureLayerType type, final List<Figure> figureList,
+                       final AffineTransform shapeToModelTransform,
+                       PropertyContainer configuration) {
         super(type, configuration);
         setName("Figures");
-        this.figureList = (List<Figure>) configuration.getValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST);
-        this.shapeToModelTransform = (AffineTransform) configuration.getValue(PROPERTY_NAME_TRANSFORM);
+        this.figureList = figureList;
+        this.shapeToModelTransform = shapeToModelTransform;
     }
 
     public void addFigure(Figure currentShapeFigure) {

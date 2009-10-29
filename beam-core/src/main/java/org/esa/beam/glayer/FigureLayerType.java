@@ -1,18 +1,20 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import org.esa.beam.framework.draw.Figure;
 
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Marco Peters
@@ -35,7 +37,9 @@ public class FigureLayerType extends LayerType {
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-        final FigureLayer layer = new FigureLayer(this, configuration);
+        final List<Figure> figureList = (List<Figure>) configuration.getValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST);
+        final AffineTransform transform = (AffineTransform) configuration.getValue(FigureLayer.PROPERTY_NAME_TRANSFORM);
+        final FigureLayer layer = new FigureLayer(this, figureList, transform, configuration);
         layer.setId(FIGURE_LAYER_ID);
 
         return layer;
