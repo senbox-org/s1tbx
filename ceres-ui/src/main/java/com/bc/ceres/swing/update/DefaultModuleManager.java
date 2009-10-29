@@ -9,7 +9,6 @@ import com.bc.ceres.core.runtime.ProxyConfig;
 import com.bc.ceres.core.runtime.RuntimeContext;
 import com.bc.ceres.core.runtime.internal.ModuleImpl;
 import com.bc.ceres.core.runtime.internal.RepositoryScanner;
-import com.bc.ceres.core.runtime.internal.RuntimeActivator;
 
 import java.io.File;
 import java.net.URL;
