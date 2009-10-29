@@ -397,10 +397,12 @@ public abstract class Layer extends ExtensibleObject {
 
     /**
      * Disposes all allocated resources. Called if the layer will no longer be in use.
-     * The default implementation calls {@link #disposeChildren()} followed by
-     * {@link #disposeLayer()}.
+     * The default implementation removes all registered listeners,
+     * calls {@link #disposeChildren()} followed by {@link #disposeLayer()}.
      */
     public final void dispose() {
+        configuration.removePropertyChangeListener(configurationPCL);
+        layerListenerList.clear();
         disposeChildren();
         disposeLayer();
     }
