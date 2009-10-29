@@ -36,10 +36,9 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
+import org.esa.beam.glayer.MaskCollectionLayer;
 import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glayer.RoiLayerType;
-import org.esa.beam.glayer.MaskCollectionLayerType;
-import org.esa.beam.glayer.MaskCollectionLayer;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.util.Guardian;
@@ -76,8 +75,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Vector;
 
 /**
@@ -1045,42 +1042,27 @@ public class ProductSceneView extends BasicView
 
     protected class RasterChangeHandler implements ProductNodeListener {
 
-        private final List<String> imageChangingProperties = Arrays.asList(RasterDataNode.PROPERTY_NAME_DATA,
-                                                                           RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE,
-                                                                           RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED,
-                                                                           RasterDataNode.PROPERTY_NAME_VALID_PIXEL_EXPRESSION,
-                                                                           VirtualBand.PROPERTY_NAME_EXPRESSION);
-
         @Override
         public void nodeChanged(final ProductNodeEvent event) {
-            repaintView(event);
+            repaintView();
         }
 
         @Override
         public void nodeDataChanged(final ProductNodeEvent event) {
-            repaintView(event);
+            repaintView();
         }
 
         @Override
         public void nodeAdded(final ProductNodeEvent event) {
-            repaintView(event);
+            repaintView();
         }
 
         @Override
         public void nodeRemoved(final ProductNodeEvent event) {
-            repaintView(event);
+            repaintView();
         }
 
-        private void repaintView(final ProductNodeEvent event) {
-            final RasterDataNode[] rasters = getRasters();
-            final ProductNode productNode = event.getSourceNode();
-            if (imageChangingProperties.contains(event.getPropertyName()) &&
-                Arrays.asList(rasters).contains(productNode)) {
-
-                RasterDataNode raster = (RasterDataNode) productNode;
-                final ImageInfo imageInfo = raster.createDefaultImageInfo(null, ProgressMonitor.NULL);
-                setImageInfo(imageInfo);
-            }
+        private void repaintView() {
             repaint(100);
         }
     }
