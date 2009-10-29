@@ -4,8 +4,8 @@ import com.bc.ceres.binding.BindingException;
 
 /**
  * Represents a problem of a {@link com.bc.ceres.binding.swing.Binding} which may occur
- * when transferring data from a Swing component into the the bound property
- * ({@link com.bc.ceres.binding.ValueModel ValueModel}).
+ * when transferring data from a Swing component into the the bound
+ * {@link com.bc.ceres.binding.Property Property}.
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$

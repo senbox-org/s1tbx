@@ -16,7 +16,7 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 import com.bc.ceres.binding.swing.ValueEditor;
@@ -37,19 +37,19 @@ import javax.swing.SwingConstants;
 public class NumericEditor extends ValueEditor {
 
     @Override
-    public boolean isValidFor(ValueDescriptor valueDescriptor) {
-        Class<?> type = valueDescriptor.getType();
+    public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
+        Class<?> type = propertyDescriptor.getType();
         return isNumericType(type);
     }
     
     @Override
-    public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
+    public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         JTextField textField = new JTextField();
         textField.setHorizontalAlignment(SwingConstants.RIGHT);
         int fontSize = textField.getFont().getSize();
         textField.setFont(new Font("Courier", Font.PLAIN, fontSize));
         ComponentAdapter adapter = new TextComponentAdapter(textField);
-        bindingContext.bind(valueDescriptor.getName(), adapter);
+        bindingContext.bind(propertyDescriptor.getName(), adapter);
         return textField;
     }
 

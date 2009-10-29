@@ -6,7 +6,7 @@ package com.bc.ceres.binding;
  * @author Norman Fomferra
  * @since 0.6
  */
-public interface ValueAccessor {
+public interface PropertyAccessor {
     /**
      * The strategy to get a value.
      *

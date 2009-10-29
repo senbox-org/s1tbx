@@ -1,10 +1,10 @@
 package com.bc.ceres.binding.swing;
 
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValueSet;
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.internal.TextComponentAdapter;
 import junit.framework.TestCase;
 
@@ -27,9 +27,9 @@ import java.beans.PropertyChangeEvent;
 public class BindingContextTest extends TestCase implements BindingContext.ErrorHandler {
 
     private BindingContext bindingContextVB;
-    private ValueContainer valueContainerVB;
+    private PropertyContainer propertyContainerVB;
 
-    private ValueContainer valueContainerOB;
+    private PropertyContainer propertyContainerOB;
     private BindingContext bindingContextOB;
     private TestPojo pojo;
 
@@ -38,14 +38,14 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
 
     @Override
     protected void setUp() throws Exception {
-        valueContainerVB = ValueContainer.createValueBacked(TestPojo.class);
-        valueContainerVB.getDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
-        bindingContextVB = new BindingContext(valueContainerVB, this);
+        propertyContainerVB = PropertyContainer.createValueBacked(TestPojo.class);
+        propertyContainerVB.getDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
+        bindingContextVB = new BindingContext(propertyContainerVB, this);
 
         pojo = new TestPojo();
-        valueContainerOB = ValueContainer.createObjectBacked(pojo);
-        valueContainerOB.getDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
-        bindingContextOB = new BindingContext(valueContainerOB, this);
+        propertyContainerOB = PropertyContainer.createObjectBacked(pojo);
+        propertyContainerOB.getDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
+        bindingContextOB = new BindingContext(propertyContainerOB, this);
 
         error = null;
         component = null;
@@ -73,9 +73,9 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         assertEquals("intValue", spinner.getName());
 
         spinner.setValue(3);
-        assertEquals(3, valueContainerVB.getValue("intValue"));
+        assertEquals(3, propertyContainerVB.getValue("intValue"));
 
-        valueContainerVB.setValue("intValue", 76);
+        propertyContainerVB.setValue("intValue", 76);
         assertEquals(76, spinner.getValue());
 
     }
@@ -96,7 +96,7 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         assertEquals(3, comboBox.getSelectedItem());
         assertEquals(3, binding.getPropertyValue());
 
-        valueContainerVB.setValue("intValue", 1);
+        propertyContainerVB.setValue("intValue", 1);
         assertEquals(1, comboBox.getSelectedItem());
         assertEquals(1, binding.getPropertyValue());
 
@@ -112,14 +112,14 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         assertEquals(4, comboBox.getSelectedItem());
         assertEquals(4, binding.getPropertyValue());
 
-        valueContainerVB.setValue("intValue", 5);
+        propertyContainerVB.setValue("intValue", 5);
         assertEquals(5, comboBox.getSelectedItem());
         assertEquals(5, binding.getPropertyValue());
 
         comboBox.setEditable(false);
 
         final ValueSet valueSet = new ValueSet(new Object[]{10, 20});
-        final ValueDescriptor descriptor = binding.getContext().getValueContainer().getDescriptor("intValue");
+        final PropertyDescriptor descriptor = binding.getContext().getPropertyContainer().getDescriptor("intValue");
         descriptor.setValueSet(valueSet);
 
         assertEquals(2, comboBox.getModel().getSize());
@@ -143,9 +143,9 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
 
         textField.setText("Bibo");
         textField.postActionEvent();
-        assertEquals("Bibo", valueContainerVB.getValue("stringValue"));
+        assertEquals("Bibo", propertyContainerVB.getValue("stringValue"));
 
-        valueContainerVB.setValue("stringValue", "Samson");
+        propertyContainerVB.setValue("stringValue", "Samson");
         assertEquals("Samson", textField.getText());
     }
 
@@ -161,14 +161,14 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
 
         textField.setText("Bibo");
         textField.postActionEvent();        
-        assertEquals("Bibo", valueContainerOB.getValue("stringValue"));
+        assertEquals("Bibo", propertyContainerOB.getValue("stringValue"));
 
-        valueContainerOB.setValue("stringValue", "Samson");
+        propertyContainerOB.setValue("stringValue", "Samson");
         assertEquals("Samson", pojo.stringValue);
         assertEquals("Samson", textField.getText());
 
         pojo.stringValue = "Oscar";
-        assertSame("Oscar", valueContainerOB.getValue("stringValue"));
+        assertSame("Oscar", propertyContainerOB.getValue("stringValue"));
         assertNotSame("Oscar", textField.getText()); // value change not detected by binding
     }
 
@@ -183,9 +183,9 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         assertEquals("stringValue", textField.getName());
 
         textField.setValue("Bibo");
-        assertEquals("Bibo", valueContainerVB.getValue("stringValue"));
+        assertEquals("Bibo", propertyContainerVB.getValue("stringValue"));
 
-        valueContainerVB.setValue("stringValue", "Samson");
+        propertyContainerVB.setValue("stringValue", "Samson");
         assertEquals("Samson", textField.getValue());
     }
 
@@ -200,9 +200,9 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         assertEquals("doubleValue", textField.getName());
 
         textField.setValue(3.14);
-        assertEquals(3.14, valueContainerVB.getValue("doubleValue"));
+        assertEquals(3.14, propertyContainerVB.getValue("doubleValue"));
 
-        valueContainerVB.setValue("doubleValue", 2.71);
+        propertyContainerVB.setValue("doubleValue", 2.71);
         assertEquals(2.71, textField.getValue());
     }
 
@@ -219,9 +219,9 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
 
         textArea.setText("Bibo");
         textComponentAdapter.actionPerformed(null);
-        assertEquals("Bibo", valueContainerVB.getValue("stringValue"));
+        assertEquals("Bibo", propertyContainerVB.getValue("stringValue"));
 
-        valueContainerVB.setValue("stringValue", "Samson");
+        propertyContainerVB.setValue("stringValue", "Samson");
         assertEquals("Samson", textArea.getText());
     }
 
@@ -236,9 +236,9 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         assertEquals("booleanValue", checkBox.getName());
 
         checkBox.doClick();
-        assertEquals(true, valueContainerVB.getValue("booleanValue"));
+        assertEquals(true, propertyContainerVB.getValue("booleanValue"));
 
-        valueContainerVB.setValue("booleanValue", false);
+        propertyContainerVB.setValue("booleanValue", false);
         assertEquals(false, checkBox.isSelected());
     }
 
@@ -253,9 +253,9 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         assertEquals("booleanValue", radioButton.getName());
 
         radioButton.doClick();
-        assertEquals(true, valueContainerVB.getValue("booleanValue"));
+        assertEquals(true, propertyContainerVB.getValue("booleanValue"));
 
-        valueContainerVB.setValue("booleanValue", false);
+        propertyContainerVB.setValue("booleanValue", false);
         assertEquals(false, radioButton.isSelected());
     }
 
@@ -269,7 +269,7 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         buttonGroup.add(radioButton2);
         buttonGroup.add(radioButton3);
 
-        ValueModel m = valueContainerVB.getModel("valueSetBoundIntValue");
+        Property m = propertyContainerVB.getProperty("valueSetBoundIntValue");
 
         m.setValue(TestPojo.intValueSet[0]);
 
@@ -329,9 +329,9 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         assertEquals("listValue", list.getName());
 
         list.setSelectedIndex(2);
-        assertTrue(Arrays.equals(new int[]{5}, (int[]) valueContainerVB.getValue("listValue")));
+        assertTrue(Arrays.equals(new int[]{5}, (int[]) propertyContainerVB.getValue("listValue")));
 
-        valueContainerVB.setValue("listValue", new int[]{6});
+        propertyContainerVB.setValue("listValue", new int[]{6});
         assertEquals(6, list.getSelectedValue());
     }
 

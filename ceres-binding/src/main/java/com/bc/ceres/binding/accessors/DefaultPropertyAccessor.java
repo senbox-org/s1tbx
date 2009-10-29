@@ -1,24 +1,24 @@
 package com.bc.ceres.binding.accessors;
 
-import com.bc.ceres.binding.ValueAccessor;
+import com.bc.ceres.binding.PropertyAccessor;
 
 /**
  * A value accessor for values stored as plain Java object.
  */
-public class DefaultValueAccessor implements ValueAccessor {
+public class DefaultPropertyAccessor implements PropertyAccessor {
     private Object value;
 
     /**
      * Constructs a new {@code DefaultValueAccessor} with a {@code null} default value.
      */
-    public DefaultValueAccessor() {
+    public DefaultPropertyAccessor() {
     }
 
     /**
      * Constructs a new {@code DefaultValueAccessor} with a {@code null} default value.
      * @param value The initial value.
      */
-    public DefaultValueAccessor(Object value) {
+    public DefaultPropertyAccessor(Object value) {
         this.value = value;
     }
 

@@ -1,7 +1,7 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -41,7 +41,7 @@ public class ShapeLayer extends Layer {
         this(LAYER_TYPE, initConfiguration(LAYER_TYPE.createLayerConfig(null), shapes, shapeToModelTransform));
     }
 
-    public ShapeLayer(Type layerType, ValueContainer configuration) {
+    public ShapeLayer(Type layerType, PropertyContainer configuration) {
         super(layerType, configuration);
         this.shapeList = (List<Shape>) configuration.getValue(Type.PROPERTY_SHAPE_LIST);
         this.shapeToModelTransform = (AffineTransform) configuration.getValue(Type.PROPTERY_SHAPE_TO_MODEL_TRANSFORM);
@@ -52,7 +52,7 @@ public class ShapeLayer extends Layer {
         }
     }
 
-    private static ValueContainer initConfiguration(ValueContainer template, Shape[] shapes,
+    private static PropertyContainer initConfiguration(PropertyContainer template, Shape[] shapes,
                                                     AffineTransform shapeToModelTransform) {
         template.setValue(Type.PROPERTY_SHAPE_LIST, Arrays.asList(shapes));
         template.setValue(Type.PROPTERY_SHAPE_TO_MODEL_TRANSFORM, shapeToModelTransform.clone());
@@ -126,20 +126,20 @@ public class ShapeLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
             return new ShapeLayer(this, configuration);
         }
 
         @Override
-        public ValueContainer createLayerConfig(LayerContext ctx) {
-            final ValueContainer vc = new ValueContainer();
+        public PropertyContainer createLayerConfig(LayerContext ctx) {
+            final PropertyContainer vc = new PropertyContainer();
 
-            final ValueModel shapeListModel = ValueModel.createValueModel(PROPERTY_SHAPE_LIST, List.class);
+            final Property shapeListModel = Property.create(PROPERTY_SHAPE_LIST, List.class);
             shapeListModel.getDescriptor().setDefaultValue(new ArrayList<Shape>());
-            vc.addModel(shapeListModel);
+            vc.addProperty(shapeListModel);
 
-            final ValueModel transformModel = ValueModel.createValueModel(PROPTERY_SHAPE_TO_MODEL_TRANSFORM, AffineTransform.class, new AffineTransform(), true);
-            vc.addModel(transformModel);
+            final Property transformModel = Property.create(PROPTERY_SHAPE_TO_MODEL_TRANSFORM, AffineTransform.class, new AffineTransform(), true);
+            vc.addProperty(transformModel);
 
             return vc;
         }

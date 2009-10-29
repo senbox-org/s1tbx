@@ -1,7 +1,7 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -25,11 +25,11 @@ public class BackgroundLayer extends Layer {
         this(LAYER_TYPE, initConfiguration(LAYER_TYPE.createLayerConfig(null), color));
     }
 
-    public BackgroundLayer(Type type, ValueContainer configuration) {
+    public BackgroundLayer(Type type, PropertyContainer configuration) {
         super(type, configuration);
     }
 
-    private static ValueContainer initConfiguration(ValueContainer configuration, Color color) {
+    private static PropertyContainer initConfiguration(PropertyContainer configuration, Color color) {
         configuration.setValue(Type.COLOR, color);
         return configuration;
     }
@@ -67,16 +67,16 @@ public class BackgroundLayer extends Layer {
         }
 
         @Override
-        public ValueContainer createLayerConfig(LayerContext ctx) {
-            final ValueContainer template = new ValueContainer();
-            template.addModel(ValueModel.createValueModel(COLOR, Color.class));
+        public PropertyContainer createLayerConfig(LayerContext ctx) {
+            final PropertyContainer template = new PropertyContainer();
+            template.addProperty(Property.create(COLOR, Color.class));
 
             return template;
 
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
             return new BackgroundLayer(this, configuration);
         }
     }

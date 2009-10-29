@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 
 /**
  * A set of values allowed to be assigned to certain types of values. This set
- * can be a property of a {@link ValueDescriptor}.
+ * can be a property of a {@link PropertyDescriptor}.
  *
  * @author Norman Fomferra
  * @since 0.6

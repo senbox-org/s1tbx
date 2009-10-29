@@ -16,7 +16,7 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 
@@ -62,8 +62,8 @@ public class SliderAdapter extends ComponentAdapter implements ChangeListener {
     }
 
     private void updateScale() {
-        ValueDescriptor valueDescriptor = getBinding().getContext().getValueContainer().getDescriptor(getBinding().getPropertyName());
-        ValueRange range = valueDescriptor.getValueRange();
+        PropertyDescriptor propertyDescriptor = getBinding().getContext().getPropertyContainer().getDescriptor(getBinding().getPropertyName());
+        ValueRange range = propertyDescriptor.getValueRange();
         scale = (range.getMax() - range.getMin()) / (slider.getMaximum() - slider.getMinimum());
     }
 }

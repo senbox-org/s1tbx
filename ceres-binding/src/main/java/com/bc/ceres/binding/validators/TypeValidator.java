@@ -2,18 +2,18 @@ package com.bc.ceres.binding.validators;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.Property;
 
 import java.text.MessageFormat;
 
 public class TypeValidator implements Validator {
 
     @Override
-    public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
-        final Class<?> type = valueModel.getDescriptor().getType();
+    public void validateValue(Property property, Object value) throws ValidationException {
+        final Class<?> type = property.getDescriptor().getType();
         if (!isAssignableFrom(type, value)) {
             throw new ValidationException(MessageFormat.format("Value for ''{0}'' must be of type ''{1}''.",
-                                                               valueModel.getDescriptor().getDisplayName(),
+                                                               property.getDescriptor().getDisplayName(),
                                                                type.getSimpleName()));
         }
     }

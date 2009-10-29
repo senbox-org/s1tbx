@@ -1,10 +1,10 @@
 package com.bc.ceres.binding.swing;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 
 import javax.swing.ButtonGroup;
@@ -62,15 +62,15 @@ public class BindingContextUI {
         country = "Germany";
         healthy = true;
 
-        final ValueContainer vc = ValueContainer.createObjectBacked(this);
+        final PropertyContainer vc = PropertyContainer.createObjectBacked(this);
 
-        vc.getModel("name").getDescriptor().setNotEmpty(true);
-        vc.getModel("age").getDescriptor().setValueRange(new ValueRange(1, 150));
-        vc.getModel("height").getDescriptor().setValueRange(new ValueRange(0.5, 2.5));
-        vc.getModel("gender").getDescriptor().setValueSet(new ValueSet(new Object[]{Gender.female, Gender.male}));
-        vc.getModel("eyeColor").getDescriptor().setNotEmpty(true);
-        vc.getModel("eyeColor").getDescriptor().setValidator(new LettersOnlyValidator());
-        vc.getModel("country").getDescriptor().setValueSet(new ValueSet(new Object[]{"France", "Italy", "Spain", "Germany", "United Kingdom", "United States"}));
+        vc.getProperty("name").getDescriptor().setNotEmpty(true);
+        vc.getProperty("age").getDescriptor().setValueRange(new ValueRange(1, 150));
+        vc.getProperty("height").getDescriptor().setValueRange(new ValueRange(0.5, 2.5));
+        vc.getProperty("gender").getDescriptor().setValueSet(new ValueSet(new Object[]{Gender.female, Gender.male}));
+        vc.getProperty("eyeColor").getDescriptor().setNotEmpty(true);
+        vc.getProperty("eyeColor").getDescriptor().setValidator(new LettersOnlyValidator());
+        vc.getProperty("country").getDescriptor().setValueSet(new ValueSet(new Object[]{"France", "Italy", "Spain", "Germany", "United Kingdom", "United States"}));
 
         bindingContext = new BindingContext(vc);
 
@@ -257,7 +257,7 @@ public class BindingContextUI {
 
     private static class LettersOnlyValidator implements Validator {
         @Override
-            public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
+            public void validateValue(Property property, Object value) throws ValidationException {
             for (char c : ((String) value).toCharArray()) {
                 if (!Character.isLetter(c)) {
                     throw new ValidationException("Only letters!");

@@ -16,7 +16,7 @@
  */
 package com.bc.ceres.binding.swing;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.internal.TextFieldEditor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ServiceRegistry;
@@ -71,24 +71,24 @@ public class ValueEditorRegistry {
     }
 
     /**
-     * Finds a matching {@link ValueEditor} for the given {@link ValueDescriptor}.
+     * Finds a matching {@link ValueEditor} for the given {@link com.bc.ceres.binding.PropertyDescriptor}.
      * <p/>
      * At first , if set, the property {@code "valueEditor"} of the value descriptor
      * is used. Afterwards all registered {@link ValueEditor}s are tested,
      * whether the can provide an editor. As a fallback a {@link TextFieldEditor} is returned.
      *
-     * @param valueDescriptor the value descriptor
+     * @param propertyDescriptor the value descriptor
      *
      * @return the editor that can edit values described by the value descriptor
      */
-    public ValueEditor findValueEditor(ValueDescriptor valueDescriptor) {
-        Assert.notNull(valueDescriptor, "valueDescriptor must not be null");
-        ValueEditor valueEditor = (ValueEditor) valueDescriptor.getProperty("valueEditor");
+    public ValueEditor findValueEditor(PropertyDescriptor propertyDescriptor) {
+        Assert.notNull(propertyDescriptor, "propertyDescriptor");
+        ValueEditor valueEditor = (ValueEditor) propertyDescriptor.getAttribute("valueEditor");
         if (valueEditor != null) {
             return valueEditor;
         }
         for (ValueEditor editor : registry.getServices()) {
-            if (editor.isValidFor(valueDescriptor)) {
+            if (editor.isValidFor(propertyDescriptor)) {
                 return editor;
             }
         }

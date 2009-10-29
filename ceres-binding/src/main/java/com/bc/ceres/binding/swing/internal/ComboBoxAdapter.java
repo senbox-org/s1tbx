@@ -1,6 +1,6 @@
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 
@@ -39,7 +39,7 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
     public void bindComponents() {
         adjustComboBoxModel();
         adjustTextComponent();
-        getValueDescriptor().addPropertyChangeListener(this);
+        getValueDescriptor().addAttributeChangeListener(this);
         comboBox.addPropertyChangeListener("editable", this);
         comboBox.addActionListener(this);
     }
@@ -48,7 +48,7 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
     public void unbindComponents() {
         comboBox.removeActionListener(this);
         comboBox.removePropertyChangeListener("editable", this);
-        getValueDescriptor().removePropertyChangeListener(this);
+        getValueDescriptor().removeAttributeChangeListener(this);
         unbindTextComponent();
     }
 
@@ -75,8 +75,8 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
         }
     }
 
-    private ValueDescriptor getValueDescriptor() {
-        return getBinding().getContext().getValueContainer().getDescriptor(getBinding().getPropertyName());
+    private PropertyDescriptor getValueDescriptor() {
+        return getBinding().getContext().getPropertyContainer().getDescriptor(getBinding().getPropertyName());
     }
 
     private void adjustComboBoxModel() {

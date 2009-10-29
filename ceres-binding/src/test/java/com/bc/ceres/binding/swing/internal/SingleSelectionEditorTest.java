@@ -16,8 +16,8 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
 
@@ -32,30 +32,30 @@ public class SingleSelectionEditorTest extends TestCase {
         SingleSelectionEditor singleSelEditor = new SingleSelectionEditor();
         
         ValueSet valueSet = new ValueSet(new Double[] {Double.valueOf(42), Double.valueOf(84)});
-        ValueDescriptor doubleArrayDescriptor = new ValueDescriptor("test", Double.class);
+        PropertyDescriptor doubleArrayDescriptor = new PropertyDescriptor("test", Double.class);
         doubleArrayDescriptor.setValueSet(valueSet);
         assertTrue(singleSelEditor.isValidFor(doubleArrayDescriptor));
         
-        doubleArrayDescriptor = new ValueDescriptor("test", Double[].class);
+        doubleArrayDescriptor = new PropertyDescriptor("test", Double[].class);
         doubleArrayDescriptor.setValueSet(valueSet);
         assertFalse(singleSelEditor.isValidFor(doubleArrayDescriptor));
         
-        doubleArrayDescriptor = new ValueDescriptor("test", Double.class);
+        doubleArrayDescriptor = new PropertyDescriptor("test", Double.class);
         assertFalse(singleSelEditor.isValidFor(doubleArrayDescriptor));
     }
     
     public void testCreateEditorComponent() throws Exception {
         SingleSelectionEditor singleSelEditor = new SingleSelectionEditor();
         
-        ValueContainer valueContainer = ValueContainer.createValueBacked(V.class);
-        BindingContext bindingContext = new BindingContext(valueContainer);
-        ValueDescriptor valueDescriptor = valueContainer.getDescriptor("value");
+        PropertyContainer propertyContainer = PropertyContainer.createValueBacked(V.class);
+        BindingContext bindingContext = new BindingContext(propertyContainer);
+        PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor("value");
         ValueSet valueSet = new ValueSet(new Double[] {Double.valueOf(42), Double.valueOf(84)});
-        valueDescriptor.setValueSet(valueSet);
-        assertSame(Double.class, valueDescriptor.getType());
+        propertyDescriptor.setValueSet(valueSet);
+        assertSame(Double.class, propertyDescriptor.getType());
         
-        assertTrue(singleSelEditor.isValidFor(valueDescriptor));
-        JComponent editorComponent = singleSelEditor.createEditorComponent(valueDescriptor, bindingContext);
+        assertTrue(singleSelEditor.isValidFor(propertyDescriptor));
+        JComponent editorComponent = singleSelEditor.createEditorComponent(propertyDescriptor, bindingContext);
         assertNotNull(editorComponent);
         assertSame(JComboBox.class, editorComponent.getClass());
         

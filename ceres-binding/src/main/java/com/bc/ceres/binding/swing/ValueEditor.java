@@ -16,15 +16,14 @@
  */
 package com.bc.ceres.binding.swing;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 /**
  * A factory for editors that can edit values of a certain type
- * described by a {@link ValueDescriptor}.
+ * described by a {@link com.bc.ceres.binding.PropertyDescriptor}.
  *
  * @author Marco Zuehlke
  * @version $Revision$ $Date$
@@ -34,44 +33,44 @@ public abstract class ValueEditor {
     
     /**
      * Checks if this value editor can be used for the values
-     * described by the given value model.
+     * described by the given property.
      * 
-     * @param valueDescriptor The value descriptor
+     * @param propertyDescriptor The value descriptor
      * @return true, is this editor can be used for the given value descriptor
      */
-    public boolean isValidFor(ValueDescriptor valueDescriptor) {
+    public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
         return false;
     }
     
     /**
-     * Creates the editor component for the {@link ValueDescriptor} and bind it
-     * to a {@link ValueContainer} using the {@link BindingContext}.
+     * Creates the editor component for the {@link com.bc.ceres.binding.PropertyDescriptor} and bind it
+     * to a {@link com.bc.ceres.binding.PropertyContainer} using the {@link BindingContext}.
      * 
-     * @param valueDescriptor The value descriptor
+     * @param propertyDescriptor The value descriptor
      * @param bindingContext The binding context
      * @return the editor component
      */
-    public JComponent[] createComponents(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
-        JComponent editorComponent = createEditorComponent(valueDescriptor, bindingContext);
+    public JComponent[] createComponents(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
+        JComponent editorComponent = createEditorComponent(propertyDescriptor, bindingContext);
         
-        JLabel label = new JLabel(valueDescriptor.getDisplayName() + ":");
-        Binding binding = bindingContext.getBinding(valueDescriptor.getName());
+        JLabel label = new JLabel(propertyDescriptor.getDisplayName() + ":");
+        Binding binding = bindingContext.getBinding(propertyDescriptor.getName());
         binding.addComponent(label);
         
         return new JComponent[] {editorComponent, label};
     }
     
     /**
-     * Creates the editor component together with an optional label for the {@link ValueDescriptor} and bind it
-     * to a {@link ValueContainer} using the {@link BindingContext}.
+     * Creates the editor component together with an optional label for the {@link com.bc.ceres.binding.PropertyDescriptor} and bind it
+     * to a {@link com.bc.ceres.binding.PropertyContainer} using the {@link BindingContext}.
      * 
      * If for this editor component a label is applicable, it is return as the second element in the array.
      * 
      * 
-     * @param valueDescriptor The value descriptor
+     * @param propertyDescriptor The value descriptor
      * @param bindingContext The binding context
      * @return an array containing the editor component as first element and (if applicable) a label as second element
      */
-    public abstract JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext);
+    public abstract JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext);
 
 }

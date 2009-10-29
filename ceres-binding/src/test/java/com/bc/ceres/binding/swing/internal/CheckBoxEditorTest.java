@@ -16,8 +16,8 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
 
 import javax.swing.JCheckBox;
@@ -30,23 +30,23 @@ public class CheckBoxEditorTest extends TestCase {
     public void testIsApplicable() throws Exception {
         CheckBoxEditor checkBoxEditor = new CheckBoxEditor();
         
-        ValueDescriptor booleanDescriptor = new ValueDescriptor("test", Boolean.TYPE);
+        PropertyDescriptor booleanDescriptor = new PropertyDescriptor("test", Boolean.TYPE);
         assertTrue(checkBoxEditor.isValidFor(booleanDescriptor));
         
-        ValueDescriptor doubleDescriptor = new ValueDescriptor("test", Double.TYPE);
+        PropertyDescriptor doubleDescriptor = new PropertyDescriptor("test", Double.TYPE);
         assertFalse(checkBoxEditor.isValidFor(doubleDescriptor));
     }
     
     public void testCreateEditorComponent() throws Exception {
         CheckBoxEditor checkBoxEditor = new CheckBoxEditor();
         
-        ValueContainer valueContainer = ValueContainer.createValueBacked(V.class);
-        BindingContext bindingContext = new BindingContext(valueContainer);
-        ValueDescriptor valueDescriptor = valueContainer.getDescriptor("b");
-        assertSame(Boolean.TYPE, valueDescriptor.getType());
+        PropertyContainer propertyContainer = PropertyContainer.createValueBacked(V.class);
+        BindingContext bindingContext = new BindingContext(propertyContainer);
+        PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor("b");
+        assertSame(Boolean.TYPE, propertyDescriptor.getType());
         
-        assertTrue(checkBoxEditor.isValidFor(valueDescriptor));
-        JComponent editorComponent = checkBoxEditor.createEditorComponent(valueDescriptor, bindingContext);
+        assertTrue(checkBoxEditor.isValidFor(propertyDescriptor));
+        JComponent editorComponent = checkBoxEditor.createEditorComponent(propertyDescriptor, bindingContext);
         assertNotNull(editorComponent);
         assertSame(JCheckBox.class, editorComponent.getClass());
         JComponent[] components = bindingContext.getBinding("b").getComponents();

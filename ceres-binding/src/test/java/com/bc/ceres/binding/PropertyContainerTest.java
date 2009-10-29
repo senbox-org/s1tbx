@@ -11,28 +11,28 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 
 
-public class ValueContainerTest extends TestCase {
+public class PropertyContainerTest extends TestCase {
 
     public void testValueBackedValueContainer() throws ValidationException {
-        ValueContainer vc = ValueContainer.createValueBacked(Pojo.class);
+        PropertyContainer pc = PropertyContainer.createValueBacked(Pojo.class);
 
         MyPropertyChangeListener pcl = new MyPropertyChangeListener();
-        vc.addPropertyChangeListener(pcl);
+        pc.addPropertyChangeListener(pcl);
 
-        testValueContainerModels(vc);
+        testValueContainerModels(pc);
 
         assertEquals("(name:null-->Ernie)(age:0-->16)(weight:0.0-->72.9)(code:" + '\0' + "-->#)", pcl.trace);
     }
 
     public void testMapBackedValueContainer() throws ValidationException {
         final HashMap<String, Object> map = new HashMap<String, Object>();
-        ValueContainer vc = ValueContainer.createMapBacked(map, Pojo.class);
+        PropertyContainer pc = PropertyContainer.createMapBacked(map, Pojo.class);
         assertEquals(0, map.size());
 
         MyPropertyChangeListener pcl = new MyPropertyChangeListener();
-        vc.addPropertyChangeListener(pcl);
+        pc.addPropertyChangeListener(pcl);
 
-        testValueContainerModels(vc);
+        testValueContainerModels(pc);
 
         assertEquals("(name:null-->Ernie)(age:0-->16)(weight:0.0-->72.9)(code:" + '\0' + "-->#)", pcl.trace);
         assertEquals('#', map.get("code"));
@@ -43,11 +43,11 @@ public class ValueContainerTest extends TestCase {
 
     public void testObjectBackedValueContainer() throws ValidationException {
         Pojo pojo = new Pojo();
-        ValueContainer vc = ValueContainer.createObjectBacked(pojo);
+        PropertyContainer pc = PropertyContainer.createObjectBacked(pojo);
         MyPropertyChangeListener pcl = new MyPropertyChangeListener();
-        vc.addPropertyChangeListener(pcl);
+        pc.addPropertyChangeListener(pcl);
 
-        testValueContainerModels(vc);
+        testValueContainerModels(pc);
 
         assertEquals("(name:Hermann-->Ernie)(age:59-->16)(weight:82.5-->72.9)(code:X-->#)", pcl.trace);
         assertEquals('#', pojo.code);
@@ -56,101 +56,68 @@ public class ValueContainerTest extends TestCase {
         assertEquals(72.9, pojo.weight);
     }
 
-    public void testAddValueContainer() {
-        final Pojo pojo = new Pojo();
-        ValueContainer pojoContainer = ValueContainer.createObjectBacked(pojo);
-
-        final B b = new B();
-        ValueContainer bContainer = ValueContainer.createObjectBacked(b);
-
-        pojoContainer.addValueContainer(bContainer);
-
-        final ValueModel[] models = pojoContainer.getModels();
-        assertEquals(9, models.length);
-
-        final ValueModel nameModel = pojoContainer.getModel("name");
-        assertNotNull(nameModel);
-        assertEquals("Hermann", nameModel.getValueAsText());
-
-        final ValueModel xModel = pojoContainer.getModel("x");
-        assertNotNull(xModel);
-        assertEquals("42", xModel.getValueAsText());
-    }
-
-    public void testAddValueCOntainer_duplicateModelNames() {
-        final Pojo pojo = new Pojo();
-        ValueContainer vc_1 = ValueContainer.createObjectBacked(pojo);
-        ValueContainer vc_2 = ValueContainer.createObjectBacked(pojo);
-
+    private void testValueContainerModels(PropertyContainer vc) throws ValidationException {
+        final Property name = vc.getProperty("name");
+        assertNotNull(name);
+        name.setValue("Ernie");
+        assertEquals("Ernie", name.getValue());
         try {
-            vc_1.addValueContainer(vc_2);
-            fail("IllegalStateException expected");
-        } catch (IllegalStateException expected) {            
-        }
-    }
-
-    private void testValueContainerModels(ValueContainer vc) throws ValidationException {
-        final ValueModel nameModel = vc.getModel("name");
-        assertNotNull(nameModel);
-        nameModel.setValue("Ernie");
-        assertEquals("Ernie", nameModel.getValue());
-        try {
-            nameModel.setValue(3);
+            name.setValue(3);
             fail("ValidationException expected");
         } catch (ValidationException e) {
         }
 
-        final ValueModel ageModel = vc.getModel("age");
-        assertNotNull(ageModel);
-        ageModel.setValue(16);
-        assertEquals(16, ageModel.getValue());
+        final Property age = vc.getProperty("age");
+        assertNotNull(age);
+        age.setValue(16);
+        assertEquals(16, age.getValue());
         try {
-            ageModel.setValue("");
+            age.setValue("");
             fail("ValidationException expected");
         } catch (ValidationException e) {
         }
 
-        final ValueModel weightModel = vc.getModel("weight");
-        assertNotNull(weightModel);
-        weightModel.setValue(72.9);
-        assertEquals(72.9, weightModel.getValue());
+        final Property weight = vc.getProperty("weight");
+        assertNotNull(weight);
+        weight.setValue(72.9);
+        assertEquals(72.9, weight.getValue());
         try {
-            weightModel.setValue("");
+            weight.setValue("");
             fail("ValidationException expected");
         } catch (ValidationException e) {
         }
 
-        final ValueModel codeModel = vc.getModel("code");
-        assertNotNull(codeModel);
-        codeModel.setValue('#');
-        assertEquals('#', codeModel.getValue());
+        final Property code = vc.getProperty("code");
+        assertNotNull(code);
+        code.setValue('#');
+        assertEquals('#', code.getValue());
         try {
-            codeModel.setValue(2.5);
+            code.setValue(2.5);
             fail("ValidationException expected");
         } catch (ValidationException e) {
         }
 
-        final ValueModel unknownModel = vc.getModel("unknown");
+        final Property unknownModel = vc.getProperty("unknown");
         assertNull(unknownModel);
     }
 
     public void testDefaultValues() throws ValidationException {
-        ClassFieldDescriptorFactory valueDescriptorFactory = new MyValueDescriptorFactory();
+        PropertyDescriptorFactory valueDescriptorFactory = new MyValueDescriptorFactory();
 
-        ValueContainer container;
+        PropertyContainer container;
 
-        container = ValueContainer.createObjectBacked(new Pojo(), valueDescriptorFactory);
+        container = PropertyContainer.createObjectBacked(new Pojo(), valueDescriptorFactory);
         testCurrentValuesUsed(container);
         container.setDefaultValues();
         testDefaultValuesUsed(container);
 
-        container = ValueContainer.createValueBacked(Pojo.class, valueDescriptorFactory);
+        container = PropertyContainer.createValueBacked(Pojo.class, valueDescriptorFactory);
         testDefaultValuesUsed(container);
         container.setDefaultValues();
         testDefaultValuesUsed(container);
 
         HashMap<String, Object> map = new HashMap<String, Object>(5);
-        container = ValueContainer.createMapBacked(map, Pojo.class, valueDescriptorFactory);
+        container = PropertyContainer.createMapBacked(map, Pojo.class, valueDescriptorFactory);
         assertEquals(0, map.size());
         testInitialValuesUsed(container);
         container.setDefaultValues();
@@ -162,7 +129,7 @@ public class ValueContainerTest extends TestCase {
         map.put("name", "Hermann");
         map.put("age", 59);
         map.put("weight", 82.5);
-        container = ValueContainer.createMapBacked(map, Pojo.class, valueDescriptorFactory);
+        container = PropertyContainer.createMapBacked(map, Pojo.class, valueDescriptorFactory);
         assertEquals(4, map.size());
         testCurrentValuesUsed(container);
         container.setDefaultValues();
@@ -170,7 +137,7 @@ public class ValueContainerTest extends TestCase {
         testDefaultValuesUsed(container);
     }
 
-    private void testInitialValuesUsed(ValueContainer container) {
+    private void testInitialValuesUsed(PropertyContainer container) {
         assertEquals('\0', container.getValue("code"));
         assertEquals(null, container.getValue("name"));
         assertEquals(0, container.getValue("age"));
@@ -178,7 +145,7 @@ public class ValueContainerTest extends TestCase {
         testUnhandledValues(container);
     }
 
-    private void testCurrentValuesUsed(ValueContainer container) {
+    private void testCurrentValuesUsed(PropertyContainer container) {
         assertEquals('X', container.getValue("code"));
         assertEquals("Hermann", container.getValue("name"));
         assertEquals(59, container.getValue("age"));
@@ -186,7 +153,7 @@ public class ValueContainerTest extends TestCase {
         testUnhandledValues(container);
     }
 
-    private void testDefaultValuesUsed(ValueContainer container) {
+    private void testDefaultValuesUsed(PropertyContainer container) {
         assertEquals('Y', container.getValue("code"));
         assertEquals("Kurt", container.getValue("name"));
         assertEquals(42, container.getValue("age"));
@@ -194,7 +161,7 @@ public class ValueContainerTest extends TestCase {
         testUnhandledValues(container);
     }
 
-    private void testUnhandledValues(ValueContainer container) {
+    private void testUnhandledValues(PropertyContainer container) {
         assertEquals('\0', container.getValue("codeNoDefault"));
         assertEquals(null, container.getValue("nameNoDefault"));
         assertEquals(0, container.getValue("ageNoDefault"));
@@ -251,9 +218,9 @@ public class ValueContainerTest extends TestCase {
         }
     }
 
-    private static class MyValueDescriptorFactory implements ClassFieldDescriptorFactory {
-        public ValueDescriptor createValueDescriptor(Field field) {
-            ValueDescriptor descriptor = new ValueDescriptor(field.getName(), field.getType());
+    private static class MyValueDescriptorFactory implements PropertyDescriptorFactory {
+        public PropertyDescriptor createValueDescriptor(Field field) {
+            PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(), field.getType());
             if (!field.getName().endsWith("NoDefault")) {
                 if (field.getType().equals(String.class)) {
                     descriptor.setConverter(new StringConverter());

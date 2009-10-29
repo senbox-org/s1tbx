@@ -16,7 +16,7 @@
  */
 package com.bc.ceres.binding.swing;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.internal.CheckBoxEditor;
 import com.bc.ceres.binding.swing.internal.NumericEditor;
 import com.bc.ceres.binding.swing.internal.TextFieldEditor;
@@ -53,23 +53,23 @@ public class ValueEditorRegistryTest extends TestCase {
     }
 
     public void testFindValueEditor_UnknownEditor() throws Exception {
-        ValueDescriptor descriptor = new ValueDescriptor("test", TestCase.class);
+        PropertyDescriptor descriptor = new PropertyDescriptor("test", TestCase.class);
         ValueEditor valueEditor = editorRegistry.findValueEditor(descriptor);
         assertNotNull(valueEditor);
         assertSame(TextFieldEditor.class, valueEditor.getClass());
     }
 
     public void testFindValueEditor_SpecifiedEditor() throws Exception {
-        ValueDescriptor descriptor = new ValueDescriptor("test", Double.class);
+        PropertyDescriptor descriptor = new PropertyDescriptor("test", Double.class);
         CheckBoxEditor checkBoxEditor = new CheckBoxEditor();
-        descriptor.setProperty("valueEditor", checkBoxEditor);
+        descriptor.setAttribute("valueEditor", checkBoxEditor);
         ValueEditor valueEditor = editorRegistry.findValueEditor(descriptor);
         assertNotNull(valueEditor);
         assertSame(checkBoxEditor, valueEditor);
     }
 
     public void testFindValueEditor_MatchingEditor() throws Exception {
-        ValueDescriptor descriptor = new ValueDescriptor("test", Double.class);
+        PropertyDescriptor descriptor = new PropertyDescriptor("test", Double.class);
         ValueEditor valueEditor = editorRegistry.findValueEditor(descriptor);
         assertNotNull(valueEditor);
         assertSame(NumericEditor.class, valueEditor.getClass());

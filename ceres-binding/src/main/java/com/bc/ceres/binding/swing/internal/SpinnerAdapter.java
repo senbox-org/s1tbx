@@ -1,6 +1,6 @@
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 
 import javax.swing.JComponent;
@@ -53,14 +53,14 @@ public class SpinnerAdapter extends ComponentAdapter implements ChangeListener {
     }
 
     private void updateSpinnerModel() {
-        ValueDescriptor valueDescriptor = getBinding().getContext().getValueContainer().getDescriptor(getBinding().getPropertyName());
-        if (valueDescriptor.getValueRange() != null) {
-            Class<?> type = valueDescriptor.getType();
+        PropertyDescriptor propertyDescriptor = getBinding().getContext().getPropertyContainer().getDescriptor(getBinding().getPropertyName());
+        if (propertyDescriptor.getValueRange() != null) {
+            Class<?> type = propertyDescriptor.getType();
 
             if (Number.class.isAssignableFrom(type)) {
-                Number defaultValue = (Number) valueDescriptor.getDefaultValue(); // todo - why not the current value? (mp,nf - 18.02.2008)
-                double min = valueDescriptor.getValueRange().getMin();
-                double max = valueDescriptor.getValueRange().getMax();
+                Number defaultValue = (Number) propertyDescriptor.getDefaultValue(); // todo - why not the current value? (mp,nf - 18.02.2008)
+                double min = propertyDescriptor.getValueRange().getMin();
+                double max = propertyDescriptor.getValueRange().getMax();
                 // todo - get step size from interval
 
                 if (type == Byte.class) {
@@ -77,8 +77,8 @@ public class SpinnerAdapter extends ComponentAdapter implements ChangeListener {
                     spinner.setModel(new SpinnerNumberModel(defaultValue, min, max, 1));
                 }
             }
-        } else if (valueDescriptor.getValueSet() != null) {
-            spinner.setModel(new SpinnerListModel(valueDescriptor.getValueSet().getItems()));
+        } else if (propertyDescriptor.getValueSet() != null) {
+            spinner.setModel(new SpinnerListModel(propertyDescriptor.getValueSet().getItems()));
         }
     }
 }

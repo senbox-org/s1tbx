@@ -1,7 +1,7 @@
 package com.bc.ceres.binding;
 
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
-import com.bc.ceres.binding.accessors.DefaultValueAccessor;
+import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 
 import java.beans.PropertyChangeListener;
@@ -11,13 +11,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A model for a value, e.g. a field of an object instance. A value model is composed of a {@link ValueDescriptor} and
- * an {@link ValueAccessor}. Most of the time, value models are part of a {@link ValueContainer}.
+ * A property is composed of a {@link PropertyDescriptor} (static type description) and
+ * an {@link PropertyAccessor} (dynamic value assignment).
+ * The {@link Property} interface is a realisation of the <i>Value Object</i> design pattern.
+ * Most of the time, properties are used as part of a {@link PropertyContainer}.
  *
  * @author Norman Fomferra
  * @since 0.6
  */
-public class ValueModel {
+public class Property {
 
     static final HashMap<Class<?>, Object> PRIMITIVE_ZERO_VALUES;
 
@@ -33,61 +35,61 @@ public class ValueModel {
         PRIMITIVE_ZERO_VALUES.put(Double.TYPE, (double) 0);
     }
 
-    private final ValueDescriptor descriptor;
+    private final PropertyDescriptor descriptor;
 
-    private final ValueAccessor accessor;
+    private final PropertyAccessor accessor;
 
-    private ValueContainer container;
+    private PropertyContainer container;
 
-    public ValueModel(ValueDescriptor descriptor, ValueAccessor accessor) {
+    public Property(PropertyDescriptor descriptor, PropertyAccessor accessor) {
         this.descriptor = descriptor;
         this.accessor = accessor;
     }
 
-    public static ValueModel createClassFieldModel(Object object, String name) {
-        final Field field = getField(object, name);
-        return createModel(createValueDescriptor(name, field.getType()), new ClassFieldAccessor(object, field));
+    public static Property create(String name, Class<?> type) {
+        return createImpl(createDescriptor(name, type), new DefaultPropertyAccessor(), null);
     }
 
-    public static ValueModel createClassFieldModel(Object object, String name, Object value) {
-        final Field field = getField(object, name);
-        return createModel(createValueDescriptor(name, field.getType()), new ClassFieldAccessor(object, field), value);
+    public static Property create(String name, Object value) {
+        return createImpl(createDescriptor(name, value.getClass()), new DefaultPropertyAccessor(), value);
     }
 
-    public static ValueModel createMapEntryModel(Map<String, Object> map, String name, Class<?> type) {
-        return createModel(createValueDescriptor(name, type), new MapEntryAccessor(map, name), null);
-    }
-
-    public static ValueModel createMapEntryModel(Map<String, Object> map, String name, Class<?> type, Object value) {
-        return createModel(createValueDescriptor(name, type), new MapEntryAccessor(map, name), value);
-    }
-
-    public static ValueModel createValueModel(String name, Class<?> type) {
-        return createModel(createValueDescriptor(name, type), new DefaultValueAccessor(), null);
-    }
-
-    public static ValueModel createValueModel(String name, Object value) {
-        return createModel(createValueDescriptor(name, value.getClass()), new DefaultValueAccessor(), value);
-    }
-
-    public static <T> ValueModel createValueModel(String name, Class<T> type, T defaultValue, boolean notNull) {
-        final ValueDescriptor descriptor = createValueDescriptor(name, type) ;
+    public static <T> Property create(String name, Class<T> type, T defaultValue, boolean notNull) {
+        final PropertyDescriptor descriptor = createDescriptor(name, type) ;
         if (notNull) {
             descriptor.setDefaultValue(defaultValue);
             descriptor.setNotNull(true);
         }
-        return new ValueModel(descriptor, new DefaultValueAccessor(defaultValue));
+        return new Property(descriptor, new DefaultPropertyAccessor(defaultValue));
     }
 
-    public ValueDescriptor getDescriptor() {
+    public static Property createForField(Object object, String name) {
+        final Field field = getField(object, name);
+        return createImpl(createDescriptor(name, field.getType()), new ClassFieldAccessor(object, field));
+    }
+
+    public static Property createForField(Object object, String name, Object value) {
+        final Field field = getField(object, name);
+        return createImpl(createDescriptor(name, field.getType()), new ClassFieldAccessor(object, field), value);
+    }
+
+    public static Property createForMapEntry(Map<String, Object> map, String name, Class<?> type) {
+        return createImpl(createDescriptor(name, type), new MapEntryAccessor(map, name), null);
+    }
+
+    public static Property createForMapEntry(Map<String, Object> map, String name, Class<?> type, Object value) {
+        return createImpl(createDescriptor(name, type), new MapEntryAccessor(map, name), value);
+    }
+
+    public PropertyDescriptor getDescriptor() {
         return descriptor;
     }
 
-    public ValueContainer getContainer() {
+    public PropertyContainer getContainer() {
         return container;
     }
 
-    public void setContainer(ValueContainer container) {
+    public void setContainer(PropertyContainer container) {
         this.container = container;
     }
 
@@ -152,7 +154,7 @@ public class ValueModel {
         }
         if (oldValue instanceof Number && newValue instanceof Number) {
             final Number number = (Number) newValue;
-            final Object epsValue = descriptor.getProperty("eps");
+            final Object epsValue = descriptor.getAttribute("eps");
             if (epsValue instanceof Number) {
                 if ((oldValue instanceof Float)) {
                     final float v1 = (Float) oldValue;
@@ -202,18 +204,18 @@ public class ValueModel {
         return getClass().getName() + "[name=" + getDescriptor().getName() + ",value=" + getValueAsText() + "]";
     }
 
-    private static ValueDescriptor createValueDescriptor(String name, Class<?> type) {
-        return new ValueDescriptor(name, type);
+    private static PropertyDescriptor createDescriptor(String name, Class<?> type) {
+        return new PropertyDescriptor(name, type);
     }
 
-    private static ValueModel createModel(ValueDescriptor descriptor, ValueAccessor accessor) {
-        ValueModel vm = new ValueModel(descriptor, accessor);
+    private static Property createImpl(PropertyDescriptor descriptor, PropertyAccessor accessor) {
+        Property vm = new Property(descriptor, accessor);
         vm.getDescriptor().setConverter(ConverterRegistry.getInstance().getConverter(descriptor.getType()));
         return vm;
     }
 
-    private static ValueModel createModel(ValueDescriptor descriptor, ValueAccessor accessor, Object value) {
-        ValueModel vm = createModel(descriptor, accessor);
+    private static Property createImpl(PropertyDescriptor descriptor, PropertyAccessor accessor, Object value) {
+        Property vm = createImpl(descriptor, accessor);
         if (value == null && descriptor.getType().isPrimitive()) {
             value = PRIMITIVE_ZERO_VALUES.get(descriptor.getType());
         }

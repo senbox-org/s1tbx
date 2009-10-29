@@ -4,9 +4,9 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -38,26 +38,26 @@ public abstract class AbstractDomConverter implements DomConverter {
      */
     @Override
     public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
-        final ValueContainer valueContainer = getValueContainer(value);
-        final ValueModel[] models = valueContainer.getModels();
-        for (ValueModel model : models) {
-            final ValueDescriptor descriptor = model.getDescriptor();
+        final PropertyContainer propertyContainer = getPropertyContainer(value);
+        final Property[] properties = propertyContainer.getProperties();
+        for (Property property : properties) {
+            final PropertyDescriptor descriptor = property.getDescriptor();
             if (!descriptor.isTransient()) {
                 final DomConverter domConverter = getDomConverter(descriptor);
                 if (domConverter != null) {
-                    final DomElement childElement = parentElement.createChild(getNameOrAlias(model));
-                    domConverter.convertValueToDom(model.getValue(), childElement);
+                    final DomElement childElement = parentElement.createChild(getNameOrAlias(property));
+                    domConverter.convertValueToDom(property.getValue(), childElement);
                 } else if (isArrayTypeWithNamedItems(descriptor)) {
                     final DomElement childElement;
                     if (descriptor.getItemsInlined()) {
                         childElement = parentElement;
                     } else {
-                        childElement = parentElement.createChild(getNameOrAlias(model));
+                        childElement = parentElement.createChild(getNameOrAlias(property));
                     }
-                    final Object array = model.getValue();
+                    final Object array = property.getValue();
                     if (array != null) {
                         final int arrayLength = Array.getLength(array);
-                        final ValueDescriptor itemDescriptor = new ValueDescriptor(descriptor.getItemAlias(),
+                        final PropertyDescriptor itemDescriptor = new PropertyDescriptor(descriptor.getItemAlias(),
                                                                                    descriptor.getType().getComponentType());
                         final DomConverter itemDomConverter = getDomConverter(itemDescriptor);
                         for (int i = 0; i < arrayLength; i++) {
@@ -73,9 +73,9 @@ public abstract class AbstractDomConverter implements DomConverter {
                         }
                     }
                 } else {
-                    final DomElement childElement = parentElement.createChild(getNameOrAlias(model));
-                    final Class<?> type = model.getDescriptor().getType();
-                    final Object childValue = model.getValue();
+                    final DomElement childElement = parentElement.createChild(getNameOrAlias(property));
+                    final Class<?> type = property.getDescriptor().getType();
+                    final Object childValue = property.getValue();
                     if (type.isInstance(childValue) && type != childValue.getClass()) {
                         // childValue is an implementation of type and it's not of same type
                         // we have to store the implementation class in order to re-construct the object
@@ -110,49 +110,49 @@ public abstract class AbstractDomConverter implements DomConverter {
             value = createValueInstance(itemType);
         }
         final Map<String, List<Object>> inlinedArrays = new HashMap<String, List<Object>>();
-        final ValueContainer valueContainer = getValueContainer(value);
+        final PropertyContainer propertyContainer = getPropertyContainer(value);
 
         for (final DomElement child : parentElement.getChildren()) {
             final String childName = child.getName();
             // todo - convert Java collections (nf - 02.04.2009)
-            ValueModel valueModel = valueContainer.getModel(childName);
+            Property property = propertyContainer.getProperty(childName);
 
-            if (valueModel != null && valueModel.getDescriptor().isTransient()) {
+            if (property != null && property.getDescriptor().isTransient()) {
                 continue;
             }
 
             List<Object> inlinedArray = null;
 
-            if (valueModel == null) {
-                // try to find model as inlined array element
-                final ValueModel[] valueModels = valueContainer.getModels();
-                for (final ValueModel model : valueModels) {
-                    final boolean inlined = model.getDescriptor().getItemsInlined();
+            if (property == null) {
+                // try to find property as inlined array element
+                final Property[] properties = propertyContainer.getProperties();
+                for (final Property p : properties) {
+                    final boolean inlined = p.getDescriptor().getItemsInlined();
                     if (inlined) {
-                        final String itemAlias = model.getDescriptor().getItemAlias();
+                        final String itemAlias = p.getDescriptor().getItemAlias();
                         if (childName.equals(itemAlias)) {
-                            final String name = getNameOrAlias(model);
+                            final String name = getNameOrAlias(p);
                             inlinedArray = inlinedArrays.get(name);
                             if (inlinedArray == null) {
                                 inlinedArray = new ArrayList<Object>();
                                 inlinedArrays.put(name, inlinedArray);
                             }
-                            valueModel = model;
+                            property = p;
                             break;
                         }
                     }
                 }
-                if (valueModel == null) {
+                if (property == null) {
                     throw new ConversionException(String.format("Illegal element '%s'.", childName));
                 }
             }
 
             final Object childValue;
-            final ValueDescriptor descriptor = valueModel.getDescriptor();
+            final PropertyDescriptor descriptor = property.getDescriptor();
             final DomConverter domConverter = getDomConverter(descriptor);
             if (domConverter != null) {
-                childValue = domConverter.convertDomToValue(child, valueModel.getValue());
-                valueModel.setValue(childValue);
+                childValue = domConverter.convertDomToValue(child, property.getValue());
+                property.setValue(childValue);
             } else if (isArrayTypeWithNamedItems(descriptor)) {
                 final Class<?> itemType = descriptor.getType().getComponentType();
                 final Converter<?> itemConverter = getItemConverter(descriptor);
@@ -163,7 +163,7 @@ public abstract class AbstractDomConverter implements DomConverter {
                     // if and only if an itemAlias is set, we parse the array element-wise
                     final DomElement[] arrayElements = child.getChildren(descriptor.getItemAlias());
                     final DomConverter itemDomConverter = getDomConverter(
-                            new ValueDescriptor(descriptor.getItemAlias(), itemType));
+                            new PropertyDescriptor(descriptor.getItemAlias(), itemType));
                     childValue = Array.newInstance(itemType, arrayElements.length);
                     for (int i = 0; i < arrayElements.length; i++) {
                         Object item;
@@ -175,13 +175,13 @@ public abstract class AbstractDomConverter implements DomConverter {
                         Array.set(childValue, i, item);
 
                     }
-                    valueModel.setValue(childValue);
+                    property.setValue(childValue);
                 }
             } else {
                 childValue = convertDomToValueImpl(child,
                                                    descriptor.getConverter(),
                                                    descriptor.getType());
-                valueModel.setValue(childValue);
+                property.setValue(childValue);
             }
         }
 
@@ -189,10 +189,10 @@ public abstract class AbstractDomConverter implements DomConverter {
             for (final Map.Entry<String, List<Object>> entry : inlinedArrays.entrySet()) {
                 final String valueName = entry.getKey();
                 final List<Object> valueList = entry.getValue();
-                final Class<?> componentType = valueContainer.getDescriptor(valueName).getType().getComponentType();
+                final Class<?> componentType = propertyContainer.getDescriptor(valueName).getType().getComponentType();
                 final Object array = Array.newInstance(componentType, valueList.size());
 
-                valueContainer.getModel(valueName).setValue(valueList.toArray((Object[]) array));
+                propertyContainer.getProperty(valueName).setValue(valueList.toArray((Object[]) array));
             }
         }
 
@@ -200,13 +200,13 @@ public abstract class AbstractDomConverter implements DomConverter {
     }
 
     /**
-     * Gets an appropriate {@link com.bc.ceres.binding.ValueContainer ValueContainer} for the given value.
+     * Gets an appropriate {@link com.bc.ceres.binding.PropertyContainer PropertyContainer} for the given value.
      *
      * @param value The value.
      *
      * @return The value container.
      */
-    protected abstract ValueContainer getValueContainer(Object value);
+    protected abstract PropertyContainer getPropertyContainer(Object value);
 
     /**
      * Creates a {@link DomConverter} for a child element of a given value type.
@@ -228,7 +228,7 @@ public abstract class AbstractDomConverter implements DomConverter {
      *
      * @return The converter, may be {@code null}.
      */
-    protected abstract DomConverter getDomConverter(ValueDescriptor descriptor);
+    protected abstract DomConverter getDomConverter(PropertyDescriptor descriptor);
 
     protected void convertValueToDomImpl(Object value, Converter converter, DomElement element) throws
                                                                                                 ConversionException {
@@ -239,22 +239,22 @@ public abstract class AbstractDomConverter implements DomConverter {
             }
         } else {
             if (value != null) {
-                final ValueContainer valueContainer = getValueContainer(value);
-                final ValueModel[] models = valueContainer.getModels();
-                for (ValueModel model : models) {
-                    final ValueDescriptor descriptor = model.getDescriptor();
+                final PropertyContainer propertyContainer = getPropertyContainer(value);
+                final Property[] properties = propertyContainer.getProperties();
+                for (Property property : properties) {
+                    final PropertyDescriptor descriptor = property.getDescriptor();
                     final DomConverter domConverter = getDomConverter(descriptor);
                     if (domConverter != null) {
-                        final DomElement childElement = element.createChild(getNameOrAlias(model));
-                        domConverter.convertValueToDom(model.getValue(), childElement);
+                        final DomElement childElement = element.createChild(getNameOrAlias(property));
+                        domConverter.convertValueToDom(property.getValue(), childElement);
                     } else if (isArrayTypeWithNamedItems(descriptor)) {
                         final DomElement childElement;
                         if (descriptor.getItemsInlined()) {
                             childElement = element;
                         } else {
-                            childElement = element.createChild(getNameOrAlias(model));
+                            childElement = element.createChild(getNameOrAlias(property));
                         }
-                        final Object array = model.getValue();
+                        final Object array = property.getValue();
                         if (array != null) {
                             final int arrayLength = Array.getLength(array);
                             final Converter<?> itemConverter = getItemConverter(descriptor);
@@ -265,8 +265,8 @@ public abstract class AbstractDomConverter implements DomConverter {
                             }
                         }
                     } else {
-                        final DomElement childElement = element.createChild(getNameOrAlias(model));
-                        final Object childValue = model.getValue();
+                        final DomElement childElement = element.createChild(getNameOrAlias(property));
+                        final Object childValue = property.getValue();
                         final Converter<?> converter1 = descriptor.getConverter();
                         convertValueToDomImpl(childValue, converter1, childElement);
                     }
@@ -311,15 +311,15 @@ public abstract class AbstractDomConverter implements DomConverter {
         return childValue;
     }
 
-    private static String getNameOrAlias(ValueModel model) {
-        final String alias = model.getDescriptor().getAlias();
+    private static String getNameOrAlias(Property property) {
+        final String alias = property.getDescriptor().getAlias();
         if (alias != null && !alias.isEmpty()) {
             return alias;
         }
-        return model.getDescriptor().getName();
+        return property.getDescriptor().getName();
     }
 
-    private static Converter<?> getItemConverter(ValueDescriptor descriptor) {
+    private static Converter<?> getItemConverter(PropertyDescriptor descriptor) {
         Class<?> itemType = descriptor.getType().getComponentType();
         Converter<?> itemConverter = descriptor.getConverter();
         if (itemConverter == null) {
@@ -340,7 +340,7 @@ public abstract class AbstractDomConverter implements DomConverter {
         return childValue;
     }
 
-    private boolean isArrayTypeWithNamedItems(ValueDescriptor descriptor) {
+    private boolean isArrayTypeWithNamedItems(PropertyDescriptor descriptor) {
         return descriptor.getType().isArray() && descriptor.getItemAlias() != null && !descriptor.getItemAlias().isEmpty();
     }
 }

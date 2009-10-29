@@ -1,7 +1,7 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -97,13 +97,13 @@ public class ImageLayer extends Layer {
         this(type, multiLevelSource, initConfiguration(type.createLayerConfig(null), multiLevelSource));
     }
 
-    public ImageLayer(Type layerType, ValueContainer configuration) {
+    public ImageLayer(Type layerType, PropertyContainer configuration) {
         super(layerType, configuration);
         multiLevelSource = (MultiLevelSource) configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         Assert.notNull(multiLevelSource);
     }
 
-    public ImageLayer(Type layerType, MultiLevelSource multiLevelSource, ValueContainer configuration) {
+    public ImageLayer(Type layerType, MultiLevelSource multiLevelSource, PropertyContainer configuration) {
         super(layerType, configuration);
         Assert.notNull(multiLevelSource);
         this.multiLevelSource = multiLevelSource;
@@ -275,7 +275,7 @@ public class ImageLayer extends Layer {
         return getConfigurationProperty(PROPERTY_NAME_BORDER_COLOR, DEFAULT_BORDER_COLOR);
     }
 
-    private static ValueContainer initConfiguration(ValueContainer configuration, MultiLevelSource multiLevelSource) {
+    private static PropertyContainer initConfiguration(PropertyContainer configuration, MultiLevelSource multiLevelSource) {
         configuration.setValue(PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         final AffineTransform imageToModelTransform = multiLevelSource.getModel().getImageToModelTransform(0);
         configuration.setValue(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
@@ -295,42 +295,42 @@ public class ImageLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
             return new ImageLayer(this, configuration);
         }
 
         @Override
-        public ValueContainer createLayerConfig(LayerContext ctx) {
-            final ValueContainer template = new ValueContainer();
+        public PropertyContainer createLayerConfig(LayerContext ctx) {
+            final PropertyContainer template = new PropertyContainer();
 
             addMultiLevelSourceModel(template);
             addImageToModelTransformModel(template);
 
-            template.addModel(ValueModel.createValueModel(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, Boolean.class, ImageLayer.DEFAULT_BORDER_SHOWN, true));
+            template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, Boolean.class, ImageLayer.DEFAULT_BORDER_SHOWN, true));
 
-            template.addModel(ValueModel.createValueModel(ImageLayer.PROPERTY_NAME_BORDER_COLOR, Color.class, ImageLayer.DEFAULT_BORDER_COLOR, true));
+            template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_COLOR, Color.class, ImageLayer.DEFAULT_BORDER_COLOR, true));
 
-            template.addModel(ValueModel.createValueModel(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, Double.class, ImageLayer.DEFAULT_BORDER_WIDTH, true));
+            template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, Double.class, ImageLayer.DEFAULT_BORDER_WIDTH, true));
 
             return template;
         }
 
-        private static ValueModel addImageToModelTransformModel(ValueContainer configuration) {
-            if (configuration.getModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM) == null) {
-                configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
+        private static Property addImageToModelTransformModel(PropertyContainer configuration) {
+            if (configuration.getProperty(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM) == null) {
+                configuration.addProperty(Property.create(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
             }
             // configuration.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
 
-            return configuration.getModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
+            return configuration.getProperty(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
         }
 
-        private static ValueModel addMultiLevelSourceModel(ValueContainer configuration) {
-            if (configuration.getModel(PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
-                configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_MULTI_LEVEL_SOURCE, MultiLevelSource.class));
+        private static Property addMultiLevelSourceModel(PropertyContainer configuration) {
+            if (configuration.getProperty(PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
+                configuration.addProperty(Property.create(PROPERTY_NAME_MULTI_LEVEL_SOURCE, MultiLevelSource.class));
             }
             configuration.getDescriptor(PROPERTY_NAME_MULTI_LEVEL_SOURCE).setTransient(true);
 
-            return configuration.getModel(PROPERTY_NAME_MULTI_LEVEL_SOURCE);
+            return configuration.getProperty(PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         }
     }
 }

@@ -1,13 +1,13 @@
 package com.bc.ceres.binding.accessors;
 
-import com.bc.ceres.binding.ValueAccessor;
+import com.bc.ceres.binding.PropertyAccessor;
 
 import java.lang.reflect.Field;
 
 /**
  * ValueAccessor for values stored in a {@link Field} of a plain Java object.
  */
-public class ClassFieldAccessor implements ValueAccessor {
+public class ClassFieldAccessor implements PropertyAccessor {
     private Object object;
     private Field field;
 

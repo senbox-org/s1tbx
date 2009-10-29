@@ -16,7 +16,7 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
@@ -35,17 +35,17 @@ import javax.swing.JComponent;
 public class SingleSelectionEditor extends ValueEditor {
 
     @Override
-    public boolean isValidFor(ValueDescriptor valueDescriptor) {
-        ValueSet valueSet = valueDescriptor.getValueSet();
-        Class<?> type = valueDescriptor.getType();
+    public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
+        ValueSet valueSet = propertyDescriptor.getValueSet();
+        Class<?> type = propertyDescriptor.getType();
         return valueSet != null && !type.isArray();
     }
     
     @Override
-    public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
+    public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         JComboBox comboBox = new JComboBox();
         ComponentAdapter adapter = new ComboBoxAdapter(comboBox);
-        bindingContext.bind(valueDescriptor.getName(), adapter);
+        bindingContext.bind(propertyDescriptor.getName(), adapter);
         return comboBox;
     }
 }

@@ -2,16 +2,16 @@ package com.bc.ceres.binding;
 
 import junit.framework.TestCase;
 
-public class ValueDescriptorTest extends TestCase {
+public class PropertyDescriptorTest extends TestCase {
     public void testMandatoryNameAndType() {
-        ValueDescriptor descriptor;
+        PropertyDescriptor descriptor;
 
-        descriptor = new ValueDescriptor("wasIstDasDenn", String.class);
+        descriptor = new PropertyDescriptor("wasIstDasDenn", String.class);
         assertEquals("wasIstDasDenn", descriptor.getName());
         assertEquals("Was ist das denn", descriptor.getDisplayName());
         assertSame(String.class, descriptor.getType());
 
-        descriptor = new ValueDescriptor("was_ist_das_denn", Double.TYPE);
+        descriptor = new PropertyDescriptor("was_ist_das_denn", Double.TYPE);
         assertEquals("was_ist_das_denn", descriptor.getName());
         assertEquals("Was ist das denn", descriptor.getDisplayName());
         assertSame(Double.TYPE, descriptor.getType());
@@ -39,7 +39,7 @@ public class ValueDescriptorTest extends TestCase {
     }
 
     private static void assertThatPrimitiveTypesAreAlwaysNotNull(Class<?> primitiveType, Class<?> wrapperType) {
-        assertEquals(true, new ValueDescriptor("vd", primitiveType).isNotNull());
-        assertEquals(false, new ValueDescriptor("vd", wrapperType).isNotNull());
+        assertEquals(true, new PropertyDescriptor("vd", primitiveType).isNotNull());
+        assertEquals(false, new PropertyDescriptor("vd", wrapperType).isNotNull());
     }
 }

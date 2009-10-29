@@ -1,24 +1,21 @@
 package com.bc.ceres.binding.dom;
 
-import com.bc.ceres.binding.ClassFieldDescriptorFactory;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-
-import java.util.Collection;
-import java.util.Map;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
 
 /**
  * {@inheritDoc}
  */
 public class DefaultDomConverter extends AbstractDomConverter {
 
-    private final ClassFieldDescriptorFactory valueDescriptorFactory;
+    private final PropertyDescriptorFactory valueDescriptorFactory;
 
     public DefaultDomConverter(Class<?> valueType) {
         this(valueType, null);
     }
 
-    public DefaultDomConverter(Class<?> valueType, ClassFieldDescriptorFactory valueDescriptorFactory) {
+    public DefaultDomConverter(Class<?> valueType, PropertyDescriptorFactory valueDescriptorFactory) {
         super(valueType);
         this.valueDescriptorFactory = valueDescriptorFactory;
     }
@@ -27,15 +24,15 @@ public class DefaultDomConverter extends AbstractDomConverter {
      * {@inheritDoc}
      */
     @Override
-    protected ValueContainer getValueContainer(Object value) {
-        if (value instanceof ValueContainer) {
-            return (ValueContainer) value;
+    protected PropertyContainer getPropertyContainer(Object value) {
+        if (value instanceof PropertyContainer) {
+            return (PropertyContainer) value;
         }
-        final ValueContainer vc;
+        final PropertyContainer vc;
         if (valueDescriptorFactory != null) {
-            vc = ValueContainer.createObjectBacked(value, valueDescriptorFactory);
+            vc = PropertyContainer.createObjectBacked(value, valueDescriptorFactory);
         } else {
-            vc = ValueContainer.createObjectBacked(value);
+            vc = PropertyContainer.createObjectBacked(value);
         }
         return vc;
     }
@@ -60,7 +57,7 @@ public class DefaultDomConverter extends AbstractDomConverter {
      * {@inheritDoc}
      */
     @Override
-    protected DomConverter getDomConverter(ValueDescriptor descriptor) {
+    protected DomConverter getDomConverter(PropertyDescriptor descriptor) {
         DomConverter domConverter = descriptor.getDomConverter();
         if (domConverter == null) {
             domConverter = DomConverterRegistry.getInstance().getConverter(descriptor.getType());

@@ -16,8 +16,8 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
 
 import javax.swing.JComponent;
@@ -30,23 +30,23 @@ public class TextFieldEditorTest extends TestCase {
     public void testIsApplicable() throws Exception {
         TextFieldEditor textEditor = new TextFieldEditor();
         
-        ValueDescriptor textDescriptor = new ValueDescriptor("test", String.class);
+        PropertyDescriptor textDescriptor = new PropertyDescriptor("test", String.class);
         assertFalse(textEditor.isValidFor(textDescriptor));
         // TextFieldEditor returns always false, because it is the default !!!
         
-        ValueDescriptor booleanDescriptor = new ValueDescriptor("test", Boolean.TYPE);
+        PropertyDescriptor booleanDescriptor = new PropertyDescriptor("test", Boolean.TYPE);
         assertFalse(textEditor.isValidFor(booleanDescriptor));
     }
     
     public void testCreateEditorComponent() throws Exception {
         TextFieldEditor textEditor = new TextFieldEditor();
         
-        ValueContainer valueContainer = ValueContainer.createValueBacked(V.class);
-        BindingContext bindingContext = new BindingContext(valueContainer);
-        ValueDescriptor valueDescriptor = valueContainer.getDescriptor("value");
-        assertSame(String.class, valueDescriptor.getType());
+        PropertyContainer propertyContainer = PropertyContainer.createValueBacked(V.class);
+        BindingContext bindingContext = new BindingContext(propertyContainer);
+        PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor("value");
+        assertSame(String.class, propertyDescriptor.getType());
         
-        JComponent editorComponent = textEditor.createEditorComponent(valueDescriptor, bindingContext);
+        JComponent editorComponent = textEditor.createEditorComponent(propertyDescriptor, bindingContext);
         assertNotNull(editorComponent);
         assertSame(JTextField.class, editorComponent.getClass());
         

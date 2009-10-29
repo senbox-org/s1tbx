@@ -1,6 +1,6 @@
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 
@@ -83,8 +83,8 @@ public class ButtonGroupAdapter extends ComponentAdapter implements ActionListen
         getBinding().setPropertyValue(buttonToValueMap.get(button));
     }
 
-    public static Map<AbstractButton, Object> createButtonToValueMap(ButtonGroup buttonGroup, ValueContainer valueContainer, String propertyName) {
-        ValueSet valueSet = valueContainer.getDescriptor(propertyName).getValueSet();
+    public static Map<AbstractButton, Object> createButtonToValueMap(ButtonGroup buttonGroup, PropertyContainer propertyContainer, String propertyName) {
+        ValueSet valueSet = propertyContainer.getDescriptor(propertyName).getValueSet();
         if (valueSet == null) {
             throw new IllegalStateException("valueSet == null");
         }

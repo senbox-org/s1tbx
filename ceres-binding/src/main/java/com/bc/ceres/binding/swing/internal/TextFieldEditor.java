@@ -16,7 +16,7 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 import com.bc.ceres.binding.swing.ValueEditor;
@@ -38,10 +38,10 @@ import javax.swing.JTextField;
 public class TextFieldEditor extends ValueEditor {
 
     @Override
-    public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
+    public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         JTextField textField = new JTextField();
         ComponentAdapter adapter = new TextComponentAdapter(textField);
-        bindingContext.bind(valueDescriptor.getName(), adapter);
+        bindingContext.bind(propertyDescriptor.getName(), adapter);
         return textField;
     }
 }

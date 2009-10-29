@@ -1,9 +1,9 @@
 package com.bc.ceres.binding.swing;
 
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.swing.internal.AbstractButtonAdapter;
 import com.bc.ceres.binding.swing.internal.BindingImpl;
 import com.bc.ceres.binding.swing.internal.ButtonGroupAdapter;
@@ -43,7 +43,7 @@ import java.util.Map;
  */
 public class BindingContext {
 
-    private final ValueContainer valueContainer;
+    private final PropertyContainer propertyContainer;
     private BindingContext.ErrorHandler errorHandler;
     private Map<String, BindingImpl> bindingMap;
     private Map<String, EnablePCL> enablePCLMap;
@@ -53,26 +53,26 @@ public class BindingContext {
      * Constructor.
      */
     public BindingContext() {
-        this(new ValueContainer());
+        this(new PropertyContainer());
     }
 
     /**
      * Constructor.
      *
-     * @param valueContainer The value container.
+     * @param propertyContainer The value container.
      */
-    public BindingContext(ValueContainer valueContainer) {
-        this(valueContainer, new VerbousProblemHandler());
+    public BindingContext(PropertyContainer propertyContainer) {
+        this(propertyContainer, new VerbousProblemHandler());
     }
 
     /**
      * Constructor.
      *
-     * @param valueContainer The value container.
+     * @param propertyContainer The value container.
      * @param problemHandler A problem handler, or {@code null}.
      */
-    public BindingContext(ValueContainer valueContainer, BindingProblemListener problemHandler) {
-        this.valueContainer = valueContainer;
+    public BindingContext(PropertyContainer propertyContainer, BindingProblemListener problemHandler) {
+        this.propertyContainer = propertyContainer;
         this.bindingMap = new HashMap<String, BindingImpl>(17);
         this.enablePCLMap = new HashMap<String, EnablePCL>(11);
         if (problemHandler != null) {
@@ -83,23 +83,23 @@ public class BindingContext {
     /**
      * Constructor.
      *
-     * @param valueContainer The value container.
+     * @param propertyContainer The value container.
      * @param errorHandler   The error handler, or {@code null}.
      *
      * @deprecated Since 0.10, for error handling use {@link #addProblemListener(BindingProblemListener)}
      *             and {@link #getProblems()} instead
      */
     @Deprecated
-    public BindingContext(ValueContainer valueContainer, BindingContext.ErrorHandler errorHandler) {
-        this(valueContainer, (BindingProblemListener) null);
+    public BindingContext(PropertyContainer propertyContainer, BindingContext.ErrorHandler errorHandler) {
+        this(propertyContainer, (BindingProblemListener) null);
         this.errorHandler = errorHandler;
     }
 
     /**
      * @return The value container.
      */
-    public ValueContainer getValueContainer() {
-        return valueContainer;
+    public PropertyContainer getPropertyContainer() {
+        return propertyContainer;
     }
 
     /**
@@ -403,7 +403,7 @@ public class BindingContext {
      */
     public Binding bind(final String propertyName, final ButtonGroup buttonGroup) {
         return bind(propertyName, buttonGroup,
-                    ButtonGroupAdapter.createButtonToValueMap(buttonGroup, getValueContainer(), propertyName));
+                    ButtonGroupAdapter.createButtonToValueMap(buttonGroup, getPropertyContainer(), propertyName));
     }
 
     /**
@@ -422,41 +422,41 @@ public class BindingContext {
     }
 
     /**
-     * Shortcut for {@link com.bc.ceres.binding.ValueContainer#addPropertyChangeListener(java.beans.PropertyChangeListener) getValueContainer().addPropertyChangeListener(l}.
+     * Shortcut for {@link com.bc.ceres.binding.PropertyContainer#addPropertyChangeListener(java.beans.PropertyChangeListener) getPropertyContainer().addPropertyChangeListener(l}.
      *
      * @param l The property change listener.
      */
     public void addPropertyChangeListener(PropertyChangeListener l) {
-        valueContainer.addPropertyChangeListener(l);
+        propertyContainer.addPropertyChangeListener(l);
     }
 
     /**
-     * Shortcut for {@link com.bc.ceres.binding.ValueContainer#addPropertyChangeListener(String, java.beans.PropertyChangeListener) getValueContainer().addPropertyChangeListener(name, l}.
+     * Shortcut for {@link com.bc.ceres.binding.PropertyContainer#addPropertyChangeListener(String, java.beans.PropertyChangeListener) getPropertyContainer().addPropertyChangeListener(name, l}.
      *
      * @param name The property name.
      * @param l    The property change listener.
      */
     public void addPropertyChangeListener(String name, PropertyChangeListener l) {
-        valueContainer.addPropertyChangeListener(name, l);
+        propertyContainer.addPropertyChangeListener(name, l);
     }
 
     /**
-     * Shortcut for {@link com.bc.ceres.binding.ValueContainer#removePropertyChangeListener(java.beans.PropertyChangeListener) getValueContainer().removePropertyChangeListener(l}.
+     * Shortcut for {@link com.bc.ceres.binding.PropertyContainer#removePropertyChangeListener(java.beans.PropertyChangeListener) getPropertyContainer().removePropertyChangeListener(l}.
      *
      * @param l The property change listener.
      */
     public void removePropertyChangeListener(PropertyChangeListener l) {
-        valueContainer.removePropertyChangeListener(l);
+        propertyContainer.removePropertyChangeListener(l);
     }
 
     /**
-     * Shortcut for {@link com.bc.ceres.binding.ValueContainer#removePropertyChangeListener(String, java.beans.PropertyChangeListener) getValueContainer().removePropertyChangeListener(name, l}.
+     * Shortcut for {@link com.bc.ceres.binding.PropertyContainer#removePropertyChangeListener(String, java.beans.PropertyChangeListener) getPropertyContainer().removePropertyChangeListener(name, l}.
      *
      * @param name The property name.
      * @param l    The property change listener.
      */
     public void removePropertyChangeListener(String name, PropertyChangeListener l) {
-        valueContainer.removePropertyChangeListener(name, l);
+        propertyContainer.removePropertyChangeListener(name, l);
     }
 
     /**
@@ -466,7 +466,7 @@ public class BindingContext {
      * @param component The component.
      *
      * @see #preventPropertyChanges(javax.swing.JComponent)
-     * @see #getValueContainer()
+     * @see #getPropertyContainer()
      * @since Ceres 0.10
      */
     @SuppressWarnings({"MethodMayBeStatic"})
@@ -487,7 +487,7 @@ public class BindingContext {
      * @param component The component.
      *
      * @see #permitPropertyChanges(javax.swing.JComponent)
-     * @see #getValueContainer()
+     * @see #getPropertyContainer()
      * @since Ceres 0.10
      */
     @SuppressWarnings({"MethodMayBeStatic"})
@@ -508,15 +508,15 @@ public class BindingContext {
     }
 
     private String getToolTipText(String propertyName) {
-        final ValueModel valueModel = valueContainer.getModel(propertyName);
+        final Property property = propertyContainer.getProperty(propertyName);
         StringBuilder toolTipText = new StringBuilder(32);
-        final ValueDescriptor valueDescriptor = valueModel.getDescriptor();
-        if (valueDescriptor.getDescription() != null) {
-            toolTipText.append(valueDescriptor.getDescription());
+        final PropertyDescriptor propertyDescriptor = property.getDescriptor();
+        if (propertyDescriptor.getDescription() != null) {
+            toolTipText.append(propertyDescriptor.getDescription());
         }
-        if (valueDescriptor.getUnit() != null && !valueDescriptor.getUnit().isEmpty()) {
+        if (propertyDescriptor.getUnit() != null && !propertyDescriptor.getUnit().isEmpty()) {
             toolTipText.append(" (");
-            toolTipText.append(valueDescriptor.getUnit());
+            toolTipText.append(propertyDescriptor.getUnit());
             toolTipText.append(")");
         }
         return toolTipText.toString();
@@ -550,7 +550,7 @@ public class BindingContext {
         final Binding binding = getBinding(targetPropertyName);
         if (binding != null) {
             enablePCL.apply();
-            valueContainer.addPropertyChangeListener(sourcePropertyName, enablePCL);
+            propertyContainer.addPropertyChangeListener(sourcePropertyName, enablePCL);
         } else {
             enablePCLMap.put(targetPropertyName, enablePCL);
         }
@@ -560,7 +560,7 @@ public class BindingContext {
                                       final boolean enabled,
                                       final String sourcePropertyName,
                                       final Object sourcePropertyValue) {
-        Object propertyValue = valueContainer.getValue(sourcePropertyName);
+        Object propertyValue = propertyContainer.getValue(sourcePropertyName);
         boolean conditionIsTrue = propertyValue == sourcePropertyValue
                 || (propertyValue != null && propertyValue.equals(sourcePropertyValue));
         for (JComponent component : components) {
@@ -573,7 +573,7 @@ public class BindingContext {
         if (enablePCLMap.containsKey(binding.getPropertyName())) {
             EnablePCL enablePCL = enablePCLMap.remove(binding.getPropertyName());
             enablePCL.apply();
-            valueContainer.addPropertyChangeListener(enablePCL.sourcePropertyName, enablePCL);
+            propertyContainer.addPropertyChangeListener(enablePCL.sourcePropertyName, enablePCL);
         }
     }
 

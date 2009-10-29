@@ -16,7 +16,7 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 import com.bc.ceres.binding.swing.ValueEditor;
@@ -34,27 +34,27 @@ import javax.swing.JComponent;
 public class CheckBoxEditor extends ValueEditor {
 
     @Override
-    public boolean isValidFor(ValueDescriptor valueDescriptor) {
-        Class<?> type = valueDescriptor.getType();
+    public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
+        Class<?> type = propertyDescriptor.getType();
         return Boolean.TYPE.equals(type) || Boolean.class.isAssignableFrom(type);
     }
     
     @Override
-    public JComponent[] createComponents(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
-        JCheckBox checkBox = createCheckBoxComponent(valueDescriptor, bindingContext);
-        checkBox.setText(valueDescriptor.getDisplayName());
+    public JComponent[] createComponents(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
+        JCheckBox checkBox = createCheckBoxComponent(propertyDescriptor, bindingContext);
+        checkBox.setText(propertyDescriptor.getDisplayName());
         return new JComponent[] {checkBox};
     }
     
     @Override
-    public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
-        return createCheckBoxComponent(valueDescriptor, bindingContext);
+    public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
+        return createCheckBoxComponent(propertyDescriptor, bindingContext);
     }
     
-    private static JCheckBox createCheckBoxComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
+    private static JCheckBox createCheckBoxComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         JCheckBox checkBox = new JCheckBox();
         ComponentAdapter adapter = new AbstractButtonAdapter(checkBox);
-        bindingContext.bind(valueDescriptor.getName(), adapter);
+        bindingContext.bind(propertyDescriptor.getName(), adapter);
         return checkBox;
     }
 }

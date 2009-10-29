@@ -17,9 +17,8 @@
 package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.BindingException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.swing.BindingProblem;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 
 import javax.swing.InputVerifier;
@@ -71,10 +70,10 @@ public class TextComponentAdapter extends ComponentAdapter implements ActionList
 
     @Override
     public void adjustComponents() {
-        final ValueContainer valueContainer = getBinding().getContext().getValueContainer();
-        final ValueModel model = valueContainer.getModel(getBinding().getPropertyName());
-        if (model != null) {
-            textComponent.setText(model.getValueAsText());
+        final PropertyContainer propertyContainer = getBinding().getContext().getPropertyContainer();
+        final Property property = propertyContainer.getProperty(getBinding().getPropertyName());
+        if (property != null) {
+            textComponent.setText(property.getValueAsText());
         } else {
             textComponent.setText("");
         }
@@ -82,9 +81,9 @@ public class TextComponentAdapter extends ComponentAdapter implements ActionList
 
     void adjustValue() {
         try {
-            final ValueContainer valueContainer = getBinding().getContext().getValueContainer();
-            final ValueModel model = valueContainer.getModel(getBinding().getPropertyName());
-            model.setValueFromText(textComponent.getText());
+            final PropertyContainer propertyContainer = getBinding().getContext().getPropertyContainer();
+            final Property property = propertyContainer.getProperty(getBinding().getPropertyName());
+            property.setValueFromText(textComponent.getText());
             getBinding().clearProblem();
         } catch (BindingException e) {
             getBinding().reportProblem(e);

@@ -2,7 +2,7 @@ package com.bc.ceres.binding.validators;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.Property;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +31,9 @@ public class MultiValidator implements Validator {
     }
 
     @Override
-    public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
+    public void validateValue(Property property, Object value) throws ValidationException {
         for (Validator validator : validators) {
-            validator.validateValue(valueModel, value);
+            validator.validateValue(property, value);
         }
     }
 }

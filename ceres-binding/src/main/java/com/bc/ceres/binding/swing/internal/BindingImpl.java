@@ -1,6 +1,5 @@
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.BindingException;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
@@ -93,13 +92,13 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
 
     @Override
     public Object getPropertyValue() {
-        return context.getValueContainer().getValue(getPropertyName());
+        return context.getPropertyContainer().getValue(getPropertyName());
     }
 
     @Override
     public void setPropertyValue(Object value) {
         try {
-            context.getValueContainer().setValue(getPropertyName(), value);
+            context.getPropertyContainer().setValue(getPropertyName(), value);
             clearProblem();
         } catch (IllegalArgumentException e) {
             if (e.getCause() instanceof BindingException) {
@@ -119,7 +118,7 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
             try {
                 adjustingComponents = true;
                 componentAdapter.adjustComponents();
-                // Now model is in sync with UI
+                // Now property is in sync with UI
                 clearProblem();
             } finally {
                 adjustingComponents = false;

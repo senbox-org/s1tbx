@@ -2,7 +2,7 @@ package com.bc.ceres.binding.validators;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.Property;
 
 import java.util.regex.Pattern;
 import java.text.MessageFormat;
@@ -15,10 +15,10 @@ public class PatternValidator implements Validator {
     }
 
     @Override
-    public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
+    public void validateValue(Property property, Object value) throws ValidationException {
         if (!pattern.matcher(value.toString()).matches()) {
             throw new ValidationException(MessageFormat.format("Value for ''{0}'' must match pattern ''{1}''.", 
-                                                               valueModel.getDescriptor().getDisplayName(),
+                                                               property.getDescriptor().getDisplayName(),
                                                                pattern));
         }
     }

@@ -22,44 +22,45 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Describes a value by its name, type and a set of optional (mutable) properties.
- * Examples for such properties are a {@link ValueSet}, a {@link Pattern Pattern} or
+ * Describes a property by its name, type and a set of optional (mutable) attributes.
+ * Examples for such attributes are a {@link ValueSet}, a {@link Pattern} or
  * an {@link ValueRange}.
- * Property changes may be observed by adding a property change listeners
+ * Attribute changes may be observed by adding a property (attribute) change listeners
  * to instances of this class.
  *
  * @author Norman Fomferra
  * @since 0.6
  */
-public class ValueDescriptor {
+public class PropertyDescriptor {
 
     private final String name;
     private final Class<?> type;
     private volatile Validator effectiveValidator;
 
-    private Map<String, Object> properties;
-    private PropertyChangeSupport propertyChangeSupport;
+    private Map<String, Object> attributes;
+    private PropertyChangeSupport attributeChangeSupport;
 
-    public ValueDescriptor(String name, Class<?> type) {
+    public PropertyDescriptor(String name, Class<?> type) {
         this(name, type, new HashMap<String, Object>(8));
     }
 
-    public ValueDescriptor(ValueDescriptor valueDescriptor) {
-        this(valueDescriptor.getName(), valueDescriptor.getType(), valueDescriptor.properties);
+    public PropertyDescriptor(PropertyDescriptor propertyDescriptor) {
+        this(propertyDescriptor.getName(), propertyDescriptor.getType(), propertyDescriptor.attributes);
     }
 
-    public ValueDescriptor(String name, Class<?> type, Map<String, Object> properties) {
+    public PropertyDescriptor(String name, Class<?> type, Map<String, Object> attributes) {
         Assert.notNull(name, "name");
         Assert.notNull(type, "type");
-        Assert.notNull(properties, "properties");
+        Assert.notNull(attributes, "attributes");
         this.name = name;
         this.type = type;
-        this.properties = new HashMap<String, Object>(properties);
+        this.attributes = new HashMap<String, Object>(attributes);
         if (type.isPrimitive()) {
             setNotNull(true);
         }
         setDisplayName(createDisplayName(name));
-        addPropertyChangeListener(new EffectiveValidatorUpdater());
+        // todo - remove
+        addAttributeChangeListener(new EffectiveValidatorUpdater());
     }
 
     public String getName() {
@@ -71,36 +72,36 @@ public class ValueDescriptor {
     }
 
     public String getDisplayName() {
-        return (String) getProperty("displayName");
+        return (String) getAttribute("displayName");
     }
 
     public void setDisplayName(String displayName) {
         Assert.notNull(displayName, "displayName");
-        setProperty("displayName", displayName);
+        setAttribute("displayName", displayName);
     }
 
     public String getAlias() {
-        return (String) getProperty("alias");
+        return (String) getAttribute("alias");
     }
 
     public void setAlias(String alias) {
-        setProperty("alias", alias);
+        setAttribute("alias", alias);
     }
 
     public String getUnit() {
-        return (String) getProperty("unit");
+        return (String) getAttribute("unit");
     }
 
     public void setUnit(String unit) {
-        setProperty("unit", unit);
+        setAttribute("unit", unit);
     }
 
     public String getDescription() {
-        return (String) getProperty("description");
+        return (String) getAttribute("description");
     }
 
     public void setDescription(String description) {
-        setProperty("description", description);
+        setAttribute("description", description);
     }
 
     public boolean isNotNull() {
@@ -108,7 +109,7 @@ public class ValueDescriptor {
     }
 
     public void setNotNull(boolean notNull) {
-        setProperty("notNull", notNull);
+        setAttribute("notNull", notNull);
     }
 
     public boolean isNotEmpty() {
@@ -116,7 +117,7 @@ public class ValueDescriptor {
     }
 
     public void setNotEmpty(boolean notEmpty) {
-        setProperty("notEmpty", notEmpty);
+        setAttribute("notEmpty", notEmpty);
     }
 
     public boolean isTransient() {
@@ -124,48 +125,48 @@ public class ValueDescriptor {
     }
 
     public void setTransient(boolean b) {
-        setProperty("transient", b);
+        setAttribute("transient", b);
     }
 
 
     public String getFormat() {
-        return (String) getProperty("format");
+        return (String) getAttribute("format");
     }
 
     public void setFormat(String format) {
-        setProperty("format", format);
+        setAttribute("format", format);
     }
 
     public ValueRange getValueRange() {
-        return (ValueRange) getProperty("valueRange");
+        return (ValueRange) getAttribute("valueRange");
     }
 
     public void setValueRange(ValueRange valueRange) {
-        setProperty("valueRange", valueRange);
+        setAttribute("valueRange", valueRange);
     }
 
     public Pattern getPattern() {
-        return (Pattern) getProperty("pattern");
+        return (Pattern) getAttribute("pattern");
     }
 
     public Object getDefaultValue() {
-        return getProperty("defaultValue");
+        return getAttribute("defaultValue");
     }
 
     public void setDefaultValue(Object defaultValue) {
-        setProperty("defaultValue", defaultValue);
+        setAttribute("defaultValue", defaultValue);
     }
 
     public void setPattern(Pattern pattern) {
-        setProperty("pattern", pattern);
+        setAttribute("pattern", pattern);
     }
 
     public ValueSet getValueSet() {
-        return (ValueSet) getProperty("valueSet");
+        return (ValueSet) getAttribute("valueSet");
     }
 
     public void setValueSet(ValueSet valueSet) {
-        setProperty("valueSet", valueSet);
+        setAttribute("valueSet", valueSet);
     }
 
     public Converter<?> getConverter() {
@@ -173,7 +174,7 @@ public class ValueDescriptor {
     }
 
     public Converter<?> getConverter(boolean notNull) {
-        final Converter<?> converter = (Converter<?>) getProperty("converter");
+        final Converter<?> converter = (Converter<?>) getAttribute("converter");
         if (converter == null && notNull) {
             throw new IllegalStateException("no converter defined for value '" + getName() + "'");
         }
@@ -189,23 +190,23 @@ public class ValueDescriptor {
     }
 
     public void setConverter(Converter<?> converter) {
-        setProperty("converter", converter);
+        setAttribute("converter", converter);
     }
 
     public DomConverter getDomConverter() {
-        return (DomConverter) getProperty("domConverter");
+        return (DomConverter) getAttribute("domConverter");
     }
 
     public void setDomConverter(DomConverter converter) {
-        setProperty("domConverter", converter);
+        setAttribute("domConverter", converter);
     }
 
     public Validator getValidator() {
-        return (Validator) getProperty("validator");
+        return (Validator) getAttribute("validator");
     }
 
     public void setValidator(Validator validator) {
-        setProperty("validator", validator);
+        setAttribute("validator", validator);
     }
 
     Validator getEffectiveValidator() {
@@ -221,14 +222,14 @@ public class ValueDescriptor {
 
 
     //////////////////////////////////////////////////////////////////////////////
-    // Array/List item properties
+    // Array/List item attributes
 
     public String getItemAlias() {
-        return (String) getProperty("itemAlias");
+        return (String) getAttribute("itemAlias");
     }
 
     public void setItemAlias(String alias) {
-        setProperty("itemAlias", alias);
+        setAttribute("itemAlias", alias);
     }
 
     public boolean getItemsInlined() {
@@ -236,65 +237,66 @@ public class ValueDescriptor {
     }
 
     public void setItemsInlined(boolean inlined) {
-        setProperty("itemsInlined", inlined);
+        setAttribute("itemsInlined", inlined);
     }
 
     //////////////////////////////////////////////////////////////////////////////
-    // Generic properties
+    // Generic attributes
 
-    public Object getProperty(String name) {
-        return properties.get(name);
+    public Object getAttribute(String name) {
+        return attributes.get(name);
     }
 
-    public void setProperty(String name, Object value) {
-        Object oldValue = getProperty(name);
+    public void setAttribute(String name, Object value) {
+        Object oldValue = getAttribute(name);
         if (value != null) {
-            properties.put(name, value);
+            attributes.put(name, value);
         } else {
-            properties.remove(name);
+            attributes.remove(name);
         }
         if (!equals(oldValue, value)) {
             firePropertyChange(name, oldValue, value);
         }
     }
 
-    public final void addPropertyChangeListener(PropertyChangeListener listener) {
-        if (propertyChangeSupport == null) {
-            propertyChangeSupport = new PropertyChangeSupport(this);
+    public final void addAttributeChangeListener(PropertyChangeListener listener) {
+        if (attributeChangeSupport == null) {
+            attributeChangeSupport = new PropertyChangeSupport(this);
         }
-        propertyChangeSupport.addPropertyChangeListener(listener);
+        attributeChangeSupport.addPropertyChangeListener(listener);
     }
 
-    public final void removePropertyChangeListener(PropertyChangeListener listener) {
-        if (propertyChangeSupport != null) {
-            propertyChangeSupport.removePropertyChangeListener(listener);
+    public final void removeAttributeChangeListener(PropertyChangeListener listener) {
+        if (attributeChangeSupport != null) {
+            attributeChangeSupport.removePropertyChangeListener(listener);
         }
     }
 
-    public PropertyChangeListener[] getPropertyChangeListeners() {
-        if (propertyChangeSupport == null) {
+    public PropertyChangeListener[] getAttributeChangeListeners() {
+        if (attributeChangeSupport == null) {
             return new PropertyChangeListener[0];
         }
-        return this.propertyChangeSupport.getPropertyChangeListeners();
+        return this.attributeChangeSupport.getPropertyChangeListeners();
     }
 
 
     /////////////////////////////////////////////////////////////////////////
     // Package Local
 
-    static ValueDescriptor createValueDescriptor(String name, Class<?> type) {
-        final ValueDescriptor valueDescriptor = new ValueDescriptor(name, type);
-        valueDescriptor.initialize();
-        return valueDescriptor;
+    static PropertyDescriptor createPropertyDescriptor(String name, Class<?> type) {
+        final PropertyDescriptor propertyDescriptor = new PropertyDescriptor(name, type);
+        propertyDescriptor.initialize();
+        return propertyDescriptor;
     }
 
-    static ValueDescriptor createValueDescriptor(Field field, ClassFieldDescriptorFactory factory) {
-        final ValueDescriptor valueDescriptor = factory.createValueDescriptor(field);
-        if (valueDescriptor == null) {
+    static PropertyDescriptor createPropertyDescriptor(Field field,
+                                                       PropertyDescriptorFactory descriptorFactory) {
+        final PropertyDescriptor propertyDescriptor = descriptorFactory.createValueDescriptor(field);
+        if (propertyDescriptor == null) {
             return null;
         }
-        valueDescriptor.initialize();
-        return valueDescriptor;
+        propertyDescriptor.initialize();
+        return propertyDescriptor;
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -305,15 +307,15 @@ public class ValueDescriptor {
             setDefaultConverter();
         }
         if (getDefaultValue() == null && getType().isPrimitive()) {
-            setDefaultValue(ValueModel.PRIMITIVE_ZERO_VALUES.get(getType()));
+            setDefaultValue(Property.PRIMITIVE_ZERO_VALUES.get(getType()));
         }
     }
 
     private void firePropertyChange(String propertyName, Object newValue, Object oldValue) {
-        if (propertyChangeSupport == null) {
+        if (attributeChangeSupport == null) {
             return;
         }
-        PropertyChangeListener[] propertyChangeListeners = getPropertyChangeListeners();
+        PropertyChangeListener[] propertyChangeListeners = getAttributeChangeListeners();
         PropertyChangeEvent evt = new PropertyChangeEvent(this, propertyName, oldValue, newValue);
         for (PropertyChangeListener propertyChangeListener : propertyChangeListeners) {
             propertyChangeListener.propertyChange(evt);
@@ -325,7 +327,7 @@ public class ValueDescriptor {
     }
 
     private boolean getBooleanProperty(String name) {
-        Object v = getProperty(name);
+        Object v = getAttribute(name);
         return v != null && (Boolean) v;
     }
 
@@ -368,12 +370,12 @@ public class ValueDescriptor {
         return validator;
     }
 
-    public static String getDisplayName(ValueDescriptor valueDescriptor) {
-        String label = valueDescriptor.getDisplayName();
+    public static String getDisplayName(PropertyDescriptor propertyDescriptor) {
+        String label = propertyDescriptor.getDisplayName();
         if (label != null) {
             return label;
         }
-        String name = valueDescriptor.getName().replace("_", " ");
+        String name = propertyDescriptor.getName().replace("_", " ");
         return createDisplayName(name);
     }
 
@@ -402,7 +404,6 @@ public class ValueDescriptor {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             // Force recreation of validator
-            effectiveValidator = null;
         }
     }
 }

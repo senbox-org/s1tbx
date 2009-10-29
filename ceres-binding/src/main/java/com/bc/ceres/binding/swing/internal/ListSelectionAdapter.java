@@ -1,11 +1,10 @@
 package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.ComponentAdapter;
-import com.bc.ceres.binding.swing.BindingProblem;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -41,13 +40,13 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
     @Override
     public void bindComponents() {
         updateListModel();
-        getValueDescriptor().addPropertyChangeListener(this);
+        getValueDescriptor().addAttributeChangeListener(this);
         list.addListSelectionListener(this);
     }
 
     @Override
     public void unbindComponents() {
-        getValueDescriptor().removePropertyChangeListener(this);
+        getValueDescriptor().removeAttributeChangeListener(this);
         list.removeListSelectionListener(this);
     }
 
@@ -81,8 +80,8 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
         }
     }
 
-    private ValueDescriptor getValueDescriptor() {
-        return getBinding().getContext().getValueContainer().getDescriptor(getBinding().getPropertyName());
+    private PropertyDescriptor getValueDescriptor() {
+        return getBinding().getContext().getPropertyContainer().getDescriptor(getBinding().getPropertyName());
     }
 
     private void updateListModel() {
@@ -114,7 +113,7 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
         if (getBinding().isAdjustingComponents()) {
             return;
         }
-        final ValueModel model = getBinding().getContext().getValueContainer().getModel(getBinding().getPropertyName());
+        final Property model = getBinding().getContext().getPropertyContainer().getProperty(getBinding().getPropertyName());
         Object[] selectedValues = list.getSelectedValues();
         Object array = Array.newInstance(model.getDescriptor().getType().getComponentType(), selectedValues.length);
         for (int i = 0; i < selectedValues.length; i++) {

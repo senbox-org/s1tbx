@@ -37,7 +37,7 @@ public interface Binding {
 
     /**
      * Sets the value of the bound property.
-     * This may trigger a property change event in the associated {@code ValueContainer}.
+     * This may trigger a property change event in the associated {@code PropertyContainer}.
      * Whether or not setting the value was successful can be retrieved by {@link #getProblem()}.
      *
      * @param value The new value of the bound property.
@@ -45,7 +45,7 @@ public interface Binding {
     void setPropertyValue(Object value);
 
     /**
-     * Gets the current problem. If the GUI is in sync with the associated value model,
+     * Gets the current problem. If the GUI is in sync with the associated property,
      * the method will return {@code null}.
      *
      * @return The current problem, or {@code null}.
@@ -76,12 +76,12 @@ public interface Binding {
 
     /**
      * Adjusts the Swing components in reaction to a bound property change event in the
-     * associated {@link com.bc.ceres.binding.ValueContainer ValueContainer}.
+     * associated {@link com.bc.ceres.binding.PropertyContainer PropertyContainer}.
      * <p/>
      * The method delegates to {@link ComponentAdapter#adjustComponents()},
      * but only if this binding is not already adjusting its GUI components.
      * <p/>
-     * After calling this method the UI is in-sync with the value model, so that {@link #getProblem()}
+     * After calling this method the UI is in-sync with the property, so that {@link #getProblem()}
      * will return {@code null}.
      *
      * @see #isAdjustingComponents()

@@ -10,7 +10,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ValueModelTest extends TestCase {
+public class PropertyTest extends TestCase {
     private static final long LEGAL_PLONG = 999L;
     private static final Long LEGAL_OLONG = 999L;
     private static final String ILLEGAL = "42";
@@ -29,35 +29,35 @@ public class ValueModelTest extends TestCase {
     Double odouble;
 
     public void testFactoryUsingClassFieldAccessor() throws ValidationException {
-        testPLong(ValueModel.createClassFieldModel(this, "plong"), 0L);
-        testOLong(ValueModel.createClassFieldModel(this, "olong"), null);
+        testPLong(Property.createForField(this, "plong"), 0L);
+        testOLong(Property.createForField(this, "olong"), null);
         assertEquals(LEGAL_PLONG, plong);
         assertEquals(LEGAL_OLONG, olong);
-        testPLong(ValueModel.createClassFieldModel(this, "plong", 42L), 42L);
-        testOLong(ValueModel.createClassFieldModel(this, "olong", 43L), 43L);
+        testPLong(Property.createForField(this, "plong", 42L), 42L);
+        testOLong(Property.createForField(this, "olong", 43L), 43L);
         assertEquals(LEGAL_PLONG, plong);
         assertEquals(LEGAL_OLONG, olong);
     }
 
     public void testFactoryUsingMapEntryAccessor() throws ValidationException {
         HashMap<String, Object> map = new HashMap<String, Object>();
-        testPLong(ValueModel.createMapEntryModel(map, "plong", Long.TYPE), 0L);
-        testOLong(ValueModel.createMapEntryModel(map, "olong", Long.class), null);
+        testPLong(Property.createForMapEntry(map, "plong", Long.TYPE), 0L);
+        testOLong(Property.createForMapEntry(map, "olong", Long.class), null);
         assertEquals(LEGAL_OLONG, map.get("plong"));
         assertEquals(LEGAL_OLONG, map.get("olong"));
-        testPLong(ValueModel.createMapEntryModel(map, "plong", Long.TYPE, 42L), 42L);
-        testOLong(ValueModel.createMapEntryModel(map, "olong", Long.class, 43L), 43L);
+        testPLong(Property.createForMapEntry(map, "plong", Long.TYPE, 42L), 42L);
+        testOLong(Property.createForMapEntry(map, "olong", Long.class, 43L), 43L);
         assertEquals(LEGAL_OLONG, map.get("plong"));
         assertEquals(LEGAL_OLONG, map.get("olong"));
     }
 
     public void testDefaultFactoryWithType() throws ValidationException {
-        testPLong(ValueModel.createValueModel("plong", Long.TYPE), 0L);
-        testOLong(ValueModel.createValueModel("olong", Long.class), null);
-        testOLong(ValueModel.createValueModel("olong", 42L), 42L);
+        testPLong(Property.create("plong", Long.TYPE), 0L);
+        testOLong(Property.create("olong", Long.class), null);
+        testOLong(Property.create("olong", 42L), 42L);
     }
 
-    private void testPLong(ValueModel vm, Object expectedValue) throws ValidationException {
+    private void testPLong(Property vm, Object expectedValue) throws ValidationException {
         assertNotNull(vm.getDescriptor());
         assertEquals("plong", vm.getDescriptor().getName());
         assertSame(Long.TYPE, vm.getDescriptor().getType());
@@ -74,7 +74,7 @@ public class ValueModelTest extends TestCase {
         testSetIllegalValue(vm);
     }
 
-    private void testOLong(ValueModel vm, Object expectedValue) throws ValidationException {
+    private void testOLong(Property vm, Object expectedValue) throws ValidationException {
         assertNotNull(vm.getDescriptor());
         assertEquals("olong", vm.getDescriptor().getName());
         assertEquals(false, vm.getDescriptor().isNotNull());
@@ -86,14 +86,14 @@ public class ValueModelTest extends TestCase {
         testSetIllegalValue(vm);
     }
 
-    private void testSetLegalValue(ValueModel vm) throws ValidationException {
+    private void testSetLegalValue(Property vm) throws ValidationException {
         vm.setValue(LEGAL_OLONG);
         assertEquals(LEGAL_OLONG, vm.getValue());
     }
 
-    private void testSetIllegalValue(ValueModel valueModel) {
+    private void testSetIllegalValue(Property property) {
         try {
-            valueModel.setValue(ILLEGAL);
+            property.setValue(ILLEGAL);
             fail("ValidationException expected");
         } catch (ValidationException e) {
             // ok
@@ -101,22 +101,22 @@ public class ValueModelTest extends TestCase {
     }
 
     public void testPropertyChangeEvents() throws ValidationException {
-        final ValueModel plong = ValueModel.createClassFieldModel(this, "plong");
-        final ValueModel olong = ValueModel.createClassFieldModel(this, "olong");
-        final ValueModel pfloat = ValueModel.createClassFieldModel(this, "pfloat");
-        final ValueModel ofloat = ValueModel.createClassFieldModel(this, "ofloat");
-        final ValueModel pdouble = ValueModel.createClassFieldModel(this, "pdouble");
-        final ValueModel odouble = ValueModel.createClassFieldModel(this, "odouble");
+        final Property plong = Property.createForField(this, "plong");
+        final Property olong = Property.createForField(this, "olong");
+        final Property pfloat = Property.createForField(this, "pfloat");
+        final Property ofloat = Property.createForField(this, "ofloat");
+        final Property pdouble = Property.createForField(this, "pdouble");
+        final Property odouble = Property.createForField(this, "odouble");
 
-        final ValueContainer container = new ValueContainer();
+        final PropertyContainer container = new PropertyContainer();
         final ValueModelChangeListener listener = new ValueModelChangeListener();
         container.addPropertyChangeListener(listener);
-        container.addModel(plong);
-        container.addModel(olong);
-        container.addModel(pfloat);
-        container.addModel(ofloat);
-        container.addModel(pdouble);
-        container.addModel(odouble);
+        container.addProperty(plong);
+        container.addProperty(olong);
+        container.addProperty(pfloat);
+        container.addProperty(ofloat);
+        container.addProperty(pdouble);
+        container.addProperty(odouble);
 
         testPCLLong(plong, listener);
         testPCLLong(olong, listener);
@@ -125,10 +125,10 @@ public class ValueModelTest extends TestCase {
         testPCLDouble(pdouble, listener, MODE_ACCURATE);
         testPCLDouble(odouble, listener, MODE_ACCURATE);
 
-        pfloat.getDescriptor().setProperty("eps", FLOAT_EPS);
-        ofloat.getDescriptor().setProperty("eps", FLOAT_EPS);
-        pdouble.getDescriptor().setProperty("eps", DOUBLE_EPS);
-        odouble.getDescriptor().setProperty("eps", DOUBLE_EPS);
+        pfloat.getDescriptor().setAttribute("eps", FLOAT_EPS);
+        ofloat.getDescriptor().setAttribute("eps", FLOAT_EPS);
+        pdouble.getDescriptor().setAttribute("eps", DOUBLE_EPS);
+        odouble.getDescriptor().setAttribute("eps", DOUBLE_EPS);
 
         testPCLLong(plong, listener);
         testPCLLong(olong, listener);
@@ -138,7 +138,7 @@ public class ValueModelTest extends TestCase {
         testPCLDouble(odouble, listener, MODE_FUZZY);
     }
 
-    private void testPCLLong(ValueModel model, ValueModelChangeListener listener) throws ValidationException {
+    private void testPCLLong(Property model, ValueModelChangeListener listener) throws ValidationException {
         final int n0 = listener.events.size();
         model.setValue(1L);
         assertEquals(1, listener.events.size() - n0);
@@ -148,7 +148,7 @@ public class ValueModelTest extends TestCase {
         assertEquals(2, listener.events.size() - n0);
     }
 
-    private void testPCLFloat(ValueModel model, ValueModelChangeListener listener, String mode) throws ValidationException {
+    private void testPCLFloat(Property model, ValueModelChangeListener listener, String mode) throws ValidationException {
         final int n0 = listener.events.size();
         model.setValue(1.0f);
         assertEquals(1, listener.events.size() - n0);
@@ -169,7 +169,7 @@ public class ValueModelTest extends TestCase {
         }
     }
 
-    private void testPCLDouble(ValueModel model, ValueModelChangeListener listener, String mode) throws ValidationException {
+    private void testPCLDouble(Property model, ValueModelChangeListener listener, String mode) throws ValidationException {
         final int n0 = listener.events.size();
         model.setValue(1.0);
         assertEquals(1, listener.events.size() - n0);

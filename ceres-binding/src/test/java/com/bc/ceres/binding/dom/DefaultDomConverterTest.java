@@ -1,11 +1,11 @@
 package com.bc.ceres.binding.dom;
 
-import com.bc.ceres.binding.ClassFieldDescriptorFactory;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
@@ -30,10 +30,10 @@ import java.util.Stack;
 
 public class DefaultDomConverterTest extends TestCase {
 
-    private static final ClassFieldDescriptorFactory VALUE_DESCRIPTOR_FACTORY = new ClassFieldDescriptorFactory() {
+    private static final PropertyDescriptorFactory VALUE_DESCRIPTOR_FACTORY = new PropertyDescriptorFactory() {
         @Override
-        public ValueDescriptor createValueDescriptor(java.lang.reflect.Field field) {
-            final ValueDescriptor descriptor = new ValueDescriptor(field.getName(), field.getType());
+        public PropertyDescriptor createValueDescriptor(java.lang.reflect.Field field) {
+            final PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(), field.getType());
             final X xAnnotation = field.getAnnotation(X.class);
             if (xAnnotation != null) {
                 descriptor.setAlias(xAnnotation.alias());

@@ -16,7 +16,7 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 
@@ -38,13 +38,13 @@ import java.util.Hashtable;
 public class RangeEditor extends NumericEditor {
 
     @Override
-    public boolean isValidFor(ValueDescriptor valueDescriptor) {
+    public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
 // (08.04.2009, mz) For now disabled automatic selection of range editor
 //                  must find better selection criteria.
 //        
-//        Class<?> type = valueDescriptor.getType();
+//        Class<?> type = propertyDescriptor.getType();
 //        if (NumericEditor.isNumericType(type)) {
-//            ValueRange vr = valueDescriptor.getValueRange();
+//            ValueRange vr = propertyDescriptor.getValueRange();
 //            if (vr != null && vr.hasMin() && vr.hasMax()) {
 //                return true;
 //            }
@@ -53,7 +53,7 @@ public class RangeEditor extends NumericEditor {
     }
 
     @Override
-    public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
+    public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         JSlider slider = new JSlider(0, 100);
 
         Dictionary<Integer, JLabel> sliderLabelTable = createSliderLabelTable();
@@ -61,7 +61,7 @@ public class RangeEditor extends NumericEditor {
         slider.setPaintLabels(true);
 
         ComponentAdapter adapter = new SliderAdapter(slider);
-        bindingContext.bind(valueDescriptor.getName(), adapter);
+        bindingContext.bind(propertyDescriptor.getName(), adapter);
         return slider;
     }
 

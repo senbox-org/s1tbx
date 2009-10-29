@@ -79,7 +79,7 @@ public abstract class ComponentAdapter {
      * <ol>
      * <li>if a binding is established by calling {@link BindingContext#bind(String, ComponentAdapter)},</li>
      * <li>if {@link BindingContext#adjustComponents()} is called, or</li>
-     * <li>if a property-change event occurs in the associated {@code ValueContainer} of the {@link BindingContext}.</li>
+     * <li>if a property-change event occurs in the associated {@code PropertyContainer} of the {@link BindingContext}.</li>
      * </ol>
      * <p/>
      * Most implementations adjusts the editor component with the value retrieved by

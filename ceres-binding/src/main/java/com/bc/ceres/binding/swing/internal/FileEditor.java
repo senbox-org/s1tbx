@@ -16,7 +16,7 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
@@ -43,15 +43,15 @@ import javax.swing.JTextField;
 public class FileEditor extends ValueEditor {
 
     @Override
-    public boolean isValidFor(ValueDescriptor valueDescriptor) {
-        return File.class.isAssignableFrom(valueDescriptor.getType());
+    public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
+        return File.class.isAssignableFrom(propertyDescriptor.getType());
     }
     
     @Override
-    public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
+    public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         JTextField textField = new JTextField();
         ComponentAdapter adapter = new TextComponentAdapter(textField);
-        final Binding binding = bindingContext.bind(valueDescriptor.getName(), adapter);
+        final Binding binding = bindingContext.bind(propertyDescriptor.getName(), adapter);
         final JPanel subPanel = new JPanel(new BorderLayout(2, 2));
         subPanel.add(textField, BorderLayout.CENTER);
         JButton etcButton = new JButton("...");

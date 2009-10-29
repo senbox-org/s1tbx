@@ -1,6 +1,6 @@
 package com.bc.ceres.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
@@ -31,13 +31,13 @@ public abstract class LayerType extends ExtensibleObject {
     public abstract boolean isValidFor(LayerContext ctx);
 
     // todo - Layer API: doc it (nf)
-    public abstract Layer createLayer(LayerContext ctx, ValueContainer configuration);
+    public abstract Layer createLayer(LayerContext ctx, PropertyContainer configuration);
 
     // todo - Layer API: why not use annotations? (nf)
     // todo - Layer API: check IDEA ALT+F7: is this a utility or framework API? Only framework usage is in createLayer(). How must clients use this? (nf)
     // todo - Layer API: how can clients know whether my value model can be serialized or not? when to impl. a converter? (nf)
     // todo - Layer API: doc it (nf)
-    public abstract ValueContainer createLayerConfig(LayerContext ctx);
+    public abstract PropertyContainer createLayerConfig(LayerContext ctx);
 
     // todo - Layer API: move to LayerTypeRegistry (nf)
     @Deprecated

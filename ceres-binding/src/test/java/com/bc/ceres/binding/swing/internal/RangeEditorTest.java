@@ -16,8 +16,8 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.swing.BindingContext;
 
@@ -31,39 +31,39 @@ public class RangeEditorTest extends TestCase {
     public void testIsApplicable() throws Exception {
         RangeEditor rangeEditor = new RangeEditor();
         
-        ValueDescriptor doubleDescriptor = new ValueDescriptor("test", Double.TYPE);
+        PropertyDescriptor doubleDescriptor = new PropertyDescriptor("test", Double.TYPE);
         ValueRange valueRange = ValueRange.parseValueRange("[2.0,4.6]");
         doubleDescriptor.setValueRange(valueRange);
         assertFalse(rangeEditor.isValidFor(doubleDescriptor));
         
-        doubleDescriptor = new ValueDescriptor("test", Double.class);
+        doubleDescriptor = new PropertyDescriptor("test", Double.class);
         assertFalse(rangeEditor.isValidFor(doubleDescriptor));
         
-        doubleDescriptor = new ValueDescriptor("test", Double.TYPE);
+        doubleDescriptor = new PropertyDescriptor("test", Double.TYPE);
         valueRange = ValueRange.parseValueRange("[2.0,*)");
         doubleDescriptor.setValueRange(valueRange);
         assertFalse(rangeEditor.isValidFor(doubleDescriptor));
         
-        doubleDescriptor = new ValueDescriptor("test", Double.TYPE);
+        doubleDescriptor = new PropertyDescriptor("test", Double.TYPE);
         valueRange = ValueRange.parseValueRange("[*,4.6)");
         doubleDescriptor.setValueRange(valueRange);
         assertFalse(rangeEditor.isValidFor(doubleDescriptor));
         
-        ValueDescriptor booleanDescriptor = new ValueDescriptor("test", Boolean.TYPE);
+        PropertyDescriptor booleanDescriptor = new PropertyDescriptor("test", Boolean.TYPE);
         assertFalse(rangeEditor.isValidFor(booleanDescriptor));
     }
     
     public void testCreateEditorComponent() throws Exception {
         RangeEditor rangeEditor = new RangeEditor();
         
-        ValueContainer valueContainer = ValueContainer.createValueBacked(V.class);
-        BindingContext bindingContext = new BindingContext(valueContainer);
-        ValueDescriptor valueDescriptor = valueContainer.getDescriptor("value");
+        PropertyContainer propertyContainer = PropertyContainer.createValueBacked(V.class);
+        BindingContext bindingContext = new BindingContext(propertyContainer);
+        PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor("value");
         ValueRange valueRange = ValueRange.parseValueRange("[2.0,4.6]");
-        valueDescriptor.setValueRange(valueRange);
-        assertSame(Double.TYPE, valueDescriptor.getType());
+        propertyDescriptor.setValueRange(valueRange);
+        assertSame(Double.TYPE, propertyDescriptor.getType());
         
-        JComponent editorComponent = rangeEditor.createEditorComponent(valueDescriptor, bindingContext);
+        JComponent editorComponent = rangeEditor.createEditorComponent(propertyDescriptor, bindingContext);
         assertNotNull(editorComponent);
         assertSame(JSlider.class, editorComponent.getClass());
         

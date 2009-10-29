@@ -16,8 +16,8 @@
  */
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
 
 import java.io.File;
@@ -33,23 +33,23 @@ public class FileEditorTest extends TestCase {
     public void testIsApplicable() throws Exception {
         FileEditor fileEditor = new FileEditor();
         
-        ValueDescriptor fileDescriptor = new ValueDescriptor("test", File.class);
+        PropertyDescriptor fileDescriptor = new PropertyDescriptor("test", File.class);
         assertTrue(fileEditor.isValidFor(fileDescriptor));
         
-        ValueDescriptor doubleDescriptor = new ValueDescriptor("test", Double.TYPE);
+        PropertyDescriptor doubleDescriptor = new PropertyDescriptor("test", Double.TYPE);
         assertFalse(fileEditor.isValidFor(doubleDescriptor));
     }
     
     public void testCreateEditorComponent() throws Exception {
         FileEditor fileEditor = new FileEditor();
         
-        ValueContainer valueContainer = ValueContainer.createValueBacked(V.class);
-        BindingContext bindingContext = new BindingContext(valueContainer);
-        ValueDescriptor valueDescriptor = valueContainer.getDescriptor("file");
-        assertSame(File.class, valueDescriptor.getType());
+        PropertyContainer propertyContainer = PropertyContainer.createValueBacked(V.class);
+        BindingContext bindingContext = new BindingContext(propertyContainer);
+        PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor("file");
+        assertSame(File.class, propertyDescriptor.getType());
         
-        assertTrue(fileEditor.isValidFor(valueDescriptor));
-        JComponent editorComponent = fileEditor.createEditorComponent(valueDescriptor, bindingContext);
+        assertTrue(fileEditor.isValidFor(propertyDescriptor));
+        JComponent editorComponent = fileEditor.createEditorComponent(propertyDescriptor, bindingContext);
         assertNotNull(editorComponent);
         assertSame(JPanel.class, editorComponent.getClass());
         assertEquals(2, editorComponent.getComponentCount());
