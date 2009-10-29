@@ -73,14 +73,6 @@ public class DDDB {
     public static final String NULL_VALUE_STRING = "*";
 
     /**
-     * The DDDB singleton instance
-     *
-     * @supplierCardinality 1
-     * @supplierRole -instance
-     */
-    private static final DDDB _instance = new DDDB();
-
-    /**
      * The index of the first binary dataset in product-info files.
      */
     private final int _firstBinaryDsIndex = 3;
@@ -104,7 +96,7 @@ public class DDDB {
      * Gets the singleton instance of the RecordInfoDB.
      */
     public static DDDB getInstance() {
-        return _instance;
+        return Holder.instance;
     }
 
 
@@ -1136,6 +1128,11 @@ public class DDDB {
             sb.append("']");
             return sb.toString();
         }
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final DDDB instance = new DDDB();
     }
 
 }

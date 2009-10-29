@@ -118,16 +118,16 @@ public class GeoTIFFCodes extends IntMap {
     public static final int CT_GaussBoaga = CT_TransverseMercator;
     public static final int CT_GaussKruger = CT_TransverseMercator;
 
-    private static GeoTIFFCodes instance;
-
-    public static synchronized GeoTIFFCodes getInstance(){
-        if(instance == null) {
-            instance = new GeoTIFFCodes();
-        }
-        return instance;
+    public static GeoTIFFCodes getInstance(){
+        return Holder.instance;
     }
 
     private GeoTIFFCodes() {
         init(GeoTIFFCodes.class.getFields());
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final GeoTIFFCodes instance = new GeoTIFFCodes();
     }
 }

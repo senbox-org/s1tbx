@@ -23,7 +23,6 @@ import java.util.logging.Level;
  */
 public class RGBImageProfileManager {
 
-    private static RGBImageProfileManager _instance;
     private final List<RGBImageProfile> _profiles;
     private final static File profilesDir;
 
@@ -45,10 +44,7 @@ public class RGBImageProfileManager {
     }
 
     public static RGBImageProfileManager getInstance() {
-        if (_instance == null) {
-            _instance = new RGBImageProfileManager();
-        }
-        return _instance;
+        return Holder.instance;
     }
 
     public void addProfile(RGBImageProfile profile) {
@@ -100,5 +96,10 @@ public class RGBImageProfileManager {
         } else {
             BeamLogManager.getSystemLogger().log(Level.INFO, "No RGB-image profiles found in " + getProfilesDir());
         }
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final RGBImageProfileManager instance = new RGBImageProfileManager();
     }
 }

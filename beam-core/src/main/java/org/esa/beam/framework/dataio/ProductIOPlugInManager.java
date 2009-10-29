@@ -37,18 +37,14 @@ import java.util.Set;
  */
 public class ProductIOPlugInManager {
 
-    private static ProductIOPlugInManager instance;
     private final ServiceRegistry<ProductReaderPlugIn> readerPlugIns;
     private final ServiceRegistry<ProductWriterPlugIn> writerPlugIns;
 
     /**
      * Gets this's managers singleton instance.
      */
-    public synchronized static ProductIOPlugInManager getInstance() {
-        if (instance == null) {
-            instance = new ProductIOPlugInManager();
-        }
-        return instance;
+    public static ProductIOPlugInManager getInstance() {
+        return Holder.instance;
     }
 
     /**
@@ -200,5 +196,10 @@ public class ProductIOPlugInManager {
             BeamCoreActivator.loadServices(readerPlugIns);
             BeamCoreActivator.loadServices(writerPlugIns);
         }
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final ProductIOPlugInManager instance = new ProductIOPlugInManager();
     }
 }

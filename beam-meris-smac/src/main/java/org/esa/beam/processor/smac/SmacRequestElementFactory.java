@@ -45,20 +45,13 @@ public class SmacRequestElementFactory implements RequestElementFactory {
 
     private final DefaultRequestElementFactory _defaultFactory = DefaultRequestElementFactory.getInstance();
 
-    private static SmacRequestElementFactory _instance = null;
-
-
     /**
      * Singelton interface - retrieves the one and only instance of this class
      *
      * @return the singelton instance of this class
      */
     public static SmacRequestElementFactory getInstance() {
-        if (_instance == null) {
-            _instance = new SmacRequestElementFactory();
-        }
-
-        return _instance;
+        return Holder.instance;
     }
 
     /**
@@ -365,5 +358,10 @@ public class SmacRequestElementFactory implements RequestElementFactory {
                 }
             }
         }
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final SmacRequestElementFactory instance = new SmacRequestElementFactory();
     }
 }

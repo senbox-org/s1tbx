@@ -89,12 +89,11 @@ public class ImageManager {
 
     private static final String CACHE_INTERMEDIATE_TILES_PROPERTY = "beam.imageManager.enableIntermediateTileCaching";
 
-    private static final ImageManager INSTANCE = new ImageManager();
     private final Map<MaskKey, MultiLevelImage> maskImageMap = new HashMap<MaskKey, MultiLevelImage>(101);
     private final ProductNodeListener rasterDataChangeListener;
 
     public static ImageManager getInstance() {
-        return INSTANCE;
+        return Holder.instance;
     }
 
     public ImageManager() {
@@ -1001,6 +1000,11 @@ public class ImageManager {
                 }
             }
         }
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final ImageManager instance = new ImageManager();
     }
 }
 

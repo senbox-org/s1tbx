@@ -39,8 +39,6 @@ public class ModisProductDb {
     private static final int EXP_NUM_FLIP_RECORDS = 2;
     private static final int EXP_NUM_TIEP_RECORDS = 5;
 
-    private static ModisProductDb _instance = null;
-
     private HashMap<String, String> _productTypes = null;
     private HashMap _productDescriptions = null;
     private Logger _logger;
@@ -56,11 +54,7 @@ public class ModisProductDb {
      * @return the instance of this class
      */
     public static ModisProductDb getInstance() {
-        if (_instance == null) {
-            _instance = new ModisProductDb();
-        }
-
-        return _instance;
+        return Holder.instance;
     }
 
     /**
@@ -385,5 +379,10 @@ public class ModisProductDb {
         }
 
         return url;
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final ModisProductDb instance = new ModisProductDb();
     }
 }

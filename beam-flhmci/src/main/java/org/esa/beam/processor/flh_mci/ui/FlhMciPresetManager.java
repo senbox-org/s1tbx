@@ -31,7 +31,6 @@ import org.esa.beam.util.Guardian;
 public class FlhMciPresetManager {
 
     private final Map<String, FlhMciPreset> _presetMap;
-    private static FlhMciPresetManager _instance = null;
     private static final String L2_FLH_LOW_BAND = "reflec_7";
     private static final String L2_FLH_HIGH_BAND = "reflec_9";
     private static final String L2_FLH_SIGNAL_BAND = "reflec_8";
@@ -57,10 +56,7 @@ public class FlhMciPresetManager {
      * Singleton interface. Retrieves the one and only instance of this class. Creates the instance if none exists.
      */
     public static FlhMciPresetManager getInstance() {
-        if (_instance == null) {
-            _instance = new FlhMciPresetManager();
-        }
-        return _instance;
+        return Holder.instance;
     }
 
     /**
@@ -168,5 +164,10 @@ public class FlhMciPresetManager {
         preset.setBitmaskExpression(L2_BITMASK);
 
         return preset;
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final FlhMciPresetManager instance = new FlhMciPresetManager();
     }
 }

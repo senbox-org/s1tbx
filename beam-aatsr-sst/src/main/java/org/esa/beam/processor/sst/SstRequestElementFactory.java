@@ -45,19 +45,14 @@ import org.esa.beam.util.SystemUtils;
  */
 public class SstRequestElementFactory implements RequestElementFactory {
 
-    static private SstRequestElementFactory _instance = null;
     private final DefaultRequestElementFactory _defaultFactory;
     private final Map _paramInfoMap;
 
     /**
      * Singleton interface.
      */
-    static public SstRequestElementFactory getInstance() {
-        if (_instance == null) {
-            _instance = new SstRequestElementFactory();
-        }
-
-        return _instance;
+    public static SstRequestElementFactory getInstance() {
+        return Holder.instance;
     }
 
     /**
@@ -338,5 +333,10 @@ public class SstRequestElementFactory implements RequestElementFactory {
         paramProps.setDescription(SstConstants.INVALID_PIXEL_DESCRIPTION);
         paramProps.setDefaultValue(SstConstants.DEFAULT_INVALID_PIXEL);
         return paramProps;
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final SstRequestElementFactory instance = new SstRequestElementFactory();
     }
 }

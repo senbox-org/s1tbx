@@ -38,13 +38,11 @@ import java.util.List;
  */
 public class HeaderParser {
 
-    private static final HeaderParser _instance = new HeaderParser();
-
     /**
      * Gets the singleton instance of a ENVISAT header parser.
      */
     public static HeaderParser getInstance() {
-        return _instance;
+        return Holder.instance;
     }
 
     /**
@@ -399,6 +397,10 @@ public class HeaderParser {
     private HeaderParser() {
     }
 
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final HeaderParser instance = new HeaderParser();
+    }
 }
 
 

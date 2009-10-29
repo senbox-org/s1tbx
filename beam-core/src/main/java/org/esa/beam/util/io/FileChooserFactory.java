@@ -11,8 +11,6 @@ public class FileChooserFactory {
     private Class<? extends JFileChooser> fileChooserClass;
     private Class<? extends JFileChooser> dirChooserClass;
 
-    private static final FileChooserFactory instance = new FileChooserFactory();
-
     public Class<? extends JFileChooser> getFileChooserClass() {
         return fileChooserClass;
     }
@@ -30,7 +28,7 @@ public class FileChooserFactory {
     }
 
     public static FileChooserFactory getInstance() {
-        return instance;
+        return Holder.instance;
     }
 
     public JFileChooser createFileChooser(File currentDirectory) {
@@ -59,5 +57,10 @@ public class FileChooserFactory {
     private FileChooserFactory() {
         fileChooserClass = BeamFileChooser.class;
         dirChooserClass = BeamFileChooser.class;
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final FileChooserFactory instance = new FileChooserFactory();
     }
 }

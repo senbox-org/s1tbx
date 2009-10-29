@@ -42,7 +42,6 @@ import org.esa.beam.util.SystemUtils;
  */
 public class FlhMciRequestElementFactory implements RequestElementFactory {
 
-    private static FlhMciRequestElementFactory _instance = null;
     private final Map<String,ParamProperties> _paramInfoMap = new HashMap<String, ParamProperties>();
     private final DefaultRequestElementFactory _defaultFactory = DefaultRequestElementFactory.getInstance();
 
@@ -51,11 +50,7 @@ public class FlhMciRequestElementFactory implements RequestElementFactory {
      * Singleton interface.
      */
     public static FlhMciRequestElementFactory getInstance() {
-        if (_instance == null) {
-            _instance = new FlhMciRequestElementFactory();
-        }
-
-        return _instance;
+        return Holder.instance;
     }
 
     /**
@@ -351,5 +346,10 @@ public class FlhMciRequestElementFactory implements RequestElementFactory {
         paramProps.setEditorClass(ComboBoxEditor.class);
         paramProps.setValueSetBound(true);
         return paramProps;
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final FlhMciRequestElementFactory instance = new FlhMciRequestElementFactory();
     }
 }

@@ -16,8 +16,6 @@ import java.util.Map;
 
 public class RadToReflRequestElementFactory implements RequestElementFactory {
 
-    private static RadToReflRequestElementFactory _factory;
-
     private DefaultRequestElementFactory _defaultFactory;
     private Map _paramPropertiesMap;
 
@@ -27,10 +25,7 @@ public class RadToReflRequestElementFactory implements RequestElementFactory {
      * @return areference to the factory
      */
     public static RadToReflRequestElementFactory getInstance() {
-        if (_factory == null) {
-            _factory = new RadToReflRequestElementFactory();
-        }
-        return _factory;
+        return Holder.instance;
     }
 
     public ProductRef createInputProductRef(File url, String fileFormat, String typeId) throws RequestElementFactoryException {
@@ -115,5 +110,10 @@ public class RadToReflRequestElementFactory implements RequestElementFactory {
         properties.setLabel(RadToReflConstants.COPY_INPUT_BANDS_PARAM_LABEL);
 
         _paramPropertiesMap.put(RadToReflConstants.COPY_INPUT_BANDS_PARAM_NAME, properties);
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final RadToReflRequestElementFactory instance = new RadToReflRequestElementFactory();
     }
 }

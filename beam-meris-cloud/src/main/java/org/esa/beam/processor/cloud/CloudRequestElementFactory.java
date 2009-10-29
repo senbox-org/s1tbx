@@ -33,15 +33,10 @@ import org.esa.beam.framework.processor.RequestElementFactoryException;
  */
 public class CloudRequestElementFactory implements RequestElementFactory {
 
-    private static CloudRequestElementFactory _instance;
-
     private DefaultRequestElementFactory _defFactory = DefaultRequestElementFactory.getInstance();
 
     public static CloudRequestElementFactory getInstance() {
-        if (_instance == null) {
-            _instance = new CloudRequestElementFactory();
-        }
-        return _instance;
+        return Holder.instance;
     }
 
     /**
@@ -131,5 +126,10 @@ public class CloudRequestElementFactory implements RequestElementFactory {
 
     public Parameter createOutputFormatParameter() {
         return _defFactory.createOutputFormatParameter();
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final CloudRequestElementFactory instance = new CloudRequestElementFactory();
     }
 }

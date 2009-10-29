@@ -28,17 +28,11 @@ import java.io.InputStreamReader;
 
 class AtsrFileFactory implements AtsrConstants {
 
-    private static AtsrFileFactory _instance = null;
-
     /**
      * Retrieves an instance of the factory. If none exoists, creates one. Singleton interface.
      */
     public static AtsrFileFactory getInstance() {
-        if (_instance == null) {
-            _instance = new AtsrFileFactory();
-        }
-
-        return _instance;
+        return Holder.instance;
     }
 
     /**
@@ -230,5 +224,10 @@ class AtsrFileFactory implements AtsrConstants {
             }
         }
         return strRet;
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final AtsrFileFactory instance = new AtsrFileFactory();
     }
 }

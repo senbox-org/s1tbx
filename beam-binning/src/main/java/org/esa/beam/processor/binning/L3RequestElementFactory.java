@@ -40,7 +40,6 @@ import org.esa.beam.util.io.FileUtils;
 
 public class L3RequestElementFactory implements RequestElementFactory {
 
-    private static L3RequestElementFactory _instance = null;
     protected final Map _paramInfoMap = new HashMap();
     private final DefaultRequestElementFactory _defaultFactory = DefaultRequestElementFactory.getInstance();
 
@@ -48,11 +47,7 @@ public class L3RequestElementFactory implements RequestElementFactory {
      * Singleton interface.
      */
     public static L3RequestElementFactory getInstance() {
-        if (_instance == null) {
-            _instance = new L3RequestElementFactory();
-        }
-
-        return _instance;
+        return Holder.instance;
     }
 
     /**
@@ -462,5 +457,10 @@ public class L3RequestElementFactory implements RequestElementFactory {
 
     public Parameter createOutputFormatParameter() {
         return _defaultFactory.createOutputFormatParameter();
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final L3RequestElementFactory instance = new L3RequestElementFactory();
     }
 }

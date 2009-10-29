@@ -31,7 +31,6 @@ import java.util.Map;
 
 public class MosaicRequestElementFactory implements RequestElementFactory {
 
-    private static MosaicRequestElementFactory _instance;
     private DefaultRequestElementFactory _defaultFactory;
     private Map<String, ParamProperties> _paramInfoMap;
 
@@ -41,10 +40,7 @@ public class MosaicRequestElementFactory implements RequestElementFactory {
      * @return the instance
      */
     public static MosaicRequestElementFactory getInstance() {
-        if (_instance == null) {
-            _instance = new MosaicRequestElementFactory();
-        }
-        return _instance;
+        return Holder.instance;
     }
 
     /**
@@ -526,5 +522,10 @@ public class MosaicRequestElementFactory implements RequestElementFactory {
 
     private ParamProperties createStringParamProperties() {
         return _defaultFactory.createStringParamProperties();
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final MosaicRequestElementFactory instance = new MosaicRequestElementFactory();
     }
 }

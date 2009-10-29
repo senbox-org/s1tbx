@@ -22,10 +22,10 @@ import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.processor.DefaultRequestElementFactory;
+import org.esa.beam.framework.processor.ProcessorConstants;
 import org.esa.beam.framework.processor.ProductRef;
 import org.esa.beam.framework.processor.RequestElementFactory;
 import org.esa.beam.framework.processor.RequestElementFactoryException;
-import org.esa.beam.framework.processor.ProcessorConstants;
 import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
@@ -52,10 +52,7 @@ public class NdviRequestElementFactory implements RequestElementFactory {
      * @return a reference to the factory
      */
     public static NdviRequestElementFactory getInstance() {
-        if (_factory == null) {
-            _factory = new NdviRequestElementFactory();
-        }
-        return _factory;
+        return Holder.instance;
     }
 
     public ProductRef createInputProductRef(final File url, final String fileFormat, final String typeId) throws
@@ -170,5 +167,10 @@ public class NdviRequestElementFactory implements RequestElementFactory {
         paramProperties.setMaxValue(new Float(10));
         paramProperties.setLabel("Lower factor");
         return paramProperties;
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final NdviRequestElementFactory instance = new NdviRequestElementFactory();
     }
 }

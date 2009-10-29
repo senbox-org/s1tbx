@@ -44,19 +44,13 @@ import java.io.File;
  */
 public class DefaultRequestElementFactory implements RequestElementFactory, ProcessorConstants {
 
-    private static DefaultRequestElementFactory _instance = null;
-
     /**
      * Retrieve an instance of the factory. This is a singleton object.
      *
      * @return a reference to the one and only instance of the factory
      */
     public static DefaultRequestElementFactory getInstance() {
-        if (_instance == null) {
-            _instance = new DefaultRequestElementFactory();
-        }
-
-        return _instance;
+        return Holder.instance;
     }
 
     /**
@@ -315,5 +309,10 @@ public class DefaultRequestElementFactory implements RequestElementFactory, Proc
             }
         };
         return filters;
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final DefaultRequestElementFactory instance = new DefaultRequestElementFactory();
     }
 }

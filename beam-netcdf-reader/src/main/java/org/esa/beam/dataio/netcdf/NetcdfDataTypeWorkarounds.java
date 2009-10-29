@@ -26,7 +26,6 @@ import java.util.Map;
 
 class NetcdfDataTypeWorkarounds implements DataTypeWorkarounds {
     
-    private static NetcdfDataTypeWorkarounds INSTANCE = new NetcdfDataTypeWorkarounds();
     private Map<NameTypePair, Integer> workaroundMap;
     
     private NetcdfDataTypeWorkarounds() {
@@ -37,7 +36,7 @@ class NetcdfDataTypeWorkarounds implements DataTypeWorkarounds {
     }
     
     public static NetcdfDataTypeWorkarounds getInstance() {
-        return INSTANCE;
+        return Holder.instance;
     }
     
     @Override
@@ -88,5 +87,10 @@ class NetcdfDataTypeWorkarounds implements DataTypeWorkarounds {
             }
             return false;
         }
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final NetcdfDataTypeWorkarounds instance = new NetcdfDataTypeWorkarounds();
     }
 }

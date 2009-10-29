@@ -15,8 +15,6 @@ import org.esa.beam.processor.binning.database.BinLocator;
  */
 public class BinStoreFactory {
 
-    private static BinStoreFactory _instance = null;
-
     /**
      * Hide the default constructor.
      */
@@ -27,12 +25,8 @@ public class BinStoreFactory {
      * Retrieves the one and only instance of the <code>BinStoreFactory</code>.
      * If the instance does not exist yet, it creates one.
      */
-    static public BinStoreFactory getInstance() {
-        if (_instance == null) {
-            _instance = new BinStoreFactory();
-        }
-
-        return _instance;
+    public static BinStoreFactory getInstance() {
+        return Holder.instance;
     }
 
     public BinStore createSpatialStore(File dbDir, String fileName, int width, int height, int numVarsPerBin) throws IOException {
@@ -76,5 +70,10 @@ public class BinStoreFactory {
             throw new IOException("Unsupported storage type: " + storageType);
         }
         return store;
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final BinStoreFactory instance = new BinStoreFactory();
     }
 }

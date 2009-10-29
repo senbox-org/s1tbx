@@ -18,6 +18,7 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
+
 import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.util.Guardian;
 
@@ -31,25 +32,18 @@ import java.util.Set;
  */
 public class PointingFactoryRegistry {
 
-    private static PointingFactoryRegistry instance;
-
     private static ServiceRegistry<PointingFactory> typeToFactoryMap;
 
-
     private PointingFactoryRegistry() {
-
+        ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
+        typeToFactoryMap = serviceRegistryManager.getServiceRegistry(PointingFactory.class);
+        if (!BeamCoreActivator.isStarted()) {
+            BeamCoreActivator.loadServices(typeToFactoryMap);
+        }
     }
 
-    public synchronized static PointingFactoryRegistry getInstance() {
-        if (instance == null) {
-            instance = new PointingFactoryRegistry();
-            ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
-            typeToFactoryMap = serviceRegistryManager.getServiceRegistry(PointingFactory.class);
-            if (!BeamCoreActivator.isStarted()) {
-                BeamCoreActivator.loadServices(typeToFactoryMap);
-            }
-        }
-        return instance;
+    public static PointingFactoryRegistry getInstance() {
+        return Holder.instance;
     }
 
     public PointingFactory getPointingFactory(String productType) {
@@ -69,5 +63,9 @@ public class PointingFactoryRegistry {
     public void addFactory(PointingFactory pointingFactory) {
             typeToFactoryMap.addService(pointingFactory);
     }
-
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final PointingFactoryRegistry instance = new PointingFactoryRegistry();
+    }
 }

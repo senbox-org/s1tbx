@@ -36,21 +36,15 @@ import org.esa.beam.util.SystemUtils;
  */
 public class SmileRequestElementFactory implements RequestElementFactory {
 
-    // singleton instance
-    private static SmileRequestElementFactory _factory;
-
     private DefaultRequestElementFactory _defaultFactory;
 
     /**
      * Singleton interface - creates the one and only instance of this factory.
      *
-     * @return areference to the factory
+     * @return a reference to the factory
      */
     public static SmileRequestElementFactory getInstance() {
-        if (_factory == null) {
-            _factory = new SmileRequestElementFactory();
-        }
-        return _factory;
+        return Holder.instance;
     }
 
     /**
@@ -172,5 +166,10 @@ public class SmileRequestElementFactory implements RequestElementFactory {
      */
     private SmileRequestElementFactory() {
         _defaultFactory = DefaultRequestElementFactory.getInstance();
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final SmileRequestElementFactory instance = new SmileRequestElementFactory();
     }
 }

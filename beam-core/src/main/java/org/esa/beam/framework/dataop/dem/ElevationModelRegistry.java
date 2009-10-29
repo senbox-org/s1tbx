@@ -8,6 +8,7 @@ package org.esa.beam.framework.dataop.dem;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
+
 import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.util.Guardian;
 
@@ -22,7 +23,6 @@ import java.util.Set;
  */
 public class ElevationModelRegistry {
 
-    private static ElevationModelRegistry instance;
     private final ServiceRegistry<ElevationModelDescriptor> descriptors;
 
     private ElevationModelRegistry() {
@@ -32,11 +32,8 @@ public class ElevationModelRegistry {
         }
     }
 
-    public synchronized static ElevationModelRegistry getInstance() {
-        if (instance == null) {
-            instance = new ElevationModelRegistry();
-        }
-        return instance;
+    public static ElevationModelRegistry getInstance() {
+        return Holder.instance;
     }
 
     public void addDescriptor(ElevationModelDescriptor elevationModelDescriptor) {
@@ -60,5 +57,10 @@ public class ElevationModelRegistry {
 
     public ElevationModelDescriptor[] getAllDescriptors() {
         return descriptors.getServices().toArray(new ElevationModelDescriptor[0]);
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final ElevationModelRegistry instance = new ElevationModelRegistry();
     }
 }
