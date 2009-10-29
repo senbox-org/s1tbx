@@ -1,7 +1,6 @@
 package com.bc.ceres.core.runtime;
 
 import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.runtime.RuntimeConfig;
 
 /**
  * Provides a {@link #launch(com.bc.ceres.core.runtime.RuntimeConfig, ClassLoader, String[]) launch} method to launch a runtime.

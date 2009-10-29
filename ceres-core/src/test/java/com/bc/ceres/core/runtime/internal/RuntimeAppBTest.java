@@ -15,13 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Norman
- * Date: 07.09.2006
- * Time: 10:32:02
- * To change this template use File | Settings | File Templates.
- */
+
 public class RuntimeAppBTest extends TestCase {
 
     private RuntimeImpl runtime;

@@ -18,7 +18,7 @@ public interface ModuleRuntime extends ModuleContext {
     String[] getCommandLineArgs();
 
     /**
-     * Starts the runtime.
+     * Starts the Ceres runtime.
      * This implies the following steps:
      * <ol>
      * <li>determine the runtime's <code>home</code> and <code>config</code> file locations,</li>
@@ -34,13 +34,13 @@ public interface ModuleRuntime extends ModuleContext {
      * </li>
      *
      * @throws CoreException if an error in the runtime occurs
-     * @see Runtime#addShutdownHook(Thread)
+     * @see java.lang.Runtime#addShutdownHook(Thread)
      * @see #stop()
      */
     void start() throws CoreException;
 
     /**
-     * Explicitely stops all modules and finally stops this runtime.
+     * Explicitely stops all modules and finally stops this Ceres runtime.
      * Note that this method is also registered as a shutdown hook to the VM during {@link #start()}.
      *
      * @throws CoreException if an error in the runtime occurs

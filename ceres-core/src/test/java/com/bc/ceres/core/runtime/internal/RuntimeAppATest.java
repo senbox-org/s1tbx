@@ -11,13 +11,7 @@ import junit.framework.TestCase;
 
 import java.util.HashMap;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Norman
- * Date: 07.09.2006
- * Time: 10:32:02
- * To change this template use File | Settings | File Templates.
- */
+
 public class RuntimeAppATest extends TestCase {
     private RuntimeImpl runtime;
 

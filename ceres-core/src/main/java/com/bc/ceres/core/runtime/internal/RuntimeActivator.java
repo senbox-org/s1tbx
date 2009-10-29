@@ -60,10 +60,12 @@ public class RuntimeActivator implements Activator {
 
     @Override
     public void stop(ModuleContext moduleContext) throws CoreException {
-        disposeServiceProviders();
-        disposeApplications();
-        this.moduleContext = null;
-        instance = null;
+        try {
+            disposeServiceProviders();
+            disposeApplications();
+        } finally {
+            this.moduleContext = null;
+        }
     }
 
 
