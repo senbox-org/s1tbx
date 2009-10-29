@@ -12,7 +12,7 @@ import com.bc.ceres.binding.PropertyContainer;
  */
 public class CollectionLayer extends Layer {
 
-    private static final Type LAYER_TYPE= LayerType.getLayerType(Type.class);
+    private static final Type LAYER_TYPE= LayerTypeRegistry.getLayerType(Type.class);
 
     public CollectionLayer() {
         this(LAYER_TYPE.getName());

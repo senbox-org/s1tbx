@@ -6,6 +6,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelRenderer;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -36,7 +37,7 @@ import java.awt.image.RenderedImage;
  */
 public class ImageLayer extends Layer {
 
-    private static final Type LAYER_TYPE = LayerType.getLayerType(Type.class);
+    private static final Type LAYER_TYPE = LayerTypeRegistry.getLayerType(Type.class);
 
     public static final String PROPERTY_NAME_MULTI_LEVEL_SOURCE = "multiLevelSource";
     public static final String PROPERTY_NAME_BORDER_SHOWN = "borderShown";

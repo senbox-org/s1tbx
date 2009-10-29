@@ -5,6 +5,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.grender.Rendering;
 
 import java.awt.Color;
@@ -19,7 +20,7 @@ import java.awt.Rectangle;
  */
 public class BackgroundLayer extends Layer {
 
-    private static final Type LAYER_TYPE = LayerType.getLayerType(Type.class);
+    private static final Type LAYER_TYPE = LayerTypeRegistry.getLayerType(Type.class);
 
     public BackgroundLayer(Color color) {
         this(LAYER_TYPE, initConfiguration(LAYER_TYPE.createLayerConfig(null), color));

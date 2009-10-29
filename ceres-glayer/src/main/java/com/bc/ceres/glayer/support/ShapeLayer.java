@@ -5,6 +5,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 
@@ -27,7 +28,7 @@ import java.util.List;
  */
 public class ShapeLayer extends Layer {
 
-    private static final Type LAYER_TYPE = LayerType.getLayerType(Type.class);
+    private static final Type LAYER_TYPE = LayerTypeRegistry.getLayerType(Type.class);
 
     private final List<Shape> shapeList;
     private final AffineTransform shapeToModelTransform;
