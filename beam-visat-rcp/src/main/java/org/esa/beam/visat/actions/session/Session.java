@@ -2,10 +2,10 @@ package org.esa.beam.visat.actions.session;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.accessors.DefaultValueAccessor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.DomElementXStreamConverter;
@@ -186,9 +186,9 @@ public class Session {
         for (int i = 0; i < layers.size(); i++) {
             Layer layer = layers.get(i);
             if (isSerializableLayer(layer)) {
-                ValueContainer configuration = layer.getConfiguration();
+                PropertyContainer configuration = layer.getConfiguration();
                 // todo - check - why create a configuration copy here?! (nf, 10.2009)
-                ValueContainer configurationCopy = getConfigurationCopy(configuration);
+                PropertyContainer configurationCopy = getConfigurationCopy(configuration);
                 SessionDomConverter domConverter = new SessionDomConverter(productManager);
                 DomElement element = new DefaultDomElement("configuration");
                 try {
@@ -209,14 +209,14 @@ public class Session {
     }
 
 
-    private static ValueContainer getConfigurationCopy(ValueContainer valueContainer) {
-        final ValueContainer configuration = new ValueContainer();
+    private static PropertyContainer getConfigurationCopy(PropertyContainer propertyContainer) {
+        final PropertyContainer configuration = new PropertyContainer();
 
-        for (ValueModel model : valueContainer.getModels()) {
-            final ValueDescriptor descriptor = new ValueDescriptor(model.getDescriptor());
-            final DefaultValueAccessor valueAccessor = new DefaultValueAccessor();
+        for (Property model : propertyContainer.getProperties()) {
+            final PropertyDescriptor descriptor = new PropertyDescriptor(model.getDescriptor());
+            final DefaultPropertyAccessor valueAccessor = new DefaultPropertyAccessor();
             valueAccessor.setValue(model.getValue());
-            configuration.addModel(new ValueModel(descriptor, valueAccessor));
+            configuration.addProperty(new Property(descriptor, valueAccessor));
         }
 
         return configuration;
@@ -428,7 +428,7 @@ public class Session {
                                     ProductManager productManager) throws ConversionException, ValidationException {
         final LayerType type = LayerType.getLayerType(layerRef.layerTypeName);
         final SessionDomConverter converter = new SessionDomConverter(productManager);
-        final ValueContainer template = type.createLayerConfig(layerContext);
+        final PropertyContainer template = type.createLayerConfig(layerContext);
         converter.convertDomToValue(layerRef.configuration, template);
         final Layer layer = type.createLayer(layerContext, template);
         layer.setId(layerRef.id);

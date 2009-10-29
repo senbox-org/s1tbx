@@ -2,9 +2,9 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.glayer.LayerType;
@@ -48,7 +48,7 @@ public class WmsLayerConfigurationPersistencyTest {
     @Test
     public void testPersistency() throws ValidationException, ConversionException, MalformedURLException {
         final WmsLayerType wmsLayerType = (WmsLayerType) LayerType.getLayerType(WmsLayerType.class.getName());
-        final ValueContainer configuration = wmsLayerType.createLayerConfig(null);
+        final PropertyContainer configuration = wmsLayerType.createLayerConfig(null);
         configuration.setValue(WmsLayerType.PROPERTY_NAME_STYLE_NAME, "FancyStyle");
         configuration.setValue(WmsLayerType.PROPERTY_NAME_URL, new URL("http://www.mapserver.org"));
         configuration.setValue(WmsLayerType.PROPERTY_NAME_CRS_ENVELOPE, new CRSEnvelope("EPSG:4324", -10, 20, 15, 50));
@@ -62,18 +62,18 @@ public class WmsLayerConfigurationPersistencyTest {
         // For debug purposes
 //        System.out.println(originalDomElement.toXml());
 
-        final ValueContainer restoredConfiguration = (ValueContainer) domConverter.convertDomToValue(originalDomElement,
+        final PropertyContainer restoredConfiguration = (PropertyContainer) domConverter.convertDomToValue(originalDomElement,
                                                                                                      wmsLayerType.createLayerConfig(null));
         compareConfigurations(configuration, restoredConfiguration);
 
     }
 
-    private static void compareConfigurations(ValueContainer originalConfiguration,
-                                              ValueContainer restoredConfiguration) {
-        for (final ValueModel originalModel : originalConfiguration.getModels()) {
-            final ValueDescriptor originalDescriptor = originalModel.getDescriptor();
-            final ValueModel restoredModel = restoredConfiguration.getModel(originalDescriptor.getName());
-            final ValueDescriptor restoredDescriptor = restoredModel.getDescriptor();
+    private static void compareConfigurations(PropertyContainer originalConfiguration,
+                                              PropertyContainer restoredConfiguration) {
+        for (final Property originalModel : originalConfiguration.getProperties()) {
+            final PropertyDescriptor originalDescriptor = originalModel.getDescriptor();
+            final Property restoredModel = restoredConfiguration.getProperty(originalDescriptor.getName());
+            final PropertyDescriptor restoredDescriptor = restoredModel.getDescriptor();
 
             assertNotNull(restoredModel);
             assertSame(originalDescriptor.getName(), restoredDescriptor.getName());

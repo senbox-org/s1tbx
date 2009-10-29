@@ -1,6 +1,6 @@
 package org.esa.beam.framework.ui;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -40,7 +40,7 @@ public class WorldMapPaneDataModel {
 
     public Layer getWorldMapLayer(LayerContext context) {
         if (worldMapLayer == null) {
-            worldMapLayer = layerType.createLayer(context, new ValueContainer());
+            worldMapLayer = layerType.createLayer(context, new PropertyContainer());
         }
         return worldMapLayer;
     }

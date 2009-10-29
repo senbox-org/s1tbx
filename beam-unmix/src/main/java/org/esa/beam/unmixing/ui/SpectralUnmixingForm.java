@@ -13,7 +13,7 @@ import java.awt.BorderLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
@@ -82,7 +82,7 @@ class SpectralUnmixingForm extends JPanel {
     private void createComponents() {
         sourceBandNames = new JList();
         
-        final ValueDescriptor valueDescriptor = formModel.getOperatorValueContainer().getDescriptor("sourceBandNames");
+        final PropertyDescriptor propertyDescriptor = formModel.getOperatorValueContainer().getDescriptor("sourceBandNames");
         SelectionChangeListener valueSetUpdater = new SelectionChangeListener() {
 
             @Override
@@ -102,7 +102,7 @@ class SpectralUnmixingForm extends JPanel {
                     validNames = new String[0];
                 }
                 final ValueSet valueSet = new ValueSet(validNames);
-                valueDescriptor.setValueSet(valueSet);
+                propertyDescriptor.setValueSet(valueSet);
                 formModel.setSourceProduct(selectedProduct);
                 updateTargetProductName(selectedProduct);
             }

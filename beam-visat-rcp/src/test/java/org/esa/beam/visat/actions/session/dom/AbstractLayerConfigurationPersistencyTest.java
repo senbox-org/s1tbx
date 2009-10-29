@@ -1,8 +1,8 @@
 package org.esa.beam.visat.actions.session.dom;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.glayer.Layer;
@@ -67,7 +67,7 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
         domConverter.convertValueToDom(layer.getConfiguration(), originalDomElement);
         System.out.println(originalDomElement.toXml());
         
-        final ValueContainer restoredConfiguration = (ValueContainer) domConverter.convertDomToValue(originalDomElement,
+        final PropertyContainer restoredConfiguration = (PropertyContainer) domConverter.convertDomToValue(originalDomElement,
                                                                                                      layerType.createLayerConfig(null));
         compareConfigurations(layer.getConfiguration(), restoredConfiguration);
 
@@ -79,12 +79,12 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
 
     protected abstract Layer createLayer(LayerType layerType) throws Exception;
 
-    private static void compareConfigurations(ValueContainer originalConfiguration,
-                                              ValueContainer restoredConfiguration) {
-        for (final ValueModel originalModel : originalConfiguration.getModels()) {
-            final ValueDescriptor originalDescriptor = originalModel.getDescriptor();
-            final ValueModel restoredModel = restoredConfiguration.getModel(originalDescriptor.getName());
-            final ValueDescriptor restoredDescriptor = restoredModel.getDescriptor();
+    private static void compareConfigurations(PropertyContainer originalConfiguration,
+                                              PropertyContainer restoredConfiguration) {
+        for (final Property originalModel : originalConfiguration.getProperties()) {
+            final PropertyDescriptor originalDescriptor = originalModel.getDescriptor();
+            final Property restoredModel = restoredConfiguration.getProperty(originalDescriptor.getName());
+            final PropertyDescriptor restoredDescriptor = restoredModel.getDescriptor();
 
             assertNotNull(restoredModel);
             assertSame(originalDescriptor.getName(), restoredDescriptor.getName());

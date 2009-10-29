@@ -1,6 +1,6 @@
 package org.esa.beam.visat;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.jidesoft.swing.JideScrollPane;
@@ -172,7 +172,7 @@ public class ProductsToolView extends AbstractToolView {
             if (clickCount == 2) {
                 LayerType flt = LayerType.getLayerType(FeatureLayerType.class);
 
-                final ValueContainer conf = flt.createLayerConfig(sceneView);
+                final PropertyContainer conf = flt.createLayerConfig(sceneView);
                 final StyleBuilder builder = new StyleBuilder();
                 Mark mark = builder.createMark("circle", Color.RED);
                 Graphic g = builder.createGraphic(null, mark, null);

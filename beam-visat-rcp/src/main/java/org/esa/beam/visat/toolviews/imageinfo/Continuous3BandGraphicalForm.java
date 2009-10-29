@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
@@ -68,31 +68,31 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         channelSourcesList = new ArrayList<RasterDataNode>(32);
         channel = 0;
 
-        final ValueModel channelSourceNameModel = ValueModel.createClassFieldModel(this, CHANNEL_SOURCE_NAME_PROPERTY, "");
+        final Property channelSourceNameModel = Property.createForField(this, CHANNEL_SOURCE_NAME_PROPERTY, "");
         JComboBox channelSourceNameBox = new JComboBox();
         channelSourceNameBox.setEditable(false);
 
-        final ValueModel gammaModel = ValueModel.createClassFieldModel(this, GAMMA_PROPERTY, 1.0);
+        final Property gammaModel = Property.createForField(this, GAMMA_PROPERTY, 1.0);
         gammaModel.getDescriptor().setValueRange(new ValueRange(1.0 / 10.0, 10.0));
         gammaModel.getDescriptor().setDefaultValue(1.0);
         JTextField gammaField = new JTextField();
         gammaField.setColumns(6);
         gammaField.setHorizontalAlignment(JTextField.RIGHT);
 
-        moreOptionsForm.getBindingContext().getValueContainer().addModel(channelSourceNameModel);
+        moreOptionsForm.getBindingContext().getPropertyContainer().addProperty(channelSourceNameModel);
         moreOptionsForm.getBindingContext().bind(CHANNEL_SOURCE_NAME_PROPERTY, channelSourceNameBox);
 
-        moreOptionsForm.getBindingContext().getValueContainer().addModel(gammaModel);
+        moreOptionsForm.getBindingContext().getPropertyContainer().addProperty(gammaModel);
         moreOptionsForm.getBindingContext().bind(GAMMA_PROPERTY, gammaField);
 
         moreOptionsForm.addRow(new JLabel("Source band: "), channelSourceNameBox);
         moreOptionsForm.addRow(new JLabel("Gamma non-linearity: "), gammaField);
 
-        final ValueContainer valueContainer = new ValueContainer();
-        valueContainer.addModel(ValueModel.createClassFieldModel(this, "channel", 0));
-        valueContainer.getModel("channel").getDescriptor().setValueSet(new ValueSet(new Integer[]{0, 1, 2}));
+        final PropertyContainer propertyContainer = new PropertyContainer();
+        propertyContainer.addProperty(Property.createForField(this, "channel", 0));
+        propertyContainer.getProperty("channel").getDescriptor().setValueSet(new ValueSet(new Integer[]{0, 1, 2}));
 
-        bindingContext = new BindingContext(valueContainer);
+        bindingContext = new BindingContext(propertyContainer);
 
         JRadioButton rChannelButton = new JRadioButton("Red");
         JRadioButton gChannelButton = new JRadioButton("Green");
@@ -203,7 +203,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
             sourceNames[i] = channelSourcesList.get(i).getName();
         }
 
-        moreOptionsForm.getBindingContext().getValueContainer().getModel(CHANNEL_SOURCE_NAME_PROPERTY).getDescriptor().setValueSet(new ValueSet(sourceNames));
+        moreOptionsForm.getBindingContext().getPropertyContainer().getProperty(CHANNEL_SOURCE_NAME_PROPERTY).getDescriptor().setValueSet(new ValueSet(sourceNames));
 
         acknowledgeChannel();
     }

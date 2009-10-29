@@ -1,6 +1,6 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.ImageLayer;
@@ -33,7 +33,7 @@ public class WmsLayer extends Layer {
 
     private final ImageLayer layerDelegate;
 
-    protected WmsLayer(ValueContainer configuration) {
+    protected WmsLayer(PropertyContainer configuration) {
         super(LayerType.getLayerType(WmsLayerType.class.getName()), configuration);
         final WebMapServer mapServer;
         try {
@@ -49,7 +49,7 @@ public class WmsLayer extends Layer {
 
         final ImageLayer.Type imageLayerType = (ImageLayer.Type) LayerType.getLayerType(
                 ImageLayer.Type.class.getName());
-        final ValueContainer template = imageLayerType.createLayerConfig(null); // todo - pass correct context
+        final PropertyContainer template = imageLayerType.createLayerConfig(null); // todo - pass correct context
         template.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         template.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
                           multiLevelSource.getModel().getImageToModelTransform(0));
@@ -83,7 +83,7 @@ public class WmsLayer extends Layer {
     }
 
 
-    private static DefaultMultiLevelSource createMultiLevelSource(ValueContainer configuration,
+    private static DefaultMultiLevelSource createMultiLevelSource(PropertyContainer configuration,
                                                                   WebMapServer wmsServer,
                                                                   org.geotools.data.ows.Layer layer) {
         DefaultMultiLevelSource multiLevelSource;
@@ -129,7 +129,7 @@ public class WmsLayer extends Layer {
         return server.getCapabilities().getLayerList().get(layerIndex);
     }
 
-    private static WebMapServer getWmsServer(ValueContainer configuration) throws IOException, ServiceException {
+    private static WebMapServer getWmsServer(PropertyContainer configuration) throws IOException, ServiceException {
         return new WebMapServer((URL) configuration.getValue(WmsLayerType.PROPERTY_NAME_URL));
     }
 

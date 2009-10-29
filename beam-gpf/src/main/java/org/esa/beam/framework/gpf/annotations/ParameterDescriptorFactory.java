@@ -14,16 +14,16 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
-public class ParameterDescriptorFactory implements ClassFieldDescriptorFactory {
+public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
 
     private Map<String, Product> sourceProductMap;
 
-    public static ValueContainer createMapBackedOperatorValueContainer(String operatorName) {
+    public static PropertyContainer createMapBackedOperatorValueContainer(String operatorName) {
         return createMapBackedOperatorValueContainer(operatorName, new HashMap<String, Object>());
     }
 
-    public static ValueContainer createMapBackedOperatorValueContainer(String operatorName, Map<String, Object> operatorParameters) {
-        return ValueContainer.createMapBacked(operatorParameters, getOpType(operatorName), new ParameterDescriptorFactory());
+    public static PropertyContainer createMapBackedOperatorValueContainer(String operatorName, Map<String, Object> operatorParameters) {
+        return PropertyContainer.createMapBacked(operatorParameters, getOpType(operatorName), new ParameterDescriptorFactory());
     }
 
     public ParameterDescriptorFactory() {
@@ -33,7 +33,7 @@ public class ParameterDescriptorFactory implements ClassFieldDescriptorFactory {
         this.sourceProductMap = sourceProductMap;
     }
 
-    public ValueDescriptor createValueDescriptor(Field field) {
+    public PropertyDescriptor createValueDescriptor(Field field) {
         try {
             return createValueDescriptorImpl(field);
         } catch (ConversionException e) {
@@ -41,15 +41,15 @@ public class ParameterDescriptorFactory implements ClassFieldDescriptorFactory {
         }
     }
 
-    private ValueDescriptor createValueDescriptorImpl(Field field) throws ConversionException {
+    private PropertyDescriptor createValueDescriptorImpl(Field field) throws ConversionException {
         final boolean operatorDetected = Operator.class.isAssignableFrom(field.getDeclaringClass());
         Parameter parameter = field.getAnnotation(Parameter.class);
         if (operatorDetected && parameter == null) {
             return null;
         }
-        ValueDescriptor valueDescriptor = new ValueDescriptor(field.getName(), field.getType());
+        PropertyDescriptor propertyDescriptor = new PropertyDescriptor(field.getName(), field.getType());
         if (parameter == null) {
-            return valueDescriptor;
+            return propertyDescriptor;
         }
         if (parameter.validator() != Validator.class) {
             final Validator validator;
@@ -58,7 +58,7 @@ public class ParameterDescriptorFactory implements ClassFieldDescriptorFactory {
             } catch (Throwable t) {
                 throw new ConversionException("Failed to create validator.", t);
             }
-            valueDescriptor.setValidator(validator);
+            propertyDescriptor.setValidator(validator);
         }
         if (parameter.domConverter() != DomConverter.class) {
             DomConverter domConverter;
@@ -67,7 +67,7 @@ public class ParameterDescriptorFactory implements ClassFieldDescriptorFactory {
             } catch (Throwable t) {
                 throw new ConversionException("Failed to create domConverter.", t);
             }
-            valueDescriptor.setDomConverter(domConverter);
+            propertyDescriptor.setDomConverter(domConverter);
         }
         if (parameter.converter() != Converter.class) {
             Converter converter;
@@ -76,56 +76,56 @@ public class ParameterDescriptorFactory implements ClassFieldDescriptorFactory {
             } catch (Throwable t) {
                 throw new ConversionException("Failed to create converter.", t);
             }
-            valueDescriptor.setConverter(converter);
+            propertyDescriptor.setConverter(converter);
         }
         if (ParameterDescriptorFactory.isSet(parameter.label())) {
-            valueDescriptor.setDisplayName(parameter.label());
+            propertyDescriptor.setDisplayName(parameter.label());
         } else {
-            valueDescriptor.setDisplayName(valueDescriptor.getName());
+            propertyDescriptor.setDisplayName(propertyDescriptor.getName());
         }
         if (ParameterDescriptorFactory.isSet(parameter.alias())) {
-            valueDescriptor.setAlias(parameter.alias());
+            propertyDescriptor.setAlias(parameter.alias());
         }
         if (ParameterDescriptorFactory.isSet(parameter.itemAlias())) {
-            valueDescriptor.setItemAlias(parameter.itemAlias());
+            propertyDescriptor.setItemAlias(parameter.itemAlias());
         }
-        if (valueDescriptor.getConverter() == null) {
-            valueDescriptor.setDefaultConverter();
+        if (propertyDescriptor.getConverter() == null) {
+            propertyDescriptor.setDefaultConverter();
         }
-        valueDescriptor.setItemsInlined(parameter.itemsInlined());
-        valueDescriptor.setUnit(parameter.unit());
-        valueDescriptor.setDescription(parameter.description());
+        propertyDescriptor.setItemsInlined(parameter.itemsInlined());
+        propertyDescriptor.setUnit(parameter.unit());
+        propertyDescriptor.setDescription(parameter.description());
 
-        valueDescriptor.setNotNull(parameter.notNull());
-        valueDescriptor.setNotEmpty(parameter.notEmpty());
+        propertyDescriptor.setNotNull(parameter.notNull());
+        propertyDescriptor.setNotEmpty(parameter.notEmpty());
         if (isSet(parameter.pattern())) {
             Pattern pattern = Pattern.compile(parameter.pattern());
-            valueDescriptor.setPattern(pattern);
+            propertyDescriptor.setPattern(pattern);
         }
         if (isSet(parameter.interval())) {
             ValueRange valueRange = ValueRange.parseValueRange(parameter.interval());
-            valueDescriptor.setValueRange(valueRange);
+            propertyDescriptor.setValueRange(valueRange);
         }
         if (isSet(parameter.format())) {
-            valueDescriptor.setFormat(parameter.format());
+            propertyDescriptor.setFormat(parameter.format());
         }
         if (isSet(parameter.valueSet())) {
             Converter converter;
-            if (valueDescriptor.getType().isArray()) {
-                Class<?> componentType = valueDescriptor.getType().getComponentType();
+            if (propertyDescriptor.getType().isArray()) {
+                Class<?> componentType = propertyDescriptor.getType().getComponentType();
                 converter = ConverterRegistry.getInstance().getConverter(componentType);
             } else {
-                converter = valueDescriptor.getConverter();
+                converter = propertyDescriptor.getConverter();
             }
             ValueSet valueSet = ValueSet.parseValueSet(parameter.valueSet(), converter);
-            valueDescriptor.setValueSet(valueSet);
+            propertyDescriptor.setValueSet(valueSet);
         }
         if (isSet(parameter.defaultValue())) {
-            Converter converter = valueDescriptor.getConverter();
-            valueDescriptor.setDefaultValue(converter.parse(parameter.defaultValue()));
+            Converter converter = propertyDescriptor.getConverter();
+            propertyDescriptor.setDefaultValue(converter.parse(parameter.defaultValue()));
         }
         if (isSet(parameter.sourceProductId())) {
-            valueDescriptor.setProperty("sourceId", parameter.sourceProductId());
+            propertyDescriptor.setAttribute("sourceId", parameter.sourceProductId());
             String[] values = new String[0];
             if (sourceProductMap != null) {
                 String sourceProductId = parameter.sourceProductId();
@@ -134,9 +134,9 @@ public class ParameterDescriptorFactory implements ClassFieldDescriptorFactory {
                     values = product.getBandNames();
                 }
             }
-            valueDescriptor.setValueSet(new ValueSet(values));
+            propertyDescriptor.setValueSet(new ValueSet(values));
         }
-        return valueDescriptor;
+        return propertyDescriptor;
     }
 
     private static Class<? extends Operator> getOpType(String operatorName) {

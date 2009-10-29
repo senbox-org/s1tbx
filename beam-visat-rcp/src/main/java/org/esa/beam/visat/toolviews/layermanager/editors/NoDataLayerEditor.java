@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -25,13 +25,13 @@ public class NoDataLayerEditor extends AbstractBindingLayerEditor {
     @Override
     protected void initializeBinding(AppContext appContext, final BindingContext bindingContext) {
 
-        ValueDescriptor vd = new ValueDescriptor(NoDataLayerType.PROPERTY_NAME_COLOR, Color.class);
+        PropertyDescriptor vd = new PropertyDescriptor(NoDataLayerType.PROPERTY_NAME_COLOR, Color.class);
         vd.setDefaultValue(Color.ORANGE);
         vd.setDisplayName("No-data colour");
         vd.setDefaultConverter();
 
         addValueDescriptor(vd);
-        bindingContext.getValueContainer().addPropertyChangeListener(NoDataLayerType.PROPERTY_NAME_COLOR,
+        bindingContext.getPropertyContainer().addPropertyChangeListener(NoDataLayerType.PROPERTY_NAME_COLOR,
                                                                      new UpdateImagePropertyChangeListener());
     }
 
@@ -41,7 +41,7 @@ public class NoDataLayerEditor extends AbstractBindingLayerEditor {
         public void propertyChange(PropertyChangeEvent evt) {
             if (getLayer() != null) {
                 final ImageLayer layer = (ImageLayer) getLayer();
-                final ValueContainer configuration = layer.getConfiguration();
+                final PropertyContainer configuration = layer.getConfiguration();
                 final Color newColor = (Color) evt.getNewValue();
                 final RasterDataNode raster = (RasterDataNode) configuration.getValue(
                         NoDataLayerType.PROPERTY_NAME_RASTER);

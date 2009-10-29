@@ -20,7 +20,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValueSet;
 
 /**
@@ -32,10 +32,10 @@ import com.bc.ceres.binding.ValueSet;
  */
 public class ValueSetUpdater implements SelectionChangeListener {
     
-    private final ValueDescriptor valueDescriptor;
+    private final PropertyDescriptor propertyDescriptor;
 
-    public ValueSetUpdater(ValueDescriptor valueDescriptor) {
-        this.valueDescriptor = valueDescriptor;
+    public ValueSetUpdater(PropertyDescriptor propertyDescriptor) {
+        this.propertyDescriptor = propertyDescriptor;
     }
 
     @Override
@@ -47,6 +47,6 @@ public class ValueSetUpdater implements SelectionChangeListener {
         } else {
             valueSet = new ValueSet(new String[0]);
         }
-        valueDescriptor.setValueSet(valueSet);
+        propertyDescriptor.setValueSet(valueSet);
     }
 }

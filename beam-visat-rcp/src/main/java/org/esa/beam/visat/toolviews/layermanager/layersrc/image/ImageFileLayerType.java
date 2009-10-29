@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -28,25 +28,25 @@ public class ImageFileLayerType extends LayerType{
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         return new ImageFileLayer(this, configuration);
     }
 
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        final ValueContainer template = new ValueContainer();
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        final PropertyContainer template = new PropertyContainer();
 
-        final ValueModel imageModel = ValueModel.createValueModel(PROPERTY_NAME_IMAGE, RenderedImage.class);
+        final Property imageModel = Property.create(PROPERTY_NAME_IMAGE, RenderedImage.class);
         imageModel.getDescriptor().setTransient(true);
-        template.addModel(imageModel);
+        template.addProperty(imageModel);
 
-        final ValueModel filePathModel = ValueModel.createValueModel(PROPERTY_NAME_IMAGE_FILE, File.class);
+        final Property filePathModel = Property.create(PROPERTY_NAME_IMAGE_FILE, File.class);
         filePathModel.getDescriptor().setNotNull(true);
-        template.addModel(filePathModel);
+        template.addProperty(filePathModel);
 
-        final ValueModel worldTransformModel = ValueModel.createValueModel(PROPERTY_NAME_WORLD_TRANSFORM, AffineTransform.class);
+        final Property worldTransformModel = Property.create(PROPERTY_NAME_WORLD_TRANSFORM, AffineTransform.class);
         worldTransformModel.getDescriptor().setNotNull(true);
-        template.addModel(worldTransformModel);
+        template.addProperty(worldTransformModel);
 
         return template;
     }

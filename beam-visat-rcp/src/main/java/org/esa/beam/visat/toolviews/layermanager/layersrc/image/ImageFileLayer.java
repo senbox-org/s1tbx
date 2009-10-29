@@ -1,6 +1,6 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.ImageLayer;
@@ -20,12 +20,12 @@ class ImageFileLayer extends Layer {
 
     private ImageLayer layerDelegate;
 
-    ImageFileLayer(LayerType layerType, ValueContainer configuration) {
+    ImageFileLayer(LayerType layerType, PropertyContainer configuration) {
         super(layerType, configuration);
         final MultiLevelSource multiLevelSource = createMultiLevelSource();
 
         final LayerType imageLayerType = LayerType.getLayerType(ImageLayer.Type.class.getName());
-        final ValueContainer template = imageLayerType.createLayerConfig(null); // todo - pass correct context
+        final PropertyContainer template = imageLayerType.createLayerConfig(null); // todo - pass correct context
         template.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         template.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
                           multiLevelSource.getModel().getImageToModelTransform(0));
@@ -56,7 +56,7 @@ class ImageFileLayer extends Layer {
     }
 
     private MultiLevelSource createMultiLevelSource() {
-        final ValueContainer configuration = getConfiguration();
+        final PropertyContainer configuration = getConfiguration();
         RenderedImage image = (RenderedImage) configuration.getValue(ImageFileLayerType.PROPERTY_NAME_IMAGE);
         if (image == null) {
             final File file = (File) configuration.getValue(ImageFileLayerType.PROPERTY_NAME_IMAGE_FILE);

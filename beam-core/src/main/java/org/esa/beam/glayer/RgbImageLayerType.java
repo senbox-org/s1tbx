@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -32,7 +32,7 @@ public class RgbImageLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ImageLayer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public ImageLayer createLayer(LayerContext ctx, PropertyContainer configuration) {
         if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
             final Product product = (Product) configuration.getValue(PROPERTY_NAME_PRODUCT);
 
@@ -56,24 +56,24 @@ public class RgbImageLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        final ValueContainer prototype = super.createLayerConfig(ctx);
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        final PropertyContainer prototype = super.createLayerConfig(ctx);
 
-        final ValueModel productModel = ValueModel.createValueModel(PROPERTY_NAME_PRODUCT, Product.class);
+        final Property productModel = Property.create(PROPERTY_NAME_PRODUCT, Product.class);
         productModel.getDescriptor().setNotNull(true);
-        prototype.addModel(productModel);
+        prototype.addProperty(productModel);
 
-        final ValueModel redModel = ValueModel.createValueModel(PROPERTY_NAME_EXPRESSION_R, String.class);
+        final Property redModel = Property.create(PROPERTY_NAME_EXPRESSION_R, String.class);
         redModel.getDescriptor().setNotNull(true);
-        prototype.addModel(redModel);
+        prototype.addProperty(redModel);
 
-        final ValueModel greenModel = ValueModel.createValueModel(PROPERTY_NAME_EXPRESSION_G, String.class);
+        final Property greenModel = Property.create(PROPERTY_NAME_EXPRESSION_G, String.class);
         greenModel.getDescriptor().setNotNull(true);
-        prototype.addModel(greenModel);
+        prototype.addProperty(greenModel);
 
-        final ValueModel blueModel = ValueModel.createValueModel(PROPERTY_NAME_EXPRESSION_B, String.class);
+        final Property blueModel = Property.create(PROPERTY_NAME_EXPRESSION_B, String.class);
         blueModel.getDescriptor().setNotNull(true);
-        prototype.addModel(blueModel);
+        prototype.addProperty(blueModel);
 
         return prototype;
     }
@@ -92,7 +92,7 @@ public class RgbImageLayerType extends ImageLayer.Type {
         if (product != rasters[2].getProduct()) {
             throw new IllegalArgumentException("rasters[0].getProduct() != rasters[2].getProduct()");
         }
-        final ValueContainer configuration = createLayerConfig(null);
+        final PropertyContainer configuration = createLayerConfig(null);
 
         final String expressionR = getExpression(rasters[0]);
         final String expressionG = getExpression(rasters[1]);

@@ -2,8 +2,8 @@ package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -40,31 +40,31 @@ public class PlacemarkLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         return new PlacemarkLayer(this, configuration);
     }
 
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        final ValueContainer valueContainer = new ValueContainer();
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        final PropertyContainer propertyContainer = new PropertyContainer();
 
-        final ValueModel textBgColorModel = ValueModel.createValueModel(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR, Color.class, PlacemarkLayer.DEFAULT_TEXT_BG_COLOR, true);
-        valueContainer.addModel(textBgColorModel);
+        final Property textBgColorModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR, Color.class, PlacemarkLayer.DEFAULT_TEXT_BG_COLOR, true);
+        propertyContainer.addProperty(textBgColorModel);
 
-        final ValueModel textFgColorModel = ValueModel.createValueModel(PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR, Color.class, PlacemarkLayer.DEFAULT_TEXT_FG_COLOR, true);
-        valueContainer.addModel(textFgColorModel);
+        final Property textFgColorModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR, Color.class, PlacemarkLayer.DEFAULT_TEXT_FG_COLOR, true);
+        propertyContainer.addProperty(textFgColorModel);
 
-        final ValueModel textEnabledModel = ValueModel.createValueModel(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED, Boolean.class, PlacemarkLayer.DEFAULT_TEXT_ENABLED, true);
-        valueContainer.addModel(textEnabledModel);
+        final Property textEnabledModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED, Boolean.class, PlacemarkLayer.DEFAULT_TEXT_ENABLED, true);
+        propertyContainer.addProperty(textEnabledModel);
 
-        final ValueModel textFontModel = ValueModel.createValueModel(PlacemarkLayer.PROPERTY_NAME_TEXT_FONT, Font.class, PlacemarkLayer.DEFAULT_TEXT_FONT, true);
-        valueContainer.addModel(textFontModel);
+        final Property textFontModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_FONT, Font.class, PlacemarkLayer.DEFAULT_TEXT_FONT, true);
+        propertyContainer.addProperty(textFontModel);
 
-        final ValueModel productModel = ValueModel.createValueModel(PROPERTY_PRODUCT, Product.class);
+        final Property productModel = Property.create(PROPERTY_PRODUCT, Product.class);
         productModel.getDescriptor().setNotNull(true);
-        valueContainer.addModel(productModel);
+        propertyContainer.addProperty(productModel);
 
-        final ValueModel placemarkModel = ValueModel.createValueModel(PROPERTY_PLACEMARK_DESCRIPTOR, PlacemarkDescriptor.class);
+        final Property placemarkModel = Property.create(PROPERTY_PLACEMARK_DESCRIPTOR, PlacemarkDescriptor.class);
         placemarkModel.getDescriptor().setConverter(new Converter<Object>() {
             @Override
             public Class<?> getValueType() {
@@ -90,12 +90,12 @@ public class PlacemarkLayerType extends LayerType {
             }
         });
         placemarkModel.getDescriptor().setNotNull(true);
-        valueContainer.addModel(placemarkModel);
+        propertyContainer.addProperty(placemarkModel);
 
-        final ValueModel transformModel = ValueModel.createValueModel(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class);
+        final Property transformModel = Property.create(PROPERTY_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class);
         placemarkModel.getDescriptor().setNotNull(true);
-        valueContainer.addModel(transformModel);
+        propertyContainer.addProperty(transformModel);
 
-        return valueContainer;
+        return propertyContainer;
     }
 }

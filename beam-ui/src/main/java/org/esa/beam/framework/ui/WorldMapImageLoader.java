@@ -16,7 +16,7 @@
  */
 package org.esa.beam.framework.ui;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -68,7 +68,7 @@ public class WorldMapImageLoader {
                 worldMapImage = createErrorImage();
             } else {
                 final CollectionLayer rootLayer = new CollectionLayer();
-                Layer worldMapLayer = layerType.createLayer(new WorldMapLayerContext(rootLayer), new ValueContainer());
+                Layer worldMapLayer = layerType.createLayer(new WorldMapLayerContext(rootLayer), new PropertyContainer());
                 Dimension dimension = highRes ? HI_RES_DIMENSION : LOW_RES_DIMENSION;
                 final BufferedImageRendering biRendering = new BufferedImageRendering(dimension.width,
                                                                                       dimension.height);

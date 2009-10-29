@@ -16,8 +16,8 @@
  */
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -42,7 +42,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
     private RasterDataNode rasterDataNode;
 
-    public BitmaskCollectionLayer(Type layerType, ValueContainer configuration) {
+    public BitmaskCollectionLayer(Type layerType, PropertyContainer configuration) {
         super(layerType, configuration, "Bitmasks");
         this.rasterDataNode = (RasterDataNode) configuration.getValue(Type.PROPERTY_NAME_RASTER);
         this.i2mTransform = (AffineTransform) configuration.getValue(Type.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
@@ -167,20 +167,20 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+        public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
             final BitmaskCollectionLayer bitmaskCollectionLayer = new BitmaskCollectionLayer(this, configuration);
             bitmaskCollectionLayer.setId(BITMASK_LAYER_ID);
             return bitmaskCollectionLayer;
         }
 
         @Override
-        public ValueContainer createLayerConfig(LayerContext ctx) {
-            final ValueContainer prototype = super.createLayerConfig(ctx);
+        public PropertyContainer createLayerConfig(LayerContext ctx) {
+            final PropertyContainer prototype = super.createLayerConfig(ctx);
 
-            prototype.addModel(ValueModel.createValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
+            prototype.addProperty(Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class));
             prototype.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
 
-            prototype.addModel(ValueModel.createValueModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
+            prototype.addProperty(Property.create(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
             prototype.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
 
             return prototype;

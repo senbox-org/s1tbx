@@ -1,6 +1,6 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
@@ -24,7 +24,7 @@ public class PlacemarkLayerTest extends TestCase {
         final AffineTransform i2m = new AffineTransform();
 
         final LayerType type = LayerType.getLayerType(PlacemarkLayerType.class);
-        final ValueContainer template = type.createLayerConfig(null);
+        final PropertyContainer template = type.createLayerConfig(null);
         template.setValue("product", product);
         template.setValue("placemarkDescriptor", pmd);
         template.setValue("imageToModelTransform", i2m);

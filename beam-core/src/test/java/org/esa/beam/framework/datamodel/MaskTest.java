@@ -1,6 +1,6 @@
 package org.esa.beam.framework.datamodel;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
@@ -19,7 +19,7 @@ public class MaskTest {
         assertEquals(256, mask.getRasterWidth());
         assertEquals(128, mask.getRasterHeight());
         assertSame(imageType, mask.getImageType());
-        ValueContainer imageConfig = mask.getImageConfig();
+        PropertyContainer imageConfig = mask.getImageConfig();
         assertNotNull(imageConfig);
         assertEquals(Color.RED, mask.getImageConfig().getValue("color"));
         assertEquals(0.5, mask.getImageConfig().getValue("transparency"));
@@ -32,7 +32,7 @@ public class MaskTest {
     @Test
     public void testAbstractMaskImageType() {
         Mask.ImageType type = new NullImageType();
-        ValueContainer imageConfig = type.createImageConfig();
+        PropertyContainer imageConfig = type.createImageConfig();
         assertEquals(Color.RED, imageConfig.getValue("color"));
         assertEquals(0.5, imageConfig.getValue("transparency"));
     }

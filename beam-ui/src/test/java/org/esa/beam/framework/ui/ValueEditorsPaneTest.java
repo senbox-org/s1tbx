@@ -1,7 +1,7 @@
 package org.esa.beam.framework.ui;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
@@ -11,8 +11,6 @@ import junit.framework.TestCase;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -99,17 +97,17 @@ public class ValueEditorsPaneTest extends TestCase {
         dialog.setContent(panel);
         dialog.show();
 
-        propertyPane.getBindingContext().getValueContainer().addPropertyChangeListener(new PropertyChangeListener() {
+        propertyPane.getBindingContext().getPropertyContainer().addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                System.out.println("ValueContainer." + evt.getPropertyName() + " = " + evt.getNewValue());
+                System.out.println("PropertyContainer." + evt.getPropertyName() + " = " + evt.getNewValue());
             }
         });
     }
 
     private static ValueEditorsPane createPane(BindingProblemListener bpl) throws ConversionException {
-        ValueContainer vc = ValueContainer.createObjectBacked(new V());
+        PropertyContainer vc = PropertyContainer.createObjectBacked(new V());
 
         vc.getDescriptor("threshold").setValueRange(
                 ValueRange.parseValueRange("[0,1)")); // todo - not recognised (nf - 24.10.2007)

@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.support.ImageLayer;
@@ -31,7 +31,7 @@ public class RoiLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
 
         if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
@@ -55,15 +55,15 @@ public class RoiLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        final ValueContainer prototype = super.createLayerConfig(ctx);
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        final PropertyContainer prototype = super.createLayerConfig(ctx);
 
-        final ValueModel rasterModel = ValueModel.createValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class);
+        final Property rasterModel = Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class);
         rasterModel.getDescriptor().setNotNull(true);
-        prototype.addModel(rasterModel);
+        prototype.addProperty(rasterModel);
 
-        prototype.addModel(ValueModel.createValueModel(PROPERTY_NAME_COLOR, Color.class, Color.RED, true));
-        prototype.addModel(ValueModel.createValueModel(PROPERTY_NAME_TRANSPARENCY, Double.class, 0.5, true));
+        prototype.addProperty(Property.create(PROPERTY_NAME_COLOR, Color.class, Color.RED, true));
+        prototype.addProperty(Property.create(PROPERTY_NAME_TRANSPARENCY, Double.class, 0.5, true));
 
         return prototype;
     }

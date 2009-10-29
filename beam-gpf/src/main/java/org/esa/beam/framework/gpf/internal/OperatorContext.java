@@ -16,12 +16,12 @@
  */
 package org.esa.beam.framework.gpf.internal;
 
-import com.bc.ceres.binding.ClassFieldDescriptorFactory;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomElement;
@@ -93,7 +93,7 @@ public class OperatorContext {
     private OperatorConfiguration configuration;
     private Logger logger;
     private boolean disposed;
-    private ValueContainer valueContainer;
+    private PropertyContainer propertyContainer;
     private RenderingHints renderingHints;
     private PerformanceMetric performanceMetric;
 
@@ -361,12 +361,12 @@ public class OperatorContext {
         targetProduct.setModified(false);
     }
 
-    private ValueContainer getOperatorValueContainer() {
-        if (valueContainer == null) {
-            ClassFieldDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
-            valueContainer = ValueContainer.createObjectBacked(operator, parameterDescriptorFactory);
+    private PropertyContainer getOperatorValueContainer() {
+        if (propertyContainer == null) {
+            PropertyDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
+            propertyContainer = PropertyContainer.createObjectBacked(operator, parameterDescriptorFactory);
         }
-        return valueContainer;
+        return propertyContainer;
     }
 
     private void initGraphMetadata() {
@@ -782,11 +782,11 @@ public class OperatorContext {
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
         DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), parameterDescriptorFactory);
         domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), operator);
-        ValueContainer valueContainer = ValueContainer.createObjectBacked(operator, parameterDescriptorFactory);
+        PropertyContainer propertyContainer = PropertyContainer.createObjectBacked(operator, parameterDescriptorFactory);
         Set<Reference> referenceSet = operatorConfiguration.getReferenceSet();
         for (Reference reference : referenceSet) {
-            ValueModel valueModel = valueContainer.getModel(reference.getParameterName());
-            valueModel.setValue(reference.getValue());
+            Property property = propertyContainer.getProperty(reference.getParameterName());
+            property.setValue(reference.getValue());
         }
     }
 
@@ -801,14 +801,14 @@ public class OperatorContext {
     private void injectParameterValues() throws OperatorException {
         if (parameters != null) {
             for (String parameterName : parameters.keySet()) {
-                final ValueModel valueModel = getOperatorValueContainer().getModel(parameterName);
-                if (valueModel == null) {
+                final Property property = getOperatorValueContainer().getProperty(parameterName);
+                if (property == null) {
                     throw new OperatorException(formatExceptionMessage("Unknown parameter '%s'.", parameterName));
                 }
                 try {
-                    ValueDescriptor descriptor = valueModel.getDescriptor();
-                    if (descriptor.getProperty("sourceId") != null) {
-                        String sourceId = (String) descriptor.getProperty("sourceId");
+                    PropertyDescriptor descriptor = property.getDescriptor();
+                    if (descriptor.getAttribute("sourceId") != null) {
+                        String sourceId = (String) descriptor.getAttribute("sourceId");
                         Product sourceProduct = getSourceProduct(sourceId);
                         if (sourceProduct == null) {
                             throw new OperatorException(formatExceptionMessage("Unknown sourceId '%s'.", sourceId));
@@ -816,7 +816,7 @@ public class OperatorContext {
                         ValueSet valueSet = new ValueSet(sourceProduct.getBandNames());
                         descriptor.setValueSet(valueSet);
                     }
-                    valueModel.setValue(parameters.get(parameterName));
+                    property.setValue(parameters.get(parameterName));
                 } catch (ValidationException e) {
                     throw new OperatorException(formatExceptionMessage("%s", e.getMessage()), e);
                 }

@@ -1,9 +1,9 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
-import com.bc.ceres.binding.ValueAccessor;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyAccessor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.swing.BindingContext;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.ui.AppContext;
@@ -24,35 +24,35 @@ public class BitmaskLayerEditor extends ImageLayerEditor {
     protected void initializeBinding(AppContext appContext, BindingContext bindingContext) {
         super.initializeBinding(appContext, bindingContext);
 
-        final ValueContainer vc = bindingContext.getValueContainer();
+        final PropertyContainer vc = bindingContext.getPropertyContainer();
         addBitmaskColorValueModel(vc);
         addBitmaskTransparencyValueModel(vc);
     }
 
-    private void addBitmaskColorValueModel(ValueContainer vc) {
-        final ValueModel model = getLayer().getConfiguration().getModel(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF);
-        final ValueAccessor accessor = new BitmaskColorAccessor(model);
-        final ValueDescriptor descriptor = new ValueDescriptor("bitmaskColor", Color.class);
+    private void addBitmaskColorValueModel(PropertyContainer vc) {
+        final Property model = getLayer().getConfiguration().getProperty(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF);
+        final PropertyAccessor accessor = new BitmaskColorAccessor(model);
+        final PropertyDescriptor descriptor = new PropertyDescriptor("bitmaskColor", Color.class);
         descriptor.setDisplayName("Bitmask colour");
         descriptor.setDefaultConverter();
 
-        vc.addModel(new ValueModel(descriptor, accessor));
+        vc.addProperty(new Property(descriptor, accessor));
     }
 
-    private void addBitmaskTransparencyValueModel(ValueContainer vc) {
-        final ValueModel model = getLayer().getConfiguration().getModel(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF);
-        final ValueAccessor accessor = new BitmaskTransparencyAccessor(model);
-        final ValueDescriptor descriptor = new ValueDescriptor("bitmaskTransparency", Float.class);
+    private void addBitmaskTransparencyValueModel(PropertyContainer vc) {
+        final Property model = getLayer().getConfiguration().getProperty(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF);
+        final PropertyAccessor accessor = new BitmaskTransparencyAccessor(model);
+        final PropertyDescriptor descriptor = new PropertyDescriptor("bitmaskTransparency", Float.class);
         descriptor.setDisplayName("Bitmask transparency");
         descriptor.setDefaultConverter();
 
-        vc.addModel(new ValueModel(descriptor, accessor));
+        vc.addProperty(new Property(descriptor, accessor));
     }
 
     private static class BitmaskColorAccessor extends BitmaskPropertyAccessor<Color> {
 
-        BitmaskColorAccessor(ValueModel valueModel) {
-            super(valueModel);
+        BitmaskColorAccessor(Property property) {
+            super(property);
         }
 
         @Override
@@ -68,8 +68,8 @@ public class BitmaskLayerEditor extends ImageLayerEditor {
 
     private static class BitmaskTransparencyAccessor extends BitmaskPropertyAccessor<Float> {
 
-        BitmaskTransparencyAccessor(ValueModel valueModel) {
-            super(valueModel);
+        BitmaskTransparencyAccessor(Property property) {
+            super(property);
         }
 
         @Override
@@ -83,12 +83,12 @@ public class BitmaskLayerEditor extends ImageLayerEditor {
         }
     }
 
-    private static abstract class BitmaskPropertyAccessor<T> implements ValueAccessor {
+    private static abstract class BitmaskPropertyAccessor<T> implements PropertyAccessor {
 
-        private final ValueModel valueModel;
+        private final Property property;
 
-        protected BitmaskPropertyAccessor(ValueModel valueModel) {
-            this.valueModel = valueModel;
+        protected BitmaskPropertyAccessor(Property property) {
+            this.property = property;
         }
 
         protected abstract T getProperty(BitmaskDef bitmaskDef);
@@ -97,7 +97,7 @@ public class BitmaskLayerEditor extends ImageLayerEditor {
 
         @Override
         public final Object getValue() {
-            final BitmaskDef bitmaskDef = (BitmaskDef) valueModel.getValue();
+            final BitmaskDef bitmaskDef = (BitmaskDef) property.getValue();
             if (bitmaskDef != null) {
                 return getProperty(bitmaskDef);
             }
@@ -106,7 +106,7 @@ public class BitmaskLayerEditor extends ImageLayerEditor {
 
         @Override
         public final void setValue(Object value) {
-            final BitmaskDef bitmaskDef = (BitmaskDef) valueModel.getValue();
+            final BitmaskDef bitmaskDef = (BitmaskDef) property.getValue();
             if (bitmaskDef != null) {
                 @SuppressWarnings({"unchecked"})
                 final T t = (T) value;

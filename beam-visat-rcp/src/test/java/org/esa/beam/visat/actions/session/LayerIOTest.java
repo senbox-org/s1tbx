@@ -2,10 +2,10 @@ package org.esa.beam.visat.actions.session;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.accessors.DefaultValueAccessor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
@@ -73,7 +73,7 @@ public class LayerIOTest extends TestCase {
     public void testWriteAndReadL() throws ValidationException, ConversionException {
         // 1. Create an L with factory mathod in T
         final T t = new T();
-        final ValueContainer configuration1 = t.createConfigurationTemplate();
+        final PropertyContainer configuration1 = t.createConfigurationTemplate();
         assertNotNull(configuration1);
 
         assertNull(configuration1.getValue("rasterRef"));
@@ -96,7 +96,7 @@ public class LayerIOTest extends TestCase {
         assertNotNull(l1.getMultiLevelSource());
 
         // 2. Write configuration to XML
-        final DefaultDomConverter dc = new DefaultDomConverter(ValueContainer.class);
+        final DefaultDomConverter dc = new DefaultDomConverter(PropertyContainer.class);
         final DomElement domElement1 = new DefaultDomElement("configuration");
         dc.convertValueToDom(configuration1, domElement1);
 
@@ -117,7 +117,7 @@ public class LayerIOTest extends TestCase {
         final M m2 = (M) obj;
 
         // 4. Restore layer
-        final ValueContainer configuration2 = t.createConfigurationTemplate();
+        final PropertyContainer configuration2 = t.createConfigurationTemplate();
         dc.convertDomToValue(m2.getConfiguration(), configuration2);
 
         final L l2 = t.createL(context, configuration2);
@@ -151,14 +151,14 @@ public class LayerIOTest extends TestCase {
         private MultiLevelSource multiLevelSource;
         private transient MultiLevelRenderer multiLevelRenderer;
 
-        final ValueContainer configuration;
+        final PropertyContainer configuration;
 
-        L(MultiLevelSource multiLevelSource, ValueContainer configuration) {
+        L(MultiLevelSource multiLevelSource, PropertyContainer configuration) {
             this.multiLevelSource = multiLevelSource;
             this.configuration = configuration;
         }
 
-        final ValueContainer getConfiguration() {
+        final PropertyContainer getConfiguration() {
             return configuration;
         }
 
@@ -173,8 +173,8 @@ public class LayerIOTest extends TestCase {
         private static final double DEFAULT_BORDER_WIDTH = 1.0;
         private static final Color DEFAULT_BORDER_COLOR = Color.YELLOW;
 
-        L createL(Context context, ValueContainer configuration) throws ValidationException {
-            for (final ValueModel model : configuration.getModels()) {
+        L createL(Context context, PropertyContainer configuration) throws ValidationException {
+            for (final Property model : configuration.getProperties()) {
                 model.validate(model.getValue());
             }
             final RasterRef rasterRef = (RasterRef) configuration.getValue("rasterRef");
@@ -186,22 +186,22 @@ public class LayerIOTest extends TestCase {
             return new L(multiLevelSource, configuration);
         }
 
-        ValueContainer createConfigurationTemplate() {
-            final ValueContainer configuration = new ValueContainer();
+        PropertyContainer createConfigurationTemplate() {
+            final PropertyContainer configuration = new PropertyContainer();
 
-            final ValueDescriptor rasterRefDescriptor = new ValueDescriptor("rasterRef", RasterRef.class);
+            final PropertyDescriptor rasterRefDescriptor = new PropertyDescriptor("rasterRef", RasterRef.class);
             rasterRefDescriptor.setNotNull(true);
-            final ValueDescriptor borderShownDescriptor = new ValueDescriptor("borderShown", Boolean.class);
+            final PropertyDescriptor borderShownDescriptor = new PropertyDescriptor("borderShown", Boolean.class);
             borderShownDescriptor.setDefaultValue(DEFAULT_BORDER_SHOWN);
-            final ValueDescriptor borderWidthDescriptor = new ValueDescriptor("borderWidth", Double.class);
+            final PropertyDescriptor borderWidthDescriptor = new PropertyDescriptor("borderWidth", Double.class);
             borderWidthDescriptor.setDefaultValue(DEFAULT_BORDER_WIDTH);
-            final ValueDescriptor borderColorDescriptor = new ValueDescriptor("borderColor", Color.class);
+            final PropertyDescriptor borderColorDescriptor = new PropertyDescriptor("borderColor", Color.class);
             borderColorDescriptor.setDefaultValue(DEFAULT_BORDER_COLOR);
 
-            configuration.addModel(new ValueModel(rasterRefDescriptor, new DefaultValueAccessor()));
-            configuration.addModel(new ValueModel(borderShownDescriptor, new DefaultValueAccessor()));
-            configuration.addModel(new ValueModel(borderWidthDescriptor, new DefaultValueAccessor()));
-            configuration.addModel(new ValueModel(borderColorDescriptor, new DefaultValueAccessor()));
+            configuration.addProperty(new Property(rasterRefDescriptor, new DefaultPropertyAccessor()));
+            configuration.addProperty(new Property(borderShownDescriptor, new DefaultPropertyAccessor()));
+            configuration.addProperty(new Property(borderWidthDescriptor, new DefaultPropertyAccessor()));
+            configuration.addProperty(new Property(borderColorDescriptor, new DefaultPropertyAccessor()));
 
             try {
                 configuration.setDefaultValues();

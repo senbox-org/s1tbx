@@ -1,10 +1,10 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueAccessor;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyAccessor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * General Editor for layers using {@link ValueDescriptor ValueDescriptors}.
+ * General Editor for layers using {@link com.bc.ceres.binding.PropertyDescriptor ValueDescriptors}.
  *
  * @author Marco Zühlke
  * @version $Revision$ $Date$
@@ -39,8 +39,8 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
         // TODO - replace this code block with the following line (rq-20090528)
         // bindingContext = new BindingContext(layer.getConfiguration());
         bindingContext = new BindingContext();
-        ValueContainer valueContainer = bindingContext.getValueContainer();
-        valueContainer.addPropertyChangeListener(new UpdateStylePropertyChangeListener());
+        PropertyContainer propertyContainer = bindingContext.getPropertyContainer();
+        propertyContainer.addPropertyChangeListener(new UpdateStylePropertyChangeListener());
         initializeBinding(appContext, bindingContext);
         // ODOT
 
@@ -48,30 +48,30 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
         return parametersPane.createPanel();
     }
 
-    protected final void addValueDescriptor(ValueDescriptor valueDescriptor) {
+    protected final void addValueDescriptor(PropertyDescriptor propertyDescriptor) {
         Map<String, Object> valueData = new HashMap<String, Object>();
-        String propertyName = valueDescriptor.getName();
+        String propertyName = propertyDescriptor.getName();
         Object value = getLayer().getConfiguration().getValue(propertyName);
         if (value == null) {
-            value = valueDescriptor.getDefaultValue();
+            value = propertyDescriptor.getDefaultValue();
         }
         valueData.put(propertyName, value);
-        ValueAccessor accessor = new MapEntryAccessor(valueData, propertyName);
-        ValueModel model = new ValueModel(valueDescriptor, accessor);
-        bindingContext.getValueContainer().addModel(model);
+        PropertyAccessor accessor = new MapEntryAccessor(valueData, propertyName);
+        Property model = new Property(propertyDescriptor, accessor);
+        bindingContext.getPropertyContainer().addProperty(model);
     }
 
     @Override
     public void updateControl() {
-        final ValueModel[] valueModels = bindingContext.getValueContainer().getModels();
-        for (ValueModel valueModel : valueModels) {
-            final ValueDescriptor valueDescriptor = valueModel.getDescriptor();
-            String propertyName = valueDescriptor.getName();
+        final Property[] properties = bindingContext.getPropertyContainer().getProperties();
+        for (Property property : properties) {
+            final PropertyDescriptor propertyDescriptor = property.getDescriptor();
+            String propertyName = propertyDescriptor.getName();
             Binding binding = bindingContext.getBinding(propertyName);
-            ValueContainer configuration = layer.getConfiguration();
+            PropertyContainer configuration = layer.getConfiguration();
 
-            if (configuration.getModel(propertyName) != null) {
-                final Object value = configuration.getModel(propertyName).getValue();
+            if (configuration.getProperty(propertyName) != null) {
+                final Object value = configuration.getProperty(propertyName).getValue();
                 final Object oldValue = binding.getPropertyValue();
                 if (oldValue != value && (oldValue == null || !oldValue.equals(value))) {
                     binding.setPropertyValue(value);
@@ -97,9 +97,9 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
             String propertyName = evt.getPropertyName();
             if (layer != null) {
                 try {
-                    final ValueModel valueModel = layer.getConfiguration().getModel(propertyName);
-                    if (valueModel != null) {
-                        valueModel.setValue(evt.getNewValue());
+                    final Property property = layer.getConfiguration().getProperty(propertyName);
+                    if (property != null) {
+                        property.setValue(evt.getNewValue());
                     }
                 } catch (ValidationException e) {
                     throw new IllegalStateException(e.getMessage(), e);

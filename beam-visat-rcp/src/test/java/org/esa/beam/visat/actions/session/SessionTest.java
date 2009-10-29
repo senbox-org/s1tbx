@@ -1,7 +1,7 @@
 package org.esa.beam.visat.actions.session;
 
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.CanceledException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.LayerType;
@@ -269,7 +269,7 @@ public class SessionTest extends TestCase {
         sceneViewD.getRootLayer().getChildren().add(graticuleLayer);
 
         final BitmaskCollectionLayer.Type type = LayerType.getLayerType(BitmaskCollectionLayer.Type.class);
-        final ValueContainer template = type.createLayerConfig(sceneViewD);
+        final PropertyContainer template = type.createLayerConfig(sceneViewD);
         template.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_RASTER, bandD);
         template.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, new AffineTransform());
         BitmaskCollectionLayer bitmaskCollectionLayer = new BitmaskCollectionLayer(type, template);

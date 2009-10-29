@@ -1,8 +1,8 @@
 package org.esa.beam.unmixing.ui;
 
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
@@ -14,24 +14,24 @@ import java.util.Map;
 class SpectralUnmixingFormModel {
     private Product sourceProduct;
     private Map<String, Object> operatorParameters;
-    private ValueContainer operatorValueContainer;
+    private PropertyContainer operatorParameterContainer;
 
     public SpectralUnmixingFormModel(Product sourceProduct) {
         this.sourceProduct = sourceProduct;
 
         this.operatorParameters = new HashMap<String, Object>();
-        this.operatorValueContainer = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(SpectralUnmixingOp.Spi.class.getName(), operatorParameters);
+        this.operatorParameterContainer = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(SpectralUnmixingOp.Spi.class.getName(), operatorParameters);
         try {
-            this.operatorValueContainer.setDefaultValues();
-            ValueModel model = this.operatorValueContainer.getModel("sourceBandNames");
+            this.operatorParameterContainer.setDefaultValues();
+            Property model = this.operatorParameterContainer.getProperty("sourceBandNames");
             model.setValue(model.getDescriptor().getValueSet().getItems());
         } catch (ValidationException e) {
             // ignore, validation will be performed again later
         }
     }
 
-    public ValueContainer getOperatorValueContainer() {
-        return operatorValueContainer;
+    public PropertyContainer getOperatorValueContainer() {
+        return operatorParameterContainer;
     }
 
     public Map<String, Object> getOperatorParameters() {

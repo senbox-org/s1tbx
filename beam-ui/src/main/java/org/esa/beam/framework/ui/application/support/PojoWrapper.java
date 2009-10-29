@@ -17,7 +17,7 @@ import java.util.Map;
  * Adds (Swing) property change support to objects.
  *
  * @author Norman Fomferra
- * @deprecated As of BEAM 4.7, use {@link com.bc.ceres.binding.ValueContainer} instead.
+ * @deprecated As of BEAM 4.7, use {@link com.bc.ceres.binding.PropertyContainer} instead.
  */
 @Deprecated
 public class PojoWrapper implements PropertyChangeEmitter {

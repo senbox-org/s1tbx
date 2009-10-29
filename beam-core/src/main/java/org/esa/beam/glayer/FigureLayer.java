@@ -16,9 +16,8 @@
  */
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.Style;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.draw.Figure;
@@ -58,7 +57,7 @@ public class FigureLayer extends Layer {
     private final List<Figure> figureList;
     private final AffineTransform shapeToModelTransform;
 
-    public FigureLayer(FigureLayerType type, ValueContainer configuration) {
+    public FigureLayer(FigureLayerType type, PropertyContainer configuration) {
         super(type, configuration);
         setName("Figures");
         this.figureList = (List<Figure>) configuration.getValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST);

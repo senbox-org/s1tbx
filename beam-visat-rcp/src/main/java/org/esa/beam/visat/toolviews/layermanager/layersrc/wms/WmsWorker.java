@@ -16,7 +16,7 @@
  */
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.ceres.core.ProgressMonitor;
@@ -53,7 +53,7 @@ abstract class WmsWorker extends ProgressMonitorSwingWorker<com.bc.ceres.glayer.
             pm.beginTask("Loading layer from WMS", ProgressMonitor.UNKNOWN);
 
             final LayerType wmsType = LayerType.getLayerType(WmsLayerType.class.getName());
-            final ValueContainer template = wmsType.createLayerConfig(getContext().getLayerContext());
+            final PropertyContainer template = wmsType.createLayerConfig(getContext().getLayerContext());
 
             final RasterDataNode raster = getContext().getAppContext().getSelectedProductSceneView().getRaster();
             template.setValue(WmsLayerType.PROPERTY_NAME_RASTER, raster);

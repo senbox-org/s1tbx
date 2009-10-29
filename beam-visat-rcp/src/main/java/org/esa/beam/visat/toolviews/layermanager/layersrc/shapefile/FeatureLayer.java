@@ -1,6 +1,6 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
@@ -58,7 +58,7 @@ public class FeatureLayer extends Layer {
     private double textOpacity = 1.0;
     private Rectangle2D modelBounds;
 
-    public FeatureLayer(LayerType layerType, ValueContainer configuration) {
+    public FeatureLayer(LayerType layerType, PropertyContainer configuration) {
         super(layerType, configuration);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
         fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.getValue(

@@ -16,8 +16,8 @@
  */
 package org.esa.beam.framework.ui;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.jidesoft.combobox.ColorChooserPanel;
@@ -737,8 +737,8 @@ public class ImageInfoEditor extends JPanel {
     }
 
     private void editSliderSample(MouseEvent evt, final int sliderIndex) {
-        final ValueContainer vc = new ValueContainer();
-        vc.addModel(ValueModel.createValueModel("sample", getSliderSample(sliderIndex)));
+        final PropertyContainer vc = new PropertyContainer();
+        vc.addProperty(Property.create("sample", getSliderSample(sliderIndex)));
         vc.getDescriptor("sample").setDisplayName("sample");
         vc.getDescriptor("sample").setUnit(getModel().getParameterUnit());
         final ValueRange valueRange;

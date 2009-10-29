@@ -1,7 +1,7 @@
 package org.esa.beam.worldmap;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.support.ImageLayer;
@@ -41,7 +41,7 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         if (multiLevelSource == null) {
             synchronized (this) {
                 if (multiLevelSource == null) {
@@ -49,9 +49,9 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
                 }
             }
         }
-        for (final ValueModel model : super.createLayerConfig(ctx).getModels()) {
-            if (configuration.getModel(model.getDescriptor().getName()) == null) {
-                configuration.addModel(model);
+        for (final Property model : super.createLayerConfig(ctx).getProperties()) {
+            if (configuration.getProperty(model.getDescriptor().getName()) == null) {
+                configuration.addProperty(model);
             }
         }
         configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
@@ -64,8 +64,8 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        return new ValueContainer();
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        return new PropertyContainer();
     }
 
     private static MultiLevelSource createMultiLevelSource() {

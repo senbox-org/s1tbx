@@ -1,9 +1,9 @@
 package org.esa.beam.framework.datamodel;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.accessors.DefaultValueAccessor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.jai.ImageManager;
@@ -28,7 +28,7 @@ public class Mask extends Band {
 
     private final ImageType imageType;
     private final PropertyChangeListener imageConfigListener;
-    private volatile ValueContainer imageConfig;
+    private volatile PropertyContainer imageConfig;
 
     /**
      * Constructs a new mask.
@@ -62,7 +62,7 @@ public class Mask extends Band {
     /**
      * @return The image configuration of this mask.
      */
-    public ValueContainer getImageConfig() {
+    public PropertyContainer getImageConfig() {
         if (imageConfig == null) {
             synchronized (this) {
                 if (imageConfig == null) {
@@ -123,7 +123,7 @@ public class Mask extends Band {
         super.dispose();
     }
 
-    private static void setImageStyle(ValueContainer imageConfig, Color color, double transparency) {
+    private static void setImageStyle(PropertyContainer imageConfig, Color color, double transparency) {
         imageConfig.setValue(ImageType.PROPERTY_NAME_COLOR, color);
         imageConfig.setValue(ImageType.PROPERTY_NAME_TRANSPARENCY, transparency);
     }
@@ -166,18 +166,18 @@ public class Mask extends Band {
          * @return The image configuration.
          */
         @SuppressWarnings({"MethodMayBeStatic"})
-        public ValueContainer createImageConfig() {
+        public PropertyContainer createImageConfig() {
 
-            ValueDescriptor colorType = new ValueDescriptor(PROPERTY_NAME_COLOR, Color.class);
+            PropertyDescriptor colorType = new PropertyDescriptor(PROPERTY_NAME_COLOR, Color.class);
             colorType.setNotNull(true);
             colorType.setDefaultValue(DEFAULT_COLOR);
 
-            ValueDescriptor transparencyType = new ValueDescriptor(PROPERTY_NAME_TRANSPARENCY, Double.TYPE);
+            PropertyDescriptor transparencyType = new PropertyDescriptor(PROPERTY_NAME_TRANSPARENCY, Double.TYPE);
             transparencyType.setDefaultValue(DEFAULT_TRANSPARENCY);
 
-            ValueContainer imageConfig = new ValueContainer();
-            imageConfig.addModel(new ValueModel(colorType, new DefaultValueAccessor()));
-            imageConfig.addModel(new ValueModel(transparencyType, new DefaultValueAccessor()));
+            PropertyContainer imageConfig = new PropertyContainer();
+            imageConfig.addProperty(new Property(colorType, new DefaultPropertyAccessor()));
+            imageConfig.addProperty(new Property(transparencyType, new DefaultPropertyAccessor()));
 
             setImageStyle(imageConfig, DEFAULT_COLOR, DEFAULT_TRANSPARENCY);
 
@@ -222,14 +222,14 @@ public class Mask extends Band {
          * @return The image configuration.
          */
         @Override
-        public ValueContainer createImageConfig() {
+        public PropertyContainer createImageConfig() {
 
-            ValueDescriptor expressionDescriptor = new ValueDescriptor(PROPERTY_NAME_EXPRESSION, String.class);
+            PropertyDescriptor expressionDescriptor = new PropertyDescriptor(PROPERTY_NAME_EXPRESSION, String.class);
             expressionDescriptor.setNotNull(true);
             expressionDescriptor.setNotEmpty(true);
 
-            ValueContainer imageConfig = super.createImageConfig();
-            imageConfig.addModel(new ValueModel(expressionDescriptor, new DefaultValueAccessor()));
+            PropertyContainer imageConfig = super.createImageConfig();
+            imageConfig.addProperty(new Property(expressionDescriptor, new DefaultPropertyAccessor()));
 
             return imageConfig;
         }
@@ -281,13 +281,13 @@ public class Mask extends Band {
          * @return The image configuration.
          */
         @Override
-        public ValueContainer createImageConfig() {
+        public PropertyContainer createImageConfig() {
 
-            ValueDescriptor vectorDataDescriptor = new ValueDescriptor(PROPERTY_NAME_VECTOR_DATA, VectorData.class);
+            PropertyDescriptor vectorDataDescriptor = new PropertyDescriptor(PROPERTY_NAME_VECTOR_DATA, VectorData.class);
             vectorDataDescriptor.setNotNull(true);
 
-            ValueContainer imageConfig = super.createImageConfig();
-            imageConfig.addModel(new ValueModel(vectorDataDescriptor, new DefaultValueAccessor()));
+            PropertyContainer imageConfig = super.createImageConfig();
+            imageConfig.addProperty(new Property(vectorDataDescriptor, new DefaultPropertyAccessor()));
 
             return imageConfig;
         }

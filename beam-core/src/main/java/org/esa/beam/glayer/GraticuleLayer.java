@@ -16,7 +16,7 @@
  */
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
@@ -59,7 +59,7 @@ public class GraticuleLayer extends Layer {
     }
 
 
-    public GraticuleLayer(GraticuleLayerType type, ValueContainer configuration) {
+    public GraticuleLayer(GraticuleLayerType type, PropertyContainer configuration) {
         super(type, configuration);
         this.i2mTransform = (AffineTransform) getConfiguration().getValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM);
         this.raster = (RasterDataNode) getConfiguration().getValue(GraticuleLayerType.PROPERTY_NAME_RASTER);
@@ -70,7 +70,7 @@ public class GraticuleLayer extends Layer {
         setTransparency(0.5);
     }
 
-    private static ValueContainer initConfiguration(ValueContainer configurationTemplate, RasterDataNode raster,
+    private static PropertyContainer initConfiguration(PropertyContainer configurationTemplate, RasterDataNode raster,
                                                     AffineTransform i2mTransform) {
         configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_RASTER, raster);
         configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM, i2mTransform);
@@ -210,7 +210,7 @@ public class GraticuleLayer extends Layer {
                 propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS)) {
             graticule = null;
         }
-        if (getConfiguration().getModel(propertyName) != null) {
+        if (getConfiguration().getProperty(propertyName) != null) {
             getConfiguration().setValue(propertyName, event.getNewValue());
         }
         super.fireLayerPropertyChanged(event);

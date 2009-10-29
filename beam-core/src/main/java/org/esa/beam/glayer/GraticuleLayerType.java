@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -56,56 +56,56 @@ public class GraticuleLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         return new GraticuleLayer(this, configuration);
     }
 
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        final ValueContainer vc = new ValueContainer();
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        final PropertyContainer vc = new PropertyContainer();
 
-        final ValueModel rasterModel = ValueModel.createValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class);
+        final Property rasterModel = Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class);
         rasterModel.getDescriptor().setNotNull(true);
-        vc.addModel(rasterModel);
+        vc.addProperty(rasterModel);
 
-        final ValueModel transformModel = ValueModel.createValueModel(PROPERTY_NAME_TRANSFORM, AffineTransform.class, new AffineTransform(), true);
-        vc.addModel(transformModel);
+        final Property transformModel = Property.create(PROPERTY_NAME_TRANSFORM, AffineTransform.class, new AffineTransform(), true);
+        vc.addProperty(transformModel);
 
-        final ValueModel resAutoModel = ValueModel.createValueModel(PROPERTY_NAME_RES_AUTO, Boolean.class, DEFAULT_RES_AUTO, true);
-        vc.addModel(resAutoModel);
+        final Property resAutoModel = Property.create(PROPERTY_NAME_RES_AUTO, Boolean.class, DEFAULT_RES_AUTO, true);
+        vc.addProperty(resAutoModel);
 
-        final ValueModel resPixelsModel = ValueModel.createValueModel(PROPERTY_NAME_RES_PIXELS, Integer.class, DEFAULT_RES_PIXELS, true);
-        vc.addModel(resPixelsModel);
+        final Property resPixelsModel = Property.create(PROPERTY_NAME_RES_PIXELS, Integer.class, DEFAULT_RES_PIXELS, true);
+        vc.addProperty(resPixelsModel);
 
-        final ValueModel resLatModel = ValueModel.createValueModel(PROPERTY_NAME_RES_LAT, Double.class, DEFAULT_RES_LAT, true);
-        vc.addModel(resLatModel);
+        final Property resLatModel = Property.create(PROPERTY_NAME_RES_LAT, Double.class, DEFAULT_RES_LAT, true);
+        vc.addProperty(resLatModel);
 
-        final ValueModel resLonModel = ValueModel.createValueModel(PROPERTY_NAME_RES_LON, Double.class, DEFAULT_RES_LON, true);
-        vc.addModel(resLonModel);
+        final Property resLonModel = Property.create(PROPERTY_NAME_RES_LON, Double.class, DEFAULT_RES_LON, true);
+        vc.addProperty(resLonModel);
 
-        final ValueModel lineColorModel = ValueModel.createValueModel(PROPERTY_NAME_LINE_COLOR, Color.class, DEFAULT_LINE_COLOR, true);
-        vc.addModel(lineColorModel);
+        final Property lineColorModel = Property.create(PROPERTY_NAME_LINE_COLOR, Color.class, DEFAULT_LINE_COLOR, true);
+        vc.addProperty(lineColorModel);
 
-        final ValueModel lineTransparencyModel = ValueModel.createValueModel(PROPERTY_NAME_LINE_TRANSPARENCY, Double.class, DEFAULT_LINE_TRANSPARENCY, true);
-        vc.addModel(lineTransparencyModel);
+        final Property lineTransparencyModel = Property.create(PROPERTY_NAME_LINE_TRANSPARENCY, Double.class, DEFAULT_LINE_TRANSPARENCY, true);
+        vc.addProperty(lineTransparencyModel);
 
-        final ValueModel lineWidthModel = ValueModel.createValueModel(PROPERTY_NAME_LINE_WIDTH, Double.class, DEFAULT_LINE_WIDTH, true);
-        vc.addModel(lineWidthModel);
+        final Property lineWidthModel = Property.create(PROPERTY_NAME_LINE_WIDTH, Double.class, DEFAULT_LINE_WIDTH, true);
+        vc.addProperty(lineWidthModel);
 
-        final ValueModel textEnabledModel = ValueModel.createValueModel(PROPERTY_NAME_TEXT_ENABLED, Boolean.class, DEFAULT_TEXT_ENABLED, true);
-        vc.addModel(textEnabledModel);
+        final Property textEnabledModel = Property.create(PROPERTY_NAME_TEXT_ENABLED, Boolean.class, DEFAULT_TEXT_ENABLED, true);
+        vc.addProperty(textEnabledModel);
 
-        final ValueModel textFontModel = ValueModel.createValueModel(PROPERTY_NAME_TEXT_FONT, Font.class, DEFAULT_TEXT_FONT, true);
-        vc.addModel(textFontModel);
+        final Property textFontModel = Property.create(PROPERTY_NAME_TEXT_FONT, Font.class, DEFAULT_TEXT_FONT, true);
+        vc.addProperty(textFontModel);
 
-        final ValueModel textFgColorModel = ValueModel.createValueModel(PROPERTY_NAME_TEXT_FG_COLOR, Color.class, DEFAULT_TEXT_FG_COLOR, true);
-        vc.addModel(textFgColorModel);
+        final Property textFgColorModel = Property.create(PROPERTY_NAME_TEXT_FG_COLOR, Color.class, DEFAULT_TEXT_FG_COLOR, true);
+        vc.addProperty(textFgColorModel);
 
-        final ValueModel textBgColorModel = ValueModel.createValueModel(PROPERTY_NAME_TEXT_BG_COLOR, Color.class, DEFAULT_TEXT_BG_COLOR, true);
-        vc.addModel(textBgColorModel);
+        final Property textBgColorModel = Property.create(PROPERTY_NAME_TEXT_BG_COLOR, Color.class, DEFAULT_TEXT_BG_COLOR, true);
+        vc.addProperty(textBgColorModel);
 
-        final ValueModel textBgTransparencyModel = ValueModel.createValueModel(PROPERTY_NAME_TEXT_BG_TRANSPARENCY, Double.class, DEFAULT_TEXT_BG_TRANSPARENCY, true);
-        vc.addModel(textBgTransparencyModel);
+        final Property textBgTransparencyModel = Property.create(PROPERTY_NAME_TEXT_BG_TRANSPARENCY, Double.class, DEFAULT_TEXT_BG_TRANSPARENCY, true);
+        vc.addProperty(textBgTransparencyModel);
 
         return vc;
     }

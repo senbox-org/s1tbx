@@ -1,7 +1,7 @@
 package org.esa.beam.framework.gpf.ui;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.validators.NotEmptyValidator;
 import com.bc.ceres.binding.validators.NotNullValidator;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -31,29 +31,29 @@ public class TargetProductSelectorModel {
     private String formatName;
     private String[] formatNames;
 
-    private final ValueContainer valueContainer;
+    private final PropertyContainer propertyContainer;
 
     TargetProductSelectorModel() {
-        valueContainer = ValueContainer.createObjectBacked(this);
-        valueContainer.addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
+        propertyContainer = PropertyContainer.createObjectBacked(this);
+        propertyContainer.addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 if (!(Boolean) evt.getNewValue()) {
                     setOpenInAppSelected(true);
                 }
             }
         });
-        valueContainer.addPropertyChangeListener("openInAppSelected", new PropertyChangeListener() {
+        propertyContainer.addPropertyChangeListener("openInAppSelected", new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 if (!(Boolean) evt.getNewValue()) {
                     setSaveToFileSelected(true);
                 }
             }
         });
-        ValueDescriptor productNameDescriptor = valueContainer.getDescriptor("productName");
+        PropertyDescriptor productNameDescriptor = propertyContainer.getDescriptor("productName");
         productNameDescriptor.setValidator(new NotEmptyValidator());
         productNameDescriptor.setDisplayName("target product name");
 
-        ValueDescriptor productDirDescriptor = valueContainer.getDescriptor("productDir");
+        PropertyDescriptor productDirDescriptor = propertyContainer.getDescriptor("productDir");
         productDirDescriptor.setValidator(new NotNullValidator());
         productDirDescriptor.setDisplayName("target product directory");
 
@@ -135,12 +135,12 @@ public class TargetProductSelectorModel {
         setValueContainerValue("formatName", formatName);
     }
 
-    public ValueContainer getValueContainer() {
-        return valueContainer;
+    public PropertyContainer getValueContainer() {
+        return propertyContainer;
     }
 
     private void setValueContainerValue(String name, Object value) {
-        valueContainer.setValue(name, value);
+        propertyContainer.setValue(name, value);
     }
 
 }

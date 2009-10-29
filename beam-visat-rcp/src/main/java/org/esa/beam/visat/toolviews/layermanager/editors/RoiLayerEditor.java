@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -25,13 +25,13 @@ public class RoiLayerEditor extends AbstractBindingLayerEditor {
 
     @Override
     protected void initializeBinding(AppContext appContext, final BindingContext bindingContext) {
-        ValueDescriptor vd = new ValueDescriptor(RoiLayerType.PROPERTY_NAME_COLOR, Color.class);
+        PropertyDescriptor vd = new PropertyDescriptor(RoiLayerType.PROPERTY_NAME_COLOR, Color.class);
         vd.setDefaultValue(Color.RED);
         vd.setDisplayName("ROI colour");
         vd.setDefaultConverter();
         addValueDescriptor(vd);
 
-        bindingContext.getValueContainer().addPropertyChangeListener(RoiLayerType.PROPERTY_NAME_COLOR,
+        bindingContext.getPropertyContainer().addPropertyChangeListener(RoiLayerType.PROPERTY_NAME_COLOR,
                                                                      new UpdateImagePropertyChangeListener());
     }
 
@@ -41,7 +41,7 @@ public class RoiLayerEditor extends AbstractBindingLayerEditor {
         public void propertyChange(PropertyChangeEvent evt) {
             if (getLayer() != null && RoiLayerType.PROPERTY_NAME_COLOR.equals(evt.getPropertyName())) {
                 final ImageLayer layer = (ImageLayer) getLayer();
-                final ValueContainer configuration = layer.getConfiguration();
+                final PropertyContainer configuration = layer.getConfiguration();
                 final Color newColor = (Color) evt.getNewValue();
                 final RasterDataNode raster = (RasterDataNode) configuration.getValue(
                         RoiLayerType.PROPERTY_NAME_RASTER);

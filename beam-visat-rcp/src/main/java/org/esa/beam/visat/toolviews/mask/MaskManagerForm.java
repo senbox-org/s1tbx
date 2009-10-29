@@ -16,8 +16,8 @@
  */
 package org.esa.beam.visat.toolviews.mask;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
@@ -36,13 +36,9 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.net.URL;
 
 class MaskManagerForm extends MaskForm {
@@ -372,9 +368,9 @@ class MaskManagerForm extends MaskForm {
                                  selectedMask.getSceneRasterHeight(),
                                  selectedMask.getImageType());
             mask.setDescription(selectedMask.getDescription());
-            ValueContainer selectedConfig = selectedMask.getImageConfig();
-            ValueModel[] models = selectedConfig.getModels();
-            for (ValueModel model : models) {
+            PropertyContainer selectedConfig = selectedMask.getImageConfig();
+            Property[] models = selectedConfig.getProperties();
+            for (Property model : models) {
                 mask.getImageConfig().setValue(model.getDescriptor().getName(),
                                                model.getValue());
             }

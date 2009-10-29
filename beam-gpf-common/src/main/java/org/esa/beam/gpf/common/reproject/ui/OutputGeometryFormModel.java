@@ -17,9 +17,9 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValueSet;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.gpf.common.reproject.ImageGeometry;
@@ -37,15 +37,15 @@ class OutputGeometryFormModel {
     private class ChangeListener implements PropertyChangeListener {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            Double pixelSizeX = (Double)valueContainer.getValue("pixelSizeX");
-            Double pixelSizeY = (Double)valueContainer.getValue("pixelSizeY");
-            Integer width = (Integer)valueContainer.getValue("width");
-            Integer height = (Integer)valueContainer.getValue("height");
-            Double easting = (Double)valueContainer.getValue("easting");
-            Double northing = (Double)valueContainer.getValue("northing");
-            Double referencePixelX = (Double)valueContainer.getValue("referencePixelX");
-            Double referencePixelY = (Double)valueContainer.getValue("referencePixelY");
-            Double orientation = (Double)valueContainer.getValue("orientation");
+            Double pixelSizeX = (Double) propertyContainer.getValue("pixelSizeX");
+            Double pixelSizeY = (Double) propertyContainer.getValue("pixelSizeY");
+            Integer width = (Integer) propertyContainer.getValue("width");
+            Integer height = (Integer) propertyContainer.getValue("height");
+            Double easting = (Double) propertyContainer.getValue("easting");
+            Double northing = (Double) propertyContainer.getValue("northing");
+            Double referencePixelX = (Double) propertyContainer.getValue("referencePixelX");
+            Double referencePixelY = (Double) propertyContainer.getValue("referencePixelY");
+            Double orientation = (Double) propertyContainer.getValue("orientation");
             if (fitProductSize) {
                 width = null;
                 height = null;
@@ -56,8 +56,8 @@ class OutputGeometryFormModel {
                 easting = null;
                 northing = null;
             } else if (referencePixelLocation == 1) {
-                referencePixelX = 0.5 * (Integer)valueContainer.getValue("width");
-                referencePixelY = 0.5 * (Integer)valueContainer.getValue("height");
+                referencePixelX = 0.5 * (Integer) propertyContainer.getValue("width");
+                referencePixelY = 0.5 * (Integer) propertyContainer.getValue("height");
                 easting = null;
                 northing = null;
             }
@@ -77,7 +77,7 @@ class OutputGeometryFormModel {
     private boolean fitProductSize = true;
     private int referencePixelLocation = 1;
     
-    private transient ValueContainer valueContainer;
+    private transient PropertyContainer propertyContainer;
     private transient ImageGeometry imageGeometry;
 
     OutputGeometryFormModel(Product sourceProduct, CoordinateReferenceSystem targetCrs) {
@@ -85,25 +85,25 @@ class OutputGeometryFormModel {
         this.targetCrs = targetCrs;
         imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs,
                                                            null, null, null, null, null, null, null, null, null);
-        valueContainer =  ValueContainer.createObjectBacked(imageGeometry);
-        ValueContainer thisVC = ValueContainer.createObjectBacked(this);
-        valueContainer.addModels(thisVC.getModels());
-        ValueDescriptor descriptor = valueContainer.getDescriptor("referencePixelLocation");
+        propertyContainer =  PropertyContainer.createObjectBacked(imageGeometry);
+        PropertyContainer thisVC = PropertyContainer.createObjectBacked(this);
+        propertyContainer.addProperties(thisVC.getProperties());
+        PropertyDescriptor descriptor = propertyContainer.getDescriptor("referencePixelLocation");
         descriptor.setValueSet(new ValueSet(new Integer[] {0, 1, 2}));
-        valueContainer.addPropertyChangeListener(new ChangeListener());
+        propertyContainer.addPropertyChangeListener(new ChangeListener());
     }
     
-    ValueContainer getValueContainer() {
-        return valueContainer;
+    PropertyContainer getValueContainer() {
+        return propertyContainer;
     }
 
     private void updateImgaeGeometry(ImageGeometry newImageGeometry) {
-        ValueContainer newVC=  ValueContainer.createObjectBacked(newImageGeometry);
-        ValueModel[] valueModels = newVC.getModels();
-        for (ValueModel valueModel : valueModels) {
-            ValueModel targetModel = valueContainer.getModel(valueModel.getDescriptor().getName());
+        PropertyContainer newVC=  PropertyContainer.createObjectBacked(newImageGeometry);
+        Property[] properties = newVC.getProperties();
+        for (Property property : properties) {
+            Property targetModel = propertyContainer.getProperty(property.getDescriptor().getName());
             try {
-                targetModel.setValue(valueModel.getValue());
+                targetModel.setValue(property.getValue());
             } catch (ValidationException ignored) {
             }
         }

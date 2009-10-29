@@ -18,7 +18,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
@@ -85,7 +85,7 @@ public class ImageFileLayerSource implements LayerSource {
         try {
             ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
             final LayerType type = LayerType.getLayerType(ImageFileLayerType.class.getName());
-            final ValueContainer configuration = type.createLayerConfig(sceneView);
+            final PropertyContainer configuration = type.createLayerConfig(sceneView);
             configuration.setValue(ImageFileLayerType.PROPERTY_NAME_IMAGE, image);
             configuration.setValue(ImageFileLayerType.PROPERTY_NAME_IMAGE_FILE, new File(imageFilePath));
             configuration.setValue(ImageFileLayerType.PROPERTY_NAME_WORLD_TRANSFORM, transform);

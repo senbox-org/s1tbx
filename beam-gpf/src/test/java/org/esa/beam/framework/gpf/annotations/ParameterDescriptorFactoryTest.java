@@ -19,79 +19,78 @@ package org.esa.beam.framework.gpf.annotations;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueAccessor;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.accessors.DefaultValueAccessor;
+import com.bc.ceres.binding.PropertyAccessor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.converters.ArrayConverter;
 import com.bc.ceres.binding.converters.DoubleConverter;
-import com.bc.ceres.binding.validators.MultiValidator;
 
 import junit.framework.TestCase;
 
 public class ParameterDescriptorFactoryTest extends TestCase{
     
-    private ValueContainer valueContainer;
+    private PropertyContainer propertyContainer;
 
     @Override
     public void setUp() {
         ParameterDescriptorFactory pdf = new ParameterDescriptorFactory();
         TestPojo testPojo = new TestPojo();
-        valueContainer = ValueContainer.createObjectBacked(testPojo, pdf);
+        propertyContainer = PropertyContainer.createObjectBacked(testPojo, pdf);
     }
     
     public void testPercentageField() throws Exception {
         final String PERCENTAGE = "percentage";
-        ValueDescriptor valueDescriptor = valueContainer.getDescriptor(PERCENTAGE);
-        assertEquals(PERCENTAGE, valueDescriptor.getName());
-        assertNull(valueDescriptor.getAlias());
-        assertEquals(0.0, valueDescriptor.getDefaultValue());
-        assertSame(DoubleConverter.class, valueDescriptor.getConverter().getClass());
-        assertEquals("", valueDescriptor.getDescription());
-        assertEquals(false, valueDescriptor.getItemsInlined());
-        assertEquals(PERCENTAGE, valueDescriptor.getDisplayName());
-        assertEquals(null, valueDescriptor.getDomConverter());
-        assertEquals(null, valueDescriptor.getFormat());
-        assertEquals(null, valueDescriptor.getItemAlias());
-        assertEquals("double", valueDescriptor.getType().getName());
-        assertEquals("", valueDescriptor.getUnit());
-        assertNull(valueDescriptor.getValidator());
-        assertEquals("(0,100]", valueDescriptor.getValueRange().toString());
-        assertEquals(0.0, valueDescriptor.getValueRange().getMin(), 0.000001);
-        assertEquals(100.0, valueDescriptor.getValueRange().getMax(), 0.000001);
-        assertEquals(null, valueDescriptor.getValueSet());
+        PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(PERCENTAGE);
+        assertEquals(PERCENTAGE, propertyDescriptor.getName());
+        assertNull(propertyDescriptor.getAlias());
+        assertEquals(0.0, propertyDescriptor.getDefaultValue());
+        assertSame(DoubleConverter.class, propertyDescriptor.getConverter().getClass());
+        assertEquals("", propertyDescriptor.getDescription());
+        assertEquals(false, propertyDescriptor.getItemsInlined());
+        assertEquals(PERCENTAGE, propertyDescriptor.getDisplayName());
+        assertEquals(null, propertyDescriptor.getDomConverter());
+        assertEquals(null, propertyDescriptor.getFormat());
+        assertEquals(null, propertyDescriptor.getItemAlias());
+        assertEquals("double", propertyDescriptor.getType().getName());
+        assertEquals("", propertyDescriptor.getUnit());
+        assertNull(propertyDescriptor.getValidator());
+        assertEquals("(0,100]", propertyDescriptor.getValueRange().toString());
+        assertEquals(0.0, propertyDescriptor.getValueRange().getMin(), 0.000001);
+        assertEquals(100.0, propertyDescriptor.getValueRange().getMax(), 0.000001);
+        assertEquals(null, propertyDescriptor.getValueSet());
     }
     
     public void testThresholdField() throws Exception {
         final String FIELD_NAME = "threshold";
-        ValueDescriptor valueDescriptor = valueContainer.getDescriptor(FIELD_NAME);
-        assertEquals(FIELD_NAME, valueDescriptor.getName());
-        assertNull(valueDescriptor.getAlias());
-        assertEquals(0.0, valueDescriptor.getDefaultValue());
-        assertSame(DoubleConverter.class, valueDescriptor.getConverter().getClass());
-        assertEquals("", valueDescriptor.getDescription());
-        assertEquals(false, valueDescriptor.getItemsInlined());
-        assertEquals("a nice desciption", valueDescriptor.getDisplayName());
-        assertEquals(null, valueDescriptor.getDomConverter());
-        assertEquals(null, valueDescriptor.getFormat());
-        assertEquals(null, valueDescriptor.getItemAlias());
-        assertFalse(valueDescriptor.getType().isArray());
-        assertEquals("", valueDescriptor.getUnit());
-        assertNull(valueDescriptor.getValidator());
-        assertEquals(null, valueDescriptor.getValueRange());
-        assertNotNull(valueDescriptor.getValueSet());
-        assertEquals(3, valueDescriptor.getValueSet().getItems().length);
-        assertEquals(0.0, valueDescriptor.getValueSet().getItems()[0]);
-        assertEquals(13.0, valueDescriptor.getValueSet().getItems()[1]);
-        assertEquals(42.0, valueDescriptor.getValueSet().getItems()[2]);
-        ValueAccessor valueAccessor = new DefaultValueAccessor();
-        ValueModel valueModel = new ValueModel(valueDescriptor, valueAccessor);
-        Validator validator = valueModel.getValidator();
+        PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(FIELD_NAME);
+        assertEquals(FIELD_NAME, propertyDescriptor.getName());
+        assertNull(propertyDescriptor.getAlias());
+        assertEquals(0.0, propertyDescriptor.getDefaultValue());
+        assertSame(DoubleConverter.class, propertyDescriptor.getConverter().getClass());
+        assertEquals("", propertyDescriptor.getDescription());
+        assertEquals(false, propertyDescriptor.getItemsInlined());
+        assertEquals("a nice desciption", propertyDescriptor.getDisplayName());
+        assertEquals(null, propertyDescriptor.getDomConverter());
+        assertEquals(null, propertyDescriptor.getFormat());
+        assertEquals(null, propertyDescriptor.getItemAlias());
+        assertFalse(propertyDescriptor.getType().isArray());
+        assertEquals("", propertyDescriptor.getUnit());
+        assertNull(propertyDescriptor.getValidator());
+        assertEquals(null, propertyDescriptor.getValueRange());
+        assertNotNull(propertyDescriptor.getValueSet());
+        assertEquals(3, propertyDescriptor.getValueSet().getItems().length);
+        assertEquals(0.0, propertyDescriptor.getValueSet().getItems()[0]);
+        assertEquals(13.0, propertyDescriptor.getValueSet().getItems()[1]);
+        assertEquals(42.0, propertyDescriptor.getValueSet().getItems()[2]);
+        PropertyAccessor propertyAccessor = new DefaultPropertyAccessor();
+        Property property = new Property(propertyDescriptor, propertyAccessor);
+        Validator validator = property.getValidator();
         assertNotNull(validator);
-        assertNotNull(valueModel);
+        assertNotNull(property);
         try {
-            validator.validateValue(valueModel, 42.0);
+            validator.validateValue(property, 42.0);
         }catch (ValidationException e) {
             fail("validation failed: "+e.getMessage());
         }
@@ -99,35 +98,35 @@ public class ParameterDescriptorFactoryTest extends TestCase{
     
     public void testThresholdArrayField() throws Exception {
         final String FIELD_NAME = "thresholdArray";
-        ValueDescriptor valueDescriptor = valueContainer.getDescriptor(FIELD_NAME);
-        assertEquals(FIELD_NAME, valueDescriptor.getName());
-        assertNull(valueDescriptor.getAlias());
-        assertEquals(null, valueDescriptor.getDefaultValue());
-        assertSame(ArrayConverter.class, valueDescriptor.getConverter().getClass());
-        assertEquals("", valueDescriptor.getDescription());
-        assertEquals(false, valueDescriptor.getItemsInlined());
-        assertEquals(FIELD_NAME, valueDescriptor.getDisplayName());
-        assertEquals(null, valueDescriptor.getDomConverter());
-        assertEquals(null, valueDescriptor.getFormat());
-        assertEquals(null, valueDescriptor.getItemAlias());
-        Class<?> type = valueDescriptor.getType();
+        PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(FIELD_NAME);
+        assertEquals(FIELD_NAME, propertyDescriptor.getName());
+        assertNull(propertyDescriptor.getAlias());
+        assertEquals(null, propertyDescriptor.getDefaultValue());
+        assertSame(ArrayConverter.class, propertyDescriptor.getConverter().getClass());
+        assertEquals("", propertyDescriptor.getDescription());
+        assertEquals(false, propertyDescriptor.getItemsInlined());
+        assertEquals(FIELD_NAME, propertyDescriptor.getDisplayName());
+        assertEquals(null, propertyDescriptor.getDomConverter());
+        assertEquals(null, propertyDescriptor.getFormat());
+        assertEquals(null, propertyDescriptor.getItemAlias());
+        Class<?> type = propertyDescriptor.getType();
         assertTrue(type.isArray());
         assertEquals(Double.TYPE, type.getComponentType());
-        assertEquals("", valueDescriptor.getUnit());
-        assertNull(valueDescriptor.getValidator());
-        assertEquals(null, valueDescriptor.getValueRange());
-        assertNotNull(valueDescriptor.getValueSet());
-        assertEquals(3, valueDescriptor.getValueSet().getItems().length);
-        assertEquals(0.0, valueDescriptor.getValueSet().getItems()[0]);
-        assertEquals(13.0, valueDescriptor.getValueSet().getItems()[1]);
-        assertEquals(42.0, valueDescriptor.getValueSet().getItems()[2]);
-        ValueAccessor valueAccessor = new DefaultValueAccessor();
-        ValueModel valueModel = new ValueModel(valueDescriptor, valueAccessor);
-        Validator validator = valueModel.getValidator();
+        assertEquals("", propertyDescriptor.getUnit());
+        assertNull(propertyDescriptor.getValidator());
+        assertEquals(null, propertyDescriptor.getValueRange());
+        assertNotNull(propertyDescriptor.getValueSet());
+        assertEquals(3, propertyDescriptor.getValueSet().getItems().length);
+        assertEquals(0.0, propertyDescriptor.getValueSet().getItems()[0]);
+        assertEquals(13.0, propertyDescriptor.getValueSet().getItems()[1]);
+        assertEquals(42.0, propertyDescriptor.getValueSet().getItems()[2]);
+        PropertyAccessor propertyAccessor = new DefaultPropertyAccessor();
+        Property property = new Property(propertyDescriptor, propertyAccessor);
+        Validator validator = property.getValidator();
         assertNotNull(validator);
-        assertNotNull(valueModel);
+        assertNotNull(property);
         try {
-            validator.validateValue(valueModel, new double[]{42.0});
+            validator.validateValue(property, new double[]{42.0});
         }catch (ValidationException e) {
             fail("validation failed: "+e.getMessage());
         }

@@ -1,9 +1,9 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.windfield;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.accessors.DefaultValueAccessor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -22,7 +22,7 @@ public class WindFieldLayerType extends LayerType {
     static LayerType instance = new WindFieldLayerType();
 
     public static WindFieldLayer createLayer(RasterDataNode windu, RasterDataNode windv) {
-        final ValueContainer template = instance.createLayerConfig(null);
+        final PropertyContainer template = instance.createLayerConfig(null);
         template.setValue("windu", windu);
         template.setValue("windv", windv);
         return new WindFieldLayer(template);
@@ -40,17 +40,17 @@ public class WindFieldLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         return new WindFieldLayer(configuration);
     }
 
     // todo - rename getDefaultConfiguration  ? (nf)
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        final ValueContainer valueContainer = new ValueContainer();
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        final PropertyContainer propertyContainer = new PropertyContainer();
         // todo - how do I know whether my value model type can be serialized or not? (nf)
-        valueContainer.addModel(new ValueModel(new ValueDescriptor("windu", RasterDataNode.class), new DefaultValueAccessor()));
-        valueContainer.addModel(new ValueModel(new ValueDescriptor("windv", RasterDataNode.class), new DefaultValueAccessor()));
-        return valueContainer;
+        propertyContainer.addProperty(new Property(new PropertyDescriptor("windu", RasterDataNode.class), new DefaultPropertyAccessor()));
+        propertyContainer.addProperty(new Property(new PropertyDescriptor("windv", RasterDataNode.class), new DefaultPropertyAccessor()));
+        return propertyContainer;
     }
 }

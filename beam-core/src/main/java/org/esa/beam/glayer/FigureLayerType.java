@@ -2,8 +2,8 @@ package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.glayer.Layer;
@@ -34,7 +34,7 @@ public class FigureLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         final FigureLayer layer = new FigureLayer(this, configuration);
         layer.setId(FIGURE_LAYER_ID);
 
@@ -42,28 +42,28 @@ public class FigureLayerType extends LayerType {
     }
 
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        final ValueContainer vc = new ValueContainer();
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        final PropertyContainer vc = new PropertyContainer();
 
-        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED, Boolean.class, FigureLayer.DEFAULT_SHAPE_OUTLINED, true));
+        vc.addProperty(Property.create(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED, Boolean.class, FigureLayer.DEFAULT_SHAPE_OUTLINED, true));
 
-        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR, Color.class, FigureLayer.DEFAULT_SHAPE_OUTL_COLOR, true));
+        vc.addProperty(Property.create(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR, Color.class, FigureLayer.DEFAULT_SHAPE_OUTL_COLOR, true));
 
-        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY, Double.class, FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY, true));
+        vc.addProperty(Property.create(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY, Double.class, FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY, true));
 
-        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH, Double.class, FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH, true));
+        vc.addProperty(Property.create(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH, Double.class, FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH, true));
 
-        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILLED, Boolean.class, FigureLayer.DEFAULT_SHAPE_FILLED, true));
+        vc.addProperty(Property.create(FigureLayer.PROPERTY_NAME_SHAPE_FILLED, Boolean.class, FigureLayer.DEFAULT_SHAPE_FILLED, true));
 
-        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR, Color.class, FigureLayer.DEFAULT_SHAPE_FILL_COLOR, true));
+        vc.addProperty(Property.create(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR, Color.class, FigureLayer.DEFAULT_SHAPE_FILL_COLOR, true));
 
-        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY, Double.class, FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY, true));
+        vc.addProperty(Property.create(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY, Double.class, FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY, true));
 
-        vc.addModel(ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_TRANSFORM, AffineTransform.class, new AffineTransform(), true));
+        vc.addProperty(Property.create(FigureLayer.PROPERTY_NAME_TRANSFORM, AffineTransform.class, new AffineTransform(), true));
 
-        final ValueModel figureListModel = ValueModel.createValueModel(FigureLayer.PROPERTY_NAME_FIGURE_LIST, ArrayList.class, new ArrayList(), true);
+        final Property figureListModel = Property.create(FigureLayer.PROPERTY_NAME_FIGURE_LIST, ArrayList.class, new ArrayList(), true);
         figureListModel.getDescriptor().setDomConverter(new FigureListDomConverter());
-        vc.addModel(figureListModel);
+        vc.addProperty(figureListModel);
         return vc;
     }
 

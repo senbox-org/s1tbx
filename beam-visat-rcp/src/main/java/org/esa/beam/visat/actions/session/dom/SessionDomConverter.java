@@ -1,7 +1,7 @@
 package org.esa.beam.visat.actions.session.dom;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import org.esa.beam.framework.datamodel.BitmaskDef;
@@ -18,7 +18,7 @@ public class SessionDomConverter extends DefaultDomConverter {
     private final Map<Class<?>, DomConverter> domConverterMap = new HashMap<Class<?>, DomConverter>(33);
 
     public SessionDomConverter(ProductManager productManager) {
-        super(ValueContainer.class);
+        super(PropertyContainer.class);
 
         setDomConverter(Product.class, new ProductDomConverter(productManager));
         setDomConverter(RasterDataNode.class, new RasterDataNodeDomConverter(productManager));
@@ -31,7 +31,7 @@ public class SessionDomConverter extends DefaultDomConverter {
     }
 
     @Override
-    protected DomConverter getDomConverter(ValueDescriptor descriptor) {
+    protected DomConverter getDomConverter(PropertyDescriptor descriptor) {
         DomConverter domConverter = getDomConverter(descriptor.getType());
         if (domConverter == null) {
             domConverter = super.getDomConverter(descriptor);

@@ -18,9 +18,9 @@ package org.esa.beam.visat.dialogs;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ValueEditor;
@@ -251,13 +251,13 @@ public class BandArithmetikDialog extends ModalDialog {
     }
 
     private JComponent[] createComponents(String propertyName, Class<? extends ValueEditor> editorClass) {
-        ValueDescriptor descriptor = bindingContext.getValueContainer().getDescriptor(propertyName);
+        PropertyDescriptor descriptor = bindingContext.getPropertyContainer().getDescriptor(propertyName);
         ValueEditor editor = ValueEditorRegistry.getInstance().getValueEditor(editorClass.getName());
         return editor.createComponents(descriptor, bindingContext);
     }
 
     private BindingContext createBindingContext() {
-        final ValueContainer container = ValueContainer.createObjectBacked(this);
+        final PropertyContainer container = PropertyContainer.createObjectBacked(this);
         final BindingContext context = new BindingContext(container);
 
         container.addPropertyChangeListener(PROPERTY_NAME_PRODUCT, new PropertyChangeListener() {
@@ -270,7 +270,7 @@ public class BandArithmetikDialog extends ModalDialog {
         );
 
         productName = targetProduct.getDisplayName();
-        ValueDescriptor descriptor = container.getDescriptor(PROPERTY_NAME_PRODUCT);
+        PropertyDescriptor descriptor = container.getDescriptor(PROPERTY_NAME_PRODUCT);
         descriptor.setValueSet(new ValueSet(productsList.getDisplayNames()));
         descriptor.setDisplayName("Target Product");
 
@@ -452,7 +452,7 @@ public class BandArithmetikDialog extends ModalDialog {
     private class ProductNodeNameValidator implements Validator {
 
         @Override
-        public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
+        public void validateValue(Property property, Object value) throws ValidationException {
             final String name = (String) value;
             if (!ProductNode.isValidNodeName(name)) {
                 final String message = MessageFormat.format("The band name ''{0}'' is not valid.\n\n"

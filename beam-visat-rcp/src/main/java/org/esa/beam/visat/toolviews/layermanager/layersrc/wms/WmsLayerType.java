@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -37,21 +37,21 @@ public class WmsLayerType extends LayerType {
     }
 
     @Override
-    public com.bc.ceres.glayer.Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public com.bc.ceres.glayer.Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         return new WmsLayer(configuration);
 
     }
 
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        final ValueContainer template = new ValueContainer();
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        final PropertyContainer template = new PropertyContainer();
 
-        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
-        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_URL, URL.class));
-        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_LAYER_INDEX, Integer.class));
-        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_STYLE_NAME, String.class));
-        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_IMAGE_SIZE, Dimension.class));
-        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_CRS_ENVELOPE, CRSEnvelope.class));
+        template.addProperty(Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class));
+        template.addProperty(Property.create(PROPERTY_NAME_URL, URL.class));
+        template.addProperty(Property.create(PROPERTY_NAME_LAYER_INDEX, Integer.class));
+        template.addProperty(Property.create(PROPERTY_NAME_STYLE_NAME, String.class));
+        template.addProperty(Property.create(PROPERTY_NAME_IMAGE_SIZE, Dimension.class));
+        template.addProperty(Property.create(PROPERTY_NAME_CRS_ENVELOPE, CRSEnvelope.class));
 
         return template;
     }

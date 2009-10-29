@@ -1,8 +1,8 @@
 package org.esa.beam.framework.ui;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ValueEditor;
 import com.bc.ceres.binding.swing.ValueEditorRegistry;
@@ -16,16 +16,16 @@ import javax.swing.JPanel;
 
 /**
  * A utility class used to create a {@link JPanel} containing default Swing components and their corresponding bindings for the
- * {@link ValueContainer} given by the {@link com.bc.ceres.binding.swing.BindingContext}.
+ * {@link com.bc.ceres.binding.PropertyContainer} given by the {@link com.bc.ceres.binding.swing.BindingContext}.
  * <p/>
- * <p>If the {@code displayName} property of a {@link com.bc.ceres.binding.ValueDescriptor ValueDescriptor} is set, it will be used as label, otherwise
+ * <p>If the {@code displayName} property of a {@link com.bc.ceres.binding.PropertyDescriptor ValueDescriptor} is set, it will be used as label, otherwise
  * a label is derived from the {@code name} property.</p>
  */
 public class ValueEditorsPane {
 
     private final BindingContext bindingContext;
 
-    public ValueEditorsPane(ValueContainer container) {
+    public ValueEditorsPane(PropertyContainer container) {
         this(new BindingContext(container));
     }
 
@@ -38,8 +38,8 @@ public class ValueEditorsPane {
     }
 
     public JPanel createPanel() {
-        ValueContainer valueContainer = bindingContext.getValueContainer();
-        ValueModel[] models = valueContainer.getModels();
+        PropertyContainer propertyContainer = bindingContext.getPropertyContainer();
+        Property[] models = propertyContainer.getProperties();
 
         boolean displayUnitColumn = displayUnitColumn(models);
         TableLayout layout = new TableLayout(displayUnitColumn ? 3 : 2);
@@ -50,8 +50,8 @@ public class ValueEditorsPane {
 
         int rowIndex = 0;
         final ValueEditorRegistry registry = ValueEditorRegistry.getInstance();
-        for (ValueModel model : models) {
-            ValueDescriptor descriptor = model.getDescriptor();
+        for (Property model : models) {
+            PropertyDescriptor descriptor = model.getDescriptor();
             ValueEditor valueEditor = registry.findValueEditor(descriptor);
             JComponent[] components = valueEditor.createComponents(descriptor, bindingContext);
             if (components.length == 2) {
@@ -81,10 +81,10 @@ public class ValueEditorsPane {
         return panel;
     }
 
-    private boolean displayUnitColumn(ValueModel[] models) {
+    private boolean displayUnitColumn(Property[] models) {
         boolean showUnitColumn = false;
-        for (ValueModel model : models) {
-            ValueDescriptor descriptor = model.getDescriptor();
+        for (Property model : models) {
+            PropertyDescriptor descriptor = model.getDescriptor();
             if (StringUtils.isNotNullAndNotEmpty(descriptor.getUnit())) {
                 showUnitColumn = true;
                 break;

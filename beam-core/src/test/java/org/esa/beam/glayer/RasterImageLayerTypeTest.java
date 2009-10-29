@@ -1,6 +1,6 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.Band;
@@ -23,7 +23,7 @@ public class RasterImageLayerTypeTest extends LayerTypeTest {
     public void testDefaultConfiguration() {
         final LayerType layerType = getLayerType();
 
-        final ValueContainer template = layerType.createLayerConfig(null);
+        final PropertyContainer template = layerType.createLayerConfig(null);
         assertNotNull(template);
 
         ensurePropertyIsDeclaredButNotDefined(template, "raster", RasterDataNode.class);

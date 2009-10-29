@@ -1,6 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
@@ -46,11 +46,11 @@ class ReprojectionForm extends JTabbedPane {
     private final SourceProductSelector sourceProductSelector;
     private final TargetProductSelector targetProductSelector;
     private final Model reprojectionModel;
-    private final ValueContainer reprojectionlContainer;
+    private final PropertyContainer reprojectionlContainer;
 
     private DemSelector demSelector;
     private CrsForm crsForm;
-    private ValueContainer outputParameterContainer;
+    private PropertyContainer outputParameterContainer;
 
     ReprojectionForm(TargetProductSelector targetProductSelector, boolean orthorectify, AppContext appContext) {
         this.targetProductSelector = targetProductSelector;
@@ -61,7 +61,7 @@ class ReprojectionForm extends JTabbedPane {
             this.sourceProductSelector.setProductFilter(new OrthorectifyProductFilter());
         }
         this.reprojectionModel = new Model();
-        this.reprojectionlContainer = ValueContainer.createObjectBacked(reprojectionModel);
+        this.reprojectionlContainer = PropertyContainer.createObjectBacked(reprojectionModel);
         createUI();
     }
 

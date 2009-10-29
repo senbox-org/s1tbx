@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -22,7 +22,7 @@ public class RasterImageLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ImageLayer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public ImageLayer createLayer(LayerContext ctx, PropertyContainer configuration) {
         if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
             final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
             final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
@@ -36,10 +36,10 @@ public class RasterImageLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        final ValueContainer template = super.createLayerConfig(ctx);
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        final PropertyContainer template = super.createLayerConfig(ctx);
 
-        template.addModel(ValueModel.createValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
+        template.addProperty(Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class));
         template.getDescriptor(PROPERTY_NAME_RASTER).setItemAlias("raster");
         template.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
 
@@ -47,7 +47,7 @@ public class RasterImageLayerType extends ImageLayer.Type {
     }
 
     public Layer createLayer(RasterDataNode raster, MultiLevelSource multiLevelSource) {
-        final ValueContainer configuration = createLayerConfig(null);
+        final PropertyContainer configuration = createLayerConfig(null);
         configuration.setValue(PROPERTY_NAME_RASTER, raster);
         if (multiLevelSource == null) {
             multiLevelSource = BandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);

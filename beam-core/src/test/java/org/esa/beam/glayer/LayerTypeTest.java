@@ -1,8 +1,8 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.LayerType;
 import org.junit.Test;
 
@@ -41,22 +41,22 @@ public abstract class LayerTypeTest {
         }
     }
 
-    protected static void ensurePropertyIsDefined(ValueContainer template, String name, Class<?> type) {
-        final ValueModel model = template.getModel(name);
+    protected static void ensurePropertyIsDefined(PropertyContainer template, String name, Class<?> type) {
+        final Property model = template.getProperty(name);
         org.junit.Assert.assertNotNull(model);
 
-        final ValueDescriptor descriptor = model.getDescriptor();
+        final PropertyDescriptor descriptor = model.getDescriptor();
         org.junit.Assert.assertNotNull(descriptor);
         org.junit.Assert.assertEquals(type, descriptor.getType());
         org.junit.Assert.assertNotNull(descriptor.getDefaultValue());
         org.junit.Assert.assertNotNull(model.getValue());
     }
 
-    protected static void ensurePropertyIsDeclaredButNotDefined(ValueContainer template, String name, Class<?> type) {
-        final ValueModel model = template.getModel(name);
+    protected static void ensurePropertyIsDeclaredButNotDefined(PropertyContainer template, String name, Class<?> type) {
+        final Property model = template.getProperty(name);
         org.junit.Assert.assertNotNull(model);
 
-        final ValueDescriptor descriptor = model.getDescriptor();
+        final PropertyDescriptor descriptor = model.getDescriptor();
         org.junit.Assert.assertNotNull(descriptor);
         org.junit.Assert.assertEquals(type, descriptor.getType());
         org.junit.Assert.assertNull(descriptor.getDefaultValue());

@@ -1,9 +1,9 @@
 package org.esa.beam.gpf.common.reproject.ui.projdef;
 
-import com.bc.ceres.binding.ValueAccessor;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyAccessor;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
@@ -67,7 +67,7 @@ public class CustomCrsForm extends JPanel {
     private final List<GeodeticDatum> datumList;
     private final List<AbstractCrsProvider> crsProviderList;
     private final CustomCrsForm.Model model;
-    private final ValueContainer vc;
+    private final PropertyContainer vc;
     private final Window parent;
     private JComboBox operationComboBox;
     private JComboBox datumComboBox;
@@ -102,7 +102,7 @@ public class CustomCrsForm extends JPanel {
         model.operationWrapper = defaultMethod;
         model.datum = wgs84Datum;
 
-        vc = ValueContainer.createObjectBacked(model);
+        vc = PropertyContainer.createObjectBacked(model);
         vc.addPropertyChangeListener(new UpdateListener());
 
         creatUI();
@@ -249,8 +249,8 @@ public class CustomCrsForm extends JPanel {
         }
     }
 
-    private static ValueContainer createValueContainer(ParameterValueGroup valueGroup) {
-        final ValueContainer vc = new ValueContainer();
+    private static PropertyContainer createValueContainer(ParameterValueGroup valueGroup) {
+        final PropertyContainer vc = new PropertyContainer();
 
         final List<GeneralParameterValue> values = valueGroup.values();
         for (GeneralParameterValue value : values) {
@@ -266,7 +266,7 @@ public class CustomCrsForm extends JPanel {
             }
 
             final String paramName = descriptor.getName().getCode();
-            final ValueDescriptor vd = new ValueDescriptor(paramName, valueType);
+            final PropertyDescriptor vd = new PropertyDescriptor(paramName, valueType);
             final ParameterValue<?> parameterValue = valueGroup.parameter(paramName);
             if (parameterValue.getUnit() != null) {
                 vd.setUnit(String.valueOf(parameterValue.getUnit()));
@@ -276,7 +276,7 @@ public class CustomCrsForm extends JPanel {
             }
 
             vd.setDefaultConverter();
-            final ValueModel valueModel = new ValueModel(vd, new ValueAccessor() {
+            final Property property = new Property(vd, new PropertyAccessor() {
                 @Override
                 public Object getValue() {
                     return parameterValue.getValue();
@@ -287,7 +287,7 @@ public class CustomCrsForm extends JPanel {
                     parameterValue.setValue(value);
                 }
             });
-            vc.addModel(valueModel);
+            vc.addProperty(property);
         }
         return vc;
     }
@@ -307,8 +307,8 @@ public class CustomCrsForm extends JPanel {
             final ModalDialog modalDialog = new ModalDialog(parent, operationName + " - Parameters",
                                                             ModalDialog.ID_OK_CANCEL, null);
             final ParameterValueGroup workCopy = model.parameters.clone();
-            final ValueContainer valueContainer = createValueContainer(workCopy);
-            modalDialog.setContent(new ValueEditorsPane(valueContainer).createPanel());
+            final PropertyContainer propertyContainer = createValueContainer(workCopy);
+            modalDialog.setContent(new ValueEditorsPane(propertyContainer).createPanel());
             if (modalDialog.show() == AbstractDialog.ID_OK) {
                 vc.setValue(PARAMETERS, workCopy);
             }

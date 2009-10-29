@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -31,7 +31,7 @@ public class NoDataLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         final Color color = (Color) configuration.getValue(PROPERTY_NAME_COLOR);
         Assert.notNull(color, PROPERTY_NAME_COLOR);
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
@@ -58,13 +58,13 @@ public class NoDataLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        final ValueContainer prototype = super.createLayerConfig(ctx);
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        final PropertyContainer prototype = super.createLayerConfig(ctx);
 
-        prototype.addModel(ValueModel.createValueModel(PROPERTY_NAME_RASTER, RasterDataNode.class));
+        prototype.addProperty(Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class));
         prototype.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
 
-        prototype.addModel(ValueModel.createValueModel(PROPERTY_NAME_COLOR, Color.class));
+        prototype.addProperty(Property.create(PROPERTY_NAME_COLOR, Color.class));
         prototype.getDescriptor(PROPERTY_NAME_COLOR).setNotNull(true);
 
         return prototype;

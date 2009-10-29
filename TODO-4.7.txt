@@ -50,7 +50,15 @@ h3. Product Data Model Changes
 
 h3. Ceres Binding API Changes
 
-* ValueContainer.setValue(String propertyName, Object value) now throws IllegalArgumentException
+* Extensive renamings:
+** ValueModel --> Property
+** ValueDescriptor --> PropertyDescriptor
+** ValueContainer --> PropertyContainer
+** ValueAccessor --> PropertyAccessor
+** ClassFieldDescriptorFactory --> PropertyDescriptorFactory
+** ValueDescriptor.properties --> PropertyDescriptor.attributes (incl. all accessors)
+* New interface PropertyAccessorFactory
+* PropertyContainer.setValue(String propertyName, Object value) now throws IllegalArgumentException
  by wrapping a previously thrown ValidationException.
 
 

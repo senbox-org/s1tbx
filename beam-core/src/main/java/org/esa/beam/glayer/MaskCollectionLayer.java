@@ -16,7 +16,7 @@
  */
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
@@ -28,11 +28,8 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.HashMap;
-import java.util.Iterator;
 
 
 public class MaskCollectionLayer extends CollectionLayer {
@@ -42,7 +39,7 @@ public class MaskCollectionLayer extends CollectionLayer {
     private final ProductNodeListener maskPNL;
     private RasterDataNode raster;
 
-    public MaskCollectionLayer(MaskCollectionLayerType layerType, ValueContainer configuration) {
+    public MaskCollectionLayer(MaskCollectionLayerType layerType, PropertyContainer configuration) {
         super(layerType, configuration, "Masks");
         this.raster = (RasterDataNode) configuration.getValue(MaskCollectionLayerType.PROPERTY_NAME_RASTER);
         Assert.notNull(this.raster, "raster");

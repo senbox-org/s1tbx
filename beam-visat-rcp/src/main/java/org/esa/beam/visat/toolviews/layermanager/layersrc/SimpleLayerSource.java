@@ -3,7 +3,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 /**
@@ -47,7 +47,7 @@ public class SimpleLayerSource implements LayerSource {
     public boolean performFinish(LayerSourcePageContext pageContext) {
         LayerContext layerCtx = pageContext.getLayerContext();
 
-        Layer layer = layerType.createLayer(layerCtx, new ValueContainer());
+        Layer layer = layerType.createLayer(layerCtx, new PropertyContainer());
         if (layer != null) {
             layerCtx.getRootLayer().getChildren().add(layer);
             return true;

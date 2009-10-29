@@ -1,8 +1,8 @@
 package org.esa.beam.collocation.visat;
 
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import org.esa.beam.collocation.CollocateOp;
 import org.esa.beam.collocation.ResamplingType;
 import org.esa.beam.framework.datamodel.Band;
@@ -32,19 +32,19 @@ class CollocationFormModel {
     private TargetProductSelectorModel targetProductSelectorModel;
     private DefaultComboBoxModel resamplingComboBoxModel;
 
-    private final ValueContainer valueContainer;
+    private final PropertyContainer propertyContainer;
 
     public CollocationFormModel(TargetProductSelectorModel targetProductSelectorModel) {
         this.targetProductSelectorModel = targetProductSelectorModel;
         this.createNewProduct = true;
         this.resamplingComboBoxModel = new DefaultComboBoxModel(ResamplingType.values());
-        this.valueContainer = createValueContainer(CollocateOp.Spi.class.getName(), this);
+        this.propertyContainer = createValueContainer(CollocateOp.Spi.class.getName(), this);
     }
 
     // todo - this is a generally useful helper method!
-    public static ValueContainer createValueContainer(String operatorName, Object object) {
-        ValueContainer vc1 = ValueContainer.createObjectBacked(object);
-        ValueContainer vc0 = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(operatorName);
+    public static PropertyContainer createValueContainer(String operatorName, Object object) {
+        PropertyContainer vc1 = PropertyContainer.createObjectBacked(object);
+        PropertyContainer vc0 = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(operatorName);
         try {
             vc0.setDefaultValues();
         } catch (ValidationException e) {
@@ -52,9 +52,9 @@ class CollocationFormModel {
             e.printStackTrace();
         }
 
-        ValueModel[] vma0 = vc0.getModels();
-        for (ValueModel vm0 : vma0) {
-            ValueModel vm1 = vc1.getModel(vm0.getDescriptor().getName());
+        Property[] vma0 = vc0.getProperties();
+        for (Property vm0 : vma0) {
+            Property vm1 = vc1.getProperty(vm0.getDescriptor().getName());
             System.out.println("vm0 = " + vm0);
             System.out.println("vm1 = " + vm1);
             if (vm1 != null) {
@@ -70,8 +70,8 @@ class CollocationFormModel {
         return vc1;
     }
 
-    public ValueContainer getValueContainer() {
-        return valueContainer;
+    public PropertyContainer getValueContainer() {
+        return propertyContainer;
     }
 
     public Product getMasterProduct() {
@@ -178,7 +178,7 @@ class CollocationFormModel {
     }
 
     private void setValueContainerValue(String name, Object value) {
-        valueContainer.setValue(name, value);
+        propertyContainer.setValue(name, value);
     }
 
     private boolean isValidPixelExpressionUsed() {

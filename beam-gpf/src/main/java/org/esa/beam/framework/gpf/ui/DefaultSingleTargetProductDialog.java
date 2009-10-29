@@ -1,10 +1,9 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
@@ -92,17 +91,17 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
         parameterMap = new HashMap<String, Object>(17);
-        final ValueContainer valueContainer = ValueContainer.createMapBacked(parameterMap,
+        final PropertyContainer propertyContainer = PropertyContainer.createMapBacked(parameterMap,
                                                                              operatorSpi.getOperatorClass(),
                                                                              parameterDescriptorFactory);
         try {
-            valueContainer.setDefaultValues();
+            propertyContainer.setDefaultValues();
         } catch (ValidationException e) {
             e.printStackTrace();
             showErrorDialog(e.getMessage());
         }
-        if (valueContainer.getModels().length > 0) {
-            ValueEditorsPane parametersPane = new ValueEditorsPane(valueContainer);
+        if (propertyContainer.getProperties().length > 0) {
+            ValueEditorsPane parametersPane = new ValueEditorsPane(propertyContainer);
             final JPanel paremetersPanel = parametersPane.createPanel();
             paremetersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", new JScrollPane(paremetersPanel));
@@ -111,9 +110,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                 final SourceProductSelector sourceProductSelector = sourceProductSelectorMap.get(field);
                 final String sourceAlias = field.getAnnotation(SourceProduct.class).alias();
 
-                for (ValueModel valueModel : valueContainer.getModels()) {
-                    ValueDescriptor parameterDescriptor = valueModel.getDescriptor();
-                    String sourceId = (String) parameterDescriptor.getProperty("sourceId");
+                for (Property property : propertyContainer.getProperties()) {
+                    PropertyDescriptor parameterDescriptor = property.getDescriptor();
+                    String sourceId = (String) parameterDescriptor.getAttribute("sourceId");
                     if (sourceId != null && (sourceId.equals(field.getName()) || sourceId.equals(sourceAlias))) {
                         SelectionChangeListener valueSetUpdater = new ValueSetUpdater(parameterDescriptor);
                         sourceProductSelector.addSelectionChangeListener(valueSetUpdater);
@@ -156,7 +155,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                 if (!annot.alias().isEmpty()) {
                     name = annot.alias();
                 }
-                label = ValueDescriptor.createDisplayName(name);
+                label = PropertyDescriptor.createDisplayName(name);
             }
             if (!label.endsWith(":")) {
                 label += ":";

@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -36,7 +36,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
     public static Layer createBitmaskLayer(RasterDataNode raster, final BitmaskDef bitmaskDef,
                                            AffineTransform i2mTransform) {
         final LayerType type = LayerType.getLayerType(BitmaskLayerType.class);
-        final ValueContainer configuration = type.createLayerConfig(null);
+        final PropertyContainer configuration = type.createLayerConfig(null);
         configuration.setValue(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF, bitmaskDef);
         configuration.setValue(BitmaskLayerType.PROPERTY_NAME_PRODUCT, raster.getProduct());
         configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
@@ -47,7 +47,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
             final MultiLevelSource multiLevelSource = createMultiLevelSource(configuration);
             configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
@@ -61,7 +61,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
         return layer;
     }
 
-    private MultiLevelSource createMultiLevelSource(ValueContainer configuration) {
+    private MultiLevelSource createMultiLevelSource(PropertyContainer configuration) {
         final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_NAME_BITMASK_DEF);
         final Product product = (Product) configuration.getValue(PROPERTY_NAME_PRODUCT);
         final AffineTransform transform = (AffineTransform) configuration.getValue(
@@ -71,20 +71,20 @@ public class BitmaskLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        final ValueContainer vc = super.createLayerConfig(ctx);
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        final PropertyContainer vc = super.createLayerConfig(ctx);
 
-        vc.addModel(ValueModel.createValueModel(PROPERTY_NAME_BITMASK_DEF, BitmaskDef.class));
-        vc.getModel(PROPERTY_NAME_BITMASK_DEF).getDescriptor().setNotNull(true);
+        vc.addProperty(Property.create(PROPERTY_NAME_BITMASK_DEF, BitmaskDef.class));
+        vc.getProperty(PROPERTY_NAME_BITMASK_DEF).getDescriptor().setNotNull(true);
 
-        vc.addModel(ValueModel.createValueModel(PROPERTY_NAME_PRODUCT, Product.class));
-        vc.getModel(PROPERTY_NAME_PRODUCT).getDescriptor().setNotNull(true);
+        vc.addProperty(Property.create(PROPERTY_NAME_PRODUCT, Product.class));
+        vc.getProperty(PROPERTY_NAME_PRODUCT).getDescriptor().setNotNull(true);
 
         return vc;
     }
 
     public Layer createLayer(BitmaskDef bitmaskDef, Product product, AffineTransform i2m) {
-        final ValueContainer configuration = createLayerConfig(null);
+        final PropertyContainer configuration = createLayerConfig(null);
         configuration.setValue(PROPERTY_NAME_BITMASK_DEF, bitmaskDef);
         configuration.setValue(PROPERTY_NAME_PRODUCT, product);
         configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2m);

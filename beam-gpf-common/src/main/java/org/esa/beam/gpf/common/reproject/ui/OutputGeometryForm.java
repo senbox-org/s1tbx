@@ -16,7 +16,7 @@
  */
 package org.esa.beam.gpf.common.reproject.ui;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ValueEditor;
 import com.bc.ceres.binding.swing.ValueEditorRegistry;
@@ -139,14 +139,14 @@ class OutputGeometryForm extends JPanel {
     }
     
     private JComponent[] createComponents(String propertyName) {
-        ValueDescriptor descriptor = context.getValueContainer().getDescriptor(propertyName);
+        PropertyDescriptor descriptor = context.getPropertyContainer().getDescriptor(propertyName);
         ValueEditorRegistry valueEditorRegistry = ValueEditorRegistry.getInstance();
         ValueEditor editor = valueEditorRegistry.findValueEditor(descriptor);
         return editor.createComponents(descriptor, context);
     }
 
     private JComponent createUnitComponent(String propertyName) {
-        ValueDescriptor descriptor = context.getValueContainer().getDescriptor(propertyName);
+        PropertyDescriptor descriptor = context.getPropertyContainer().getDescriptor(propertyName);
         JLabel unitLabel = new JLabel(descriptor.getUnit());
         context.getBinding(propertyName).addComponent(unitLabel);
         return unitLabel;

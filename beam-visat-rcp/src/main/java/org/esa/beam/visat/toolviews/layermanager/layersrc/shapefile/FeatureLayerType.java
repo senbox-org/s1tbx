@@ -2,8 +2,8 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
@@ -55,7 +55,7 @@ public class FeatureLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, ValueContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         if (configuration.getValue(PROPERTY_NAME_FEATURE_COLLECTION_CRS) == null && ctx != null) {
             configuration.setValue(PROPERTY_NAME_FEATURE_COLLECTION_CRS, ctx.getCoordinateReferenceSystem());
         }
@@ -63,27 +63,27 @@ public class FeatureLayerType extends LayerType {
     }
 
     @Override
-    public ValueContainer createLayerConfig(LayerContext ctx) {
-        final ValueContainer configuration = new ValueContainer();
+    public PropertyContainer createLayerConfig(LayerContext ctx) {
+        final PropertyContainer configuration = new PropertyContainer();
 
         // Mandatory Parameters
 
-        configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_FEATURE_COLLECTION, FeatureCollection.class));
+        configuration.addProperty(Property.create(PROPERTY_NAME_FEATURE_COLLECTION, FeatureCollection.class));
         configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION).setTransient(true);
         //configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION).setNotNull(true);
 
-        configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_SLD_STYLE, Style.class));
+        configuration.addProperty(Property.create(PROPERTY_NAME_SLD_STYLE, Style.class));
         configuration.getDescriptor(PROPERTY_NAME_SLD_STYLE).setDomConverter(new StyleDomConverter());
         configuration.getDescriptor(PROPERTY_NAME_SLD_STYLE).setNotNull(true);
 
         // Optional Parameters
 
-        configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, Geometry.class));
+        configuration.addProperty(Property.create(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, Geometry.class));
         configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY).setDomConverter(new GeometryDomConverter());
 
-        configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_FEATURE_COLLECTION_URL, URL.class));
+        configuration.addProperty(Property.create(PROPERTY_NAME_FEATURE_COLLECTION_URL, URL.class));
 
-        configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_FEATURE_COLLECTION_CRS, CoordinateReferenceSystem.class));
+        configuration.addProperty(Property.create(PROPERTY_NAME_FEATURE_COLLECTION_CRS, CoordinateReferenceSystem.class));
         configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setDomConverter(new CRSDomConverter());
         configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setTransient(true);
 

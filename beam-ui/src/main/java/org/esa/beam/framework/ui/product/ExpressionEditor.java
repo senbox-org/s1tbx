@@ -16,7 +16,7 @@
  */
 package org.esa.beam.framework.ui.product;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
@@ -24,7 +24,6 @@ import com.bc.ceres.binding.swing.ValueEditor;
 import com.bc.ceres.binding.swing.internal.TextFieldAdapter;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.PropertyMap;
 
@@ -34,7 +33,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -63,10 +61,10 @@ public class ExpressionEditor extends ValueEditor {
     }
 
     @Override
-    public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
+    public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         JTextField textField = new JTextField();
         ComponentAdapter adapter = new TextFieldAdapter(textField);
-        final Binding binding = bindingContext.bind(valueDescriptor.getName(), adapter);
+        final Binding binding = bindingContext.bind(propertyDescriptor.getName(), adapter);
         final JPanel subPanel = new JPanel(new BorderLayout(2, 2));
         subPanel.add(textField, BorderLayout.CENTER);
         JButton etcButton = new JButton("...");

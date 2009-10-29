@@ -16,7 +16,7 @@
  */
 package org.esa.beam.framework.ui;
 
-import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ValueEditor;
 import com.jidesoft.combobox.ColorComboBox;
@@ -35,8 +35,8 @@ import javax.swing.JComponent;
 public class ColorEditor extends ValueEditor {
 
     @Override
-    public boolean isValidFor(ValueDescriptor valueDescriptor) {
-        Class<?> type = valueDescriptor.getType();
+    public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
+        Class<?> type = propertyDescriptor.getType();
         if (type.isAssignableFrom(Color.class)) {
             return true;
         }
@@ -44,12 +44,12 @@ public class ColorEditor extends ValueEditor {
     }
     
     @Override
-    public JComponent createEditorComponent(ValueDescriptor valueDescriptor, BindingContext bindingContext) {
+    public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         ColorComboBox colorComboBox = new ColorComboBox();
         colorComboBox.setColorValueVisible(true);
         colorComboBox.setAllowDefaultColor(true);
         ColorComboBoxAdapter adapter = new ColorComboBoxAdapter(colorComboBox);
-        bindingContext.bind(valueDescriptor.getName(), adapter);
+        bindingContext.bind(propertyDescriptor.getName(), adapter);
         return colorComboBox;
     }
 }
