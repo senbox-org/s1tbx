@@ -61,7 +61,6 @@ class MaskTable extends JTable {
         addMouseMotionListener(toolTipSetter);
         setRowHeight(this.getRowHeight() + 4);
         reconfigureColumnModel();
-        // getModel().addTableModelListener(new ColumnReconfigurerTML());
     }
 
     @Override
