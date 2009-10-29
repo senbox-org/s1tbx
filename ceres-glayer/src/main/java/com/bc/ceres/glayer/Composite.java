@@ -4,6 +4,8 @@ import java.awt.*;
 
 /**
  * An enumeration used by the {@link Style} interface.
+ *
+ * @author Norman Fomferra
  */
 public enum Composite {
     CLEAR(AlphaComposite.CLEAR),

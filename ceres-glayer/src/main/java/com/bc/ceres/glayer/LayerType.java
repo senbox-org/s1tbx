@@ -6,6 +6,10 @@ import com.bc.ceres.core.ExtensibleObject;
 /**
  * A layer type is a factory for layer instances and layer (default) configurations.
  * Layer types are managed by the {@link LayerTypeRegistry}.
+ *
+ * @author Norman Fomferra
+ * @author Marco Peters
+ * @author Marco Zuehlke
  */
 public abstract class LayerType extends ExtensibleObject {
 

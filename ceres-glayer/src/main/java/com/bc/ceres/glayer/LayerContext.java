@@ -11,6 +11,8 @@ package com.bc.ceres.glayer;
  * in order to provide special layer type implementations with access to application specific services.
  * Therefore this interface is intended to be implemented by clients.
  * Since implementations of this interface are application-specific, there is no default implementation.
+ *
+ * @author Norman Fomferra
  */
 public interface LayerContext {
     /**

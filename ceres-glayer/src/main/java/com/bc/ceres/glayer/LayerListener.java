@@ -5,6 +5,8 @@ import java.beans.PropertyChangeEvent;
 
 /**
  * A change listener.
+ *
+ * @author Norman Fomferra
  */
 public interface LayerListener {
     /**

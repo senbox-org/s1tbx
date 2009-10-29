@@ -30,7 +30,7 @@ import java.util.ServiceLoader;
  * class' fully qualified name: {@code com.bc.ceres.glayer.LayerType}.
  *
  * @author Marco Zuehlke
- * @since ceres 0.10
+ * @since Ceres 0.10
  */
 public class LayerTypeRegistry {
 
