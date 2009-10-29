@@ -3,7 +3,7 @@ package com.bc.ceres.core.runtime;
 import com.bc.ceres.core.CoreException;
 
 /**
- * A runtime for application composed of multiple modules.
+ * A runtime for applications composed of multiple modules.
  * <p/>A module runtime is configured through a {@link RuntimeConfig}.
  * <p/>The {@link #getModule()} method implemented of a <code>ModuleRuntime</code> returns the system module.
  * <p/>This interface is not intended to be implemented by clients.
