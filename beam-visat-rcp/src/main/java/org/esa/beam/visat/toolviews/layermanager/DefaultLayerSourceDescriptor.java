@@ -1,6 +1,8 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
+
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SimpleLayerSource;
 
 /**
@@ -112,7 +114,7 @@ public class DefaultLayerSourceDescriptor implements LayerSourceDescriptor {
         }
         if (layerType == null) {
             try {
-                return LayerType.getLayerType(layerTypeClassName);
+                return LayerTypeRegistry.getLayerType(layerTypeClassName);
             } catch (Exception e) {
                 String message = String.format("Could not create instance of class [%s]", layerTypeClassName);
                 throw new IllegalStateException(message, e);

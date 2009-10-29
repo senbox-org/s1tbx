@@ -3,6 +3,8 @@ package org.esa.beam.visat.actions.session.dom;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
+
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PinDescriptor;
@@ -20,7 +22,7 @@ public class PlacemarkLayerConfigurationPersistencyTest extends AbstractLayerCon
     private Product product;
 
     public PlacemarkLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(PlacemarkLayerType.class));
+        super(LayerTypeRegistry.getLayerType(PlacemarkLayerType.class));
     }
 
     @Before

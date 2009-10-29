@@ -8,6 +8,8 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertSame;
 import org.esa.beam.framework.datamodel.Band;
@@ -47,7 +49,7 @@ public class WmsLayerConfigurationPersistencyTest {
 
     @Test
     public void testPersistency() throws ValidationException, ConversionException, MalformedURLException {
-        final WmsLayerType wmsLayerType = (WmsLayerType) LayerType.getLayerType(WmsLayerType.class.getName());
+        final WmsLayerType wmsLayerType = LayerTypeRegistry.getLayerType(WmsLayerType.class);
         final PropertyContainer configuration = wmsLayerType.createLayerConfig(null);
         configuration.setValue(WmsLayerType.PROPERTY_NAME_STYLE_NAME, "FancyStyle");
         configuration.setValue(WmsLayerType.PROPERTY_NAME_URL, new URL("http://www.mapserver.org"));

@@ -3,6 +3,7 @@ package org.esa.beam.glayer;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -23,7 +24,7 @@ public class PlacemarkLayerTest extends TestCase {
         final PinDescriptor pmd = PinDescriptor.INSTANCE;
         final AffineTransform i2m = new AffineTransform();
 
-        final LayerType type = LayerType.getLayerType(PlacemarkLayerType.class);
+        final LayerType type = LayerTypeRegistry.getLayerType(PlacemarkLayerType.class);
         final PropertyContainer template = type.createLayerConfig(null);
         template.setValue("product", product);
         template.setValue("placemarkDescriptor", pmd);

@@ -3,6 +3,8 @@ package org.esa.beam.visat.actions.session.dom;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
+
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -19,7 +21,7 @@ public class RoiLayerConfigurationPersistencyTest extends AbstractLayerConfigura
     private RasterDataNode raster;
 
     public RoiLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(RoiLayerType.class.getName()));
+        super(LayerTypeRegistry.getLayerType(RoiLayerType.class.getName()));
     }
 
     @Before

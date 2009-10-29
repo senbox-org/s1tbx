@@ -18,7 +18,7 @@ package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.Graticule;
@@ -45,8 +45,7 @@ import java.beans.PropertyChangeEvent;
  */
 public class GraticuleLayer extends Layer {
 
-    private static final GraticuleLayerType LAYER_TYPE = (GraticuleLayerType) LayerType.getLayerType(
-            GraticuleLayerType.class);
+    private static final GraticuleLayerType LAYER_TYPE = LayerTypeRegistry.getLayerType(GraticuleLayerType.class);
 
     private RasterDataNode raster;
     private final AffineTransform i2mTransform;

@@ -5,6 +5,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
@@ -32,7 +33,7 @@ public class MaskLayerType extends ImageLayer.Type {
     }
 
     public static Layer createLayer(RasterDataNode raster, Mask mask) {
-        MaskLayerType type = LayerType.getLayerType(MaskLayerType.class);
+        MaskLayerType type = LayerTypeRegistry.getLayerType(MaskLayerType.class);
         PropertyContainer configuration = type.createLayerConfig(null);
         configuration.setValue(MaskLayerType.PROPERTY_NAME_MASK, mask);
         Layer layer = type.createLayer(null, configuration);

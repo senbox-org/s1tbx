@@ -4,6 +4,8 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
+
 import org.junit.Test;
 
 public abstract class LayerTypeTest {
@@ -19,7 +21,7 @@ public abstract class LayerTypeTest {
     }
 
     public LayerType getLayerType() {
-        return LayerType.getLayerType(getLayerTypeClass());
+        return LayerTypeRegistry.getLayerType(getLayerTypeClass());
     }
 
     @Test

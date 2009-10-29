@@ -4,6 +4,8 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
+
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 
@@ -25,7 +27,7 @@ public class WorldMapPaneDataModel {
     public static final String PROPERTY_AUTO_ZOOM_ENABLED = "autoZoomEnabled";
 
     private PropertyChangeSupport changeSupport;
-    private static final LayerType layerType = LayerType.getLayerType("org.esa.beam.worldmap.BlueMarbleLayerType");
+    private static final LayerType layerType = LayerTypeRegistry.getLayerType("org.esa.beam.worldmap.BlueMarbleLayerType");
     private Layer worldMapLayer;
     private Product selectedProduct;
     private boolean autoZoomEnabled;

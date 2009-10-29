@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Geometry;
@@ -76,7 +77,7 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
             Style[] styles = getStyles(file, featureCollection);
             Style selectedStyle = getSelectedStyle(styles);
 
-            final LayerType type = LayerType.getLayerType(FeatureLayerType.class.getName());
+            final LayerType type = LayerTypeRegistry.getLayerType(FeatureLayerType.class.getName());
             final PropertyContainer configuration = type.createLayerConfig(sceneView);
             configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL, file.toURI().toURL());
             configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CRS, targetCrs);

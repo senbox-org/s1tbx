@@ -5,6 +5,8 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.CanceledException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
+
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.BitmaskDef;
@@ -268,7 +270,7 @@ public class SessionTest extends TestCase {
         graticuleLayer.setVisible(true);
         sceneViewD.getRootLayer().getChildren().add(graticuleLayer);
 
-        final BitmaskCollectionLayer.Type type = LayerType.getLayerType(BitmaskCollectionLayer.Type.class);
+        final BitmaskCollectionLayer.Type type = LayerTypeRegistry.getLayerType(BitmaskCollectionLayer.Type.class);
         final PropertyContainer template = type.createLayerConfig(sceneViewD);
         template.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_RASTER, bandD);
         template.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, new AffineTransform());

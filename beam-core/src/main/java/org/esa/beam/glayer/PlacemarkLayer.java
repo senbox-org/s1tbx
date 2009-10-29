@@ -3,6 +3,7 @@ package org.esa.beam.glayer;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.Pin;
@@ -26,7 +27,7 @@ import java.util.Collection;
 
 public class PlacemarkLayer extends Layer {
 
-    private static final PlacemarkLayerType LAYER_TYPE = (PlacemarkLayerType) LayerType.getLayerType(PlacemarkLayerType.class);
+    private static final PlacemarkLayerType LAYER_TYPE = LayerTypeRegistry.getLayerType(PlacemarkLayerType.class);
 
     public static final String PROPERTY_NAME_TEXT_FONT = "text.font";
     public static final String PROPERTY_NAME_TEXT_ENABLED = "text.enabled";

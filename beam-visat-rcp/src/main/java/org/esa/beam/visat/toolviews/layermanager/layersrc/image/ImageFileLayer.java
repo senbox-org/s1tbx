@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
@@ -24,7 +25,7 @@ class ImageFileLayer extends Layer {
         super(layerType, configuration);
         final MultiLevelSource multiLevelSource = createMultiLevelSource();
 
-        final LayerType imageLayerType = LayerType.getLayerType(ImageLayer.Type.class.getName());
+        final LayerType imageLayerType = LayerTypeRegistry.getLayerType(ImageLayer.Type.class.getName());
         final PropertyContainer template = imageLayerType.createLayerConfig(null); // todo - pass correct context
         template.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         template.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,

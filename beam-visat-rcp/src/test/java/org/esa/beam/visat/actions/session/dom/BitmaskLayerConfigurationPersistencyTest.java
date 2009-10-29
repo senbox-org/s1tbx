@@ -3,6 +3,8 @@ package org.esa.beam.visat.actions.session.dom;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
+
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.glayer.BitmaskLayerType;
@@ -18,7 +20,7 @@ public class BitmaskLayerConfigurationPersistencyTest extends AbstractLayerConfi
     private BitmaskDef bitmaskDef;
 
     public BitmaskLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(BitmaskLayerType.class));
+        super(LayerTypeRegistry.getLayerType(BitmaskLayerType.class));
     }
 
     @Before

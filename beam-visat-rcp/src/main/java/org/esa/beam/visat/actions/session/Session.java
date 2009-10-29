@@ -15,6 +15,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.grender.Viewport;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
@@ -426,7 +427,7 @@ public class Session {
                                     Layer parentLayer,
                                     LayerRef layerRef,
                                     ProductManager productManager) throws ConversionException, ValidationException {
-        final LayerType type = LayerType.getLayerType(layerRef.layerTypeName);
+        final LayerType type = LayerTypeRegistry.getLayerType(layerRef.layerTypeName);
         final SessionDomConverter converter = new SessionDomConverter(productManager);
         final PropertyContainer template = type.createLayerConfig(layerContext);
         converter.convertDomToValue(layerRef.configuration, template);

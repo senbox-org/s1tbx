@@ -3,6 +3,7 @@ package org.esa.beam.visat;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.jidesoft.swing.JideScrollPane;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -170,7 +171,7 @@ public class ProductsToolView extends AbstractToolView {
                 return;
             }
             if (clickCount == 2) {
-                LayerType flt = LayerType.getLayerType(FeatureLayerType.class);
+                LayerType flt = LayerTypeRegistry.getLayerType(FeatureLayerType.class);
 
                 final PropertyContainer conf = flt.createLayerConfig(sceneView);
                 final StyleBuilder builder = new StyleBuilder();

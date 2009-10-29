@@ -5,6 +5,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.BitmaskDef;
@@ -35,7 +36,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
 
     public static Layer createBitmaskLayer(RasterDataNode raster, final BitmaskDef bitmaskDef,
                                            AffineTransform i2mTransform) {
-        final LayerType type = LayerType.getLayerType(BitmaskLayerType.class);
+        final LayerType type = LayerTypeRegistry.getLayerType(BitmaskLayerType.class);
         final PropertyContainer configuration = type.createLayerConfig(null);
         configuration.setValue(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF, bitmaskDef);
         configuration.setValue(BitmaskLayerType.PROPERTY_NAME_PRODUCT, raster.getProduct());

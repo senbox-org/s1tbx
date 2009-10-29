@@ -21,6 +21,7 @@ import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
@@ -63,7 +64,7 @@ public class WorldMapImageLoader {
         if (worldMapImage == null || isHighRes() != highRes) {
             setHighRes(highRes);
 
-            LayerType layerType = LayerType.getLayerType("org.esa.beam.worldmap.BlueMarbleLayerType");
+            LayerType layerType = LayerTypeRegistry.getLayerType("org.esa.beam.worldmap.BlueMarbleLayerType");
             if (layerType == null) {
                 worldMapImage = createErrorImage();
             } else {

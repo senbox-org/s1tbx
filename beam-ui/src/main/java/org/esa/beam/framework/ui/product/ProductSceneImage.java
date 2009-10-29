@@ -7,6 +7,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerUtils;
 import org.esa.beam.framework.datamodel.BitmaskDef;
@@ -280,10 +281,10 @@ public class ProductSceneImage implements LayerContext {
     private Layer createBaseImageLayer() {
         final Layer layer;
         if (getRasters().length == 1) {
-            final RasterImageLayerType type = LayerType.getLayerType(RasterImageLayerType.class);
+            final RasterImageLayerType type = LayerTypeRegistry.getLayerType(RasterImageLayerType.class);
             layer = type.createLayer(getRaster(), bandImageMultiLevelSource);
         } else {
-            final RgbImageLayerType type = LayerType.getLayerType(RgbImageLayerType.class);
+            final RgbImageLayerType type = LayerTypeRegistry.getLayerType(RgbImageLayerType.class);
             layer = type.createLayer(getRasters(), bandImageMultiLevelSource);
         }
 
@@ -309,7 +310,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private Layer createNoDataLayer(AffineTransform imageToModelTransform) {
-        final LayerType noDatatype = LayerType.getLayerType(NoDataLayerType.class);
+        final LayerType noDatatype = LayerTypeRegistry.getLayerType(NoDataLayerType.class);
         final PropertyContainer configTemplate = noDatatype.createLayerConfig(null);
 
         final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
@@ -321,7 +322,7 @@ public class ProductSceneImage implements LayerContext {
 
     @Deprecated
     private Layer createBitmaskCollectionLayer(AffineTransform i2mTransform) {
-        final LayerType bitmaskCollectionType = LayerType.getLayerType(BitmaskCollectionLayer.Type.class);
+        final LayerType bitmaskCollectionType = LayerTypeRegistry.getLayerType(BitmaskCollectionLayer.Type.class);
         final PropertyContainer layerConfig = bitmaskCollectionType.createLayerConfig(null);
         layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_RASTER, getRaster());
         layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
@@ -335,7 +336,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private synchronized Layer createMaskCollectionLayer() {
-        final LayerType maskCollectionType = LayerType.getLayerType(MaskCollectionLayerType.class);
+        final LayerType maskCollectionType = LayerTypeRegistry.getLayerType(MaskCollectionLayerType.class);
         final PropertyContainer layerConfig = maskCollectionType.createLayerConfig(null);
         layerConfig.setValue(MaskCollectionLayerType.PROPERTY_NAME_RASTER, getRaster());
         final Layer maskCollectionLayer = maskCollectionType.createLayer(this, layerConfig);
@@ -348,7 +349,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private FigureLayer createFigureLayer(AffineTransform i2mTransform) {
-        final LayerType figureType = LayerType.getLayerType(FigureLayerType.class);
+        final LayerType figureType = LayerTypeRegistry.getLayerType(FigureLayerType.class);
         final PropertyContainer template = figureType.createLayerConfig(null);
         template.setValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST, new ArrayList<Figure>());
         template.setValue(FigureLayer.PROPERTY_NAME_TRANSFORM, i2mTransform);
@@ -405,7 +406,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private ImageLayer createRoiLayer(AffineTransform imageToModelTransform) {
-        final LayerType roiLayerType = LayerType.getLayerType(RoiLayerType.class);
+        final LayerType roiLayerType = LayerTypeRegistry.getLayerType(RoiLayerType.class);
 
         final Color color = configuration.getPropertyColor(RoiLayerType.PROPERTY_NAME_COLOR, Color.RED);
         final double transparency = configuration.getPropertyDouble(RoiLayerType.PROPERTY_NAME_TRANSPARENCY, 0.5);
@@ -419,7 +420,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     private GraticuleLayer createGraticuleLayer(AffineTransform i2mTransform) {
-        final LayerType layerType = LayerType.getLayerType(GraticuleLayerType.class);
+        final LayerType layerType = LayerTypeRegistry.getLayerType(GraticuleLayerType.class);
         final PropertyContainer template = layerType.createLayerConfig(null);
         template.setValue(GraticuleLayerType.PROPERTY_NAME_RASTER, getRaster());
         template.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM, i2mTransform);

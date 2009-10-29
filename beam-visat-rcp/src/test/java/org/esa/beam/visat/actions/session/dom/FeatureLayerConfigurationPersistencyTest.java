@@ -3,6 +3,7 @@ package org.esa.beam.visat.actions.session.dom;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
@@ -22,7 +23,7 @@ import org.opengis.filter.FilterFactory;
 public class FeatureLayerConfigurationPersistencyTest extends AbstractLayerConfigurationPersistencyTest {
 
     public FeatureLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(FeatureLayerType.class));
+        super(LayerTypeRegistry.getLayerType(FeatureLayerType.class));
     }
 
     @Override

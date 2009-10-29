@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
@@ -34,7 +35,7 @@ public class WmsLayer extends Layer {
     private final ImageLayer layerDelegate;
 
     protected WmsLayer(PropertyContainer configuration) {
-        super(LayerType.getLayerType(WmsLayerType.class.getName()), configuration);
+        super(LayerTypeRegistry.getLayerType(WmsLayerType.class.getName()), configuration);
         final WebMapServer mapServer;
         try {
             mapServer = getWmsServer(configuration);
@@ -47,8 +48,7 @@ public class WmsLayer extends Layer {
         final org.geotools.data.ows.Layer layer = getLayer(mapServer, layerIndex);
         final MultiLevelSource multiLevelSource = createMultiLevelSource(configuration, mapServer, layer);
 
-        final ImageLayer.Type imageLayerType = (ImageLayer.Type) LayerType.getLayerType(
-                ImageLayer.Type.class.getName());
+        final ImageLayer.Type imageLayerType = LayerTypeRegistry.getLayerType(ImageLayer.Type.class);
         final PropertyContainer template = imageLayerType.createLayerConfig(null); // todo - pass correct context
         template.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         template.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,

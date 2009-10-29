@@ -3,6 +3,8 @@ package org.esa.beam.visat.actions.session.dom;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.glayer.RasterImageLayerType;
 
@@ -11,7 +13,7 @@ import java.awt.geom.AffineTransform;
 public class RasterImageLayerConfigurationPersistencyTest extends AbstractLayerConfigurationPersistencyTest {
 
     public RasterImageLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(RasterImageLayerType.class));
+        super(LayerTypeRegistry.getLayerType(RasterImageLayerType.class));
     }
 
     @Override

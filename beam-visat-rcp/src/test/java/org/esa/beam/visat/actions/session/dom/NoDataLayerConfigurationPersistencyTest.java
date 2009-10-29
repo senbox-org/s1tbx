@@ -3,6 +3,8 @@ package org.esa.beam.visat.actions.session.dom;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
+
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -19,7 +21,7 @@ public class NoDataLayerConfigurationPersistencyTest extends AbstractLayerConfig
     private RasterDataNode raster;
 
     public NoDataLayerConfigurationPersistencyTest() {
-        super(LayerType.getLayerType(NoDataLayerType.class));
+        super(LayerTypeRegistry.getLayerType(NoDataLayerType.class));
     }
 
     @Before
