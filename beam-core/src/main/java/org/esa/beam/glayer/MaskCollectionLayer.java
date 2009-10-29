@@ -20,6 +20,7 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
@@ -28,6 +29,7 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
+import java.beans.PropertyChangeEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -39,14 +41,16 @@ public class MaskCollectionLayer extends CollectionLayer {
     private final ProductNodeListener maskPNL;
     private RasterDataNode raster;
 
-    public MaskCollectionLayer(MaskCollectionLayerType layerType, final RasterDataNode raster,
+    public MaskCollectionLayer(MaskCollectionLayerType layerType,
+                               RasterDataNode raster,
                                PropertyContainer configuration) {
         super(layerType, configuration, "Masks");
+        Assert.notNull(raster, "raster");
         this.raster = raster;
-        Assert.notNull(this.raster, "raster");
-        maskPNL = new MaskPNL();
+        this.maskPNL = new MaskPNL();
         setId(ID);
         getProduct().addProductNodeListener(maskPNL);
+        addListener(new VisibilityLL());
     }
 
     @Override
@@ -93,18 +97,13 @@ public class MaskCollectionLayer extends CollectionLayer {
         // Allign mask layers with available masks
         Mask[] availableMasks = raster.getProduct().getMaskGroup().toArray(new Mask[0]);
         HashSet<Layer> unusedLayers = new HashSet<Layer>(getChildren());
-        for (int i = 0; i < availableMasks.length; i++) {
-            Mask availableMask = availableMasks[i];
+        for (Mask availableMask : availableMasks) {
             Layer layer = currentLayers.get(availableMask);
-            if (layer == null) {
-                layer = createLayer(availableMask);
-                getChildren().add(i, layer);
-            }else  if (layer != getChildren().get(i)) {
-                getChildren().remove(i);
-                getChildren().add(i, layer);
+            if (layer != null) {
                 unusedLayers.remove(layer);
             } else {
-                unusedLayers.remove(layer);
+                layer = createLayer(availableMask);
+                getChildren().add(layer);
             }
             layer.setVisible(raster.getOverlayMaskGroup().contains(availableMask));
         }
@@ -146,4 +145,20 @@ public class MaskCollectionLayer extends CollectionLayer {
         }
     }
 
+    private class VisibilityLL extends AbstractLayerListener {
+        @Override
+        public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
+            if ("visible".equals(event.getPropertyName())) {
+                final Object value = layer.getConfiguration().getValue("mask");
+                if (value instanceof Mask) {
+                    Mask mask = (Mask) value;
+                    if (layer.isVisible()) {
+                        getRaster().getOverlayMaskGroup().add(mask);
+                    } else {
+                        getRaster().getOverlayMaskGroup().remove(mask);
+                    }
+                }
+            }
+        }
+    }
 }

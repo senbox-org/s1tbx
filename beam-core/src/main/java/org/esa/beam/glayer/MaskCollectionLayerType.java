@@ -19,8 +19,8 @@ public class MaskCollectionLayerType extends CollectionLayer.Type {
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-        return new MaskCollectionLayer(this, (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER),
-                                       configuration);
+        final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
+        return new MaskCollectionLayer(this, raster, configuration);
     }
 
     @Override
