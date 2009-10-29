@@ -50,7 +50,7 @@ h3. Product Data Model Changes
 
 h3. Ceres Binding API Changes
 
-* Extensive renamings:
+* Terminology changes followed by extensive renamings:
 ** ValueModel --> Property
 ** ValueDescriptor --> PropertyDescriptor
 ** ValueContainer --> PropertyContainer
