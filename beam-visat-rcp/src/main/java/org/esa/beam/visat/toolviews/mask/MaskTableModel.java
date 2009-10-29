@@ -13,7 +13,6 @@
 
 package org.esa.beam.visat.toolviews.mask;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -313,7 +312,7 @@ class MaskTableModel extends AbstractTableModel {
             if (event.getSourceNode() instanceof Mask) {
                 fireTableDataChanged();
             }
-            if (event.getSourceNode() == visibleBand 
+            if (event.getSourceNode() == visibleBand
                     && event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_IMAGE_INFO)) {
                 fireTableDataChanged();
             }
