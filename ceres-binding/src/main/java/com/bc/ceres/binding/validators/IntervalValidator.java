@@ -20,7 +20,7 @@ public class IntervalValidator implements Validator {
         if (value instanceof Number) {
 
             if (!valueRange.contains(((Number) value).doubleValue())) {
-                final String message = MessageFormat.format("Value for ''{0}'' is out of range ''{1}''.",
+                final String message = MessageFormat.format("Value for ''{0}'' is out of range {1}.",
                                                             valueModel.getDescriptor().getDisplayName(),
                                                             valueRange.toString());
                 throw new ValidationException(message);

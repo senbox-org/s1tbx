@@ -51,22 +51,4 @@ public abstract class LayerType extends ExtensibleObject {
     }
 
 
-    // todo - Layer API: check following createDefaultValueModel helpers:
-    // (1) why "default"? why static if protected? should be non-static for override.
-    // (2) check ALT+F7: no framework usage
-    protected static ValueModel createDefaultValueModel(String propertyName, Class<?> type) {
-        final ValueDescriptor descriptor = new ValueDescriptor(propertyName, type);
-        return new ValueModel(descriptor, new DefaultValueAccessor());
-    }
-
-    protected static <T> ValueModel createDefaultValueModel(String propertyName, Class<T> type, T defaultValue) {
-        final ValueDescriptor descriptor = new ValueDescriptor(propertyName, type);
-        descriptor.setDefaultValue(defaultValue);
-        descriptor.setNotNull(true);
-
-        final DefaultValueAccessor accessor = new DefaultValueAccessor();
-        accessor.setValue(defaultValue);
-
-        return new ValueModel(descriptor, accessor);
-    }
 }

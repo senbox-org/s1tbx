@@ -134,13 +134,11 @@ public class ShapeLayer extends Layer {
         public ValueContainer createLayerConfig(LayerContext ctx) {
             final ValueContainer vc = new ValueContainer();
 
-            final ValueModel shapeListModel = createDefaultValueModel(PROPERTY_SHAPE_LIST, List.class);
+            final ValueModel shapeListModel = ValueModel.createValueModel(PROPERTY_SHAPE_LIST, List.class);
             shapeListModel.getDescriptor().setDefaultValue(new ArrayList<Shape>());
             vc.addModel(shapeListModel);
 
-            final ValueModel transformModel = createDefaultValueModel(PROPTERY_SHAPE_TO_MODEL_TRANSFORM,
-                                                                      AffineTransform.class,
-                                                                      new AffineTransform());
+            final ValueModel transformModel = ValueModel.createValueModel(PROPTERY_SHAPE_TO_MODEL_TRANSFORM, AffineTransform.class, new AffineTransform(), true);
             vc.addModel(transformModel);
 
             return vc;

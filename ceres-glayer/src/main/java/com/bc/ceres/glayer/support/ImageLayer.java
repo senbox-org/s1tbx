@@ -306,25 +306,18 @@ public class ImageLayer extends Layer {
             addMultiLevelSourceModel(template);
             addImageToModelTransformModel(template);
 
-            template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_SHOWN,
-                                                      Boolean.class,
-                                                      ImageLayer.DEFAULT_BORDER_SHOWN));
+            template.addModel(ValueModel.createValueModel(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, Boolean.class, ImageLayer.DEFAULT_BORDER_SHOWN, true));
 
-            template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_COLOR,
-                                                      Color.class,
-                                                      ImageLayer.DEFAULT_BORDER_COLOR));
+            template.addModel(ValueModel.createValueModel(ImageLayer.PROPERTY_NAME_BORDER_COLOR, Color.class, ImageLayer.DEFAULT_BORDER_COLOR, true));
 
-            template.addModel(createDefaultValueModel(ImageLayer.PROPERTY_NAME_BORDER_WIDTH,
-                                                      Double.class,
-                                                      ImageLayer.DEFAULT_BORDER_WIDTH));
+            template.addModel(ValueModel.createValueModel(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, Double.class, ImageLayer.DEFAULT_BORDER_WIDTH, true));
 
             return template;
         }
 
         private static ValueModel addImageToModelTransformModel(ValueContainer configuration) {
             if (configuration.getModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM) == null) {
-                configuration.addModel(createDefaultValueModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
-                                                               AffineTransform.class));
+                configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
             }
             // configuration.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
 
@@ -333,8 +326,7 @@ public class ImageLayer extends Layer {
 
         private static ValueModel addMultiLevelSourceModel(ValueContainer configuration) {
             if (configuration.getModel(PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
-                configuration.addModel(createDefaultValueModel(PROPERTY_NAME_MULTI_LEVEL_SOURCE,
-                                                               MultiLevelSource.class));
+                configuration.addModel(ValueModel.createValueModel(PROPERTY_NAME_MULTI_LEVEL_SOURCE, MultiLevelSource.class));
             }
             configuration.getDescriptor(PROPERTY_NAME_MULTI_LEVEL_SOURCE).setTransient(true);
 

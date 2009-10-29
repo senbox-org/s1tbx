@@ -70,6 +70,15 @@ public class ValueModel {
         return createModel(createValueDescriptor(name, value.getClass()), new DefaultValueAccessor(), value);
     }
 
+    public static <T> ValueModel createValueModel(String name, Class<T> type, T defaultValue, boolean notNull) {
+        final ValueDescriptor descriptor = createValueDescriptor(name, type) ;
+        if (notNull) {
+            descriptor.setDefaultValue(defaultValue);
+            descriptor.setNotNull(true);
+        }
+        return new ValueModel(descriptor, new DefaultValueAccessor(defaultValue));
+    }
+
     public ValueDescriptor getDescriptor() {
         return descriptor;
     }
@@ -225,6 +234,4 @@ public class ValueModel {
         }
         return field;
     }
-
-
 }

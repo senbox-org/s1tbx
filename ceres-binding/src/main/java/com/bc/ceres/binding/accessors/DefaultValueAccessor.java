@@ -15,8 +15,17 @@ public class DefaultValueAccessor implements ValueAccessor {
     }
 
     /**
+     * Constructs a new {@code DefaultValueAccessor} with a {@code null} default value.
+     * @param value The initial value.
+     */
+    public DefaultValueAccessor(Object value) {
+        this.value = value;
+    }
+
+    /**
      * {@inheritDoc}
      */
+    @Override
     public Object getValue() {
         return value;
     }
@@ -24,6 +33,7 @@ public class DefaultValueAccessor implements ValueAccessor {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setValue(Object value) {
         this.value = value;
     }

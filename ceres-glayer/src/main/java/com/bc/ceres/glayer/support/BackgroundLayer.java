@@ -1,6 +1,7 @@
 package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -68,7 +69,7 @@ public class BackgroundLayer extends Layer {
         @Override
         public ValueContainer createLayerConfig(LayerContext ctx) {
             final ValueContainer template = new ValueContainer();
-            template.addModel(createDefaultValueModel(COLOR, Color.class));
+            template.addModel(ValueModel.createValueModel(COLOR, Color.class));
 
             return template;
 
