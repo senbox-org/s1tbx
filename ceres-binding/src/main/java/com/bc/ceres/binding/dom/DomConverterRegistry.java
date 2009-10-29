@@ -5,7 +5,6 @@ import java.util.Map;
 
 public class DomConverterRegistry {
 
-    private static final DomConverterRegistry INSTANCE = new DomConverterRegistry();
     private Map<Class<?>, DomConverter> converterMap = new HashMap<Class<?>, DomConverter>(33);
 
     /**
@@ -14,7 +13,7 @@ public class DomConverterRegistry {
      * @return The instance.
      */
     public static DomConverterRegistry getInstance() {
-        return DomConverterRegistry.INSTANCE;
+        return Holder.instance;
     }
 
     /**
@@ -41,5 +40,10 @@ public class DomConverterRegistry {
             domConverter = converterMap.get(type);
         }
         return domConverter;
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final DomConverterRegistry instance = new DomConverterRegistry();
     }
 }

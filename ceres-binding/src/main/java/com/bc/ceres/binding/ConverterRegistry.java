@@ -38,10 +38,9 @@ import java.util.regex.Pattern;
  */
 public class ConverterRegistry {
 
-    private static final ConverterRegistry instance = new ConverterRegistry();
     private Map<Class<?>, Converter<?>> converters;
 
-    {
+    private ConverterRegistry() {
         converters = new HashMap<Class<?>, Converter<?>>(33);
 
         // Primitive types
@@ -82,7 +81,7 @@ public class ConverterRegistry {
      * @return The instance.
      */
     public static ConverterRegistry getInstance() {
-        return ConverterRegistry.instance;
+        return Holder.instance;
     }
 
     /**
@@ -123,5 +122,10 @@ public class ConverterRegistry {
             }
         }
         return (Converter<T>) converter;
+    }
+    
+    // Initialization on demand holder idiom
+    private static class Holder {
+        private static final ConverterRegistry instance = new ConverterRegistry();
     }
 }

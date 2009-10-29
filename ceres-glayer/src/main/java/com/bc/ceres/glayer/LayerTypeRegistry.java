@@ -75,6 +75,6 @@ public class LayerTypeRegistry {
     // Initialization on demand holder idiom, see
     // http://en.wikipedia.org/wiki/Initialization_on_demand_holder_idiom
     private static class Holder {
-        static LayerTypeRegistry instance = new LayerTypeRegistry();
+        private static final LayerTypeRegistry instance = new LayerTypeRegistry();
     }
 }
