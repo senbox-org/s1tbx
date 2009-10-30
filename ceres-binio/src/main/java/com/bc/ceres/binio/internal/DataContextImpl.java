@@ -7,7 +7,7 @@ import java.io.IOException;
 public class DataContextImpl implements DataContext {
     private final DataFormat format;
     private final IOHandler handler;
-    private CompoundData data;
+    private volatile CompoundData data;
 
     public DataContextImpl(DataFormat format, IOHandler handler) {
         this.format = format;

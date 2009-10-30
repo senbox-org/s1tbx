@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class ConstantExpr extends AbstractExpression {
     private final Expression expression;
-    private Object value;
+    private volatile Object value;
 
     public ConstantExpr(Object value) {
         this.expression = null;
