@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -55,8 +56,8 @@ public class CollectionLayerTest {
 
         layer = new CollectionLayer();
         layer.getChildren().add(new CollectionLayer());
-        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(20, 10, 30, 50)}));
-        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(10, 20, 20, 60)}));
+        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(20, 10, 30, 50)}, new AffineTransform()));
+        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(10, 20, 20, 60)}, new AffineTransform()));
         x1 = Math.min(20, 10);
         y1 = Math.min(10, 20);
         x2 = Math.max(20 + 30, 10 + 20);
@@ -64,9 +65,9 @@ public class CollectionLayerTest {
         assertEquals(new Rectangle(x1, y1, x2 - x1, y2 - y1), layer.getModelBounds());
 
         layer = new CollectionLayer();
-        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(-20, 10, 30, 50)}));
-        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(-10, 20, 20, 60)}));
-        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(1, 2, 40, 50)}));
+        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(-20, 10, 30, 50)}, new AffineTransform()));
+        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(-10, 20, 20, 60)}, new AffineTransform()));
+        layer.getChildren().add(new ShapeLayer(new Shape[]{new Rectangle(1, 2, 40, 50)}, new AffineTransform()));
         x1 = Math.min(Math.min(-20, -10), 1);
         y1 = Math.min(Math.min(10, 20), 2);
         x2 = Math.max(Math.max(-20 + 30, -10 + 20), 1 + 40);
