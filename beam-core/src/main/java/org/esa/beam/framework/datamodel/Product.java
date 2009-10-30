@@ -234,11 +234,12 @@ public class Product extends ProductNode {
         this.pinGroup = new ProductNodeGroup<Pin>(this, "pinGroup", true);
         this.gcpGroup = new ProductNodeGroup<Pin>(this, "gcpGroup", true);
 
-        if ("true".equals(System.getProperty("beam.maskDev"))) {
+        
+        // todo - review me, this is test code (nf 10.2009)
+        this.vectorDataGroup.add(new VectorData("pins", createPlacemarkFeaureType("PinType", "pixelPoint")));
+        this.vectorDataGroup.add(new VectorData("ground_control_points", createPlacemarkFeaureType("GcpType", "geoPoint")));
 
-            // todo - review me, this is test code (nf 10.2009)
-            this.vectorDataGroup.add(new VectorData("pins", createPlacemarkFeaureType("PinType", "pixelPoint")));
-            this.vectorDataGroup.add(new VectorData("ground_control_points", createPlacemarkFeaureType("GcpType", "geoPoint")));
+        if ("true".equals(System.getProperty("beam.maskDev"))) {
 
             // todo - review me, this is test code (nf 10.2009)
             VectorData testShapes1 = createTestShapes1("test_shapes_1");
@@ -254,10 +255,11 @@ public class Product extends ProductNode {
             testShapes2Mask.getImageConfig().setValue("vectorData", testShapes2);
             this.maskGroup.add(testShapes2Mask);
 
-            // todo - remove, only needed because the vector data stuff above modified the product (nf 10.2009)
-            setModified(false);
         }
+        // todo - remove, only needed because the vector data stuff above modified the product (nf 10.2009)
+        setModified(false);
 
+        
         addProductNodeListener(new ProductNodeListenerAdapter() {
             @Override
             public void nodeChanged(final ProductNodeEvent event) {
