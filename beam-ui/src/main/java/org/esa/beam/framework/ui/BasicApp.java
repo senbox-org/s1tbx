@@ -1777,14 +1777,16 @@ public class BasicApp {
         }
     }
 
-    private void initBeamUserDir() {
+    private void initBeamUserDir() throws IOException {
         String userHome = System.getProperty("user.home");
         if (userHome == null) {
             throw new IllegalStateException("Java system property 'user.home' not set");
         }
         _beamUserDir = SystemUtils.getApplicationDataDir(true);
         _appUserDir = new File(_beamUserDir, getAppSymbolicName());
-        _appUserDir.mkdir();
+        if (!_appUserDir.mkdir()) {
+            throw new IOException("Failed to create directory '" + _appUserDir + "'.");
+        }
     }
 
 
