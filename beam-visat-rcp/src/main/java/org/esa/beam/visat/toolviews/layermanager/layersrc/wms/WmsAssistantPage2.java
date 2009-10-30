@@ -9,8 +9,8 @@ import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.layer.Style;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JLabel;
@@ -89,18 +89,18 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
         return panel;
     }
 
+    @SuppressWarnings({"unchecked"})
     private String getMatchingCRSCode(Layer layer) {
         Set<String> srsSet = layer.getSrs();
-        if (modelCRS.equals(DefaultGeographicCRS.WGS84)) {
-            if (srsSet.contains("EPSG:4326")) {
-                return "EPSG:4326";
-            }
-        }
         String modelSRS = CRS.toSRS(modelCRS);
         if (modelSRS != null) {
             for (String srs : srsSet) {
-                if (srs.equalsIgnoreCase(modelSRS)) {
-                    return srs;
+                try {
+                    final CoordinateReferenceSystem crs = CRS.decode(srs,true);
+                    if (CRS.equalsIgnoreMetadata(crs, modelCRS)) {
+                        return srs;
+                    }
+                } catch (FactoryException ignore) {
                 }
             }
         }
