@@ -120,7 +120,7 @@ public class ImageManager {
         }
         final MathTransform image2Map = geoCoding.getImageToMapTransform();
         if (image2Map instanceof AffineTransform) {
-            return (AffineTransform) image2Map;
+            return new AffineTransform((AffineTransform) image2Map);
         }
         return new AffineTransform();
     }
