@@ -372,10 +372,12 @@ public class AdjustableViewScrollPane extends JPanel {
                     remove(verticalScrollBar);
                 }
             }
-            if (cornerComponent != null && hsbVisible && vsbVisible) {
-                add(cornerComponent);
-            } else {
-                remove(cornerComponent);
+            if (cornerComponent != null ) {
+                if (hsbVisible && vsbVisible) {
+                    add(cornerComponent);
+                } else {
+                    remove(cornerComponent);
+                }
             }
             this.hsbVisible = hsbVisible;
             this.vsbVisible = vsbVisible;
