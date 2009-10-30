@@ -46,8 +46,6 @@ import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.HashSet;
-import java.util.ArrayList;
 
 /**
  * The <code>RasterDataNode</code> class ist the abstract base class for all objects in the product package that contain
@@ -884,27 +882,18 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             roiDefinition = null;
         }
         if (sourceImage != null) {
-//            if (sourceImage instanceof PlanarImage) {
-//                PlanarImage planarImage = (PlanarImage) sourceImage;
-//                planarImage.dispose();
-//            }
+            sourceImage.dispose();
             sourceImage = null;
         }
         if (validMaskROI != null) {
             validMaskROI = null;
         }
         if (validMaskImage != null) {
-//            if (validMaskImage instanceof PlanarImage) {
-//                PlanarImage planarImage = (PlanarImage) validMaskImage;
-//                planarImage.dispose();
-//            }
+            validMaskImage.dispose();
             validMaskImage = null;
         }
         if (geophysicalImage != null) {
-//            if (geophysicalImage instanceof PlanarImage) {
-//                PlanarImage planarImage = (PlanarImage) geophysicalImage;
-//                planarImage.dispose();
-//            }
+            geophysicalImage.dispose();
             geophysicalImage = null;
         }
         super.dispose();
