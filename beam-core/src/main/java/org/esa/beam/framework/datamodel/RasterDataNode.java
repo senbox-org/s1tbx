@@ -2272,20 +2272,22 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /////////////////////////////////////////////////////////////////////////
     // Deprecated API
 
+    // todo - find replacement (nf 10.2009)
     /**
      * @return the ROI definition
-     * @Deprecated since BEAM 4.7, use {@link #getRoiMask()} instead
+     * @Deprecated since BEAM 4.7, currently no replacement
      */
     @Deprecated
     public ROIDefinition getROIDefinition() {
         return roiDefinition;
     }
 
+    // todo - find replacement (nf 10.2009)
     /**
      * Sets the ROI definition for image display
      *
      * @param roiDefinition the ROI definition
-     * @Deprecated since BEAM 4.7, use {@link #setRoiMask(Mask roiMask)} instead
+     * @Deprecated since BEAM 4.7, currently no replacement
      */
     @Deprecated
     public void setROIDefinition(ROIDefinition roiDefinition) {
