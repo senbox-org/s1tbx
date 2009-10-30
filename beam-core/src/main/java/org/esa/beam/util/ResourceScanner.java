@@ -124,12 +124,10 @@ public class ResourceScanner {
 
     private static void collectMatchingUrls(Map<String, URL> resourcesMap, Pattern pattern,
                                             ArrayList<URL> resourceUrls) {
-        Set<String> keys = resourcesMap.keySet();
-        for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
-            String key = iterator.next();
-            Matcher matcher = pattern.matcher(key);
+        for (Map.Entry<String, URL> entry : resourcesMap.entrySet()) {
+            Matcher matcher = pattern.matcher(entry.getKey());
             if (matcher.matches()) {
-                resourceUrls.add(resourcesMap.get(key));
+                resourceUrls.add(entry.getValue());
             }
         }
     }
