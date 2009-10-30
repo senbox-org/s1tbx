@@ -16,8 +16,9 @@
  */
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
@@ -37,7 +38,7 @@ public class WmsLayerSource implements LayerSource {
     public boolean isApplicable(LayerSourcePageContext pageContext) {
         ProductSceneView view = pageContext.getAppContext().getSelectedProductSceneView();
         RasterDataNode raster = view.getRaster();
-        return raster.getGeoCoding() instanceof MapGeoCoding;
+        return raster.getGeoCoding() instanceof MapGeoCoding || raster.getGeoCoding() instanceof CrsGeoCoding;
     }
 
     @Override
