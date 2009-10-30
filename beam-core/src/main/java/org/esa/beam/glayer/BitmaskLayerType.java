@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -49,11 +49,12 @@ public class BitmaskLayerType extends ImageLayer.Type {
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-        if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
-            final MultiLevelSource multiLevelSource = createMultiLevelSource(configuration);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+        MultiLevelSource multiLevelSource = (MultiLevelSource)configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
+        if (multiLevelSource == null) {
+            multiLevelSource = createMultiLevelSource(configuration);
         }
-        final ImageLayer layer = new ImageLayer(this, configuration);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+        final ImageLayer layer = new ImageLayer(this, multiLevelSource, configuration);
         final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_NAME_BITMASK_DEF);
         layer.setName(bitmaskDef.getName());
         // TODO: Is this correct? (rq-2009-05-11)

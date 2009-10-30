@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -23,16 +23,16 @@ public class RasterImageLayerType extends ImageLayer.Type {
 
     @Override
     public ImageLayer createLayer(LayerContext ctx, PropertyContainer configuration) {
-        if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
+        MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(
+                ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
+        if (multiLevelSource == null) {
             final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
             final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
                     ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
-            final MultiLevelSource multiLevelSource = BandImageMultiLevelSource.create(raster, i2mTransform,
-                                                                                       ProgressMonitor.NULL);
+            multiLevelSource = BandImageMultiLevelSource.create(raster, i2mTransform, ProgressMonitor.NULL);
             configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         }
-
-        return new ImageLayer(this, configuration);
+        return new ImageLayer(this, multiLevelSource, configuration);
     }
 
     @Override

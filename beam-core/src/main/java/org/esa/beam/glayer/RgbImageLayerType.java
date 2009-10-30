@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -33,7 +33,9 @@ public class RgbImageLayerType extends ImageLayer.Type {
 
     @Override
     public ImageLayer createLayer(LayerContext ctx, PropertyContainer configuration) {
-        if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
+        MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(
+                ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
+        if (multiLevelSource == null) {
             final Product product = (Product) configuration.getValue(PROPERTY_NAME_PRODUCT);
 
             final String[] rgbExpressions = new String[3];
@@ -44,15 +46,15 @@ public class RgbImageLayerType extends ImageLayer.Type {
 
             final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
                     ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
-            final MultiLevelSource multiLevelSource = BandImageMultiLevelSource.create(rasters, i2mTransform,
-                                                                                       ProgressMonitor.NULL);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
+            multiLevelSource = BandImageMultiLevelSource.create(rasters, i2mTransform,
+                                                                ProgressMonitor.NULL);
         }
 
-        return new ImageLayer(this, configuration);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
+        return new ImageLayer(this, multiLevelSource, configuration);
     }
 
     @Override

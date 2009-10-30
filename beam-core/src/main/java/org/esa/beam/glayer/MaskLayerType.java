@@ -1,16 +1,15 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
-import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 
 import java.awt.Color;
@@ -43,15 +42,12 @@ public class MaskLayerType extends ImageLayer.Type {
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-        if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
-            final MultiLevelSource multiLevelSource = createMultiLevelSource(configuration);
-            configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+        MultiLevelSource multiLevelSource = (MultiLevelSource)configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
+        if (multiLevelSource == null) {
+            multiLevelSource = createMultiLevelSource(configuration);
         }
-        if (configuration.getValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM) == null) {
-            //final MultiLevelSource multiLevelSource =
-            // configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-        }
-        final ImageLayer layer = new ImageLayer(this, configuration);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
+        final ImageLayer layer = new ImageLayer(this, multiLevelSource, configuration);
         final Mask mask = (Mask) configuration.getValue(PROPERTY_NAME_MASK);
         layer.setName(mask.getName());
         layer.setTransparency((Double) mask.getImageConfig().getValue("transparency"));

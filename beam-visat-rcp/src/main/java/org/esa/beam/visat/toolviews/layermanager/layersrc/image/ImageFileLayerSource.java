@@ -16,10 +16,9 @@
  */
 package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.toolviews.layermanager.LayerSource;
@@ -27,7 +26,6 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAss
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 import java.awt.geom.AffineTransform;
-import java.awt.image.RenderedImage;
 import java.io.File;
 
 /**
@@ -42,7 +40,6 @@ import java.io.File;
  */
 public class ImageFileLayerSource implements LayerSource {
 
-    static final String PROPERTY_NAME_IMAGE = "image";
     static final String PROPERTY_NAME_IMAGE_FILE_PATH = "imageFilePath";
     static final String PROPERTY_NAME_WORLD_FILE_PATH = "worldFilePath";
     static final String PROPERTY_NAME_WORLD_TRANSFORM = "worldTransform";
@@ -74,20 +71,17 @@ public class ImageFileLayerSource implements LayerSource {
 
     @Override
     public void cancel(LayerSourcePageContext pageContext) {
-        pageContext.setPropertyValue(PROPERTY_NAME_IMAGE, null);
+        pageContext.setPropertyValue(PROPERTY_NAME_IMAGE_FILE_PATH, null);
     }
 
     static boolean insertImageLayer(LayerSourcePageContext pageContext) {
-        AffineTransform transform = (AffineTransform) pageContext.getPropertyValue(
-                PROPERTY_NAME_WORLD_TRANSFORM);
-        RenderedImage image = (RenderedImage) pageContext.getPropertyValue(PROPERTY_NAME_IMAGE);
+        AffineTransform transform = (AffineTransform) pageContext.getPropertyValue(PROPERTY_NAME_WORLD_TRANSFORM);
         String imageFilePath = (String) pageContext.getPropertyValue(PROPERTY_NAME_IMAGE_FILE_PATH);
 
         try {
             ProductSceneView sceneView = pageContext.getAppContext().getSelectedProductSceneView();
-            final LayerType type = LayerTypeRegistry.getLayerType(ImageFileLayerType.class.getName());
+            final ImageFileLayerType type = LayerTypeRegistry.getLayerType(ImageFileLayerType.class);
             final PropertyContainer configuration = type.createLayerConfig(sceneView);
-            configuration.setValue(ImageFileLayerType.PROPERTY_NAME_IMAGE, image);
             configuration.setValue(ImageFileLayerType.PROPERTY_NAME_IMAGE_FILE, new File(imageFilePath));
             configuration.setValue(ImageFileLayerType.PROPERTY_NAME_WORLD_TRANSFORM, transform);
             Layer layer = type.createLayer(sceneView, configuration);

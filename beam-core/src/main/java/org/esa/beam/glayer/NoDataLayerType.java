@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -38,8 +38,8 @@ public class NoDataLayerType extends ImageLayer.Type {
         final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
                 ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
 
-        if (configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
-            final MultiLevelSource multiLevelSource;
+        MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
+        if (multiLevelSource == null) {
             if (raster.getValidMaskExpression() != null) {
                 multiLevelSource = MaskImageMultiLevelSource.create(raster.getProduct(), color,
                                                                     raster.getValidMaskExpression(), true,
@@ -50,7 +50,8 @@ public class NoDataLayerType extends ImageLayer.Type {
             configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         }
 
-        final ImageLayer noDataLayer = new ImageLayer(this, configuration);
+        final ImageLayer noDataLayer;
+        noDataLayer = new ImageLayer(this, multiLevelSource, configuration);
         noDataLayer.setName(getName());
         noDataLayer.setId(NO_DATA_LAYER_ID);
         noDataLayer.setVisible(false);
