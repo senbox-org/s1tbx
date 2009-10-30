@@ -134,11 +134,11 @@ public class UIUtilsTest extends TestCase {
 
     public void testCreateSpinner_WithParameter() {
         final String labelname = "paramLabel";
-        final ParamProperties properties = new ParamProperties(Integer.class, new Integer(3));
+        final ParamProperties properties = new ParamProperties(Integer.class, Integer.valueOf(3));
         properties.setLabel(labelname);
         final Parameter parameter = new Parameter("paramName", properties);
 
-        final JSpinner spinner = UIUtils.createSpinner(parameter, new Integer(10), "#0");
+        final JSpinner spinner = UIUtils.createSpinner(parameter, Integer.valueOf(10), "#0");
         assertEquals(labelname, spinner.getName());
     }
 
