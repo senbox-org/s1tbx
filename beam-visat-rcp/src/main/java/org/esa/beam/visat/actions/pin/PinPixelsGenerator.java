@@ -142,9 +142,9 @@ class PinPixelsGenerator {
         loop.forEachPixel(new RasterDataLoop.Body() {
             public void eval(RasterDataEvalEnv env, int pixelIndex) {
                 if (t == null || t.evalB(env)) {
-                    relevance.add(new Boolean(true));
+                    relevance.add(Boolean.TRUE);
                 } else {
-                    relevance.add(new Boolean(false));
+                    relevance.add(Boolean.FALSE);
                 }
             }
         });
