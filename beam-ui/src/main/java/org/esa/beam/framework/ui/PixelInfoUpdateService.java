@@ -78,7 +78,7 @@ class PixelInfoUpdateService implements Runnable {
         clearState();
     }
 
-    public void run() {
+    public synchronized void run() {
         if (state == PixelInfoState.INVALID) {
             return;
         }
