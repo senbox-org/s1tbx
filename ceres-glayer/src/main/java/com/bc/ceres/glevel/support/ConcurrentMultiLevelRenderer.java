@@ -257,9 +257,10 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             scheduledTileRequestsCopy = new HashMap<TileIndex, TileRequest>(scheduledTileRequests);
         }
         // scan through the scheduled tiles list cancelling any that are no longer in view
-        for (TileIndex tileIndex : scheduledTileRequestsCopy.keySet()) {
+        for (Map.Entry<TileIndex, TileRequest> entry : scheduledTileRequestsCopy.entrySet()) {
+            TileIndex tileIndex = entry.getKey();
             if (!visibleTileIndexSet.contains(tileIndex)) {
-                TileRequest request = scheduledTileRequestsCopy.get(tileIndex);
+                TileRequest request = entry.getValue();
                 // if tile not already removed (concurrently)
                 if (request != null) {
                     scheduledTileRequests.remove(tileIndex);
@@ -274,11 +275,11 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         synchronized (scheduledTileRequests) {
             scheduledTileRequestsCopy = new HashMap<TileIndex, TileRequest>(scheduledTileRequests);
         }
-        for (TileIndex tileIndex : scheduledTileRequestsCopy.keySet()) {
+        for (Map.Entry<TileIndex, TileRequest> entry : scheduledTileRequestsCopy.entrySet()) {
+            TileIndex tileIndex = entry.getKey();
             if (tileIndex.level != currentLevel) {
-                final TileRequest tileRequest = scheduledTileRequestsCopy.get(tileIndex);
                 scheduledTileRequests.remove(tileIndex);
-                tileRequest.cancelTiles(null);
+                entry.getValue().cancelTiles(null);
             }
         }
     }
