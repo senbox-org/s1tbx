@@ -23,7 +23,7 @@ import java.net.URL;
 public class BlueMarbleLayerType extends ImageLayer.Type {
 
     private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.worldImageDir";
-    private MultiLevelSource multiLevelSource;
+    private volatile MultiLevelSource multiLevelSource;
     private static final String WORLD_MAP_LAYER_NAME = "World Map (NASA Blue Marble)";
 
     @Override

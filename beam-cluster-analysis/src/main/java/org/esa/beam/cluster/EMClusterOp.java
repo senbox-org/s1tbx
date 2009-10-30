@@ -78,7 +78,7 @@ public class EMClusterOp extends Operator {
     private transient Band[] probabilityBands;
     private transient ROI roi;
     private transient MetadataElement clusterAnalysis;
-    private transient ProbabilityCalculator probabilityCalculator;
+    private transient volatile  ProbabilityCalculator probabilityCalculator;
 
     public EMClusterOp() {
     }
