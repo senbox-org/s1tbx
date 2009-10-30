@@ -207,7 +207,7 @@ public class WakefulComponent extends JComponent {
 
     @Override
     public final void setLayout(LayoutManager mgr) {
-        if (mgr != null) {
+        if (mgr == null) {
             throw new IllegalArgumentException("mgr");
         }
         super.setLayout(mgr);
