@@ -107,7 +107,7 @@ public final class WorldMapPane extends JPanel {
     }
 
     public float getScale() {
-        return new Float(layerCanvas.getViewport().getZoomFactor());
+        return (float) layerCanvas.getViewport().getZoomFactor();
     }
 
     public void setScale(final float scale) {
