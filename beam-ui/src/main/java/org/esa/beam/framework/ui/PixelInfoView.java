@@ -377,7 +377,7 @@ public class PixelInfoView extends JPanel {
         return false;
     }
 
-    private class FlagCellRenderer extends DefaultTableCellRenderer {
+    private static class FlagCellRenderer extends DefaultTableCellRenderer {
 
         /**
          * Returns the default table cell renderer.

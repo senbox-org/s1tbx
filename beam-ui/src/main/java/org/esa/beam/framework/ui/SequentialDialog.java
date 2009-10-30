@@ -282,7 +282,7 @@ public class SequentialDialog {
         return true;
     }
 
-    class HorizontalLine extends Canvas {
+    static class HorizontalLine extends Canvas {
 
         Dimension prefSize;
 
