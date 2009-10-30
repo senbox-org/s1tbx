@@ -1,14 +1,23 @@
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.ResolutionLevel;
+import org.esa.beam.jai.VectorDataMaskOpImage;
+import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.StringUtils;
 
+import javax.media.jai.operator.ErodeDescriptor;
+import javax.media.jai.operator.DilateDescriptor;
+import javax.media.jai.KernelJAI;
 import java.awt.Color;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
@@ -187,7 +196,7 @@ public class Mask extends Band {
         public void handleRename(Mask mask, String oldExternalName, String newExternalName) {
         }
 
-        public  String getName() {
+        public String getName() {
             return name;
         }
     }
@@ -210,10 +219,17 @@ public class Mask extends Band {
          * @return The image.
          */
         @Override
-        public MultiLevelImage createImage(Mask mask) {
-            String expression = getExpression(mask);
-            // todo - this is not the preferred way to create mask images (nf, 10.2009)
-            return ImageManager.getInstance().getMaskImage(expression, mask.getProduct());
+        public MultiLevelImage createImage(final Mask mask) {
+            MultiLevelSource mls = new AbstractMultiLevelSource(ImageManager.createMultiLevelModel(mask)) {
+                @Override
+                public RenderedImage createImage(int level) {
+                    return VirtualBandOpImage.createMask(getExpression(mask),
+                                                         mask.getProduct(),
+                                                         ResolutionLevel.create(getModel(),
+                                                                                level));
+                }
+            };
+            return new DefaultMultiLevelImage(mls);
         }
 
         /**
@@ -255,11 +271,11 @@ public class Mask extends Band {
     /**
      * A mask image type which is based on band math.
      */
-    public static class GeometryType extends ImageType {
+    public static class VectorDataType extends ImageType {
         public static final String PROPERTY_NAME_VECTOR_DATA = "vectorData";
 
-        public GeometryType() {
-            super("Geometry");
+        public VectorDataType() {
+            super("Vector data");
         }
 
         /**
@@ -270,9 +286,21 @@ public class Mask extends Band {
          * @return The image.
          */
         @Override
-        public MultiLevelImage createImage(Mask mask) {
-            // todo
-            return null;
+        public MultiLevelImage createImage(final Mask mask) {
+            MultiLevelSource mls = new AbstractMultiLevelSource(ImageManager.createMultiLevelModel(mask)) {
+                @Override
+                public RenderedImage createImage(int level) {
+                    VectorDataMaskOpImage opImage = new VectorDataMaskOpImage(getVectorData(mask),
+                                                                              ResolutionLevel.create(getModel(),
+                                                                                                     level));
+                    return DilateDescriptor.create(opImage, new KernelJAI(3,3,new float[] {
+                            1,0,1,
+                            0,1,0,
+                            1,0,1,    
+                    }), null);
+                }
+            };
+            return new DefaultMultiLevelImage(mls);
         }
 
         /**

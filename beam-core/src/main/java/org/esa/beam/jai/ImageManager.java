@@ -107,7 +107,7 @@ public class ImageManager {
         maskImageMap.clear();
     }
 
-    public MultiLevelModel getMultiLevelModel(RasterDataNode rasterDataNode) {
+    public static MultiLevelModel getMultiLevelModel(RasterDataNode rasterDataNode) {
         if (rasterDataNode.isSourceImageSet()) {
             return rasterDataNode.getSourceImage().getModel();
         }
@@ -317,7 +317,7 @@ public class ImageManager {
         }
     }
 
-    private MultiLevelModel createMultiLevelModel(ProductNode productNode) {
+    public static MultiLevelModel createMultiLevelModel(ProductNode productNode) {
         final Scene scene = SceneFactory.createScene(productNode);
         if (scene == null) {
             return null;

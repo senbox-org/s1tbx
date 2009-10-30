@@ -87,7 +87,7 @@ public class MaskFormTest extends TestCase {
             Mask mask = new Mask(vectorData.getName(),
                                  product.getSceneRasterWidth(),
                                  product.getSceneRasterHeight(),
-                                 new Mask.GeometryType());
+                                 new Mask.VectorDataType());
             mask.getImageConfig().setValue("color", colors[i % colors.length].brighter());
             mask.getImageConfig().setValue("transparency", 0.1);
             mask.getImageConfig().setValue("vectorData", vectorData);

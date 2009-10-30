@@ -25,7 +25,10 @@ import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.LineString;
 import org.esa.beam.framework.dataio.ProductFlipper;
 import org.esa.beam.framework.dataio.ProductProjectionBuilder;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -47,9 +50,13 @@ import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.geometry.coordinate.Polygon;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
@@ -227,10 +234,29 @@ public class Product extends ProductNode {
         this.pinGroup = new ProductNodeGroup<Pin>(this, "pinGroup", true);
         this.gcpGroup = new ProductNodeGroup<Pin>(this, "gcpGroup", true);
 
-        // todo - review me, this is test code (nf 10.2009)
-        this.vectorDataGroup.add(new VectorData("pins", createPlacemarkFeaureType("PinType", "pixelPoint")));
-        this.vectorDataGroup.add(new VectorData("ground_control_points", createPlacemarkFeaureType("GcpType", "geoPoint")));
-        setModified(false);
+        if ("true".equals(System.getProperty("beam.maskDev"))) {
+
+            // todo - review me, this is test code (nf 10.2009)
+            this.vectorDataGroup.add(new VectorData("pins", createPlacemarkFeaureType("PinType", "pixelPoint")));
+            this.vectorDataGroup.add(new VectorData("ground_control_points", createPlacemarkFeaureType("GcpType", "geoPoint")));
+
+            // todo - review me, this is test code (nf 10.2009)
+            VectorData testShapes1 = createTestShapes1("test_shapes_1");
+            this.vectorDataGroup.add(testShapes1);
+            VectorData testShapes2 = createTestShapes2("test_shapes_2");
+            this.vectorDataGroup.add(testShapes2);
+
+            Mask testShapes1Mask = new Mask("test_shapes_1", sceneRasterWidth, sceneRasterHeight, new Mask.VectorDataType());
+            testShapes1Mask.getImageConfig().setValue("vectorData", testShapes1);
+            this.maskGroup.add(testShapes1Mask);
+
+            Mask testShapes2Mask = new Mask("test_shapes_2", sceneRasterWidth, sceneRasterHeight, new Mask.VectorDataType());
+            testShapes2Mask.getImageConfig().setValue("vectorData", testShapes2);
+            this.maskGroup.add(testShapes2Mask);
+
+            // todo - remove, only needed because the vector data stuff above modified the product (nf 10.2009)
+            setModified(false);
+        }
 
         addProductNodeListener(new ProductNodeListenerAdapter() {
             @Override
@@ -242,6 +268,66 @@ public class Product extends ProductNode {
                 }
             }
         });
+    }
+
+    private static VectorData createTestShapes1(String name) {
+        SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
+        DefaultGeographicCRS crs = DefaultGeographicCRS.WGS84;
+        ftb.setCRS(crs);
+        ftb.setName(name);
+        ftb.add("geometry", Polygon.class);
+        ftb.setDefaultGeometry("geometry");
+        SimpleFeatureType ft = ftb.buildFeatureType();
+
+        GeometryFactory gf = new GeometryFactory();
+        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(ft);
+        DefaultFeatureCollection fc = new DefaultFeatureCollection(name, ft);
+        for (int i = 0; i < 10; i++) {
+            double x = i * 100;
+            double y = i * 100;
+            SimpleFeature f = fb.buildFeature(name + "_" + i, new Object[]{
+                    gf.createPolygon(gf.createLinearRing(new Coordinate[]{
+                            new Coordinate(x, y),
+                            new Coordinate(x + 100, y),
+                            new Coordinate(x + 100, y + 100),
+                            new Coordinate(x, y + 100),
+                            new Coordinate(x, y),
+                    }), null)
+            });
+            fc.add(f);
+        }
+
+        return new VectorData(name, fc);
+    }
+
+    private static VectorData createTestShapes2(String name) {
+        SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
+        DefaultGeographicCRS crs = DefaultGeographicCRS.WGS84;
+        ftb.setCRS(crs);
+        ftb.setName(name);
+        ftb.add("geometry", LineString.class);
+        ftb.setDefaultGeometry("geometry");
+        SimpleFeatureType ft = ftb.buildFeatureType();
+
+        GeometryFactory gf = new GeometryFactory();
+        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(ft);
+        DefaultFeatureCollection fc = new DefaultFeatureCollection(name, ft);
+        for (int i = 0; i < 10; i++) {
+            double x = i * 100;
+            double y = i * 100;
+            SimpleFeature f = fb.buildFeature(name + "_" + i, new Object[]{
+                    gf.createLineString(new Coordinate[]{
+                            new Coordinate(x, y),
+                            new Coordinate(x + 50, y + 50),
+                            new Coordinate(x + 100, y + 50),
+                            new Coordinate(x + 150, y + 100),
+                            new Coordinate(x + 200, y + 100),
+                    })
+            });
+            fc.add(f);
+        }
+
+        return new VectorData(name, fc);
     }
 
     private static SimpleFeatureType createPlacemarkFeaureType(String typeName, String defaultGeometryName) {
@@ -1078,6 +1164,7 @@ public class Product extends ProductNode {
      * Checks whether or not the given term is compatible with this product.
      *
      * @param term The term to examine.
+     *
      * @return <code>false</code> if the term has an expression referencing nodes which are not contained in
      *         this product, <code>true</code> otherwise.
      */
@@ -2036,7 +2123,7 @@ public class Product extends ProductNode {
                 }
             }
             if (!registered) {
-                namespace.registerSymbol(new RasterDataSymbol(extraRaster.getName(), 
+                namespace.registerSymbol(new RasterDataSymbol(extraRaster.getName(),
                                                               extraRaster, RasterDataSymbol.GEOPHYSICAL));
             }
         }
@@ -2333,8 +2420,10 @@ public class Product extends ProductNode {
      * Checks whether or not the given bitmask definition is compatible with this product.
      *
      * @param bitmaskDef The bitmask definition.
+     *
      * @return <code>false</code> if the bitmask has a valid expression and(!) the flag name is not contained in this
      *         data product, <code>true</code> otherwise.
+     *
      * @deprecated since BEAM 4.7, use {@link #isCompatibleMask()} instead
      */
     @Deprecated

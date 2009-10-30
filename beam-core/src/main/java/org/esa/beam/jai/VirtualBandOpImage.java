@@ -153,8 +153,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                boolean mask,
                                Product[] products,
                                int defaultProductIndex,
-                               ResolutionLevel level
-    ) {
+                               ResolutionLevel level) {
         super(ImageManager.getDataBufferType(dataType),
               products[defaultProductIndex].getSceneRasterWidth(),
               products[defaultProductIndex].getSceneRasterHeight(),
