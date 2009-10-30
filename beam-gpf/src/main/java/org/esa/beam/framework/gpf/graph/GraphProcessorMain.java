@@ -141,12 +141,23 @@ public class GraphProcessorMain implements RuntimeRunnable {
             // -p Properties File: the filepath of a properties file
             else if (args[i].equals("-p")) {
                 String propsFilePath = args[i + 1];
+                FileInputStream inStream = null;
                 try {
-                    argsMap.load(new FileInputStream(propsFilePath));
+                    inStream = new FileInputStream(propsFilePath);
+                    argsMap.load(inStream);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    if (inStream != null) {
+                        try {
+                            inStream.close();
+                        } catch (IOException e) {
+                            String msg = String.format("Could not clode properties file: '%s' correctly.", propsFilePath);
+                            throw new IllegalArgumentException(msg , e);
+                        }
+                    }
                 }
             }
         }
@@ -154,13 +165,19 @@ public class GraphProcessorMain implements RuntimeRunnable {
     }
 
     private static String readConfigFile(String configFilePath) throws IOException {
-        String xmlRequest;
-        int character;
-        FileReader inputData = new FileReader(configFilePath);
-        xmlRequest = "";
-        while ((character = inputData.read()) != -1) {
-            xmlRequest += (char) character;
+        StringBuilder xmlRequest = new StringBuilder();
+        FileReader inputData = null;
+        try {
+            int character;
+            inputData = new FileReader(configFilePath);
+            while ((character = inputData.read()) != -1) {
+                xmlRequest.append((char) character);
+            }
+        } finally {
+            if (inputData != null) {
+                inputData.close();
+            }
         }
-        return xmlRequest;
+        return xmlRequest.toString();
     }
 }
