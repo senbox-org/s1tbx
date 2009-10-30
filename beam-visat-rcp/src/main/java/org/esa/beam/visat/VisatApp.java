@@ -1179,7 +1179,9 @@ public class VisatApp extends BasicApp implements AppContext {
             @Override
             protected Object doInBackground() throws Exception {
                 try {
-                    view.updateROIImage(recreateROIImage, pm);
+                    if (view != null) {
+                        view.updateROIImage(recreateROIImage, pm);
+                    }
                 } catch (IOException e) {
                     Debug.trace(e);
                     showErrorDialog("Failed to create ROI image.\nAn I/O error occured:\n" + e.getMessage());
