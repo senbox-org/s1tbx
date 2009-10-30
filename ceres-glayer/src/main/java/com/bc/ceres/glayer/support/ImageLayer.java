@@ -1,7 +1,7 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -85,23 +85,7 @@ public class ImageLayer extends Layer {
      * @param multiLevelSource the multi-resolution-level image
      */
     public ImageLayer(MultiLevelSource multiLevelSource) {
-        this(LAYER_TYPE, multiLevelSource);
-    }
-
-    /**
-     * Constructs a multi-resolution-level image layer.
-     *
-     * @param type             The layer type.
-     * @param multiLevelSource the multi-resolution-level image.
-     */
-    public ImageLayer(Type type, MultiLevelSource multiLevelSource) {
-        this(type, multiLevelSource, initConfiguration(type.createLayerConfig(null), multiLevelSource));
-    }
-
-    public ImageLayer(Type layerType, PropertyContainer configuration) {
-        super(layerType, configuration);
-        multiLevelSource = (MultiLevelSource) configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
-        Assert.notNull(multiLevelSource);
+        this(LAYER_TYPE, multiLevelSource,  initConfiguration(LAYER_TYPE.createLayerConfig(null), multiLevelSource));
     }
 
     public ImageLayer(Type layerType, MultiLevelSource multiLevelSource, PropertyContainer configuration) {
@@ -297,7 +281,9 @@ public class ImageLayer extends Layer {
 
         @Override
         public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-            return new ImageLayer(this, configuration);
+            MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(
+                    ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
+            return new ImageLayer(this, multiLevelSource, configuration);
         }
 
         @Override
