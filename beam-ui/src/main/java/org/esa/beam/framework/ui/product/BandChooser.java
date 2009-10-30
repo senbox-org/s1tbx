@@ -74,7 +74,6 @@ public class BandChooser extends ModalDialog {
         super(parent, title, ModalDialog.ID_OK_CANCEL, helpID);
         Guardian.assertNotNull("allBands", allBands);
         _allBands = allBands;
-        _allBandsLength = _allBands.length;
         _selectedBands = selectedBands;
         _allTiePointGrids = allTiePointGrids;
         _selectedGrids = selectedTiePointGrids;
@@ -87,9 +86,12 @@ public class BandChooser extends ModalDialog {
         }
         Set productSet = new HashSet();
         if (allBands != null) {
+            _allBandsLength = _allBands.length;
             for (int i = 0; i < allBands.length; i++) {
                 productSet.add(allBands[i].getProduct());
             }
+        } else {
+            _allBandsLength = 0;
         }
         if (allTiePointGrids != null) {
             for (int i = 0; i < allTiePointGrids.length; i++) {
