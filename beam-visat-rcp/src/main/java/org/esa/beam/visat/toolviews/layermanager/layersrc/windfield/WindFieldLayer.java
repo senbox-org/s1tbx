@@ -35,9 +35,17 @@ public class WindFieldLayer extends Layer {
     private float lineThickness = 2.0f;
 
     public WindFieldLayer(PropertyContainer configuration) {
-        super(LayerTypeRegistry.getLayerType(WindFieldLayerType.class.getName()), configuration);
-        windu = (RasterDataNode) configuration.getValue("windu");
-        windv = (RasterDataNode) configuration.getValue("windv");
+        this(LayerTypeRegistry.getLayerType(WindFieldLayerType.class.getName()),
+             (RasterDataNode) configuration.getValue("windu"),
+             (RasterDataNode) configuration.getValue("windv"),
+             configuration);
+    }
+
+    public WindFieldLayer(LayerType layerType, RasterDataNode windu, RasterDataNode windv,
+                          PropertyContainer configuration) {
+        super(layerType, configuration);
+        this.windu = windu;
+        this.windv = windv;
         palette = new Color[256];
         for (int i = 0; i < palette.length; i++) {
             palette[i] = new Color(i, i, i);

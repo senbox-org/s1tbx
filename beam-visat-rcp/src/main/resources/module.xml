@@ -260,6 +260,7 @@
     -->
     <extension point="ceres-core:serviceProviders">
         <serviceProvider>org.esa.beam.visat.VisatPlugIn</serviceProvider>
+        <serviceProvider>com.bc.ceres.glayer.LayerType</serviceProvider>
     </extension>
 
     <extension point="beam-ui:toolViews">

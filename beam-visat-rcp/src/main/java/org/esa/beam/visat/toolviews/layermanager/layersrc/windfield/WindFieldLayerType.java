@@ -1,12 +1,13 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.windfield;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 /**
@@ -16,16 +17,13 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
  * @since BEAM 4.6
  */
 public class WindFieldLayerType extends LayerType {
-    // todo - weird!!!
-    // todo - got NPE, although SPI registered
-    //   static LayerType instance = getLayerType(WindFieldLayerType.class.getName());
-    static LayerType instance = new WindFieldLayerType();
 
     public static WindFieldLayer createLayer(RasterDataNode windu, RasterDataNode windv) {
-        final PropertyContainer template = instance.createLayerConfig(null);
+        LayerType type = LayerTypeRegistry.getLayerType(WindFieldLayerType.class);
+        final PropertyContainer template = type.createLayerConfig(null);
         template.setValue("windu", windu);
         template.setValue("windv", windv);
-        return new WindFieldLayer(template);
+        return new WindFieldLayer(type, windu, windv, template);
     }
 
     @Override
@@ -41,10 +39,11 @@ public class WindFieldLayerType extends LayerType {
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-        return new WindFieldLayer(configuration);
+        final RasterDataNode windu = (RasterDataNode) configuration.getValue("windu");
+        final RasterDataNode windv = (RasterDataNode) configuration.getValue("windv");
+        return new WindFieldLayer(this, windu, windv, configuration);
     }
 
-    // todo - rename getDefaultConfiguration  ? (nf)
     @Override
     public PropertyContainer createLayerConfig(LayerContext ctx) {
         final PropertyContainer propertyContainer = new PropertyContainer();
