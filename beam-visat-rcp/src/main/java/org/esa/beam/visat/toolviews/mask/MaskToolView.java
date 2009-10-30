@@ -131,7 +131,7 @@ public abstract class MaskToolView extends AbstractToolView {
         @Override
         public void internalFrameDeactivated(InternalFrameEvent e) {
             ProductSceneView sceneView = getSceneView(e);
-            if (sceneView == null) {
+            if (sceneView != null) {
                 setSceneView(null);
             }
         }
