@@ -1784,7 +1784,7 @@ public class BasicApp {
         }
         _beamUserDir = SystemUtils.getApplicationDataDir(true);
         _appUserDir = new File(_beamUserDir, getAppSymbolicName());
-        if (!_appUserDir.mkdir()) {
+        if (!_appUserDir.exists() && !_appUserDir.mkdir()) {
             throw new IOException("Failed to create directory '" + _appUserDir + "'.");
         }
     }
