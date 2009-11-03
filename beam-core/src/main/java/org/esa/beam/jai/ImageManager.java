@@ -194,7 +194,7 @@ public class ImageManager {
                                                             int height,
                                                             int tileWidth,
                                                             int tileHeight) {
-        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataType, width, height);
+        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataType, tileWidth, tileHeight);
         ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
         return createImageLayout(width, height, tileWidth, tileHeight, sampleModel, colorModel);
     }
