@@ -154,7 +154,7 @@ public class ImageGeometry {
     private static Rectangle2D createMapBoundary(Product product, CoordinateReferenceSystem targetCrs) {
         final int sourceW = product.getSceneRasterWidth();
         final int sourceH = product.getSceneRasterHeight();
-        final int step = Math.min(sourceW, sourceH) / 2;
+        final int step = Math.min(sourceW, sourceH) / 10;
         MathTransform mathTransform;
         try {
             mathTransform = CRS.findMathTransform(product.getGeoCoding().getMapCRS(), targetCrs);
@@ -175,7 +175,6 @@ public class ImageGeometry {
     private static Point2D[] createMapBoundary(Product product, int step,
                                                MathTransform mathTransform) throws TransformException {
         GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, null, step);
-        ProductUtils.normalizeGeoPolygon(geoPoints);
         float[] geoPointsD = new float[geoPoints.length * 2];
         for (int i = 0; i < geoPoints.length; i++) {
             geoPointsD[i * 2] = geoPoints[i].lon;
