@@ -61,7 +61,6 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
-import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -204,7 +203,7 @@ public class ReprojectionOp extends Operator {
         /*
         * 5. Create target bands
         */
-        final MultiLevelModel srcModel = ImageManager.getInstance().getMultiLevelModel(sourceProduct.getBandAt(0));
+        final MultiLevelModel srcModel = ImageManager.getMultiLevelModel(sourceProduct.getBandAt(0));
         reprojectRasterDataNodes(sourceProduct.getBands(), srcModel);
         if (includeTiePointGrids) {
             reprojectRasterDataNodes(sourceProduct.getTiePointGrids(), srcModel);
@@ -240,13 +239,13 @@ public class ReprojectionOp extends Operator {
     
     private GeoCoding getSourceGeoCoding(final RasterDataNode sourceBand) {
         if (orthorectify && sourceBand.canBeOrthorectified()) {
-            return createOrthorectifier(sourceBand, elevationModel);
+            return createOrthorectifier(sourceBand);
         } else {
             return sourceBand.getGeoCoding();
         }
     }    
     
-    private Orthorectifier createOrthorectifier(final RasterDataNode sourceBand, ElevationModel elevationModel) {
+    private Orthorectifier createOrthorectifier(final RasterDataNode sourceBand) {
         return new Orthorectifier2(sourceBand.getSceneRasterWidth(),
                                    sourceBand.getSceneRasterHeight(),
                                    sourceBand.getPointing(),
@@ -335,19 +334,6 @@ public class ReprojectionOp extends Operator {
         });
     }    
     
-    
-    private MultiLevelImage createConstSourceImage(final MultiLevelModel srcModel) {
-
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
-
-            @Override
-            public RenderedImage createImage(int level) {
-                Rectangle bounds = createLevelBounds(getModel(), level);
-                return ConstantDescriptor.create((float) bounds.width, (float) bounds.height, new Integer[]{1}, null);
-            }
-        });
-    }
-
     private static MultiLevelImage createVirtualSourceImage(final String expression, final int geophysicalDataType,
                                                             final Number noDataValue, final Product sourceProduct,
                                                             final MultiLevelModel srcModel) {
@@ -367,14 +353,14 @@ public class ReprojectionOp extends Operator {
     private MultiLevelImage createProjectedImage(final GeoCoding sourceGeoCoding, final MultiLevelImage sourceImage,
                                                  final MultiLevelModel srcModel, final Band targetBand,
                                                  final Interpolation resampling) {
-        final MultiLevelModel targetModel = ImageManager.getInstance().getMultiLevelModel(targetBand);
+        final MultiLevelModel targetModel = ImageManager.getMultiLevelModel(targetBand);
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
             @Override
             public RenderedImage createImage(int targetLevel) {
                 int sourceLevel = getSourceLevel(srcModel, targetLevel);
-                Rectangle sourceRect = createLevelBounds(srcModel, sourceLevel);
-                Rectangle targetRect = createLevelBounds(targetModel, targetLevel);
+                Rectangle sourceRect = createLevelBounds(srcModel, sourceLevel, sourceProduct);
+                Rectangle targetRect = createLevelBounds(targetModel, targetLevel, targetProduct);
                 ImageGeometry sourceGeometry = new ImageGeometry(sourceRect,
                                                                  ImageManager.getModelCrs(sourceGeoCoding),
                                                                  srcModel.getImageToModelTransform(sourceLevel));
@@ -403,14 +389,6 @@ public class ReprojectionOp extends Operator {
         });
     }
 
-    private AffineTransform getImageToMapTransform(AffineTransform transformLevelZero, MultiLevelModel mlModel,
-                                                     int level) {
-        AffineTransform transform = new AffineTransform(transformLevelZero);
-        final double s = mlModel.getScale(level);
-        transform.scale(s, s);
-        return transform;
-    }
-
     private int getSourceLevel(MultiLevelModel srcModel, int targetLevel) {
         int sourceLevel = targetLevel;
         int sourceLevelCount = srcModel.getLevelCount();
@@ -420,7 +398,10 @@ public class ReprojectionOp extends Operator {
         return sourceLevel;
     }
 
-    private Rectangle createLevelBounds(MultiLevelModel model, int level) {
+    private Rectangle createLevelBounds(MultiLevelModel model, int level, Product product) {
+        if (level == 0 ) {
+            return new Rectangle(product.getSceneRasterWidth(), product.getSceneRasterHeight());
+        }
         final AffineTransform m2i = model.getModelToImageTransform(level);
         return m2i.createTransformedShape(model.getModelBounds()).getBounds();
     }
@@ -509,14 +490,14 @@ public class ReprojectionOp extends Operator {
     }
 
     private Interpolation getResampling(Band band) {
-        int resampleType = getResampleType(resamplingName);
+        int resampleType = getResampleType();
         if (!ProductData.isFloatingPointType(band.getDataType())) {
             resampleType = Interpolation.INTERP_NEAREST;
         }
         return Interpolation.getInstance(resampleType);
     }
 
-    private int getResampleType(String resamplingName) {
+    private int getResampleType() {
         final int resamplingType;
         if ("Nearest".equalsIgnoreCase(resamplingName)) {
             resamplingType = Interpolation.INTERP_NEAREST;
@@ -531,7 +512,7 @@ public class ReprojectionOp extends Operator {
     }
 
     void validateResamplingParameter() {
-        if (getResampleType(resamplingName) == -1) {
+        if (getResampleType() == -1) {
             throw new OperatorException("Invalid resampling method: " + resamplingName);
         }
     }
