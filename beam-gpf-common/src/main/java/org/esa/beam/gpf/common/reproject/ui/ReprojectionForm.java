@@ -3,6 +3,8 @@ package org.esa.beam.gpf.common.reproject.ui;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
@@ -59,6 +61,8 @@ class ReprojectionForm extends JTabbedPane {
         this.sourceProductSelector = new SourceProductSelector(appContext, "Source Product:");
         if (orthoMode) {
             this.sourceProductSelector.setProductFilter(new OrthorectifyProductFilter());
+        } else {
+            this.sourceProductSelector.setProductFilter(new GeoCodingProductFilter());
         }
         this.reprojectionModel = new Model();
         this.reprojectionlContainer = PropertyContainer.createObjectBacked(reprojectionModel);
@@ -303,6 +307,18 @@ class ReprojectionForm extends JTabbedPane {
         @Override
         public boolean accept(Product product) {
             return product.canBeOrthorectified();
+        }
+    }
+
+    private static class GeoCodingProductFilter implements ProductFilter {
+
+        @Override
+        public boolean accept(Product product) {
+            final GeoCoding geoCoding = product.getGeoCoding();
+            if (geoCoding == null) {
+                return false;
+            }
+            return geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos();
         }
     }
 }
