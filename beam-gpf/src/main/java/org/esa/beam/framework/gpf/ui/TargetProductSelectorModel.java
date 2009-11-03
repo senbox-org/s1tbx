@@ -1,17 +1,22 @@
 package org.esa.beam.framework.gpf.ui;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.validators.NotEmptyValidator;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.validators.NotNullValidator;
+
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.util.StringUtils;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.Iterator;
 
 /**
@@ -50,7 +55,7 @@ public class TargetProductSelectorModel {
             }
         });
         PropertyDescriptor productNameDescriptor = propertyContainer.getDescriptor("productName");
-        productNameDescriptor.setValidator(new NotEmptyValidator());
+        productNameDescriptor.setValidator(new ProductNameValidator());
         productNameDescriptor.setDisplayName("target product name");
 
         PropertyDescriptor productDirDescriptor = propertyContainer.getDescriptor("productDir");
@@ -141,6 +146,21 @@ public class TargetProductSelectorModel {
 
     private void setValueContainerValue(String name, Object value) {
         propertyContainer.setValue(name, value);
+    }
+    
+    private class ProductNameValidator implements Validator {
+
+        @Override
+        public void validateValue(Property property, Object value) throws ValidationException {
+            final String name = (String) value;
+            if (!ProductNode.isValidNodeName(name)) {
+                final String message = MessageFormat.format("The product name ''{0}'' is not valid.\n\n"
+                                                            + "Names must not start with a dot and must not\n"
+                                                            + "contain any of the following characters: \\/:*?\"<>|",
+                                                            name);
+                throw new ValidationException(message);
+            }
+        }
     }
 
 }

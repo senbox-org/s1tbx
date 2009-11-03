@@ -38,6 +38,17 @@ public class TargetProductSelectorModelTest extends TestCase {
         assertEquals("Obelix", model.getProductName());
     }
 
+    public void testSetGetInvalidProductName() {
+        assertNull(model.getProductName());
+        try {
+            model.setProductName("Obel/x");
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().startsWith("The product name 'Obel/x' is not valid"));
+        }
+        assertNull(model.getProductName());
+    }
+    
     public void testSetGetFormatName() {
         model.setFormatName("Majestix");
         assertEquals("Majestix", model.getFormatName());
