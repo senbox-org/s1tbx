@@ -2339,7 +2339,7 @@ public class VisatApp extends BasicApp implements AppContext {
         }
 
         /**
-         * Invoked when a internal frame has been opened.
+         * Invoked when an internal frame has been opened.
          *
          * @see javax.swing.JInternalFrame#show
          */
