@@ -208,8 +208,7 @@ class CrsForm extends JPanel {
 
         @Override
         public boolean accept(Product collocationProduct) {
-            if (collocationProduct == null ||
-                    sourceProductSelector.getSelectedProduct() == collocationProduct ||
+            if (sourceProductSelector.getSelectedProduct() == collocationProduct ||
                     collocationProduct.getGeoCoding() == null) {
                 return false;
             }

@@ -128,7 +128,7 @@ public class SourceProductSelector {
             addProduct(product);
         }
         final Product selectedProduct = appContext.getSelectedProduct();
-        if (productFilter.accept(selectedProduct)) {
+        if (selectedProduct != null && productFilter.accept(selectedProduct)) {
             productListModel.setSelectedItem(selectedProduct);
         }
         appContext.getProductManager().addListener(productManagerListener);
