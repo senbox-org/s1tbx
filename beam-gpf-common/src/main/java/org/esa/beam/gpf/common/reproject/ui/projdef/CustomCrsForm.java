@@ -15,6 +15,7 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ValueEditorsPane;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.datum.DefaultGeodeticDatum;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterDescriptor;
@@ -80,7 +81,7 @@ public class CustomCrsForm extends JPanel {
         Collections.sort(this.datumList, AbstractIdentifiedObject.NAME_COMPARATOR);
         GeodeticDatum wgs84Datum = null;
         for (GeodeticDatum geodeticDatum : this.datumList) {
-            if ("World Geodetic System 1984".equals(geodeticDatum.getName().getCode())) {
+            if (DefaultGeodeticDatum.isWGS84(geodeticDatum)) {
                 wgs84Datum = geodeticDatum;
                 break;
             }
@@ -233,7 +234,11 @@ public class CustomCrsForm extends JPanel {
         List<GeodeticDatum> datumList = new ArrayList<GeodeticDatum>(datumCodes.size());
         for (String datumCode : datumCodes) {
             try {
-                datumList.add(factory.createGeodeticDatum(datumCode));
+                DefaultGeodeticDatum geodeticDatum = (DefaultGeodeticDatum) factory.createGeodeticDatum(datumCode);
+                if (geodeticDatum.getBursaWolfParameters().length != 0 ||
+                        DefaultGeodeticDatum.isWGS84(geodeticDatum)) {
+                    datumList.add(geodeticDatum);
+                }
             } catch (FactoryException ignored) {
             }
         }
