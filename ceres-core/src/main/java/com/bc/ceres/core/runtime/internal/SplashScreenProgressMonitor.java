@@ -106,7 +106,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
 
         taskLabelEnabled = getConfiguredTaskNameEnabled(config);
         if (taskLabelEnabled) {
-            taskLabelFont = new Font("Verdana", Font.ITALIC, 10); // todo getConfiguredTaskLabelFont(config);
+            taskLabelFont = getConfiguredTaskLabelFont(config);
             taskLabelColor = getConfiguredTaskLabelColor(config);
             if (taskLabelColor == null) {
                 taskLabelColor = Color.WHITE;
@@ -316,6 +316,14 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
             }
         }
         return null;
+    }
+    
+    private static Font getConfiguredTaskLabelFont(RuntimeConfig config) {
+        String fontDesc = config.getContextProperty(CONFIG_KEY_TASK_LABEL_FONT);
+        if (fontDesc == null || fontDesc.isEmpty()) {
+            return new Font("Verdana", Font.ITALIC, 10);
+        }
+        return Font.decode(fontDesc.replace(",", "-"));
     }
 
     public static interface Splash {
