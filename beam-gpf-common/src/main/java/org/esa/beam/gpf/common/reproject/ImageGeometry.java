@@ -157,7 +157,7 @@ public class ImageGeometry {
         final int step = Math.min(sourceW, sourceH) / 10;
         MathTransform mathTransform;
         try {
-            mathTransform = CRS.findMathTransform(product.getGeoCoding().getMapCRS(), targetCrs);
+            mathTransform = CRS.findMathTransform(product.getGeoCoding().getGeoCRS(), targetCrs);
         } catch (FactoryException e) {
             throw new OperatorException(e);
         }
