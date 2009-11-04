@@ -11,6 +11,7 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.gpf.common.reproject.ui.projdef.CustomCrsForm;
+import org.esa.beam.util.ProductUtils;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -23,8 +24,10 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.GeneralPath;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -204,16 +207,27 @@ class CrsForm extends JPanel {
     private class CollocateProductFilter implements ProductFilter {
 
         @Override
-        public boolean accept(Product product) {
-            if (product == null) {
+        public boolean accept(Product collocationProduct) {
+            if (collocationProduct == null ||
+                    sourceProductSelector.getSelectedProduct() == collocationProduct ||
+                    collocationProduct.getGeoCoding() == null) {
                 return false;
             }
-            if (sourceProductSelector.getSelectedProduct() == product) {
-                return false;
+            final GeoCoding geoCoding = collocationProduct.getGeoCoding();
+            if (geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos() && (geoCoding instanceof CrsGeoCoding)) {
+                Product sourceProduct = sourceProductSelector.getSelectedProduct();
+                final GeneralPath[] sourcePath = ProductUtils.createGeoBoundaryPaths(sourceProduct);
+                final GeneralPath[] collocationPath = ProductUtils.createGeoBoundaryPaths(collocationProduct);
+                for (GeneralPath path : sourcePath) {
+                    Rectangle bounds = path.getBounds();
+                    for (GeneralPath colPath : collocationPath) {
+                        if (colPath.getBounds().intersects(bounds)) {
+                            return true;
+                        }
+                    }
+                }
             }
-            final GeoCoding geoCoding = product.getGeoCoding();
-            final boolean hasGeoCoding = geoCoding != null;
-            return hasGeoCoding && geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos() && (geoCoding instanceof CrsGeoCoding);
+            return false;
         }
     }
 
