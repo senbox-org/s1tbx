@@ -131,6 +131,13 @@ class ReprojectionForm extends JTabbedPane {
         sourceProductSelector.releaseProducts();
         crsForm.prepareHide();
     }
+    
+    String getExternamDemName() {
+        if (orthoMode && demSelector.isUsingExternalDem()) {
+            return demSelector.getDemName();
+        }
+        return null;
+    }
 
     private void createUI() {
         addTab("I/O Parameter", createIOPanel());

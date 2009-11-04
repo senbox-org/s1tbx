@@ -1,6 +1,8 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
@@ -49,6 +51,29 @@ class ReprojectionDialog extends SingleTargetProductDialog {
             return false;
         }
 
+        String externamDemName = form.getExternamDemName();
+        if (externamDemName != null) {
+            final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
+            final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(externamDemName);
+            if (demDescriptor == null) {
+                showErrorDialog("The DEM '" + externamDemName + "' is not supported.");
+                close();
+                return false;
+            }
+            if (demDescriptor.isInstallingDem()) {
+                showErrorDialog("The DEM '" + externamDemName + "' is currently being installed.");
+                close();
+                return false;
+            }
+            if (!demDescriptor.isDemInstalled()) {
+                final boolean ok = demDescriptor.installDemFiles(getParent());
+                if (ok) {
+                    // close dialog becuase DEM will be installed first
+                    close();
+                }
+                return false;
+            }
+        }
         return true;
     }
 
