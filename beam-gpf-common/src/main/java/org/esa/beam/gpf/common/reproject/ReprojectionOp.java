@@ -47,7 +47,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
-import org.esa.beam.util.ImageUtils;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.geotools.factory.Hints;
@@ -60,13 +60,9 @@ import org.opengis.referencing.operation.TransformException;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
 import java.io.File;
 import java.text.MessageFormat;
 
@@ -353,36 +349,41 @@ public class ReprojectionOp extends Operator {
     private MultiLevelImage createProjectedImage(final GeoCoding sourceGeoCoding, final MultiLevelImage sourceImage,
                                                  final MultiLevelModel srcModel, final Band targetBand,
                                                  final Interpolation resampling) {
-        final MultiLevelModel targetModel = ImageManager.getMultiLevelModel(targetBand);
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
+        
+        final MultiLevelModel targetMultiLevelModel = ImageManager.getMultiLevelModel(targetBand);
+        final CoordinateReferenceSystem srcModelCrs = ImageManager.getModelCrs(sourceGeoCoding);
+        final CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
+        
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetMultiLevelModel) {
 
             @Override
             public RenderedImage createImage(int targetLevel) {
                 int sourceLevel = getSourceLevel(srcModel, targetLevel);
-                Rectangle sourceRect = createLevelBounds(srcModel, sourceLevel, sourceProduct);
-                Rectangle targetRect = createLevelBounds(targetModel, targetLevel, targetProduct);
-                ImageGeometry sourceGeometry = new ImageGeometry(sourceRect,
-                                                                 ImageManager.getModelCrs(sourceGeoCoding),
-                                                                 srcModel.getImageToModelTransform(sourceLevel));
-                ImageGeometry targetGeometry = new ImageGeometry(targetRect,
-                                                                 ImageManager.getModelCrs(targetProduct.getGeoCoding()),
-                                                                 getModel().getImageToModelTransform(targetLevel));
-
-                ImageLayout imageLayout = createImageLayout(targetBand.getDataType(),
-                                                            targetRect.width,
-                                                            targetRect.height,
-                                                            targetProduct.getPreferredTileSize());
-                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
                 RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
+                Rectangle sourceRect = new Rectangle(sourceImage.getWidth(), sourceImage.getHeight());
+                ImageGeometry sourceGeometry = new ImageGeometry(sourceRect,
+                                                                 srcModelCrs,
+                                                                 srcModel.getImageToModelTransform(sourceLevel));
+                
+                ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(ImageManager.getDataBufferType(targetBand.getDataType()),
+                                                           targetBand.getSceneRasterWidth(),
+                                                           targetBand.getSceneRasterHeight(),
+                                                           targetProduct.getPreferredTileSize(),
+                                                           ResolutionLevel.create(getModel(), targetLevel));
+                Rectangle targetRect = new Rectangle(imageLayout.getWidth(null), imageLayout.getHeight(null));
+                ImageGeometry targetGeometry = new ImageGeometry(targetRect,
+                                                                 targetModelCrs,
+                                                                 getModel().getImageToModelTransform(targetLevel));
+                Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
 
                 try {
                     return Reproject.reproject(leveledSourceImage, sourceGeometry, targetGeometry,
                                                targetBand.getNoDataValue(), resampling, hints);
                 } catch (FactoryException e) {
-                    e.printStackTrace();
+                    Debug.trace(e);
                     throw new RuntimeException(e);
                 } catch (TransformException e) {
-                    e.printStackTrace();
+                    Debug.trace(e);
                     throw new RuntimeException(e);
                 }
             }
@@ -396,14 +397,6 @@ public class ReprojectionOp extends Operator {
             sourceLevel = sourceLevelCount - 1;
         }
         return sourceLevel;
-    }
-
-    private Rectangle createLevelBounds(MultiLevelModel model, int level, Product product) {
-        if (level == 0 ) {
-            return new Rectangle(product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        }
-        final AffineTransform m2i = model.getModelToImageTransform(level);
-        return m2i.createTransformedShape(model.getModelBounds()).getBounds();
     }
 
     private void copyIndexCoding() {
@@ -549,12 +542,5 @@ public class ReprojectionOp extends Operator {
             }
             return imageGeometry;
         }
-    }
-
-    private static ImageLayout createImageLayout(int productDataType, int width, int height, final Dimension tileSize) {
-        int bufferType = ImageManager.getDataBufferType(productDataType);
-        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(bufferType, tileSize.width, tileSize.height);
-        ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
-        return new ImageLayout(0, 0, width, height, 0, 0, tileSize.width, tileSize.height, sampleModel, colorModel);
     }
 }
