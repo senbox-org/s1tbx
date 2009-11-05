@@ -21,7 +21,7 @@ class OperationMethodCrsProvider extends AbstractCrsProvider {
     private final OperationMethod delegate;
 
     OperationMethodCrsProvider(OperationMethod method) {
-        super(method.getName().getCode(), true, true, null);
+        super(method.getName().getCode().replace("_", " "), true, true, null);
         this.delegate = method;
     }
 
