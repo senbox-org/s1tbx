@@ -36,7 +36,9 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
@@ -215,7 +217,29 @@ class ReprojectionForm extends JTabbedPane {
         }
     }
     
-    private static class InfoForm {
+    private class ShowWktAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                CoordinateReferenceSystem crs = getSelectedCrs();
+                if (crs != null) {
+                    JTextArea wktArea = new JTextArea(30, 40);
+                    wktArea.setEditable(false);
+                    wktArea.setText(crs.toString());
+                    final JScrollPane scrollPane = new JScrollPane(wktArea);
+                    final ModalDialog dialog = new ModalDialog(appContext.getApplicationWindow(),
+                                                               "Coordinate reference system as well known text",
+                                                               scrollPane,
+                                                               ModalDialog.ID_OK, null);
+                    dialog.show();
+                }
+            } catch (FactoryException ignore) {
+            }
+        }
+    }
+    
+    private class InfoForm {
+
         private JLabel widthLabel;
         private JLabel heightLabel;
         private JLabel centerLatLabel;
@@ -260,7 +284,7 @@ class ReprojectionForm extends JTabbedPane {
             tableLayout.setColumnWeightX(2, 1.0);
             tableLayout.setColumnWeightX(3, 0.0);
             tableLayout.setColumnWeightX(4, 1.0);
-            tableLayout.setCellColspan(2, 1, 4);
+            tableLayout.setCellColspan(2, 1, 3);
             tableLayout.setCellPadding(0, 3, new Insets(4, 24, 4, 20));
             tableLayout.setCellPadding(1, 3, new Insets(4, 24, 4, 20));
             
@@ -281,6 +305,9 @@ class ReprojectionForm extends JTabbedPane {
             
             panel.add(new JLabel("CRS:"));
             panel.add(crsLabel);
+            JButton wktButton = new JButton("Show WKT");
+            wktButton.addActionListener(new ShowWktAction());
+            panel.add(wktButton);
             return panel;
         }
     }
