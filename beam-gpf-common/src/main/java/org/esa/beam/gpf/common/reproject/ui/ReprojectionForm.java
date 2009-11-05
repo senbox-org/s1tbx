@@ -5,6 +5,7 @@ import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
@@ -15,17 +16,10 @@ import org.esa.beam.framework.ui.DemSelector;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
+import org.esa.beam.util.ProductUtils;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,6 +28,16 @@ import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 
 /**
  * User: Marco
@@ -53,6 +57,8 @@ class ReprojectionForm extends JTabbedPane {
     private DemSelector demSelector;
     private CrsForm crsForm;
     private PropertyContainer outputParameterContainer;
+
+    private InfoForm infoForm;
 
     ReprojectionForm(TargetProductSelector targetProductSelector, boolean orthorectify, AppContext appContext) {
         this.targetProductSelector = targetProductSelector;
@@ -173,8 +179,110 @@ class ReprojectionForm extends JTabbedPane {
             demSelector = new DemSelector();
             parameterPanel.add(demSelector);
         }
+        infoForm = new InfoForm();
+        parameterPanel.add(infoForm.createUI());
         parameterPanel.add(createOuputSettingsPanel());
+        
+        crsForm.addPropertyChangeListener("crs", new PropertyChangeListener() {
+            
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                updateCRS();
+            }
+        });
+        updateCRS();
         return parameterPanel;
+    }
+    
+    private void updateCRS() {
+        try {
+            CoordinateReferenceSystem crs = crsForm.getCrs(getSourceProduct());
+            if (crs != null) {
+                infoForm.setCrsText(crs.getName().getCode());
+            } else {
+                infoForm.setCrsText("No valid 'CoordinateReference System' selected.");
+            }
+        } catch (FactoryException e) {
+            infoForm.setCrsText(e.getMessage());
+        }
+        updateProductSize();
+    }
+    
+    private void updateProductSize() {
+        if (outputParameterContainer != null) {
+            infoForm.setWidth((Integer)outputParameterContainer.getValue("width"));
+            infoForm.setHeight((Integer)outputParameterContainer.getValue("height"));
+        }
+    }
+    
+    private static class InfoForm {
+        private JLabel widthLabel;
+        private JLabel heightLabel;
+        private JLabel centerLatLabel;
+        private JLabel centerLonLabel;
+        private JLabel crsLabel;
+        
+        void setWidth(int width){
+            widthLabel.setText(Integer.toString(width));
+        }
+
+        void setHeight(int height){
+            heightLabel.setText(Integer.toString(height));
+        }
+        
+        void setCenterPos(GeoPos geoPos) {
+            if (geoPos != null) {
+                centerLatLabel.setText(geoPos.getLatString());
+                centerLonLabel.setText(geoPos.getLonString());
+            } else {
+                centerLatLabel.setText("");
+                centerLonLabel.setText("");
+            }
+        }
+        
+        void setCrsText(String crsText) {
+            crsLabel.setText(crsText);
+        }
+        
+        JPanel createUI() {
+            widthLabel = new JLabel();
+            heightLabel = new JLabel();
+            centerLatLabel = new JLabel();
+            centerLonLabel = new JLabel();
+            crsLabel = new JLabel();
+            
+            final TableLayout tableLayout = new TableLayout(5);
+            tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+            tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+            tableLayout.setTablePadding(4, 4);
+            tableLayout.setColumnWeightX(0, 0.0);
+            tableLayout.setColumnWeightX(1, 0.0);
+            tableLayout.setColumnWeightX(2, 1.0);
+            tableLayout.setColumnWeightX(3, 0.0);
+            tableLayout.setColumnWeightX(4, 1.0);
+            tableLayout.setCellColspan(2, 1, 4);
+            tableLayout.setCellPadding(0, 3, new Insets(4, 24, 4, 20));
+            tableLayout.setCellPadding(1, 3, new Insets(4, 24, 4, 20));
+            
+            
+            final JPanel panel = new JPanel(tableLayout);
+            panel.setBorder(BorderFactory.createTitledBorder("Output Information"));
+            panel.add(new JLabel("Scene Width:"));
+            panel.add(widthLabel);
+            panel.add(new JLabel("pixel"));
+            panel.add(new JLabel("Center Longitude:"));
+            panel.add(centerLonLabel);
+            
+            panel.add(new JLabel("Scene Height:"));
+            panel.add(heightLabel);
+            panel.add(new JLabel("pixel"));
+            panel.add(new JLabel("Center Latitude:"));
+            panel.add(centerLatLabel);
+            
+            panel.add(new JLabel("CRS:"));
+            panel.add(crsLabel);
+            return panel;
+        }
     }
 
     private JPanel createOuputSettingsPanel() {
@@ -248,7 +356,20 @@ class ReprojectionForm extends JTabbedPane {
         sourceProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
-                updateTargetProductName(getSourceProduct());
+                Product sourceProduct = getSourceProduct();
+                updateTargetProductName(sourceProduct);
+                GeoPos centerGeoPos = null;
+                if (sourceProduct != null) {
+                    centerGeoPos = ProductUtils.getCenterGeoPos(sourceProduct);
+                }
+                infoForm.setCenterPos(centerGeoPos);
+                try {
+                    CoordinateReferenceSystem crs = getSelectedCrs();
+                    OutputGeometryFormModel formModel = new OutputGeometryFormModel(sourceProduct, crs);
+                    outputParameterContainer = formModel.getValueContainer();
+                    updateProductSize();
+                } catch (FactoryException ignore) {
+                }
             }
         });
         return panel;
@@ -271,13 +392,12 @@ class ReprojectionForm extends JTabbedPane {
             try {
                 final Product sourceProduct = getSourceProduct();
                 if (sourceProduct == null) {
-                    appContext.handleError("Please select a product to project.\n", new IllegalStateException());
+                    showWarningMessage("Please select a product to project.\n");
                     return;
                 }
                 final CoordinateReferenceSystem crs = crsForm.getCrs(sourceProduct);
                 if (crs == null) {
-                    appContext.handleError("Please specify a 'Coordinate Reference System' first.\n",
-                                           new IllegalStateException());
+                    showWarningMessage("Please specify a 'Coordinate Reference System' first.\n");
                     return;
                 }
                 final OutputGeometryFormModel formModel = new OutputGeometryFormModel(sourceProduct, crs);
@@ -288,12 +408,20 @@ class ReprojectionForm extends JTabbedPane {
                 modalDialog.setContent(form);
                 if (modalDialog.show() == ModalDialog.ID_OK) {
                     outputParameterContainer = formModel.getValueContainer();
+                    updateProductSize();
                 }
             } catch (Exception fe) {
                 appContext.handleError("Could not create a 'Coordinate Reference System'.\n" +
                                        fe.getMessage(), fe);
             }
         }
+    }
+    
+    private void showWarningMessage(String message) {
+        JOptionPane.showMessageDialog(getParent(),
+                                      message,
+                                      "Reprojection",
+                                      JOptionPane.WARNING_MESSAGE);
     }
 
     private static class Model {

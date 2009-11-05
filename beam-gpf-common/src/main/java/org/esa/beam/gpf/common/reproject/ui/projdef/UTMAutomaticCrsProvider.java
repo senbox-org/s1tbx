@@ -26,6 +26,9 @@ class UTMAutomaticCrsProvider extends AbstractUTMCrsProvider {
     @Override
     public CoordinateReferenceSystem getCRS(Product product, ParameterValueGroup parameters,
                                             GeodeticDatum datum) throws FactoryException {
+        if (product == null) {
+            return null;
+        }
         final GeoPos centerGeoPos = ProductUtils.getCenterGeoPos(product);
         int zoneIndex = getZoneIndex(centerGeoPos.getLon());
         final boolean south = centerGeoPos.getLat() < 0.0;

@@ -1,7 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.swing.TableLayout;
-import com.bc.ceres.swing.TableLayout.Fill;
 
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -17,13 +16,7 @@ import org.esa.beam.util.ProductUtils;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.ButtonModel;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
+import java.awt.BorderLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -31,6 +24,14 @@ import java.awt.event.ActionListener;
 import java.awt.geom.GeneralPath;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 
 /**
  * @author Marco Peters
@@ -46,7 +47,6 @@ class CrsForm extends JPanel {
     private ButtonModel collocateButtonModel;
     private CustomCrsForm projDefPanel;
     private JPanel collocationPanel;
-    private JTextField collocationCrsCodeField;
     private JPanel crsSelectionPanel;
 
     private CrsInfo selectedCrsInfo;
@@ -68,7 +68,10 @@ class CrsForm extends JPanel {
             return projDefPanel.getProcjetedCRS(sourceProduct);
         }
         if (isCollocate()) {
-            return getCollocationProduct().getGeoCoding().getMapCRS();
+            Product collocationProduct = getCollocationProduct();
+            if (collocationProduct != null) {
+                return collocationProduct.getGeoCoding().getMapCRS();
+            }
         }
         return null;
     }
@@ -83,6 +86,7 @@ class CrsForm extends JPanel {
 
     void prepareShow() {
         collocateProductSelector.initProducts();
+        updateUIState();
     }
 
     void prepareHide() {
@@ -92,23 +96,22 @@ class CrsForm extends JPanel {
     private void updateUIState() {
         final boolean collocate = isCollocate();
         firePropertyChange("collocate", !collocate, collocate);
-        collocateProductSelector.getProductNameComboBox().setEnabled(collocate);
-        collocateProductSelector.getProductFileChooserButton().setEnabled(collocate);
         projDefPanel.setEnabled(projButtonModel.isSelected());
         crsSelectionPanel.setEnabled(crsButtonModel.isSelected());
         collocationPanel.setEnabled(collocateButtonModel.isSelected());
-        String crsInfoText = "";
-        Product coProduct = collocateProductSelector.getSelectedProduct();
-        if (coProduct != null) {
-            crsInfoText = coProduct.getGeoCoding().getMapCRS().getName().getCode();
-        }
-        collocationCrsCodeField.setText(crsInfoText);
     }
 
     private void createUI() {
         collocationPanel = createCollocationPanel();
         crsSelectionPanel = createCrsSelectionPanel();
         projDefPanel = createCustomCrsPanel();
+        projDefPanel.addPropertyChangeListener("crs", new PropertyChangeListener() {
+            
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                fireCrsChanged();
+            }
+        });
         JRadioButton projectionRadioButton = new JRadioButton("Custom CRS", true);
         projectionRadioButton.addActionListener(new UpdateStateListener());
         JRadioButton crsRadioButton = new JRadioButton("Predefined CRS");
@@ -147,30 +150,19 @@ class CrsForm extends JPanel {
     }
 
     private JPanel createCollocationPanel() {
-        final TableLayout tableLayout = new TableLayout(2);
-        final JPanel panel = new JPanel(tableLayout);
-        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
-        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        tableLayout.setColumnWeightX(0, 1.0);
-        tableLayout.setColumnWeightX(1, 0.0);
-        tableLayout.setCellFill(0, 1, Fill.BOTH);
-
-        collocationCrsCodeField = new JTextField();
-        collocationCrsCodeField.setEditable(false);
         collocateProductSelector = new SourceProductSelector(appContext, "Product:");
         collocateProductSelector.setProductFilter(new CollocateProductFilter());
         collocateProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
                 updateUIState();
+                fireCrsChanged();
             }
         });
 
-        panel.add(collocateProductSelector.getProductNameComboBox());
-        panel.add(collocateProductSelector.getProductFileChooserButton());
-//        final JPanel panel = new JPanel(new BorderLayout(2, 2));
-//        panel.add(collocateProductSelector.getProductNameComboBox(), BorderLayout.CENTER);
-//        panel.add(collocateProductSelector.getProductFileChooserButton(), BorderLayout.EAST);
+        final JPanel panel = new JPanel(new BorderLayout(2, 2));
+        panel.add(collocateProductSelector.getProductNameComboBox(), BorderLayout.CENTER);
+        panel.add(collocateProductSelector.getProductFileChooserButton(), BorderLayout.EAST);
         panel.addPropertyChangeListener("enabled", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -178,7 +170,6 @@ class CrsForm extends JPanel {
                 collocateProductSelector.getProductFileChooserButton().setEnabled(panel.isEnabled());
             }
         });
-        panel.add(collocationCrsCodeField);
         return panel;
     }
 
@@ -205,6 +196,7 @@ class CrsForm extends JPanel {
                 if (dialog.show() == ModalDialog.ID_OK) {
                     selectedCrsInfo = predefinedCrsForm.getSelectedCrsInfo();
                     crsCodeField.setText(selectedCrsInfo.toString());
+                    fireCrsChanged();
                 }
             }
         });
@@ -222,6 +214,10 @@ class CrsForm extends JPanel {
 
     private CustomCrsForm createCustomCrsPanel() {
         return new CustomCrsForm(appContext.getApplicationWindow());
+    }
+    
+    private void fireCrsChanged() {
+        firePropertyChange("crs", null, null);
     }
 
     private class CollocateProductFilter implements ProductFilter {
@@ -255,6 +251,7 @@ class CrsForm extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             updateUIState();
+            fireCrsChanged();
         }
     }
 }

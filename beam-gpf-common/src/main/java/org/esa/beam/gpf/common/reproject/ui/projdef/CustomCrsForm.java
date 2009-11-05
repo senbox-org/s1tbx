@@ -173,17 +173,20 @@ public class CustomCrsForm extends JPanel {
             if (defaultDatum != null) {
                 vc.setValue(DATUM, defaultDatum);
             }
+            boolean hasParameters = model.operationWrapper.hasParameters();
+            if (hasParameters) {
+                vc.setValue(PARAMETERS, model.operationWrapper.getParameter());
+            }
         }
-        boolean hasParameters = model.operationWrapper.hasParameters();
-        if (hasParameters) {
-            model.parameters = model.operationWrapper.getParameter();
-            if (model.datum != null && hasParameter("semi_major") && hasParameter("semi_minor")) {
+        if (PARAMETERS.equals(propertyName) || DATUM.equals(propertyName)) {
+            if (model.datum != null && model.parameters != null && hasParameter("semi_major") && hasParameter("semi_minor")) {
                 Ellipsoid ellipsoid = model.datum.getEllipsoid();
                 model.parameters.parameter("semi_major").setValue(ellipsoid.getSemiMajorAxis());
                 model.parameters.parameter("semi_minor").setValue(ellipsoid.getSemiMinorAxis());
             }
         }
         updateEnableState(true);
+        firePropertyChange("crs", null, null);
     }
 
     private boolean hasParameter(String name) {
@@ -194,16 +197,12 @@ public class CustomCrsForm extends JPanel {
         }
         return true;
     }
-
+    
     private class UpdateListener implements PropertyChangeListener {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            String propertyName = evt.getPropertyName();
-            if (PARAMETERS.equals(propertyName)) {
-                return;
-            }
-            updateModel(propertyName);
+            updateModel(evt.getPropertyName());
         }
     }
 
