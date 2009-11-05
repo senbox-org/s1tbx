@@ -80,12 +80,14 @@ public abstract class AbstractGeoCoding implements GeoCoding {
 
 
     @Override
-    public synchronized MathTransform getImageToMapTransform() {
-        if (image2Map == null ) {
-            try {
-                image2Map = CRS.findMathTransform(imageCRS, mapCRS);
-            } catch (FactoryException e) {
-                throw new IllegalArgumentException("Not able to find a math transformation from image to map crs.", e);
+    public MathTransform getImageToMapTransform() {
+        synchronized (this) {
+            if (image2Map == null ) {
+                try {
+                    image2Map = CRS.findMathTransform(imageCRS, mapCRS);
+                } catch (FactoryException e) {
+                    throw new IllegalArgumentException("Not able to find a math transformation from image to map crs.", e);
+                }
             }
         }
         return image2Map;
