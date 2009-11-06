@@ -197,25 +197,26 @@ public class WriteOp extends Operator {
 
     public static void writeProduct(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure,
                                     ProgressMonitor pm) {
-        Spi spi = new WriteOp.Spi();
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("file", file);
-        parameters.put("formatName", formatName);
-        parameters.put("deleteOutputOnFailure", deleteOutputOnFailure);
-        Map<String, Product> sourceProducts = new HashMap<String, Product>();
-        sourceProducts.put("sourceProduct", sourceProduct);
-        Dimension tileSize = ImageManager.getPreferredTileSize(sourceProduct);
-        tileSize = new Dimension(sourceProduct.getSceneRasterWidth(), (tileSize.height * tileSize.width / sourceProduct.getSceneRasterWidth()));
-        RenderingHints renderingHints = new RenderingHints(GPF.KEY_TILE_SIZE, tileSize);
-        final WriteOp writeOp = (WriteOp) spi.createOperator(parameters, sourceProducts, renderingHints);
-//        final WriteOp writeOp = new WriteOp(sourceProduct, file, formatName, deleteOutputOnFailure);
-        
-        final Product targetProduct = writeOp.getTargetProduct();
+        // TODO experimental code by mz (2009.11.06)
+        // use it or remove it
+//        Spi spi = new WriteOp.Spi();
+//        Map<String, Object> parameters = new HashMap<String, Object>();
+//        parameters.put("file", file);
+//        parameters.put("formatName", formatName);
+//        parameters.put("deleteOutputOnFailure", deleteOutputOnFailure);
+//        Map<String, Product> sourceProducts = new HashMap<String, Product>();
+//        sourceProducts.put("sourceProduct", sourceProduct);
+//        Dimension tileSize = ImageManager.getPreferredTileSize(sourceProduct);
+//        tileSize = new Dimension(sourceProduct.getSceneRasterWidth(), (tileSize.height * tileSize.width / sourceProduct.getSceneRasterWidth()));
+//        RenderingHints renderingHints = new RenderingHints(GPF.KEY_TILE_SIZE, tileSize);
+//        final WriteOp writeOp = (WriteOp) spi.createOperator(parameters, sourceProducts, renderingHints);
 
-//        Dimension tileSize = targetProduct.getPreferredTileSize();
-//        if (tileSize == null) {
-//            tileSize = JAI.getDefaultTileSize();
-//        }
+        final WriteOp writeOp = new WriteOp(sourceProduct, file, formatName, deleteOutputOnFailure);
+        final Product targetProduct = writeOp.getTargetProduct();
+        Dimension tileSize = targetProduct.getPreferredTileSize();
+        if (tileSize == null) {
+            tileSize = JAI.getDefaultTileSize();
+        }
 
         final int rasterHeight = targetProduct.getSceneRasterHeight();
         final int rasterWidth = targetProduct.getSceneRasterWidth();
