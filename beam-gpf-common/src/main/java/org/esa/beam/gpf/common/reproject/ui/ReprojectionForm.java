@@ -42,8 +42,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
- * User: Marco
- * Date: 16.08.2009
+ * @author Marco Zuehlke
+ * @author Marco Paters
+ * @since BEAM 4.7
  */
 class ReprojectionForm extends JTabbedPane {
 
@@ -60,7 +61,10 @@ class ReprojectionForm extends JTabbedPane {
     private CrsForm crsForm;
     private PropertyContainer outputParameterContainer;
 
+    private JButton outputParamButton;
     private InfoForm infoForm;
+    private CoordinateReferenceSystem crs;
+    
 
     ReprojectionForm(TargetProductSelector targetProductSelector, boolean orthorectify, AppContext appContext) {
         this.targetProductSelector = targetProductSelector;
@@ -127,7 +131,7 @@ class ReprojectionForm extends JTabbedPane {
     }
 
     CoordinateReferenceSystem getSelectedCrs() throws FactoryException {
-        return crsForm.getCrs(getSourceProduct());
+        return crs;
     }
 
     void prepareShow() {
@@ -198,15 +202,17 @@ class ReprojectionForm extends JTabbedPane {
     
     private void updateCRS() {
         try {
-            CoordinateReferenceSystem crs = crsForm.getCrs(getSourceProduct());
+            crs = crsForm.getCrs(getSourceProduct());
             if (crs != null) {
-                infoForm.setCrsText(crs.getName().getCode());
+                infoForm.setCrs(crs.getName().getCode(), crs.toString());
             } else {
-                infoForm.setCrsText("No valid 'CoordinateReference System' selected.");
+                infoForm.setCrs("No valid 'CoordinateReference System' selected.", null);
             }
         } catch (FactoryException e) {
-            infoForm.setCrsText(e.getMessage());
+            infoForm.setCrs(e.getMessage(), null);
+            crs = null;
         }
+        updateOutputParameterState();
         updateProductSize();
     }
     
@@ -217,27 +223,6 @@ class ReprojectionForm extends JTabbedPane {
         }
     }
     
-    private class ShowWktAction implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                CoordinateReferenceSystem crs = getSelectedCrs();
-                if (crs != null) {
-                    JTextArea wktArea = new JTextArea(30, 40);
-                    wktArea.setEditable(false);
-                    wktArea.setText(crs.toString());
-                    final JScrollPane scrollPane = new JScrollPane(wktArea);
-                    final ModalDialog dialog = new ModalDialog(appContext.getApplicationWindow(),
-                                                               "Coordinate reference system as well known text",
-                                                               scrollPane,
-                                                               ModalDialog.ID_OK, null);
-                    dialog.show();
-                }
-            } catch (FactoryException ignore) {
-            }
-        }
-    }
-    
     private class InfoForm {
 
         private JLabel widthLabel;
@@ -245,6 +230,8 @@ class ReprojectionForm extends JTabbedPane {
         private JLabel centerLatLabel;
         private JLabel centerLonLabel;
         private JLabel crsLabel;
+        private String wkt;
+        private JButton wktButton;
         
         void setWidth(int width){
             widthLabel.setText(Integer.toString(width));
@@ -264,8 +251,11 @@ class ReprojectionForm extends JTabbedPane {
             }
         }
         
-        void setCrsText(String crsText) {
+        void setCrs(String crsText, String wkt) {
+            this.wkt = wkt;
             crsLabel.setText(crsText);
+            boolean hasWKT = (wkt != null);
+            wktButton.setEnabled(hasWKT);
         }
         
         JPanel createUI() {
@@ -305,8 +295,23 @@ class ReprojectionForm extends JTabbedPane {
             
             panel.add(new JLabel("CRS:"));
             panel.add(crsLabel);
-            JButton wktButton = new JButton("Show WKT");
-            wktButton.addActionListener(new ShowWktAction());
+            wktButton = new JButton("Show WKT");
+            wktButton.addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JTextArea wktArea = new JTextArea(30, 40);
+                    wktArea.setEditable(false);
+                    wktArea.setText(wkt);
+                    final JScrollPane scrollPane = new JScrollPane(wktArea);
+                    final ModalDialog dialog = new ModalDialog(appContext.getApplicationWindow(),
+                                                               "Coordinate reference system as well known text",
+                                                               scrollPane,
+                                                               ModalDialog.ID_OK, null);
+                    dialog.show();                    
+                }
+            });
+            wktButton.setEnabled(false);
             panel.add(wktButton);
             return panel;
         }
@@ -347,10 +352,10 @@ class ReprojectionForm extends JTabbedPane {
         context.bind(Model.REPROJ_TIEPOINTS, includeTPcheck);
         outputSettingsPanel.add(includeTPcheck);
 
-        final JButton outputParamBtn = new JButton("Output Parameter...");
-        outputParamBtn.setEnabled(!reprojectionModel.preserveResolution);
-        outputParamBtn.addActionListener(new OutputParamActionListener());
-        outputSettingsPanel.add(outputParamBtn);
+        outputParamButton = new JButton("Output Parameter...");
+        outputParamButton.setEnabled(!reprojectionModel.preserveResolution);
+        outputParamButton.addActionListener(new OutputParamActionListener());
+        outputSettingsPanel.add(outputParamButton);
 
         outputSettingsPanel.add(new JLabel("No-data value:"));
         final JTextField noDataField = new JTextField();
@@ -368,11 +373,15 @@ class ReprojectionForm extends JTabbedPane {
         reprojectionlContainer.addPropertyChangeListener(Model.PRESERVE_RESOLUTION, new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                outputParamBtn.setEnabled(!reprojectionModel.preserveResolution);
+                updateOutputParameterState();
             }
         });
 
         return outputSettingsPanel;
+    }
+    
+    private void updateOutputParameterState() {
+        outputParamButton.setEnabled(!reprojectionModel.preserveResolution && (crs != null));
     }
 
     private JPanel createSourceProductPanel() {
@@ -445,10 +454,7 @@ class ReprojectionForm extends JTabbedPane {
     }
     
     private void showWarningMessage(String message) {
-        JOptionPane.showMessageDialog(getParent(),
-                                      message,
-                                      "Reprojection",
-                                      JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(getParent(), message, "Reprojection", JOptionPane.WARNING_MESSAGE);
     }
 
     private static class Model {
