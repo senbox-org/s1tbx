@@ -227,8 +227,6 @@ public class WriteOp extends Operator {
 
         try {
             pm.beginTask("Writing product...", tileCountX * tileCountY * targetBands.length * 2);
-            long t1sum = 0;
-            long t2sum = 0;
             for (int tileY = 0; tileY < tileCountY; tileY++) {
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     writeOp.checkForCancelation(pm);
@@ -239,17 +237,10 @@ public class WriteOp extends Operator {
                                                                   tileSize.height);
                     final Rectangle intersection = boundary.intersection(tileRectangle);
 
-                    System.out.println("doing tile "+intersection + "   "+(tileY*tileCountX+tileX)+ " of "+(tileCountY*tileCountX));
                     for (final Band band : targetBands) {
-                        long t1 = System.currentTimeMillis();
                         final Tile tile = writeOp.getSourceTile(band, intersection, new SubProgressMonitor(pm, 1));
-                        long t2 = System.currentTimeMillis();
                         writeOp.computeTile(band, tile, new SubProgressMonitor(pm, 1));
-                        long t3 = System.currentTimeMillis();
-                        t1sum += (t2-t1);
-                        t2sum += (t3-t2);
                     }
-                    System.out.println("time get="+t1sum+"  save="+t2sum);
                 }
             }
         } catch (OperatorException e) {
