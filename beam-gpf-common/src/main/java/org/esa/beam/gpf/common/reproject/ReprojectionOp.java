@@ -61,6 +61,7 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.text.MessageFormat;
@@ -357,9 +358,12 @@ public class ReprojectionOp extends Operator {
                 int sourceLevel = getSourceLevel(srcModel, targetLevel);
                 RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
                 Rectangle sourceRect = new Rectangle(sourceImage.getWidth(), sourceImage.getHeight());
+                double srcScale = srcModel.getScale(sourceLevel);
+                AffineTransform i2mSrc = ImageManager.getImageToModelTransform(sourceGeoCoding);
+                i2mSrc.scale(srcScale, srcScale);
                 ImageGeometry sourceGeometry = new ImageGeometry(sourceRect,
                                                                  srcModelCrs,
-                                                                 srcModel.getImageToModelTransform(sourceLevel));
+                                                                 i2mSrc);
                 
                 ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(ImageManager.getDataBufferType(targetBand.getDataType()),
                                                            targetBand.getSceneRasterWidth(),
@@ -367,9 +371,14 @@ public class ReprojectionOp extends Operator {
                                                            targetProduct.getPreferredTileSize(),
                                                            ResolutionLevel.create(getModel(), targetLevel));
                 Rectangle targetRect = new Rectangle(imageLayout.getWidth(null), imageLayout.getHeight(null));
+                
+                double targetScale = getModel().getScale(targetLevel);
+                AffineTransform i2mTarget = ImageManager.getImageToModelTransform(targetProduct.getGeoCoding());
+                i2mTarget.scale(targetScale, targetScale);
+                
                 ImageGeometry targetGeometry = new ImageGeometry(targetRect,
                                                                  targetModelCrs,
-                                                                 getModel().getImageToModelTransform(targetLevel));
+                                                                 i2mTarget);
                 Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
 
                 try {
