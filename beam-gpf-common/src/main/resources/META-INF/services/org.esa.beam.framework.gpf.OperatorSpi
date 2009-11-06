@@ -1,1 +1,2 @@
 org.esa.beam.gpf.common.reproject.ReprojectionOp$Spi
+org.esa.beam.gpf.common.mosaic.MosaicOp$Spi
