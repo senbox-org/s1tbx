@@ -12,6 +12,10 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>org.esa.beam.framework.gpf.OperatorSpi</serviceProvider>
+    </extension>
+
     <changelog>
         <![CDATA[
         <p>For 4.7:<br/>
