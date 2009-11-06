@@ -3,6 +3,7 @@ package org.esa.beam.framework.gpf.operators.common;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
+
 import org.esa.beam.dataio.dimap.DimapProductWriter;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
@@ -12,6 +13,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -20,12 +22,14 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -193,13 +197,25 @@ public class WriteOp extends Operator {
 
     public static void writeProduct(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure,
                                     ProgressMonitor pm) {
-        final WriteOp writeOp = new WriteOp(sourceProduct, file, formatName, deleteOutputOnFailure);
+        Spi spi = new WriteOp.Spi();
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("file", file);
+        parameters.put("formatName", formatName);
+        parameters.put("deleteOutputOnFailure", deleteOutputOnFailure);
+        Map<String, Product> sourceProducts = new HashMap<String, Product>();
+        sourceProducts.put("sourceProduct", sourceProduct);
+        Dimension tileSize = ImageManager.getPreferredTileSize(sourceProduct);
+        tileSize = new Dimension(sourceProduct.getSceneRasterWidth(), (tileSize.height * tileSize.width / sourceProduct.getSceneRasterWidth()));
+        RenderingHints renderingHints = new RenderingHints(GPF.KEY_TILE_SIZE, tileSize);
+        final WriteOp writeOp = (WriteOp) spi.createOperator(parameters, sourceProducts, renderingHints);
+//        final WriteOp writeOp = new WriteOp(sourceProduct, file, formatName, deleteOutputOnFailure);
+        
         final Product targetProduct = writeOp.getTargetProduct();
 
-        Dimension tileSize = targetProduct.getPreferredTileSize();
-        if (tileSize == null) {
-            tileSize = JAI.getDefaultTileSize();
-        }
+//        Dimension tileSize = targetProduct.getPreferredTileSize();
+//        if (tileSize == null) {
+//            tileSize = JAI.getDefaultTileSize();
+//        }
 
         final int rasterHeight = targetProduct.getSceneRasterHeight();
         final int rasterWidth = targetProduct.getSceneRasterWidth();
@@ -210,7 +226,8 @@ public class WriteOp extends Operator {
 
         try {
             pm.beginTask("Writing product...", tileCountX * tileCountY * targetBands.length * 2);
-
+            long t1sum = 0;
+            long t2sum = 0;
             for (int tileY = 0; tileY < tileCountY; tileY++) {
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     writeOp.checkForCancelation(pm);
@@ -221,10 +238,17 @@ public class WriteOp extends Operator {
                                                                   tileSize.height);
                     final Rectangle intersection = boundary.intersection(tileRectangle);
 
+                    System.out.println("doing tile "+intersection + "   "+(tileY*tileCountX+tileX)+ " of "+(tileCountY*tileCountX));
                     for (final Band band : targetBands) {
+                        long t1 = System.currentTimeMillis();
                         final Tile tile = writeOp.getSourceTile(band, intersection, new SubProgressMonitor(pm, 1));
+                        long t2 = System.currentTimeMillis();
                         writeOp.computeTile(band, tile, new SubProgressMonitor(pm, 1));
+                        long t3 = System.currentTimeMillis();
+                        t1sum += (t2-t1);
+                        t2sum += (t3-t2);
                     }
+                    System.out.println("time get="+t1sum+"  save="+t2sum);
                 }
             }
         } catch (OperatorException e) {

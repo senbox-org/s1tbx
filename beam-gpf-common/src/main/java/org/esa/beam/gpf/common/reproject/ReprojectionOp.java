@@ -60,7 +60,6 @@ import org.opengis.referencing.operation.TransformException;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -182,9 +181,6 @@ public class ReprojectionOp extends Operator {
         if (orthorectify) {
             elevationModel = createElevationModel();
         }
-        // todo: also query operatorContext rendering hints for tile size
-        final Dimension tileSize = ImageManager.getPreferredTileSize(targetProduct);
-        targetProduct.setPreferredTileSize(tileSize);
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
         copyIndexCoding();
