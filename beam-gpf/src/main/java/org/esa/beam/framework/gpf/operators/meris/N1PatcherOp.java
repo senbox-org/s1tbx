@@ -131,9 +131,6 @@ public class N1PatcherOp extends MerisBasisOp {
         } catch (IOException e) {
             throw new OperatorException(e);
         }
-        if (sourceProduct.getPreferredTileSize() != null) {
-            targetProduct.setPreferredTileSize(sourceProduct.getPreferredTileSize());
-        }
     }
 
     private void parseMPH() throws IOException {
