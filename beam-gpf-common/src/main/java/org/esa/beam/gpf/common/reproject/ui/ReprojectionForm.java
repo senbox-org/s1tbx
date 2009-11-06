@@ -185,9 +185,9 @@ class ReprojectionForm extends JTabbedPane {
             demSelector = new DemSelector();
             parameterPanel.add(demSelector);
         }
+        parameterPanel.add(createOuputSettingsPanel());
         infoForm = new InfoForm();
         parameterPanel.add(infoForm.createUI());
-        parameterPanel.add(createOuputSettingsPanel());
         
         crsForm.addPropertyChangeListener("crs", new PropertyChangeListener() {
             
