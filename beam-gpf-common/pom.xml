@@ -27,11 +27,6 @@
             <artifactId>beam-visat</artifactId>
         </dependency>       
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-envisat-reader</artifactId>
-            <scope>test</scope>
-        </dependency>       
-        <dependency>
             <groupId>javax.media.jai</groupId>
             <artifactId>jai-core</artifactId>
         </dependency>
