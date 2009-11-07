@@ -4,6 +4,8 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.util.Debug;
 import org.geotools.referencing.CRS;
 import org.junit.AfterClass;
@@ -37,6 +39,9 @@ public class MosaicOpTest {
         product1 = createProduct("P1", 0, 0, 2.0f);
         product2 = createProduct("P2", 5, -5, 3.0f);
         product3 = createProduct("P3", -5, 5, 5.0f);
+        // We have to load SPIs manually, otherwise SPI for Reproject is not available
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.loadOperatorSpis();
     }
 
     private static Product createProduct(final String name, final int easting, final int northing,
