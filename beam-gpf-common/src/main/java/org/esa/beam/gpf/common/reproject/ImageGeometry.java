@@ -17,20 +17,15 @@
 package org.esa.beam.gpf.common.reproject;
 
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.FactoryException;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.resources.geometry.XRectangle2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -151,79 +146,23 @@ public class ImageGeometry {
         return imageGeometry;
     }
 
-    private static Rectangle2D createMapBoundary(Product product, CoordinateReferenceSystem targetCrs) {
-        final int sourceW = product.getSceneRasterWidth();
-        final int sourceH = product.getSceneRasterHeight();
-        final int step = Math.min(sourceW, sourceH) / 10;
-        MathTransform mathTransform;
+
+    private static Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
         try {
-            mathTransform = CRS.findMathTransform(product.getGeoCoding().getGeoCRS(), targetCrs);
-        } catch (FactoryException e) {
+            final CoordinateReferenceSystem sourceCrs = product.getGeoCoding().getImageCRS();
+            final int sourceW = product.getSceneRasterWidth();
+            final int sourceH = product.getSceneRasterHeight();
+
+            Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
+            int pointsPerSide = Math.min(sourceH, sourceW) / 10;
+            pointsPerSide = Math.max(9, pointsPerSide);
+
+            final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
+            final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
+            return new Rectangle2D.Double(targetEnvelope.getMinX(), targetEnvelope.getMinY(),
+                                          targetEnvelope.getWidth(), targetEnvelope.getHeight());
+        } catch (Exception e) {
             throw new OperatorException(e);
         }
-        try {
-            final Point2D[] point2Ds = createMapBoundary(product, step, mathTransform);
-            return new Rectangle2D.Double(point2Ds[0].getX(),
-                                          point2Ds[0].getY(),
-                                          point2Ds[1].getX() - point2Ds[0].getX(),
-                                          point2Ds[1].getY() - point2Ds[0].getY());
-        } catch (TransformException e) {
-            throw new OperatorException(e);
-        }
     }
-
-    private static Point2D[] createMapBoundary(Product product, int step,
-                                               MathTransform mathTransform) throws TransformException {
-        GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, null, step);
-        float[] geoPointsD = new float[geoPoints.length * 2];
-        for (int i = 0; i < geoPoints.length; i++) {
-            geoPointsD[i * 2] = geoPoints[i].lon;
-            geoPointsD[(i * 2) + 1] = geoPoints[i].lat;
-        }
-        float[] mapPointsD = new float[geoPoints.length * 2];
-        mathTransform.transform(geoPointsD, 0, mapPointsD, 0, geoPoints.length);
-
-        return getMinMax(mapPointsD);
-    }
-
-    private static Point2D[] getMinMax(float[] mapPointsD) {
-        Point2D.Float min = new Point2D.Float();
-        Point2D.Float max = new Point2D.Float();
-        min.x = +Float.MAX_VALUE;
-        min.y = +Float.MAX_VALUE;
-        max.x = -Float.MAX_VALUE;
-        max.y = -Float.MAX_VALUE;
-        int i = 0;
-        while (i < mapPointsD.length) {
-            float pointX = mapPointsD[i++];
-            float pointY = mapPointsD[i++];
-            min.x = Math.min(min.x, pointX);
-            min.y = Math.min(min.y, pointY);
-            max.x = Math.max(max.x, pointX);
-            max.y = Math.max(max.y, pointY);
-        }
-        return new Point2D[]{min, max};
-    }
-    
-    // This code is simpler as the code currently used, but it does not consider the crossing of the 180° meridian.
-    // This results in a map coverage of the whole earth.
-    // todo - suggestion to simplify the currently used code are welcome
-//    private Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
-//        try {
-//            final CoordinateReferenceSystem sourceCrs = product.getGeoCoding().getImageCRS();
-//            final int sourceW = product.getSceneRasterWidth();
-//            final int sourceH = product.getSceneRasterHeight();
-//
-//            Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
-//            int pointsPerSide = Math.min(sourceH, sourceW) / 10;
-//            pointsPerSide = Math.max(9, pointsPerSide);
-//
-//            final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
-//            final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
-//            return new Rectangle2D.Double(targetEnvelope.getMinX(), targetEnvelope.getMinY(),
-//                                          targetEnvelope.getWidth(), targetEnvelope.getHeight());
-//        } catch (Exception e) {
-//            throw new OperatorException(e);
-//        }
-//    }
 }
