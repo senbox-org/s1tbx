@@ -117,13 +117,13 @@ public class MosaicOp extends Operator {
 
     private List<List<PlanarImage>> createAlphaImages() {
         final List<List<PlanarImage>> alphaImageList = new ArrayList<List<PlanarImage>>(outputVariables.length);
-        for (Variable outputVariable : outputVariables) {
+        for (final Variable variable : outputVariables) {
             final ArrayList<PlanarImage> list = new ArrayList<PlanarImage>(reprojectedProducts.length);
             alphaImageList.add(list);
-            for (Product product : reprojectedProducts) {
+            for (final Product product : reprojectedProducts) {
                 final String validMaskExpression;
                 try {
-                    validMaskExpression = createValidMaskExpression(product, outputVariable.expression);
+                    validMaskExpression = createValidMaskExpression(product, variable.expression);
                 } catch (ParseException e) {
                     throw new OperatorException(e);
                 }
@@ -141,7 +141,9 @@ public class MosaicOp extends Operator {
                 }
                 list.add(createExpressionImage(combinedExpression.toString(), product));
             }
-
+            if (update) {
+                list.add(targetProduct.getBand(variable.name + "_count").getSourceImage());
+            }
         }
         return alphaImageList;
     }
@@ -208,15 +210,18 @@ public class MosaicOp extends Operator {
 
 
     private List<List<RenderedImage>> createSourceImages() {
-        List<List<RenderedImage>> conditionImageList = new ArrayList<List<RenderedImage>>(outputVariables.length);
-        for (Variable variable : outputVariables) {
-            final ArrayList<RenderedImage> renderedImageList = new ArrayList<RenderedImage>(reprojectedProducts.length);
-            conditionImageList.add(renderedImageList);
-            for (Product reprojectedProduct : reprojectedProducts) {
-                renderedImageList.add(createExpressionImage(variable.expression, reprojectedProduct));
+        final List<List<RenderedImage>> sourceImageList = new ArrayList<List<RenderedImage>>(outputVariables.length);
+        for (final Variable variable : outputVariables) {
+            final List<RenderedImage> renderedImageList = new ArrayList<RenderedImage>(reprojectedProducts.length);
+            sourceImageList.add(renderedImageList);
+            for (final Product product : reprojectedProducts) {
+                renderedImageList.add(createExpressionImage(variable.expression, product));
+            }
+            if (update) {
+                renderedImageList.add(targetProduct.getBand(variable.name).getSourceImage());
             }
         }
-        return conditionImageList;
+        return sourceImageList;
     }
 
     private PlanarImage createExpressionImage(final String expression, Product product) {

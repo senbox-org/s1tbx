@@ -55,7 +55,7 @@ import java.util.List;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @author Marco Z�hlke
+ * @author Marco Zühlke
  * @version $Revision$ $Date$
  */
 public class PConvertMain {
