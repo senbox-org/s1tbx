@@ -13,6 +13,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.jai.ResolutionLevel;
@@ -24,7 +25,6 @@ import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.PlanarImage;
-import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.AddCollectionDescriptor;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
@@ -45,12 +45,15 @@ import java.util.List;
                   version = "1.0",
                   authors = "Marco Peters, Ralf Quast, Marco Zühlke",
                   copyright = "(c) 2009 by Brockmann Consult",
-                  description = "Creates a mosaic product out of a set of source products.",
+                  description = "Creates a mosaic out of a set of source products.",
                   internal = true)
 public class MosaicOp extends Operator {
 
-    @SourceProducts(count = -1, description = "The source products to be used for mosaic.")
+    @SourceProducts(count = -1, description = "The source products to be used for mosaicking.")
     private Product[] sourceProducts;
+
+    @SourceProduct(description = "A product to be updated.", optional = true)
+    Product updateProduct;
 
     @TargetProduct
     Product targetProduct;
@@ -64,9 +67,6 @@ public class MosaicOp extends Operator {
     @Parameter(description = "Specifies the way how conditions are combined.", defaultValue = "OR",
                valueSet = {"OR", "AND"})
     String combine;
-
-    @Parameter(description = "Specifies whether the target product shall be updated.")
-    boolean update;
 
     @Parameter(alias = "epsgCode", description = "Specifies the coordinate reference system of the target product.",
                defaultValue = "EPSG:4326")
@@ -109,7 +109,7 @@ public class MosaicOp extends Operator {
     private List<RenderedImage> createVariableCountImages(List<List<PlanarImage>> alphaImageList) {
         List<RenderedImage> variableCountImageList = new ArrayList<RenderedImage>(outputVariables.length);
         for (List<PlanarImage> variableAlphaImageList : alphaImageList) {
-            final RenderedImage countFloatImage = AddCollectionDescriptor.create(variableAlphaImageList, null);
+            final RenderedImage countFloatImage = createImageSum(variableAlphaImageList);
             variableCountImageList.add(FormatDescriptor.create(countFloatImage, DataBuffer.TYPE_INT, null));
         }
         return variableCountImageList;
@@ -141,8 +141,9 @@ public class MosaicOp extends Operator {
                 }
                 list.add(createExpressionImage(combinedExpression.toString(), product));
             }
-            if (update) {
-                list.add(targetProduct.getBand(variable.name + "_count").getSourceImage());
+            if (isUpdateMode()) {
+                final RenderedImage updateImage = updateProduct.getBand(getCountBandName(variable)).getSourceImage();
+                list.add(FormatDescriptor.create(updateImage, DataBuffer.TYPE_FLOAT, null));
             }
         }
         return alphaImageList;
@@ -171,7 +172,7 @@ public class MosaicOp extends Operator {
     private void addBands(Product product, List<RenderedImage> bandImages, List<RenderedImage> variableCountImageList) {
         for (int i = 0; i < outputVariables.length; i++) {
             Variable outputVariable = outputVariables[i];
-            final String countBandName = String.format("%s_count", outputVariable.name);
+            final String countBandName = getCountBandName(outputVariable);
 
             Band band = product.addBand(outputVariable.name, ProductData.TYPE_FLOAT32);
             band.setDescription(outputVariable.expression);
@@ -190,22 +191,45 @@ public class MosaicOp extends Operator {
                     band.setDescription(condition.expression);
                     // The sum of all conditions of all sources is created.
                     // 1.0 indicates condition is true and 0.0 indicates false.
-                    final RenderedOp sumImage = createConditionSumImage(condition);
-                    final RenderedOp reformatedImage = FormatDescriptor.create(sumImage, DataBuffer.TYPE_INT, null);
+                    final RenderedImage sumImage = createConditionSumImage(condition);
+                    final RenderedImage reformatedImage = FormatDescriptor.create(sumImage, DataBuffer.TYPE_INT, null);
                     band.setSourceImage(reformatedImage);
                 }
             }
         }
     }
 
-    private RenderedOp createConditionSumImage(Condition condition) {
-        final ArrayList<RenderedImage> renderedImageList = new ArrayList<RenderedImage>(reprojectedProducts.length);
+    private String getCountBandName(Variable outputVariable) {
+        return String.format("%s_count", outputVariable.name);
+    }
+
+    private RenderedImage createConditionSumImage(Condition condition) {
+        final List<RenderedImage> renderedImageList = new ArrayList<RenderedImage>(reprojectedProducts.length);
         for (Product reprojectedProduct : reprojectedProducts) {
-            // the condition images are used as sourceAlpha parameter for MosaicOpImage, they have to have the same
-            // data type as the source images. That's why we use normal expression images with data type FLOAT32.
-            renderedImageList.add(createExpressionImage(condition.expression, reprojectedProduct));
+            renderedImageList.add(createConditionImage(condition, reprojectedProduct));
         }
-        return AddCollectionDescriptor.create(renderedImageList, null);
+        return createImageSum(renderedImageList);
+    }
+
+    private PlanarImage createConditionImage(Condition condition, Product reprojectedProduct) {
+        String validMaskExpression;
+        try {
+            validMaskExpression = createValidMaskExpression(reprojectedProduct, condition.expression);
+        } catch (ParseException e) {
+            throw new OperatorException(e);
+        }
+        String expression = validMaskExpression + " && (" + condition.expression + ")";
+        // the condition images are used as sourceAlpha parameter for MosaicOpImage, they have to have the same
+        // data type as the source images. That's why we use normal expression images with data type FLOAT32.
+        return createExpressionImage(expression, reprojectedProduct);
+    }
+
+    private RenderedImage createImageSum(List<? extends RenderedImage> renderedImageList) {
+        if (renderedImageList.size() >= 2) {
+            return AddCollectionDescriptor.create(renderedImageList, null);
+        } else {
+            return renderedImageList.get(0);
+        }
     }
 
 
@@ -217,11 +241,15 @@ public class MosaicOp extends Operator {
             for (final Product product : reprojectedProducts) {
                 renderedImageList.add(createExpressionImage(variable.expression, product));
             }
-            if (update) {
-                renderedImageList.add(targetProduct.getBand(variable.name).getSourceImage());
+            if (isUpdateMode()) {
+                renderedImageList.add(updateProduct.getBand(variable.name).getSourceImage());
             }
         }
         return sourceImageList;
+    }
+
+    private boolean isUpdateMode() {
+        return updateProduct != null;
     }
 
     private PlanarImage createExpressionImage(final String expression, Product product) {
@@ -300,6 +328,15 @@ public class MosaicOp extends Operator {
         String expression;
         @Parameter(description = "Whether the result of the condition shall be written.")
         boolean output;
+
+        public Condition() {
+        }
+
+        Condition(String name, String expression, boolean output) {
+            this.name = name;
+            this.expression = expression;
+            this.output = output;
+        }
 
     }
 

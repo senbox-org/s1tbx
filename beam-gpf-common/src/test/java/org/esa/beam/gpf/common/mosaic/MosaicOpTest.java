@@ -48,6 +48,141 @@ public class MosaicOpTest {
         registry.loadOperatorSpis();
     }
 
+    @AfterClass
+    public static void teardown() {
+        product1.dispose();
+        product2.dispose();
+        product3.dispose();
+    }
+
+    @Test
+    public void testMosaickingSimple() throws IOException {
+        final MosaicOp op = new MosaicOp();
+        op.setSourceProducts(new Product[]{product1, product2, product3});
+        op.outputVariables = new MosaicOp.Variable[]{
+                new MosaicOp.Variable("b1", "b1"),
+
+        };
+        op.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        op.pixelSizeX = 1;
+        op.pixelSizeY = 1;
+
+        final Product product = op.getTargetProduct();
+
+        final GeoPos[] geoPositions = {
+                new GeoPos(8, -8), new GeoPos(4, -4), new GeoPos(-1, 1), new GeoPos(-4, 4), new GeoPos(-8, 8)
+        };
+
+        Band b1Band = product.getBand("b1");
+        assertSampleValuesFloat(b1Band, geoPositions, new float[]{0.0f, 5.0f, 3.5f, 3.333333f, 2.5f});
+
+        Band countBand = product.getBand("b1_count");
+        assertSampleValuesInt(countBand, geoPositions, new int[]{0, 1, 2, 3, 2});
+    }
+
+    @Test
+    public void testMosaickingUpdate() throws IOException {
+        final MosaicOp mosaicOp = new MosaicOp();
+        mosaicOp.setSourceProducts(new Product[]{product1, product2});
+        mosaicOp.outputVariables = new MosaicOp.Variable[]{
+                new MosaicOp.Variable("b1", "b1"),
+
+        };
+        mosaicOp.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        mosaicOp.pixelSizeX = 1;
+        mosaicOp.pixelSizeY = 1;
+
+        final Product mosaicProduct = mosaicOp.getTargetProduct();
+
+        Band b1Band;
+        Band countBand;
+
+        final GeoPos[] geoPositions = {
+                new GeoPos(8, -8), new GeoPos(4, -4), new GeoPos(-1, 1), new GeoPos(-4, 4), new GeoPos(-8, 8)
+        };
+
+        b1Band = mosaicProduct.getBand("b1");
+        assertSampleValuesFloat(b1Band, geoPositions, new float[]{0.0f, 0.0f, 2.0f, 2.5f, 2.5f});
+
+        countBand = mosaicProduct.getBand("b1_count");
+        assertSampleValuesInt(countBand, geoPositions, new int[]{0, 0, 1, 2, 2});
+
+
+        final MosaicOp mosaicUpdateOp = new MosaicOp();
+        mosaicUpdateOp.setSourceProducts(new Product[]{product3});
+        mosaicUpdateOp.outputVariables = new MosaicOp.Variable[]{
+                new MosaicOp.Variable("b1", "b1"),
+
+        };
+        mosaicUpdateOp.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        mosaicUpdateOp.pixelSizeX = 1;
+        mosaicUpdateOp.pixelSizeY = 1;
+        mosaicUpdateOp.updateProduct = mosaicOp.getTargetProduct();
+
+        final Product product = mosaicUpdateOp.getTargetProduct();
+
+        b1Band = product.getBand("b1");
+        assertSampleValuesFloat(b1Band, geoPositions, new float[]{0.0f, 5.0f, 3.5f, 3.333333f, 2.5f});
+
+        countBand = product.getBand("b1_count");
+        assertSampleValuesInt(countBand, geoPositions, new int[]{0, 1, 2, 3, 2});
+    }
+
+
+    @Test
+    public void testMosaickingWithConditions() {
+        final MosaicOp op = new MosaicOp();
+        op.setSourceProducts(new Product[]{product1, product2, product3});
+        op.outputVariables = new MosaicOp.Variable[]{
+                new MosaicOp.Variable("b1", "b1")
+        };
+        op.conditions = new MosaicOp.Condition[]{
+                new MosaicOp.Condition("b1_cond", "b1 != 3", true)
+        };
+        op.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        op.pixelSizeX = 1;
+        op.pixelSizeY = 1;
+
+        final Product product = op.getTargetProduct();
+
+        final GeoPos[] geoPositions = {
+                new GeoPos(8, -8), new GeoPos(4, -4), new GeoPos(-1, 1), new GeoPos(-4, 4), new GeoPos(-8, 8)
+        };
+
+        Band b1Band = product.getBand("b1");
+        assertSampleValuesFloat(b1Band, geoPositions, new float[]{0.0f, 5.0f, 3.5f, 3.5f, 2.0f});
+
+        Band countBand = product.getBand("b1_count");
+        assertSampleValuesInt(countBand, geoPositions, new int[]{0, 1, 2, 2, 1});
+
+        Band condBand = product.getBand("b1_cond");
+        assertSampleValuesInt(condBand, geoPositions, new int[]{0, 1, 2, 2, 1});
+    }
+
+    private void assertSampleValuesFloat(Band b1Band, GeoPos[] geoPositions, float[] expectedValues) {
+        GeoCoding geoCoding = b1Band.getGeoCoding();
+        final Raster b1Raster = b1Band.getSourceImage().getData();
+        for (int i = 0; i < geoPositions.length; i++) {
+            PixelPos pp = geoCoding.getPixelPos(geoPositions[i], null);
+            final float expectedValue = expectedValues[i];
+            final float actualValue = b1Raster.getSampleFloat((int) pp.x, (int) pp.y, 0);
+            final String message = String.format("At <%d>:", i);
+            assertEquals(message, expectedValue, actualValue, 1.0e-6);
+        }
+    }
+
+    private void assertSampleValuesInt(Band b1Band, GeoPos[] geoPositions, int[] expectedValues) {
+        GeoCoding geoCoding = b1Band.getGeoCoding();
+        final Raster b1Raster = b1Band.getSourceImage().getData();
+        for (int i = 0; i < geoPositions.length; i++) {
+            PixelPos pp = geoCoding.getPixelPos(geoPositions[i], null);
+            final int expectedValue = expectedValues[i];
+            final int actualValue = b1Raster.getSample((int) pp.x, (int) pp.y, 0);
+            final String message = String.format("At <%d>:", i);
+            assertEquals(message, expectedValue, actualValue);
+        }
+    }
+
     private static Product createProduct(final String name, final int easting, final int northing,
                                          final float bandFillValue) throws FactoryException, TransformException {
         final Product product = new Product(name, "T", WIDTH, HEIGHT);
@@ -67,56 +202,5 @@ public class MosaicOpTest {
         return band;
     }
 
-    @AfterClass
-    public static void teardown() {
-        product1.dispose();
-        product2.dispose();
-        product3.dispose();
-    }
 
-    @Test
-    public void testXXXXX() throws IOException {
-        final MosaicOp op = new MosaicOp();
-        op.setSourceProducts(new Product[]{product1, product2, product3});
-        op.outputVariables = new MosaicOp.Variable[]{
-                new MosaicOp.Variable("b1", "b1"),
-
-        };
-        op.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
-        op.pixelSizeX = 1;
-        op.pixelSizeY = 1;
-
-        final Product product = op.getTargetProduct();
-        final GeoCoding geoCoding = product.getGeoCoding();
-        PixelPos pp;
-
-        final Band b1Band = product.getBand("b1");
-
-        pp = geoCoding.getPixelPos(new GeoPos(8, -8), null);
-        final Raster b1Raster = b1Band.getSourceImage().getData();
-        assertEquals(0.0f, b1Raster.getSampleFloat((int) pp.x, (int) pp.y, 0), 1.0e-6);
-        pp = geoCoding.getPixelPos(new GeoPos(4, -4), null);
-        assertEquals(5.0f, b1Raster.getSampleFloat((int) pp.x, (int) pp.y, 0), 1.0e-6);
-        pp = geoCoding.getPixelPos(new GeoPos(-1, 1), null);
-        assertEquals(3.5f, b1Raster.getSampleFloat((int) pp.x, (int) pp.y, 0), 1.0e-6);
-        pp = geoCoding.getPixelPos(new GeoPos(-4, 4), null);
-        assertEquals(3.3333333f, b1Raster.getSampleFloat((int) pp.x, (int) pp.y, 0), 1.0e-6);
-        pp = geoCoding.getPixelPos(new GeoPos(-8, 8), null);
-        assertEquals(2.5f, b1Raster.getSampleFloat((int) pp.x, (int) pp.y, 0), 1.0e-6);
-
-        final Band countBand = product.getBand("b1_count");
-
-        pp = geoCoding.getPixelPos(new GeoPos(8, -8), null);
-        final Raster countRaster = countBand.getSourceImage().getData();
-        assertEquals(0, countRaster.getSample((int) pp.x, (int) pp.y, 0));
-        pp = geoCoding.getPixelPos(new GeoPos(4, -4), null);
-        assertEquals(1, countRaster.getSample((int) pp.x, (int) pp.y, 0));
-        pp = geoCoding.getPixelPos(new GeoPos(-1, 1), null);
-        assertEquals(2, countRaster.getSample((int) pp.x, (int) pp.y, 0));
-        pp = geoCoding.getPixelPos(new GeoPos(-4, 4), null);
-        assertEquals(3, countRaster.getSample((int) pp.x, (int) pp.y, 0));
-        pp = geoCoding.getPixelPos(new GeoPos(-8, 8), null);
-        assertEquals(2, countRaster.getSample((int) pp.x, (int) pp.y, 0));
-
-    }
 }
