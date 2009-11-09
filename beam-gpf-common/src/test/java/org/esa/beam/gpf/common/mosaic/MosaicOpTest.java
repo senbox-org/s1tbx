@@ -4,8 +4,8 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.util.Debug;
 import org.geotools.referencing.CRS;
 import org.junit.AfterClass;
@@ -35,7 +35,7 @@ public class MosaicOpTest {
     private static Product product3;
 
     @BeforeClass
-    public static void setup() throws FactoryException, TransformException, IOException {
+    public static void setup() throws FactoryException, TransformException{
         product1 = createProduct("P1", 0, 0, 2.0f);
         product2 = createProduct("P2", 5, -5, 3.0f);
         product3 = createProduct("P3", -5, 5, 5.0f);
@@ -52,7 +52,7 @@ public class MosaicOpTest {
         transform.translate(easting, northing);
         transform.scale(1, -1);
         transform.translate(-0.5, -0.5);
-        product.setGeoCoding(new CrsGeoCoding(CRS.decode("EPSG:4326"), new Rectangle(0, 0, WIDTH, HEIGHT), transform));
+        product.setGeoCoding(new CrsGeoCoding(CRS.decode("EPSG:4326", true), new Rectangle(0, 0, WIDTH, HEIGHT), transform));
         return product;
     }
 
@@ -83,12 +83,6 @@ public class MosaicOpTest {
 
         final Product product = op.getTargetProduct();
         Debug.setEnabled(true);
-//        final StopWatch stopWatch = new StopWatch();
-//        stopWatch.start();
-//        final File outputFile = new File(
-//                "C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\temp\\MosaicOpTest2.dim");
-//        WriteOp.writeProduct(product, outputFile, ProductIO.DEFAULT_FORMAT_NAME,
-//                             new PrintWriterProgressMonitor(System.out));
-//        stopWatch.stopAndTrace("DONE");
+        final Band countBand = product.getBand("num_pixels");
     }
 }
