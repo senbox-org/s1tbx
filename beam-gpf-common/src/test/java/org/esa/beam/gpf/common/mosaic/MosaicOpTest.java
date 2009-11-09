@@ -20,8 +20,11 @@ import org.opengis.referencing.operation.TransformException;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * @author Marco Peters
@@ -157,6 +160,48 @@ public class MosaicOpTest {
 
         Band condBand = product.getBand("b1_cond");
         assertSampleValuesInt(condBand, geoPositions, new int[]{0, 1, 2, 2, 1});
+    }
+
+    @Test
+    public void testMosaickingWithInvalidSourceSamples() {
+        final Band flagBand = product1.addBand("flag", ProductData.TYPE_INT32);
+        final BufferedImage flagImage = new BufferedImage(WIDTH, HEIGHT, DataBuffer.TYPE_INT);
+        int[] flagData = new int [WIDTH * HEIGHT];
+        Arrays.fill(flagData, 1);
+        Arrays.fill(flagData, 0, 3*WIDTH, 0);
+        flagImage.getRaster().setDataElements(0, 0, WIDTH, HEIGHT, flagData);
+        flagBand.setSourceImage(flagImage);
+        final Band p2B1 = product1.getBand("b1");
+        p2B1.setValidPixelExpression("flag == 1");
+
+        final MosaicOp op = new MosaicOp();
+        op.setSourceProducts(new Product[]{product1, product2, product3});
+        op.outputVariables = new MosaicOp.Variable[]{
+                new MosaicOp.Variable("b1", "b1")
+        };
+        op.conditions = new MosaicOp.Condition[]{
+                new MosaicOp.Condition("b1_cond", "b1 != 3", true)
+        };
+        op.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        op.pixelSizeX = 1;
+        op.pixelSizeY = 1;
+
+        final Product product = op.getTargetProduct();
+
+        final GeoPos[] geoPositions = {
+                new GeoPos(8, -8), new GeoPos(4, -4), new GeoPos(-1, 1), new GeoPos(-4, 4), new GeoPos(-8, 8)
+        };
+
+        Band b1Band = product.getBand("b1");
+        assertSampleValuesFloat(b1Band, geoPositions, new float[]{0.0f, 5.0f, 5.0f, 3.5f, 2.0f});
+
+        Band countBand = product.getBand("b1_count");
+        assertSampleValuesInt(countBand, geoPositions, new int[]{0, 1, 1, 2, 1});
+
+        Band condBand = product.getBand("b1_cond");
+        assertSampleValuesInt(condBand, geoPositions, new int[]{0, 1, 1, 2, 1});
+
+
     }
 
     private void assertSampleValuesFloat(Band b1Band, GeoPos[] geoPositions, float[] expectedValues) {
