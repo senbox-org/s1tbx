@@ -24,10 +24,8 @@ import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.PlanarImage;
-import javax.media.jai.ROI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.AddCollectionDescriptor;
-import javax.media.jai.operator.ConstantDescriptor;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
 import java.awt.Rectangle;
@@ -95,71 +93,92 @@ public class MosaicOp extends Operator {
         targetProduct = createTargetProduct();
         reprojectedProducts = createReprojectedProducts();
 
-        // for each product one 'mask' image is created, where all conditions are combined.
-        // 1.0 indicates combined condition is true and 0.0 indicates false.
-        List<PlanarImage> combinedConditionImageList = createCombinedConditionImageList();
+        // for each variable and each product one 'alpha' image is created.
+        // the alpha value for a pixel is either 0.0 or 1.0
+        List<List<PlanarImage>> alphaImageList = createAlphaImages();
 
-        // The countImage indicates the number of considered source samples for the target mosaic.
-        final RenderedImage countImage = AddCollectionDescriptor.create(combinedConditionImageList, null);
-
-        // for each product and for each variable one 'source' image is created.
+        // for each variable and each product one 'source' image is created.
         List<List<RenderedImage>> sourceImageList = createSourceImages();
 
-        List<List<ROI>> maskImages;
-        try {
-            maskImages = createSourceMaskImages();
-        } catch (ParseException e) {
-            throw new OperatorException(e);
-        }
+        List<RenderedImage> mosaicImageList = createMosaicImages(sourceImageList, alphaImageList);
 
-        List<RenderedImage> mosaicImages = createMosaicImages(sourceImageList,
-                                                              maskImages,
-                                                              combinedConditionImageList,
-                                                              countImage);
-        addBands(targetProduct, mosaicImages, countImage);
+        final List<RenderedImage> variableCountImageList = createVariableCountImages(alphaImageList);
+        addBands(targetProduct, mosaicImageList, variableCountImageList);
     }
 
-    private List<List<ROI>> createSourceMaskImages() throws ParseException {
-        List<List<ROI>> variableRoiList = new ArrayList<List<ROI>>(outputVariables.length);
+    private List<RenderedImage> createVariableCountImages(List<List<PlanarImage>> alphaImageList) {
+        List<RenderedImage> variableCountImageList = new ArrayList<RenderedImage>(outputVariables.length);
+        for (List<PlanarImage> variableAlphaImageList : alphaImageList) {
+            final RenderedImage countFloatImage = AddCollectionDescriptor.create(variableAlphaImageList, null);
+            variableCountImageList.add(FormatDescriptor.create(countFloatImage, DataBuffer.TYPE_INT, null));
+        }
+        return variableCountImageList;
+    }
+
+    private List<List<PlanarImage>> createAlphaImages() {
+        final List<List<PlanarImage>> alphaImageList = new ArrayList<List<PlanarImage>>(outputVariables.length);
         for (Variable outputVariable : outputVariables) {
-            final ArrayList<ROI> roiList = new ArrayList<ROI>(reprojectedProducts.length);
-            variableRoiList.add(roiList);
+            final ArrayList<PlanarImage> list = new ArrayList<PlanarImage>(reprojectedProducts.length);
+            alphaImageList.add(list);
             for (Product product : reprojectedProducts) {
-                final String validMaskExpression = BandArithmetic.getValidMaskExpression(outputVariable.expression,
-                                                                                         new Product[]{product}, 0,
-                                                                                         null);
-                roiList.add(new ROI(createExpressionImage(validMaskExpression, product)));
+                final String validMaskExpression;
+                try {
+                    validMaskExpression = createValidMaskExpression(product, outputVariable.expression);
+                } catch (ParseException e) {
+                    throw new OperatorException(e);
+                }
+                final StringBuilder combinedExpression = new StringBuilder(validMaskExpression);
+                if (conditions != null && conditions.length > 0) {
+                    combinedExpression.append(" && (");
+                    for (int i = 0; i < conditions.length; i++) {
+                        Condition condition = conditions[i];
+                        if (i != 0) {
+                            combinedExpression.append(" ").append(combine).append(" ");
+                        }
+                        combinedExpression.append(condition.expression);
+                    }
+                    combinedExpression.append(")");
+                }
+                list.add(createExpressionImage(combinedExpression.toString(), product));
             }
 
         }
-        return variableRoiList;
+        return alphaImageList;
+    }
+
+    private static String createValidMaskExpression(Product product, final String expression) throws ParseException {
+        return BandArithmetic.getValidMaskExpression(expression, new Product[]{product}, 0, null);
     }
 
     private List<RenderedImage> createMosaicImages(List<List<RenderedImage>> sourceImageList,
-                                                   List<List<ROI>> roiList,
-                                                   List<PlanarImage> combinedConditionImageList,
-                                                   RenderedImage countImage) {
-        List<RenderedImage> mosaicImages = new ArrayList<RenderedImage>(sourceImageList.size());
-        final PlanarImage[] sourceAlphas = combinedConditionImageList.toArray(
-                new PlanarImage[combinedConditionImageList.size()]);
+                                                   List<List<PlanarImage>> alphaImageList) {
+        final List<RenderedImage> mosaicImages = new ArrayList<RenderedImage>(sourceImageList.size());
         for (int i = 0; i < sourceImageList.size(); i++) {
-            List<RenderedImage> sourceImages = sourceImageList.get(i);
-            final List<ROI> rois = roiList.get(i);
+            final PlanarImage[] sourceAlphas = alphaImageList.get(i).toArray(
+                    new PlanarImage[alphaImageList.size()]);
+            final List<RenderedImage> sourceImages = sourceImageList.get(i);
             final RenderedImage[] renderedImages = sourceImages.toArray(new RenderedImage[sourceImages.size()]);
-            final ROI[] roiArray = rois.toArray(new ROI[sourceImages.size()]);
+            // we don't need ROIs, cause they are not considered by MosaicDescriptor when sourceAlphas are given
             mosaicImages.add(MosaicDescriptor.create(renderedImages, MosaicDescriptor.MOSAIC_TYPE_BLEND,
-                                                     sourceAlphas, roiArray, null, null, null));
+                                                     sourceAlphas, null, null, null, null));
         }
 
         return mosaicImages;
     }
 
-    private void addBands(Product product, List<RenderedImage> bandImages, RenderedImage countImage) {
+    private void addBands(Product product, List<RenderedImage> bandImages, List<RenderedImage> variableCountImageList) {
         for (int i = 0; i < outputVariables.length; i++) {
             Variable outputVariable = outputVariables[i];
+            final String countBandName = String.format("%s_count", outputVariable.name);
+
             Band band = product.addBand(outputVariable.name, ProductData.TYPE_FLOAT32);
             band.setDescription(outputVariable.expression);
             band.setSourceImage(bandImages.get(i));
+            band.setValidPixelExpression(String.format("%s > 0", countBandName));
+
+            Band countBand = product.addBand(countBandName, ProductData.TYPE_INT32);
+            countBand.setDescription(String.format("Count of %s", outputVariable.name));
+            countBand.setSourceImage(variableCountImageList.get(i));
         }
 
         if (conditions != null) {
@@ -175,11 +194,6 @@ public class MosaicOp extends Operator {
                 }
             }
         }
-
-        Band countBand = product.addBand("num_pixels", ProductData.TYPE_INT32);
-        countBand.setDescription("Number of considerd pixels");
-        final RenderedOp intCountImage = FormatDescriptor.create(countImage, DataBuffer.TYPE_INT, null);
-        countBand.setSourceImage(intCountImage);
     }
 
     private RenderedOp createConditionSumImage(Condition condition) {
@@ -203,32 +217,6 @@ public class MosaicOp extends Operator {
             }
         }
         return conditionImageList;
-    }
-
-    private List<PlanarImage> createCombinedConditionImageList() {
-        List<PlanarImage> combinedConditionImageList = new ArrayList<PlanarImage>(reprojectedProducts.length);
-        for (Product reprojectedProduct : reprojectedProducts) {
-            final PlanarImage image;
-            if (conditions != null && conditions.length > 0) {
-                final StringBuilder combinedExpression = new StringBuilder();
-                for (int i = 0; i < conditions.length; i++) {
-                    Condition condition = conditions[i];
-                    if (i != 0) {
-                        combinedExpression.append(" ").append(combine).append(" ");
-                    }
-                    combinedExpression.append(condition.expression);
-                }
-                // the condition images are used as sourceAlpha parameter for MosaicOpImage, they have to have the same
-                // data type as the source images. That's why we use normal expression images with data type FLOAT32.
-                image = createExpressionImage(combinedExpression.toString(), reprojectedProduct);
-            }else {
-                image = ConstantDescriptor.create((float) targetProduct.getSceneRasterWidth(),
-                                                  (float) targetProduct.getSceneRasterHeight(),
-                                                  new Float[]{1.0f}, null);
-            }
-            combinedConditionImageList.add(image);
-        }
-        return combinedConditionImageList;
     }
 
     private PlanarImage createExpressionImage(final String expression, Product product) {

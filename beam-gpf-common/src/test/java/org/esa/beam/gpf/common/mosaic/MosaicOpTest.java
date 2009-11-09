@@ -2,13 +2,16 @@ package org.esa.beam.gpf.common.mosaic;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.util.Debug;
 import org.geotools.referencing.CRS;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
@@ -17,6 +20,7 @@ import org.opengis.referencing.operation.TransformException;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.image.Raster;
 import java.io.IOException;
 
 /**
@@ -35,9 +39,9 @@ public class MosaicOpTest {
     private static Product product3;
 
     @BeforeClass
-    public static void setup() throws FactoryException, TransformException{
+    public static void setup() throws FactoryException, TransformException {
         product1 = createProduct("P1", 0, 0, 2.0f);
-        product2 = createProduct("P2", 5, -5, 3.0f);
+        product2 = createProduct("P2", 4, -4, 3.0f);
         product3 = createProduct("P3", -5, 5, 5.0f);
         // We have to load SPIs manually, otherwise SPI for Reproject is not available
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
@@ -52,7 +56,8 @@ public class MosaicOpTest {
         transform.translate(easting, northing);
         transform.scale(1, -1);
         transform.translate(-0.5, -0.5);
-        product.setGeoCoding(new CrsGeoCoding(CRS.decode("EPSG:4326", true), new Rectangle(0, 0, WIDTH, HEIGHT), transform));
+        product.setGeoCoding(
+                new CrsGeoCoding(CRS.decode("EPSG:4326", true), new Rectangle(0, 0, WIDTH, HEIGHT), transform));
         return product;
     }
 
@@ -82,7 +87,36 @@ public class MosaicOpTest {
         op.pixelSizeY = 1;
 
         final Product product = op.getTargetProduct();
-        Debug.setEnabled(true);
-        final Band countBand = product.getBand("num_pixels");
+        final GeoCoding geoCoding = product.getGeoCoding();
+        PixelPos pp;
+
+        final Band b1Band = product.getBand("b1");
+
+        pp = geoCoding.getPixelPos(new GeoPos(8, -8), null);
+        final Raster b1Raster = b1Band.getSourceImage().getData();
+        assertEquals(0.0f, b1Raster.getSampleFloat((int) pp.x, (int) pp.y, 0), 1.0e-6);
+        pp = geoCoding.getPixelPos(new GeoPos(4, -4), null);
+        assertEquals(5.0f, b1Raster.getSampleFloat((int) pp.x, (int) pp.y, 0), 1.0e-6);
+        pp = geoCoding.getPixelPos(new GeoPos(-1, 1), null);
+        assertEquals(3.5f, b1Raster.getSampleFloat((int) pp.x, (int) pp.y, 0), 1.0e-6);
+        pp = geoCoding.getPixelPos(new GeoPos(-4, 4), null);
+        assertEquals(3.3333333f, b1Raster.getSampleFloat((int) pp.x, (int) pp.y, 0), 1.0e-6);
+        pp = geoCoding.getPixelPos(new GeoPos(-8, 8), null);
+        assertEquals(2.5f, b1Raster.getSampleFloat((int) pp.x, (int) pp.y, 0), 1.0e-6);
+
+        final Band countBand = product.getBand("b1_count");
+
+        pp = geoCoding.getPixelPos(new GeoPos(8, -8), null);
+        final Raster countRaster = countBand.getSourceImage().getData();
+        assertEquals(0, countRaster.getSample((int) pp.x, (int) pp.y, 0));
+        pp = geoCoding.getPixelPos(new GeoPos(4, -4), null);
+        assertEquals(1, countRaster.getSample((int) pp.x, (int) pp.y, 0));
+        pp = geoCoding.getPixelPos(new GeoPos(-1, 1), null);
+        assertEquals(2, countRaster.getSample((int) pp.x, (int) pp.y, 0));
+        pp = geoCoding.getPixelPos(new GeoPos(-4, 4), null);
+        assertEquals(3, countRaster.getSample((int) pp.x, (int) pp.y, 0));
+        pp = geoCoding.getPixelPos(new GeoPos(-8, 8), null);
+        assertEquals(2, countRaster.getSample((int) pp.x, (int) pp.y, 0));
+
     }
 }
