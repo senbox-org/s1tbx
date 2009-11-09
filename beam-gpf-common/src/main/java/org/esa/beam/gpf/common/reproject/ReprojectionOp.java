@@ -358,12 +358,16 @@ public class ReprojectionOp extends Operator {
                 int sourceLevel = getSourceLevel(srcModel, targetLevel);
                 RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
                 Rectangle sourceRect = new Rectangle(sourceImage.getWidth(), sourceImage.getHeight());
-                double srcScale = srcModel.getScale(sourceLevel);
-                AffineTransform i2mSrc = ImageManager.getImageToModelTransform(sourceGeoCoding);
-                i2mSrc.scale(srcScale, srcScale);
+
+                // the following transformation maps the source level image to level zero and then to the model,
+                // which either is a map or an image CRS
+                final AffineTransform i2mSource = srcModel.getImageToModelTransform(sourceLevel);
+                i2mSource.concatenate(srcModel.getModelToImageTransform(0));
+                i2mSource.concatenate(ImageManager.getImageToModelTransform(sourceGeoCoding));
+
                 ImageGeometry sourceGeometry = new ImageGeometry(sourceRect,
                                                                  srcModelCrs,
-                                                                 i2mSrc);
+                                                                 i2mSource);
                 
                 ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(ImageManager.getDataBufferType(targetBand.getDataType()),
                                                            targetBand.getSceneRasterWidth(),
@@ -372,10 +376,12 @@ public class ReprojectionOp extends Operator {
                                                            ResolutionLevel.create(getModel(), targetLevel));
                 Rectangle targetRect = new Rectangle(imageLayout.getWidth(null), imageLayout.getHeight(null));
                 
-                double targetScale = getModel().getScale(targetLevel);
-                AffineTransform i2mTarget = ImageManager.getImageToModelTransform(targetProduct.getGeoCoding());
-                i2mTarget.scale(targetScale, targetScale);
-                
+                // the following transformation maps the target level image to level zero and then to the model,
+                // which always is a map
+                final AffineTransform i2mTarget = getModel().getImageToModelTransform(targetLevel);
+                i2mTarget.concatenate(getModel().getModelToImageTransform(0));
+                i2mTarget.concatenate(ImageManager.getImageToModelTransform(targetProduct.getGeoCoding()));
+
                 ImageGeometry targetGeometry = new ImageGeometry(targetRect,
                                                                  targetModelCrs,
                                                                  i2mTarget);
