@@ -1,9 +1,12 @@
 package org.esa.beam.gpf.common.mosaic;
 
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
@@ -34,6 +37,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +65,7 @@ public class MosaicOp extends Operator {
     Product targetProduct;
 
     @Parameter(itemAlias = "variable", description = "Specifies the bands in the target product.")
-    Variable[] outputVariables;
+    Variable[] variables;
 
     @Parameter(itemAlias = "condition", description = "Specifies valid pixels considered in the target product.")
     Condition[] conditions;
@@ -77,8 +82,8 @@ public class MosaicOp extends Operator {
                valueSet = {"Nearest", "Bilinear", "Bicubic"}, defaultValue = "Nearest")
     String resamplingName;
 
-    @Parameter(description = "Specifies the boundary of the target product in map units.")
-    GeoBounds boundary;
+    @Parameter(description = "Specifies the bounds of the target product in map units.")
+    GeoBounds bounds;
 
     @Parameter(description = "Size of a pixel in X-direction in map units.")
     double pixelSizeX;
@@ -91,6 +96,7 @@ public class MosaicOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         if (isUpdateMode()) {
+            initParameters(updateProduct);
             targetProduct = updateProduct;
         } else {
             targetProduct = createTargetProduct();
@@ -111,8 +117,100 @@ public class MosaicOp extends Operator {
         reprojectedProducts = null;
     }
 
+    private void initParameters(Product product) {
+        final MetadataElement graphElement = product.getMetadataRoot().getElement("Processing_Graph");
+        for (MetadataElement nodeElement : graphElement.getElements()) {
+            if (getSpi().getOperatorAlias().equals(nodeElement.getAttributeString("operator"))) {
+                initParameters(this, nodeElement.getElement("parameters"));
+            }
+        }
+    }
+
+    private void initParameters(Object parentObject, MetadataElement parentElement) {
+        for (Field field : parentObject.getClass().getDeclaredFields()) {
+            final Parameter annotation = field.getAnnotation(Parameter.class);
+            if (annotation != null) {
+                final Class<?> fieldType = field.getType();
+                if (fieldType.isArray()) {
+                    initArrayParameter(parentObject, parentElement, field);
+                } else {
+                    initParameter(parentObject, parentElement, field);
+                }
+            }
+        }
+    }
+
+    private void initParameter(Object parentObject, MetadataElement parentElement, Field field) throws
+                                                                                                OperatorException {
+        Parameter annotation = field.getAnnotation(Parameter.class);
+        String name = annotation.alias();
+        if (name.isEmpty()) {
+            name = field.getName();
+        }
+        final Converter converter = getConverter(field.getType(), annotation);
+        if (converter == null) {
+            final String message = String.format("Cannot find converter for parameter '%s' of type '%s'",
+                                                 name, field.getType());
+            throw new OperatorException(message);
+        }
+        try {
+            if (parentElement.containsAttribute(name)) {
+                final String parameterText = parentElement.getAttributeString(name);
+                final Object value = converter.parse(parameterText);
+                field.set(parentObject, value);
+            } else {
+                final MetadataElement element = parentElement.getElement(name);
+                if (element != null) {
+                    final Object obj = field.getType().newInstance();
+                    initParameters(obj, element);
+                    field.set(parentObject, obj);
+                }
+            }
+        } catch (Exception e) {
+            throw new OperatorException(String.format("Cannot initialise operator parameter '%s'", name), e);
+        }
+    }
+
+    private void initArrayParameter(Object parentObject, MetadataElement parentElement, Field field) throws
+                                                                                                     OperatorException {
+        String name = field.getAnnotation(Parameter.class).alias();
+        if (name.isEmpty()) {
+            name = field.getName();
+        }
+        final MetadataElement element = parentElement.getElement(name);
+        try {
+            if (element != null) {
+                final MetadataElement[] elements = element.getElements();
+                final Class<?> componentType = field.getType().getComponentType();
+                final Object array = Array.newInstance(componentType, elements.length);
+                for (int i = 0; i < elements.length; i++) {
+                    MetadataElement e = elements[i];
+                    final Object componentInstance = componentType.newInstance();
+                    initParameters(componentInstance, e);
+                    Array.set(array, i, componentInstance);
+                }
+                field.set(parentObject, array);
+            }
+        } catch (Exception e) {
+            throw new OperatorException(String.format("Cannot initialise operator parameter '%s'", name), e);
+        }
+    }
+
+    private static Converter<?> getConverter(Class<?> type, Parameter parameter) {
+        final Class<? extends Converter> converter = parameter.converter();
+        if (converter == Converter.class) {
+            return ConverterRegistry.getInstance().getConverter(type);
+        } else {
+            try {
+                return converter.newInstance();
+            } catch (Exception ignore) {
+                return null;
+            }
+        }
+    }
+
     private List<RenderedImage> createVariableCountImages(List<List<PlanarImage>> alphaImageList) {
-        List<RenderedImage> variableCountImageList = new ArrayList<RenderedImage>(outputVariables.length);
+        List<RenderedImage> variableCountImageList = new ArrayList<RenderedImage>(variables.length);
         for (List<PlanarImage> variableAlphaImageList : alphaImageList) {
             final RenderedImage countFloatImage = createImageSum(variableAlphaImageList);
             variableCountImageList.add(FormatDescriptor.create(countFloatImage, DataBuffer.TYPE_INT, null));
@@ -121,8 +219,8 @@ public class MosaicOp extends Operator {
     }
 
     private List<List<PlanarImage>> createAlphaImages() {
-        final List<List<PlanarImage>> alphaImageList = new ArrayList<List<PlanarImage>>(outputVariables.length);
-        for (final Variable variable : outputVariables) {
+        final List<List<PlanarImage>> alphaImageList = new ArrayList<List<PlanarImage>>(variables.length);
+        for (final Variable variable : variables) {
             final ArrayList<PlanarImage> list = new ArrayList<PlanarImage>(reprojectedProducts.length);
             alphaImageList.add(list);
             for (final Product product : reprojectedProducts) {
@@ -174,15 +272,16 @@ public class MosaicOp extends Operator {
         return mosaicImages;
     }
 
-    private void setTargetBandImages(Product product, List<RenderedImage> bandImages, List<RenderedImage> variableCountImageList) {
-        for (int i = 0; i < outputVariables.length; i++) {
-            Variable outputVariable = outputVariables[i];
+    private void setTargetBandImages(Product product, List<RenderedImage> bandImages,
+                                     List<RenderedImage> variableCountImageList) {
+        for (int i = 0; i < variables.length; i++) {
+            Variable outputVariable = variables[i];
             product.getBand(outputVariable.name).setSourceImage(bandImages.get(i));
 
             final String countBandName = getCountBandName(outputVariable);
             product.getBand(countBandName).setSourceImage(variableCountImageList.get(i));
         }
-        
+
         if (conditions != null) {
             for (Condition condition : conditions) {
                 if (condition.output) {
@@ -236,8 +335,8 @@ public class MosaicOp extends Operator {
     }
 
     private List<List<RenderedImage>> createSourceImages() {
-        final List<List<RenderedImage>> sourceImageList = new ArrayList<List<RenderedImage>>(outputVariables.length);
-        for (final Variable variable : outputVariables) {
+        final List<List<RenderedImage>> sourceImageList = new ArrayList<List<RenderedImage>>(variables.length);
+        for (final Variable variable : variables) {
             final List<RenderedImage> renderedImageList = new ArrayList<RenderedImage>(reprojectedProducts.length);
             sourceImageList.add(renderedImageList);
             for (final Product product : reprojectedProducts) {
@@ -286,12 +385,12 @@ public class MosaicOp extends Operator {
         try {
             CoordinateReferenceSystem targetCRS = CRS.decode(crsCode, true);
             Rectangle2D.Double rect = new Rectangle2D.Double();
-            rect.setFrameFromDiagonal(boundary.west, boundary.north, boundary.east, boundary.south);
+            rect.setFrameFromDiagonal(bounds.west, bounds.north, bounds.east, bounds.south);
             Envelope envelope = CRS.transform(new Envelope2D(DefaultGeographicCRS.WGS84, rect), targetCRS);
             int width = (int) (envelope.getSpan(0) / pixelSizeX);
             int height = (int) (envelope.getSpan(1) / pixelSizeY);
             final AffineTransform mapTransform = new AffineTransform();
-            mapTransform.translate(boundary.west, boundary.north);
+            mapTransform.translate(bounds.west, bounds.north);
             mapTransform.scale(pixelSizeX, -pixelSizeY);
             mapTransform.translate(-0.5, -0.5);
             CrsGeoCoding geoCoding = new CrsGeoCoding(targetCRS, new Rectangle(0, 0, width, height),
@@ -308,7 +407,7 @@ public class MosaicOp extends Operator {
     }
 
     private void addTargetBands(Product product) {
-        for (Variable outputVariable : outputVariables) {
+        for (Variable outputVariable : variables) {
             Band band = product.addBand(outputVariable.name, ProductData.TYPE_FLOAT32);
             band.setDescription(outputVariable.expression);
             final String countBandName = getCountBandName(outputVariable);

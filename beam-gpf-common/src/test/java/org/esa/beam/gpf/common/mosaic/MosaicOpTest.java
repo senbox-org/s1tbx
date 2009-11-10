@@ -5,6 +5,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -63,11 +64,11 @@ public class MosaicOpTest {
     public void testMosaickingSimple() throws IOException {
         final MosaicOp op = new MosaicOp();
         op.setSourceProducts(new Product[]{product1, product2, product3});
-        op.outputVariables = new MosaicOp.Variable[]{
+        op.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1"),
 
         };
-        op.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        op.bounds = new MosaicOp.GeoBounds(-10, 10, 10, -10);
         op.pixelSizeX = 1;
         op.pixelSizeY = 1;
 
@@ -88,13 +89,13 @@ public class MosaicOpTest {
     public void testMosaickingWithConditions() {
         final MosaicOp op = new MosaicOp();
         op.setSourceProducts(new Product[]{product1, product2, product3});
-        op.outputVariables = new MosaicOp.Variable[]{
+        op.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1")
         };
         op.conditions = new MosaicOp.Condition[]{
                 new MosaicOp.Condition("b1_cond", "b1 != 3", true)
         };
-        op.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        op.bounds = new MosaicOp.GeoBounds(-10, 10, 10, -10);
         op.pixelSizeX = 1;
         op.pixelSizeY = 1;
 
@@ -128,13 +129,13 @@ public class MosaicOpTest {
 
         final MosaicOp op = new MosaicOp();
         op.setSourceProducts(new Product[]{product1Copy, product2, product3});
-        op.outputVariables = new MosaicOp.Variable[]{
+        op.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1")
         };
         op.conditions = new MosaicOp.Condition[]{
                 new MosaicOp.Condition("b1_cond", "b1 != 3", true)
         };
-        op.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        op.bounds = new MosaicOp.GeoBounds(-10, 10, 10, -10);
         op.pixelSizeX = 1;
         op.pixelSizeY = 1;
 
@@ -158,14 +159,14 @@ public class MosaicOpTest {
     public void testMosaickingUpdate() throws IOException {
         final MosaicOp mosaicOp = new MosaicOp();
         mosaicOp.setSourceProducts(new Product[]{product1, product2});
-        mosaicOp.outputVariables = new MosaicOp.Variable[]{
+        mosaicOp.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1"),
         };
         mosaicOp.conditions = new MosaicOp.Condition[]{
                 new MosaicOp.Condition("b1_cond", "b1 != 3", true)
         };
 
-        mosaicOp.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        mosaicOp.bounds = new MosaicOp.GeoBounds(-10, 10, 10, -10);
         mosaicOp.pixelSizeX = 1;
         mosaicOp.pixelSizeY = 1;
 
@@ -191,19 +192,11 @@ public class MosaicOpTest {
 
         final MosaicOp mosaicUpdateOp = new MosaicOp();
         mosaicUpdateOp.setSourceProducts(new Product[]{product3});
-        mosaicUpdateOp.outputVariables = new MosaicOp.Variable[]{
-                new MosaicOp.Variable("b1", "b1"),
-
-        };
-        mosaicUpdateOp.conditions = new MosaicOp.Condition[]{
-                new MosaicOp.Condition("b1_cond", "b1 != 3", true)
-        };
-        mosaicUpdateOp.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
-        mosaicUpdateOp.pixelSizeX = 1;
-        mosaicUpdateOp.pixelSizeY = 1;
         mosaicUpdateOp.updateProduct = mosaicOp.getTargetProduct();
 
         final Product product = mosaicUpdateOp.getTargetProduct();
+        final MetadataElement mosaicMetadata = product.getMetadataRoot().getElement("Processing_Graph");
+        assertNotNull(mosaicMetadata);
 
         b1Band = product.getBand("b1");
         assertSampleValuesFloat(b1Band, geoPositions, new float[]{0.0f, 5.0f, 3.5f, 3.5f, 2.0f});
