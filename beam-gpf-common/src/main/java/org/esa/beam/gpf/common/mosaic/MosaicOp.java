@@ -85,13 +85,16 @@ public class MosaicOp extends Operator {
     @Parameter(description = "Size of a pixel in Y-direction in map units.")
     double pixelSizeY;
 
-    private CoordinateReferenceSystem targetCRS;
     private Product[] reprojectedProducts;
 
 
     @Override
     public void initialize() throws OperatorException {
-        targetProduct = createTargetProduct();
+        if (isUpdateMode()) {
+            targetProduct = updateProduct;
+        } else {
+            targetProduct = createTargetProduct();
+        }
         reprojectedProducts = createReprojectedProducts();
 
         // for each variable and each product one 'alpha' image is created.
@@ -104,7 +107,8 @@ public class MosaicOp extends Operator {
         List<RenderedImage> mosaicImageList = createMosaicImages(sourceImageList, alphaImageList);
 
         final List<RenderedImage> variableCountImageList = createVariableCountImages(alphaImageList);
-        addBands(targetProduct, mosaicImageList, variableCountImageList);
+        setTargetBandImages(targetProduct, mosaicImageList, variableCountImageList);
+        reprojectedProducts = null;
     }
 
     private List<RenderedImage> createVariableCountImages(List<List<PlanarImage>> alphaImageList) {
@@ -170,35 +174,28 @@ public class MosaicOp extends Operator {
         return mosaicImages;
     }
 
-    private void addBands(Product product, List<RenderedImage> bandImages, List<RenderedImage> variableCountImageList) {
+    private void setTargetBandImages(Product product, List<RenderedImage> bandImages, List<RenderedImage> variableCountImageList) {
         for (int i = 0; i < outputVariables.length; i++) {
             Variable outputVariable = outputVariables[i];
+            product.getBand(outputVariable.name).setSourceImage(bandImages.get(i));
+
             final String countBandName = getCountBandName(outputVariable);
-
-            Band band = product.addBand(outputVariable.name, ProductData.TYPE_FLOAT32);
-            band.setDescription(outputVariable.expression);
-            band.setSourceImage(bandImages.get(i));
-            band.setValidPixelExpression(String.format("%s > 0", countBandName));
-
-            Band countBand = product.addBand(countBandName, ProductData.TYPE_INT32);
-            countBand.setDescription(String.format("Count of %s", outputVariable.name));
-            countBand.setSourceImage(variableCountImageList.get(i));
+            product.getBand(countBandName).setSourceImage(variableCountImageList.get(i));
         }
-
+        
         if (conditions != null) {
             for (Condition condition : conditions) {
                 if (condition.output) {
-                    Band band = product.addBand(condition.name, ProductData.TYPE_INT32);
-                    band.setDescription(condition.expression);
                     // The sum of all conditions of all sources is created.
                     // 1.0 indicates condition is true and 0.0 indicates false.
                     final RenderedImage sumImage = createConditionSumImage(condition);
-                    final RenderedImage reformatedImage = FormatDescriptor.create(sumImage, DataBuffer.TYPE_INT, null);
-                    RenderedImage condImage = reformatedImage;
-                    if(isUpdateMode()) {
+                    final RenderedImage reformattedImage = FormatDescriptor.create(sumImage, DataBuffer.TYPE_INT, null);
+                    RenderedImage condImage = reformattedImage;
+                    if (isUpdateMode()) {
                         final RenderedImage updateimage = updateProduct.getBand(condition.name).getSourceImage();
-                        condImage = AddDescriptor.create(reformatedImage, updateimage, null);
+                        condImage = AddDescriptor.create(reformattedImage, updateimage, null);
                     }
+                    Band band = product.getBand(condition.name);
                     band.setSourceImage(condImage);
                 }
             }
@@ -237,7 +234,6 @@ public class MosaicOp extends Operator {
             return renderedImageList.get(0);
         }
     }
-
 
     private List<List<RenderedImage>> createSourceImages() {
         final List<List<RenderedImage>> sourceImageList = new ArrayList<List<RenderedImage>>(outputVariables.length);
@@ -285,11 +281,10 @@ public class MosaicOp extends Operator {
         return projParameters;
     }
 
-
     private Product createTargetProduct() {
         Product product;
         try {
-            targetCRS = CRS.decode(crsCode, true);
+            CoordinateReferenceSystem targetCRS = CRS.decode(crsCode, true);
             Rectangle2D.Double rect = new Rectangle2D.Double();
             rect.setFrameFromDiagonal(boundary.west, boundary.north, boundary.east, boundary.south);
             Envelope envelope = CRS.transform(new Envelope2D(DefaultGeographicCRS.WGS84, rect), targetCRS);
@@ -303,12 +298,36 @@ public class MosaicOp extends Operator {
                                                       mapTransform);
             product = new Product("mosaic", "BEAM_MOSAIC", width, height);
             product.setGeoCoding(geoCoding);
+
+            addTargetBands(product);
         } catch (Exception e) {
             throw new OperatorException(e);
         }
 
         return product;
     }
+
+    private void addTargetBands(Product product) {
+        for (Variable outputVariable : outputVariables) {
+            Band band = product.addBand(outputVariable.name, ProductData.TYPE_FLOAT32);
+            band.setDescription(outputVariable.expression);
+            final String countBandName = getCountBandName(outputVariable);
+            band.setValidPixelExpression(String.format("%s > 0", countBandName));
+
+            Band countBand = product.addBand(countBandName, ProductData.TYPE_INT32);
+            countBand.setDescription(String.format("Count of %s", outputVariable.name));
+        }
+
+        if (conditions != null) {
+            for (Condition condition : conditions) {
+                if (condition.output) {
+                    Band band = product.addBand(condition.name, ProductData.TYPE_INT32);
+                    band.setDescription(condition.expression);
+                }
+            }
+        }
+    }
+
 
     public static class Variable {
 
