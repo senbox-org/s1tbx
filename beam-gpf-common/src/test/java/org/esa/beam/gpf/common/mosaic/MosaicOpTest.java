@@ -5,6 +5,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
@@ -120,9 +121,9 @@ public class MosaicOpTest {
         final Product product1Copy = ProductSubsetBuilder.createProductSubset(product1, null, "P1", "Descr");
         final Band flagBand = product1Copy.addBand("flag", ProductData.TYPE_INT32);
         final BufferedImage flagImage = new BufferedImage(WIDTH, HEIGHT, DataBuffer.TYPE_INT);
-        int[] flagData = new int [WIDTH * HEIGHT];
+        int[] flagData = new int[WIDTH * HEIGHT];
         Arrays.fill(flagData, 1);
-        Arrays.fill(flagData, 0, 3*WIDTH, 0);
+        Arrays.fill(flagData, 0, 3 * WIDTH, 0);
         flagImage.getRaster().setDataElements(0, 0, WIDTH, HEIGHT, flagData);
         flagBand.setSourceImage(flagImage);
         product1Copy.getBand("b1").setValidPixelExpression("flag == 1");
@@ -172,6 +173,15 @@ public class MosaicOpTest {
 
         final Product mosaicProduct = mosaicOp.getTargetProduct();
 
+        final MetadataElement mosaicMetadata = mosaicProduct.getMetadataRoot().getElement("Processing_Graph");
+        assertNotNull(mosaicMetadata);
+        final MetadataElement mosaicSourcesElement = getSourcesElement(mosaicOp, mosaicMetadata);
+        assertEquals(2, mosaicSourcesElement.getNumAttributes());
+        for (int i = 0; i < mosaicSourcesElement.getAttributes().length; i++) {
+            MetadataAttribute attribute = mosaicSourcesElement.getAttributes()[i];
+            assertEquals("sourceProduct" + (1 + i), attribute.getName());
+        }
+
         Band b1Band;
         Band countBand;
         Band condBand;
@@ -195,8 +205,14 @@ public class MosaicOpTest {
         mosaicUpdateOp.updateProduct = mosaicOp.getTargetProduct();
 
         final Product product = mosaicUpdateOp.getTargetProduct();
-        final MetadataElement mosaicMetadata = product.getMetadataRoot().getElement("Processing_Graph");
-        assertNotNull(mosaicMetadata);
+        final MetadataElement updateMetadata = product.getMetadataRoot().getElement("Processing_Graph");
+        assertNotNull(updateMetadata);
+        final MetadataElement updateSourcesElement = getSourcesElement(mosaicUpdateOp, updateMetadata);
+        assertEquals(3, updateSourcesElement.getNumAttributes());
+        for (int i = 0; i < updateSourcesElement.getAttributes().length; i++) {
+            MetadataAttribute attribute = updateSourcesElement.getAttributes()[i];
+            assertEquals("sourceProduct" + (1 + i), attribute.getName());
+        }
 
         b1Band = product.getBand("b1");
         assertSampleValuesFloat(b1Band, geoPositions, new float[]{0.0f, 5.0f, 3.5f, 3.5f, 2.0f});
@@ -207,6 +223,15 @@ public class MosaicOpTest {
         condBand = product.getBand("b1_cond");
         assertSampleValuesInt(condBand, geoPositions, new int[]{0, 1, 2, 2, 1});
 
+    }
+
+    private MetadataElement getSourcesElement(MosaicOp mosaicUpdateOp, MetadataElement mosaicMetadata) {
+        for (MetadataElement element : mosaicMetadata.getElements()) {
+            if (mosaicUpdateOp.getSpi().getOperatorAlias().equals(element.getAttributeString("operator"))) {
+                return element.getElement("sources");
+            }
+        }
+        return null;
     }
 
     private void assertSampleValuesFloat(Band b1Band, GeoPos[] geoPositions, float[] expectedValues) {

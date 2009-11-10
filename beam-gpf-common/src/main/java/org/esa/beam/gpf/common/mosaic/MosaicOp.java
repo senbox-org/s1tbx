@@ -6,6 +6,7 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -37,6 +38,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
+import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -98,6 +100,7 @@ public class MosaicOp extends Operator {
         if (isUpdateMode()) {
             initParameters(updateProduct);
             targetProduct = updateProduct;
+            updateMetadata(targetProduct);
         } else {
             targetProduct = createTargetProduct();
         }
@@ -116,6 +119,31 @@ public class MosaicOp extends Operator {
         setTargetBandImages(targetProduct, mosaicImageList, variableCountImageList);
         reprojectedProducts = null;
     }
+
+    private void updateMetadata(Product product) {
+        final MetadataElement graphElement = product.getMetadataRoot().getElement("Processing_Graph");
+        for (MetadataElement nodeElement : graphElement.getElements()) {
+            if (getSpi().getOperatorAlias().equals(nodeElement.getAttributeString("operator"))) {
+                final MetadataElement sourcesElement = nodeElement.getElement("sources");
+                for (int i = 0; i < sourceProducts.length; i++) {
+                    final String oldIndex = String.valueOf(i + 1);
+                    final String newIndex = String.valueOf(sourcesElement.getNumAttributes() + i + 1);
+                    final Product sourceProduct = sourceProducts[i];
+                    final String attributeName = getSourceProductId(sourceProduct).replaceFirst(oldIndex, newIndex);
+                    final File location = sourceProduct.getFileLocation();
+                    final ProductData attributeValue;
+                    if (location == null) {
+                        attributeValue = ProductData.createInstance(product.toString());
+                    } else {
+                        attributeValue = ProductData.createInstance(location.getPath());
+                    }
+                    final MetadataAttribute attribute = new MetadataAttribute(attributeName, attributeValue, true);
+                    sourcesElement.addAttribute(attribute);
+                }
+            }
+        }
+    }
+
 
     private void initParameters(Product product) {
         final MetadataElement graphElement = product.getMetadataRoot().getElement("Processing_Graph");
@@ -191,7 +219,7 @@ public class MosaicOp extends Operator {
         }
     }
 
-    private static Converter<?> getConverter(Class<?> type, Parameter parameter) throws OperatorException{
+    private static Converter<?> getConverter(Class<?> type, Parameter parameter) throws OperatorException {
         final Class<? extends Converter> converter = parameter.converter();
         if (converter == Converter.class) {
             return ConverterRegistry.getInstance().getConverter(type);
