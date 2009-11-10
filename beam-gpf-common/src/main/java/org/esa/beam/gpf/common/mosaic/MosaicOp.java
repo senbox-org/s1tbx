@@ -375,8 +375,4 @@ public class MosaicOp extends Operator {
         }
     }
 
-
-    private class ConditionImageKey {
-
-    }
 }
