@@ -147,14 +147,9 @@ public class MosaicOp extends Operator {
         if (name.isEmpty()) {
             name = field.getName();
         }
-        final Converter converter = getConverter(field.getType(), annotation);
-        if (converter == null) {
-            final String message = String.format("Cannot find converter for parameter '%s' of type '%s'",
-                                                 name, field.getType());
-            throw new OperatorException(message);
-        }
         try {
             if (parentElement.containsAttribute(name)) {
+                final Converter converter = getConverter(field.getType(), annotation);
                 final String parameterText = parentElement.getAttributeString(name);
                 final Object value = converter.parse(parameterText);
                 field.set(parentObject, value);
@@ -196,15 +191,16 @@ public class MosaicOp extends Operator {
         }
     }
 
-    private static Converter<?> getConverter(Class<?> type, Parameter parameter) {
+    private static Converter<?> getConverter(Class<?> type, Parameter parameter) throws OperatorException{
         final Class<? extends Converter> converter = parameter.converter();
         if (converter == Converter.class) {
             return ConverterRegistry.getInstance().getConverter(type);
         } else {
             try {
                 return converter.newInstance();
-            } catch (Exception ignore) {
-                return null;
+            } catch (Exception e) {
+                final String message = String.format("Cannot find converter for  type '%s'", type);
+                throw new OperatorException(message, e);
             }
         }
     }
