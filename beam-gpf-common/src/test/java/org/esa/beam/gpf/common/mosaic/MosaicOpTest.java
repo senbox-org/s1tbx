@@ -1,5 +1,6 @@
 package org.esa.beam.gpf.common.mosaic;
 
+import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -84,55 +85,6 @@ public class MosaicOpTest {
     }
 
     @Test
-    public void testMosaickingUpdate() throws IOException {
-        final MosaicOp mosaicOp = new MosaicOp();
-        mosaicOp.setSourceProducts(new Product[]{product1, product2});
-        mosaicOp.outputVariables = new MosaicOp.Variable[]{
-                new MosaicOp.Variable("b1", "b1"),
-
-        };
-        mosaicOp.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
-        mosaicOp.pixelSizeX = 1;
-        mosaicOp.pixelSizeY = 1;
-
-        final Product mosaicProduct = mosaicOp.getTargetProduct();
-
-        Band b1Band;
-        Band countBand;
-
-        final GeoPos[] geoPositions = {
-                new GeoPos(8, -8), new GeoPos(4, -4), new GeoPos(-1, 1), new GeoPos(-4, 4), new GeoPos(-8, 8)
-        };
-
-        b1Band = mosaicProduct.getBand("b1");
-        assertSampleValuesFloat(b1Band, geoPositions, new float[]{0.0f, 0.0f, 2.0f, 2.5f, 2.5f});
-
-        countBand = mosaicProduct.getBand("b1_count");
-        assertSampleValuesInt(countBand, geoPositions, new int[]{0, 0, 1, 2, 2});
-
-
-        final MosaicOp mosaicUpdateOp = new MosaicOp();
-        mosaicUpdateOp.setSourceProducts(new Product[]{product3});
-        mosaicUpdateOp.outputVariables = new MosaicOp.Variable[]{
-                new MosaicOp.Variable("b1", "b1"),
-
-        };
-        mosaicUpdateOp.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
-        mosaicUpdateOp.pixelSizeX = 1;
-        mosaicUpdateOp.pixelSizeY = 1;
-        mosaicUpdateOp.updateProduct = mosaicOp.getTargetProduct();
-
-        final Product product = mosaicUpdateOp.getTargetProduct();
-
-        b1Band = product.getBand("b1");
-        assertSampleValuesFloat(b1Band, geoPositions, new float[]{0.0f, 5.0f, 3.5f, 3.333333f, 2.5f});
-
-        countBand = product.getBand("b1_count");
-        assertSampleValuesInt(countBand, geoPositions, new int[]{0, 1, 2, 3, 2});
-    }
-
-
-    @Test
     public void testMosaickingWithConditions() {
         final MosaicOp op = new MosaicOp();
         op.setSourceProducts(new Product[]{product1, product2, product3});
@@ -163,19 +115,19 @@ public class MosaicOpTest {
     }
 
     @Test
-    public void testMosaickingWithInvalidSourceSamples() {
-        final Band flagBand = product1.addBand("flag", ProductData.TYPE_INT32);
+    public void testMosaickingWithInvalidSourceSamples() throws IOException {
+        final Product product1Copy = ProductSubsetBuilder.createProductSubset(product1, null, "P1", "Descr");
+        final Band flagBand = product1Copy.addBand("flag", ProductData.TYPE_INT32);
         final BufferedImage flagImage = new BufferedImage(WIDTH, HEIGHT, DataBuffer.TYPE_INT);
         int[] flagData = new int [WIDTH * HEIGHT];
         Arrays.fill(flagData, 1);
         Arrays.fill(flagData, 0, 3*WIDTH, 0);
         flagImage.getRaster().setDataElements(0, 0, WIDTH, HEIGHT, flagData);
         flagBand.setSourceImage(flagImage);
-        final Band p2B1 = product1.getBand("b1");
-        p2B1.setValidPixelExpression("flag == 1");
+        product1Copy.getBand("b1").setValidPixelExpression("flag == 1");
 
         final MosaicOp op = new MosaicOp();
-        op.setSourceProducts(new Product[]{product1, product2, product3});
+        op.setSourceProducts(new Product[]{product1Copy, product2, product3});
         op.outputVariables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1")
         };
@@ -200,7 +152,67 @@ public class MosaicOpTest {
 
         Band condBand = product.getBand("b1_cond");
         assertSampleValuesInt(condBand, geoPositions, new int[]{0, 1, 1, 2, 1});
+    }
 
+    @Test
+    public void testMosaickingUpdate() throws IOException {
+        final MosaicOp mosaicOp = new MosaicOp();
+        mosaicOp.setSourceProducts(new Product[]{product1, product2});
+        mosaicOp.outputVariables = new MosaicOp.Variable[]{
+                new MosaicOp.Variable("b1", "b1"),
+        };
+        mosaicOp.conditions = new MosaicOp.Condition[]{
+                new MosaicOp.Condition("b1_cond", "b1 != 3", true)
+        };
+
+        mosaicOp.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        mosaicOp.pixelSizeX = 1;
+        mosaicOp.pixelSizeY = 1;
+
+        final Product mosaicProduct = mosaicOp.getTargetProduct();
+
+        Band b1Band;
+        Band countBand;
+        Band condBand;
+
+        final GeoPos[] geoPositions = {
+                new GeoPos(8, -8), new GeoPos(4, -4), new GeoPos(-1, 1), new GeoPos(-4, 4), new GeoPos(-8, 8)
+        };
+
+        b1Band = mosaicProduct.getBand("b1");
+        assertSampleValuesFloat(b1Band, geoPositions, new float[]{0.0f, 0.0f, 2.0f, 2.0f, 2.0f});
+
+        countBand = mosaicProduct.getBand("b1_count");
+        assertSampleValuesInt(countBand, geoPositions, new int[]{0, 0, 1, 1, 1});
+
+        condBand = mosaicProduct.getBand("b1_cond");
+        assertSampleValuesInt(condBand, geoPositions, new int[]{0, 0, 1, 1, 1});
+
+
+        final MosaicOp mosaicUpdateOp = new MosaicOp();
+        mosaicUpdateOp.setSourceProducts(new Product[]{product3});
+        mosaicUpdateOp.outputVariables = new MosaicOp.Variable[]{
+                new MosaicOp.Variable("b1", "b1"),
+
+        };
+        mosaicUpdateOp.conditions = new MosaicOp.Condition[]{
+                new MosaicOp.Condition("b1_cond", "b1 != 3", true)
+        };
+        mosaicUpdateOp.boundary = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        mosaicUpdateOp.pixelSizeX = 1;
+        mosaicUpdateOp.pixelSizeY = 1;
+        mosaicUpdateOp.updateProduct = mosaicOp.getTargetProduct();
+
+        final Product product = mosaicUpdateOp.getTargetProduct();
+
+        b1Band = product.getBand("b1");
+        assertSampleValuesFloat(b1Band, geoPositions, new float[]{0.0f, 5.0f, 3.5f, 3.5f, 2.0f});
+
+        countBand = product.getBand("b1_count");
+        assertSampleValuesInt(countBand, geoPositions, new int[]{0, 1, 2, 2, 1});
+
+        condBand = product.getBand("b1_cond");
+        assertSampleValuesInt(condBand, geoPositions, new int[]{0, 1, 2, 2, 1});
 
     }
 

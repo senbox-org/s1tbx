@@ -26,6 +26,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.AddCollectionDescriptor;
+import javax.media.jai.operator.AddDescriptor;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
 import java.awt.Rectangle;
@@ -193,7 +194,12 @@ public class MosaicOp extends Operator {
                     // 1.0 indicates condition is true and 0.0 indicates false.
                     final RenderedImage sumImage = createConditionSumImage(condition);
                     final RenderedImage reformatedImage = FormatDescriptor.create(sumImage, DataBuffer.TYPE_INT, null);
-                    band.setSourceImage(reformatedImage);
+                    RenderedImage condImage = reformatedImage;
+                    if(isUpdateMode()) {
+                        final RenderedImage updateimage = updateProduct.getBand(condition.name).getSourceImage();
+                        condImage = AddDescriptor.create(reformatedImage, updateimage, null);
+                    }
+                    band.setSourceImage(condImage);
                 }
             }
         }
