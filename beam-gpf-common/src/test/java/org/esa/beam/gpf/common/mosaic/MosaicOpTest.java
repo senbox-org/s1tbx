@@ -70,8 +70,8 @@ public class MosaicOpTest {
 
         };
         op.bounds = new MosaicOp.GeoBounds(-10, 10, 10, -10);
-        op.pixelSizeX = 1;
-        op.pixelSizeY = 1;
+        op.pixelSizeX = 1.0;
+        op.pixelSizeY = 1.0;
 
         final Product product = op.getTargetProduct();
 
@@ -97,8 +97,8 @@ public class MosaicOpTest {
                 new MosaicOp.Condition("b1_cond", "b1 != 3", true)
         };
         op.bounds = new MosaicOp.GeoBounds(-10, 10, 10, -10);
-        op.pixelSizeX = 1;
-        op.pixelSizeY = 1;
+        op.pixelSizeX = 1.0;
+        op.pixelSizeY = 1.0;
 
         final Product product = op.getTargetProduct();
 
@@ -137,8 +137,8 @@ public class MosaicOpTest {
                 new MosaicOp.Condition("b1_cond", "b1 != 3", true)
         };
         op.bounds = new MosaicOp.GeoBounds(-10, 10, 10, -10);
-        op.pixelSizeX = 1;
-        op.pixelSizeY = 1;
+        op.pixelSizeX = 1.0;
+        op.pixelSizeY = 1.0;
 
         final Product product = op.getTargetProduct();
 
@@ -168,8 +168,8 @@ public class MosaicOpTest {
         };
 
         mosaicOp.bounds = new MosaicOp.GeoBounds(-10, 10, 10, -10);
-        mosaicOp.pixelSizeX = 1;
-        mosaicOp.pixelSizeY = 1;
+        mosaicOp.pixelSizeX = 1.0;
+        mosaicOp.pixelSizeY = 1.0;
 
         final Product mosaicProduct = mosaicOp.getTargetProduct();
 
