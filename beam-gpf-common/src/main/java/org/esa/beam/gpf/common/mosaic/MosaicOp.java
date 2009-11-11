@@ -58,7 +58,7 @@ import java.util.List;
 public class MosaicOp extends Operator {
 
     @SourceProducts(count = -1, description = "The source products to be used for mosaicking.")
-    private Product[] sourceProducts;
+    Product[] sourceProducts;
 
     @SourceProduct(description = "A product to be updated.", optional = true)
     Product updateProduct;
