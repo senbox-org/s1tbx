@@ -3,7 +3,6 @@ package org.esa.beam.gpf.common.reproject.ui;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
-
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
@@ -20,15 +19,6 @@ import org.esa.beam.util.ProductUtils;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -40,6 +30,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Marco Zuehlke
@@ -152,8 +150,8 @@ class ReprojectionForm extends JTabbedPane {
     }
 
     private void createUI() {
-        addTab("I/O Parameter", createIOPanel());
-        addTab("Reprojection Parameter", createParameterPanel());
+        addTab("I/O Parameters", createIOPanel());
+        addTab("Reprojection Parameters", createParameterPanel());
     }
 
     private JPanel createIOPanel() {
