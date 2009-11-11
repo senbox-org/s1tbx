@@ -37,6 +37,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -45,13 +46,15 @@ import java.util.List;
 public final class FileArrayEditor {
 
     private static final Dimension _listPreferredSize = new Dimension(500, 200);
+
     private JPanel _basePanel;
-    private JList _listComponent;
     private JFileChooser _fileDialog;
-    private final List _fileList;
     private FileArrayEditorListener _listener;
+
+    private final JList _listComponent;
+    private final List<File> _fileList;
     private final EditorParent _parent;
-    private String _label;
+    private final String _label;
 
     /**
      * Constructs the object with default values
@@ -63,17 +66,19 @@ public final class FileArrayEditor {
         Guardian.assertNotNullOrEmpty("label", label);
         _parent = parent;
         _label = label;
-        _basePanel = null;
-        _listener = null;
-        _fileList = new ArrayList();
+        _fileList = new ArrayList<File>();
+        _listComponent = new JList();
+        setName(_listComponent, _label);
     }
 
     /**
-     * Retrieves the UI of the editor. Returns the base component
+     * Retrieves the editor UI.
+     *
+     * @return the editor UI
      */
     public JComponent getUI() {
         if (_basePanel == null) {
-            createUi();
+            createUI();
         }
 
         return _basePanel;
@@ -84,7 +89,7 @@ public final class FileArrayEditor {
      *
      * @param files <code>List</code> of <code>File</code>s to be set
      */
-    public void setFiles(final List files) {
+    public void setFiles(final List<File> files) {
         Guardian.assertNotNull("files", files);
         _fileList.clear();
         _fileList.addAll(files);
@@ -118,41 +123,18 @@ public final class FileArrayEditor {
     /**
      * Creates the user interface
      */
-    private void createUi() {
+    private void createUI() {
         // the label
         final JLabel label = new JLabel(_label + ":");
         setName(label, _label);
 
         // the list
-        _listComponent = new JList();
-        setName(_listComponent, _label);
-        JScrollPane scrollPane = new JScrollPane(_listComponent);
-        setName(scrollPane, _label);
-        scrollPane.setPreferredSize(_listPreferredSize);
+        JComponent scrollPane = createFileArrayComponent();
 
         // the add button
-        final JButton addButton = (JButton) ToolButtonFactory.createButton(
-                UIUtils.loadImageIcon("icons/Plus16.gif"),
-                false);
-        setName(addButton, "addButton");
-        addButton.addActionListener(
-                new ActionListener() {
-
-                    public void actionPerformed(final ActionEvent e) {
-                        onAddButton();
-                    }
-                });
+        final JButton addButton = createAddFileButton();
         // the remove button
-        final JButton removeButton = (JButton) ToolButtonFactory.createButton(
-                UIUtils.loadImageIcon("icons/Minus16.gif"), false);
-        setName(removeButton, "removeButton");
-        removeButton.addActionListener(
-                new ActionListener() {
-
-                    public void actionPerformed(final ActionEvent e) {
-                        onRemoveButton();
-                    }
-                });
+        final JButton removeButton = createRemoveFileButton();
 
         // the button panel
         final JPanel buttonPanel = new JPanel();
@@ -182,11 +164,49 @@ public final class FileArrayEditor {
 
     }
 
+    public JButton createRemoveFileButton() {
+        final JButton removeButton = (JButton) ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/Minus16.gif"), false);
+        setName(removeButton, "removeButton");
+        removeButton.addActionListener(
+                new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(final ActionEvent e) {
+                        onRemoveButton();
+                    }
+                });
+        return removeButton;
+    }
+
+    public JButton createAddFileButton() {
+        final JButton addButton = (JButton) ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/Plus16.gif"),
+                false);
+        setName(addButton, "addButton");
+        addButton.addActionListener(
+                new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(final ActionEvent e) {
+                        onAddButton();
+                    }
+                });
+        return addButton;
+    }
+
+    public JComponent createFileArrayComponent() {
+        JScrollPane scrollPane = new JScrollPane(_listComponent);
+        setName(scrollPane, _label);
+        scrollPane.setPreferredSize(_listPreferredSize);
+        return scrollPane;
+    }
+
     private void setName(final Component comp, String name) {
         comp.setName(name);
     }
 
-    /**
+    /*
      * Callback invoked by the add button
      */
     private void onAddButton() {
@@ -200,9 +220,7 @@ public final class FileArrayEditor {
         if (retVal == JFileChooser.APPROVE_OPTION) {
             File[] selected = _fileDialog.getSelectedFiles();
 
-            for (int n = 0; n < selected.length; n++) {
-                _fileList.add(selected[n]);
-            }
+            _fileList.addAll(Arrays.asList(selected));
 
             _listComponent.setListData(_fileList.toArray());
             notifyListener();
@@ -210,19 +228,19 @@ public final class FileArrayEditor {
         }
     }
 
-    /**
+    /*
      * Callback invoked by the remove button
      */
     private void onRemoveButton() {
         final Object[] toRemove = _listComponent.getSelectedValues();
-        for (int n = 0; n < toRemove.length; n++) {
-            _fileList.remove(toRemove[n]);
+        for (Object o : toRemove) {
+            _fileList.remove(o);
         }
         _listComponent.setListData(_fileList.toArray());
         notifyListener();
     }
 
-    /**
+    /*
      * Retrieves the file chooser object. If none is present, an object is constructed
      */
     private JFileChooser getFileDialogSafe() {
@@ -236,16 +254,16 @@ public final class FileArrayEditor {
         return _fileDialog;
     }
 
-    /**
+    /*
      * Calls the listener about changes - if necessary
      */
     private void notifyListener() {
         if ((_listener != null)) {
-            _listener.updatedList((File[]) _fileList.toArray(new File[0]));
+            _listener.updatedList(_fileList.toArray(new File[_fileList.size()]));
         }
     }
 
-    public static interface EditorParent {
+    public interface EditorParent {
 
         File getUserInputDir();
 
@@ -254,6 +272,6 @@ public final class FileArrayEditor {
 
     public interface FileArrayEditorListener {
 
-        public void updatedList(File[] files);
+        void updatedList(File[] files);
     }
 }
