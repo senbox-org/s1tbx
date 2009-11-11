@@ -274,14 +274,14 @@ public class ReprojectionOp extends Operator {
             // TODO decide between Virtualband and a special implementation (mz, 2009.11.11)
 //            final String externalName = BandArithmetic.createExternalName(sourceRaster.getName());
 //            exp = String.format("(%s) ? %s : %s", exp, externalName, Double.toString(targetNoDataValue));
-//            sourceImage = createVirtualSourceImage(exp, geoDataType, targetNoDataValue, sourceProduct, srcModel);
-            sourceImage = createNoDataReplacedImage(srcModel, sourceImage, sourceRaster.getValidMaskImage(), targetNoDataValue);
+//            sourceImage = createVirtualSourceImage(exp, geoDataType, targetNoDataValue);
+            sourceImage = createNoDataReplacedImage(sourceImage, sourceRaster.getValidMaskImage(), targetNoDataValue);
         }
 
         final Interpolation resampling = getResampling(targetBand);
         MultiLevelImage projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, targetBand, resampling);
         if (mustReplaceNaN(sourceRaster, geoDataType, targetNoDataValue)) {
-            projectedImage = createNaNReplacedImage(srcModel, projectedImage, targetNoDataValue);
+            projectedImage = createNaNReplacedImage(projectedImage, targetNoDataValue);
         }
         targetBand.setSourceImage(projectedImage);
 
@@ -322,7 +322,7 @@ public class ReprojectionOp extends Operator {
         return targetNoDataValue;
     }
 
-    private MultiLevelImage createNaNReplacedImage(final MultiLevelModel srcModel, final MultiLevelImage srcImage, final double value) {
+    private MultiLevelImage createNaNReplacedImage(final MultiLevelImage srcImage, final double value) {
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
 
@@ -334,7 +334,7 @@ public class ReprojectionOp extends Operator {
         });
     }
     
-    private MultiLevelImage createNoDataReplacedImage(final MultiLevelModel srcModel, final MultiLevelImage srcImage, final MultiLevelImage maskImage, final double noData) {
+    private MultiLevelImage createNoDataReplacedImage(final MultiLevelImage srcImage, final MultiLevelImage maskImage, final double noData) {
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
 
@@ -345,17 +345,14 @@ public class ReprojectionOp extends Operator {
         });
     }  
     
-    private static MultiLevelImage createVirtualSourceImage(final String expression, final int geophysicalDataType,
-                                                            final Number noDataValue, final Product sourceProduct,
-                                                            final MultiLevelModel srcModel) {
+    private MultiLevelImage createVirtualSourceImage(final String expression, final int geoDataType, final Number noDataValue) {
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
 
             @Override
             public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.create(expression, geophysicalDataType,
-                                                 noDataValue,
-                                                 sourceProduct,
+                return VirtualBandOpImage.create(expression, geoDataType,
+                                                 noDataValue, sourceProduct,
                                                  ResolutionLevel.create(getModel(), level));
             }
         });
