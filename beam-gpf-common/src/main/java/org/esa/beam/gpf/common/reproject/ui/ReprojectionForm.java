@@ -151,7 +151,7 @@ class ReprojectionForm extends JTabbedPane {
 
     private void createUI() {
         addTab("I/O Parameters", createIOPanel());
-        addTab("Reprojection Parameters", createParameterPanel());
+        addTab("Reprojection Parameters", createParametersPanel());
     }
 
     private JPanel createIOPanel() {
@@ -168,7 +168,7 @@ class ReprojectionForm extends JTabbedPane {
         return ioPanel;
     }
 
-    private JPanel createParameterPanel() {
+    private JPanel createParametersPanel() {
         final JPanel parameterPanel = new JPanel();
         final TableLayout layout = new TableLayout(1);
         layout.setTablePadding(4, 4);
@@ -204,7 +204,7 @@ class ReprojectionForm extends JTabbedPane {
             if (crs != null) {
                 infoForm.setCrs(crs.getName().getCode(), crs.toString());
             } else {
-                infoForm.setCrs("No valid 'CoordinateReference System' selected.", null);
+                infoForm.setCrs("No valid 'Coordinate Reference System' selected.", null);
             }
         } catch (FactoryException e) {
             infoForm.setCrs(e.getMessage(), null);
@@ -220,7 +220,7 @@ class ReprojectionForm extends JTabbedPane {
             infoForm.setHeight((Integer)outputParameterContainer.getValue("height"));
         }
     }
-    
+
     private class InfoForm {
 
         private JLabel widthLabel;
