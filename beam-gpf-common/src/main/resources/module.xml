@@ -44,6 +44,11 @@
             <class>org.esa.beam.gpf.common.reproject.ui.OrthorectifyAction</class>
             <text>Orthorectification (NEW)...</text>
         </action>
+        <action>
+            <id>mosaicAction</id>
+            <class>org.esa.beam.gpf.common.mosaic.ui.MosaicAction</class>
+            <text>Mosaic (NEW)...</text>
+        </action>
     </extension>
 
 </module>
