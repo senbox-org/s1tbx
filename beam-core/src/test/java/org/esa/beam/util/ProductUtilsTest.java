@@ -31,6 +31,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -751,5 +752,46 @@ public class ProductUtilsTest extends TestCase {
         assertEquals(expected.getData().getElemInt(), actual.getData().getElemInt());
         assertEquals(expected.getDescription(), actual.getDescription());
     }
+
+    public void testCreateGeoBoundary() {
+        final GeoPos[] geoPoses = ProductUtils.createGeoBoundary(createTestProduct(), null, 20, false);
+        for (int i = 0; i < geoPoses.length; i++) {
+            GeoPos geoPos = geoPoses[i];
+            assertTrue(String.format("geoPos at <%d> is invalid", i), geoPos.isValid());
+        }
+    }
+
+
+    private static Product createTestProduct() {
+        final float[] longitudes = new float[]{
+                9.512839f, 9.690325f, 9.867694f, 10.044944f, 10.2220745f, 10.399086f, 9.475174f, 9.65231f, 9.829329f,
+                10.006232f, 10.183016f, 10.359681f, 9.437564f, 9.614353f, 9.791027f, 9.967584f, 10.144024f, 10.320345f,
+                9.40001f, 9.576455f, 9.752785f, 9.929f, 10.105098f, 10.281079f, 9.362511f, 9.538614f, 9.714604f,
+                9.890479f, 10.066238f, 10.241882f, 9.325066f, 9.50083f, 9.676482f, 9.85202f, 10.027444f, 10.202752f,
+                9.287674f, 9.463103f, 9.638419f, 9.813623f, 9.988713f, 10.163689f, 9.250335f, 9.42543f, 9.600414f,
+                9.775286f, 9.950046f, 10.124692f, 9.213048f, 9.387812f, 9.562466f, 9.737009f, 9.911441f, 10.08576f
+        };
+
+        final float[] latitudes = new float[]{
+                34.254475f, 34.22662f, 34.198513f, 34.170143f, 34.14152f, 34.11264f, 34.088284f, 34.060417f,
+                34.032295f, 34.00392f, 33.975292f, 33.946407f, 33.922085f, 33.894207f, 33.866077f, 33.837692f,
+                33.809055f, 33.780163f, 33.755875f, 33.72799f, 33.69985f, 33.67145f, 33.642807f,
+                33.61391f, 33.589664f, 33.56176f, 33.53361f, 33.505207f, 33.476555f, 33.447655f, 33.423443f,
+                33.395527f, 33.367367f, 33.338955f, 33.310295f, 33.281387f, 33.257214f, 33.229286f, 33.201115f,
+                33.172695f, 33.144028f, 33.115112f, 33.090977f, 33.06304f, 33.034855f, 33.006424f, 32.977753f,
+                32.948833f, 32.924736f, 32.896786f, 32.868587f, 32.84015f, 32.811466f, 32.78254f
+        };
+
+        final Product product = new Product("testName", "TEST_TYPE", 50, 100);
+
+        final TiePointGrid lonGrid = new TiePointGrid("longitudes", 6, 9, -3.5f, -7.5f, 16, 16, longitudes);
+        product.addTiePointGrid(lonGrid);
+        final TiePointGrid latGrid = new TiePointGrid("latitudes", 6, 9, -3.5f, -7.5f, 16, 16, latitudes);
+        product.addTiePointGrid(latGrid);
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
+        product.setGeoCoding(tpGeoCoding);
+        return product;
+    }
+
 }
 
