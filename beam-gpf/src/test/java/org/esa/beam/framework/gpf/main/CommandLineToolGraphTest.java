@@ -1,6 +1,5 @@
 package org.esa.beam.framework.gpf.main;
 
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import com.bc.ceres.binding.dom.DomElement;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
