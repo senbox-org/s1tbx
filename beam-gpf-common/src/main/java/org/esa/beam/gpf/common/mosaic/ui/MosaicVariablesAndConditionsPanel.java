@@ -1,5 +1,7 @@
 package org.esa.beam.gpf.common.mosaic.ui;
 
+import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
@@ -9,21 +11,21 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.util.ArrayUtils;
 import org.esa.beam.util.MouseEventFilterFactory;
 import org.esa.beam.util.StringUtils;
 
 import javax.swing.AbstractButton;
 import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
-import javax.swing.JComboBox;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -46,8 +48,6 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bc.ceres.binding.swing.BindingContext;
-
 class MosaicVariablesAndConditionsPanel extends JPanel {
 
     private static final int PREFERRED_TABLE_WIDTH = 500;
@@ -55,7 +55,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     private static final int LARGE_INSETS_TOP = STANDARD_INSETS_TOP + 15;
 
     private final AppContext appContext;
-    private final BindingContext bc;
+    private final BindingContext bindingContext;
 
     private JTable variablesTable;
     private AbstractButton moveVariableDownButton;
@@ -68,40 +68,33 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     private AbstractButton removeConditionButton;
     private AbstractButton moveConditionUpButton;
     private AbstractButton moveConditionDownButton;
-    // todo: rq/rq - what is this? (20091112)
-    private Parameter _paramConditionsOperator;
 
 
-    public MosaicVariablesAndConditionsPanel(AppContext appContext) {
+    MosaicVariablesAndConditionsPanel(AppContext appContext, BindingContext bindingContext) {
         this.appContext = appContext;
-        this.bc = new BindingContext();
+        this.bindingContext = bindingContext;
 
         init();
     }
 
     private void init() {
-        GridBagConstraints gbc;
-
-        gbc = GridBagUtils.createDefaultConstraints();
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1;
-
-        gbc.insets.top = LARGE_INSETS_TOP;
-        gbc.gridy++;
-        gbc.weighty = 40;
-        add(createVariablesPanel(), gbc);
-
-        gbc.gridy++;
-        gbc.insets.top = 40;
-        gbc.weighty = 20;
-        add(createConditionsPanel(), gbc);
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTableWeightX(1.0);
+        tableLayout.setTableWeightY(1.0);
+        tableLayout.setTablePadding(3,3);
+        setLayout(tableLayout);
+        
+        add(createVariablesPanel());
+        add(createConditionsPanel());
     }
 
     private Component createVariablesPanel() {
-        final String labelName = "Output variables";  /*I18N*/
+        final String labelName = "Variables";  /*I18N*/
 
         final JPanel panel = GridBagUtils.createPanel();
+        panel.setBorder(BorderFactory.createTitledBorder(labelName));
         panel.setName(labelName);
         final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
         gbc.gridy = 0;
@@ -109,7 +102,6 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
 
         gbc.gridy++;
         gbc.insets.bottom = 0;
-        panel.add(new JLabel(labelName + ":"), gbc);
         final JPanel variableButtonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         variableButtonsPanel.setName(labelName);
 
@@ -133,7 +125,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
         moveVariableDownButton.setName(labelName);
         variableButtonsPanel.add(moveVariableDownButton);
 
-        gbc.anchor = GridBagConstraints.EAST;
+        gbc.anchor = GridBagConstraints.WEST;
         panel.add(variableButtonsPanel, gbc);
         gbc.gridy++;
         gbc.gridwidth = 2;
@@ -145,17 +137,17 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private Component createConditionsPanel() {
-        final String labelName = "Valid pixel conditions";
+        final String labelName = "Conditions";
         final JPanel panel = GridBagUtils.createPanel();
         panel.setName(labelName);
+        panel.setBorder(BorderFactory.createTitledBorder(labelName));
         final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
         gbc.gridy = 0;
         gbc.weightx = 1;
 
         gbc.gridy++;
         gbc.insets.bottom = 0;
-        panel.add(new JLabel(labelName + ":"), gbc); /*I18N*/
-        gbc.anchor = GridBagConstraints.EAST;
+        gbc.anchor = GridBagConstraints.WEST;
         final JPanel conditionButtonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         conditionButtonsPanel.setName(labelName);
 
@@ -187,8 +179,8 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
         final JPanel operatorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         final JComboBox combineComboBox = new JComboBox();
-        bc.bind("combine", combineComboBox);
-        operatorPanel.add(new JLabel(bc.getPropertyContainer().getDescriptor("combine").getDisplayName() + ":"));
+        bindingContext.bind("combine", combineComboBox);
+        operatorPanel.add(new JLabel(bindingContext.getPropertyContainer().getDescriptor("combine").getDisplayName() + ":"));
         operatorPanel.add(combineComboBox);
         panel.add(operatorPanel, gbc);
 
@@ -250,7 +242,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
 
     private JScrollPane createConditionsTable(final String labelName) {
         final DefaultTableModel dataModel = new DefaultTableModel();
-        dataModel.setColumnIdentifiers(new String[]{"Name", "Test Expression", "Outp."}); /*I18N*/
+        dataModel.setColumnIdentifiers(new String[]{"Name", "Expression", "Output"}); /*I18N*/
 
         conditionsTable = new JTable() {
             private static final long serialVersionUID = 1L;
@@ -302,7 +294,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
         variableFilterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final Product exampleProduct = getExampleProduct();
+                final Product exampleProduct = getReferenceProduct();
                 if (exampleProduct != null) {
                     final String[] availableBandNames = exampleProduct.getBandNames();
                     final Band[] allBands = exampleProduct.getBands();
@@ -351,8 +343,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
         return variableFilterButton;
     }
 
-    // todo: rq/rq - what is this good for? (20091111)
-    private Product getExampleProduct() {
+    private Product getReferenceProduct() {
         return null;
     }
 
@@ -421,7 +412,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
 
     private JScrollPane createValuesTable(final String labelName) {
         final DefaultTableModel dataModel = new DefaultTableModel();
-        dataModel.setColumnIdentifiers(new String[]{"Name", "Data Source Expression"}); /*I18N*/
+        dataModel.setColumnIdentifiers(new String[]{"Name", "Expression"}); /*I18N*/
 
         variablesTable = new JTable();
         variablesTable.setName(labelName);
@@ -481,7 +472,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private int editExpression(String[] value, final boolean booleanExpected) {
-        final Product product = getExampleProduct();
+        final Product product = getReferenceProduct();
         final ProductExpressionPane pep;
         if (booleanExpected) {
             pep = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product,
