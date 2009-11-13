@@ -397,7 +397,7 @@ public class MosaicUi extends AbstractProcessorUI {
                                 geoBoundaries.add(geoBoundary);
                             }
                         } finally {
-                            if(product != null) {
+                            if (product != null) {
                                 product.dispose();
                             }
                         }
@@ -1216,30 +1216,21 @@ public class MosaicUi extends AbstractProcessorUI {
         final JLabel labelNorthingTo = new JLabel("to:");
         final JLabel labelNorthingDegree = new JLabel(" degree");
 
-        _paramWestLon.getEditor().getEditorComponent().addPropertyChangeListener("enabled",
-                                                                                 new PropertyChangeListener() {
-                                                                                     @Override
-                                                                                     public void propertyChange(
-                                                                                             PropertyChangeEvent evt) {
-                                                                                         final boolean enabled = (Boolean) evt.getNewValue();
-                                                                                         labelEasting.setEnabled(
-                                                                                                 enabled);
-                                                                                         labelEastingFrom.setEnabled(
-                                                                                                 enabled);
-                                                                                         labelEastingTo.setEnabled(
-                                                                                                 enabled);
-                                                                                         labelEastingDegree.setEnabled(
-                                                                                                 enabled);
-                                                                                         labelNorthing.setEnabled(
-                                                                                                 enabled);
-                                                                                         labelNorthingFrom.setEnabled(
-                                                                                                 enabled);
-                                                                                         labelNorthingTo.setEnabled(
-                                                                                                 enabled);
-                                                                                         labelNorthingDegree.setEnabled(
-                                                                                                 enabled);
-                                                                                     }
-                                                                                 });
+        final PropertyChangeListener listener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                final boolean enabled = (Boolean) evt.getNewValue();
+                labelEasting.setEnabled(enabled);
+                labelEastingFrom.setEnabled(enabled);
+                labelEastingTo.setEnabled(enabled);
+                labelEastingDegree.setEnabled(enabled);
+                labelNorthing.setEnabled(enabled);
+                labelNorthingFrom.setEnabled(enabled);
+                labelNorthingTo.setEnabled(enabled);
+                labelNorthingDegree.setEnabled(enabled);
+            }
+        };
+        _paramWestLon.getEditor().getEditorComponent().addPropertyChangeListener("enabled",listener);
 
 
         JPanel panel = GridBagUtils.createPanel();
@@ -1988,7 +1979,8 @@ public class MosaicUi extends AbstractProcessorUI {
             try {
                 final Term term = parser.parse(expression);
                 if (checkForConditions && !term.isB()) {
-                    final String msg = String.format("The expression for the %s\nnamed '%s'\nis not boolean.", s1, name);
+                    final String msg = String.format("The expression for the %s\nnamed '%s'\nis not boolean.", s1,
+                                                     name);
                     getApp().showWarningDialog(msg);
                     return false;
                 }
