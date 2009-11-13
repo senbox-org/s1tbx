@@ -455,9 +455,9 @@ public class MosaicOp extends Operator {
     public static class Variable {
 
         @Parameter(description = "The name of the variable.")
-        String name;
+        public String name;
         @Parameter(description = "The expression of the variable.")
-        String expression;
+        public String expression;
 
         public Variable() {
         }
