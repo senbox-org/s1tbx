@@ -2,7 +2,6 @@ package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
-
 import org.esa.beam.dataio.dimap.DimapProductWriter;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
@@ -24,6 +23,11 @@ import org.esa.beam.framework.gpf.internal.TileImpl;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.math.MathUtils;
 
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.TileComputationListener;
+import javax.media.jai.TileRequest;
+import javax.media.jai.TileScheduler;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -36,12 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.TileComputationListener;
-import javax.media.jai.TileRequest;
-import javax.media.jai.TileScheduler;
 
 @OperatorMetadata(alias = "Write",
                   description = "Writes a product to disk.")
@@ -169,21 +167,21 @@ public class WriteOp extends Operator {
     private Tile[] storeTileInLineCache(BandLine key, int tileX, Tile tile) {
         synchronized (lineCache) {
             storedTiles.incrementAndGet();
-            Tile[] tileLine;
+            Tile[] tileLines;
             if (lineCache.containsKey(key)) {
-                tileLine = lineCache.get(key);
+                tileLines = lineCache.get(key);
             } else {
-                tileLine = new Tile[tileCountX];
-                lineCache.put(key, tileLine);
+                tileLines = new Tile[tileCountX];
+                lineCache.put(key, tileLines);
             }
-            tileLine[tileX] = tile;
-            for (int i = 0; i < tileLine.length; i++) {
-                if (tileLine[i] == null) {
+            tileLines[tileX] = tile;
+            for (Tile aTile : tileLines) {
+                if (aTile == null) {
                     return null;
                 }
             }
             lineCache.remove(key);
-            return tileLine;
+            return tileLines;
         }
     }
     
@@ -260,8 +258,7 @@ public class WriteOp extends Operator {
     public void dispose() {
         try {
             productWriter.close();
-        } catch (IOException e) {
-            // ignore
+        } catch (IOException ignore) {
         }
         writableBands.clear();
     }
@@ -326,26 +323,31 @@ public class WriteOp extends Operator {
         } catch (OperatorException e) {
             if (deleteOutputOnFailure) {
                 try {
+                    waitForEmptyTileStore(writeOp.storedTiles);
                     writeOp.productWriter.deleteOutput();
                 } catch (IOException ignored) {
                 }
             }
             throw e;
         } finally {
-            while (writeOp.storedTiles.get() > 0) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    throw new OperatorException(e);
-                }
-            }
+            waitForEmptyTileStore(writeOp.storedTiles);
             writeOp.dispose();
             pm.done();
         }
 
         writeOp.logPerformanceAnalysis();
     }
-    
+
+    private static void waitForEmptyTileStore(final AtomicInteger storedTiles) {
+        while (storedTiles.get() > 0) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                throw new OperatorException(e);
+            }
+        }
+    }
+
     private static class BandLine {
         private final Band band;
         private final int tileY;
@@ -373,10 +375,7 @@ public class WriteOp extends Operator {
             if (!band.equals(other.band)) {
                 return false;
             }
-            if (tileY != other.tileY) {
-                return false;
-            }
-            return true;
+            return tileY == other.tileY;
         }
         
         
