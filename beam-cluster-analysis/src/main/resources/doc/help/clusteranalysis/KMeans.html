@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>K-Means Cluster Analysis Tool</title>
+    <title>K-Means (KM) Cluster Analysis Tool</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 
@@ -9,7 +9,7 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            K-Means Cluster Analysis
+            K-Means (KM) Cluster Analysis
         </td>
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
                                                                                      border=0></a>
@@ -82,7 +82,7 @@
 <h3>User Interface</h3>
 
 <p>
-    The k-means cluster analysis tool can be invoked from VISAT tool menu by selecting
+    The k-means (KM) cluster analysis tool can be invoked from VISAT tool menu by selecting
     the <b>K-Means Cluster Analysis</b> command in the <b>Image Analysis</b> submenu. In the command line it is
     available by means of the Graph Processing Tool <code>gpt</code> which is located in the BEAM <code>bin</code>
     directory. Please type <code>gpt KMeansClusterAnalysis -h</code> for further information.
@@ -146,7 +146,10 @@
 
 <p class="i1">
     <b>Random seed:</b>
-    Use this field to specify the random seed used to initialize the clustering algorithm. The default seed is 31415.
+    The KM algorithm starts with a pseudo-random distribution of initial clusters. The random seed initializes
+    the pseudo-random number generator, which is used to generate the initial clusters. By changing the random
+    seed, you can start with different initial clusters. Any positive integral number will be a perfect random
+    seed. The default seed is 31415.
 </p>
 
 <p class="i1">

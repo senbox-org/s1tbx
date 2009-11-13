@@ -156,7 +156,10 @@
 
 <p class="i1">
     <b>Random seed:</b>
-    Use this field to specify the random seed used to initialize the clustering algorithm. The default seed is 31415.
+    The EM algorithm starts with a pseudo-random distribution of initial clusters. The random seed initializes
+    the pseudo-random number generator, which is used to generate the initial clusters. By changing the random
+    seed, you can start with different initial clusters. Any positive integral number will be a perfect random
+    seed. The default seed is 31415.
 </p>
 
 <p class="i1">
