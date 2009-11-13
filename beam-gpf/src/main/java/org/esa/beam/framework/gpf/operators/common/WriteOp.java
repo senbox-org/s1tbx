@@ -1,7 +1,6 @@
 package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 
 import org.esa.beam.dataio.dimap.DimapProductWriter;
@@ -21,18 +20,28 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.internal.TileImpl;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.TileComputationListener;
+import javax.media.jai.TileRequest;
+import javax.media.jai.TileScheduler;
 
 @OperatorMetadata(alias = "Write",
                   description = "Writes a product to disk.")
@@ -58,8 +67,10 @@ public class WriteOp extends Operator {
     private Map<MultiLevelImage, List<Point>> notComputedTileIndexList;
     private boolean headerChanged;
     private ProductNodeChangeListener productNodeChangeListener;
-    private Tile[][] oneLineOftiles;
+    private volatile Tile[][][] oneLineOftiles;
     private Dimension tileSize;
+    
+    volatile int tilesInStore = 0;
 
     public WriteOp() {
     }
@@ -97,7 +108,8 @@ public class WriteOp extends Operator {
         tileSize = ImageManager.getPreferredTileSize(targetProduct);
         targetProduct.setPreferredTileSize(tileSize);
         final int tileCountX = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);
-        oneLineOftiles = new Tile[writableBands.size()][tileCountX];
+        final int tileCountY = MathUtils.ceilInt(targetProduct.getSceneRasterHeight() / (double) tileSize.height);
+        oneLineOftiles = new Tile[writableBands.size()][tileCountY][tileCountX];
     }
 
     @Override
@@ -115,11 +127,29 @@ public class WriteOp extends Operator {
                         }
                     }
                     targetProduct.setProductWriter(productWriter);
-                    final Tile sourceTile = getSourceTile(targetBand, targetTile.getRectangle(), pm);
+                    final Rectangle rectangle = targetTile.getRectangle();
+                    
+                    // TODO write single tiles, remove 
+//                    long t1 = System.currentTimeMillis();
+//                    System.out.println("writing "+targetBand.getName()+" "+rectangle);
+//                    final Tile sourceTile = getSourceTile(targetBand, rectangle, pm);
+//                    final ProductData rawSamples = sourceTile.getRawSamples();
+//                    productWriter.writeBandRasterData(targetBand, rectangle.x, rectangle.y, rectangle.width,
+//                                                      rectangle.height, rawSamples, pm);
+
+                    final Tile sourceTile = getSourceTile(targetBand, rectangle, pm);
                     int tileX = MathUtils.floorInt(targetTile.getMinX() / (double) tileSize.width);
-                    oneLineOftiles[writableBands.indexOf(targetBand)][tileX] = sourceTile;
-                    writeLineIfComplete(targetBand);        
+                    int tileY = MathUtils.floorInt(targetTile.getMinY() / (double) tileSize.height);
+                    oneLineOftiles[writableBands.indexOf(targetBand)][tileY][tileX] = sourceTile;
+                    tilesInStore++;
+                    writeLineIfComplete(targetBand, tileY);
+
                     updateComputedTileMap(targetBand, targetTile);
+//                    long t2 = System.currentTimeMillis();
+//                    long savetime = t2-t1;
+//                    if (savetime>3) {
+//                        System.out.println("writing took="+savetime+" "+targetBand.getName()+" "+rectangle);
+//                    }
                 } catch (Exception e) {
                     if (deleteOutputOnFailure) {
                         try {
@@ -141,40 +171,43 @@ public class WriteOp extends Operator {
     }
 
     // TODO should we handle out of order writing ? (mz, 2009.11.11)
-    private void writeLineIfComplete(Band targetBand) throws IOException {
+    private void writeLineIfComplete(Band targetBand, int tileY) throws IOException {
         int bandIndex = writableBands.indexOf(targetBand);
-        int tileXCount = oneLineOftiles[bandIndex].length;
+        int tileXCount = oneLineOftiles[bandIndex][0].length;
+        Tile[] thisTileLine = oneLineOftiles[bandIndex][tileY];
         for (int i = 0; i < tileXCount; i++) {
-            if (oneLineOftiles[bandIndex][i] == null) {
+            if (thisTileLine[i] == null) {
                 return;
             }
         }
         // all tiles for this line are available
-        Tile firstTile = oneLineOftiles[bandIndex][0];
+        Tile firstTile = thisTileLine[0];
         int sceneWidth = targetProduct.getSceneRasterWidth();
         Rectangle lineBounds = new Rectangle(0, firstTile.getMinY(), sceneWidth, firstTile.getHeight());
         ProductData[] rawSampleOFLine = new ProductData[tileXCount];
-        Rectangle[] rects = new Rectangle[tileXCount];
+        int[] tileWidth = new int[tileXCount];
         for (int tileX = 0; tileX < tileXCount; tileX++) {
-            Tile tile = oneLineOftiles[bandIndex][tileX];
+            Tile tile = thisTileLine[tileX];
             rawSampleOFLine[tileX] = tile.getRawSamples();
-            rects[tileX] = tile.getRectangle(); 
-            oneLineOftiles[bandIndex][tileX] = null;
+            tileWidth[tileX] = tile.getRectangle().width; 
         }
         ProductData sampleLine = ProductData.createInstance(rawSampleOFLine[0].getType(), sceneWidth);
         for (int y = lineBounds.y; y < lineBounds.y + lineBounds.height; y++) {
             int targetPos = 0;
             for (int tileX = 0; tileX < tileXCount; tileX++) {
-                Rectangle rectangle = rects[tileX];
                 ProductData productData = rawSampleOFLine[tileX];
                 Object rawSamples = productData.getElems();
-                int tileWidth = rectangle.width;
-                int srcPos = (y-lineBounds.y) * tileWidth;
-                System.arraycopy(rawSamples, srcPos, sampleLine.getElems(), targetPos, tileWidth);
-                targetPos += tileWidth;
+                int width = tileWidth[tileX];
+                int srcPos = (y-lineBounds.y) * width;
+                System.arraycopy(rawSamples, srcPos, sampleLine.getElems(), targetPos, width);
+                targetPos += width;
 
             }
             productWriter.writeBandRasterData(targetBand, 0, y, sceneWidth, 1, sampleLine, ProgressMonitor.NULL);
+        }
+        for (int tileX = 0; tileX < tileXCount; tileX++) {
+            thisTileLine[tileX] = null;
+            tilesInStore--;
         }
         // TODO use this ? seems to not give any improvement (mz, 2009.11.11)
 //        TileCache tileCache = JAI.getDefaultInstance().getTileCache();
@@ -251,7 +284,7 @@ public class WriteOp extends Operator {
     public static void writeProduct(Product sourceProduct, File file, String formatName, ProgressMonitor pm) {
         writeProduct(sourceProduct, file, formatName, true, pm);
     }
-
+    
     public static void writeProduct(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure,
                                     ProgressMonitor pm) {
 
@@ -266,38 +299,33 @@ public class WriteOp extends Operator {
         final int tileCountY = MathUtils.ceilInt(boundary.height / (double) tileSize.height);
         final Band[] targetBands = targetProduct.getBands();
 
+        Map<Band, PlanarImage> imageMap = new HashMap<Band, PlanarImage>(targetBands.length*2);
+        for (final Band band : targetBands) {
+          final RenderedImage image = band.getSourceImage().getImage(0);
+          final PlanarImage planarImage = PlanarImage.wrapRenderedImage(image);
+          imageMap.put(band, planarImage);
+        }
+        TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
         try {
-            pm.beginTask("Writing product...", tileCountX * tileCountY * targetBands.length * 2);
-            long t1sum = 0;
-            long t2sum = 0;
+            pm.beginTask("Writing product...", tileCountX * tileCountY * targetBands.length);
             for (int tileY = 0; tileY < tileCountY; tileY++) {
-                for (int tileX = 0; tileX < tileCountX; tileX++) {
+                for (final Band band : targetBands) {
                     writeOp.checkForCancelation(pm);
-
-                    final Rectangle tileRectangle = new Rectangle(tileX * tileSize.width,
-                                                                  tileY * tileSize.height,
-                                                                  tileSize.width,
-                                                                  tileSize.height);
-                    final Rectangle intersection = boundary.intersection(tileRectangle);
-
-                    long cSum = 0;
-                    long sSum = 0;
-                    System.out.println("doing tile "+intersection + "   "+(tileY*tileCountX+tileX)+ " of "+(tileCountY*tileCountX));
-                    for (final Band band : targetBands) {
-                        long t1 = System.currentTimeMillis();
-                        final Tile tile = writeOp.getSourceTile(band, intersection, new SubProgressMonitor(pm, 1));
-                        long t2 = System.currentTimeMillis();
-                        writeOp.computeTile(band, tile, new SubProgressMonitor(pm, 1));
-                        long t3 = System.currentTimeMillis();
-                        long computetime = t2-t1;
-                        long savetime = t3-t2;
-//                        System.out.println("band: "+band.getName()+"  cTime= "+computetime);
-                        t1sum += computetime;
-                        t2sum += savetime;
-                        cSum += computetime;
-                        sSum += savetime;
+                    Point[] points = new Point[tileCountX];
+                    for (int tileX = 0; tileX < tileCountX; tileX++) {
+                        points[tileX] = new Point(tileX, tileY);
                     }
-                    System.out.println("time computeSum="+t1sum+"  saveSum="+t2sum+"    computeTHIS="+cSum+"   saveThis="+sSum);
+                    CountDownLatch latch = new CountDownLatch(tileCountX);
+                    final PlanarImage planarImage = imageMap.get(band);
+                    final TileComputationListener tcl = new MyTileComputationListener(band, writeOp, latch);
+                    final TileComputationListener[] listeners = new TileComputationListener[] {tcl};
+                    tileScheduler.scheduleTiles(planarImage, points, listeners);
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        throw new OperatorException(e);
+                    }
+                    pm.worked(tileCountX);
                 }
             }
         } catch (OperatorException e) {
@@ -310,6 +338,13 @@ public class WriteOp extends Operator {
             throw e;
         } finally {
             try {
+                while (writeOp.tilesInStore > 0) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        throw new OperatorException(e);
+                    }
+                }
                 writeOp.productWriter.close();
             } catch (IOException ignored) {
             }
@@ -336,6 +371,48 @@ public class WriteOp extends Operator {
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
             headerChanged = true;
+        }
+    }
+    
+    private static class MyTileComputationListener implements TileComputationListener {
+
+        private final Band band;
+        private final WriteOp writeOp;
+        private CountDownLatch countDownLatch;
+
+        MyTileComputationListener(Band band, WriteOp writeOp, CountDownLatch latch) {
+            this.band = band;
+            this.writeOp = writeOp;
+            this.countDownLatch = latch;
+        }
+
+        @Override
+            public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+                                 int tileY,
+                                 Raster raster) {
+            countDownLatch.countDown();
+            
+            final int rasterHeight = band.getSceneRasterHeight();
+            final int rasterWidth = band.getSceneRasterWidth();
+            final Rectangle boundary = new Rectangle(rasterWidth, rasterHeight);
+            Rectangle rect = boundary.intersection(raster.getBounds());
+            final TileImpl tile = new TileImpl(band, raster, rect, false);
+            writeOp.computeTile(band, tile, ProgressMonitor.NULL);
+        }
+
+        @Override
+            public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+                                  int tileY) {
+            System.out.println("tileCancelled");
+        }
+
+        @Override
+            public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+                                           int tileY, Throwable situation) {
+            System.out.println("tileComputationFailure");
+            situation.printStackTrace();
+            System.out.println("writeOp.tilesInStore="+writeOp.tilesInStore);
+            System.out.println("==========================");
         }
     }
 }
