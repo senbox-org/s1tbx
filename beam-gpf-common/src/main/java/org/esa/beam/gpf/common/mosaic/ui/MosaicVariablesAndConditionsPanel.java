@@ -50,18 +50,20 @@ import java.util.List;
 
 class MosaicVariablesAndConditionsPanel extends JPanel {
 
-    private static final int PREFERRED_TABLE_WIDTH = 500;
+    private static final int PREFERRED_TABLE_WIDTH = 520;
 
     private final AppContext appContext;
     private final BindingContext bindingContext;
 
     private JTable variablesTable;
     private JTable conditionsTable;
+    private ExpressionContext expressionContext;
 
-
-    MosaicVariablesAndConditionsPanel(AppContext appContext, BindingContext bindingContext) {
+    MosaicVariablesAndConditionsPanel(AppContext appContext, BindingContext bindingContext,
+                                      ExpressionContext expressionContext) {
         this.appContext = appContext;
         this.bindingContext = bindingContext;
+        this.expressionContext = expressionContext;
 
         init();
     }
@@ -281,10 +283,10 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
         variableFilterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final Product exampleProduct = getReferenceProduct();
-                if (exampleProduct != null) {
-                    final String[] availableBandNames = exampleProduct.getBandNames();
-                    final Band[] allBands = exampleProduct.getBands();
+                final Product product = expressionContext.getProduct();
+                if (product != null) {
+                    final String[] availableBandNames = product.getBandNames();
+                    final Band[] allBands = product.getBands();
                     final List dataVector = ((DefaultTableModel) variablesTable.getModel()).getDataVector();
                     final List<Band> existingBands = new ArrayList<Band>(dataVector.size());
                     for (Object aDataVector : dataVector) {
@@ -296,7 +298,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
                             || !name.trim().equals(expression.trim())) {
                             continue;
                         }
-                        existingBands.add(exampleProduct.getBand(name.trim()));
+                        existingBands.add(product.getBand(name.trim()));
                     }
                     final BandChooser bandChooser = new BandChooser(appContext.getApplicationWindow(), "Band Chooser",
                                                                     "",
@@ -328,10 +330,6 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
             }
         });
         return variableFilterButton;
-    }
-
-    private Product getReferenceProduct() {
-        return null;
     }
 
     private static int getBandRow(List newDataVector, String bandName) {
@@ -456,7 +454,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private int editExpression(String[] value, final boolean booleanExpected) {
-        final Product product = getReferenceProduct();
+        final Product product = expressionContext.getProduct();
         final ProductExpressionPane pep;
         if (booleanExpected) {
             pep = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product,
