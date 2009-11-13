@@ -2,6 +2,7 @@ package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
+
 import org.esa.beam.dataio.dimap.DimapProductWriter;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
@@ -19,27 +20,19 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.internal.TileImpl;
+import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.TileComputationListener;
-import javax.media.jai.TileRequest;
-import javax.media.jai.TileScheduler;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @OperatorMetadata(alias = "Write",
                   description = "Writes a product to disk.")
@@ -58,8 +51,8 @@ public class WriteOp extends Operator {
     @Parameter(defaultValue = "true",
                description = "If true, all output files are deleted when the write operation has failed.")
     private boolean deleteOutputOnFailure;
-    
-    @Parameter(defaultValue = "true")
+    @Parameter(defaultValue = "true",
+               description = "If true, the write operation waits until all tiles of a single line are available before writing it.")
     private boolean writeCompleteTileLines;
 
     private ProductWriter productWriter;
@@ -71,8 +64,6 @@ public class WriteOp extends Operator {
     private Map<BandLine, Tile[]> lineCache;
     private Dimension tileSize;
     private int tileCountX;
-    
-    private volatile AtomicInteger storedTiles = new AtomicInteger(0);
     
 
     public WriteOp() {
@@ -166,22 +157,21 @@ public class WriteOp extends Operator {
     
     private Tile[] storeTileInLineCache(BandLine key, int tileX, Tile tile) {
         synchronized (lineCache) {
-            storedTiles.incrementAndGet();
-            Tile[] tileLines;
+            Tile[] lineOfTiles;
             if (lineCache.containsKey(key)) {
-                tileLines = lineCache.get(key);
+                lineOfTiles = lineCache.get(key);
             } else {
-                tileLines = new Tile[tileCountX];
-                lineCache.put(key, tileLines);
+                lineOfTiles = new Tile[tileCountX];
+                lineCache.put(key, lineOfTiles);
             }
-            tileLines[tileX] = tile;
-            for (Tile aTile : tileLines) {
-                if (aTile == null) {
+            lineOfTiles[tileX] = tile;
+            for (int i = 0; i < lineOfTiles.length; i++) {
+                if (lineOfTiles[i] == null) {
                     return null;
                 }
             }
             lineCache.remove(key);
-            return tileLines;
+            return lineOfTiles;
         }
     }
     
@@ -211,7 +201,6 @@ public class WriteOp extends Operator {
                 productWriter.writeBandRasterData(band, 0, y, sceneWidth, 1, sampleLine, ProgressMonitor.NULL);
             }
         }
-        storedTiles.addAndGet(-cacheLine.length);
     }
 
     private void updateComputedTileMap(Band targetBand, Tile targetTile) throws IOException {
@@ -278,76 +267,23 @@ public class WriteOp extends Operator {
                                     ProgressMonitor pm) {
 
         final WriteOp writeOp = new WriteOp(sourceProduct, file, formatName, deleteOutputOnFailure);
-        final Product targetProduct = writeOp.getTargetProduct();
-        Dimension tileSize = targetProduct.getPreferredTileSize();
-
-        final int rasterHeight = targetProduct.getSceneRasterHeight();
-        final int rasterWidth = targetProduct.getSceneRasterWidth();
-        final Rectangle boundary = new Rectangle(rasterWidth, rasterHeight);
-        final int tileCountX = MathUtils.ceilInt(boundary.width / (double) tileSize.width);
-        final int tileCountY = MathUtils.ceilInt(boundary.height / (double) tileSize.height);
-        final Band[] targetBands = targetProduct.getBands();
-
-        Map<Band, PlanarImage> imageMap = new HashMap<Band, PlanarImage>(targetBands.length*2);
-        for (final Band band : targetBands) {
-          final RenderedImage image = band.getSourceImage().getImage(0);
-          final PlanarImage planarImage = PlanarImage.wrapRenderedImage(image);
-          imageMap.put(band, planarImage);
-        }
-        TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
-        AtomicInteger scheduledTiles = new AtomicInteger(0);
+        OperatorExecutor operatorExecutor = new OperatorExecutor(writeOp);
         try {
-            pm.beginTask("Writing product...", tileCountX * tileCountY * targetBands.length);
-            for (int tileY = 0; tileY < tileCountY; tileY++) {
-                for (final Band band : targetBands) {
-                    writeOp.checkForCancelation(pm);
-                    Point[] points = new Point[tileCountX];
-                    for (int tileX = 0; tileX < tileCountX; tileX++) {
-                        points[tileX] = new Point(tileX, tileY);
-                    }
-                    final PlanarImage planarImage = imageMap.get(band);
-                    final TileComputationListener tcl = new MyTileComputationListener(band, writeOp, scheduledTiles);
-                    final TileComputationListener[] listeners = new TileComputationListener[] {tcl};
-                    scheduledTiles.addAndGet(tileCountX);
-                    tileScheduler.scheduleTiles(planarImage, points, listeners);
-                    while (scheduledTiles.intValue() > tileScheduler.getParallelism()) {
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            throw new OperatorException(e);
-                        }
-                    }
-                    pm.worked(tileCountX);
-                }
-            }
+            operatorExecutor.execute(pm);
         } catch (OperatorException e) {
             if (deleteOutputOnFailure) {
                 try {
-                    waitForEmptyTileStore(writeOp.storedTiles);
                     writeOp.productWriter.deleteOutput();
                 } catch (IOException ignored) {
                 }
             }
             throw e;
         } finally {
-            waitForEmptyTileStore(writeOp.storedTiles);
+            writeOp.logPerformanceAnalysis();
             writeOp.dispose();
-            pm.done();
-        }
-
-        writeOp.logPerformanceAnalysis();
-    }
-
-    private static void waitForEmptyTileStore(final AtomicInteger storedTiles) {
-        while (storedTiles.get() > 0) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                throw new OperatorException(e);
-            }
         }
     }
-
+    
     private static class BandLine {
         private final Band band;
         private final int tileY;
@@ -398,47 +334,6 @@ public class WriteOp extends Operator {
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
             headerChanged = true;
-        }
-    }
-    
-    private static class MyTileComputationListener implements TileComputationListener {
-
-        private final Band band;
-        private final WriteOp writeOp;
-        private volatile AtomicInteger scheduledTiles;
-
-        MyTileComputationListener(Band band, WriteOp writeOp, AtomicInteger scheduledTiles) {
-            this.band = band;
-            this.writeOp = writeOp;
-            this.scheduledTiles = scheduledTiles;
-        }
-
-        @Override
-            public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
-                                 int tileY,
-                                 Raster raster) {
-            scheduledTiles.decrementAndGet();
-            
-            final int rasterHeight = band.getSceneRasterHeight();
-            final int rasterWidth = band.getSceneRasterWidth();
-            final Rectangle boundary = new Rectangle(rasterWidth, rasterHeight);
-            Rectangle rect = boundary.intersection(raster.getBounds());
-            final TileImpl tile = new TileImpl(band, raster, rect, false);
-            writeOp.computeTile(band, tile, ProgressMonitor.NULL);
-        }
-
-        @Override
-            public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
-                                  int tileY) {
-            System.out.println("tileCancelled");
-        }
-
-        @Override
-            public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
-                                           int tileY, Throwable situation) {
-            System.out.println("tileComputationFailure");
-            situation.printStackTrace();
-            System.out.println("==========================");
         }
     }
 }
