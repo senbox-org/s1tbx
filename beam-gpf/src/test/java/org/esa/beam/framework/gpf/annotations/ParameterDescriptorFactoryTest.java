@@ -17,16 +17,15 @@
 package org.esa.beam.framework.gpf.annotations;
 
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyAccessor;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.converters.ArrayConverter;
 import com.bc.ceres.binding.converters.DoubleConverter;
-
 import junit.framework.TestCase;
 
 public class ParameterDescriptorFactoryTest extends TestCase{
@@ -49,7 +48,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
         assertSame(DoubleConverter.class, propertyDescriptor.getConverter().getClass());
         assertEquals("", propertyDescriptor.getDescription());
         assertEquals(false, propertyDescriptor.getItemsInlined());
-        assertEquals(PERCENTAGE, propertyDescriptor.getDisplayName());
+        assertEquals("Percentage", propertyDescriptor.getDisplayName());
         assertEquals(null, propertyDescriptor.getDomConverter());
         assertEquals(null, propertyDescriptor.getFormat());
         assertEquals(null, propertyDescriptor.getItemAlias());
@@ -105,7 +104,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
         assertSame(ArrayConverter.class, propertyDescriptor.getConverter().getClass());
         assertEquals("", propertyDescriptor.getDescription());
         assertEquals(false, propertyDescriptor.getItemsInlined());
-        assertEquals(FIELD_NAME, propertyDescriptor.getDisplayName());
+        assertEquals("Threshold array", propertyDescriptor.getDisplayName());
         assertEquals(null, propertyDescriptor.getDomConverter());
         assertEquals(null, propertyDescriptor.getFormat());
         assertEquals(null, propertyDescriptor.getItemAlias());
