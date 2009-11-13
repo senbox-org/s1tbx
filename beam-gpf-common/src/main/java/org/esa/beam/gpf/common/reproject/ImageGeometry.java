@@ -56,7 +56,7 @@ public class ImageGeometry {
         this.mapCrs = mapCrs;
     }
     
-    public AffineTransform getImage2Map() {
+    public AffineTransform getImage2MapTransform() {
         if (i2m != null) {
             return i2m;
         } else {

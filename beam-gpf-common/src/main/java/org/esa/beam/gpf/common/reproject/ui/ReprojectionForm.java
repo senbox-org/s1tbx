@@ -56,13 +56,13 @@ class ReprojectionForm extends JTabbedPane {
     private final PropertyContainer reprojectionlContainer;
 
     private DemSelector demSelector;
-    private CrsForm crsForm;
+    private CrsSelectionForm crsSelectionForm;
     private PropertyContainer outputParameterContainer;
 
     private JButton outputParamButton;
     private InfoForm infoForm;
     private CoordinateReferenceSystem crs;
-    
+
 
     ReprojectionForm(TargetProductSelector targetProductSelector, boolean orthorectify, AppContext appContext) {
         this.targetProductSelector = targetProductSelector;
@@ -85,9 +85,8 @@ class ReprojectionForm extends JTabbedPane {
         parameterMap.put("includeTiePointGrids", reprojectionModel.reprojTiePoints);
         parameterMap.put("noDataValue", reprojectionModel.noDataValue);
         try {
-            if (!crsForm.isCollocate()) {
-                final CoordinateReferenceSystem crs = getSelectedCrs();
-                parameterMap.put("wkt", crs.toWKT());
+            if (!crsSelectionForm.isCollocate()) {
+                parameterMap.put("wkt", getSelectedCrs().toWKT());
             }
         } catch (FactoryException e) {
             throw new IllegalStateException(e);
@@ -118,8 +117,8 @@ class ReprojectionForm extends JTabbedPane {
     Map<String, Product> getProductMap() {
         final Map<String, Product> productMap = new HashMap<String, Product>(5);
         productMap.put("source", getSourceProduct());
-        if (crsForm.isCollocate()) {
-            productMap.put("collocate", crsForm.getCollocationProduct());
+        if (crsSelectionForm.isCollocate()) {
+            productMap.put("collocate", crsSelectionForm.getCollocationProduct());
         }
         return productMap;
     }
@@ -134,14 +133,14 @@ class ReprojectionForm extends JTabbedPane {
 
     void prepareShow() {
         sourceProductSelector.initProducts();
-        crsForm.prepareShow();
+        crsSelectionForm.prepareShow();
     }
 
     void prepareHide() {
         sourceProductSelector.releaseProducts();
-        crsForm.prepareHide();
+        crsSelectionForm.prepareHide();
     }
-    
+
     String getExternamDemName() {
         if (orthoMode && demSelector.isUsingExternalDem()) {
             return demSelector.getDemName();
@@ -177,8 +176,8 @@ class ReprojectionForm extends JTabbedPane {
         layout.setTableWeightX(1.0);
         parameterPanel.setLayout(layout);
 
-        crsForm = new CrsForm(appContext, sourceProductSelector);
-        parameterPanel.add(crsForm);
+        crsSelectionForm = new CrsSelectionForm(appContext, sourceProductSelector);
+        parameterPanel.add(crsSelectionForm);
         if (orthoMode) {
             demSelector = new DemSelector();
             parameterPanel.add(demSelector);
@@ -186,9 +185,8 @@ class ReprojectionForm extends JTabbedPane {
         parameterPanel.add(createOuputSettingsPanel());
         infoForm = new InfoForm();
         parameterPanel.add(infoForm.createUI());
-        
-        crsForm.addPropertyChangeListener("crs", new PropertyChangeListener() {
-            
+
+        crsSelectionForm.addPropertyChangeListener("crs", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 updateCRS();
@@ -197,10 +195,10 @@ class ReprojectionForm extends JTabbedPane {
         updateCRS();
         return parameterPanel;
     }
-    
+
     private void updateCRS() {
         try {
-            crs = crsForm.getCrs(getSourceProduct());
+            crs = crsSelectionForm.getCrs(getSourceProduct());
             if (crs != null) {
                 infoForm.setCrs(crs.getName().getCode(), crs.toString());
             } else {
@@ -213,7 +211,7 @@ class ReprojectionForm extends JTabbedPane {
         updateOutputParameterState();
         updateProductSize();
     }
-    
+
     private void updateProductSize() {
         if (outputParameterContainer != null) {
             infoForm.setWidth((Integer)outputParameterContainer.getValue("width"));
@@ -230,15 +228,15 @@ class ReprojectionForm extends JTabbedPane {
         private JLabel crsLabel;
         private String wkt;
         private JButton wktButton;
-        
-        void setWidth(int width){
+
+        void setWidth(int width) {
             widthLabel.setText(Integer.toString(width));
         }
 
-        void setHeight(int height){
+        void setHeight(int height) {
             heightLabel.setText(Integer.toString(height));
         }
-        
+
         void setCenterPos(GeoPos geoPos) {
             if (geoPos != null) {
                 centerLatLabel.setText(geoPos.getLatString());
@@ -248,21 +246,21 @@ class ReprojectionForm extends JTabbedPane {
                 centerLonLabel.setText("");
             }
         }
-        
+
         void setCrs(String crsText, String wkt) {
             this.wkt = wkt;
             crsLabel.setText(crsText);
             boolean hasWKT = (wkt != null);
             wktButton.setEnabled(hasWKT);
         }
-        
+
         JPanel createUI() {
             widthLabel = new JLabel();
             heightLabel = new JLabel();
             centerLatLabel = new JLabel();
             centerLonLabel = new JLabel();
             crsLabel = new JLabel();
-            
+
             final TableLayout tableLayout = new TableLayout(5);
             tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
             tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
@@ -275,8 +273,8 @@ class ReprojectionForm extends JTabbedPane {
             tableLayout.setCellColspan(2, 1, 3);
             tableLayout.setCellPadding(0, 3, new Insets(4, 24, 4, 20));
             tableLayout.setCellPadding(1, 3, new Insets(4, 24, 4, 20));
-            
-            
+
+
             final JPanel panel = new JPanel(tableLayout);
             panel.setBorder(BorderFactory.createTitledBorder("Output Information"));
             panel.add(new JLabel("Scene Width:"));
@@ -284,18 +282,18 @@ class ReprojectionForm extends JTabbedPane {
             panel.add(new JLabel("pixel"));
             panel.add(new JLabel("Center Longitude:"));
             panel.add(centerLonLabel);
-            
+
             panel.add(new JLabel("Scene Height:"));
             panel.add(heightLabel);
             panel.add(new JLabel("pixel"));
             panel.add(new JLabel("Center Latitude:"));
             panel.add(centerLatLabel);
-            
+
             panel.add(new JLabel("CRS:"));
             panel.add(crsLabel);
             wktButton = new JButton("Show WKT");
             wktButton.addActionListener(new ActionListener() {
-                
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JTextArea wktArea = new JTextArea(30, 40);
@@ -306,7 +304,7 @@ class ReprojectionForm extends JTabbedPane {
                                                                "Coordinate reference system as well known text",
                                                                scrollPane,
                                                                ModalDialog.ID_OK, null);
-                    dialog.show();                    
+                    dialog.show();
                 }
             });
             wktButton.setEnabled(false);
@@ -335,7 +333,7 @@ class ReprojectionForm extends JTabbedPane {
 
         final JCheckBox preserveResolutionCheckBox = new JCheckBox("Preserve resolution");
         context.bind(Model.PRESERVE_RESOLUTION, preserveResolutionCheckBox);
-        crsForm.addPropertyChangeListener("collocate", new PropertyChangeListener() {
+        crsSelectionForm.addPropertyChangeListener("collocate", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final boolean collocate = (Boolean) evt.getNewValue();
@@ -377,7 +375,7 @@ class ReprojectionForm extends JTabbedPane {
 
         return outputSettingsPanel;
     }
-    
+
     private void updateOutputParameterState() {
         outputParamButton.setEnabled(!reprojectionModel.preserveResolution && (crs != null));
     }
@@ -429,7 +427,7 @@ class ReprojectionForm extends JTabbedPane {
                     showWarningMessage("Please select a product to project.\n");
                     return;
                 }
-                final CoordinateReferenceSystem crs = crsForm.getCrs(sourceProduct);
+                final CoordinateReferenceSystem crs = crsSelectionForm.getCrs(sourceProduct);
                 if (crs == null) {
                     showWarningMessage("Please specify a 'Coordinate Reference System' first.\n");
                     return;
@@ -450,7 +448,7 @@ class ReprojectionForm extends JTabbedPane {
             }
         }
     }
-    
+
     private void showWarningMessage(String message) {
         JOptionPane.showMessageDialog(getParent(), message, "Reprojection", JOptionPane.WARNING_MESSAGE);
     }

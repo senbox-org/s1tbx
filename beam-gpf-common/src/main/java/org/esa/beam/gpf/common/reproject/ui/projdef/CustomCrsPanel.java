@@ -1,9 +1,9 @@
 package org.esa.beam.gpf.common.reproject.ui.projdef;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyAccessor;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
@@ -59,7 +59,7 @@ import java.util.Set;
  * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
-public class CustomCrsForm extends JPanel {
+public class CustomCrsPanel extends JPanel {
 
     private static final String OPERATION_WRAPPER = "operationWrapper";
     private static final String DATUM = "datum";
@@ -67,17 +67,17 @@ public class CustomCrsForm extends JPanel {
 
     private final List<GeodeticDatum> datumList;
     private final List<AbstractCrsProvider> crsProviderList;
-    private final CustomCrsForm.Model model;
+    private final CustomCrsPanel.Model model;
     private final PropertyContainer vc;
     private final Window parent;
     private JComboBox operationComboBox;
     private JComboBox datumComboBox;
     private JButton paramButton;
 
-    public CustomCrsForm(Window parent) {
+    public CustomCrsPanel(Window parent) {
         this.parent = parent;
 
-        this.datumList = CustomCrsForm.createDatumList();
+        this.datumList = CustomCrsPanel.createDatumList();
         Collections.sort(this.datumList, AbstractIdentifiedObject.NAME_COMPARATOR);
         GeodeticDatum wgs84Datum = null;
         for (GeodeticDatum geodeticDatum : this.datumList) {
@@ -87,7 +87,7 @@ public class CustomCrsForm extends JPanel {
             }
         }
 
-        final List<OperationMethod> methodList = CustomCrsForm.createProjectionMethodList();
+        final List<OperationMethod> methodList = CustomCrsPanel.createProjectionMethodList();
         this.crsProviderList = new ArrayList<AbstractCrsProvider>(methodList.size() + 3);
         for (OperationMethod method : methodList) {
             crsProviderList.add(new OperationMethodCrsProvider(method));
@@ -110,7 +110,7 @@ public class CustomCrsForm extends JPanel {
         updateModel(OPERATION_WRAPPER);
     }
 
-    public CoordinateReferenceSystem getProcjetedCRS(final Product product) throws FactoryException {
+    public CoordinateReferenceSystem getCRS(final Product product) throws FactoryException {
         return model.operationWrapper.getCRS(product, model.parameters, model.datum);
     }
 
@@ -197,7 +197,7 @@ public class CustomCrsForm extends JPanel {
         }
         return true;
     }
-    
+
     private class UpdateListener implements PropertyChangeListener {
 
         @Override
@@ -208,7 +208,7 @@ public class CustomCrsForm extends JPanel {
 
     public static void main(String[] args) {
         final JFrame frame = new JFrame("Projection Method Form Test");
-        final CustomCrsForm customCrsForm = new CustomCrsForm(frame);
+        final CustomCrsPanel customCrsForm = new CustomCrsPanel(frame);
         frame.setContentPane(customCrsForm);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

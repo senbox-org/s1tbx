@@ -16,10 +16,10 @@
  */
 package org.esa.beam.gpf.common.reproject.ui;
 
-import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueSet;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.gpf.common.reproject.ImageGeometry;
@@ -95,6 +95,10 @@ class OutputGeometryFormModel {
     
     PropertyContainer getValueContainer() {
         return propertyContainer;
+    }
+
+    ImageGeometry getImageGeometry() {
+        return imageGeometry;
     }
 
     private void updateImgaeGeometry(ImageGeometry newImageGeometry) {

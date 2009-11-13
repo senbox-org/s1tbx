@@ -15,7 +15,6 @@
 package org.esa.beam.gpf.common.reproject;
 
 
-import org.esa.beam.jai.ResolutionLevel;
 import org.geotools.factory.Hints;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
@@ -40,11 +39,9 @@ import javax.media.jai.BorderExtenderConstant;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.OpImage;
-import javax.media.jai.RenderedOp;
 import javax.media.jai.Warp;
 import javax.media.jai.WarpAffine;
 import javax.media.jai.operator.MosaicDescriptor;
-
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -148,8 +145,8 @@ final class Reproject {
          *                 step 1         step 3
          */
         final MathTransform allSteps;
-        MathTransform step1 = new AffineTransform2D(targetGeometry.getImage2Map());
-        MathTransform step3 = new AffineTransform2D(sourceGeometry.getImage2Map()).inverse();
+        MathTransform step1 = new AffineTransform2D(targetGeometry.getImage2MapTransform());
+        MathTransform step3 = new AffineTransform2D(sourceGeometry.getImage2MapTransform()).inverse();
         if (CRS.equalsIgnoreMetadata(sourceGeometry.getMapCrs(), targetGeometry.getMapCrs())) {
             allSteps = mtFactory.createConcatenatedTransform(step1, step3);
         } else {
