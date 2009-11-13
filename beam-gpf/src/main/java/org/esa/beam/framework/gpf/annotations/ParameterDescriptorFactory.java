@@ -88,9 +88,7 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         }
         if (ParameterDescriptorFactory.isSet(parameter.label())) {
             propertyDescriptor.setDisplayName(parameter.label());
-        } else {
-            propertyDescriptor.setDisplayName(propertyDescriptor.getName());
-        }
+        } 
         if (ParameterDescriptorFactory.isSet(parameter.alias())) {
             propertyDescriptor.setAlias(parameter.alias());
         }
