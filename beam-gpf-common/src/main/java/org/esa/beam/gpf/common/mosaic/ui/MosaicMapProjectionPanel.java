@@ -17,6 +17,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -75,7 +76,7 @@ class MosaicMapProjectionPanel extends JPanel {
     private JPanel createMosaicBoundsPanel() {
         final TableLayout layout = new TableLayout(1);
         layout.setTableAnchor(TableLayout.Anchor.WEST);
-        layout.setTableFill(TableLayout.Fill.BOTH);
+        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
         layout.setTableWeightX(1.0);
         layout.setTableWeightY(1.0);
         layout.setTablePadding(3, 3);
@@ -84,6 +85,7 @@ class MosaicMapProjectionPanel extends JPanel {
         final JPanel inputPanel = createBoundsInputPanel();
         panel.add(inputPanel);
         final WorldMapPane worlMapPanel = new WorldMapPane(new WorldMapPaneDataModel());
+        worlMapPanel.setMinimumSize(new Dimension(250, 125));
         worlMapPanel.setBorder(BorderFactory.createEtchedBorder());
         panel.add(worlMapPanel);
 
