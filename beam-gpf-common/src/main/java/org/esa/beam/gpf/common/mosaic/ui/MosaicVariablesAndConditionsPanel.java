@@ -9,7 +9,6 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.framework.param.ParamEditor;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.util.ArrayUtils;
 import org.esa.beam.util.MouseEventFilterFactory;
@@ -24,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
+import javax.swing.JComboBox;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -46,6 +46,8 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bc.ceres.binding.swing.BindingContext;
+
 class MosaicVariablesAndConditionsPanel extends JPanel {
 
     private static final int PREFERRED_TABLE_WIDTH = 500;
@@ -53,6 +55,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     private static final int LARGE_INSETS_TOP = STANDARD_INSETS_TOP + 15;
 
     private final AppContext appContext;
+    private final BindingContext bc;
 
     private JTable variablesTable;
     private AbstractButton moveVariableDownButton;
@@ -71,7 +74,8 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
 
     public MosaicVariablesAndConditionsPanel(AppContext appContext) {
         this.appContext = appContext;
-        
+        this.bc = new BindingContext();
+
         init();
     }
 
@@ -182,10 +186,10 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.WEST;
         final JPanel operatorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        // todo: rq/rq - what is this? (20091112)
-        final ParamEditor editor = _paramConditionsOperator.getEditor();
-        operatorPanel.add(editor.getLabelComponent());
-        operatorPanel.add(editor.getEditorComponent());
+        final JComboBox combineComboBox = new JComboBox();
+        bc.bind("combine", combineComboBox);
+        operatorPanel.add(new JLabel(bc.getPropertyContainer().getDescriptor("combine").getDisplayName() + ":"));
+        operatorPanel.add(combineComboBox);
         panel.add(operatorPanel, gbc);
 
         return panel;
