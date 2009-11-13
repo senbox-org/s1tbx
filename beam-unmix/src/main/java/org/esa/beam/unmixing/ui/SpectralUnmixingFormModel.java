@@ -1,9 +1,8 @@
 package org.esa.beam.unmixing.ui;
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
-
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
@@ -20,7 +19,7 @@ class SpectralUnmixingFormModel {
         this.sourceProduct = sourceProduct;
 
         this.operatorParameters = new HashMap<String, Object>();
-        this.operatorParameterContainer = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(SpectralUnmixingOp.Spi.class.getName(), operatorParameters);
+        this.operatorParameterContainer = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(SpectralUnmixingOp.Spi.class.getName(), operatorParameters);
         try {
             this.operatorParameterContainer.setDefaultValues();
             Property model = this.operatorParameterContainer.getProperty("sourceBandNames");

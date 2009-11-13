@@ -1,8 +1,8 @@
 package org.esa.beam.collocation.visat;
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.collocation.CollocateOp;
 import org.esa.beam.collocation.ResamplingType;
 import org.esa.beam.framework.datamodel.Band;
@@ -44,7 +44,7 @@ class CollocationFormModel {
     // todo - this is a generally useful helper method!
     public static PropertyContainer createValueContainer(String operatorName, Object object) {
         PropertyContainer vc1 = PropertyContainer.createObjectBacked(object);
-        PropertyContainer vc0 = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(operatorName);
+        PropertyContainer vc0 = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName);
         try {
             vc0.setDefaultValues();
         } catch (ValidationException e) {
