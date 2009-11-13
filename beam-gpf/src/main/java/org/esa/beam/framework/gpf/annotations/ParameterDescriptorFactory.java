@@ -1,8 +1,15 @@
 package org.esa.beam.framework.gpf.annotations;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConverterRegistry;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueRange;
+import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.dom.DomConverter;
-
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
@@ -10,19 +17,19 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 
 import java.lang.reflect.Field;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
 
     private Map<String, Product> sourceProductMap;
 
-    public static PropertyContainer createMapBackedOperatorValueContainer(String operatorName) {
-        return createMapBackedOperatorValueContainer(operatorName, new HashMap<String, Object>());
+    public static PropertyContainer createMapBackedOperatorPropertyContainer(String operatorName) {
+        return createMapBackedOperatorPropertyContainer(operatorName, new HashMap<String, Object>());
     }
 
-    public static PropertyContainer createMapBackedOperatorValueContainer(String operatorName, Map<String, Object> operatorParameters) {
+    public static PropertyContainer createMapBackedOperatorPropertyContainer(String operatorName, Map<String, Object> operatorParameters) {
         return PropertyContainer.createMapBacked(operatorParameters, getOpType(operatorName), new ParameterDescriptorFactory());
     }
 
@@ -33,6 +40,7 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         this.sourceProductMap = sourceProductMap;
     }
 
+    @Override
     public PropertyDescriptor createValueDescriptor(Field field) {
         try {
             return createValueDescriptorImpl(field);
