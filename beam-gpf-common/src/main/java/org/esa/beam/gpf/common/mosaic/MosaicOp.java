@@ -20,19 +20,26 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
+import org.esa.beam.util.jai.JAIUtils;
+import org.geotools.factory.Hints;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.AddCollectionDescriptor;
 import javax.media.jai.operator.AddDescriptor;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
+
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -282,6 +289,12 @@ public class MosaicOp extends Operator {
 
     private List<RenderedImage> createMosaicImages(List<List<RenderedImage>> sourceImageList,
                                                    List<List<PlanarImage>> alphaImageList) {
+        ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(ImageManager.getDataBufferType(ProductData.TYPE_FLOAT32),
+                                                                             targetProduct.getSceneRasterWidth(),
+                                                                             targetProduct.getSceneRasterHeight(),
+                                                                             ImageManager.getPreferredTileSize(targetProduct),
+                                                                             ResolutionLevel.MAXRES);
+        Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
         final List<RenderedImage> mosaicImages = new ArrayList<RenderedImage>(sourceImageList.size());
         for (int i = 0; i < sourceImageList.size(); i++) {
             final PlanarImage[] sourceAlphas = alphaImageList.get(i).toArray(
@@ -290,7 +303,7 @@ public class MosaicOp extends Operator {
             final RenderedImage[] renderedImages = sourceImages.toArray(new RenderedImage[sourceImages.size()]);
             // we don't need ROIs, cause they are not considered by MosaicDescriptor when sourceAlphas are given
             mosaicImages.add(MosaicDescriptor.create(renderedImages, MosaicDescriptor.MOSAIC_TYPE_BLEND,
-                                                     sourceAlphas, null, null, null, null));
+                                                     sourceAlphas, null, null, null, hints));
         }
 
         return mosaicImages;
@@ -421,7 +434,8 @@ public class MosaicOp extends Operator {
                                                       mapTransform);
             product = new Product("mosaic", "BEAM_MOSAIC", width, height);
             product.setGeoCoding(geoCoding);
-
+            Dimension tileSize = JAIUtils.computePreferredTileSize(width, height, 1);
+            product.setPreferredTileSize(tileSize);
             addTargetBands(product);
         } catch (Exception e) {
             throw new OperatorException(e);
