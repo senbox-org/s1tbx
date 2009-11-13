@@ -102,7 +102,7 @@ public final class FileArrayEditor {
      *
      * @return a <code>List</code> of currently edited <code>File</code>s
      */
-    public List getFiles() {
+    public List<File> getFiles() {
         return _fileList;
     }
 
