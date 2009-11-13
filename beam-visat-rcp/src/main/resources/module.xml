@@ -1132,7 +1132,7 @@
             <accellerator>control alt M</accellerator>
             <shortDescr>Open metadata view.</shortDescr>
             <description>Open a metadata view for the selected metadata node.</description>
-            <context>metadata</context>
+            <context>metadataNode</context>
             <smallIcon>icons/ImageView16.gif</smallIcon>
             <largeIcon>icons/ImageView24.gif</largeIcon>
         </action>

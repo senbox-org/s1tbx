@@ -25,13 +25,11 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
-
-import java.awt.Cursor;
 
 import javax.swing.Icon;
 import javax.swing.JInternalFrame;
+import java.awt.Cursor;
 
 /**
  * This action opens an Metadata View of the currently selected Metadata Node
@@ -69,7 +67,7 @@ public class ShowMetadataViewAction extends ExecCommand {
 
         JInternalFrame metadataFrame = null;
         try {
-            metadataView.setCommandUIFactory(getCommandUIFactory());
+            metadataView.setCommandUIFactory(visatApp.getCommandUIFactory());
             final Icon icon = UIUtils.loadImageIcon("icons/RsMetaData16.gif");
             final MetadataElement element = metadataView.getMetadataElement();
             metadataFrame = visatApp.createInternalFrame(element.getDisplayName(),

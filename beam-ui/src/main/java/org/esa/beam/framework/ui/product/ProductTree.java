@@ -643,12 +643,11 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 commandUIFactory.addContextDependentMenuItems("product", popup);
             }
         } else if (context instanceof MetadataElement) {
-// TODO
-//            menuItem = new JMenuItem("New Group...");
-//            popup.add(menuItem);
-//
-//            menuItem = new JMenuItem("New Attribute...");
-//            popup.add(menuItem);
+            int componentCountBefore = popup.getComponentCount();
+            if (commandUIFactory != null) {
+                commandUIFactory.addContextDependentMenuItems("metadataNode", popup);
+            }
+            addSeparatorIfAnyComponentsAdded(popup, componentCountBefore);
 
         } else if (context instanceof RasterDataNode) {
 
