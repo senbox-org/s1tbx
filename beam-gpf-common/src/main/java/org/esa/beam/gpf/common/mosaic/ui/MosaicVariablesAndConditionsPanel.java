@@ -51,23 +51,12 @@ import java.util.List;
 class MosaicVariablesAndConditionsPanel extends JPanel {
 
     private static final int PREFERRED_TABLE_WIDTH = 500;
-    private static final int STANDARD_INSETS_TOP = 3;
-    private static final int LARGE_INSETS_TOP = STANDARD_INSETS_TOP + 15;
 
     private final AppContext appContext;
     private final BindingContext bindingContext;
 
     private JTable variablesTable;
-    private AbstractButton moveVariableDownButton;
-    private AbstractButton moveVariableUpButton;
-    private AbstractButton removeVariableButton;
-    private AbstractButton newVariableButton;
-    private AbstractButton variableFilterButton;
     private JTable conditionsTable;
-    private AbstractButton newConditionsButton;
-    private AbstractButton removeConditionButton;
-    private AbstractButton moveConditionUpButton;
-    private AbstractButton moveConditionDownButton;
 
 
     MosaicVariablesAndConditionsPanel(AppContext appContext, BindingContext bindingContext) {
@@ -83,9 +72,9 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayout.setTableWeightX(1.0);
         tableLayout.setTableWeightY(1.0);
-        tableLayout.setTablePadding(3,3);
+        tableLayout.setTablePadding(3, 3);
         setLayout(tableLayout);
-        
+
         add(createVariablesPanel());
         add(createConditionsPanel());
     }
@@ -180,7 +169,8 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
         final JPanel operatorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         final JComboBox combineComboBox = new JComboBox();
         bindingContext.bind("combine", combineComboBox);
-        operatorPanel.add(new JLabel(bindingContext.getPropertyContainer().getDescriptor("combine").getDisplayName() + ":"));
+        operatorPanel.add(
+                new JLabel(bindingContext.getPropertyContainer().getDescriptor("combine").getDisplayName() + ":"));
         operatorPanel.add(combineComboBox);
         panel.add(operatorPanel, gbc);
 
@@ -188,7 +178,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private Component createNewConditionButton() {
-        newConditionsButton = createButton("icons/Plus24.gif", "newCondition");
+        AbstractButton newConditionsButton = createButton("icons/Plus24.gif", "newCondition");
         newConditionsButton.setToolTipText("Add new processing condition"); /*I18N*/
         newConditionsButton.addActionListener(new ActionListener() {
 
@@ -202,7 +192,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private Component createRemoveConditionButton() {
-        removeConditionButton = createButton("icons/Minus24.gif", "removeCondition");
+        AbstractButton removeConditionButton = createButton("icons/Minus24.gif", "removeCondition");
         removeConditionButton.setToolTipText("Remove selected rows."); /*I18N*/
         removeConditionButton.addActionListener(new ActionListener() {
 
@@ -215,7 +205,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private Component createMoveConditionUpButton() {
-        moveConditionUpButton = createButton("icons/MoveUp24.gif", "moveConditionUp");
+        AbstractButton moveConditionUpButton = createButton("icons/MoveUp24.gif", "moveConditionUp");
         moveConditionUpButton.setToolTipText("Move up selected rows."); /*I18N*/
         moveConditionUpButton.addActionListener(new ActionListener() {
 
@@ -228,7 +218,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private Component createMoveConditionDownButton() {
-        moveConditionDownButton = createButton("icons/MoveDown24.gif", "moveConditionDown");
+        AbstractButton moveConditionDownButton = createButton("icons/MoveDown24.gif", "moveConditionDown");
         moveConditionDownButton.setToolTipText("Move down selected rows."); /*I18N*/
         moveConditionDownButton.addActionListener(new ActionListener() {
 
@@ -241,9 +231,6 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private JScrollPane createConditionsTable(final String labelName) {
-        final DefaultTableModel dataModel = new DefaultTableModel();
-        dataModel.setColumnIdentifiers(new String[]{"Name", "Expression", "Output"}); /*I18N*/
-
         conditionsTable = new JTable() {
             private static final long serialVersionUID = 1L;
 
@@ -258,7 +245,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
         };
         conditionsTable.setName(labelName);
         conditionsTable.setRowSelectionAllowed(true);
-        conditionsTable.setModel(dataModel);
+        bindingContext.bind("conditions", new ConditionsTableAdapter(conditionsTable));
         conditionsTable.addMouseListener(createExpressionEditorMouseListener(conditionsTable, true));
 
         final JTableHeader tableHeader = conditionsTable.getTableHeader();
@@ -278,8 +265,8 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
         expressionColumn.setCellRenderer(new TCR());
         expressionColumn.setCellEditor(new ExprEditor(true));
 
-        final TableColumn outColumn = columnModel.getColumn(2);
-        outColumn.setPreferredWidth(40);
+        final TableColumn outputColumn = columnModel.getColumn(2);
+        outputColumn.setPreferredWidth(40);
 
         final JScrollPane pane = new JScrollPane(conditionsTable);
         pane.setName(labelName);
@@ -289,7 +276,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private Component createBandFilterButton() {
-        variableFilterButton = createButton("icons/Copy16.gif", "bandButton");
+        AbstractButton variableFilterButton = createButton("icons/Copy16.gif", "bandButton");
         variableFilterButton.setToolTipText("Choose the bands to process"); /*I18N*/
         variableFilterButton.addActionListener(new ActionListener() {
             @Override
@@ -358,7 +345,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private Component createNewVariableButton() {
-        newVariableButton = createButton("icons/Plus24.gif", "newVariable");
+        AbstractButton newVariableButton = createButton("icons/Plus24.gif", "newVariable");
         newVariableButton.setToolTipText("Add new processing variable"); /*I18N*/
         newVariableButton.addActionListener(new ActionListener() {
 
@@ -372,7 +359,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private Component createRemoveVariableButton() {
-        removeVariableButton = createButton("icons/Minus24.gif", "removeVariable");
+        AbstractButton removeVariableButton = createButton("icons/Minus24.gif", "removeVariable");
         removeVariableButton.setToolTipText("Remove selected rows."); /*I18N*/
         removeVariableButton.addActionListener(new ActionListener() {
 
@@ -385,7 +372,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private Component createMoveVariableUpButton() {
-        moveVariableUpButton = createButton("icons/MoveUp24.gif", "moveVariableUp");
+        AbstractButton moveVariableUpButton = createButton("icons/MoveUp24.gif", "moveVariableUp");
         moveVariableUpButton.setToolTipText("Move up selected rows."); /*I18N*/
         moveVariableUpButton.addActionListener(new ActionListener() {
 
@@ -398,7 +385,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private Component createMoveVariableDownButton() {
-        moveVariableDownButton = createButton("icons/MoveDown24.gif", "moveVariableDown");
+        AbstractButton moveVariableDownButton = createButton("icons/MoveDown24.gif", "moveVariableDown");
         moveVariableDownButton.setToolTipText("Move down selected rows."); /*I18N*/
         moveVariableDownButton.addActionListener(new ActionListener() {
 
@@ -411,13 +398,10 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private JScrollPane createValuesTable(final String labelName) {
-        final DefaultTableModel dataModel = new DefaultTableModel();
-        dataModel.setColumnIdentifiers(new String[]{"Name", "Expression"}); /*I18N*/
-
         variablesTable = new JTable();
         variablesTable.setName(labelName);
         variablesTable.setRowSelectionAllowed(true);
-        variablesTable.setModel(dataModel);
+        bindingContext.bind("variables", new VariablesTableAdapter(variablesTable));
         variablesTable.addMouseListener(createExpressionEditorMouseListener(variablesTable, false));
 
         final JTableHeader tableHeader = variablesTable.getTableHeader();

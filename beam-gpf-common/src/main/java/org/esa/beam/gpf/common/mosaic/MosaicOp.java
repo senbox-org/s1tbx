@@ -476,7 +476,7 @@ public class MosaicOp extends Operator {
         public Variable() {
         }
 
-        Variable(String name, String expression) {
+        public Variable(String name, String expression) {
             this.name = name;
             this.expression = expression;
         }
@@ -485,16 +485,16 @@ public class MosaicOp extends Operator {
     public static class Condition {
 
         @Parameter(description = "The name of the condition.")
-        String name;
+        public String name;
         @Parameter(description = "The expression of the condition.")
-        String expression;
+        public String expression;
         @Parameter(description = "Whether the result of the condition shall be written.")
-        boolean output;
+        public boolean output;
 
         public Condition() {
         }
 
-        Condition(String name, String expression, boolean output) {
+        public Condition(String name, String expression, boolean output) {
             this.name = name;
             this.expression = expression;
             this.output = output;
