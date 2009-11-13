@@ -102,7 +102,11 @@ public abstract class AbstractRuntimeTest extends TestCase {
 
     protected static void testPath(String expectedPath, String actualPath) {
         assertNotNull(actualPath);
-        assertEquals(new File(expectedPath), new File(actualPath));
+        try {
+            assertEquals(new File(expectedPath).getCanonicalPath(), new File(actualPath).getCanonicalPath());
+        } catch (IOException e) {
+            fail("Cannot compare pathes: " + e.getMessage());
+        }
     }
 
     protected void mkdir(String dirPath) throws IOException {
