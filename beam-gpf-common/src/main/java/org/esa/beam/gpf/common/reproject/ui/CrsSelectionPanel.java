@@ -2,10 +2,7 @@ package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.application.SelectionChangeEvent;
-import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -27,7 +24,7 @@ import java.beans.PropertyChangeListener;
  * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
-class CrsSelectionForm extends JPanel {
+public class CrsSelectionPanel extends JPanel {
 
     private ButtonModel customCrsButtonModel;
     private ButtonModel predefinedCrsButtonModel;
@@ -40,23 +37,30 @@ class CrsSelectionForm extends JPanel {
     private PredefinedCrsForm predefinedCrsUI;
     private CustomCrsForm customCrsUI;
     private CrsChangeListener crsChangeListener;
+    private final boolean showCollocation;
 
-    CrsSelectionForm(AppContext appContext, SourceProductSelector sourceProductSelector) {
+    public CrsSelectionPanel(AppContext appContext) {
+        this(appContext, true);
+    }
+
+    public CrsSelectionPanel(AppContext appContext, boolean showCollocation) {
+        this.showCollocation = showCollocation;
         customCrsUI = new CustomCrsForm(appContext);
         predefinedCrsUI = new PredefinedCrsForm(appContext);
-        collocationCrsUI = new CollocationCrsForm(appContext);
+        if (showCollocation) {
+            collocationCrsUI = new CollocationCrsForm(appContext);
+        }
 
-        sourceProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
-            @Override
-            public void selectionChanged(SelectionChangeEvent event) {
-                final Product product = (Product) event.getSelection().getFirstElement();
-                customCrsUI.setReferenceProduct(product);
-                predefinedCrsUI.setReferenceProduct(product);
-                collocationCrsUI.setReferenceProduct(product);
-            }
-        });
         createUI();
         crsChangeListener = new CrsChangeListener();
+    }
+
+    public void setReferenceProduct(Product product) {
+        customCrsUI.setReferenceProduct(product);
+        predefinedCrsUI.setReferenceProduct(product);
+        if (this.showCollocation) {
+            collocationCrsUI.setReferenceProduct(product);
+        }
     }
 
     CoordinateReferenceSystem getCrs(Product sourceProduct) throws FactoryException {
@@ -66,18 +70,22 @@ class CrsSelectionForm extends JPanel {
         if (predefinedCrsButtonModel.isSelected() ) {
             return predefinedCrsUI.getCRS(sourceProduct);
         }
-        if (collocationButtonModel.isSelected()) {
+        if (showCollocation && collocationButtonModel.isSelected()) {
             return collocationCrsUI.getCRS(sourceProduct);
         }
         return null;
     }
 
     Product getCollocationProduct(){
+        if(showCollocation) {
         return collocationCrsUI.getCollocationProduct();
+        }else {
+            return null;
+        }
     }
 
     boolean isCollocate() {
-        return collocationButtonModel.isSelected();
+        return showCollocation && collocationButtonModel.isSelected();
     }
 
     void prepareShow() {
@@ -86,47 +94,37 @@ class CrsSelectionForm extends JPanel {
         collocationCrsUI.prepareShow();
         customCrsUI.addCrsChangeListener(crsChangeListener);
         predefinedCrsUI.addCrsChangeListener(crsChangeListener);
-        collocationCrsUI.addCrsChangeListener(crsChangeListener);
+        if (showCollocation) {
+            collocationCrsUI.addCrsChangeListener(crsChangeListener);
+        }
 
         updateUIState();
     }
 
     void prepareHide() {
         collocationCrsUI.prepareHide();
-        predefinedCrsUI.prepareHide();
-        collocationCrsUI.prepareHide();
         customCrsUI.removeCrsChangeListener(crsChangeListener);
+        predefinedCrsUI.prepareHide();
         predefinedCrsUI.removeCrsChangeListener(crsChangeListener);
-        collocationCrsUI.removeCrsChangeListener(crsChangeListener);
+        if (showCollocation) {
+            collocationCrsUI.prepareHide();
+            collocationCrsUI.removeCrsChangeListener(crsChangeListener);
+        }
     }
 
     private void updateUIState() {
-        final boolean collocate = isCollocate();
-        firePropertyChange("collocate", !collocate, collocate);
         customCrsComponent.setEnabled(customCrsButtonModel.isSelected());
         predefinedCrsComponent.setEnabled(predefinedCrsButtonModel.isSelected());
-        collocationComponent.setEnabled(collocationButtonModel.isSelected());
+        if (showCollocation) {
+            final boolean collocate = isCollocate();
+            firePropertyChange("collocate", !collocate, collocate);
+            collocationComponent.setEnabled(collocationButtonModel.isSelected());
+        }
     }
 
     private void createUI() {
-        customCrsComponent = customCrsUI.getCrsUI();
-        predefinedCrsComponent = predefinedCrsUI.getCrsUI();
-        collocationComponent = collocationCrsUI.getCrsUI();
-
-        JRadioButton projectionRadioButton = new JRadioButton("Custom CRS", true);
-        projectionRadioButton.addActionListener(new UpdateStateListener());
-        JRadioButton crsRadioButton = new JRadioButton("Predefined CRS");
-        crsRadioButton.addActionListener(new UpdateStateListener());
-        JRadioButton collocateRadioButton = new JRadioButton("Use CRS of");
-        collocateRadioButton.addActionListener(new UpdateStateListener());
-        customCrsButtonModel = projectionRadioButton.getModel();
-        predefinedCrsButtonModel = crsRadioButton.getModel();
-        collocationButtonModel = collocateRadioButton.getModel();
-
         ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(projectionRadioButton);
-        buttonGroup.add(crsRadioButton);
-        buttonGroup.add(collocateRadioButton);
+
 
         final TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTablePadding(4, 4);
@@ -137,17 +135,40 @@ class CrsSelectionForm extends JPanel {
         tableLayout.setCellColspan(0, 0, 2);
         tableLayout.setCellColspan(1, 0, 2);
         tableLayout.setCellWeightX(2, 0, 0.0);
-        tableLayout.setCellWeightX(3, 0, 0.0);
         tableLayout.setCellPadding(1, 0, new Insets(4, 24, 4, 4));
 
         setLayout(tableLayout);
         setBorder(BorderFactory.createTitledBorder("Coordinate Reference System (CRS)"));
-        add(projectionRadioButton);
+
+        JRadioButton customCrsRadioButton = new JRadioButton("Custom CRS", true);
+        customCrsRadioButton.addActionListener(new UpdateStateListener());
+        customCrsComponent = customCrsUI.getCrsUI();
+        customCrsComponent.setEnabled(true);
+        customCrsButtonModel = customCrsRadioButton.getModel();
+        buttonGroup.add(customCrsRadioButton);
+        add(customCrsRadioButton);
         add(customCrsComponent);
-        add(crsRadioButton);
+
+        JRadioButton predefinedCrsRadioButton = new JRadioButton("Predefined CRS");
+        predefinedCrsRadioButton.addActionListener(new UpdateStateListener());
+        predefinedCrsComponent = predefinedCrsUI.getCrsUI();
+        predefinedCrsComponent.setEnabled(false);
+        predefinedCrsButtonModel = predefinedCrsRadioButton.getModel();
+        buttonGroup.add(predefinedCrsRadioButton);
+        add(predefinedCrsRadioButton);
         add(predefinedCrsComponent);
-        add(collocateRadioButton);
-        add(collocationComponent);
+
+        if (showCollocation) {
+            JRadioButton collocationRadioButton = new JRadioButton("Use CRS of");
+            collocationRadioButton.addActionListener(new UpdateStateListener());
+            collocationComponent = collocationCrsUI.getCrsUI();
+            collocationComponent.setEnabled(false);
+            collocationButtonModel = collocationRadioButton.getModel();
+            buttonGroup.add(collocationRadioButton);
+            tableLayout.setCellWeightX(3, 0, 0.0);
+            add(collocationRadioButton);
+            add(collocationComponent);
+        }
     }
 
     private class UpdateStateListener implements ActionListener {

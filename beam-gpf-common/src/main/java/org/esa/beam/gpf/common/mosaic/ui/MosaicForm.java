@@ -30,7 +30,7 @@ public class MosaicForm extends JTabbedPane {
                                                                                                           parameterMap);
         final BindingContext bindingContext = new BindingContext(container);
         addTab("I/O Parameters", new MosaicIOPanel(appContext, selector)); /*I18N*/
-        addTab("Map Projection Definition", new MosaicMapProjectionPanel()); /*I18N*/
+        addTab("Map Projection Definition", new MosaicMapProjectionPanel(appContext)); /*I18N*/
         addTab("Variables & Conditions", new MosaicVariablesAndConditionsPanel(appContext, bindingContext));  /*I18N*/
     }
 
