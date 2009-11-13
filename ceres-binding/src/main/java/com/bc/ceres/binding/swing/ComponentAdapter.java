@@ -11,6 +11,7 @@ import javax.swing.JComponent;
  * Clients may derive their own component adapters by implementing this abstract class.
  * <p/>
  * The actual binding is established by calling {@link BindingContext#bind(String, ComponentAdapter)}.
+ * The returned binding may be undone later by calling {@link BindingContext#unbind(Binding)}.
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
