@@ -21,6 +21,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
+import org.esa.beam.framework.gpf.internal.OperatorExecutor.ExecutionOrder;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.math.MathUtils;
 
@@ -267,9 +268,10 @@ public class WriteOp extends Operator {
                                     ProgressMonitor pm) {
 
         final WriteOp writeOp = new WriteOp(sourceProduct, file, formatName, deleteOutputOnFailure);
+        writeOp.writeCompleteTileLines = true; // default value
         OperatorExecutor operatorExecutor = new OperatorExecutor(writeOp);
         try {
-            operatorExecutor.execute(pm);
+            operatorExecutor.execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
         } catch (OperatorException e) {
             if (deleteOutputOnFailure) {
                 try {
