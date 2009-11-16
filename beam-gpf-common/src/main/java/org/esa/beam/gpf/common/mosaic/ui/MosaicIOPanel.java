@@ -47,12 +47,13 @@ class MosaicIOPanel extends JPanel {
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
         tableLayout.setTableWeightX(1.0);
-        tableLayout.setTableWeightY(1.0);
+        tableLayout.setTableWeightY(0.0);
         tableLayout.setTablePadding(3, 3);
         setLayout(tableLayout);
+        tableLayout.setRowWeightY(0, 1.0);
         add(createSourceProductsPanel());
         add(createTargetProductPanel());
-        add(tableLayout.createVerticalSpacer());
+//        add(tableLayout.createVerticalSpacer());
     }
 
     private JPanel createSourceProductsPanel() {
@@ -72,21 +73,22 @@ class MosaicIOPanel extends JPanel {
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTablePadding(4, 4);
         tableLayout.setTableWeightX(1.0);
-        tableLayout.setTableWeightY(1.0);
+        tableLayout.setTableWeightY(0.0);
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
 
         final JPanel sourceProductPanel = new JPanel(tableLayout);
+        sourceProductPanel.setBorder(BorderFactory.createTitledBorder("Source Products"));
         final JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         buttonPanel.add(addFileButton);
         buttonPanel.add(removeFileButton);
-
+        tableLayout.setRowPadding(0, new Insets(1, 4, 1, 4));
         sourceProductPanel.add(buttonPanel);
+
         final JComponent fileArrayComponent = sourceProductEditor.createFileArrayComponent();
-        fileArrayComponent.setPreferredSize(null); // reset the preffered size
+        tableLayout.setRowWeightY(1, 1.0);
         sourceProductPanel.add(fileArrayComponent);
 
-        sourceProductPanel.setBorder(BorderFactory.createTitledBorder("Source Products"));
 
         return sourceProductPanel;
     }
