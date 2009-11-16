@@ -1,9 +1,7 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 
 /**
@@ -22,20 +20,6 @@ public class OrthorectifyAction extends AbstractVisatAction {
             dialog = new ReprojectionDialog(true, "Orthorectify", "orthorectify", getAppContext());
         }
         dialog.show();
-    }
-
-    @Override
-    public void updateState(CommandEvent event) {
-        final Product product = VisatApp.getApp().getSelectedProduct();
-        setEnabled(canBeOrthorectified(product));
-    }
-
-    private static boolean canBeOrthorectified(Product product) {
-        if (product != null) {
-            return product.canBeOrthorectified();
-        } else {
-            return false;
-        }
     }
 
 }
