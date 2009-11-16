@@ -40,9 +40,9 @@ public class TestOps {
 
         @Override
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
-            System.out.println("=====>>>>>> Op1.computeBand  start");
+            //System.out.println("=====>>>>>> Op1.computeBand  start");
             registerCall("Op1;");
-            System.out.println("=====>>>>>> Op1.computeBand  end");
+            //System.out.println("=====>>>>>> Op1.computeBand  end");
         }
 
         public static class Spi extends OperatorSpi {
@@ -74,12 +74,12 @@ public class TestOps {
 
         @Override
         public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
-            System.out.println("=====>>>>>> Op2.computeAllBands  start");
+            //System.out.println("=====>>>>>> Op2.computeAllBands  start");
             Tile tile1A = getSourceTile(input.getBand("Op1A"), rectangle, pm);
 
             Tile tile2A = targetTiles.get(output.getBand("Op2A"));
             Tile tile2B = targetTiles.get(output.getBand("Op2B"));
-            System.out.println("=====>>>>>> Op2.computeAllBands end");
+            //System.out.println("=====>>>>>> Op2.computeAllBands end");
 
             registerCall("Op2;");
         }
@@ -129,7 +129,7 @@ public class TestOps {
 
         @Override
         public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
-            System.out.println("=====>>>>>> Op3.computeAllBands  start");
+            //System.out.println("=====>>>>>> Op3.computeAllBands  start");
 
             Tile tile1A = getSourceTile(input1.getBand("Op1A"), rectangle, pm);
             Tile tile2A = getSourceTile(input2.getBand("Op2A"), rectangle, pm);
@@ -141,7 +141,7 @@ public class TestOps {
             Tile tile3D = targetTiles.get(output.getBand("Op3D"));
             registerCall("Op3;");
 
-            System.out.println("=====>>>>>> Op3.computeAllBands  end");
+            //System.out.println("=====>>>>>> Op3.computeAllBands  end");
         }
 
         public static class Spi extends OperatorSpi {
@@ -171,9 +171,9 @@ public class TestOps {
 
         @Override
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
-            System.out.println("=====>>>>>> Op4.computeBand  start");
+            //System.out.println("=====>>>>>> Op4.computeBand  start");
             registerCall("Op4;");
-            System.out.println("=====>>>>>> Op4.computeBand  end");
+            //System.out.println("=====>>>>>> Op4.computeBand  end");
         }
 
         public static class Spi extends OperatorSpi {

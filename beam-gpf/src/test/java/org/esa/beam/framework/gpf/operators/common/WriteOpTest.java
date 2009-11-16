@@ -128,9 +128,9 @@ public class WriteOpTest extends TestCase {
 
         @Override
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
-            System.out.println(getClass().getName() + ":");
-            System.out.println("  band = " + band);
-            System.out.println("  targetTile = " + targetTile.getRectangle());
+            //System.out.println(getClass().getName() + ":");
+            //System.out.println("  band = " + band);
+            //System.out.println("  targetTile = " + targetTile.getRectangle());
             for (Pos pos : targetTile) {
                 targetTile.setSample(pos.x, pos.y, 42);
             }

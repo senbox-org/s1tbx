@@ -42,7 +42,7 @@ public class CommandLineToolGraphTest extends TestCase {
         assertTrue(message.contains("Threshold value"));
         assertTrue(message.contains("expression"));
 
-        System.out.println(message);
+        //System.out.println(message);
     }
 
     public void testGraphOnly() throws Exception {

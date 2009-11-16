@@ -22,9 +22,7 @@ public class OperatorContextTest extends TestCase {
         pojo.hugos = new Bibo[]{new Bibo("Ernie"), new Bibo("Bert")};
         pojo.aList = new ArrayList<Bibo>(Arrays.asList(new Bibo("Ernie"), new Bibo("Bert")));
 
-        System.out.println(xStream.toXML(pojo));
-
-
+        //System.out.println(xStream.toXML(pojo));
     }
 
 

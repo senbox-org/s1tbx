@@ -88,7 +88,7 @@ public class GraphProcessingObserverTest extends TestCase {
         }
 
         private void ralla(String m) {
-            System.out.println("m = " + m);
+            //System.out.println("m = " + m);
             this.entries.add(m);
         }
 

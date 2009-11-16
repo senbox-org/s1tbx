@@ -145,7 +145,7 @@ public class GraphProcessorTest extends TestCase {
     //
     public void testThreeOpsExecutionOrder() throws Exception {
 
-        VerbousTileCache.setVerbous(true);
+        VerbousTileCache.setVerbous(false);
 
         Graph graph = new Graph("graph");
 
