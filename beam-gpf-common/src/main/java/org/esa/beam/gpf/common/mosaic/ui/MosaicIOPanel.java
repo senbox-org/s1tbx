@@ -53,7 +53,6 @@ class MosaicIOPanel extends JPanel {
         tableLayout.setRowWeightY(0, 1.0);
         add(createSourceProductsPanel());
         add(createTargetProductPanel());
-//        add(tableLayout.createVerticalSpacer());
     }
 
     private JPanel createSourceProductsPanel() {
