@@ -171,7 +171,7 @@ public class OperatorExecutorTest extends TestCase {
         JAI.getDefaultInstance().setTileScheduler(defaultTileScheduler);
     }
 
-    public void testOneTile() throws Exception {
+    public void testOneTile() {
         Product sourceProduct = createSourceProduct();
         Operator op = new TestOP(sourceProduct);
         OperatorExecutor operatorExecutor = new OperatorExecutor(op);
@@ -187,7 +187,7 @@ public class OperatorExecutorTest extends TestCase {
     }
     
 
-    public void testManyTilesOneBand() throws Exception {
+    public void testManyTilesOneBand() {
         Product sourceProduct = createSourceProduct();
         sourceProduct.setPreferredTileSize(50, 50);
         Operator op = new TestOP(sourceProduct);
@@ -203,7 +203,7 @@ public class OperatorExecutorTest extends TestCase {
         assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(3));
     }
 
-    public void testManyTilesTwoBands() throws Exception {
+    public void testManyTilesTwoBands() {
         Product sourceProduct = createSourceProduct();
         Band bandB = sourceProduct.addBand("b", ProductData.TYPE_INT8);
         bandB.setRasterData(createDataFor(bandB));
@@ -226,7 +226,7 @@ public class OperatorExecutorTest extends TestCase {
         assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(7));
     }
     
-    public void testManyTilesTwoBands_ColumnBandOrder() throws Exception {
+    public void testManyTilesTwoBands_ColumnBandOrder() {
         Product sourceProduct = createSourceProduct();
         Band bandB = sourceProduct.addBand("b", ProductData.TYPE_INT8);
         bandB.setRasterData(createDataFor(bandB));
