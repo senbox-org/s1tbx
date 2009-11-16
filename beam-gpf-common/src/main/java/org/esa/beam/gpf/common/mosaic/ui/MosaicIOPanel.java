@@ -1,9 +1,13 @@
 package org.esa.beam.gpf.common.mosaic.ui;
 
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.application.SelectionChangeEvent;
+import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.framework.ui.io.FileArrayEditor;
 
 import javax.swing.BorderFactory;
@@ -29,14 +33,16 @@ class MosaicIOPanel extends JPanel {
     private static final String INPUT_PRODUCT_DIR_KEY = "gpf.mosaic.input.product.dir";
 
     private final AppContext appContext;
+    private final PropertyContainer properties;
     private final TargetProductSelector targetProductSelector;
     private final SourceProductSelector updateProductSelector;
     private FileArrayEditor sourceProductEditor;
     private JButton addFileButton;
     private JButton removeFileButton;
 
-    MosaicIOPanel(AppContext appContext, TargetProductSelector selector) {
+    MosaicIOPanel(AppContext appContext, PropertyContainer container, TargetProductSelector selector) {
         this.appContext = appContext;
+        properties = container;
         targetProductSelector = selector;
         updateProductSelector = new SourceProductSelector(appContext);
         init();
@@ -53,15 +59,21 @@ class MosaicIOPanel extends JPanel {
         tableLayout.setRowWeightY(0, 1.0);
         add(createSourceProductsPanel());
         add(createTargetProductPanel());
+        updateProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
+            @Override
+            public void selectionChanged(SelectionChangeEvent event) {
+                properties.setValue(MosaicFormModel.PROPERTY_UPDATE_PRODUCT, event.getSelection().getFirstElement());
+            }
+        });
     }
 
     private JPanel createSourceProductsPanel() {
-        final FileArrayEditor.EditorParent context = new FileArrayEditorContext();
+        final FileArrayEditor.EditorParent context = new FileArrayEditorContext(appContext);
         sourceProductEditor = new FileArrayEditor(context, "Source products");
         final FileArrayEditor.FileArrayEditorListener listener = new FileArrayEditor.FileArrayEditorListener() {
             @Override
             public void updatedList(final File[] files) {
-                // todo
+                properties.setValue(MosaicFormModel.PROPERTY_SOURCE_PRODUCT_FILES, files);
             }
         };
         sourceProductEditor.setListener(listener);
@@ -103,6 +115,8 @@ class MosaicIOPanel extends JPanel {
         final JPanel targetProductPanel = new JPanel(tableLayout);
         targetProductPanel.setBorder(BorderFactory.createTitledBorder("Target Product"));
         final JCheckBox updateTargetCheckBox = new JCheckBox("Update target product", false);
+        final BindingContext context = new BindingContext(properties);
+        context.bind(MosaicFormModel.PROPERTY_UPDATE_MODE, updateTargetCheckBox);
         targetProductPanel.add(updateTargetCheckBox);
 
         final CardLayout cards = new CardLayout(0, 3);
@@ -178,22 +192,14 @@ class MosaicIOPanel extends JPanel {
         return panel;
     }
 
-    private void setInputProductDir(final File currentDirectory) {
-        appContext.getPreferences().setPropertyString(INPUT_PRODUCT_DIR_KEY, currentDirectory.getAbsolutePath());
-    }
+    private static class FileArrayEditorContext implements FileArrayEditor.EditorParent {
 
-    private File getInputProductDir() {
-        final String path = appContext.getPreferences().getPropertyString(INPUT_PRODUCT_DIR_KEY);
-        final File inputProductDir;
-        if (path != null) {
-            inputProductDir = new File(path);
-        } else {
-            inputProductDir = null;
+        private final AppContext applicationContext;
+
+        private FileArrayEditorContext(AppContext applicationContext) {
+
+            this.applicationContext = applicationContext;
         }
-        return inputProductDir;
-    }
-
-    private class FileArrayEditorContext implements FileArrayEditor.EditorParent {
 
         @Override
         public File getUserInputDir() {
@@ -204,6 +210,22 @@ class MosaicIOPanel extends JPanel {
         public void setUserInputDir(File newDir) {
             setInputProductDir(newDir);
         }
+
+        private void setInputProductDir(final File currentDirectory) {
+            applicationContext.getPreferences().setPropertyString(INPUT_PRODUCT_DIR_KEY, currentDirectory.getAbsolutePath());
+        }
+
+        private File getInputProductDir() {
+            final String path = applicationContext.getPreferences().getPropertyString(INPUT_PRODUCT_DIR_KEY);
+            final File inputProductDir;
+            if (path != null) {
+                inputProductDir = new File(path);
+            } else {
+                inputProductDir = null;
+            }
+            return inputProductDir;
+        }
+
     }
 
 }

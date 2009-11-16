@@ -45,6 +45,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,14 +58,12 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
 
     private JTable variablesTable;
     private JTable conditionsTable;
-    private ExpressionContext expressionContext;
+    private MosaicFormModel mosaicModel;
 
-    MosaicVariablesAndConditionsPanel(AppContext appContext, BindingContext bindingContext,
-                                      ExpressionContext expressionContext) {
+    MosaicVariablesAndConditionsPanel(AppContext appContext, MosaicFormModel model) {
         this.appContext = appContext;
-        this.bindingContext = bindingContext;
-        this.expressionContext = expressionContext;
-
+        mosaicModel = model;
+        this.bindingContext = new BindingContext(model.getPropertyContainer());
         init();
     }
 
@@ -175,7 +174,6 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
                 new JLabel(bindingContext.getPropertyContainer().getDescriptor("combine").getDisplayName() + ":"));
         operatorPanel.add(combineComboBox);
         panel.add(operatorPanel, gbc);
-
         return panel;
     }
 
@@ -283,7 +281,13 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
         variableFilterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final Product product = expressionContext.getProduct();
+                Product product;
+                try {
+                    product = mosaicModel.getReferenceProduct();
+                } catch (IOException ioe) {
+                    appContext.handleError(ioe.getMessage(), ioe);
+                    return;
+                }
                 if (product != null) {
                     final String[] availableBandNames = product.getBandNames();
                     final Band[] allBands = product.getBands();
@@ -454,7 +458,13 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     }
 
     private int editExpression(String[] value, final boolean booleanExpected) {
-        final Product product = expressionContext.getProduct();
+        Product product;
+        try {
+            product = mosaicModel.getReferenceProduct();
+        } catch (IOException ioe) {
+            appContext.handleError(ioe.getMessage(), ioe);
+            return 0;
+        }
         final ProductExpressionPane pep;
         if (booleanExpected) {
             pep = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product,
