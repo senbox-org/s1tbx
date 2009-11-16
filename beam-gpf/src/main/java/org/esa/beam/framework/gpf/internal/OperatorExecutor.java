@@ -28,7 +28,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -47,82 +47,153 @@ import javax.media.jai.TileScheduler;
  * @since BEAM 4.7
  */
 public class OperatorExecutor {
+    
+    public enum ExecutionOrder {
+        ROW_COLUMN_BAND,
+        ROW_BAND_COLUMN;
+    }
 
     private final Operator operator;
+    private OperatorContext operatorContext;
+    private int tileCountX;
+    private int tileCountY;
+    private Map<Band, PlanarImage> imageMap;
+    private Band[] targetBands;
+    private TileScheduler tileScheduler;
 
     public OperatorExecutor(Operator operator) {
         this.operator = operator;
     }
     
-    // TODO options to pull in other ways
     public void execute(ProgressMonitor pm) {
-        final Product targetProduct = operator.getTargetProduct();
-        Dimension tileSize = targetProduct.getPreferredTileSize();
-
-        final int rasterHeight = targetProduct.getSceneRasterHeight();
-        final int rasterWidth = targetProduct.getSceneRasterWidth();
-        final Rectangle boundary = new Rectangle(rasterWidth, rasterHeight);
-        final int tileCountX = MathUtils.ceilInt(boundary.width / (double) tileSize.width);
-        final int tileCountY = MathUtils.ceilInt(boundary.height / (double) tileSize.height);
-        final Band[] targetBands = targetProduct.getBands();
-
-        Map<Band, PlanarImage> imageMap = new HashMap<Band, PlanarImage>(targetBands.length*2);
-        for (final Band band : targetBands) {
-          final RenderedImage image = band.getSourceImage().getImage(0);
-          final PlanarImage planarImage = PlanarImage.wrapRenderedImage(image);
-          imageMap.put(band, planarImage);
+        execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
+    }
+    
+    public void execute(ExecutionOrder executionOrder, ProgressMonitor pm) {
+        init();
+        
+        if (ExecutionOrder.ROW_BAND_COLUMN == executionOrder) {
+            executeRowBandColumn(pm);
+        } else {
+            executeRowColumnBand(pm);
         }
-        TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
-        AtomicInteger scheduledTiles = new AtomicInteger(0);
+    }
+    
+    private void executeRowBandColumn(ProgressMonitor pm) {
+        final AtomicInteger scheduledTiles = new AtomicInteger(0);
+        final int parallelism = tileScheduler.getParallelism();
         try {
-            pm.beginTask("Writing product...", tileCountX * tileCountY * targetBands.length);
+            pm.beginTask("Executing operator...", tileCountX * tileCountY * targetBands.length);
             for (int tileY = 0; tileY < tileCountY; tileY++) {
                 for (final Band band : targetBands) {
-                    checkForCancelation(pm);
-                    Point[] points = new Point[tileCountX];
                     for (int tileX = 0; tileX < tileCountX; tileX++) {
-                        points[tileX] = new Point(tileX, tileY);
+                        checkForCancelation(pm);
+                        scheduleTile(band, tileX, tileY, scheduledTiles);
+                        waitForScheduler(scheduledTiles, parallelism);
+                        pm.worked(1);
                     }
-                    final PlanarImage planarImage = imageMap.get(band);
-                    final TileComputationListener tcl = new OperatorTileComputationListener(band, scheduledTiles);
-                    final TileComputationListener[] listeners = new TileComputationListener[] {tcl};
-                    scheduledTiles.addAndGet(tileCountX);
-                    tileScheduler.scheduleTiles(planarImage, points, listeners);
-                    while (scheduledTiles.intValue() > tileScheduler.getParallelism()) {
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            throw new OperatorException(e);
-                        }
-                    }
-                    pm.worked(tileCountX);
                 }
             }
-            while (scheduledTiles.get() > 0) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    throw new OperatorException(e);
-                }
-            }
+            waitForScheduler(scheduledTiles, 0);
         } finally {
             pm.done();
         }
     }
+
+    private void executeRowColumnBand(ProgressMonitor pm) {
+        final AtomicInteger scheduledTiles = new AtomicInteger(0);
+        final int parallelism = tileScheduler.getParallelism();
+        try {
+            pm.beginTask("Executing operator...", tileCountX * tileCountY * targetBands.length);
+            for (int tileY = 0; tileY < tileCountY; tileY++) {
+                for (int tileX = 0; tileX < tileCountX; tileX++) {
+                    for (final Band band : targetBands) {
+                        checkForCancelation(pm);
+                        scheduleTile(band, tileX, tileY, scheduledTiles);
+                        waitForScheduler(scheduledTiles, parallelism);
+                        pm.worked(1);
+                    }
+                }
+            }
+            waitForScheduler(scheduledTiles, 0);
+        } finally {
+            pm.done();
+        }
+    }
+
+    private void waitForScheduler(AtomicInteger scheduledTiles, int threshold) {
+        while (scheduledTiles.intValue() > threshold) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                throw new OperatorException(e);
+            }
+        }
+    }
     
+    private void init() {
+        initOperatorContext();
+        final Product targetProduct = operator.getTargetProduct();
+        final Dimension tileSize = targetProduct.getPreferredTileSize();
+
+        final int rasterHeight = targetProduct.getSceneRasterHeight();
+        final int rasterWidth = targetProduct.getSceneRasterWidth();
+        final Rectangle boundary = new Rectangle(rasterWidth, rasterHeight);
+        tileCountX = MathUtils.ceilInt(boundary.width / (double) tileSize.width);
+        tileCountY = MathUtils.ceilInt(boundary.height / (double) tileSize.height);
+        targetBands = targetProduct.getBands();
+
+        createImageMap();
+        tileScheduler = JAI.getDefaultInstance().getTileScheduler();
+    }
+
+    private void initOperatorContext() {
+        try {
+            Field field = Operator.class.getDeclaredField("context");
+            field.setAccessible(true);
+            operatorContext = (OperatorContext) field.get(operator);
+            field.setAccessible(false);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+    
+    private void createImageMap() {
+        imageMap = new HashMap<Band, PlanarImage>(targetBands.length*2);
+        for (final Band band : targetBands) {
+            OperatorImage operatorImage = operatorContext.getTargetImage(band);
+            if (operatorImage != null) {
+                imageMap.put(band, operatorImage);
+            } else {
+                String message = String.format("The band '%s' of the '%s' does not have an associated target image.",
+                                     band.getName(), operator.getClass().getSimpleName());
+                throw new OperatorException(message);
+            }
+        }
+    }
+
     private void checkForCancelation(ProgressMonitor pm) {
         if (pm.isCanceled()) {
             throw new OperatorException("Operation canceled.");
         }
     }
+    
+    private void scheduleTile(Band band, int tileX, int tileY, AtomicInteger scheduledTiles) {
+        final PlanarImage planarImage = imageMap.get(band);
+        final TileComputationListener tcl = new OperatorTileComputationListener(scheduledTiles);
+        final TileComputationListener[] listeners = new TileComputationListener[] {tcl};
+        Point[] points = new Point[] {new Point(tileX, tileY)};
+        scheduledTiles.incrementAndGet();
+        tileScheduler.scheduleTiles(planarImage, points, listeners);
+    }
 
-    private class OperatorTileComputationListener implements TileComputationListener {
+    private static class OperatorTileComputationListener implements TileComputationListener {
 
-        private final Band band;
         private final AtomicInteger scheduledTiles;
 
-        OperatorTileComputationListener(Band band, AtomicInteger scheduledTiles) {
-            this.band = band;
+        OperatorTileComputationListener(AtomicInteger scheduledTiles) {
             this.scheduledTiles = scheduledTiles;
         }
 
@@ -130,27 +201,19 @@ public class OperatorExecutor {
             public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                  int tileY,
                                  Raster raster) {
-            final int rasterHeight = band.getSceneRasterHeight();
-            final int rasterWidth = band.getSceneRasterWidth();
-            final Rectangle boundary = new Rectangle(rasterWidth, rasterHeight);
-            Rectangle rect = boundary.intersection(raster.getBounds());
-            final TileImpl tile = new TileImpl(band, raster, rect, false);
-            operator.computeTile(band, tile, ProgressMonitor.NULL);
             scheduledTiles.decrementAndGet();
         }
 
         @Override
             public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                   int tileY) {
-            System.out.println("tileCancelled");
+            throw new OperatorException("Operation cancelled.");
         }
 
         @Override
             public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                            int tileY, Throwable situation) {
-            System.out.println("tileComputationFailure");
-            situation.printStackTrace();
-            System.out.println("==========================");
+            throw new OperatorException("Operation failed.", situation);
         }
     }    
 }
