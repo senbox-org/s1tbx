@@ -40,10 +40,11 @@ import javax.media.jai.TileRequest;
 import javax.media.jai.TileScheduler;
 
 /**
- * todo - what's this thing ???
+ * This executor triggers the computation of all tiles that the bands of the target product
+ * of the given operator have. The computation of these tiles is parallelized to use all available
+ * CPUs (cores) using the JAI {@link TileScheduler}.
  *
  * @author Marco Zuehlke
- * @version $Revision$ $Date$
  * @since BEAM 4.7
  */
 public class OperatorExecutor {
