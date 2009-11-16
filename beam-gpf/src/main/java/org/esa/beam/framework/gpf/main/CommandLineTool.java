@@ -20,7 +20,6 @@ import org.esa.beam.framework.gpf.operators.common.ReadOp;
 import org.esa.beam.framework.gpf.operators.common.WriteOp;
 
 import javax.media.jai.JAI;
-import javax.media.jai.TileCache;
 
 import java.io.File;
 import java.io.IOException;
