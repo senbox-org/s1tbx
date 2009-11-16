@@ -47,6 +47,10 @@ public final class LevelImageSupport {
         return getSourceCoord(destWidth, 1, getSourceWidth() - 1);
     }
 
+    public final int getSourceHeight(int destHeight) {
+        return getSourceCoord(destHeight, 1, getSourceHeight() - 1);
+    }
+
     public final int getSourceCoord(double destCoord, int min, int max) {
         return double2int(getScale() * destCoord, min, max);
     }
