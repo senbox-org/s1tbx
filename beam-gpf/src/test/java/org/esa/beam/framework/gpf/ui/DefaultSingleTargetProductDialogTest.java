@@ -70,7 +70,7 @@ public class DefaultSingleTargetProductDialogTest extends TestCase {
             product.addBand("B1", ProductData.TYPE_FLOAT32);
             product.addBand("B2", ProductData.TYPE_FLOAT32);
             product.setPreferredTileSize(4, 4);
-            System.out.println("product = " + product);
+            //System.out.println("product = " + product);
             target = product;
         }
 
