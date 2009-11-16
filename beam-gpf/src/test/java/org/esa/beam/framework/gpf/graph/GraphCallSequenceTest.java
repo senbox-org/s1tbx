@@ -242,12 +242,13 @@ public class GraphCallSequenceTest extends TestCase {
                 "N1:Operator.dispose",
                 "N1:Product.dispose",
         };
-        assertEquals(expectedRecords.length, callRecordList.size());
 
         for (int i = 0; i < expectedRecords.length; i++) {
 //            System.out.println("callRecordList = " + callRecordList.get(i).toString());
-            assertEquals(expectedRecords[i], callRecordList.get(i));
+            boolean contains = callRecordList.contains(expectedRecords[i]);
+            assertTrue("Graph must call "+expectedRecords[i], contains);
         }
+        assertEquals(expectedRecords.length, callRecordList.size());
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -324,11 +325,13 @@ public class GraphCallSequenceTest extends TestCase {
                 "N1:Operator.dispose",
                 "N1:Product.dispose",
         };
-        assertEquals(expectedRecords.length, callRecordList.size());
 
         for (int i = 0; i < expectedRecords.length; i++) {
-            assertEquals(expectedRecords[i], callRecordList.get(i));
+//          System.out.println("callRecordList = " + callRecordList.get(i).toString());
+            boolean contains = callRecordList.contains(expectedRecords[i]);
+            assertTrue("Graph must call "+expectedRecords[i], contains);
         }
+        assertEquals(expectedRecords.length, callRecordList.size());
     }
 
     private static String getOpName(RecordingOp recordingOp) {

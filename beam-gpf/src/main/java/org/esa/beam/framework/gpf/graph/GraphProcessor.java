@@ -2,14 +2,18 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
 import org.esa.beam.framework.gpf.internal.OperatorImage;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,7 +22,14 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
+
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.TileComputationListener;
+import javax.media.jai.TileRequest;
+import javax.media.jai.TileScheduler;
 
 /**
  * The <code>GraphProcessor</code> is responsible for executing processing
@@ -148,6 +159,8 @@ public class GraphProcessor {
     public void executeGraphContext(GraphContext graphContext, ProgressMonitor pm) {
         fireProcessingStarted(graphContext);
 
+        //Header header = graphContext.getGraph().getHeader();
+        // TODO use header to specify execution order (mz, 2009-11-16)
         NodeContext[] outputNodeContexts = graphContext.getOutputNodeContexts();
         Map<Dimension, List<NodeContext>> tileDimMap = buildTileDimensionMap(outputNodeContexts);
 
@@ -168,6 +181,7 @@ public class GraphProcessor {
         }
 
         try {
+            AtomicInteger scheduledTiles = new AtomicInteger(0);
             pm.beginTask("Computing raster data...", numPmTicks);
             for (Dimension dimension : dimList) {
                 List<NodeContext> nodeContextList = tileDimMap.get(dimension);
@@ -194,7 +208,7 @@ public class GraphProcessor {
                                 for (Band band : targetProduct.getBands()) {
                                     OperatorImage image = nodeContext.getTargetImage(band);
                                     if (image != null) {
-                                        forceTileComputation(image, tileX, tileY);
+                                        forceTileComputation(image, tileX, tileY, scheduledTiles);
                                         break;
                                     }
                                 }
@@ -205,7 +219,7 @@ public class GraphProcessor {
                                     OperatorImage image = nodeContext.getTargetImage(band);
                                     if (image == null) {
                                         if (OperatorContext.isRegularBand(band) && band.isSourceImageSet()) {
-                                            forceTileComputation(band.getSourceImage(), tileX, tileY);
+                                            forceTileComputation(band.getSourceImage(), tileX, tileY, scheduledTiles);
                                         }
                                     }
                                 }
@@ -216,9 +230,9 @@ public class GraphProcessor {
                                 for (Band band : targetProduct.getBands()) {
                                     OperatorImage image = nodeContext.getTargetImage(band);
                                     if (image != null) {
-                                        forceTileComputation(image, tileX, tileY);
+                                        forceTileComputation(image, tileX, tileY, scheduledTiles);
                                     } else if (OperatorContext.isRegularBand(band) && band.isSourceImageSet()) {
-                                        forceTileComputation(band.getSourceImage(), tileX, tileY);
+                                        forceTileComputation(band.getSourceImage(), tileX, tileY, scheduledTiles);
                                     }
                                 }
                             }
@@ -227,6 +241,13 @@ public class GraphProcessor {
                         }
                         fireTileStopped(graphContext, tileRectangle);
                     }
+                }
+            }
+            while (scheduledTiles.get() > 0) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    throw new OperatorException(e);
                 }
             }
         } finally {
@@ -254,12 +275,26 @@ public class GraphProcessor {
         return tileSizeMap;
     }
 
-    private static void forceTileComputation(RenderedImage image, int tileX, int tileY) {
+    private static void forceTileComputation(RenderedImage image, int tileX, int tileY, AtomicInteger scheduledTiles) {
         /////////////////////////////////////////////////////////////////////
         //
         // GPF pull-processing is triggered here!!!
         //
-        image.getTile(tileX, tileY);
+        TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
+        Point[] points = new Point[1];
+        points[0] = new Point(tileX, tileY);
+        final PlanarImage planarImage = PlanarImage.wrapRenderedImage(image);
+        final TileComputationListener tcl = new GraphTileComputationListener(scheduledTiles);
+        final TileComputationListener[] listeners = new TileComputationListener[] {tcl};
+        scheduledTiles.addAndGet(1);
+        tileScheduler.scheduleTiles(planarImage, points, listeners);
+        while (scheduledTiles.intValue() > tileScheduler.getParallelism()) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                throw new OperatorException(e);
+            }
+        }
         //
         /////////////////////////////////////////////////////////////////////
     }
@@ -353,5 +388,32 @@ public class GraphProcessor {
         }
     }
 
+    private static class GraphTileComputationListener implements TileComputationListener {
+
+        private final AtomicInteger scheduledTiles;
+
+        GraphTileComputationListener(AtomicInteger scheduledTiles) {
+            this.scheduledTiles = scheduledTiles;
+        }
+
+        @Override
+            public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+                                 int tileY,
+                                 Raster raster) {
+            scheduledTiles.decrementAndGet();
+        }
+
+        @Override
+            public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+                                  int tileY) {
+            throw new OperatorException("Operation cancelled.");
+        }
+
+        @Override
+            public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+                                           int tileY, Throwable situation) {
+            throw new OperatorException("Operation failed.", situation);
+        }
+    } 
 
 }
