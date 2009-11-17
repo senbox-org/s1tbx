@@ -25,13 +25,12 @@ public class MosaicForm extends JTabbedPane {
     private void createUI(TargetProductSelector selector) {
         final MosaicIOPanel ioPanel = new MosaicIOPanel(appContext, mosaicModel, selector);
         final JPanel mapProjectionPanel = new MosaicMapProjectionPanel(appContext, mosaicModel);
-        final MosaicVariablesAndConditionsPanel variablesAndConditionsPanel =
-                new MosaicVariablesAndConditionsPanel(appContext, mosaicModel);
+        final MosaicExpressionsPanel expressionsPanel = new MosaicExpressionsPanel(appContext, mosaicModel);
 
 
         addTab("I/O Parameters", ioPanel); /*I18N*/
         addTab("Map Projection Definition", mapProjectionPanel); /*I18N*/
-        addTab("Variables & Conditions", variablesAndConditionsPanel);  /*I18N*/
+        addTab("Variables & Conditions", expressionsPanel);  /*I18N*/
     }
 
 

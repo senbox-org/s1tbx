@@ -49,7 +49,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-class MosaicVariablesAndConditionsPanel extends JPanel {
+class MosaicExpressionsPanel extends JPanel {
 
     private static final int PREFERRED_TABLE_WIDTH = 520;
 
@@ -60,7 +60,7 @@ class MosaicVariablesAndConditionsPanel extends JPanel {
     private JTable conditionsTable;
     private MosaicFormModel mosaicModel;
 
-    MosaicVariablesAndConditionsPanel(AppContext appContext, MosaicFormModel model) {
+    MosaicExpressionsPanel(AppContext appContext, MosaicFormModel model) {
         this.appContext = appContext;
         mosaicModel = model;
         this.bindingContext = new BindingContext(model.getPropertyContainer());
