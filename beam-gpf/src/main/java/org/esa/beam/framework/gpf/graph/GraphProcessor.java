@@ -275,7 +275,7 @@ public class GraphProcessor {
         return tileSizeMap;
     }
 
-    private static void forceTileComputation(RenderedImage image, int tileX, int tileY, AtomicInteger scheduledTiles) {
+    private static void forceTileComputation(PlanarImage image, int tileX, int tileY, AtomicInteger scheduledTiles) {
         /////////////////////////////////////////////////////////////////////
         //
         // GPF pull-processing is triggered here!!!
@@ -283,11 +283,10 @@ public class GraphProcessor {
         TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
         Point[] points = new Point[1];
         points[0] = new Point(tileX, tileY);
-        final PlanarImage planarImage = PlanarImage.wrapRenderedImage(image);
         final TileComputationListener tcl = new GraphTileComputationListener(scheduledTiles);
         final TileComputationListener[] listeners = new TileComputationListener[] {tcl};
         scheduledTiles.addAndGet(1);
-        tileScheduler.scheduleTiles(planarImage, points, listeners);
+        tileScheduler.scheduleTiles(image, points, listeners);
         while (scheduledTiles.intValue() > tileScheduler.getParallelism()) {
             try {
                 Thread.sleep(10);
@@ -397,21 +396,23 @@ public class GraphProcessor {
         }
 
         @Override
-            public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+        public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                  int tileY,
                                  Raster raster) {
             scheduledTiles.decrementAndGet();
         }
 
         @Override
-            public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+        public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                   int tileY) {
+            scheduledTiles.set(0);
             throw new OperatorException("Operation cancelled.");
         }
 
         @Override
-            public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+        public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                            int tileY, Throwable situation) {
+            scheduledTiles.set(0);
             throw new OperatorException("Operation failed.", situation);
         }
     } 

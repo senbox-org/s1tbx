@@ -220,12 +220,14 @@ public class OperatorExecutor {
         @Override
         public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                   int tileY) {
+            scheduledTiles.getAndSet(0);
             throw new OperatorException("Operation cancelled.");
         }
 
         @Override
         public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                            int tileY, Throwable situation) {
+            scheduledTiles.getAndSet(0);
             throw new OperatorException("Operation failed.", situation);
         }
     }
