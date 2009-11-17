@@ -3,7 +3,6 @@ package org.esa.beam.gpf.common.mosaic.ui;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
 
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 /**
@@ -15,6 +14,9 @@ public class MosaicForm extends JTabbedPane {
 
     private final AppContext appContext;
     private MosaicFormModel mosaicModel;
+    private MosaicIOPanel ioPanel;
+    private MosaicMapProjectionPanel mapProjectionPanel;
+    private MosaicExpressionsPanel expressionsPanel;
 
     public MosaicForm(TargetProductSelector targetProductSelector, AppContext appContext) {
         this.appContext = appContext;
@@ -23,10 +25,9 @@ public class MosaicForm extends JTabbedPane {
     }
 
     private void createUI(TargetProductSelector selector) {
-        final MosaicIOPanel ioPanel = new MosaicIOPanel(appContext, mosaicModel, selector);
-        final JPanel mapProjectionPanel = new MosaicMapProjectionPanel(appContext, mosaicModel);
-        final MosaicExpressionsPanel expressionsPanel = new MosaicExpressionsPanel(appContext, mosaicModel);
-
+        ioPanel = new MosaicIOPanel(appContext, mosaicModel, selector);
+        mapProjectionPanel = new MosaicMapProjectionPanel(appContext, mosaicModel);
+        expressionsPanel = new MosaicExpressionsPanel(appContext, mosaicModel);
 
         addTab("I/O Parameters", ioPanel); /*I18N*/
         addTab("Map Projection Definition", mapProjectionPanel); /*I18N*/
@@ -35,11 +36,13 @@ public class MosaicForm extends JTabbedPane {
 
 
     void prepareShow() {
+        mapProjectionPanel.prepareShow();
         // todo init source product selectors
 //        sourceProductSelector.initProducts();
     }
 
     void prepareHide() {
+        mapProjectionPanel.prepareHide();
         // todo release products of source product selectors
 //        sourceProductSelector.releaseProducts();
     }

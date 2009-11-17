@@ -64,6 +64,14 @@ class MosaicFormModel {
         return container;
     }
 
+    public Object getPropertyValue(String propertyName) {
+        return container.getValue(propertyName);
+    }
+
+    public void setPropertyValue(String propertyName, Object value) {
+        container.setValue(propertyName, value);
+    }
+
     public Product getReferenceProduct() throws IOException {
         if (container.getValue(PROPERTY_SOURCE_PRODUCT_FILES) != null) {
             final File[] files = (File[]) container.getValue(PROPERTY_SOURCE_PRODUCT_FILES);
@@ -91,37 +99,53 @@ class MosaicFormModel {
         return refProduct;
     }
 
-    public Product getBoundaryProduct() {
-        final String crsCode = (String) getPropertyValue("epsgCode");
-        if (crsCode != null) {
-            try {
-                final CoordinateReferenceSystem mapCRS = CRS.decode(crsCode, true);
-                final double pixelSizeX = (Double) getPropertyValue("pixelSizeX");
-                final double pixelSizeY = (Double) getPropertyValue("pixelSizeY");
-                final GeneralEnvelope generalEnvelope = getGeoEnvelope();
+    public Product getBoundaryProduct() throws FactoryException, TransformException {
+        final CoordinateReferenceSystem mapCRS = getCrs();
+        if (mapCRS != null) {
+            final double pixelSizeX = (Double) getPropertyValue("pixelSizeX");
+            final double pixelSizeY = (Double) getPropertyValue("pixelSizeY");
+            final GeneralEnvelope generalEnvelope = getGeoEnvelope();
 
-                final Envelope targetEnvelope = CRS.transform(generalEnvelope, mapCRS);
-                final int sceneRasterWidth = MathUtils.floorInt(targetEnvelope.getSpan(0) / pixelSizeX);
-                final int sceneRasterHeight = MathUtils.floorInt(targetEnvelope.getSpan(1) / pixelSizeY);
-                final Product outputProduct = new Product("mosaic", "MosaicBounds",
-                                                          sceneRasterWidth, sceneRasterHeight);
-                final Rectangle imageRect = new Rectangle(0, 0, sceneRasterWidth, sceneRasterHeight);
-                final AffineTransform i2mTransform = new AffineTransform();
-                i2mTransform.translate(targetEnvelope.getMinimum(0), targetEnvelope.getMinimum(1));
-                i2mTransform.scale(pixelSizeX, pixelSizeY);
-                i2mTransform.translate(-0.5, -0.5);
-                outputProduct.setGeoCoding(new CrsGeoCoding(mapCRS, imageRect, i2mTransform));
-                return outputProduct;
-            } catch (FactoryException e) {
-                e.printStackTrace();
-            } catch (TransformException e) {
-                e.printStackTrace();
-            }
+            final Envelope targetEnvelope = CRS.transform(generalEnvelope, mapCRS);
+            final int sceneRasterWidth = MathUtils.floorInt(targetEnvelope.getSpan(0) / pixelSizeX);
+            final int sceneRasterHeight = MathUtils.floorInt(targetEnvelope.getSpan(1) / pixelSizeY);
+            final Product outputProduct = new Product("mosaic", "MosaicBounds",
+                                                      sceneRasterWidth, sceneRasterHeight);
+            final Rectangle imageRect = new Rectangle(0, 0, sceneRasterWidth, sceneRasterHeight);
+            final AffineTransform i2mTransform = new AffineTransform();
+            i2mTransform.translate(targetEnvelope.getMinimum(0), targetEnvelope.getMinimum(1));
+            i2mTransform.scale(pixelSizeX, pixelSizeY);
+            i2mTransform.translate(-0.5, -0.5);
+            outputProduct.setGeoCoding(new CrsGeoCoding(mapCRS, imageRect, i2mTransform));
+            return outputProduct;
         }
         return null;
     }
+    
+    void setWkt(CoordinateReferenceSystem crs) {
+        if (crs != null) {
+            setPropertyValue("wkt", crs.toWKT());
+            if (getPropertyValue("epsgCode") != null) {
+                // clear default epsgCode, so wkt has precedence
+                setPropertyValue("epsgCode", null);
+            }
+        }
+    }
 
-    private GeneralEnvelope getGeoEnvelope() {
+    private CoordinateReferenceSystem getCrs() throws FactoryException {
+        final String crsCode = (String) getPropertyValue("epsgCode");
+        if (crsCode != null) {
+            return CRS.decode(crsCode, true);
+        }
+        final String wkt = (String) getPropertyValue("wkt");
+        if (wkt != null) {
+            return CRS.parseWKT(wkt);
+        }
+
+        return null;
+    }
+
+    GeneralEnvelope getGeoEnvelope() {
         final double west = (Double) getPropertyValue("westBound");
         final double north = (Double) getPropertyValue("northBound");
         final double east = (Double) getPropertyValue("eastBound");
@@ -133,7 +157,5 @@ class MosaicFormModel {
         return generalEnvelope;
     }
 
-    private Object getPropertyValue(String propertyName) {
-        return container.getValue(propertyName);
-    }
+
 }

@@ -86,11 +86,14 @@ public class MosaicOp extends Operator {
     @Parameter(alias = "epsgCode", description = "Specifies the coordinate reference system of the target product.",
                defaultValue = "EPSG:4326")
     String crsCode;
+    @Parameter(description = "Text in WKT format describing the target Coordinate Reference System.")
+    String wkt;
+
     @Parameter(description = "Wether the source product should be orthorectified. (Currently only applicable for MERIS and AATSR)",
                defaultValue = "false")
-    private boolean orthorectify;
+    boolean orthorectify;
     @Parameter(description = "The name of the elevation model for the orthorectification. If not given tie-point data is used.")
-    private String elevationModelName;
+    String elevationModelName;
     
     @Parameter(alias = "resampling", label = "Resampling Method", description = "The method used for resampling.",
                valueSet = {"Nearest", "Bilinear", "Bicubic"}, defaultValue = "Nearest")

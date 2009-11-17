@@ -3,6 +3,7 @@ package org.esa.beam.gpf.common.mosaic.ui;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
@@ -10,6 +11,8 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.WorldMapPane;
 import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.gpf.common.reproject.ui.CrsSelectionPanel;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.referencing.FactoryException;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -49,7 +52,9 @@ class MosaicMapProjectionPanel extends JPanel {
         binding = new BindingContext(mosaicModel.getPropertyContainer());
         init();
         createUI();
+        updateWkt();
         binding.adjustComponents();
+
     }
 
     private void init() {
@@ -72,11 +77,28 @@ class MosaicMapProjectionPanel extends JPanel {
         layout.setTablePadding(3, 3);
         setLayout(layout);
         crsSelectionPanel = new CrsSelectionPanel(appContext, false);
+        crsSelectionPanel.addPropertyChangeListener("crs", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                updateWkt();
+            }
+        });
         JPanel orthorectifyPanel = createOrthorectifyPanel();
         JPanel mosaicBoundsPanel = createMosaicBoundsPanel();
         add(crsSelectionPanel);
         add(orthorectifyPanel);
         add(mosaicBoundsPanel);
+    }
+
+    private void updateWkt() {
+        final DirectPosition referencePos = mosaicModel.getGeoEnvelope().getMedian();
+        final float lon = (float) referencePos.getOrdinate(0);
+        final float lat = (float) referencePos.getOrdinate(1);
+        try {
+            mosaicModel.setWkt(crsSelectionPanel.getCrs(new GeoPos(lat, lon)));
+        } catch (FactoryException ignored) {
+            mosaicModel.setWkt(null);
+        }
     }
 
     private JPanel createMosaicBoundsPanel() {
@@ -91,7 +113,7 @@ class MosaicMapProjectionPanel extends JPanel {
         final JPanel inputPanel = createBoundsInputPanel();
         panel.add(inputPanel);
         final WorldMapPaneDataModel worldMapModel = new WorldMapPaneDataModel();
-        worldMapModel.setSelectedProduct(mosaicModel.getBoundaryProduct());
+        setMapBoundary(worldMapModel);
         final WorldMapPane worlMapPanel = new WorldMapPane(worldMapModel);
         final PropertyContainer propertyContainer = mosaicModel.getPropertyContainer();
         propertyContainer.addPropertyChangeListener(new MapBoundsChangeListener(worldMapModel));
@@ -177,6 +199,24 @@ class MosaicMapProjectionPanel extends JPanel {
         crsSelectionPanel.setReferenceProduct(product);
     }
 
+    private void setMapBoundary(WorldMapPaneDataModel worldMapModel) {
+        Product boundaryProduct;
+        try {
+            boundaryProduct = mosaicModel.getBoundaryProduct();
+        } catch (Throwable ignored) {
+            boundaryProduct = null;
+        }
+        worldMapModel.setSelectedProduct(boundaryProduct);
+    }
+
+    public void prepareShow() {
+        crsSelectionPanel.prepareShow();
+    }
+
+    public void prepareHide() {
+        crsSelectionPanel.prepareHide();
+    }
+
     private class MapBoundsChangeListener implements PropertyChangeListener {
 
         private final List<String> knownProperties;
@@ -184,15 +224,16 @@ class MosaicMapProjectionPanel extends JPanel {
 
         private MapBoundsChangeListener(WorldMapPaneDataModel worldMapModel) {
             this.worldMapModel = worldMapModel;
-            knownProperties = Arrays.asList("westBound", "northBound", "eastBound", "southBound");
+            knownProperties = Arrays.asList("westBound", "northBound", "eastBound", "southBound", "wkt");
         }
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (knownProperties.contains(evt.getPropertyName())) {
-                worldMapModel.setSelectedProduct(mosaicModel.getBoundaryProduct());
+                setMapBoundary(worldMapModel);
             }
         }
+
     }
 
     private static class DegreeFormatter extends JFormattedTextField.AbstractFormatter {
