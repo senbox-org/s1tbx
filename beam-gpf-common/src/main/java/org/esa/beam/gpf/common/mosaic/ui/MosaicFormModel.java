@@ -6,9 +6,21 @@ import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.util.math.MathUtils;
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.geometry.Envelope;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -79,4 +91,49 @@ class MosaicFormModel {
         return refProduct;
     }
 
+    public Product getBoundaryProduct() {
+        final String crsCode = (String) getPropertyValue("epsgCode");
+        if (crsCode != null) {
+            try {
+                final CoordinateReferenceSystem mapCRS = CRS.decode(crsCode, true);
+                final double pixelSizeX = (Double) getPropertyValue("pixelSizeX");
+                final double pixelSizeY = (Double) getPropertyValue("pixelSizeY");
+                final GeneralEnvelope generalEnvelope = getGeoEnvelope();
+
+                final Envelope targetEnvelope = CRS.transform(generalEnvelope, mapCRS);
+                final int sceneRasterWidth = MathUtils.floorInt(targetEnvelope.getSpan(0) / pixelSizeX);
+                final int sceneRasterHeight = MathUtils.floorInt(targetEnvelope.getSpan(1) / pixelSizeY);
+                final Product outputProduct = new Product("mosaic", "MosaicBounds",
+                                                          sceneRasterWidth, sceneRasterHeight);
+                final Rectangle imageRect = new Rectangle(0, 0, sceneRasterWidth, sceneRasterHeight);
+                final AffineTransform i2mTransform = new AffineTransform();
+                i2mTransform.translate(targetEnvelope.getMinimum(0), targetEnvelope.getMinimum(1));
+                i2mTransform.scale(pixelSizeX, pixelSizeY);
+                i2mTransform.translate(-0.5, -0.5);
+                outputProduct.setGeoCoding(new CrsGeoCoding(mapCRS, imageRect, i2mTransform));
+                return outputProduct;
+            } catch (FactoryException e) {
+                e.printStackTrace();
+            } catch (TransformException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    private GeneralEnvelope getGeoEnvelope() {
+        final double west = (Double) getPropertyValue("westBound");
+        final double north = (Double) getPropertyValue("northBound");
+        final double east = (Double) getPropertyValue("eastBound");
+        final double south = (Double) getPropertyValue("southBound");
+        final Rectangle2D.Double geoBounds = new Rectangle2D.Double();
+        geoBounds.setFrameFromDiagonal(west, north, east, south);
+        final GeneralEnvelope generalEnvelope = new GeneralEnvelope(geoBounds);
+        generalEnvelope.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
+        return generalEnvelope;
+    }
+
+    private Object getPropertyValue(String propertyName) {
+        return container.getValue(propertyName);
+    }
 }

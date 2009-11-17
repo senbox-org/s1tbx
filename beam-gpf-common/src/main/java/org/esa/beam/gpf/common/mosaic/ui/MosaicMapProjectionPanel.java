@@ -1,5 +1,6 @@
 package org.esa.beam.gpf.common.mosaic.ui;
 
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
@@ -19,8 +20,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -34,9 +40,6 @@ class MosaicMapProjectionPanel extends JPanel {
     private final MosaicFormModel mosaicModel;
 
     private CrsSelectionPanel crsSelectionPanel;
-    private JPanel orthorectifyPanel;
-    private JPanel mosaicBoundsPanel;
-    private JComboBox demComboBox;
     private final BindingContext binding;
     private String[] demValueSet;
 
@@ -69,8 +72,8 @@ class MosaicMapProjectionPanel extends JPanel {
         layout.setTablePadding(3, 3);
         setLayout(layout);
         crsSelectionPanel = new CrsSelectionPanel(appContext, false);
-        orthorectifyPanel = createOrthorectifyPanel();
-        mosaicBoundsPanel = createMosaicBoundsPanel();
+        JPanel orthorectifyPanel = createOrthorectifyPanel();
+        JPanel mosaicBoundsPanel = createMosaicBoundsPanel();
         add(crsSelectionPanel);
         add(orthorectifyPanel);
         add(mosaicBoundsPanel);
@@ -87,7 +90,11 @@ class MosaicMapProjectionPanel extends JPanel {
         panel.setBorder(BorderFactory.createTitledBorder("Mosaic Bounds"));
         final JPanel inputPanel = createBoundsInputPanel();
         panel.add(inputPanel);
-        final WorldMapPane worlMapPanel = new WorldMapPane(new WorldMapPaneDataModel());
+        final WorldMapPaneDataModel worldMapModel = new WorldMapPaneDataModel();
+        worldMapModel.setSelectedProduct(mosaicModel.getBoundaryProduct());
+        final WorldMapPane worlMapPanel = new WorldMapPane(worldMapModel);
+        final PropertyContainer propertyContainer = mosaicModel.getPropertyContainer();
+        propertyContainer.addPropertyChangeListener(new MapBoundsChangeListener(worldMapModel));
         worlMapPanel.setMinimumSize(new Dimension(250, 125));
         worlMapPanel.setBorder(BorderFactory.createEtchedBorder());
         panel.add(worlMapPanel);
@@ -111,31 +118,30 @@ class MosaicMapProjectionPanel extends JPanel {
         layout.setColumnPadding(1, new Insets(3, 3, 3, 9));
         layout.setColumnPadding(3, new Insets(3, 3, 3, 9));
         final JPanel panel = new JPanel(layout);
-        final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
-        final DecimalFormat degreeFormat = new DecimalFormat("####.###°", decimalFormatSymbols);
+        final DegreeFormatter formatter = new DegreeFormatter();
 
         panel.add(new JLabel("West:"));
-        final JFormattedTextField westLonField = new JFormattedTextField(degreeFormat);
+        final JFormattedTextField westLonField = new JFormattedTextField(formatter);
         binding.bind("westBound", westLonField);
         panel.add(westLonField);
         panel.add(new JLabel("East:"));
-        final JFormattedTextField eastLonField = new JFormattedTextField(degreeFormat);
+        final JFormattedTextField eastLonField = new JFormattedTextField(formatter);
         binding.bind("eastBound", eastLonField);
         panel.add(eastLonField);
         panel.add(new JLabel("Pixel size X:"));
-        final JFormattedTextField pixelSizeXField = new JFormattedTextField(degreeFormat);
+        final JFormattedTextField pixelSizeXField = new JFormattedTextField(formatter);
         binding.bind("pixelSizeX", pixelSizeXField);
         panel.add(pixelSizeXField);
         panel.add(new JLabel("North:"));
-        final JFormattedTextField northLatField = new JFormattedTextField(degreeFormat);
+        final JFormattedTextField northLatField = new JFormattedTextField(formatter);
         binding.bind("northBound", northLatField);
         panel.add(northLatField);
         panel.add(new JLabel("South:"));
-        final JFormattedTextField southLatField = new JFormattedTextField(degreeFormat);
+        final JFormattedTextField southLatField = new JFormattedTextField(formatter);
         binding.bind("southBound", southLatField);
         panel.add(southLatField);
         panel.add(new JLabel("Pixel size Y:"));
-        final JFormattedTextField pixelSizeYField = new JFormattedTextField(degreeFormat);
+        final JFormattedTextField pixelSizeYField = new JFormattedTextField(formatter);
         binding.bind("pixelSizeY", pixelSizeYField);
         panel.add(pixelSizeYField);
 
@@ -154,7 +160,7 @@ class MosaicMapProjectionPanel extends JPanel {
 
         final JCheckBox orthoCheckBox = new JCheckBox("Orthorectify input products");
         binding.bind("orthorectify", orthoCheckBox);
-        demComboBox = new JComboBox(new DefaultComboBoxModel(demValueSet));
+        JComboBox demComboBox = new JComboBox(new DefaultComboBoxModel(demValueSet));
         binding.bind("elevationModelName", demComboBox);
         binding.bindEnabledState("elevationModelName", true, "orthorectify", true);
         layout.setCellColspan(0, 0, 2);
@@ -171,4 +177,48 @@ class MosaicMapProjectionPanel extends JPanel {
         crsSelectionPanel.setReferenceProduct(product);
     }
 
+    private class MapBoundsChangeListener implements PropertyChangeListener {
+
+        private final List<String> knownProperties;
+        private final WorldMapPaneDataModel worldMapModel;
+
+        private MapBoundsChangeListener(WorldMapPaneDataModel worldMapModel) {
+            this.worldMapModel = worldMapModel;
+            knownProperties = Arrays.asList("westBound", "northBound", "eastBound", "southBound");
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (knownProperties.contains(evt.getPropertyName())) {
+                worldMapModel.setSelectedProduct(mosaicModel.getBoundaryProduct());
+            }
+        }
+    }
+
+    private static class DegreeFormatter extends JFormattedTextField.AbstractFormatter {
+
+        private final DecimalFormat degreeFormat;
+
+        DegreeFormatter() {
+            final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
+            degreeFormat = new DecimalFormat("###0.0##°", decimalFormatSymbols);
+
+            degreeFormat.setParseIntegerOnly(false);
+            degreeFormat.setParseBigDecimal(false);
+            degreeFormat.setDecimalSeparatorAlwaysShown(true);
+        }
+
+        @Override
+        public Object stringToValue(String text) throws ParseException {
+            return degreeFormat.parse(text).doubleValue();
+        }
+
+        @Override
+        public String valueToString(Object value) throws ParseException {
+            if (value == null) {
+                return "";
+            }
+            return degreeFormat.format(value);
+        }
+    }
 }
