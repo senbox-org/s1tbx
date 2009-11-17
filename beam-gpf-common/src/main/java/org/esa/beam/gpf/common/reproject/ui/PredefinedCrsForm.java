@@ -1,7 +1,7 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.swing.TableLayout;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.opengis.referencing.FactoryException;
@@ -31,9 +31,9 @@ public class PredefinedCrsForm extends CrsForm {
     }
 
     @Override
-    public CoordinateReferenceSystem getCRS(Product product) throws FactoryException {
+    public CoordinateReferenceSystem getCRS(GeoPos referencePos) throws FactoryException {
             if (selectedCrsInfo != null) {
-                return selectedCrsInfo.getCrs(product);
+                return selectedCrsInfo.getCrs(referencePos);
             }else {
                 return null;
             }

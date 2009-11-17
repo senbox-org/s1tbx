@@ -1,9 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.util.ProductUtils;
 import org.geotools.factory.Hints;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.ReferencingFactoryFinder;
@@ -38,7 +35,7 @@ class CrsInfo implements Comparable<CrsInfo> {
         this.factory = factory;
     }
 
-    public CoordinateReferenceSystem getCrs(Product product) throws FactoryException {
+    public CoordinateReferenceSystem getCrs(GeoPos referencePos) throws FactoryException {
         return factory.createCoordinateReferenceSystem(crsCode);
     }
 
@@ -93,13 +90,12 @@ class CrsInfo implements Comparable<CrsInfo> {
         }
 
         @Override
-        public CoordinateReferenceSystem getCrs(Product product) throws FactoryException {
-            GeoPos geoPos = new GeoPos(0, 0);
-            if (product != null) {
-                geoPos = ProductUtils.getCenterGeoPos(product);
+        public CoordinateReferenceSystem getCrs(GeoPos referencePos) throws FactoryException {
+            if (referencePos == null) {
+                referencePos = new GeoPos(0, 0);
             }
 
-            String code = String.format("%s,%s,%s", super.crsCode, geoPos.lon, geoPos.lat);
+            String code = String.format("%s,%s,%s", super.crsCode, referencePos.lon, referencePos.lat);
             return super.factory.createCoordinateReferenceSystem(code);
         }
 

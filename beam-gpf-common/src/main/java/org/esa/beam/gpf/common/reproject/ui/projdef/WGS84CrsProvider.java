@@ -1,6 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui.projdef;
 
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.geotools.parameter.ParameterGroup;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.parameter.ParameterValueGroup;
@@ -22,7 +22,7 @@ class WGS84CrsProvider extends AbstractCrsProvider {
     }
 
     @Override
-    public CoordinateReferenceSystem getCRS(Product product, ParameterValueGroup parameter,
+    public CoordinateReferenceSystem getCRS(final GeoPos referencePos, ParameterValueGroup parameter,
                                             GeodeticDatum datum) throws FactoryException {
         return DefaultGeographicCRS.WGS84;
     }

@@ -206,11 +206,17 @@ class ReprojectionForm extends JTabbedPane {
 
     private void updateCRS() {
         try {
-            crs = crsSelectionPanel.getCrs(getSourceProduct());
-            if (crs != null) {
-                infoForm.setCrs(crs.getName().getCode(), crs.toString());
-            } else {
-                infoForm.setCrs("No valid 'Coordinate Reference System' selected.", null);
+            final Product sourceProduct = getSourceProduct();
+            if (sourceProduct != null) {
+                crs = crsSelectionPanel.getCrs(ProductUtils.getCenterGeoPos(sourceProduct));
+                if (crs != null) {
+                    infoForm.setCrs(crs.getName().getCode(), crs.toString());
+                } else {
+                    infoForm.setCrs("No valid 'Coordinate Reference System' selected.", null);
+                }
+            }else {
+                infoForm.setCrs("No source product selected.", null);
+                crs = null;
             }
         } catch (FactoryException e) {
             infoForm.setCrs(e.getMessage(), null);
@@ -435,7 +441,8 @@ class ReprojectionForm extends JTabbedPane {
                     showWarningMessage("Please select a product to project.\n");
                     return;
                 }
-                final CoordinateReferenceSystem crs = crsSelectionPanel.getCrs(sourceProduct);
+                final GeoPos referencePos = ProductUtils.getCenterGeoPos(sourceProduct);
+                final CoordinateReferenceSystem crs = crsSelectionPanel.getCrs(referencePos);
                 if (crs == null) {
                     showWarningMessage("Please specify a 'Coordinate Reference System' first.\n");
                     return;

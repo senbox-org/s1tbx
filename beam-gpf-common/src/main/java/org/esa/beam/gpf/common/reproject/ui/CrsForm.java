@@ -1,5 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.opengis.referencing.FactoryException;
@@ -26,7 +27,7 @@ public abstract class CrsForm {
         changeListeners = new ArrayList<PropertyChangeListener>();
     }
 
-    public abstract CoordinateReferenceSystem getCRS(Product product) throws FactoryException;
+    public abstract CoordinateReferenceSystem getCRS(GeoPos referencePos) throws FactoryException;
 
     public abstract JComponent getCrsUI();
 

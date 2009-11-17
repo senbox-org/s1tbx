@@ -1,6 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui.projdef;
 
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.cs.DefaultEllipsoidalCS;
@@ -31,7 +31,9 @@ class OperationMethodCrsProvider extends AbstractCrsProvider {
     }
 
     @Override
-    public CoordinateReferenceSystem getCRS(Product product, ParameterValueGroup parameters, GeodeticDatum datum) throws
+    public CoordinateReferenceSystem getCRS(final GeoPos referencePos, ParameterValueGroup parameters,
+                                            GeodeticDatum datum
+    ) throws
                                                                                                                   FactoryException {
         final CRSFactory crsFactory = ReferencingFactoryFinder.getCRSFactory(null);
         final CoordinateOperationFactory coFactory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);

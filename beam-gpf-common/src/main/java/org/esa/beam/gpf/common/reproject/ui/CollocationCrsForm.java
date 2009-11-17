@@ -2,6 +2,7 @@ package org.esa.beam.gpf.common.reproject.ui;
 
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
@@ -35,7 +36,7 @@ public class CollocationCrsForm extends CrsForm {
     }
 
     @Override
-    public CoordinateReferenceSystem getCRS(Product product) {
+    public CoordinateReferenceSystem getCRS(GeoPos referencePos) {
         Product collocationProduct = collocateProductSelector.getSelectedProduct();
         if (collocationProduct != null) {
             return collocationProduct.getGeoCoding().getMapCRS();

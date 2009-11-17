@@ -9,7 +9,7 @@ import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 import com.jidesoft.swing.ComboBoxSearchable;
 import com.jidesoft.swing.SearchableUtils;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ValueEditorsPane;
@@ -110,8 +110,8 @@ public class CustomCrsPanel extends JPanel {
         updateModel(OPERATION_WRAPPER);
     }
 
-    public CoordinateReferenceSystem getCRS(final Product product) throws FactoryException {
-        return model.operationWrapper.getCRS(product, model.parameters, model.datum);
+    public CoordinateReferenceSystem getCRS(GeoPos referencePos) throws FactoryException {
+        return model.operationWrapper.getCRS(referencePos, model.parameters, model.datum);
     }
 
     private void creatUI() {

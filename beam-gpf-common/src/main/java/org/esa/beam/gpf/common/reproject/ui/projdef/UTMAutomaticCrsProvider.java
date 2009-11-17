@@ -1,8 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui.projdef;
 
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.util.ProductUtils;
 import org.geotools.parameter.ParameterGroup;
 import org.geotools.referencing.operation.projection.TransverseMercator;
 import org.opengis.parameter.ParameterValueGroup;
@@ -24,14 +22,10 @@ class UTMAutomaticCrsProvider extends AbstractUTMCrsProvider {
     }
 
     @Override
-    public CoordinateReferenceSystem getCRS(Product product, ParameterValueGroup parameters,
+    public CoordinateReferenceSystem getCRS(final GeoPos referencePos, ParameterValueGroup parameters,
                                             GeodeticDatum datum) throws FactoryException {
-        if (product == null) {
-            return null;
-        }
-        final GeoPos centerGeoPos = ProductUtils.getCenterGeoPos(product);
-        int zoneIndex = getZoneIndex(centerGeoPos.getLon());
-        final boolean south = centerGeoPos.getLat() < 0.0;
+        int zoneIndex = getZoneIndex(referencePos.getLon());
+        final boolean south = referencePos.getLat() < 0.0;
         ParameterValueGroup tmParameters = createTransverseMercatorParameters(zoneIndex, south, datum);
         final String projName = getProjectionName(zoneIndex, south);
 

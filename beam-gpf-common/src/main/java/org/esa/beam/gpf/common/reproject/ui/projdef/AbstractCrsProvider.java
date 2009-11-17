@@ -1,6 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui.projdef;
 
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -39,6 +39,6 @@ abstract class AbstractCrsProvider {
 
     abstract ParameterValueGroup getParameter();
 
-    abstract CoordinateReferenceSystem getCRS(Product product, ParameterValueGroup parameter,
+    abstract CoordinateReferenceSystem getCRS(final GeoPos referencePos, ParameterValueGroup parameter,
                                               GeodeticDatum datum) throws FactoryException;
 }

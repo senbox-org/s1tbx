@@ -1,6 +1,7 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.swing.TableLayout;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.opengis.referencing.FactoryException;
@@ -63,20 +64,20 @@ public class CrsSelectionPanel extends JPanel {
         }
     }
 
-    CoordinateReferenceSystem getCrs(Product sourceProduct) throws FactoryException {
+    public CoordinateReferenceSystem getCrs(GeoPos referencePos) throws FactoryException {
         if (customCrsButtonModel.isSelected()) {
-            return customCrsUI.getCRS(sourceProduct);
+            return customCrsUI.getCRS(referencePos);
         }
         if (predefinedCrsButtonModel.isSelected() ) {
-            return predefinedCrsUI.getCRS(sourceProduct);
+            return predefinedCrsUI.getCRS(referencePos);
         }
         if (showCollocation && collocationButtonModel.isSelected()) {
-            return collocationCrsUI.getCRS(sourceProduct);
+            return collocationCrsUI.getCRS(referencePos);
         }
         return null;
     }
 
-    Product getCollocationProduct(){
+    public Product getCollocationProduct(){
         if(showCollocation) {
         return collocationCrsUI.getCollocationProduct();
         }else {
@@ -88,21 +89,21 @@ public class CrsSelectionPanel extends JPanel {
         return showCollocation && collocationButtonModel.isSelected();
     }
 
-    void prepareShow() {
+    public void prepareShow() {
         customCrsUI.prepareShow();
-        predefinedCrsUI.prepareShow();
-        collocationCrsUI.prepareShow();
         customCrsUI.addCrsChangeListener(crsChangeListener);
+        predefinedCrsUI.prepareShow();
         predefinedCrsUI.addCrsChangeListener(crsChangeListener);
         if (showCollocation) {
+            collocationCrsUI.prepareShow();
             collocationCrsUI.addCrsChangeListener(crsChangeListener);
         }
 
         updateUIState();
     }
 
-    void prepareHide() {
-        collocationCrsUI.prepareHide();
+    public void prepareHide() {
+        customCrsUI.prepareHide();
         customCrsUI.removeCrsChangeListener(crsChangeListener);
         predefinedCrsUI.prepareHide();
         predefinedCrsUI.removeCrsChangeListener(crsChangeListener);
@@ -172,7 +173,6 @@ public class CrsSelectionPanel extends JPanel {
     }
 
     private class UpdateStateListener implements ActionListener {
-
         @Override
         public void actionPerformed(ActionEvent e) {
             updateUIState();
@@ -181,7 +181,6 @@ public class CrsSelectionPanel extends JPanel {
     }
 
     private class CrsChangeListener implements PropertyChangeListener {
-
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             fireCrsChanged();
@@ -191,6 +190,4 @@ public class CrsSelectionPanel extends JPanel {
     private void fireCrsChanged() {
         firePropertyChange("crs", null, null);
     }
-
-
 }

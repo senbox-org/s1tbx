@@ -1,6 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.gpf.common.reproject.ui.projdef.CustomCrsPanel;
 import org.opengis.referencing.FactoryException;
@@ -31,8 +31,8 @@ public class CustomCrsForm extends CrsForm {
     }
 
     @Override
-    public CoordinateReferenceSystem getCRS(Product product) throws FactoryException {
-        return customCrsForm.getCRS(product);
+    public CoordinateReferenceSystem getCRS(GeoPos referencePos) throws FactoryException {
+        return customCrsForm.getCRS(referencePos);
     }
 
     @Override

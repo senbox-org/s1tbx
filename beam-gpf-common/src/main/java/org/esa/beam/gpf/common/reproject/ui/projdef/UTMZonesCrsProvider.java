@@ -1,6 +1,6 @@
 package org.esa.beam.gpf.common.reproject.ui.projdef;
 
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
@@ -45,7 +45,7 @@ class UTMZonesCrsProvider extends AbstractUTMCrsProvider {
     }
 
     @Override
-    public CoordinateReferenceSystem getCRS(Product product, ParameterValueGroup parameters,
+    public CoordinateReferenceSystem getCRS(final GeoPos referencePos, ParameterValueGroup parameters,
                                             GeodeticDatum datum) throws FactoryException {
 
         int zoneIndex = parameters.parameter(ZONE_NAME).intValue();
