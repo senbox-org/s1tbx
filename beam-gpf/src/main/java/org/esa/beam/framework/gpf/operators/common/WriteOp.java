@@ -204,6 +204,7 @@ public class WriteOp extends Operator {
     }
 
     private void markTileDone(Band targetBand, Tile targetTile) throws IOException {
+        boolean done;
         synchronized (todoLists) {
             MultiLevelImage sourceImage = targetBand.getSourceImage();
 
@@ -211,11 +212,14 @@ public class WriteOp extends Operator {
             currentTodoList.remove(new Point(sourceImage.XToTileX(targetTile.getMinX()),
                                              sourceImage.YToTileY(targetTile.getMinY())));
 
-            if (isDone()) {
-                targetProduct.removeProductNodeListener(headerChangeDetector);
-                // If we get here all tiles are written
-                if (headerChanged) {   // ask if we have to update the header
-                    getLogger().info("Product header changed. Overwriting " + file);
+            done = isDone();
+        }
+        if (done) {
+            targetProduct.removeProductNodeListener(headerChangeDetector);
+            // If we get here all tiles are written
+            if (headerChanged) {   // ask if we have to update the header
+                getLogger().info("Product header changed. Overwriting " + file);
+                synchronized (productWriter) {
                     productWriter.writeProductNodes(targetProduct, file);
                 }
             }
