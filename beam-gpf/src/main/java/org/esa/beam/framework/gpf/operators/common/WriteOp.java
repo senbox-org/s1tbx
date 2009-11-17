@@ -2,7 +2,6 @@ package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
-
 import org.esa.beam.dataio.dimap.DimapProductWriter;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
@@ -53,19 +52,19 @@ public class WriteOp extends Operator {
                description = "If true, all output files are deleted when the write operation has failed.")
     private boolean deleteOutputOnFailure;
     @Parameter(defaultValue = "true",
-               description = "If true, the write operation waits until all tiles of a single line are available before writing it.")
-    private boolean writeCompleteTileLines;
+               description = "If true, the write operation waits until all tiles in a row have been computed before writing.")
+    private boolean writeEntireTileRows;
 
     private ProductWriter productWriter;
     private List<Band> writableBands;
     private boolean productFileWritten;
-    private Map<MultiLevelImage, List<Point>> notComputedTileIndexList;
+    private Map<MultiLevelImage, List<Point>> todoLists;
     private boolean headerChanged;
-    private ProductNodeChangeListener productNodeChangeListener;
-    private Map<BandLine, Tile[]> lineCache;
+    private ProductNodeChangeListener headerChangeDetector;
+    private Map<Row, Tile[]> writeCache;
     private Dimension tileSize;
     private int tileCountX;
-    
+
 
     public WriteOp() {
     }
@@ -97,14 +96,14 @@ public class WriteOp extends Operator {
                 writableBands.add(band);
             }
         }
-        notComputedTileIndexList = new HashMap<MultiLevelImage, List<Point>>(writableBands.size());
+        todoLists = new HashMap<MultiLevelImage, List<Point>>(writableBands.size());
         headerChanged = false;
-        productNodeChangeListener = new ProductNodeChangeListener();
-        
+        headerChangeDetector = new ProductNodeChangeListener();
+
         tileSize = ImageManager.getPreferredTileSize(targetProduct);
         targetProduct.setPreferredTileSize(tileSize);
         tileCountX = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);
-        lineCache = new HashMap<BandLine, Tile[]>();
+        writeCache = new HashMap<Row, Tile[]>();
     }
 
     @Override
@@ -119,19 +118,19 @@ public class WriteOp extends Operator {
                     productFileWritten = true;
                     // rewrite of product header is only supported for DIMAP
                     if (productWriter instanceof DimapProductWriter) {
-                        targetProduct.addProductNodeListener(productNodeChangeListener);
+                        targetProduct.addProductNodeListener(headerChangeDetector);
                     }
                 }
             }
             final Rectangle rect = targetTile.getRectangle();
             final Tile sourceTile = getSourceTile(targetBand, rect, pm);
-            if (writeCompleteTileLines) {
+            if (writeEntireTileRows) {
                 int tileX = MathUtils.floorInt(targetTile.getMinX() / (double) tileSize.width);
                 int tileY = MathUtils.floorInt(targetTile.getMinY() / (double) tileSize.height);
-                BandLine key = new BandLine(targetBand, tileY);
-                Tile[] cacheLine = storeTileInLineCache(key, tileX, sourceTile);
-                if (cacheLine != null) {
-                    writeCacheLine(targetBand, cacheLine);
+                Row row = new Row(targetBand, tileY);
+                Tile[] tileRow = updateTileRow(row, tileX, sourceTile);
+                if (tileRow != null) {
+                    writeTileRow(targetBand, tileRow);
                 }
             } else {
                 final ProductData rawSamples = sourceTile.getRawSamples();
@@ -139,7 +138,7 @@ public class WriteOp extends Operator {
                     productWriter.writeBandRasterData(targetBand, rect.x, rect.y, rect.width, rect.height, rawSamples, pm);
                 }
             }
-            updateComputedTileMap(targetBand, targetTile);
+            markTileDone(targetBand, targetTile);
         } catch (Exception e) {
             if (deleteOutputOnFailure) {
                 try {
@@ -155,28 +154,28 @@ public class WriteOp extends Operator {
             }
         }
     }
-    
-    private Tile[] storeTileInLineCache(BandLine key, int tileX, Tile tile) {
-        synchronized (lineCache) {
-            Tile[] lineOfTiles;
-            if (lineCache.containsKey(key)) {
-                lineOfTiles = lineCache.get(key);
+
+    private Tile[] updateTileRow(Row key, int tileX, Tile currentTile) {
+        synchronized (writeCache) {
+            Tile[] tileRow;
+            if (writeCache.containsKey(key)) {
+                tileRow = writeCache.get(key);
             } else {
-                lineOfTiles = new Tile[tileCountX];
-                lineCache.put(key, lineOfTiles);
+                tileRow = new Tile[tileCountX];
+                writeCache.put(key, tileRow);
             }
-            lineOfTiles[tileX] = tile;
-            for (int i = 0; i < lineOfTiles.length; i++) {
-                if (lineOfTiles[i] == null) {
+            tileRow[tileX] = currentTile;
+            for (Tile tile : tileRow) {
+                if (tile == null) {
                     return null;
                 }
             }
-            lineCache.remove(key);
-            return lineOfTiles;
+            writeCache.remove(key);
+            return tileRow;
         }
     }
-    
-    private void writeCacheLine(Band band, Tile[] cacheLine) throws IOException {
+
+    private void writeTileRow(Band band, Tile[] cacheLine) throws IOException {
         Tile firstTile = cacheLine[0];
         int sceneWidth = targetProduct.getSceneRasterWidth();
         Rectangle lineBounds = new Rectangle(0, firstTile.getMinY(), sceneWidth, firstTile.getHeight());
@@ -185,7 +184,7 @@ public class WriteOp extends Operator {
         for (int tileX = 0; tileX < cacheLine.length; tileX++) {
             Tile tile = cacheLine[tileX];
             rawSampleOFLine[tileX] = tile.getRawSamples();
-            tileWidth[tileX] = tile.getRectangle().width; 
+            tileWidth[tileX] = tile.getRectangle().width;
         }
         ProductData sampleLine = ProductData.createInstance(rawSampleOFLine[0].getType(), sceneWidth);
         for (int y = lineBounds.y; y < lineBounds.y + lineBounds.height; y++) {
@@ -204,44 +203,49 @@ public class WriteOp extends Operator {
         }
     }
 
-    private void updateComputedTileMap(Band targetBand, Tile targetTile) throws IOException {
-        synchronized (notComputedTileIndexList) {
+    private void markTileDone(Band targetBand, Tile targetTile) throws IOException {
+        synchronized (todoLists) {
             MultiLevelImage sourceImage = targetBand.getSourceImage();
 
-            final List<Point> currentList = getTileList(sourceImage);
-            currentList.remove(new Point(sourceImage.XToTileX(targetTile.getMinX()),
-                                         sourceImage.YToTileY(targetTile.getMinY())));
+            final List<Point> currentTodoList = getTodoList(sourceImage);
+            currentTodoList.remove(new Point(sourceImage.XToTileX(targetTile.getMinX()),
+                                             sourceImage.YToTileY(targetTile.getMinY())));
 
-            for (List<Point> points : notComputedTileIndexList.values()) {
-                if (points.isEmpty()) {
-                    targetProduct.removeProductNodeListener(productNodeChangeListener);
-                } else { // not empty; there are more tiles to come
-                    return;
+            if (isDone()) {
+                targetProduct.removeProductNodeListener(headerChangeDetector);
+                // If we get here all tiles are written
+                if (headerChanged) {   // ask if we have to update the header
+                    getLogger().info("Product header changed. Overwriting " + file);
+                    productWriter.writeProductNodes(targetProduct, file);
                 }
-            }
-            // If we get here all tiles are written
-            if (headerChanged) {   // ask if we have to update the header
-                getLogger().info("Product header changed. Overwriting " + file);
-                productWriter.writeProductNodes(targetProduct, file);
             }
         }
     }
 
+    private boolean isDone() {
+        for (List<Point> todoList : todoLists.values()) {
+            if (!todoList.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-    private List<Point> getTileList(MultiLevelImage sourceImage) {
-        List<Point> list = notComputedTileIndexList.get(sourceImage);
-        if (list == null) {
+
+    private List<Point> getTodoList(MultiLevelImage sourceImage) {
+        List<Point> todoList = todoLists.get(sourceImage);
+        if (todoList == null) {
             final int numXTiles = sourceImage.getNumXTiles();
             final int numYTiles = sourceImage.getNumYTiles();
-            list = new ArrayList<Point>(numXTiles * numYTiles);
+            todoList = new ArrayList<Point>(numXTiles * numYTiles);
             for (int y = 0; y < numYTiles; y++) {
                 for (int x = 0; x < numXTiles; x++) {
-                    list.add(new Point(x, y));
+                    todoList.add(new Point(x, y));
                 }
             }
-            notComputedTileIndexList.put(sourceImage, list);
+            todoLists.put(sourceImage, todoList);
         }
-        return list;
+        return todoList;
     }
 
     @Override
@@ -263,12 +267,12 @@ public class WriteOp extends Operator {
     public static void writeProduct(Product sourceProduct, File file, String formatName, ProgressMonitor pm) {
         writeProduct(sourceProduct, file, formatName, true, pm);
     }
-    
+
     public static void writeProduct(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure,
                                     ProgressMonitor pm) {
 
         final WriteOp writeOp = new WriteOp(sourceProduct, file, formatName, deleteOutputOnFailure);
-        writeOp.writeCompleteTileLines = true; // default value
+        writeOp.writeEntireTileRows = true; // default value
         OperatorExecutor operatorExecutor = new OperatorExecutor(writeOp);
         try {
             operatorExecutor.execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
@@ -285,12 +289,12 @@ public class WriteOp extends Operator {
             writeOp.dispose();
         }
     }
-    
-    private static class BandLine {
+
+    private static class Row {
         private final Band band;
         private final int tileY;
-        
-        private BandLine(Band band, int tileY) {
+
+        private Row(Band band, int tileY) {
             this.band = band;
             this.tileY = tileY;
         }
@@ -309,16 +313,16 @@ public class WriteOp extends Operator {
             if (this == obj) {
                 return true;
             }
-            BandLine other = (BandLine) obj;
+            Row other = (Row) obj;
             if (!band.equals(other.band)) {
                 return false;
             }
             return tileY == other.tileY;
         }
-        
-        
+
+
     }
-    
+
     private class ProductNodeChangeListener extends ProductNodeListenerAdapter {
 
         @Override
