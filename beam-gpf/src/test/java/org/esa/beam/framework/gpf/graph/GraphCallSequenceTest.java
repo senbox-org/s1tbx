@@ -5,13 +5,19 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 import javax.media.jai.JAI;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GraphCallSequenceTest extends TestCase {
@@ -40,7 +46,7 @@ public class GraphCallSequenceTest extends TestCase {
         n6Spi = new N6Spi();
         registry.addOperatorSpi(n6Spi);
 
-        callRecordList = new ArrayList<String>();
+        callRecordList = Collections.synchronizedList(new ArrayList<String>());
         JAI.getDefaultInstance().getTileCache().flush();
     }
 
