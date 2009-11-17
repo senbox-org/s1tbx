@@ -79,8 +79,10 @@ class MosaicFormModel {
                 try {
                     if (!files[0].equals(refProductFile)) {
                         refProductFile = files[0];
-                        refProduct.dispose();
-                        refProduct = null;
+                        if (refProduct != null) {
+                            refProduct.dispose();
+                            refProduct = null;
+                        }
                         refProduct = ProductIO.readProduct(refProductFile, null);
                     }
                 } catch (IOException e) {
@@ -88,8 +90,10 @@ class MosaicFormModel {
                     throw new IOException(msg, e);
                 }
             } else {
-                refProduct.dispose();
-                refProduct = null;
+                if (refProduct != null) {
+                    refProduct.dispose();
+                    refProduct = null;
+                }
             }
         }
         if (refProduct == null) {
