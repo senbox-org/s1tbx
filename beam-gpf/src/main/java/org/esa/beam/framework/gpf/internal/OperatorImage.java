@@ -131,7 +131,9 @@ public class OperatorImage extends SourcelessOpImage {
         sb.append("[");
         sb.append(operatorContext.getOperatorSpi().getOperatorAlias());
         sb.append(",");
-        sb.append(band.getName());
+        if (band != null) {
+            sb.append(band.getName());
+        }
         sb.append("]");
         return sb.toString();
     }
