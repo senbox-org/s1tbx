@@ -268,7 +268,10 @@ public class WriteOp extends Operator {
         writeProduct(sourceProduct, file, formatName, true, pm);
     }
 
-    public static void writeProduct(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure,
+    public static void writeProduct(Product sourceProduct,
+                                    File file,
+                                    String formatName,
+                                    boolean deleteOutputOnFailure,
                                     ProgressMonitor pm) {
 
         final WriteOp writeOp = new WriteOp(sourceProduct, file, formatName, deleteOutputOnFailure);

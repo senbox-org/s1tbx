@@ -17,13 +17,17 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.math.MathUtils;
 
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.TileComputationListener;
+import javax.media.jai.TileRequest;
+import javax.media.jai.TileScheduler;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -32,12 +36,6 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.TileComputationListener;
-import javax.media.jai.TileRequest;
-import javax.media.jai.TileScheduler;
 
 /**
  * This executor triggers the computation of all tiles that the bands of the target product
@@ -48,10 +46,16 @@ import javax.media.jai.TileScheduler;
  * @since BEAM 4.7
  */
 public class OperatorExecutor {
-    
+
     public enum ExecutionOrder {
         ROW_COLUMN_BAND,
-        ROW_BAND_COLUMN;
+        ROW_BAND_COLUMN,
+        /**
+         * Minimize disk seeks if following conditions are met:<br/>
+         * 1. Bands can be computed independently of each other<br/>
+         * 2. I/O-bound processing (time to compute band pixels will less than time for I/O).<br/>
+         */
+        BAND_ROW_COLUMN,
     }
 
     private final Operator operator;
@@ -65,21 +69,29 @@ public class OperatorExecutor {
     public OperatorExecutor(Operator operator) {
         this.operator = operator;
     }
-    
+
     public void execute(ProgressMonitor pm) {
         execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
     }
-    
+
     public void execute(ExecutionOrder executionOrder, ProgressMonitor pm) {
         init();
-        
-        if (ExecutionOrder.ROW_BAND_COLUMN == executionOrder) {
+
+        if (executionOrder == ExecutionOrder.ROW_BAND_COLUMN) {
             executeRowBandColumn(pm);
-        } else {
+        } else if (executionOrder == ExecutionOrder.ROW_COLUMN_BAND) {
             executeRowColumnBand(pm);
+        } else if (executionOrder == ExecutionOrder.BAND_ROW_COLUMN) {
+            executeBandRowColumn(pm);
+        }  else {
+            throw new IllegalArgumentException("executionOrder");
         }
     }
-    
+
+    private void executeBandRowColumn(ProgressMonitor pm) {
+        throw new IllegalStateException("Not implemented.");
+    }
+
     private void executeRowBandColumn(ProgressMonitor pm) {
         final AtomicInteger scheduledTiles = new AtomicInteger(0);
         final int parallelism = tileScheduler.getParallelism();
@@ -122,7 +134,7 @@ public class OperatorExecutor {
         }
     }
 
-    private void waitForScheduler(AtomicInteger scheduledTiles, int threshold) {
+    private static void waitForScheduler(AtomicInteger scheduledTiles, int threshold) {
         while (scheduledTiles.intValue() > threshold) {
             try {
                 Thread.sleep(10);
@@ -131,7 +143,7 @@ public class OperatorExecutor {
             }
         }
     }
-    
+
     private void init() {
         initOperatorContext();
         final Product targetProduct = operator.getTargetProduct();
@@ -160,16 +172,16 @@ public class OperatorExecutor {
             throw new IllegalStateException(e);
         }
     }
-    
+
     private void createImageMap() {
-        imageMap = new HashMap<Band, PlanarImage>(targetBands.length*2);
+        imageMap = new HashMap<Band, PlanarImage>(targetBands.length * 2);
         for (final Band band : targetBands) {
             OperatorImage operatorImage = operatorContext.getTargetImage(band);
             if (operatorImage != null) {
                 imageMap.put(band, operatorImage);
             } else {
                 String message = String.format("The band '%s' of the '%s' does not have an associated target image.",
-                                     band.getName(), operator.getClass().getSimpleName());
+                                               band.getName(), operator.getClass().getSimpleName());
                 throw new OperatorException(message);
             }
         }
@@ -180,12 +192,12 @@ public class OperatorExecutor {
             throw new OperatorException("Operation canceled.");
         }
     }
-    
+
     private void scheduleTile(Band band, int tileX, int tileY, AtomicInteger scheduledTiles) {
         final PlanarImage planarImage = imageMap.get(band);
         final TileComputationListener tcl = new OperatorTileComputationListener(scheduledTiles);
-        final TileComputationListener[] listeners = new TileComputationListener[] {tcl};
-        Point[] points = new Point[] {new Point(tileX, tileY)};
+        final TileComputationListener[] listeners = new TileComputationListener[]{tcl};
+        Point[] points = new Point[]{new Point(tileX, tileY)};
         scheduledTiles.incrementAndGet();
         tileScheduler.scheduleTiles(planarImage, points, listeners);
     }
@@ -199,22 +211,22 @@ public class OperatorExecutor {
         }
 
         @Override
-            public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+        public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                  int tileY,
                                  Raster raster) {
             scheduledTiles.decrementAndGet();
         }
 
         @Override
-            public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+        public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                   int tileY) {
             throw new OperatorException("Operation cancelled.");
         }
 
         @Override
-            public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
+        public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                            int tileY, Throwable situation) {
             throw new OperatorException("Operation failed.", situation);
         }
-    }    
+    }
 }
