@@ -36,13 +36,10 @@ class MosaicIOPanel extends JPanel {
     private final PropertyContainer properties;
     private final TargetProductSelector targetProductSelector;
     private final SourceProductSelector updateProductSelector;
-    private FileArrayEditor sourceProductEditor;
-    private JButton addFileButton;
-    private JButton removeFileButton;
 
-    MosaicIOPanel(AppContext appContext, PropertyContainer container, TargetProductSelector selector) {
+    MosaicIOPanel(AppContext appContext, MosaicFormModel mosaicModel, TargetProductSelector selector) {
         this.appContext = appContext;
-        properties = container;
+        properties = mosaicModel.getPropertyContainer();
         targetProductSelector = selector;
         updateProductSelector = new SourceProductSelector(appContext);
         init();
@@ -69,7 +66,7 @@ class MosaicIOPanel extends JPanel {
 
     private JPanel createSourceProductsPanel() {
         final FileArrayEditor.EditorParent context = new FileArrayEditorContext(appContext);
-        sourceProductEditor = new FileArrayEditor(context, "Source products");
+        FileArrayEditor sourceProductEditor = new FileArrayEditor(context, "Source products");
         final FileArrayEditor.FileArrayEditorListener listener = new FileArrayEditor.FileArrayEditorListener() {
             @Override
             public void updatedList(final File[] files) {
@@ -79,8 +76,8 @@ class MosaicIOPanel extends JPanel {
         sourceProductEditor.setListener(listener);
 
 
-        addFileButton = sourceProductEditor.createAddFileButton();
-        removeFileButton = sourceProductEditor.createRemoveFileButton();
+        JButton addFileButton = sourceProductEditor.createAddFileButton();
+        JButton removeFileButton = sourceProductEditor.createRemoveFileButton();
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTablePadding(4, 4);
         tableLayout.setTableWeightX(1.0);
