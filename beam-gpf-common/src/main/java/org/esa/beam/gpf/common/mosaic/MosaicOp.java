@@ -424,8 +424,11 @@ public class MosaicOp extends Operator {
     private HashMap<String, Object> createProjectionParameters() {
         HashMap<String, Object> projParameters = new HashMap<String, Object>();
         projParameters.put("resamplingName", resamplingName);
-        projParameters.put("includeTiePointGrids",
-                           true);  // ensure tie-points are reprojected - don't relay on default value
+        projParameters.put("includeTiePointGrids", true);  // ensure tie-points are reprojected
+        if (orthorectify) {
+            projParameters.put("orthorectify", orthorectify);
+            projParameters.put("elevationModelName", elevationModelName);
+        }
         return projParameters;
     }
 
