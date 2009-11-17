@@ -30,6 +30,7 @@ import java.awt.Point;
 import java.awt.image.Raster;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.media.jai.JAI;
@@ -46,8 +47,8 @@ public class OperatorExecutorTest extends TestCase {
     private class RecordingTileScheduler implements TileScheduler {
         
         TileScheduler delegate;
-        List<String> recordedCalls = new ArrayList<String>();
-        List<Point> requestedTileIndices = new ArrayList<Point>();
+        List<String> recordedCalls = Collections.synchronizedList(new ArrayList<String>());
+        List<Point> requestedTileIndices = Collections.synchronizedList(new ArrayList<Point>());
         
         RecordingTileScheduler(TileScheduler delegate) {
             this.delegate = delegate;
