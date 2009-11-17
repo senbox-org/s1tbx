@@ -17,10 +17,17 @@
 package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
+
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -33,13 +40,11 @@ import org.esa.beam.framework.gpf.graph.GraphContext;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
 import java.io.StringReader;
-import java.util.logging.Level;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.LogManager;
+
+import junit.framework.TestCase;
 
 /**
  * Created by marcoz.
