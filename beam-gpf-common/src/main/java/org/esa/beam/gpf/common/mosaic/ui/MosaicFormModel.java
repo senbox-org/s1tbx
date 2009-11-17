@@ -1,7 +1,6 @@
 package org.esa.beam.gpf.common.mosaic.ui;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyAccessor;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValidationException;
@@ -80,26 +79,4 @@ class MosaicFormModel {
         return refProduct;
     }
 
-    private static class PropertyPropertyAccessor implements PropertyAccessor {
-
-        private final Property property;
-
-        PropertyPropertyAccessor(Property property) {
-            this.property = property;
-        }
-
-        @Override
-        public Object getValue() {
-            return property.getValue();
-        }
-
-        @Override
-        public void setValue(Object value) {
-            try {
-                property.setValue(value);
-            } catch (ValidationException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }
