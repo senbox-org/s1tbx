@@ -11,7 +11,6 @@ import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.gpf.common.reproject.ui.CrsSelectionPanel;
 
 import javax.swing.BorderFactory;
-import javax.swing.ButtonModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -37,7 +36,6 @@ class MosaicMapProjectionPanel extends JPanel {
     private CrsSelectionPanel crsSelectionPanel;
     private JPanel orthorectifyPanel;
     private JPanel mosaicBoundsPanel;
-    private ButtonModel orthorectifyButtonModel;
     private JComboBox demComboBox;
     private final BindingContext binding;
     private String[] demValueSet;
@@ -156,7 +154,6 @@ class MosaicMapProjectionPanel extends JPanel {
 
         final JCheckBox orthoCheckBox = new JCheckBox("Orthorectify input products");
         binding.bind("orthorectify", orthoCheckBox);
-        orthorectifyButtonModel = orthoCheckBox.getModel();
         demComboBox = new JComboBox(new DefaultComboBoxModel(demValueSet));
         binding.bind("elevationModelName", demComboBox);
         binding.bindEnabledState("elevationModelName", true, "orthorectify", true);
