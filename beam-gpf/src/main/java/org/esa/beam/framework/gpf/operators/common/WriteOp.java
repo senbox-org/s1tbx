@@ -216,6 +216,7 @@ public class WriteOp extends Operator {
         }
         if (done) {
             targetProduct.removeProductNodeListener(headerChangeDetector);
+            headerChangeDetector = null;
             // If we get here all tiles are written
             if (headerChanged) {   // ask if we have to update the header
                 getLogger().info("Product header changed. Overwriting " + file);
@@ -259,6 +260,11 @@ public class WriteOp extends Operator {
         } catch (IOException ignore) {
         }
         writableBands.clear();
+        todoLists.clear();
+        writeCache.clear();
+        if (headerChangeDetector != null && targetProduct != null) {
+            targetProduct.removeProductNodeListener(headerChangeDetector);
+        }
     }
 
     public static class Spi extends OperatorSpi {
