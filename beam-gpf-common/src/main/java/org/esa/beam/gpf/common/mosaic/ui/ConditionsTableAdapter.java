@@ -32,9 +32,9 @@ class ConditionsTableAdapter extends AbstractTableAdapter {
             final TableModel tableModel = createTableModel(conditions.length);
             for (int i = 0; i < conditions.length; i++) {
                 final MosaicOp.Condition variable = conditions[i];
-                tableModel.setValueAt(variable.name, i, 0);
-                tableModel.setValueAt(variable.expression, i, 1);
-                tableModel.setValueAt(variable.output, i, 2);
+                tableModel.setValueAt(variable.getName(), i, 0);
+                tableModel.setValueAt(variable.getExpression(), i, 1);
+                tableModel.setValueAt(variable.isOutput(), i, 2);
             }
             return tableModel;
         }

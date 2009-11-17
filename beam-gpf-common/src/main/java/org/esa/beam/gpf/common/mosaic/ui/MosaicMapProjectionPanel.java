@@ -1,5 +1,6 @@
 package org.esa.beam.gpf.common.mosaic.ui;
 
+import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
@@ -19,8 +20,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Dimension;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 /**
  * @author Marco Peters
@@ -30,31 +32,34 @@ import java.awt.event.ActionListener;
 class MosaicMapProjectionPanel extends JPanel {
 
     private final AppContext appContext;
+    private final MosaicFormModel mosaicModel;
 
     private CrsSelectionPanel crsSelectionPanel;
     private JPanel orthorectifyPanel;
     private JPanel mosaicBoundsPanel;
     private ButtonModel orthorectifyButtonModel;
-    private DefaultComboBoxModel demModel;
     private JComboBox demComboBox;
-    private MosaicMapProjectionPanel.UpdateUIStateActionListener uiStateListener;
+    private final BindingContext binding;
+    private String[] demValueSet;
 
-    MosaicMapProjectionPanel(AppContext appContext) {
+    MosaicMapProjectionPanel(AppContext appContext, MosaicFormModel mosaicModel) {
         this.appContext = appContext;
+        this.mosaicModel = mosaicModel;
+        binding = new BindingContext(mosaicModel.getPropertyContainer());
         init();
         createUI();
-        updateUIState();
+        binding.adjustComponents();
     }
 
     private void init() {
-        uiStateListener = new UpdateUIStateActionListener();
-
         final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
-        final String[] demValueSet = new String[descriptors.length];
+        demValueSet = new String[descriptors.length];
         for (int i = 0; i < descriptors.length; i++) {
             demValueSet[i] = descriptors[i].getName();
         }
-        demModel = new DefaultComboBoxModel(demValueSet);
+        if (demValueSet.length > 0) {
+            mosaicModel.getPropertyContainer().setValue("elevationModelName", demValueSet[0]);
+        }
     }
 
     private void createUI() {
@@ -108,18 +113,33 @@ class MosaicMapProjectionPanel extends JPanel {
         layout.setColumnPadding(1, new Insets(3, 3, 3, 9));
         layout.setColumnPadding(3, new Insets(3, 3, 3, 9));
         final JPanel panel = new JPanel(layout);
+        final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
+        final DecimalFormat degreeFormat = new DecimalFormat("####.###°", decimalFormatSymbols);
+
         panel.add(new JLabel("West:"));
-        panel.add(new JFormattedTextField());
+        final JFormattedTextField westLonField = new JFormattedTextField(degreeFormat);
+        binding.bind("westBound", westLonField);
+        panel.add(westLonField);
         panel.add(new JLabel("East:"));
-        panel.add(new JFormattedTextField());
+        final JFormattedTextField eastLonField = new JFormattedTextField(degreeFormat);
+        binding.bind("eastBound", eastLonField);
+        panel.add(eastLonField);
         panel.add(new JLabel("Pixel size X:"));
-        panel.add(new JFormattedTextField());
+        final JFormattedTextField pixelSizeXField = new JFormattedTextField(degreeFormat);
+        binding.bind("pixelSizeX", pixelSizeXField);
+        panel.add(pixelSizeXField);
         panel.add(new JLabel("North:"));
-        panel.add(new JFormattedTextField());
+        final JFormattedTextField northLatField = new JFormattedTextField(degreeFormat);
+        binding.bind("northBound", northLatField);
+        panel.add(northLatField);
         panel.add(new JLabel("South:"));
-        panel.add(new JFormattedTextField());
+        final JFormattedTextField southLatField = new JFormattedTextField(degreeFormat);
+        binding.bind("southBound", southLatField);
+        panel.add(southLatField);
         panel.add(new JLabel("Pixel size Y:"));
-        panel.add(new JFormattedTextField());
+        final JFormattedTextField pixelSizeYField = new JFormattedTextField(degreeFormat);
+        binding.bind("pixelSizeY", pixelSizeYField);
+        panel.add(pixelSizeYField);
 
         return panel;
     }
@@ -135,9 +155,11 @@ class MosaicMapProjectionPanel extends JPanel {
         panel.setBorder(BorderFactory.createTitledBorder("Orthorectification"));
 
         final JCheckBox orthoCheckBox = new JCheckBox("Orthorectify input products");
+        binding.bind("orthorectify", orthoCheckBox);
         orthorectifyButtonModel = orthoCheckBox.getModel();
-        demComboBox = new JComboBox(demModel);
-        orthorectifyButtonModel.addActionListener(uiStateListener);
+        demComboBox = new JComboBox(new DefaultComboBoxModel(demValueSet));
+        binding.bind("elevationModelName", demComboBox);
+        binding.bindEnabledState("elevationModelName", true, "orthorectify", true);
         layout.setCellColspan(0, 0, 2);
         panel.add(orthoCheckBox);
 
@@ -148,19 +170,8 @@ class MosaicMapProjectionPanel extends JPanel {
         return panel;
     }
 
-    private void updateUIState() {
-        demComboBox.setEnabled(orthorectifyButtonModel.isSelected());
-    }
-
     public void setReferenceProduct(Product product) {
         crsSelectionPanel.setReferenceProduct(product);
     }
 
-    private class UpdateUIStateActionListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            updateUIState();
-        }
-    }
 }

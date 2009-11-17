@@ -31,8 +31,8 @@ class VariablesTableAdapter extends AbstractTableAdapter {
             final TableModel tableModel = createTableModel(variables.length);
             for (int i = 0; i < variables.length; i++) {
                 final MosaicOp.Variable variable = variables[i];
-                tableModel.setValueAt(variable.name, i, 0);
-                tableModel.setValueAt(variable.expression, i, 1);
+                tableModel.setValueAt(variable.getName(), i, 0);
+                tableModel.setValueAt(variable.getExpression(), i, 1);
             }
             return tableModel;
         }

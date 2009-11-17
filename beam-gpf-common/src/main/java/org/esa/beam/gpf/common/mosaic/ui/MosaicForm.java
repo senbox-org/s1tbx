@@ -1,6 +1,5 @@
 package org.esa.beam.gpf.common.mosaic.ui;
 
-import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
 
@@ -24,10 +23,8 @@ public class MosaicForm extends JTabbedPane {
     }
 
     private void createUI(TargetProductSelector selector) {
-        final PropertyContainer container = mosaicModel.getPropertyContainer();
-
         final MosaicIOPanel ioPanel = new MosaicIOPanel(appContext, mosaicModel, selector);
-        final JPanel mapProjectionPanel = new MosaicMapProjectionPanel(appContext);
+        final JPanel mapProjectionPanel = new MosaicMapProjectionPanel(appContext, mosaicModel);
         final MosaicVariablesAndConditionsPanel variablesAndConditionsPanel =
                 new MosaicVariablesAndConditionsPanel(appContext, mosaicModel);
 

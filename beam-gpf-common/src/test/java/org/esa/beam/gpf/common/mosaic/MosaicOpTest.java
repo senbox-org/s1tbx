@@ -69,7 +69,10 @@ public class MosaicOpTest {
                 new MosaicOp.Variable("b1", "b1"),
 
         };
-        op.bounds = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        op.westBound = -10.0;
+        op.northBound = 10.0;
+        op.eastBound = 10.0;
+        op.southBound = -10.0;
         op.pixelSizeX = 1.0;
         op.pixelSizeY = 1.0;
 
@@ -96,7 +99,10 @@ public class MosaicOpTest {
         op.conditions = new MosaicOp.Condition[]{
                 new MosaicOp.Condition("b1_cond", "b1 != 3", true)
         };
-        op.bounds = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        op.westBound = -10.0;
+        op.northBound = 10.0;
+        op.eastBound = 10.0;
+        op.southBound = -10.0;
         op.pixelSizeX = 1.0;
         op.pixelSizeY = 1.0;
 
@@ -136,7 +142,10 @@ public class MosaicOpTest {
         op.conditions = new MosaicOp.Condition[]{
                 new MosaicOp.Condition("b1_cond", "b1 != 3", true)
         };
-        op.bounds = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        op.westBound = -10.0;
+        op.northBound = 10.0;
+        op.eastBound = 10.0;
+        op.southBound = -10.0;
         op.pixelSizeX = 1.0;
         op.pixelSizeY = 1.0;
 
@@ -167,7 +176,10 @@ public class MosaicOpTest {
                 new MosaicOp.Condition("b1_cond", "b1 != 3", true)
         };
 
-        mosaicOp.bounds = new MosaicOp.GeoBounds(-10, 10, 10, -10);
+        mosaicOp.westBound = -10.0;
+        mosaicOp.northBound = 10.0;
+        mosaicOp.eastBound = 10.0;
+        mosaicOp.southBound = -10.0;
         mosaicOp.pixelSizeX = 1.0;
         mosaicOp.pixelSizeY = 1.0;
 

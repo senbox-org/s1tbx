@@ -38,7 +38,6 @@ import javax.media.jai.operator.AddCollectionDescriptor;
 import javax.media.jai.operator.AddDescriptor;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
-
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -62,6 +61,7 @@ import java.util.List;
                   copyright = "(c) 2009 by Brockmann Consult",
                   description = "Creates a mosaic out of a set of source products.",
                   internal = true)
+@SuppressWarnings({"PackageVisibleField"})
 public class MosaicOp extends Operator {
 
     @SourceProducts(count = -1, description = "The source products to be used for mosaicking.")
@@ -86,17 +86,28 @@ public class MosaicOp extends Operator {
     @Parameter(alias = "epsgCode", description = "Specifies the coordinate reference system of the target product.",
                defaultValue = "EPSG:4326")
     String crsCode;
-
+    @Parameter(description = "Wether the source product should be orthorectified. (Currently only applicable for MERIS and AATSR)",
+               defaultValue = "false")
+    private boolean orthorectify;
+    @Parameter(description = "The name of the elevation model for the orthorectification. If not given tie-point data is used.")
+    private String elevationModelName;
+    
     @Parameter(alias = "resampling", label = "Resampling Method", description = "The method used for resampling.",
                valueSet = {"Nearest", "Bilinear", "Bicubic"}, defaultValue = "Nearest")
     String resamplingName;
 
-    @Parameter(description = "Specifies the bounds of the target product in map units.")
-    GeoBounds bounds;
+    @Parameter(description = "The western longitude.", interval = "[-180,180]", defaultValue = "-15.0")
+    double westBound;
+    @Parameter(description = "The northern latitude.", interval = "[-90,90]", defaultValue = "75.0")
+    double northBound;
+    @Parameter(description = "The eastern longitude.", interval = "[-180,180]", defaultValue = "30")
+    double eastBound;
+    @Parameter(description = "The southern latitude.", interval = "[-90,90]", defaultValue = "35.0")
+    double southBound;
 
-    @Parameter(description = "Size of a pixel in X-direction in map units.")
+    @Parameter(description = "Size of a pixel in X-direction in map units.", defaultValue = "0.05")
     double pixelSizeX;
-    @Parameter(description = "Size of a pixel in Y-direction in map units.")
+    @Parameter(description = "Size of a pixel in Y-direction in map units.", defaultValue = "0.05")
     double pixelSizeY;
 
     private Product[] reprojectedProducts;
@@ -257,7 +268,7 @@ public class MosaicOp extends Operator {
             for (final Product product : reprojectedProducts) {
                 final String validMaskExpression;
                 try {
-                    validMaskExpression = createValidMaskExpression(product, variable.expression);
+                    validMaskExpression = createValidMaskExpression(product, variable.getExpression());
                 } catch (ParseException e) {
                     throw new OperatorException(e);
                 }
@@ -269,7 +280,7 @@ public class MosaicOp extends Operator {
                         if (i != 0) {
                             combinedExpression.append(" ").append(combine).append(" ");
                         }
-                        combinedExpression.append(condition.expression);
+                        combinedExpression.append(condition.getExpression());
                     }
                     combinedExpression.append(")");
                 }
@@ -289,11 +300,12 @@ public class MosaicOp extends Operator {
 
     private List<RenderedImage> createMosaicImages(List<List<RenderedImage>> sourceImageList,
                                                    List<List<PlanarImage>> alphaImageList) {
-        ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(ImageManager.getDataBufferType(ProductData.TYPE_FLOAT32),
-                                                                             targetProduct.getSceneRasterWidth(),
-                                                                             targetProduct.getSceneRasterHeight(),
-                                                                             ImageManager.getPreferredTileSize(targetProduct),
-                                                                             ResolutionLevel.MAXRES);
+        ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(
+                ImageManager.getDataBufferType(ProductData.TYPE_FLOAT32),
+                targetProduct.getSceneRasterWidth(),
+                targetProduct.getSceneRasterHeight(),
+                ImageManager.getPreferredTileSize(targetProduct),
+                ResolutionLevel.MAXRES);
         Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
         final List<RenderedImage> mosaicImages = new ArrayList<RenderedImage>(sourceImageList.size());
         for (int i = 0; i < sourceImageList.size(); i++) {
@@ -313,7 +325,7 @@ public class MosaicOp extends Operator {
                                      List<RenderedImage> variableCountImageList) {
         for (int i = 0; i < variables.length; i++) {
             Variable outputVariable = variables[i];
-            product.getBand(outputVariable.name).setSourceImage(bandImages.get(i));
+            product.getBand(outputVariable.getName()).setSourceImage(bandImages.get(i));
 
             final String countBandName = getCountBandName(outputVariable);
             product.getBand(countBandName).setSourceImage(variableCountImageList.get(i));
@@ -321,17 +333,17 @@ public class MosaicOp extends Operator {
 
         if (conditions != null) {
             for (Condition condition : conditions) {
-                if (condition.output) {
+                if (condition.isOutput()) {
                     // The sum of all conditions of all sources is created.
                     // 1.0 indicates condition is true and 0.0 indicates false.
                     final RenderedImage sumImage = createConditionSumImage(condition);
                     final RenderedImage reformattedImage = FormatDescriptor.create(sumImage, DataBuffer.TYPE_INT, null);
                     RenderedImage condImage = reformattedImage;
                     if (isUpdateMode()) {
-                        final RenderedImage updateimage = updateProduct.getBand(condition.name).getSourceImage();
+                        final RenderedImage updateimage = updateProduct.getBand(condition.getName()).getSourceImage();
                         condImage = AddDescriptor.create(reformattedImage, updateimage, null);
                     }
-                    Band band = product.getBand(condition.name);
+                    Band band = product.getBand(condition.getName());
                     band.setSourceImage(condImage);
                 }
             }
@@ -339,7 +351,7 @@ public class MosaicOp extends Operator {
     }
 
     private String getCountBandName(Variable outputVariable) {
-        return String.format("%s_count", outputVariable.name);
+        return String.format("%s_count", outputVariable.getName());
     }
 
     private RenderedImage createConditionSumImage(Condition condition) {
@@ -353,11 +365,11 @@ public class MosaicOp extends Operator {
     private PlanarImage createConditionImage(Condition condition, Product reprojectedProduct) {
         String validMaskExpression;
         try {
-            validMaskExpression = createValidMaskExpression(reprojectedProduct, condition.expression);
+            validMaskExpression = createValidMaskExpression(reprojectedProduct, condition.getExpression());
         } catch (ParseException e) {
             throw new OperatorException(e);
         }
-        String expression = validMaskExpression + " && (" + condition.expression + ")";
+        String expression = validMaskExpression + " && (" + condition.getExpression() + ")";
         // the condition images are used as sourceAlpha parameter for MosaicOpImage, they have to have the same
         // data type as the source images. That's why we use normal expression images with data type FLOAT32.
         return createExpressionImage(expression, reprojectedProduct);
@@ -377,10 +389,10 @@ public class MosaicOp extends Operator {
             final List<RenderedImage> renderedImageList = new ArrayList<RenderedImage>(reprojectedProducts.length);
             sourceImageList.add(renderedImageList);
             for (final Product product : reprojectedProducts) {
-                renderedImageList.add(createExpressionImage(variable.expression, product));
+                renderedImageList.add(createExpressionImage(variable.getExpression(), product));
             }
             if (isUpdateMode()) {
-                renderedImageList.add(updateProduct.getBand(variable.name).getSourceImage());
+                renderedImageList.add(updateProduct.getBand(variable.getName()).getSourceImage());
             }
         }
         return sourceImageList;
@@ -422,12 +434,12 @@ public class MosaicOp extends Operator {
         try {
             CoordinateReferenceSystem targetCRS = CRS.decode(crsCode, true);
             Rectangle2D.Double rect = new Rectangle2D.Double();
-            rect.setFrameFromDiagonal(bounds.west, bounds.north, bounds.east, bounds.south);
+            rect.setFrameFromDiagonal(westBound, northBound, eastBound, southBound);
             Envelope envelope = CRS.transform(new Envelope2D(DefaultGeographicCRS.WGS84, rect), targetCRS);
             int width = (int) (envelope.getSpan(0) / pixelSizeX);
             int height = (int) (envelope.getSpan(1) / pixelSizeY);
             final AffineTransform mapTransform = new AffineTransform();
-            mapTransform.translate(bounds.west, bounds.north);
+            mapTransform.translate(westBound, northBound);
             mapTransform.scale(pixelSizeX, -pixelSizeY);
             mapTransform.translate(-0.5, -0.5);
             CrsGeoCoding geoCoding = new CrsGeoCoding(targetCRS, new Rectangle(0, 0, width, height),
@@ -446,20 +458,20 @@ public class MosaicOp extends Operator {
 
     private void addTargetBands(Product product) {
         for (Variable outputVariable : variables) {
-            Band band = product.addBand(outputVariable.name, ProductData.TYPE_FLOAT32);
-            band.setDescription(outputVariable.expression);
+            Band band = product.addBand(outputVariable.getName(), ProductData.TYPE_FLOAT32);
+            band.setDescription(outputVariable.getExpression());
             final String countBandName = getCountBandName(outputVariable);
             band.setValidPixelExpression(String.format("%s > 0", countBandName));
 
             Band countBand = product.addBand(countBandName, ProductData.TYPE_INT32);
-            countBand.setDescription(String.format("Count of %s", outputVariable.name));
+            countBand.setDescription(String.format("Count of %s", outputVariable.getName()));
         }
 
         if (conditions != null) {
             for (Condition condition : conditions) {
-                if (condition.output) {
-                    Band band = product.addBand(condition.name, ProductData.TYPE_INT32);
-                    band.setDescription(condition.expression);
+                if (condition.isOutput()) {
+                    Band band = product.addBand(condition.getName(), ProductData.TYPE_INT32);
+                    band.setDescription(condition.getExpression());
                 }
             }
         }
@@ -469,9 +481,9 @@ public class MosaicOp extends Operator {
     public static class Variable {
 
         @Parameter(description = "The name of the variable.")
-        public String name;
+        String name;
         @Parameter(description = "The expression of the variable.")
-        public String expression;
+        String expression;
 
         public Variable() {
         }
@@ -480,16 +492,32 @@ public class MosaicOp extends Operator {
             this.name = name;
             this.expression = expression;
         }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getExpression() {
+            return expression;
+        }
+
+        public void setExpression(String expression) {
+            this.expression = expression;
+        }
     }
 
     public static class Condition {
 
         @Parameter(description = "The name of the condition.")
-        public String name;
+        String name;
         @Parameter(description = "The expression of the condition.")
-        public String expression;
+        String expression;
         @Parameter(description = "Whether the result of the condition shall be written.")
-        public boolean output;
+        boolean output;
 
         public Condition() {
         }
@@ -500,27 +528,28 @@ public class MosaicOp extends Operator {
             this.output = output;
         }
 
-    }
-
-    public static class GeoBounds {
-
-        @Parameter(description = "The western longitude.")
-        double west;
-        @Parameter(description = "The northern latitude.")
-        double north;
-        @Parameter(description = "The eastern longitude.")
-        double east;
-        @Parameter(description = "The southern latitude.")
-        double south;
-
-        public GeoBounds() {
+        public String getName() {
+            return name;
         }
 
-        GeoBounds(double west, double north, double east, double south) {
-            this.west = west;
-            this.north = north;
-            this.east = east;
-            this.south = south;
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getExpression() {
+            return expression;
+        }
+
+        public void setExpression(String expression) {
+            this.expression = expression;
+        }
+
+        public boolean isOutput() {
+            return output;
+        }
+
+        public void setOutput(boolean output) {
+            this.output = output;
         }
     }
 
