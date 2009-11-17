@@ -3,18 +3,24 @@ package org.esa.beam.gpf.common.mosaic.ui;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import org.esa.beam.framework.dataio.ProductIOPlugIn;
+import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.framework.ui.io.FileArrayEditor;
+import org.esa.beam.util.io.BeamFileChooser;
+import org.esa.beam.util.io.BeamFileFilter;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+import javax.swing.filechooser.FileFilter;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.FlowLayout;
@@ -22,6 +28,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Iterator;
 
 /**
  * @author Marco Peters
@@ -66,7 +73,7 @@ class MosaicIOPanel extends JPanel {
 
     private JPanel createSourceProductsPanel() {
         final FileArrayEditor.EditorParent context = new FileArrayEditorContext(appContext);
-        FileArrayEditor sourceProductEditor = new FileArrayEditor(context, "Source products");
+        FileArrayEditor sourceProductEditor = new ProductArrayEditor(context);
         final FileArrayEditor.FileArrayEditorListener listener = new FileArrayEditor.FileArrayEditorListener() {
             @Override
             public void updatedList(final File[] files) {
@@ -225,4 +232,29 @@ class MosaicIOPanel extends JPanel {
 
     }
 
+    private static class ProductArrayEditor extends FileArrayEditor {
+
+        public ProductArrayEditor(EditorParent context) {
+            super(context, "Source products");
+        }
+
+        @Override
+            protected JFileChooser createFileChooserDialog() {
+            BeamFileChooser fileChooser = new BeamFileChooser();
+            fileChooser.setAcceptAllFileFilterUsed(true);
+            fileChooser.setDialogTitle("Mosaic - Open Source Product(s)"); /*I18N*/
+            fileChooser.setMultiSelectionEnabled(true);
+
+            Iterator allReaderPlugIns = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
+            while (allReaderPlugIns.hasNext()) {
+                final ProductIOPlugIn plugIn = (ProductIOPlugIn) allReaderPlugIns.next();
+                BeamFileFilter productFileFilter = plugIn.getProductFileFilter();
+                fileChooser.addChoosableFileFilter(productFileFilter);
+            }
+            FileFilter actualFileFilter = fileChooser.getAcceptAllFileFilter();
+            fileChooser.setFileFilter(actualFileFilter);
+
+            return fileChooser;
+        }
+    }
 }
