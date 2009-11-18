@@ -50,6 +50,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Marco Peters
@@ -89,12 +90,11 @@ public class MosaicOp extends Operator {
     @Parameter(description = "Text in WKT format describing the target Coordinate Reference System.")
     String wkt;
 
-    @Parameter(description = "Wether the source product should be orthorectified. (Currently only applicable for MERIS and AATSR)",
-               defaultValue = "false")
+    @Parameter(description = "Wether the source product should be orthorectified.", defaultValue = "false")
     boolean orthorectify;
-    @Parameter(description = "The name of the elevation model for the orthorectification. If not given tie-point data is used.")
+    @Parameter(description = "The name of the elevation model for the orthorectification.")
     String elevationModelName;
-    
+
     @Parameter(alias = "resampling", label = "Resampling Method", description = "The method used for resampling.",
                valueSet = {"Nearest", "Bilinear", "Bicubic"}, defaultValue = "Nearest")
     String resamplingName;
@@ -119,7 +119,7 @@ public class MosaicOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         if (isUpdateMode()) {
-            initParameters(updateProduct);
+            initFields();
             targetProduct = updateProduct;
             updateMetadata(targetProduct);
         } else {
@@ -140,6 +140,7 @@ public class MosaicOp extends Operator {
         setTargetBandImages(targetProduct, mosaicImageList, variableCountImageList);
         reprojectedProducts = null;
     }
+
 
     private void updateMetadata(Product product) {
         final MetadataElement graphElement = product.getMetadataRoot().getElement("Processing_Graph");
@@ -165,93 +166,9 @@ public class MosaicOp extends Operator {
         }
     }
 
-
-    private void initParameters(Product product) {
-        final MetadataElement graphElement = product.getMetadataRoot().getElement("Processing_Graph");
-        for (MetadataElement nodeElement : graphElement.getElements()) {
-            if (getSpi().getOperatorAlias().equals(nodeElement.getAttributeString("operator"))) {
-                initParameters(this, nodeElement.getElement("parameters"));
-            }
-        }
-    }
-
-    private void initParameters(Object parentObject, MetadataElement parentElement) {
-        for (Field field : parentObject.getClass().getDeclaredFields()) {
-            final Parameter annotation = field.getAnnotation(Parameter.class);
-            if (annotation != null) {
-                final Class<?> fieldType = field.getType();
-                if (fieldType.isArray()) {
-                    initArrayParameter(parentObject, parentElement, field);
-                } else {
-                    initParameter(parentObject, parentElement, field);
-                }
-            }
-        }
-    }
-
-    private void initParameter(Object parentObject, MetadataElement parentElement, Field field) throws
-                                                                                                OperatorException {
-        Parameter annotation = field.getAnnotation(Parameter.class);
-        String name = annotation.alias();
-        if (name.isEmpty()) {
-            name = field.getName();
-        }
-        try {
-            if (parentElement.containsAttribute(name)) {
-                final Converter converter = getConverter(field.getType(), annotation);
-                final String parameterText = parentElement.getAttributeString(name);
-                final Object value = converter.parse(parameterText);
-                field.set(parentObject, value);
-            } else {
-                final MetadataElement element = parentElement.getElement(name);
-                if (element != null) {
-                    final Object obj = field.getType().newInstance();
-                    initParameters(obj, element);
-                    field.set(parentObject, obj);
-                }
-            }
-        } catch (Exception e) {
-            throw new OperatorException(String.format("Cannot initialise operator parameter '%s'", name), e);
-        }
-    }
-
-    private void initArrayParameter(Object parentObject, MetadataElement parentElement, Field field) throws
-                                                                                                     OperatorException {
-        String name = field.getAnnotation(Parameter.class).alias();
-        if (name.isEmpty()) {
-            name = field.getName();
-        }
-        final MetadataElement element = parentElement.getElement(name);
-        try {
-            if (element != null) {
-                final MetadataElement[] elements = element.getElements();
-                final Class<?> componentType = field.getType().getComponentType();
-                final Object array = Array.newInstance(componentType, elements.length);
-                for (int i = 0; i < elements.length; i++) {
-                    MetadataElement e = elements[i];
-                    final Object componentInstance = componentType.newInstance();
-                    initParameters(componentInstance, e);
-                    Array.set(array, i, componentInstance);
-                }
-                field.set(parentObject, array);
-            }
-        } catch (Exception e) {
-            throw new OperatorException(String.format("Cannot initialise operator parameter '%s'", name), e);
-        }
-    }
-
-    private static Converter<?> getConverter(Class<?> type, Parameter parameter) throws OperatorException {
-        final Class<? extends Converter> converter = parameter.converter();
-        if (converter == Converter.class) {
-            return ConverterRegistry.getInstance().getConverter(type);
-        } else {
-            try {
-                return converter.newInstance();
-            } catch (Exception e) {
-                final String message = String.format("Cannot find converter for  type '%s'", type);
-                throw new OperatorException(message, e);
-            }
-        }
+    private void initFields() {
+        final Map<String, Object> params = getOperatorParameters(updateProduct);
+        initObject(params, this);
     }
 
     private List<RenderedImage> createVariableCountImages(List<List<PlanarImage>> alphaImageList) {
@@ -563,6 +480,129 @@ public class MosaicOp extends Operator {
 
         public Spi() {
             super(MosaicOp.class);
+        }
+    }
+
+    public static Map<String, Object> getOperatorParameters(Product product) throws OperatorException {
+        final MetadataElement graphElement = product.getMetadataRoot().getElement("Processing_Graph");
+        if(graphElement == null) {
+            throw new OperatorException("Product has no metadata element named 'Processing_Graph'");
+        }
+        final String operatorAlias = "Mosaic";
+        final Map<String, Object> parameters = new HashMap<String, Object>();
+        boolean operatorFound = false;
+        for (MetadataElement nodeElement : graphElement.getElements()) {
+            if (operatorAlias.equals(nodeElement.getAttributeString("operator"))) {
+                operatorFound = true;
+                collectParameters(MosaicOp.class, nodeElement.getElement("parameters"), parameters);
+            }
+        }
+        if(!operatorFound) {
+            throw new OperatorException("No metadata found for operator '"+operatorAlias+"'");
+        }
+        return parameters;
+    }
+
+    private static void collectParameters(Class<?> operatorClass, MetadataElement parentElement,
+                                Map<String, Object> parameters) {
+        for (Field field : operatorClass.getDeclaredFields()) {
+            final Parameter annotation = field.getAnnotation(Parameter.class);
+            if (annotation != null) {
+                final Class<?> fieldType = field.getType();
+                if (fieldType.isArray()) {
+                    initArrayParameter(parentElement, field, parameters);
+                } else {
+                    initParameter(parentElement, field, parameters);
+                }
+            }
+        }
+    }
+
+    private static void initParameter(MetadataElement parentElement, Field field,
+                               Map<String, Object> parameters) throws
+                                                               OperatorException {
+        Parameter annotation = field.getAnnotation(Parameter.class);
+        String name = annotation.alias();
+        if (name.isEmpty()) {
+            name = field.getName();
+        }
+        try {
+            if (parentElement.containsAttribute(name)) {
+                final Converter converter = getConverter(field.getType(), annotation);
+                final String parameterText = parentElement.getAttributeString(name);
+                final Object value = converter.parse(parameterText);
+                parameters.put(name, value);
+            } else {
+                final MetadataElement element = parentElement.getElement(name);
+                if (element != null) {
+                    final Object obj = field.getType().newInstance();
+                    final HashMap<String, Object> objParams = new HashMap<String, Object>();
+                    collectParameters(obj.getClass(), element, objParams);
+                    initObject(objParams, obj);
+                    parameters.put(name, obj);
+                }
+            }
+        } catch (Exception e) {
+            throw new OperatorException(String.format("Cannot initialise operator parameter '%s'", name), e);
+        }
+    }
+
+    private static void initArrayParameter(MetadataElement parentElement, Field field,
+                                    Map<String, Object> parameters) throws OperatorException {
+        String name = field.getAnnotation(Parameter.class).alias();
+        if (name.isEmpty()) {
+            name = field.getName();
+        }
+        final MetadataElement element = parentElement.getElement(name);
+        try {
+            if (element != null) {
+                final MetadataElement[] elements = element.getElements();
+                final Class<?> componentType = field.getType().getComponentType();
+                final Object array = Array.newInstance(componentType, elements.length);
+                for (int i = 0; i < elements.length; i++) {
+                    MetadataElement arrayElement = elements[i];
+                    final Object componentInstance = componentType.newInstance();
+                    final HashMap<String, Object> objParams = new HashMap<String, Object>();
+                    collectParameters(componentInstance.getClass(), arrayElement, objParams);
+                    initObject(objParams, componentInstance);
+                    Array.set(array, i, componentInstance);
+                }
+                parameters.put(name, array);
+            }
+        } catch (Exception e) {
+            throw new OperatorException(String.format("Cannot initialise operator parameter '%s'", name), e);
+        }
+    }
+
+    private static void initObject(Map<String, Object> params, Object object) {
+        for (Field field : object.getClass().getDeclaredFields()) {
+            final Parameter annotation = field.getAnnotation(Parameter.class);
+            if (annotation != null) {
+                String name = annotation.alias();
+                if (name.isEmpty()) {
+                    name = field.getName();
+                }
+                try {
+                    field.set(object, params.get(name));
+                } catch (Exception e) {
+                    final String msg = String.format("Cannot initialise operator parameter '%s'", name);
+                    throw new OperatorException(msg, e);
+                }
+            }
+        }
+    }
+
+    private static Converter<?> getConverter(Class<?> type, Parameter parameter) throws OperatorException {
+        final Class<? extends Converter> converter = parameter.converter();
+        if (converter == Converter.class) {
+            return ConverterRegistry.getInstance().getConverter(type);
+        } else {
+            try {
+                return converter.newInstance();
+            } catch (Exception e) {
+                final String message = String.format("Cannot find converter for  type '%s'", type);
+                throw new OperatorException(message, e);
+            }
         }
     }
 

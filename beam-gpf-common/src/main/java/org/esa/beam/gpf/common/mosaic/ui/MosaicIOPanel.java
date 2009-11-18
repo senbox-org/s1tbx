@@ -5,12 +5,15 @@ import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.framework.ui.io.FileArrayEditor;
+import org.esa.beam.gpf.common.mosaic.MosaicOp;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 
@@ -29,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @author Marco Peters
@@ -66,7 +70,18 @@ class MosaicIOPanel extends JPanel {
         updateProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
-                properties.setValue(MosaicFormModel.PROPERTY_UPDATE_PRODUCT, event.getSelection().getFirstElement());
+                final Product product = (Product) event.getSelection().getFirstElement();
+                try {
+                    final Map<String, Object> map = MosaicOp.getOperatorParameters(product);
+                    for (Map.Entry<String,Object> entry : map.entrySet()) {
+                        if(properties.getProperty(entry.getKey()) != null){
+                            properties.setValue(entry.getKey(), entry.getValue());
+                        }
+                    }
+                    properties.setValue(MosaicFormModel.PROPERTY_UPDATE_PRODUCT, product);
+                } catch (OperatorException e) {
+                    appContext.handleError("Selected product cannot be used for update mode.", e);
+                }
             }
         });
     }
@@ -234,7 +249,7 @@ class MosaicIOPanel extends JPanel {
 
     private static class ProductArrayEditor extends FileArrayEditor {
 
-        public ProductArrayEditor(EditorParent context) {
+        private ProductArrayEditor(EditorParent context) {
             super(context, "Source products");
         }
 
