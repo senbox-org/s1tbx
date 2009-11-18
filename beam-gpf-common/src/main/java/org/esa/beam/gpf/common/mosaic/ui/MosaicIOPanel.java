@@ -30,6 +30,8 @@ import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
@@ -54,6 +56,16 @@ class MosaicIOPanel extends JPanel {
         targetProductSelector = selector;
         updateProductSelector = new SourceProductSelector(appContext);
         init();
+        properties.addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (Boolean.TRUE.equals(evt.getNewValue())) {
+                    properties.setValue("updateProduct", updateProductSelector.getSelectedProduct());
+                } else {
+                    updateProductSelector.setSelectedProduct(null);
+                }
+            }
+        });
     }
 
     private void init() {
@@ -72,10 +84,12 @@ class MosaicIOPanel extends JPanel {
             public void selectionChanged(SelectionChangeEvent event) {
                 final Product product = (Product) event.getSelection().getFirstElement();
                 try {
-                    final Map<String, Object> map = MosaicOp.getOperatorParameters(product);
-                    for (Map.Entry<String,Object> entry : map.entrySet()) {
-                        if(properties.getProperty(entry.getKey()) != null){
-                            properties.setValue(entry.getKey(), entry.getValue());
+                    if (product != null) {
+                        final Map<String, Object> map = MosaicOp.getOperatorParameters(product);
+                        for (Map.Entry<String,Object> entry : map.entrySet()) {
+                            if(properties.getProperty(entry.getKey()) != null){
+                                properties.setValue(entry.getKey(), entry.getValue());
+                            }
                         }
                     }
                     properties.setValue(MosaicFormModel.PROPERTY_UPDATE_PRODUCT, product);

@@ -16,6 +16,7 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.CoordinateSystem;
 
+import javax.measure.unit.NonSI;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
@@ -23,6 +24,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
@@ -122,8 +124,8 @@ class MosaicMapProjectionPanel extends JPanel {
         try {
             final CoordinateReferenceSystem crs = crsSelectionPanel.getCrs(new GeoPos(lat, lon));
             if(crs != null){
-                mosaicModel.setWkt(crs.toWKT());
                 updatePixelUnit(crs);
+                mosaicModel.setWkt(crs.toWKT());
             } else {
                 mosaicModel.setWkt(null);
             }
@@ -170,7 +172,7 @@ class MosaicMapProjectionPanel extends JPanel {
     }
 
     private JPanel createBoundsInputPanel() {
-        final TableLayout layout = new TableLayout(7);
+        final TableLayout layout = new TableLayout(9);
         layout.setTableAnchor(TableLayout.Anchor.WEST);
         layout.setTableFill(TableLayout.Fill.BOTH);
         layout.setTableWeightX(1.0);
@@ -179,47 +181,58 @@ class MosaicMapProjectionPanel extends JPanel {
         layout.setColumnWeightX(0, 0.0);
         layout.setColumnWeightX(1, 1.0);
         layout.setColumnWeightX(2, 0.0);
-        layout.setColumnWeightX(3, 1.0);
-        layout.setColumnWeightX(4, 0.0);
-        layout.setColumnWeightX(5, 1.0);
+        layout.setColumnWeightX(3, 0.0);
+        layout.setColumnWeightX(4, 1.0);
+        layout.setColumnWeightX(5, 0.0);
         layout.setColumnWeightX(6, 0.0);
-        layout.setColumnPadding(1, new Insets(3, 3, 3, 9));
-        layout.setColumnPadding(3, new Insets(3, 3, 3, 9));
+        layout.setColumnWeightX(7, 1.0);
+        layout.setColumnWeightX(8, 0.0);
+        layout.setColumnPadding(2, new Insets(3, 0, 3, 12));
+        layout.setColumnPadding(5, new Insets(3, 0, 3, 12));
         final JPanel panel = new JPanel(layout);
-        final DoubleFormatter degreeFormatter = new DoubleFormatter("###0.0##°");
-        final DoubleFormatter pixelSizeFormatter = new DoubleFormatter("###0.0##");
-        pixelXUnit = new JLabel("°");
-        pixelYUnit = new JLabel("°");
+        final DoubleFormatter doubleFormatter = new DoubleFormatter("###0.0##");
+        pixelXUnit = new JLabel(NonSI.DEGREE_ANGLE.toString());
+        pixelYUnit = new JLabel(NonSI.DEGREE_ANGLE.toString());
 
         panel.add(new JLabel("West:"));
-        final JFormattedTextField westLonField = new JFormattedTextField(degreeFormatter);
+        final JFormattedTextField westLonField = new JFormattedTextField(doubleFormatter);
+        westLonField.setHorizontalAlignment(JTextField.RIGHT);
         binding.bind("westBound", westLonField);
         binding.bindEnabledState("westBound", false, "updateMode", true);
         panel.add(westLonField);
+        panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
         panel.add(new JLabel("East:"));
-        final JFormattedTextField eastLonField = new JFormattedTextField(degreeFormatter);
+        final JFormattedTextField eastLonField = new JFormattedTextField(doubleFormatter);
+        eastLonField.setHorizontalAlignment(JTextField.RIGHT);
         binding.bind("eastBound", eastLonField);
         binding.bindEnabledState("eastBound", false, "updateMode", true);
         panel.add(eastLonField);
+        panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
         panel.add(new JLabel("Pixel size X:"));
-        pixelSizeXField = new JFormattedTextField(pixelSizeFormatter);
+        pixelSizeXField = new JFormattedTextField(doubleFormatter);
+        pixelSizeXField.setHorizontalAlignment(JTextField.RIGHT);
         binding.bind("pixelSizeX", pixelSizeXField);
         binding.bindEnabledState("pixelSizeX", false, "updateMode", true);
         panel.add(pixelSizeXField);
         panel.add(pixelXUnit);
         
         panel.add(new JLabel("North:"));
-        final JFormattedTextField northLatField = new JFormattedTextField(degreeFormatter);
+        final JFormattedTextField northLatField = new JFormattedTextField(doubleFormatter);
+        northLatField.setHorizontalAlignment(JTextField.RIGHT);
         binding.bind("northBound", northLatField);
         binding.bindEnabledState("northBound", false, "updateMode", true);
         panel.add(northLatField);
+        panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
         panel.add(new JLabel("South:"));
-        final JFormattedTextField southLatField = new JFormattedTextField(degreeFormatter);
+        final JFormattedTextField southLatField = new JFormattedTextField(doubleFormatter);
+        southLatField.setHorizontalAlignment(JTextField.RIGHT);
         binding.bind("southBound", southLatField);
         binding.bindEnabledState("southBound", false, "updateMode", true);
         panel.add(southLatField);
+        panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
         panel.add(new JLabel("Pixel size Y:"));
-        pixelSizeYField = new JFormattedTextField(pixelSizeFormatter);
+        pixelSizeYField = new JFormattedTextField(doubleFormatter);
+        pixelSizeYField.setHorizontalAlignment(JTextField.RIGHT);
         binding.bind("pixelSizeY", pixelSizeYField);
         binding.bindEnabledState("pixelSizeY", false, "updateMode", true);
         panel.add(pixelSizeYField);
