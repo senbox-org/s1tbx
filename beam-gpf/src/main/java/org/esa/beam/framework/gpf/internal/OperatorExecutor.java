@@ -137,7 +137,7 @@ public class OperatorExecutor {
     private static void waitForScheduler(AtomicInteger scheduledTiles, int threshold) {
         while (scheduledTiles.intValue() > threshold) {
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 throw new OperatorException(e);
             }
