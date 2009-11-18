@@ -66,6 +66,18 @@ class MosaicMapProjectionPanel extends JPanel {
         if (demValueSet.length > 0) {
             mosaicModel.getPropertyContainer().setValue("elevationModelName", demValueSet[0]);
         }
+
+        mosaicModel.getPropertyContainer().addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                final Boolean updateMode = (Boolean) evt.getNewValue();
+                setEnableState(!updateMode);
+            }
+        });
+    }
+
+    private void setEnableState(Boolean enabled) {
+        crsSelectionPanel.setEnabled(enabled);
     }
 
     private void createUI() {
@@ -145,26 +157,32 @@ class MosaicMapProjectionPanel extends JPanel {
         panel.add(new JLabel("West:"));
         final JFormattedTextField westLonField = new JFormattedTextField(formatter);
         binding.bind("westBound", westLonField);
+        binding.bindEnabledState("westBound", false, "updateMode", true);
         panel.add(westLonField);
         panel.add(new JLabel("East:"));
         final JFormattedTextField eastLonField = new JFormattedTextField(formatter);
         binding.bind("eastBound", eastLonField);
+        binding.bindEnabledState("eastBound", false, "updateMode", true);
         panel.add(eastLonField);
         panel.add(new JLabel("Pixel size X:"));
         final JFormattedTextField pixelSizeXField = new JFormattedTextField(formatter);
         binding.bind("pixelSizeX", pixelSizeXField);
+        binding.bindEnabledState("pixelSizeX", false, "updateMode", true);
         panel.add(pixelSizeXField);
         panel.add(new JLabel("North:"));
         final JFormattedTextField northLatField = new JFormattedTextField(formatter);
         binding.bind("northBound", northLatField);
+        binding.bindEnabledState("northBound", false, "updateMode", true);
         panel.add(northLatField);
         panel.add(new JLabel("South:"));
         final JFormattedTextField southLatField = new JFormattedTextField(formatter);
         binding.bind("southBound", southLatField);
+        binding.bindEnabledState("southBound", false, "updateMode", true);
         panel.add(southLatField);
         panel.add(new JLabel("Pixel size Y:"));
         final JFormattedTextField pixelSizeYField = new JFormattedTextField(formatter);
         binding.bind("pixelSizeY", pixelSizeYField);
+        binding.bindEnabledState("pixelSizeY", false, "updateMode", true);
         panel.add(pixelSizeYField);
 
         return panel;
@@ -182,9 +200,11 @@ class MosaicMapProjectionPanel extends JPanel {
 
         final JCheckBox orthoCheckBox = new JCheckBox("Orthorectify input products");
         binding.bind("orthorectify", orthoCheckBox);
+        binding.bindEnabledState("orthorectify", false, "updateMode", true);
         JComboBox demComboBox = new JComboBox(new DefaultComboBoxModel(demValueSet));
         binding.bind("elevationModelName", demComboBox);
         binding.bindEnabledState("elevationModelName", true, "orthorectify", true);
+        binding.bindEnabledState("elevationModelName", false, "updateMode", true);
         layout.setCellColspan(0, 0, 2);
         panel.add(orthoCheckBox);
 

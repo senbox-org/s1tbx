@@ -163,8 +163,8 @@ public class CustomCrsPanel extends JPanel {
 
     private void updateEnableState(boolean componentEnabled) {
         operationComboBox.setEnabled(componentEnabled);
-        datumComboBox.setEnabled(componentEnabled && model.operationWrapper.isDatumChangable());
-        paramButton.setEnabled(componentEnabled && model.operationWrapper.hasParameters());
+        datumComboBox.setEnabled(model.operationWrapper.isDatumChangable() && componentEnabled);
+        paramButton.setEnabled(model.operationWrapper.hasParameters() && componentEnabled);
     }
 
     private void updateModel(String propertyName) {

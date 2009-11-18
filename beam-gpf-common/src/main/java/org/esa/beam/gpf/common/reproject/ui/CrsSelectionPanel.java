@@ -44,7 +44,7 @@ public class CrsSelectionPanel extends JPanel {
         this(appContext, true);
     }
 
-    public CrsSelectionPanel(AppContext appContext, boolean showCollocation) {
+    public CrsSelectionPanel(AppContext appContext, final boolean showCollocation) {
         this.showCollocation = showCollocation;
         customCrsUI = new CustomCrsForm(appContext);
         predefinedCrsUI = new PredefinedCrsForm(appContext);
@@ -54,6 +54,20 @@ public class CrsSelectionPanel extends JPanel {
 
         createUI();
         crsChangeListener = new CrsChangeListener();
+        addPropertyChangeListener("enabled", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                final Boolean enabled = (Boolean) evt.getNewValue();
+                customCrsButtonModel.setEnabled(enabled);
+                predefinedCrsButtonModel.setEnabled(enabled);
+                customCrsComponent.setEnabled(enabled);
+                predefinedCrsComponent.setEnabled(enabled);
+                if (showCollocation) {
+                    collocationButtonModel.setEnabled(enabled);
+                    collocationComponent.setEnabled(enabled);
+                }
+            }
+        });
     }
 
     public void setReferenceProduct(Product product) {
