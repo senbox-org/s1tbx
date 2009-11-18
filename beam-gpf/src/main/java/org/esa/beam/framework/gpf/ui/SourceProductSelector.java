@@ -1,22 +1,34 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.swing.TableLayout;
-
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductFilter;
-import org.esa.beam.framework.ui.BasicApp;
+import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.framework.ui.application.support.DefaultSelection;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import java.awt.BorderLayout;
@@ -157,6 +169,10 @@ public class SourceProductSelector {
     }
 
     public void setSelectedProduct(Product product) {
+        if (product == null) {
+            productListModel.setSelectedItem(null);
+            return;
+        }
         if (productListModelContains(product)) {
             productListModel.setSelectedItem(product);
         } else {
