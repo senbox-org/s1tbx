@@ -18,31 +18,15 @@ class ConditionsTableAdapter extends AbstractTableAdapter {
         final TableModel tableModel = (TableModel) e.getSource();
         final MosaicOp.Condition[] conditions = new MosaicOp.Condition[tableModel.getRowCount()];
         for (int i = 0; i < conditions.length; i++) {
-            conditions[i] = new MosaicOp.Condition(tableModel.getValueAt(i, 0).toString(),
-                                                   tableModel.getValueAt(i, 1).toString(),
-                                                   (Boolean) tableModel.getValueAt(i, 2));
+            conditions[i] = new MosaicOp.Condition((String) tableModel.getValueAt(i, 0),
+                                                   (String) tableModel.getValueAt(i, 1),
+                                                   Boolean.TRUE.equals(tableModel.getValueAt(i, 2)));
         }
         getBinding().setPropertyValue(conditions);
     }
 
     @Override
-    protected TableModel createTableModel(Object data) {
-        if (data instanceof MosaicOp.Condition[]) {
-            final MosaicOp.Condition[] conditions = (MosaicOp.Condition[]) data;
-            final TableModel tableModel = createTableModel(conditions.length);
-            for (int i = 0; i < conditions.length; i++) {
-                final MosaicOp.Condition variable = conditions[i];
-                tableModel.setValueAt(variable.getName(), i, 0);
-                tableModel.setValueAt(variable.getExpression(), i, 1);
-                tableModel.setValueAt(variable.isOutput(), i, 2);
-            }
-            return tableModel;
-        }
-        return createTableModel(0);
-    }
-
-    private TableModel createTableModel(int rowCount) {
-        // for adding and removing rows it is important to create a DefaultTableModel
+    protected final DefaultTableModel createTableModel(int rowCount) {
         return new DefaultTableModel(new String[]{"Name", "Expression", "Output"}, rowCount);
     }
 }

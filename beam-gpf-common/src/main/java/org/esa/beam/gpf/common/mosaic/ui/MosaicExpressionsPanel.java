@@ -95,9 +95,9 @@ class MosaicExpressionsPanel extends JPanel {
         final JPanel variableButtonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         variableButtonsPanel.setName(labelName);
 
-        final Component bandFileterButton = createBandFilterButton();
-        bandFileterButton.setName(labelName);
-        variableButtonsPanel.add(bandFileterButton);
+        final Component bandFilterButton = createBandFilterButton();
+        bandFilterButton.setName(labelName);
+        variableButtonsPanel.add(bandFilterButton);
 
         final Component newVariableButton = createNewVariableButton();
         newVariableButton.setName(labelName);
@@ -120,7 +120,7 @@ class MosaicExpressionsPanel extends JPanel {
         gbc.gridy++;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.BOTH;
-        final JScrollPane valuesTable = createValuesTable(labelName);
+        final JScrollPane valuesTable = createVariablesTable(labelName);
         panel.add(valuesTable, gbc);
 
         return panel;
@@ -399,7 +399,7 @@ class MosaicExpressionsPanel extends JPanel {
         return moveVariableDownButton;
     }
 
-    private JScrollPane createValuesTable(final String labelName) {
+    private JScrollPane createVariablesTable(final String labelName) {
         variablesTable = new JTable();
         variablesTable.setName(labelName);
         variablesTable.setRowSelectionAllowed(true);
@@ -478,7 +478,7 @@ class MosaicExpressionsPanel extends JPanel {
         if (i == ModalDialog.ID_OK) {
             value[0] = pep.getCode();
         }
-        return 0;
+        return i;
     }
 
     private class ExprEditor extends AbstractCellEditor implements TableCellEditor {
@@ -639,7 +639,6 @@ class MosaicExpressionsPanel extends JPanel {
                                                        int row, int column) {
             final boolean enabled = table.isEnabled();
             setText((String) value);
-
 
             if (isSelected) {
                 super.setForeground(table.getSelectionForeground());

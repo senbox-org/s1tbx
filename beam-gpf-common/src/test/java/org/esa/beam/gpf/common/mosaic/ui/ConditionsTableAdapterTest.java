@@ -29,8 +29,8 @@ public class ConditionsTableAdapterTest {
         assertTrue(table.getModel() instanceof DefaultTableModel);
 
         final DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
-        tableModel.addRow(new Object[]{"", "", true});
-        tableModel.addRow(new Object[]{"", "", true});
+        tableModel.addRow((Object[]) null);
+        tableModel.addRow((Object[]) null);
 
         assertEquals(2, table.getRowCount());
 
