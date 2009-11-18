@@ -125,14 +125,12 @@ class MosaicFormModel {
         }
         return null;
     }
-    
-    void setWkt(CoordinateReferenceSystem crs) {
-        if (crs != null) {
-            setPropertyValue("wkt", crs.toWKT());
-            if (getPropertyValue("epsgCode") != null) {
-                // clear default epsgCode, so wkt has precedence
-                setPropertyValue("epsgCode", null);
-            }
+
+    void setWkt(String wkt) {
+        setPropertyValue("wkt", wkt);
+        if (getPropertyValue("epsgCode") != null) {
+            // clear default epsgCode, so wkt has precedence
+            setPropertyValue("epsgCode", null);
         }
     }
 

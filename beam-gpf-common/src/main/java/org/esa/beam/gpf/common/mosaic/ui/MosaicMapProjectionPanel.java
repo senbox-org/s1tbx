@@ -13,6 +13,8 @@ import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.gpf.common.reproject.ui.CrsSelectionPanel;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.cs.CoordinateSystem;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -29,8 +31,10 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author Marco Peters
@@ -45,14 +49,23 @@ class MosaicMapProjectionPanel extends JPanel {
     private CrsSelectionPanel crsSelectionPanel;
     private final BindingContext binding;
     private String[] demValueSet;
+    private JLabel pixelXUnit;
+    private JLabel pixelYUnit;
+    private Map<String, Double> unitMap;
+    private JFormattedTextField pixelSizeXField;
+    private JFormattedTextField pixelSizeYField;
 
     MosaicMapProjectionPanel(AppContext appContext, MosaicFormModel mosaicModel) {
         this.appContext = appContext;
         this.mosaicModel = mosaicModel;
         binding = new BindingContext(mosaicModel.getPropertyContainer());
+        unitMap = new HashMap<String, Double>();
+        unitMap.put("°", 0.05);
+        unitMap.put("m", 1000.0);
+        unitMap.put("km", 1.0);
         init();
         createUI();
-        updateWkt();
+        updateForCrsChanged();
         binding.adjustComponents();
 
     }
@@ -92,7 +105,7 @@ class MosaicMapProjectionPanel extends JPanel {
         crsSelectionPanel.addPropertyChangeListener("crs", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                updateWkt();
+                updateForCrsChanged();
             }
         });
         JPanel orthorectifyPanel = createOrthorectifyPanel();
@@ -102,14 +115,34 @@ class MosaicMapProjectionPanel extends JPanel {
         add(mosaicBoundsPanel);
     }
 
-    private void updateWkt() {
+    private void updateForCrsChanged() {
         final DirectPosition referencePos = mosaicModel.getGeoEnvelope().getMedian();
         final float lon = (float) referencePos.getOrdinate(0);
         final float lat = (float) referencePos.getOrdinate(1);
         try {
-            mosaicModel.setWkt(crsSelectionPanel.getCrs(new GeoPos(lat, lon)));
+            final CoordinateReferenceSystem crs = crsSelectionPanel.getCrs(new GeoPos(lat, lon));
+            if(crs != null){
+                mosaicModel.setWkt(crs.toWKT());
+                updatePixelUnit(crs);
+            } else {
+                mosaicModel.setWkt(null);
+            }
         } catch (FactoryException ignored) {
             mosaicModel.setWkt(null);
+        }
+    }
+
+    private void updatePixelUnit(CoordinateReferenceSystem crs) {
+        final CoordinateSystem coordinateSystem = crs.getCoordinateSystem();
+        final String unitX = coordinateSystem.getAxis(0).getUnit().toString();
+        if (!unitX.equals(pixelXUnit.getText())) {
+            pixelXUnit.setText(unitX);
+            pixelSizeXField.setValue(unitMap.get(unitX));
+        }
+        final String unitY = coordinateSystem.getAxis(1).getUnit().toString();
+        if (!unitY.equals(pixelYUnit.getText())) {
+            pixelYUnit.setText(unitY);
+            pixelSizeYField.setValue(unitMap.get(unitY));
         }
     }
 
@@ -137,7 +170,7 @@ class MosaicMapProjectionPanel extends JPanel {
     }
 
     private JPanel createBoundsInputPanel() {
-        final TableLayout layout = new TableLayout(6);
+        final TableLayout layout = new TableLayout(7);
         layout.setTableAnchor(TableLayout.Anchor.WEST);
         layout.setTableFill(TableLayout.Fill.BOTH);
         layout.setTableWeightX(1.0);
@@ -149,41 +182,48 @@ class MosaicMapProjectionPanel extends JPanel {
         layout.setColumnWeightX(3, 1.0);
         layout.setColumnWeightX(4, 0.0);
         layout.setColumnWeightX(5, 1.0);
+        layout.setColumnWeightX(6, 0.0);
         layout.setColumnPadding(1, new Insets(3, 3, 3, 9));
         layout.setColumnPadding(3, new Insets(3, 3, 3, 9));
         final JPanel panel = new JPanel(layout);
-        final DegreeFormatter formatter = new DegreeFormatter();
+        final DoubleFormatter degreeFormatter = new DoubleFormatter("###0.0##°");
+        final DoubleFormatter pixelSizeFormatter = new DoubleFormatter("###0.0##");
+        pixelXUnit = new JLabel("°");
+        pixelYUnit = new JLabel("°");
 
         panel.add(new JLabel("West:"));
-        final JFormattedTextField westLonField = new JFormattedTextField(formatter);
+        final JFormattedTextField westLonField = new JFormattedTextField(degreeFormatter);
         binding.bind("westBound", westLonField);
         binding.bindEnabledState("westBound", false, "updateMode", true);
         panel.add(westLonField);
         panel.add(new JLabel("East:"));
-        final JFormattedTextField eastLonField = new JFormattedTextField(formatter);
+        final JFormattedTextField eastLonField = new JFormattedTextField(degreeFormatter);
         binding.bind("eastBound", eastLonField);
         binding.bindEnabledState("eastBound", false, "updateMode", true);
         panel.add(eastLonField);
         panel.add(new JLabel("Pixel size X:"));
-        final JFormattedTextField pixelSizeXField = new JFormattedTextField(formatter);
+        pixelSizeXField = new JFormattedTextField(pixelSizeFormatter);
         binding.bind("pixelSizeX", pixelSizeXField);
         binding.bindEnabledState("pixelSizeX", false, "updateMode", true);
         panel.add(pixelSizeXField);
+        panel.add(pixelXUnit);
+        
         panel.add(new JLabel("North:"));
-        final JFormattedTextField northLatField = new JFormattedTextField(formatter);
+        final JFormattedTextField northLatField = new JFormattedTextField(degreeFormatter);
         binding.bind("northBound", northLatField);
         binding.bindEnabledState("northBound", false, "updateMode", true);
         panel.add(northLatField);
         panel.add(new JLabel("South:"));
-        final JFormattedTextField southLatField = new JFormattedTextField(formatter);
+        final JFormattedTextField southLatField = new JFormattedTextField(degreeFormatter);
         binding.bind("southBound", southLatField);
         binding.bindEnabledState("southBound", false, "updateMode", true);
         panel.add(southLatField);
         panel.add(new JLabel("Pixel size Y:"));
-        final JFormattedTextField pixelSizeYField = new JFormattedTextField(formatter);
+        pixelSizeYField = new JFormattedTextField(pixelSizeFormatter);
         binding.bind("pixelSizeY", pixelSizeYField);
         binding.bindEnabledState("pixelSizeY", false, "updateMode", true);
         panel.add(pixelSizeYField);
+        panel.add(pixelYUnit);
 
         return panel;
     }
@@ -256,22 +296,22 @@ class MosaicMapProjectionPanel extends JPanel {
 
     }
 
-    private static class DegreeFormatter extends JFormattedTextField.AbstractFormatter {
+    private static class DoubleFormatter extends JFormattedTextField.AbstractFormatter {
 
-        private final DecimalFormat degreeFormat;
+        private final DecimalFormat format;
 
-        DegreeFormatter() {
+        DoubleFormatter(String pattern) {
             final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
-            degreeFormat = new DecimalFormat("###0.0##°", decimalFormatSymbols);
+            format = new DecimalFormat(pattern, decimalFormatSymbols);
 
-            degreeFormat.setParseIntegerOnly(false);
-            degreeFormat.setParseBigDecimal(false);
-            degreeFormat.setDecimalSeparatorAlwaysShown(true);
+            format.setParseIntegerOnly(false);
+            format.setParseBigDecimal(false);
+            format.setDecimalSeparatorAlwaysShown(true);
         }
 
         @Override
         public Object stringToValue(String text) throws ParseException {
-            return degreeFormat.parse(text).doubleValue();
+            return format.parse(text).doubleValue();
         }
 
         @Override
@@ -279,7 +319,7 @@ class MosaicMapProjectionPanel extends JPanel {
             if (value == null) {
                 return "";
             }
-            return degreeFormat.format(value);
+            return format.format(value);
         }
     }
 }
