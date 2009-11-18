@@ -264,21 +264,23 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     }
 
     private static Color getConfiguredColor(RuntimeConfig config, String key) {
-        String areaStr = config.getContextProperty(key);
-        StringTokenizer st = new StringTokenizer(areaStr, ",");
-        int n = st.countTokens();
-        if (n == 3 || n == 4) {
-            try {
-                int r = Integer.parseInt(st.nextToken());
-                int g = Integer.parseInt(st.nextToken());
-                int b = Integer.parseInt(st.nextToken());
-                int a = 255;
-                if (st.hasMoreTokens()) {
-                    a = Integer.parseInt(st.nextToken());
+        String colorStr = config.getContextProperty(key);
+        if (colorStr != null && !colorStr.isEmpty()) {
+            StringTokenizer st = new StringTokenizer(colorStr, ",");
+            int n = st.countTokens();
+            if (n == 3 || n == 4) {
+                try {
+                    int r = Integer.parseInt(st.nextToken());
+                    int g = Integer.parseInt(st.nextToken());
+                    int b = Integer.parseInt(st.nextToken());
+                    int a = 255;
+                    if (st.hasMoreTokens()) {
+                        a = Integer.parseInt(st.nextToken());
+                    }
+                    return new Color(r, g, b, a);
+                } catch (Exception e) {
+                    // null is returned
                 }
-                return new Color(r, g, b, a);
-            } catch (Exception e) {
-                // null is returned
             }
         }
         return null;
@@ -286,17 +288,19 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
 
     private static Rectangle getConfiguredSplashProgressBarArea(RuntimeConfig config) {
         String areaStr = config.getContextProperty(CONFIG_KEY_SPLASH_PROGRESS_BAR_AREA);
-        StringTokenizer st = new StringTokenizer(areaStr, ",");
-        int n = st.countTokens();
-        if (n == 4) {
-            try {
-                int x = Integer.parseInt(st.nextToken());
-                int y = Integer.parseInt(st.nextToken());
-                int w = Integer.parseInt(st.nextToken());
-                int h = Integer.parseInt(st.nextToken());
-                return new Rectangle(x, y, w, h);
-            } catch (Exception e) {
-                // null is returned
+        if (areaStr != null && !areaStr.isEmpty()) {
+            StringTokenizer st = new StringTokenizer(areaStr, ",");
+            int n = st.countTokens();
+            if (n == 4) {
+                try {
+                    int x = Integer.parseInt(st.nextToken());
+                    int y = Integer.parseInt(st.nextToken());
+                    int w = Integer.parseInt(st.nextToken());
+                    int h = Integer.parseInt(st.nextToken());
+                    return new Rectangle(x, y, w, h);
+                } catch (Exception e) {
+                    // null is returned
+                }
             }
         }
         return null;
@@ -304,15 +308,17 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
 
     private static Point getConfiguredTaskLabelPos(RuntimeConfig config) {
         String posStr = config.getContextProperty(CONFIG_KEY_TASK_LABEL_POS);
-        StringTokenizer st = new StringTokenizer(posStr, ",");
-        int n = st.countTokens();
-        if (n == 2) {
-            try {
-                int x = Integer.parseInt(st.nextToken());
-                int y = Integer.parseInt(st.nextToken());
-                return new Point(x, y);
-            } catch (Exception e) {
-                // null is returned
+        if (posStr != null && !posStr.isEmpty()) {
+            StringTokenizer st = new StringTokenizer(posStr, ",");
+            int n = st.countTokens();
+            if (n == 2) {
+                try {
+                    int x = Integer.parseInt(st.nextToken());
+                    int y = Integer.parseInt(st.nextToken());
+                    return new Point(x, y);
+                } catch (Exception e) {
+                    // null is returned
+                }
             }
         }
         return null;
