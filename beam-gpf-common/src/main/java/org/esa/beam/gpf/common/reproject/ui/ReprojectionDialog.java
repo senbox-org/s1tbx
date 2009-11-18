@@ -7,8 +7,6 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.util.Debug;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.Map;
@@ -39,15 +37,9 @@ class ReprojectionDialog extends SingleTargetProductDialog {
             return false;
         }
 
-        try {
-            final CoordinateReferenceSystem crs = form.getSelectedCrs();
-            if(crs == null) {
-                showErrorDialog("No 'Coordinate Reference System' selected.");
-                return false;
-            }
-        } catch (FactoryException e) {
-            showErrorDialog(String.format("Not able to create 'Coordinate Reference System':\n%s", e.getMessage()));
-            Debug.trace(e);
+        final CoordinateReferenceSystem crs = form.getSelectedCrs();
+        if(crs == null) {
+            showErrorDialog("No 'Coordinate Reference System' selected.");
             return false;
         }
 

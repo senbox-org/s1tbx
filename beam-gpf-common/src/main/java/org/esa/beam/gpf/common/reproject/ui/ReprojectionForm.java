@@ -84,12 +84,8 @@ class ReprojectionForm extends JTabbedPane {
         parameterMap.put("resamplingName", reprojectionModel.resamplingMethod);
         parameterMap.put("includeTiePointGrids", reprojectionModel.reprojTiePoints);
         parameterMap.put("noDataValue", reprojectionModel.noDataValue);
-        try {
-            if (!crsSelectionPanel.isCollocate()) {
-                parameterMap.put("wkt", getSelectedCrs().toWKT());
-            }
-        } catch (FactoryException e) {
-            throw new IllegalStateException(e);
+        if (!crsSelectionPanel.isCollocate()) {
+            parameterMap.put("wkt", getSelectedCrs().toWKT());
         }
         if (orthoMode) {
             parameterMap.put("orthorectify", orthoMode);
@@ -127,7 +123,7 @@ class ReprojectionForm extends JTabbedPane {
         return sourceProductSelector.getSelectedProduct();
     }
 
-    CoordinateReferenceSystem getSelectedCrs() throws FactoryException {
+    CoordinateReferenceSystem getSelectedCrs() {
         return crs;
     }
 
@@ -205,8 +201,8 @@ class ReprojectionForm extends JTabbedPane {
     }
 
     private void updateCRS() {
+        final Product sourceProduct = getSourceProduct();
         try {
-            final Product sourceProduct = getSourceProduct();
             if (sourceProduct != null) {
                 crs = crsSelectionPanel.getCrs(ProductUtils.getCenterGeoPos(sourceProduct));
                 if (crs != null) {
@@ -222,6 +218,11 @@ class ReprojectionForm extends JTabbedPane {
             infoForm.setCrs(e.getMessage(), null);
             crs = null;
         }
+        if (sourceProduct != null && crs != null) {
+            OutputGeometryFormModel formModel = new OutputGeometryFormModel(sourceProduct, crs);
+            outputParameterContainer = formModel.getValueContainer();
+        }
+        
         updateOutputParameterState();
         updateProductSize();
     }
@@ -409,13 +410,11 @@ class ReprojectionForm extends JTabbedPane {
                     centerGeoPos = ProductUtils.getCenterGeoPos(sourceProduct);
                 }
                 infoForm.setCenterPos(centerGeoPos);
-                try {
-                    CoordinateReferenceSystem crs = getSelectedCrs();
-                    OutputGeometryFormModel formModel = new OutputGeometryFormModel(sourceProduct, crs);
-                    outputParameterContainer = formModel.getValueContainer();
-                    updateProductSize();
-                } catch (FactoryException ignore) {
-                }
+                updateCRS();
+//                    CoordinateReferenceSystem crs = getSelectedCrs();
+//                    OutputGeometryFormModel formModel = new OutputGeometryFormModel(sourceProduct, crs);
+//                    outputParameterContainer = formModel.getValueContainer();
+//                    updateProductSize();
             }
         });
         return panel;
