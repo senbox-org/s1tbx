@@ -5,10 +5,13 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
@@ -18,11 +21,15 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,12 +40,17 @@ import java.util.Map;
  */
 class MosaicFormModel {
 
-    private PropertyContainer container;
     public static final String PROPERTY_SOURCE_PRODUCT_FILES = "sourceProductFiles";
     public static final String PROPERTY_UPDATE_PRODUCT = "updateProduct";
     public static final String PROPERTY_UPDATE_MODE = "updateMode";
+    public static final String PROPERTY_SHOW_SOURCE_PRODUCTS = "showSourceProducts";
+
+    private final PropertyContainer container;
+
     private Product refProduct;
     private File refProductFile;
+    private Map<File, Product> productMap;
+
 
     MosaicFormModel() {
         Map<String, Object> parameterMap = new HashMap<String, Object>();
@@ -52,12 +64,17 @@ class MosaicFormModel {
                                            new MapEntryAccessor(parameterMap, PROPERTY_UPDATE_PRODUCT)));
         container.addProperty(new Property(new PropertyDescriptor(PROPERTY_UPDATE_MODE, Boolean.class),
                                            new MapEntryAccessor(parameterMap, PROPERTY_UPDATE_MODE)));
-        container.setValue(PROPERTY_UPDATE_MODE, false);
+        container.addProperty(new Property(new PropertyDescriptor(PROPERTY_SHOW_SOURCE_PRODUCTS, Boolean.class),
+                                           new MapEntryAccessor(parameterMap, PROPERTY_SHOW_SOURCE_PRODUCTS)));
+
         try {
             container.setDefaultValues();
         } catch (ValidationException ignore) {
         }
+        container.setValue(PROPERTY_UPDATE_MODE, false);
+        container.setValue(PROPERTY_SHOW_SOURCE_PRODUCTS, false);
 
+        productMap = Collections.synchronizedMap(new HashMap<File, Product>());
     }
 
     public PropertyContainer getPropertyContainer() {
@@ -137,7 +154,7 @@ class MosaicFormModel {
         }
         try {
             return CRS.parseWKT(crs);
-        } catch (FactoryException e) {
+        } catch (FactoryException ignored) {
             return CRS.decode(crs, true);
         }
     }
@@ -155,4 +172,64 @@ class MosaicFormModel {
     }
 
 
+    public void updateWithSourceProducts(WorldMapPaneDataModel worldMapModel,
+                                         JComponent parentComponent) {
+        final File[] productFiles = (File[]) container.getValue(PROPERTY_SOURCE_PRODUCT_FILES);
+        final Boolean display = (Boolean) container.getValue(PROPERTY_SHOW_SOURCE_PRODUCTS);
+        if (display && productFiles != null && productFiles.length > 0 )  {
+            SwingWorker sw = new ProductLoaderSwingWorker(worldMapModel, productFiles, parentComponent);
+            sw.execute();
+        } else {
+            worldMapModel.setProducts(null);
+            for (Map.Entry<File, Product> entry : productMap.entrySet()) {
+                entry.getValue().dispose();
+            }
+            productMap.clear();
+        }
+    }
+
+    private class ProductLoaderSwingWorker extends ProgressMonitorSwingWorker<Product[], Product> {
+
+        private static final String TITLE = "Loading source products";
+
+        private final WorldMapPaneDataModel worldMapModel;
+        private final File[] productFiles;
+        private final JComponent component;
+
+        private ProductLoaderSwingWorker(WorldMapPaneDataModel worldMapModel, File[] productFiles,
+                                         JComponent parentComponent) {
+            super(parentComponent, TITLE);
+            component = parentComponent;
+            this.worldMapModel = worldMapModel;
+            this.productFiles = productFiles.clone();
+        }
+
+        @Override
+        protected Product[] doInBackground(ProgressMonitor pm) throws Exception {
+            for (int i = 0; i < productFiles.length; i++) {
+                File productFile = productFiles[i];
+                final Product currentProduct = productMap.get(productFile);
+                final int refNo = i + 1;
+                if (currentProduct == null) {
+                    final Product product = ProductIO.readProduct(productFile, null);
+                    product.setRefNo(refNo);
+                    productMap.put(productFile, product);
+                } else {
+                    currentProduct.setRefNo(refNo);
+                }
+            }
+            return productMap.values().toArray(new Product[productMap.size()]);
+        }
+
+        @Override
+        protected void done() {
+            try {
+                worldMapModel.setProducts(get());
+            } catch (Exception e) {
+                final String msg = String.format("Cannot display source products.\n%s", e.getMessage());
+                JOptionPane.showMessageDialog(component, msg, TITLE, JOptionPane.ERROR_MESSAGE);
+            }
+
+        }
+    }
 }

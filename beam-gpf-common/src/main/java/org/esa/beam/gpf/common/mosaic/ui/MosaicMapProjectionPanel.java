@@ -17,6 +17,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.CoordinateSystem;
 
 import javax.measure.unit.NonSI;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
@@ -25,8 +26,10 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
@@ -56,6 +59,7 @@ class MosaicMapProjectionPanel extends JPanel {
     private Map<String, Double> unitMap;
     private JFormattedTextField pixelSizeXField;
     private JFormattedTextField pixelSizeYField;
+    private WorldMapPaneDataModel worldMapModel;
 
     MosaicMapProjectionPanel(AppContext appContext, MosaicFormModel mosaicModel) {
         this.appContext = appContext;
@@ -69,7 +73,7 @@ class MosaicMapProjectionPanel extends JPanel {
         createUI();
         updateForCrsChanged();
         binding.adjustComponents();
-
+        mosaicModel.getPropertyContainer().addPropertyChangeListener(new SourceProductsDisplayUpdater());
     }
 
     private void init() {
@@ -120,7 +124,7 @@ class MosaicMapProjectionPanel extends JPanel {
         final float lat = (float) referencePos.getOrdinate(1);
         try {
             final CoordinateReferenceSystem crs = crsSelectionPanel.getCrs(new GeoPos(lat, lon));
-            if(crs != null){
+            if (crs != null) {
                 updatePixelUnit(crs);
                 mosaicModel.setWkt(crs.toWKT());
             } else {
@@ -156,14 +160,19 @@ class MosaicMapProjectionPanel extends JPanel {
         panel.setBorder(BorderFactory.createTitledBorder("Mosaic Bounds"));
         final JPanel inputPanel = createBoundsInputPanel();
         panel.add(inputPanel);
-        final WorldMapPaneDataModel worldMapModel = new WorldMapPaneDataModel();
+        worldMapModel = new WorldMapPaneDataModel();
         setMapBoundary(worldMapModel);
         final WorldMapPane worlMapPanel = new WorldMapPane(worldMapModel);
         final PropertyContainer propertyContainer = mosaicModel.getPropertyContainer();
-        propertyContainer.addPropertyChangeListener(new MapBoundsChangeListener(worldMapModel));
+        propertyContainer.addPropertyChangeListener(new MapBoundsChangeListener());
         worlMapPanel.setMinimumSize(new Dimension(250, 125));
         worlMapPanel.setBorder(BorderFactory.createEtchedBorder());
         panel.add(worlMapPanel);
+        layout.setRowAnchor(2, TableLayout.Anchor.EAST);
+        layout.setRowFill(2, TableLayout.Fill.NONE);
+        final JCheckBox showSourProductsCheckBox = new JCheckBox(new DisplayProductsAction(mosaicModel));
+        binding.bind(MosaicFormModel.PROPERTY_SHOW_SOURCE_PRODUCTS, showSourProductsCheckBox);
+        panel.add(showSourProductsCheckBox);
 
         return panel;
     }
@@ -212,7 +221,7 @@ class MosaicMapProjectionPanel extends JPanel {
         binding.bindEnabledState("pixelSizeX", false, "updateMode", true);
         panel.add(pixelSizeXField);
         panel.add(pixelXUnit);
-        
+
         panel.add(new JLabel("North:"));
         final JFormattedTextField northLatField = new JFormattedTextField(doubleFormatter);
         northLatField.setHorizontalAlignment(JTextField.RIGHT);
@@ -290,10 +299,8 @@ class MosaicMapProjectionPanel extends JPanel {
     private class MapBoundsChangeListener implements PropertyChangeListener {
 
         private final List<String> knownProperties;
-        private final WorldMapPaneDataModel worldMapModel;
 
-        private MapBoundsChangeListener(WorldMapPaneDataModel worldMapModel) {
-            this.worldMapModel = worldMapModel;
+        private MapBoundsChangeListener() {
             knownProperties = Arrays.asList("westBound", "northBound", "eastBound", "southBound", "crs");
         }
 
@@ -330,6 +337,38 @@ class MosaicMapProjectionPanel extends JPanel {
                 return "";
             }
             return format.format(value);
+        }
+    }
+
+    private class DisplayProductsAction extends AbstractAction {
+
+        private final MosaicFormModel model;
+
+        private DisplayProductsAction(MosaicFormModel model) {
+            super("Display source products");
+            this.model = model;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            final JToggleButton source = (JToggleButton) e.getSource();
+            if (source.isSelected()) {
+                mosaicModel.updateWithSourceProducts(worldMapModel, MosaicMapProjectionPanel.this);
+            } else {
+                worldMapModel.setProducts(null);
+            }
+        }
+
+    }
+
+    private class SourceProductsDisplayUpdater implements PropertyChangeListener {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (MosaicFormModel.PROPERTY_SOURCE_PRODUCT_FILES.equals(evt.getPropertyName()) ||
+                MosaicFormModel.PROPERTY_SHOW_SOURCE_PRODUCTS.equals(evt.getPropertyName())) {
+                mosaicModel.updateWithSourceProducts(worldMapModel, MosaicMapProjectionPanel.this);
+            }
         }
     }
 }
