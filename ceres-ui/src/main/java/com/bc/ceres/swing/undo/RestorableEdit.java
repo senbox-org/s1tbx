@@ -1,0 +1,61 @@
+package com.bc.ceres.swing.undo;
+
+import com.bc.ceres.undo.Restorable;
+
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+
+/**
+ * A very simple {@code UndoableEdit} which is acts upon a {@link com.bc.ceres.undo.Restorable} representing the changed object and
+ * the memento of that object before it was changed.
+ */
+public class RestorableEdit extends AbstractUndoableEdit {
+    private String presentationName;
+    private Restorable changedObject;
+    private Object memento;
+
+    public RestorableEdit(Restorable changedObject, Object memento) {
+        this("", changedObject, memento);
+    }
+
+    public RestorableEdit(String presentationName, Restorable changedObject, Object memento) {
+        this.presentationName = presentationName;
+        this.changedObject = changedObject;
+        this.memento = memento;
+    }
+
+    public Restorable getChangedObject() {
+        return changedObject;
+    }
+
+    @Override
+    public String getPresentationName() {
+        return presentationName;
+    }
+
+    @Override
+    public void die() {
+        super.die();
+        changedObject = null;
+        memento = null;
+    }
+
+    @Override
+    public void undo() throws CannotUndoException {
+        super.undo();
+        rememberMemento();
+    }
+
+    @Override
+    public void redo() throws CannotRedoException {
+        super.redo();
+        rememberMemento();
+    }
+
+    protected void rememberMemento() {
+        Object newMemento = changedObject.createMemento();
+        changedObject.setMemento(memento);
+        memento = newMemento;
+    }
+}
