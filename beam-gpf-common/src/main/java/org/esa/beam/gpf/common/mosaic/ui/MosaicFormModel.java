@@ -52,10 +52,10 @@ class MosaicFormModel {
     private final PropertyContainer container;
     private final Map<String, Object> parameterMap = new HashMap<String, Object>();
     private final Map<File, Product> fileProductMap;
-
+    private final WorldMapPaneDataModel worldMapModel = new WorldMapPaneDataModel();
+    
     private Product refProduct;
     private File refProductFile;
-
 
     MosaicFormModel() {
         container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("Mosaic", parameterMap);
@@ -77,6 +77,7 @@ class MosaicFormModel {
 
         fileProductMap = Collections.synchronizedMap(new HashMap<File, Product>());
     }
+
 
     Map<String, Object> getParameterMap() {
         final Map<String, Object> map = new HashMap<String, Object>(parameterMap.size());
@@ -130,6 +131,13 @@ class MosaicFormModel {
         }
 
         return null;
+    }
+
+    void setUpdateProduct(Product product) {
+        setPropertyValue(PROPERTY_UPDATE_PRODUCT, product);
+        if (product != null && product.getGeoCoding() != null && product.getGeoCoding().getMapCRS() != null) {
+            setTargetCRS(product.getGeoCoding().getMapCRS().toWKT());
+        }
     }
 
     PropertyContainer getPropertyContainer() {
@@ -225,24 +233,27 @@ class MosaicFormModel {
 
         final GeneralEnvelope envelope = new GeneralEnvelope(bounds);
         envelope.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
-        
+
         return envelope;
     }
 
-    public void updateWithSourceProducts(WorldMapPaneDataModel worldMapModel,
-                                         JComponent parentComponent) {
+    public void updateWithSourceProducts(JComponent parentComponent) {
         final File[] productFiles = (File[]) container.getValue(PROPERTY_SOURCE_PRODUCT_FILES);
         final Boolean display = (Boolean) container.getValue(PROPERTY_SHOW_SOURCE_PRODUCTS);
         if (display && productFiles != null && productFiles.length > 0) {
-            SwingWorker sw = new ProductLoaderSwingWorker(worldMapModel, productFiles, parentComponent);
+            SwingWorker sw = new ProductLoaderSwingWorker(getWorldMapModel(), productFiles, parentComponent);
             sw.execute();
         } else {
-            worldMapModel.setProducts(null);
+            getWorldMapModel().setProducts(null);
             for (Map.Entry<File, Product> entry : fileProductMap.entrySet()) {
                 entry.getValue().dispose();
             }
             fileProductMap.clear();
         }
+    }
+
+    public WorldMapPaneDataModel getWorldMapModel() {
+        return worldMapModel;
     }
 
     private class ProductLoaderSwingWorker extends ProgressMonitorSwingWorker<Product[], Product> {

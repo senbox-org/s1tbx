@@ -59,12 +59,13 @@ class MosaicMapProjectionPanel extends JPanel {
     private Map<String, Double> unitMap;
     private JFormattedTextField pixelSizeXField;
     private JFormattedTextField pixelSizeYField;
-    private WorldMapPaneDataModel worldMapModel;
 
     MosaicMapProjectionPanel(AppContext appContext, MosaicFormModel mosaicModel) {
+        final PropertyContainer propertyContainer = mosaicModel.getPropertyContainer();
+
         this.appContext = appContext;
         this.mosaicModel = mosaicModel;
-        binding = new BindingContext(mosaicModel.getPropertyContainer());
+        binding = new BindingContext(propertyContainer);
         unitMap = new HashMap<String, Double>();
         unitMap.put("°", 0.05);
         unitMap.put("m", 1000.0);
@@ -73,7 +74,8 @@ class MosaicMapProjectionPanel extends JPanel {
         createUI();
         updateForCrsChanged();
         binding.adjustComponents();
-        mosaicModel.getPropertyContainer().addPropertyChangeListener(new SourceProductsDisplayUpdater());
+
+        propertyContainer.addPropertyChangeListener(new SourceProductsDisplayUpdater());
     }
 
     private void init() {
@@ -160,7 +162,7 @@ class MosaicMapProjectionPanel extends JPanel {
         layout.setTablePadding(3, 3);
         final JPanel panel = new JPanel(layout);
         panel.setBorder(BorderFactory.createTitledBorder("Mosaic Bounds"));
-        worldMapModel = new WorldMapPaneDataModel();
+        final WorldMapPaneDataModel worldMapModel = mosaicModel.getWorldMapModel();
         setMapBoundary(worldMapModel);
 
         final WorldMapPane worlMapPanel = new WorldMapPane(worldMapModel);
@@ -309,7 +311,7 @@ class MosaicMapProjectionPanel extends JPanel {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (knownProperties.contains(evt.getPropertyName())) {
-                setMapBoundary(worldMapModel);
+                setMapBoundary(mosaicModel.getWorldMapModel());
             }
         }
 
@@ -355,9 +357,9 @@ class MosaicMapProjectionPanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             final JToggleButton source = (JToggleButton) e.getSource();
             if (source.isSelected()) {
-                mosaicModel.updateWithSourceProducts(worldMapModel, MosaicMapProjectionPanel.this);
+                mosaicModel.updateWithSourceProducts(MosaicMapProjectionPanel.this);
             } else {
-                worldMapModel.setProducts(null);
+                mosaicModel.getWorldMapModel().setProducts(null);
             }
         }
 
@@ -369,7 +371,7 @@ class MosaicMapProjectionPanel extends JPanel {
         public void propertyChange(PropertyChangeEvent evt) {
             if (MosaicFormModel.PROPERTY_SOURCE_PRODUCT_FILES.equals(evt.getPropertyName()) ||
                 MosaicFormModel.PROPERTY_SHOW_SOURCE_PRODUCTS.equals(evt.getPropertyName())) {
-                mosaicModel.updateWithSourceProducts(worldMapModel, MosaicMapProjectionPanel.this);
+                mosaicModel.updateWithSourceProducts(MosaicMapProjectionPanel.this);
             }
         }
     }
