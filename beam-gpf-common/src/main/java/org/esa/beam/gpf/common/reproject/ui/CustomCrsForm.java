@@ -32,16 +32,15 @@ public class CustomCrsForm extends CrsForm {
                 fireCrsChanged();
             }
         });
-        overlayable = initCustomCrsPanelModel();
+        overlayable = new DefaultOverlayable(customCrsPanel);
 
     }
 
-    private DefaultOverlayable initCustomCrsPanelModel() {
-        final DefaultOverlayable defaultOverlayable = new DefaultOverlayable(customCrsPanel);
+    private void initCustomCrsPanelModel() {
         final JProgressBar progressBar = new JProgressBar(0, 100);
-        defaultOverlayable.addOverlayComponent(progressBar);
+        overlayable.addOverlayComponent(progressBar);
         progressBar.setIndeterminate(true);
-        defaultOverlayable.setOverlayVisible(true);
+        overlayable.setOverlayVisible(true);
         SwingWorker sw = new SwingWorker() {
             @Override
             protected Object doInBackground() throws Exception {
@@ -51,11 +50,10 @@ public class CustomCrsForm extends CrsForm {
 
             @Override
             protected void done() {
-                defaultOverlayable.setOverlayVisible(false);
+                overlayable.setOverlayVisible(false);
             }
         };
         sw.execute();
-        return defaultOverlayable;
     }
 
     @Override
@@ -70,6 +68,7 @@ public class CustomCrsForm extends CrsForm {
 
     @Override
     public void prepareShow() {
+        initCustomCrsPanelModel();
     }
 
     @Override
