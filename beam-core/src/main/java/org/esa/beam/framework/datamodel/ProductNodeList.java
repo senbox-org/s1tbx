@@ -20,6 +20,7 @@ import org.esa.beam.util.Guardian;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,8 +38,8 @@ public final class ProductNodeList<T extends ProductNode> {
      * Constructs a new list named nodes.
      */
     public ProductNodeList() {
-        nodes = new ArrayList<T>();
-        removedNodes = new ArrayList<T>();
+        nodes = Collections.synchronizedList(new ArrayList<T>());
+        removedNodes = Collections.synchronizedList(new ArrayList<T>());
     }
 
     /**
@@ -214,8 +215,10 @@ public final class ProductNodeList<T extends ProductNode> {
      */
     public final boolean remove(T node) {
         if (node != null) {
-            removedNodes.add(node);
-            return nodes.remove(node);
+            synchronized (this) {
+                removedNodes.add(node);
+                return nodes.remove(node);
+            }
         }
         return false;
     }
@@ -224,8 +227,10 @@ public final class ProductNodeList<T extends ProductNode> {
      * Removes all nodes from this list.
      */
     public final void removeAll() {
-        removedNodes.addAll(nodes);
-        nodes.clear();
+        synchronized (this) {
+            removedNodes.addAll(nodes);
+            nodes.clear();
+        }
     }
 
     /**
