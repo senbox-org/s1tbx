@@ -77,7 +77,6 @@ class ReprojectionForm extends JTabbedPane {
         this.reprojectionModel = new Model();
         this.reprojectionlContainer = PropertyContainer.createObjectBacked(reprojectionModel);
         createUI();
-        setSelectedIndex(1);
     }
 
     Map<String, Object> getParameterMap() {
