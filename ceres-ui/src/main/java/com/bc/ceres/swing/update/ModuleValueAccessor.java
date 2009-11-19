@@ -9,5 +9,5 @@ package com.bc.ceres.swing.update;
  */
 interface ModuleValueAccessor {
 
-   Object getValue(ModuleItem moduleItem);
+    Object getValue(ModuleItem moduleItem);
 }

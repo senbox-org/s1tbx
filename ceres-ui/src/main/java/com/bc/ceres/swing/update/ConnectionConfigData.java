@@ -5,7 +5,7 @@ import com.bc.ceres.core.runtime.ProxyConfig;
 public class ConnectionConfigData {
 
     private String repositoryUrl;
-    private boolean  proxyUsed;
+    private boolean proxyUsed;
     private ProxyConfig proxyConfig;
 
     public ConnectionConfigData() {

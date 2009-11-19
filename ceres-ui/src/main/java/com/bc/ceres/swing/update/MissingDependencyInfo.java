@@ -3,8 +3,8 @@ package com.bc.ceres.swing.update;
 import com.bc.ceres.core.runtime.Dependency;
 import com.bc.ceres.core.runtime.Module;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MissingDependencyInfo {
 

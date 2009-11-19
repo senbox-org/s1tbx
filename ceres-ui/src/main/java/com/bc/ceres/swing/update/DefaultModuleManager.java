@@ -68,7 +68,7 @@ public class DefaultModuleManager implements ModuleManager {
     }
 
     public ModuleItem[] getInstalledModuleItems() {
-        if(installedModuleItems == null) {
+        if (installedModuleItems == null) {
             installedModuleItems = toModuleItems(getInstalledModules());
         }
         return installedModuleItems;
@@ -83,7 +83,7 @@ public class DefaultModuleManager implements ModuleManager {
     }
 
     public ModuleItem[] getAvailableModuleItems() {
-        if(availableModuleItems == null) {
+        if (availableModuleItems == null) {
             return new ModuleItem[0];
         }
         return availableModuleItems;

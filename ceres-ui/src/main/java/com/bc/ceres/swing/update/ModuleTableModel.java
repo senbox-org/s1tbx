@@ -3,8 +3,8 @@ package com.bc.ceres.swing.update;
 import com.bc.ceres.core.Assert;
 
 import javax.swing.table.AbstractTableModel;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.

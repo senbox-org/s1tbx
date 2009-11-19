@@ -38,12 +38,12 @@ class ModuleSyncRunner {
                 }
             } else {
                 ModuleItem moduleItem = syncList.get(repositoryModule.getSymbolicName());
-                if(moduleItem != null) {
-                    if(moduleItem.getModule().getVersion().compareTo(repositoryModule.getVersion()) < 0) {
+                if (moduleItem != null) {
+                    if (moduleItem.getModule().getVersion().compareTo(repositoryModule.getVersion()) < 0) {
                         syncList.put(repositoryModule.getSymbolicName(), new ModuleItem(repositoryModule));
 
                     }
-                }else {
+                } else {
                     syncList.put(repositoryModule.getSymbolicName(), new ModuleItem(repositoryModule));
                 }
             }

@@ -1,20 +1,20 @@
 package com.bc.ceres.swing.update;
 
-import com.bc.ceres.core.runtime.RuntimeRunnable;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeConfig;
 import com.bc.ceres.core.runtime.RuntimeContext;
-import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.runtime.RuntimeRunnable;
 
-import javax.swing.UIManager;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JButton;
+import javax.swing.UIManager;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.net.URL;
+import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 public class ModuleManagerMain implements RuntimeRunnable {
 
@@ -27,6 +27,7 @@ public class ModuleManagerMain implements RuntimeRunnable {
      *
      * @param argument the argument passed to the RuntimeRunnable, which may be null.
      * @param pm       a progress monitor which may be used by the client code
+     *
      * @throws Exception if any error occurs in the client code
      */
     public void run(Object argument, ProgressMonitor pm) throws Exception {

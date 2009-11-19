@@ -10,7 +10,23 @@ import com.bc.ceres.core.runtime.ModuleState;
 import com.bc.ceres.swing.SwingHelper;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -637,7 +653,7 @@ public class ModuleManagerPane extends JPanel {
         ConsistencyChecker consistencyChecker = new ConsistencyChecker(moduleManager);
         consistencyChecker.check();
         return consistencyChecker.getMissingDependencies();
-                    }
+    }
 
     private static String createMissingModuleDependenciesMessage(MissingDependencyInfo[] missingModuleDependencieses) {
         StringBuilder sb = new StringBuilder(256);
@@ -797,7 +813,7 @@ public class ModuleManagerPane extends JPanel {
         protected Void doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
             moduleManager.synchronizeWithRepository(pm);
             return null;
-            }
+        }
 
         @Override
         protected void done() {

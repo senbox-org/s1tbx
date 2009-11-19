@@ -2,8 +2,21 @@ package com.bc.ceres.swing.progress;
 
 import com.bc.ceres.swing.SwingHelper;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -88,6 +101,7 @@ public class ProgressDialog {
      *
      * @param progress an int specifying the current value, between the
      *                 maximum and minimum specified for this component
+     *
      * @see #setMinimum
      * @see #setMaximum
      * @see #close
@@ -137,6 +151,7 @@ public class ProgressDialog {
      * Returns the minimum value -- the lower end of the progress value.
      *
      * @return an int representing the minimum value
+     *
      * @see #setMinimum
      */
     public int getMinimum() {
@@ -147,6 +162,7 @@ public class ProgressDialog {
      * Specifies the minimum value.
      *
      * @param minimum an int specifying the minimum value
+     *
      * @see #getMinimum
      */
     public void setMinimum(int minimum) {
@@ -160,6 +176,7 @@ public class ProgressDialog {
      * Returns the maximum value -- the higher end of the progress value.
      *
      * @return an int representing the maximum value
+     *
      * @see #setMaximum
      */
     public int getMaximum() {
@@ -170,6 +187,7 @@ public class ProgressDialog {
      * Specifies the maximum value.
      *
      * @param maximum an int specifying the maximum value
+     *
      * @see #getMaximum
      */
     public void setMaximum(int maximum) {
@@ -190,6 +208,7 @@ public class ProgressDialog {
      * Specifies the message that is displayed.
      *
      * @param title a String specifying the message to display
+     *
      * @see #getTitle
      */
     public void setTitle(String title) {
@@ -203,6 +222,7 @@ public class ProgressDialog {
      * Specifies the message that is displayed.
      *
      * @return a String specifying the message to display
+     *
      * @see #setTitle
      */
     public String getTitle() {
@@ -215,6 +235,7 @@ public class ProgressDialog {
      * is currently being copied during a multiple-file copy.
      *
      * @param note a String specifying the note to display
+     *
      * @see #getNote
      */
     public void setNote(String note) {
@@ -229,6 +250,7 @@ public class ProgressDialog {
      * progress message.
      *
      * @return a String specifying the note to display
+     *
      * @see #setNote
      */
     public String getNote() {

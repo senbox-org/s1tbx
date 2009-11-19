@@ -1,8 +1,18 @@
 package com.bc.ceres.swing;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -49,7 +59,7 @@ public class CollapsiblePane extends JPanel {
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.ITALIC));
 
         JPanel iconDummy = new JPanel();
-        iconDummy.setPreferredSize(new Dimension(2*iconSize,iconSize));
+        iconDummy.setPreferredSize(new Dimension(2 * iconSize, iconSize));
 
         headerRow = new JPanel(new BorderLayout(2, 0));
         headerRow.add(iconLabel, BorderLayout.WEST);
@@ -61,7 +71,7 @@ public class CollapsiblePane extends JPanel {
             contentRow.add(contentPane, BorderLayout.CENTER);
         }
 
-        setLayout(new BorderLayout(2,2));
+        setLayout(new BorderLayout(2, 2));
         add(headerRow, BorderLayout.NORTH);
         add(contentRow, BorderLayout.CENTER);
 

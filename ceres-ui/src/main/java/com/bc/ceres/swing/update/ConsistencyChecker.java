@@ -57,7 +57,7 @@ class ConsistencyChecker {
             }
             if (installedModuleItem.getAction().equals(ModuleItem.Action.UPDATE)) {
                 Module repositoryModule = installedModuleItem.getRepositoryModule();
-                if(repositoryModule != null) {
+                if (repositoryModule != null) {
                     modules.put(repositoryModule.getSymbolicName(), repositoryModule);
                 }
             }
@@ -85,7 +85,7 @@ class ConsistencyChecker {
             missingDependencies = new HashMap<String, MissingDependencyInfo>(10);
         }
         String dependencyKey = dependency.getModuleSymbolicName() + dependency.getVersion();
-        if(missingDependencies.get(dependencyKey) == null) {
+        if (missingDependencies.get(dependencyKey) == null) {
             MissingDependencyInfo dependencyInfo = new MissingDependencyInfo(dependency);
             missingDependencies.put(dependencyKey, dependencyInfo);
         }
@@ -93,10 +93,10 @@ class ConsistencyChecker {
     }
 
     public MissingDependencyInfo[] getMissingDependencies() {
-        if(missingDependencies == null) {
+        if (missingDependencies == null) {
             return new MissingDependencyInfo[0];
         }
-        return  missingDependencies.values().toArray(new MissingDependencyInfo[missingDependencies.size()]);
+        return missingDependencies.values().toArray(new MissingDependencyInfo[missingDependencies.size()]);
     }
 
 
