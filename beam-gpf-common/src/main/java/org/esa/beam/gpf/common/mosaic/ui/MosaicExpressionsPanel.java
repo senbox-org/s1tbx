@@ -5,7 +5,6 @@ import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.BandChooser;
@@ -39,7 +38,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -70,7 +68,7 @@ class MosaicExpressionsPanel extends JPanel {
     private void init() {
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
-        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTableFill(TableLayout.Fill.BOTH);
         tableLayout.setTableWeightX(1.0);
         tableLayout.setTableWeightY(1.0);
         tableLayout.setTablePadding(3, 3);
@@ -83,15 +81,24 @@ class MosaicExpressionsPanel extends JPanel {
     private Component createVariablesPanel() {
         final String labelName = "Variables";  /*I18N*/
 
-        final JPanel panel = GridBagUtils.createPanel();
+        final TableLayout layout = new TableLayout(1);
+        layout.setTableAnchor(TableLayout.Anchor.WEST);
+        layout.setTableFill(TableLayout.Fill.BOTH);
+        layout.setTablePadding(3, 3);
+        layout.setTableWeightX(1.0);
+        layout.setTableWeightY(1.0);
+        layout.setRowWeightY(0, 0.0);
+        final JPanel panel = new JPanel(layout);
         panel.setBorder(BorderFactory.createTitledBorder(labelName));
         panel.setName(labelName);
-        final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
-        gbc.gridy = 0;
-        gbc.weightx = 1;
 
-        gbc.gridy++;
-        gbc.insets.bottom = 0;
+        panel.add(createVariablesButtonPanel(labelName));
+        panel.add(createVariablesTable(labelName));
+
+        return panel;
+    }
+
+    private JPanel createVariablesButtonPanel(String labelName) {
         final JPanel variableButtonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         variableButtonsPanel.setName(labelName);
 
@@ -114,30 +121,30 @@ class MosaicExpressionsPanel extends JPanel {
         final Component moveVariableDownButton = createMoveVariableDownButton();
         moveVariableDownButton.setName(labelName);
         variableButtonsPanel.add(moveVariableDownButton);
-
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(variableButtonsPanel, gbc);
-        gbc.gridy++;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.BOTH;
-        final JScrollPane valuesTable = createVariablesTable(labelName);
-        panel.add(valuesTable, gbc);
-
-        return panel;
+        return variableButtonsPanel;
     }
 
     private Component createConditionsPanel() {
         final String labelName = "Conditions";
-        final JPanel panel = GridBagUtils.createPanel();
+        final TableLayout layout = new TableLayout(1);
+        layout.setTableAnchor(TableLayout.Anchor.WEST);
+        layout.setTableFill(TableLayout.Fill.BOTH);
+        layout.setTablePadding(3, 3);
+        layout.setTableWeightX(1.0);
+        layout.setTableWeightY(0.0);
+        layout.setRowWeightY(1, 1.0);
+        final JPanel panel = new JPanel(layout);
         panel.setName(labelName);
         panel.setBorder(BorderFactory.createTitledBorder(labelName));
-        final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
-        gbc.gridy = 0;
-        gbc.weightx = 1;
+        final JPanel conditionsButtonsPanel = createConditionsButtonPanel(labelName);
 
-        gbc.gridy++;
-        gbc.insets.bottom = 0;
-        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(conditionsButtonsPanel);
+        panel.add(createConditionsTable(labelName));
+        panel.add(createCombinePanel());
+        return panel;
+    }
+
+    private JPanel createConditionsButtonPanel(String labelName) {
         final JPanel conditionButtonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         conditionButtonsPanel.setName(labelName);
 
@@ -156,25 +163,17 @@ class MosaicExpressionsPanel extends JPanel {
         final Component moveConditionDownButton = createMoveConditionDownButton();
         moveConditionDownButton.setName(labelName);
         conditionButtonsPanel.add(moveConditionDownButton);
+        return conditionButtonsPanel;
+    }
 
-        panel.add(conditionButtonsPanel, gbc);
-
-        gbc.gridy++;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.BOTH;
-        panel.add(createConditionsTable(labelName), gbc);
-
-        gbc.gridy++;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.WEST;
-        final JPanel operatorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    private JPanel createCombinePanel() {
+        final JPanel combinePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         final JComboBox combineComboBox = new JComboBox();
         bindingContext.bind("combine", combineComboBox);
-        operatorPanel.add(
-                new JLabel(bindingContext.getPropertyContainer().getDescriptor("combine").getDisplayName() + ":"));
-        operatorPanel.add(combineComboBox);
-        panel.add(operatorPanel, gbc);
-        return panel;
+        final String displayName = bindingContext.getPropertyContainer().getDescriptor("combine").getDisplayName();
+        combinePanel.add(new JLabel(displayName + ":"));
+        combinePanel.add(combineComboBox);
+        return combinePanel;
     }
 
     private Component createNewConditionButton() {
