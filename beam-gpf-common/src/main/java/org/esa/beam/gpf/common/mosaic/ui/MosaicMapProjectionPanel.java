@@ -118,7 +118,7 @@ class MosaicMapProjectionPanel extends JPanel {
     }
 
     private void updateForCrsChanged() {
-        final DirectPosition referencePos = mosaicModel.getGeoEnvelope().getMedian();
+        final DirectPosition referencePos = mosaicModel.getTargetEnvelope().getMedian();
         final float lon = (float) referencePos.getOrdinate(0);
         final float lat = (float) referencePos.getOrdinate(1);
         try {

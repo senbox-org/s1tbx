@@ -180,9 +180,9 @@ class MosaicFormModel {
         if (mapCRS != null) {
             final double pixelSizeX = (Double) getPropertyValue("pixelSizeX");
             final double pixelSizeY = (Double) getPropertyValue("pixelSizeY");
-            final GeneralEnvelope generalEnvelope = getGeoEnvelope();
+            final Envelope envelope = getTargetEnvelope();
 
-            final Envelope targetEnvelope = CRS.transform(generalEnvelope, mapCRS);
+            final Envelope targetEnvelope = CRS.transform(envelope, mapCRS);
             final int sceneRasterWidth = MathUtils.floorInt(targetEnvelope.getSpan(0) / pixelSizeX);
             final int sceneRasterHeight = MathUtils.floorInt(targetEnvelope.getSpan(1) / pixelSizeY);
             final Product outputProduct = new Product("mosaic", "MosaicBounds",
@@ -214,16 +214,19 @@ class MosaicFormModel {
         }
     }
 
-    GeneralEnvelope getGeoEnvelope() {
+    GeneralEnvelope getTargetEnvelope() {
         final double west = (Double) getPropertyValue("westBound");
         final double north = (Double) getPropertyValue("northBound");
         final double east = (Double) getPropertyValue("eastBound");
         final double south = (Double) getPropertyValue("southBound");
-        final Rectangle2D.Double geoBounds = new Rectangle2D.Double();
-        geoBounds.setFrameFromDiagonal(west, north, east, south);
-        final GeneralEnvelope generalEnvelope = new GeneralEnvelope(geoBounds);
-        generalEnvelope.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
-        return generalEnvelope;
+
+        final Rectangle2D bounds = new Rectangle2D.Double();
+        bounds.setFrameFromDiagonal(west, north, east, south);
+
+        final GeneralEnvelope envelope = new GeneralEnvelope(bounds);
+        envelope.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
+        
+        return envelope;
     }
 
     public void updateWithSourceProducts(WorldMapPaneDataModel worldMapModel,
