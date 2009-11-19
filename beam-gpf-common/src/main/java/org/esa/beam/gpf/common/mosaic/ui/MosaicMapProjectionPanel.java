@@ -99,9 +99,10 @@ class MosaicMapProjectionPanel extends JPanel {
     private void createUI() {
         final TableLayout layout = new TableLayout(1);
         layout.setTableAnchor(TableLayout.Anchor.WEST);
-        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        layout.setTableFill(TableLayout.Fill.BOTH);
         layout.setTableWeightX(1.0);
-        layout.setTableWeightY(1.0);
+        layout.setTableWeightY(0.0);
+        layout.setRowWeightY(2, 1.0);
         layout.setTablePadding(3, 3);
         setLayout(layout);
         crsSelectionPanel = new CrsSelectionPanel(appContext, false);
@@ -111,11 +112,9 @@ class MosaicMapProjectionPanel extends JPanel {
                 updateForCrsChanged();
             }
         });
-        JPanel orthorectifyPanel = createOrthorectifyPanel();
-        JPanel mosaicBoundsPanel = createMosaicBoundsPanel();
         add(crsSelectionPanel);
-        add(orthorectifyPanel);
-        add(mosaicBoundsPanel);
+        add(createOrthorectifyPanel());
+        add(createMosaicBoundsPanel());
     }
 
     private void updateForCrsChanged() {
@@ -152,26 +151,29 @@ class MosaicMapProjectionPanel extends JPanel {
     private JPanel createMosaicBoundsPanel() {
         final TableLayout layout = new TableLayout(1);
         layout.setTableAnchor(TableLayout.Anchor.WEST);
-        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        layout.setTableFill(TableLayout.Fill.BOTH);
         layout.setTableWeightX(1.0);
-        layout.setTableWeightY(1.0);
+        layout.setTableWeightY(0.0);
+        layout.setRowWeightY(1, 1.0);
+        layout.setRowAnchor(2, TableLayout.Anchor.EAST);
+        layout.setRowFill(2, TableLayout.Fill.NONE);
         layout.setTablePadding(3, 3);
         final JPanel panel = new JPanel(layout);
         panel.setBorder(BorderFactory.createTitledBorder("Mosaic Bounds"));
-        final JPanel inputPanel = createBoundsInputPanel();
-        panel.add(inputPanel);
         worldMapModel = new WorldMapPaneDataModel();
         setMapBoundary(worldMapModel);
+
         final WorldMapPane worlMapPanel = new WorldMapPane(worldMapModel);
         final PropertyContainer propertyContainer = mosaicModel.getPropertyContainer();
         propertyContainer.addPropertyChangeListener(new MapBoundsChangeListener());
         worlMapPanel.setMinimumSize(new Dimension(250, 125));
         worlMapPanel.setBorder(BorderFactory.createEtchedBorder());
-        panel.add(worlMapPanel);
-        layout.setRowAnchor(2, TableLayout.Anchor.EAST);
-        layout.setRowFill(2, TableLayout.Fill.NONE);
+
         final JCheckBox showSourProductsCheckBox = new JCheckBox(new DisplayProductsAction(mosaicModel));
         binding.bind(MosaicFormModel.PROPERTY_SHOW_SOURCE_PRODUCTS, showSourProductsCheckBox);
+
+        panel.add(createBoundsInputPanel());
+        panel.add(worlMapPanel);
         panel.add(showSourProductsCheckBox);
 
         return panel;
