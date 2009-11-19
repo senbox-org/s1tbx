@@ -20,15 +20,8 @@ public class FailureCasesReprojectionOpTest extends AbstractReprojectionOpTest {
     }
 
     @Test(expected = OperatorException.class)
-    public void testParameterAmbigouity_wkt_epsgCode() {
-        parameterMap.put("wkt", UTM33N_WKT);
-        parameterMap.put("crsCode", UTM33N_CODE);
-        createReprojectedProduct();
-    }
-
-    @Test(expected = OperatorException.class)
     public void testParameterAmbigouity_wkt_wktFile() {
-        parameterMap.put("wkt", UTM33N_WKT);
+        parameterMap.put("crs", UTM33N_WKT);
         parameterMap.put("wktFile", wktFile);
         createReprojectedProduct();
     }
@@ -38,7 +31,7 @@ public class FailureCasesReprojectionOpTest extends AbstractReprojectionOpTest {
         final Map<String, Product> productMap = new HashMap<String, Product>(5);
         productMap.put("source", sourceProduct);
         productMap.put("collocate", sourceProduct);
-        parameterMap.put("wkt", UTM33N_WKT);
+        parameterMap.put("crs", UTM33N_WKT);
         createReprojectedProduct(productMap);
     }
 
@@ -92,6 +85,4 @@ public class FailureCasesReprojectionOpTest extends AbstractReprojectionOpTest {
         parameterMap.put("northing", 1234.5);
         createReprojectedProduct();
     }
-
-
 }

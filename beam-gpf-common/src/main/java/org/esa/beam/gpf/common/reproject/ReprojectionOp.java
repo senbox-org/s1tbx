@@ -64,6 +64,7 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 
 /**
@@ -90,19 +91,14 @@ public class ReprojectionOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    // todo (mp) - description needs to be enhanced
-    @Parameter(description = "An EPSG or AUTO code defining the target Coordinate Reference System. " +
-            "To find appropriate EPSG codes see (www.epsg-registry.com). " +
-            "AUTO can be used with code 42001 (UTM), and 42002 (Transverse Mercator) where the scene center " +
-            "is used as reference. Examples: EPSG:4326, AUTO:42001",
-               pattern = "(?:[a-zA-Z]+:)?[0-9]+")
-    private String crsCode;
-
     @Parameter(description = "A file which contains the target Coordinate Reference System in WKT format.")
     private File wktFile;
 
-    @Parameter(description = "Text in WKT format describing the target Coordinate Reference System.")
-    private String wkt;
+    @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
+                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.com). " +
+                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
+                             "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
+    private String crs;
 
     @Parameter(alias = "resampling",
                label = "Resampling Method",
@@ -139,12 +135,14 @@ public class ReprojectionOp extends Operator {
     @Parameter(description = "The height of the output product.")
     private Integer height;
 
-    @Parameter(description = "Wether the source product should be orthorectified. (Currently only applicable for MERIS and AATSR)",
-               defaultValue = "false")
+    @Parameter(
+            description = "Wether the source product should be orthorectified. (Currently only applicable for MERIS and AATSR)",
+            defaultValue = "false")
     private boolean orthorectify;
-    @Parameter(description = "The name of the elevation model for the orthorectification. If not given tie-point data is used.")
+    @Parameter(
+            description = "The name of the elevation model for the orthorectification. If not given tie-point data is used.")
     private String elevationModelName;
-    
+
     @Parameter(description = "The value used to indicate no-data.")
     private Double noDataValue;
 
@@ -214,14 +212,14 @@ public class ReprojectionOp extends Operator {
         copyPlacemarks(sourceProduct.getGcpGroup(), targetProduct.getGcpGroup(),
                        PlacemarkSymbol.createDefaultGcpSymbol());
     }
-    
+
     @Override
     public void dispose() {
         if (elevationModel != null) {
             elevationModel.dispose();
         }
     }
-    
+
     private ElevationModel createElevationModel() throws OperatorException {
         if (elevationModelName != null) {
             final ElevationModelDescriptor demDescriptor = ElevationModelRegistry.getInstance().getDescriptor(
@@ -233,22 +231,22 @@ public class ReprojectionOp extends Operator {
         }
         return null; // force use of elevation from tie-points
     }
-    
+
     private GeoCoding getSourceGeoCoding(final RasterDataNode sourceBand) {
         if (orthorectify && sourceBand.canBeOrthorectified()) {
             return createOrthorectifier(sourceBand);
         } else {
             return sourceBand.getGeoCoding();
         }
-    }    
-    
+    }
+
     private Orthorectifier createOrthorectifier(final RasterDataNode sourceBand) {
         return new Orthorectifier2(sourceBand.getSceneRasterWidth(),
                                    sourceBand.getSceneRasterHeight(),
                                    sourceBand.getPointing(),
                                    elevationModel, 25);
     }
-    
+
 
     private void reprojectRasterDataNodes(RasterDataNode[] rasterDataNodes) {
         for (RasterDataNode raster : rasterDataNodes) {
@@ -264,7 +262,7 @@ public class ReprojectionOp extends Operator {
         targetBand.setNoDataValueUsed(true);
         targetBand.setDescription(sourceRaster.getDescription());
         targetBand.setUnit(sourceRaster.getUnit());
-        
+
         GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceRaster);
         MultiLevelImage sourceImage = sourceRaster.getGeophysicalImage();
         String exp = sourceRaster.getValidMaskExpression();
@@ -331,8 +329,9 @@ public class ReprojectionOp extends Operator {
             }
         });
     }
-    
-    private MultiLevelImage createNoDataReplacedImage(final MultiLevelImage srcImage, final MultiLevelImage maskImage, final double noData) {
+
+    private MultiLevelImage createNoDataReplacedImage(final MultiLevelImage srcImage, final MultiLevelImage maskImage,
+                                                      final double noData) {
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
 
@@ -341,9 +340,10 @@ public class ReprojectionOp extends Operator {
                 return new InsertNoDataValueOpImage(srcImage.getImage(level), maskImage.getImage(level), noData);
             }
         });
-    }  
-    
-    private MultiLevelImage createVirtualSourceImage(final String expression, final int geoDataType, final Number noDataValue) {
+    }
+
+    private MultiLevelImage createVirtualSourceImage(final String expression, final int geoDataType,
+                                                     final Number noDataValue) {
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
 
@@ -358,12 +358,13 @@ public class ReprojectionOp extends Operator {
 
     private MultiLevelImage createProjectedImage(final GeoCoding sourceGeoCoding, final MultiLevelImage sourceImage,
                                                  final Band targetBand, final Interpolation resampling) {
-        
-        
+
+
         final CoordinateReferenceSystem srcModelCrs = ImageManager.getModelCrs(sourceGeoCoding);
         final CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
-        final Rectangle sourceBounds = new Rectangle(sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
-        
+        final Rectangle sourceBounds = new Rectangle(sourceProduct.getSceneRasterWidth(),
+                                                     sourceProduct.getSceneRasterHeight());
+
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
             @Override
@@ -379,14 +380,15 @@ public class ReprojectionOp extends Operator {
                 ImageGeometry sourceGeometry = new ImageGeometry(sourceBounds,
                                                                  srcModelCrs,
                                                                  i2mSource);
-                
-                ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(ImageManager.getDataBufferType(targetBand.getDataType()),
-                                                           targetProduct.getSceneRasterWidth(),
-                                                           targetProduct.getSceneRasterHeight(),
-                                                           targetProduct.getPreferredTileSize(),
-                                                           ResolutionLevel.create(getModel(), targetLevel));
+
+                ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(
+                        ImageManager.getDataBufferType(targetBand.getDataType()),
+                        targetProduct.getSceneRasterWidth(),
+                        targetProduct.getSceneRasterHeight(),
+                        targetProduct.getPreferredTileSize(),
+                        ResolutionLevel.create(getModel(), targetLevel));
                 Rectangle targetRect = new Rectangle(imageLayout.getWidth(null), imageLayout.getHeight(null));
-                
+
                 // the following transformation maps the target level image to level zero and then to the model,
                 // which always is a map
                 final AffineTransform i2mTarget = getModel().getImageToModelTransform(targetLevel);
@@ -397,14 +399,14 @@ public class ReprojectionOp extends Operator {
                                                                  targetModelCrs,
                                                                  i2mTarget);
                 Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
-                
 
-                
+
                 Dimension tileSize = ImageManager.getPreferredTileSize(targetProduct);
                 try {
                     RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
                     return reprojection.reproject(leveledSourceImage, sourceGeometry, targetGeometry,
-                                               targetBand.getNoDataValue(), resampling, hints, targetLevel, tileSize);
+                                                  targetBand.getNoDataValue(), resampling, hints, targetLevel,
+                                                  tileSize);
                 } catch (FactoryException e) {
                     Debug.trace(e);
                     throw new RuntimeException(e);
@@ -452,59 +454,62 @@ public class ReprojectionOp extends Operator {
     }
 
     private CoordinateReferenceSystem createTargetCRS() throws OperatorException {
-        CoordinateReferenceSystem crs = null;
         try {
-            if (crsCode != null && !crsCode.isEmpty()) {
-                if (crsCode.matches("[0-9]*")) {  // if only numbers, then prefix with EPSG
-                    crsCode = "EPSG:" + crsCode;
-                }
-                if (crsCode.matches("AUTO:[0-9]*")) {  // if AUTO code, then appen center Lon/Lat
-                    GeoPos centerGeoPos = ProductUtils.getCenterGeoPos(sourceProduct);
-                    crsCode = String.format("%s,%s,%s", crsCode, centerGeoPos.lon, centerGeoPos.lat);
-                }
-                // to force longitude==xAxis and latitude==yAxis
-                crs = CRS.decode(crsCode, true);
-            } else if (wktFile != null) {
-                crs = CRS.parseWKT(FileUtils.readText(wktFile));
-            } else if (wkt != null) {
-                crs = CRS.parseWKT(wkt);
-            } else if (collocationProduct != null && collocationProduct.getGeoCoding() != null) {
-                crs = collocationProduct.getGeoCoding().getMapCRS(); // TODO ?????
+            if (wktFile != null) {
+                return CRS.parseWKT(FileUtils.readText(wktFile));
             }
-        } catch (Exception e) {
-            throw new OperatorException(e);
+            if (crs != null) {
+                try {
+                    return CRS.parseWKT(crs);
+                } catch (FactoryException e) {
+                    // prefix with EPSG, if there are only numbers
+                    if (crs.matches("[0-9]*")) {
+                        crs = "EPSG:" + crs;
+                    }
+                    // append center coordinates for AUTO code
+                    if (crs.matches("AUTO:[0-9]*")) {
+                        final GeoPos centerGeoPos = ProductUtils.getCenterGeoPos(sourceProduct);
+                        crs = String.format("%s,%s,%s", crs, centerGeoPos.lon, centerGeoPos.lat);
+                    }
+                    // force longitude==x-axis and latitude==y-axis
+                    return CRS.decode(crs, true);
+                }
+            }
+            if (collocationProduct != null && collocationProduct.getGeoCoding() != null) {
+                return collocationProduct.getGeoCoding().getMapCRS();
+            }
+        } catch (FactoryException e) {
+            throw new OperatorException(String.format("Target CRS could not be created: %s", e.getMessage()), e);
+        } catch (IOException e) {
+            throw new OperatorException(String.format("Target CRS could not be created: %s", e.getMessage()), e);
         }
-        return crs;
+
+        throw new OperatorException("Target CRS could not be created.");
     }
 
     protected void validateCrsParameters() {
-        final String msgPattern = "Invalid target CRS specification.\nSpecify {0} one of " +
-                "''crsCode'', ''wktFile'', ''wkt'' and ''collocationProduct'' parameter.";
+        final String msgPattern = "Invalid target CRS specification.\nSpecify {0} one of the " +
+                                  "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
 
-        if (crsCode == null && wktFile == null && wkt == null && collocationProduct == null) {
+        if (wktFile == null && crs == null && collocationProduct == null) {
             throw new OperatorException(MessageFormat.format(msgPattern, "at least"));
         }
 
-        boolean isCrsDefined = false;
+        boolean crsDefined = false;
         final String exceptionMsg = MessageFormat.format(msgPattern, "only");
-        if (crsCode != null) {
-            isCrsDefined = true;
-        }
         if (wktFile != null) {
-            if (isCrsDefined) {
+            crsDefined = true;
+        }
+        if (crs != null) {
+            if (crsDefined) {
                 throw new OperatorException(exceptionMsg);
             }
-            isCrsDefined = true;
+            crsDefined = true;
         }
-        if (wkt != null) {
-            if (isCrsDefined) {
+        if (collocationProduct != null) {
+            if (crsDefined) {
                 throw new OperatorException(exceptionMsg);
             }
-            isCrsDefined = true;
-        }
-
-        if (collocationProduct != null && isCrsDefined) {
-            throw new OperatorException(exceptionMsg);
         }
     }
 
@@ -538,15 +543,15 @@ public class ReprojectionOp extends Operator {
 
     void validateReferencingParameters() {
         if (!((referencePixelX == null && referencePixelY == null && easting == null && northing == null)
-                || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
+              || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
             throw new OperatorException("Invalid referencing parameters: \n" +
-                    "'referencePixelX, referencePixelY, easting and northing' have to be specified either all or non.");
+                                        "'referencePixelX, referencePixelY, easting and northing' have to be specified either all or non.");
         }
     }
 
     void validateTargetGridParameters() {
         if ((pixelSizeX != null && pixelSizeY == null) ||
-                (pixelSizeX == null && pixelSizeY != null)) {
+            (pixelSizeX == null && pixelSizeY != null)) {
             throw new OperatorException("'pixelSizeX' and 'pixelSizeY' must be specifies both or not at all.");
         }
     }

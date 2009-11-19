@@ -18,7 +18,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testGeoLatLon() throws IOException {
-        parameterMap.put("crsCode", WGS84_CODE);
+        parameterMap.put("crs", WGS84_CODE);
         final Product targetPoduct = createReprojectedProduct();
 
         assertNotNull(targetPoduct);
@@ -32,7 +32,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
     
     @Test
     public void testUTMWithWktText() throws IOException {
-        parameterMap.put("wkt", UTM33N_WKT);
+        parameterMap.put("crs", UTM33N_WKT);
         final Product targetPoduct = createReprojectedProduct();
         
         assertNotNull(targetPoduct);
@@ -52,13 +52,13 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
     public void testWithCollocationProduct() {
         Map<String, Product> productMap = new HashMap<String, Product>(5);
         productMap.put("source", sourceProduct);
-        parameterMap.put("crsCode", "AUTO:42002");
+        parameterMap.put("crs", "AUTO:42002");
         final Product collocationProduct = createReprojectedProduct(productMap);
 
         productMap = new HashMap<String, Product>(5);
         productMap.put("source", sourceProduct);
         productMap.put("collocate", collocationProduct);
-        parameterMap.remove("crsCode");
+        parameterMap.remove("crs");
         final Product targetProduct = createReprojectedProduct(productMap);
         assertNotNull(targetProduct);
         assertTrue(targetProduct.isCompatibleProduct(collocationProduct, 1.0e-6f));
@@ -66,7 +66,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
     
     @Test
     public void testUTM() throws IOException {
-        parameterMap.put("crsCode", UTM33N_CODE);
+        parameterMap.put("crs", UTM33N_CODE);
         final Product targetPoduct = createReprojectedProduct();
         
         assertNotNull(targetPoduct);
@@ -75,7 +75,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
     
     @Test
     public void testUTM_Bilinear() throws IOException {
-        parameterMap.put("crsCode", UTM33N_CODE);
+        parameterMap.put("crs", UTM33N_CODE);
         parameterMap.put("resampling", "Bilinear");
         final Product targetPoduct = createReprojectedProduct();
         
@@ -91,7 +91,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
     public void testSpecifyingTargetDimension() throws IOException {
         final int width = 200;
         final int height = 300;
-        parameterMap.put("crsCode", WGS84_CODE);
+        parameterMap.put("crs", WGS84_CODE);
         parameterMap.put("width", width);
         parameterMap.put("height", height);
         final Product targetPoduct = createReprojectedProduct();
@@ -107,7 +107,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
     public void testSpecifyingPixelSize() throws IOException {
         final double sizeX = 5; // degree
         final double sizeY = 10;// degree
-        parameterMap.put("crsCode", WGS84_CODE);
+        parameterMap.put("crs", WGS84_CODE);
         parameterMap.put("pixelSizeX", sizeX);
         parameterMap.put("pixelSizeY", sizeY);
         final Product targetPoduct = createReprojectedProduct();
@@ -119,7 +119,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
     
     @Test
     public void testSpecifyingReferencing() throws IOException {
-        parameterMap.put("crsCode", WGS84_CODE);
+        parameterMap.put("crs", WGS84_CODE);
         parameterMap.put("referencePixelX", 0.5);
         parameterMap.put("referencePixelY", 0.5);
         parameterMap.put("easting", 9.0);   // just move it 3° degrees eastward
@@ -135,7 +135,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testIncludeTiePointGrids() throws Exception {
-        parameterMap.put("crsCode", WGS84_CODE);
+        parameterMap.put("crs", WGS84_CODE);
         Product targetPoduct = createReprojectedProduct();
         
         TiePointGrid[] tiePointGrids = targetPoduct.getTiePointGrids();
@@ -162,7 +162,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         sourceProduct.getPinGroup().add(pin);
         sourceProduct.getGcpGroup().add(gcp);
 
-        parameterMap.put("crsCode", WGS84_CODE);
+        parameterMap.put("crs", WGS84_CODE);
         Product targetPoduct = createReprojectedProduct();
 
         assertEquals(1, targetPoduct.getPinGroup().getNodeCount());

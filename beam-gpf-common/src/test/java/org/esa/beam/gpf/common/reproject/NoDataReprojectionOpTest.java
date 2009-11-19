@@ -17,7 +17,7 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testNoDataIsPreservedFloat() throws IOException {
-        parameterMap.put("crsCode", UTM33N_CODE);
+        parameterMap.put("crs", UTM33N_CODE);
         final Band srcBand = sourceProduct.getBand(FLOAT_BAND_NAME);
         srcBand.setNoDataValue(299);
         srcBand.setNoDataValueUsed(true);
@@ -28,7 +28,7 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testNoDataIsPreservedFloat_withExpression() throws IOException {
-        parameterMap.put("crsCode", UTM33N_CODE);
+        parameterMap.put("crs", UTM33N_CODE);
         final Band srcBand = sourceProduct.getBand(FLOAT_BAND_NAME);
         srcBand.setNoDataValue(299);
         srcBand.setNoDataValueUsed(true);
@@ -40,7 +40,7 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testNoDataIsReplaced_WithNaN() throws IOException {
-        parameterMap.put("crsCode", UTM33N_CODE);
+        parameterMap.put("crs", UTM33N_CODE);
         final Band srcBand = sourceProduct.getBand(FLOAT_BAND_NAME);
         srcBand.setValidPixelExpression("fneq("+FLOAT_BAND_NAME + ",299)");
         final Product targetPoduct = createReprojectedProduct();
@@ -50,7 +50,7 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testNoDataParameter_WithExpressionAndValue() throws IOException {
-        parameterMap.put("crsCode", UTM33N_CODE);
+        parameterMap.put("crs", UTM33N_CODE);
         parameterMap.put("noDataValue", 42.0);
         final Band srcBand = sourceProduct.getBand(FLOAT_BAND_NAME);
         srcBand.setNoDataValue(299);
@@ -63,7 +63,7 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testNoDataParameter_WithExpression() throws IOException {
-        parameterMap.put("crsCode", UTM33N_CODE);
+        parameterMap.put("crs", UTM33N_CODE);
         parameterMap.put("noDataValue", 42.0);
         final Band srcBand = sourceProduct.getBand(FLOAT_BAND_NAME);
         srcBand.setValidPixelExpression("fneq("+FLOAT_BAND_NAME + ",299)");
@@ -75,7 +75,7 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testNoDataParameter_WithValue() throws IOException {
-        parameterMap.put("crsCode", UTM33N_CODE);
+        parameterMap.put("crs", UTM33N_CODE);
         parameterMap.put("noDataValue", 42.0);
         final Band srcBand = sourceProduct.getBand(FLOAT_BAND_NAME);
         srcBand.setNoDataValue(299);
@@ -87,7 +87,7 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testNoDataParameter_Float() throws IOException {
-        parameterMap.put("crsCode", UTM33N_CODE);
+        parameterMap.put("crs", UTM33N_CODE);
         parameterMap.put("noDataValue", 42.0);
         final Product targetPoduct = createReprojectedProduct();
 
@@ -96,7 +96,7 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testNoDataParameter_Int() throws IOException {
-        parameterMap.put("crsCode", UTM33N_CODE);
+        parameterMap.put("crs", UTM33N_CODE);
         parameterMap.put("noDataValue", 100.0);
         final Product targetPoduct = createReprojectedProduct();
         // int band has no no-data value or expression set
@@ -107,7 +107,7 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testNoDataIfBandNoDataIsGiven_Int() throws IOException {
-        parameterMap.put("crsCode", UTM33N_CODE);
+        parameterMap.put("crs", UTM33N_CODE);
         final Band srcBand = sourceProduct.getBand(INT_BAND_NAME);
         srcBand.setNoDataValue(299);
         srcBand.setNoDataValueUsed(true);
@@ -118,7 +118,7 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testNoDataIfExpressionIsGiven_Int() throws IOException {
-        parameterMap.put("crsCode", WGS84_CODE);
+        parameterMap.put("crs", WGS84_CODE);
         final Band srcBand = sourceProduct.getBand(INT_BAND_NAME);
         srcBand.setValidPixelExpression("X != 4");
 

@@ -294,7 +294,7 @@ class MosaicMapProjectionPanel extends JPanel {
 
         private MapBoundsChangeListener(WorldMapPaneDataModel worldMapModel) {
             this.worldMapModel = worldMapModel;
-            knownProperties = Arrays.asList("westBound", "northBound", "eastBound", "southBound", "wkt");
+            knownProperties = Arrays.asList("westBound", "northBound", "eastBound", "southBound", "crs");
         }
 
         @Override

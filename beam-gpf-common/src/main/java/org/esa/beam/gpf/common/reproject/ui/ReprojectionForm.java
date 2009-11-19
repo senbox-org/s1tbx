@@ -85,7 +85,7 @@ class ReprojectionForm extends JTabbedPane {
         parameterMap.put("includeTiePointGrids", reprojectionModel.reprojTiePoints);
         parameterMap.put("noDataValue", reprojectionModel.noDataValue);
         if (!crsSelectionPanel.isCollocate()) {
-            parameterMap.put("wkt", getSelectedCrs().toWKT());
+            parameterMap.put("crs", getSelectedCrs().toWKT());
         }
         if (orthoMode) {
             parameterMap.put("orthorectify", orthoMode);
@@ -493,10 +493,7 @@ class ReprojectionForm extends JTabbedPane {
         @Override
         public boolean accept(Product product) {
             final GeoCoding geoCoding = product.getGeoCoding();
-            if (geoCoding == null) {
-                return false;
-            }
-            return geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos();
+            return geoCoding != null && geoCoding.canGetGeoPos() && geoCoding.canGetPixelPos();
         }
     }
 }

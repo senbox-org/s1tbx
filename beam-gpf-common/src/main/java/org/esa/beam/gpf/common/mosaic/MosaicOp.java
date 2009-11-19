@@ -29,6 +29,7 @@ import org.geotools.geometry.Envelope2D;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.geometry.Envelope;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.ImageLayout;
@@ -84,11 +85,9 @@ public class MosaicOp extends Operator {
                valueSet = {"OR", "AND"})
     String combine;
 
-    @Parameter(alias = "epsgCode", description = "Specifies the coordinate reference system of the target product.",
-               defaultValue = "EPSG:4326")
-    String crsCode;
-    @Parameter(description = "Text in WKT format describing the target Coordinate Reference System.")
-    String wkt;
+    @Parameter(defaultValue = "EPSG:4326",
+               description = "The CRS of the target product, represented as WKT or authority code.")
+    String crs;
 
     @Parameter(description = "Wether the source product should be orthorectified.", defaultValue = "false")
     boolean orthorectify;
@@ -355,7 +354,12 @@ public class MosaicOp extends Operator {
     private Product createTargetProduct() {
         Product product;
         try {
-            CoordinateReferenceSystem targetCRS = CRS.decode(crsCode, true);
+            CoordinateReferenceSystem targetCRS;
+            try {
+                targetCRS = CRS.parseWKT(crs);
+            } catch (FactoryException e) {
+                targetCRS = CRS.decode(crs, true);
+            }
             Rectangle2D.Double rect = new Rectangle2D.Double();
             rect.setFrameFromDiagonal(westBound, northBound, eastBound, southBound);
             Envelope envelope = CRS.transform(new Envelope2D(DefaultGeographicCRS.WGS84, rect), targetCRS);
@@ -485,7 +489,7 @@ public class MosaicOp extends Operator {
 
     public static Map<String, Object> getOperatorParameters(Product product) throws OperatorException {
         final MetadataElement graphElement = product.getMetadataRoot().getElement("Processing_Graph");
-        if(graphElement == null) {
+        if (graphElement == null) {
             throw new OperatorException("Product has no metadata element named 'Processing_Graph'");
         }
         final String operatorAlias = "Mosaic";
@@ -497,14 +501,14 @@ public class MosaicOp extends Operator {
                 collectParameters(MosaicOp.class, nodeElement.getElement("parameters"), parameters);
             }
         }
-        if(!operatorFound) {
-            throw new OperatorException("No metadata found for operator '"+operatorAlias+"'");
+        if (!operatorFound) {
+            throw new OperatorException("No metadata found for operator '" + operatorAlias + "'");
         }
         return parameters;
     }
 
     private static void collectParameters(Class<?> operatorClass, MetadataElement parentElement,
-                                Map<String, Object> parameters) {
+                                          Map<String, Object> parameters) {
         for (Field field : operatorClass.getDeclaredFields()) {
             final Parameter annotation = field.getAnnotation(Parameter.class);
             if (annotation != null) {
@@ -519,8 +523,8 @@ public class MosaicOp extends Operator {
     }
 
     private static void initParameter(MetadataElement parentElement, Field field,
-                               Map<String, Object> parameters) throws
-                                                               OperatorException {
+                                      Map<String, Object> parameters) throws
+                                                                      OperatorException {
         Parameter annotation = field.getAnnotation(Parameter.class);
         String name = annotation.alias();
         if (name.isEmpty()) {
@@ -548,7 +552,7 @@ public class MosaicOp extends Operator {
     }
 
     private static void initArrayParameter(MetadataElement parentElement, Field field,
-                                    Map<String, Object> parameters) throws OperatorException {
+                                           Map<String, Object> parameters) throws OperatorException {
         String name = field.getAnnotation(Parameter.class).alias();
         if (name.isEmpty()) {
             name = field.getName();

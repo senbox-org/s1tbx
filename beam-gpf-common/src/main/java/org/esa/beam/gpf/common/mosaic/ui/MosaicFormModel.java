@@ -127,24 +127,19 @@ class MosaicFormModel {
     }
 
     void setWkt(String wkt) {
-        setPropertyValue("wkt", wkt);
-        if (getPropertyValue("epsgCode") != null) {
-            // clear default epsgCode, so wkt has precedence
-            setPropertyValue("epsgCode", null);
-        }
+        setPropertyValue("crs", wkt);
     }
 
     private CoordinateReferenceSystem getCrs() throws FactoryException {
-        final String crsCode = (String) getPropertyValue("epsgCode");
-        if (crsCode != null) {
-            return CRS.decode(crsCode, true);
+        final String crs = (String) getPropertyValue("crs");
+        if (crs == null) {
+            return null;
         }
-        final String wkt = (String) getPropertyValue("wkt");
-        if (wkt != null) {
-            return CRS.parseWKT(wkt);
+        try {
+            return CRS.parseWKT(crs);
+        } catch (FactoryException e) {
+            return CRS.decode(crs, true);
         }
-
-        return null;
     }
 
     GeneralEnvelope getGeoEnvelope() {
