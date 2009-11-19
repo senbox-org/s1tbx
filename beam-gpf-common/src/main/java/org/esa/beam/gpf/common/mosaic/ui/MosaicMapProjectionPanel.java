@@ -86,13 +86,10 @@ class MosaicMapProjectionPanel extends JPanel {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final Boolean updateMode = (Boolean) evt.getNewValue();
-                setEnableState(!updateMode);
+                Boolean enabled1 = !updateMode;
+                crsSelectionPanel.setEnabled(enabled1);
             }
         });
-    }
-
-    private void setEnableState(Boolean enabled) {
-        crsSelectionPanel.setEnabled(enabled);
     }
 
     private void createUI() {
