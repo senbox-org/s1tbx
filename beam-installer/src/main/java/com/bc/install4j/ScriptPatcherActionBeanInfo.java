@@ -23,6 +23,7 @@ public class ScriptPatcherActionBeanInfo extends ActionBeanInfo implements BeanV
                                                                  "The directory to search for script files (relative path)."));
     }
 
+    @Override
     public void validateBean(Bean bean) throws BeanValidationException {
         checkNotEmpty(PROPERTY_SCRIPT_DIR_PATH, bean);
     }

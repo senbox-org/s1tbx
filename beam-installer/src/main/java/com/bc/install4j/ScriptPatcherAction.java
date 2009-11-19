@@ -30,6 +30,7 @@ public class ScriptPatcherAction extends AbstractInstallOrUninstallAction {
         this.scriptDirPath = scriptDirPath;
     }
 
+    @Override
     public boolean install(InstallerContext context) throws UserCanceledException {
 
 
@@ -37,6 +38,7 @@ public class ScriptPatcherAction extends AbstractInstallOrUninstallAction {
         File scriptDir = new File(installationDirectory, scriptDirPath);
 
         File[] files = scriptDir.listFiles(new FileFilter() {
+            @Override
             public boolean accept(File file) {
                 return file.isFile() && (
                         file.getName().endsWith(".bat")
@@ -62,7 +64,7 @@ public class ScriptPatcherAction extends AbstractInstallOrUninstallAction {
         return true;
     }
 
-    private void patchFile(File file) throws IOException {
+    private static void patchFile(File file) throws IOException {
 
         long l = file.length();
         if (l >= Integer.MAX_VALUE) {
@@ -84,6 +86,7 @@ public class ScriptPatcherAction extends AbstractInstallOrUninstallAction {
         }
     }
 
+    @Override
     public boolean uninstall(UninstallerContext context) throws UserCanceledException {
         return true;
     }
