@@ -10,8 +10,11 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.ui.WorldMapPaneDataModel;
+import org.esa.beam.gpf.common.mosaic.MosaicOp;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
@@ -29,6 +32,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,18 +50,17 @@ class MosaicFormModel {
     public static final String PROPERTY_SHOW_SOURCE_PRODUCTS = "showSourceProducts";
 
     private final PropertyContainer container;
+    private final Map<String, Object> parameterMap = new HashMap<String, Object>();
+    private final Map<File, Product> fileProductMap;
 
     private Product refProduct;
     private File refProductFile;
-    private Map<File, Product> productMap;
 
 
     MosaicFormModel() {
-        Map<String, Object> parameterMap = new HashMap<String, Object>();
-
         container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("Mosaic", parameterMap);
         final PropertyDescriptor sourceFilesDescriptor = new PropertyDescriptor(PROPERTY_SOURCE_PRODUCT_FILES,
-                                                                                new File[0].getClass());
+                                                                                File[].class);
         container.addProperty(new Property(sourceFilesDescriptor,
                                            new MapEntryAccessor(parameterMap, PROPERTY_SOURCE_PRODUCT_FILES)));
         container.addProperty(new Property(new PropertyDescriptor(PROPERTY_UPDATE_PRODUCT, Product.class),
@@ -71,13 +74,65 @@ class MosaicFormModel {
             container.setDefaultValues();
         } catch (ValidationException ignore) {
         }
-        container.setValue(PROPERTY_UPDATE_MODE, false);
-        container.setValue(PROPERTY_SHOW_SOURCE_PRODUCTS, false);
 
-        productMap = Collections.synchronizedMap(new HashMap<File, Product>());
+        fileProductMap = Collections.synchronizedMap(new HashMap<File, Product>());
     }
 
-    public PropertyContainer getPropertyContainer() {
+    Map<String, Object> getParameterMap() {
+        final Map<String, Object> map = new HashMap<String, Object>(parameterMap.size());
+        for (final String key : parameterMap.keySet()) {
+            for (final Field field : MosaicOp.class.getDeclaredFields()) {
+                final Parameter annotation = field.getAnnotation(Parameter.class);
+                if (annotation != null) {
+                    if (key.equals(field.getName()) || key.equals(annotation.alias())) {
+                        map.put(key, parameterMap.get(key));
+                    }
+                }
+            }
+        }
+        return map;
+    }
+
+    Map<String, Product> getSourceProductMap() throws IOException {
+        final HashMap<String, Product> map = new HashMap<String, Product>();
+        final File[] files = getSourceProductFiles();
+        for (int i = 0; i < files.length; i++) {
+            final File file = files[i];
+            final Product product;
+            if (refProduct == null || !file.equals(refProduct.getFileLocation())) {
+                product = ProductIO.readProduct(file, null);
+            } else {
+                product = refProduct;
+            }
+            map.put(GPF.SOURCE_PRODUCT_FIELD_NAME + (i + 1), product);
+        }
+        final Product updateProduct = getUpdateProduct();
+        if (updateProduct != null) {
+            map.put(PROPERTY_UPDATE_PRODUCT, updateProduct);
+        }
+
+        return map;
+    }
+
+    File[] getSourceProductFiles() {
+        final Object value = getPropertyValue(PROPERTY_SOURCE_PRODUCT_FILES);
+        if (value instanceof File[]) {
+            return (File[]) value;
+        }
+
+        return new File[0];
+    }
+
+    Product getUpdateProduct() {
+        final Object value = getPropertyValue(PROPERTY_UPDATE_PRODUCT);
+        if (value instanceof Product) {
+            return (Product) value;
+        }
+
+        return null;
+    }
+
+    PropertyContainer getPropertyContainer() {
         return container;
     }
 
@@ -154,7 +209,7 @@ class MosaicFormModel {
         }
         try {
             return CRS.parseWKT(crs);
-        } catch (FactoryException ignored) {
+        } catch (FactoryException e) {
             return CRS.decode(crs, true);
         }
     }
@@ -171,20 +226,19 @@ class MosaicFormModel {
         return generalEnvelope;
     }
 
-
     public void updateWithSourceProducts(WorldMapPaneDataModel worldMapModel,
                                          JComponent parentComponent) {
         final File[] productFiles = (File[]) container.getValue(PROPERTY_SOURCE_PRODUCT_FILES);
         final Boolean display = (Boolean) container.getValue(PROPERTY_SHOW_SOURCE_PRODUCTS);
-        if (display && productFiles != null && productFiles.length > 0 )  {
+        if (display && productFiles != null && productFiles.length > 0) {
             SwingWorker sw = new ProductLoaderSwingWorker(worldMapModel, productFiles, parentComponent);
             sw.execute();
         } else {
             worldMapModel.setProducts(null);
-            for (Map.Entry<File, Product> entry : productMap.entrySet()) {
+            for (Map.Entry<File, Product> entry : fileProductMap.entrySet()) {
                 entry.getValue().dispose();
             }
-            productMap.clear();
+            fileProductMap.clear();
         }
     }
 
@@ -208,17 +262,17 @@ class MosaicFormModel {
         protected Product[] doInBackground(ProgressMonitor pm) throws Exception {
             for (int i = 0; i < productFiles.length; i++) {
                 File productFile = productFiles[i];
-                final Product currentProduct = productMap.get(productFile);
+                final Product currentProduct = fileProductMap.get(productFile);
                 final int refNo = i + 1;
                 if (currentProduct == null) {
                     final Product product = ProductIO.readProduct(productFile, null);
                     product.setRefNo(refNo);
-                    productMap.put(productFile, product);
+                    fileProductMap.put(productFile, product);
                 } else {
                     currentProduct.setRefNo(refNo);
                 }
             }
-            return productMap.values().toArray(new Product[productMap.size()]);
+            return fileProductMap.values().toArray(new Product[fileProductMap.size()]);
         }
 
         @Override
@@ -229,7 +283,7 @@ class MosaicFormModel {
                 final String msg = String.format("Cannot display source products.\n%s", e.getMessage());
                 JOptionPane.showMessageDialog(component, msg, TITLE, JOptionPane.ERROR_MESSAGE);
             }
-
         }
     }
+
 }

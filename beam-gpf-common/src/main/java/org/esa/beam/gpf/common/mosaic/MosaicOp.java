@@ -480,13 +480,6 @@ public class MosaicOp extends Operator {
         }
     }
 
-    public static class Spi extends OperatorSpi {
-
-        public Spi() {
-            super(MosaicOp.class);
-        }
-    }
-
     public static Map<String, Object> getOperatorParameters(Product product) throws OperatorException {
         final MetadataElement graphElement = product.getMetadataRoot().getElement("Processing_Graph");
         if (graphElement == null) {
@@ -610,4 +603,10 @@ public class MosaicOp extends Operator {
         }
     }
 
+    public static class Spi extends OperatorSpi {
+
+        public Spi() {
+            super(MosaicOp.class);
+        }
+    }
 }

@@ -35,6 +35,10 @@ public class MosaicForm extends JTabbedPane {
     }
 
 
+    MosaicFormModel getFormModel() {
+        return mosaicModel;
+    }
+
     void prepareShow() {
         mapProjectionPanel.prepareShow();
         // todo init source product selectors

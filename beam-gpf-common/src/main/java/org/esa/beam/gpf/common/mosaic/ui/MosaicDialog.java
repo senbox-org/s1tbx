@@ -8,6 +8,8 @@ import org.esa.beam.framework.ui.AppContext;
 
 import java.util.Map;
 
+import com.bc.ceres.binding.PropertyContainer;
+
 /**
  * User: Marco
  * Date: 16.08.2009
@@ -22,6 +24,7 @@ class MosaicDialog extends SingleTargetProductDialog {
         dialog.show();
 
     }
+
     MosaicDialog(final String title, final String helpID, AppContext appContext) {
         super(appContext, title, helpID);
         form = new MosaicForm(getTargetProductSelector(), appContext);
@@ -35,10 +38,8 @@ class MosaicDialog extends SingleTargetProductDialog {
 
     @Override
     protected Product createTargetProduct() throws Exception {
-        // todo
-//        final Map<String, Product> productMap = form.getProductMap();
-//        final Map<String, Object> parameterMap = form.getParameterMap();
-        return GPF.createProduct("Mosaic", null, (Map<String, Product>) null);
+        final MosaicFormModel formModel = form.getFormModel();
+        return GPF.createProduct("Mosaic", formModel.getParameterMap(), formModel.getSourceProductMap());
     }
 
     @Override
