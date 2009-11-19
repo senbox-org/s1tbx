@@ -4,6 +4,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
+import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
 
 import java.util.Map;
@@ -27,7 +28,10 @@ class MosaicDialog extends SingleTargetProductDialog {
 
     MosaicDialog(final String title, final String helpID, AppContext appContext) {
         super(appContext, title, helpID);
-        form = new MosaicForm(getTargetProductSelector(), appContext);
+        final TargetProductSelector selector = getTargetProductSelector();
+        selector.getModel().setSaveToFileSelected(true);
+        selector.getSaveToFileCheckBox().setEnabled(false);
+        form = new MosaicForm(selector, appContext);
     }
 
     @Override

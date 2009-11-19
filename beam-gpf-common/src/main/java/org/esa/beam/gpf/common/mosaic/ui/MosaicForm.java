@@ -4,6 +4,7 @@ import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
 
 import javax.swing.JTabbedPane;
+import java.io.File;
 
 /**
  * @author Marco Peters
@@ -40,15 +41,13 @@ public class MosaicForm extends JTabbedPane {
     }
 
     void prepareShow() {
+        ioPanel.prepareShow();
         mapProjectionPanel.prepareShow();
-        // todo init source product selectors
-//        sourceProductSelector.initProducts();
     }
 
     void prepareHide() {
         mapProjectionPanel.prepareHide();
-        // todo release products of source product selectors
-//        sourceProductSelector.releaseProducts();
+        ioPanel.prepareHide();
     }
 
 }

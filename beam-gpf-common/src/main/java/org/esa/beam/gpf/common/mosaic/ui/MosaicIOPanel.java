@@ -34,8 +34,10 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.List;
 
 /**
  * @author Marco Peters
@@ -48,22 +50,24 @@ class MosaicIOPanel extends JPanel {
 
     private final AppContext appContext;
     private final MosaicFormModel mosaicModel;
-    private final PropertyContainer properties;
+    private final PropertyContainer propertyContainer;
     private final TargetProductSelector targetProductSelector;
     private final SourceProductSelector updateProductSelector;
+    private FileArrayEditor sourceFileEditor;
 
     MosaicIOPanel(AppContext appContext, MosaicFormModel mosaicModel, TargetProductSelector selector) {
         this.appContext = appContext;
         this.mosaicModel = mosaicModel;
-        properties = mosaicModel.getPropertyContainer();
+        propertyContainer = mosaicModel.getPropertyContainer();
+        sourceFileEditor = new ProductArrayEditor(new FileArrayEditorContext(appContext));
         targetProductSelector = selector;
         updateProductSelector = new SourceProductSelector(appContext);
         init();
-        properties.addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+        propertyContainer.addPropertyChangeListener("updateMode", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (Boolean.TRUE.equals(evt.getNewValue())) {
-                    properties.setValue("updateProduct", updateProductSelector.getSelectedProduct());
+                    propertyContainer.setValue("updateProduct", updateProductSelector.getSelectedProduct());
                 } else {
                     updateProductSelector.setSelectedProduct(null);
                 }
@@ -90,12 +94,12 @@ class MosaicIOPanel extends JPanel {
                     if (product != null) {
                         final Map<String, Object> map = MosaicOp.getOperatorParameters(product);
                         for (Map.Entry<String, Object> entry : map.entrySet()) {
-                            if (properties.getProperty(entry.getKey()) != null) {
-                                properties.setValue(entry.getKey(), entry.getValue());
+                            if (propertyContainer.getProperty(entry.getKey()) != null) {
+                                propertyContainer.setValue(entry.getKey(), entry.getValue());
                             }
                         }
                     }
-                    properties.setValue(MosaicFormModel.PROPERTY_UPDATE_PRODUCT, product);
+                    propertyContainer.setValue(MosaicFormModel.PROPERTY_UPDATE_PRODUCT, product);
                 } catch (OperatorException e) {
                     appContext.handleError("Selected product cannot be used for update mode.", e);
                 }
@@ -104,8 +108,6 @@ class MosaicIOPanel extends JPanel {
     }
 
     private JPanel createSourceProductsPanel() {
-        final FileArrayEditor.EditorParent context = new FileArrayEditorContext(appContext);
-        FileArrayEditor sourceProductEditor = new ProductArrayEditor(context);
         final FileArrayEditor.FileArrayEditorListener listener = new FileArrayEditor.FileArrayEditorListener() {
             @Override
             public void updatedList(final File[] files) {
@@ -129,11 +131,11 @@ class MosaicIOPanel extends JPanel {
                 worker.execute();
             }
         };
-        sourceProductEditor.setListener(listener);
+        sourceFileEditor.setListener(listener);
 
 
-        JButton addFileButton = sourceProductEditor.createAddFileButton();
-        JButton removeFileButton = sourceProductEditor.createRemoveFileButton();
+        JButton addFileButton = sourceFileEditor.createAddFileButton();
+        JButton removeFileButton = sourceFileEditor.createRemoveFileButton();
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTablePadding(4, 4);
         tableLayout.setTableWeightX(1.0);
@@ -149,7 +151,7 @@ class MosaicIOPanel extends JPanel {
         tableLayout.setRowPadding(0, new Insets(1, 4, 1, 4));
         sourceProductPanel.add(buttonPanel);
 
-        final JComponent fileArrayComponent = sourceProductEditor.createFileArrayComponent();
+        final JComponent fileArrayComponent = sourceFileEditor.createFileArrayComponent();
         tableLayout.setRowWeightY(1, 1.0);
         sourceProductPanel.add(fileArrayComponent);
 
@@ -168,7 +170,7 @@ class MosaicIOPanel extends JPanel {
         final JPanel targetProductPanel = new JPanel(tableLayout);
         targetProductPanel.setBorder(BorderFactory.createTitledBorder("Target Product"));
         final JCheckBox updateTargetCheckBox = new JCheckBox("Update target product", false);
-        final BindingContext context = new BindingContext(properties);
+        final BindingContext context = new BindingContext(propertyContainer);
         context.bind(MosaicFormModel.PROPERTY_UPDATE_MODE, updateTargetCheckBox);
         targetProductPanel.add(updateTargetCheckBox);
 
@@ -243,6 +245,25 @@ class MosaicIOPanel extends JPanel {
         panel.add(subPanel3);
 
         return panel;
+    }
+
+    void prepareShow() {
+        try {
+            final List<File> files = sourceFileEditor.getFiles();
+            mosaicModel.setSourceProducts(files.toArray(new File[files.size()]));
+        } catch (IOException e) {
+            // ignore
+        }
+        updateProductSelector.initProducts();
+    }
+
+    void prepareHide() {
+        updateProductSelector.releaseProducts();
+        try {
+            mosaicModel.setSourceProducts(new File[0]);
+        } catch (IOException e) {
+            // ignore
+        }
     }
 
     private static class FileArrayEditorContext implements FileArrayEditor.EditorParent {

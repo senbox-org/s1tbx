@@ -52,7 +52,7 @@ class MosaicFormModel {
 
     private final PropertyContainer container;
     private final Map<String, Object> parameterMap = new HashMap<String, Object>();
-    private final Map<File, Product> fileProductMap = Collections.synchronizedMap(new HashMap<File, Product>());
+    private final Map<File, Product> sourceProductMap = Collections.synchronizedMap(new HashMap<File, Product>());
     private final WorldMapPaneDataModel worldMapModel = new WorldMapPaneDataModel();
 
     MosaicFormModel() {
@@ -74,7 +74,7 @@ class MosaicFormModel {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (Boolean.TRUE.equals(evt.getNewValue())) {
-                    final Collection<Product> products = fileProductMap.values();
+                    final Collection<Product> products = sourceProductMap.values();
                     worldMapModel.setProducts(products.toArray(new Product[products.size()]));
                 } else {
                     worldMapModel.setProducts(null);
@@ -85,7 +85,7 @@ class MosaicFormModel {
 
     void setSourceProducts(File[] files) throws IOException {
         final List<File> fileList = Arrays.asList(files);
-        final Iterator<Map.Entry<File, Product>> iterator = fileProductMap.entrySet().iterator();
+        final Iterator<Map.Entry<File, Product>> iterator = sourceProductMap.entrySet().iterator();
         while (iterator.hasNext()) {
             final Map.Entry<File, Product> entry = iterator.next();
             if (!fileList.contains(entry.getKey())) {
@@ -97,10 +97,10 @@ class MosaicFormModel {
         }
         for (int i = 0; i < files.length; i++) {
             final File file = files[i];
-            Product product = fileProductMap.get(file);
+            Product product = sourceProductMap.get(file);
             if (product == null) {
                 product = ProductIO.readProduct(file, null);
-                fileProductMap.put(file, product);
+                sourceProductMap.put(file, product);
                 if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_SHOW_SOURCE_PRODUCTS))) {
                     worldMapModel.addProduct(product);
                 }
@@ -129,8 +129,8 @@ class MosaicFormModel {
     }
 
     Map<String, Product> getSourceProductMap() throws IOException {
-        final HashMap<String, Product> map = new HashMap<String, Product>(fileProductMap.size());
-        for (final Product product : fileProductMap.values()) {
+        final HashMap<String, Product> map = new HashMap<String, Product>(sourceProductMap.size());
+        for (final Product product : sourceProductMap.values()) {
             map.put(GPF.SOURCE_PRODUCT_FIELD_NAME + product.getRefNo(), product);
         }
         final Product updateProduct = getUpdateProduct();
@@ -170,7 +170,7 @@ class MosaicFormModel {
     }
 
     public Product getReferenceProduct() throws IOException {
-        for (Product product : fileProductMap.values()) {
+        for (Product product : sourceProductMap.values()) {
             if (product.getRefNo() == 1) {
                 return product;
             }
