@@ -23,6 +23,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -46,12 +47,14 @@ class MosaicIOPanel extends JPanel {
     private static final String INPUT_PRODUCT_DIR_KEY = "gpf.mosaic.input.product.dir";
 
     private final AppContext appContext;
+    private final MosaicFormModel mosaicModel;
     private final PropertyContainer properties;
     private final TargetProductSelector targetProductSelector;
     private final SourceProductSelector updateProductSelector;
 
     MosaicIOPanel(AppContext appContext, MosaicFormModel mosaicModel, TargetProductSelector selector) {
         this.appContext = appContext;
+        this.mosaicModel = mosaicModel;
         properties = mosaicModel.getPropertyContainer();
         targetProductSelector = selector;
         updateProductSelector = new SourceProductSelector(appContext);
@@ -86,8 +89,8 @@ class MosaicIOPanel extends JPanel {
                 try {
                     if (product != null) {
                         final Map<String, Object> map = MosaicOp.getOperatorParameters(product);
-                        for (Map.Entry<String,Object> entry : map.entrySet()) {
-                            if(properties.getProperty(entry.getKey()) != null){
+                        for (Map.Entry<String, Object> entry : map.entrySet()) {
+                            if (properties.getProperty(entry.getKey()) != null) {
                                 properties.setValue(entry.getKey(), entry.getValue());
                             }
                         }
@@ -106,7 +109,24 @@ class MosaicIOPanel extends JPanel {
         final FileArrayEditor.FileArrayEditorListener listener = new FileArrayEditor.FileArrayEditorListener() {
             @Override
             public void updatedList(final File[] files) {
-                properties.setValue(MosaicFormModel.PROPERTY_SOURCE_PRODUCT_FILES, files);
+                final SwingWorker worker = new SwingWorker() {
+                    @Override
+                    protected Object doInBackground() throws Exception {
+                        mosaicModel.setSourceProducts(files);
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        try {
+                            get();
+                        } catch (Exception e) {
+                            final String msg = String.format("Cannot display source products.\n%s", e.getMessage());
+                            appContext.handleError(msg, e);
+                        }
+                    }
+                };
+                worker.execute();
             }
         };
         sourceProductEditor.setListener(listener);
@@ -245,7 +265,8 @@ class MosaicIOPanel extends JPanel {
         }
 
         private void setInputProductDir(final File currentDirectory) {
-            applicationContext.getPreferences().setPropertyString(INPUT_PRODUCT_DIR_KEY, currentDirectory.getAbsolutePath());
+            applicationContext.getPreferences().setPropertyString(INPUT_PRODUCT_DIR_KEY,
+                                                                  currentDirectory.getAbsolutePath());
         }
 
         private File getInputProductDir() {
@@ -268,7 +289,7 @@ class MosaicIOPanel extends JPanel {
         }
 
         @Override
-            protected JFileChooser createFileChooserDialog() {
+        protected JFileChooser createFileChooserDialog() {
             BeamFileChooser fileChooser = new BeamFileChooser();
             fileChooser.setAcceptAllFileFilterUsed(true);
             fileChooser.setDialogTitle("Mosaic - Open Source Product(s)"); /*I18N*/

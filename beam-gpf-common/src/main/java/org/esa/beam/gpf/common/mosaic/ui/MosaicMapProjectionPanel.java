@@ -74,8 +74,6 @@ class MosaicMapProjectionPanel extends JPanel {
         createUI();
         updateForCrsChanged();
         binding.adjustComponents();
-
-        propertyContainer.addPropertyChangeListener(new SourceProductsDisplayUpdater());
     }
 
     private void init() {
@@ -171,12 +169,12 @@ class MosaicMapProjectionPanel extends JPanel {
         worlMapPanel.setMinimumSize(new Dimension(250, 125));
         worlMapPanel.setBorder(BorderFactory.createEtchedBorder());
 
-        final JCheckBox showSourProductsCheckBox = new JCheckBox(new DisplayProductsAction(mosaicModel));
-        binding.bind(MosaicFormModel.PROPERTY_SHOW_SOURCE_PRODUCTS, showSourProductsCheckBox);
+        final JCheckBox showSourceProductsCheckBox = new JCheckBox("Display source products");
+        binding.bind(MosaicFormModel.PROPERTY_SHOW_SOURCE_PRODUCTS, showSourceProductsCheckBox);
 
         panel.add(createBoundsInputPanel());
         panel.add(worlMapPanel);
-        panel.add(showSourProductsCheckBox);
+        panel.add(showSourceProductsCheckBox);
 
         return panel;
     }
@@ -341,38 +339,6 @@ class MosaicMapProjectionPanel extends JPanel {
                 return "";
             }
             return format.format(value);
-        }
-    }
-
-    private class DisplayProductsAction extends AbstractAction {
-
-        private final MosaicFormModel model;
-
-        private DisplayProductsAction(MosaicFormModel model) {
-            super("Display source products");
-            this.model = model;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            final JToggleButton source = (JToggleButton) e.getSource();
-            if (source.isSelected()) {
-                mosaicModel.updateWithSourceProducts(MosaicMapProjectionPanel.this);
-            } else {
-                mosaicModel.getWorldMapModel().setProducts(null);
-            }
-        }
-
-    }
-
-    private class SourceProductsDisplayUpdater implements PropertyChangeListener {
-
-        @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            if (MosaicFormModel.PROPERTY_SOURCE_PRODUCT_FILES.equals(evt.getPropertyName()) ||
-                MosaicFormModel.PROPERTY_SHOW_SOURCE_PRODUCTS.equals(evt.getPropertyName())) {
-                mosaicModel.updateWithSourceProducts(MosaicMapProjectionPanel.this);
-            }
         }
     }
 }
