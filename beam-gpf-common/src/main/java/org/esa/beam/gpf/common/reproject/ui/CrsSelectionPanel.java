@@ -54,20 +54,7 @@ public class CrsSelectionPanel extends JPanel {
 
         createUI();
         crsChangeListener = new CrsChangeListener();
-        addPropertyChangeListener("enabled", new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                final Boolean enabled = (Boolean) evt.getNewValue();
-                customCrsButtonModel.setEnabled(enabled);
-                predefinedCrsButtonModel.setEnabled(enabled);
-                customCrsComponent.setEnabled(enabled);
-                predefinedCrsComponent.setEnabled(enabled);
-                if (showCollocation) {
-                    collocationButtonModel.setEnabled(enabled);
-                    collocationComponent.setEnabled(enabled);
-                }
-            }
-        });
+        addPropertyChangeListener("enabled", new EnabledChangeListener());
     }
 
     public void setReferenceProduct(Product product) {
@@ -82,7 +69,7 @@ public class CrsSelectionPanel extends JPanel {
         if (customCrsButtonModel.isSelected()) {
             return customCrsUI.getCRS(referencePos);
         }
-        if (predefinedCrsButtonModel.isSelected() ) {
+        if (predefinedCrsButtonModel.isSelected()) {
             return predefinedCrsUI.getCRS(referencePos);
         }
         if (showCollocation && collocationButtonModel.isSelected()) {
@@ -91,10 +78,10 @@ public class CrsSelectionPanel extends JPanel {
         return null;
     }
 
-    public Product getCollocationProduct(){
-        if(showCollocation) {
-        return collocationCrsUI.getCollocationProduct();
-        }else {
+    public Product getCollocationProduct() {
+        if (showCollocation) {
+            return collocationCrsUI.getCollocationProduct();
+        } else {
             return null;
         }
     }
@@ -187,6 +174,7 @@ public class CrsSelectionPanel extends JPanel {
     }
 
     private class UpdateStateListener implements ActionListener {
+
         @Override
         public void actionPerformed(ActionEvent e) {
             updateUIState();
@@ -195,6 +183,7 @@ public class CrsSelectionPanel extends JPanel {
     }
 
     private class CrsChangeListener implements PropertyChangeListener {
+
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             fireCrsChanged();
@@ -203,5 +192,21 @@ public class CrsSelectionPanel extends JPanel {
 
     private void fireCrsChanged() {
         firePropertyChange("crs", null, null);
+    }
+
+    private class EnabledChangeListener implements PropertyChangeListener {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            final Boolean enabled = (Boolean) evt.getNewValue();
+            customCrsButtonModel.setEnabled(enabled);
+            predefinedCrsButtonModel.setEnabled(enabled);
+            customCrsComponent.setEnabled(customCrsButtonModel.isSelected() && enabled);
+            predefinedCrsComponent.setEnabled(predefinedCrsButtonModel.isSelected() && enabled);
+            if (showCollocation) {
+                collocationButtonModel.setEnabled(enabled);
+                collocationComponent.setEnabled(collocationButtonModel.isSelected() && enabled);
+            }
+        }
     }
 }
