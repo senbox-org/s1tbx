@@ -176,7 +176,7 @@ class MosaicFormModel {
     }
 
     public Product getBoundaryProduct() throws FactoryException, TransformException {
-        final CoordinateReferenceSystem mapCRS = getCrs();
+        final CoordinateReferenceSystem mapCRS = getTargetCRS();
         if (mapCRS != null) {
             final double pixelSizeX = (Double) getPropertyValue("pixelSizeX");
             final double pixelSizeY = (Double) getPropertyValue("pixelSizeY");
@@ -202,7 +202,7 @@ class MosaicFormModel {
         setPropertyValue("crs", crs);
     }
 
-    private CoordinateReferenceSystem getCrs() throws FactoryException {
+    private CoordinateReferenceSystem getTargetCRS() throws FactoryException {
         final String crs = (String) getPropertyValue("crs");
         if (crs == null) {
             return null;
