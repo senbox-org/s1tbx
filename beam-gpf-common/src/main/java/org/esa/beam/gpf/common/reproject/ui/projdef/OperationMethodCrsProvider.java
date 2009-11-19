@@ -32,9 +32,7 @@ class OperationMethodCrsProvider extends AbstractCrsProvider {
 
     @Override
     public CoordinateReferenceSystem getCRS(final GeoPos referencePos, ParameterValueGroup parameters,
-                                            GeodeticDatum datum
-    ) throws
-                                                                                                                  FactoryException {
+                                            GeodeticDatum datum) throws FactoryException {
         final CRSFactory crsFactory = ReferencingFactoryFinder.getCRSFactory(null);
         final CoordinateOperationFactory coFactory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
 
