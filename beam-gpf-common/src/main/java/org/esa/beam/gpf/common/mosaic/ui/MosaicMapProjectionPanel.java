@@ -125,12 +125,12 @@ class MosaicMapProjectionPanel extends JPanel {
             final CoordinateReferenceSystem crs = crsSelectionPanel.getCrs(new GeoPos(lat, lon));
             if (crs != null) {
                 updatePixelUnit(crs);
-                mosaicModel.setWkt(crs.toWKT());
+                mosaicModel.setTargetCRS(crs.toWKT());
             } else {
-                mosaicModel.setWkt(null);
+                mosaicModel.setTargetCRS(null);
             }
         } catch (FactoryException ignored) {
-            mosaicModel.setWkt(null);
+            mosaicModel.setTargetCRS(null);
         }
     }
 

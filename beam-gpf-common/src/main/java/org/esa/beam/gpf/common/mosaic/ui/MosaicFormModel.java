@@ -198,8 +198,8 @@ class MosaicFormModel {
         return null;
     }
 
-    void setWkt(String wkt) {
-        setPropertyValue("crs", wkt);
+    void setTargetCRS(String crs) {
+        setPropertyValue("crs", crs);
     }
 
     private CoordinateReferenceSystem getCrs() throws FactoryException {
