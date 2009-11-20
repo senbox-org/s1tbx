@@ -1,4 +1,4 @@
-package com.bc.ceres.undo;
+package com.bc.ceres.swing.undo;
 
 // todo - why is AbstractUndoableEdit a Serializable?
 // todo - make Restorable a Serializable for the same reason?

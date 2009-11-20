@@ -1,6 +1,6 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.undo.Restorable;
+import com.bc.ceres.swing.undo.Restorable;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
