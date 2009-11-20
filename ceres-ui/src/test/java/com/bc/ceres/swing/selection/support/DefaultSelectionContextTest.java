@@ -1,6 +1,7 @@
 package com.bc.ceres.swing.selection.support;
 
 import junit.framework.TestCase;
+import com.bc.ceres.swing.selection.TracingSelectionChangeListener;
 
 public class DefaultSelectionContextTest extends TestCase {
     public void testSelection() {

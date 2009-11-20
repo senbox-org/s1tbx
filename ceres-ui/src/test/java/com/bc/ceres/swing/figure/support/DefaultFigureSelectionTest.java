@@ -9,7 +9,7 @@ import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.Figure;
 
-public class FigureSelectionTest extends TestCase {
+public class DefaultFigureSelectionTest extends TestCase {
 
     public void testThatFigureSelectionCannotBeSelected() {
         FigureSelection figureSelection = new DefaultFigureSelection();

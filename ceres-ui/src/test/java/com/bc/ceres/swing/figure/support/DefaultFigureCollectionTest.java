@@ -8,7 +8,7 @@ import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.FigureChangeEvent;
 
-public class FigureCollectionTest extends TestCase {
+public class DefaultFigureCollectionTest extends TestCase {
     public void testDefaultProperties() {
         DefaultFigureCollection fc = new DefaultFigureCollection();
         assertEquals(Figure.Rank.COLLECTION, fc.getRank());

@@ -1,4 +1,4 @@
-package com.bc.ceres.swing.figure.interactions;
+package com.bc.ceres.swing.figure;
 
 import junit.framework.TestCase;
 

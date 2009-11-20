@@ -4,8 +4,9 @@ import junit.framework.TestCase;
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionContext;
+import com.bc.ceres.swing.selection.TracingSelectionChangeListener;
 
-public class SelectionManagerImplTest extends TestCase {
+public class DefaultSelectionManagerTest extends TestCase {
     public void testDefaults() {
         DefaultSelectionManager sm = new DefaultSelectionManager(this);
         assertNotNull(sm.getSelectionContext());
