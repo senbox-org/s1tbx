@@ -4,7 +4,13 @@ import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 
-
+// todo - extract common interface for Figure/Handle
+/**
+ * A handle is a graphical modifier for {@link Figure}s.
+ *
+ * @author Norman Fomferra
+ * @since Ceres 0.10
+ */
 public interface Handle {
     boolean isSelectable();
 

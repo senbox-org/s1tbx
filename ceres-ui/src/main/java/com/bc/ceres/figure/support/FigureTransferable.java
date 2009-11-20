@@ -20,7 +20,7 @@ public class FigureTransferable implements Transferable {
         if (snapshot) {
             for (int i = 0; i < this.figures.length; i++) {
                 Figure figure = this.figures[i];
-                this.figures[i] = figure.clone();
+                this.figures[i] = (Figure) figure.clone();
             }
         }
     }
@@ -46,7 +46,7 @@ public class FigureTransferable implements Transferable {
                 // E.g. COPY + PASTE
                 Figure[] figures1 = figures.clone();
                 for (int i = 0; i < figures1.length; i++) {
-                    figures1[i] = figures1[i].clone();
+                    figures1[i] = (Figure) figures1[i].clone();
                 }
                 return figures1;
             } else {

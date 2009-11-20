@@ -1,11 +1,11 @@
 package com.bc.ceres.figure.support;
 
-import com.bc.ceres.figure.support.AbstractFigure;
-import com.bc.ceres.figure.support.AbstractFigureChangeListener;
+import com.bc.ceres.figure.AbstractFigure;
+import com.bc.ceres.figure.AbstractFigureChangeListener;
 import com.bc.ceres.figure.FigureChangeEvent;
-import com.bc.ceres.figure.FigureChangeListener;
 import com.bc.ceres.figure.Handle;
 import com.bc.ceres.figure.Figure;
+import com.bc.ceres.figure.FigureCollection;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class FigureCollection extends AbstractFigure {
+public class DefaultFigureCollection extends AbstractFigure implements FigureCollection {
 
     protected static final Handle[] NO_HANDLES = new Handle[0];
 
@@ -29,11 +29,11 @@ public class FigureCollection extends AbstractFigure {
     private BoundsUpdater boundsUpdater;
     private ChangeDelegate changeDelegate;
 
-    public FigureCollection() {
+    public DefaultFigureCollection() {
         this(new Figure[0]);
     }
 
-    public FigureCollection(Figure[] figures) {
+    public DefaultFigureCollection(Figure[] figures) {
         List<Figure> list = Arrays.asList(figures);
         this.figureList = new ArrayList<Figure>(list);
         this.figureSet = new HashSet<Figure>(list);
@@ -74,8 +74,8 @@ public class FigureCollection extends AbstractFigure {
     }
 
     @Override
-    public synchronized FigureCollection clone() {
-        final FigureCollection figureCollection = (FigureCollection) super.clone();
+    public synchronized Object clone() {
+        final DefaultFigureCollection figureCollection = (DefaultFigureCollection) super.clone();
         figureCollection.figureList = new ArrayList<Figure>(figureList);
         figureCollection.boundsUpdater = new BoundsUpdater();
         figureCollection.addListener(figureCollection.boundsUpdater);
@@ -111,6 +111,11 @@ public class FigureCollection extends AbstractFigure {
     @Override
     public synchronized int getFigureCount() {
         return figureList.size();
+    }
+
+    @Override
+    public int getFigureIndex(Figure figure) {
+        return figureList.indexOf(figure);
     }
 
     @Override

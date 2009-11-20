@@ -1,6 +1,6 @@
 package com.bc.ceres.figure.support;
 
-import com.bc.ceres.figure.support.AbstractFigure;
+import com.bc.ceres.figure.AbstractFigure;
 import com.bc.ceres.figure.support.FigureStyle;
 import com.bc.ceres.figure.Handle;
 import com.bc.ceres.figure.support.VertexHandle;

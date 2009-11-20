@@ -77,5 +77,5 @@ public interface Selection extends ClipboardOwner, Cloneable {
      * @return A clone of this selection instance.
      */
     @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException"})
-    Selection clone();
+    Object clone();
 }

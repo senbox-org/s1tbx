@@ -5,13 +5,12 @@ import junit.framework.TestCase;
 import java.awt.geom.Rectangle2D;
 
 import com.bc.ceres.figure.Figure;
-import com.bc.ceres.figure.FigureChangeEvent;
-import com.bc.ceres.figure.support.FigureCollection;
 import com.bc.ceres.figure.FigureChangeListener;
+import com.bc.ceres.figure.FigureChangeEvent;
 
 public class FigureCollectionTest extends TestCase {
     public void testDefaultProperties() {
-        FigureCollection fc = new FigureCollection();
+        DefaultFigureCollection fc = new DefaultFigureCollection();
         assertEquals(Figure.Rank.COLLECTION, fc.getRank());
         assertEquals(new Rectangle2D.Double(), fc.getBounds());
         assertEquals(1, fc.getMaxSelectionLevel());
@@ -19,9 +18,9 @@ public class FigureCollectionTest extends TestCase {
     }
 
     public void testThatChildChangesArePropagated() {
-        FigureCollection fc = new FigureCollection();
-        FigureCollection f1 = new FigureCollection();
-        FigureCollection f2 = new FigureCollection();
+        DefaultFigureCollection fc = new DefaultFigureCollection();
+        DefaultFigureCollection f1 = new DefaultFigureCollection();
+        DefaultFigureCollection f2 = new DefaultFigureCollection();
         fc.addFigure(f1);
         fc.addFigure(f2);
 
@@ -29,20 +28,20 @@ public class FigureCollectionTest extends TestCase {
         fc.addListener(listener);
 
         assertEquals("", listener.trace);
-        f1.addFigure(new FigureCollection());
+        f1.addFigure(new DefaultFigureCollection());
         assertEquals("c", listener.trace);
-        f2.addFigure(new FigureCollection());
+        f2.addFigure(new DefaultFigureCollection());
         assertEquals("cc", listener.trace);
     }
 
     public void testAddingAndRemovingChildren() {
-        FigureCollection fc = new FigureCollection();
+        DefaultFigureCollection fc = new DefaultFigureCollection();
         assertEquals(0, fc.getFigureCount());
         assertNotNull(fc.getFigures());
         assertEquals(0, fc.getFigures().length);
 
-        FigureCollection f1 = new FigureCollection();
-        FigureCollection f2 = new FigureCollection();
+        DefaultFigureCollection f1 = new DefaultFigureCollection();
+        DefaultFigureCollection f2 = new DefaultFigureCollection();
 
         fc.addFigure(f1);
         fc.addFigure(f2);
@@ -70,11 +69,11 @@ public class FigureCollectionTest extends TestCase {
     }
 
     public void testListener() {
-        FigureCollection fc = new FigureCollection();
+        DefaultFigureCollection fc = new DefaultFigureCollection();
         MyFigureListener listener = new MyFigureListener();
         fc.addListener(listener);
 
-        FigureCollection f1 = new FigureCollection();
+        DefaultFigureCollection f1 = new DefaultFigureCollection();
         fc.addFigure(f1);
         assertEquals("ca", listener.trace);
         assertSame(fc, listener.figure);
@@ -82,7 +81,7 @@ public class FigureCollectionTest extends TestCase {
         assertEquals(1, listener.children.length);
         assertSame(f1, listener.children[0]);
 
-        FigureCollection f2 = new FigureCollection();
+        DefaultFigureCollection f2 = new DefaultFigureCollection();
         fc.addFigure(f2);
         assertEquals("caca", listener.trace);
         assertSame(fc, listener.figure);

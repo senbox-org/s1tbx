@@ -2,11 +2,13 @@ package com.bc.ceres.swing.figure.support;
 
 import com.bc.ceres.figure.Figure;
 import com.bc.ceres.figure.FigureChangeEvent;
-import com.bc.ceres.figure.support.AbstractFigureChangeListener;
-import com.bc.ceres.figure.support.FigureCollection;
-import com.bc.ceres.figure.support.FigureSelection;
+import com.bc.ceres.figure.AbstractFigureChangeListener;
+import com.bc.ceres.figure.FigureCollection;
+import com.bc.ceres.figure.FigureSelection;
 import com.bc.ceres.figure.support.FigureTransferable;
 import com.bc.ceres.figure.support.StyleDefaults;
+import com.bc.ceres.figure.support.DefaultFigureCollection;
+import com.bc.ceres.figure.support.DefaultFigureSelection;
 import com.bc.ceres.selection.Selection;
 import com.bc.ceres.selection.SelectionChangeListener;
 import com.bc.ceres.selection.support.SelectionChangeSupport;
@@ -47,8 +49,8 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
         undoManager = new UndoManager();
         undoableEditSupport = new UndoableEditSupport(this);
         interaction = NullInteraction.INSTANCE;
-        figureCollection = new FigureCollection();
-        figureSelection = new FigureSelection();
+        figureCollection = new DefaultFigureCollection();
+        figureSelection = new DefaultFigureSelection();
 
         figureCollection.addListener(new AbstractFigureChangeListener() {
             @Override

@@ -1,10 +1,9 @@
 package com.bc.ceres.figure.support;
 
-import com.bc.ceres.selection.Selection;
-import com.bc.ceres.figure.support.FigureCollection;
 import com.bc.ceres.figure.support.FigureTransferable;
 import com.bc.ceres.figure.Handle;
 import com.bc.ceres.figure.Figure;
+import com.bc.ceres.figure.FigureSelection;
 import com.bc.ceres.figure.support.StyleDefaults;
 
 import java.awt.Graphics2D;
@@ -13,13 +12,13 @@ import java.awt.datatransfer.Transferable;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-public class FigureSelection extends FigureCollection implements Selection {
+public class DefaultFigureSelection extends DefaultFigureCollection implements FigureSelection {
 
     private Handle[] handles;
     private Handle selectedHandle;
     private int selectionLevel;
 
-    public FigureSelection() {
+    public DefaultFigureSelection() {
         this.selectionLevel = 0;
         this.handles = NO_HANDLES;
     }
@@ -126,7 +125,7 @@ public class FigureSelection extends FigureCollection implements Selection {
 
     @Override
     public FigureSelection clone() {
-        final FigureSelection figureSelection = (FigureSelection) super.clone();
+        final DefaultFigureSelection figureSelection = (DefaultFigureSelection) super.clone();
         figureSelection.handles = NO_HANDLES;
         figureSelection.selectedHandle = null;
         figureSelection.selectionLevel = 0;

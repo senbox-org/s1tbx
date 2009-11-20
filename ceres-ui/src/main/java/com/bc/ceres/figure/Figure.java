@@ -7,6 +7,13 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 
+/**
+ * A figure represents a graphical object.
+ * Figures are graphically modified by their {@link Handle}s.
+ *
+ * @author Norman Fomferra
+ * @since Ceres 0.10
+ */
 public interface Figure extends Restorable, Cloneable {
     enum Rank {
         PUNCTUAL,
@@ -35,11 +42,15 @@ public interface Figure extends Restorable, Cloneable {
 
     void rotate(Point2D point, double theta);
 
+    // todo - why not use Point2D
     double[] getVertex(int index);
 
+    // todo - why not use Point2D
     void setVertex(int index, double[] vertex);
 
     int getFigureCount();
+
+    int getFigureIndex(Figure figure);
 
     Figure getFigure(int index);
 
@@ -74,5 +85,5 @@ public interface Figure extends Restorable, Cloneable {
     void dispose();
 
     @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException"})
-    Figure clone();
+    Object clone();
 }

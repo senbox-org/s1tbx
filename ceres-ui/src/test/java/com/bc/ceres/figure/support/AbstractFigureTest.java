@@ -9,8 +9,8 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-import com.bc.ceres.figure.support.AbstractFigure;
-import com.bc.ceres.figure.support.AbstractFigureChangeListener;
+import com.bc.ceres.figure.AbstractFigure;
+import com.bc.ceres.figure.AbstractFigureChangeListener;
 import com.bc.ceres.figure.Figure;
 import com.bc.ceres.figure.FigureChangeEvent;
 import com.bc.ceres.figure.FigureChangeListener;
@@ -32,7 +32,7 @@ public class AbstractFigureTest extends TestCase {
         MyFigure f = new MyFigure();
         f.addListener(new AbstractFigureChangeListener() {
         });
-        AbstractFigure cf = f.clone();
+        AbstractFigure cf = (AbstractFigure) f.clone();
         assertNotNull(cf.getListeners());
         assertEquals(0, cf.getListeners().length);
     }

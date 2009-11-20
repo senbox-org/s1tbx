@@ -1,4 +1,4 @@
-package com.bc.ceres.figure.support;
+package com.bc.ceres.figure;
 
 import com.bc.ceres.figure.FigureChangeEvent;
 import com.bc.ceres.figure.FigureChangeListener;

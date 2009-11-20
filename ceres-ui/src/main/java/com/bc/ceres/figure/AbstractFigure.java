@@ -1,9 +1,13 @@
-package com.bc.ceres.figure.support;
+package com.bc.ceres.figure;
 
 import com.bc.ceres.figure.Figure;
 import com.bc.ceres.figure.FigureChangeEvent;
 import com.bc.ceres.figure.FigureChangeListener;
 import com.bc.ceres.figure.Handle;
+import com.bc.ceres.figure.support.FigureStyle;
+import com.bc.ceres.figure.support.RotateHandle;
+import com.bc.ceres.figure.support.ScaleHandle;
+import com.bc.ceres.figure.support.StyleDefaults;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -30,6 +34,11 @@ public abstract class AbstractFigure implements Figure {
 
     @Override
     public int getFigureCount() {
+        return 0;
+    }
+
+    @Override
+    public int getFigureIndex(Figure figure) {
         return 0;
     }
 
@@ -208,7 +217,7 @@ public abstract class AbstractFigure implements Figure {
     }
 
     @Override
-    public AbstractFigure clone() {
+    public Object clone() {
         try {
             final AbstractFigure figure = (AbstractFigure) super.clone();
             figure.listenerList = null;

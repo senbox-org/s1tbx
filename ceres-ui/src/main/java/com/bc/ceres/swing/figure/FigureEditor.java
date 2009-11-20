@@ -4,8 +4,9 @@ import com.bc.ceres.selection.SelectionContext;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.figure.InteractionHolder;
 import com.bc.ceres.swing.figure.Interaction;
-import com.bc.ceres.figure.support.FigureSelection;
-import com.bc.ceres.figure.support.FigureCollection;
+import com.bc.ceres.figure.FigureSelection;
+import com.bc.ceres.figure.FigureCollection;
+import com.bc.ceres.figure.support.DefaultFigureCollection;
 
 import java.awt.Cursor;
 import java.awt.Rectangle;
