@@ -25,18 +25,18 @@ import org.opengis.referencing.operation.TransformException;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 
 /**
  * @author Marco Peters
@@ -133,11 +133,12 @@ class MosaicFormModel {
         for (final Product product : sourceProductMap.values()) {
             map.put(GPF.SOURCE_PRODUCT_FIELD_NAME + product.getRefNo(), product);
         }
-        final Product updateProduct = getUpdateProduct();
-        if (updateProduct != null) {
-            map.put(PROPERTY_UPDATE_PRODUCT, updateProduct);
+        if (Boolean.TRUE.equals(container.getValue(PROPERTY_UPDATE_MODE))) {
+            final Product updateProduct = getUpdateProduct();
+            if (updateProduct != null) {
+                map.put(PROPERTY_UPDATE_PRODUCT, updateProduct);
+            }
         }
-
         return map;
     }
 
@@ -212,7 +213,7 @@ class MosaicFormModel {
         }
         try {
             return CRS.parseWKT(crs);
-        } catch (FactoryException e) {
+        } catch (FactoryException ignored) {
             return CRS.decode(crs, true);
         }
     }
