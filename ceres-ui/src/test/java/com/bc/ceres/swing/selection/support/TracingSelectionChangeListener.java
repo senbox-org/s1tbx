@@ -1,7 +1,7 @@
-package com.bc.ceres.selection.support;
+package com.bc.ceres.swing.selection.support;
 
-import com.bc.ceres.selection.SelectionChangeEvent;
-import com.bc.ceres.selection.SelectionChangeListener;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import com.bc.ceres.swing.selection.SelectionChangeListener;
 
 class TracingSelectionChangeListener implements SelectionChangeListener {
     String trace = "";

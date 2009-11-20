@@ -1,10 +1,10 @@
-package com.bc.ceres.selection.support;
+package com.bc.ceres.swing.selection.support;
 
 import junit.framework.TestCase;
-import com.bc.ceres.selection.Selection;
-import com.bc.ceres.selection.SelectionChangeEvent;
-import com.bc.ceres.selection.SelectionChangeListener;
-import com.bc.ceres.selection.SelectionContext;
+import com.bc.ceres.swing.selection.Selection;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import com.bc.ceres.swing.selection.SelectionChangeListener;
+import com.bc.ceres.swing.selection.SelectionContext;
 
 public class SelectionChangeSupportTest extends TestCase {
     public void testListenerHousekeeping() {
