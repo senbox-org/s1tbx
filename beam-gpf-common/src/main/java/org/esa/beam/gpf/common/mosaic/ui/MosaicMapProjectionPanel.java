@@ -17,7 +17,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.CoordinateSystem;
 
 import javax.measure.unit.NonSI;
-import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
@@ -26,10 +25,8 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JToggleButton;
 import java.awt.Dimension;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
@@ -262,10 +259,20 @@ class MosaicMapProjectionPanel extends JPanel {
         final JCheckBox orthoCheckBox = new JCheckBox("Orthorectify input products");
         binding.bind("orthorectify", orthoCheckBox);
         binding.bindEnabledState("orthorectify", false, "updateMode", true);
-        JComboBox demComboBox = new JComboBox(new DefaultComboBoxModel(demValueSet));
+        final JComboBox demComboBox = new JComboBox(new DefaultComboBoxModel(demValueSet));
         binding.bind("elevationModelName", demComboBox);
-        binding.bindEnabledState("elevationModelName", true, "orthorectify", true);
-        binding.bindEnabledState("elevationModelName", false, "updateMode", true);
+        binding.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if ("orthorectify".equals(evt.getPropertyName()) ||
+                    "updateMode".equals(evt.getPropertyName())) {
+                    final PropertyContainer propertyContainer = binding.getPropertyContainer();
+                    boolean updateMode = Boolean.TRUE.equals(propertyContainer.getValue("updateMode"));
+                    boolean orthorectify = Boolean.TRUE.equals(propertyContainer.getValue("orthoretify"));
+                    demComboBox.setEnabled(orthorectify && !updateMode);
+                }
+            }
+        });
         layout.setCellColspan(0, 0, 2);
         panel.add(orthoCheckBox);
 
