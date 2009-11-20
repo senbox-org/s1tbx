@@ -1,4 +1,4 @@
-package com.bc.ceres.selection;
+package com.bc.ceres.swing.selection;
 
 import java.awt.datatransfer.Clipboard;
 
@@ -11,7 +11,7 @@ import java.awt.datatransfer.Clipboard;
  * manager.
  * <p/>
  * This interface may be directly implemented by clients, although it is advised
- * to use {@link com.bc.ceres.selection.support.SelectionManagerImpl SelectionManagerImpl},
+ * to use {@link com.bc.ceres.swing.selection.support.SelectionManagerImpl SelectionManagerImpl},
  * since this interface may evolve in the future.
  *
  * @author Norman Fomferra

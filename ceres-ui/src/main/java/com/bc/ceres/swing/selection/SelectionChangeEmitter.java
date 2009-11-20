@@ -1,4 +1,4 @@
-package com.bc.ceres.selection;
+package com.bc.ceres.swing.selection;
 
 /**
  * Objects implementing this interface emit selection change events to interested

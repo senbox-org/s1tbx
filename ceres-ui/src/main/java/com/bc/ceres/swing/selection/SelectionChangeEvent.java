@@ -1,4 +1,4 @@
-package com.bc.ceres.selection;
+package com.bc.ceres.swing.selection;
 
 /**
  * An event indicating that a selection or selection context change has occurred.

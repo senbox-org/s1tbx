@@ -1,4 +1,4 @@
-package com.bc.ceres.selection;
+package com.bc.ceres.swing.selection;
 
 /**
  * Interface implemented by a class interested in hearing about

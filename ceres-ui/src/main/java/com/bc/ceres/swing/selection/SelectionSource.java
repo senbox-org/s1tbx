@@ -1,4 +1,4 @@
-package com.bc.ceres.selection;
+package com.bc.ceres.swing.selection;
 
 /**
  * A selection source holds maintains a current selection and reports selection change events
