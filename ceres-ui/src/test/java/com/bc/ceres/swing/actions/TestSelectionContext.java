@@ -1,12 +1,14 @@
 package com.bc.ceres.swing.actions;
 
-import com.bc.ceres.selection.support.DefaultSelectionContext;
 import com.bc.ceres.selection.Selection;
+import com.bc.ceres.selection.support.DefaultSelectionContext;
+import org.junit.Ignore;
 
-import java.util.ArrayList;
-import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.util.ArrayList;
 
+@Ignore
 class TestSelectionContext extends DefaultSelectionContext {
     ArrayList<String> items = new ArrayList<String>();
 
