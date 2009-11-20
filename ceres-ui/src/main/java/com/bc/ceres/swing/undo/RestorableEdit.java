@@ -7,8 +7,11 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 /**
- * A very simple {@code UndoableEdit} which is acts upon a {@link Restorable} representing the changed object and
- * the memento of that object before it was changed.
+ * A very simple {@code UndoableEdit} which is acts upon a {@link Restorable}
+ * representing the changed object and the memento of that object before it was changed.
+ *
+ * @author Norman Fomferra
+ * @since Ceres 0.10
  */
 public class RestorableEdit extends AbstractUndoableEdit {
     private String presentationName;

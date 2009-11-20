@@ -7,7 +7,7 @@ import com.bc.ceres.swing.selection.SelectionContext;
 
 public class SelectionManagerImplTest extends TestCase {
     public void testDefaults() {
-        SelectionManagerImpl sm = new SelectionManagerImpl(this);
+        DefaultSelectionManager sm = new DefaultSelectionManager(this);
         assertNotNull(sm.getSelectionContext());
         assertNotNull(sm.getSelection());
         assertEquals(true, sm.getSelection().isEmpty());
@@ -23,7 +23,7 @@ public class SelectionManagerImplTest extends TestCase {
         context1.setSelection(selectionA);
         context2.setSelection(selectionB);
 
-        SelectionManagerImpl manager = new SelectionManagerImpl(this);
+        DefaultSelectionManager manager = new DefaultSelectionManager(this);
 
         TracingSelectionChangeListener listener = new TracingSelectionChangeListener();
         manager.addSelectionChangeListener(listener);
@@ -76,7 +76,7 @@ public class SelectionManagerImplTest extends TestCase {
 
         SelectionChangeListener[] changeListeners;
 
-        SelectionManagerImpl sm = new SelectionManagerImpl(this);
+        DefaultSelectionManager sm = new DefaultSelectionManager(this);
         changeListeners = sm.getSelectionChangeListeners();
         assertNotNull(changeListeners);
         assertEquals(0, changeListeners.length);

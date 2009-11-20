@@ -24,8 +24,4 @@ public abstract class AbstractUndoAction extends AbstractSystemAction implements
     public UndoContext getUndoContext() {
         return undoContext;
     }
-
-    public UndoManager getUndoManager() {
-        return getUndoContext().getUndoManager();
-    }
 }

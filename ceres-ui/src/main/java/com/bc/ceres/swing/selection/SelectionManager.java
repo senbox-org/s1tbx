@@ -11,7 +11,7 @@ import java.awt.datatransfer.Clipboard;
  * manager.
  * <p/>
  * This interface may be directly implemented by clients, although it is advised
- * to use {@link com.bc.ceres.swing.selection.support.SelectionManagerImpl SelectionManagerImpl},
+ * to use {@link com.bc.ceres.swing.selection.support.DefaultSelectionManager SelectionManagerImpl},
  * since this interface may evolve in the future.
  *
  * @author Norman Fomferra

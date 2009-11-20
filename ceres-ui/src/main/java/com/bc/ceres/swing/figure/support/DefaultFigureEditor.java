@@ -1,26 +1,22 @@
 package com.bc.ceres.swing.figure.support;
 
+import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureChangeEvent;
-import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
 import com.bc.ceres.swing.figure.FigureCollection;
+import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureSelection;
-import com.bc.ceres.swing.figure.support.FigureTransferable;
-import com.bc.ceres.swing.figure.support.StyleDefaults;
-import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
-import com.bc.ceres.swing.figure.support.DefaultFigureSelection;
+import com.bc.ceres.swing.figure.Interaction;
+import com.bc.ceres.swing.figure.interactions.NullInteraction;
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.bc.ceres.swing.selection.support.SelectionChangeSupport;
-import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.figure.Interaction;
-import com.bc.ceres.swing.figure.interactions.NullInteraction;
+import com.bc.ceres.swing.undo.UndoContext;
+import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 
 import javax.swing.JPanel;
 import javax.swing.event.UndoableEditListener;
-import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
-import javax.swing.undo.UndoableEditSupport;
 import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -37,8 +33,7 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
     private final FigureCollection figureCollection;
     private final FigureSelection figureSelection;
     private final SelectionChangeSupport selectionChangeSupport;
-    private final UndoManager undoManager;
-    private final UndoableEditSupport undoableEditSupport;
+    private final UndoContext undoContext;
     private Rectangle selectionRectangle;
     private Interaction interaction;
 
@@ -46,8 +41,7 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
         super(new BorderLayout());
 
         selectionChangeSupport = new SelectionChangeSupport(this);
-        undoManager = new UndoManager();
-        undoableEditSupport = new UndoableEditSupport(this);
+        undoContext = new DefaultUndoContext(this);
         interaction = NullInteraction.INSTANCE;
         figureCollection = new DefaultFigureCollection();
         figureSelection = new DefaultFigureSelection();
@@ -60,18 +54,18 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
         });
 
         figureSelection.addListener(new AbstractFigureChangeListener() {
-            
-            
+
+
             @Override
             public void figureChanged(FigureChangeEvent event) {
                 repaint();
             }
-            
+
             @Override
             public void figuresAdded(FigureChangeEvent event) {
                 selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
             }
-            
+
             @Override
             public void figuresRemoved(FigureChangeEvent event) {
                 selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
@@ -90,28 +84,46 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
         addMouseMotionListener(interactionDispatcher);
         addKeyListener(interactionDispatcher);
         setFocusable(true); // to fire key events
-
-        addUndoableEditListener(undoManager);
     }
 
     @Override
-    public UndoManager getUndoManager() {
-        return undoManager;
+    public boolean canUndo() {
+        return undoContext.canUndo();
+    }
+
+    @Override
+    public void undo() {
+        undoContext.undo();
+    }
+
+    @Override
+    public boolean canRedo() {
+        return undoContext.canRedo();
+    }
+
+    @Override
+    public void redo() {
+        undoContext.redo();
     }
 
     @Override
     public void postEdit(UndoableEdit edit) {
-        undoableEditSupport.postEdit(edit);
+        undoContext.postEdit(edit);
     }
 
     @Override
     public void addUndoableEditListener(UndoableEditListener listener) {
-        undoableEditSupport.addUndoableEditListener(listener);
+        undoContext.addUndoableEditListener(listener);
     }
 
     @Override
     public void removeUndoableEditListener(UndoableEditListener listener) {
-        undoableEditSupport.removeUndoableEditListener(listener);
+        undoContext.removeUndoableEditListener(listener);
+    }
+
+    @Override
+    public UndoableEditListener[] getUndoableEditListeners() {
+        return undoContext.getUndoableEditListeners();
     }
 
     @Override
@@ -224,9 +236,6 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
     }
 
     private void deleteFigures(Figure[] figuresToDelete) {
-        if (undoableEditSupport.getUpdateLevel() != 0) {
-            throw new IllegalStateException("undoableEditSupport.getUpdateLevel() != 0");
-        }
         postEdit(new FigureDeleteEdit(this, figuresToDelete));
     }
 }

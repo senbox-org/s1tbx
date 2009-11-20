@@ -7,7 +7,7 @@ import com.bc.ceres.swing.selection.SelectionManager;
 import com.bc.ceres.swing.actions.DeleteAction;
 import com.bc.ceres.swing.actions.PasteAction;
 import com.bc.ceres.swing.selection.support.DefaultSelection;
-import com.bc.ceres.swing.selection.support.SelectionManagerImpl;
+import com.bc.ceres.swing.selection.support.DefaultSelectionManager;
 
 import javax.swing.Action;
 import java.awt.datatransfer.DataFlavor;
@@ -18,7 +18,7 @@ import java.io.IOException;
 
 public class SelectionActionTest extends TestCase {
     public void testDeleteAction() {
-        SelectionManager selectionManager = new SelectionManagerImpl();
+        SelectionManager selectionManager = new DefaultSelectionManager();
         TestSelectionContext context = new TestSelectionContext();
         selectionManager.setSelectionContext(context);
         assertEquals(true, selectionManager.getSelection().isEmpty());
@@ -42,7 +42,7 @@ public class SelectionActionTest extends TestCase {
     }
 
     public void testPasteAction() {
-        SelectionManager selectionManager = new SelectionManagerImpl();
+        SelectionManager selectionManager = new DefaultSelectionManager();
         TestSelectionContext context = new TestSelectionContext();
         selectionManager.setSelectionContext(context);
         assertEquals(true, selectionManager.getSelection().isEmpty());

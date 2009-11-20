@@ -4,17 +4,18 @@ import com.bc.ceres.swing.actions.CopyAction;
 import com.bc.ceres.swing.actions.CutAction;
 import com.bc.ceres.swing.actions.DeleteAction;
 import com.bc.ceres.swing.actions.PasteAction;
-import com.bc.ceres.swing.actions.SelectAllAction;
-import com.bc.ceres.swing.selection.support.DefaultSelectionContext;
-import com.bc.ceres.swing.selection.support.SelectionManagerImpl;
-import com.bc.ceres.swing.selection.support.DefaultSelection;
-import com.bc.ceres.swing.selection.SelectionChangeListener;
-import com.bc.ceres.swing.selection.SelectionChangeEvent;
-import com.bc.ceres.swing.selection.SelectionManager;
-import com.bc.ceres.swing.selection.Selection;
-import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.actions.RedoAction;
+import com.bc.ceres.swing.actions.SelectAllAction;
 import com.bc.ceres.swing.actions.UndoAction;
+import com.bc.ceres.swing.selection.Selection;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import com.bc.ceres.swing.selection.SelectionChangeListener;
+import com.bc.ceres.swing.selection.SelectionManager;
+import com.bc.ceres.swing.selection.support.DefaultSelection;
+import com.bc.ceres.swing.selection.support.DefaultSelectionContext;
+import com.bc.ceres.swing.selection.support.DefaultSelectionManager;
+import com.bc.ceres.swing.undo.UndoContext;
+import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -28,18 +29,15 @@ import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
-import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-import javax.swing.undo.UndoManager;
-import javax.swing.undo.UndoableEditSupport;
-import javax.swing.undo.UndoableEdit;
 import java.awt.BorderLayout;
 import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
@@ -52,7 +50,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Locale;
 
-public class MultiSelectionSourceApp implements UndoContext  {
+public class MultiSelectionSourceApp {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -65,10 +63,7 @@ public class MultiSelectionSourceApp implements UndoContext  {
     }
 
 
-
-    private final UndoManager undoManager;
-    private final UndoableEditSupport undoableEditSupport;
-    private final SelectionManagerImpl selectionManager;
+    private final DefaultSelectionManager selectionManager;
 
 
     private JFrame frame;
@@ -87,13 +82,12 @@ public class MultiSelectionSourceApp implements UndoContext  {
 
     public MultiSelectionSourceApp() {
 
-        undoManager = new UndoManager();
-        undoableEditSupport = new UndoableEditSupport(this);
-        undoableEditSupport.addUndoableEditListener(undoManager);
-        selectionManager = new SelectionManagerImpl(this);
 
-        undoAction = new UndoAction(this);
-        redoAction = new RedoAction(this);
+        UndoContext undoContext = new DefaultUndoContext(this);
+        undoAction = new UndoAction(undoContext);
+
+        selectionManager = new DefaultSelectionManager(this);
+        redoAction = new RedoAction(undoContext);
         cutAction = new CutAction(selectionManager);
         copyAction = new CopyAction(selectionManager);
         pasteAction = new PasteAction(selectionManager);
@@ -207,7 +201,7 @@ public class MultiSelectionSourceApp implements UndoContext  {
             }
         });
 
-        addUndoableEditListener(new UndoableEditListener() {
+        undoContext.addUndoableEditListener(new UndoableEditListener() {
             @Override
             public void undoableEditHappened(UndoableEditEvent event) {
                 System.out.println("appContext: edit happened: " + event.getEdit());
@@ -218,26 +212,6 @@ public class MultiSelectionSourceApp implements UndoContext  {
 
     public SelectionManager getSelectionManager() {
         return selectionManager;
-    }
-
-    @Override
-    public UndoManager getUndoManager() {
-        return undoManager;
-    }
-
-    @Override
-    public void postEdit(UndoableEdit edit) {
-        undoableEditSupport.postEdit(edit);
-    }
-
-    @Override
-    public void addUndoableEditListener(UndoableEditListener listener) {
-        undoableEditSupport.addUndoableEditListener(listener);
-    }
-
-    @Override
-    public void removeUndoableEditListener(UndoableEditListener listener) {
-        undoableEditSupport.removeUndoableEditListener(listener);
     }
 
     public void bindEditKeys(JComponent component) {
@@ -443,7 +417,6 @@ public class MultiSelectionSourceApp implements UndoContext  {
                 }
 
 
-                
                 @Override
                 public void windowGainedFocus(WindowEvent e) {
                     System.out.println("e = " + e);
@@ -470,7 +443,7 @@ public class MultiSelectionSourceApp implements UndoContext  {
             final JList list = new JList(listModel);
             selectionContext = new ListSelectionContext(list);
 
-            appContext.bindEditKeys(list);            
+            appContext.bindEditKeys(list);
 
             JScrollPane scrollPane = new JScrollPane(list);
             JPanel panel = new JPanel(new BorderLayout(3, 3));

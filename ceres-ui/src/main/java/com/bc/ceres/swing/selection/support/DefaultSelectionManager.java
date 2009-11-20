@@ -16,18 +16,18 @@ import java.awt.datatransfer.Clipboard;
  * @author Norman Fomferra
  * @since Ceres 0.10
  */
-public class SelectionManagerImpl implements SelectionManager {
+public class DefaultSelectionManager implements SelectionManager {
     private final SelectionChangeSupport selectionChangeSupport;
     private final SelectionChangeMulticaster selectionChangeMulticaster;
     private SelectionContext selectionContext;
     private Selection selection;
     private Clipboard clipboard;
 
-    public SelectionManagerImpl() {
+    public DefaultSelectionManager() {
         this(null);
     }
 
-    public SelectionManagerImpl(Object realEventSource) {
+    public DefaultSelectionManager(Object realEventSource) {
         Object eventSource = realEventSource != null ? realEventSource : this;
         this.selectionChangeSupport = new SelectionChangeSupport(eventSource);
         this.selectionChangeMulticaster = new SelectionChangeMulticaster();
@@ -98,7 +98,7 @@ public class SelectionManagerImpl implements SelectionManager {
         @Override
         public void selectionChanged(SelectionChangeEvent event) {
             if (isAcceptedEvent(event)) {
-                SelectionManagerImpl.this.selection = event.getSelection();
+                DefaultSelectionManager.this.selection = event.getSelection();
                 selectionChangeSupport.fireSelectionChange(event);
             }
         }

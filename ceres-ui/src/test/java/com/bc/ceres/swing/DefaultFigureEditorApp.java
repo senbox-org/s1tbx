@@ -7,7 +7,7 @@ import com.bc.ceres.swing.actions.CutAction;
 import com.bc.ceres.swing.actions.DeleteAction;
 import com.bc.ceres.swing.actions.PasteAction;
 import com.bc.ceres.swing.actions.SelectAllAction;
-import com.bc.ceres.swing.selection.support.SelectionManagerImpl;
+import com.bc.ceres.swing.selection.support.DefaultSelectionManager;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
@@ -71,7 +71,7 @@ public class DefaultFigureEditorApp {
 
     public DefaultFigureEditorApp() {
         figureEditor = new DefaultFigureEditor();
-        SelectionManagerImpl selectionManager = new SelectionManagerImpl();
+        DefaultSelectionManager selectionManager = new DefaultSelectionManager();
         selectionManager.setSelectionContext(figureEditor);
 
         undoAction = new UndoAction(figureEditor);

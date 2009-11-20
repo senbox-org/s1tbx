@@ -13,11 +13,11 @@ public class UndoAction extends AbstractUndoAction {
 
     @Override
     public boolean isExecutable() {
-        return getUndoManager().canUndo();
+        return getUndoContext().canUndo();
     }
 
     @Override
     public void execute() {
-        getUndoManager().undo();
+        getUndoContext().undo();
     }
 }
