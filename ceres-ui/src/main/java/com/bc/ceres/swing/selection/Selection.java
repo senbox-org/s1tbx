@@ -1,6 +1,6 @@
 package com.bc.ceres.swing.selection;
 
-import com.bc.ceres.swing.selection.support.AbstractSelection;
+import com.bc.ceres.swing.selection.AbstractSelection;
 
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.Transferable;

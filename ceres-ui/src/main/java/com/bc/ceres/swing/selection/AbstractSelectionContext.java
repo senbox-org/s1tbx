@@ -1,8 +1,9 @@
-package com.bc.ceres.swing.selection.support;
+package com.bc.ceres.swing.selection;
 
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionContext;
+import com.bc.ceres.swing.selection.support.SelectionChangeSupport;
 
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;

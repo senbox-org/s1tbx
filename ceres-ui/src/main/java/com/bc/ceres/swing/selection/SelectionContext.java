@@ -11,7 +11,7 @@ import java.io.IOException;
  * e.g. a GUI table, list, tree, or a drawing of figures.
  * <p/>
  * This interface may be directly implemented by clients, although it is advised
- * to extend {@link com.bc.ceres.swing.selection.support.AbstractSelectionContext AbstractSelectionContext},
+ * to extend {@link AbstractSelectionContext AbstractSelectionContext},
  * since this interface may evolve in the future.
  *
  * @author Norman Fomferra

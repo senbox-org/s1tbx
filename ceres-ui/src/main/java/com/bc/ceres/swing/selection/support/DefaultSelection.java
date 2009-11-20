@@ -1,5 +1,7 @@
 package com.bc.ceres.swing.selection.support;
 
+import com.bc.ceres.swing.selection.AbstractSelection;
+
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.util.Arrays;

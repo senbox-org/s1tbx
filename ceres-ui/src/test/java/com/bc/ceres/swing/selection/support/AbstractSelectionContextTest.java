@@ -2,6 +2,7 @@ package com.bc.ceres.swing.selection.support;
 
 import junit.framework.TestCase;
 import com.bc.ceres.swing.selection.Selection;
+import com.bc.ceres.swing.selection.AbstractSelectionContext;
 
 import java.awt.datatransfer.StringSelection;
 

@@ -1,6 +1,7 @@
 package com.bc.ceres.swing.selection.support;
 
 import junit.framework.TestCase;
+import com.bc.ceres.swing.selection.AbstractSelection;
 
 public class AbstractSelectionTest extends TestCase {
 

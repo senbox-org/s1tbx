@@ -1,6 +1,7 @@
 package com.bc.ceres.swing.selection.support;
 
 import com.bc.ceres.swing.selection.Selection;
+import com.bc.ceres.swing.selection.AbstractSelectionContext;
 
 /**
  * A default implementation of the {@link com.bc.ceres.swing.selection.SelectionContext SelectionContext} interface.

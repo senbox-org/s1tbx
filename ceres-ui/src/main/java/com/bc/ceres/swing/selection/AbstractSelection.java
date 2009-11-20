@@ -1,4 +1,4 @@
-package com.bc.ceres.swing.selection.support;
+package com.bc.ceres.swing.selection;
 
 import com.bc.ceres.swing.selection.Selection;
 
