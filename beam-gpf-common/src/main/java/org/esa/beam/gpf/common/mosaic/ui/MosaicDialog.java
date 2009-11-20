@@ -6,10 +6,11 @@ import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.io.IOException;
 import java.util.Map;
-
-import com.bc.ceres.binding.PropertyContainer;
 
 /**
  * User: Marco
@@ -36,7 +37,53 @@ class MosaicDialog extends SingleTargetProductDialog {
 
     @Override
     protected boolean verifyUserInput() {
-        // todo
+        final MosaicFormModel formModel = form.getFormModel();
+        if (!verifySourceProducts(formModel)) {
+            return false;
+        }
+        if (!verfiyTargetCrs(formModel)) {
+            return false;
+        }
+        if(formModel.isUpdateMode() && formModel.getUpdateProduct() == null) {
+            showErrorDialog("No product to update specified.");
+            return false;
+        }
+        final boolean varsNotSpecified = formModel.getVariables() == null || formModel.getVariables().length == 0;
+        final boolean condsNotSpecified = formModel.getConditions() == null || formModel.getConditions().length == 0;
+        if(varsNotSpecified && condsNotSpecified) {
+            showErrorDialog("No variables or conditions specified.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean verfiyTargetCrs(MosaicFormModel formModel) {
+        try {
+            final CoordinateReferenceSystem crs = formModel.getTargetCRS();
+            if(crs == null) {
+                showErrorDialog("No 'Coordinate Reference System' selected.");
+                return false;
+            }
+        } catch (FactoryException e) {
+            e.printStackTrace();
+            showErrorDialog("No 'Coordinate Reference System' selected.\n" + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean verifySourceProducts(MosaicFormModel formModel) {
+        try {
+            final Map<String, Product> sourceProductMap = formModel.getSourceProductMap();
+            if(sourceProductMap == null || sourceProductMap.isEmpty()) {
+                showErrorDialog("No source products specified.");
+                return false;
+            }
+        } catch (IOException e) {
+            showErrorDialog("Error while reading source product.\n" + e.getMessage());
+            return false;
+        }
         return true;
     }
 

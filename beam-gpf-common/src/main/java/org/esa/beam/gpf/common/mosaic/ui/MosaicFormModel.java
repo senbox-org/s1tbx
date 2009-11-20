@@ -142,6 +142,10 @@ class MosaicFormModel {
         return map;
     }
 
+    boolean isUpdateMode() {
+        return Boolean.TRUE.equals(getPropertyValue(PROPERTY_UPDATE_MODE));
+    }
+
     Product getUpdateProduct() {
         final Object value = getPropertyValue(PROPERTY_UPDATE_PRODUCT);
         if (value instanceof Product) {
@@ -156,6 +160,14 @@ class MosaicFormModel {
         if (product != null && product.getGeoCoding() != null && product.getGeoCoding().getMapCRS() != null) {
             setTargetCRS(product.getGeoCoding().getMapCRS().toWKT());
         }
+    }
+
+    MosaicOp.Variable[] getVariables() {
+        return (MosaicOp.Variable[]) getPropertyValue("variables");
+    }
+
+    MosaicOp.Condition[] getConditions() {
+        return (MosaicOp.Condition[]) getPropertyValue("conditions");
     }
 
     PropertyContainer getPropertyContainer() {
@@ -206,7 +218,7 @@ class MosaicFormModel {
         setPropertyValue("crs", crs);
     }
 
-    private CoordinateReferenceSystem getTargetCRS() throws FactoryException {
+    CoordinateReferenceSystem getTargetCRS() throws FactoryException {
         final String crs = (String) getPropertyValue("crs");
         if (crs == null) {
             return null;
