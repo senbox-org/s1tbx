@@ -6,6 +6,7 @@ import com.bc.ceres.selection.SelectionChangeListener;
 import com.bc.ceres.selection.SelectionContext;
 import com.bc.ceres.selection.SelectionManager;
 
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 
@@ -32,7 +33,11 @@ public class SelectionManagerImpl implements SelectionManager {
         this.selectionChangeMulticaster = new SelectionChangeMulticaster();
         this.selectionContext = NullSelectionContext.INSTANCE;
         this.selection = Selection.EMPTY;
-        this.clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        if (GraphicsEnvironment.isHeadless()) {
+            this.clipboard = new Clipboard("HeadlessClipboard");
+        }else {
+            this.clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        }
     }
 
     @Override
