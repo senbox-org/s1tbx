@@ -1,7 +1,9 @@
 package com.bc.ceres.figure.support;
 
 import com.bc.ceres.figure.support.AbstractFigure;
-import com.bc.ceres.figure.support.AbstractFigureListener;
+import com.bc.ceres.figure.support.AbstractFigureChangeListener;
+import com.bc.ceres.figure.FigureChangeEvent;
+import com.bc.ceres.figure.FigureChangeListener;
 import com.bc.ceres.figure.Handle;
 import com.bc.ceres.figure.Figure;
 
@@ -265,16 +267,16 @@ public class FigureCollection extends AbstractFigure {
         bounds = null;
     }
 
-    private class BoundsUpdater extends AbstractFigureListener {
+    private class BoundsUpdater extends AbstractFigureChangeListener {
         @Override
-        public void figureChanged(Figure f) {
+        public void figureChanged(FigureChangeEvent e) {
             nullBounds();
         }
     }
 
-    private class ChangeDelegate extends AbstractFigureListener {
+    private class ChangeDelegate extends AbstractFigureChangeListener {
         @Override
-        public void figureChanged(Figure f) {
+        public void figureChanged(FigureChangeEvent e) {
             fireFigureChanged();
         }
     }

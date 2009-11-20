@@ -5,8 +5,9 @@ import junit.framework.TestCase;
 import java.awt.geom.Rectangle2D;
 
 import com.bc.ceres.figure.Figure;
+import com.bc.ceres.figure.FigureChangeEvent;
 import com.bc.ceres.figure.support.FigureCollection;
-import com.bc.ceres.figure.FigureListener;
+import com.bc.ceres.figure.FigureChangeListener;
 
 public class FigureCollectionTest extends TestCase {
     public void testDefaultProperties() {
@@ -98,30 +99,30 @@ public class FigureCollectionTest extends TestCase {
         assertSame(f2, listener.children[1]);
     }
 
-    private static class MyFigureListener implements FigureListener {
+    private static class MyFigureListener implements FigureChangeListener {
         String trace = "";
         Figure figure;
         Figure parent;
         Figure[] children;
 
         @Override
-        public void figureChanged(Figure figure) {
+        public void figureChanged(FigureChangeEvent event) {
             trace += "c";
-            this.figure = figure;
+            this.figure = event.getFigure();
         }
 
         @Override
-        public void figuresAdded(Figure parent, Figure[] children) {
+        public void figuresAdded(FigureChangeEvent event) {
             trace += "a";
-            this.parent = parent;
-            this.children = children;
+            this.parent = event.getFigure();
+            this.children = event.getChilds();
         }
 
         @Override
-        public void figuresRemoved(Figure parent, Figure[] children) {
+        public void figuresRemoved(FigureChangeEvent event) {
             trace += "r";
-            this.parent = parent;
-            this.children = children;
+            this.parent = event.getFigure();
+            this.children = event.getChilds();
         }
     }
 }

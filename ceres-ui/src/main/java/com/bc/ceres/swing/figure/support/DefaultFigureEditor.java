@@ -1,20 +1,18 @@
 package com.bc.ceres.swing.figure.support;
 
-import com.bc.ceres.figure.support.AbstractFigureListener;
-import com.bc.ceres.figure.support.FigureCollection;
 import com.bc.ceres.figure.Figure;
-import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.figure.FigureChangeEvent;
+import com.bc.ceres.figure.support.AbstractFigureChangeListener;
+import com.bc.ceres.figure.support.FigureCollection;
 import com.bc.ceres.figure.support.FigureSelection;
 import com.bc.ceres.figure.support.FigureTransferable;
-import com.bc.ceres.swing.figure.Interaction;
-import com.bc.ceres.swing.figure.interactions.NullInteraction;
-import com.bc.ceres.swing.figure.support.InteractionDispatcher;
-import com.bc.ceres.swing.figure.support.FigureDeleteEdit;
-import com.bc.ceres.swing.figure.support.FigureInsertEdit;
 import com.bc.ceres.figure.support.StyleDefaults;
 import com.bc.ceres.selection.Selection;
 import com.bc.ceres.selection.SelectionChangeListener;
 import com.bc.ceres.selection.support.SelectionChangeSupport;
+import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.Interaction;
+import com.bc.ceres.swing.figure.interactions.NullInteraction;
 
 import javax.swing.JPanel;
 import javax.swing.event.UndoableEditListener;
@@ -52,26 +50,28 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
         figureCollection = new FigureCollection();
         figureSelection = new FigureSelection();
 
-        figureCollection.addListener(new AbstractFigureListener() {
+        figureCollection.addListener(new AbstractFigureChangeListener() {
             @Override
-            public void figureChanged(Figure figure) {
+            public void figureChanged(FigureChangeEvent event) {
                 repaint();
             }
         });
 
-        figureSelection.addListener(new AbstractFigureListener() {
+        figureSelection.addListener(new AbstractFigureChangeListener() {
+            
+            
             @Override
-            public void figureChanged(Figure f) {
+            public void figureChanged(FigureChangeEvent event) {
                 repaint();
             }
-
+            
             @Override
-            public void figuresAdded(Figure parent, Figure[] children) {
+            public void figuresAdded(FigureChangeEvent event) {
                 selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
             }
-
+            
             @Override
-            public void figuresRemoved(Figure parent, Figure[] children) {
+            public void figuresRemoved(FigureChangeEvent event) {
                 selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
             }
         });

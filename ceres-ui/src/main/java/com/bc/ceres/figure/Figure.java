@@ -65,11 +65,11 @@ public interface Figure extends Restorable, Cloneable {
 
     Handle[] createHandles(int selectionLevel);
 
-    void addListener(FigureListener l);
+    void addListener(FigureChangeListener l);
 
-    void removeListener(FigureListener listener);
+    void removeListener(FigureChangeListener listener);
 
-    FigureListener[] getListeners();
+    FigureChangeListener[] getListeners();
 
     void dispose();
 

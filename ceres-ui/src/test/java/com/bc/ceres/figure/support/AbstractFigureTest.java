@@ -10,9 +10,10 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import com.bc.ceres.figure.support.AbstractFigure;
-import com.bc.ceres.figure.support.AbstractFigureListener;
+import com.bc.ceres.figure.support.AbstractFigureChangeListener;
 import com.bc.ceres.figure.Figure;
-import com.bc.ceres.figure.FigureListener;
+import com.bc.ceres.figure.FigureChangeEvent;
+import com.bc.ceres.figure.FigureChangeListener;
 import com.bc.ceres.figure.Handle;
 
 public class AbstractFigureTest extends TestCase {
@@ -29,7 +30,7 @@ public class AbstractFigureTest extends TestCase {
 
     public void testThatCloneDoesNotCopyListeners() {
         MyFigure f = new MyFigure();
-        f.addListener(new AbstractFigureListener() {
+        f.addListener(new AbstractFigureChangeListener() {
         });
         AbstractFigure cf = f.clone();
         assertNotNull(cf.getListeners());
@@ -39,10 +40,10 @@ public class AbstractFigureTest extends TestCase {
     public void testListeners() {
         MyFigure f = new MyFigure();
         final Figure[] figureBuf = new Figure[1];
-        f.addListener(new AbstractFigureListener() {
+        f.addListener(new AbstractFigureChangeListener() {
             @Override
-            public void figureChanged(Figure figure) {
-                figureBuf[0] = figure;
+            public void figureChanged(FigureChangeEvent event) {
+                figureBuf[0] = event.getFigure();
             }
         });
         assertEquals(null, figureBuf[0]);
@@ -52,9 +53,8 @@ public class AbstractFigureTest extends TestCase {
 
     public void testDisposeRemovesListeners() {
         MyFigure f = new MyFigure();
-        f.addListener(new AbstractFigureListener() {
-        });
-        FigureListener[] listeners = f.getListeners();
+        f.addListener(new AbstractFigureChangeListener() {});
+        FigureChangeListener[] listeners = f.getListeners();
         assertNotNull(listeners);
         assertTrue(listeners.length >= 1);
         f.dispose();

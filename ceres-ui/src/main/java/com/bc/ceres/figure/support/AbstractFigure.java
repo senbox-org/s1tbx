@@ -1,12 +1,9 @@
 package com.bc.ceres.figure.support;
 
 import com.bc.ceres.figure.Figure;
-import com.bc.ceres.figure.FigureListener;
+import com.bc.ceres.figure.FigureChangeEvent;
+import com.bc.ceres.figure.FigureChangeListener;
 import com.bc.ceres.figure.Handle;
-import com.bc.ceres.figure.support.FigureStyle;
-import com.bc.ceres.figure.support.RotateHandle;
-import com.bc.ceres.figure.support.ScaleHandle;
-import com.bc.ceres.figure.support.StyleDefaults;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -15,7 +12,7 @@ import java.util.List;
 
 public abstract class AbstractFigure implements Figure {
 
-    private List<FigureListener> listenerList;
+    private List<FigureChangeListener> listenerList;
     private static final String OPERATION_NOT_SUPPORTED = "Operation not supported.";
 
     protected AbstractFigure() {
@@ -53,14 +50,6 @@ public abstract class AbstractFigure implements Figure {
 
     @Override
     public synchronized boolean addFigure(Figure figure) {
-        if (!contains(figure)) {
-            boolean added = addFigureImpl(figure);
-            if (added) {
-                fireFigureChanged();
-                fireFiguresAdded(figure);
-            }
-            return added;
-        }
         return addFigure(getFigureCount(), figure);
     }
 
@@ -187,26 +176,26 @@ public abstract class AbstractFigure implements Figure {
     }
 
     @Override
-    public synchronized void addListener(FigureListener listener) {
+    public synchronized void addListener(FigureChangeListener listener) {
         if (listenerList == null) {
-            listenerList = new ArrayList<FigureListener>(3);
+            listenerList = new ArrayList<FigureChangeListener>(3);
         }
         listenerList.add(listener);
     }
 
     @Override
-    public synchronized void removeListener(FigureListener listener) {
+    public synchronized void removeListener(FigureChangeListener listener) {
         if (listenerList != null) {
             listenerList.remove(listener);
         }
     }
 
     @Override
-    public synchronized FigureListener[] getListeners() {
+    public synchronized FigureChangeListener[] getListeners() {
         if (listenerList != null) {
-            return listenerList.toArray(new FigureListener[listenerList.size()]);
+            return listenerList.toArray(new FigureChangeListener[listenerList.size()]);
         } else {
-            return new FigureListener[0];
+            return new FigureChangeListener[0];
         }
     }
 
@@ -230,23 +219,23 @@ public abstract class AbstractFigure implements Figure {
     }
 
     protected void fireFigureChanged() {
-        final FigureListener[] listeners = getListeners();
-        for (FigureListener listener : listeners) {
-            listener.figureChanged(this);
+        FigureChangeEvent event = FigureChangeEvent.createChangedEvent(this);
+        for (FigureChangeListener listener : getListeners()) {
+            listener.figureChanged(event);
         }
     }
 
     protected void fireFiguresAdded(Figure... figures) {
-        final FigureListener[] listeners = getListeners();
-        for (FigureListener listener : listeners) {
-            listener.figuresAdded(this, figures);
+        FigureChangeEvent event = FigureChangeEvent.createAddedEvent(this, figures);
+        for (FigureChangeListener listener : getListeners()) {
+            listener.figuresAdded(event);
         }
     }
 
     protected void fireFiguresRemoved(Figure... figures) {
-        final FigureListener[] listeners = getListeners();
-        for (FigureListener listener : listeners) {
-            listener.figuresRemoved(this, figures);
+        FigureChangeEvent event = FigureChangeEvent.createRemovedEvent(this, figures);
+        for (FigureChangeListener listener : getListeners()) {
+            listener.figuresRemoved(event);
         }
     }
 

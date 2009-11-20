@@ -1,9 +1,10 @@
 package com.bc.ceres.figure.support;
 
+import com.bc.ceres.figure.FigureChangeEvent;
 import com.bc.ceres.figure.Handle;
 import com.bc.ceres.figure.Figure;
 import com.bc.ceres.figure.support.FigureStyle;
-import com.bc.ceres.figure.FigureListener;
+import com.bc.ceres.figure.FigureChangeListener;
 
 import java.awt.Cursor;
 import java.awt.Graphics2D;
@@ -14,7 +15,7 @@ public abstract class AbstractHandle implements Handle {
     private final Figure figure;
     private final FigureStyle style;
     private final FigureStyle selectedStyle;
-    private final FigureListener listener;
+    private final FigureChangeListener listener;
     private Shape shape;
     private boolean selected;
 
@@ -25,9 +26,9 @@ public abstract class AbstractHandle implements Handle {
         this.style = style;
         this.selectedStyle = selectedStyle;
 
-        this.listener = new AbstractFigureListener() {
+        this.listener = new AbstractFigureChangeListener() {
             @Override
-            public void figureChanged(Figure f) {
+            public void figureChanged(FigureChangeEvent e) {
                 setHandleShape();
             }
         };
