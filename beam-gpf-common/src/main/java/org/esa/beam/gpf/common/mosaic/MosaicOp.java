@@ -102,7 +102,7 @@ public class MosaicOp extends Operator {
     double westBound;
     @Parameter(description = "The northern latitude.", interval = "[-90,90]", defaultValue = "75.0")
     double northBound;
-    @Parameter(description = "The eastern longitude.", interval = "[-180,180]", defaultValue = "30")
+    @Parameter(description = "The eastern longitude.", interval = "[-180,180]", defaultValue = "30.0")
     double eastBound;
     @Parameter(description = "The southern latitude.", interval = "[-90,90]", defaultValue = "35.0")
     double southBound;
