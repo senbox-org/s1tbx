@@ -225,7 +225,7 @@ public class TreeCellExtender {
         }
     }
 
-    private class CellExtenderBorder extends AbstractBorder {
+    private static class CellExtenderBorder extends AbstractBorder {
         @Override
         public Insets getBorderInsets(Component c) {
             return new Insets(1, 0, 1, 1);
