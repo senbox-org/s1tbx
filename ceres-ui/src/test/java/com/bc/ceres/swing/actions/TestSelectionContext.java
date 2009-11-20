@@ -1,7 +1,7 @@
 package com.bc.ceres.swing.actions;
 
-import com.bc.ceres.selection.Selection;
-import com.bc.ceres.selection.support.DefaultSelectionContext;
+import com.bc.ceres.swing.selection.Selection;
+import com.bc.ceres.swing.selection.support.DefaultSelectionContext;
 import org.junit.Ignore;
 
 import java.awt.datatransfer.DataFlavor;

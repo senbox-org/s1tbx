@@ -1,12 +1,11 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.selection.SelectionContext;
+import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.figure.InteractionHolder;
 import com.bc.ceres.swing.figure.Interaction;
-import com.bc.ceres.figure.FigureSelection;
-import com.bc.ceres.figure.FigureCollection;
-import com.bc.ceres.figure.support.DefaultFigureCollection;
+import com.bc.ceres.swing.figure.FigureSelection;
+import com.bc.ceres.swing.figure.FigureCollection;
 
 import java.awt.Cursor;
 import java.awt.Rectangle;

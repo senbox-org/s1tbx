@@ -1,8 +1,8 @@
 package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.swing.figure.interactions.AbstractInteraction;
-import com.bc.ceres.figure.support.DefaultShapeFigure;
-import com.bc.ceres.figure.support.DefaultFigureStyle;
+import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.FigureInsertEdit;
 
 import java.awt.Shape;

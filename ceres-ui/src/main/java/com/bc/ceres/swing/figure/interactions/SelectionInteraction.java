@@ -2,8 +2,8 @@ package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.swing.undo.RestorableEdit;
 import com.bc.ceres.swing.figure.interactions.AbstractInteraction;
-import com.bc.ceres.figure.Handle;
-import com.bc.ceres.figure.Figure;
+import com.bc.ceres.swing.figure.Handle;
+import com.bc.ceres.swing.figure.Figure;
 
 import java.awt.Cursor;
 import java.awt.Point;

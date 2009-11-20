@@ -1,13 +1,13 @@
 package com.bc.ceres.swing.actions;
 
 import junit.framework.TestCase;
-import com.bc.ceres.selection.Selection;
-import com.bc.ceres.selection.SelectionContext;
-import com.bc.ceres.selection.SelectionManager;
+import com.bc.ceres.swing.selection.Selection;
+import com.bc.ceres.swing.selection.SelectionContext;
+import com.bc.ceres.swing.selection.SelectionManager;
 import com.bc.ceres.swing.actions.DeleteAction;
 import com.bc.ceres.swing.actions.PasteAction;
-import com.bc.ceres.selection.support.DefaultSelection;
-import com.bc.ceres.selection.support.SelectionManagerImpl;
+import com.bc.ceres.swing.selection.support.DefaultSelection;
+import com.bc.ceres.swing.selection.support.SelectionManagerImpl;
 
 import javax.swing.Action;
 import java.awt.datatransfer.DataFlavor;

@@ -1,6 +1,6 @@
 package com.bc.ceres.swing.figure.support;
 
-import com.bc.ceres.figure.Figure;
+import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureEditor;
 
 import javax.swing.undo.AbstractUndoableEdit;

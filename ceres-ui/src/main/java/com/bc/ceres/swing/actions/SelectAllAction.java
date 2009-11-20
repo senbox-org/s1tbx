@@ -1,6 +1,6 @@
 package com.bc.ceres.swing.actions;
 
-import com.bc.ceres.selection.SelectionManager;
+import com.bc.ceres.swing.selection.SelectionManager;
 
 import javax.swing.KeyStroke;
 
