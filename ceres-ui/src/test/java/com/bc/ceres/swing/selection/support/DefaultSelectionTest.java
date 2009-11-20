@@ -1,4 +1,4 @@
-package com.bc.ceres.selection.support;
+package com.bc.ceres.swing.selection.support;
 
 import junit.framework.TestCase;
 

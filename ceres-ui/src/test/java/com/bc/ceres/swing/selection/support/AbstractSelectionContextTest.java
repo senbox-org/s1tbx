@@ -1,7 +1,7 @@
-package com.bc.ceres.selection.support;
+package com.bc.ceres.swing.selection.support;
 
 import junit.framework.TestCase;
-import com.bc.ceres.selection.Selection;
+import com.bc.ceres.swing.selection.Selection;
 
 import java.awt.datatransfer.StringSelection;
 
