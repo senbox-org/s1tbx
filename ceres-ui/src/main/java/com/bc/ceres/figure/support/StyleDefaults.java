@@ -8,7 +8,7 @@ import java.awt.Color;
 import java.awt.Stroke;
 import static java.lang.Math.*;
 
-public class UIDefaults {
+public class StyleDefaults {
     public static final Stroke FIRST_OF_MULTI_SELECTION_STROKE = new BasicStroke(1.2f);
     public static final Stroke MULTI_SELECTION_STROKE = new BasicStroke(1.0f);
     public static final Color MULTI_SELECTION_COLOR = Color.BLUE.brighter();

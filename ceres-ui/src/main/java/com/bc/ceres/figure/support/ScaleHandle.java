@@ -3,7 +3,7 @@ package com.bc.ceres.figure.support;
 import com.bc.ceres.figure.support.AbstractHandle;
 import com.bc.ceres.figure.Figure;
 import com.bc.ceres.figure.support.FigureStyle;
-import com.bc.ceres.figure.support.UIDefaults;
+import com.bc.ceres.figure.support.StyleDefaults;
 
 import java.awt.Cursor;
 import java.awt.Shape;
@@ -79,10 +79,10 @@ public class ScaleHandle extends AbstractHandle {
     @Override
     protected Shape createHandleShape() {
         final Point2D.Double pp = getRefPoint();
-        return new Rectangle2D.Double(pp.getX() + offset.getX() - 0.5 * UIDefaults.SCALE_HANDLE_SIZE,
-                                      pp.getY() + offset.getY() - 0.5 * UIDefaults.SCALE_HANDLE_SIZE,
-                                      UIDefaults.SCALE_HANDLE_SIZE,
-                                      UIDefaults.SCALE_HANDLE_SIZE);
+        return new Rectangle2D.Double(pp.getX() + offset.getX() - 0.5 * StyleDefaults.SCALE_HANDLE_SIZE,
+                                      pp.getY() + offset.getY() - 0.5 * StyleDefaults.SCALE_HANDLE_SIZE,
+                                      StyleDefaults.SCALE_HANDLE_SIZE,
+                                      StyleDefaults.SCALE_HANDLE_SIZE);
     }
 
     @Override

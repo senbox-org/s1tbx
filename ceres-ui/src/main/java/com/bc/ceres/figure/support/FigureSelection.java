@@ -5,7 +5,7 @@ import com.bc.ceres.figure.support.FigureCollection;
 import com.bc.ceres.figure.support.FigureTransferable;
 import com.bc.ceres.figure.Handle;
 import com.bc.ceres.figure.Figure;
-import com.bc.ceres.figure.support.UIDefaults;
+import com.bc.ceres.figure.support.StyleDefaults;
 
 import java.awt.Graphics2D;
 import java.awt.datatransfer.Clipboard;
@@ -198,16 +198,16 @@ public class FigureSelection extends FigureCollection implements Selection {
             final Figure[] figures = getFigures();
             if (figures.length > 1) {
                 for (Figure figure : figures) {
-                    g2d.setPaint(UIDefaults.MULTI_SELECTION_COLOR);
-                    g2d.setStroke(UIDefaults.MULTI_SELECTION_STROKE);
+                    g2d.setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
+                    g2d.setStroke(StyleDefaults.MULTI_SELECTION_STROKE);
                     g2d.draw(getExtendedBounds(figure.getBounds()));
                 }
-                g2d.setPaint(UIDefaults.MULTI_SELECTION_COLOR);
-                g2d.setStroke(UIDefaults.FIRST_OF_MULTI_SELECTION_STROKE);
+                g2d.setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
+                g2d.setStroke(StyleDefaults.FIRST_OF_MULTI_SELECTION_STROKE);
                 g2d.draw(getExtendedBounds(figures[0].getBounds()));
             }
-            g2d.setPaint(UIDefaults.SELECTION_DRAW_PAINT);
-            g2d.setStroke(UIDefaults.SELECTION_STROKE);
+            g2d.setPaint(StyleDefaults.SELECTION_DRAW_PAINT);
+            g2d.setStroke(StyleDefaults.SELECTION_STROKE);
             g2d.draw(getBounds());
 
             if (handles != null) {
@@ -236,10 +236,10 @@ public class FigureSelection extends FigureCollection implements Selection {
     }
 
     static Rectangle2D getExtendedBounds(Rectangle2D bounds) {
-        return new Rectangle2D.Double(bounds.getX() - 0.5 * UIDefaults.SELECTION_EXTEND_SIZE,
-                                      bounds.getY() - 0.5 * UIDefaults.SELECTION_EXTEND_SIZE,
-                                      bounds.getWidth() + UIDefaults.SELECTION_EXTEND_SIZE,
-                                      bounds.getHeight() + UIDefaults.SELECTION_EXTEND_SIZE);
+        return new Rectangle2D.Double(bounds.getX() - 0.5 * StyleDefaults.SELECTION_EXTEND_SIZE,
+                                      bounds.getY() - 0.5 * StyleDefaults.SELECTION_EXTEND_SIZE,
+                                      bounds.getWidth() + StyleDefaults.SELECTION_EXTEND_SIZE,
+                                      bounds.getHeight() + StyleDefaults.SELECTION_EXTEND_SIZE);
     }
 
     private void updateHandles() {

@@ -6,7 +6,7 @@ import com.bc.ceres.figure.Handle;
 import com.bc.ceres.figure.support.FigureStyle;
 import com.bc.ceres.figure.support.RotateHandle;
 import com.bc.ceres.figure.support.ScaleHandle;
-import com.bc.ceres.figure.support.UIDefaults;
+import com.bc.ceres.figure.support.StyleDefaults;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -271,11 +271,11 @@ public abstract class AbstractFigure implements Figure {
     }
 
     protected FigureStyle getHandleStyle() {
-        return UIDefaults.HANDLE_STYLE;
+        return StyleDefaults.HANDLE_STYLE;
     }
 
     protected FigureStyle getSelectedHandleStyle() {
-        return UIDefaults.SELECTED_HANDLE_STYLE;
+        return StyleDefaults.SELECTED_HANDLE_STYLE;
     }
 
 }

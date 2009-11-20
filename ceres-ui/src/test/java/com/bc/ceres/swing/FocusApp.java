@@ -32,13 +32,10 @@ public class FocusApp {
         } catch (Exception e) {
             // ok
         }
-        UIManager.put("List.cellRenderer", new MyDefaultListCellRenderer());
-        UIManager.put("Tree.cellRenderer", new MyDefaultTreeCellRenderer());
-
         JTree tree1 = new JTree(new Object[]{"Aaaaaaaaaaaaa", "B", "C"});
         JTree tree2 = new JTree(new Object[]{"Xxxxxxxxxxxxx", "Y", "Z"});
-//        tree1.setCellRenderer(new MyDefaultTreeCellRenderer());
-//        tree2.setCellRenderer(new MyDefaultTreeCellRenderer());
+        tree1.setCellRenderer(new MyDefaultTreeCellRenderer());
+        tree2.setCellRenderer(new MyDefaultTreeCellRenderer());
         tree1.addFocusListener(new MyFocusListener());
         tree2.addFocusListener(new MyFocusListener());
         showFrame(tree1);
@@ -46,18 +43,18 @@ public class FocusApp {
 
         JList list1 = new JList(new Object[]{"Aaaaaaaaaaaaa", "B", "C"});
         JList list2 = new JList(new Object[]{"Xxxxxxxxxxxxx", "Y", "Z"});
-//       list1.setCellRenderer(new MyDefaultListCellRenderer());
-//        list2.setCellRenderer(new MyDefaultListCellRenderer());
+        list1.setCellRenderer(new MyDefaultListCellRenderer());
+        list2.setCellRenderer(new MyDefaultListCellRenderer());
         list1.addFocusListener(new MyFocusListener());
         list2.addFocusListener(new MyFocusListener());
         showFrame(list1);
         showFrame(list2);
 
-
-        dumpUIDefaults(UIManager.getLookAndFeelDefaults());
+        //showUIDefaults();
     }
 
-    private static void dumpUIDefaults(UIDefaults uiDefaults) {
+    private static void showUIDefaults() {
+        UIDefaults uiDefaults = UIManager.getLookAndFeelDefaults();
         Object[] keys = uiDefaults.keySet().toArray();
         Arrays.sort(keys, new Comparator<Object>() {
             @Override
@@ -79,7 +76,7 @@ public class FocusApp {
 
         table.getColumnModel().getColumn(1).setCellRenderer(new MyDefaultTableCellRenderer());
 
-        JFrame jFrame = new JFrame("UIDefaults");
+        JFrame jFrame = new JFrame("LookAndFeelDefaults");
         jFrame.add(new JScrollPane(table));
         jFrame.setBounds(100, 100, 400, 400);
         jFrame.setVisible(true);

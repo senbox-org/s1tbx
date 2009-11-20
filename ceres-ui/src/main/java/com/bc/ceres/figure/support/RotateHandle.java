@@ -3,7 +3,7 @@ package com.bc.ceres.figure.support;
 import com.bc.ceres.figure.support.AbstractHandle;
 import com.bc.ceres.figure.Figure;
 import com.bc.ceres.figure.support.FigureStyle;
-import com.bc.ceres.figure.support.UIDefaults;
+import com.bc.ceres.figure.support.StyleDefaults;
 
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -34,10 +34,10 @@ public class RotateHandle extends AbstractHandle {
         point = new Point2D.Double(centerX, centerY);
         Point2D point2D = new Point2D.Double(0, -radius);
         point2D = AffineTransform.getRotateInstance(theta).transform(point2D, null);
-        return new Ellipse2D.Double((point.getX() + point2D.getX()) - (UIDefaults.ROTATE_HANDLE_SIZE * 0.5),
-                                    point.getY() + point2D.getY() - UIDefaults.ROTATE_HANDLE_SIZE * 0.5,
-                                    UIDefaults.ROTATE_HANDLE_SIZE,
-                                    UIDefaults.ROTATE_HANDLE_SIZE);
+        return new Ellipse2D.Double((point.getX() + point2D.getX()) - (StyleDefaults.ROTATE_HANDLE_SIZE * 0.5),
+                                    point.getY() + point2D.getY() - StyleDefaults.ROTATE_HANDLE_SIZE * 0.5,
+                                    StyleDefaults.ROTATE_HANDLE_SIZE,
+                                    StyleDefaults.ROTATE_HANDLE_SIZE);
     }
 
     @Override
@@ -56,12 +56,12 @@ public class RotateHandle extends AbstractHandle {
 
     @Override
     public void draw(Graphics2D g2d) {
-        final Ellipse2D.Double centerCircle = new Ellipse2D.Double(point.getX() - 0.5 * UIDefaults.ROTATE_ANCHOR_SIZE,
-                                                                   point.getY() - 0.5 * UIDefaults.ROTATE_ANCHOR_SIZE,
-                                                                   UIDefaults.ROTATE_ANCHOR_SIZE, UIDefaults.ROTATE_ANCHOR_SIZE);
+        final Ellipse2D.Double centerCircle = new Ellipse2D.Double(point.getX() - 0.5 * StyleDefaults.ROTATE_ANCHOR_SIZE,
+                                                                   point.getY() - 0.5 * StyleDefaults.ROTATE_ANCHOR_SIZE,
+                                                                   StyleDefaults.ROTATE_ANCHOR_SIZE, StyleDefaults.ROTATE_ANCHOR_SIZE);
         RectangularShape handleShape = (RectangularShape) getShape();
-        g2d.setPaint(UIDefaults.SELECTION_DRAW_PAINT);
-        g2d.setStroke(UIDefaults.SELECTION_STROKE);
+        g2d.setPaint(StyleDefaults.SELECTION_DRAW_PAINT);
+        g2d.setStroke(StyleDefaults.SELECTION_STROKE);
         g2d.draw(new Line2D.Double(point.getX(), point.getY(),
                                    handleShape.getCenterX(), handleShape.getCenterY()));
 

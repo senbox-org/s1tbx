@@ -11,7 +11,7 @@ import com.bc.ceres.swing.figure.interactions.NullInteraction;
 import com.bc.ceres.swing.figure.support.InteractionDispatcher;
 import com.bc.ceres.swing.figure.support.FigureDeleteEdit;
 import com.bc.ceres.swing.figure.support.FigureInsertEdit;
-import com.bc.ceres.figure.support.UIDefaults;
+import com.bc.ceres.figure.support.StyleDefaults;
 import com.bc.ceres.selection.Selection;
 import com.bc.ceres.selection.SelectionChangeListener;
 import com.bc.ceres.selection.support.SelectionChangeSupport;
@@ -216,7 +216,7 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
         figureCollection.draw(g2d);
         figureSelection.draw(g2d);
         if (getSelectionRectangle() != null) {
-            g2d.setPaint(UIDefaults.SELECTION_FILL_PAINT);
+            g2d.setPaint(StyleDefaults.SELECTION_FILL_PAINT);
             g2d.fill(getSelectionRectangle());
         }
     }
