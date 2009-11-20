@@ -1,11 +1,11 @@
-package com.bc.ceres.selection.support;
+package com.bc.ceres.swing.selection.support;
 
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.util.Arrays;
 
 /**
- * A default implementation of the {@link com.bc.ceres.selection.Selection Selection} interface.
+ * A default implementation of the {@link com.bc.ceres.swing.selection.Selection Selection} interface.
  *
  * @author Norman Fomferra
  * @since Ceres 0.10

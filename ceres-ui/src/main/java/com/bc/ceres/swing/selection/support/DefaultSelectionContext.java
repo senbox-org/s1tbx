@@ -1,9 +1,9 @@
-package com.bc.ceres.selection.support;
+package com.bc.ceres.swing.selection.support;
 
-import com.bc.ceres.selection.Selection;
+import com.bc.ceres.swing.selection.Selection;
 
 /**
- * A default implementation of the {@link com.bc.ceres.selection.SelectionContext SelectionContext} interface.
+ * A default implementation of the {@link com.bc.ceres.swing.selection.SelectionContext SelectionContext} interface.
  * This class is actually only useful for testing purposes. Real world implementations
  * of a {@code SelectionContext} will most likely adapt to the selections
  * emitted by dedicated GUI components.

@@ -1,15 +1,15 @@
-package com.bc.ceres.selection.support;
+package com.bc.ceres.swing.selection.support;
 
-import com.bc.ceres.selection.Selection;
-import com.bc.ceres.selection.SelectionChangeListener;
-import com.bc.ceres.selection.SelectionContext;
+import com.bc.ceres.swing.selection.Selection;
+import com.bc.ceres.swing.selection.SelectionChangeListener;
+import com.bc.ceres.swing.selection.SelectionContext;
 
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
 /**
- * A {@code null} implementation of the {@link com.bc.ceres.selection.SelectionContext SelectionContext} interface.
+ * A {@code null} implementation of the {@link com.bc.ceres.swing.selection.SelectionContext SelectionContext} interface.
  * This singleton class is useful is cases where a {@code SelectionContext} should
  * never be {@code null} (Null-Object Pattern).
  *

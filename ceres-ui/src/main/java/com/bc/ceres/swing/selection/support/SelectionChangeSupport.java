@@ -1,14 +1,14 @@
-package com.bc.ceres.selection.support;
+package com.bc.ceres.swing.selection.support;
 
-import com.bc.ceres.selection.Selection;
-import com.bc.ceres.selection.SelectionChangeEvent;
-import com.bc.ceres.selection.SelectionChangeListener;
-import com.bc.ceres.selection.SelectionContext;
+import com.bc.ceres.swing.selection.Selection;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import com.bc.ceres.swing.selection.SelectionChangeListener;
+import com.bc.ceres.swing.selection.SelectionContext;
 
 import java.util.Vector;
 
 /**
- * Supports implementation of {@link com.bc.ceres.selection.SelectionChangeEmitter}s.
+ * Supports implementation of {@link com.bc.ceres.swing.selection.SelectionChangeEmitter}s.
  * This class is thread-safe.
  *
  * @author Norman Fomferra
