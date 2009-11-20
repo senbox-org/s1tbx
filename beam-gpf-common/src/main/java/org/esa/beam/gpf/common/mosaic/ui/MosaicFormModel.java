@@ -128,7 +128,7 @@ class MosaicFormModel {
         return map;
     }
 
-    Map<String, Product> getSourceProductMap() throws IOException {
+    Map<String, Product> getSourceProductMap() {
         final HashMap<String, Product> map = new HashMap<String, Product>(sourceProductMap.size());
         for (final Product product : sourceProductMap.values()) {
             map.put(GPF.SOURCE_PRODUCT_FIELD_NAME + product.getRefNo(), product);

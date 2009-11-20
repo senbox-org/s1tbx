@@ -3,19 +3,26 @@ package org.esa.beam.gpf.common.mosaic.ui;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
+import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
+import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.framework.ui.io.FileArrayEditor;
 import org.esa.beam.gpf.common.mosaic.MosaicOp;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.io.FileUtils;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -36,8 +43,8 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Marco Peters
@@ -63,16 +70,20 @@ class MosaicIOPanel extends JPanel {
         targetProductSelector = selector;
         updateProductSelector = new SourceProductSelector(appContext);
         init();
-        propertyContainer.addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+        propertyContainer.addPropertyChangeListener(MosaicFormModel.PROPERTY_UPDATE_MODE, new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (Boolean.TRUE.equals(evt.getNewValue())) {
-                    propertyContainer.setValue("updateProduct", updateProductSelector.getSelectedProduct());
+                    propertyContainer.setValue(MosaicFormModel.PROPERTY_UPDATE_PRODUCT,
+                                               updateProductSelector.getSelectedProduct());
                 } else {
                     updateProductSelector.setSelectedProduct(null);
                 }
             }
         });
+        propertyContainer.addPropertyChangeListener(MosaicFormModel.PROPERTY_UPDATE_PRODUCT,
+                                                    new TargetProductSelectorUpdater());
+
     }
 
     private void init() {
@@ -251,8 +262,7 @@ class MosaicIOPanel extends JPanel {
         try {
             final List<File> files = sourceFileEditor.getFiles();
             mosaicModel.setSourceProducts(files.toArray(new File[files.size()]));
-        } catch (IOException e) {
-            // ignore
+        } catch (IOException ignore) {
         }
         updateProductSelector.initProducts();
     }
@@ -261,8 +271,7 @@ class MosaicIOPanel extends JPanel {
         updateProductSelector.releaseProducts();
         try {
             mosaicModel.setSourceProducts(new File[0]);
-        } catch (IOException e) {
-            // ignore
+        } catch (IOException ignore) {
         }
     }
 
@@ -326,6 +335,39 @@ class MosaicIOPanel extends JPanel {
             fileChooser.setFileFilter(actualFileFilter);
 
             return fileChooser;
+        }
+    }
+
+    private class TargetProductSelectorUpdater implements PropertyChangeListener {
+
+        @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+            final Product product = (Product) evt.getNewValue();
+            final TargetProductSelectorModel selectorModel = targetProductSelector.getModel();
+            if(product != null) {
+                final String formatName = product.getProductReader().getReaderPlugIn().getFormatNames()[0];
+                final ProductIOPlugInManager ioPlugInManager = ProductIOPlugInManager.getInstance();
+                final Iterator<ProductWriterPlugIn> writerIterator = ioPlugInManager.getWriterPlugIns(formatName);
+                if(writerIterator.hasNext()) {
+                    selectorModel.setFormatName(formatName);
+                }else {
+                    final String errMsg = "Cannot write to update product.";
+                    final String iseMsg = String.format("No product writer found for format '%s'", formatName);
+                    appContext.handleError(errMsg, new IllegalStateException(iseMsg));
+                }
+                final File fileLocation = product.getFileLocation();
+                final String fileName = FileUtils.getFilenameWithoutExtension(fileLocation);
+                final File fileDir = fileLocation.getParentFile();
+                selectorModel.setProductName(fileName);
+                selectorModel.setProductDir(fileDir);
+            }else{
+                selectorModel.setFormatName(ProductIO.DEFAULT_FORMAT_NAME);
+                selectorModel.setProductName("");
+                String homeDirPath = SystemUtils.getUserHomeDir().getPath();
+                final PropertyMap prefs = appContext.getPreferences();
+                String saveDir = prefs.getPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, homeDirPath);
+                selectorModel.setProductDir(new File(saveDir));
+            }
         }
     }
 }
