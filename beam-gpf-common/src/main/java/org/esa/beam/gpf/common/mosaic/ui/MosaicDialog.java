@@ -6,6 +6,7 @@ import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.util.StringUtils;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -46,6 +47,11 @@ class MosaicDialog extends SingleTargetProductDialog {
         }
         if(formModel.isUpdateMode() && formModel.getUpdateProduct() == null) {
             showErrorDialog("No product to update specified.");
+            return false;
+        }
+        final String productName = getTargetProductSelector().getModel().getProductName();
+        if(!formModel.isUpdateMode() && StringUtils.isNullOrEmpty(productName)) {
+            showErrorDialog("No name for the target product specified.");
             return false;
         }
         final boolean varsNotSpecified = formModel.getVariables() == null || formModel.getVariables().length == 0;
