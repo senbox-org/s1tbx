@@ -283,12 +283,23 @@ public class WriteOp extends Operator {
                                     String formatName,
                                     boolean deleteOutputOnFailure,
                                     ProgressMonitor pm) {
+        boolean writeEntireTileRows = true;
+        ExecutionOrder executionOrder = ExecutionOrder.ROW_BAND_COLUMN;
+        writeProduct(sourceProduct, file, formatName, deleteOutputOnFailure, writeEntireTileRows, executionOrder, pm);
+    }
+        
+    public static void writeProduct(Product sourceProduct,
+                                        File file,
+                                        String formatName,
+                                        boolean deleteOutputOnFailure,
+                                        boolean writeEntireTileRows,
+                                        ExecutionOrder executionOrder, ProgressMonitor pm) {
 
         final WriteOp writeOp = new WriteOp(sourceProduct, file, formatName, deleteOutputOnFailure);
-        writeOp.writeEntireTileRows = true; // default value
+        writeOp.writeEntireTileRows = writeEntireTileRows;
         OperatorExecutor operatorExecutor = new OperatorExecutor(writeOp);
         try {
-            operatorExecutor.execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
+            operatorExecutor.execute(executionOrder, pm);
         } catch (OperatorException e) {
             if (deleteOutputOnFailure) {
                 try {
