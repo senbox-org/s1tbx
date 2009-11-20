@@ -92,6 +92,7 @@ public class WriteOp extends Operator {
         final Band[] bands = targetProduct.getBands();
         writableBands = new ArrayList<Band>(bands.length);
         for (final Band band : bands) {
+            band.getSourceImage(); // trigger source image creation
             if (productWriter.shouldWrite(band)) {
                 writableBands.add(band);
             }
