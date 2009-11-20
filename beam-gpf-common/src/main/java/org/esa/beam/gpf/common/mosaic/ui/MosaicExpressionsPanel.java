@@ -43,6 +43,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,6 +123,18 @@ class MosaicExpressionsPanel extends JPanel {
         final Component moveVariableDownButton = createMoveVariableDownButton();
         moveVariableDownButton.setName(labelName);
         variableButtonsPanel.add(moveVariableDownButton);
+        mosaicModel.getPropertyContainer().addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                final boolean enabled = Boolean.FALSE.equals(evt.getNewValue());
+                bandFilterButton.setEnabled(enabled);
+                newVariableButton.setEnabled(enabled);
+                removeVariableButton.setEnabled(enabled);
+                moveVariableUpButton.setEnabled(enabled);
+                moveVariableDownButton.setEnabled(enabled);
+
+            }
+        });
         return variableButtonsPanel;
     }
 
@@ -163,6 +177,18 @@ class MosaicExpressionsPanel extends JPanel {
         final Component moveConditionDownButton = createMoveConditionDownButton();
         moveConditionDownButton.setName(labelName);
         conditionButtonsPanel.add(moveConditionDownButton);
+
+        mosaicModel.getPropertyContainer().addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                final boolean enabled = Boolean.FALSE.equals(evt.getNewValue());
+                newConditionButton.setEnabled(enabled);
+                removeConditionButton.setEnabled(enabled);
+                moveConditionUpButton.setEnabled(enabled);
+                moveConditionDownButton.setEnabled(enabled);
+            }
+        });
+
         return conditionButtonsPanel;
     }
 
@@ -170,6 +196,7 @@ class MosaicExpressionsPanel extends JPanel {
         final JPanel combinePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         final JComboBox combineComboBox = new JComboBox();
         bindingContext.bind("combine", combineComboBox);
+        bindingContext.bindEnabledState("combine", false, "updateMode", true);
         final String displayName = bindingContext.getPropertyContainer().getDescriptor("combine").getDisplayName();
         combinePanel.add(new JLabel(displayName + ":"));
         combinePanel.add(combineComboBox);
@@ -245,6 +272,7 @@ class MosaicExpressionsPanel extends JPanel {
         conditionsTable.setName(labelName);
         conditionsTable.setRowSelectionAllowed(true);
         bindingContext.bind("conditions", new ConditionsTableAdapter(conditionsTable));
+        bindingContext.bindEnabledState("conditions", false, "updateMode", true);
         conditionsTable.addMouseListener(createExpressionEditorMouseListener(conditionsTable, true));
 
         final JTableHeader tableHeader = conditionsTable.getTableHeader();
@@ -262,7 +290,16 @@ class MosaicExpressionsPanel extends JPanel {
         final TableColumn expressionColumn = columnModel.getColumn(1);
         expressionColumn.setPreferredWidth(360);
         expressionColumn.setCellRenderer(new TCR());
-        expressionColumn.setCellEditor(new ExprEditor(true));
+        final ExprEditor cellEditor = new ExprEditor(true);
+        expressionColumn.setCellEditor(cellEditor);
+        mosaicModel.getPropertyContainer().addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                final boolean enabled = Boolean.FALSE.equals(evt.getNewValue());
+                cellEditor.button.setEnabled(enabled);                
+            }
+        });
+
 
         final TableColumn outputColumn = columnModel.getColumn(2);
         outputColumn.setPreferredWidth(40);
@@ -403,6 +440,7 @@ class MosaicExpressionsPanel extends JPanel {
         variablesTable.setName(labelName);
         variablesTable.setRowSelectionAllowed(true);
         bindingContext.bind("variables", new VariablesTableAdapter(variablesTable));
+        bindingContext.bindEnabledState("variables", false, "updateMode", true);
         variablesTable.addMouseListener(createExpressionEditorMouseListener(variablesTable, false));
 
         final JTableHeader tableHeader = variablesTable.getTableHeader();
@@ -420,7 +458,15 @@ class MosaicExpressionsPanel extends JPanel {
         final TableColumn expressionColumn = columnModel.getColumn(1);
         expressionColumn.setPreferredWidth(400);
         expressionColumn.setCellRenderer(new TCR());
-        expressionColumn.setCellEditor(new ExprEditor(false));
+        final ExprEditor exprEditor = new ExprEditor(false);
+        expressionColumn.setCellEditor(exprEditor);
+        mosaicModel.getPropertyContainer().addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                final boolean enabled = Boolean.FALSE.equals(evt.getNewValue());
+                exprEditor.button.setEnabled(enabled);
+            }
+        });
 
         final JScrollPane scrollPane = new JScrollPane(variablesTable);
         scrollPane.setName(labelName);
@@ -462,6 +508,11 @@ class MosaicExpressionsPanel extends JPanel {
             product = mosaicModel.getReferenceProduct();
         } catch (IOException ioe) {
             appContext.handleError(ioe.getMessage(), ioe);
+            return 0;
+        }
+        if(product == null) {
+            final String msg = "No source product specified.";
+            appContext.handleError(msg, new IllegalStateException(msg));
             return 0;
         }
         final ProductExpressionPane pep;
