@@ -1,7 +1,7 @@
 package com.bc.ceres.swing.figure.support;
 
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
-import com.bc.ceres.swing.figure.support.FigureStyle;
+import com.bc.ceres.swing.figure.FigureStyle;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

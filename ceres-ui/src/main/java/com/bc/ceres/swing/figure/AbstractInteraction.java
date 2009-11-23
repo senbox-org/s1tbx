@@ -1,4 +1,4 @@
-package com.bc.ceres.swing.figure.interactions;
+package com.bc.ceres.swing.figure;
 
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.Interaction;
@@ -6,6 +6,7 @@ import com.bc.ceres.swing.figure.InteractionListener;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.Cursor;
 import java.util.ArrayList;
 
 public abstract class AbstractInteraction implements Interaction {
@@ -49,6 +50,11 @@ public abstract class AbstractInteraction implements Interaction {
     @Override
     public void setFigureEditor(FigureEditor figureEditor) {
         this.figureEditor = figureEditor;
+    }
+
+    @Override
+    public Cursor getCursor() {
+        return Cursor.getDefaultCursor();
     }
 
     @Override

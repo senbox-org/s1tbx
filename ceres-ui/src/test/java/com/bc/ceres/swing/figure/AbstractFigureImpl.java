@@ -13,7 +13,6 @@ class AbstractFigureImpl extends AbstractFigure {
     public AbstractFigureImpl() {
     }
 
-
     @Override
     public boolean isSelected() {
         return false;

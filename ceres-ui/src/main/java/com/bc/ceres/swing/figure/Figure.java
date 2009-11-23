@@ -4,6 +4,7 @@ import com.bc.ceres.swing.undo.Restorable;
 import com.bc.ceres.grender.Rendering;
 
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -61,7 +62,7 @@ public interface Figure extends Restorable, Cloneable {
 
     Figure[] getFigures();
 
-    Figure[] getFigures(Rectangle2D rectangle);
+    Figure[] getFigures(Shape shape);
 
     boolean addFigure(Figure figure);
 

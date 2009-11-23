@@ -1,26 +1,29 @@
 package com.bc.ceres.swing;
 
-import com.bc.ceres.swing.selection.SelectionChangeEvent;
-import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.bc.ceres.swing.actions.CopyAction;
 import com.bc.ceres.swing.actions.CutAction;
 import com.bc.ceres.swing.actions.DeleteAction;
 import com.bc.ceres.swing.actions.PasteAction;
+import com.bc.ceres.swing.actions.RedoAction;
 import com.bc.ceres.swing.actions.SelectAllAction;
-import com.bc.ceres.swing.selection.support.DefaultSelectionManager;
-import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
-import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
-import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
+import com.bc.ceres.swing.actions.UndoAction;
+import com.bc.ceres.swing.figure.FigureCollection;
+import com.bc.ceres.swing.figure.Interaction;
 import com.bc.ceres.swing.figure.interactions.NewEllipseShapeInteraction;
 import com.bc.ceres.swing.figure.interactions.NewPolygonShapeInteraction;
 import com.bc.ceres.swing.figure.interactions.NewPolylineShapeInteraction;
 import com.bc.ceres.swing.figure.interactions.NewRectangleShapeInteraction;
 import com.bc.ceres.swing.figure.interactions.NewTextInteraction;
 import com.bc.ceres.swing.figure.interactions.SelectionInteraction;
-import com.bc.ceres.swing.figure.FigureCollection;
-import com.bc.ceres.swing.figure.Interaction;
-import com.bc.ceres.swing.actions.RedoAction;
-import com.bc.ceres.swing.actions.UndoAction;
+import com.bc.ceres.swing.figure.interactions.ZoomInteraction;
+import com.bc.ceres.swing.figure.interactions.PanInteraction;
+import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
+import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import com.bc.ceres.swing.selection.SelectionChangeListener;
+import com.bc.ceres.swing.selection.support.DefaultSelectionManager;
+import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -52,6 +55,8 @@ import java.util.Locale;
 
 public class DefaultFigureEditorApp {
     private static final Interaction SELECTION_INTERACTION = new SelectionInteraction();
+    private static final Interaction ZOOM_INTERACTION = new ZoomInteraction();
+    private static final Interaction PAN_INTERACTION = new PanInteraction();
     private static final Interaction NEW_RECT_INTERACTION = new NewRectangleShapeInteraction();
     private static final Interaction NEW_ELLI_INTERACTION = new NewEllipseShapeInteraction();
     private static final Interaction NEW_POLYLINE_INTERACTION = new NewPolylineShapeInteraction();
@@ -83,6 +88,8 @@ public class DefaultFigureEditorApp {
         deleteAction = new DeleteAction(selectionManager);
 
         AbstractButton selectButton = createToolButton(figureEditor, "S", SELECTION_INTERACTION, true);
+        AbstractButton zoomButton = createToolButton(figureEditor, "Z", ZOOM_INTERACTION, false);
+        AbstractButton panButton = createToolButton(figureEditor, "P", PAN_INTERACTION, false);
         AbstractButton newRectButton = createToolButton(figureEditor, "R", NEW_RECT_INTERACTION, false);
         AbstractButton newElliButton = createToolButton(figureEditor, "E", NEW_ELLI_INTERACTION, false);
         AbstractButton newPLButton = createToolButton(figureEditor, "PL", NEW_POLYLINE_INTERACTION, false);
@@ -91,6 +98,8 @@ public class DefaultFigureEditorApp {
 
         JToolBar toolBar = new JToolBar();
         toolBar.add(selectButton);
+        toolBar.add(zoomButton);
+        toolBar.add(panButton);
         toolBar.add(newRectButton);
         toolBar.add(newElliButton);
         toolBar.add(newPLButton);
@@ -99,6 +108,8 @@ public class DefaultFigureEditorApp {
 
         ButtonGroup group = new ButtonGroup();
         group.add(selectButton);
+        group.add(zoomButton);
+        group.add(panButton);
         group.add(newRectButton);
         group.add(newElliButton);
         group.add(newPLButton);
@@ -123,7 +134,7 @@ public class DefaultFigureEditorApp {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setJMenuBar(menuBar);
         frame.add(toolBar, BorderLayout.NORTH);
-        frame.add(new JScrollPane(figureEditor), BorderLayout.CENTER);
+        frame.add(new AdjustableViewScrollPane(figureEditor), BorderLayout.CENTER);
         frame.setSize(400, 400);
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -166,8 +177,6 @@ public class DefaultFigureEditorApp {
                 System.out.println("flavors changed: " + event);
             }
         });
-
-
     }
 
     public static void main(String[] args) {

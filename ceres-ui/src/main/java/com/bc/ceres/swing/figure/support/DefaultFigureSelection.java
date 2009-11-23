@@ -1,12 +1,15 @@
 package com.bc.ceres.swing.figure.support;
 
+import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.Handle;
-import com.bc.ceres.grender.Rendering;
 
+import java.awt.Graphics2D;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -20,6 +23,59 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
     public DefaultFigureSelection() {
         this.selectionLevel = 0;
         this.handles = NO_HANDLES;
+    }
+
+    @Override
+    public int getSelectionLevel() {
+        return selectionLevel;
+    }
+
+    @Override
+    public void setSelectionLevel(int selectionLevel) {
+        if (this.selectionLevel != selectionLevel) {
+            this.selectionLevel = selectionLevel;
+            if (selectionLevel == 0) {
+                removeFigures();
+            }
+            updateHandles();
+            fireFigureChanged();
+        }
+    }
+
+    @Override
+    public Handle[] getHandles() {
+        return handles.clone();
+    }
+
+    @Override
+    public Handle getSelectedHandle() {
+        return selectedHandle;
+    }
+
+    @Override
+    public void setSelectedHandle(Handle handle) {
+        if (this.selectedHandle != handle) {
+            if (this.selectedHandle != null) {
+                this.selectedHandle.setSelected(false);
+            }
+            this.selectedHandle = handle;
+            if (this.selectedHandle != null) {
+                this.selectedHandle.setSelected(true);
+            }
+            fireFigureChanged();
+        }
+    }
+
+    @Override
+    public void selectHandle(Point2D point) {
+        Handle selectedHandle = null;
+        for (Handle handle : handles) {
+            if (handle.contains(point)) {
+                selectedHandle = handle;
+                break;
+            }
+        }
+        setSelectedHandle(selectedHandle);
     }
 
     @Override
@@ -137,53 +193,6 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
         return getClass().getName() + "[figureCount=" + getFigureCount() + "]";
     }
 
-    public int getSelectionLevel() {
-        return selectionLevel;
-    }
-
-    public void setSelectionLevel(int selectionLevel) {
-        if (this.selectionLevel != selectionLevel) {
-            this.selectionLevel = selectionLevel;
-            if (selectionLevel == 0) {
-                removeFigures();
-            }
-            updateHandles();
-            fireFigureChanged();
-        }
-    }
-
-    public Handle[] getHandles() {
-        return handles.clone();
-    }
-
-    public Handle getSelectedHandle() {
-        return selectedHandle;
-    }
-
-    public void setSelectedHandle(Handle handle) {
-        if (this.selectedHandle != handle) {
-            if (this.selectedHandle != null) {
-                this.selectedHandle.setSelected(false);
-            }
-            this.selectedHandle = handle;
-            if (this.selectedHandle != null) {
-                this.selectedHandle.setSelected(true);
-            }
-            fireFigureChanged();
-        }
-    }
-
-    public void selectHandle(Point2D point) {
-        Handle selectedHandle = null;
-        for (Handle handle : handles) {
-            if (handle.contains(point)) {
-                selectedHandle = handle;
-                break;
-            }
-        }
-        setSelectedHandle(selectedHandle);
-    }
-
     @Override
     public Figure[] removeFigures() {
         disposeHandles();
@@ -193,27 +202,41 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
 
     @Override
     public void draw(Rendering rendering) {
-        if (getFigureCount() > 0 && getSelectionLevel() > 1) {
+        if (getFigureCount() == 0 || getSelectionLevel() <= 1) {
+            return;
+        }
+
+        final Graphics2D g = rendering.getGraphics();
+        final Viewport vp = rendering.getViewport();
+        final AffineTransform transformSave = g.getTransform();
+
+        try {
+            final AffineTransform transform = new AffineTransform(vp.getModelToViewTransform());
+            transform.concatenate(transform);
+            g.setTransform(transform);
+
             final Figure[] figures = getFigures();
             if (figures.length > 1) {
                 for (Figure figure : figures) {
-                    rendering.getGraphics().setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
-                    rendering.getGraphics().setStroke(StyleDefaults.MULTI_SELECTION_STROKE);
-                    rendering.getGraphics().draw(getExtendedBounds(figure.getBounds()));
+                    g.setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
+                    g.setStroke(StyleDefaults.MULTI_SELECTION_STROKE);
+                    g.draw(getExtendedBounds(figure.getBounds()));
                 }
-                rendering.getGraphics().setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
-                rendering.getGraphics().setStroke(StyleDefaults.FIRST_OF_MULTI_SELECTION_STROKE);
-                rendering.getGraphics().draw(getExtendedBounds(figures[0].getBounds()));
+                g.setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
+                g.setStroke(StyleDefaults.FIRST_OF_MULTI_SELECTION_STROKE);
+                g.draw(getExtendedBounds(figures[0].getBounds()));
             }
-            rendering.getGraphics().setPaint(StyleDefaults.SELECTION_DRAW_PAINT);
-            rendering.getGraphics().setStroke(StyleDefaults.SELECTION_STROKE);
-            rendering.getGraphics().draw(getBounds());
+            g.setPaint(StyleDefaults.SELECTION_DRAW_PAINT);
+            g.setStroke(StyleDefaults.SELECTION_STROKE);
+            g.draw(getBounds());
 
             if (handles != null) {
                 for (Handle handle : handles) {
                     handle.draw(rendering);
                 }
             }
+        } finally {
+            g.setTransform(transformSave);
         }
     }
 

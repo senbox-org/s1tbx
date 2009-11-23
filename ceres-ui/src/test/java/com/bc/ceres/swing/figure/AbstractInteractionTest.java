@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 import javax.swing.JMenu;
 import java.awt.event.KeyEvent;
 
-import com.bc.ceres.swing.figure.interactions.AbstractInteraction;
+import com.bc.ceres.swing.figure.AbstractInteraction;
 import com.bc.ceres.swing.figure.Interaction;
 import com.bc.ceres.swing.figure.InteractionListener;
 

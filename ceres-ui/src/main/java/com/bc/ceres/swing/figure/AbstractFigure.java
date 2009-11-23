@@ -1,12 +1,14 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.swing.figure.support.FigureStyle;
+import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.support.RotateHandle;
 import com.bc.ceres.swing.figure.support.ScaleHandle;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
+import java.awt.Stroke;
+import java.awt.BasicStroke;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,9 +86,10 @@ public abstract class AbstractFigure implements Figure {
      * The default implementation returns an empty array.
      *
      * @return Always an empty array.
+     * @param shape
      */
     @Override
-    public Figure[] getFigures(Rectangle2D rectangle) {
+    public Figure[] getFigures(Shape shape) {
         return new Figure[0];
     }
 
@@ -381,4 +384,27 @@ public abstract class AbstractFigure implements Figure {
         return StyleDefaults.SELECTED_HANDLE_STYLE;
     }
 
+    protected Stroke getPlainStroke(Stroke stroke, float scale) {
+        if (stroke instanceof BasicStroke) {
+            BasicStroke basicStroke = (BasicStroke) stroke;
+            return new BasicStroke(basicStroke.getLineWidth() * scale,
+                                   basicStroke.getEndCap(),
+                                   basicStroke.getLineJoin(),
+                                   basicStroke.getMiterLimit(),
+                                   basicStroke.getDashArray(),
+                                   basicStroke.getDashPhase());
+        }
+        return stroke;
+    }
+
+    protected Stroke getSelectedStroke(Stroke plainStroke, float scale) {
+        Stroke selectedStroke;
+        if (plainStroke instanceof BasicStroke) {
+            BasicStroke basicStroke = (BasicStroke) plainStroke;
+            selectedStroke = new BasicStroke(basicStroke.getLineWidth() + scale * 4.0f);
+        } else {
+            selectedStroke = new BasicStroke(scale * 4.0f);
+        }
+        return selectedStroke;
+    }
 }

@@ -10,6 +10,7 @@ import com.bc.ceres.grender.Rendering;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,7 +25,6 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     private List<Figure> figureList;
     private Set<Figure> figureSet;
     private Rectangle2D bounds;
-    private BoundsUpdater boundsUpdater;
     private ChangeDelegate changeDelegate;
 
     public DefaultFigureCollection() {
@@ -33,11 +33,14 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
 
     public DefaultFigureCollection(Figure[] figures) {
         List<Figure> list = Arrays.asList(figures);
+        init(list);
+    }
+
+    private void init(List<Figure> list) {
         this.figureList = new ArrayList<Figure>(list);
         this.figureSet = new HashSet<Figure>(list);
         this.changeDelegate = new ChangeDelegate();
-        this.boundsUpdater = new BoundsUpdater();
-        addListener(boundsUpdater);
+        addListener(new BoundsUpdater());
     }
 
     @Override
@@ -83,9 +86,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     @Override
     public synchronized Object clone() {
         final DefaultFigureCollection figureCollection = (DefaultFigureCollection) super.clone();
-        figureCollection.figureList = new ArrayList<Figure>(figureList);
-        figureCollection.boundsUpdater = new BoundsUpdater();
-        figureCollection.addListener(figureCollection.boundsUpdater);
+        figureCollection.init(figureList);
         return figureCollection;
     }
 
@@ -142,10 +143,10 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     }
 
     @Override
-    public synchronized Figure[] getFigures(Rectangle2D rectangle) {
+    public synchronized Figure[] getFigures(Shape shape) {
         ArrayList<Figure> containedFigures = new ArrayList<Figure>(getFigureCount());
         for (Figure figure : getFigures()) {
-            if (rectangle.contains(figure.getBounds())) {
+            if (shape.contains(figure.getBounds())) {
                 containedFigures.add(figure);
             }
         }

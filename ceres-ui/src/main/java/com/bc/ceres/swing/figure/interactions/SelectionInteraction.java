@@ -1,13 +1,19 @@
 package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.swing.undo.RestorableEdit;
-import com.bc.ceres.swing.figure.interactions.AbstractInteraction;
+import com.bc.ceres.swing.figure.AbstractInteraction;
 import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.grender.AdjustableView;
+import com.bc.ceres.grender.Viewport;
 
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.Component;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.event.MouseEvent;
 
 // todo - this Interaction should not be restricted to figure contexts, is the inner Tool interface the solution?
@@ -62,12 +68,12 @@ public class SelectionInteraction extends AbstractInteraction {
     public void mouseDragged(MouseEvent event) {
         if (!canceled) {
             if (tool == TOOL_SELECT_POINT) {
-                getFigureEditor().getFigureSelection().selectHandle(referencePoint);
+                getFigureEditor().getFigureSelection().selectHandle(p(referencePoint, event));
                 final Handle selectedHandle = getFigureEditor().getFigureSelection().getSelectedHandle();
                 if (selectedHandle != null) {
                     tool = TOOL_MOVE_HANDLE;
                 } else {
-                    if (getFigureEditor().getFigureSelection().contains(referencePoint)) {
+                    if (getFigureEditor().getFigureSelection().contains(p(referencePoint, event))) {
                         tool = TOOL_MOVE_SELECTION;
                     } else {
                         tool = TOOL_SELECT_RECTANGLE;
@@ -96,11 +102,11 @@ public class SelectionInteraction extends AbstractInteraction {
     private void setCursor(MouseEvent event) {
         Cursor cursor = null;
         for (Handle handle : getFigureEditor().getFigureSelection().getHandles()) {
-            if (handle.contains(event.getPoint())) {
+            if (handle.contains(p(event))) {
                 cursor = handle.getCursor();
             }
         }
-        if (cursor == null && getFigureEditor().getFigureSelection().contains(event.getPoint())) {
+        if (cursor == null && getFigureEditor().getFigureSelection().contains(p(event))) {
             cursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
         }
         if (cursor == null && getSelectionRectangle() != null) {
@@ -110,6 +116,34 @@ public class SelectionInteraction extends AbstractInteraction {
             cursor = Cursor.getDefaultCursor();
         }
         getFigureEditor().setCursor(cursor);
+    }
+
+    private static AffineTransform v2m(MouseEvent event) {
+        Component component = event.getComponent();
+        if (component instanceof AdjustableView) {
+            AdjustableView adjustableView = (AdjustableView) component;
+            Viewport viewport = adjustableView.getViewport();
+            return viewport.getViewToModelTransform();
+        }
+        return new AffineTransform();
+    }
+
+    private static Point2D p(MouseEvent event) {
+        return p(event.getPoint(), event);
+    }
+
+    private static Point2D p(Point2D point, MouseEvent event) {
+        return v2m(event).transform(point, null);
+    }
+
+    private void dragFigure(Figure figure, MouseEvent event) {
+        Point2D.Double p = new Point2D.Double(event.getX() - referencePoint.x,
+                                              event.getY() - referencePoint.y);
+        AffineTransform transform = v2m(event);
+        transform.deltaTransform(p, p);
+        // If a handle is selected, it is moved by dragging
+        figure.move(p.getX(), p.getY());
+        referencePoint = event.getPoint();
     }
 
     // todo - Tool is a helper, it may later be replaced by an Interaction delegate
@@ -143,10 +177,7 @@ public class SelectionInteraction extends AbstractInteraction {
 
         @Override
         public void drag(MouseEvent event) {
-            final int dx = event.getX() - referencePoint.x;
-            final int dy = event.getY() - referencePoint.y;
-            referencePoint = event.getPoint();
-            getFigureEditor().getFigureSelection().move(dx, dy);
+            dragFigure(getFigureEditor().getFigureSelection(), event);
         }
 
         @Override
@@ -164,10 +195,7 @@ public class SelectionInteraction extends AbstractInteraction {
         @Override
         public void drag(MouseEvent event) {
             final Handle selectedHandle = getFigureEditor().getFigureSelection().getSelectedHandle();
-            // If a handle is selected, it is moved by dragging
-            selectedHandle.move(event.getX() - referencePoint.x,
-                                event.getY() - referencePoint.y);
-            referencePoint = event.getPoint();
+            dragFigure(selectedHandle, event);
         }
 
         @Override
@@ -190,15 +218,19 @@ public class SelectionInteraction extends AbstractInteraction {
 
         @Override
         public void end(MouseEvent event) {
+            AffineTransform transform = v2m(event);
+            Point2D rp = transform.transform(referencePoint, null);
+
+
             // Check first if user has selected a selectable handle
             for (Handle handle : getFigureEditor().getFigureSelection().getHandles()) {
-                if (handle.isSelectable() && handle.contains(referencePoint)) {
+                if (handle.isSelectable() && handle.contains(rp)) {
                     getFigureEditor().getFigureSelection().setSelectedHandle(handle);
                     return;
                 }
             }
             // Then check if user has selected a figure
-            Figure clickedFigure = getFigureEditor().getFigureCollection().getFigure(referencePoint);
+            Figure clickedFigure = getFigureEditor().getFigureCollection().getFigure(rp);
             if (clickedFigure == null) {
                 // Nothing clicked, thus clear selection.
                 getFigureEditor().getFigureSelection().removeFigures();
@@ -276,7 +308,10 @@ public class SelectionInteraction extends AbstractInteraction {
         @Override
         public void end(MouseEvent event) {
             if (getSelectionRectangle() != null) {
-                final Figure[] figures = getFigureEditor().getFigureCollection().getFigures(getSelectionRectangle());
+                AffineTransform transform = v2m(event);
+                Shape shape = transform.createTransformedShape(getSelectionRectangle());
+
+                final Figure[] figures = getFigureEditor().getFigureCollection().getFigures(shape);
                 if (figures.length > 0) {
                     getFigureEditor().getFigureSelection().addFigures(figures);
                     getFigureEditor().getFigureSelection().setSelectionLevel(1);

@@ -14,6 +14,8 @@ import com.bc.ceres.swing.selection.support.SelectionChangeSupport;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.ViewportListener;
+import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.support.DefaultRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 
@@ -25,13 +27,16 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.geom.Rectangle2D;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.IOException;
 
-public class DefaultFigureEditor extends JPanel implements FigureEditor {
+public class DefaultFigureEditor extends JPanel implements FigureEditor, AdjustableView {
 
     private final FigureCollection figureCollection;
     private final FigureSelection figureSelection;
@@ -47,7 +52,7 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
         selectionChangeSupport = new SelectionChangeSupport(this);
         undoContext = new DefaultUndoContext(this);
         interaction = NullInteraction.INSTANCE;
-        rendering = new DefaultRendering(new DefaultViewport());
+        rendering = new DefaultRendering(new DefaultViewport(true));
 
         figureCollection = new DefaultFigureCollection();
         figureSelection = new DefaultFigureSelection();
@@ -82,6 +87,20 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
             @Override
             public void mousePressed(MouseEvent e) {
                 requestFocusInWindow(); // to receive key events
+            }
+        });
+
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                rendering.getViewport().setViewBounds(getBounds());
+            }
+        });
+
+        rendering.getViewport().addListener(new ViewportListener() {
+            @Override
+            public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
+                repaint();
             }
         });
 
@@ -242,6 +261,31 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
             g2d.setPaint(StyleDefaults.SELECTION_RECT_DRAW_PAINT);
             g2d.draw(getSelectionRectangle());
         }
+    }
+
+    @Override
+    public Viewport getViewport() {
+        return rendering.getViewport();
+    }
+
+    @Override
+    public Rectangle2D getMaxVisibleModelBounds() {
+        return getFigureCollection().getBounds();
+    }
+
+    @Override
+    public double getDefaultZoomFactor() {
+        return 1;
+    }
+
+    @Override
+    public double getMinZoomFactor() {
+        return 0.1;
+    }
+
+    @Override
+    public double getMaxZoomFactor() {
+        return 10; 
     }
 
     private void deleteFigures(Figure[] figuresToDelete) {

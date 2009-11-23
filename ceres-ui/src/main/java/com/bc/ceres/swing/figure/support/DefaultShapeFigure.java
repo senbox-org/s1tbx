@@ -1,11 +1,14 @@
 package com.bc.ceres.swing.figure.support;
 
 import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.figure.AbstractFigure;
 import com.bc.ceres.swing.figure.Handle;
+import com.bc.ceres.swing.figure.FigureStyle;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
@@ -16,17 +19,18 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
 public class DefaultShapeFigure extends AbstractFigure {
     private Shape shape;
     private Rank rank;
     private FigureStyle style;
     private boolean selected;
+    private AffineTransform shapeToModelTransform;
 
     public DefaultShapeFigure(Shape shape, boolean polygonal, FigureStyle style) {
         this.shape = shape;
         this.rank = polygonal ? Rank.POLYGONAL : Rank.LINEAL;
         this.style = style;
+        shapeToModelTransform = new AffineTransform();
     }
 
     public Shape getShape() {
@@ -45,6 +49,14 @@ public class DefaultShapeFigure extends AbstractFigure {
     public void setStyle(FigureStyle style) {
         this.style = style;
         fireFigureChanged();
+    }
+
+    public AffineTransform getShapeToModelTransform() {
+        return shapeToModelTransform;
+    }
+
+    public void setShapeToModelTransform(AffineTransform shapeToModelTransform) {
+        this.shapeToModelTransform = shapeToModelTransform;
     }
 
     @Override
@@ -77,25 +89,40 @@ public class DefaultShapeFigure extends AbstractFigure {
 
     @Override
     public void draw(Rendering rendering) {
-        if (rank == Rank.POLYGONAL) {
-            rendering.getGraphics().setPaint(getStyle().getFillPaint());
-            rendering.getGraphics().fill(getShape());
-        }
-        rendering.getGraphics().setPaint(getStyle().getDrawPaint());
-        rendering.getGraphics().setStroke(getStyle().getDrawStroke());
-        rendering.getGraphics().draw(getShape());
-        if (isSelected()) {
-            Stroke plainStroke = getStyle().getDrawStroke();
-            Stroke selectedStroke;
-            if (plainStroke instanceof BasicStroke) {
-                BasicStroke basicStroke = (BasicStroke) plainStroke;
-                selectedStroke = new BasicStroke(basicStroke.getLineWidth() + 4.0f);
-            } else {
-                selectedStroke = new BasicStroke(4.0f);
+
+        final Graphics2D g = rendering.getGraphics();
+        final Viewport vp = rendering.getViewport();
+        final AffineTransform transformSave = g.getTransform();
+        try {
+            final AffineTransform transform = new AffineTransform();
+            AffineTransform tx = vp.getModelToViewTransform();
+            transform.concatenate(tx);
+            transform.concatenate(shapeToModelTransform);
+            g.setTransform(transform);
+
+            if (rank == Rank.POLYGONAL) {
+                g.setPaint(getStyle().getFillPaint());
+                g.fill(getShape());
             }
-            rendering.getGraphics().setPaint(new Color(255, 255, 0, 150));
-            rendering.getGraphics().setStroke(selectedStroke);
-            rendering.getGraphics().draw(getShape());
+            g.setPaint(getStyle().getDrawPaint());
+
+            final float scale = (float) (1.0 / Math.sqrt(Math.abs(transform.getDeterminant())));
+
+            // todo - optimize
+            Stroke plainStroke;
+            plainStroke = getPlainStroke(getStyle().getDrawStroke(), scale);
+            g.setStroke(plainStroke);
+
+            g.draw(getShape());
+            if (isSelected()) {
+                Stroke selectedStroke = getSelectedStroke(plainStroke, scale);
+                g.setPaint(new Color(255, 255, 0, 150));
+                g.setStroke(selectedStroke);
+                g.draw(getShape());
+            }
+
+        } finally {
+            g.setTransform(transformSave);
         }
     }
 
@@ -310,4 +337,5 @@ public class DefaultShapeFigure extends AbstractFigure {
         f.style = style.clone();
         return f;
     }
+
 }

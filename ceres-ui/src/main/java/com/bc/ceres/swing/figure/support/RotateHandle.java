@@ -3,6 +3,7 @@ package com.bc.ceres.swing.figure.support;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.swing.figure.AbstractHandle;
 import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.FigureStyle;
 
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
