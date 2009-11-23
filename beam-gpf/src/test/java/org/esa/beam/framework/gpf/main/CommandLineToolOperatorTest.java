@@ -18,6 +18,7 @@ public class CommandLineToolOperatorTest extends TestCase {
     private CommandLineTool clTool;
     private static final TestOps.Op3.Spi OP3_SPI = new TestOps.Op3.Spi();
     private static final TestOps.Op4.Spi OP4_SPI = new TestOps.Op4.Spi();
+    private static final TestOps.Op5.Spi OP5_SPI = new TestOps.Op5.Spi();
 
     @Override
     protected void setUp() throws Exception {
@@ -25,12 +26,13 @@ public class CommandLineToolOperatorTest extends TestCase {
         clTool = new CommandLineTool(context);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP3_SPI);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP4_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP5_SPI);
     }
 
     @Override
     protected void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP3_SPI);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP4_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP5_SPI);
     }
 
     public void testPrintUsage() throws Exception {
@@ -76,6 +78,17 @@ public class CommandLineToolOperatorTest extends TestCase {
                 "o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
         assertEquals(expectedLog, context.logString);
         assertEquals("Op3", context.opName);
+        assertNotNull(context.parameters);
+    }
+
+    public void testOperatorMultiSources() throws Exception {
+        clTool.run(new String[]{"Op5", "-SVincent=vincent.dim", "asterix.N1", "obelix.nc"});
+        String expectedLog = "s0=" + new File("vincent.dim").getCanonicalPath() + ";" +
+                "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
+                "s2=" + new File("obelix.nc").getCanonicalPath() + ";" +
+                "o=Op5;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
+        assertEquals(expectedLog, context.logString);
+        assertEquals("Op5", context.opName);
         assertNotNull(context.parameters);
     }
 
