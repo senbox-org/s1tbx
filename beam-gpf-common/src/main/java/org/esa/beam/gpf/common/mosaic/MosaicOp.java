@@ -332,13 +332,10 @@ public class MosaicOp extends Operator {
         List<Product> reprojProductList = new ArrayList<Product>(sourceProducts.length);
         final HashMap<String, Object> projParameters = createProjectionParameters();
         for (Product sourceProduct : sourceProducts) {
-            // todo (mp) 11/20/2009 - no need to check if sourceProducts and named products are initialised correctly
-            if (sourceProduct != updateProduct) {
-                HashMap<String, Product> projProducts = new HashMap<String, Product>();
-                projProducts.put("source", sourceProduct);
-                projProducts.put("collocate", targetProduct);
-                reprojProductList.add(GPF.createProduct("Reproject", projParameters, projProducts));
-            }
+            HashMap<String, Product> projProducts = new HashMap<String, Product>();
+            projProducts.put("source", sourceProduct);
+            projProducts.put("collocate", targetProduct);
+            reprojProductList.add(GPF.createProduct("Reproject", projParameters, projProducts));
         }
         return reprojProductList.toArray(new Product[reprojProductList.size()]);
     }
