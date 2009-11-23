@@ -1,7 +1,12 @@
 package org.esa.beam.framework.gpf.internal;
 
 import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProperty;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -86,31 +91,35 @@ public class OperatorClassDescriptor {
         if (superclass != null && !superclass.equals(Operator.class)) {
             processAnnotationsRec(superclass);
         }
-        OperatorMetadata operatorMetadata = operatorClass.getAnnotation(OperatorMetadata.class);
-        if (operatorMetadata != null) {
-            this.operatorMetadata = operatorMetadata;
-        }
-        final TargetProduct targetProduct = operatorClass.getAnnotation(TargetProduct.class);
-        if (targetProduct != null) {
-            this.targetProduct = targetProduct;
-        }
-        SourceProducts sourceProducts = operatorClass.getAnnotation(SourceProducts.class);
-        if (sourceProducts != null) {
-            this.sourceProducts = sourceProducts;
+        OperatorMetadata operatorMetadataAnnot = operatorClass.getAnnotation(OperatorMetadata.class);
+        if (operatorMetadataAnnot != null) {
+            this.operatorMetadata = operatorMetadataAnnot;
         }
         final Field[] declaredFields = operatorClass.getDeclaredFields();
         for (Field declaredField : declaredFields) {
-            final SourceProduct sourceProduct = declaredField.getAnnotation(SourceProduct.class);
-            if (sourceProduct != null) {
-                sourceProductDescriptors.put(declaredField, sourceProduct);
+            final Parameter parameterAnnot = declaredField.getAnnotation(Parameter.class);
+            if (parameterAnnot != null) {
+                parameterDescriptors.put(declaredField, parameterAnnot);
+                continue;
             }
-            final Parameter parameter = declaredField.getAnnotation(Parameter.class);
-            if (parameter != null) {
-                parameterDescriptors.put(declaredField, parameter);
+            final SourceProduct sourceProductAnnot = declaredField.getAnnotation(SourceProduct.class);
+            if (sourceProductAnnot != null) {
+                sourceProductDescriptors.put(declaredField, sourceProductAnnot);
+                continue;
             }
-            final TargetProperty targetProperty = declaredField.getAnnotation(TargetProperty.class);
-            if (targetProperty != null) {
-                propertyDescriptors.put(declaredField, targetProperty);
+            SourceProducts sourceProductsAnnot = declaredField.getAnnotation(SourceProducts.class);
+            if (sourceProductsAnnot != null) {
+                this.sourceProducts = sourceProductsAnnot;
+                continue;
+            }
+            final TargetProduct targetProductAnnot = declaredField.getAnnotation(TargetProduct.class);
+            if (targetProductAnnot != null) {
+                this.targetProduct = targetProductAnnot;
+                continue;
+            }
+            final TargetProperty targetPropertyAnnot = declaredField.getAnnotation(TargetProperty.class);
+            if (targetPropertyAnnot != null) {
+                propertyDescriptors.put(declaredField, targetPropertyAnnot);
             }
         }
     }
