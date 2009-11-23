@@ -277,6 +277,24 @@ public class CommandLineArgsTest extends TestCase {
         assertEquals("./inp/cloud-mask.dim", sourceMap.get("cloudProduct"));
     }
 
+    public void testMultiSourceOptions() throws Exception {
+        CommandLineArgs lineArgs = new CommandLineArgs(new String[]{
+                "MapProj",
+                "-Sndvi=./inp/NDVI.dim",
+                "./inp/cloud-mask.dim",
+                "source.dim",
+                "input.dim",
+        });
+        lineArgs.parseArguments();
+        SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
+        assertNotNull(sourceMap);
+        assertEquals("./inp/cloud-mask.dim", sourceMap.get("sourceProduct"));
+        assertEquals("./inp/cloud-mask.dim", sourceMap.get("sourceProduct1"));
+        assertEquals("source.dim", sourceMap.get("sourceProduct2"));
+        assertEquals("input.dim", sourceMap.get("sourceProduct3"));
+        assertEquals("./inp/NDVI.dim" ,sourceMap.get("ndvi"));
+    }
+
     public void testUsageText() throws Exception {
         String usageText = CommandLineUsage.getUsageText();
         assertNotNull(usageText);
