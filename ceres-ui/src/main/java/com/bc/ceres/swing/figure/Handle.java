@@ -1,5 +1,7 @@
 package com.bc.ceres.swing.figure;
 
+import com.bc.ceres.grender.Rendering;
+
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
@@ -18,7 +20,7 @@ public interface Handle {
 
     void setSelected(boolean selected);
 
-    void draw(Graphics2D g2d);
+    void draw(Rendering rendering);
 
     boolean contains(Point2D point);
 

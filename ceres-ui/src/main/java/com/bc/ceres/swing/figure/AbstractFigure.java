@@ -1,9 +1,5 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.FigureChangeEvent;
-import com.bc.ceres.swing.figure.FigureChangeListener;
-import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.support.FigureStyle;
 import com.bc.ceres.swing.figure.support.RotateHandle;
 import com.bc.ceres.swing.figure.support.ScaleHandle;
@@ -18,40 +14,87 @@ public abstract class AbstractFigure implements Figure {
 
     private List<FigureChangeListener> listenerList;
     private static final String OPERATION_NOT_SUPPORTED = "Operation not supported.";
+    protected static final Handle[] NO_HANDLES = new Handle[0];
+
 
     protected AbstractFigure() {
     }
 
+    /**
+     * The default implementation returns {@code false}.
+     *
+     * @return Always {@code false}.
+     */
+    @Override
+    public boolean isSelectable() {
+        return false;
+    }
+
+    /**
+     * The default implementation returns {@code false}.
+     *
+     * @return Always {@code false}.
+     */
     @Override
     public boolean contains(Point2D point) {
         return false;
     }
 
+    /**
+     * The default implementation returns {@code false}.
+     *
+     * @return Always {@code false}.
+     */
     @Override
     public boolean contains(Figure figure) {
         return false;
     }
 
+    /**
+     * The default implementation returns {@code 0}.
+     *
+     * @return Always {@code 0}.
+     */
     @Override
     public int getFigureCount() {
         return 0;
     }
 
+    /**
+     * The default implementation returns {@code 0}.
+     *
+     * @return Always {@code 0}.
+     */
     @Override
     public int getFigureIndex(Figure figure) {
         return 0;
     }
 
+    /**
+     * The default implementation returns {@code null}.
+     *
+     * @return Always {@code null}.
+     */
     @Override
     public Figure getFigure(Point2D p) {
         return null;
     }
 
+    /**
+     * The default implementation returns an empty array.
+     *
+     * @return Always an empty array.
+     */
     @Override
     public Figure[] getFigures(Rectangle2D rectangle) {
         return new Figure[0];
     }
 
+    /**
+     * The default implementation returns an empty array.
+     *
+     * @return Always an empty array.
+     */
     @Override
     public Figure[] getFigures() {
         return new Figure[0];
@@ -118,11 +161,24 @@ public abstract class AbstractFigure implements Figure {
         return new Figure[0];
     }
 
+    /**
+     * The default implementation throws an [@code IllegalStateException}.
+     *
+     * @return Does never return normally.
+     */
     @Override
     public Figure getFigure(int index) {
         throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
     }
 
+    /**
+     * The default implementation throws an [@code IllegalStateException}.
+     *
+     * @param index  The index.
+     * @param figure The figure.
+     *
+     * @return Does never return normally.
+     */
     protected boolean addFigureImpl(int index, Figure figure) {
         throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
     }
@@ -141,6 +197,13 @@ public abstract class AbstractFigure implements Figure {
         return added.toArray(new Figure[added.size()]);
     }
 
+    /**
+     * The default implementation throws an [@code IllegalStateException}.
+     *
+     * @param figure The figure.
+     *
+     * @return Does never return normally.
+     */
     protected boolean removeFigureImpl(Figure figure) {
         throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
     }
@@ -182,6 +245,48 @@ public abstract class AbstractFigure implements Figure {
     @Override
     public synchronized void setVertex(int index, double[] newSeg) {
         throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
+    }
+
+    /**
+     * The default implementation returns zero.
+     *
+     * @return Always {@code 0}.
+     */
+    @Override
+    public int getMaxSelectionLevel() {
+        return 0;
+    }
+
+    /**
+     * The default implementation returns an empty array.
+     * Clients should override in order to create an array of handles suitable for the given selection level.
+     *
+     * @param selectionLevel The selection level. {@code 1 &lt;= selectionLevel &lt;=} {@link #getMaxSelectionLevel()}
+     */
+    @Override
+    public Handle[] createHandles(int selectionLevel) {
+        return NO_HANDLES;
+    }
+
+    /**
+     * The default implementation returns [@code null}.
+     * Clients should override in order to produce something more meaningful.
+     *
+     * @return Always {@code null}.
+     */
+    @Override
+    public Object createMemento() {
+        return null;
+    }
+
+    /**
+     * The default implementation does nothing.
+     * Clients should override in order to evaluate the passed in {@code memento}. object.
+     *
+     * @param memento A memento object.
+     */
+    @Override
+    public void setMemento(Object memento) {
     }
 
     @Override

@@ -6,8 +6,8 @@ import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureCollection;
+import com.bc.ceres.grender.Rendering;
 
-import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -20,8 +20,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class DefaultFigureCollection extends AbstractFigure implements FigureCollection {
-
-    protected static final Handle[] NO_HANDLES = new Handle[0];
 
     private List<Figure> figureList;
     private Set<Figure> figureSet;
@@ -43,6 +41,11 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     }
 
     @Override
+    public boolean isSelectable() {
+        return true; 
+    }
+
+    @Override
     public boolean isSelected() {
         if (getFigureCount() == 0) {
             return false;
@@ -57,8 +60,12 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
 
     @Override
     public void setSelected(boolean selected) {
-        for (Figure figure : figureList) {
-            figure.setSelected(selected);
+        if (isSelectable()) {
+            for (Figure figure : figureList) {
+                if (figure.isSelectable()) {
+                    figure.setSelected(selected);
+                }
+            }
         }
     }
 
@@ -151,6 +158,11 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     }
 
     @Override
+    protected boolean addFigureImpl(Figure figure) {
+        return addFigureImpl(getFigureCount(), figure);
+    }
+
+    @Override
     protected synchronized boolean addFigureImpl(int index, Figure figure) {
         figureSet.add(figure);
         figureList.add(index, figure);
@@ -159,15 +171,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     }
 
     @Override
-    protected synchronized boolean addFigureImpl(Figure figure) {
-        figureSet.add(figure);
-        figureList.add(figure);
-        figure.addListener(changeDelegate);
-        return true;
-    }
-
-    @Override
-    protected boolean removeFigureImpl(Figure figure) {
+    protected synchronized boolean removeFigureImpl(Figure figure) {
         boolean b = figureSet.remove(figure);
         if (b) {
             figureList.remove(figure);
@@ -226,9 +230,9 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     }
 
     @Override
-    public synchronized void draw(Graphics2D g2d) {
+    public synchronized void draw(Rendering rendering) {
         for (Figure figure : figureList) {
-            figure.draw(g2d);
+            figure.draw(rendering);
         }
     }
 

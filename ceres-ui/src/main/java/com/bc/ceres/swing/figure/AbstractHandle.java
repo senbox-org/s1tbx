@@ -5,9 +5,9 @@ import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.support.FigureStyle;
 import com.bc.ceres.swing.figure.FigureChangeListener;
+import com.bc.ceres.grender.Rendering;
 
 import java.awt.Cursor;
-import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 
@@ -88,12 +88,12 @@ public abstract class AbstractHandle implements Handle {
     }
 
     @Override
-    public void draw(Graphics2D g2d) {
+    public void draw(Rendering rendering) {
         FigureStyle handleStyle = isSelected() ? selectedStyle : style;
-        g2d.setPaint(handleStyle.getFillPaint());
-        g2d.fill(getShape());
-        g2d.setPaint(handleStyle.getDrawPaint());
-        g2d.setStroke(handleStyle.getDrawStroke());
-        g2d.draw(getShape());
+        rendering.getGraphics().setPaint(handleStyle.getFillPaint());
+        rendering.getGraphics().fill(getShape());
+        rendering.getGraphics().setPaint(handleStyle.getDrawPaint());
+        rendering.getGraphics().setStroke(handleStyle.getDrawStroke());
+        rendering.getGraphics().draw(getShape());
     }
 }

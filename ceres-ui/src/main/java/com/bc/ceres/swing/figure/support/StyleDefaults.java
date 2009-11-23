@@ -13,8 +13,9 @@ public class StyleDefaults {
     public static final Stroke MULTI_SELECTION_STROKE = new BasicStroke(1.0f);
     public static final Color MULTI_SELECTION_COLOR = Color.BLUE.brighter();
     public static final Color SELECTION_DRAW_PAINT = Color.ORANGE;
-    public static final Color SELECTION_FILL_PAINT = new Color(127, 127, 255, 100);
     public static final Stroke SELECTION_STROKE = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0.0f, new float[]{4.0f, 4.0f}, 0.0f);
+    public static final Color SELECTION_RECT_FILL_PAINT = new Color(127, 127, 255, 100);
+    public static final Color SELECTION_RECT_DRAW_PAINT = new Color(50, 50, 255, 100);
 
     public static final Stroke HANDLE_DRAW_STROKE = new BasicStroke(1.0f);
     public static final Color HANDLE_DRAW_PAINT = Color.DARK_GRAY;

@@ -1,13 +1,11 @@
 package com.bc.ceres.swing.figure.support;
 
+import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.swing.figure.AbstractFigure;
-import com.bc.ceres.swing.figure.support.FigureStyle;
 import com.bc.ceres.swing.figure.Handle;
-import com.bc.ceres.swing.figure.support.VertexHandle;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
@@ -50,6 +48,11 @@ public class DefaultShapeFigure extends AbstractFigure {
     }
 
     @Override
+    public boolean isSelectable() {
+        return true;
+    }
+
+    @Override
     public boolean isSelected() {
         return selected;
     }
@@ -73,14 +76,14 @@ public class DefaultShapeFigure extends AbstractFigure {
     }
 
     @Override
-    public void draw(Graphics2D g2d) {
+    public void draw(Rendering rendering) {
         if (rank == Rank.POLYGONAL) {
-            g2d.setPaint(getStyle().getFillPaint());
-            g2d.fill(getShape());
+            rendering.getGraphics().setPaint(getStyle().getFillPaint());
+            rendering.getGraphics().fill(getShape());
         }
-        g2d.setPaint(getStyle().getDrawPaint());
-        g2d.setStroke(getStyle().getDrawStroke());
-        g2d.draw(getShape());
+        rendering.getGraphics().setPaint(getStyle().getDrawPaint());
+        rendering.getGraphics().setStroke(getStyle().getDrawStroke());
+        rendering.getGraphics().draw(getShape());
         if (isSelected()) {
             Stroke plainStroke = getStyle().getDrawStroke();
             Stroke selectedStroke;
@@ -90,9 +93,9 @@ public class DefaultShapeFigure extends AbstractFigure {
             } else {
                 selectedStroke = new BasicStroke(4.0f);
             }
-            g2d.setPaint(new Color(255, 255, 0, 150));
-            g2d.setStroke(selectedStroke);
-            g2d.draw(getShape());
+            rendering.getGraphics().setPaint(new Color(255, 255, 0, 150));
+            rendering.getGraphics().setStroke(selectedStroke);
+            rendering.getGraphics().draw(getShape());
         }
     }
 

@@ -1,6 +1,7 @@
 package com.bc.ceres.swing.figure;
 
 import com.bc.ceres.swing.undo.Restorable;
+import com.bc.ceres.grender.Rendering;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
@@ -22,11 +23,13 @@ public interface Figure extends Restorable, Cloneable {
         COLLECTION
     }
 
+    boolean isSelectable();
+
     boolean isSelected();
 
     void setSelected(boolean selected);
 
-    void draw(Graphics2D g2d);
+    void draw(Rendering rendering);
 
     boolean contains(Figure figure);
 

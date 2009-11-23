@@ -1,16 +1,15 @@
 package com.bc.ceres.swing.figure.support;
 
-import com.bc.ceres.swing.figure.support.FigureTransferable;
-import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureSelection;
-import com.bc.ceres.swing.figure.support.StyleDefaults;
+import com.bc.ceres.swing.figure.Handle;
+import com.bc.ceres.grender.Rendering;
 
-import java.awt.Graphics2D;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 
 public class DefaultFigureSelection extends DefaultFigureCollection implements FigureSelection {
 
@@ -21,6 +20,12 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
     public DefaultFigureSelection() {
         this.selectionLevel = 0;
         this.handles = NO_HANDLES;
+    }
+
+    @Override
+    public boolean isSelectable() {
+        // selections are not selectable.
+        return false;
     }
 
     @Override
@@ -61,24 +66,19 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
 
     @Override
     protected boolean addFigureImpl(int index, Figure figure) {
-        boolean added = super.addFigureImpl(index, figure);
-        if (added) {
-            figure.setSelected(true);
+        if (figure.isSelectable()) {
+            boolean added = super.addFigureImpl(index, figure);
+            if (added) {
+                figure.setSelected(true);
+            }
+            return added;
         }
-        return added;
-    }
-
-    @Override
-    protected boolean addFigureImpl(Figure figure) {
-        boolean added = super.addFigureImpl(figure);
-        if (added) {
-            figure.setSelected(true);
-        }
-        return added;
+        return false;
     }
 
     @Override
     protected Figure[] addFiguresImpl(Figure[] figures) {
+        figures = filterSelectableFigures(figures);
         Figure[] addedFigures = super.addFiguresImpl(figures);
         for (Figure figure : addedFigures) {
             figure.setSelected(true);
@@ -192,26 +192,26 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
     }
 
     @Override
-    public void draw(Graphics2D g2d) {
+    public void draw(Rendering rendering) {
         if (getFigureCount() > 0 && getSelectionLevel() > 1) {
             final Figure[] figures = getFigures();
             if (figures.length > 1) {
                 for (Figure figure : figures) {
-                    g2d.setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
-                    g2d.setStroke(StyleDefaults.MULTI_SELECTION_STROKE);
-                    g2d.draw(getExtendedBounds(figure.getBounds()));
+                    rendering.getGraphics().setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
+                    rendering.getGraphics().setStroke(StyleDefaults.MULTI_SELECTION_STROKE);
+                    rendering.getGraphics().draw(getExtendedBounds(figure.getBounds()));
                 }
-                g2d.setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
-                g2d.setStroke(StyleDefaults.FIRST_OF_MULTI_SELECTION_STROKE);
-                g2d.draw(getExtendedBounds(figures[0].getBounds()));
+                rendering.getGraphics().setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
+                rendering.getGraphics().setStroke(StyleDefaults.FIRST_OF_MULTI_SELECTION_STROKE);
+                rendering.getGraphics().draw(getExtendedBounds(figures[0].getBounds()));
             }
-            g2d.setPaint(StyleDefaults.SELECTION_DRAW_PAINT);
-            g2d.setStroke(StyleDefaults.SELECTION_STROKE);
-            g2d.draw(getBounds());
+            rendering.getGraphics().setPaint(StyleDefaults.SELECTION_DRAW_PAINT);
+            rendering.getGraphics().setStroke(StyleDefaults.SELECTION_STROKE);
+            rendering.getGraphics().draw(getBounds());
 
             if (handles != null) {
                 for (Handle handle : handles) {
-                    handle.draw(g2d);
+                    handle.draw(rendering);
                 }
             }
         }
@@ -255,4 +255,25 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
         handles = NO_HANDLES;
         selectedHandle = null;
     }
+
+    private static Figure[] filterSelectableFigures(Figure[] figures) {
+        boolean allSelectable = true;
+        for (Figure figure : figures) {
+            if (!figure.isSelectable()) {
+                allSelectable = false;
+                break;
+            }
+        }
+        if (!allSelectable) {
+            ArrayList<Figure> selectableFigures = new ArrayList<Figure>(figures.length);
+            for (Figure figure : figures) {
+                if (figure.isSelectable()) {
+                    selectableFigures.add(figure);
+                }
+            }
+            figures = selectableFigures.toArray(new Figure[selectableFigures.size()]);
+        }
+        return figures;
+    }
+
 }

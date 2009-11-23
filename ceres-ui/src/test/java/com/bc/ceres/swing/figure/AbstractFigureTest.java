@@ -2,34 +2,31 @@ package com.bc.ceres.swing.figure;
 
 import junit.framework.TestCase;
 
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-import com.bc.ceres.swing.figure.AbstractFigure;
-import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
-import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.FigureChangeEvent;
-import com.bc.ceres.swing.figure.FigureChangeListener;
-import com.bc.ceres.swing.figure.Handle;
-
 public class AbstractFigureTest extends TestCase {
+
     public void testDefaultProperties() {
-        MyFigure f = new MyFigure();
-        assertEquals(Figure.Rank.POLYGONAL, f.getRank());
+        Figure f = new AbstractFigureImpl();
         assertNotNull(f.getListeners());
+        assertEquals(false, f.isSelectable());
         assertEquals(0, f.getListeners().length);
-        assertEquals(new Rectangle2D.Double(0, 0, 10, 10), f.getBounds());
         assertEquals(null, f.getFigure(null));
         assertEquals(0, f.getFigureCount());
         assertEquals(0, f.getMaxSelectionLevel());
+        assertNull(f.getFigure(null));
+        assertNotNull(f.getFigures(null));
+        assertEquals(0, f.getFigures(null).length);
+        assertNotNull(f.getFigures());
+        assertEquals(0, f.getFigures().length);
+        assertEquals(0, f.getMaxSelectionLevel());
+        assertNotNull(f.createHandles(1));
+        assertEquals(0, f.createHandles(1).length);
     }
 
     public void testThatCloneDoesNotCopyListeners() {
-        MyFigure f = new MyFigure();
+        Figure f = new AbstractFigureImpl();
         f.addListener(new AbstractFigureChangeListener() {
         });
         AbstractFigure cf = (AbstractFigure) f.clone();
@@ -38,7 +35,7 @@ public class AbstractFigureTest extends TestCase {
     }
 
     public void testListeners() {
-        MyFigure f = new MyFigure();
+        AbstractFigureImpl f = new AbstractFigureImpl();
         final Figure[] figureBuf = new Figure[1];
         f.addListener(new AbstractFigureChangeListener() {
             @Override
@@ -47,13 +44,14 @@ public class AbstractFigureTest extends TestCase {
             }
         });
         assertEquals(null, figureBuf[0]);
-        f.setShape(new Rectangle(1, 2, 3, 4));
+        f.postChangeEvent();
         assertEquals(f, figureBuf[0]);
     }
 
     public void testDisposeRemovesListeners() {
-        MyFigure f = new MyFigure();
-        f.addListener(new AbstractFigureChangeListener() {});
+        Figure f = new AbstractFigureImpl();
+        f.addListener(new AbstractFigureChangeListener() {
+        });
         FigureChangeListener[] listeners = f.getListeners();
         assertNotNull(listeners);
         assertTrue(listeners.length >= 1);
@@ -64,7 +62,7 @@ public class AbstractFigureTest extends TestCase {
     }
 
     public void testGeometricOperationsAreNotSupported() {
-        MyFigure f = new MyFigure();
+        Figure f = new AbstractFigureImpl();
 
         try {
             f.move(0, 0);
@@ -103,24 +101,24 @@ public class AbstractFigureTest extends TestCase {
     }
 
     public void testThatChildrenAreNotSupported() {
-        MyFigure f = new MyFigure();
+        Figure f = new AbstractFigureImpl();
 
         try {
-            f.addFigure(new MyFigure());
+            f.addFigure(new TestFigure());
             fail("IllegalStateException expected!");
         } catch (IllegalStateException e) {
             // ok
         }
 
         try {
-            f.addFigure(0, new MyFigure());
+            f.addFigure(0, new TestFigure());
             fail("IllegalStateException expected!");
         } catch (IllegalStateException e) {
             // ok
         }
 
         try {
-            f.addFigures(new MyFigure(), new MyFigure());
+            f.addFigures(new TestFigure(), new TestFigure());
             fail("IllegalStateException expected!");
         } catch (IllegalStateException e) {
             // ok
@@ -134,66 +132,11 @@ public class AbstractFigureTest extends TestCase {
         }
 
         try {
-            f.removeFigure(new MyFigure());
+            f.removeFigure(new TestFigure());
             fail("IllegalStateException expected!");
         } catch (IllegalStateException e) {
             // ok
         }
     }
 
-    private static class MyFigure extends AbstractFigure {
-        Shape shape = new Ellipse2D.Double(0, 0, 10, 10);
-
-        public void setShape(Shape shape) {
-            this.shape = shape;
-            fireFigureChanged();
-        }
-
-        @Override
-        public boolean isSelected() {
-            return false; 
-        }
-
-        @Override
-        public void setSelected(boolean selected) {
-        }
-
-        @Override
-        public void draw(Graphics2D g2d) {
-        }
-
-        @Override
-        public boolean contains(Point2D point) {
-            return shape.contains(point);
-        }
-
-        @Override
-        public Rectangle2D getBounds() {
-            return shape.getBounds2D();
-        }
-
-        @Override
-        public Rank getRank() {
-            return Rank.POLYGONAL;
-        }
-
-        @Override
-        public int getMaxSelectionLevel() {
-            return 0;
-        }
-
-        @Override
-        public Handle[] createHandles(int selectionLevel) {
-            return new Handle[0];
-        }
-
-        @Override
-        public Object createMemento() {
-            return null;
-        }
-
-        @Override
-        public void setMemento(Object memento) {
-        }
-    }
 }

@@ -1,11 +1,9 @@
 package com.bc.ceres.swing.figure.support;
 
+import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.swing.figure.AbstractHandle;
 import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.support.FigureStyle;
-import com.bc.ceres.swing.figure.support.StyleDefaults;
 
-import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
@@ -55,25 +53,25 @@ public class RotateHandle extends AbstractHandle {
     }
 
     @Override
-    public void draw(Graphics2D g2d) {
+    public void draw(Rendering rendering) {
         final Ellipse2D.Double centerCircle = new Ellipse2D.Double(point.getX() - 0.5 * StyleDefaults.ROTATE_ANCHOR_SIZE,
                                                                    point.getY() - 0.5 * StyleDefaults.ROTATE_ANCHOR_SIZE,
                                                                    StyleDefaults.ROTATE_ANCHOR_SIZE, StyleDefaults.ROTATE_ANCHOR_SIZE);
         RectangularShape handleShape = (RectangularShape) getShape();
-        g2d.setPaint(StyleDefaults.SELECTION_DRAW_PAINT);
-        g2d.setStroke(StyleDefaults.SELECTION_STROKE);
-        g2d.draw(new Line2D.Double(point.getX(), point.getY(),
-                                   handleShape.getCenterX(), handleShape.getCenterY()));
+        rendering.getGraphics().setPaint(StyleDefaults.SELECTION_DRAW_PAINT);
+        rendering.getGraphics().setStroke(StyleDefaults.SELECTION_STROKE);
+        rendering.getGraphics().draw(new Line2D.Double(point.getX(), point.getY(),
+                                                       handleShape.getCenterX(), handleShape.getCenterY()));
 
-        g2d.setPaint(getStyle().getFillPaint());
-        g2d.fill(centerCircle);
+        rendering.getGraphics().setPaint(getStyle().getFillPaint());
+        rendering.getGraphics().fill(centerCircle);
 
-        g2d.setPaint(getStyle().getDrawPaint());
-        g2d.setStroke(getStyle().getDrawStroke());
-        g2d.draw(centerCircle);
-        g2d.draw(new Line2D.Double(point.getX(), point.getY(),
-                                   point.getX(), point.getY()));
+        rendering.getGraphics().setPaint(getStyle().getDrawPaint());
+        rendering.getGraphics().setStroke(getStyle().getDrawStroke());
+        rendering.getGraphics().draw(centerCircle);
+        rendering.getGraphics().draw(new Line2D.Double(point.getX(), point.getY(),
+                                                       point.getX(), point.getY()));
 
-        super.draw(g2d);
+        super.draw(rendering);
     }
 }

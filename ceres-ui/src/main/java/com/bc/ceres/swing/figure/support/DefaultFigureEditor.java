@@ -13,6 +13,9 @@ import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.bc.ceres.swing.selection.support.SelectionChangeSupport;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
+import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.support.DefaultRendering;
+import com.bc.ceres.grender.support.DefaultViewport;
 
 import javax.swing.JPanel;
 import javax.swing.event.UndoableEditListener;
@@ -36,6 +39,8 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
     private final UndoContext undoContext;
     private Rectangle selectionRectangle;
     private Interaction interaction;
+    private Viewport viewport;
+    private DefaultRendering rendering;
 
     public DefaultFigureEditor() {
         super(new BorderLayout());
@@ -43,6 +48,8 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
         selectionChangeSupport = new SelectionChangeSupport(this);
         undoContext = new DefaultUndoContext(this);
         interaction = NullInteraction.INSTANCE;
+        rendering = new DefaultRendering((Graphics2D) getGraphics(), new DefaultViewport());
+
         figureCollection = new DefaultFigureCollection();
         figureSelection = new DefaultFigureSelection();
 
@@ -226,12 +233,15 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
+        rendering.setGraphics(g2d);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        figureCollection.draw(g2d);
-        figureSelection.draw(g2d);
+        figureCollection.draw(rendering);
+        figureSelection.draw(rendering);
         if (getSelectionRectangle() != null) {
-            g2d.setPaint(StyleDefaults.SELECTION_FILL_PAINT);
+            g2d.setPaint(StyleDefaults.SELECTION_RECT_FILL_PAINT);
             g2d.fill(getSelectionRectangle());
+            g2d.setPaint(StyleDefaults.SELECTION_RECT_DRAW_PAINT);
+            g2d.draw(getSelectionRectangle());
         }
     }
 
