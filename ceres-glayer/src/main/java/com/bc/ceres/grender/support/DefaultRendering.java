@@ -13,9 +13,19 @@ public class DefaultRendering implements Rendering {
     private Graphics2D graphics;
     private Viewport viewport;
 
-    public DefaultRendering(Graphics2D graphics, Viewport viewport) {
+    public DefaultRendering(Viewport viewport) {
         setViewport(viewport);
+    }
+
+    public DefaultRendering(Viewport viewport, Graphics2D graphics) {
+        this.viewport = viewport;
+        this.graphics = graphics;
+    }
+
+    @Deprecated
+    public DefaultRendering(Graphics2D graphics, Viewport viewport) {
         setGraphics(graphics);
+        setViewport(viewport);
     }
 
     @Override

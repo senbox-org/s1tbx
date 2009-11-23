@@ -39,7 +39,6 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
     private final UndoContext undoContext;
     private Rectangle selectionRectangle;
     private Interaction interaction;
-    private Viewport viewport;
     private DefaultRendering rendering;
 
     public DefaultFigureEditor() {
@@ -48,7 +47,7 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor {
         selectionChangeSupport = new SelectionChangeSupport(this);
         undoContext = new DefaultUndoContext(this);
         interaction = NullInteraction.INSTANCE;
-        rendering = new DefaultRendering((Graphics2D) getGraphics(), new DefaultViewport());
+        rendering = new DefaultRendering(new DefaultViewport());
 
         figureCollection = new DefaultFigureCollection();
         figureSelection = new DefaultFigureSelection();
