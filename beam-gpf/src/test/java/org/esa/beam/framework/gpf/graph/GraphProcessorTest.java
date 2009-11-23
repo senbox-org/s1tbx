@@ -201,16 +201,14 @@ public class GraphProcessorTest extends TestCase {
         TestOps.Op3 op3 = ((TestOps.Op3) nodeContext3.getOperator());
 
         assertNotNull(op2.input);
+        assertSame(nodeContext2.getSourceProduct("input"), op2.input);
         assertNotNull(op3.input1);
         assertNotNull(op3.input2);
-        assertSame(nodeContext2.getSourceProduct("input"), op2.input);
         assertSame(nodeContext3.getSourceProduct("input1"), op3.input1);
         assertSame(nodeContext3.getSourceProduct("input2"), op3.input2);
 
         assertNotNull(op3.inputs);
-        assertEquals(2, op3.inputs.length);
-        assertSame(op3.input1, op3.inputs[0]);
-        assertSame(op3.input2, op3.inputs[1]);
+        assertEquals(0, op3.inputs.length);
 
         assertEquals(false, op3.ignoreSign);        // has NO default value
         assertEquals("NN", op3.interpolMethod);     // has default value
