@@ -4,7 +4,12 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProperty;
 
 import java.awt.Rectangle;
 import java.util.Map;
@@ -180,6 +185,39 @@ public class TestOps {
 
             public Spi() {
                 super(Op4.class);
+            }
+        }
+    }
+
+
+    @OperatorMetadata(alias = "Op5")
+    public static class Op5 extends Operator {
+        @SourceProducts
+        Product[] sourceProducts;
+
+        @SourceProduct(alias="Vincent")
+        Product namedProduct;
+
+        @TargetProduct
+        private Product targetProduct;
+
+        @Override
+        public void initialize() {
+            targetProduct = new Product("Op5", "Op5Type", RASTER_WIDTH, RASTER_HEIGHT);
+            targetProduct.addBand(new Band("Op5", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
+        }
+
+        @Override
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
+            //System.out.println("=====>>>>>> Op4.computeBand  start");
+            registerCall("Op5;");
+            //System.out.println("=====>>>>>> Op4.computeBand  end");
+        }
+
+        public static class Spi extends OperatorSpi {
+
+            public Spi() {
+                super(Op5.class);
             }
         }
     }
