@@ -1,12 +1,14 @@
 package com.bc.ceres.swing.figure;
 
 import com.bc.ceres.grender.Rendering;
+import org.junit.Ignore;
 
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+@Ignore
 public class TestFigure extends AbstractFigure {
     Shape shape = new Ellipse2D.Double(0, 0, 10, 10);
     boolean selectable;
