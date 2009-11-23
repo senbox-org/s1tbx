@@ -1,13 +1,16 @@
 package org.esa.beam.framework.gpf.graph;
 
-import com.bc.ceres.binding.dom.DomElementXStreamConverter;
 import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.binding.dom.DomElementXStreamConverter;
 import com.bc.ceres.util.TemplateReader;
 import com.thoughtworks.xstream.XStream;
 import org.esa.beam.framework.gpf.internal.ApplicationData;
+import org.esa.beam.util.StringUtils;
 
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,6 +60,7 @@ public class GraphIO {
         XStream xStream = initXstream();
         Reader inputReader = reader;
         if (variables != null) {
+            addSourceProductsVariable(variables);
             inputReader = new TemplateReader(reader, variables);
         }
         // todo - throw exception if a given variable does not exist in the graph definition or if variables are not set.
@@ -68,6 +72,16 @@ public class GraphIO {
                     "Given version: " + graph.getVersion() + " Current version: " + Graph.CURRENT_VERSION);
         }
         return graph;
+    }
+
+    private static void addSourceProductsVariable(Map<String, String> variables) {
+        List<String> varValueList = new ArrayList<String>();
+        for (Map.Entry<String, String> entry : variables.entrySet()) {
+            if(entry.getKey().matches("sourceProduct[0-9]+")) {
+                varValueList.add(entry.getValue());
+            }
+        }
+        variables.put("sourceProducts", StringUtils.arrayToCsv(varValueList.toArray()));
     }
 
     /**
