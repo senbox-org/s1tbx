@@ -16,12 +16,12 @@
  */
 package org.esa.beam.framework.gpf.internal;
 
-import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomElement;
@@ -656,7 +656,7 @@ public class OperatorContext {
         if (declaredField.getType().equals(Product[].class)) {
             Product[] sourceProducts = getSourceProducts();
             if (sourceProducts.length > 0) {
-                setSourceProductsFieldValue(declaredField, sourceProducts);
+                setSourceProductsFieldValue(declaredField, getUnnamedProducts());
             } else {
                 sourceProducts = getSourceProductsFieldValue(declaredField);
                 if (sourceProducts != null) {
@@ -690,6 +690,30 @@ public class OperatorContext {
             String msg = formatExceptionMessage(text, declaredField.getName(), Product[].class.getName());
             throw new OperatorException(msg);
         }
+    }
+
+    private Product[] getUnnamedProducts() {
+        final Map<String, Product> map = new HashMap<String, Product>(sourceProductMap);
+        final Field[] sourceProductFields = getAnnotatedSourceProductFields(operator);
+        for (Field sourceProductField : sourceProductFields) {
+            final SourceProduct annotation = sourceProductField.getAnnotation(SourceProduct.class);
+            map.remove(sourceProductField.getName());
+            map.remove(annotation.alias());
+        }
+        final Collection<Product> unnamedProductList = map.values();
+        return unnamedProductList.toArray(new Product[unnamedProductList.size()]);
+    }
+
+    private Field[] getAnnotatedSourceProductFields(Operator operator1) {
+        Field[] declaredFields = operator1.getClass().getDeclaredFields();
+        List<Field> fieldList = new ArrayList<Field>();
+        for (Field declaredField : declaredFields) {
+            SourceProduct sourceProductAnnotation = declaredField.getAnnotation(SourceProduct.class);
+            if (sourceProductAnnotation != null) {
+                fieldList.add(declaredField);
+            }
+        }
+        return fieldList.toArray(new Field[fieldList.size()]);
     }
 
     private Product getSourceProductFieldValue(Field declaredField) throws OperatorException {
