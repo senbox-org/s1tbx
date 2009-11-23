@@ -3,23 +3,36 @@ package org.esa.beam.framework.gpf.main;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.core.ServiceRegistry;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.framework.gpf.annotations.*;
-import org.esa.beam.framework.gpf.graph.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.framework.gpf.graph.Graph;
+import org.esa.beam.framework.gpf.graph.GraphException;
+import org.esa.beam.framework.gpf.graph.Header;
+import org.esa.beam.framework.gpf.graph.HeaderParameter;
+import org.esa.beam.framework.gpf.graph.HeaderSource;
 import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
-import com.bc.ceres.binding.dom.Xpp3DomElement;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 class CommandLineUsage {
     private static final String COMMAND_LINE_USAGE_RESOURCE = "CommandLineUsage.txt";
@@ -70,7 +83,7 @@ class CommandLineUsage {
             } finally {
                 bufferedReader.close();
             }
-        } catch (IOException e) {
+        } catch (IOException ignored) {
             // ignore
         }
 
@@ -96,11 +109,11 @@ class CommandLineUsage {
             ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(header.getSources());
             ArrayList<DocElement> paramDocElementList = createParamDocuElementList(header.getParameters());
 
-            if (sourceDocElementList.size() > 0) {
+            if (!sourceDocElementList.isEmpty()) {
                 usageText.append("\nSource Options:\n");
                 appendDocElementList(usageText, sourceDocElementList);
             }
-            if (paramDocElementList.size() > 0) {
+            if (!paramDocElementList.isEmpty()) {
                 usageText.append("\nParameter Options:\n");
                 appendDocElementList(usageText, paramDocElementList);
             }
@@ -220,21 +233,21 @@ class CommandLineUsage {
             usageText.append(operatorClassDescriptor.getOperatorMetadata().description());
             usageText.append("\n");
         }
-        if (propertyDocElementList.size() > 0) {
+        if (!propertyDocElementList.isEmpty()) {
             usageText.append("\nComputed Properties:\n");
             appendDocElementList(usageText, propertyDocElementList);
         }
 
         usageText.append("\n");
-        if (sourceDocElementList.size() > 0) {
+        if (!sourceDocElementList.isEmpty()) {
             usageText.append("\nSource Options:\n");
             appendDocElementList(usageText, sourceDocElementList);
         }
-        if (paramDocElementList.size() > 0) {
+        if (!paramDocElementList.isEmpty()) {
             usageText.append("\nParameter Options:\n");
             appendDocElementList(usageText, paramDocElementList);
         }
-        if (operatorClassDescriptor.getParameters().size() > 0) {
+        if (!operatorClassDescriptor.getParameters().isEmpty()) {
             usageText.append("\nGraph XML Format:\n");
             appendXmlUsage(usageText, operatorClassDescriptor);
         }
@@ -279,7 +292,7 @@ class CommandLineUsage {
             final Field propertyField = entry.getKey();
             final TargetProperty property = entry.getValue();
             String propertySyntax = MessageFormat.format("{0} {1}", propertyField.getType().getSimpleName(), getTargetPropertyName(propertyField, property));
-            final ArrayList<String> descriptionLines = createTargetPropertyDescriptionLines(propertyField, property);
+            final ArrayList<String> descriptionLines = createTargetPropertyDescriptionLines(property);
             docElementList.add(new DocElement(propertySyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
         return docElementList;
@@ -352,7 +365,7 @@ class CommandLineUsage {
         return descriptionLines;
     }
 
-    private static ArrayList<String> createTargetPropertyDescriptionLines(Field propertyField, TargetProperty property) {
+    private static ArrayList<String> createTargetPropertyDescriptionLines(TargetProperty property) {
         final ArrayList<String> descriptionLines = new ArrayList<String>();
         if (!property.description().isEmpty()) {
             descriptionLines.add(property.description());
@@ -394,6 +407,10 @@ class CommandLineUsage {
         DomElement sourcesElem = nodeElem.createChild("sources");
         for (Field sourceField : operatorClassDescriptor.getSourceProductMap().keySet()) {
             convertSourceProductFieldToDom(sourceField, sourcesElem);
+        }
+        if(operatorClassDescriptor.getSourceProducts() != null){
+            final DomElement child = sourcesElem.createChild("sourceProducts");
+            child.setValue("${sourceProducts}");
         }
         DomElement parametersElem = nodeElem.createChild("parameters");
         for (Field paramField : operatorClassDescriptor.getParameters().keySet()) {
@@ -507,8 +524,8 @@ class CommandLineUsage {
 
 
     private static class DocElement {
-        String syntax;
-        String[] descriptionLines;
+        private String syntax;
+        private String[] descriptionLines;
 
         private DocElement(String syntax, String[] descriptionLines) {
             this.syntax = syntax;
