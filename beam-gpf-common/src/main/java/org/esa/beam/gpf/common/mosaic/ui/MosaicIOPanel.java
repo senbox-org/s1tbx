@@ -197,8 +197,12 @@ class MosaicIOPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (updateTargetCheckBox.isSelected()) {
+                    prepareHideTargetProductSelector();
+                    prepareShowUpdateProductSelector();
                     cards.show(subPanel, updateProductKey);
                 } else {
+                    prepareShowTargetProductSelector();
+                    prepareHideUpdateProductSelector();
                     cards.show(subPanel, newProductKey);
                 }
             }
@@ -259,16 +263,34 @@ class MosaicIOPanel extends JPanel {
     }
 
     void prepareShow() {
+        prepareShowTargetProductSelector();
+        if (mosaicModel.isUpdateMode()) {
+            prepareShowUpdateProductSelector();
+        }
+    }
+
+    private void prepareShowUpdateProductSelector() {
+        updateProductSelector.initProducts();
+    }
+
+    private void prepareShowTargetProductSelector() {
         try {
             final List<File> files = sourceFileEditor.getFiles();
             mosaicModel.setSourceProducts(files.toArray(new File[files.size()]));
         } catch (IOException ignore) {
         }
-        updateProductSelector.initProducts();
     }
 
     void prepareHide() {
+        prepareHideUpdateProductSelector();
+        prepareHideTargetProductSelector();
+    }
+
+    private void prepareHideUpdateProductSelector() {
         updateProductSelector.releaseProducts();
+    }
+
+    private void prepareHideTargetProductSelector() {
         try {
             mosaicModel.setSourceProducts(new File[0]);
         } catch (IOException ignore) {
@@ -341,16 +363,16 @@ class MosaicIOPanel extends JPanel {
     private class TargetProductSelectorUpdater implements PropertyChangeListener {
 
         @Override
-            public void propertyChange(PropertyChangeEvent evt) {
+        public void propertyChange(PropertyChangeEvent evt) {
             final Product product = (Product) evt.getNewValue();
             final TargetProductSelectorModel selectorModel = targetProductSelector.getModel();
-            if(product != null) {
+            if (product != null) {
                 final String formatName = product.getProductReader().getReaderPlugIn().getFormatNames()[0];
                 final ProductIOPlugInManager ioPlugInManager = ProductIOPlugInManager.getInstance();
                 final Iterator<ProductWriterPlugIn> writerIterator = ioPlugInManager.getWriterPlugIns(formatName);
-                if(writerIterator.hasNext()) {
+                if (writerIterator.hasNext()) {
                     selectorModel.setFormatName(formatName);
-                }else {
+                } else {
                     final String errMsg = "Cannot write to update product.";
                     final String iseMsg = String.format("No product writer found for format '%s'", formatName);
                     appContext.handleError(errMsg, new IllegalStateException(iseMsg));
@@ -360,7 +382,7 @@ class MosaicIOPanel extends JPanel {
                 final File fileDir = fileLocation.getParentFile();
                 selectorModel.setProductName(fileName);
                 selectorModel.setProductDir(fileDir);
-            }else{
+            } else {
                 selectorModel.setFormatName(ProductIO.DEFAULT_FORMAT_NAME);
                 selectorModel.setProductName("");
                 String homeDirPath = SystemUtils.getUserHomeDir().getPath();
