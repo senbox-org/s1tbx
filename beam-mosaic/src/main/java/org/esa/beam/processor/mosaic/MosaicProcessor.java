@@ -86,8 +86,9 @@ import java.util.logging.Logger;
  * The <code>Mosaic Processor</code> class this class implemets the <code>Processor</code> interface so it can be used
  * by the processor framework.
  *
- * @author Sabine Embacher
+ * @deprecated since BEAM 4.7, replaced by GPF operator 'Mosaic'
  */
+@Deprecated
 public class MosaicProcessor extends Processor {
 
     public static final String HELP_ID = "mosaicScientificTool";

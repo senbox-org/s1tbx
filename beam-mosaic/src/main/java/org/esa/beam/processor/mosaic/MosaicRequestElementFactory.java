@@ -29,6 +29,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @deprecated since BEAM 4.7, replaced by GPF operator 'Mosaic'
+ */
+@Deprecated
 public class MosaicRequestElementFactory implements RequestElementFactory {
 
     private DefaultRequestElementFactory _defaultFactory;

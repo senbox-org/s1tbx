@@ -56,6 +56,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @deprecated since BEAM 4.7, replaced by GPF operator 'Mosaic'
+ */
+@Deprecated
 public class MosaicUtils {
 
     public static Rectangle2D createOutputProductBoundaries(final MapTransform mapTransform, final GeoPos geoPosUL,

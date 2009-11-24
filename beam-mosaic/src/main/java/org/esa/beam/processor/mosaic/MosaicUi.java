@@ -118,6 +118,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+/**
+ * @deprecated since BEAM 4.7, replaced by GPF operator 'Mosaic'
+ */
+@Deprecated
 public class MosaicUi extends AbstractProcessorUI {
 
     public static final int STANDARD_INSETS_TOP = 3;

@@ -18,7 +18,10 @@ package org.esa.beam.processor.mosaic;
 
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 
-
+/**
+ * @deprecated since BEAM 4.7, replaced by GPF operator 'Mosaic'
+ */
+@Deprecated
 public class MosaicConstants {
 
     //@todo 1 se/nf - check correct english of the entire class
