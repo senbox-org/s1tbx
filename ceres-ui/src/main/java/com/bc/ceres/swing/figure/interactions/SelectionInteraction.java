@@ -71,7 +71,7 @@ public class SelectionInteraction extends AbstractInteraction {
                 if (selectHandle(event)) {
                     tool = TOOL_MOVE_HANDLE;
                 } else {
-                    if (getFigureEditor().getFigureSelection().contains(p(referencePoint, event))) {
+                    if (isMouseOverSelection(event)) {
                         tool = TOOL_MOVE_SELECTION;
                     } else {
                         tool = TOOL_SELECT_RECTANGLE;
@@ -79,7 +79,6 @@ public class SelectionInteraction extends AbstractInteraction {
                 }
                 tool.start(event);
             }
-
             tool.drag(event);
         }
     }
@@ -99,11 +98,11 @@ public class SelectionInteraction extends AbstractInteraction {
 
     private void setCursor(MouseEvent event) {
         Cursor cursor = null;
-        Handle handle = getHandle(event);
+        Handle handle = findHandle(event);
         if (handle != null) {
             cursor = handle.getCursor();
         }
-        if (cursor == null && getFigureEditor().getFigureSelection().contains(p(event))) {
+        if (cursor == null && isMouseOverSelection(event)) {
             cursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
         }
         if (cursor == null && getSelectionRectangle() != null) {
@@ -140,30 +139,37 @@ public class SelectionInteraction extends AbstractInteraction {
         return new AffineTransform();
     }
 
-    private static Point2D p(MouseEvent event) {
-        return p(event.getPoint(), event);
+    private static Point2D toModelPoint(MouseEvent event) {
+        return toModelPoint(event.getPoint(), event);
     }
 
-    private static Point2D p(Point2D point, MouseEvent event) {
+    private static Point2D toModelPoint(Point2D point, MouseEvent event) {
         return v2m(event).transform(point, null);
     }
 
-    private void dragFigure(Figure figure, MouseEvent event) {
+    private Point2D.Double toModelDelta(MouseEvent event) {
         Point2D.Double p = new Point2D.Double(event.getX() - referencePoint.x,
                                               event.getY() - referencePoint.y);
         AffineTransform transform = v2m(event);
         transform.deltaTransform(p, p);
+        return p;
+    }
+
+    private void dragFigure(Figure figure, MouseEvent event) {
+        Point2D.Double p = toModelDelta(event);
         figure.move(p.getX(), p.getY());
         referencePoint = event.getPoint();
     }
 
-    private Figure clickFigure(MouseEvent event) {
-        AffineTransform transform = v2m(event);
-        Point2D rp = transform.transform(referencePoint, null);
-        return getFigureEditor().getFigureCollection().getFigure(rp);
+    private boolean isMouseOverSelection(MouseEvent event) {
+        return getFigureEditor().getFigureSelection().contains(toModelPoint(event));
     }
 
-    private Handle getHandle(MouseEvent event) {
+    private Figure findFigure(MouseEvent event) {
+        return getFigureEditor().getFigureCollection().getFigure(toModelPoint(event));
+    }
+
+    private Handle findHandle(MouseEvent event) {
         for (Handle handle : getFigureEditor().getFigureSelection().getHandles()) {
             if (handle.isSelectable()) {
                 Point2D p = handle.getLocation();
@@ -172,7 +178,6 @@ public class SelectionInteraction extends AbstractInteraction {
                 p = new Point2D.Double(event.getX() - p.getX(),
                                        event.getY() - p.getY());
                 if (handle.contains(p)) {
-                    System.out.println("handle = " + handle);
                     return handle;
                 }
             }
@@ -181,7 +186,7 @@ public class SelectionInteraction extends AbstractInteraction {
     }
 
     private boolean selectHandle(MouseEvent event) {
-        Handle handle = getHandle(event);
+        Handle handle = findHandle(event);
         if (handle != null) {
             getFigureEditor().getFigureSelection().setSelectedHandle(handle);
             return true;
@@ -267,7 +272,7 @@ public class SelectionInteraction extends AbstractInteraction {
             }
 
             // Then check if user has selected a figure
-            Figure clickedFigure = clickFigure(event);
+            Figure clickedFigure = findFigure(event);
             if (clickedFigure == null) {
                 // Nothing clicked, thus clear selection.
                 getFigureEditor().getFigureSelection().removeFigures();
