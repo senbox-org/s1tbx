@@ -444,10 +444,12 @@ public class DimapProductWriter extends AbstractProductWriter {
         final Product product = getSourceProduct();
         final ProductReader productReader = product.getProductReader();
         if (productReader instanceof DimapProductReader) {
-            productReader.close();
             final ProductNode[] removedNodes = product.getRemovedChildNodes();
-            for (int i = 0; i < removedNodes.length; i++) {
-                removedNodes[i].removeFromFile(this);
+            if (removedNodes.length > 0) {
+                productReader.close();
+                for (int i = 0; i < removedNodes.length; i++) {
+                    removedNodes[i].removeFromFile(this);
+                }
             }
         }
     }
