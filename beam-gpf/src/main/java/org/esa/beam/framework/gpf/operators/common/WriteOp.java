@@ -113,7 +113,7 @@ public class WriteOp extends Operator {
             return;
         }
         try {
-            synchronized (productWriter) {
+            synchronized (this) {
                 if (!productFileWritten) {
                     productWriter.writeProductNodes(targetProduct, file);
                     productFileWritten = true;
@@ -188,17 +188,16 @@ public class WriteOp extends Operator {
             tileWidth[tileX] = tile.getRectangle().width;
         }
         ProductData sampleLine = ProductData.createInstance(rawSampleOFLine[0].getType(), sceneWidth);
-        for (int y = lineBounds.y; y < lineBounds.y + lineBounds.height; y++) {
-            int targetPos = 0;
-            for (int tileX = 0; tileX < cacheLine.length; tileX++) {
-                Object rawSamples = rawSampleOFLine[tileX].getElems();
-                int width = tileWidth[tileX];
-                int srcPos = (y - lineBounds.y) * width;
-                System.arraycopy(rawSamples, srcPos, sampleLine.getElems(), targetPos, width);
-                targetPos += width;
-
-            }
-            synchronized (productWriter) {
+        synchronized (productWriter) {
+            for (int y = lineBounds.y; y < lineBounds.y + lineBounds.height; y++) {
+                int targetPos = 0;
+                for (int tileX = 0; tileX < cacheLine.length; tileX++) {
+                    Object rawSamples = rawSampleOFLine[tileX].getElems();
+                    int width = tileWidth[tileX];
+                    int srcPos = (y - lineBounds.y) * width;
+                    System.arraycopy(rawSamples, srcPos, sampleLine.getElems(), targetPos, width);
+                    targetPos += width;
+                }
                 productWriter.writeBandRasterData(band, 0, y, sceneWidth, 1, sampleLine, ProgressMonitor.NULL);
             }
         }
