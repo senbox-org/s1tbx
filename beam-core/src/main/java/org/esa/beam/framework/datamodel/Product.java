@@ -27,8 +27,8 @@ import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.dataio.ProductFlipper;
 import org.esa.beam.framework.dataio.ProductProjectionBuilder;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -50,12 +50,12 @@ import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.coordinate.Polygon;
 
 import java.awt.Dimension;
@@ -350,7 +350,10 @@ public class Product extends ProductNode {
             final Pin pin = pinGroup.get(i);
             final PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
             final GeoPos geoPos = pin.getGeoPos();
-            pinDescriptor.updateGeoPos(getGeoCoding(), pin.getPixelPos(), geoPos);
+            final PixelPos pixelPos = pin.getPixelPos();
+            if (pixelPos != null) {
+                pinDescriptor.updateGeoPos(getGeoCoding(), pixelPos, geoPos);
+            }
             pin.setGeoPos(geoPos);
         }
     }
