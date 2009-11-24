@@ -63,6 +63,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
+/**
+ * @deprecated since BEAM 4.7, replaced by GPF operator 'Reproject'
+ */
+@Deprecated
 public class MapProjectionDialog extends ModalDialog {
 
     private static final String RESAMPLING_NEAREST_NEIGHBOUR = "Nearest Neighbour";

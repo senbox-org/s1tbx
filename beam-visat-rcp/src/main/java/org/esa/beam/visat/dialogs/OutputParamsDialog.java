@@ -27,6 +27,10 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * @deprecated since BEAM 4.7
+ */
+@Deprecated
 public class OutputParamsDialog extends ModalDialog {
 
     private static final int PIXEL_REF_ULEFT = 1;

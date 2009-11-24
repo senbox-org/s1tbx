@@ -19,8 +19,22 @@ package org.esa.beam.framework.dataio;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.util.CachingObjectArray;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.dem.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Pointing;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.dataop.dem.ElevationModel;
+import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
+import org.esa.beam.framework.dataop.dem.Orthorectifier;
+import org.esa.beam.framework.dataop.dem.Orthorectifier2;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.Debug;
@@ -39,9 +53,9 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * A special purpose product reader used to build map-projected data products.
  *
- * @author Norman Fomferra
- * @version $Revision$ $Date$
+ * @deprecated since BEAM 4.7, replaced by GPF operator 'Reproject'
  */
+@Deprecated
 public class ProductProjectionBuilder extends AbstractProductBuilder {
 
     private static final int MAX_NUM_PIXELS_PER_BLOCK = 20000;
@@ -210,6 +224,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
      * @param destHeight  the height of region to be readBandRasterDataImpl given in the band's raster co-ordinates
      * @param destBuffer  the destination buffer which receives the sample values to be readBandRasterDataImpl
      * @param pm          a monitor to inform the user about progress
+     *
      * @throws IOException              if an I/O error occurs
      * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>destWidth *
      *                                  destHeight</code> or the destination region is out of the band's raster
@@ -422,8 +437,10 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         addGeoCodingToProduct(targetGC, product);
         addBandsToProduct(product);
         addBitmaskDefsToProduct(product);
-        copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(), PlacemarkSymbol.createDefaultPinSymbol());
-        copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(), PlacemarkSymbol.createDefaultGcpSymbol());
+        copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(),
+                       PlacemarkSymbol.createDefaultPinSymbol());
+        copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(),
+                       PlacemarkSymbol.createDefaultGcpSymbol());
         // TODO - TESTTESTTEST (nf)
         product.setPreferredTileSize(64, 64);
         return product;
@@ -441,7 +458,8 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
     }
 
     private void addBandsToProduct(Product targetProduct) {
-        ProductUtils.copyBandsForGeomTransform(getSourceProduct(), targetProduct, includeTiePointGrids, mapInfo.getNoDataValue(),
+        ProductUtils.copyBandsForGeomTransform(getSourceProduct(), targetProduct, includeTiePointGrids,
+                                               mapInfo.getNoDataValue(),
                                                bandMap);
     }
 
@@ -582,9 +600,9 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                         int destWidth,
                                         int destHeight) {
             return getDestOffsetX() == destOffsetX &&
-                    getDestOffsetY() == destOffsetY &&
-                    getDestWidth() == destWidth &&
-                    getDestHeight() == destHeight;
+                   getDestOffsetY() == destOffsetY &&
+                   getDestWidth() == destWidth &&
+                   getDestHeight() == destHeight;
         }
 
         public void initSourcePixelCoords(int blockIndex,
