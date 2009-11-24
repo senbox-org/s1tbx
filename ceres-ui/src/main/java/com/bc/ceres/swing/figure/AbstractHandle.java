@@ -20,7 +20,7 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     private final FigureStyle style;
     private final FigureStyle selectedStyle;
     private final FigureChangeListener listener;
-    private final Point2D location;
+    private final Point2D.Double location;
     private Shape shape;
     private boolean selected;
 
@@ -34,11 +34,18 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
         this.listener = new AbstractFigureChangeListener() {
             @Override
             public void figureChanged(FigureChangeEvent e) {
-                setHandleShape();
+                updateLocation();
             }
         };
         this.figure.addListener(listener);
         this.location = new Point2D.Double();
+    }
+
+    public double getX() {
+        return location.x;
+    }
+    public double getY() {
+        return location.y;
     }
 
     @Override
@@ -49,6 +56,8 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     public void setLocation(double x, double y) {
         location.setLocation(x, y);
     }
+
+    public abstract void updateLocation();
 
     public Figure getFigure() {
         return figure;
@@ -66,10 +75,6 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
         this.shape = shape;
     }
 
-    protected void setHandleShape() {
-        setShape(createHandleShape());
-    }
-
     @Override
     public Rank getRank() {
         return Rank.POLYGONAL;
@@ -78,6 +83,16 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     @Override
     public Rectangle2D getBounds() {
         return shape.getBounds2D();
+    }
+
+    /**
+     * The default implementation returns {@code true}.
+     *
+     * @return Always {@code true}.
+     */
+    @Override
+    public boolean isSelectable() {
+        return true;
     }
 
     @Override
@@ -89,8 +104,6 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
-
-    protected abstract Shape createHandleShape();
 
     @Override
     public boolean contains(Point2D point) {
@@ -109,25 +122,35 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     }
 
     @Override
-    public void draw(Rendering rendering) {
+    public abstract void move(double dx, double dy);
+
+    @Override
+    public final void draw(Rendering rendering) {
         final Graphics2D g = rendering.getGraphics();
         final Viewport vp = rendering.getViewport();
         final AffineTransform transformSave = g.getTransform();
+
         try {
             AffineTransform m2v = vp.getModelToViewTransform();
-            Point2D locationView = m2v.transform(location, null);
-            g.setTransform(AffineTransform.getTranslateInstance(-locationView.getX(), -locationView.getY()));
+            Point2D transfLocation = m2v.transform(location, null);
+            g.setTransform(AffineTransform.getTranslateInstance(transfLocation.getX(), transfLocation.getY()));
 
-            FigureStyle handleStyle = isSelected() ? selectedStyle : style;
-            g.setPaint(handleStyle.getFillPaint());
-            g.fill(getShape());
-            g.setPaint(handleStyle.getDrawPaint());
-            g.setStroke(handleStyle.getDrawStroke());
-            g.draw(getShape());
+            drawHandle(g);
 
         } finally {
             g.setTransform(transformSave);
         }
 
+    }
+
+    protected void drawHandle(Graphics2D g) {
+        FigureStyle handleStyle = isSelected() ? selectedStyle : style;
+
+        g.setPaint(handleStyle.getFillPaint());
+        g.fill(getShape());
+
+        g.setPaint(handleStyle.getDrawPaint());
+        g.setStroke(handleStyle.getDrawStroke());
+        g.draw(getShape());
     }
 }

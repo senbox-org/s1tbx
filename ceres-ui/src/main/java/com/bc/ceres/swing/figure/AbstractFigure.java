@@ -384,10 +384,10 @@ public abstract class AbstractFigure implements Figure {
         return StyleDefaults.SELECTED_HANDLE_STYLE;
     }
 
-    protected Stroke getPlainStroke(Stroke stroke, float scale) {
+    protected Stroke getPlainStroke(Stroke stroke, double scale) {
         if (stroke instanceof BasicStroke) {
             BasicStroke basicStroke = (BasicStroke) stroke;
-            return new BasicStroke(basicStroke.getLineWidth() * scale,
+            return new BasicStroke((float)(basicStroke.getLineWidth() * scale),
                                    basicStroke.getEndCap(),
                                    basicStroke.getLineJoin(),
                                    basicStroke.getMiterLimit(),
@@ -397,13 +397,13 @@ public abstract class AbstractFigure implements Figure {
         return stroke;
     }
 
-    protected Stroke getSelectedStroke(Stroke plainStroke, float scale) {
+    protected Stroke getSelectedStroke(Stroke plainStroke, double scale) {
         Stroke selectedStroke;
         if (plainStroke instanceof BasicStroke) {
             BasicStroke basicStroke = (BasicStroke) plainStroke;
-            selectedStroke = new BasicStroke(basicStroke.getLineWidth() + scale * 4.0f);
+            selectedStroke = new BasicStroke(basicStroke.getLineWidth() + (float)(scale * 4.0));
         } else {
-            selectedStroke = new BasicStroke(scale * 4.0f);
+            selectedStroke = new BasicStroke((float)(scale * 4.0));
         }
         return selectedStroke;
     }

@@ -1,9 +1,9 @@
 package com.bc.ceres.swing.figure.support;
 
-import static com.bc.ceres.swing.figure.support.StyleDefaults.*;
 import com.bc.ceres.swing.figure.AbstractHandle;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureStyle;
+import static com.bc.ceres.swing.figure.support.StyleDefaults.VERTEX_HANDLE_SIZE;
 
 import java.awt.Shape;
 import java.awt.geom.Path2D;
@@ -18,35 +18,37 @@ public class VertexHandle extends AbstractHandle {
                         FigureStyle selectedStyle) {
         super(figure, style, selectedStyle);
         this.vertexIndex = vertexIndex;
-        setHandleShape();
+        updateLocation();
+        setShape(createHandleShape());
     }
 
     @Override
-    public boolean isSelectable() {
-        return true;
-    }
-
-    @Override
-    protected Shape createHandleShape() {
+    public void updateLocation() {
         final double[] segment = getFigure().getVertex(vertexIndex);
         double x = segment[0];
         double y = segment[1];
-        Path2D path = new Path2D.Double();
-        path.moveTo(x, y - 0.5 * VERTEX_HANDLE_SIZE);
-        path.lineTo(x + 0.5 * VERTEX_HANDLE_SIZE, y);
-        path.lineTo(x, y + 0.5 * VERTEX_HANDLE_SIZE);
-        path.lineTo(x - 0.5 * VERTEX_HANDLE_SIZE, y);
-        path.closePath();
-        return path;
+        setLocation(x, y);
     }
 
     @Override
     public void move(double dx, double dy) {
+        setLocation(getX() + dx, getY() + dy);
+        
         final double[] segment = getFigure().getVertex(vertexIndex);
         if (segment != null) {
             segment[0] += dx;
             segment[1] += dy;
             getFigure().setVertex(vertexIndex, segment);
         }
+    }
+
+    private static Shape createHandleShape() {
+        Path2D path = new Path2D.Double();
+        path.moveTo(0.0, -0.5 * VERTEX_HANDLE_SIZE);
+        path.lineTo(0.5 * VERTEX_HANDLE_SIZE, 0.0);
+        path.lineTo(0.0, 0.5 * VERTEX_HANDLE_SIZE);
+        path.lineTo(-0.5 * VERTEX_HANDLE_SIZE, 0.0);
+        path.closePath();
+        return path;
     }
 }

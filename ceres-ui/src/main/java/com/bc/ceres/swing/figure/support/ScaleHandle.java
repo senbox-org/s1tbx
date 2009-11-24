@@ -3,13 +3,11 @@ package com.bc.ceres.swing.figure.support;
 import com.bc.ceres.swing.figure.AbstractHandle;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureStyle;
-import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.Cursor;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-
 
 public class ScaleHandle extends AbstractHandle {
     public final static int E = 0;
@@ -65,28 +63,27 @@ public class ScaleHandle extends AbstractHandle {
     };
 
     private final int type;
-    private final Point2D offset;
 
     public ScaleHandle(Figure figure,
                        int type, double dx, double dy,
                        FigureStyle style) {
         super(figure, style, style);
         this.type = type;
-        this.offset = new Point2D.Double(dx, dy);
-        setHandleShape();
+        setShape(createHandleShape(dx, dy));
+        updateLocation();
     }
 
     @Override
-    protected Shape createHandleShape() {
-        final Point2D.Double pp = getRefPoint();
-        return new Rectangle2D.Double(pp.getX() + offset.getX() - 0.5 * StyleDefaults.SCALE_HANDLE_SIZE,
-                                      pp.getY() + offset.getY() - 0.5 * StyleDefaults.SCALE_HANDLE_SIZE,
-                                      StyleDefaults.SCALE_HANDLE_SIZE,
-                                      StyleDefaults.SCALE_HANDLE_SIZE);
+    public void updateLocation() {
+        Point2D.Double point = getRefPoint(type);
+        setLocation(point.getX(), point.getY());
     }
+
 
     @Override
     public void move(double dx, double dy) {
+        setLocation(getX() + dx, getY() + dy);
+
         dx *= DIRECTIONS[type].getX();
         dy *= -DIRECTIONS[type].getY();
         Rectangle2D bounds = getFigure().getBounds();
@@ -124,13 +121,20 @@ public class ScaleHandle extends AbstractHandle {
         return getRefPoint(type);
     }
 
-    private Point2D.Double getRefPoint(int index) {
+    private Point2D.Double getRefPoint(int type) {
         final Rectangle2D bounds = getFigure().getBounds();
         final double x = bounds.getX();
         final double y = bounds.getY();
         final double w = bounds.getWidth();
         final double h = bounds.getHeight();
-        return new Point2D.Double(x + POSITIONS[index].getX() * w,
-                                  y + POSITIONS[index].getY() * h);
+        return new Point2D.Double(x + POSITIONS[type].getX() * w,
+                                  y + POSITIONS[type].getY() * h);
+    }
+
+    private static Shape createHandleShape(double dx, double dy) {
+        return new Rectangle2D.Double(dx - 0.5 * StyleDefaults.SCALE_HANDLE_SIZE,
+                                      dy - 0.5 * StyleDefaults.SCALE_HANDLE_SIZE,
+                                      StyleDefaults.SCALE_HANDLE_SIZE,
+                                      StyleDefaults.SCALE_HANDLE_SIZE);
     }
 }

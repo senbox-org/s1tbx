@@ -24,13 +24,11 @@ public class DefaultShapeFigure extends AbstractFigure {
     private Rank rank;
     private FigureStyle style;
     private boolean selected;
-    private AffineTransform shapeToModelTransform;
 
     public DefaultShapeFigure(Shape shape, boolean polygonal, FigureStyle style) {
         this.shape = shape;
         this.rank = polygonal ? Rank.POLYGONAL : Rank.LINEAL;
         this.style = style;
-        shapeToModelTransform = new AffineTransform();
     }
 
     public Shape getShape() {
@@ -49,14 +47,6 @@ public class DefaultShapeFigure extends AbstractFigure {
     public void setStyle(FigureStyle style) {
         this.style = style;
         fireFigureChanged();
-    }
-
-    public AffineTransform getShapeToModelTransform() {
-        return shapeToModelTransform;
-    }
-
-    public void setShapeToModelTransform(AffineTransform shapeToModelTransform) {
-        this.shapeToModelTransform = shapeToModelTransform;
     }
 
     @Override
@@ -94,30 +84,24 @@ public class DefaultShapeFigure extends AbstractFigure {
         final Viewport vp = rendering.getViewport();
         final AffineTransform transformSave = g.getTransform();
         try {
-            final AffineTransform transform = new AffineTransform();
-            AffineTransform tx = vp.getModelToViewTransform();
-            transform.concatenate(tx);
-            transform.concatenate(shapeToModelTransform);
-            g.setTransform(transform);
+            g.setTransform(vp.getModelToViewTransform());
 
             if (rank == Rank.POLYGONAL) {
                 g.setPaint(getStyle().getFillPaint());
                 g.fill(getShape());
             }
-            g.setPaint(getStyle().getDrawPaint());
 
-            final float scale = (float) (1.0 / Math.sqrt(Math.abs(transform.getDeterminant())));
+            final double scale = 1.0 / vp.getZoomFactor();
 
-            // todo - optimize
-            Stroke plainStroke;
-            plainStroke = getPlainStroke(getStyle().getDrawStroke(), scale);
+            Stroke plainStroke = getPlainStroke(getStyle().getDrawStroke(), scale);
             g.setStroke(plainStroke);
-
+            g.setPaint(getStyle().getDrawPaint());
             g.draw(getShape());
+
             if (isSelected()) {
                 Stroke selectedStroke = getSelectedStroke(plainStroke, scale);
-                g.setPaint(new Color(255, 255, 0, 150));
                 g.setStroke(selectedStroke);
+                g.setPaint(new Color(255, 255, 0, 150));
                 g.draw(getShape());
             }
 
@@ -294,6 +278,7 @@ public class DefaultShapeFigure extends AbstractFigure {
 
     @Override
     public Handle[] createHandles(int selectionLevel) {
+        System.out.println("selectionLevel = " + selectionLevel);
         if (selectionLevel == 1) {
             // No handles at level 1, only high-lighting, see draw() & isSelected()
             return new Handle[0];
@@ -306,7 +291,7 @@ public class DefaultShapeFigure extends AbstractFigure {
             Handle[] scaleHandles = createScaleHandles(8.0);
             ArrayList<Handle> handles = new ArrayList<Handle>(vertexHandles.length + scaleHandles.length);
             handles.addAll(Arrays.asList(vertexHandles));
-            handles.addAll(Arrays.asList(vertexHandles));
+            handles.addAll(Arrays.asList(scaleHandles));
             return handles.toArray(new Handle[handles.size()]);
         }
         return new Handle[0];

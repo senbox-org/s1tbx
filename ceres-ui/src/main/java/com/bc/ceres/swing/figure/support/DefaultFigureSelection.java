@@ -208,53 +208,37 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
 
         final Graphics2D g = rendering.getGraphics();
         final Viewport vp = rendering.getViewport();
-        final AffineTransform transformSave = g.getTransform();
 
-        try {
-            final AffineTransform transform = new AffineTransform(vp.getModelToViewTransform());
-            transform.concatenate(transform);
-            g.setTransform(transform);
+        AffineTransform m2v = vp.getModelToViewTransform();
 
-            final Figure[] figures = getFigures();
-            if (figures.length > 1) {
-                for (Figure figure : figures) {
-                    g.setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
-                    g.setStroke(StyleDefaults.MULTI_SELECTION_STROKE);
-                    g.draw(getExtendedBounds(figure.getBounds()));
-                }
+        final Figure[] figures = getFigures();
+        if (figures.length > 1) {
+            for (Figure figure : figures) {
                 g.setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
-                g.setStroke(StyleDefaults.FIRST_OF_MULTI_SELECTION_STROKE);
-                g.draw(getExtendedBounds(figures[0].getBounds()));
+                g.setStroke(StyleDefaults.MULTI_SELECTION_STROKE);
+                g.draw(getExtendedBounds(figure, m2v));
             }
-            g.setPaint(StyleDefaults.SELECTION_DRAW_PAINT);
-            g.setStroke(StyleDefaults.SELECTION_STROKE);
-            g.draw(getBounds());
+            g.setPaint(StyleDefaults.MULTI_SELECTION_COLOR);
+            g.setStroke(StyleDefaults.FIRST_OF_MULTI_SELECTION_STROKE);
+            g.draw(getExtendedBounds(figures[0], m2v));
+        }
+        g.setPaint(StyleDefaults.SELECTION_DRAW_PAINT);
+        g.setStroke(StyleDefaults.SELECTION_STROKE);
+        g.draw(getBounds(this, m2v));
 
-            if (handles != null) {
-                for (Handle handle : handles) {
-                    handle.draw(rendering);
-                }
+        if (handles != null) {
+            for (Handle handle : handles) {
+                handle.draw(rendering);
             }
-        } finally {
-            g.setTransform(transformSave);
         }
     }
 
-    @Override
-    protected Rectangle2D computeBounds() {
-        final Rectangle2D bounds = new Rectangle2D.Double();
-        if (getFigureCount() > 0) {
-            final Figure[] figures = getFigures();
-            bounds.setRect(figures[0].getBounds());
-            for (int i = 1; i < figures.length; i++) {
-                Figure figure = figures[i];
-                bounds.add(getExtendedBounds(figure.getBounds()));
-            }
-            if (getFigureCount() > 1) {
-                bounds.add(getExtendedBounds(bounds));
-            }
-        }
-        return bounds;
+    private static Rectangle2D getExtendedBounds(Figure figure, AffineTransform m2v) {
+        return getExtendedBounds(getBounds(figure, m2v));
+    }
+
+    private static Rectangle2D getBounds(Figure figure, AffineTransform m2v) {
+        return m2v.createTransformedShape(figure.getBounds()).getBounds2D();
     }
 
     static Rectangle2D getExtendedBounds(Rectangle2D bounds) {

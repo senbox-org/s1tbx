@@ -68,9 +68,7 @@ public class SelectionInteraction extends AbstractInteraction {
     public void mouseDragged(MouseEvent event) {
         if (!canceled) {
             if (tool == TOOL_SELECT_POINT) {
-                getFigureEditor().getFigureSelection().selectHandle(p(referencePoint, event));
-                final Handle selectedHandle = getFigureEditor().getFigureSelection().getSelectedHandle();
-                if (selectedHandle != null) {
+                if (selectHandle(event)) {
                     tool = TOOL_MOVE_HANDLE;
                 } else {
                     if (getFigureEditor().getFigureSelection().contains(p(referencePoint, event))) {
@@ -101,10 +99,9 @@ public class SelectionInteraction extends AbstractInteraction {
 
     private void setCursor(MouseEvent event) {
         Cursor cursor = null;
-        for (Handle handle : getFigureEditor().getFigureSelection().getHandles()) {
-            if (handle.contains(p(event))) {
-                cursor = handle.getCursor();
-            }
+        Handle handle = getHandle(event);
+        if (handle != null) {
+            cursor = handle.getCursor();
         }
         if (cursor == null && getFigureEditor().getFigureSelection().contains(p(event))) {
             cursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
@@ -118,12 +115,27 @@ public class SelectionInteraction extends AbstractInteraction {
         getFigureEditor().setCursor(cursor);
     }
 
-    private static AffineTransform v2m(MouseEvent event) {
+    private static Viewport getViewport(MouseEvent event) {
         Component component = event.getComponent();
         if (component instanceof AdjustableView) {
             AdjustableView adjustableView = (AdjustableView) component;
-            Viewport viewport = adjustableView.getViewport();
+            return adjustableView.getViewport();
+        }
+        return null;
+    }
+
+    private static AffineTransform v2m(MouseEvent event) {
+        Viewport viewport = getViewport(event);
+        if (viewport != null) {
             return viewport.getViewToModelTransform();
+        }
+        return new AffineTransform();
+    }
+
+    private static AffineTransform m2v(MouseEvent event) {
+        Viewport viewport = getViewport(event);
+        if (viewport != null) {
+            return viewport.getModelToViewTransform();
         }
         return new AffineTransform();
     }
@@ -141,9 +153,40 @@ public class SelectionInteraction extends AbstractInteraction {
                                               event.getY() - referencePoint.y);
         AffineTransform transform = v2m(event);
         transform.deltaTransform(p, p);
-        // If a handle is selected, it is moved by dragging
         figure.move(p.getX(), p.getY());
         referencePoint = event.getPoint();
+    }
+
+    private Figure clickFigure(MouseEvent event) {
+        AffineTransform transform = v2m(event);
+        Point2D rp = transform.transform(referencePoint, null);
+        return getFigureEditor().getFigureCollection().getFigure(rp);
+    }
+
+    private Handle getHandle(MouseEvent event) {
+        for (Handle handle : getFigureEditor().getFigureSelection().getHandles()) {
+            if (handle.isSelectable()) {
+                Point2D p = handle.getLocation();
+                AffineTransform m2v = m2v(event);
+                m2v.transform(p, p);
+                p = new Point2D.Double(event.getX() - p.getX(),
+                                       event.getY() - p.getY());
+                if (handle.contains(p)) {
+                    System.out.println("handle = " + handle);
+                    return handle;
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean selectHandle(MouseEvent event) {
+        Handle handle = getHandle(event);
+        if (handle != null) {
+            getFigureEditor().getFigureSelection().setSelectedHandle(handle);
+            return true;
+        }
+        return false;
     }
 
     // todo - Tool is a helper, it may later be replaced by an Interaction delegate
@@ -218,19 +261,13 @@ public class SelectionInteraction extends AbstractInteraction {
 
         @Override
         public void end(MouseEvent event) {
-            AffineTransform transform = v2m(event);
-            Point2D rp = transform.transform(referencePoint, null);
-
-
             // Check first if user has selected a selectable handle
-            for (Handle handle : getFigureEditor().getFigureSelection().getHandles()) {
-                if (handle.isSelectable() && handle.contains(rp)) {
-                    getFigureEditor().getFigureSelection().setSelectedHandle(handle);
-                    return;
-                }
+            if (selectHandle(event)) {
+                return;
             }
+
             // Then check if user has selected a figure
-            Figure clickedFigure = getFigureEditor().getFigureCollection().getFigure(rp);
+            Figure clickedFigure = clickFigure(event);
             if (clickedFigure == null) {
                 // Nothing clicked, thus clear selection.
                 getFigureEditor().getFigureSelection().removeFigures();
@@ -280,6 +317,7 @@ public class SelectionInteraction extends AbstractInteraction {
                 getFigureEditor().getFigureSelection().setSelectionLevel(1);
             }
         }
+
     }
 
     private class SelectRectangleTool implements Tool {
