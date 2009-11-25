@@ -55,13 +55,14 @@ public class WriteOp extends Operator {
                description = "If true, the write operation waits until all tiles in a row have been computed before writing.")
     private boolean writeEntireTileRows;
 
+    private final Map<MultiLevelImage, List<Point>> todoLists = new HashMap<MultiLevelImage, List<Point>>();
+    private final Map<Row, Tile[]> writeCache = new HashMap<Row, Tile[]>();
+
     private ProductWriter productWriter;
     private List<Band> writableBands;
     private boolean productFileWritten;
-    private Map<MultiLevelImage, List<Point>> todoLists;
     private boolean headerChanged;
     private ProductNodeChangeListener headerChangeDetector;
-    private Map<Row, Tile[]> writeCache;
     private Dimension tileSize;
     private int tileCountX;
 
@@ -97,14 +98,12 @@ public class WriteOp extends Operator {
                 writableBands.add(band);
             }
         }
-        todoLists = new HashMap<MultiLevelImage, List<Point>>(writableBands.size());
         headerChanged = false;
         headerChangeDetector = new ProductNodeChangeListener();
 
         tileSize = ImageManager.getPreferredTileSize(targetProduct);
         targetProduct.setPreferredTileSize(tileSize);
         tileCountX = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);
-        writeCache = new HashMap<Row, Tile[]>();
     }
 
     @Override
