@@ -175,7 +175,7 @@ public class OperatorExecutorTest extends TestCase {
     public void testOneTile() {
         Product sourceProduct = createSourceProduct();
         Operator op = new TestOP(sourceProduct);
-        OperatorExecutor operatorExecutor = new OperatorExecutor(op);
+        OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
         operatorExecutor.execute(ProgressMonitor.NULL);
         
         assertEquals(3, recordingTileScheduler.recordedCalls.size());
@@ -192,7 +192,7 @@ public class OperatorExecutorTest extends TestCase {
         Product sourceProduct = createSourceProduct();
         sourceProduct.setPreferredTileSize(50, 50);
         Operator op = new TestOP(sourceProduct);
-        OperatorExecutor operatorExecutor = new OperatorExecutor(op);
+        OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
         operatorExecutor.execute(ProgressMonitor.NULL);
         
         assertEquals(9, recordingTileScheduler.recordedCalls.size());
@@ -211,7 +211,7 @@ public class OperatorExecutorTest extends TestCase {
         bandB.setSynthetic(true);
         sourceProduct.setPreferredTileSize(50, 50);
         Operator op = new TestOP(sourceProduct);
-        OperatorExecutor operatorExecutor = new OperatorExecutor(op);
+        OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
         operatorExecutor.execute(ProgressMonitor.NULL);
         
         assertEquals(17, recordingTileScheduler.recordedCalls.size());
@@ -234,7 +234,7 @@ public class OperatorExecutorTest extends TestCase {
         bandB.setSynthetic(true);
         sourceProduct.setPreferredTileSize(50, 50);
         Operator op = new TestOP(sourceProduct);
-        OperatorExecutor operatorExecutor = new OperatorExecutor(op);
+        OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
         operatorExecutor.execute(ExecutionOrder.ROW_COLUMN_BAND, ProgressMonitor.NULL);
         
         assertEquals(17, recordingTileScheduler.recordedCalls.size());

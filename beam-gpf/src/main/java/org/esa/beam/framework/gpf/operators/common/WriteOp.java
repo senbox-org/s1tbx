@@ -296,7 +296,7 @@ public class WriteOp extends Operator {
 
         final WriteOp writeOp = new WriteOp(sourceProduct, file, formatName, deleteOutputOnFailure);
         writeOp.writeEntireTileRows = writeEntireTileRows;
-        OperatorExecutor operatorExecutor = new OperatorExecutor(writeOp);
+        OperatorExecutor operatorExecutor = OperatorExecutor.create(writeOp);
         try {
             operatorExecutor.execute(executionOrder, pm);
         } catch (OperatorException e) {
