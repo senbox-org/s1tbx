@@ -21,16 +21,16 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import javax.swing.AbstractButton;
-import javax.swing.JPanel;
 import javax.swing.Action;
+import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.TableModelListener;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.ActionEvent;
 
 abstract class MaskForm {
 
@@ -105,7 +105,7 @@ abstract class MaskForm {
         maskTable.removeMask(mask);
     }
 
-    public boolean isInManagmentMode() {
+    public boolean isInManagementMode() {
         return maskTable.isInManagmentMode();
     }
 
