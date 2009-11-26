@@ -216,6 +216,7 @@ class ReprojectionForm extends JTabbedPane {
             }
         } catch (FactoryException e) {
             infoForm.setCrs(e.getMessage(), null);
+            appContext.handleError("Defined 'Coordinate Reference System' is invalid.\n" + e.getMessage(), e);
             crs = null;
         }
         if (sourceProduct != null && crs != null) {
