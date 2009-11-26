@@ -266,10 +266,13 @@ class MaskTableModel extends AbstractTableModel {
 
         if (column == IDX_VISIBILITY) {
             boolean visible = (Boolean) aValue;
+            final ProductNodeGroup<Mask> overlayMaskGroup = visibleBand.getOverlayMaskGroup();
             if (visible) {
-                visibleBand.getOverlayMaskGroup().add(mask);
+                if (!overlayMaskGroup.contains(mask)) {
+                    overlayMaskGroup.add(mask);
+                }
             } else {
-                visibleBand.getOverlayMaskGroup().remove(mask);
+                overlayMaskGroup.remove(mask);
             }
             visibleBand.fireImageInfoChanged();
             fireTableCellUpdated(rowIndex, columnIndex);
@@ -311,8 +314,7 @@ class MaskTableModel extends AbstractTableModel {
         private void processEvent(ProductNodeEvent event) {
             if (event.getSourceNode() instanceof Mask) {
                 fireTableDataChanged();
-            }
-            if (event.getSourceNode() == visibleBand
+            }else if (event.getSourceNode() == visibleBand
                     && event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_IMAGE_INFO)) {
                 fireTableDataChanged();
             }
