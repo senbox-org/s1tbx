@@ -20,6 +20,7 @@ import java.net.URL;
 abstract class MaskAction extends AbstractAction {
 
     private MaskForm maskForm;
+    private static final String DEFAULT_MASK_NAME_PREFIX = "new_mask_";
 
     MaskAction(MaskForm maskForm, String iconPath, String buttonName, String description) {
         this.maskForm = maskForm;
@@ -64,9 +65,9 @@ abstract class MaskAction extends AbstractAction {
     }
 
     private String getNewMaskName(ProductNodeGroup<Mask> maskGroup) {
-        String possibleName = "new_mask_" + maskGroup.getNodeCount();
+        String possibleName = DEFAULT_MASK_NAME_PREFIX + maskGroup.getNodeCount();
         for (int i = 0; i <= maskGroup.getNodeCount(); i++) {
-            possibleName = "new_mask_" + (maskGroup.getNodeCount() + i + 1);
+            possibleName = DEFAULT_MASK_NAME_PREFIX + (maskGroup.getNodeCount() + i + 1);
             if (!maskGroup.contains(possibleName)) {
                 break;
             }
