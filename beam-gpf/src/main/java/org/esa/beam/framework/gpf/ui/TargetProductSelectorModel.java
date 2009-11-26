@@ -148,7 +148,7 @@ public class TargetProductSelectorModel {
         propertyContainer.setValue(name, value);
     }
     
-    private class ProductNameValidator implements Validator {
+    private static class ProductNameValidator implements Validator {
 
         @Override
         public void validateValue(Property property, Object value) throws ValidationException {
