@@ -50,8 +50,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  * Action for exporting scene views as images.
@@ -189,7 +187,6 @@ public class ExportImageAction extends AbstractExportImageAction {
 
         private final PropertyContainer propertyContainer;
         private final ProductSceneView view;
-        private double aspectRatio;
 
         public SizeComponent(ProductSceneView view) {
             this.view = view;
@@ -207,7 +204,6 @@ public class ExportImageAction extends AbstractExportImageAction {
             } else {
                 bounds = view.getLayerCanvas().getViewport().getViewBounds();
             }
-            aspectRatio = bounds.getWidth() / bounds.getHeight();
 
             int w = toInteger(bounds.getWidth());
             int h = toInteger(bounds.getHeight());
@@ -253,43 +249,6 @@ public class ExportImageAction extends AbstractExportImageAction {
             final PropertyDescriptor heightDescriptor = new PropertyDescriptor(PROPERTY_NAME_HEIGHT, Integer.class);
             heightDescriptor.setConverter(new IntegerConverter());
             propertyContainer.addProperty(new Property(heightDescriptor, new DefaultPropertyAccessor()));
-
-            final PropertyChangeListener listener = new PropertyChangeListener() {
-                private boolean adjusting = false;
-
-                @Override
-                public void propertyChange(PropertyChangeEvent evt) {
-                    if (!adjusting) {
-                        adjusting = true;
-
-                        if (evt.getPropertyName().equals(PROPERTY_NAME_WIDTH)) {
-                            adjustHeight();
-                            if (getFreeMemory() < getExpectedMemory(getWidth(), getAdjustedHeight())) {
-                                final int answer = showQuestionDialog();
-                                if (answer != JOptionPane.YES_OPTION) {
-                                    setWidth(evt.getOldValue());
-                                    adjustHeight();
-                                }
-                            }
-                        }
-                        if (evt.getPropertyName().equals(PROPERTY_NAME_HEIGHT)) {
-                            adjustWidth();
-                            if (getFreeMemory() < getExpectedMemory(getAdjustedWidth(), getHeight())) {
-                                final int answer = showQuestionDialog();
-                                if (answer != JOptionPane.YES_OPTION) {
-                                    setHeight(evt.getOldValue());
-                                    adjustWidth();
-                                }
-                            }
-                        }
-
-                        adjusting = false;
-                    }
-                }
-
-            };
-
-//            propertyContainer.addPropertyChangeListener(listener);
         }
 
         private int showQuestionDialog() {
@@ -306,22 +265,6 @@ public class ExportImageAction extends AbstractExportImageAction {
 
         private long getExpectedMemory(int width, int height) {
             return width * height * 6L;
-        }
-
-        private int getAdjustedWidth() {
-            return MathUtils.floorInt(getHeight() * aspectRatio);
-        }
-
-        private int getAdjustedHeight() {
-            return MathUtils.floorInt(getWidth() / aspectRatio);
-        }
-
-        private void adjustWidth() {
-            setWidth(getAdjustedWidth());
-        }
-
-        private void adjustHeight() {
-            setHeight(getAdjustedHeight());
         }
 
         private int getWidth() {
