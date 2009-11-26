@@ -7,7 +7,6 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 import org.jfree.chart.ChartPanel;
@@ -20,7 +19,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.RenderedImage;
 import java.io.IOException;
 
 /**
@@ -105,10 +103,6 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
             this.raster = raster;
             rasterChanged = true;
         }
-    }
-
-    protected RenderedImage getRoiImage(RasterDataNode rdn) {
-        return ImageManager.getInstance().createRoiMaskImage(rdn, 0);
     }
 
     protected boolean isRasterChanged() {

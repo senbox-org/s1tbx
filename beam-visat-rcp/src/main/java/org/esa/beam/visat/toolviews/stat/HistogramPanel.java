@@ -3,6 +3,8 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.param.ParamChangeEvent;
@@ -33,8 +35,6 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.image.RenderedImage;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * A pane within the statistcs window which displays a histogram.
@@ -172,19 +172,16 @@ class HistogramPanel extends PagePanel {
 
         histogramDisplay = createChartPanel(chart);
 
-        final ActionListener actionAll = new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                computeHistogram(false);
+        final ComputePanel.ComputeMasks computeMasks = new ComputePanel.ComputeMasks() {
+            
+            @Override
+            public void compute(Mask[] selectedMasks) {
+                computeHistogram(selectedMasks);
+                
             }
         };
-        final ActionListener actionROI = new ActionListener() {
 
-            public void actionPerformed(ActionEvent e) {
-                computeHistogram(true);
-            }
-        };
-        computePanel = ComputePanel.createComputePane(actionAll, actionROI, getRaster());
+        computePanel = ComputePanel.createComputePane(computeMasks, false, getRaster());
         final TableLayout rightPanelLayout = new TableLayout(1);
         final JPanel rightPanel = new JPanel(rightPanelLayout);
         rightPanelLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
@@ -257,12 +254,12 @@ class HistogramPanel extends PagePanel {
         return optionsPane;
     }
 
-    private void computeHistogram(final boolean useROI) {
-        final RenderedImage roiImage;
-        if (useROI) {
-            roiImage = getRoiImage(getRaster());
+    private void computeHistogram(final Mask[] selectedMasks) {
+        final RenderedImage maskImage;
+        if (selectedMasks.length > 0 && selectedMasks[0] != null) {
+            maskImage = selectedMasks[0].getSourceImage();
         } else {
-            roiImage = null;
+            maskImage = null;
         }
 
         final int numBins = ((Number) numBinsParam.getValue()).intValue();
@@ -280,12 +277,12 @@ class HistogramPanel extends PagePanel {
             @Override
             protected Stx doInBackground(ProgressMonitor pm) throws Exception {
                 final Stx stx;
-                if (roiImage == null && range == null && numBins == Stx.DEFAULT_BIN_COUNT) {
+                if (maskImage == null && range == null && numBins == Stx.DEFAULT_BIN_COUNT) {
                     stx = getRaster().getStx(true, pm);
                 } else if (range == null) {
-                    stx = Stx.create(getRaster(), roiImage, numBins, pm);
+                    stx = Stx.create(getRaster(), maskImage, numBins, pm);
                 } else {
-                    stx = Stx.create(getRaster(), roiImage, numBins, range.getMin(), range.getMax(), pm);
+                    stx = Stx.create(getRaster(), maskImage, numBins, range.getMin(), range.getMax(), pm);
                 }
                 return stx;
             }
@@ -402,7 +399,7 @@ class HistogramPanel extends PagePanel {
 
     @Override
     public void handleLayerContentChanged() {
-        computePanel.updateRoiCheckBoxState();
+        computePanel.updateMaskListState();
     }
 }
 

@@ -5,6 +5,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
@@ -191,19 +192,16 @@ class ScatterPlotPanel extends PagePanel {
     }
 
     private void createUI() {
-        final ActionListener actionAll = new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                computeScatterPlot(false);
+       final ComputePanel.ComputeMasks computeMasks = new ComputePanel.ComputeMasks() {
+            
+            @Override
+            public void compute(Mask[] selectedMasks) {
+                computeScatterPlot(selectedMasks);
+                
             }
         };
-        final ActionListener actionROI = new ActionListener() {
 
-            public void actionPerformed(ActionEvent e) {
-                computeScatterPlot(true);
-            }
-        };
-        computePanel = ComputePanel.createComputePane(actionAll, actionROI, getRaster());
+        computePanel = ComputePanel.createComputePane(computeMasks, false, getRaster());
 
         plot = new XYImagePlot();
 
@@ -328,17 +326,6 @@ class ScatterPlotPanel extends PagePanel {
         return optionsPane;
     }
 
-    private void computeScatterPlot(boolean useROI) {
-        try {
-            computeScatterPlotImpl(useROI);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this,
-                                          "An I/O error occured:\n" + e.getMessage(), /*I18N*/
-                                          CHART_TITLE, /*I18N*/
-                                          JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     private static class ScatterPlot {
 
         private final BufferedImage image;
@@ -364,7 +351,7 @@ class ScatterPlotPanel extends PagePanel {
         }
     }
 
-    private void computeScatterPlotImpl(boolean useROI) throws IOException {
+    private void computeScatterPlot(Mask[] selectedMasks) {
 
         final RasterDataNode rasterX = getRaster(X_VAR);
         final RasterDataNode rasterY = getRaster(Y_VAR);
@@ -373,11 +360,11 @@ class ScatterPlotPanel extends PagePanel {
             return;
         }
 
-        final RenderedImage roiImage;
-        if (useROI) {
-            roiImage = getRoiImage(rasterX);
+        final RenderedImage maskImage;
+        if (selectedMasks.length > 0 && selectedMasks[0] != null) {
+            maskImage = selectedMasks[0].getSourceImage();
         } else {
-            roiImage = null;
+            maskImage = null;
         }
         ProgressMonitorSwingWorker<ScatterPlot, Object> swingWorker = new ProgressMonitorSwingWorker<ScatterPlot, Object>(
                 this, "Computing scatter plot") {
@@ -386,15 +373,15 @@ class ScatterPlotPanel extends PagePanel {
             protected ScatterPlot doInBackground(ProgressMonitor pm) throws Exception {
                 pm.beginTask("Computing scatter plot...", 100);
                 try {
-                    final Range rangeX = getRange(X_VAR, rasterX, roiImage, SubProgressMonitor.create(pm, 15));
-                    final Range rangeY = getRange(Y_VAR, rasterY, roiImage, SubProgressMonitor.create(pm, 15));
+                    final Range rangeX = getRange(X_VAR, rasterX, maskImage, SubProgressMonitor.create(pm, 15));
+                    final Range rangeY = getRange(Y_VAR, rasterY, maskImage, SubProgressMonitor.create(pm, 15));
                     final BufferedImage image = ProductUtils.createScatterPlotImage(rasterX,
                                                                                     (float) rangeX.getMin(),
                                                                                     (float) rangeX.getMax(),
                                                                                     rasterY,
                                                                                     (float) rangeY.getMin(),
                                                                                     (float) rangeY.getMax(),
-                                                                                    roiImage,
+                                                                                    maskImage,
                                                                                     512,
                                                                                     512,
                                                                                     new Color(255, 255, 255, 0),
@@ -660,7 +647,7 @@ class ScatterPlotPanel extends PagePanel {
 
     @Override
     public void handleLayerContentChanged() {
-        computePanel.updateRoiCheckBoxState();
+        computePanel.updateMaskListState();
     }
 }
 

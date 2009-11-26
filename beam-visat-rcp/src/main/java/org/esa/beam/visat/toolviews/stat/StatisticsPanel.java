@@ -1,7 +1,10 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -15,6 +18,8 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.RenderedImage;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A general pane within the statistics window.
@@ -27,8 +32,6 @@ class StatisticsPanel extends TextPagePanel {
     private static final String TITLE_PREFIX = "Statistics";
 
     private ComputePanel computePanel;
-    private ActionListener allPixelsActionListener;
-    private ActionListener roiActionListener;
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, DEFAULT_STATISTICS_TEXT, helpID);
@@ -42,7 +45,16 @@ class StatisticsPanel extends TextPagePanel {
     @Override
     protected void initContent() {
         super.initContent();
-        computePanel = ComputePanel.createComputePane(getAllPixelActionListener(), getRoiActionListener(), getRaster());
+      final ComputePanel.ComputeMasks computeMasks = new ComputePanel.ComputeMasks() {
+            
+            @Override
+            public void compute(Mask[] selectedMasks) {
+                computeStatistics(selectedMasks);
+                
+            }
+        };
+
+        computePanel = ComputePanel.createComputePane(computeMasks, true, getRaster());
         final JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(computePanel, BorderLayout.NORTH);
         final JPanel helpPanel = new JPanel(new BorderLayout());
@@ -50,28 +62,6 @@ class StatisticsPanel extends TextPagePanel {
         rightPanel.add(helpPanel, BorderLayout.SOUTH);
 
         add(rightPanel, BorderLayout.EAST);
-    }
-
-    private ActionListener getAllPixelActionListener() {
-        if (allPixelsActionListener == null) {
-            allPixelsActionListener = new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    computeStatistics(false);
-                }
-            };
-        }
-        return allPixelsActionListener;
-    }
-
-    private ActionListener getRoiActionListener() {
-        if (roiActionListener == null) {
-            roiActionListener = new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    computeStatistics(true);
-                }
-            };
-        }
-        return roiActionListener;
     }
 
     @Override
@@ -82,7 +72,7 @@ class StatisticsPanel extends TextPagePanel {
             computePanel.setRaster(raster);
             if (raster != null && raster.isStxSet() && raster.getStx().getResolutionLevel() == 0) {
                 final Stx stx = raster.getStx();
-                getTextArea().setText(createText(stx, false));
+                getTextArea().setText(createText(null, stx));
             } else {
                 getTextArea().setText(DEFAULT_STATISTICS_TEXT);
             }
@@ -94,77 +84,103 @@ class StatisticsPanel extends TextPagePanel {
         // not used
         return DEFAULT_STATISTICS_TEXT;
     }
+    
+    private static class ComputeResult {
+        final Stx stx;
+        final Mask mask;
 
-    private void computeStatistics(final boolean useROI) {
-        final RenderedImage roiImage;
-        if (useROI) {
-            roiImage = getRoiImage(getRaster());
-        } else {
-            roiImage = null;
+        ComputeResult(Stx stx, Mask mask) {
+            this.stx = stx;
+            this.mask = mask;
         }
+    }
 
+    private void computeStatistics(final Mask[] selectedMasks) {
         final String title = "Computing Statistics";
-        SwingWorker<Stx, Object> swingWorker = new ProgressMonitorSwingWorker<Stx, Object>(this, title) {
-            @Override
-            protected Stx doInBackground(ProgressMonitor pm) throws Exception {
-                final Stx stx;
-                if (roiImage == null) {
-                    stx = Stx.create(getRaster(), 0, pm);
-                    getRaster().setStx(stx);
-                } else {
-                    stx = Stx.create(getRaster(), roiImage, pm);
-                }
-                return stx;
-            }
-
+        SwingWorker<Object, ComputeResult> swingWorker = new ProgressMonitorSwingWorker<Object, ComputeResult>(this, title) {
 
             @Override
-            public void done() {
-
+            protected Object doInBackground(ProgressMonitor pm) {
+                pm.beginTask(title, selectedMasks.length);
                 try {
-                    final Stx stx = get();
-                    if (stx.getSampleCount() > 0) {
-                        getTextArea().setText(createText(stx, roiImage != null));
-                        getTextArea().setCaretPosition(0);
-                    } else {
-                        final String msgPrefix;
-                        if (useROI) {
-                            msgPrefix = "The ROI is empty.";        /*I18N*/
+                    for (Mask mask : selectedMasks) {
+                        final Stx stx;
+                        ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+                        if (mask == null) {
+                            stx = Stx.create(getRaster(), 0, subPm);
+                            getRaster().setStx(stx);
                         } else {
-                            msgPrefix = "The scene contains no valid pixels.";  /*I18N*/
+                            final RenderedImage maskImage = mask.getSourceImage();
+                            stx = Stx.create(getRaster(), maskImage, subPm);
                         }
-                        JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                      msgPrefix + "\nStatistics have not been computed.", /*I18N*/
-                                                      "Statistics", /*I18N*/
-                                                      JOptionPane.WARNING_MESSAGE);
-                        getTextArea().setText(DEFAULT_STATISTICS_TEXT);
+                        publish(new ComputeResult(stx, mask));
                     }
-
+                } finally {
+                    pm.done();
+                }
+                return null;
+            }
+            
+            @Override
+            protected void process(List<ComputeResult> chunks) {
+                for (ComputeResult result : chunks) {
+                    Stx stx = result.stx;
+                    String existingText = getTextArea().getText();
+                    if (!existingText.isEmpty()) {
+                        existingText += "\n\n";
+                    }
+                    String text;
+                    if (stx.getSampleCount() > 0) {
+                        text = createText(result.mask, stx);
+                    } else {
+                        if (result.mask != null) {
+                            text = "The ROI-Mask '" + result.mask.getName() + "' is empty.";
+                        } else {
+                            text = "The scene contains no valid pixels.";
+                        }
+                    }
+                    getTextArea().setText(existingText + text);
+                }
+            }
+            
+            @Override
+            protected void done() {
+                try {
+                    get();
                 } catch (Exception e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute statistics.\nAn error occured:" + e.getMessage(),
-                                                  /*I18N*/
-                                                  "Statistics", /*I18N*/
-                                                  JOptionPane.ERROR_MESSAGE);
-                    getTextArea().setText(DEFAULT_STATISTICS_TEXT);
+                                                "Failed to compute statistics.\nAn error occured:" + e.getMessage(),
+                                                /*I18N*/
+                                                "Statistics", /*I18N*/
+                                                JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
+        getTextArea().setText("");
         swingWorker.execute();
+        getTextArea().setCaretPosition(0);
     }
 
-    private String createText(final Stx stat, final boolean hasROI) {
+    private String createText(final Mask mask, final Stx stat) {
 
-        final String unit = (StringUtils.isNotNullAndNotEmpty(getRaster().getUnit()) ? getRaster().getUnit() : "1");
-        final long numPixelTotal = (long) getRaster().getSceneRasterWidth() * (long) getRaster().getSceneRasterHeight();
+        RasterDataNode raster = getRaster();
+        boolean maskUsed = mask != null;
+        final String unit = (StringUtils.isNotNullAndNotEmpty(raster.getUnit()) ? raster.getUnit() : "1");
+        final long numPixelTotal = (long) raster.getSceneRasterWidth() * (long) raster.getSceneRasterHeight();
         final StringBuffer sb = new StringBuffer(1024);
 
         sb.append("\n");
 
-        sb.append("Only ROI pixels considered:  \t");
-        sb.append(hasROI ? "Yes" : "No");
+        sb.append("Only ROI-Mask pixels considered:  \t");
+        sb.append(maskUsed ? "Yes" : "No");
         sb.append("\n");
+        
+        if (maskUsed) {
+            sb.append("ROI-Mask name:  \t");
+            sb.append(mask.getName());
+            sb.append("\n");
+        }
 
         sb.append("Number of pixels total:      \t");
         sb.append(numPixelTotal);
@@ -207,52 +223,6 @@ class StatisticsPanel extends TextPagePanel {
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
-
-        if (hasROI) {
-            final ROIDefinition roiDefinition = getRaster().getROIDefinition();
-
-            sb.append("\n");
-
-            sb.append("ROI area shapes used: \t");
-            sb.append(roiDefinition.isShapeEnabled() ? "Yes" : "No");
-            sb.append("\n");
-
-            sb.append("ROI value range used: \t");
-            sb.append(roiDefinition.isValueRangeEnabled() ? "Yes" : "No");
-            sb.append("\n");
-
-            if (roiDefinition.isValueRangeEnabled()) {
-                sb.append("ROI minimum value:   \t");
-                sb.append(roiDefinition.getValueRangeMin());
-                sb.append("\t ");
-                sb.append(unit);
-                sb.append("\n");
-
-                sb.append("ROI maximum value:   \t");
-                sb.append(roiDefinition.getValueRangeMax());
-                sb.append("\t ");
-                sb.append(unit);
-                sb.append("\n");
-            }
-
-            sb.append("ROI bitmask used: \t");
-            sb.append(roiDefinition.isBitmaskEnabled() ? "Yes" : "No");
-            sb.append("\n");
-
-            if (roiDefinition.isBitmaskEnabled()) {
-                sb.append("ROI bitmask expression: \t");
-                sb.append(roiDefinition.getBitmaskExpr());
-                sb.append("\n");
-            }
-
-            sb.append("ROI combination operator: \t");
-            sb.append(roiDefinition.isOrCombined() ? "OR" : "AND");
-            sb.append("\n");
-
-            sb.append("ROI inverted: \t");
-            sb.append(roiDefinition.isInverted() ? "Yes" : "No");
-            sb.append("\n");
-        }
         return sb.toString();
     }
 
@@ -281,6 +251,6 @@ class StatisticsPanel extends TextPagePanel {
 
     @Override
     public void handleLayerContentChanged() {
-        computePanel.updateRoiCheckBoxState();
+        computePanel.updateMaskListState();
     }
 }
