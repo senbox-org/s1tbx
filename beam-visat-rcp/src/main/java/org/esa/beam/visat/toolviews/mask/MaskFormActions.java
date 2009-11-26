@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.mask;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.jexp.impl.Tokenizer;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
@@ -27,7 +28,7 @@ class MaskFormActions {
         maskActions = new MaskAction[]{
                 new NewBandMathAction(maskForm), new NewRangeAction(maskForm),
                 new NewUnionAction(maskForm), new NewIntersectionAction(maskForm),
-                new NewSubtractionAction(maskForm), new NewInversionAction(maskForm),
+                new NewDifferenceAction(maskForm), new NewComplementAction(maskForm),
                 new CopyAction(maskForm), new NullAction(maskForm),
                 new EditAction(maskForm), new RemoveAction(maskForm),
                 new ImportAction(maskForm), new ExportAction(maskForm),
@@ -61,7 +62,7 @@ class MaskFormActions {
     }
 
     public MaskAction getNewSubtractionAction() {
-        return getMaskAction(NewSubtractionAction.class);
+        return getMaskAction(NewDifferenceAction.class);
     }
 
     public MaskAction getNewUnionAction() {
@@ -69,7 +70,7 @@ class MaskFormActions {
     }
 
     public MaskAction getNewInversionAction() {
-        return getMaskAction(NewInversionAction.class);
+        return getMaskAction(NewComplementAction.class);
     }
 
     public MaskAction getCopyAction() {
@@ -195,7 +196,7 @@ class MaskFormActions {
     private static class NewIntersectionAction extends BandMathAction {
 
         private NewIntersectionAction(MaskForm maskForm) {
-            super(maskForm, "Intersect24.png", "intersectionButton",
+            super(maskForm, "Intersection24.png", "intersectionButton",
                   "Creates the intersection of the selected masks");
         }
 
@@ -210,23 +211,21 @@ class MaskFormActions {
         }
     }
 
-    private static class NewInversionAction extends BandMathAction {
+    private static class NewComplementAction extends BandMathAction {
 
-        private NewInversionAction(MaskForm maskForm) {
-            super(maskForm, "Invert24.png", "intersectionButton",
-                  "Creates the inversion of subtraction of the selected masks");
+        private NewComplementAction(MaskForm maskForm) {
+            super(maskForm, "Complement24.png", "complementButton",
+                  "Creates the complement of the union of the selected masks");
         }
 
         @Override
         String getCode(ActionEvent e) {
             Mask[] selectedMasks = getMaskForm().getSelectedMasks();
             StringBuilder code = new StringBuilder();
-            code.append("!");
-            code.append(BandArithmetic.createExternalName(selectedMasks[0].getName()));
-            if (selectedMasks.length > 1) {
-                code.append(" || ");
-                code.append(createCodeFromSelection("||", selectedMasks, 1));
-            }
+            code.append("!(");
+            code.append(createCodeFromSelection("||", selectedMasks, 0));
+            code.append(")");
+
             return code.toString();
         }
 
@@ -254,31 +253,36 @@ class MaskFormActions {
             final Product product = getMaskForm().getProduct();
             final String[] rasterNames = StringUtils.addArrays(product.getBandNames(),
                                                                product.getTiePointGridNames());
+
             final RangeEditorDialog.Model model = new RangeEditorDialog.Model(rasterNames);
             model.setMinValue(0.0);
             model.setMaxValue(1.0);
             model.setRasterName(rasterNames[0]);
+
             final RangeEditorDialog rangeEditorDialog = new RangeEditorDialog(model);
             if (rangeEditorDialog.show() == AbstractDialog.ID_OK) {
                 Mask.RangeType type = new Mask.RangeType();
 
-                Mask mask = createNewMask(type);
-                mask.setDescription(model.getMinValue() + " < " + model.getRasterName() + " < " + model.getMaxValue());
+                final Mask mask = createNewMask(type);
+                final String externalName = Tokenizer.createExternalName(model.getRasterName());
+                mask.setDescription(model.getMinValue() + " < " + externalName + " < " + model.getMaxValue());
+
                 final PropertyContainer config = mask.getImageConfig();
                 config.setValue(Mask.RangeType.PROPERTY_NAME_MINIMUM, model.getMinValue());
                 config.setValue(Mask.RangeType.PROPERTY_NAME_MAXIMUM, model.getMaxValue());
-                config.setValue(Mask.RangeType.PROPERTY_NAME_RASTER, model.getRasterName());
+                config.setValue(Mask.RangeType.PROPERTY_NAME_RASTER, externalName);
+
                 getMaskForm().addMask(mask);
             }
         }
 
     }
 
-    private static class NewSubtractionAction extends BandMathAction {
+    private static class NewDifferenceAction extends BandMathAction {
 
-        private NewSubtractionAction(MaskForm maskForm) {
-            super(maskForm, "Subtract24.png", "subtractButton",
-                  "Creates the subtraction of the selected masks");
+        private NewDifferenceAction(MaskForm maskForm) {
+            super(maskForm, "Difference24.png", "differenceButton",
+                  "Creates the difference of the selected masks");
         }
 
         @Override
@@ -410,6 +414,7 @@ class MaskFormActions {
                 if (expressionPane.showModalDialog(null, "Edit Band-Math Mask") == AbstractDialog.ID_OK) {
                     String code = expressionPane.getCode();
                     selectedMaskConfig.setValue("expression", code);
+                    selectedMask.setDescription(code);
                 }
             } else if (type instanceof Mask.RangeType) {
                 final Product product = getMaskForm().getProduct();
@@ -518,6 +523,5 @@ class MaskFormActions {
             mask.setDescription(code);
             getMaskForm().addMask(mask);
         }
-
     }
 }
