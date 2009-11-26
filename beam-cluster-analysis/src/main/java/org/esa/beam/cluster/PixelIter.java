@@ -31,32 +31,23 @@ class PixelIter {
     private final Tile[] tiles;
     private final Iterator<Tile.Pos> iterator;
     private final ROI roi;
-    private Tile.Pos nextPos;
 
     PixelIter(Tile[] tiles, ROI roi) {
-        this.tiles = tiles;
+        this.tiles = tiles.clone();
         this.roi = roi;
         iterator = tiles[0].iterator();
-        nextPos = null;
     }
 
-    boolean hasNext() {
-        return nextPos != null;
-    }
-
-    void next() {
+    double[] next(double[] samples) {
         while (iterator.hasNext()) {
-            nextPos = iterator.next();
+            Tile.Pos nextPos = iterator.next();
             if (roi == null || roi.contains(nextPos.x, nextPos.y)) {
-                return;
+                for (int i = 0; i < samples.length; i++) {
+                    samples[i] = tiles[i].getSampleDouble(nextPos.x, nextPos.y);
+                }
+                return samples;
             }
         }
-        nextPos = null;
-    }
-
-    void getSample(double[] point) {
-        for (int i = 0; i < point.length; i++) {
-            point[i] = tiles[i].getSampleDouble(nextPos.x, nextPos.y);
-        }
+        return null;
     }
 }

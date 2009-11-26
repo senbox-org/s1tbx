@@ -67,26 +67,27 @@ class KMeansClusterer {
     
     void iterateTile(PixelIter iter) {
         final double[] point = new double[dimensionCount];
-        iter.next();
-        while (iter.hasNext()) {
-            iter.getSample(point);
+
+        while (iter.next(point) != null) {
             final int closestCluster = getClosestCluster(means, point);
+            final double[] sumsOfClosestCluster = sums[closestCluster];
             for (int d = 0; d < dimensionCount; ++d) {
-                sums[closestCluster][d] += point[d];
+                sumsOfClosestCluster[d] += point[d];
             }
             memberCounts[closestCluster]++;
-            iter.next();
         }
     }
     
     boolean endIteration() {
         double diff = 0;
         for (int c = 0; c < clusterCount; ++c) {
+            final double[] sumsOfC = sums[c];
+            final double[] meansOfC = means[c];
             for (int d = 0; d < dimensionCount; ++d) {
                 if (memberCounts[c] > 0) {
-                    final double newMean = sums[c][d] / memberCounts[c];
-                    diff += (newMean-means[c][d])*(newMean-means[c][d]);
-                    means[c][d] = newMean;
+                    final double newMean = sumsOfC[d] / memberCounts[c];
+                    diff += (newMean- meansOfC[d])*(newMean- meansOfC[d]);
+                    meansOfC[d] = newMean;
                 }
             }
         }
