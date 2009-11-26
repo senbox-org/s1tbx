@@ -5,7 +5,6 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 
 import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -15,11 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.RenderedImage;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * A general pane within the statistics window.
