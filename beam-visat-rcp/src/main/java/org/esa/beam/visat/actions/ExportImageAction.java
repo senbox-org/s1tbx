@@ -16,9 +16,9 @@
  */
 package org.esa.beam.visat.actions;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.converters.IntegerConverter;
 import com.bc.ceres.binding.swing.BindingContext;
@@ -40,12 +40,12 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -104,12 +104,19 @@ public class ExportImageAction extends AbstractExportImageAction {
         accessory.add(sizePanel);
         fileChooser.setAccessory(accessory);
 
-        buttonFullScene.addChangeListener(new ChangeListener() {
+        buttonFullScene.addActionListener(new ActionListener() {
             @Override
-            public void stateChanged(ChangeEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 sizeComponent.updateDimensions();
             }
         });
+        buttonVisibleRegion.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sizeComponent.updateDimensions();
+            }
+        });
+
     }
 
     @Override
@@ -208,12 +215,16 @@ public class ExportImageAction extends AbstractExportImageAction {
             final long freeMemory = getFreeMemory();
             final long expectedMemory = getExpectedMemory(w, h);
             if (freeMemory < expectedMemory) {
-                final double scale = Math.sqrt((double) freeMemory / (double) expectedMemory);
-                final double scaledW = w * scale;
-                final double scaledH = h * scale;
+                final int answer = showQuestionDialog();
+                if (answer != JOptionPane.YES_OPTION) {
+                    final double scale = Math.sqrt((double) freeMemory / (double) expectedMemory);
+                    final double scaledW = w * scale;
+                    final double scaledH = h * scale;
 
-                w = toInteger(scaledW);
-                h = toInteger(scaledH);
+                    w = toInteger(scaledW);
+                    h = toInteger(scaledH);
+                }
+
             }
 
             setWidth(w);
@@ -276,19 +287,21 @@ public class ExportImageAction extends AbstractExportImageAction {
                     }
                 }
 
-                private int showQuestionDialog() {
-                    return VisatApp.getApp().showQuestionDialog(
-                            "There may not be enough memory to export the image because\n" +
-                                    "the image dimension is too large.\n\n" +
-                                    "Do you really want to keep the image dimension?", null);
-                }
             };
 
-            propertyContainer.addPropertyChangeListener(listener);
+//            propertyContainer.addPropertyChangeListener(listener);
+        }
+
+        private int showQuestionDialog() {
+            return VisatApp.getApp().showQuestionDialog(
+                    "There may not be enough memory to export the image because\n" +
+                    "the image dimension is too large.\n\n" +
+                    "Do you really want to keep the image dimension?", null);
         }
 
         private long getFreeMemory() {
-            return Runtime.getRuntime().freeMemory();
+            final long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            return Runtime.getRuntime().maxMemory() - usedMemory;
         }
 
         private long getExpectedMemory(int width, int height) {
