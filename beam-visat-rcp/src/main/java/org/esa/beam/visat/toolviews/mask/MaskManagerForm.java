@@ -16,16 +16,18 @@
  */
 package org.esa.beam.visat.toolviews.mask;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.util.StringUtils;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -47,7 +49,7 @@ class MaskManagerForm extends MaskForm {
 
     private final MaskAction[] maskActions;
 
-    public MaskManagerForm() {
+    MaskManagerForm() {
         super(true);
 
         maskActions = new MaskAction[]{
@@ -136,6 +138,7 @@ class MaskManagerForm extends MaskForm {
     }
 
     public abstract class MaskAction extends AbstractAction {
+
         MaskAction(String iconPath, String buttonName, String description) {
             putValue(ACTION_COMMAND_KEY, getClass().getName());
             putValue(LARGE_ICON_KEY, loadIcon(iconPath));
@@ -162,9 +165,31 @@ class MaskManagerForm extends MaskForm {
 
         void updateState() {
         }
+
+        protected Mask createNewMask(Mask.ImageType type) {
+            final Product product = getProduct();
+            final ProductNodeGroup<Mask> productNodeGroup = product.getMaskGroup();
+            String maskName = getNewMaskName(productNodeGroup);
+            return new Mask(maskName,
+                            product.getSceneRasterWidth(),
+                            product.getSceneRasterHeight(),
+                            type);
+        }
+
+        private String getNewMaskName(ProductNodeGroup<Mask> maskGroup) {
+            String possibleName = "New_Mask_" + maskGroup.getNodeCount();
+            for (int i = 0; i <= maskGroup.getNodeCount(); i++) {
+                possibleName = "New_Mask_" + (maskGroup.getNodeCount() + i + 1);
+                if (!maskGroup.contains(possibleName)) {
+                    break;
+                }
+            }
+            return possibleName;
+        }
     }
 
     public abstract class BandMathAction extends MaskAction {
+
         BandMathAction(String iconPath, String buttonName, String description) {
             super(iconPath, buttonName, description);
         }
@@ -203,11 +228,7 @@ class MaskManagerForm extends MaskForm {
 
 
         void addBandMathMask(String code) {
-            Mask.BandMathType type = new Mask.BandMathType();
-            Mask mask = new Mask("M_" + Long.toHexString(System.nanoTime()),
-                                 getProduct().getSceneRasterWidth(),
-                                 getProduct().getSceneRasterHeight(),
-                                 type);
+            final Mask mask = createNewMask(new Mask.BandMathType());
             mask.getImageConfig().setValue("expression", code);
             mask.setDescription(code);
             addMask(mask);
@@ -216,6 +237,7 @@ class MaskManagerForm extends MaskForm {
     }
 
     public class NewBandMathAction extends BandMathAction {
+
         public NewBandMathAction() {
             super("BandMath24.png", "bandMathButton", "Creates a new mask based on a band math expression");
         }
@@ -223,7 +245,8 @@ class MaskManagerForm extends MaskForm {
         @Override
         String getCode(ActionEvent e) {
             Product product = getProduct();
-            ProductExpressionPane expressionPane = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product, null);
+            ProductExpressionPane expressionPane = ProductExpressionPane.createBooleanExpressionPane(
+                    new Product[]{product}, product, null);
             expressionPane.setCode("");
             if (expressionPane.showModalDialog(null, "New Band-Math Mask") == AbstractDialog.ID_OK) {
                 return expressionPane.getCode();
@@ -239,25 +262,45 @@ class MaskManagerForm extends MaskForm {
 
     }
 
-    public class NewRangeAction extends BandMathAction {
+    public class NewRangeAction extends MaskAction {
+
         public NewRangeAction() {
             super("Range24.png", "rangeButton",
                   "Creates a new mask based on a value range");
         }
 
         @Override
-        String getCode(ActionEvent e) {
-            // todo - implement
-            return null;
-        }
-
-        @Override
         void updateState() {
             setEnabled(isInManagmentMode());
         }
+
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            final String[] rasterNames = StringUtils.addArrays(getProduct().getBandNames(),
+                                                               getProduct().getTiePointGridNames());
+            final RangeEditorDialog.Model model = new RangeEditorDialog.Model(rasterNames);
+            model.setMinValue(0.0);
+            model.setMaxValue(1.0);
+            model.setRasterName(rasterNames[0]);
+            final RangeEditorDialog rangeEditorDialog = new RangeEditorDialog(model);
+            if (rangeEditorDialog.show() == AbstractDialog.ID_OK) {
+                Mask.RangeType type = new Mask.RangeType();
+
+                Mask mask = createNewMask(type);
+                mask.setDescription(model.getMinValue() + " < " + model.getRasterName() + " < "+ model.getMaxValue());
+                final PropertyContainer config = mask.getImageConfig();
+                config.setValue(Mask.RangeType.PROPERTY_NAME_MINIMUM, model.getMinValue());
+                config.setValue(Mask.RangeType.PROPERTY_NAME_MAXIMUM, model.getMaxValue());
+                config.setValue(Mask.RangeType.PROPERTY_NAME_RASTER, model.getRasterName());
+                addMask(mask);
+            }
+        }
+
     }
 
     public class NewUnionAction extends BandMathAction {
+
         public NewUnionAction() {
             super("Union24.png", "unionButton",
                   "Creates the union of the selected masks");
@@ -275,6 +318,7 @@ class MaskManagerForm extends MaskForm {
     }
 
     public class NewIntersectionAction extends BandMathAction {
+
         public NewIntersectionAction() {
             super("Intersect24.png", "intersectionButton",
                   "Creates the intersection of the selected masks");
@@ -287,12 +331,12 @@ class MaskManagerForm extends MaskForm {
 
         @Override
         void updateState() {
-            setEnabled(isInManagmentMode()
-                    && getSelectedRowCount() > 1);
+            setEnabled(isInManagmentMode() && getSelectedRowCount() > 1);
         }
     }
 
     public class NewSubtractionAction extends BandMathAction {
+
         public NewSubtractionAction() {
             super("Subtract24.png", "subtractButton",
                   "Creates the subtraction of the selected masks");
@@ -313,13 +357,13 @@ class MaskManagerForm extends MaskForm {
 
         @Override
         void updateState() {
-            setEnabled(isInManagmentMode()
-                    && getSelectedRowCount() > 1);
+            setEnabled(isInManagmentMode() && getSelectedRowCount() > 1);
         }
 
     }
 
     public class NewInversionAction extends BandMathAction {
+
         public NewInversionAction() {
             super("Invert24.png", "intersectionButton",
                   "Creates the inversion of subtraction of the selected masks");
@@ -340,12 +384,12 @@ class MaskManagerForm extends MaskForm {
 
         @Override
         void updateState() {
-            setEnabled(isInManagmentMode()
-                    && getSelectedRowCount() >= 1);
+            setEnabled(isInManagmentMode() && getSelectedRowCount() >= 1);
         }
     }
 
     public class CopyAction extends MaskAction {
+
         public CopyAction() {
             super("icons/Copy24.gif", "copyButton", "Copy the selected mask.");
         }
@@ -357,16 +401,14 @@ class MaskManagerForm extends MaskForm {
 
         @Override
         void updateState() {
-            setEnabled(isInManagmentMode()
-                    && getSelectedRowCount() == 1);
+            setEnabled(isInManagmentMode() && getSelectedRowCount() == 1);
         }
+
 
         private void addNewMaskCopy() {
             Mask selectedMask = getSelectedMask();
-            Mask mask = new Mask("Copy_of_" + selectedMask.getName(),
-                                 selectedMask.getSceneRasterWidth(),
-                                 selectedMask.getSceneRasterHeight(),
-                                 selectedMask.getImageType());
+            final Mask mask = createNewMask(selectedMask.getImageType());
+            mask.setName("Copy_of_" + selectedMask.getName());
             mask.setDescription(selectedMask.getDescription());
             PropertyContainer selectedConfig = selectedMask.getImageConfig();
             Property[] models = selectedConfig.getProperties();
@@ -379,6 +421,7 @@ class MaskManagerForm extends MaskForm {
     }
 
     public class EditAction extends MaskAction {
+
         public EditAction() {
             super("icons/Edit24.gif", "editButton", "Edit the selected mask.");
         }
@@ -386,28 +429,48 @@ class MaskManagerForm extends MaskForm {
         @Override
         public void actionPerformed(ActionEvent e) {
             Mask selectedMask = getSelectedMask();
+            PropertyContainer selectedMaskConfig = selectedMask.getImageConfig();
             Mask.ImageType type = selectedMask.getImageType();
             if (type instanceof Mask.BandMathType) {
                 Product product = getProduct();
-                ProductExpressionPane expressionPane = ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product, null);
-                expressionPane.setCode((String) selectedMask.getImageConfig().getValue("expression"));
+                ProductExpressionPane expressionPane = ProductExpressionPane.createBooleanExpressionPane(
+                        new Product[]{product}, product, null);
+                expressionPane.setCode((String) selectedMaskConfig.getValue("expression"));
                 if (expressionPane.showModalDialog(null, "Edit Band-Math Mask") == AbstractDialog.ID_OK) {
                     String code = expressionPane.getCode();
-                    selectedMask.getImageConfig().setValue("expression", code);
+                    selectedMaskConfig.setValue("expression", code);
                 }
-            } else {
+            } else if (type instanceof Mask.RangeType) {
+                final Product product = getProduct();
+                final String[] rasterNames = StringUtils.addArrays(product.getBandNames(),
+                                                                   product.getTiePointGridNames());
+                final RangeEditorDialog.Model model = new RangeEditorDialog.Model(rasterNames);
+                model.setMinValue((Double) selectedMaskConfig.getValue(Mask.RangeType.PROPERTY_NAME_MINIMUM));
+                model.setMaxValue((Double) selectedMaskConfig.getValue(Mask.RangeType.PROPERTY_NAME_MAXIMUM));
+                model.setRasterName((String) selectedMaskConfig.getValue(Mask.RangeType.PROPERTY_NAME_RASTER));
+                final RangeEditorDialog rangeEditorDialog = new RangeEditorDialog(model);
+                if (rangeEditorDialog.show() == AbstractDialog.ID_OK) {
+                    final String description = String.format("%s < %s < %s",
+                                                       model.getMinValue(), model.getRasterName(), model.getMaxValue());
+                    selectedMask.setDescription(description);
+                    selectedMaskConfig.setValue(Mask.RangeType.PROPERTY_NAME_MINIMUM, model.getMinValue());
+                    selectedMaskConfig.setValue(Mask.RangeType.PROPERTY_NAME_MAXIMUM, model.getMaxValue());
+                    selectedMaskConfig.setValue(Mask.RangeType.PROPERTY_NAME_RASTER, model.getRasterName());
+                }
+            }else {
                 // todo - implement for other types too
+
             }
         }
 
         @Override
         void updateState() {
-            setEnabled(isInManagmentMode()
-                    && getSelectedRowCount() == 1);
+            setEnabled(isInManagmentMode() && getSelectedRowCount() == 1);
         }
     }
 
     public class RemoveAction extends MaskAction {
+
         public RemoveAction() {
             super("icons/Remove24.gif", "editButton", "Edit the selected mask.");
         }
@@ -428,6 +491,7 @@ class MaskManagerForm extends MaskForm {
     }
 
     public class ImportAction extends MaskAction {
+
         public ImportAction() {
             super("icons/Import24.gif", "importButton", "Import masks from file.");
         }
@@ -444,6 +508,7 @@ class MaskManagerForm extends MaskForm {
     }
 
     public class ExportAction extends MaskAction {
+
         public ExportAction() {
             super("icons/Export24.gif", "exportButton", "Export masks from file.");
         }
@@ -456,11 +521,12 @@ class MaskManagerForm extends MaskForm {
         @Override
         void updateState() {
             setEnabled(isInManagmentMode()
-                    && getSelectedRowCount() > 0);
+                       && getSelectedRowCount() > 0);
         }
     }
 
     public class MoveUpAction extends MaskAction {
+
         public MoveUpAction() {
             super("icons/Up24.gif", "moveUpButton", "Moves up the selected mask.");
         }
@@ -473,11 +539,12 @@ class MaskManagerForm extends MaskForm {
         @Override
         void updateState() {
             setEnabled(getSelectedRowCount() == 1
-                    && getSelectedRow() > 0);
+                       && getSelectedRow() > 0);
         }
     }
 
     public class MoveDownAction extends MaskAction {
+
         public MoveDownAction() {
             super("icons/Down24.gif", "moveDownButton", "Moves down the selected mask.");
         }
@@ -490,11 +557,12 @@ class MaskManagerForm extends MaskForm {
         @Override
         void updateState() {
             setEnabled(getSelectedRowCount() == 1
-                    && getSelectedRow() < getRowCount() - 1);
+                       && getSelectedRow() < getRowCount() - 1);
         }
     }
 
     public class NullAction extends MaskAction {
+
         public NullAction() {
             super("", "", "");
         }

@@ -9,15 +9,15 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VectorDataMaskOpImage;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.StringUtils;
 
-import javax.media.jai.operator.ErodeDescriptor;
-import javax.media.jai.operator.DilateDescriptor;
 import javax.media.jai.KernelJAI;
+import javax.media.jai.operator.DilateDescriptor;
 import java.awt.Color;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
@@ -37,7 +37,8 @@ public class Mask extends Band {
 
     private final ImageType imageType;
     private final PropertyChangeListener imageConfigListener;
-    private volatile PropertyContainer imageConfig;
+    private final PropertyContainer imageConfig;
+
 
     /**
      * Constructs a new mask.
@@ -54,6 +55,9 @@ public class Mask extends Band {
         this.imageConfigListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
+                if (isSourceImageSet()) {
+                    getSourceImage().reset();
+                }
                 fireProductNodeChanged(evt.getPropertyName(), evt.getOldValue());
             }
         };
@@ -72,13 +76,6 @@ public class Mask extends Band {
      * @return The image configuration of this mask.
      */
     public PropertyContainer getImageConfig() {
-        if (imageConfig == null) {
-            synchronized (this) {
-                if (imageConfig == null) {
-                    imageConfig = imageType.createImageConfig();
-                }
-            }
-        }
         return imageConfig;
     }
 
@@ -149,7 +146,7 @@ public class Mask extends Band {
     /**
      * Specifies a factory for the {@link RasterDataNode#getSourceImage() source image} used by a {@link Mask}.
      */
-    public static abstract class ImageType {
+    public abstract static class ImageType {
         public static final String PROPERTY_NAME_COLOR = "color";
         public static final String PROPERTY_NAME_TRANSPARENCY = "transparency";
         private static final Color DEFAULT_COLOR = Color.RED;
@@ -269,7 +266,7 @@ public class Mask extends Band {
     }
 
     /**
-     * A mask image type which is based on band math.
+     * A mask image type which is based on vector data.
      */
     public static class VectorDataType extends ImageType {
         public static final String PROPERTY_NAME_VECTOR_DATA = "vectorData";
@@ -326,6 +323,55 @@ public class Mask extends Band {
 
         public static void setVectorData(Mask mask, VectorData vectorData) {
             mask.getImageConfig().setValue(PROPERTY_NAME_VECTOR_DATA, vectorData);
+        }
+    }
+
+    public static class RangeType extends ImageType {
+
+        public static final String PROPERTY_NAME_MINIMUM = "minimum";
+        public static final String PROPERTY_NAME_MAXIMUM = "maximum";
+        public static final String PROPERTY_NAME_RASTER = "rasterName";
+
+        public RangeType() {
+            super("Value range");
+        }
+
+        @Override
+        public MultiLevelImage createImage(final Mask mask) {
+            MultiLevelSource mls = new AbstractMultiLevelSource(ImageManager.createMultiLevelModel(mask)) {
+                @Override
+                public RenderedImage createImage(int level) {
+                    final Double min = (Double) mask.getImageConfig().getValue(PROPERTY_NAME_MINIMUM);
+                    final Double max = (Double) mask.getImageConfig().getValue(PROPERTY_NAME_MAXIMUM);
+                    final String rasterName = (String) mask.getImageConfig().getValue(PROPERTY_NAME_RASTER);
+                    final String escapedName = BandArithmetic.createExternalName(rasterName);
+                    final String expression = escapedName + " >= " + min + " && " + escapedName + " <= " + max;
+                    return VirtualBandOpImage.createMask(expression,
+                                                         mask.getProduct(),
+                                                         ResolutionLevel.create(getModel(), level));
+                }
+            };
+            return new DefaultMultiLevelImage(mls);
+        }
+
+        @Override
+        public PropertyContainer createImageConfig() {
+            PropertyDescriptor minimumDescriptor = new PropertyDescriptor(PROPERTY_NAME_MINIMUM, Double.class);
+            minimumDescriptor.setNotNull(true);
+            minimumDescriptor.setNotEmpty(true);
+            PropertyDescriptor maximumDescriptor = new PropertyDescriptor(PROPERTY_NAME_MAXIMUM, Double.class);
+            maximumDescriptor.setNotNull(true);
+            maximumDescriptor.setNotEmpty(true);
+            PropertyDescriptor rasterDescriptor = new PropertyDescriptor(PROPERTY_NAME_RASTER, String.class);
+            rasterDescriptor.setNotNull(true);
+            rasterDescriptor.setNotEmpty(true);
+
+            PropertyContainer imageConfig = super.createImageConfig();
+            imageConfig.addProperty(new Property(minimumDescriptor, new DefaultPropertyAccessor()));
+            imageConfig.addProperty(new Property(maximumDescriptor, new DefaultPropertyAccessor()));
+            imageConfig.addProperty(new Property(rasterDescriptor, new DefaultPropertyAccessor()));
+
+            return imageConfig;
         }
     }
 }
