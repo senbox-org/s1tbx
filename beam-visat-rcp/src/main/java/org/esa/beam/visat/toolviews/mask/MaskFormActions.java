@@ -533,7 +533,11 @@ class MaskFormActions {
             imageConfig.addPropertyChangeListener("expression", new PropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
-                    mask.setDescription((String) evt.getNewValue());
+                    if (evt.getOldValue().equals(mask.getDescription())) {
+                        mask.setDescription((String) evt.getNewValue());
+                    } else {
+                        // description my have been set by user, ignore change
+                    }
                 }
             });
             mask.setDescription(code);
