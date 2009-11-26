@@ -244,7 +244,8 @@ public class Mask extends Band {
             expressionDescriptor.setNotEmpty(true);
 
             PropertyContainer imageConfig = super.createImageConfig();
-            imageConfig.addProperty(new Property(expressionDescriptor, new DefaultPropertyAccessor()));
+            final Property property = new Property(expressionDescriptor, new DefaultPropertyAccessor());
+            imageConfig.addProperty(property);
 
             return imageConfig;
         }

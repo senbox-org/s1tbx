@@ -14,6 +14,8 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * @author Marco Peters
@@ -267,11 +269,18 @@ class MaskFormActions {
                 final String externalName = Tokenizer.createExternalName(model.getRasterName());
                 mask.setDescription(model.getMinValue() + " < " + externalName + " < " + model.getMaxValue());
 
-                final PropertyContainer config = mask.getImageConfig();
-                config.setValue(Mask.RangeType.PROPERTY_NAME_MINIMUM, model.getMinValue());
-                config.setValue(Mask.RangeType.PROPERTY_NAME_MAXIMUM, model.getMaxValue());
-                config.setValue(Mask.RangeType.PROPERTY_NAME_RASTER, externalName);
-
+                final PropertyContainer imageConfig = mask.getImageConfig();
+                imageConfig.setValue(Mask.RangeType.PROPERTY_NAME_MINIMUM, model.getMinValue());
+                imageConfig.setValue(Mask.RangeType.PROPERTY_NAME_MAXIMUM, model.getMaxValue());
+                imageConfig.setValue(Mask.RangeType.PROPERTY_NAME_RASTER, externalName);
+                imageConfig.addPropertyChangeListener(new PropertyChangeListener() {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        final String oldText = evt.getOldValue().toString();
+                        final String newText = evt.getNewValue().toString();
+                        mask.setDescription(mask.getDescription().replace(oldText, newText));
+                    }
+                });
                 getMaskForm().addMask(mask);
             }
         }
@@ -519,7 +528,14 @@ class MaskFormActions {
 
         void addBandMathMask(String code) {
             final Mask mask = createNewMask(new Mask.BandMathType());
-            mask.getImageConfig().setValue("expression", code);
+            final PropertyContainer imageConfig = mask.getImageConfig();
+            imageConfig.setValue("expression", code);
+            imageConfig.addPropertyChangeListener("expression", new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    mask.setDescription((String) evt.getNewValue());
+                }
+            });
             mask.setDescription(code);
             getMaskForm().addMask(mask);
         }
