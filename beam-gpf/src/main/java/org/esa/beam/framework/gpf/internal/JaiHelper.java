@@ -30,7 +30,7 @@ public class JaiHelper {
                                               HashMap<String, Object> operationParameters,
                                               RenderingHints renderingHints) throws OperatorException {
         if (operationName == null) {
-            throw new OperatorException(MessageFormat.format("Missing parameter ''{0}''.", operationName));
+            throw new OperatorException("Missing parameter 'operationName'.");
         }
         if (operationParameters == null) {
             operationParameters = new HashMap<String, Object>(0);
