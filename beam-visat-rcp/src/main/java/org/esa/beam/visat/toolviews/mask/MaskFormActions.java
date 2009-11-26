@@ -105,15 +105,38 @@ class MaskFormActions {
     }
 
 
-    private static class MoveDownAction extends MaskAction {
+    private abstract static class MoveAction extends MaskAction {
+
+        MoveAction(MaskForm maskForm, String iconPath, String buttonName, String description) {
+            super(maskForm, iconPath, buttonName, description);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            final MaskForm maskForm = getMaskForm();
+            final Mask selectedMask = maskForm.getSelectedMask();
+            int selectedMaskIndex = maskForm.getSelectedRow();
+            maskForm.removeMask(selectedMask);
+            final int newIndex = getNewIndex(selectedMaskIndex);
+            maskForm.insertMask(selectedMask, newIndex);
+            maskForm.setSelectedRow(newIndex);
+        }
+
+        protected abstract int getNewIndex(int oldIndex);
+
+        @Override
+        abstract void updateState();
+    }
+
+    private static class MoveDownAction extends MoveAction {
 
         private MoveDownAction(MaskForm maskForm) {
             super(maskForm, "icons/Down24.gif", "moveDownButton", "Moves down the selected mask.");
         }
 
         @Override
-        public void actionPerformed(ActionEvent e) {
-            // todo - implement
+        protected int getNewIndex(int oldIndex) {
+            return oldIndex + 1;
         }
 
         @Override
@@ -123,15 +146,15 @@ class MaskFormActions {
         }
     }
 
-    private static class MoveUpAction extends MaskAction {
+    private static class MoveUpAction extends MoveAction {
 
         private MoveUpAction(MaskForm maskForm) {
             super(maskForm, "icons/Up24.gif", "moveUpButton", "Moves up the selected mask.");
         }
 
         @Override
-        public void actionPerformed(ActionEvent e) {
-            // todo - implement
+        protected int getNewIndex(int oldIndex) {
+            return oldIndex - 1;
         }
 
         @Override

@@ -31,8 +31,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import java.awt.Color;
@@ -109,6 +107,10 @@ class MaskTable extends JTable {
         int rowIndex = getModel().getMaskIndex(mask.getName());
         getSelectionModel().addSelectionInterval(rowIndex, rowIndex);
         scrollRectToVisible(getCellRect(rowIndex, 0, true));
+    }
+
+    public void insertMask(Mask mask, int index) {
+        getModel().addMask(mask, index);
     }
 
     void removeMask(Mask mask) {

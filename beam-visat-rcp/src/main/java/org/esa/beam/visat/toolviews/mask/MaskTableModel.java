@@ -165,6 +165,11 @@ class MaskTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
+    public void addMask(Mask mask, int index) {
+        getProduct().getMaskGroup().add(index, mask);
+        fireTableDataChanged();
+    }
+
     void removeMask(Mask mask) {
         getProduct().getMaskGroup().remove(mask);
         fireTableDataChanged();

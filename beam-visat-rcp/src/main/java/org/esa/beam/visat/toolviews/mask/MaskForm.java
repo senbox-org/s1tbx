@@ -101,6 +101,9 @@ abstract class MaskForm {
         maskTable.addMask(mask);
     }
 
+    public void insertMask(Mask mask, int index) {
+        maskTable.insertMask(mask, index);
+    }
     public void removeMask(Mask mask) {
         maskTable.removeMask(mask);
     }
@@ -115,6 +118,10 @@ abstract class MaskForm {
 
     public int getSelectedRow() {
         return maskTable.getSelectedRow();
+    }
+
+    public void setSelectedRow(int rowIndex) {
+        maskTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
     }
 
     public int getRowCount() {
