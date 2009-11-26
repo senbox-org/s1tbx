@@ -64,9 +64,9 @@ abstract class MaskAction extends AbstractAction {
     }
 
     private String getNewMaskName(ProductNodeGroup<Mask> maskGroup) {
-        String possibleName = "New_Mask_" + maskGroup.getNodeCount();
+        String possibleName = "new_mask_" + maskGroup.getNodeCount();
         for (int i = 0; i <= maskGroup.getNodeCount(); i++) {
-            possibleName = "New_Mask_" + (maskGroup.getNodeCount() + i + 1);
+            possibleName = "new_mask_" + (maskGroup.getNodeCount() + i + 1);
             if (!maskGroup.contains(possibleName)) {
                 break;
             }
