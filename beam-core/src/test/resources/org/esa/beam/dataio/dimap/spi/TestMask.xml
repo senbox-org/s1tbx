@@ -1,0 +1,6 @@
+<Mask type="Test">
+  <NAME value="Bibo" />
+  <DESCRIPTION value="A big yellow bird is in the pixel." />
+  <COLOR red="17" green="11" blue="67" alpha="255" />
+  <TRANSPARENCY value="0.7" />
+</Mask>

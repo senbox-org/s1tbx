@@ -1,6 +1,6 @@
 package org.esa.beam.dataio.dimap.spi;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.glevel.MultiLevelImage;
 import static org.esa.beam.dataio.dimap.DimapProductConstants.*;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
@@ -15,20 +15,8 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class RangeTypePersistableTest {
+public class MaskPersistableTest {
 
-
-    /*
-    <Mask type="Range">
-      <NAME value="myRange" />
-      <DESCRIPTION value="Carefully defined range" />
-      <COLOR red="0" green="255" blue="0" alpha="128" />
-      <TRANSPARENCY value="0.78" />
-      <MINIMUM value="0.35" />
-      <MAXIMUM value="0.76" />
-      <RASTER value="reflectance_13" />
-    </Mask>
-    */
     @Test
     public void createXmlFromObject() {
         final Mask.RangeType rangeType = new Mask.RangeType();
@@ -36,10 +24,6 @@ public class RangeTypePersistableTest {
         mask.setDescription("Carefully defined range");
         mask.setImageColor(new Color(0, 255, 0, 128));
         mask.setImageTransparency(0.78);
-        final PropertyContainer config = mask.getImageConfig();
-        config.setValue(Mask.RangeType.PROPERTY_NAME_MINIMUM, 0.35);
-        config.setValue(Mask.RangeType.PROPERTY_NAME_MAXIMUM, 0.76);
-        config.setValue(Mask.RangeType.PROPERTY_NAME_RASTER, "reflectance_13");
 
         final RangeTypePersistable persistable = new RangeTypePersistable();
         final Element element = persistable.createXmlFromObject(mask);
@@ -61,35 +45,38 @@ public class RangeTypePersistableTest {
 
         final Element transparency = element.getChild(TAG_TRANSPARENCY);
         assertEquals(0.78, getAttributeDouble(transparency, ATTRIB_VALUE), 0.0);
-
-
-        final Element minimum = element.getChild(TAG_MINIMUM);
-        assertEquals(0.35, getAttributeDouble(minimum, ATTRIB_VALUE), 0.0);
-        final Element maximum = element.getChild(TAG_MAXIMUM);
-        assertEquals(0.76, getAttributeDouble(maximum, ATTRIB_VALUE), 0.0);
-        final Element raster = element.getChild(TAG_RASTER);
-        assertEquals("reflectance_13", getAttributeString(raster, ATTRIB_VALUE));
     }
 
     @Test
-    public void createMaskFromXml() throws IOException, JDOMException {
-        final DimapPersistable persistable = new RangeTypePersistable();
-        final InputStream resourceStream = getClass().getResourceAsStream("RangeMask.xml");
+    public void testXmlCreationWithoutMaskDescription() {
+        final Mask mask = new Mask("name", 10, 10, new TestImageType());
+        mask.setDescription(null);
+        final DimapPersistable persistable = new TestMaskPersistable();
+        final Element element = persistable.createXmlFromObject(mask);
+
+        final Element description = element.getChild(TAG_DESCRIPTION);
+        assertNotNull(description);
+        assertTrue(description.getAttribute(ATTRIB_VALUE).getValue().isEmpty());
+    }
+
+    @Test
+    public void testMaskCreation() throws IOException, JDOMException {
+        final DimapPersistable persistable = new TestMaskPersistable();
+        final InputStream resourceStream = getClass().getResourceAsStream("TestMask.xml");
         final Document document = new SAXBuilder().build(resourceStream);
         final Product product = new Product("P", "T", 10, 10);
         final Mask maskFromXml = (Mask) persistable.createObjectFromXml(document.getRootElement(), product);
 
         assertNotNull(maskFromXml);
-        assertEquals(Mask.RangeType.class, maskFromXml.getImageType().getClass());
-        assertEquals("myRange", maskFromXml.getName());
-        assertEquals("Carefully defined range", maskFromXml.getDescription());
-        assertEquals(0.78, maskFromXml.getImageTransparency(), 0.0);
-        assertEquals(new Color(0, 255, 0, 128), maskFromXml.getImageColor());
-
-        assertEquals(0.35, maskFromXml.getImageConfig().getValue(Mask.RangeType.PROPERTY_NAME_MINIMUM));
-        assertEquals(0.76, maskFromXml.getImageConfig().getValue(Mask.RangeType.PROPERTY_NAME_MAXIMUM));
-        assertEquals("reflectance_13", maskFromXml.getImageConfig().getValue(Mask.RangeType.PROPERTY_NAME_RASTER));
+        assertEquals(TestImageType.class, maskFromXml.getImageType().getClass());
+        assertEquals(10, maskFromXml.getSceneRasterWidth());
+        assertEquals(10, maskFromXml.getSceneRasterHeight());
+        assertEquals("Bibo", maskFromXml.getName());
+        assertEquals("A big yellow bird is in the pixel.", maskFromXml.getDescription());
+        assertEquals(0.7, maskFromXml.getImageTransparency(), 0.0);
+        assertEquals(new Color(17, 11, 67), maskFromXml.getImageColor());
     }
+
 
     private int getAttributeInt(Element element, String attribName) {
         return Integer.parseInt(element.getAttribute(attribName).getValue());
@@ -101,5 +88,33 @@ public class RangeTypePersistableTest {
 
     private String getAttributeString(Element element, String attribName) {
         return element.getAttribute(attribName).getValue();
+    }
+
+    private class TestMaskPersistable extends MaskPersistable {
+
+        @Override
+        protected Mask.ImageType createImageType() {
+            return new TestImageType();
+        }
+
+        @Override
+        protected void configureMask(Mask mask, Element element) {
+        }
+
+        @Override
+        protected void configureElement(Element root, Mask mask) {
+        }
+    }
+
+    private static class TestImageType extends Mask.ImageType {
+
+        public TestImageType() {
+            super("type");
+        }
+
+        @Override
+            public MultiLevelImage createImage(Mask mask) {
+            return null;
+        }
     }
 }

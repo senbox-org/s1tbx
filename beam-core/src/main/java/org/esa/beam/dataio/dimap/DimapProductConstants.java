@@ -667,7 +667,12 @@ public final class DimapProductConstants {
     public static final String TAG_NAME = "NAME";
     public static final String TAG_DESCRIPTION = "DESCRIPTION";
     public static final String TAG_TRANSPARENCY = "TRANSPARENCY";
+    // BandMathMask
     public static final String TAG_EXPRESSION = "EXPRESSION";
+    // RangeMask
+    public static final String TAG_MINIMUM = "MINIMUM";
+    public static final String TAG_MAXIMUM = "MAXIMUM";
+    public static final String TAG_RASTER = "RASTER";
 
     // BEAM-Dimap bitmask definition tags
     public static final String TAG_BITMASK_DEFINITIONS = "Bitmask_Definitions";

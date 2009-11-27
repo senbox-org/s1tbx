@@ -9,7 +9,6 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import static org.junit.Assert.*;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -18,22 +17,23 @@ import java.io.InputStream;
 
 public class BandMathMaskPersistableTest {
 
-    private Mask mask;
-
-    @Before
-    public void setup() {
-        mask = new Mask("Bibo", 10, 10, new Mask.BandMathType());
+    /*
+    <Mask type="Math">
+      <NAME value="Bibo" />
+      <DESCRIPTION value="A big yellow bird is in the pixel." />
+      <COLOR red="17" green="11" blue="67" alpha="255" />
+      <TRANSPARENCY value="0.7" />
+      <EXPRESSION value="false" />
+    </Mask>
+    */
+    @Test
+    public void testXmlCreation() {
+        Mask mask = new Mask("Bibo", 10, 10, new Mask.BandMathType());
         mask.setImageColor(new Color(17, 11, 67));
         mask.setImageTransparency(0.7);
         mask.setDescription("A big yellow bird is in the pixel.");
         mask.getImageConfig().setValue(Mask.BandMathType.PROPERTY_NAME_EXPRESSION, "false");
 
-        final Product product = new Product("P", "T", 10, 10);
-        product.getMaskGroup().add(mask);
-    }
-
-    @Test
-    public void testXmlCreation() {
         final DimapPersistable persistable = new BandMathMaskPersistable();
 
         final Element element = persistable.createXmlFromObject(mask);
@@ -58,11 +58,10 @@ public class BandMathMaskPersistableTest {
         assertEquals(17, getAttributeInt(color, ATTRIB_RED));
         assertEquals(11, getAttributeInt(color, ATTRIB_GREEN));
         assertEquals(67, getAttributeInt(color, ATTRIB_BLUE));
-        assertEquals(255,getAttributeInt(color, ATTRIB_ALPHA));
+        assertEquals(255, getAttributeInt(color, ATTRIB_ALPHA));
 
         final Element transparency = element.getChild(TAG_TRANSPARENCY);
         assertEquals(0.7, getAttributeDouble(transparency, ATTRIB_VALUE), 0.0);
-
 
         final Element expression = element.getChild(TAG_EXPRESSION);
         assertNotNull(expression);
@@ -71,22 +70,12 @@ public class BandMathMaskPersistableTest {
 
 
     @Test
-    public void testXmlCreationWithoutMaskDescription() {
-        mask.setDescription(null);
-        final DimapPersistable persistable = new BandMathMaskPersistable();
-        final Element element = persistable.createXmlFromObject(mask);
-
-        final Element description = element.getChild(TAG_DESCRIPTION);
-        assertNotNull(description);
-        assertTrue(description.getAttribute(ATTRIB_VALUE).getValue().isEmpty());
-    }
-
-    @Test
     public void testMaskCreation() throws IOException, JDOMException {
         final DimapPersistable persistable = new BandMathMaskPersistable();
         final InputStream resourceStream = getClass().getResourceAsStream("BandMathMask.xml");
         final Document document = new SAXBuilder().build(resourceStream);
-        final Mask maskFromXml = (Mask) persistable.createObjectFromXml(document.getRootElement(), mask.getProduct());
+        final Product product = new Product("P", "T", 10, 10);
+        final Mask maskFromXml = (Mask) persistable.createObjectFromXml(document.getRootElement(), product);
 
         assertNotNull(maskFromXml);
         assertEquals(Mask.BandMathType.class, maskFromXml.getImageType().getClass());

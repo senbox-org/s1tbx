@@ -334,12 +334,14 @@ public class Mask extends Band {
 
     public static class RangeType extends ImageType {
 
+        public  static final String TYPE_NAME = "Range";
+        
         public static final String PROPERTY_NAME_MINIMUM = "minimum";
         public static final String PROPERTY_NAME_MAXIMUM = "maximum";
         public static final String PROPERTY_NAME_RASTER = "rasterName";
 
         public RangeType() {
-            super("Range");
+            super(TYPE_NAME);
         }
 
         @Override
