@@ -55,22 +55,13 @@ public class BandMathMaskPersistableTest {
 
         final Element color = element.getChild(TAG_COLOR);
         assertNotNull(color);
-        final Attribute red = color.getAttribute(ATTRIB_RED);
-        assertNotNull(red);
-        assertEquals(17, Integer.parseInt(red.getValue()));
-        final Attribute green = color.getAttribute(ATTRIB_GREEN);
-        assertNotNull(green);
-        assertEquals(11, Integer.parseInt(green.getValue()));
-        final Attribute blue = color.getAttribute(ATTRIB_BLUE);
-        assertNotNull(blue);
-        assertEquals(67, Integer.parseInt(blue.getValue()));
-        final Attribute alpha = color.getAttribute(ATTRIB_ALPHA);
-        assertNotNull(alpha);
-        assertEquals(255, Integer.parseInt(alpha.getValue()));
+        assertEquals(17, getAttributeInt(color, ATTRIB_RED));
+        assertEquals(11, getAttributeInt(color, ATTRIB_GREEN));
+        assertEquals(67, getAttributeInt(color, ATTRIB_BLUE));
+        assertEquals(255,getAttributeInt(color, ATTRIB_ALPHA));
 
         final Element transparency = element.getChild(TAG_TRANSPARENCY);
-        assertNotNull(transparency);
-        assertEquals(0.7, Double.parseDouble(transparency.getAttribute(ATTRIB_VALUE).getValue()), 0.0);
+        assertEquals(0.7, getAttributeDouble(transparency, ATTRIB_VALUE), 0.0);
 
 
         final Element expression = element.getChild(TAG_EXPRESSION);
@@ -108,5 +99,12 @@ public class BandMathMaskPersistableTest {
         assertEquals("false", maskFromXml.getImageConfig().getValue(Mask.BandMathType.PROPERTY_NAME_EXPRESSION));
     }
 
+    private int getAttributeInt(Element element, String attribName) {
+        return Integer.parseInt(element.getAttribute(attribName).getValue());
+    }
+
+    private double getAttributeDouble(Element element, String attribName) {
+        return Double.parseDouble(element.getAttribute(attribName).getValue());
+    }
 
 }
