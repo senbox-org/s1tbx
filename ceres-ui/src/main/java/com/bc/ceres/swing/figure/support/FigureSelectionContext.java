@@ -42,6 +42,10 @@ public class FigureSelectionContext implements SelectionContext {
         this.selectionChangeSupport = new SelectionChangeSupport(figureEditor);
     }
 
+    public FigureEditor getFigureEditor() {
+        return figureEditor;
+    }
+
     public FigureCollection getFigureCollection() {
         return figureCollection;
     }
