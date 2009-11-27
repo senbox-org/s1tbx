@@ -110,6 +110,7 @@ class MaskFormActions {
             Product product = getMaskForm().getProduct();
             ProductExpressionPane expressionPane = ProductExpressionPane.createBooleanExpressionPane(
                     new Product[]{product}, product, null);
+            expressionPane.setEmptyExpressionAllowed(false);
             expressionPane.setCode("");
             if (expressionPane.showModalDialog(null, "New Band-Math Mask") == AbstractDialog.ID_OK) {
                 final String code = expressionPane.getCode();
@@ -351,6 +352,7 @@ class MaskFormActions {
                 Product product = getMaskForm().getProduct();
                 ProductExpressionPane expressionPane = ProductExpressionPane.createBooleanExpressionPane(
                         new Product[]{product}, product, null);
+                expressionPane.setEmptyExpressionAllowed(false);
                 expressionPane.setCode((String) selectedMaskConfig.getValue("expression"));
                 if (expressionPane.showModalDialog(null, "Edit Band-Math Mask") == AbstractDialog.ID_OK) {
                     String code = expressionPane.getCode();

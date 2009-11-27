@@ -16,23 +16,51 @@
  */
 package org.esa.beam.framework.ui;
 
-import com.bc.jexp.*;
+import com.bc.jexp.Function;
+import com.bc.jexp.Namespace;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Term;
 import com.bc.jexp.impl.NamespaceImpl;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.PropertyMap;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 
 /**
  * The expression pane is a UI component which is used to edit mathematical expressions. There are four methods which
@@ -142,6 +170,7 @@ public class ExpressionPane extends JPanel {
     private PropertyMap preferences;
     private List<String> history;
     private int historyIndex;
+    private boolean emptyExpressionAllowed;
 
     /**
      * Constructs a new expression pane.
@@ -157,6 +186,7 @@ public class ExpressionPane extends JPanel {
         booleanExpressionPreferred = requiresBoolExpr;
         history = new LinkedList<String>();
         historyIndex = -1;
+        emptyExpressionAllowed = true;
         setPreferences(preferences);
         createUI();
     }
@@ -175,6 +205,14 @@ public class ExpressionPane extends JPanel {
         if (this.preferences != null) {
             loadCodeHistory();
         }
+    }
+
+    public void setEmptyExpressionAllowed(boolean allow) {
+        this.emptyExpressionAllowed = allow;
+    }
+
+    public boolean isEmptyExpressionAllowed() {
+        return emptyExpressionAllowed;
     }
 
     public void updateCodeHistory() {
@@ -695,13 +733,18 @@ public class ExpressionPane extends JPanel {
 
     protected void checkCode(String code) {
         lastErrorMessage = null;
-        if (code == null) {
-            return;
-        }
 
         String message;
         Color foreground;
-        if (code.indexOf(PLACEHOLDER) >= 0) {
+        if ((code == null || code.trim().isEmpty())) {
+            if (emptyExpressionAllowed) {
+                return;
+            } else {
+                lastErrorMessage = "Empty expression not allowed.";   /*I18N*/
+                message = lastErrorMessage;
+                foreground = warnMsgColor;
+            }
+        } else if (code.contains(PLACEHOLDER)) {
             lastErrorMessage = "Replace '@' by inserting an element.";   /*I18N*/
             message = lastErrorMessage;
             foreground = warnMsgColor;
@@ -866,18 +909,20 @@ public class ExpressionPane extends JPanel {
     }
 
     class ExpressionPaneDialog extends ModalDialog {
+
         public ExpressionPaneDialog(Window parent, String title) {
-            super(parent, title, ExpressionPane.this, ModalDialog.ID_OK_CANCEL | ModalDialog.ID_HELP, ExpressionPane.HELP_ID);
+            super(parent, title, ExpressionPane.this, ModalDialog.ID_OK_CANCEL | ModalDialog.ID_HELP,
+                  ExpressionPane.HELP_ID);
         }
 
         @Override
-            protected void onOK() {
+        protected void onOK() {
             updateCodeHistory();
             super.onOK();
         }
 
         @Override
-            protected boolean verifyUserInput() {
+        protected boolean verifyUserInput() {
             checkCode();
             String lastErrorMessage = getLastErrorMessage();
             if (lastErrorMessage != null) {
