@@ -83,6 +83,7 @@ class GeneralFilterBandPersistable implements DimapPersistable {
         return gfb;
     }
 
+    @Override
     public Element createXmlFromObject(Object object) {
         final GeneralFilterBand gfb = (GeneralFilterBand) object;
         final List<Element> contentList = new ArrayList<Element>(20);

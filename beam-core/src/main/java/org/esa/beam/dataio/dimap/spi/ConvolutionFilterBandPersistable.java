@@ -26,6 +26,7 @@ import org.esa.beam.util.StringUtils;
 import org.jdom.Element;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Marco Peters.
@@ -37,6 +38,7 @@ import java.util.ArrayList;
  */
 class ConvolutionFilterBandPersistable implements DimapPersistable {
 
+    @Override
     public Object createObjectFromXml(Element element, Product product) {
         final Element filterInfo = element.getChild(DimapProductConstants.TAG_FILTER_BAND_INFO);
         final Element kernelInfo = filterInfo.getChild(DimapProductConstants.TAG_FILTER_KERNEL);
@@ -66,9 +68,10 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
         return cfb;
     }
 
+    @Override
     public Element createXmlFromObject(Object object) {
         final ConvolutionFilterBand cfb = (ConvolutionFilterBand) object;
-        final ArrayList contentList = new ArrayList();
+        final List<Element> contentList = new ArrayList<Element>();
         contentList.add(createElement(DimapProductConstants.TAG_BAND_INDEX, String.valueOf(cfb.getProduct().getBandIndex(cfb.getName()))));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_NAME, cfb.getName()));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_DESCRIPTION, cfb.getDescription()));
@@ -83,10 +86,10 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
         contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE_USED, String.valueOf(cfb.isNoDataValueUsed())));
         contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE, String.valueOf(cfb.getNoDataValue())));
 
-        final ArrayList filterBandInfoList = new ArrayList();
+        final List<Element> filterBandInfoList = new ArrayList<Element>();
         filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SOURCE, cfb.getSource().getName()));
 
-        final ArrayList filterKernelList = new ArrayList();
+        final List<Element> filterKernelList = new ArrayList<Element>();
         filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_WIDTH, String.valueOf(cfb.getKernel().getWidth())));
         filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_HEIGHT, String.valueOf(cfb.getKernel().getHeight())));
         filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_FACTOR, String.valueOf(cfb.getKernel().getFactor())));

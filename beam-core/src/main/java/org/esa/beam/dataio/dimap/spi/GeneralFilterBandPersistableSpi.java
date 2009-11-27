@@ -36,6 +36,7 @@ public class GeneralFilterBandPersistableSpi implements DimapPersistableSpi {
         return new GeneralFilterBandPersistable();
     }
 
+    @Override
     public boolean canDecode(Element element) {
         final String elementName = element.getName();
         if(elementName.equals(DimapProductConstants.TAG_SPECTRAL_BAND_INFO)) {
@@ -50,6 +51,7 @@ public class GeneralFilterBandPersistableSpi implements DimapPersistableSpi {
         return false;
     }
 
+    @Override
     public boolean canPersist(Object object) {
         return object instanceof GeneralFilterBand;
     }
