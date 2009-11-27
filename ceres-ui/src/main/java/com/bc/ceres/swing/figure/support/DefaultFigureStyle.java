@@ -40,15 +40,16 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         addPropertyChangeListener(new StrokeNuller());
     }
 
-    public DefaultFigureStyle(Paint fillPaint, Paint strokePaint) {
-        this("", fillPaint, strokePaint, null);
+    public static DefaultFigureStyle createShapeStyle(Paint fillPaint, Paint strokePaint) {
+        return createShapeStyle(fillPaint, strokePaint, new BasicStroke(1.0f));
     }
 
-    public DefaultFigureStyle(String name, Paint fillPaint, Paint strokePaint, Stroke stroke) {
-        this(name, DEFAULT_STYLE);
-        setFillPaint(fillPaint);
-        setStrokePaint(strokePaint);
-        setStroke(stroke);
+    public static DefaultFigureStyle createShapeStyle(Paint fillPaint, Paint strokePaint, Stroke stroke) {
+        DefaultFigureStyle figureStyle = new DefaultFigureStyle("", DEFAULT_STYLE);
+        figureStyle.setFillPaint(fillPaint);
+        figureStyle.setStrokePaint(strokePaint);
+        figureStyle.setStroke(stroke);
+        return figureStyle;
     }
 
     @Override
@@ -72,12 +73,13 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     @Override
     public Stroke getStroke() {
         if (stroke == null) {
-            Object value = getValue(STROKE.getName());
-            if (value != null) {
+            if (getValue(STROKE.getName()) != null) {
                 Number number = (Number) getValue("stroke-width");
                 if (number != null) {
                     float width = number.floatValue();
                     stroke = new BasicStroke(width);
+                } else {
+                    stroke = new BasicStroke();
                 }
             }
         }
@@ -112,10 +114,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
             if (declaredField.getType() == Property.class) {
                 try {
                     Property prototype = (Property) declaredField.get(null);
-                    Property property = new Property(prototype.getDescriptor(),
-                                                     new MapEntryAccessor(values, prototype.getDescriptor().getName()));
-                    addProperty(property);
-                    setValue(property.getName(), prototype.getValue());
+                    defineProperty(prototype, prototype.getValue());
                 } catch (IllegalAccessException e) {
                     throw new IllegalStateException(e);
                 }
@@ -128,6 +127,13 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         }
     }
 
+    private void defineProperty(Property prototype, Object value) {
+        MapEntryAccessor accessor = new MapEntryAccessor(values, prototype.getName());
+        Property property = new Property(prototype.getDescriptor(), accessor);
+        addProperty(property);
+        setValue(property.getName(), value);
+    }
+
     @Override
     public Property getProperty(String name) {
         Property property = super.getProperty(name);
@@ -138,6 +144,20 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
             return defaultStyle.getProperty(name);
         }
         return null;
+    }
+
+    @Override
+    public void setValue(String name, Object value) throws IllegalArgumentException {
+        Property property = super.getProperty(name);
+        if (property == null) {
+            Property prototype = getProperty(name);
+            if (prototype == null) {
+                throw new IllegalArgumentException("Unknown property: " + name);
+            }
+            defineProperty(prototype, value);
+        } else {
+            super.setValue(name, value);
+        }
     }
 
     private class StrokeNuller implements PropertyChangeListener {

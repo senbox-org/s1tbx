@@ -385,14 +385,16 @@ public abstract class AbstractFigure implements Figure {
     }
 
     protected Stroke getPlainStroke(Stroke stroke, double scale) {
-        if (stroke instanceof BasicStroke) {
-            BasicStroke basicStroke = (BasicStroke) stroke;
-            return new BasicStroke((float)(basicStroke.getLineWidth() * scale),
-                                   basicStroke.getEndCap(),
-                                   basicStroke.getLineJoin(),
-                                   basicStroke.getMiterLimit(),
-                                   basicStroke.getDashArray(),
-                                   basicStroke.getDashPhase());
+        if (scale != 1.0) {
+            if (stroke instanceof BasicStroke) {
+                BasicStroke basicStroke = (BasicStroke) stroke;
+                return new BasicStroke((float)(basicStroke.getLineWidth() * scale),
+                                       basicStroke.getEndCap(),
+                                       basicStroke.getLineJoin(),
+                                       basicStroke.getMiterLimit(),
+                                       basicStroke.getDashArray(),
+                                       basicStroke.getDashPhase());
+            }
         }
         return stroke;
     }

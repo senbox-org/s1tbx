@@ -10,6 +10,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.Paint;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -95,6 +96,7 @@ public class DefaultShapeFigure extends AbstractFigure {
             final double scale = 1.0 / vp.getZoomFactor();
 
             Stroke plainStroke = getPlainStroke(getStyle().getStroke(), scale);
+            System.out.println("plainStroke = " + plainStroke);
             g.setStroke(plainStroke);
             g.setPaint(getStyle().getStrokePaint());
             g.draw(getShape());
