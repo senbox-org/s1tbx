@@ -1,2 +1,3 @@
 org.esa.beam.dataio.dimap.spi.GeneralFilterBandPersistableSpi
 org.esa.beam.dataio.dimap.spi.ConvolutionFilterBandPersistableSpi
+org.esa.beam.dataio.dimap.spi.BandMathMaskPersistableSpi

@@ -2,8 +2,7 @@ package org.esa.beam.dataio.dimap.spi;
 
 import org.esa.beam.framework.datamodel.Mask;
 import org.jdom.Element;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class RangeTypePersistableTest {
@@ -29,7 +28,7 @@ public class RangeTypePersistableTest {
         final Element element = persistable.createXmlFromObject(mask);
         assertNotNull(element);
 
-        assertEquals(element.getAttribute("type").getValue(), "range");
+        assertEquals("range", element.getAttribute("type").getValue());
 
     }
 }

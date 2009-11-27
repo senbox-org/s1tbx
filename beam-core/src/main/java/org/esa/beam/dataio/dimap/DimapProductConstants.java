@@ -659,13 +659,21 @@ public final class DimapProductConstants {
     public static final String TAG_METADATA_VALUE = "VALUE";
     public static final String TAG_METADATA_ATTRIBUTE = "MDATTR";
 
+    // BEAM-Dimap mask definition tags
+    public static final String TAG_MASK = "Mask";
+    public static final String TAG_NAME = "NAME";
+    public static final String TAG_DESCRIPTION = "DESCRIPTION";
+    public static final String TAG_TRANSPARENCY = "TRANSPARENCY";
+    public static final String TAG_EXPRESSION = "EXPRESSION";
+
     // BEAM-Dimap bitmask definition tags
     public static final String TAG_BITMASK_DEFINITIONS = "Bitmask_Definitions";
     public static final String TAG_BITMASK_DEFINITION = "Bitmask_Definition";
-    public static final String TAG_BITMASK_DESCRIPTION = "DESCRIPTION";
-    public static final String TAG_BITMASK_EXPRESSION = "EXPRESSION";
+    public static final String TAG_BITMASK_DESCRIPTION = TAG_DESCRIPTION;
+    public static final String TAG_BITMASK_EXPRESSION = TAG_EXPRESSION;
     public static final String TAG_BITMASK_COLOR = TAG_COLOR;
-    public static final String TAG_BITMASK_TRANSPARENCY = "TRANSPARENCY";
+    public static final String TAG_BITMASK_TRANSPARENCY = TAG_TRANSPARENCY;
+
 
     // BEAM-Dimap placemark tags
     public static final String TAG_PLACEMARK = "Placemark";
@@ -684,52 +692,6 @@ public final class DimapProductConstants {
 
     // BEAM-Dimap gcp tags
     public static final String TAG_GCP_GROUP = "Gcp_Group";
-
-    /**
-     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_LABEL}
-     */
-    @Deprecated
-    public static final String TAG_PIN_LABEL = TAG_PLACEMARK_LABEL;
-    /**
-     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_DESCRIPTION}
-     */
-    @Deprecated
-    public static final String TAG_PIN_DESCRIPTION;
-
-    static {
-        TAG_PIN_DESCRIPTION = TAG_PLACEMARK_DESCRIPTION;
-    }
-
-    /**
-     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_LATITUDE}
-     */
-    @Deprecated
-    public static final String TAG_PIN_LATITUDE = TAG_PLACEMARK_LATITUDE;
-    /**
-     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_LONGITUDE}
-     */
-    @Deprecated
-    public static final String TAG_PIN_LONGITUDE = TAG_PLACEMARK_LONGITUDE;
-    /**
-     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_PIXEL_X}
-     */
-    @Deprecated
-    public static final String TAG_PIN_PIXEL_X = TAG_PLACEMARK_PIXEL_X;
-    /**
-     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_PIXEL_Y}
-     */
-    @Deprecated
-    public static final String TAG_PIN_PIXEL_Y = TAG_PLACEMARK_PIXEL_Y;
-    /**
-     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_FILL_COLOR}
-     */
-    @Deprecated
-    public static final String TAG_PIN_FILL_COLOR = TAG_PLACEMARK_FILL_COLOR;
-    /**
-     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_OUTLINE_COLOR}
-     */
-    @Deprecated
-    public static final String TAG_PIN_OUTLINE_COLOR = TAG_PLACEMARK_OUTLINE_COLOR;
 
     // attribute
     public static final String ATTRIB_RED = "red";

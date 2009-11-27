@@ -206,10 +206,11 @@ public class Mask extends Band {
      */
     public static class BandMathType extends ImageType {
 
+        public static final String TYPE_NAME = "Math";
         public static final String PROPERTY_NAME_EXPRESSION = "expression";
 
         public BandMathType() {
-            super("Math");
+            super(TYPE_NAME);
         }
 
         /**
