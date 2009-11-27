@@ -41,6 +41,7 @@ class GeneralFilterBandPersistable implements DimapPersistable {
     static final String ATTRIBUTE_VERSION = "version";
     static final String GENERAL_FILTER_BAND_TYPE = "GeneralFilterBand";
 
+    @Override
     public Object createObjectFromXml(Element element, Product product) {
         final Element filterBandInfo = element.getChild(DimapProductConstants.TAG_FILTER_BAND_INFO);
         final String version = filterBandInfo.getAttributeValue(ATTRIBUTE_VERSION);

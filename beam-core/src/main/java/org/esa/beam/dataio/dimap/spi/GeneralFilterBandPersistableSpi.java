@@ -31,6 +31,7 @@ import org.jdom.Element;
 public class GeneralFilterBandPersistableSpi implements DimapPersistableSpi {
 
 
+    @Override
     public DimapPersistable createPersistable() {
         return new GeneralFilterBandPersistable();
     }
