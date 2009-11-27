@@ -4,15 +4,19 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.internal.ProductNodeValues;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ValueEditorsPane;
+import org.esa.beam.framework.ui.application.Selection;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 
@@ -101,26 +105,21 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             showErrorDialog(e.getMessage());
         }
         if (propertyContainer.getProperties().length > 0) {
-            ValueEditorsPane parametersPane = new ValueEditorsPane(propertyContainer);
-            final JPanel paremetersPanel = parametersPane.createPanel();
-            paremetersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
-            this.form.add("Processing Parameters", new JScrollPane(paremetersPanel));
-
-            for (final Field field : sourceProductSelectorMap.keySet()) {
-                final SourceProductSelector sourceProductSelector = sourceProductSelectorMap.get(field);
-                final String sourceAlias = field.getAnnotation(SourceProduct.class).alias();
-
+            if (sourceProductSelectorList.size() > 0) {
+                SourceProductSelector sourceProductSelector = sourceProductSelectorList.get(0);
                 for (Property property : propertyContainer.getProperties()) {
                     PropertyDescriptor parameterDescriptor = property.getDescriptor();
-                    String sourceId = (String) parameterDescriptor.getAttribute("sourceId");
-                    if (sourceId != null && (sourceId.equals(field.getName()) || sourceId.equals(sourceAlias))) {
+                    if (parameterDescriptor.getAttribute("productNodeType") != null) {
                         SelectionChangeListener valueSetUpdater = new ValueSetUpdater(parameterDescriptor);
                         sourceProductSelector.addSelectionChangeListener(valueSetUpdater);
                     }
                 }
             }
+            ValueEditorsPane parametersPane = new ValueEditorsPane(propertyContainer);
+            final JPanel paremetersPanel = parametersPane.createPanel();
+            paremetersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
+            this.form.add("Processing Parameters", new JScrollPane(paremetersPanel));
         }
-
     }
 
     private void initSourceProductSelectors(OperatorSpi operatorSpi) {
@@ -251,6 +250,33 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             }
 
             return true;
+        }
+    }
+    
+    private static class ValueSetUpdater implements SelectionChangeListener {
+        
+        private final PropertyDescriptor propertyDescriptor;
+
+        public ValueSetUpdater(PropertyDescriptor propertyDescriptor) {
+            this.propertyDescriptor = propertyDescriptor;
+        }
+
+        @Override
+        public void selectionChanged(SelectionChangeEvent event) {
+            Selection selection = event.getSelection();
+            String[] values = new String[0];
+            if (selection != null) {
+                final Product selectedProduct = (Product) selection.getFirstElement();
+                if (selectedProduct != null) {
+                    Object object = propertyDescriptor.getAttribute("productNodeType");
+                    if (object != null) {
+                        Class<? extends ProductNode> productNodeType = (Class<? extends ProductNode>) object;
+                        boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.getType().isArray();
+                        values = ProductNodeValues.getNames(selectedProduct, productNodeType, includeEmptyValue);
+                    }
+                }
+            }
+            propertyDescriptor.setValueSet(new ValueSet(values));
         }
     }
 }

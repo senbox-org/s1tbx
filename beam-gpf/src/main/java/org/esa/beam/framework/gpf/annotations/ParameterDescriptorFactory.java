@@ -10,11 +10,15 @@ import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.dom.DomConverter;
+
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.internal.ProductNodeValues;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -131,13 +135,20 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
             propertyDescriptor.setDefaultValue(converter.parse(parameter.defaultValue()));
         }
         if (isSet(parameter.sourceProductId())) {
-            propertyDescriptor.setAttribute("sourceId", parameter.sourceProductId());
+            propertyDescriptor.setAttribute("productNodeType", Band.class);
+        }
+        if (parameter.productNodeType() != ProductNode.class) {
+            Class<? extends ProductNode> productNodeType = parameter.productNodeType();
+            propertyDescriptor.setAttribute("productNodeType", productNodeType);
+        }
+        if (propertyDescriptor.getAttribute("productNodeType") != null) {
+            Class<? extends ProductNode> productNodeType = (Class<? extends ProductNode>) propertyDescriptor.getAttribute("productNodeType");
             String[] values = new String[0];
-            if (sourceProductMap != null) {
-                String sourceProductId = parameter.sourceProductId();
-                Product product = sourceProductMap.get(sourceProductId);
+            if (sourceProductMap != null && sourceProductMap.size() > 0) {
+                Product product = sourceProductMap.values().iterator().next();
                 if (product != null) {
-                    values = product.getBandNames();
+                    boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.getType().isArray();
+                    values = ProductNodeValues.getNames(product, productNodeType, includeEmptyValue);
                 }
             }
             propertyDescriptor.setValueSet(new ValueSet(values));

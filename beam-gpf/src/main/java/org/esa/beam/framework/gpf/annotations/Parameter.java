@@ -4,6 +4,8 @@ import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.dom.DomConverter;
 
+import org.esa.beam.framework.datamodel.ProductNode;
+
 import java.lang.annotation.*;
 
 /**
@@ -163,6 +165,16 @@ public @interface Parameter {
      * valueSet of this parameter.
      * 
      * @return the source product id.
+     * @deprecated since BEAM 4.7, use {@link #productNodeType()} instead.
      */
+    @Deprecated
     String sourceProductId() default "";
+    
+    /**
+     * Specifies which product node of the source products is used 
+     * to fill the {@link #valueSet()} of this parameter.
+     * 
+     * @return The product node type.
+     */
+    Class<? extends ProductNode> productNodeType() default ProductNode.class;
 }
