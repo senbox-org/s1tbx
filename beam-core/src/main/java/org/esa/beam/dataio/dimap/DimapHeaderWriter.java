@@ -282,7 +282,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
         final int nodeCount = maskGroup.getNodeCount();
         if (nodeCount > 0) {
-            final String[] bdTags = createTags(indent, DimapProductConstants.TAG_BITMASK_DEFINITIONS);
+            final String[] bdTags = createTags(indent, DimapProductConstants.TAG_MASKS);
             println(bdTags[0]);
             for (int i = 0; i < nodeCount; i++) {
                 final Mask mask = maskGroup.get(i);
