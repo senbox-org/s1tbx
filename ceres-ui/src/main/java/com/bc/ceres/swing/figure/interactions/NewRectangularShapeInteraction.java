@@ -33,8 +33,8 @@ public abstract class NewRectangularShapeInteraction extends AbstractInteraction
         getFigureEditor().getFigureSelection().removeFigures();
         referencePoint = event.getPoint();
         canceled = false;
-        rectangularShape = createRectangularShape(referencePoint);
-        figure = new DefaultShapeFigure(rectangularShape, true, new DefaultFigureStyle());
+        rectangularShape = createRectangularShape(toModelPoint(referencePoint));
+        figure = new DefaultShapeFigure(v2m().createTransformedShape(rectangularShape), true, new DefaultFigureStyle());
         getFigureEditor().getFigureCollection().addFigure(figure);
         start();
     }
@@ -64,6 +64,6 @@ public abstract class NewRectangularShapeInteraction extends AbstractInteraction
             y -= height;
         }
         rectangularShape.setFrame(x, y, width, height);
-        figure.setShape(rectangularShape);
+        figure.setShape(v2m().createTransformedShape(rectangularShape));
     }
 }

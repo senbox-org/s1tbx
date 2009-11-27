@@ -42,12 +42,12 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor, Adjusta
     private final FigureSelection figureSelection;
     private final SelectionChangeSupport selectionChangeSupport;
     private final UndoContext undoContext;
+    private final DefaultRendering rendering;
     private Rectangle selectionRectangle;
     private Interaction interaction;
-    private DefaultRendering rendering;
 
     public DefaultFigureEditor() {
-        super(new BorderLayout());
+        super(null);
 
         selectionChangeSupport = new SelectionChangeSupport(this);
         undoContext = new DefaultUndoContext(this);
@@ -239,7 +239,7 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor, Adjusta
     public void selectAll() {
         figureSelection.removeFigures();
         figureSelection.addFigures(getFigureCollection().getFigures());
-        figureSelection.setSelectionLevel(1);
+        figureSelection.setSelectionLevel(figureSelection.getMaxSelectionLevel());
     }
 
     @Override

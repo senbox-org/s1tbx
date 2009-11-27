@@ -7,6 +7,8 @@ import com.bc.ceres.swing.figure.InteractionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.Cursor;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 public abstract class AbstractInteraction implements Interaction {
@@ -114,6 +116,22 @@ public abstract class AbstractInteraction implements Interaction {
     @Override
     public InteractionListener[] getListeners() {
         return this.listeners.toArray(new InteractionListener[this.listeners.size()]);
+    }
+
+    protected AffineTransform v2m() {
+        return getFigureEditor().getViewport().getViewToModelTransform();
+    }
+
+    protected AffineTransform m2v() {
+        return getFigureEditor().getViewport().getModelToViewTransform();
+    }
+
+    protected Point2D toModelPoint(MouseEvent event) {
+        return toModelPoint(event.getPoint());
+    }
+
+    protected Point2D toModelPoint(Point2D point) {
+        return v2m().transform(point, null);
     }
 
     private void fireActivated() {

@@ -22,31 +22,11 @@ import java.awt.geom.Rectangle2D;
 
 
 /**
- * {@link javax.swing.JComponent JComponent}s implementing this interface are views which can
- * be adjusted using the {@link com.bc.ceres.glayer.swing.AdjustableViewScrollPane}.
+ * Something which owns a viewport, most likely a view GUI component.
  */
-public interface AdjustableView extends ViewportOwner {
-
+public interface ViewportOwner {
     /**
-     * @return The maximum visible model bounds in model coordinates.
+     * @return The viewport.
      */
-    Rectangle2D getMaxVisibleModelBounds();
-
-    /**
-     * @return The default zoom factor.
-     * @see com.bc.ceres.grender.Viewport#getZoomFactor()
-     */
-    double getDefaultZoomFactor();
-
-    /**
-     * @return The minimum zoom factor.
-     * @see com.bc.ceres.grender.Viewport#getZoomFactor()
-     */
-    double getMinZoomFactor();
-
-    /**
-     * @return The maximum zoom factor.
-     * @see com.bc.ceres.grender.Viewport#getZoomFactor()
-     */
-    double getMaxZoomFactor();
+    Viewport getViewport();
 }

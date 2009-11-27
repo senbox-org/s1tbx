@@ -63,9 +63,10 @@ public class AdjustableViewScrollPane extends JPanel {
     private boolean updatingScrollBars;
     private boolean scrollBarsUpdated;
     private ViewportChangeHandler viewportChangeHandler;
-    private boolean debug = false;
     private boolean hsbVisible;
     private boolean vsbVisible;
+
+    private boolean debug = true;
 
     /**
      * Constructs a new view pane with an empty view component.
@@ -83,7 +84,6 @@ public class AdjustableViewScrollPane extends JPanel {
         super(null);
         Assert.notNull(viewComponent, "viewComponent");
         Assert.argument(viewComponent instanceof AdjustableView, "viewComponent");
-        setOpaque(false);
         scrollArea = new Rectangle2D.Double();
         viewportChangeHandler = new ViewportChangeHandler();
         setViewComponent(viewComponent);
@@ -93,7 +93,7 @@ public class AdjustableViewScrollPane extends JPanel {
         horizontalScrollBar.getModel().addChangeListener(scrollBarCH);
         verticalScrollBar = createVerticalScrollBar();
         verticalScrollBar.getModel().addChangeListener(scrollBarCH);
-        addComponentListener(new ViewPaneResizeHandler());
+        addComponentListener(new ResizeHandler());
     }
 
     public AdjustableView getAdjustableView() {
@@ -291,7 +291,7 @@ public class AdjustableViewScrollPane extends JPanel {
             return;
         }
 
-        //.View bounds in view coordinates
+        // View bounds in view coordinates
         final Rectangle2D va = getViewBounds();
         if (va.isEmpty()) {
             remove(horizontalScrollBar);
@@ -372,7 +372,7 @@ public class AdjustableViewScrollPane extends JPanel {
                     remove(verticalScrollBar);
                 }
             }
-            if (cornerComponent != null ) {
+            if (cornerComponent != null) {
                 if (hsbVisible && vsbVisible) {
                     add(cornerComponent);
                 } else {
@@ -435,23 +435,43 @@ public class AdjustableViewScrollPane extends JPanel {
         return (value < min) ? min : (value > max) ? max : value;
     }
 
-    private class ScrollBarChangeHandler implements ChangeListener {
-        public void stateChanged(ChangeEvent e) {
-            updateViewport();
-        }
-    }
-
-    private class ViewPaneResizeHandler extends ComponentAdapter {
+    private class ResizeHandler extends ComponentAdapter {
         @Override
         public void componentResized(ComponentEvent e) {
             updateScrollBars();
         }
     }
 
+    private class ScrollBarChangeHandler implements ChangeListener {
+        boolean atWork;
+
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            if (!atWork) {
+                try {
+                    atWork = true;
+                    updateViewport();
+                } finally {
+                    atWork = false;
+                }
+            }
+        }
+    }
+
     private class ViewportChangeHandler implements ViewportListener {
+        boolean atWork;
+
+        @Override
         public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
-            updateScrollBars();
-            updateScrollBarIncrements();
+            if (!atWork) {
+                try {
+                    atWork = true;
+                    updateScrollBars();
+                    updateScrollBarIncrements();
+                } finally {
+                    atWork = false;
+                }
+            }
         }
     }
 

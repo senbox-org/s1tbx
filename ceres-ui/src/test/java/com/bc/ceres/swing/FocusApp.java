@@ -1,5 +1,10 @@
 package com.bc.ceres.swing;
 
+import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
+import com.bc.ceres.grender.AdjustableView;
+import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.support.DefaultViewport;
+
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -11,6 +16,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.Icon;
+import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -20,6 +26,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Window;
+import java.awt.Dimension;
+import java.awt.geom.Rectangle2D;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.Arrays;
@@ -32,6 +40,15 @@ public class FocusApp {
         } catch (Exception e) {
             // ok
         }
+
+        JPanel panel = new MyJPanel();
+        panel.setPreferredSize(new Dimension(512,512));
+
+        AdjustableViewScrollPane viewScrollPane = new AdjustableViewScrollPane(panel);
+        JFrame jFrame = new JFrame("x");
+        jFrame.add(viewScrollPane);
+
+
         JTree tree1 = new JTree(new Object[]{"Aaaaaaaaaaaaa", "B", "C"});
         JTree tree2 = new JTree(new Object[]{"Xxxxxxxxxxxxx", "Y", "Z"});
         tree1.setCellRenderer(new MyDefaultTreeCellRenderer());
@@ -162,6 +179,58 @@ public class FocusApp {
                 }
             }
             return this;
+        }
+    }
+
+    private static class MyJPanel extends JPanel implements AdjustableView {
+        private DefaultViewport viewport;
+
+        public MyJPanel() {
+            super(new BorderLayout());
+            viewport = new DefaultViewport();
+        }
+
+        /**
+         * @return The maximum visible model bounds in model coordinates.
+         */
+        @Override
+        public Rectangle2D getMaxVisibleModelBounds() {
+            return null;
+        }
+
+        /**
+         * @return The default zoom factor.
+         * @see com.bc.ceres.grender.Viewport#getZoomFactor()
+         */
+        @Override
+        public double getDefaultZoomFactor() {
+            return 0;
+        }
+
+        /**
+         * @return The minimum zoom factor.
+         * @see com.bc.ceres.grender.Viewport#getZoomFactor()
+         */
+        @Override
+        public double getMinZoomFactor() {
+            return 0.1;
+        }
+
+        /**
+         * @return The maximum zoom factor.
+         * @see com.bc.ceres.grender.Viewport#getZoomFactor()
+         */
+        @Override
+        public double getMaxZoomFactor() {
+            return 10;
+        }
+
+        /**
+         * @return The viewport.
+         */
+        @Override
+        public Viewport getViewport() {
+            return viewport;
         }
     }
 }

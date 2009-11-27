@@ -76,8 +76,8 @@ public class NewMultiPointShapeInteraction extends AbstractInteraction {
             start();
         }
 
-        points.add(event.getPoint());
-        points.add(event.getPoint());
+        points.add(toModelPoint(event.getPoint()));
+        points.add(toModelPoint(event.getPoint()));
 
         if (points.size() == 2) {
             figure = new DefaultShapeFigure(createPath(), isPolygonal(), new DefaultFigureStyle());
@@ -88,7 +88,7 @@ public class NewMultiPointShapeInteraction extends AbstractInteraction {
     @Override
     public void mouseMoved(MouseEvent event) {
         if (points.size() > 0) {
-            points.set(points.size() - 1, event.getPoint());
+            points.set(points.size() - 1, toModelPoint(event.getPoint()));
             figure.setShape(createPath());
         }
     }

@@ -1,15 +1,13 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.figure.AbstractInteraction;
 
 import java.awt.Color;
-import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -52,22 +50,17 @@ public class ZoomInteraction extends AbstractInteraction {
         if (graphics == null) {
             return;
         }
-        Component component = event.getComponent();
-        // this should be always the case
-        if (component instanceof AdjustableView) {
-            AdjustableView view = (AdjustableView) component;
-            Viewport viewport = view.getViewport();
-            if (!zoomRect.isEmpty()) {
-                AffineTransform v2m = viewport.getViewToModelTransform();
-                Shape transformedShape = v2m.createTransformedShape(zoomRect);
-                Rectangle2D bounds2D = transformedShape.getBounds2D();
-                viewport.zoom(bounds2D);
-            } else {
-                boolean zoomOut = event.isControlDown() || event.getButton() != 1;
-                final double viewScaleOld = viewport.getZoomFactor();
-                final double viewScaleNew = zoomOut ? viewScaleOld / 1.6 : viewScaleOld * 1.6;
-                viewport.setZoomFactor(viewScaleNew);
-            }
+        Viewport viewport = getFigureEditor().getViewport();
+        if (!zoomRect.isEmpty()) {
+            AffineTransform v2m = viewport.getViewToModelTransform();
+            Shape transformedShape = v2m.createTransformedShape(zoomRect);
+            Rectangle2D bounds2D = transformedShape.getBounds2D();
+            viewport.zoom(bounds2D);
+        } else {
+            boolean zoomOut = event.isControlDown() || event.getButton() != 1;
+            final double viewScaleOld = viewport.getZoomFactor();
+            final double viewScaleNew = zoomOut ? viewScaleOld / 1.6 : viewScaleOld * 1.6;
+            viewport.setZoomFactor(viewScaleNew);
         }
         graphics.dispose();
         graphics = null;

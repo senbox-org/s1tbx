@@ -130,11 +130,14 @@ public class DefaultFigureEditorApp {
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
 
+        AdjustableViewScrollPane viewScrollPane = new AdjustableViewScrollPane(figureEditor);
+        viewScrollPane.setOpaque(true);
+        
         frame = new JFrame("DrawingApp");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setJMenuBar(menuBar);
         frame.add(toolBar, BorderLayout.NORTH);
-        frame.add(new AdjustableViewScrollPane(figureEditor), BorderLayout.CENTER);
+        frame.add(viewScrollPane, BorderLayout.CENTER);
         frame.setSize(400, 400);
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {

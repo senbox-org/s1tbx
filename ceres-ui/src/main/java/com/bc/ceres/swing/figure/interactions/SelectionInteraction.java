@@ -1,20 +1,17 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.undo.RestorableEdit;
 import com.bc.ceres.swing.figure.AbstractInteraction;
-import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.grender.AdjustableView;
-import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.swing.figure.Handle;
+import com.bc.ceres.swing.undo.RestorableEdit;
 
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.Component;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.event.MouseEvent;
 
 // todo - this Interaction should not be restricted to figure contexts, is the inner Tool interface the solution?
 // todo - remove dependency to com.bc.ceres.swing.RestorableEdit
@@ -114,43 +111,10 @@ public class SelectionInteraction extends AbstractInteraction {
         getFigureEditor().setCursor(cursor);
     }
 
-    private static Viewport getViewport(MouseEvent event) {
-        Component component = event.getComponent();
-        if (component instanceof AdjustableView) {
-            AdjustableView adjustableView = (AdjustableView) component;
-            return adjustableView.getViewport();
-        }
-        return null;
-    }
-
-    private static AffineTransform v2m(MouseEvent event) {
-        Viewport viewport = getViewport(event);
-        if (viewport != null) {
-            return viewport.getViewToModelTransform();
-        }
-        return new AffineTransform();
-    }
-
-    private static AffineTransform m2v(MouseEvent event) {
-        Viewport viewport = getViewport(event);
-        if (viewport != null) {
-            return viewport.getModelToViewTransform();
-        }
-        return new AffineTransform();
-    }
-
-    private static Point2D toModelPoint(MouseEvent event) {
-        return toModelPoint(event.getPoint(), event);
-    }
-
-    private static Point2D toModelPoint(Point2D point, MouseEvent event) {
-        return v2m(event).transform(point, null);
-    }
-
     private Point2D.Double toModelDelta(MouseEvent event) {
         Point2D.Double p = new Point2D.Double(event.getX() - referencePoint.x,
                                               event.getY() - referencePoint.y);
-        AffineTransform transform = v2m(event);
+        AffineTransform transform = v2m();
         transform.deltaTransform(p, p);
         return p;
     }
@@ -173,7 +137,7 @@ public class SelectionInteraction extends AbstractInteraction {
         for (Handle handle : getFigureEditor().getFigureSelection().getHandles()) {
             if (handle.isSelectable()) {
                 Point2D p = handle.getLocation();
-                AffineTransform m2v = m2v(event);
+                AffineTransform m2v = m2v();
                 m2v.transform(p, p);
                 p = new Point2D.Double(event.getX() - p.getX(),
                                        event.getY() - p.getY());
@@ -276,9 +240,11 @@ public class SelectionInteraction extends AbstractInteraction {
             if (clickedFigure == null) {
                 // Nothing clicked, thus clear selection.
                 getFigureEditor().getFigureSelection().removeFigures();
+                getFigureEditor().getFigureSelection().setSelectionLevel(0);
             } else if (getFigureEditor().getFigureSelection().getFigureCount() == 0) {
                 // If figure clicked and current selection is empty then select this figure at first selection level.
                 getFigureEditor().getFigureSelection().addFigure(clickedFigure);
+                // Single selection starts at selection level 1 (highlighted boundary)
                 getFigureEditor().getFigureSelection().setSelectionLevel(1);
             } else if (getFigureEditor().getFigureSelection().getFigureCount() == 1) {
                 // If figure clicked and we already have a single figure selected.
@@ -293,11 +259,16 @@ public class SelectionInteraction extends AbstractInteraction {
                     // If the clicked figure is NOT the currently selected figure, then
                     // if CTRL down add the clicked figure to the selection,
                     // otherwise clicked figure is new selection.
-                    if (!event.isControlDown()) {
+                    if (event.isControlDown()) {
+                        getFigureEditor().getFigureSelection().addFigure(clickedFigure);
+                        // Multiple selection is always at selection level 2 (scale handles + rotation handle).
+                        getFigureEditor().getFigureSelection().setSelectionLevel(2);
+                    } else {
                         getFigureEditor().getFigureSelection().removeFigures();
+                        getFigureEditor().getFigureSelection().addFigure(clickedFigure);
+                        // Single selection starts at selection level 1 (highlighted boundary)
+                        getFigureEditor().getFigureSelection().setSelectionLevel(1);
                     }
-                    getFigureEditor().getFigureSelection().addFigure(clickedFigure);
-                    getFigureEditor().getFigureSelection().setSelectionLevel(1);
                 }
             } else if (getFigureEditor().getFigureSelection().getFigureCount() >= 2) {
                 // If figure clicked and we already have more than one figure selected.
@@ -318,8 +289,8 @@ public class SelectionInteraction extends AbstractInteraction {
                         getFigureEditor().getFigureSelection().addFigure(clickedFigure);
                     }
                 }
-                // Multple selection shall always at selection level 1.
-                getFigureEditor().getFigureSelection().setSelectionLevel(1);
+                // Multiple selection is always at selection level 2 (scale handles + rotation handle).
+                getFigureEditor().getFigureSelection().setSelectionLevel(2);
             }
         }
 
@@ -351,13 +322,19 @@ public class SelectionInteraction extends AbstractInteraction {
         @Override
         public void end(MouseEvent event) {
             if (getSelectionRectangle() != null) {
-                AffineTransform transform = v2m(event);
+                AffineTransform transform = v2m();
                 Shape shape = transform.createTransformedShape(getSelectionRectangle());
-
+                if (!event.isControlDown()) {
+                    getFigureEditor().getFigureSelection().removeFigures();
+                }
                 final Figure[] figures = getFigureEditor().getFigureCollection().getFigures(shape);
-                if (figures.length > 0) {
-                    getFigureEditor().getFigureSelection().addFigures(figures);
+                getFigureEditor().getFigureSelection().addFigures(figures);
+                if (getFigureEditor().getFigureSelection().getFigureCount() == 0) {
+                    getFigureEditor().getFigureSelection().setSelectionLevel(0);
+                } else if (getFigureEditor().getFigureSelection().getFigureCount() == 1) {
                     getFigureEditor().getFigureSelection().setSelectionLevel(1);
+                } else {
+                    getFigureEditor().getFigureSelection().setSelectionLevel(2);
                 }
                 setSelectionRectangle(null);
             }

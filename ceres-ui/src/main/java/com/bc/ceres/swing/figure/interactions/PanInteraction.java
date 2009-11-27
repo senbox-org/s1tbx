@@ -2,6 +2,7 @@ package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.ViewportOwner;
 import com.bc.ceres.swing.figure.AbstractInteraction;
 
 import java.awt.Component;
@@ -20,19 +21,14 @@ public class PanInteraction extends AbstractInteraction {
 
     @Override
     public void mouseDragged(MouseEvent event) {
-        Component component = event.getComponent();
-        // this should be always the case
-        if (component instanceof AdjustableView) {
-            AdjustableView view = (AdjustableView) component;
-            Viewport viewport = view.getViewport();
-            int viewportX = event.getX();
-            int viewportY = event.getY();
-            final double dx = viewportX - this.viewportX;
-            final double dy = viewportY - this.viewportY;
-            viewport.moveViewDelta(dx, dy);
-            this.viewportX = viewportX;
-            this.viewportY = viewportY;
-        }
+        Viewport viewport = getFigureEditor().getViewport();
+        int viewportX = event.getX();
+        int viewportY = event.getY();
+        final double dx = viewportX - this.viewportX;
+        final double dy = viewportY - this.viewportY;
+        viewport.moveViewDelta(dx, dy);
+        this.viewportX = viewportX;
+        this.viewportY = viewportY;
     }
 
     @Override
