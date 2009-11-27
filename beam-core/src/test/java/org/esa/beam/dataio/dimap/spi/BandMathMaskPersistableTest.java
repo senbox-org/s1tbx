@@ -43,7 +43,7 @@ public class BandMathMaskPersistableTest {
 
         final Attribute type = element.getAttribute(ATTRIB_TYPE);
         assertNotNull(type);
-        assertEquals("Math", type.getValue());
+        assertEquals(Mask.BandMathType.TYPE_NAME, type.getValue());
 
         final Element name = element.getChild(TAG_NAME);
         assertNotNull(name);
