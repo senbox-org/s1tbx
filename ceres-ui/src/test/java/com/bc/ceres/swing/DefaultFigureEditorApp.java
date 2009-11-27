@@ -131,11 +131,11 @@ public class DefaultFigureEditorApp {
         figureEditor.setInteraction(SELECTION_INTERACTION);
 
         FigureCollection drawing = figureEditor.getFigureCollection();
-        drawing.addFigure(new DefaultShapeFigure(new Rectangle(20, 30, 200, 100), true, new DefaultFigureStyle(new BasicStroke(), Color.GREEN, Color.BLUE)));
-        drawing.addFigure(new DefaultShapeFigure(new Rectangle(90, 10, 100, 200), true, new DefaultFigureStyle(new BasicStroke(), Color.ORANGE, Color.MAGENTA)));
-        drawing.addFigure(new DefaultShapeFigure(new Rectangle(110, 60, 70, 140), false, new DefaultFigureStyle(new BasicStroke(), Color.BLACK, Color.MAGENTA)));
-        drawing.addFigure(new DefaultShapeFigure(new Ellipse2D.Double(50, 100, 80, 80), true, new DefaultFigureStyle(new BasicStroke(), Color.RED, Color.YELLOW)));
-        drawing.addFigure(new DefaultShapeFigure(new Ellipse2D.Double(220, 120, 150, 300), true, new DefaultFigureStyle(new BasicStroke(), Color.BLUE, Color.GREEN)));
+        drawing.addFigure(new DefaultShapeFigure(new Rectangle(20, 30, 200, 100), true, new DefaultFigureStyle( Color.BLUE, Color.GREEN)));
+        drawing.addFigure(new DefaultShapeFigure(new Rectangle(90, 10, 100, 200), true, new DefaultFigureStyle( Color.MAGENTA, Color.ORANGE)));
+        drawing.addFigure(new DefaultShapeFigure(new Rectangle(110, 60, 70, 140), false, new DefaultFigureStyle(Color.MAGENTA, Color.BLACK)));
+        drawing.addFigure(new DefaultShapeFigure(new Ellipse2D.Double(50, 100, 80, 80), true, new DefaultFigureStyle(Color.YELLOW, Color.RED)));
+        drawing.addFigure(new DefaultShapeFigure(new Ellipse2D.Double(220, 120, 150, 300), true, new DefaultFigureStyle(Color.GREEN, Color.BLUE)));
         figureEditor.setPreferredSize(new Dimension(1024, 1024));
 
         JMenuBar menuBar = new JMenuBar();

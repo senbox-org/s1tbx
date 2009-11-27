@@ -6,7 +6,6 @@ import com.bc.ceres.swing.figure.AbstractFigure;
 import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.FigureStyle;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -95,9 +94,9 @@ public class DefaultShapeFigure extends AbstractFigure {
 
             final double scale = 1.0 / vp.getZoomFactor();
 
-            Stroke plainStroke = getPlainStroke(getStyle().getDrawStroke(), scale);
+            Stroke plainStroke = getPlainStroke(getStyle().getStroke(), scale);
             g.setStroke(plainStroke);
-            g.setPaint(getStyle().getDrawPaint());
+            g.setPaint(getStyle().getStrokePaint());
             g.draw(getShape());
 
             if (isSelected()) {
@@ -321,7 +320,6 @@ public class DefaultShapeFigure extends AbstractFigure {
     public DefaultShapeFigure clone() {
         DefaultShapeFigure f = (DefaultShapeFigure) super.clone();
         f.shape = new Path2D.Double(shape);
-        f.style = style.clone();
         return f;
     }
 

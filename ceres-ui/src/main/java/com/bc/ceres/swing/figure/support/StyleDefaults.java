@@ -20,16 +20,20 @@ public class StyleDefaults {
     public static final Stroke HANDLE_DRAW_STROKE = new BasicStroke(1.0f);
     public static final Color HANDLE_DRAW_PAINT = Color.DARK_GRAY;
     public static final Color HANDLE_FILL_PAINT = Color.ORANGE;
-    public static final FigureStyle HANDLE_STYLE = new DefaultFigureStyle(HANDLE_DRAW_STROKE,
+    public static final FigureStyle HANDLE_STYLE = new DefaultFigureStyle("HANDLE_STYLE",
+                                                                          HANDLE_FILL_PAINT,
                                                                           HANDLE_DRAW_PAINT,
-                                                                          HANDLE_FILL_PAINT);
+                                                                          HANDLE_DRAW_STROKE
+    );
 
     public static final Stroke SELECTED_HANDLE_DRAW_STROKE = new BasicStroke(1.5f);
     public static final Color SELECTED_HANDLE_DRAW_PAINT = Color.BLUE;
     public static final Color SELECTED_HANDLE_FILL_PAINT = Color.ORANGE;
-    public static final FigureStyle SELECTED_HANDLE_STYLE = new DefaultFigureStyle(SELECTED_HANDLE_DRAW_STROKE,
+    public static final FigureStyle SELECTED_HANDLE_STYLE = new DefaultFigureStyle("SELECTED_HANDLE_STYLE",
+                                                                                   SELECTED_HANDLE_FILL_PAINT,
                                                                                    SELECTED_HANDLE_DRAW_PAINT,
-                                                                                   SELECTED_HANDLE_FILL_PAINT);
+                                                                                   SELECTED_HANDLE_DRAW_STROKE
+    );
 
     public static final double VERTEX_HANDLE_SIZE = 8;
     public static final double SCALE_HANDLE_SIZE = 6;
