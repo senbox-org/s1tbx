@@ -43,6 +43,7 @@ import org.esa.beam.framework.datamodel.SampleCoding;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
@@ -112,7 +113,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         writeDataAccessElements(indent);
         writeTiePointGridElements(indent);
         writeImageDisplayElements(indent);
-        writeBitmaskDefinitions(indent);
+        writeMasks(indent);
         writeImageInterpretationElements(indent);
         writeAnnotatonDataSet(indent);
         writePins(indent);
@@ -277,13 +278,19 @@ public final class DimapHeaderWriter extends XmlWriter {
         }
     }
 
-    protected void writeBitmaskDefinitions(int indent) {
-        final BitmaskDef[] bitmaskDefs = product.getBitmaskDefs();
-        if (bitmaskDefs.length > 0) {
+    protected void writeMasks(int indent) {
+        final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+        final int nodeCount = maskGroup.getNodeCount();
+        if (nodeCount > 0) {
             final String[] bdTags = createTags(indent, DimapProductConstants.TAG_BITMASK_DEFINITIONS);
             println(bdTags[0]);
-            for (BitmaskDef bitmaskDef : bitmaskDefs) {
-                bitmaskDef.writeXML(this, indent + 1);
+            for (int i = 0; i < nodeCount; i++) {
+                final Mask mask = maskGroup.get(i);
+                final DimapPersistable persistable = DimapPersistence.getPersistable(mask);
+                if (persistable != null) {
+                    final Element element = persistable.createXmlFromObject(mask);
+                    printElement(indent + 1, element);
+                }
             }
             println(bdTags[1]);
         }

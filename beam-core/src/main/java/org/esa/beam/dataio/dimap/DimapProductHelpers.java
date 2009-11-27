@@ -29,6 +29,7 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Pin;
@@ -70,6 +71,10 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 import org.xml.sax.SAXException;
 
+import javax.swing.filechooser.FileFilter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -84,11 +89,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-
-import javax.swing.filechooser.FileFilter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * This class defines some static methods used to create and access BEAM DIMAP XML documents.
@@ -404,7 +404,7 @@ public class DimapProductHelpers {
                 }
                 final AffineTransform i2m = new AffineTransform(matrix);
                 Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight());
+                                                      product.getSceneRasterHeight());
                 try {
                     final CrsGeoCoding geoCoding = new CrsGeoCoding(crs, imageBounds, i2m);
                     return new GeoCoding[]{geoCoding};
@@ -492,10 +492,12 @@ public class DimapProductHelpers {
             if (hcsElem != null) {
                 final Element gcsElem = hcsElem.getChild(DimapProductConstants.TAG_GEOGRAPHIC_CS);
                 final Element horizDatumElem = gcsElem.getChild(DimapProductConstants.TAG_HORIZONTAL_DATUM);
-                final String datumName = horizDatumElem.getChildTextTrim(DimapProductConstants.TAG_HORIZONTAL_DATUM_NAME);
+                final String datumName = horizDatumElem.getChildTextTrim(
+                        DimapProductConstants.TAG_HORIZONTAL_DATUM_NAME);
                 final Element ellipsoidElem = horizDatumElem.getChild(DimapProductConstants.TAG_ELLIPSOID);
                 final String ellipsoidName = ellipsoidElem.getChildTextTrim(DimapProductConstants.TAG_ELLIPSOID_NAME);
-                final Element ellipsoidParamElem = ellipsoidElem.getChild(DimapProductConstants.TAG_ELLIPSOID_PARAMETERS);
+                final Element ellipsoidParamElem = ellipsoidElem.getChild(
+                        DimapProductConstants.TAG_ELLIPSOID_PARAMETERS);
                 final Element majorAxisElem = ellipsoidParamElem.getChild(DimapProductConstants.TAG_ELLIPSOID_MAJ_AXIS);
                 final double majorAxis = Double.parseDouble(majorAxisElem.getTextTrim());
                 final Element minorAxisElem = ellipsoidParamElem.getChild(DimapProductConstants.TAG_ELLIPSOID_MIN_AXIS);
@@ -820,6 +822,7 @@ public class DimapProductHelpers {
                                                 getSceneRasterHeight());
             setSceneRasterStartAndStopTime(product);
             setDescription(product);
+            addMasks(product);
             addBitmaskDefinitions(product);
             addFlagsCoding(product);
             addIndexCoding(product);
@@ -1320,7 +1323,24 @@ public class DimapProductHelpers {
             }
         }
 
+        private void addMasks(Product product) {
+            final Element parent = getRootElement().getChild(DimapProductConstants.TAG_MASKS);
+            if (parent != null) {
+                @SuppressWarnings({"unchecked"})
+                final List<Element> children = parent.getChildren(DimapProductConstants.TAG_MASK);
+                for (final Element child : children) {
+                    final DimapPersistable persistable = DimapPersistence.getPersistable(child);
+                    if (persistable != null) {
+                        final Object object = persistable.createObjectFromXml(child, product);
+                        if (object instanceof Mask) {
+                            product.getMaskGroup().add((Mask) object);
+                        }
+                    }
+                }
+            }
+        }
 
+        @Deprecated
         private void addBitmaskDefinitions(Product product) {
             final Element bitmaskDefs = getRootElement().getChild(DimapProductConstants.TAG_BITMASK_DEFINITIONS);
             List bitmaskDefList;

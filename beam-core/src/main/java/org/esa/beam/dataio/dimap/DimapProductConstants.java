@@ -660,6 +660,7 @@ public final class DimapProductConstants {
     public static final String TAG_METADATA_ATTRIBUTE = "MDATTR";
 
     // BEAM-Dimap mask definition tags
+    public static final String TAG_MASKS = "Masks";
     public static final String TAG_MASK = "Mask";
     public static final String TAG_NAME = "NAME";
     public static final String TAG_DESCRIPTION = "DESCRIPTION";
