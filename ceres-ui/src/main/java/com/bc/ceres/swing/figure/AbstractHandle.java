@@ -128,19 +128,20 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     public final void draw(Rendering rendering) {
         final Graphics2D g = rendering.getGraphics();
         final Viewport vp = rendering.getViewport();
-        final AffineTransform transformSave = g.getTransform();
+        final AffineTransform oldTransform = g.getTransform();
 
         try {
             AffineTransform m2v = vp.getModelToViewTransform();
             Point2D transfLocation = m2v.transform(location, null);
-            g.setTransform(AffineTransform.getTranslateInstance(transfLocation.getX(), transfLocation.getY()));
+            AffineTransform newTransform = new AffineTransform(oldTransform);
+            newTransform.concatenate(AffineTransform.getTranslateInstance(transfLocation.getX(), transfLocation.getY()));
+            g.setTransform(newTransform);
 
             drawHandle(g);
 
         } finally {
-            g.setTransform(transformSave);
+            g.setTransform(oldTransform);
         }
-
     }
 
     protected void drawHandle(Graphics2D g) {

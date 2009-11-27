@@ -202,7 +202,7 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
 
     @Override
     public void draw(Rendering rendering) {
-        if (getFigureCount() == 0 || getSelectionLevel() <= 1) {
+        if (getFigureCount() == 0 || getSelectionLevel() < 1) {
             return;
         }
 

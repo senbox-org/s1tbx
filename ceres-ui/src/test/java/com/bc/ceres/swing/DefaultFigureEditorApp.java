@@ -38,6 +38,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.JComponent;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import java.awt.BasicStroke;
@@ -130,14 +131,14 @@ public class DefaultFigureEditorApp {
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
 
-        AdjustableViewScrollPane viewScrollPane = new AdjustableViewScrollPane(figureEditor);
-        viewScrollPane.setOpaque(true);
-        
+        JComponent contentPane = new AdjustableViewScrollPane(figureEditor);
+        //JComponent contentPane = figureEditor;
+
         frame = new JFrame("DrawingApp");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setJMenuBar(menuBar);
-        frame.add(toolBar, BorderLayout.NORTH);
-        frame.add(viewScrollPane, BorderLayout.CENTER);
+        frame.getContentPane().add(toolBar, BorderLayout.NORTH);
+        frame.getContentPane().add(contentPane, BorderLayout.CENTER);
         frame.setSize(400, 400);
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {

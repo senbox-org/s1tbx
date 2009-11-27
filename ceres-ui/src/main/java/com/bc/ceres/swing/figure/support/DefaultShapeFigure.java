@@ -82,9 +82,11 @@ public class DefaultShapeFigure extends AbstractFigure {
 
         final Graphics2D g = rendering.getGraphics();
         final Viewport vp = rendering.getViewport();
-        final AffineTransform transformSave = g.getTransform();
+        final AffineTransform oldTransform = g.getTransform();
         try {
-            g.setTransform(vp.getModelToViewTransform());
+            AffineTransform newTransform = new AffineTransform(oldTransform);
+            newTransform.concatenate(vp.getModelToViewTransform());
+            g.setTransform(newTransform);
 
             if (rank == Rank.POLYGONAL) {
                 g.setPaint(getStyle().getFillPaint());
@@ -106,7 +108,7 @@ public class DefaultShapeFigure extends AbstractFigure {
             }
 
         } finally {
-            g.setTransform(transformSave);
+            g.setTransform(oldTransform);
         }
     }
 
