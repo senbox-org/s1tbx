@@ -190,7 +190,7 @@ public class PropertyContainer implements PropertySet {
 
     @Override
     public void addProperty(Property property) {
-        if (propertyMap.put(property.getDescriptor().getName(), property) != property) {
+        if (propertyMap.put(property.getName(), property) != property) {
             final String alias = property.getDescriptor().getAlias();
             if (alias != null && !alias.isEmpty()) {
                 propertyMap.put(alias, property);
@@ -209,7 +209,7 @@ public class PropertyContainer implements PropertySet {
 
     @Override
     public void removeProperty(Property property) {
-        if (propertyMap.remove(property.getDescriptor().getName()) != null) {
+        if (propertyMap.remove(property.getName()) != null) {
             final String alias = property.getDescriptor().getAlias();
             if (alias != null && !alias.isEmpty()) {
                 propertyMap.remove(alias);

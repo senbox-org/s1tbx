@@ -54,7 +54,7 @@ public class Property {
         return createImpl(createDescriptor(name, value.getClass()), new DefaultPropertyAccessor(), value);
     }
 
-    public static <T> Property create(String name, Class<T> type, T defaultValue, boolean notNull) {
+    public static <T> Property create(String name, Class<? extends T> type, T defaultValue, boolean notNull) {
         final PropertyDescriptor descriptor = createDescriptor(name, type) ;
         if (notNull) {
             descriptor.setDefaultValue(defaultValue);
@@ -122,6 +122,14 @@ public class Property {
         } else {
             setValue(text);
         }
+    }
+
+    public String getName() {
+        return getDescriptor().getName();
+    }
+
+    public Class<?> getType() {
+        return getDescriptor().getType();
     }
 
     public Object getValue() {
@@ -201,7 +209,7 @@ public class Property {
 
     @Override
     public String toString() {
-        return getClass().getName() + "[name=" + getDescriptor().getName() + ",value=" + getValueAsText() + "]";
+        return getClass().getName() + "[name=" + getName() + ",value=" + getValueAsText() + "]";
     }
 
     private static PropertyDescriptor createDescriptor(String name, Class<?> type) {
