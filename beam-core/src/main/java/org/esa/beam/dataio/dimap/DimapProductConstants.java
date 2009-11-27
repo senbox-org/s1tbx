@@ -361,6 +361,8 @@ public final class DimapProductConstants {
      *        &lt;IMAGE_TO_MODEL_TRANSFORM&gt;matrix values&lt;/IMAGE_TO_MODEL_TRANSFORM&gt;
      *    &lt;/Geoposition&gt;
      * </pre>
+     * In addition, the persistence of {@code BitmaskDef}s is obsolte, because {@code BitmaskDef}s
+     * have been marked as deprecated and replaced with {@code Mask}s.  
      * </td>
      * </tr>
      * </table>
