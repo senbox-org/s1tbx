@@ -80,8 +80,20 @@ public class DefaultFigureEditorApp {
         DefaultSelectionManager selectionManager = new DefaultSelectionManager();
         selectionManager.setSelectionContext(figureEditor);
 
-        undoAction = new UndoAction(figureEditor);
-        redoAction = new RedoAction(figureEditor);
+        undoAction = new UndoAction(figureEditor) {
+            @Override
+            public void execute() {
+                super.execute();
+                redoAction.updateState();
+            }
+        };
+        redoAction = new RedoAction(figureEditor) {
+            @Override
+            public void execute() {
+                super.execute();
+                undoAction.updateState();
+            }
+        };
         cutAction = new CutAction(selectionManager);
         copyAction = new CopyAction(selectionManager);
         pasteAction = new PasteAction(selectionManager);
