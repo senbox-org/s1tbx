@@ -1,19 +1,19 @@
 package com.bc.ceres.swing.figure.support;
 
-import com.bc.ceres.swing.figure.FigureStyle;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
+import com.bc.ceres.swing.figure.FigureStyle;
 
 import java.awt.BasicStroke;
 import java.awt.Paint;
 import java.awt.Stroke;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class DefaultFigureStyle extends PropertyContainer implements FigureStyle {
     private static final DefaultFigureStyle DEFAULT_STYLE;
@@ -30,8 +30,9 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     }
 
     public DefaultFigureStyle() {
-       this("", DEFAULT_STYLE); 
+        this("", DEFAULT_STYLE);
     }
+
     public DefaultFigureStyle(String name, FigureStyle defaultStyle) {
         this.name = name;
         this.defaultStyle = defaultStyle;
@@ -116,14 +117,14 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
                     addProperty(property);
                     setValue(property.getName(), prototype.getValue());
                 } catch (IllegalAccessException e) {
-                    throw new  IllegalStateException(e);
+                    throw new IllegalStateException(e);
                 }
             }
         }
         try {
             setDefaultValues();
         } catch (ValidationException e) {
-            throw new  IllegalStateException(e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -141,9 +142,9 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
 
     private class StrokeNuller implements PropertyChangeListener {
         @Override
-            public void propertyChange(PropertyChangeEvent evt) {
+        public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().startsWith("stroke")) {
-                DefaultFigureStyle.this.stroke = null;
+                stroke = null;
             }
         }
     }

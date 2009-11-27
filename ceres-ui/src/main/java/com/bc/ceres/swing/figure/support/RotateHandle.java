@@ -65,7 +65,7 @@ public class RotateHandle extends AbstractHandle {
                                         handleShape.getCenterX(),
                                         handleShape.getCenterY());
 
-        g.setPaint(StyleDefaults.SELECTION_DRAW_PAINT);
+        g.setPaint(StyleDefaults.SELECTION_STROKE_PAINT);
         g.setStroke(StyleDefaults.SELECTION_STROKE);
         g.draw(connectionLine);
 

@@ -135,7 +135,7 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor, Adjusta
             if (getSelectionRectangle() != null) {
                 g2d.setPaint(StyleDefaults.SELECTION_RECT_FILL_PAINT);
                 g2d.fill(getSelectionRectangle());
-                g2d.setPaint(StyleDefaults.SELECTION_RECT_DRAW_PAINT);
+                g2d.setPaint(StyleDefaults.SELECTION_RECT_STROKE_PAINT);
                 g2d.draw(getSelectionRectangle());
             }
         } finally {

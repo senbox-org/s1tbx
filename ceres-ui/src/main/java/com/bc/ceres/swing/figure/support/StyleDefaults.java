@@ -6,33 +6,37 @@ import com.bc.ceres.swing.figure.FigureStyle;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Stroke;
+import java.awt.Paint;
 import static java.lang.Math.*;
 
 public class StyleDefaults {
+
     public static final Stroke FIRST_OF_MULTI_SELECTION_STROKE = new BasicStroke(1.2f);
     public static final Stroke MULTI_SELECTION_STROKE = new BasicStroke(1.0f);
-    public static final Color MULTI_SELECTION_COLOR = Color.BLUE.brighter();
-    public static final Color SELECTION_DRAW_PAINT = Color.ORANGE;
-    public static final Stroke SELECTION_STROKE = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0.0f, new float[]{4.0f, 4.0f}, 0.0f);
-    public static final Color SELECTION_RECT_FILL_PAINT = new Color(127, 127, 255, 100);
-    public static final Color SELECTION_RECT_DRAW_PAINT = new Color(50, 50, 255, 100);
 
-    public static final Stroke HANDLE_DRAW_STROKE = new BasicStroke(1.0f);
-    public static final Color HANDLE_DRAW_PAINT = Color.DARK_GRAY;
-    public static final Color HANDLE_FILL_PAINT = Color.ORANGE;
+    public static final Paint MULTI_SELECTION_STROKE_PAINT = Color.BLUE.brighter();
+    public static final Paint SELECTION_STROKE_PAINT = Color.ORANGE;
+    public static final Stroke SELECTION_STROKE = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0.0f, new float[]{4.0f, 4.0f}, 0.0f);
+
+    public static final Paint SELECTION_RECT_FILL_PAINT = new Color(127, 127, 255, 100);
+    public static final Paint SELECTION_RECT_STROKE_PAINT = new Color(50, 50, 255, 100);
+
+    public static final Paint HANDLE_FILL_PAINT = Color.ORANGE;
+    public static final Paint HANDLE_STROKE_PAINT = Color.DARK_GRAY;
+    public static final Stroke HANDLE_STROKE = new BasicStroke(1.0f);
     public static final FigureStyle HANDLE_STYLE = new DefaultFigureStyle("HANDLE_STYLE",
                                                                           HANDLE_FILL_PAINT,
-                                                                          HANDLE_DRAW_PAINT,
-                                                                          HANDLE_DRAW_STROKE
+                                                                          HANDLE_STROKE_PAINT,
+                                                                          HANDLE_STROKE
     );
 
-    public static final Stroke SELECTED_HANDLE_DRAW_STROKE = new BasicStroke(1.5f);
-    public static final Color SELECTED_HANDLE_DRAW_PAINT = Color.BLUE;
-    public static final Color SELECTED_HANDLE_FILL_PAINT = Color.ORANGE;
+    public static final Paint SELECTED_HANDLE_FILL_PAINT = Color.ORANGE;
+    public static final Paint SELECTED_HANDLE_STROKE_PAINT = Color.BLUE;
+    public static final Stroke SELECTED_HANDLE_STROKE = new BasicStroke(1.5f);
     public static final FigureStyle SELECTED_HANDLE_STYLE = new DefaultFigureStyle("SELECTED_HANDLE_STYLE",
                                                                                    SELECTED_HANDLE_FILL_PAINT,
-                                                                                   SELECTED_HANDLE_DRAW_PAINT,
-                                                                                   SELECTED_HANDLE_DRAW_STROKE
+                                                                                   SELECTED_HANDLE_STROKE_PAINT,
+                                                                                   SELECTED_HANDLE_STROKE
     );
 
     public static final double VERTEX_HANDLE_SIZE = 8;
