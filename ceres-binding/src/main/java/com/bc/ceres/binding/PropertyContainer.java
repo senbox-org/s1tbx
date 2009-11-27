@@ -15,13 +15,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * A container for {@link Property}s.
+ * A convenience implementation of the {@link PropertySet} interface.
  * {@link PropertyContainer} is basically an implementation of the <i>Property List</i> design pattern.
  *
  * @author Norman Fomferra
  * @since 0.6
  */
-public class PropertyContainer {
+public class PropertyContainer implements PropertySet {
 
     private final HashMap<String, Property> propertyMap;
     private final ArrayList<Property> propertyList;
@@ -41,6 +41,7 @@ public class PropertyContainer {
      * The factory method will not modify the object, thus not setting any default values.
      *
      * @param object the backing object
+     *
      * @return The property container.
      */
     public static PropertyContainer createObjectBacked(Object object) {
@@ -54,6 +55,7 @@ public class PropertyContainer {
      *
      * @param object            the backing object
      * @param descriptorFactory a factory used to create {@link PropertyDescriptor}s of the fields of the object's type
+     *
      * @return The property container.
      */
     public static PropertyContainer createObjectBacked(Object object,
@@ -69,6 +71,7 @@ public class PropertyContainer {
      * The factory method will not modify the given map, thus not setting any default values.
      *
      * @param map the map which backs the values
+     *
      * @return The property container.
      */
     public static PropertyContainer createMapBacked(Map<String, Object> map) {
@@ -88,6 +91,7 @@ public class PropertyContainer {
      *
      * @param map          the map which backs the values
      * @param templateType the template type
+     *
      * @return The property container.
      */
     public static PropertyContainer createMapBacked(Map<String, Object> map,
@@ -104,6 +108,7 @@ public class PropertyContainer {
      * @param map               the map which backs the values
      * @param templateType      the template type
      * @param descriptorFactory a factory used to create {@link PropertyDescriptor}s of the fields of the template type
+     *
      * @return The property container.
      */
     public static PropertyContainer createMapBacked(Map<String, Object> map,
@@ -119,6 +124,7 @@ public class PropertyContainer {
      * All properties will have their values set to default values (if specified).
      *
      * @param templateType the template type
+     *
      * @return The property container.
      */
     public static PropertyContainer createValueBacked(Class<?> templateType) {
@@ -132,6 +138,7 @@ public class PropertyContainer {
      *
      * @param templateClass     the template class used to derive the descriptors from
      * @param descriptorFactory a factory used to create {@link PropertyDescriptor}s of the fields of the template type
+     *
      * @return The property container.
      */
     public static PropertyContainer createValueBacked(Class<?> templateClass,
@@ -150,7 +157,8 @@ public class PropertyContainer {
      * @param fieldProvider     Thje Java class providing the fields.
      * @param descriptorFactory The property descriptor factory.
      * @param accessorFactory   The property accessor factory.
-     * @param initValues  If {@code true}, properties are initialised by their default values, if specified.
+     * @param initValues        If {@code true}, properties are initialised by their default values, if specified.
+     *
      * @return The property container.
      */
     public static PropertyContainer createForFields(Class<?> fieldProvider,
@@ -169,15 +177,18 @@ public class PropertyContainer {
         return container;
     }
 
+    @Override
     public Property[] getProperties() {
         return propertyList.toArray(new Property[propertyList.size()]);
     }
 
+    @Override
     public Property getProperty(String name) {
         Assert.notNull(name, "name");
         return propertyMap.get(name);
     }
 
+    @Override
     public void addProperty(Property property) {
         if (propertyMap.put(property.getDescriptor().getName(), property) != property) {
             final String alias = property.getDescriptor().getAlias();
@@ -189,12 +200,14 @@ public class PropertyContainer {
         }
     }
 
-    public void addProperties(Property[] properties) {
+    @Override
+    public void addProperties(Property... properties) {
         for (Property property : properties) {
             addProperty(property);
         }
     }
 
+    @Override
     public void removeProperty(Property property) {
         if (propertyMap.remove(property.getDescriptor().getName()) != null) {
             final String alias = property.getDescriptor().getAlias();
@@ -206,18 +219,14 @@ public class PropertyContainer {
         }
     }
 
-    public void removeProperties(Property[] properties) {
+    @Override
+    public void removeProperties(Property... properties) {
         for (Property property : properties) {
             removeProperty(property);
         }
     }
 
-    /**
-     * Gets the value of a property.
-     *
-     * @param name The property name.
-     * @return The property value.
-     */
+    @Override
     public Object getValue(String name) {
         final Property property = getProperty(name);
         if (property == null) {
@@ -226,13 +235,7 @@ public class PropertyContainer {
         return property.getValue();
     }
 
-    /**
-     * Sets the value of a property.
-     *
-     * @param name The property name.
-     * @param value        The new property value.
-     * @throws IllegalArgumentException if the value is illegal. The cause will always be a {@link ValidationException}.
-     */
+    @Override
     public void setValue(String name, Object value) throws IllegalArgumentException {
         try {
             getProperty(name).setValue(value);
@@ -241,6 +244,7 @@ public class PropertyContainer {
         }
     }
 
+    @Override
     public PropertyDescriptor getDescriptor(String name) {
         final Property property = getProperty(name);
         if (property == null) {
@@ -249,6 +253,11 @@ public class PropertyContainer {
         return getProperty(name).getDescriptor();
     }
 
+    /**
+     * Utility method which sets all properties in this bundle to their default values.
+     * @throws ValidationException If the validation of the default value fails.
+     * @see PropertyDescriptor#getDefaultValue()
+     */
     public void setDefaultValues() throws ValidationException {
         for (final Property property : getProperties()) {
             final PropertyDescriptor descriptor = property.getDescriptor();
@@ -258,18 +267,22 @@ public class PropertyContainer {
         }
     }
 
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener l) {
         getPropertyChangeSupport().addPropertyChangeListener(l);
     }
 
+    @Override
     public void addPropertyChangeListener(String name, PropertyChangeListener l) {
         getPropertyChangeSupport().addPropertyChangeListener(name, l);
     }
 
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener l) {
         getPropertyChangeSupport().removePropertyChangeListener(l);
     }
 
+    @Override
     public void removePropertyChangeListener(String name, PropertyChangeListener l) {
         getPropertyChangeSupport().removePropertyChangeListener(name, l);
     }
@@ -289,7 +302,7 @@ public class PropertyContainer {
                 final int mod = field.getModifiers();
                 if (!Modifier.isTransient(mod) && !Modifier.isStatic(mod)) {
                     final PropertyDescriptor descriptor = PropertyDescriptor.createPropertyDescriptor(field,
-                                                                                                   descriptorFactory);
+                                                                                                      descriptorFactory);
                     if (descriptor != null) {
                         final PropertyAccessor accessor = accessorFactory.createValueAccessor(field);
                         if (accessor != null) {
@@ -303,7 +316,7 @@ public class PropertyContainer {
 
     private static class ObjectBackedPropertyAccessorFactory implements PropertyAccessorFactory {
 
-        private Object object;
+        private final Object object;
 
         private ObjectBackedPropertyAccessorFactory(Object object) {
             this.object = object;
@@ -317,7 +330,7 @@ public class PropertyContainer {
 
     private static class MapBackedPropertyAccessorFactory implements PropertyAccessorFactory {
 
-        private Map<String, Object> map;
+        private final Map<String, Object> map;
 
         private MapBackedPropertyAccessorFactory(Map<String, Object> map) {
             this.map = map;
