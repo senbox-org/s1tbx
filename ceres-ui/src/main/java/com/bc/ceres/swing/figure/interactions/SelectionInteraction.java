@@ -194,7 +194,8 @@ public class SelectionInteraction extends AbstractInteraction {
 
         @Override
         public void end(MouseEvent event) {
-            getFigureEditor().postEdit(new RestorableEdit("Move Figure", getFigureEditor().getFigureSelection(), figureMemento));
+            // todo - move to FigureEditor.change(figure, memento)
+            getFigureEditor().getUndoContext().postEdit(new RestorableEdit("Move Figure", getFigureEditor().getFigureSelection(), figureMemento));
         }
     }
 
@@ -214,7 +215,8 @@ public class SelectionInteraction extends AbstractInteraction {
         public void end(MouseEvent event) {
             // Handles may have been moved, selection no longer required
             getFigureEditor().getFigureSelection().setSelectedHandle(null);
-            getFigureEditor().postEdit(new RestorableEdit("Change Figure Shape", getFigureEditor().getFigureSelection(), figureMemento));
+            // todo - move to FigureEditor.change(figure, memento)
+            getFigureEditor().getUndoContext().postEdit(new RestorableEdit("Change Figure Shape", getFigureEditor().getFigureSelection(), figureMemento));
         }
     }
 

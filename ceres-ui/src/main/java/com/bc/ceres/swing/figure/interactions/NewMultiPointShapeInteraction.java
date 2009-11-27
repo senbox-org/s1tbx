@@ -81,7 +81,8 @@ public class NewMultiPointShapeInteraction extends AbstractInteraction {
 
         if (points.size() == 2) {
             figure = new DefaultShapeFigure(createPath(), isPolygonal(), new DefaultFigureStyle());
-            getFigureEditor().postEdit(new FigureInsertEdit(getFigureEditor(), figure));
+            // todo - move to FigureEditor.insert(figures)
+            getFigureEditor().getUndoContext().postEdit(new FigureInsertEdit(getFigureEditor(), figure));
         }
     }
 

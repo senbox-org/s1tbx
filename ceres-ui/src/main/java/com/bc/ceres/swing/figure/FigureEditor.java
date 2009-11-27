@@ -11,7 +11,11 @@ import com.bc.ceres.grender.ViewportOwner;
 import java.awt.Cursor;
 import java.awt.Rectangle;
 
-public interface FigureEditor extends SelectionContext, UndoContext, InteractionHolder, ViewportOwner {
+public interface FigureEditor extends InteractionHolder, ViewportOwner {
+    SelectionContext getSelectionContext();
+
+    UndoContext getUndoContext();
+
     Rectangle getSelectionRectangle();
 
     void setSelectionRectangle(Rectangle rectangle);

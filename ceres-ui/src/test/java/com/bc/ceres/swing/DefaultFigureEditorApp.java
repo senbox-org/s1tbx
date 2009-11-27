@@ -1,5 +1,6 @@
 package com.bc.ceres.swing;
 
+import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 import com.bc.ceres.swing.actions.CopyAction;
 import com.bc.ceres.swing.actions.CutAction;
 import com.bc.ceres.swing.actions.DeleteAction;
@@ -14,31 +15,29 @@ import com.bc.ceres.swing.figure.interactions.NewPolygonShapeInteraction;
 import com.bc.ceres.swing.figure.interactions.NewPolylineShapeInteraction;
 import com.bc.ceres.swing.figure.interactions.NewRectangleShapeInteraction;
 import com.bc.ceres.swing.figure.interactions.NewTextInteraction;
+import com.bc.ceres.swing.figure.interactions.PanInteraction;
 import com.bc.ceres.swing.figure.interactions.SelectionInteraction;
 import com.bc.ceres.swing.figure.interactions.ZoomInteraction;
-import com.bc.ceres.swing.figure.interactions.PanInteraction;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.bc.ceres.swing.selection.support.DefaultSelectionManager;
-import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.JComponent;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import java.awt.BasicStroke;
@@ -65,7 +64,6 @@ public class DefaultFigureEditorApp {
     private static final Interaction NEW_TEXT_INTERACTION = new NewTextInteraction();
 
     private JFrame frame;
-    private DefaultFigureEditor figureEditor;
 
     private UndoAction undoAction;
     private RedoAction redoAction;
@@ -76,18 +74,19 @@ public class DefaultFigureEditorApp {
     private PasteAction pasteAction;
 
     public DefaultFigureEditorApp() {
-        figureEditor = new DefaultFigureEditor();
         DefaultSelectionManager selectionManager = new DefaultSelectionManager();
-        selectionManager.setSelectionContext(figureEditor);
 
-        undoAction = new UndoAction(figureEditor) {
+        DefaultFigureEditor figureEditor = new DefaultFigureEditor();
+        selectionManager.setSelectionContext(figureEditor.getSelectionContext());
+
+        undoAction = new UndoAction(figureEditor.getUndoContext()) {
             @Override
             public void execute() {
                 super.execute();
                 redoAction.updateState();
             }
         };
-        redoAction = new RedoAction(figureEditor) {
+        redoAction = new RedoAction(figureEditor.getUndoContext()) {
             @Override
             public void execute() {
                 super.execute();
@@ -168,7 +167,7 @@ public class DefaultFigureEditorApp {
             }
         });
 
-        figureEditor.addSelectionChangeListener(new SelectionChangeListener() {
+        figureEditor.getSelectionContext().addSelectionChangeListener(new SelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
                 System.out.println("selection changed: " + event.getSelection());
@@ -180,7 +179,7 @@ public class DefaultFigureEditorApp {
             }
         });
 
-        figureEditor.addUndoableEditListener(new UndoableEditListener() {
+        figureEditor.getUndoContext().addUndoableEditListener(new UndoableEditListener() {
             @Override
             public void undoableEditHappened(UndoableEditEvent event) {
                 System.out.println("edit happened: " + event.getEdit());

@@ -44,7 +44,8 @@ public abstract class NewRectangularShapeInteraction extends AbstractInteraction
         if (rectangularShape.isEmpty()) {
             getFigureEditor().getFigureCollection().removeFigure(figure);
         } else {
-            getFigureEditor().postEdit(new FigureInsertEdit(getFigureEditor(), figure));
+            // todo - move to FigureEditor.insert(figure, memento)
+            getFigureEditor().getUndoContext().postEdit(new FigureInsertEdit(getFigureEditor(), figure));
         }
         stop();
     }
