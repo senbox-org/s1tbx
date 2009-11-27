@@ -150,8 +150,8 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
         g.setPaint(handleStyle.getFillPaint());
         g.fill(getShape());
 
-        g.setPaint(handleStyle.getDrawPaint());
-        g.setStroke(handleStyle.getDrawStroke());
+        g.setPaint(handleStyle.getStrokePaint());
+        g.setStroke(handleStyle.getStroke());
         g.draw(getShape());
     }
 }
