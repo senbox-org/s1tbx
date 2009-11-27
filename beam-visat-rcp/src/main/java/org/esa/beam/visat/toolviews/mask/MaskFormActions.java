@@ -34,7 +34,6 @@ class MaskFormActions {
                 new CopyAction(maskForm), new NullAction(maskForm),
                 new EditAction(maskForm), new RemoveAction(maskForm),
                 new ImportAction(maskForm), new ExportAction(maskForm),
-                new MoveUpAction(maskForm), new MoveDownAction(maskForm),
         };
     }
 
@@ -95,77 +94,10 @@ class MaskFormActions {
         return getMaskAction(RemoveAction.class);
     }
 
-    public MaskAction getMoveUpAction() {
-        return getMaskAction(MoveUpAction.class);
-    }
-
-    public MaskAction getMoveDownAction() {
-        return getMaskAction(MoveDownAction.class);
-    }
-
     public MaskAction getNullAction() {
         return getMaskAction(NullAction.class);
     }
 
-
-    private abstract static class MoveAction extends MaskAction {
-
-        MoveAction(MaskForm maskForm, String iconPath, String buttonName, String description) {
-            super(maskForm, iconPath, buttonName, description);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            final MaskForm maskForm = getMaskForm();
-            final Mask selectedMask = maskForm.getSelectedMask();
-            int selectedMaskIndex = maskForm.getSelectedRow();
-            maskForm.removeMask(selectedMask);
-            final int newIndex = getNewIndex(selectedMaskIndex);
-            maskForm.insertMask(selectedMask, newIndex);
-            maskForm.setSelectedRow(newIndex);
-        }
-
-        protected abstract int getNewIndex(int oldIndex);
-
-        @Override
-        abstract void updateState();
-    }
-
-    private static class MoveDownAction extends MoveAction {
-
-        private MoveDownAction(MaskForm maskForm) {
-            super(maskForm, "icons/Down24.gif", "moveDownButton", "Moves down the selected mask.");
-        }
-
-        @Override
-        protected int getNewIndex(int oldIndex) {
-            return oldIndex + 1;
-        }
-
-        @Override
-        void updateState() {
-            setEnabled(getMaskForm().getSelectedRowCount() == 1
-                       && getMaskForm().getSelectedRow() < getMaskForm().getRowCount() - 1);
-        }
-    }
-
-    private static class MoveUpAction extends MoveAction {
-
-        private MoveUpAction(MaskForm maskForm) {
-            super(maskForm, "icons/Up24.gif", "moveUpButton", "Moves up the selected mask.");
-        }
-
-        @Override
-        protected int getNewIndex(int oldIndex) {
-            return oldIndex - 1;
-        }
-
-        @Override
-        void updateState() {
-            setEnabled(getMaskForm().getSelectedRowCount() == 1
-                       && getMaskForm().getSelectedRow() > 0);
-        }
-    }
 
     private static class NewBandMathAction extends BandMathAction {
 
