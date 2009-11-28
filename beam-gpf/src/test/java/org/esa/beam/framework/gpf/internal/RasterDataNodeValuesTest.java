@@ -23,21 +23,21 @@ import org.esa.beam.framework.datamodel.ProductData;
 
 import junit.framework.TestCase;
 
-public class ProductNodeValuesTest extends TestCase {
+public class RasterDataNodeValuesTest extends TestCase {
 
     public void testgetNames() {
         Product testProduct = new Product("name", "desc", 1, 1);
         testProduct.addBand("a", ProductData.TYPE_INT8);
         testProduct.addBand("b", ProductData.TYPE_INT8);
         
-        String[] bandNames = ProductNodeValues.getNames(testProduct, Band.class);
+        String[] bandNames = RasterDataNodeValues.getNames(testProduct, Band.class);
         
         assertNotNull(bandNames);
         assertEquals(2, bandNames.length);
         assertEquals("a", bandNames[0]);
         assertEquals("b", bandNames[1]);
         
-        bandNames = ProductNodeValues.getNames(testProduct, Band.class, true);
+        bandNames = RasterDataNodeValues.getNames(testProduct, Band.class, true);
         
         assertNotNull(bandNames);
         assertEquals(3, bandNames.length);
@@ -45,7 +45,7 @@ public class ProductNodeValuesTest extends TestCase {
         assertEquals("a", bandNames[1]);
         assertEquals("b", bandNames[2]);
         
-        String[] maskNames = ProductNodeValues.getNames(testProduct, Mask.class);
+        String[] maskNames = RasterDataNodeValues.getNames(testProduct, Mask.class);
         assertNotNull(maskNames);
         assertEquals(0, maskNames.length);
     }

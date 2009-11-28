@@ -4,7 +4,8 @@ import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.dom.DomConverter;
 
-import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import java.lang.annotation.*;
 
@@ -165,16 +166,16 @@ public @interface Parameter {
      * valueSet of this parameter.
      * 
      * @return the source product id.
-     * @deprecated since BEAM 4.7, use {@link #productNodeType()} instead.
+     * @deprecated since BEAM 4.7, use {@link #rasterDataNodeType()} instead.
      */
     @Deprecated
     String sourceProductId() default "";
     
     /**
-     * Specifies which product node of the source products is used 
-     * to fill the {@link #valueSet()} of this parameter.
+     * Specifies which {@code RasterDataNode} subclass of the source products is used 
+     * to fill the {@link #valueSet()} for this parameter.
      * 
-     * @return The product node type.
+     * @return The raster data node type.
      */
-    Class<? extends ProductNode> productNodeType() default ProductNode.class;
+    Class<? extends RasterDataNode> rasterDataNodeType() default RasterDataNode.class;
 }

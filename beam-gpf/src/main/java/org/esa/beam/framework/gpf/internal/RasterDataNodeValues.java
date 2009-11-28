@@ -18,9 +18,8 @@ package org.esa.beam.framework.gpf.internal;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 
 /**
@@ -30,56 +29,58 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
  * @author Marco Zuehlke
  * @since BEAM 4.7
  */
-public class ProductNodeValues {
+public class RasterDataNodeValues {
+    
+    public static final String ATTRIBUTE_NAME = "rasterDataNodeType";
 
     /**
      * Returns the names of all elements of the given product that are of the
-     * given subtype of {@code ProductNode}.
+     * given subtype of {@code RasterDataNode}.
      * 
      * @param product
      *            The product.
-     * @param productNodeType
-     *            The subtype of {@code ProductNode}.
+     * @param rasterDataNodeType
+     *            The subtype of {@code RasterDataNode}.
      * @return the names of all matching elements
      */
-    public static String[] getNames(Product product, Class<? extends ProductNode> productNodeType) {
-        return getNames(product, productNodeType, false);
+    public static String[] getNames(Product product, Class<? extends RasterDataNode> rasterDataNodeType) {
+        return getNames(product, rasterDataNodeType, false);
     }
 
     /**
      * Returns the names of all elements of the given product that are of the
-     * given subtype of {@code ProductNode}. Optionally an empty value is included.
+     * given subtype of {@code RasterDataNode}. Optionally an empty value is included.
      * 
      * @param product
      *            The product.
-     * @param productNodeType
-     *            The subtype of {@code ProductNode}.
+     * @param rasterDataNodeType
+     *            The subtype of {@code RasterDataNode}.
      * @param includeEmptyValue
      *            If {code true} and empty {@code String} is included as the first value.
      * @return the names of all matching elements
      */
-    public static String[] getNames(Product product, Class<? extends ProductNode> productNodeType,
+    public static String[] getNames(Product product, Class<? extends RasterDataNode> rasterDataNodeType,
                                           boolean includeEmptyValue) {
         String[] allValues;
         if (includeEmptyValue) {
-            String[] valueNames = getValueNames(product, productNodeType);
+            String[] valueNames = getValueNames(product, rasterDataNodeType);
             allValues = new String[valueNames.length + 1];
             allValues[0] = "";
             System.arraycopy(valueNames, 0, allValues, 1, valueNames.length);
         } else {
-            allValues = getValueNames(product, productNodeType);
+            allValues = getValueNames(product, rasterDataNodeType);
         }
         return allValues;
     }
 
-    private static String[] getValueNames(Product product, Class<? extends ProductNode> productNodeType) {
-        if (productNodeType == Band.class) {
+    private static String[] getValueNames(Product product, Class<? extends RasterDataNode> rasterDataNodeType) {
+        if (rasterDataNodeType == Band.class) {
             return product.getBandNames();
-        } else if (productNodeType == Mask.class) {
+        } else if (rasterDataNodeType == Mask.class) {
             return product.getMaskGroup().getNodeNames();
-        } else if (productNodeType == TiePointGrid.class) {
+        } else if (rasterDataNodeType == TiePointGrid.class) {
             return product.getTiePointGridNames();            
         }
-        throw new IllegalArgumentException("Unsupported 'productNodeType': " + productNodeType);
+        throw new IllegalArgumentException("Unsupported 'rasterDataNodeType': " + rasterDataNodeType);
     }
 }

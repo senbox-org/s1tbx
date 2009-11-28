@@ -1,34 +1,36 @@
 package org.esa.beam.framework.gpf.ui;
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.ValueSet;
-import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
-import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.internal.ProductNodeValues;
+import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ValueEditorsPane;
 import org.esa.beam.framework.ui.application.Selection;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.border.EmptyBorder;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.border.EmptyBorder;
+
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.swing.TableLayout;
 
 // todo (mp, 2008/04/22) add abillity to set the ProductFilter to SourceProductSelectors
 
@@ -268,11 +270,11 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             if (selection != null) {
                 final Product selectedProduct = (Product) selection.getFirstElement();
                 if (selectedProduct != null) {
-                    Object object = propertyDescriptor.getAttribute("productNodeType");
+                    Object object = propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
                     if (object != null) {
-                        Class<? extends ProductNode> productNodeType = (Class<? extends ProductNode>) object;
+                        Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
                         boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.getType().isArray();
-                        values = ProductNodeValues.getNames(selectedProduct, productNodeType, includeEmptyValue);
+                        values = RasterDataNodeValues.getNames(selectedProduct, rasterDataNodeType, includeEmptyValue);
                     }
                 }
             }

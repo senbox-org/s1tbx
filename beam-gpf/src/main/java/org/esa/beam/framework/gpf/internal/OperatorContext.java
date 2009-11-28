@@ -831,13 +831,15 @@ public class OperatorContext {
                 }
                 try {
                     PropertyDescriptor descriptor = property.getDescriptor();
-                    if (descriptor.getAttribute("sourceId") != null) {
-                        String sourceId = (String) descriptor.getAttribute("sourceId");
-                        Product sourceProduct = getSourceProduct(sourceId);
+                    if (descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
+                        Product sourceProduct = sourceProductList.get(0);
                         if (sourceProduct == null) {
-                            throw new OperatorException(formatExceptionMessage("Unknown sourceId '%s'.", sourceId));
+                            throw new OperatorException(formatExceptionMessage("No source produt."));
                         }
-                        ValueSet valueSet = new ValueSet(sourceProduct.getBandNames());
+                        Object object = descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
+                        Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
+                        String[] names = RasterDataNodeValues.getNames(sourceProduct, rasterDataNodeType);
+                        ValueSet valueSet = new ValueSet(names);
                         descriptor.setValueSet(valueSet);
                     }
                     property.setValue(parameters.get(parameterName));
