@@ -86,6 +86,22 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         return stroke;
     }
 
+    @Override
+    public Stroke getStroke(double scale) {
+        Stroke stroke = getStroke();
+        if (scale != 1.0 && stroke instanceof BasicStroke) {
+            BasicStroke basicStroke = (BasicStroke) stroke;
+            return new BasicStroke((float) (basicStroke.getLineWidth() * scale),
+                                   basicStroke.getEndCap(),
+                                   basicStroke.getLineJoin(),
+                                   basicStroke.getMiterLimit(),
+                                   basicStroke.getDashArray(),
+                                   basicStroke.getDashPhase());
+        }
+        return stroke;
+    }
+
+
     public void setStroke(Stroke stroke) {
         this.stroke = stroke;
     }
@@ -159,6 +175,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
             super.setValue(name, value);
         }
     }
+
 
     private class StrokeNuller implements PropertyChangeListener {
         @Override

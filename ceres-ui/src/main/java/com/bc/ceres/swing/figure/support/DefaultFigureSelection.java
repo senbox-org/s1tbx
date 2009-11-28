@@ -213,12 +213,13 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
 
         final Figure[] figures = getFigures();
         if (figures.length > 1) {
-            for (Figure figure : figures) {
+            for (int i = 1; i < figures.length; i++) {
+                Figure figure = figures[i];
                 g.setPaint(StyleDefaults.MULTI_SELECTION_STROKE_PAINT);
                 g.setStroke(StyleDefaults.MULTI_SELECTION_STROKE);
                 g.draw(getExtendedBounds(figure, m2v));
             }
-            g.setPaint(StyleDefaults.MULTI_SELECTION_STROKE_PAINT);
+            g.setPaint(StyleDefaults.SELECTION_STROKE_PAINT);
             g.setStroke(StyleDefaults.FIRST_OF_MULTI_SELECTION_STROKE);
             g.draw(getExtendedBounds(figures[0], m2v));
         }

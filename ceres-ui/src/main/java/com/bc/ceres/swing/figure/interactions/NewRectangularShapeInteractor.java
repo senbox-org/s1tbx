@@ -4,6 +4,7 @@ import com.bc.ceres.swing.figure.AbstractInteractor;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.FigureInsertEdit;
+import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -34,7 +35,7 @@ public abstract class NewRectangularShapeInteractor extends AbstractInteractor {
         referencePoint = event.getPoint();
         canceled = false;
         rectangularShape = createRectangularShape(toModelPoint(referencePoint));
-        figure = new DefaultShapeFigure(v2m().createTransformedShape(rectangularShape), true, new DefaultFigureStyle());
+        figure = new DefaultShapeFigure(v2m().createTransformedShape(rectangularShape), true, StyleDefaults.INSERT_STYLE);
         getFigureEditor().getFigureCollection().addFigure(figure);
         startInteraction();
     }

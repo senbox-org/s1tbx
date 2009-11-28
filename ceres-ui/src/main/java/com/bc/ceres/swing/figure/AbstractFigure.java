@@ -384,29 +384,4 @@ public abstract class AbstractFigure implements Figure {
         return StyleDefaults.SELECTED_HANDLE_STYLE;
     }
 
-    protected Stroke getPlainStroke(Stroke stroke, double scale) {
-        if (scale != 1.0) {
-            if (stroke instanceof BasicStroke) {
-                BasicStroke basicStroke = (BasicStroke) stroke;
-                return new BasicStroke((float)(basicStroke.getLineWidth() * scale),
-                                       basicStroke.getEndCap(),
-                                       basicStroke.getLineJoin(),
-                                       basicStroke.getMiterLimit(),
-                                       basicStroke.getDashArray(),
-                                       basicStroke.getDashPhase());
-            }
-        }
-        return stroke;
-    }
-
-    protected Stroke getSelectedStroke(Stroke plainStroke, double scale) {
-        Stroke selectedStroke;
-        if (plainStroke instanceof BasicStroke) {
-            BasicStroke basicStroke = (BasicStroke) plainStroke;
-            selectedStroke = new BasicStroke(basicStroke.getLineWidth() + (float)(scale * 4.0));
-        } else {
-            selectedStroke = new BasicStroke((float)(scale * 4.0));
-        }
-        return selectedStroke;
-    }
 }

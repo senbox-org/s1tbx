@@ -25,6 +25,8 @@ public interface FigureStyle extends PropertySet {
 
     Stroke getStroke();
 
+    Stroke getStroke(double scale);
+
     Paint getStrokePaint();
 
     Paint getFillPaint();

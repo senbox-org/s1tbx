@@ -10,6 +10,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.Paint;
+import java.awt.BasicStroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -21,13 +23,15 @@ import java.util.Arrays;
 public class DefaultShapeFigure extends AbstractFigure {
     private Shape shape;
     private Rank rank;
-    private FigureStyle style;
+    private final FigureStyle normalStyle;
+    private final FigureStyle selectedStyle;
     private boolean selected;
 
-    public DefaultShapeFigure(Shape shape, boolean polygonal, FigureStyle style) {
+    public DefaultShapeFigure(Shape shape, boolean polygonal, FigureStyle normalStyle) {
         this.shape = shape;
         this.rank = polygonal ? Rank.POLYGONAL : Rank.LINEAL;
-        this.style = style;
+        this.normalStyle = normalStyle;
+        this.selectedStyle = DefaultFigureStyle.createShapeStyle(null, new Color(255, 255, 0, 180), new BasicStroke(5.0f));
     }
 
     public Shape getShape() {
@@ -39,13 +43,12 @@ public class DefaultShapeFigure extends AbstractFigure {
         fireFigureChanged();
     }
 
-    public FigureStyle getStyle() {
-        return style;
+    public FigureStyle getNormalStyle() {
+        return normalStyle;
     }
 
-    public void setStyle(FigureStyle style) {
-        this.style = style;
-        fireFigureChanged();
+    public FigureStyle getSelectedStyle() {
+        return selectedStyle;
     }
 
     @Override
@@ -88,23 +91,29 @@ public class DefaultShapeFigure extends AbstractFigure {
             g.setTransform(newTransform);
 
             if (rank == Rank.POLYGONAL) {
-                g.setPaint(getStyle().getFillPaint());
-                g.fill(getShape());
+                Paint fillPaint = getNormalStyle().getFillPaint();
+                if (fillPaint != null) {
+                    g.setPaint(fillPaint);
+                    g.fill(getShape());
+                }
             }
 
-            final double scale = 1.0 / vp.getZoomFactor();
-
-            Stroke plainStroke = getPlainStroke(getStyle().getStroke(), scale);
-            System.out.println("plainStroke = " + plainStroke);
-            g.setStroke(plainStroke);
-            g.setPaint(getStyle().getStrokePaint());
-            g.draw(getShape());
+            Paint strokePaint = getNormalStyle().getStrokePaint();
+            if (strokePaint != null) {
+                Stroke normalStroke = getNormalStyle().getStroke(1.0 / vp.getZoomFactor());
+                g.setPaint(strokePaint);
+                g.setStroke(normalStroke);
+                g.draw(getShape());
+            }
 
             if (isSelected()) {
-                Stroke selectedStroke = getSelectedStroke(plainStroke, scale);
-                g.setStroke(selectedStroke);
-                g.setPaint(new Color(255, 255, 0, 150));
-                g.draw(getShape());
+                Paint selectedStrokePaint = getSelectedStyle().getStrokePaint();
+                if (selectedStrokePaint != null) {
+                    Stroke selectedStroke = getSelectedStyle().getStroke(1.0 / vp.getZoomFactor());
+                    g.setStroke(selectedStroke);
+                    g.setPaint(selectedStrokePaint);
+                    g.draw(getShape());
+                }
             }
 
         } finally {

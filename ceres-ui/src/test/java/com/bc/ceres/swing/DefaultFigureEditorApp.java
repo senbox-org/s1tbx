@@ -10,6 +10,7 @@ import com.bc.ceres.swing.actions.SelectAllAction;
 import com.bc.ceres.swing.actions.UndoAction;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.interactions.NewEllipseShapeInteractor;
 import com.bc.ceres.swing.figure.interactions.NewPolygonShapeInteractor;
 import com.bc.ceres.swing.figure.interactions.NewPolylineShapeInteractor;
@@ -98,14 +99,14 @@ public class DefaultFigureEditorApp {
         selectAllAction = new SelectAllAction(selectionManager);
         deleteAction = new DeleteAction(selectionManager);
 
-        AbstractButton selectButton = createToolButton(figureEditor, "S", SELECTION_INTERACTOR, true);
-        AbstractButton zoomButton = createToolButton(figureEditor, "Z", ZOOM_INTERACTOR, false);
-        AbstractButton panButton = createToolButton(figureEditor, "P", PAN_INTERACTOR, false);
-        AbstractButton newRectButton = createToolButton(figureEditor, "R", NEW_RECT_INTERACTOR, false);
-        AbstractButton newElliButton = createToolButton(figureEditor, "E", NEW_ELLI_INTERACTOR, false);
-        AbstractButton newPLButton = createToolButton(figureEditor, "PL", NEW_POLYLINE_INTERACTOR, false);
-        AbstractButton newPGButton = createToolButton(figureEditor, "PG", NEW_POLYGON_INTERACTOR, false);
-        AbstractButton newTButton = createToolButton(figureEditor, "T", NEW_TEXT_INTERACTOR, false);
+        AbstractButton selectButton = createInteractorButton(figureEditor, "S", SELECTION_INTERACTOR);
+        AbstractButton zoomButton = createInteractorButton(figureEditor, "Z", ZOOM_INTERACTOR);
+        AbstractButton panButton = createInteractorButton(figureEditor, "P", PAN_INTERACTOR);
+        AbstractButton newRectButton = createInteractorButton(figureEditor, "R", NEW_RECT_INTERACTOR);
+        AbstractButton newElliButton = createInteractorButton(figureEditor, "E", NEW_ELLI_INTERACTOR);
+        AbstractButton newPLButton = createInteractorButton(figureEditor, "PL", NEW_POLYLINE_INTERACTOR);
+        AbstractButton newPGButton = createInteractorButton(figureEditor, "PG", NEW_POLYGON_INTERACTOR);
+        AbstractButton newTButton = createInteractorButton(figureEditor, "T", NEW_TEXT_INTERACTOR);
 
         JToolBar toolBar = new JToolBar();
         toolBar.add(selectButton);
@@ -234,15 +235,26 @@ public class DefaultFigureEditorApp {
         return menu;
     }
 
-    private static AbstractButton createToolButton(final DefaultFigureEditor editor, String name, final Interactor interactor, boolean selected) {
-        AbstractButton selectButton = new JToggleButton(name);
+    private static AbstractButton createInteractorButton(final DefaultFigureEditor editor, String name, final Interactor interactor) {
+        final AbstractButton selectButton = new JToggleButton(name);
+        selectButton.setSelected(false);
         selectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 editor.setInteractor(interactor);
             }
         });
-        selectButton.setSelected(selected);
+        interactor.addListener(new AbstractInteractorListener() {
+            @Override
+            public void interactorActivated(Interactor interactor) {
+                selectButton.setSelected(true);
+            }
+
+            @Override
+            public void interactorDeactivated(Interactor interactor) {
+                selectButton.setSelected(false);
+            }
+        });
         return selectButton;
     }
 

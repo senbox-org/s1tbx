@@ -17,7 +17,7 @@ import java.awt.geom.AffineTransform;
 
 public abstract class AbstractHandle extends AbstractFigure implements Handle {
     private final Figure figure;
-    private final FigureStyle style;
+    private final FigureStyle normalStyle;
     private final FigureStyle selectedStyle;
     private final FigureChangeListener listener;
     private final Point2D.Double location;
@@ -25,10 +25,10 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     private boolean selected;
 
     protected AbstractHandle(Figure figure,
-                             FigureStyle style,
+                             FigureStyle normalStyle,
                              FigureStyle selectedStyle) {
         this.figure = figure;
-        this.style = style;
+        this.normalStyle = normalStyle;
         this.selectedStyle = selectedStyle;
 
         this.listener = new AbstractFigureChangeListener() {
@@ -44,6 +44,7 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     public double getX() {
         return location.x;
     }
+
     public double getY() {
         return location.y;
     }
@@ -63,8 +64,8 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
         return figure;
     }
 
-    public FigureStyle getStyle() {
-        return style;
+    public FigureStyle getNormalStyle() {
+        return normalStyle;
     }
 
     public Shape getShape() {
@@ -145,7 +146,7 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     }
 
     protected void drawHandle(Graphics2D g) {
-        FigureStyle handleStyle = isSelected() ? selectedStyle : style;
+        FigureStyle handleStyle = isSelected() ? selectedStyle : normalStyle;
 
         g.setPaint(handleStyle.getFillPaint());
         g.fill(getShape());

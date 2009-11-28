@@ -4,6 +4,7 @@ import com.bc.ceres.swing.figure.AbstractInteractor;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.FigureInsertEdit;
+import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
@@ -80,7 +81,7 @@ public class NewMultiPointShapeInteractor extends AbstractInteractor {
         points.add(toModelPoint(event.getPoint()));
 
         if (points.size() == 2) {
-            figure = new DefaultShapeFigure(createPath(), isPolygonal(), new DefaultFigureStyle());
+            figure = new DefaultShapeFigure(createPath(), isPolygonal(), StyleDefaults.INSERT_STYLE);
             // todo - move to FigureEditor.insert(figures)
             getFigureEditor().getUndoContext().postEdit(new FigureInsertEdit(getFigureEditor(), figure));
         }
