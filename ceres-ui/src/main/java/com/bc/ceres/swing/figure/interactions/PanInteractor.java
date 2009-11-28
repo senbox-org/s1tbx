@@ -1,15 +1,12 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.grender.ViewportOwner;
-import com.bc.ceres.swing.figure.AbstractInteraction;
+import com.bc.ceres.swing.figure.AbstractInteractor;
 
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 
-public class PanInteraction extends AbstractInteraction {
+public class PanInteractor extends AbstractInteractor {
     private int viewportX;
     private int viewportY;
 

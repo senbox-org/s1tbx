@@ -9,15 +9,15 @@ import com.bc.ceres.swing.actions.RedoAction;
 import com.bc.ceres.swing.actions.SelectAllAction;
 import com.bc.ceres.swing.actions.UndoAction;
 import com.bc.ceres.swing.figure.FigureCollection;
-import com.bc.ceres.swing.figure.Interaction;
-import com.bc.ceres.swing.figure.interactions.NewEllipseShapeInteraction;
-import com.bc.ceres.swing.figure.interactions.NewPolygonShapeInteraction;
-import com.bc.ceres.swing.figure.interactions.NewPolylineShapeInteraction;
-import com.bc.ceres.swing.figure.interactions.NewRectangleShapeInteraction;
-import com.bc.ceres.swing.figure.interactions.NewTextInteraction;
-import com.bc.ceres.swing.figure.interactions.PanInteraction;
-import com.bc.ceres.swing.figure.interactions.SelectionInteraction;
-import com.bc.ceres.swing.figure.interactions.ZoomInteraction;
+import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.interactions.NewEllipseShapeInteractor;
+import com.bc.ceres.swing.figure.interactions.NewPolygonShapeInteractor;
+import com.bc.ceres.swing.figure.interactions.NewPolylineShapeInteractor;
+import com.bc.ceres.swing.figure.interactions.NewRectangleShapeInteractor;
+import com.bc.ceres.swing.figure.interactions.NewTextInteractor;
+import com.bc.ceres.swing.figure.interactions.PanInteractor;
+import com.bc.ceres.swing.figure.interactions.SelectionInteractor;
+import com.bc.ceres.swing.figure.interactions.ZoomInteractor;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
@@ -53,14 +53,14 @@ import java.text.MessageFormat;
 import java.util.Locale;
 
 public class DefaultFigureEditorApp {
-    private static final Interaction SELECTION_INTERACTION = new SelectionInteraction();
-    private static final Interaction ZOOM_INTERACTION = new ZoomInteraction();
-    private static final Interaction PAN_INTERACTION = new PanInteraction();
-    private static final Interaction NEW_RECT_INTERACTION = new NewRectangleShapeInteraction();
-    private static final Interaction NEW_ELLI_INTERACTION = new NewEllipseShapeInteraction();
-    private static final Interaction NEW_POLYLINE_INTERACTION = new NewPolylineShapeInteraction();
-    private static final Interaction NEW_POLYGON_INTERACTION = new NewPolygonShapeInteraction();
-    private static final Interaction NEW_TEXT_INTERACTION = new NewTextInteraction();
+    private static final Interactor SELECTION_INTERACTOR = new SelectionInteractor();
+    private static final Interactor ZOOM_INTERACTOR = new ZoomInteractor();
+    private static final Interactor PAN_INTERACTOR = new PanInteractor();
+    private static final Interactor NEW_RECT_INTERACTOR = new NewRectangleShapeInteractor();
+    private static final Interactor NEW_ELLI_INTERACTOR = new NewEllipseShapeInteractor();
+    private static final Interactor NEW_POLYLINE_INTERACTOR = new NewPolylineShapeInteractor();
+    private static final Interactor NEW_POLYGON_INTERACTOR = new NewPolygonShapeInteractor();
+    private static final Interactor NEW_TEXT_INTERACTOR = new NewTextInteractor();
 
     private JFrame frame;
 
@@ -98,14 +98,14 @@ public class DefaultFigureEditorApp {
         selectAllAction = new SelectAllAction(selectionManager);
         deleteAction = new DeleteAction(selectionManager);
 
-        AbstractButton selectButton = createToolButton(figureEditor, "S", SELECTION_INTERACTION, true);
-        AbstractButton zoomButton = createToolButton(figureEditor, "Z", ZOOM_INTERACTION, false);
-        AbstractButton panButton = createToolButton(figureEditor, "P", PAN_INTERACTION, false);
-        AbstractButton newRectButton = createToolButton(figureEditor, "R", NEW_RECT_INTERACTION, false);
-        AbstractButton newElliButton = createToolButton(figureEditor, "E", NEW_ELLI_INTERACTION, false);
-        AbstractButton newPLButton = createToolButton(figureEditor, "PL", NEW_POLYLINE_INTERACTION, false);
-        AbstractButton newPGButton = createToolButton(figureEditor, "PG", NEW_POLYGON_INTERACTION, false);
-        AbstractButton newTButton = createToolButton(figureEditor, "T", NEW_TEXT_INTERACTION, false);
+        AbstractButton selectButton = createToolButton(figureEditor, "S", SELECTION_INTERACTOR, true);
+        AbstractButton zoomButton = createToolButton(figureEditor, "Z", ZOOM_INTERACTOR, false);
+        AbstractButton panButton = createToolButton(figureEditor, "P", PAN_INTERACTOR, false);
+        AbstractButton newRectButton = createToolButton(figureEditor, "R", NEW_RECT_INTERACTOR, false);
+        AbstractButton newElliButton = createToolButton(figureEditor, "E", NEW_ELLI_INTERACTOR, false);
+        AbstractButton newPLButton = createToolButton(figureEditor, "PL", NEW_POLYLINE_INTERACTOR, false);
+        AbstractButton newPGButton = createToolButton(figureEditor, "PG", NEW_POLYGON_INTERACTOR, false);
+        AbstractButton newTButton = createToolButton(figureEditor, "T", NEW_TEXT_INTERACTOR, false);
 
         JToolBar toolBar = new JToolBar();
         toolBar.add(selectButton);
@@ -127,7 +127,7 @@ public class DefaultFigureEditorApp {
         group.add(newPGButton);
         group.add(newTButton);
 
-        figureEditor.setInteraction(SELECTION_INTERACTION);
+        figureEditor.setInteractor(SELECTION_INTERACTOR);
 
         FigureCollection drawing = figureEditor.getFigureCollection();
         drawing.addFigure(new DefaultShapeFigure(new Rectangle(20, 30, 200, 100), true, DefaultFigureStyle.createShapeStyle(Color.BLUE, Color.GREEN)));
@@ -234,12 +234,12 @@ public class DefaultFigureEditorApp {
         return menu;
     }
 
-    private static AbstractButton createToolButton(final DefaultFigureEditor editor, String name, final Interaction interaction, boolean selected) {
+    private static AbstractButton createToolButton(final DefaultFigureEditor editor, String name, final Interactor interactor, boolean selected) {
         AbstractButton selectButton = new JToggleButton(name);
         selectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                editor.setInteraction(interaction);
+                editor.setInteractor(interactor);
             }
         });
         selectButton.setSelected(selected);

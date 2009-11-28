@@ -1,6 +1,6 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.figure.AbstractInteraction;
+import com.bc.ceres.swing.figure.AbstractInteractor;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.FigureInsertEdit;
@@ -12,12 +12,12 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewMultiPointShapeInteraction extends AbstractInteraction {
+public class NewMultiPointShapeInteractor extends AbstractInteractor {
     private final List<Point2D> points;
     private final boolean polygonal;
     private DefaultShapeFigure figure;
 
-    public NewMultiPointShapeInteraction(boolean polygonal) {
+    public NewMultiPointShapeInteractor(boolean polygonal) {
         this.polygonal = polygonal;
         this.points = new ArrayList<Point2D>(8);
     }
@@ -44,7 +44,7 @@ public class NewMultiPointShapeInteraction extends AbstractInteraction {
     }
 
     @Override
-    public void cancel() {
+    public void cancelInteraction() {
         if (points.size() > 0) {
             points.remove(points.size() - 1);
             points.remove(points.size() - 1);
@@ -52,7 +52,7 @@ public class NewMultiPointShapeInteraction extends AbstractInteraction {
                 getFigureEditor().getFigureCollection().removeFigure(figure);
                 figure = null;
             }
-            super.cancel();
+            super.cancelInteraction();
         }
     }
 
@@ -65,7 +65,7 @@ public class NewMultiPointShapeInteraction extends AbstractInteraction {
         if (event.getClickCount() > 1) {
             points.clear();
             getFigureEditor().getFigureSelection().removeFigures();
-            stop();
+            stopInteraction();
         }
     }
 
@@ -73,7 +73,7 @@ public class NewMultiPointShapeInteraction extends AbstractInteraction {
     public void mouseReleased(MouseEvent event) {
         if (points.isEmpty()) {
             getFigureEditor().getFigureSelection().removeFigures();
-            start();
+            startInteraction();
         }
 
         points.add(toModelPoint(event.getPoint()));

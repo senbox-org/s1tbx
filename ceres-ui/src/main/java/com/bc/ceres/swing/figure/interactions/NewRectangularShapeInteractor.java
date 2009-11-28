@@ -1,6 +1,6 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.figure.AbstractInteraction;
+import com.bc.ceres.swing.figure.AbstractInteractor;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.FigureInsertEdit;
@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.RectangularShape;
 
-public abstract class NewRectangularShapeInteraction extends AbstractInteraction {
+public abstract class NewRectangularShapeInteractor extends AbstractInteractor {
     private Point referencePoint;
     private boolean canceled;
     private DefaultShapeFigure figure;
@@ -19,12 +19,12 @@ public abstract class NewRectangularShapeInteraction extends AbstractInteraction
     protected abstract RectangularShape createRectangularShape(Point2D point);
 
     @Override
-    public void cancel() {
+    public void cancelInteraction() {
         if (!canceled) {
             canceled = true;
             getFigureEditor().getFigureSelection().removeFigures();
             getFigureEditor().getFigureCollection().removeFigure(figure);
-            super.cancel();
+            super.cancelInteraction();
         }
     }
 
@@ -36,7 +36,7 @@ public abstract class NewRectangularShapeInteraction extends AbstractInteraction
         rectangularShape = createRectangularShape(toModelPoint(referencePoint));
         figure = new DefaultShapeFigure(v2m().createTransformedShape(rectangularShape), true, new DefaultFigureStyle());
         getFigureEditor().getFigureCollection().addFigure(figure);
-        start();
+        startInteraction();
     }
 
     @Override
@@ -47,7 +47,7 @@ public abstract class NewRectangularShapeInteraction extends AbstractInteraction
             // todo - move to FigureEditor.insert(figure, memento)
             getFigureEditor().getUndoContext().postEdit(new FigureInsertEdit(getFigureEditor(), figure));
         }
-        stop();
+        stopInteraction();
     }
 
     @Override

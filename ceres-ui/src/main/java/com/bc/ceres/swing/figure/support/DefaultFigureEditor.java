@@ -10,8 +10,8 @@ import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureSelection;
-import com.bc.ceres.swing.figure.Interaction;
-import com.bc.ceres.swing.figure.interactions.NullInteraction;
+import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
@@ -33,14 +33,14 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor, Adjusta
     private final DefaultRendering rendering;
     private final FigureSelectionContext figureSelectionContext;
     private Rectangle selectionRectangle;
-    private Interaction interaction;
+    private Interactor interactor;
 
     public DefaultFigureEditor() {
         super(null);
 
         undoContext = new DefaultUndoContext(this);
         figureSelectionContext = new FigureSelectionContext(this);
-        interaction = NullInteraction.INSTANCE;
+        interactor = NullInteractor.INSTANCE;
         rendering = new DefaultRendering(new DefaultViewport(true));
 
         RepaintHandler repaintHandler = new RepaintHandler();
@@ -110,17 +110,17 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor, Adjusta
     }
 
     @Override
-    public Interaction getInteraction() {
-        return interaction;
+    public Interactor getInteractor() {
+        return interactor;
     }
 
     @Override
-    public void setInteraction(Interaction interaction) {
-        this.interaction.deactivate();
-        this.interaction.setFigureEditor(null);
-        this.interaction = interaction;
-        this.interaction.setFigureEditor(this);
-        this.interaction.activate();
+    public void setInteractor(Interactor interactor) {
+        this.interactor.deactivate();
+        this.interactor.setFigureEditor(null);
+        this.interactor = interactor;
+        this.interactor.setFigureEditor(this);
+        this.interactor.activate();
     }
 
     @Override

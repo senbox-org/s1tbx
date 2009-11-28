@@ -1,8 +1,8 @@
 package com.bc.ceres.swing.figure;
 
 import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.figure.Interaction;
-import com.bc.ceres.swing.figure.InteractionListener;
+import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.InteractorListener;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -11,12 +11,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-public abstract class AbstractInteraction implements Interaction {
+public abstract class AbstractInteractor implements Interactor {
     private FigureEditor figureEditor;
-    private ArrayList<InteractionListener> listeners;
+    private ArrayList<InteractorListener> listeners;
 
-    protected AbstractInteraction() {
-        listeners = new ArrayList<InteractionListener>(3);
+    protected AbstractInteractor() {
+        listeners = new ArrayList<InteractorListener>(3);
     }
 
     @Override
@@ -30,17 +30,17 @@ public abstract class AbstractInteraction implements Interaction {
     }
 
     @Override
-    public void cancel() {
+    public void cancelInteraction() {
         fireCancelled();
     }
 
     @Override
-    public void start() {
+    public void startInteraction() {
         fireStarted();
     }
 
     @Override
-    public void stop() {
+    public void stopInteraction() {
         fireStopped();
     }
 
@@ -99,23 +99,23 @@ public abstract class AbstractInteraction implements Interaction {
     public void keyTyped(KeyEvent event) {
         // System.out.println("onKeyTyped: interaction = " + this + ", keyChar = " + (int) event.getKeyChar());
         if (event.getKeyChar() == 27) {
-            cancel();
+            cancelInteraction();
         }
     }
 
     @Override
-    public void addListener(InteractionListener l) {
+    public void addListener(InteractorListener l) {
         listeners.add(l);
     }
 
     @Override
-    public void removeListener(InteractionListener l) {
+    public void removeListener(InteractorListener l) {
         listeners.remove(l);
     }
 
     @Override
-    public InteractionListener[] getListeners() {
-        return this.listeners.toArray(new InteractionListener[this.listeners.size()]);
+    public InteractorListener[] getListeners() {
+        return this.listeners.toArray(new InteractorListener[this.listeners.size()]);
     }
 
     protected AffineTransform v2m() {
@@ -135,31 +135,31 @@ public abstract class AbstractInteraction implements Interaction {
     }
 
     private void fireActivated() {
-        for (InteractionListener listener : getListeners()) {
-            listener.interactionActivated(this);
+        for (InteractorListener listener : getListeners()) {
+            listener.interactorActivated(this);
         }
     }
 
     private void fireDeactivated() {
-        for (InteractionListener listener : getListeners()) {
-            listener.interactionDeactivated(this);
+        for (InteractorListener listener : getListeners()) {
+            listener.interactorDeactivated(this);
         }
     }
 
     private void fireStarted() {
-        for (InteractionListener listener : getListeners()) {
+        for (InteractorListener listener : getListeners()) {
             listener.interactionStarted(this);
         }
     }
 
     private void fireStopped() {
-        for (InteractionListener listener : getListeners()) {
+        for (InteractorListener listener : getListeners()) {
             listener.interactionStopped(this);
         }
     }
 
     private void fireCancelled() {
-        for (InteractionListener listener : getListeners()) {
+        for (InteractorListener listener : getListeners()) {
             listener.interactionCancelled(this);
         }
     }

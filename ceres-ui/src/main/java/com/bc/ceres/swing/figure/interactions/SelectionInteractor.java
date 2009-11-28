@@ -1,6 +1,6 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.figure.AbstractInteraction;
+import com.bc.ceres.swing.figure.AbstractInteractor;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.undo.RestorableEdit;
@@ -13,10 +13,10 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
-// todo - this Interaction should not be restricted to figure contexts, is the inner Tool interface the solution?
+// todo - this Interactor should not be restricted to figure contexts, is the inner Tool interface the solution?
 // todo - remove dependency to com.bc.ceres.swing.RestorableEdit
 
-public class SelectionInteraction extends AbstractInteraction {
+public class SelectionInteractor extends AbstractInteractor {
 
     private final Tool TOOL_SELECT_POINT = new SelectPointTool();
     private final Tool TOOL_SELECT_RECTANGLE = new SelectRectangleTool();
@@ -28,7 +28,7 @@ public class SelectionInteraction extends AbstractInteraction {
     private Object figureMemento;
     private Tool tool;
 
-    public SelectionInteraction() {
+    public SelectionInteractor() {
         tool = new NullTool();
     }
 
@@ -41,7 +41,7 @@ public class SelectionInteraction extends AbstractInteraction {
     }
 
     @Override
-    public void cancel() {
+    public void cancelInteraction() {
         if (!canceled) {
             canceled = true;
             if (figureMemento != null) {
@@ -49,7 +49,7 @@ public class SelectionInteraction extends AbstractInteraction {
                 figureMemento = null;
             }
             getFigureEditor().getFigureSelection().removeFigures();
-            super.cancel();
+            super.cancelInteraction();
         }
     }
 
@@ -158,7 +158,7 @@ public class SelectionInteraction extends AbstractInteraction {
         return false;
     }
 
-    // todo - Tool is a helper, it may later be replaced by an Interaction delegate
+    // todo - Tool is a helper, it may later be replaced by an Interactor delegate
     private interface Tool {
         void start(MouseEvent event);
 

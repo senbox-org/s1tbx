@@ -1,6 +1,6 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.figure.Interaction;
+import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
@@ -18,10 +18,10 @@ public class SelectionInteractionTest extends TestCase {
         fe.getFigureCollection().addFigure(f1);
         fe.getFigureCollection().addFigure(f2);
 
-        Interaction sa = new SelectionInteraction();
+        Interactor sa = new SelectionInteractor();
         sa.setFigureEditor(fe);
         sa.activate();
-        sa.start();
+        sa.startInteraction();
 
         // Test initial state: nothing selected
         assertEquals(0, fe.getFigureSelection().getFigureCount());
@@ -89,25 +89,25 @@ public class SelectionInteractionTest extends TestCase {
         // todo - test drag selected figure (--> move)
         // todo - test drag selected handle (--> scale/rotate/move vertex)
 
-        sa.stop();
+        sa.stopInteraction();
         sa.deactivate();
     }
 
-    private void click(Interaction sa, DefaultFigureEditor fe, int x, int y, int modifiers) {
+    private void click(Interactor sa, DefaultFigureEditor fe, int x, int y, int modifiers) {
         MouseEvent event;
         event = createEvent(fe, modifiers, x, y);
         sa.mousePressed(event);
         sa.mouseReleased(event);
     }
 
-    private void startDrag(Interaction sa, DefaultFigureEditor fe, int x, int y, int modifiers) {
+    private void startDrag(Interactor sa, DefaultFigureEditor fe, int x, int y, int modifiers) {
         MouseEvent event;
         event = createEvent(fe, modifiers, x, y);
         sa.mousePressed(event);
         sa.mouseDragged(event);
     }
 
-    private void endDrag(Interaction sa, DefaultFigureEditor fe, int x, int y, int modifiers) {
+    private void endDrag(Interactor sa, DefaultFigureEditor fe, int x, int y, int modifiers) {
         MouseEvent event;
         event = createEvent(fe, modifiers, x, y);
         sa.mouseDragged(event);

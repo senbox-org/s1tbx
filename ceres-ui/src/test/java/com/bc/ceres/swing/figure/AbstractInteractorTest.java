@@ -5,46 +5,46 @@ import junit.framework.TestCase;
 import javax.swing.JMenu;
 import java.awt.event.KeyEvent;
 
-import com.bc.ceres.swing.figure.AbstractInteraction;
-import com.bc.ceres.swing.figure.Interaction;
-import com.bc.ceres.swing.figure.InteractionListener;
+import com.bc.ceres.swing.figure.AbstractInteractor;
+import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.InteractorListener;
 
-public class AbstractInteractionTest extends TestCase {
+public class AbstractInteractorTest extends TestCase {
     public void testListeners() {
-        AbstractInteraction interaction = new AbstractInteraction() {
+        AbstractInteractor interactor = new AbstractInteractor() {
         };
-        MyInteractionListener listener = new MyInteractionListener();
-        interaction.addListener(listener);
+        MyInteractorListener listener = new MyInteractorListener();
+        interactor.addListener(listener);
 
-        interaction.activate();
+        interactor.activate();
         assertEquals("a;", listener.trace);
 
-        interaction.deactivate();
+        interactor.deactivate();
         assertEquals("a;d;", listener.trace);
 
-        interaction.activate();
+        interactor.activate();
         assertEquals("a;d;a;", listener.trace);
 
-        interaction.cancel();
+        interactor.cancelInteraction();
         assertEquals("a;d;a;c;", listener.trace);
 
-        interaction.activate();
+        interactor.activate();
         assertEquals("a;d;a;c;a;", listener.trace);
 
-        interaction.start();
+        interactor.startInteraction();
         assertEquals("a;d;a;c;a;s;", listener.trace);
 
-        interaction.stop();
+        interactor.stopInteraction();
         assertEquals("a;d;a;c;a;s;e;", listener.trace);
 
-        interaction.deactivate();
+        interactor.deactivate();
         assertEquals("a;d;a;c;a;s;e;d;", listener.trace);
     }
 
     public void testEscKeyPressedInvokesCancel() {
-        AbstractInteraction interaction = new AbstractInteraction() {
+        AbstractInteractor interaction = new AbstractInteractor() {
         };
-        MyInteractionListener listener = new MyInteractionListener();
+        MyInteractorListener listener = new MyInteractorListener();
         interaction.addListener(listener);
 
         JMenu source = new JMenu();
@@ -59,31 +59,31 @@ public class AbstractInteractionTest extends TestCase {
         assertEquals("c;", listener.trace); // ==> cancel() NOT called
     }
 
-    private static class MyInteractionListener implements InteractionListener {
+    private static class MyInteractorListener implements InteractorListener {
         String trace = "";
 
         @Override
-        public void interactionActivated(Interaction interaction) {
+        public void interactorActivated(Interactor interactor) {
             trace += "a;";
         }
 
         @Override
-        public void interactionDeactivated(Interaction interaction) {
+        public void interactorDeactivated(Interactor interactor) {
             trace += "d;";
         }
 
         @Override
-        public void interactionStarted(Interaction interaction) {
+        public void interactionStarted(Interactor interactor) {
             trace += "s;";
         }
 
         @Override
-        public void interactionStopped(Interaction interaction) {
+        public void interactionStopped(Interactor interactor) {
             trace += "e;";
         }
 
         @Override
-        public void interactionCancelled(Interaction interaction) {
+        public void interactionCancelled(Interactor interactor) {
             trace += "c;";
         }
     }

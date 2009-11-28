@@ -1,7 +1,7 @@
 package com.bc.ceres.swing.figure.support;
 
-import com.bc.ceres.swing.figure.Interaction;
-import com.bc.ceres.swing.figure.InteractionHolder;
+import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.InteractorHolder;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -10,10 +10,10 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 public class InteractionDispatcher implements MouseListener, MouseMotionListener, KeyListener {
-    private final InteractionHolder interactionHolder;
+    private final InteractorHolder interactorHolder;
 
-    public InteractionDispatcher(InteractionHolder interactionHolder) {
-        this.interactionHolder = interactionHolder;
+    public InteractionDispatcher(InteractorHolder interactorHolder) {
+        this.interactorHolder = interactorHolder;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
         getInteraction().keyReleased(e);
     }
 
-    private Interaction getInteraction() {
-        return interactionHolder.getInteraction();
+    private Interactor getInteraction() {
+        return interactorHolder.getInteractor();
     }
 }

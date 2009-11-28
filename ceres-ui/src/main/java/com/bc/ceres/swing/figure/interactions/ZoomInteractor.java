@@ -1,7 +1,7 @@
 package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.swing.figure.AbstractInteraction;
+import com.bc.ceres.swing.figure.AbstractInteractor;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -12,7 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
-public class ZoomInteraction extends AbstractInteraction {
+public class ZoomInteractor extends AbstractInteractor {
     private int viewportX;
     private int viewportY;
     private Graphics graphics;
