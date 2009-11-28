@@ -23,7 +23,7 @@ public class FigureDeleteEdit extends AbstractUndoableEdit {
         this.deletedPositions = new int[this.deletedFigures.length];
 
         figureEditor.getFigureSelection().removeFigures(this.deletedFigures);
-        figureEditor.getFigureSelection().setSelectionLevel(0);
+        figureEditor.getFigureSelection().setSelectionStage(0);
 
         HashSet<Figure> deletedFigureSet = new HashSet<Figure>(Arrays.asList(this.deletedFigures));
         int index = 0;

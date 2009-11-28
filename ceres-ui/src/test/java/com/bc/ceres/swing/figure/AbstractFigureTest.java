@@ -2,9 +2,7 @@ package com.bc.ceres.swing.figure;
 
 import junit.framework.TestCase;
 
-import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
 
 public class AbstractFigureTest extends TestCase {
 
@@ -15,13 +13,13 @@ public class AbstractFigureTest extends TestCase {
         assertEquals(0, f.getListeners().length);
         assertEquals(null, f.getFigure(null));
         assertEquals(0, f.getFigureCount());
-        assertEquals(0, f.getMaxSelectionLevel());
+        assertEquals(0, f.getMaxSelectionStage());
         assertNull(f.getFigure(null));
         assertNotNull(f.getFigures((Shape) null));
         assertEquals(0, f.getFigures(null).length);
         assertNotNull(f.getFigures());
         assertEquals(0, f.getFigures().length);
-        assertEquals(0, f.getMaxSelectionLevel());
+        assertEquals(0, f.getMaxSelectionStage());
         assertNotNull(f.createHandles(1));
         assertEquals(0, f.createHandles(1).length);
     }

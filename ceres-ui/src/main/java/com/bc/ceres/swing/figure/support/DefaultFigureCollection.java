@@ -91,16 +91,16 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     }
 
     @Override
-    public int getMaxSelectionLevel() {
+    public int getMaxSelectionStage() {
         return 1;
     }
 
     @Override
-    public synchronized Handle[] createHandles(int selectionLevel) {
+    public synchronized Handle[] createHandles(int selectionStage) {
         if (getFigureCount() == 0) {
             return NO_HANDLES;
         } else if (getFigureCount() == 1) {
-            return getFigure(0).createHandles(selectionLevel);
+            return getFigure(0).createHandles(selectionStage);
         } else {
             return createScaleHandles(0.0);
         }

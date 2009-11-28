@@ -242,21 +242,21 @@ public class SelectionInteraction extends AbstractInteraction {
             if (clickedFigure == null) {
                 // Nothing clicked, thus clear selection.
                 getFigureEditor().getFigureSelection().removeFigures();
-                getFigureEditor().getFigureSelection().setSelectionLevel(0);
+                getFigureEditor().getFigureSelection().setSelectionStage(0);
             } else if (getFigureEditor().getFigureSelection().getFigureCount() == 0) {
                 // If figure clicked and current selection is empty then select this figure at first selection level.
                 getFigureEditor().getFigureSelection().addFigure(clickedFigure);
                 // Single selection starts at selection level 1 (highlighted boundary)
-                getFigureEditor().getFigureSelection().setSelectionLevel(1);
+                getFigureEditor().getFigureSelection().setSelectionStage(1);
             } else if (getFigureEditor().getFigureSelection().getFigureCount() == 1) {
                 // If figure clicked and we already have a single figure selected.
                 if (getFigureEditor().getFigureSelection().contains(clickedFigure)) {
                     // If the clicked figure is the currently selected figure, then increment selection level.
-                    int selectionLevel = getFigureEditor().getFigureSelection().getSelectionLevel() + 1;
-                    if (selectionLevel > clickedFigure.getMaxSelectionLevel()) {
+                    int selectionLevel = getFigureEditor().getFigureSelection().getSelectionStage() + 1;
+                    if (selectionLevel > clickedFigure.getMaxSelectionStage()) {
                         selectionLevel = 0;
                     }
-                    getFigureEditor().getFigureSelection().setSelectionLevel(selectionLevel);
+                    getFigureEditor().getFigureSelection().setSelectionStage(selectionLevel);
                 } else {
                     // If the clicked figure is NOT the currently selected figure, then
                     // if CTRL down add the clicked figure to the selection,
@@ -264,12 +264,12 @@ public class SelectionInteraction extends AbstractInteraction {
                     if (event.isControlDown()) {
                         getFigureEditor().getFigureSelection().addFigure(clickedFigure);
                         // Multiple selection is always at selection level 2 (scale handles + rotation handle).
-                        getFigureEditor().getFigureSelection().setSelectionLevel(2);
+                        getFigureEditor().getFigureSelection().setSelectionStage(2);
                     } else {
                         getFigureEditor().getFigureSelection().removeFigures();
                         getFigureEditor().getFigureSelection().addFigure(clickedFigure);
                         // Single selection starts at selection level 1 (highlighted boundary)
-                        getFigureEditor().getFigureSelection().setSelectionLevel(1);
+                        getFigureEditor().getFigureSelection().setSelectionStage(1);
                     }
                 }
             } else if (getFigureEditor().getFigureSelection().getFigureCount() >= 2) {
@@ -292,7 +292,7 @@ public class SelectionInteraction extends AbstractInteraction {
                     }
                 }
                 // Multiple selection is always at selection level 2 (scale handles + rotation handle).
-                getFigureEditor().getFigureSelection().setSelectionLevel(2);
+                getFigureEditor().getFigureSelection().setSelectionStage(2);
             }
         }
 
@@ -332,11 +332,11 @@ public class SelectionInteraction extends AbstractInteraction {
                 final Figure[] figures = getFigureEditor().getFigureCollection().getFigures(shape);
                 getFigureEditor().getFigureSelection().addFigures(figures);
                 if (getFigureEditor().getFigureSelection().getFigureCount() == 0) {
-                    getFigureEditor().getFigureSelection().setSelectionLevel(0);
+                    getFigureEditor().getFigureSelection().setSelectionStage(0);
                 } else if (getFigureEditor().getFigureSelection().getFigureCount() == 1) {
-                    getFigureEditor().getFigureSelection().setSelectionLevel(1);
+                    getFigureEditor().getFigureSelection().setSelectionStage(1);
                 } else {
-                    getFigureEditor().getFigureSelection().setSelectionLevel(2);
+                    getFigureEditor().getFigureSelection().setSelectionStage(2);
                 }
                 setSelectionRectangle(null);
             }

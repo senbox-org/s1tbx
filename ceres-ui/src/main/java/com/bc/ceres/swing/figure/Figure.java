@@ -76,9 +76,9 @@ public interface Figure extends Restorable, Cloneable {
 
     Figure[] removeFigures();
 
-    int getMaxSelectionLevel();
+    int getMaxSelectionStage();
 
-    Handle[] createHandles(int selectionLevel);
+    Handle[] createHandles(int selectionStage);
 
     void addListener(FigureChangeListener l);
 

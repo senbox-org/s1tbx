@@ -25,16 +25,14 @@ public class StyleDefaults {
     public static final Stroke HANDLE_STROKE = new BasicStroke(1.0f);
     public static final FigureStyle HANDLE_STYLE = DefaultFigureStyle.createShapeStyle(HANDLE_FILL_PAINT,
                                                                                        HANDLE_STROKE_PAINT,
-                                                                                       HANDLE_STROKE
-    );
+                                                                                       HANDLE_STROKE);
 
     public static final Paint SELECTED_HANDLE_FILL_PAINT = Color.ORANGE;
     public static final Paint SELECTED_HANDLE_STROKE_PAINT = Color.BLUE;
     public static final Stroke SELECTED_HANDLE_STROKE = new BasicStroke(1.5f);
     public static final FigureStyle SELECTED_HANDLE_STYLE = DefaultFigureStyle.createShapeStyle(SELECTED_HANDLE_FILL_PAINT,
                                                                                                 SELECTED_HANDLE_STROKE_PAINT,
-                                                                                                SELECTED_HANDLE_STROKE
-    );
+                                                                                                SELECTED_HANDLE_STROKE);
 
     public static final double VERTEX_HANDLE_SIZE = 8;
     public static final double SCALE_HANDLE_SIZE = 6;

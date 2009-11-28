@@ -14,7 +14,7 @@ public class DefaultFigureCollectionTest extends TestCase {
         assertEquals(true, fc.isSelectable());
         assertEquals(Figure.Rank.COLLECTION, fc.getRank());
         assertEquals(new Rectangle2D.Double(), fc.getBounds());
-        assertEquals(1, fc.getMaxSelectionLevel());
+        assertEquals(1, fc.getMaxSelectionStage());
         assertEquals(0, fc.getFigureCount());
     }
 

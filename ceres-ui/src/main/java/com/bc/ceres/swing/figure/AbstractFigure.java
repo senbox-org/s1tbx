@@ -256,18 +256,18 @@ public abstract class AbstractFigure implements Figure {
      * @return Always {@code 0}.
      */
     @Override
-    public int getMaxSelectionLevel() {
+    public int getMaxSelectionStage() {
         return 0;
     }
 
     /**
      * The default implementation returns an empty array.
-     * Clients should override in order to create an array of handles suitable for the given selection level.
+     * Clients should override in order to create an array of handles suitable for the given selection stage.
      *
-     * @param selectionLevel The selection level. {@code 1 &lt;= selectionLevel &lt;=} {@link #getMaxSelectionLevel()}
+     * @param selectionStage The selection stage. {@code 1 &lt;= selectionLevel &lt;=} {@link #getMaxSelectionStage()}
      */
     @Override
-    public Handle[] createHandles(int selectionLevel) {
+    public Handle[] createHandles(int selectionStage) {
         return NO_HANDLES;
     }
 

@@ -25,54 +25,54 @@ public class SelectionInteractionTest extends TestCase {
 
         // Test initial state: nothing selected
         assertEquals(0, fe.getFigureSelection().getFigureCount());
-        assertEquals(0, fe.getFigureSelection().getSelectionLevel());
+        assertEquals(0, fe.getFigureSelection().getSelectionStage());
 
         // Click at 0,0 --> still no selection
         click(sa, fe, 0, 0, 0);
         assertEquals(0, fe.getFigureSelection().getFigureCount());
-        assertEquals(0, fe.getFigureSelection().getSelectionLevel());
+        assertEquals(0, fe.getFigureSelection().getSelectionStage());
 
         // Click figure 1 --> select it
         click(sa, fe, 10 + 5, 10 + 5, 0);
         assertEquals(1, fe.getFigureSelection().getFigureCount());
-        assertEquals(1, fe.getFigureSelection().getSelectionLevel());
+        assertEquals(1, fe.getFigureSelection().getSelectionStage());
         assertSame(f1, fe.getFigureSelection().getFigure(0));
 
         // Click again figure 1 --> selection level increased
         click(sa, fe, 11 + 5, 10 + 5, 0);
         assertEquals(1, fe.getFigureSelection().getFigureCount());
-        assertEquals(2, fe.getFigureSelection().getSelectionLevel());
+        assertEquals(2, fe.getFigureSelection().getSelectionStage());
         assertSame(f1, fe.getFigureSelection().getFigure(0));
 
         click(sa, fe, 10 + 5, 10 + 5, 0);
         assertEquals(1, fe.getFigureSelection().getFigureCount());
-        assertEquals(3, fe.getFigureSelection().getSelectionLevel());
+        assertEquals(3, fe.getFigureSelection().getSelectionStage());
         assertSame(f1, fe.getFigureSelection().getFigure(0));
 
         click(sa, fe, 0, 0, 0);
         assertEquals(0, fe.getFigureSelection().getFigureCount());
-        assertEquals(0, fe.getFigureSelection().getSelectionLevel());
+        assertEquals(0, fe.getFigureSelection().getSelectionStage());
 
         click(sa, fe, 30 + 5, 10 + 5, 0);
         assertEquals(1, fe.getFigureSelection().getFigureCount());
-        assertEquals(1, fe.getFigureSelection().getSelectionLevel());
+        assertEquals(1, fe.getFigureSelection().getSelectionStage());
         assertSame(f2, fe.getFigureSelection().getFigure(0));
 
         click(sa, fe, 10 + 5, 10 + 5, MouseEvent.CTRL_MASK);
         assertEquals(2, fe.getFigureSelection().getFigureCount());
-        assertEquals(2, fe.getFigureSelection().getSelectionLevel());
+        assertEquals(2, fe.getFigureSelection().getSelectionStage());
         assertSame(f2, fe.getFigureSelection().getFigure(0));
         assertSame(f1, fe.getFigureSelection().getFigure(1));
 
         click(sa, fe, 0, 0, 0);
         assertEquals(0, fe.getFigureSelection().getFigureCount());
-        assertEquals(0, fe.getFigureSelection().getSelectionLevel());
+        assertEquals(0, fe.getFigureSelection().getSelectionStage());
 
         // Select all figures in rect(0,0,100,100)
         startDrag(sa, fe, 0, 0, 0);
         endDrag(sa, fe, 100, 100, 0);
         assertEquals(2, fe.getFigureSelection().getFigureCount());
-        assertEquals(2, fe.getFigureSelection().getSelectionLevel());
+        assertEquals(2, fe.getFigureSelection().getSelectionStage());
         assertSame(f1, fe.getFigureSelection().getFigure(0));
         assertSame(f2, fe.getFigureSelection().getFigure(1));
 
@@ -80,7 +80,7 @@ public class SelectionInteractionTest extends TestCase {
         startDrag(sa, fe, 10 + 5, 10 + 5, 0);
         endDrag(sa, fe, 200, 200, 0);
         assertEquals(2, fe.getFigureSelection().getFigureCount());
-        assertEquals(2, fe.getFigureSelection().getSelectionLevel());
+        assertEquals(2, fe.getFigureSelection().getSelectionStage());
         assertSame(f1, fe.getFigureSelection().getFigure(0));
         assertSame(f2, fe.getFigureSelection().getFigure(1));
         assertEquals(new Rectangle2D.Double(195.0, 195.0, 10.0, 10.0), f1.getBounds());

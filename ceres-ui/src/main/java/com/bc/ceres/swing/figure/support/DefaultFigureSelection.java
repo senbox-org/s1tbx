@@ -18,23 +18,23 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
 
     private Handle[] handles;
     private Handle selectedHandle;
-    private int selectionLevel;
+    private int selectionStage;
 
     public DefaultFigureSelection() {
-        this.selectionLevel = 0;
+        this.selectionStage = 0;
         this.handles = NO_HANDLES;
     }
 
     @Override
-    public int getSelectionLevel() {
-        return selectionLevel;
+    public int getSelectionStage() {
+        return selectionStage;
     }
 
     @Override
-    public void setSelectionLevel(int selectionLevel) {
-        if (this.selectionLevel != selectionLevel) {
-            this.selectionLevel = selectionLevel;
-            if (selectionLevel == 0) {
+    public void setSelectionStage(int selectionStage) {
+        if (this.selectionStage != selectionStage) {
+            this.selectionStage = selectionStage;
+            if (selectionStage == 0) {
                 removeFigures();
             }
             updateHandles();
@@ -184,7 +184,7 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
         final DefaultFigureSelection figureSelection = (DefaultFigureSelection) super.clone();
         figureSelection.handles = NO_HANDLES;
         figureSelection.selectedHandle = null;
-        figureSelection.selectionLevel = 0;
+        figureSelection.selectionStage = 0;
         return figureSelection;
     }
 
@@ -196,13 +196,13 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
     @Override
     public Figure[] removeFigures() {
         disposeHandles();
-        selectionLevel = 0;
+        selectionStage = 0;
         return super.removeFigures();
     }
 
     @Override
     public void draw(Rendering rendering) {
-        if (getFigureCount() == 0 || getSelectionLevel() < 1) {
+        if (getFigureCount() == 0 || getSelectionStage() < 1) {
             return;
         }
 
@@ -250,8 +250,8 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
 
     private void updateHandles() {
         disposeHandles();
-        if (this.selectionLevel != 0) {
-            handles = createHandles(this.selectionLevel);
+        if (this.selectionStage != 0) {
+            handles = createHandles(this.selectionStage);
         }
     }
 

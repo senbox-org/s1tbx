@@ -10,17 +10,17 @@ import java.awt.geom.Point2D;
  * Figures added to this collection will automatically be {@link #isSelected() selected}.
  * When removed, they become deselected.
  * <p/>
- * A figure selection can have a certain {@link #getSelectionLevel() selection level}.
+ * A figure selection can have a certain {@link #getSelectionStage() selection stage}.
  * When displayed, a figure selections asks its figures for its {@link Figure#createHandles(int) Handle}s
- * at the given selection level.
+ * at the given stage.
  *
  * @author Norman Fomferra
  * @since Ceres 0.10
  */
 public interface FigureSelection extends FigureCollection, Selection {
-    int getSelectionLevel();
+    int getSelectionStage();
 
-    void setSelectionLevel(int selectionLevel);
+    void setSelectionStage(int stage);
 
     /**
      * Gets the handles associated with the current selection level.
@@ -34,7 +34,7 @@ public interface FigureSelection extends FigureCollection, Selection {
      *
      * @return The handles associated with the current selection level.
      *
-     * @see #getSelectionLevel()
+     * @see #getSelectionStage()
      */
     Handle[] getHandles();
 

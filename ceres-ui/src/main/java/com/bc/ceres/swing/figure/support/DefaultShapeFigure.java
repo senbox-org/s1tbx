@@ -10,7 +10,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.Stroke;
-import java.awt.Paint;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -275,21 +274,21 @@ public class DefaultShapeFigure extends AbstractFigure {
     }
 
     @Override
-    public int getMaxSelectionLevel() {
+    public int getMaxSelectionStage() {
         return 4;
     }
 
     @Override
-    public Handle[] createHandles(int selectionLevel) {
-        System.out.println("selectionLevel = " + selectionLevel);
-        if (selectionLevel == 1) {
+    public Handle[] createHandles(int selectionStage) {
+        System.out.println("selectionStage = " + selectionStage);
+        if (selectionStage == 1) {
             // No handles at level 1, only high-lighting, see draw() & isSelected()
             return new Handle[0];
-        } else if (selectionLevel == 2) {
+        } else if (selectionStage == 2) {
             return createVertexHandles();
-        } else if (selectionLevel == 3) {
+        } else if (selectionStage == 3) {
             return createScaleHandles(0.0);
-        } else if (selectionLevel == 4) {
+        } else if (selectionStage == 4) {
             Handle[] vertexHandles = createVertexHandles();
             Handle[] scaleHandles = createScaleHandles(8.0);
             ArrayList<Handle> handles = new ArrayList<Handle>(vertexHandles.length + scaleHandles.length);
