@@ -8,37 +8,39 @@ import java.awt.event.KeyEvent;
 import com.bc.ceres.swing.figure.AbstractInteractor;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.InteractorListener;
+import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 
 public class AbstractInteractorTest extends TestCase {
     public void testListeners() {
+        DefaultFigureEditor editor = new DefaultFigureEditor();
         AbstractInteractor interactor = new AbstractInteractor() {
         };
         MyInteractorListener listener = new MyInteractorListener();
         interactor.addListener(listener);
 
-        interactor.activate();
+        interactor.activate(editor);
         assertEquals("a;", listener.trace);
 
-        interactor.deactivate();
+        interactor.deactivate(editor);
         assertEquals("a;d;", listener.trace);
 
-        interactor.activate();
+        interactor.activate(editor);
         assertEquals("a;d;a;", listener.trace);
 
         interactor.cancelInteraction();
         assertEquals("a;d;a;c;", listener.trace);
 
-        interactor.activate();
-        assertEquals("a;d;a;c;a;", listener.trace);
+        interactor.activate(editor);
+        assertEquals("a;d;a;c;d;a;", listener.trace);
 
         interactor.startInteraction();
-        assertEquals("a;d;a;c;a;s;", listener.trace);
+        assertEquals("a;d;a;c;d;a;s;", listener.trace);
 
         interactor.stopInteraction();
-        assertEquals("a;d;a;c;a;s;e;", listener.trace);
+        assertEquals("a;d;a;c;d;a;s;e;", listener.trace);
 
-        interactor.deactivate();
-        assertEquals("a;d;a;c;a;s;e;d;", listener.trace);
+        interactor.deactivate(editor);
+        assertEquals("a;d;a;c;d;a;s;e;d;", listener.trace);
     }
 
     public void testEscKeyPressedInvokesCancel() {

@@ -19,8 +19,7 @@ public class SelectionInteractionTest extends TestCase {
         fe.getFigureCollection().addFigure(f2);
 
         Interactor sa = new SelectionInteractor();
-        sa.setFigureEditor(fe);
-        sa.activate();
+        sa.activate(fe);
         sa.startInteraction();
 
         // Test initial state: nothing selected
@@ -90,7 +89,7 @@ public class SelectionInteractionTest extends TestCase {
         // todo - test drag selected handle (--> scale/rotate/move vertex)
 
         sa.stopInteraction();
-        sa.deactivate();
+        sa.deactivate(fe);
     }
 
     private void click(Interactor sa, DefaultFigureEditor fe, int x, int y, int modifiers) {

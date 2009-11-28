@@ -1,6 +1,7 @@
 package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.swing.figure.AbstractInteractor;
+import com.bc.ceres.swing.figure.FigureEditor;
 
 public final class NullInteractor extends AbstractInteractor {
     public static final NullInteractor INSTANCE = new NullInteractor();
@@ -9,11 +10,11 @@ public final class NullInteractor extends AbstractInteractor {
     }
 
     @Override
-    public void activate() {
+    public void activate(FigureEditor figureEditor) {
     }
 
     @Override
-    public void deactivate() {
+    public void deactivate(FigureEditor figureEditor) {
     }
 
     @Override

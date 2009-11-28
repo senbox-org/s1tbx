@@ -116,11 +116,9 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor, Adjusta
 
     @Override
     public void setInteractor(Interactor interactor) {
-        this.interactor.deactivate();
-        this.interactor.setFigureEditor(null);
+        this.interactor.deactivate(this);
         this.interactor = interactor;
-        this.interactor.setFigureEditor(this);
-        this.interactor.activate();
+        this.interactor.activate(this);
     }
 
     @Override

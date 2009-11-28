@@ -12,15 +12,12 @@ import java.awt.event.MouseMotionListener;
  * @since Ceres 0.10
  */
 public interface Interactor extends MouseListener, MouseMotionListener, KeyListener {
-    FigureEditor getFigureEditor();
-
-    void setFigureEditor(FigureEditor figureEditor);
 
     Cursor getCursor();
 
-    void activate();
+    void activate(FigureEditor figureEditor);
 
-    void deactivate();
+    void deactivate(FigureEditor figureEditor);
 
     void startInteraction();
 

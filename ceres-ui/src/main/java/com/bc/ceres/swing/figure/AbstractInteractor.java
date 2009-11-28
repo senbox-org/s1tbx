@@ -19,14 +19,25 @@ public abstract class AbstractInteractor implements Interactor {
         listeners = new ArrayList<InteractorListener>(3);
     }
 
+    public FigureEditor getFigureEditor() {
+        return figureEditor;
+    }
+
     @Override
-    public void activate() {
+    public void activate(FigureEditor figureEditor) {
+        if (this.figureEditor != null) {
+            deactivate(this.figureEditor);
+        }
+        this.figureEditor = figureEditor;
         fireActivated();
     }
 
     @Override
-    public void deactivate() {
-        fireDeactivated();
+    public void deactivate(FigureEditor figureEditor) {
+        if (this.figureEditor == figureEditor) {
+            this.figureEditor = null;
+            fireDeactivated();
+        }
     }
 
     @Override
@@ -42,16 +53,6 @@ public abstract class AbstractInteractor implements Interactor {
     @Override
     public void stopInteraction() {
         fireStopped();
-    }
-
-    @Override
-    public FigureEditor getFigureEditor() {
-        return figureEditor;
-    }
-
-    @Override
-    public void setFigureEditor(FigureEditor figureEditor) {
-        this.figureEditor = figureEditor;
     }
 
     @Override

@@ -18,55 +18,55 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        getInteraction().mouseClicked(e);
+        getInteractor().mouseClicked(e);
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        getInteraction().mousePressed(e);
+        getInteractor().mousePressed(e);
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        getInteraction().mouseMoved(e);
+        getInteractor().mouseMoved(e);
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        getInteraction().mouseDragged(e);
+        getInteractor().mouseDragged(e);
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        getInteraction().mouseReleased(e);
+        getInteractor().mouseReleased(e);
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        getInteraction().mouseEntered(e);
+        getInteractor().mouseEntered(e);
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        getInteraction().mouseExited(e);
+        getInteractor().mouseExited(e);
     }
 
     @Override
     public void keyTyped(KeyEvent e) {
-        getInteraction().keyTyped(e);
+        getInteractor().keyTyped(e);
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        getInteraction().keyPressed(e);
+        getInteractor().keyPressed(e);
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        getInteraction().keyReleased(e);
+        getInteractor().keyReleased(e);
     }
 
-    private Interactor getInteraction() {
+    private Interactor getInteractor() {
         return interactorHolder.getInteractor();
     }
 }
