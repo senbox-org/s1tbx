@@ -1161,43 +1161,6 @@ public class VisatApp extends BasicApp implements AppContext {
         view.updateImage();
     }
 
-    // not used anywhere
-    public void updateROIImages(final RasterDataNode[] rasters, final boolean recreateROIImage) {
-        updateAssociatedViews(rasters, new ViewUpdateMethod() {
-            @Override
-            public void updateView(final ProductSceneView view) {
-                updateROIImage(view, recreateROIImage);
-            }
-        });
-    }
-
-    public void updateROIImage(final ProductSceneView view, final boolean recreateROIImage) {
-        final SwingWorker swingWorker = new SwingWorker() {
-            ProgressMonitor pm = new DialogProgressMonitor(getMainFrame(), "Computing ROI Image",
-                                                           Dialog.ModalityType.APPLICATION_MODAL);
-
-            @Override
-            protected Object doInBackground() throws Exception {
-                try {
-                    if (view != null) {
-                        view.updateROIImage(recreateROIImage, pm);
-                    }
-                } catch (IOException e) {
-                    Debug.trace(e);
-                    showErrorDialog("Failed to create ROI image.\nAn I/O error occured:\n" + e.getMessage());
-                }
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                updateState();
-            }
-
-        };
-        swingWorker.execute();
-    }
-
     @Override
     public synchronized void shutDown() {
         final ArrayList<Product> modifiedOrNew = new ArrayList<Product>(5);

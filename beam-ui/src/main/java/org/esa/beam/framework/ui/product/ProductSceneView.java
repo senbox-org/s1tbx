@@ -38,9 +38,7 @@ import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.MaskCollectionLayer;
 import org.esa.beam.glayer.NoDataLayerType;
-import org.esa.beam.glayer.RoiLayerType;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
-import org.esa.beam.glevel.RoiImageMultiLevelSource;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
@@ -972,27 +970,6 @@ public class ProductSceneView extends BasicView
                 noDataLayer.setMultiLevelSource(multiLevelSource);
             } else {
                 noDataLayer.setMultiLevelSource(MultiLevelSource.NULL);
-            }
-        }
-    }
-
-    @Deprecated
-    public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
-        updateROIImage();
-    }
-
-    // used by PropertyEditor
-    public void updateROIImage() {
-        final ImageLayer roiLayer = getRoiLayer(false);
-        if (roiLayer != null) {
-            if (getRaster().getROIDefinition() != null && getRaster().getROIDefinition().isUsable()) {
-                final Color color = (Color) roiLayer.getConfiguration().getValue(RoiLayerType.PROPERTY_NAME_COLOR);
-                final MultiLevelSource multiLevelSource = RoiImageMultiLevelSource.create(getRaster(),
-                                                                                          color,
-                                                                                          getBaseImageLayer().getImageToModelTransform());
-                roiLayer.setMultiLevelSource(multiLevelSource);
-            } else {
-                roiLayer.setMultiLevelSource(MultiLevelSource.NULL);
             }
         }
     }
