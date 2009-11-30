@@ -926,21 +926,6 @@
             <helpId>deleteShape</helpId>
         </action>
 
-        <action>
-            <parent>edit</parent>
-            <id>convertShapeToROI</id>
-            <class>org.esa.beam.visat.actions.ConvertShapeToROIAction</class>
-            <text>Shape to ROI</text>
-            <mnemonic>R</mnemonic>
-            <shortDescr>Convert shape to ROI.</shortDescr>
-            <description>Convert shape to current ROI.</description>
-            <smallIcon>icons/ShapeToROI16.gif</smallIcon>
-            <largeIcon>icons/ShapeToROI24.gif</largeIcon>
-            <helpId>convertShapeToROI</helpId>
-            <placeAfter>deleteShape</placeAfter>
-            <separatorBefore>true</separatorBefore>
-        </action>
-
         <!--####################-->
         <!-- Data Menu          -->
         <!--####################-->
