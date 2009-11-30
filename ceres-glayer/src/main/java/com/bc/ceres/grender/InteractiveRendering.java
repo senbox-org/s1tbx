@@ -10,10 +10,10 @@ import java.awt.*;
 public interface InteractiveRendering extends Rendering {
 
     /**
-     * Invalidates the given region so that it becomes
+     * Invalidates the given view region so that it becomes
      * repainted as soon as possible.
      *
-     * @param region The region to be invalidated.
+     * @param region The region to be invalidated (in view coordinates).
      */
     void invalidateRegion(Rectangle region);
 
