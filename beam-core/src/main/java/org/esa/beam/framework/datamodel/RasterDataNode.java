@@ -1656,13 +1656,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @return {@code true} if a ROI is usable for this raster data node.
-     */
-    public boolean isROIUsable() {
-        return getROIDefinition() != null && getROIDefinition().isUsable();
-    }
-
-    /**
      * Creates an image for this raster data node. The method simply returns <code>ProductUtils.createColorIndexedImage(this,
      * null)</code>.
      *
@@ -2261,6 +2254,17 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /////////////////////////////////////////////////////////////////////////
     // Deprecated API
 
+    // todo - find replacement (mz 11.2009)
+    /**
+     * @return {@code true} if a ROI is usable for this raster data node.
+     * @Deprecated since BEAM 4.7, currently no replacement
+     * 
+     */
+    @Deprecated
+    public boolean isROIUsable() {
+        return getROIDefinition() != null && getROIDefinition().isUsable();
+    }
+    
     // todo - find replacement (nf 10.2009)
     /**
      * @return the ROI definition
