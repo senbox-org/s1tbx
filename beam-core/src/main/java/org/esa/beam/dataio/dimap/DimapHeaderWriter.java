@@ -304,7 +304,6 @@ public final class DimapHeaderWriter extends XmlWriter {
         writeBandStatistics(sXmlW, indent, bands);
         writeBitmaskDefinitions(sXmlW, indent + 1, bands);
         writeBitmaskDefinitions(sXmlW, indent + 1, product.getTiePointGrids());
-        writeRoiDefinitions(sXmlW, indent, bands);
 
         sXmlW.close();
         final String childTags = stringWriter.toString();
@@ -395,16 +394,6 @@ public final class DimapHeaderWriter extends XmlWriter {
                     pw.printLine(indent + 1, DimapProductConstants.TAG_BITMASK, attributes, null);
                     pw.println(boTags[1]);
                 }
-            }
-        }
-    }
-
-    protected void writeRoiDefinitions(final XmlWriter sXmlW, int indent, final Band[] bands) {
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
-            final ROIDefinition roiDefinition = band.getROIDefinition();
-            if (roiDefinition != null) {
-                writeRoiDefinitionTags(sXmlW, indent + 1, roiDefinition, i);
             }
         }
     }
