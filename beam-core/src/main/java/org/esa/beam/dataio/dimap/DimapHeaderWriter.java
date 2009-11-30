@@ -37,7 +37,6 @@ import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.SampleCoding;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
@@ -60,12 +59,7 @@ import org.jdom.Element;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-import java.awt.Shape;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -395,139 +389,6 @@ public final class DimapHeaderWriter extends XmlWriter {
                     pw.println(boTags[1]);
                 }
             }
-        }
-    }
-
-    protected void writeRoiDefinitionTags(final XmlWriter pw, int indent, ROIDefinition rd, int index) {
-        Guardian.assertNotNull("pw", pw);
-        final String[] rdTags = createTags(indent, DimapProductConstants.TAG_ROI_DEFINITION);
-        pw.println(rdTags[0]);
-        pw.printLine(indent + 1, DimapProductConstants.TAG_BITMASK_EXPRESSION, rd.getBitmaskExpr());
-        pw.printLine(indent + 1, DimapProductConstants.TAG_VALUE_RANGE_MAX, rd.getValueRangeMax());
-        pw.printLine(indent + 1, DimapProductConstants.TAG_VALUE_RANGE_MIN, rd.getValueRangeMin());
-        pw.printLine(indent + 1, DimapProductConstants.TAG_BITMASK_ENABLED, rd.isBitmaskEnabled());
-        pw.printLine(indent + 1, DimapProductConstants.TAG_INVERTED, rd.isInverted());
-        pw.printLine(indent + 1, DimapProductConstants.TAG_OR_COMBINED, rd.isOrCombined());
-        pw.printLine(indent + 1, DimapProductConstants.TAG_SHAPE_ENABLED, rd.isShapeEnabled());
-        pw.printLine(indent + 1, DimapProductConstants.TAG_VALUE_RANGE_ENABLED, rd.isValueRangeEnabled());
-        pw.printLine(indent + 1, DimapProductConstants.TAG_PIN_USE_ENABLED, rd.isPinUseEnabled());
-        writeROIShapeFigure(pw, indent, rd);
-        pw.printLine(indent + 1, DimapProductConstants.TAG_BAND_INDEX, index);
-        pw.println(rdTags[1]);
-    }
-
-    protected void writeROIShapeFigure(final XmlWriter pw, int indent, ROIDefinition rd) {
-        if (rd.getShapeFigure() == null) {
-            return;
-        }
-        final Shape shape = rd.getShapeFigure().getShape();
-        if (shape == null) {
-            return;
-        }
-        pw.printLine(indent + 1, DimapProductConstants.TAG_ROI_ONE_DIMENSIONS, rd.getShapeFigure().isOneDimensional());
-        StringWriter sw = null;
-        String type;
-        String values = null;
-        if (shape instanceof Line2D.Float) {
-            final Line2D.Float line = (Line2D.Float) shape;
-            type = "Line2D";
-            values = "" + line.getX1() + "," + line.getY1()
-                     + "," + line.getX2() + "," + line.getY2();
-        } else if (shape instanceof Rectangle2D.Float) {
-            final Rectangle2D.Float rectangle = (Rectangle2D.Float) shape;
-            type = "Rectangle2D";
-            values = "" + rectangle.getX() + "," + rectangle.getY()
-                     + "," + rectangle.getWidth() + "," + rectangle.getHeight();
-        } else if (shape instanceof Ellipse2D.Float) {
-            final Ellipse2D.Float ellipse = (Ellipse2D.Float) shape;
-            type = "Ellipse2D";
-            values = "" + ellipse.getX() + "," + ellipse.getY()
-                     + "," + ellipse.getWidth() + "," + ellipse.getHeight();
-        } else {
-            type = "Path";
-            sw = new StringWriter();
-            final XmlWriter pathXmlW = new XmlWriter(sw, false);
-            final PathIterator iterator = shape.getPathIterator(null);
-            final float[] floats = new float[6];
-            while (!iterator.isDone()) {
-                final int segType = iterator.currentSegment(floats);
-                switch (segType) {
-                    case PathIterator.SEG_MOVETO:
-                        pathXmlW.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
-                                           new String[][]{
-                                                   new String[]{DimapProductConstants.ATTRIB_TYPE, "moveTo"},
-                                                   new String[]{
-                                                           DimapProductConstants.ATTRIB_VALUE,
-                                                           "" + floats[0] + "," + floats[1]
-                                                   }
-                                           },
-                                           null);
-                        break;
-                    case PathIterator.SEG_LINETO:
-                        pathXmlW.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
-                                           new String[][]{
-                                                   new String[]{DimapProductConstants.ATTRIB_TYPE, "lineTo"},
-                                                   new String[]{
-                                                           DimapProductConstants.ATTRIB_VALUE,
-                                                           "" + floats[0] + "," + floats[1]
-                                                   }
-                                           },
-                                           null);
-                        break;
-                    case PathIterator.SEG_QUADTO:
-                        pathXmlW.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
-                                           new String[][]{
-                                                   new String[]{DimapProductConstants.ATTRIB_TYPE, "quadTo"},
-                                                   new String[]{
-                                                           DimapProductConstants.ATTRIB_VALUE,
-                                                           "" + floats[0] + "," + floats[1] + "," + floats[2] + "," + floats[3]
-                                                   }
-                                           },
-                                           null);
-                        break;
-                    case PathIterator.SEG_CUBICTO:
-                        pathXmlW.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
-                                           new String[][]{
-                                                   new String[]{DimapProductConstants.ATTRIB_TYPE, "cubicTo"},
-                                                   new String[]{
-                                                           DimapProductConstants.ATTRIB_VALUE,
-                                                           "" + floats[0] + "," + floats[1] + "," + floats[2] + "," + floats[3] + "," + floats[4] + "," + floats[5]
-                                                   }
-                                           },
-                                           null);
-                        break;
-                    case PathIterator.SEG_CLOSE:
-                        pathXmlW.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
-                                           new String[][]{new String[]{DimapProductConstants.ATTRIB_TYPE, "close"}},
-                                           null);
-                }
-                iterator.next();
-            }
-        }
-
-        String[][] attributes;
-
-        if (values != null) {
-            attributes = new String[2][];
-            attributes[0] = new String[]{DimapProductConstants.ATTRIB_TYPE, type};
-            attributes[1] = new String[]{DimapProductConstants.ATTRIB_VALUE, values};
-        } else {
-            attributes = new String[1][];
-            attributes[0] = new String[]{DimapProductConstants.ATTRIB_TYPE, type};
-        }
-
-        String segments = null;
-        if (sw != null) {
-            segments = sw.toString();
-        }
-
-        if (segments == null || segments.length() == 0) {
-            pw.printLine(indent + 1, DimapProductConstants.TAG_SHAPE_FIGURE, attributes, null);
-        } else {
-            final String[] figTags = createTags(indent + 1, DimapProductConstants.TAG_SHAPE_FIGURE, attributes);
-            pw.println(figTags[0]);
-            pw.print(segments);
-            pw.println(figTags[1]);
         }
     }
 
