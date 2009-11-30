@@ -20,19 +20,23 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.RsMathUtils;
 import org.esa.beam.visat.VisatApp;
 
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -53,7 +57,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class ComputeRoiAreaAction extends ExecCommand {
 
-    private static final String DIALOG_TITLE = "Compute ROI Area"; /*I18N*/
+    private static final String DIALOG_TITLE = "Compute ROI-Mask area"; /*I18N*/
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -68,17 +72,16 @@ public class ComputeRoiAreaAction extends ExecCommand {
         if (view != null) {
             final RasterDataNode raster = view.getRaster();
             if (raster != null) {
-                enabled = raster.getROIDefinition() != null;
+                Product product = raster.getProduct();
+                int numMasks = product.getMaskGroup().getNodeCount();
+                enabled = numMasks > 0;
             }
         }
         setEnabled(enabled);
     }
 
-    /**
-     * Performs the actual "Export ROI Pixels" command.
-     */
     private void computeROIArea() {
-        final String errMsgBase = "Failed to compute ROI area:\n";
+        final String errMsgBase = "Failed to compute ROI-Mask area:\n";
 
         // Get selected VISAT view showing a product's band
         final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
@@ -90,22 +93,41 @@ public class ComputeRoiAreaAction extends ExecCommand {
         // Get the current raster data node (band or tie-point grid)
         final RasterDataNode raster = view.getRaster();
         assert raster != null;
-
-        final RenderedImage roiImage = ImageManager.getInstance().createRoiMaskImage(raster, 0);
-        if (roiImage == null) {
-            VisatApp.getApp().showErrorDialog(DIALOG_TITLE, errMsgBase + "No ROI defined.");
+        
+        String[] maskNames = raster.getProduct().getMaskGroup().getNodeNames();
+        JPanel panel = new JPanel();
+        BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.X_AXIS);
+        panel.setLayout(boxLayout);
+        panel.add(new JLabel("Select ROI-Mask: "));
+        JComboBox maskCombo = new JComboBox(maskNames);
+        panel.add(maskCombo);
+        ModalDialog modalDialog = new ModalDialog(VisatApp.getApp().getApplicationWindow(), DIALOG_TITLE, panel, 
+                        ModalDialog.ID_OK_CANCEL | ModalDialog.ID_HELP, getHelpId());
+        if (modalDialog.show() == AbstractDialog.ID_OK) {
+            String maskName = (String) maskCombo.getSelectedItem();
+            Mask mask = raster.getProduct().getMaskGroup().get(maskName);
+            if (mask == null) {
+                VisatApp.getApp().showErrorDialog(DIALOG_TITLE, errMsgBase + "No ROI-Mask selected.");
+                return;
+            }
+            RenderedImage maskImage = mask.getSourceImage();
+            if (maskImage == null) {
+                VisatApp.getApp().showErrorDialog(DIALOG_TITLE, errMsgBase + "No ROI-Mask image available.");
+                return;
+            }
+            
+            // Get the current product's geo-coding
+            final GeoCoding geoCoding = raster.getGeoCoding();
+            if (geoCoding == null) {
+                VisatApp.getApp().showErrorDialog(DIALOG_TITLE, errMsgBase + "Product is not geo-coded.");
+                return;
+            }
+            
+            final SwingWorker<RoiAreaStatistics, Object> swingWorker = new RoiAreaSwingWorker(raster, maskImage, errMsgBase);
+            swingWorker.execute();
+        } else {
             return;
         }
-
-        // Get the current product's geo-coding
-        final GeoCoding geoCoding = raster.getGeoCoding();
-        if (geoCoding == null) {
-            VisatApp.getApp().showErrorDialog(DIALOG_TITLE, errMsgBase + "Product is not geo-coded.");
-            return;
-        }
-
-        final SwingWorker<RoiAreaStatistics, Object> swingWorker = new RoiAreaSwingWorker(raster, roiImage, errMsgBase);
-        swingWorker.execute();
     }
 
 
@@ -127,10 +149,6 @@ public class ComputeRoiAreaAction extends ExecCommand {
 
         public double getEarthRadius() {
             return earthRadius;
-        }
-
-        public void setEarthRadius(double earthRadius) {
-            this.earthRadius = earthRadius;
         }
 
         public double getRoiArea() {
@@ -169,30 +187,29 @@ public class ComputeRoiAreaAction extends ExecCommand {
     private class RoiAreaSwingWorker extends SwingWorker<RoiAreaStatistics, Object> {
 
         private final RasterDataNode raster;
-        private final RenderedImage roiImage;
+        private final RenderedImage maskImage;
         private final String errMsgBase;
 
-        private RoiAreaSwingWorker(RasterDataNode raster, RenderedImage roiImage, String errMsgBase) {
+        private RoiAreaSwingWorker(RasterDataNode raster, RenderedImage maskImage, String errMsgBase) {
             this.raster = raster;
-            this.roiImage = roiImage;
+            this.maskImage = maskImage;
             this.errMsgBase = errMsgBase;
         }
 
         @Override
             protected RoiAreaStatistics doInBackground() throws Exception {
-            ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), "Computing ROI area",
+            ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), "Computing ROI-Mask area",
                                                            Dialog.ModalityType.APPLICATION_MODAL);
-            return computeRoiAreaStatistics(raster, roiImage, pm);
+            return computeRoiAreaStatistics(pm);
         }
 
-        private RoiAreaStatistics computeRoiAreaStatistics(RasterDataNode raster, RenderedImage roiImage,
-                                                        ProgressMonitor pm) {
+        private RoiAreaStatistics computeRoiAreaStatistics(ProgressMonitor pm) {
             
-            final int minTileX = roiImage.getMinTileX();
-            final int minTileY = roiImage.getMinTileY();
+            final int minTileX = maskImage.getMinTileX();
+            final int minTileY = maskImage.getMinTileY();
 
-            final int numXTiles = roiImage.getNumXTiles();
-            final int numYTiles = roiImage.getNumYTiles();
+            final int numXTiles = maskImage.getNumXTiles();
+            final int numYTiles = maskImage.getNumYTiles();
             
             final int w = raster.getSceneRasterWidth();
             final int h = raster.getSceneRasterHeight();
@@ -208,7 +225,7 @@ public class ComputeRoiAreaAction extends ExecCommand {
             RoiAreaStatistics areaStatistics = new RoiAreaStatistics(RsMathUtils.MEAN_EARTH_RADIUS / 1000.0);
             GeoCoding geoCoding = raster.getGeoCoding();
 
-            pm.beginTask("Computing ROI area...", numXTiles * numYTiles);
+            pm.beginTask("Computing ROI-Mask area...", numXTiles * numYTiles);
             try {
                 for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
                     for (int tileY = minTileY; tileY < minTileY + numYTiles; ++tileY) {
@@ -216,13 +233,13 @@ public class ComputeRoiAreaAction extends ExecCommand {
                             break;
                         }
                         final Rectangle tileRectangle = new Rectangle(
-                                roiImage.getTileGridXOffset() + tileX * roiImage.getTileWidth(),
-                                roiImage.getTileGridYOffset() + tileY * roiImage.getTileHeight(),
-                                roiImage.getTileWidth(), roiImage.getTileHeight());
+                                maskImage.getTileGridXOffset() + tileX * maskImage.getTileWidth(),
+                                maskImage.getTileGridYOffset() + tileY * maskImage.getTileHeight(),
+                                maskImage.getTileWidth(), maskImage.getTileHeight());
                         
                         final Rectangle r = imageRect.intersection(tileRectangle);
                         if (!r.isEmpty()) {
-                            Raster roiTile = roiImage.getTile(tileX, tileY);
+                            Raster roiTile = maskImage.getTile(tileX, tileY);
                             for (int y = r.y; y < r.y + r.height; y++) {
                                 for (int x = r.x; x < r.x + r.width; x++) {
                                     if (roiTile.getSample(x, y, 0) != 0) {
@@ -267,7 +284,7 @@ public class ComputeRoiAreaAction extends ExecCommand {
             try {
                 final RoiAreaStatistics areaStatistics = get();
                 if (areaStatistics.getNumPixels() == 0) {
-                    final String message = MessageFormat.format("{0}ROI is empty.", errMsgBase);
+                    final String message = MessageFormat.format("{0}ROI-Mask is empty.", errMsgBase);
                     VisatApp.getApp().showErrorDialog(DIALOG_TITLE, message);
                 } else {
                     showResults(areaStatistics);

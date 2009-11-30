@@ -934,7 +934,7 @@
             <parent>data</parent>
             <id>computeRoiArea</id>
             <class>org.esa.beam.visat.actions.ComputeRoiAreaAction</class>
-            <text>Compute ROI Area...</text>
+            <text>Compute ROI-Mask Area...</text>
             <mnemonic>A</mnemonic>
             <helpId>computeRoiArea</helpId>
         </action>
