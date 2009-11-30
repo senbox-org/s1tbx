@@ -1,7 +1,7 @@
 package com.bc.ceres.swing.selection;
 
 /**
- * A selection source holds maintains a current selection and reports selection change events
+ * A selection source holds a current selection and reports selection change events
  * by emitting them to interested {@link SelectionChangeListener selection change listener}s.
  * <p/>
  * This interface may be implemented by clients.
