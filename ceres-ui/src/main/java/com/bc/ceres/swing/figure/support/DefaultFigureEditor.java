@@ -69,10 +69,7 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor, Adjusta
         });
 
         InteractionDispatcher interactionDispatcher = new InteractionDispatcher(this);
-        addMouseListener(interactionDispatcher);
-        addMouseMotionListener(interactionDispatcher);
-        addKeyListener(interactionDispatcher);
-        setFocusable(true); // to fire key events
+        interactionDispatcher.registerListeners(this);
     }
 
     @Override

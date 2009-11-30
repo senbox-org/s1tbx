@@ -3,6 +3,7 @@ package com.bc.ceres.swing.figure.support;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.InteractorHolder;
 
+import javax.swing.JComponent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -14,6 +15,18 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
 
     public InteractionDispatcher(InteractorHolder interactorHolder) {
         this.interactorHolder = interactorHolder;
+    }
+
+    public void registerListeners(JComponent component) {
+        component.addMouseListener(this);
+        component.addMouseMotionListener(this);
+        component.addKeyListener(this);
+    }
+
+    public void unregisterListeners(JComponent component) {
+        component.removeMouseListener(this);
+        component.removeMouseMotionListener(this);
+        component.removeKeyListener(this);
     }
 
     @Override
