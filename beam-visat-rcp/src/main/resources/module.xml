@@ -177,10 +177,6 @@
             <layerType>org.esa.beam.glayer.NoDataLayerType</layerType>
         </layerEditor>
         <layerEditor>
-            <editor>org.esa.beam.visat.toolviews.layermanager.editors.RoiLayerEditor</editor>
-            <layerType>org.esa.beam.glayer.RoiLayerType</layerType>
-        </layerEditor>
-        <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.FigureLayerEditor</editor>
             <layerType>org.esa.beam.glayer.FigureLayerType</layerType>
         </layerEditor>
