@@ -146,7 +146,7 @@ public class DeleteAction extends ExecCommand {
                 if (mask.getImageType() instanceof Mask.BandMathType) {
                     expression = Mask.BandMathType.getExpression(mask);
                 } else if (mask.getImageType() instanceof Mask.RangeType) {
-                    expression = Mask.RangeType.getRaster(mask);
+                    expression = Mask.RangeType.getRasterName(mask);
                 } else {
                     expression = null;
                 }

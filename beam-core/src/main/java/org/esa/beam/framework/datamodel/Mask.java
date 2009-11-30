@@ -334,8 +334,8 @@ public class Mask extends Band {
 
     public static class RangeType extends ImageType {
 
-        public  static final String TYPE_NAME = "Range";
-        
+        public static final String TYPE_NAME = "Range";
+
         public static final String PROPERTY_NAME_MINIMUM = "minimum";
         public static final String PROPERTY_NAME_MAXIMUM = "maximum";
         public static final String PROPERTY_NAME_RASTER = "rasterName";
@@ -349,10 +349,7 @@ public class Mask extends Band {
             MultiLevelSource mls = new AbstractMultiLevelSource(ImageManager.createMultiLevelModel(mask)) {
                 @Override
                 public RenderedImage createImage(int level) {
-                    final Double min = (Double) mask.getImageConfig().getValue(PROPERTY_NAME_MINIMUM);
-                    final Double max = (Double) mask.getImageConfig().getValue(PROPERTY_NAME_MAXIMUM);
-                    final String rasterName = (String) mask.getImageConfig().getValue(PROPERTY_NAME_RASTER);
-                    final String expression = rasterName + " >= " + min + " && " + rasterName + " <= " + max;
+                    final String expression = getExpression(mask);
 
                     return VirtualBandOpImage.createMask(expression,
                                                          mask.getProduct(),
@@ -405,7 +402,7 @@ public class Mask extends Band {
             super.handleRename(mask, oldExternalName, newExternalName);
         }
 
-        public static String getRaster(Mask mask) {
+        public static String getRasterName(Mask mask) {
             return (String) mask.getImageConfig().getValue(PROPERTY_NAME_RASTER);
         }
 
@@ -415,6 +412,14 @@ public class Mask extends Band {
 
         public static Double getMaximum(Mask mask) {
             return (Double) mask.getImageConfig().getValue(PROPERTY_NAME_MAXIMUM);
+        }
+
+        private static String getExpression(Mask mask) {
+            final Double min = getMinimum(mask);
+            final Double max = getMaximum(mask);
+            final String rasterName = getRasterName(mask);
+
+            return rasterName + " >= " + min + " && " + rasterName + " <= " + max;
         }
     }
 }
