@@ -625,13 +625,6 @@ public class ProductSceneView extends BasicView
         }
     }
 
-    public Figure getRasterROIShapeFigure() {
-        if (getRaster().getROIDefinition() != null) {
-            return getRaster().getROIDefinition().getShapeFigure();
-        }
-        return null;
-    }
-
     public Figure getCurrentShapeFigure() {
         return getNumFigures() > 0 ? getFigureAt(0) : null;
     }
