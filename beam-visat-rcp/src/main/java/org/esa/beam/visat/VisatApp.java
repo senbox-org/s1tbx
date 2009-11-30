@@ -2005,8 +2005,6 @@ public class VisatApp extends BasicApp implements AppContext {
                 "deleteShape",
 //                "magicStickTool",
                 null,
-                "convertShapeToROI",
-                "convertROIToShape",
         });
         return toolBar;
     }
