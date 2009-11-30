@@ -36,16 +36,12 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor, Adjusta
     private Interactor interactor;
 
     public DefaultFigureEditor() {
-        this(new DefaultRendering(new DefaultViewport(true)));
-    }
-
-    public DefaultFigureEditor(DefaultRendering rendering) {
         super(null);
 
         undoContext = new DefaultUndoContext(this);
         figureSelectionContext = new FigureSelectionContext(this);
         interactor = NullInteractor.INSTANCE;
-        this.rendering = rendering;
+        rendering = new DefaultRendering(new DefaultViewport(true));
 
         RepaintHandler repaintHandler = new RepaintHandler();
         figureSelectionContext.getFigureCollection().addListener(repaintHandler);
@@ -61,11 +57,11 @@ public class DefaultFigureEditor extends JPanel implements FigureEditor, Adjusta
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                DefaultFigureEditor.this.rendering.getViewport().setViewBounds(getBounds());
+                rendering.getViewport().setViewBounds(getBounds());
             }
         });
 
-        this.rendering.getViewport().addListener(new ViewportListener() {
+        rendering.getViewport().addListener(new ViewportListener() {
             @Override
             public void handleViewportChanged(Viewport viewport, boolean orientationChanged) {
                 repaint();
