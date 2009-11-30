@@ -8,7 +8,7 @@ import com.bc.ceres.core.runtime.ConfigurationElement;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.application.ApplicationWindow;
+import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.application.PageComponent;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
@@ -421,17 +421,17 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
      * page component described by this descriptor in the provided
      * application window.
      *
-     * @param window The window
+     * @param applicationPage The window
      *
      * @return The show page component command.
      */
     @Override
-    public Command createShowViewCommand(final ApplicationWindow window) {
+    public Command createShowViewCommand(final ApplicationPage applicationPage) {
         final String commandId = getId() + ".showCmd";
-        final ExecCommand command = window.getCommandManager().createExecCommand(commandId, new CommandAdapter() {
+        final ExecCommand command = applicationPage.getCommandManager().createExecCommand(commandId, new CommandAdapter() {
             @Override
             public void updateState(CommandEvent event) {
-                PageComponent pageComponent = window.getPage().getToolView(getId());
+                PageComponent pageComponent = applicationPage.getToolView(getId());
                 ExecCommand ecmd = (ExecCommand) event.getCommand();
                 // Use the control of the page component's pane, because
                 // using the  control of the page component directly would trigger its creation.
@@ -442,7 +442,7 @@ public class DefaultToolViewDescriptor implements ToolViewDescriptor, Configurab
 
             @Override
             public void actionPerformed(CommandEvent event) {
-                window.getPage().showToolView(getId());
+                applicationPage.showToolView(getId());
             }
         });
 

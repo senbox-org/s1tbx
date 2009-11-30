@@ -19,6 +19,7 @@ package org.esa.beam.visat;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
+import com.bc.ceres.swing.selection.support.DefaultSelectionManager;
 import com.bc.swing.desktop.TabbedDesktopPane;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.CommandMenuBar;
@@ -64,7 +65,6 @@ import org.esa.beam.framework.ui.SuppressibleOptionPane;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.application.ApplicationPage;
-import org.esa.beam.framework.ui.application.ApplicationWindow;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.command.CommandManager;
@@ -340,9 +340,7 @@ public class VisatApp extends BasicApp implements AppContext {
 
     private boolean visatExitConfirmed = false;
 
-    // todo use instead
     private VisatApplicationPage applicationPage;
-    private VisatApplicationWindow window;
 
     private ProductsToolView productsToolView;
     private final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
@@ -395,10 +393,9 @@ public class VisatApp extends BasicApp implements AppContext {
 
             desktopPane = new TabbedDesktopPane();
 
-            window = new VisatApplicationWindow(this);
-            applicationPage = new VisatApplicationPage(desktopPane, getMainFrame().getDockingManager());
-            applicationPage.setWindow(window);
-            window.setPage(applicationPage);
+            applicationPage = new VisatApplicationPage(getMainFrame(), getCommandManager(), new DefaultSelectionManager(this),
+                                                       getMainFrame().getDockingManager(), desktopPane
+            );
 
             pm.setTaskName("Loading commands");
             Command[] commands = VisatActivator.getInstance().getCommands();
@@ -539,13 +536,13 @@ public class VisatApp extends BasicApp implements AppContext {
         return null;
     }
 
-
-    public final ApplicationWindow getWindow() {
-        return window;
+    public VisatApplicationPage getApplicationPage() {
+        return applicationPage;
     }
 
+    @Deprecated
     public final ApplicationPage getPage() {
-        return window.getPage();
+        return applicationPage;
     }
 
     private void loadToolViews() {
@@ -575,7 +572,7 @@ public class VisatApp extends BasicApp implements AppContext {
         ToolViewDescriptor[] toolViewDescriptors = VisatActivator.getInstance().getToolViewDescriptors();
         for (ToolViewDescriptor toolViewDescriptor : toolViewDescriptors) {
             // triggers also command registration in command manager
-            toolViewDescriptor.createShowViewCommand(window);
+            toolViewDescriptor.createShowViewCommand(applicationPage);
         }
     }
 

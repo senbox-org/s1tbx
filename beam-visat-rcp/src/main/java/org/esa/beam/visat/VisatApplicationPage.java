@@ -1,7 +1,7 @@
 package org.esa.beam.visat;
 
+import com.bc.ceres.swing.selection.SelectionManager;
 import com.bc.swing.desktop.TabbedDesktopPane;
-import com.jidesoft.docking.DockContext;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
 import com.jidesoft.docking.event.DockableFrameAdapter;
@@ -14,20 +14,46 @@ import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor.State;
 import org.esa.beam.framework.ui.application.support.AbstractApplicationPage;
 import org.esa.beam.framework.ui.application.support.DefaultToolViewPane;
+import org.esa.beam.framework.ui.command.CommandManager;
 
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
+import java.awt.Window;
 import java.beans.PropertyVetoException;
 
 public class VisatApplicationPage extends AbstractApplicationPage {
 
+    private final Window window;
+    private final CommandManager commandManager;
+    private final SelectionManager selectionManager;
     private final DockingManager dockingManager;
     private final TabbedDesktopPane documentPane;
 
-    public VisatApplicationPage(TabbedDesktopPane documentPane,
-                                DockingManager dockingManager) {
+    public VisatApplicationPage(Window window,
+                                CommandManager commandManager,
+                                SelectionManager selectionManager,
+                                DockingManager dockingManager,
+                                TabbedDesktopPane documentPane) {
+        this.window = window;
+        this.commandManager = commandManager;
+        this.selectionManager = selectionManager;
         this.dockingManager = dockingManager;
         this.documentPane = documentPane;
+    }
+
+    @Override
+    public Window getWindow() {
+        return window;
+    }
+
+    @Override
+    public CommandManager getCommandManager() {
+        return commandManager;
+    }
+
+    @Override
+    public SelectionManager getSelectionManager() {
+        return selectionManager;
     }
 
     @Override

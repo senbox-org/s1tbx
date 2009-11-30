@@ -2,8 +2,8 @@ package org.esa.beam.framework.ui.application;
 
 import org.esa.beam.framework.ui.command.Command;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.KeyStroke;
+import java.awt.Rectangle;
 
 
 /**
@@ -21,6 +21,7 @@ public interface ToolViewDescriptor extends PageComponentDescriptor {
      * Represents all possible tool window states.
      */
     enum State {
+
         UNKNOWN,
         DOCKED,
         FLOATING,
@@ -34,6 +35,7 @@ public interface ToolViewDescriptor extends PageComponentDescriptor {
      * Represents all possible tool window docking sides.
      */
     enum DockSide {
+
         UNKNOWN,
         ALL,
         CENTER,
@@ -179,13 +181,16 @@ public interface ToolViewDescriptor extends PageComponentDescriptor {
      * Gets the ID of the tool bar in which the associated "show view" command will be placed.
      * If the ID is {@code null}, the associated "show view" command will be placed in the
      * default tool bar (ID="viewsToolBar").
+     *
      * @return The ID of the tool bar.
-     * @see #createShowViewCommand(ApplicationWindow)
+     *
+     * @see #createShowViewCommand(ApplicationPage)
      */
     String getToolBarId();
 
     /**
      * @param id The ID of the tool bar.
+     *
      * @see #getToolBarId()
      */
     void setToolBarId(String id);
@@ -195,9 +200,11 @@ public interface ToolViewDescriptor extends PageComponentDescriptor {
      * page component described by this descriptor in the provided
      * application window.
      *
-     * @param window The window
+     * @param applicationPage The application page.
+     *
      * @return The show page component command.
-     * @see #getToolBarId() 
+     *
+     * @see #getToolBarId()
      */
-    public Command createShowViewCommand(ApplicationWindow window);
+    Command createShowViewCommand(ApplicationPage applicationPage);
 }

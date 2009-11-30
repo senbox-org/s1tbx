@@ -1,24 +1,33 @@
 package org.esa.beam.unmixing.ui;
 
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import com.bc.ceres.swing.selection.SelectionChangeListener;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.application.SelectionChangeEvent;
-import org.esa.beam.framework.ui.application.SelectionChangeListener;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.ValueSet;
-import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.swing.TableLayout;
-
 class SpectralUnmixingForm extends JPanel {
+
     AppContext appContext;
     SpectralUnmixingFormModel formModel;
     EndmemberForm endmemberForm;
@@ -31,7 +40,7 @@ class SpectralUnmixingForm extends JPanel {
     JComboBox unmixingModelName;
     JCheckBox computeErrorBands;
 
-    public SpectralUnmixingForm(AppContext appContext, TargetProductSelector targetProductSelector) {
+    SpectralUnmixingForm(AppContext appContext, TargetProductSelector targetProductSelector) {
         this.appContext = appContext;
         this.targetProductSelector = targetProductSelector;
         this.formModel = new SpectralUnmixingFormModel(appContext.getSelectedProduct());
@@ -81,13 +90,14 @@ class SpectralUnmixingForm extends JPanel {
 
     private void createComponents() {
         sourceBandNames = new JList();
-        
-        final PropertyDescriptor propertyDescriptor = formModel.getOperatorValueContainer().getDescriptor("sourceBandNames");
-        SelectionChangeListener valueSetUpdater = new SelectionChangeListener() {
+
+        final PropertyDescriptor propertyDescriptor = formModel.getOperatorValueContainer().getDescriptor(
+                "sourceBandNames");
+        SelectionChangeListener valueSetUpdater = new AbstractSelectionChangeListener() {
 
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
-                final Product selectedProduct = (Product) event.getSelection().getFirstElement();
+                final Product selectedProduct = (Product) event.getSelection().getSelectedValue();
                 final String[] validNames;
                 if (selectedProduct != null) {
                     String[] bandNames = selectedProduct.getBandNames();

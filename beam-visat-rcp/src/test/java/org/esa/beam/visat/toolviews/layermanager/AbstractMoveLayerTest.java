@@ -2,17 +2,17 @@ package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
+import static junit.framework.Assert.*;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.awt.Window;
-
-import static junit.framework.Assert.*;
 
 /**
  * todo - add API doc
@@ -87,6 +87,11 @@ public class AbstractMoveLayerTest {
 
         @Override
         public Window getApplicationWindow() {
+            return null;
+        }
+
+        @Override
+        public ApplicationPage getApplicationPage() {
             return null;
         }
 

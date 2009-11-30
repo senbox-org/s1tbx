@@ -1,15 +1,17 @@
 package org.esa.beam.framework.ui.application.support;
 
-import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockContext;
+import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.event.DockableFrameEvent;
 import com.jidesoft.docking.event.DockableFrameListener;
 import org.esa.beam.framework.ui.application.PageComponent;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.util.Debug;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 
 /**
@@ -145,7 +147,7 @@ public class DefaultToolViewPane extends AbstractPageComponentPane {
                 String message = "An internal error occured.\n " +
                         "Not able to create user interface control for\n" +
                         "page component '" + getPageComponent().getDescriptor().getTitle() + "'.";
-                JOptionPane.showMessageDialog(getPageComponent().getContext().getWindow().getControl(),
+                JOptionPane.showMessageDialog(getPageComponent().getContext().getPage().getWindow(),
                                               message, "Internal Error",
                                               JOptionPane.ERROR_MESSAGE);
                 pageComponentControl = new JLabel(message);

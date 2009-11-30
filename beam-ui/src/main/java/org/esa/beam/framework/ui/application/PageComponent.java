@@ -1,8 +1,8 @@
 package org.esa.beam.framework.ui.application;
 
-import org.esa.beam.framework.ui.application.support.PropertyChangeEmitter;
+import com.bc.ceres.binding.PropertyChangeEmitter;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 /**
  * A page component is displayed within an area on the page

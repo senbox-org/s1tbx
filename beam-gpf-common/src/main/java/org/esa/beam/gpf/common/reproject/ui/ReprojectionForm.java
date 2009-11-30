@@ -3,6 +3,8 @@ package org.esa.beam.gpf.common.reproject.ui;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
@@ -13,8 +15,6 @@ import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.DemSelector;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.application.SelectionChangeEvent;
-import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.util.ProductUtils;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -173,10 +173,10 @@ class ReprojectionForm extends JTabbedPane {
         parameterPanel.setLayout(layout);
 
         crsSelectionPanel = new CrsSelectionPanel(appContext);
-        sourceProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
+        sourceProductSelector.addSelectionChangeListener(new AbstractSelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
-                final Product product = (Product) event.getSelection().getFirstElement();
+                final Product product = (Product) event.getSelection().getSelectedValue();
                 crsSelectionPanel.setReferenceProduct(product);
             }
         });
@@ -210,7 +210,7 @@ class ReprojectionForm extends JTabbedPane {
                 } else {
                     infoForm.setCrs("No valid 'Coordinate Reference System' selected.", null);
                 }
-            }else {
+            } else {
                 infoForm.setCrs("No source product selected.", null);
                 crs = null;
             }
@@ -223,15 +223,15 @@ class ReprojectionForm extends JTabbedPane {
             OutputGeometryFormModel formModel = new OutputGeometryFormModel(sourceProduct, crs);
             outputParameterContainer = formModel.getValueContainer();
         }
-        
+
         updateOutputParameterState();
         updateProductSize();
     }
 
     private void updateProductSize() {
         if (outputParameterContainer != null) {
-            infoForm.setWidth((Integer)outputParameterContainer.getValue("width"));
-            infoForm.setHeight((Integer)outputParameterContainer.getValue("height"));
+            infoForm.setWidth((Integer) outputParameterContainer.getValue("width"));
+            infoForm.setHeight((Integer) outputParameterContainer.getValue("height"));
         }
     }
 
@@ -401,7 +401,7 @@ class ReprojectionForm extends JTabbedPane {
         sourceProductSelector.getProductNameLabel().setText("Name:");
         sourceProductSelector.getProductNameComboBox().setPrototypeDisplayValue(
                 "MER_RR__1PPBCM20030730_071000_000003972018_00321_07389_0000.N1");
-        sourceProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
+        sourceProductSelector.addSelectionChangeListener(new AbstractSelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
                 Product sourceProduct = getSourceProduct();
@@ -412,10 +412,6 @@ class ReprojectionForm extends JTabbedPane {
                 }
                 infoForm.setCenterPos(centerGeoPos);
                 updateCRS();
-//                    CoordinateReferenceSystem crs = getSelectedCrs();
-//                    OutputGeometryFormModel formModel = new OutputGeometryFormModel(sourceProduct, crs);
-//                    outputParameterContainer = formModel.getValueContainer();
-//                    updateProductSize();
             }
         });
         return panel;

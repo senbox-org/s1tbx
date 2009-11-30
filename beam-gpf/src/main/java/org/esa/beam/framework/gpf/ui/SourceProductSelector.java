@@ -1,6 +1,8 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.selection.SelectionChangeListener;
+import com.bc.ceres.swing.selection.support.ComboBoxSelectionContext;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -9,9 +11,6 @@ import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
-import org.esa.beam.framework.ui.application.SelectionChangeEvent;
-import org.esa.beam.framework.ui.application.SelectionChangeListener;
-import org.esa.beam.framework.ui.application.support.DefaultSelection;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 
@@ -40,9 +39,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -62,8 +59,8 @@ public class SourceProductSelector {
     private JLabel productNameLabel;
     private JButton productFileChooserButton;
     private JComboBox productNameComboBox;
-    private List<SelectionChangeListener> selectionListeners;
     private final ProductManager.Listener productManagerListener;
+    private ComboBoxSelectionContext selectionContext;
 
     public SourceProductSelector(AppContext appContext) {
         this(appContext, "Name:");
@@ -88,7 +85,6 @@ public class SourceProductSelector {
             public void actionPerformed(ActionEvent e) {
                 final Product product = (Product) productNameComboBox.getSelectedItem();
                 if (product != null) {
-                    fireSelectionChanged();
                     if (product.getFileLocation() != null) {
                         productNameComboBox.setToolTipText(product.getFileLocation().getPath());
                     } else {
@@ -101,12 +97,12 @@ public class SourceProductSelector {
         });
 
         productFilter = new AllProductFilter();
-        selectionListeners = new ArrayList<SelectionChangeListener>(7);
+        selectionContext = new ComboBoxSelectionContext(productNameComboBox);
 
         productManagerListener = new ProductManager.Listener() {
             @Override
             public void productAdded(ProductManager.Event event) {
-                 addProduct(event.getProduct());
+                addProduct(event.getProduct());
             }
 
             @Override
@@ -189,7 +185,7 @@ public class SourceProductSelector {
     }
 
     public synchronized void releaseProducts() {
-        appContext.getProductManager().removeListener(productManagerListener)       ;
+        appContext.getProductManager().removeListener(productManagerListener);
         if (extraProduct != null && getSelectedProduct() != extraProduct) {
             extraProduct.dispose();
         }
@@ -198,18 +194,11 @@ public class SourceProductSelector {
     }
 
     public void addSelectionChangeListener(SelectionChangeListener listener) {
-        selectionListeners.add(listener);
+        selectionContext.addSelectionChangeListener(listener);
     }
 
     public void removeSelectionChangeListener(SelectionChangeListener listener) {
-        selectionListeners.remove(listener);
-    }
-
-    private void fireSelectionChanged() {
-        for (SelectionChangeListener changeListener : selectionListeners) {
-            final DefaultSelection selection = new DefaultSelection(productNameComboBox.getSelectedItem());
-            changeListener.selectionChanged(new SelectionChangeEvent(productNameComboBox, selection));
-        }
+        selectionContext.removeSelectionChangeListener(listener);
     }
 
     private void addProduct(Product product) {
@@ -267,7 +256,7 @@ public class SourceProductSelector {
         private String APPROVE_BUTTON_TEXT = "Select";
         private JFileChooser chooser;
 
-        public ProductFileChooserAction() {
+        private ProductFileChooserAction() {
             super("...");
             chooser = new BeamFileChooser();
             chooser.setDialogTitle("Select Source Product");
@@ -286,7 +275,8 @@ public class SourceProductSelector {
             final Window window = SwingUtilities.getWindowAncestor((JComponent) event.getSource());
 
             String homeDirPath = SystemUtils.getUserHomeDir().getPath();
-            String openDir = appContext.getPreferences().getPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_OPEN_DIR, homeDirPath);
+            String openDir = appContext.getPreferences().getPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_OPEN_DIR,
+                                                                           homeDirPath);
             currentDirectory = new File(openDir);
             chooser.setCurrentDirectory(currentDirectory);
 
@@ -318,7 +308,8 @@ public class SourceProductSelector {
                     e.printStackTrace();
                 }
                 currentDirectory = chooser.getCurrentDirectory();
-                appContext.getPreferences().setPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_OPEN_DIR, currentDirectory.getAbsolutePath());
+                appContext.getPreferences().setPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_OPEN_DIR,
+                                                              currentDirectory.getAbsolutePath());
             }
         }
 

@@ -14,6 +14,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -314,7 +315,7 @@ public class SessionTest extends TestCase {
         private ProductManager productManager;
         private PropertyMap propertyMap;
 
-        public MyAppContext(Product[] originalProducts) {
+        private MyAppContext(Product[] originalProducts) {
 
             propertyMap = new PropertyMap();
             productManager = new ProductManager();
@@ -330,6 +331,11 @@ public class SessionTest extends TestCase {
 
         @Override
         public Window getApplicationWindow() {
+            return null;
+        }
+
+        @Override
+        public ApplicationPage getApplicationPage() {
             return null;
         }
 

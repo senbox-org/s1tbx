@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.ui.AppCommand;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.VisatApp;
@@ -44,51 +45,57 @@ public abstract class AbstractVisatAction extends AppCommand {
 
     private static class VisatContext implements AppContext {
         private String toolTitle;
+        private final VisatApp app = VisatApp.getApp();
 
-        public VisatContext(String toolTitle) {
+        private VisatContext(String toolTitle) {
             this.toolTitle = toolTitle;
         }
 
         @Override
+        public ApplicationPage getApplicationPage() {
+            return app.getApplicationPage();
+        }
+
+        @Override
         public ProductManager getProductManager() {
-            return VisatApp.getApp().getProductManager();
+            return app.getProductManager();
         }
 
         @Override
         public Product getSelectedProduct() {
-            return VisatApp.getApp().getSelectedProduct();
+            return app.getSelectedProduct();
         }
 
         @Override
         public Window getApplicationWindow() {
-            return VisatApp.getApp().getMainFrame();
+            return app.getMainFrame();
         }
 
         @Override
         public String getApplicationName() {
-            return VisatApp.getApp().getAppName();
+            return app.getAppName();
         }
 
         @Override
         public void handleError(Throwable e) {
             e.printStackTrace();
-            VisatApp.getApp().showErrorDialog(toolTitle, e.getMessage());
+            app.showErrorDialog(toolTitle, e.getMessage());
         }
 
         @Override
         public void handleError(String message, Throwable e) {
             e.printStackTrace();
-            VisatApp.getApp().showErrorDialog(toolTitle, message);
+            app.showErrorDialog(toolTitle, message);
         }
 
         @Override
         public PropertyMap getPreferences() {
-            return VisatApp.getApp().getPreferences();
+            return app.getPreferences();
         }
 
         @Override
         public ProductSceneView getSelectedProductSceneView() {
-            return VisatApp.getApp().getSelectedProductSceneView();
+            return app.getSelectedProductSceneView();
         }
     }
 }

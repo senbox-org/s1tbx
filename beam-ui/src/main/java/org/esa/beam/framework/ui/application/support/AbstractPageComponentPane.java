@@ -22,12 +22,14 @@ public abstract class AbstractPageComponentPane extends AbstractControlFactory i
     protected AbstractPageComponentPane(PageComponent pageComponent) {
         this.pageComponent = pageComponent;
         this.pageComponent.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 pageComponentChanged(evt);
             }
         });
     }
 
+    @Override
     public PageComponent getPageComponent() {
         return pageComponent;
     }

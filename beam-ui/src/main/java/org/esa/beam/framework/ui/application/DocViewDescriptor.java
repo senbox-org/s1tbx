@@ -2,9 +2,6 @@ package org.esa.beam.framework.ui.application;
 
 import org.esa.beam.framework.ui.command.Command;
 
-import javax.swing.*;
-import java.awt.*;
-
 
 /**
  * Metadata about a view; a view descriptor is effectively a singleton view
@@ -22,8 +19,9 @@ public interface DocViewDescriptor extends PageComponentDescriptor {
      * page component described by this descriptor in the provided
      * application window.
      *
-     * @param window The window
+     * @param applicationPage The application page.
+     *
      * @return The show page component command.
      */
-    public Command createOpenViewCommand(ApplicationWindow window);
+    Command createOpenViewCommand(ApplicationPage applicationPage);
 }

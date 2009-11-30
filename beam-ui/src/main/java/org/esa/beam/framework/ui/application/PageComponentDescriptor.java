@@ -1,9 +1,9 @@
 package org.esa.beam.framework.ui.application;
 
-import org.esa.beam.framework.ui.application.support.PropertyChangeEmitter;
+import com.bc.ceres.binding.PropertyChangeEmitter;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import java.awt.Dimension;
 
 /**
  * Metadata about a page component. A page descriptor is effectively a

@@ -2,6 +2,7 @@ package org.esa.beam.framework.ui;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 
@@ -11,6 +12,8 @@ public interface AppContext {
     String getApplicationName();
 
     Window getApplicationWindow();
+
+    ApplicationPage getApplicationPage();
 
     Product getSelectedProduct();
 

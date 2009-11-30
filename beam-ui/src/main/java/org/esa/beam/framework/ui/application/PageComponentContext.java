@@ -15,13 +15,6 @@ public interface PageComponentContext {
     /**
      * Gets the application's page.
      *
-     * @return the application page
-     */
-    ApplicationWindow getWindow();
-
-    /**
-     * Gets the application's page.
-     *
      * @return The application page.
      */
     ApplicationPage getPage();
@@ -32,12 +25,4 @@ public interface PageComponentContext {
      * @return The page component pane.
      */
     PageComponentPane getPane();
-
-    ActionCommandExecutor getLocalCommandExecutor(String commandId);
-
-    void setLocalCommandExecutor(String commandId, ActionCommandExecutor executor);
-
-    SelectionProvider getSelectionProvider();
-
-    void setSelectionProvider(SelectionProvider selectionProvider);
 }

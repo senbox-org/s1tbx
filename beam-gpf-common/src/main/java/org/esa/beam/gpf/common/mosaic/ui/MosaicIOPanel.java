@@ -3,6 +3,8 @@ package org.esa.beam.gpf.common.mosaic.ui;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
@@ -14,8 +16,6 @@ import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
-import org.esa.beam.framework.ui.application.SelectionChangeEvent;
-import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.framework.ui.io.FileArrayEditor;
 import org.esa.beam.gpf.common.mosaic.MosaicOp;
 import org.esa.beam.util.PropertyMap;
@@ -97,10 +97,10 @@ class MosaicIOPanel extends JPanel {
         tableLayout.setRowWeightY(0, 1.0);
         add(createSourceProductsPanel());
         add(createTargetProductPanel());
-        updateProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
+        updateProductSelector.addSelectionChangeListener(new AbstractSelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
-                final Product product = (Product) event.getSelection().getFirstElement();
+                final Product product = (Product) event.getSelection().getSelectedValue();
                 try {
                     if (product != null) {
                         final Map<String, Object> map = MosaicOp.getOperatorParameters(product);

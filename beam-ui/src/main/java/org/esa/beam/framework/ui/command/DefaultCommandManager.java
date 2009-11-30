@@ -63,6 +63,7 @@ public class DefaultCommandManager implements CommandManager {
      * @see #createCommandGroup
      * @see #addCommand(Command)
      */
+    @Override
     public ExecCommand createExecCommand(String commandID, CommandListener listener) {
         Guardian.assertNotNullOrEmpty("commandID", commandID);
         ExecCommand command = new ExecCommand(commandID, listener);
@@ -84,6 +85,7 @@ public class DefaultCommandManager implements CommandManager {
      * @see #createCommandGroup
      * @see #addCommand(Command)
      */
+    @Override
     public ToolCommand createToolCommand(String commandID, CommandStateListener listener, Tool tool) {
         Guardian.assertNotNullOrEmpty("commandID", commandID);
         Guardian.assertNotNull("tool", tool);
@@ -105,6 +107,7 @@ public class DefaultCommandManager implements CommandManager {
      * @see #createToolCommand
      * @see #addCommand(Command)
      */
+    @Override
     public CommandGroup createCommandGroup(String commandGroupID, CommandStateListener listener) {
         Guardian.assertNotNullOrEmpty("commandGroupID", commandGroupID);
         CommandGroup commandGroup = new CommandGroup(commandGroupID, listener);
@@ -118,6 +121,7 @@ public class DefaultCommandManager implements CommandManager {
      *
      * @return the number of commands in this <code>DefaultCommandManager</code>.
      */
+    @Override
     public int getNumCommands() {
         return _commandList.size();
     }
@@ -132,6 +136,7 @@ public class DefaultCommandManager implements CommandManager {
      *
      * @throws IndexOutOfBoundsException if the index is out of range (index &lt; 0 || index &gt;= getNumCommands()).
      */
+    @Override
     public Command getCommandAt(int index) {
         return (Command) _commandList.get(index);
     }
@@ -141,6 +146,7 @@ public class DefaultCommandManager implements CommandManager {
      * Gets the command associated with the given command-COMMAND_ID or <code>null</code> if a command with the given command-ID
      * has not been registered (so far).
      */
+    @Override
     public Command getCommand(String commandID) {
         return (Command) _commandMap.get(commandID);
     }
@@ -149,6 +155,7 @@ public class DefaultCommandManager implements CommandManager {
      * Gets the command associated with the given command-ID or <code>null</code> if an command with the given
      * command-ID has not been registered.
      */
+    @Override
     public ExecCommand getExecCommand(String commandID) {
         final Command command = getCommand(commandID);
         if (command instanceof ExecCommand) {
@@ -161,6 +168,7 @@ public class DefaultCommandManager implements CommandManager {
      * Gets the tool command associated with the given command-ID or <code>null</code> if a tool command with the given
      * command-ID has not been registered.
      */
+    @Override
     public ToolCommand getToolCommand(String commandID) {
         final Command command = getCommand(commandID);
         if (command instanceof ToolCommand) {
@@ -173,6 +181,7 @@ public class DefaultCommandManager implements CommandManager {
      * Gets the command group associated with the given command-ID or <code>null</code> if an command group with the
      * given command-ID has not been registered.
      */
+    @Override
     public CommandGroup getCommandGroup(String commandID) {
         Command command = getCommand(commandID);
         if (command instanceof CommandGroup) {
@@ -184,6 +193,7 @@ public class DefaultCommandManager implements CommandManager {
     /**
      * Calls the <code>updateState</code> method of all registered commands.
      */
+    @Override
     public void updateState() {
         final int n = getNumCommands();
         for (int i = 0; i < n; i++) {
@@ -194,6 +204,7 @@ public class DefaultCommandManager implements CommandManager {
     /**
      * Updates the component tree of all commands since the Java look-and-feel has changed.
      */
+    @Override
     public void updateComponentTreeUI() {
         final int n = getNumCommands();
         for (int i = 0; i < n; i++) {
@@ -208,6 +219,7 @@ public class DefaultCommandManager implements CommandManager {
      *
      * @param activatedTool the tool that has been activated, must not be <code>null</code> and be active
      */
+    @Override
     public void toggleToolActivatedState(Tool activatedTool) {
         Guardian.assertNotNull("activatedTool", activatedTool);
         if (!activatedTool.isActive()) {
@@ -233,6 +245,7 @@ public class DefaultCommandManager implements CommandManager {
      * @throws IllegalArgumentException if the command ID property of the command has not been set, or if an command
      *                                  with the same command ID has alreay been registered
      */
+    @Override
     public void addCommand(Command command) {
         if (_commandMap.containsKey(command.getCommandID())) {
             throw new IllegalArgumentException(
@@ -248,6 +261,7 @@ public class DefaultCommandManager implements CommandManager {
      *
      * @param command the command to be removed
      */
+    @Override
     public void removeCommand(Command command) {
         String commandKey = command.getCommandID();
         _commandMap.remove(commandKey);

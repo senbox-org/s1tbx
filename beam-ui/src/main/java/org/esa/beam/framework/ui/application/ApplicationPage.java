@@ -1,15 +1,17 @@
 package org.esa.beam.framework.ui.application;
 
-public interface ApplicationPage extends ControlFactory, SelectionService, PageComponentService {
+import com.bc.ceres.swing.selection.SelectionManager;
+import org.esa.beam.framework.ui.command.CommandManager;
 
-    ApplicationWindow getWindow();
+import java.awt.Window;
 
-    /**
-     * Called by the framework.
-     *
-     * @param window the window
-     */
-    void setWindow(ApplicationWindow window);
+public interface ApplicationPage extends ControlFactory, PageComponentService {
+
+    Window getWindow();
+
+    CommandManager getCommandManager();
+
+    SelectionManager getSelectionManager();
 
     PageComponent getPageComponent(String id);
 

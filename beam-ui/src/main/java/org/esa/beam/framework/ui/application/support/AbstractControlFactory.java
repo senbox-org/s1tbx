@@ -19,15 +19,16 @@ public abstract class AbstractControlFactory implements ControlFactory {
         singleton = true;
     }
 
-    protected synchronized final boolean isSingleton() {
+    protected final synchronized boolean isSingleton() {
         return singleton;
     }
 
-    protected synchronized final void setSingleton(boolean singleton) {
+    protected final synchronized void setSingleton(boolean singleton) {
         this.singleton = singleton;
     }
 
-    public synchronized final JComponent getControl() {
+    @Override
+    public final synchronized JComponent getControl() {
         if (isSingleton()) {
             if (control == null) {
                 this.control = createControl();
@@ -37,7 +38,7 @@ public abstract class AbstractControlFactory implements ControlFactory {
         return createControl();
     }
 
-    public synchronized final boolean isControlCreated() {
+    public final synchronized boolean isControlCreated() {
         return isSingleton() && control != null;
     }
 

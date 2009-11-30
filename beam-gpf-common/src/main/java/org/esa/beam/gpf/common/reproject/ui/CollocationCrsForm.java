@@ -1,5 +1,7 @@
 package org.esa.beam.gpf.common.reproject.ui;
 
+import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -7,8 +9,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.application.SelectionChangeEvent;
-import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.util.ProductUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -66,7 +66,7 @@ public class CollocationCrsForm extends CrsForm {
     private JPanel createCrsUI() {
         collocateProductSelector = new SourceProductSelector(getAppContext(), "Product:");
         collocateProductSelector.setProductFilter(new CollocateProductFilter());
-        collocateProductSelector.addSelectionChangeListener(new SelectionChangeListener() {
+        collocateProductSelector.addSelectionChangeListener(new AbstractSelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
                 fireCrsChanged();
