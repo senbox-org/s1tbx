@@ -29,7 +29,15 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.param.ParamChangeEvent;
@@ -48,7 +56,15 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -242,32 +258,32 @@ public class ProductSubsetDialog extends ModalDialog {
             if (node.getValidPixelExpression() != null) {
                 expressions.add(node.getValidPixelExpression());
             }
-            final BitmaskOverlayInfo bitmaskOverlayInfo = node.getBitmaskOverlayInfo();
-            if (bitmaskOverlayInfo != null) {
-                final BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
-                for (final BitmaskDef bitmaskDef : bitmaskDefs) {
-                    if (bitmaskDef.getExpr() != null) {
-                        expressions.add(bitmaskDef.getExpr());
+            final ProductNodeGroup<Mask> overlayMaskGroup = node.getOverlayMaskGroup();
+            if (overlayMaskGroup.getNodeCount() > 0) {
+                final Mask[] overlayMasks = overlayMaskGroup.toArray(new Mask[overlayMaskGroup.getNodeCount()]);
+                for (final Mask overlayMask : overlayMasks) {
+                    final String expression;
+                    if (overlayMask.getImageType() instanceof Mask.BandMathType) {
+                        expression = Mask.BandMathType.getExpression(overlayMask);
+                    } else if (overlayMask.getImageType() instanceof Mask.RangeType) {
+                        expression = Mask.RangeType.getRasterName(overlayMask);
+                    } else {
+                        expression = null;
+                    }
+                    if (expression != null) {
+                        expressions.add(expression);
                     }
                 }
             }
-            final ROIDefinition roiDefinition = node.getROIDefinition();
-            if (roiDefinition != null) {
-                if (roiDefinition.getBitmaskExpr() != null) {
-                    expressions.add(roiDefinition.getBitmaskExpr());
-                }
-            }
-
             if (node instanceof VirtualBand) {
                 final VirtualBand virtualBand = (VirtualBand) node;
                 expressions.add(virtualBand.getExpression());
             }
 
             final ArrayList<Term> termList = new ArrayList<Term>(10);
-            for (String expression1 : expressions) {
-                final String expression = expression1;
+            for (final String expression : expressions) {
                 try {
-                    final Term term = product.createTerm(expression);
+                    final Term term = product.parseExpression(expression);
                     if (term != null) {
                         termList.add(term);
                     }
@@ -285,7 +301,6 @@ public class ProductSubsetDialog extends ModalDialog {
     }
 
     private boolean checkFlagDatasetIncluded() {
-
         final String[] nodeNames = productSubsetDef.getNodeNames();
         final List<String> flagDsNameList = new ArrayList<String>(10);
         boolean flagDsInSubset = false;
@@ -332,7 +347,6 @@ public class ProductSubsetDialog extends ModalDialog {
     }
 
     private void createUI() {
-
         memLabel = new JLabel("####", JLabel.RIGHT);
 
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -423,11 +437,11 @@ public class ProductSubsetDialog extends ModalDialog {
     }
 
     private static void setComponentName(JComponent component, String name) {
-        if (component!= null) {
+        if (component != null) {
             Container parent = component.getParent();
             if (parent != null) {
                 component.setName(parent.getName() + "." + name);
-            }else {
+            } else {
                 component.setName(name);
             }
         }
@@ -502,11 +516,12 @@ public class ProductSubsetDialog extends ModalDialog {
             final Dimension imgSize = new Dimension((product.getSceneRasterWidth() - 1) / thumbNailSubSampling + 1,
                                                     (product.getSceneRasterHeight() - 1) / thumbNailSubSampling + 1);
 
-            thumbnailLoader = new ProgressMonitorSwingWorker<BufferedImage, Object>(this, "Loading thumbnail image...") {
+            thumbnailLoader = new ProgressMonitorSwingWorker<BufferedImage, Object>(this,
+                                                                                    "Loading thumbnail image...") {
 
                 @Override
                 protected BufferedImage doInBackground(ProgressMonitor pm) throws Exception {
-                    return  createThumbNailImage(imgSize, pm);
+                    return createThumbNailImage(imgSize, pm);
                 }
 
                 @Override
@@ -667,6 +682,7 @@ public class ProductSubsetDialog extends ModalDialog {
             return thumbnailLoader != null && thumbnailLoader.isCancelled();
         }
 
+        @Override
         public void sliderBoxChanged(Rectangle sliderBoxBounds) {
             int x1 = sliderBoxBounds.x * thumbNailSubSampling;
             int y1 = sliderBoxBounds.y * thumbNailSubSampling;
@@ -701,8 +717,8 @@ public class ProductSubsetDialog extends ModalDialog {
             // first reset the bounds, otherwise negative regions can occur
             paramX1.setValue(0, null);
             paramY1.setValue(0, null);
-            paramX2.setValue(w-1, null);
-            paramY2.setValue(h-1, null);
+            paramX2.setValue(w - 1, null);
+            paramY2.setValue(h - 1, null);
 
             paramX1.setValue(x1, null);
             paramY1.setValue(y1, null);
@@ -713,6 +729,7 @@ public class ProductSubsetDialog extends ModalDialog {
         /**
          * Invoked when an action occurs.
          */
+        @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getSource().equals(fixSceneWidthCheck)) {
                 imageCanvas.setImageWidthFixed(fixSceneWidthCheck.isSelected());
@@ -736,6 +753,7 @@ public class ProductSubsetDialog extends ModalDialog {
          *
          * @param event the parameter change event
          */
+        @Override
         public void parameterValueChanged(ParamChangeEvent event) {
             updateUIState();
         }
@@ -848,7 +866,8 @@ public class ProductSubsetDialog extends ModalDialog {
             pm.beginTask("Creating thumbnail image", 5);
             BufferedImage image = null;
             try {
-                MultiLevelSource multiLevelSource = BandImageMultiLevelSource.create(thumbNailBand, SubProgressMonitor.create(pm, 1));
+                MultiLevelSource multiLevelSource = BandImageMultiLevelSource.create(thumbNailBand,
+                                                                                     SubProgressMonitor.create(pm, 1));
                 final ImageLayer imageLayer = new ImageLayer(multiLevelSource);
                 final int imageWidth = imgSize.width;
                 final int imageHeight = imgSize.height;
@@ -905,6 +924,7 @@ public class ProductSubsetDialog extends ModalDialog {
 
             ActionListener productNodeCheckListener = new ActionListener() {
 
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     updateUIState();
                 }
@@ -946,6 +966,7 @@ public class ProductSubsetDialog extends ModalDialog {
 
             ActionListener allCheckListener = new ActionListener() {
 
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     if (e.getSource() == _allCheck) {
                         checkAllProductNodes(true);
