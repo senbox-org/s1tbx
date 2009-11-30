@@ -176,7 +176,6 @@ public class Mask extends Band {
          */
         @SuppressWarnings({"MethodMayBeStatic"})
         public PropertyContainer createImageConfig() {
-
             PropertyDescriptor colorType = new PropertyDescriptor(PROPERTY_NAME_COLOR, Color.class);
             colorType.setNotNull(true);
             colorType.setDefaultValue(DEFAULT_COLOR);
