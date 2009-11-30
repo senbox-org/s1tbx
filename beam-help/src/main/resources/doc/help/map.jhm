@@ -79,7 +79,7 @@
     <mapID target="scatterplotDialog" url="visat/ScatterplotDialog.html"/>
     <mapID target="profilePlotDialog" url="visat/ProfilePlotDialog.html"/>
     <mapID target="coordinateListDialog" url="visat/CoordinateListDialog.html"/>
-    <mapID target="computeRoiArea" url="visat/computeRoiArea.html"/>
+    <mapID target="computeRoiArea" url="visat/ComputeRoiArea.html"/>
     <mapID target="createFilteredBand" url="visat/CreateFilteredBand.html"/>
     <mapID target="bitmaskEditor" url="visat/BitmaskEditor.html"/>
     <mapID target="expressionEditor" url="visat/ExpressionEditor.html"/>
