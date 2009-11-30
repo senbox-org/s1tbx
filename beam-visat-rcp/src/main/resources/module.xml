@@ -815,10 +815,10 @@
             <parent>export</parent>
             <id>exportROIPixels</id>
             <class>org.esa.beam.visat.actions.ExportROIPixelsAction</class>
-            <text>Export ROI Pixels...</text>
+            <text>Export ROI-Mask Pixels...</text>
             <mnemonic>R</mnemonic>
-            <shortDescr>Export the pixels of the current ROI.</shortDescr>
-            <description>Export the pixels of the current ROI as tab-separated text.</description>
+            <shortDescr>Export the pixels of a ROI-Mask.</shortDescr>
+            <description>Export the pixels of a ROI_mask as tab-separated text.</description>
             <accelerator>shift control P</accelerator>
             <context>image</context>
             <helpId>exportROIPixels</helpId>
