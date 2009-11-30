@@ -61,8 +61,7 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
         Assert.notNull(cause, "cause");
         final BindingProblem newProblem = new BindingProblemImpl(this, cause);
         BindingProblem oldProblem = this.problem;
-        if (newProblem != oldProblem
-                && (oldProblem == null || !newProblem.equals(oldProblem))) {
+        if (oldProblem == null || !newProblem.equals(oldProblem)) {
             this.problem = newProblem;
             fireProblemReported(newProblem, oldProblem);
             componentAdapter.handleError(newProblem.getCause());
