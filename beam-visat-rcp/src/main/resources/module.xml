@@ -435,21 +435,6 @@
         </toolView>
 
         <toolView>
-            <id>org.esa.beam.visat.toolviews.roi.RoiManagerToolView</id>
-            <class>org.esa.beam.visat.toolviews.roi.RoiManagerToolView</class>
-            <title>ROI Manager</title>
-            <mnemonic>r</mnemonic>
-            <accelerator>ctrl alt R</accelerator>
-            <description>Manage ROI of a selected image view.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/ROIDefinition16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/ROIDefinition24.gif</largeIcon>
-            <helpId>showROIDefWnd</helpId>
-            <initState>HIDDEN</initState>
-            <initSide>SOUTH</initSide>
-            <initIndex>0</initIndex>
-        </toolView>
-
-        <toolView>
             <id>org.esa.beam.visat.toolviews.spectrum.SpectrumToolView</id>
             <class>org.esa.beam.visat.toolviews.spectrum.SpectrumToolView</class>
             <title>Spectrum View</title>
