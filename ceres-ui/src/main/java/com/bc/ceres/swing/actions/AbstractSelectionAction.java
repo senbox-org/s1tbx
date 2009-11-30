@@ -19,7 +19,7 @@ import java.awt.datatransfer.Clipboard;
 public abstract class AbstractSelectionAction extends AbstractSystemAction implements SelectionChangeListener {
     private final SelectionManager selectionManager;
 
-    public AbstractSelectionAction(SelectionManager selectionManager, String name, KeyStroke acceleratorKey, String iconResource) {
+    protected AbstractSelectionAction(SelectionManager selectionManager, String name, KeyStroke acceleratorKey, String iconResource) {
         super(name, acceleratorKey, iconResource);
         this.selectionManager = selectionManager;
         this.selectionManager.addSelectionChangeListener(this);

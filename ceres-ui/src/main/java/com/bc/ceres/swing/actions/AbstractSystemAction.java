@@ -18,7 +18,7 @@ import java.net.URL;
  */
 public abstract class AbstractSystemAction extends AbstractAction {
 
-    public AbstractSystemAction(String name, KeyStroke acceleratorKey, String iconResource) {
+    protected AbstractSystemAction(String name, KeyStroke acceleratorKey, String iconResource) {
         putValue(Action.ACTION_COMMAND_KEY, getClass().getName());
         putValue(Action.NAME, name);
         putValue(Action.ACCELERATOR_KEY, acceleratorKey);

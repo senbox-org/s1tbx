@@ -59,8 +59,6 @@ public class PropertyDescriptor {
             setNotNull(true);
         }
         setDisplayName(createDisplayName(name));
-        // todo - remove
-        addAttributeChangeListener(new EffectiveValidatorUpdater());
     }
 
     public String getName() {
@@ -397,13 +395,5 @@ public class PropertyDescriptor {
             }
         }
         return sb.toString();
-    }
-
-    private class EffectiveValidatorUpdater implements PropertyChangeListener {
-
-        @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            // Force recreation of validator
-        }
     }
 }
