@@ -941,21 +941,6 @@
             <separatorBefore>true</separatorBefore>
         </action>
 
-        <action>
-            <parent>edit</parent>
-            <id>convertROIToShape</id>
-            <class>org.esa.beam.visat.actions.ConvertROIToShapeAction</class>
-            <text>ROI to Shape</text>
-            <mnemonic>S</mnemonic>
-            <shortDescr>Convert ROI to shape.</shortDescr>
-            <description>Convert ROI to current shape.</description>
-            <smallIcon>icons/ROIToShape16.gif</smallIcon>
-            <largeIcon>icons/ROIToShape24.gif</largeIcon>
-            <helpId>convertROIToShape</helpId>
-            <placeAfter>convertShapeToROI</placeAfter>
-            <separatorBefore>false</separatorBefore>
-        </action>
-
         <!--####################-->
         <!-- Data Menu          -->
         <!--####################-->
