@@ -117,15 +117,11 @@ public class OperatorExecutor {
             for (final PlanarImage image : images) {
                 for (int tileY = 0; tileY < tileCountY; tileY++) {
                     for (int tileX = 0; tileX < tileCountX; tileX++) {
-                        checkForCancelation(pm);
-                        acquire(semaphore, 1);
-                        Point[] points = new Point[] { new Point(tileX, tileY) };
-                        tileScheduler.scheduleTiles(image, points, listeners);
-                        pm.worked(1);
+                        scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                     }
                 }
             }
-            acquire(semaphore, parallelism);
+            acquirePermits(semaphore, parallelism);
         } finally {
             pm.done();
         }
@@ -137,15 +133,11 @@ public class OperatorExecutor {
             for (int tileY = 0; tileY < tileCountY; tileY++) {
                 for (final PlanarImage image : images) {
                     for (int tileX = 0; tileX < tileCountX; tileX++) {
-                        checkForCancelation(pm);
-                        acquire(semaphore, 1);
-                        Point[] points = new Point[] { new Point(tileX, tileY) };
-                        tileScheduler.scheduleTiles(image, points, listeners);
-                        pm.worked(1);
+                        scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                     }
                 }
             }
-            acquire(semaphore, parallelism);
+            acquirePermits(semaphore, parallelism);
         } finally {
             pm.done();
         }
@@ -176,23 +168,28 @@ public class OperatorExecutor {
             for (int tileY = 0; tileY < tileCountY; tileY++) {
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     for (final PlanarImage image : images) {
-                        checkForCancelation(pm);
-                        acquire(semaphore, 1);
-                        Point[] points = new Point[] { new Point(tileX, tileY) };
-                        tileScheduler.scheduleTiles(image, points, listeners);
-                        pm.worked(1);
+                        scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                     }
                 }
             }
-            acquire(semaphore, parallelism);
+            acquirePermits(semaphore, parallelism);
         } finally {
             pm.done();
         }
     }
 
-    private static void acquire(Semaphore semaphore, int threshold) {
+    private void scheduleTile(final PlanarImage image, int tileX, int tileY, Semaphore semaphore,
+                              TileComputationListener[] listeners, ProgressMonitor pm) {
+        checkForCancelation(pm);
+        acquirePermits(semaphore, 1);
+        Point[] points = new Point[] { new Point(tileX, tileY) };
+        tileScheduler.scheduleTiles(image, points, listeners);
+        pm.worked(1);
+    }
+
+    private static void acquirePermits(Semaphore semaphore, int permits) {
         try {
-            semaphore.acquire(threshold);
+            semaphore.acquire(permits);
         } catch (InterruptedException e) {
             throw new OperatorException(e);
         }
