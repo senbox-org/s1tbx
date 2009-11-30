@@ -7,13 +7,11 @@ import com.bc.ceres.swing.actions.PasteAction;
 import com.bc.ceres.swing.actions.RedoAction;
 import com.bc.ceres.swing.actions.SelectAllAction;
 import com.bc.ceres.swing.actions.UndoAction;
-import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionManager;
-import com.bc.ceres.swing.selection.support.DefaultSelection;
-import com.bc.ceres.swing.selection.support.DefaultSelectionContext;
 import com.bc.ceres.swing.selection.support.DefaultSelectionManager;
+import com.bc.ceres.swing.selection.support.ListSelectionContext;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 
@@ -34,19 +32,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import java.awt.BorderLayout;
 import java.awt.Window;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Locale;
 
@@ -325,76 +317,6 @@ public class MultiSelectionSourceApp {
         }
     }
 
-    private static class ListSelectionContext extends DefaultSelectionContext implements ListSelectionListener {
-
-        private final JList list;
-
-        private ListSelectionContext(JList list) {
-            this.list = list;
-            setSelection();
-            list.addListSelectionListener(this);
-        }
-
-        @Override
-        public void valueChanged(ListSelectionEvent e) {
-            if (!e.getValueIsAdjusting()) {
-                setSelection();
-            }
-        }
-
-        public JList getList() {
-            return list;
-        }
-
-        public void setSelection() {
-            Object[] objects = list.getSelectedValues();
-            setSelection(new DefaultSelection<Object>(objects));
-        }
-
-        @Override
-        public void setSelection(Selection selection) {
-            // todo - set JList selection here
-            super.setSelection(selection);
-        }
-
-        @Override
-        public void insert(Transferable transferable) throws IOException, UnsupportedFlavorException {
-            Object transferData = transferable.getTransferData(DataFlavor.stringFlavor);
-            if (transferData != null) {
-                int selectedIndex = list.getSelectedIndex();
-                if (selectedIndex >= 0) {
-                    ((DefaultListModel) list.getModel()).add(selectedIndex, transferData.toString());
-                } else {
-                    ((DefaultListModel) list.getModel()).addElement(transferData.toString());
-                }
-            }
-        }
-
-        @Override
-        public boolean canInsert(Transferable contents) {
-            return isListEditable()
-                    && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
-        }
-
-        @Override
-        public boolean canDeleteSelection() {
-            return !getSelection().isEmpty() && isListEditable();
-        }
-
-        @Override
-        public void deleteSelection() {
-            Object[] items = getList().getSelectedValues();
-            for (Object item : items) {
-                ((DefaultListModel) getList().getModel()).removeElement(item);
-            }
-            // todo - post undoable edit
-        }
-
-        boolean isListEditable() {
-            return getList().getModel() instanceof DefaultListModel;
-        }
-
-    }
 
     private static class MyPageComponent implements PageComponent {
         private MultiSelectionSourceApp appContext;
