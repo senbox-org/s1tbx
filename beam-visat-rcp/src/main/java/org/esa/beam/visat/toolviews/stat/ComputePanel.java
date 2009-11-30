@@ -23,6 +23,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -97,18 +98,21 @@ class ComputePanel extends JPanel {
         });
         computeButton.setIcon(icon);
 
-        BindingContext bindingContext = new BindingContext(model); 
+        BindingContext bindingContext = new BindingContext(model);
+        String labelText;
         if (multiMaskSelection) {
             JList list = new JList();
             list.setCellRenderer(new MaskListCellRenderer());
             bindingContext.bind(SELECTED_MASK, list, true);
             JScrollPane scrollableList = new JScrollPane(list);
             maskUiComponent = scrollableList;
+            labelText = "select ROI-Mask(s):";
         } else {
             JComboBox comboBox = new JComboBox();
             comboBox.setRenderer(new MaskListCellRenderer());
             bindingContext.bind(SELECTED_MASK, comboBox);
             maskUiComponent = comboBox;
+            labelText = "select ROI-Mask:";
         }
         
         final TableLayout tableLayout = new TableLayout(1);
@@ -118,6 +122,7 @@ class ComputePanel extends JPanel {
         setLayout(tableLayout);
 
         add(computeButton);
+        add(new JLabel(labelText));
         add(maskUiComponent);
 
         setRaster(raster);
