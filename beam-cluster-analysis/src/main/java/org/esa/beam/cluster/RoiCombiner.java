@@ -17,42 +17,74 @@
 package org.esa.beam.cluster;
 
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.jai.ImageManager;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.StringUtils;
 
+import java.awt.image.RenderedImage;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import javax.media.jai.ROI;
+import javax.media.jai.operator.MinDescriptor;
 
 
 class RoiCombiner {
 
-    private ROI combinedRoi;
+    private final Set<RenderedImage> maskImages = new HashSet<RenderedImage>();
+    private final ROI roi;
 
-    RoiCombiner(Band[] sourceBands, Band roiBand) {
-        createRoi(roiBand);
-        createValidMaskRoi(sourceBands);
-    }
-
-    public ROI getCombinedRoi() {
-        return combinedRoi;
-    }
-
-    private void createRoi(Band roiBand) {
-        if (roiBand != null && roiBand.isROIUsable()) {
-            combinedRoi = new ROI(ImageManager.getInstance().createRoiMaskImage(roiBand, 0), 1);
+    RoiCombiner(Product sourceProduct, Band[] sourceBands, String roiMaskName) {
+        handleRoiMask(sourceProduct, roiMaskName);
+        handleValidMasks(sourceBands);
+        if (maskImages.size() > 0) {
+            RenderedImage combinedMaskImage = createCombinedMaskImage();
+            if (combinedMaskImage != null) {
+                roi = new ROI(combinedMaskImage, 1);
+            } else {
+                roi = null;
+            }
+        } else {
+            roi = null;
         }
     }
 
-    private void createValidMaskRoi(Band[] sourceBands) {
+
+    public ROI getROI() {
+        return roi;
+    }
+
+    private void handleRoiMask(Product product, String roiMaskName) {
+        Mask roiMask = null;
+        if (StringUtils.isNotNullAndNotEmpty(roiMaskName)) {
+            roiMask = product.getMaskGroup().get(roiMaskName);
+        }
+        if (roiMask != null) {
+            maskImages.add(roiMask.getSourceImage());
+        }
+    }
+
+    private void handleValidMasks(Band[] sourceBands) {
         for (Band band : sourceBands) {
             if (StringUtils.isNotNullAndNotEmpty(band.getValidMaskExpression())) {
-                ROI noDataRoi = new ROI(band.getValidMaskImage(), 1);
-                if (combinedRoi == null) {
-                    combinedRoi = noDataRoi;
-                } else {
-                    combinedRoi = combinedRoi.intersect(noDataRoi);
-                }
+                maskImages.add(band.getValidMaskImage());
             }
         }
     }
 
+    private RenderedImage createCombinedMaskImage() {
+        if (maskImages.size() <= 0) {
+            return null;
+        }
+        List<RenderedImage> imageList = new ArrayList<RenderedImage>(maskImages);
+        RenderedImage combinedImage = imageList.get(0);
+
+        for (int i = 1; i < imageList.size(); i++) {
+            RenderedImage roiImage2 = imageList.get(i);
+            combinedImage = MinDescriptor.create(combinedImage, roiImage2, null);
+        }
+        return combinedImage;
+    }
 }

@@ -26,7 +26,6 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.StringUtils;
 
 import javax.media.jai.ROI;
 import java.awt.*;
@@ -62,12 +61,12 @@ public class EMClusterOp extends Operator {
     private int randomSeed;
     @Parameter(label = "Source band names",
                description = "The names of the bands being used for the cluster analysis.",
-               sourceProductId = "source")
+               rasterDataNodeType = Band.class)
     private String[] sourceBandNames;
-    @Parameter(label = "Region of interest",
-               description = "The name of the band which contains a ROI that should be used.",
-               sourceProductId = "source")
-    private String roiBandName;
+    @Parameter(label = "ROI-Mask",
+               description = "The name of the ROI-Mask that should be used.",
+               rasterDataNodeType = Mask.class)
+    private String roiMaskName;
     @Parameter(label = "Include probabilities", defaultValue = "false",
                description = "Determines whether the posterior probabilities are included as band data.")
     private boolean includeProbabilityBands;
@@ -115,7 +114,7 @@ public class EMClusterOp extends Operator {
         targetProduct.setPreferredTileSize(width, height);  //TODO ????
 
         if (includeProbabilityBands) {
-            createProbabilityBands(targetProduct);
+            createProbabilityBands();
         }
 
         clusterMapBand = new Band("class_indices", ProductData.TYPE_UINT8, width, height);
@@ -145,23 +144,23 @@ public class EMClusterOp extends Operator {
     }
 
     private Band[] collectSourceBands() {
-        Band[] sourceBands;
+        Band[] srcBands;
         if (sourceBandNames != null && sourceBandNames.length > 0) {
-            sourceBands = new Band[sourceBandNames.length];
+            srcBands = new Band[sourceBandNames.length];
             for (int i = 0; i < sourceBandNames.length; i++) {
                 final Band sourceBand = sourceProduct.getBand(sourceBandNames[i]);
                 if (sourceBand == null) {
                     throw new OperatorException("source band not found: " + sourceBandNames[i]);
                 }
-                sourceBands[i] = sourceBand;
+                srcBands[i] = sourceBand;
             }
         } else {
-            sourceBands = sourceProduct.getBands();
+            srcBands = sourceProduct.getBands();
         }
-        return sourceBands;
+        return srcBands;
     }
 
-    private void createProbabilityBands(Product targetProduct) {
+    private void createProbabilityBands() {
         probabilityBands = new Band[clusterCount];
         for (int i = 0; i < clusterCount; ++i) {
             final Band targetBand = targetProduct.addBand("probability_" + i, ProductData.TYPE_FLOAT32);
@@ -257,13 +256,9 @@ public class EMClusterOp extends Operator {
         try {
             pm.beginTask("Extracting data points...", iterationCount + 100);
 
-            Band roiBand = null;
-            if (StringUtils.isNotNullAndNotEmpty(roiBandName)) {
-                roiBand = sourceProduct.getBand(roiBandName);
-            }
-            RoiCombiner roiCombiner = new RoiCombiner(sourceBands, roiBand);
-            roi = roiCombiner.getCombinedRoi();
-
+            RoiCombiner roiCombiner = new RoiCombiner(sourceProduct, sourceBands, roiMaskName);
+            roi = roiCombiner.getROI();
+            
             final EMClusterer clusterer = createClusterer(SubProgressMonitor.create(pm, 100));
 
             for (int i = 0; i < iterationCount; ++i) {
