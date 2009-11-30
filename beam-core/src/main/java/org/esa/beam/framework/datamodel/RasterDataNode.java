@@ -745,22 +745,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             validPixelExpression = expression;
             setModified(true);
         }
-
-        if (roiDefinition != null) {
-            final String bitmaskExpr = roiDefinition.getBitmaskExpr();
-            if (!StringUtils.isNullOrEmpty(bitmaskExpr) && bitmaskExpr.contains(oldExternalName)) {
-                final String newBitmaskExpression = StringUtils.replaceWord(bitmaskExpr, oldExternalName,
-                                                                            newExternalName);
-                final ROIDefinition newRoiDef = roiDefinition.createCopy();
-                newRoiDef.setBitmaskExpr(newBitmaskExpression);
-                // a new roi definition must be set to inform product node listeners because a roi sourceImage
-                // is only automatically updated if a product node listener is informed of changes.
-                // A roi definition is not a product node so that a product node listener can not be
-                // informed if an expression is changed.
-                setROIDefinition(newRoiDef);
-            }
-        }
-
         super.updateExpression(oldExternalName, newExternalName);
     }
 

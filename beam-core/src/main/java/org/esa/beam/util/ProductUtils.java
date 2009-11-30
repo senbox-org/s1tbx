@@ -2336,15 +2336,6 @@ public class ProductUtils {
                                      "because it is not applicable.";   /*I18N*/
                     messages.add(MessageFormat.format(pattern, validExpr, type, raster.getName()));
                 }
-                final ROIDefinition roi = raster.getROIDefinition();
-                if (roi != null) {
-                    final String bitmaskExpr = roi.getBitmaskExpr();
-                    if (bitmaskExpr != null && !product.isCompatibleBandArithmeticExpression(bitmaskExpr)) {
-                        raster.setROIDefinition(null);
-                        String pattern = "ROI definition of output {0} ''{1}'' removed because it is not applicable.";   /*I18N*/
-                        messages.add(MessageFormat.format(pattern, type, raster.getName()));
-                    }
-                }
             }
         });
         return messages.toArray(new String[messages.size()]);
