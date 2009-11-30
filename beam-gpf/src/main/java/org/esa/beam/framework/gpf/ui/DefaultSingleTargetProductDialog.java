@@ -111,7 +111,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                 SourceProductSelector sourceProductSelector = sourceProductSelectorList.get(0);
                 for (Property property : propertyContainer.getProperties()) {
                     PropertyDescriptor parameterDescriptor = property.getDescriptor();
-                    if (parameterDescriptor.getAttribute("productNodeType") != null) {
+                    if (parameterDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
                         SelectionChangeListener valueSetUpdater = new ValueSetUpdater(parameterDescriptor);
                         sourceProductSelector.addSelectionChangeListener(valueSetUpdater);
                     }
