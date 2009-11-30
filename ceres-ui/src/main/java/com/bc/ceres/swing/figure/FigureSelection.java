@@ -18,12 +18,26 @@ import java.awt.geom.Point2D;
  * @since Ceres 0.10
  */
 public interface FigureSelection extends FigureCollection, Selection {
+    /**
+     * Gets the current selection stage.
+     * The maximum selection stage is given by the selected figure(s).
+     *
+     * @return The current selection stage.
+     * @see Figure#getMaxSelectionStage()
+     * @see Figure#createHandles(int)
+     */
     int getSelectionStage();
 
+    /**
+     * Sets the current selection stage.
+     * The maximum selection stage is given by the selected figure(s).
+     *
+     * @param stage The current selection stage.
+     */
     void setSelectionStage(int stage);
 
     /**
-     * Gets the handles associated with the current selection level.
+     * Gets the handles associated with the current selection stage.
      * <ol>
      * <li>For a single selection, the handles are the ones created by the selected figure's
      * {@link com.bc.ceres.swing.figure.Figure#createHandles(int)} factory method.</li>
@@ -32,7 +46,7 @@ public interface FigureSelection extends FigureCollection, Selection {
      * <li>If the selection is empty, an empty handle array is returned.</li>
      * </ol>
      *
-     * @return The handles associated with the current selection level.
+     * @return The handles associated with the current selection stage.
      *
      * @see #getSelectionStage()
      */
