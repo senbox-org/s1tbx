@@ -17,9 +17,8 @@
 package org.esa.beam.visat.actions;
 
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VirtualBand;
@@ -57,14 +56,12 @@ public class DeleteAction extends ExecCommand {
             final Band band = (Band) object;
             final String[] virtualBands = getVirtualBandsReferencing(band);
             final String[] validMaskNodes = getRasterDataNodesValidMaskReferencing(band);
-            final String[] roiNodes = getRasterDataNodesRoiReferencing(band);
-            final String[] bitmaskDefs = getBitmaskDefsReferencing(band);
+            final String[] masks = getMasksReferencing(band);
             String message = "Do you really want to delete the band '" + band.getName() + "'?\n"
                              + "This action cannot be undone.\n\n";
             if (virtualBands.length > 0
                 || validMaskNodes.length > 0
-                || roiNodes.length > 0
-                || bitmaskDefs.length > 0) {
+                || masks.length > 0) {
                 message += "The band to be deleted is referenced by\n"; /*I18N*/
             }
             String indent = "    ";
@@ -80,16 +77,10 @@ public class DeleteAction extends ExecCommand {
                     message += indent + validMaskNode + "\n";
                 }
             }
-            if (roiNodes.length > 0) {
-                message += "the ROI of band(s) or tie-point grid(s):\n"; /*I18N*/
-                for (String roiNode : roiNodes) {
-                    message += indent + roiNode + "\n";
-                }
-            }
-            if (bitmaskDefs.length > 0) {
-                message += "the bitmask definition(s):\n"; /*I18N*/
-                for (String bitmaskDef : bitmaskDefs) {
-                    message += indent + bitmaskDef + "\n";
+            if (masks.length > 0) {
+                message += "the mask(s):\n"; /*I18N*/
+                for (String mask : masks) {
+                    message += indent + mask + "\n";
                 }
             }
 
@@ -114,7 +105,6 @@ public class DeleteAction extends ExecCommand {
             VisatApp.getApp().showInfoDialog("Cannot delete the selected object.", null);
         }
     }
-
 
     private static boolean isDeleteObjectActionPossible() {
         return VisatApp.getApp().getSelectedProductNode() instanceof Band;
@@ -144,44 +134,22 @@ public class DeleteAction extends ExecCommand {
         return namesList.toArray(new String[namesList.size()]);
     }
 
-    private static String[] getRasterDataNodesRoiReferencing(final RasterDataNode node) {
+    private static String[] getMasksReferencing(final RasterDataNode node) {
         final Product product = node.getProduct();
         final List<String> namesList = new ArrayList<String>();
         if (product != null) {
-            for (int i = 0; i < product.getNumBands(); i++) {
-                final Band band = product.getBandAt(i);
-                if (band != node) {
-                    final ROIDefinition roiDefinition = band.getROIDefinition();
-                    if (roiDefinition != null) {
-                        if (isNodeReferencedByExpression(node, roiDefinition.getBitmaskExpr())) {
-                            namesList.add(band.getName());
-                        }
-                    }
+            final Mask[] masks = product.getMaskGroup().toArray(new Mask[0]);
+            for (final Mask mask : masks) {
+                final String expression;
+                if (mask.getImageType() instanceof Mask.BandMathType) {
+                    expression = Mask.BandMathType.getExpression(mask);
+                } else if (mask.getImageType() instanceof Mask.RangeType) {
+                    expression = Mask.RangeType.getRaster(mask);
+                } else {
+                    expression = null;
                 }
-            }
-            for (int i = 0; i < product.getNumTiePointGrids(); i++) {
-                final TiePointGrid tiePointGrid = product.getTiePointGridAt(i);
-                if (tiePointGrid != node) {
-                    final ROIDefinition roiDefinition = tiePointGrid.getROIDefinition();
-                    if (roiDefinition != null) {
-                        if (isNodeReferencedByExpression(node, roiDefinition.getBitmaskExpr())) {
-                            namesList.add(tiePointGrid.getName());
-                        }
-                    }
-                }
-            }
-        }
-        return namesList.toArray(new String[namesList.size()]);
-    }
-
-    private static String[] getBitmaskDefsReferencing(final RasterDataNode node) {
-        final Product product = node.getProduct();
-        final List<String> namesList = new ArrayList<String>();
-        if (product != null) {
-            final BitmaskDef[] bitmaskDefs = product.getBitmaskDefs();
-            for (final BitmaskDef bitmaskDef : bitmaskDefs) {
-                if (isNodeReferencedByExpression(node, bitmaskDef.getExpr())) {
-                    namesList.add(bitmaskDef.getName());
+                if (isNodeReferencedByExpression(node, expression)) {
+                    namesList.add(mask.getName());
                 }
             }
         }
@@ -205,10 +173,12 @@ public class DeleteAction extends ExecCommand {
         return namesList.toArray(new String[namesList.size()]);
     }
 
-    private static boolean isNodeReferencedByExpression(final RasterDataNode node, final String expression) {
-        if (expression == null || expression.trim().length() == 0) {
+    @SuppressWarnings({"SimplifiableIfStatement"})
+    private static boolean isNodeReferencedByExpression(RasterDataNode node, String expression) {
+        if (expression == null || expression.trim().isEmpty()) {
             return false;
         }
+
         return expression.matches(".*\\b" + node.getName() + "\\b.*");
     }
 }

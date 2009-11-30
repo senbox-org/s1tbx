@@ -260,7 +260,7 @@ public class Mask extends Band {
             super.handleRename(mask, oldExternalName, newExternalName);
         }
 
-        private static String getExpression(Mask mask) {
+        public static String getExpression(Mask mask) {
             return (String) mask.getImageConfig().getValue(PROPERTY_NAME_EXPRESSION);
         }
 
@@ -405,5 +405,16 @@ public class Mask extends Band {
             super.handleRename(mask, oldExternalName, newExternalName);
         }
 
+        public static String getRaster(Mask mask) {
+            return (String) mask.getImageConfig().getValue(PROPERTY_NAME_RASTER);
+        }
+
+        public static Double getMinimum(Mask mask) {
+            return (Double) mask.getImageConfig().getValue(PROPERTY_NAME_MINIMUM);
+        }
+
+        public static Double getMaximum(Mask mask) {
+            return (Double) mask.getImageConfig().getValue(PROPERTY_NAME_MAXIMUM);
+        }
     }
 }
