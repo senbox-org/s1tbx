@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.util.Debug;
@@ -138,7 +139,8 @@ public class DeleteAction extends ExecCommand {
         final Product product = node.getProduct();
         final List<String> namesList = new ArrayList<String>();
         if (product != null) {
-            final Mask[] masks = product.getMaskGroup().toArray(new Mask[0]);
+            final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+            final Mask[] masks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
             for (final Mask mask : masks) {
                 final String expression;
                 if (mask.getImageType() instanceof Mask.BandMathType) {
