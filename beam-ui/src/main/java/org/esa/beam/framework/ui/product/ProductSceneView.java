@@ -12,6 +12,20 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
+import com.bc.ceres.grender.support.DefaultRendering;
+import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.FigureSelection;
+import com.bc.ceres.swing.figure.FigureCollection;
+import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
+import com.bc.ceres.swing.figure.FigureChangeEvent;
+import com.bc.ceres.swing.figure.interactions.NullInteractor;
+import com.bc.ceres.swing.figure.support.FigureSelectionContext;
+import com.bc.ceres.swing.figure.support.InteractionDispatcher;
+import com.bc.ceres.swing.figure.support.StyleDefaults;
+import com.bc.ceres.swing.selection.SelectionContext;
+import com.bc.ceres.swing.undo.UndoContext;
+import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -21,7 +35,6 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.LayerUI;
 import org.esa.beam.framework.ui.PixelInfoFactory;
@@ -29,8 +42,6 @@ import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.PopupMenuHandler;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
-import org.esa.beam.framework.ui.tool.AbstractTool;
-import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
@@ -39,7 +50,6 @@ import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.MaskCollectionLayer;
 import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
-import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.SystemUtils;
@@ -86,7 +96,7 @@ import java.util.Vector;
  * @version $ Revision: $ $ Date: $
  */
 public class ProductSceneView extends BasicView
-        implements ProductNodeView, DrawingEditor, PropertyMapChangeListener, PixelInfoFactory, LayerContext {
+        implements FigureEditor, ProductNodeView, PropertyMapChangeListener, PixelInfoFactory, LayerContext {
 
     public static final String BASE_IMAGE_LAYER_ID = "org.esa.beam.layers.baseImage";
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
@@ -182,6 +192,14 @@ public class ProductSceneView extends BasicView
     private boolean scrollBarsShown;
     private AdjustableViewScrollPane scrollPane;
 
+
+    private final UndoContext undoContext;
+    private final DefaultRendering rendering;
+    private final FigureSelectionContext figureSelectionContext;
+    private Rectangle selectionRectangle;
+    private Interactor interactor;
+
+
     public ProductSceneView(ProductSceneImage sceneImage) {
         Assert.notNull(sceneImage, "sceneImage");
 
@@ -199,10 +217,25 @@ public class ProductSceneView extends BasicView
 
         this.layerCanvas = new LayerCanvas(sceneImage.getRootLayer(),
                                            new DefaultViewport(isModelYAxisDown(baseImageLayer)));
+
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(
                 PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
         this.layerCanvas.setNavControlShown(navControlShown);
         this.layerCanvas.setPreferredSize(new Dimension(400, 400));
+
+        // todo - use global application undo context
+        this.undoContext = new DefaultUndoContext(this);
+        // todo - create new FigureCollection, e.g. based on all selected figure layers
+        this.figureSelectionContext = new FigureSelectionContext(this);
+        this.interactor = NullInteractor.INSTANCE;
+        this.rendering = new DefaultRendering(layerCanvas.getViewport());
+
+        RepaintHandler repaintHandler = new RepaintHandler();
+        figureSelectionContext.getFigureCollection().addListener(repaintHandler);
+        figureSelectionContext.getFigureSelection().addListener(repaintHandler);
+
+        InteractionDispatcher interactionDispatcher = new InteractionDispatcher(this);
+        interactionDispatcher.registerListeners(this);
 
         this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN,
                                                                              false);
@@ -213,7 +246,18 @@ public class ProductSceneView extends BasicView
             add(layerCanvas, BorderLayout.CENTER);
         }
 
-        layerCanvas.addOverlay(new ToolPainter());
+        layerCanvas.addOverlay(new LayerCanvas.Overlay() {
+            @Override
+            public void paintOverlay(LayerCanvas canvas, Graphics2D graphics) {
+                getFigureSelection().draw(rendering);
+                if (getSelectionRectangle() != null) {
+                    graphics.setPaint(StyleDefaults.SELECTION_RECT_FILL_PAINT);
+                    graphics.fill(getSelectionRectangle());
+                    graphics.setPaint(StyleDefaults.SELECTION_RECT_STROKE_PAINT);
+                    graphics.draw(getSelectionRectangle());
+                }
+            }
+        });
 
         registerLayerCanvasListeners();
 
@@ -222,6 +266,64 @@ public class ProductSceneView extends BasicView
 
         setMaskOverlayEnabled(true);
     }
+
+    /////////////////////////////////////////////////////////////////////////
+    // Begin FigureEditor implementation
+
+    @Override
+    public SelectionContext getSelectionContext() {
+        return figureSelectionContext;
+    }
+
+    @Override
+    public UndoContext getUndoContext() {
+        return undoContext;
+    }
+
+    @Override
+    public Rectangle getSelectionRectangle() {
+        return selectionRectangle;
+    }
+
+    @Override
+    public void setSelectionRectangle(Rectangle rectangle) {
+        if (selectionRectangle != rectangle
+                && (selectionRectangle == null || !selectionRectangle.equals(rectangle))) {
+            selectionRectangle = rectangle;
+            repaint();
+        }
+    }
+
+    @Override
+    public Interactor getInteractor() {
+        return interactor;
+    }
+
+    @Override
+    public void setInteractor(Interactor interactor) {
+        this.interactor.deactivate(this);
+        this.interactor = interactor;
+        this.interactor.activate(this);
+    }
+
+    @Override
+    public FigureSelection getFigureSelection() {
+        return figureSelectionContext.getFigureSelection();
+    }
+
+    @Override
+    public FigureCollection getFigureCollection() {
+        return figureSelectionContext.getFigureCollection();
+    }
+
+    @Override
+    public Viewport getViewport() {
+        return layerCanvas.getViewport();
+    }
+
+    // End FigureEditor implementation
+    /////////////////////////////////////////////////////////////////////////
+
 
     private AdjustableViewScrollPane createScrollPane() {
         AbstractButton zoomAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomAll13.gif"),
@@ -464,50 +566,6 @@ public class ProductSceneView extends BasicView
         return getSceneImage().getRasters().length >= 3;
     }
 
-    @Override
-    public void addFigure(Figure figure) {
-        Guardian.assertNotNull("figure", figure);
-        InsertMode insertMode = InsertMode.REPLACE;
-        ToolInputEvent toolInputEvent = (ToolInputEvent) figure.getAttribute(Figure.TOOL_INPUT_EVENT_KEY);
-        if (toolInputEvent != null && toolInputEvent.getMouseEvent() != null) {
-            MouseEvent mouseEvent = toolInputEvent.getMouseEvent();
-            if ((mouseEvent.isShiftDown())) {
-                insertMode = InsertMode.ADD;
-            } else if ((mouseEvent.isControlDown())) {
-                insertMode = InsertMode.SUBTRACT;
-            }
-        }
-
-        insertFigure(figure, insertMode);
-    }
-
-    @Override
-    public void insertFigure(Figure figure, InsertMode insertMode) {
-        Guardian.assertNotNull("figure", figure);
-
-        Figure oldFigure = getCurrentShapeFigure();
-
-        if (InsertMode.REPLACE.equals(insertMode) || oldFigure == null) {
-            setCurrentShapeFigure(figure);
-            return;
-        }
-
-        Shape shape = figure.getShape();
-        if (shape == null) {
-            return;
-        }
-
-        Area area1 = oldFigure.getAsArea();
-        Area area2 = figure.getAsArea();
-        if (InsertMode.ADD.equals(insertMode)) {
-            area1.add(area2);
-        } else {
-            area1.subtract(area2);
-        }
-
-        setCurrentShapeFigure(ShapeFigure.createArbitraryArea(area1, figure.getAttributes()));
-    }
-
     public boolean isNoDataOverlayEnabled() {
         final Layer noDataLayer = getNoDataLayer(false);
         return noDataLayer != null && noDataLayer.isVisible();
@@ -625,11 +683,14 @@ public class ProductSceneView extends BasicView
         }
     }
 
+    @Deprecated
     public Figure getCurrentShapeFigure() {
         return getNumFigures() > 0 ? getFigureAt(0) : null;
     }
 
+    @Deprecated
     public void setCurrentShapeFigure(Figure currentShapeFigure) {
+        /*
         setShapeOverlayEnabled(true);
         final Figure oldShapeFigure = getCurrentShapeFigure();
         if (currentShapeFigure != oldShapeFigure) {
@@ -640,6 +701,7 @@ public class ProductSceneView extends BasicView
                 getFigureLayer(true).addFigure(currentShapeFigure);
             }
         }
+        */
     }
 
     public boolean areScrollBarsShown() {
@@ -744,23 +806,6 @@ public class ProductSceneView extends BasicView
         }
     }
 
-    @Override
-    public AbstractTool getSelectTool() {
-        if (getSelectedLayerUI() != null) {
-            return getSelectedLayerUI().getSelectTool(this);
-        }
-        return null;
-    }
-
-    @Override
-    public void handleSelection(Rectangle rectangle) {
-        if (getSelectedLayerUI() != null) {
-            getSelectedLayerUI().handleSelection(this, rectangle);
-        } else {
-            // todo - implement default selection event, e.g. select features from feature layers such as pins, GCPs (nf 20090119)
-        }
-    }
-
     public void disposeLayers() {
         getSceneImage().getRootLayer().dispose();
     }
@@ -829,7 +874,7 @@ public class ProductSceneView extends BasicView
         final Product currentProduct = getRaster().getProduct();
         final Product otherProduct = view.getRaster().getProduct();
         if (otherProduct == currentProduct ||
-            otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
+                otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
 
             Viewport viewPortToChange = view.layerCanvas.getViewport();
             Viewport myViewPort = layerCanvas.getViewport();
@@ -837,42 +882,7 @@ public class ProductSceneView extends BasicView
         }
     }
 
-
-    @Override
-    public Tool getTool() {
-        return tool;
-    }
-
-    @Override
-    public void setTool(Tool tool) {
-        if (this.tool != tool) {
-            if (tool != null) {
-                tool.setDrawingEditor(this);
-                setCursor(tool.getCursor());
-            }
-            this.tool = tool;
-        }
-    }
-
-    @Override
-    public void repaintTool() {
-        if (getTool() != null) {
-            repaint(100);
-        }
-    }
-
-    // TODO remove ??? UNUSED
-    @Override
-    @Deprecated
-    public void removeFigure(Figure figure) {
-        final FigureLayer figureLayer = getFigureLayer(false);
-        if (figureLayer != null) {
-            figureLayer.removeFigure(figure);
-        }
-    }
-
-    // used only internaly --> private ???
-    @Override
+    // todo remove
     @Deprecated
     public int getNumFigures() {
         final FigureLayer figureLayer = getFigureLayer(false);
@@ -882,8 +892,7 @@ public class ProductSceneView extends BasicView
         return 0;
     }
 
-    // used only internaly --> private ???
-    @Override
+    // todo remove
     @Deprecated
     public Figure getFigureAt(int index) {
         FigureLayer figureLayer = getFigureLayer(false);
@@ -891,38 +900,6 @@ public class ProductSceneView extends BasicView
             return figureLayer.getFigureList().get(index);
         }
         return null;
-    }
-
-    // TODO remove ??? UNUSED
-    @Override
-    @Deprecated
-    public Figure[] getAllFigures() {
-        final FigureLayer figureLayer = getFigureLayer(false);
-        if (figureLayer != null) {
-            return figureLayer.getFigureList().toArray(new Figure[getNumFigures()]);
-        }
-        return new Figure[0];
-    }
-
-    //TODO remove ??? UNUSED
-    @Override
-    @Deprecated
-    public Figure[] getSelectedFigures() {
-        return new Figure[0];
-    }
-
-    // TODO remove ??? UNUSED
-    @Override
-    @Deprecated
-    public Figure[] getFiguresWithAttribute(String name) {
-        return new Figure[0];
-    }
-
-    // TODO remove ??? UNUSED
-    @Override
-    @Deprecated
-    public Figure[] getFiguresWithAttribute(String name, Object value) {
-        return new Figure[0];
     }
 
     protected void copyPixelInfoStringToClipboard() {
@@ -1120,7 +1097,7 @@ public class ProductSceneView extends BasicView
     private boolean isPixelPosValid(int currentPixelX, int currentPixelY, int currentLevel) {
         return currentPixelX >= 0 && currentPixelX < baseImageLayer.getImage(
                 currentLevel).getWidth() && currentPixelY >= 0
-               && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
+                && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
     }
 
     private void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
@@ -1176,8 +1153,7 @@ public class ProductSceneView extends BasicView
 
     private boolean isPixelBorderDisplayEnabled() {
         return pixelBorderShown &&
-               (getTool() == null || getTool().getDrawable() != null) &&
-               getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
+                getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
     }
 
     private void drawPixelBorder(int currentPixelX, int currentPixelY, int currentLevel, boolean showBorder) {
@@ -1304,23 +1280,10 @@ public class ProductSceneView extends BasicView
         }
     }
 
-    private class ToolPainter implements LayerCanvas.Overlay {
-
+    private class RepaintHandler extends AbstractFigureChangeListener {
         @Override
-        public void paintOverlay(LayerCanvas canvas, Graphics2D g2d) {
-            if (tool != null && tool.isActive()) {
-                final Viewport vp = getLayerCanvas().getViewport();
-                final AffineTransform transformSave = g2d.getTransform();
-                try {
-                    AffineTransform transform = vp.getModelToViewTransform();
-                    transform.concatenate(getSceneImage().getBaseImageLayer().getImageToModelTransform());
-                    g2d.setTransform(transform);
-                    drawToolNoTransf(g2d);
-                } finally {
-                    g2d.setTransform(transformSave);
-                }
-            }
+        public void figureChanged(FigureChangeEvent event) {
+            repaint();
         }
     }
-
 }
