@@ -418,8 +418,8 @@ public class CloudPN extends ProcessingNode {
             altitude = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_DEM_ALTITUDE_DS_NAME);
         }
 
-        validLandTerm = l1bProduct.createTerm(validLandExpression);
-        validOceanTerm = l1bProduct.createTerm(validOceanExpression);
-        landTerm = l1bProduct.createTerm("l1_flags.LAND_OCEAN");
+        validLandTerm = l1bProduct.parseExpression(validLandExpression);
+        validOceanTerm = l1bProduct.parseExpression(validOceanExpression);
+        landTerm = l1bProduct.parseExpression("l1_flags.LAND_OCEAN");
     }
 }

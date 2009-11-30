@@ -57,7 +57,7 @@ public class ProcessorUtils {
         Guardian.assertNotNull("product", product);
         try {
             // try to creat a term - checks the correct syntax of the expression string and returns it
-            return product.createTerm(expression);
+            return product.parseExpression(expression);
         } catch (ParseException e) {
             throw new ProcessorException(
                     "Unable to parse expression '" + expression + "':\n" + e.getMessage(), e);

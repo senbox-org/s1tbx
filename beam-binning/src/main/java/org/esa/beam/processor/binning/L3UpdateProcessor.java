@@ -396,7 +396,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
             final String bitmaskExpression = bandDef.getBitmaskExp();
             if ((bitmaskExpression != null) && (bitmaskExpression.length() > 0)) {
                 try {
-                    prod.createTerm(bitmaskExpression);
+                    prod.parseExpression(bitmaskExpression);
                 } catch (ParseException e) {
                     raiseErrorFlag();
                     String message = L3Constants.LOG_MSG_INPUT_NOT_EXIST_1 + prod.getName() + L3Constants.LOG_MSG_NO_REQ_FLAG + bitmaskExpression + "'!";

@@ -49,7 +49,7 @@ public class BitmaskDef extends ProductNode {
 
     /**
      * Gets the bitmask's boolean expression code.
-     * To create a {@link Term} use {@link Product#createTerm(String) createTerm(getExpr())}.
+     * To create a {@link Term} use {@link Product#parseExpression(String) createTerm(getExpr())}.
      *
      * @return the bitmask's boolean expression code.
      */

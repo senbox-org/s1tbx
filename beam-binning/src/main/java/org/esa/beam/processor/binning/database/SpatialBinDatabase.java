@@ -174,7 +174,7 @@ public class SpatialBinDatabase extends AbstractBinDatabase {
         for (int bandIndex = 0; bandIndex < bandDefs.length; bandIndex++) {
             final L3Context.BandDefinition bandDef = bandDefs[bandIndex];
             try {
-                bitmaskTerm[bandIndex] = product.createTerm(bandDef.getBitmaskExp());
+                bitmaskTerm[bandIndex] = product.parseExpression(bandDef.getBitmaskExp());
             } catch (ParseException e) {
                 // will not throw exception, is checked before if loadValidatedProduct() is called before
             }

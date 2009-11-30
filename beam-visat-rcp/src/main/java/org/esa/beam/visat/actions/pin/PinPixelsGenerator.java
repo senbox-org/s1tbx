@@ -66,7 +66,7 @@ class PinPixelsGenerator {
         final RasterDataLoop loop;
         final Term t;
         if (expression != null) {
-            t = product.createTerm(expression);
+            t = product.parseExpression(expression);
             loop = new RasterDataLoop(minX, minY, regionWidth, regionHeight, new Term[]{t}, ProgressMonitor.NULL);
         } else {
             t = null;
@@ -132,7 +132,7 @@ class PinPixelsGenerator {
         final Term t;
 
         if (expression != null) {
-            t = product.createTerm(expression);
+            t = product.parseExpression(expression);
             loop = new RasterDataLoop(points[0].x, points[0].y, regionWidth, regionHeight, new Term[]{t}, ProgressMonitor.NULL);
         } else {
             t = null;

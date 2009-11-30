@@ -32,7 +32,7 @@ public class MaskOpImage extends SingleBandedOpImage {
 
     public static MaskOpImage create(Product product, String expression, ResolutionLevel level) {
         try {
-            return new MaskOpImage(product, product.createTerm(expression), level);
+            return new MaskOpImage(product, product.parseExpression(expression), level);
         } catch (ParseException e) {
             throw new IllegalArgumentException("expression", e);
         }

@@ -38,7 +38,7 @@ public class ProductExamples {
                 int width = product.getSceneRasterWidth();
                 int height = product.getSceneRasterHeight();
                 // parse a given expression
-                final Term term = product.createTerm("not l2_flags.INVALID and not l1_flags.BRIGHT");
+                final Term term = product.parseExpression("not l2_flags.INVALID and not l1_flags.BRIGHT");
                 // allocate boolean mask values for a single scan line
                 boolean[] maskLine = new boolean[width];
                 for (int y = 0; y < height; y++) {

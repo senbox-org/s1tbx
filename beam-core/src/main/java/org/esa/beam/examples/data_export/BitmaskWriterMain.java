@@ -107,7 +107,7 @@ public class BitmaskWriterMain {
 
         // Parse the given bit-mask expression string to a term which can efficiently
         // be evaluated by the framework
-        Term bitmaskTerm = product.createTerm(bitmaskExpr);
+        Term bitmaskTerm = product.parseExpression(bitmaskExpr);
 
         // Get the scene width
         int w = product.getSceneRasterWidth();

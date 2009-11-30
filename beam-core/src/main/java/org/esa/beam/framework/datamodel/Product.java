@@ -2043,7 +2043,7 @@ public class Product extends ProductNode {
      * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
      *         never <code>null</code>.
      *
-     * @see #createTerm(String)
+     * @see #parseExpression(String)
      */
     public String[] getAllFlagNames() {
         final List<String> l = new ArrayList<String>(32);
@@ -2434,7 +2434,7 @@ public class Product extends ProductNode {
     @Deprecated
     public boolean isCompatibleBitmaskDef(final BitmaskDef bitmaskDef) {
         try {
-            createTerm(bitmaskDef.getExpr());
+            parseExpression(bitmaskDef.getExpr());
         } catch (ParseException e) {
             return false;
         }
@@ -2495,14 +2495,14 @@ public class Product extends ProductNode {
      * @return a bit-packed mask for all pixels of the scene, never null
      *
      * @throws IOException if an I/O error occurs
-     * @see #createTerm(String)
+     * @see #parseExpression(String)
      * @see #createValidMask(com.bc.jexp.Term,com.bc.ceres.core.ProgressMonitor)
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
     @Deprecated
     public BitRaster createValidMask(final String expression, final ProgressMonitor pm) throws IOException {
         try {
-            final Term term = getProduct().createTerm(expression);
+            final Term term = getProduct().parseExpression(expression);
             return createValidMask(term, pm);
         } catch (ParseException e) {
             final IOException ioException = new IOException(
@@ -2608,7 +2608,7 @@ public class Product extends ProductNode {
      * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
      * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
      * </p>
-     * <p> The {@link #createTerm(String)} method can be used to create a bit-mask
+     * <p> The {@link #parseExpression(String)} method can be used to create a bit-mask
      * term from a textual bit-mask expression.
      * </p>
      *
@@ -2616,13 +2616,13 @@ public class Product extends ProductNode {
      * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
      * @param width       the width of the spatial subset in pixel co-ordinates
      * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)} method
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String)} method
      * @param bitmask     a buffer used to hold the results of the bit-mask evaluations for each pixel in the given
      *                    spatial subset
      * @param pm          a monitor to inform the user about progress
      *
      * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #createTerm(String)
+     * @see #parseExpression(String)
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
     @Deprecated
@@ -2670,14 +2670,14 @@ public class Product extends ProductNode {
      * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
      * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
      * </p>
-     * <p> The {@link #createTerm(String)} method can be used to create a bit-mask
+     * <p> The {@link #parseExpression(String)} method can be used to create a bit-mask
      * term from a textual bit-mask expression.
      *
      * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
      * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
      * @param width       the width of the spatial subset in pixel co-ordinates
      * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String)}
      *                    method
      * @param bitmask     a byte buffer used to hold the results of the bit-mask evaluations for each pixel in the given
      *                    spatial subset
@@ -2685,7 +2685,7 @@ public class Product extends ProductNode {
      * @param falseValue  the byte value to be set if the bitmask-term evauates to <code>false</code>
      *
      * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #createTerm(String)
+     * @see #parseExpression(String)
      * @see #readBitmask(int,int,int,int,Term,int[],int,int)
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
@@ -2724,7 +2724,7 @@ public class Product extends ProductNode {
      * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
      * @param width       the width of the spatial subset in pixel co-ordinates
      * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String)}
      *                    method
      * @param bitmask     an integer buffer used to hold the results of the bit-mask evaluations for each pixel in the
      *                    given spatial subset
@@ -2732,7 +2732,7 @@ public class Product extends ProductNode {
      * @param falseValue  the integer value to be set if the bitmask-term evauates to <code>false</code>
      *
      * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #createTerm(String)
+     * @see #parseExpression(String)
      * @see #readBitmask(int,int,int,int,Term,byte[],byte,byte)
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
@@ -2758,7 +2758,7 @@ public class Product extends ProductNode {
      * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
      * @param width       the width of the spatial subset in pixel co-ordinates
      * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String)}
      *                    method
      * @param bitmask     an integer buffer used to hold the results of the bit-mask evaluations for each pixel in the
      *                    given spatial subset
@@ -2767,7 +2767,7 @@ public class Product extends ProductNode {
      * @param pm          a monitor to inform the user about progress
      *
      * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #createTerm(String)
+     * @see #parseExpression(String)
      * @see #readBitmask(int,int,int,int,Term,byte[],byte,byte)
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
@@ -2822,14 +2822,14 @@ public class Product extends ProductNode {
      * to <code>termValue</code> then the original pixel value in <code>rasterData</code> remains unchanged. The
      * buffer must at least have a length equal to <code>width * height</code> elements.
      * </p>
-     * <p> The {@link #createTerm(String) createTerm} method can be used to create a bit-mask
+     * <p> The {@link #parseExpression(String) createTerm} method can be used to create a bit-mask
      * term from a textual bit-mask expression.
      *
      * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
      * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
      * @param width       the width of the spatial subset in pixel co-ordinates
      * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String) createTerm}
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #parseExpression(String) createTerm}
      *                    method
      * @param rasterData  the raster data which is masked with  <code>maskPixelValue</code> if the term evaluates to
      *                    <code>termValue</code> at a given pixel position
@@ -2838,7 +2838,7 @@ public class Product extends ProductNode {
      * @param pm          a monitor to inform the user about progress
      *
      * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @see #createTerm(String)
+     * @see #parseExpression(String)
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
     @Deprecated
