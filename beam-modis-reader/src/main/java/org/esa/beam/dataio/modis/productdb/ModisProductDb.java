@@ -112,7 +112,7 @@ public class ModisProductDb {
             bandDesc = prod.getBandDescription(bandName);
         } catch (IOException e) {
             _logger.severe(
-                    "Unable to retrieve information for band '" + bandName + "' of product type '" + prodType + "'.");
+                        "Unable to retrieve information for band '" + bandName + "' of product type '" + prodType + "'.");
         }
 
         return bandDesc;
@@ -154,7 +154,7 @@ public class ModisProductDb {
             tpDesc = prod.getTiePointDescription(tpName);
         } catch (IOException e) {
             _logger.severe(
-                    "Unable to retrieve description for tie point grid '" + tpName + "' of product type '" + prodType + "'.");
+                        "Unable to retrieve description for tie point grid '" + tpName + "' of product type '" + prodType + "'.");
         }
 
         return tpDesc;
@@ -238,7 +238,7 @@ public class ModisProductDb {
                 _productTypes.put(records[0], records[1]);
             } else {
                 _logger.severe(
-                        "Invalid number of records in MODISDB - please check the BEAM resources for correctness.");
+                            "Invalid number of records in MODISDB - please check the BEAM resources for correctness.");
             }
         }
 
@@ -288,20 +288,17 @@ public class ModisProductDb {
             if (records[0].equalsIgnoreCase(META_KEY)) {
                 // @todo 4 tb/tb - implement
             } else if (records[0].equalsIgnoreCase(SDS_KEY)) {
-                if (records.length != ModisProductDb.EXP_NUM_SDS_DEFAULT_RECORD
-                    && records.length != ModisProductDb.EXP_NUM_SDS_SPECTRAL_RECORD) {
-                    _logger.severe("Invalid number of records in SDS description for product type '" + prodType + "'.");
-                    continue;
-                }
                 if (records.length == ModisProductDb.EXP_NUM_SDS_SPECTRAL_RECORD) {
                     description.addBand(
                                 records[1], records[2], records[3], records[4],
                                 records[5], records[6], records[7], records[8],
                                 records[9], records[10], records[11]);
-                } else {
+                } else if (records.length == ModisProductDb.EXP_NUM_SDS_DEFAULT_RECORD) {
                     description.addBand(
                                 records[1], records[2], records[3], records[4],
                                 records[5], records[6], records[7], records[8]);
+                } else {
+                    _logger.severe("Invalid number of records in SDS description for product type '" + prodType + "'.");
                 }
             } else if (records[0].equalsIgnoreCase(GEO_KEY)) {
                 if ((records.length < EXP_NUM_GEO_RECORDS_MIN) || (records.length > EXP_NUM_GEO_RECORDS_MAX)) {
@@ -314,19 +311,20 @@ public class ModisProductDb {
                     description.setExternalGeolocationPattern(records[1]);
                 }
             } else if (records[0].equalsIgnoreCase(FLIP_KEY)) {
-                if (records.length != EXP_NUM_FLIP_RECORDS) {
+                if (records.length == EXP_NUM_FLIP_RECORDS) {
+                    description.setTopDownFlip(Boolean.valueOf(records[1]));
+                } else {
                     _logger.severe(
-                            "Invalid number of records in FLIP description for product type '" + prodType + "'.");
-                    continue;
+                                "Invalid number of records in FLIP description for product type '" + prodType + "'.");
                 }
-                description.setTopDownFlip(Boolean.valueOf(records[1]));
             } else if (records[0].equalsIgnoreCase(TIEPOINT_KEY)) {
-                if (records.length != EXP_NUM_TIEP_RECORDS) {
+                if (records.length == EXP_NUM_TIEP_RECORDS) {
+                    description.addTiePointGrid(new ModisTiePointDescription(
+                                records[1], records[2], records[3], records[4]));
+                } else {
                     _logger.severe(
-                            "Invalid number of records in TIEP description for product type '" + prodType + "'.");
-                    continue;
+                                "Invalid number of records in TIEP description for product type '" + prodType + "'.");
                 }
-                description.addTiePointGrid(records[1], records[2], records[3], records[4]);
             }
         }
 
@@ -380,7 +378,7 @@ public class ModisProductDb {
 
         return url;
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
         private static final ModisProductDb instance = new ModisProductDb();

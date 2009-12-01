@@ -139,7 +139,7 @@ public class ModisProductDescriptionTest extends TestCase {
         String[] un = new String[]{"unit_1", "unit_2", "unit_3"};
 
         for (int n = 0; n < 3; n++) {
-            _prod.addTiePointGrid(tp[n], sc[n], of[n], un[n]);
+            _prod.addTiePointGrid(new ModisTiePointDescription(tp[n], sc[n], of[n], un[n]));
         }
 
         String[] tpNames = _prod.getTiePointNames();

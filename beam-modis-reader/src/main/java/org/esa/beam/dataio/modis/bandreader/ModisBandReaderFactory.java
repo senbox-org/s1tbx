@@ -81,6 +81,12 @@ public class ModisBandReaderFactory {
                         (scaleMethod == ModisBandReader.SCALE_LINEAR)) {
                         readers[i] = new ModisInt16BandReader(sdsId, i, is3d);
                     }
+                } else if (prodIODataType == ProductData.TYPE_UINT32) {
+                    if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
+                        (scaleMethod == ModisBandReader.SCALE_LINEAR) ||
+                        (scaleMethod == ModisBandReader.SCALE_SLOPE_INTERCEPT)) {
+                        readers[i] = new ModisUint32BandReader(sdsId, i, is3d);
+                    }
                 }
                 readers[i].setName(bandName);
             }

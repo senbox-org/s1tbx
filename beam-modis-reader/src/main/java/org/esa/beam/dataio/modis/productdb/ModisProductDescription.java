@@ -185,11 +185,10 @@ public class ModisProductDescription {
     /**
      * Adds a tie point grid to the product description
      *
-     * @param gridName
+     * @param desc
      */
-    void addTiePointGrid(String gridName, String scaleName, String offsetName, String unitName) {
-        ModisTiePointDescription desc = new ModisTiePointDescription(gridName, scaleName, offsetName, unitName);
-        _tiePoints.put(gridName, desc);
+    void addTiePointGrid(final ModisTiePointDescription desc) {
+        _tiePoints.put(desc.getName(), desc);
         _tiePointVec.add(desc);
     }
 

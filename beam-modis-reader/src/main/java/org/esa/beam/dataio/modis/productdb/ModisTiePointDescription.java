@@ -18,10 +18,10 @@ package org.esa.beam.dataio.modis.productdb;
 
 public class ModisTiePointDescription {
 
-    private String _name;
-    private String _scale;
-    private String _offset;
-    private String _unit;
+    private final String name;
+    private final String scale;
+    private final String offset;
+    private final String unit;
 
     /**
      * Creates the object with given parameters.
@@ -31,12 +31,12 @@ public class ModisTiePointDescription {
      * @param offsetAttribute the name of the attribute containing the scaling offset
      * @param unitAttribute   the name of the attribute containi8ng the unit name
      */
-    public ModisTiePointDescription(final String name, final String scaleAttribute, final String offsetAttribute,
-                                    final String unitAttribute) {
-        _name = name;
-        _scale = scaleAttribute;
-        _offset = offsetAttribute;
-        _unit = unitAttribute;
+    public ModisTiePointDescription(final String name, final String scaleAttribute,
+                                    final String offsetAttribute, final String unitAttribute) {
+        this.name = name;
+        this.scale = scaleAttribute;
+        this.offset = offsetAttribute;
+        this.unit = unitAttribute;
     }
 
     /**
@@ -45,7 +45,7 @@ public class ModisTiePointDescription {
      * @return the name
      */
     public String getName() {
-        return _name;
+        return name;
     }
 
     /**
@@ -54,7 +54,7 @@ public class ModisTiePointDescription {
      * @return the name
      */
     public String getScaleAttribName() {
-        return _scale;
+        return scale;
     }
 
     /**
@@ -63,7 +63,7 @@ public class ModisTiePointDescription {
      * @return the name
      */
     public String getOffsetAttribName() {
-        return _offset;
+        return offset;
     }
 
     /**
@@ -72,6 +72,6 @@ public class ModisTiePointDescription {
      * @return the name
      */
     public String getUnitAttribName() {
-        return _unit;
+        return unit;
     }
 }
