@@ -296,7 +296,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     band.setDescription(bandInfo.getDescription());
                 }
                 if (bandInfo.getFlagCoding() != null) {
-                    product.addFlagCoding(bandInfo.getFlagCoding());
+                    product.getFlagCodingGroup().add(bandInfo.getFlagCoding());
                     band.setFlagCoding(bandInfo.getFlagCoding());
                 }
                 final String expression = bandInfo.getValidExpression();

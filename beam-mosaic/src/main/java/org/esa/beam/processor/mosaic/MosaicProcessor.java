@@ -394,7 +394,7 @@ public class MosaicProcessor extends Processor {
                 for (String flagCodingName : flagCodingNames) {
                     final FlagCoding flagCodingIn = inpProduct.getFlagCoding(flagCodingName);
                     final FlagCoding flagCodingOut = new FlagCoding(flagCodingName);
-                    outputProduct.addFlagCoding(flagCodingOut);
+                    outputProduct.getFlagCodingGroup().add(flagCodingOut);
                     final String[] flagNames = flagCodingIn.getFlagNames();
                     for (String flagName : flagNames) {
                         final MetadataAttribute flag = flagCodingIn.getFlag(flagName);

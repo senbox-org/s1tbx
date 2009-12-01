@@ -398,7 +398,7 @@ public class CollocateOp extends Operator {
 
         targetFlagCoding.setDescription(flagCoding.getDescription());
         ProductUtils.copyMetadata(flagCoding, targetFlagCoding);
-        product.addFlagCoding(targetFlagCoding);
+        product.getFlagCodingGroup().add(targetFlagCoding);
     }
 
     private static Rectangle getBoundingBox(PixelPos[] pixelPositions, int maxWidth, int maxHeight) {

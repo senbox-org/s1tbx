@@ -210,7 +210,7 @@ public class ProductTest extends TestCase {
         flagCoding.addFlag("F2", F2, null);
         flagCoding.addFlag("F3", F3, null);
 
-        product.addFlagCoding(flagCoding);
+        product.getFlagCodingGroup().add(flagCoding);
         band.setFlagCoding(flagCoding);
 
         band.ensureRasterData();
@@ -263,7 +263,7 @@ public class ProductTest extends TestCase {
         flagCoding.addFlag("F2", F2, null);
         flagCoding.addFlag("F3", F3, null);
 
-        product.addFlagCoding(flagCoding);
+        product.getFlagCodingGroup().add(flagCoding);
         band.setFlagCoding(flagCoding);
 
         ProductData data = band.createCompatibleRasterData();
@@ -565,7 +565,7 @@ public class ProductTest extends TestCase {
         flagCoding.addFlag("F2", F2, null);
         flagCoding.addFlag("F3", F3, null);
 
-        product.addFlagCoding(flagCoding);
+        product.getFlagCodingGroup().add(flagCoding);
         band.setFlagCoding(flagCoding);
 
         band.ensureRasterData();
@@ -652,7 +652,7 @@ public class ProductTest extends TestCase {
         flagCoding.addFlag("F2", F2, null);
         flagCoding.addFlag("F3", F3, null);
 
-        product.addFlagCoding(flagCoding);
+        product.getFlagCodingGroup().add(flagCoding);
         band.setFlagCoding(flagCoding);
 
         band.ensureRasterData();
@@ -734,7 +734,7 @@ public class ProductTest extends TestCase {
         final int f1Mask = 1;
         flagCoding.addFlag("f1", f1Mask, "");
         flagsBand.setFlagCoding(flagCoding);
-        product.addFlagCoding(flagCoding);
+        product.getFlagCodingGroup().add(flagCoding);
         final byte[] elems = new byte[]{
                 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0,
                 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1,
@@ -761,7 +761,7 @@ public class ProductTest extends TestCase {
         final FlagCoding flagCoding = new FlagCoding("flags");
         flagCoding.addFlag("F1", F1, null);
 
-        product.addFlagCoding(flagCoding);
+        product.getFlagCodingGroup().add(flagCoding);
         band.setFlagCoding(flagCoding);
 
         final byte[] elems = new byte[]{

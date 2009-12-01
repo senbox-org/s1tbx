@@ -70,7 +70,7 @@ public class NdviOp extends Operator {
 
         // create and add the NDVI flags coding
         FlagCoding ndviFlagCoding = createNdviFlagCoding();
-        targetProduct.addFlagCoding(ndviFlagCoding);
+        targetProduct.getFlagCodingGroup().add(ndviFlagCoding);
 
         // create and add the NDVI flags band
         Band ndviFlagsOutputBand = new Band(NDVI_FLAGS_BAND_NAME, ProductData.TYPE_INT32,

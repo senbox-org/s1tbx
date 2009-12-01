@@ -306,7 +306,7 @@ public class NdviProcessor extends Processor {
         // create and add the NDVI flags coding
         //
         final FlagCoding ndviFlagCoding = createNdviFlagCoding();
-        _outputProduct.addFlagCoding(ndviFlagCoding);
+        _outputProduct.getFlagCodingGroup().add(ndviFlagCoding);
 
         // create and add the NDVI flags band
         //

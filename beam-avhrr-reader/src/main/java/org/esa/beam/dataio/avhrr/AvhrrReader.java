@@ -275,7 +275,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         addFlagAndBitmaskDef(fc, FLAG_SYNC, FLAG_SYNC_DESC, 5);
 
         flagsBand.setFlagCoding(fc);
-        product.addFlagCoding(fc);
+        product.getFlagCodingGroup().add(fc);
         product.addBand(flagsBand);
 
         bandReaders.put(flagsBand, bandReader);

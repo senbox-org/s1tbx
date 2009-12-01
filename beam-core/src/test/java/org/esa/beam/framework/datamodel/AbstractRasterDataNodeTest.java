@@ -47,7 +47,7 @@ public abstract class AbstractRasterDataNodeTest extends AbstractDataNodeTest {
 
         final Band flagsBand = product.addBand("flagsBand", ProductData.TYPE_INT8);
         flagsBand.setFlagCoding(flagCoding);
-        product.addFlagCoding(flagCoding);
+        product.getFlagCodingGroup().add(flagCoding);
 
         flagsBand.setName("flags");
 

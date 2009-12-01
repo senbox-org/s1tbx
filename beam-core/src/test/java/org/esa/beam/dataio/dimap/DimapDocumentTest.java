@@ -419,7 +419,7 @@ public class DimapDocumentTest extends TestCase {
         flagCoding1.addFlag("Flag1A", 0, "Flag1A-Description");
         flagCoding1.addFlag("Flag1B", 1, "Flag1B-Description");
         flagCoding1.addFlag("Flag1C", 2, "Flag1C-Description");
-        product.addFlagCoding(flagCoding1);
+        product.getFlagCodingGroup().add(flagCoding1);
         // Add flag coding to band
         product.getBand("Flags1").setSampleCoding(product.getFlagCoding(codingName1));
 
@@ -427,7 +427,7 @@ public class DimapDocumentTest extends TestCase {
         FlagCoding flagCoding2 = new FlagCoding(codingName2);
         flagCoding2.addFlag("Flag2A", 5, "Flag2A-Description");
         flagCoding2.addFlag("Flag2B", 6, "Flag2B-Description");
-        product.addFlagCoding(flagCoding2);
+        product.getFlagCodingGroup().add(flagCoding2);
         // Add flag coding to band
         product.getBand("Flags2").setSampleCoding(product.getFlagCoding(codingName2));
 
