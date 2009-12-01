@@ -121,7 +121,7 @@ public class ReprojectionOp extends Operator {
     @Parameter(description = "The northing of the reference pixel.")
     private Double northing;
     @Parameter(description = "The orientation of the output product (in degree).",
-               defaultValue = "0", interval = "[0,360]")
+               defaultValue = "0", interval = "[-360,360]")
     private Double orientation;
 
 
