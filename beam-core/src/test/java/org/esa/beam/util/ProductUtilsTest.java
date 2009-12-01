@@ -262,8 +262,7 @@ public class ProductUtilsTest extends TestCase {
     }
 
     private void shiftGeoPolygon(final GeoPos[] geoPositions, final int lonOffset) {
-        for (int i = 0; i < geoPositions.length; i++) {
-            GeoPos geoPosition = geoPositions[i];
+        for (final GeoPos geoPosition : geoPositions) {
             geoPosition.lon += lonOffset;
         }
     }
@@ -479,22 +478,27 @@ public class ProductUtilsTest extends TestCase {
             return null;
         }
 
+        @Override
         public boolean isCrossingMeridianAt180() {
             return false;
         }
 
+        @Override
         public Datum getDatum() {
             return Datum.WGS_84;
         }
 
+        @Override
         public boolean canGetPixelPos() {
             return true;
         }
 
+        @Override
         public boolean canGetGeoPos() {
             return false;
         }
 
+        @Override
         public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
             if (pixelPos == null) {
                 pixelPos = new PixelPos();
@@ -504,10 +508,12 @@ public class ProductUtilsTest extends TestCase {
             return pixelPos;
         }
 
+        @Override
         public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
             return geoPos;
         }
 
+        @Override
         public void dispose() {
         }
 
@@ -544,26 +550,32 @@ public class ProductUtilsTest extends TestCase {
 
     public static class DGeoCoding implements GeoCoding {
 
+        @Override
         public boolean isCrossingMeridianAt180() {
             return true;
         }
 
+        @Override
         public Datum getDatum() {
             return Datum.WGS_84;
         }
 
+        @Override
         public boolean canGetPixelPos() {
             return false;
         }
 
+        @Override
         public boolean canGetGeoPos() {
             return true;
         }
 
+        @Override
         public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
             return pixelPos;
         }
 
+        @Override
         public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
             if (geoPos == null) {
                 geoPos = new GeoPos();
@@ -573,6 +585,7 @@ public class ProductUtilsTest extends TestCase {
             return geoPos;
         }
 
+        @Override
         public void dispose() {
         }
 
