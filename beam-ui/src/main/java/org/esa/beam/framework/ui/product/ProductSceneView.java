@@ -1142,7 +1142,7 @@ public class ProductSceneView extends BasicView
             // todo - create new FigureCollection, e.g. based on all selected figure layers
             this.figureSelectionContext = new FigureSelectionContext(this);
             this.interactor = NullInteractor.INSTANCE;
-            this.rendering = new DefaultRendering(getViewport());
+            this.rendering = new DefaultRendering(viewport);
 
             RepaintHandler repaintHandler = new RepaintHandler();
             figureSelectionContext.getFigureCollection().addListener(repaintHandler);
@@ -1154,7 +1154,9 @@ public class ProductSceneView extends BasicView
             addOverlay(new LayerCanvas.Overlay() {
                 @Override
                 public void paintOverlay(LayerCanvas canvas, Graphics2D graphics) {
-                    getFigureSelection().draw(new DefaultRendering(getViewport(), graphics));
+                    DefaultRendering rendering = new DefaultRendering(getViewport(), graphics);
+                    getFigureCollection().draw(rendering);
+                    getFigureSelection().draw(rendering);
                     if (getSelectionRectangle() != null) {
                         graphics.setPaint(StyleDefaults.SELECTION_RECT_FILL_PAINT);
                         graphics.fill(getSelectionRectangle());

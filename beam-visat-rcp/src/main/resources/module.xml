@@ -1621,11 +1621,12 @@
 <!--
             <helpId>gcpTool</helpId>
         </action>
+-->
 
         <action>
             <id>drawLineTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <tool>org.esa.beam.framework.ui.tool.impl.CreateLineTool</tool>
+            <interactor>com.bc.ceres.swing.figure.interactions.NewLineShapeInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>pinTool</placeAfter>
             <text>Draw Line</text>
@@ -1639,7 +1640,7 @@
         <action>
             <id>drawRectangleTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <tool>org.esa.beam.framework.ui.tool.impl.CreateRectangleTool</tool>
+            <interactor>com.bc.ceres.swing.figure.interactions.NewRectangleShapeInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>drawLineTool</placeAfter>
             <text>Draw Rectangle</text>
@@ -1653,7 +1654,7 @@
         <action>
             <id>drawEllipseTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <tool>org.esa.beam.framework.ui.tool.impl.CreateEllipseTool</tool>
+            <interactor>com.bc.ceres.swing.figure.interactions.NewEllipseShapeInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>drawRectangleTool</placeAfter>
             <text>Draw Ellipse</text>
@@ -1667,7 +1668,7 @@
         <action>
             <id>drawPolylineTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <tool>org.esa.beam.framework.ui.tool.impl.CreatePolylineTool</tool>
+            <interactor>com.bc.ceres.swing.figure.interactions.NewPolylineShapeInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>drawEllipseTool</placeAfter>
             <text>Draw Polyline</text>
@@ -1681,7 +1682,7 @@
         <action>
             <id>drawPolygonTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <tool>org.esa.beam.framework.ui.tool.impl.CreatePolygonTool</tool>
+            <interactor>com.bc.ceres.swing.figure.interactions.NewPolygonShapeInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>drawPolylineTool</placeAfter>
             <text>Draw Polygon</text>
@@ -1691,7 +1692,6 @@
             <context>image</context>
             <helpId>drawPolygonTool</helpId>
         </action>
--->
 
         <action>
             <id>layout</id>
