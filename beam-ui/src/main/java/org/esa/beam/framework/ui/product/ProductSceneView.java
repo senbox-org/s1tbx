@@ -36,7 +36,6 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.BasicView;
-import org.esa.beam.framework.ui.LayerUI;
 import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.PopupMenuHandler;
@@ -69,7 +68,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -178,11 +176,9 @@ public class ProductSceneView extends BasicView
     private final Vector<PixelPositionListener> pixelPositionListeners;
 
     private Layer selectedLayer;
-    private LayerUI selectedLayerUI;
 
     private ComponentAdapter layerCanvasComponentHandler;
     private LayerCanvasMouseHandler layerCanvasMouseHandler;
-    private KeyListener layerCanvasKeyHandler;
     private RasterChangeHandler rasterChangeHandler;
     private boolean scrollBarsShown;
     private AdjustableViewScrollPane scrollPane;
@@ -751,11 +747,6 @@ public class ProductSceneView extends BasicView
         Layer oldLayer = selectedLayer;
         if (oldLayer != layer) {
             selectedLayer = layer;
-            if (selectedLayer != null) {
-                selectedLayerUI = selectedLayer.getExtension(LayerUI.class);
-            } else {
-                selectedLayerUI = null;
-            }
             firePropertyChange(PROPERTY_NAME_SELECTED_LAYER, oldLayer, selectedLayer);
         }
     }
@@ -994,7 +985,6 @@ public class ProductSceneView extends BasicView
         layerCanvas.addMouseListener(layerCanvasMouseHandler);
         layerCanvas.addMouseMotionListener(layerCanvasMouseHandler);
         layerCanvas.addMouseWheelListener(layerCanvasMouseHandler);
-        layerCanvas.addKeyListener(layerCanvasKeyHandler);
 
         PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
         layerCanvas.addMouseListener(popupMenuHandler);
@@ -1006,7 +996,6 @@ public class ProductSceneView extends BasicView
         layerCanvas.removeComponentListener(layerCanvasComponentHandler);
         layerCanvas.removeMouseListener(layerCanvasMouseHandler);
         layerCanvas.removeMouseMotionListener(layerCanvasMouseHandler);
-        layerCanvas.removeKeyListener(layerCanvasKeyHandler);
     }
 
     public boolean isPixelPosValid() {
