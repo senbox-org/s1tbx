@@ -400,6 +400,8 @@ class CommandLineUsage {
 
         final DomElement graphElem = new Xpp3DomElement("graph");
         graphElem.setAttribute("id", "someGraphId");
+        final DomElement versionElem = graphElem.createChild("version");
+        versionElem.setValue("1.0");
         final DomElement nodeElem = graphElem.createChild("node");
         nodeElem.setAttribute("id", "someNodeId");
         final DomElement operatorElem = nodeElem.createChild("operator");
