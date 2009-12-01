@@ -392,7 +392,7 @@ public class MosaicProcessor extends Processor {
                 }
                 final String[] flagCodingNames = inpProduct.getFlagCodingGroup().getNodeNames();
                 for (String flagCodingName : flagCodingNames) {
-                    final FlagCoding flagCodingIn = inpProduct.getFlagCoding(flagCodingName);
+                    final FlagCoding flagCodingIn = inpProduct.getFlagCodingGroup().get(flagCodingName);
                     final FlagCoding flagCodingOut = new FlagCoding(flagCodingName);
                     outputProduct.getFlagCodingGroup().add(flagCodingOut);
                     final String[] flagNames = flagCodingIn.getFlagNames();

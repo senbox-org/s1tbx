@@ -84,7 +84,7 @@ public class L3ToL1Op extends MerisBasisOp {
             if (sourceBand.getFlagCoding() != null) {
                 FlagCoding srcFlagCoding = sourceBand.getFlagCoding();
                 ProductUtils.copyFlagCoding(srcFlagCoding, targetProduct);
-                targetBand.setFlagCoding(targetProduct.getFlagCoding(srcFlagCoding.getName()));
+                targetBand.setFlagCoding(targetProduct.getFlagCodingGroup().get(srcFlagCoding.getName()));
             }
         }
     }

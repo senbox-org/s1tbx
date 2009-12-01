@@ -386,10 +386,10 @@ public class CollocateOp extends Operator {
                 flagCodingName = pattern.replace(SOURCE_NAME_REFERENCE, flagCodingName);
             }
             final Product product = band.getProduct();
-            if (!product.containsFlagCoding(flagCodingName)) {
+            if (!product.getFlagCodingGroup().contains(flagCodingName)) {
                 addFlagCoding(product, flagCoding, flagCodingName);
             }
-            band.setFlagCoding(product.getFlagCoding(flagCodingName));
+            band.setFlagCoding(product.getFlagCodingGroup().get(flagCodingName));
         }
     }
 

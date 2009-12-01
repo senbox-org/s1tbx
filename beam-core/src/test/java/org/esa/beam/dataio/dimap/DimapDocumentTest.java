@@ -421,7 +421,7 @@ public class DimapDocumentTest extends TestCase {
         flagCoding1.addFlag("Flag1C", 2, "Flag1C-Description");
         product.getFlagCodingGroup().add(flagCoding1);
         // Add flag coding to band
-        product.getBand("Flags1").setSampleCoding(product.getFlagCoding(codingName1));
+        product.getBand("Flags1").setSampleCoding(product.getFlagCodingGroup().get(codingName1));
 
         String codingName2 = "FlagCoding2";
         FlagCoding flagCoding2 = new FlagCoding(codingName2);
@@ -429,7 +429,7 @@ public class DimapDocumentTest extends TestCase {
         flagCoding2.addFlag("Flag2B", 6, "Flag2B-Description");
         product.getFlagCodingGroup().add(flagCoding2);
         // Add flag coding to band
-        product.getBand("Flags2").setSampleCoding(product.getFlagCoding(codingName2));
+        product.getBand("Flags2").setSampleCoding(product.getFlagCodingGroup().get(codingName2));
 
         String codingName3 = "IndexCoding";
         IndexCoding indexCoding = new IndexCoding(codingName3);
@@ -1394,7 +1394,7 @@ public class DimapDocumentTest extends TestCase {
                 Element flagCodingElem = new Element(DimapProductConstants.TAG_FLAG_CODING);
                 flagCodingElem.setAttribute(DimapProductConstants.ATTRIB_NAME, codingNames[i]);
                 _root.addContent(flagCodingElem);
-                FlagCoding flagCoding = getProduct().getFlagCoding(codingNames[i]);
+                FlagCoding flagCoding = getProduct().getFlagCodingGroup().get(codingNames[i]);
                 String[] flagNames = flagCoding.getFlagNames();
                 for (int j = 0; j < flagNames.length; j++) {
                     MetadataAttribute flag = flagCoding.getFlag(flagNames[j]);
