@@ -808,6 +808,7 @@ public class ImageManager {
      *
      * @deprecated since BEAM 4.7, no replacement.
      */
+    @Deprecated
     public RenderedImage createColoredRoiImage(RasterDataNode rasterDataNode, Color color, int level) {
         final RenderedImage roiImage = createRoiMaskImage(rasterDataNode, level);
         if (roiImage == null) {
@@ -826,6 +827,7 @@ public class ImageManager {
      *
      * @deprecated since BEAM 4.7, no replacement.
      */
+    @Deprecated
     public RenderedImage createRoiMaskImage(final RasterDataNode rasterDataNode, int level) {
         final ROIDefinition roiDefinition = rasterDataNode.getROIDefinition();
         if (roiDefinition == null) {
