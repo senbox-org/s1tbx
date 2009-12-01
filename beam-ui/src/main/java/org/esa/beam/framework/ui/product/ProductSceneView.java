@@ -134,28 +134,7 @@ public class ProductSceneView extends BasicView
      */
     public static final String PROPERTY_NAME_SELECTED_LAYER = "selectedLayer";
 
-    /**
-     * Property name for the image histogram matching type
-     *
-     * @deprecated
-     */
-    @Deprecated
-    public static final String PROPERTY_KEY_HISTOGRAM_MATCHING = "graphics.histogramMatching";
-
-    @Deprecated
-    public static String IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR = "Nearest Neighbour";
-    @Deprecated
-    public static String IMAGE_INTERPOLATION_BILINEAR = "Bi-Linear Interpolation";
-    @Deprecated
-    public static String IMAGE_INTERPOLATION_BICUBIC = "Bi-Cubic Interpolation";
-    @Deprecated
-    public static String IMAGE_INTERPOLATION_SYSTEM_DEFAULT = "System Default";
-    @Deprecated
-    public static String DEFAULT_IMAGE_INTERPOLATION_METHOD = IMAGE_INTERPOLATION_SYSTEM_DEFAULT;
-
-    //    public static final Color DEFAULT_IMAGE_BORDER_COLOR = new Color(204, 204, 255);
     public static final Color DEFAULT_IMAGE_BACKGROUND_COLOR = new Color(51, 51, 51);
-    //    public static final double DEFAULT_IMAGE_BORDER_SIZE = 2.0;
     public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
 
 
