@@ -12,7 +12,9 @@ public abstract class FigureEditorInteractor extends ViewportInteractor {
 
     protected FigureEditor getFigureEditor(InputEvent inputEvent) {
         final Component component = inputEvent.getComponent();
-        if (component instanceof FigureEditor) {
+        if (component instanceof FigureEditorHolder) {
+            return ((FigureEditorHolder) component).getFigureEditor();
+        } else if (component instanceof FigureEditor) {
             return (FigureEditor) component;
         } else {
             return null;

@@ -3,7 +3,6 @@ package com.bc.ceres.swing.figure.interactions;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
-import com.bc.ceres.swing.figure.support.FigureInsertEdit;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.Shape;
@@ -62,9 +61,16 @@ public class NewMultiPointShapeInteractor extends FigureEditorInteractor {
     @Override
     public void mouseClicked(MouseEvent event) {
         if (event.getClickCount() > 1) {
-            points.clear();
-            getFigureEditor(event).getFigureSelection().removeFigures();
-            stopInteraction(event);
+            if (points.isEmpty()) {
+                getFigureEditor(event).getFigureCollection().removeFigure(figure);
+                figure = null;
+            } else {
+                points.clear();
+                FigureEditor figureEditor = getFigureEditor(event);
+                figureEditor.getFigureSelection().removeFigures();
+                figureEditor.insertFigures(false, figure);
+                stopInteraction(event);
+            }
         }
     }
 
@@ -81,8 +87,7 @@ public class NewMultiPointShapeInteractor extends FigureEditorInteractor {
 
         if (points.size() == 2) {
             figure = new DefaultShapeFigure(createPath(), isPolygonal(), StyleDefaults.INSERT_STYLE);
-            // todo - move to FigureEditor.insert(false, figure)
-            figureEditor.getUndoContext().postEdit(new FigureInsertEdit(figureEditor, false, figure));
+            getFigureEditor(event).getFigureCollection().addFigure(figure);
         }
     }
 

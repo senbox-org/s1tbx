@@ -1,6 +1,6 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
+import com.bc.ceres.swing.figure.support.FigureEditorPanel;
 import junit.framework.TestCase;
 
 import javax.swing.JMenu;
@@ -11,13 +11,13 @@ import java.awt.event.MouseEvent;
 public class AbstractInteractorTest extends TestCase {
 
     public void testListeners() {
-        DefaultFigureEditor editor = new DefaultFigureEditor();
+        FigureEditorPanel figureEditorPanel = new FigureEditorPanel();
         AbstractInteractor interactor = new AbstractInteractor() {
         };
         MyInteractorListener listener = new MyInteractorListener();
         interactor.addListener(listener);
 
-        MouseEvent event = new MouseEvent(editor, 0, 0, 0, 0, 0, 1, false, 0);
+        MouseEvent event = new MouseEvent(figureEditorPanel, 0, 0, 0, 0, 0, 1, false, 0);
 
         interactor.activate();
         assertEquals("a;", listener.trace);

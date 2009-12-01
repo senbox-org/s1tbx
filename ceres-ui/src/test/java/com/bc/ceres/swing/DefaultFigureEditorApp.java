@@ -8,10 +8,11 @@ import com.bc.ceres.swing.actions.PasteAction;
 import com.bc.ceres.swing.actions.RedoAction;
 import com.bc.ceres.swing.actions.SelectAllAction;
 import com.bc.ceres.swing.actions.UndoAction;
+import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.Interactor;
-import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.interactions.NewEllipseShapeInteractor;
+import com.bc.ceres.swing.figure.interactions.NewLineShapeInteractor;
 import com.bc.ceres.swing.figure.interactions.NewPolygonShapeInteractor;
 import com.bc.ceres.swing.figure.interactions.NewPolylineShapeInteractor;
 import com.bc.ceres.swing.figure.interactions.NewRectangleShapeInteractor;
@@ -19,13 +20,13 @@ import com.bc.ceres.swing.figure.interactions.NewTextInteractor;
 import com.bc.ceres.swing.figure.interactions.PanInteractor;
 import com.bc.ceres.swing.figure.interactions.SelectionInteractor;
 import com.bc.ceres.swing.figure.interactions.ZoomInteractor;
-import com.bc.ceres.swing.figure.interactions.NewLineShapeInteractor;
-import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
+import com.bc.ceres.swing.figure.support.FigureEditorPanel;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.bc.ceres.swing.selection.support.DefaultSelectionManager;
+import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -65,30 +66,31 @@ public class DefaultFigureEditorApp {
     private static final Interactor NEW_POLYGON_INTERACTOR = new NewPolygonShapeInteractor();
     private static final Interactor NEW_TEXT_INTERACTOR = new NewTextInteractor();
 
-    private JFrame frame;
+    private final JFrame frame;
 
-    private UndoAction undoAction;
-    private RedoAction redoAction;
-    private DeleteAction deleteAction;
-    private SelectAllAction selectAllAction;
-    private CutAction cutAction;
-    private CopyAction copyAction;
-    private PasteAction pasteAction;
+    private final UndoAction undoAction;
+    private final RedoAction redoAction;
+    private final DeleteAction deleteAction;
+    private final SelectAllAction selectAllAction;
+    private final CutAction cutAction;
+    private final CopyAction copyAction;
+    private final PasteAction pasteAction;
 
     public DefaultFigureEditorApp() {
         DefaultSelectionManager selectionManager = new DefaultSelectionManager();
+        DefaultUndoContext undoContext = new DefaultUndoContext(this);
 
-        DefaultFigureEditor figureEditor = new DefaultFigureEditor();
-        selectionManager.setSelectionContext(figureEditor.getSelectionContext());
+        FigureEditorPanel figureEditorPanel = new FigureEditorPanel(undoContext);
+        selectionManager.setSelectionContext(figureEditorPanel.getFigureEditor().getSelectionContext());
 
-        undoAction = new UndoAction(figureEditor.getUndoContext()) {
+        undoAction = new UndoAction(undoContext) {
             @Override
             public void execute() {
                 super.execute();
                 redoAction.updateState();
             }
         };
-        redoAction = new RedoAction(figureEditor.getUndoContext()) {
+        redoAction = new RedoAction(undoContext) {
             @Override
             public void execute() {
                 super.execute();
@@ -101,15 +103,15 @@ public class DefaultFigureEditorApp {
         selectAllAction = new SelectAllAction(selectionManager);
         deleteAction = new DeleteAction(selectionManager);
 
-        AbstractButton selectButton = createInteractorButton(figureEditor, "S", SELECTION_INTERACTOR);
-        AbstractButton zoomButton = createInteractorButton(figureEditor, "Z", ZOOM_INTERACTOR);
-        AbstractButton panButton = createInteractorButton(figureEditor, "P", PAN_INTERACTOR);
-        AbstractButton newLineButton = createInteractorButton(figureEditor, "L", NEW_LINE_INTERACTOR);
-        AbstractButton newRectButton = createInteractorButton(figureEditor, "R", NEW_RECT_INTERACTOR);
-        AbstractButton newElliButton = createInteractorButton(figureEditor, "E", NEW_ELLI_INTERACTOR);
-        AbstractButton newPLButton = createInteractorButton(figureEditor, "PL", NEW_POLYLINE_INTERACTOR);
-        AbstractButton newPGButton = createInteractorButton(figureEditor, "PG", NEW_POLYGON_INTERACTOR);
-        AbstractButton newTButton = createInteractorButton(figureEditor, "T", NEW_TEXT_INTERACTOR);
+        AbstractButton selectButton = createInteractorButton(figureEditorPanel, "S", SELECTION_INTERACTOR);
+        AbstractButton zoomButton = createInteractorButton(figureEditorPanel, "Z", ZOOM_INTERACTOR);
+        AbstractButton panButton = createInteractorButton(figureEditorPanel, "P", PAN_INTERACTOR);
+        AbstractButton newLineButton = createInteractorButton(figureEditorPanel, "L", NEW_LINE_INTERACTOR);
+        AbstractButton newRectButton = createInteractorButton(figureEditorPanel, "R", NEW_RECT_INTERACTOR);
+        AbstractButton newElliButton = createInteractorButton(figureEditorPanel, "E", NEW_ELLI_INTERACTOR);
+        AbstractButton newPLButton = createInteractorButton(figureEditorPanel, "PL", NEW_POLYLINE_INTERACTOR);
+        AbstractButton newPGButton = createInteractorButton(figureEditorPanel, "PG", NEW_POLYGON_INTERACTOR);
+        AbstractButton newTButton = createInteractorButton(figureEditorPanel, "T", NEW_TEXT_INTERACTOR);
 
         JToolBar toolBar = new JToolBar();
         toolBar.add(selectButton);
@@ -133,22 +135,22 @@ public class DefaultFigureEditorApp {
         group.add(newPGButton);
         group.add(newTButton);
 
-        figureEditor.setInteractor(SELECTION_INTERACTOR);
+        figureEditorPanel.getFigureEditor().setInteractor(SELECTION_INTERACTOR);
 
-        FigureCollection drawing = figureEditor.getFigureCollection();
+        FigureCollection drawing = figureEditorPanel.getFigureEditor().getFigureCollection();
         drawing.addFigure(new DefaultShapeFigure(new Rectangle(20, 30, 200, 100), true, DefaultFigureStyle.createShapeStyle(Color.BLUE, Color.GREEN)));
         drawing.addFigure(new DefaultShapeFigure(new Rectangle(90, 10, 100, 200), true, DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.ORANGE)));
         drawing.addFigure(new DefaultShapeFigure(new Rectangle(110, 60, 70, 140), false, DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.BLACK)));
         drawing.addFigure(new DefaultShapeFigure(new Ellipse2D.Double(50, 100, 80, 80), true, DefaultFigureStyle.createShapeStyle(Color.YELLOW, Color.RED)));
         drawing.addFigure(new DefaultShapeFigure(new Ellipse2D.Double(220, 120, 150, 300), true, DefaultFigureStyle.createShapeStyle(Color.GREEN, Color.BLUE)));
-        figureEditor.setPreferredSize(new Dimension(1024, 1024));
+        figureEditorPanel.setPreferredSize(new Dimension(1024, 1024));
 
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
 
-        JComponent contentPane = new AdjustableViewScrollPane(figureEditor);
-        //JComponent contentPane = figureEditor;
+        JComponent contentPane = new AdjustableViewScrollPane(figureEditorPanel);
+        //JComponent contentPane = figureEditorPanel;
 
         frame = new JFrame("DrawingApp");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -172,7 +174,7 @@ public class DefaultFigureEditorApp {
             }
         });
 
-        figureEditor.getSelectionContext().addSelectionChangeListener(new SelectionChangeListener() {
+        figureEditorPanel.getFigureEditor().getSelectionContext().addSelectionChangeListener(new SelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
                 System.out.println("selection changed: " + event.getSelection());
@@ -184,7 +186,7 @@ public class DefaultFigureEditorApp {
             }
         });
 
-        figureEditor.getUndoContext().addUndoableEditListener(new UndoableEditListener() {
+        undoContext.addUndoableEditListener(new UndoableEditListener() {
             @Override
             public void undoableEditHappened(UndoableEditEvent event) {
                 System.out.println("edit happened: " + event.getEdit());
@@ -240,13 +242,13 @@ public class DefaultFigureEditorApp {
         return menu;
     }
 
-    private static AbstractButton createInteractorButton(final DefaultFigureEditor editor, String name, final Interactor interactor) {
+    private static AbstractButton createInteractorButton(final FigureEditorPanel figureEditorPanel, String name, final Interactor interactor) {
         final AbstractButton selectButton = new JToggleButton(name);
         selectButton.setSelected(false);
         selectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                editor.setInteractor(interactor);
+                figureEditorPanel.getFigureEditor().setInteractor(interactor);
             }
         });
         interactor.addListener(new AbstractInteractorListener() {

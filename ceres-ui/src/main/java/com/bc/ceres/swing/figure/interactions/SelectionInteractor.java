@@ -191,9 +191,8 @@ public class SelectionInteractor extends FigureEditorInteractor {
 
         @Override
         public void end(MouseEvent event) {
-            // todo - move to FigureEditor.change(figure, memento)
             FigureEditor figureEditor = getFigureEditor(event);
-            figureEditor.getUndoContext().postEdit(new RestorableEdit("Move Figure", figureEditor.getFigureSelection(), figureMemento));
+            figureEditor.changeFigure(figureEditor.getFigureSelection(), figureMemento, "Move Figure");
         }
     }
 
@@ -214,8 +213,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
             // Handles may have been moved, selection no longer required
             FigureEditor figureEditor = getFigureEditor(event);
             figureEditor.getFigureSelection().setSelectedHandle(null);
-            // todo - move to FigureEditor.change(figure, memento)
-            figureEditor.getUndoContext().postEdit(new RestorableEdit("Change Figure Shape", figureEditor.getFigureSelection(), figureMemento));
+            figureEditor.changeFigure(figureEditor.getFigureSelection(), figureMemento, "Change figure shape");
         }
     }
 

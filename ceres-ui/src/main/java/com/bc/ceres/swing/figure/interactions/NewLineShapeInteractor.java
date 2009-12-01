@@ -3,7 +3,6 @@ package com.bc.ceres.swing.figure.interactions;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
-import com.bc.ceres.swing.figure.support.FigureInsertEdit;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.Point;
@@ -43,8 +42,7 @@ public class NewLineShapeInteractor extends FigureEditorInteractor {
     @Override
     public void mouseReleased(MouseEvent event) {
         FigureEditor figureEditor = getFigureEditor(event);
-        // todo - move to FigureEditor.insert(false, figure)
-        figureEditor.getUndoContext().postEdit(new FigureInsertEdit(figureEditor, false, figure));
+        figureEditor.insertFigures(false, figure);
         stopInteraction(event);
     }
 

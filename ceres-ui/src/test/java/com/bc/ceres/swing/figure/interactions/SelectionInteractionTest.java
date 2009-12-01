@@ -1,11 +1,13 @@
 package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.swing.figure.Interactor;
-import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
+import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
+import com.bc.ceres.swing.figure.support.DefaultFigureEditor2;
 import junit.framework.TestCase;
 
+import javax.swing.JPanel;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
@@ -14,7 +16,7 @@ public class SelectionInteractionTest extends TestCase {
     public void testModeChange() {
         DefaultShapeFigure f1 = new DefaultShapeFigure(new Rectangle(10, 10, 10, 10), true, new DefaultFigureStyle());
         DefaultShapeFigure f2 = new DefaultShapeFigure(new Rectangle(30, 10, 10, 10), true, new DefaultFigureStyle());
-        DefaultFigureEditor fe = new DefaultFigureEditor();
+        FigureEditor fe = new DefaultFigureEditor2(new JPanel());
         fe.getFigureCollection().addFigure(f1);
         fe.getFigureCollection().addFigure(f2);
 
@@ -90,28 +92,28 @@ public class SelectionInteractionTest extends TestCase {
         sa.deactivate();
     }
 
-    private void click(Interactor sa, DefaultFigureEditor fe, int x, int y, int modifiers) {
+    private void click(Interactor sa, FigureEditor fe, int x, int y, int modifiers) {
         MouseEvent event;
         event = createEvent(fe, modifiers, x, y);
         sa.mousePressed(event);
         sa.mouseReleased(event);
     }
 
-    private void startDrag(Interactor sa, DefaultFigureEditor fe, int x, int y, int modifiers) {
+    private void startDrag(Interactor sa, FigureEditor fe, int x, int y, int modifiers) {
         MouseEvent event;
         event = createEvent(fe, modifiers, x, y);
         sa.mousePressed(event);
         sa.mouseDragged(event);
     }
 
-    private void endDrag(Interactor sa, DefaultFigureEditor fe, int x, int y, int modifiers) {
+    private void endDrag(Interactor sa, FigureEditor fe, int x, int y, int modifiers) {
         MouseEvent event;
         event = createEvent(fe, modifiers, x, y);
         sa.mouseDragged(event);
         sa.mouseReleased(event);
     }
 
-    private MouseEvent createEvent(DefaultFigureEditor fe, int modifiers, int x, int y) {
-        return new MouseEvent(fe, 0, 0, modifiers, x, y, 1, false);
+    private MouseEvent createEvent(FigureEditor fe, int modifiers, int x, int y) {
+        return new MouseEvent(fe.getEditorComponent(), 0, 0, modifiers, x, y, 1, false);
     }
 }

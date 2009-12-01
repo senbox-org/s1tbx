@@ -14,18 +14,18 @@ import javax.swing.undo.CannotUndoException;
  * @since Ceres 0.10
  */
 public class RestorableEdit extends AbstractUndoableEdit {
-    private String presentationName;
     private Restorable changedObject;
     private Object memento;
+    private String presentationName;
 
     public RestorableEdit(Restorable changedObject, Object memento) {
-        this("", changedObject, memento);
+        this(changedObject, memento, "");
     }
 
-    public RestorableEdit(String presentationName, Restorable changedObject, Object memento) {
-        this.presentationName = presentationName;
+    public RestorableEdit(Restorable changedObject, Object memento, String presentationName) {
         this.changedObject = changedObject;
         this.memento = memento;
+        this.presentationName = presentationName;
     }
 
     public Restorable getChangedObject() {
