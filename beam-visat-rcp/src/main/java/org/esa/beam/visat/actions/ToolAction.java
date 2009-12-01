@@ -20,6 +20,7 @@ import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.InteractorListener;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
@@ -27,7 +28,6 @@ import com.bc.ceres.swing.figure.interactions.ZoomInteractor;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ToolCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.tool.impl.AbstractCreateFigureTool;
 import org.esa.beam.visat.VisatApp;
 
 import java.text.MessageFormat;
@@ -62,10 +62,10 @@ public class ToolAction extends ToolCommand {
     }
 
 
-    private class ToolActivationHandler extends AbstractInteractorListener {
+    private static class ToolActivationHandler extends AbstractInteractorListener {
 
-        private boolean zoomTipGiven;
-        private boolean figureTipGiven;
+        private boolean zoomTipShown;
+        private boolean figureTipShown;
 
         @Override
         public void interactorActivated(Interactor interactor) {
@@ -74,14 +74,14 @@ public class ToolAction extends ToolCommand {
             if (drawingEditor != null) {
                 drawingEditor.setInteractor(activeInteractor);
             }
-            maybeShowToolUsageTip();
+            maybeShowInteractorUsageTip();
         }
 
-        private void maybeShowToolUsageTip() {
+        private void maybeShowInteractorUsageTip() {
             VisatApp visatApp = VisatApp.getApp();
             final ProductSceneView productSceneView = visatApp.getSelectedProductSceneView();
-            if (!figureTipGiven
-                && activeInteractor instanceof AbstractCreateFigureTool
+            if (!figureTipShown
+                && activeInteractor instanceof FigureEditorInteractor
                 && productSceneView != null
                 && productSceneView.getCurrentShapeFigure() != null) {
                 visatApp.showInfoDialog("Tip:\n"
@@ -89,16 +89,16 @@ public class ToolAction extends ToolCommand {
                                         + "Hold down the CONTROL key to subtract the new shape from the existing shape.\n"
                                         + "If no key is pressed, the new shape replaces the old one."
                         , "CreateFigureTool.tip");
-                figureTipGiven = true;
+                figureTipShown = true;
             }
-            if (!zoomTipGiven
+            if (!zoomTipShown
                 && activeInteractor instanceof ZoomInteractor
                 && productSceneView != null) {
                 visatApp.showInfoDialog("Tip:\n"
                                         + "You can select a region or just click to zoom in.\n"
                                         + "Hold down the CONTROL key in order to zoom out."
                         , "ZoomTool.tip");
-                zoomTipGiven = true;
+                zoomTipShown = true;
             }
         }
     }
