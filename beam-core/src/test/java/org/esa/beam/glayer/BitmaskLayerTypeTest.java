@@ -1,17 +1,18 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.ValidationException;
+import static junit.framework.Assert.assertSame;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
-import static junit.framework.Assert.assertSame;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -38,7 +39,7 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
     }
 
     @Test
-    public void testCreateLayer() throws ValidationException {
+    public void testCreateLayer() {
         final Product product = new Product("N", "T", 10, 10);
         final Band raster = new VirtualBand("A", ProductData.TYPE_INT32, 10, 10, "42");
         product.addBand(raster);
