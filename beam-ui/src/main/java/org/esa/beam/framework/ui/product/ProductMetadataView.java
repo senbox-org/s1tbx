@@ -21,7 +21,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.PopupMenuHandler;
-import org.esa.beam.framework.ui.tool.Tool;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
@@ -84,19 +83,6 @@ public class ProductMetadataView extends BasicView implements ProductNodeView {
     @Override
     public JPopupMenu createPopupMenu(MouseEvent event) {
         return null;
-    }
-
-    /**
-     * Returns the active tool for this view.
-     */
-    public Tool getTool() {
-        return null;
-    }
-
-    /**
-     * Returns the active tool for this view.
-     */
-    public void setTool(Tool tool) {
     }
 
     /**
