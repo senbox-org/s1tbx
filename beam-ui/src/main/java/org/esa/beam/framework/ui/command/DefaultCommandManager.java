@@ -16,12 +16,12 @@
  */
 package org.esa.beam.framework.ui.command;
 
-import org.esa.beam.framework.ui.tool.Tool;
+import com.bc.ceres.swing.figure.Interactor;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,12 +43,12 @@ public class DefaultCommandManager implements CommandManager {
     /**
      * Stores all commands registered in this applications. Provided for fast key based access.
      */
-    private final Map _commandMap = new Hashtable();
+    private final Map<String, Command> commandMap = new HashMap<String, Command>();
 
     /**
      * Stores all commands registered in this applications. Provided for command order and index based access.
      */
-    private final List _commandList = new ArrayList();
+    private final List<Command> commandList = new ArrayList<Command>();
 
     /**
      * Creates a new executable command for the given unique command ID and the given command listener.
@@ -86,7 +86,7 @@ public class DefaultCommandManager implements CommandManager {
      * @see #addCommand(Command)
      */
     @Override
-    public ToolCommand createToolCommand(String commandID, CommandStateListener listener, Tool tool) {
+    public ToolCommand createToolCommand(String commandID, CommandStateListener listener, Interactor tool) {
         Guardian.assertNotNullOrEmpty("commandID", commandID);
         Guardian.assertNotNull("tool", tool);
         ToolCommand command = new ToolCommand(commandID, listener, tool);
@@ -123,7 +123,7 @@ public class DefaultCommandManager implements CommandManager {
      */
     @Override
     public int getNumCommands() {
-        return _commandList.size();
+        return commandList.size();
     }
 
 
@@ -138,7 +138,7 @@ public class DefaultCommandManager implements CommandManager {
      */
     @Override
     public Command getCommandAt(int index) {
-        return (Command) _commandList.get(index);
+        return commandList.get(index);
     }
 
 
@@ -148,7 +148,7 @@ public class DefaultCommandManager implements CommandManager {
      */
     @Override
     public Command getCommand(String commandID) {
-        return (Command) _commandMap.get(commandID);
+        return commandMap.get(commandID);
     }
 
     /**
@@ -212,31 +212,6 @@ public class DefaultCommandManager implements CommandManager {
         }
     }
 
-
-    /**
-     * Deactivates the tools of the tool commands which not equals given activated tool and which are currenbly active.
-     * In general, this should be the case for just one or none tool.
-     *
-     * @param activatedTool the tool that has been activated, must not be <code>null</code> and be active
-     */
-    @Override
-    public void toggleToolActivatedState(Tool activatedTool) {
-        Guardian.assertNotNull("activatedTool", activatedTool);
-        if (!activatedTool.isActive()) {
-            throw new IllegalArgumentException("tool is not active");
-        }
-        for (int i = 0; i < getNumCommands(); i++) {
-            Command command = getCommandAt(i);
-            if (command instanceof ToolCommand) {
-                ToolCommand toolCommand = (ToolCommand) command;
-                Tool tool = toolCommand.getTool();
-                if (tool != activatedTool && tool.isActive()) {
-                    tool.deactivate();
-                }
-            }
-        }
-    }
-
     /**
      * Adds a new command to this command manager.
      *
@@ -247,12 +222,12 @@ public class DefaultCommandManager implements CommandManager {
      */
     @Override
     public void addCommand(Command command) {
-        if (_commandMap.containsKey(command.getCommandID())) {
+        if (commandMap.containsKey(command.getCommandID())) {
             throw new IllegalArgumentException(
                     "a command named '" + command.getCommandID() + "' is already registered");
         }
-        _commandMap.put(command.getCommandID(), command);
-        _commandList.add(command);
+        commandMap.put(command.getCommandID(), command);
+        commandList.add(command);
         Debug.trace("DefaultCommandManager: added command '" + command + "'");
     }
 
@@ -264,8 +239,8 @@ public class DefaultCommandManager implements CommandManager {
     @Override
     public void removeCommand(Command command) {
         String commandKey = command.getCommandID();
-        _commandMap.remove(commandKey);
-        _commandList.remove(command);
+        commandMap.remove(commandKey);
+        commandList.remove(command);
     }
 
 }

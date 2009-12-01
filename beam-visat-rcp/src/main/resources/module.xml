@@ -1533,7 +1533,7 @@
         <action>
             <id>selectTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <tool>org.esa.beam.framework.ui.tool.impl.SelectTool</tool>
+            <interactor>com.bc.ceres.swing.figure.interactions.SelectionInteractor</interactor>
             <parent>tools</parent>
             <text>Select</text>
             <shortDescr>Selection Tool</shortDescr>
@@ -1542,6 +1542,35 @@
             <helpId>selectTool</helpId>
         </action>
 
+        <action>
+            <id>zoomTool</id>
+            <class>org.esa.beam.visat.actions.ToolAction</class>
+            <interactor>com.bc.ceres.swing.figure.interactions.ZoomInteractor</interactor>
+            <parent>tools</parent>
+            <placeAfter>selectTool</placeAfter>
+            <text>Zoom</text>
+            <shortDescr>Zooming Tool</shortDescr>
+            <largeIcon>icons/ZoomTool24.gif</largeIcon>
+            <selected>false</selected>
+            <context>image</context>
+            <helpId>zoomTool</helpId>
+        </action>
+
+        <action>
+            <id>pannerTool</id>
+            <class>org.esa.beam.visat.actions.ToolAction</class>
+            <interactor>com.bc.ceres.swing.figure.interactions.PanInteractor</interactor>
+            <parent>tools</parent>
+            <placeAfter>zoomTool</placeAfter>
+            <text>Pan</text>
+            <shortDescr>Pan Tool</shortDescr>
+            <largeIcon>icons/PannerTool24.gif</largeIcon>
+            <selected>false</selected>
+            <context>image</context>
+            <helpId>panTool</helpId>
+        </action>
+
+<!--
         <action>
             <id>rangeFinder</id>
             <class>org.esa.beam.visat.actions.rangefinder.RangeFinderToolAction</class>
@@ -1557,33 +1586,6 @@
             <helpId>rangeFinder</helpId>
         </action>
 
-        <action>
-            <id>zoomTool</id>
-            <class>org.esa.beam.visat.actions.ToolAction</class>
-            <tool>org.esa.beam.framework.ui.tool.impl.ZoomTool</tool>
-            <parent>tools</parent>
-            <placeAfter>selectTool</placeAfter>
-            <text>Zoom</text>
-            <shortDescr>Zooming Tool</shortDescr>
-            <largeIcon>icons/ZoomTool24.gif</largeIcon>
-            <selected>false</selected>
-            <context>image</context>
-            <helpId>zoomTool</helpId>
-        </action>
-
-        <action>
-            <id>pannerTool</id>
-            <class>org.esa.beam.visat.actions.ToolAction</class>
-            <tool>org.esa.beam.framework.ui.tool.impl.PannerTool</tool>
-            <parent>tools</parent>
-            <placeAfter>zoomTool</placeAfter>
-            <text>Pan</text>
-            <shortDescr>Panner Tool</shortDescr>
-            <largeIcon>icons/PannerTool24.gif</largeIcon>
-            <selected>false</selected>
-            <context>image</context>
-            <helpId>panTool</helpId>
-        </action>
 
         <action>
             <id>pinTool</id>
@@ -1596,7 +1598,9 @@
             <description>Sets, edits or deletes pins</description>
             <largeIcon>icons/PinTool24.gif</largeIcon>
             <selected>false</selected>
-            <!--<context>image</context>-->
+            -->
+<!--<context>image</context>-->
+<!--
             <helpId>pinTool</helpId>
         </action>
 
@@ -1612,7 +1616,9 @@
             <description>Sets, edits or deletes GCPs</description>
             <largeIcon>icons/GcpTool24.gif</largeIcon>
             <selected>false</selected>
-            <!--<context>image</context>-->
+            -->
+<!--<context>image</context>-->
+<!--
             <helpId>gcpTool</helpId>
         </action>
 
@@ -1685,6 +1691,7 @@
             <context>image</context>
             <helpId>drawPolygonTool</helpId>
         </action>
+-->
 
         <action>
             <id>layout</id>

@@ -18,6 +18,9 @@ package org.esa.beam.visat;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import com.bc.ceres.swing.selection.support.DefaultSelectionManager;
 import com.bc.swing.desktop.TabbedDesktopPane;
@@ -829,20 +832,6 @@ public class VisatApp extends BasicApp implements AppContext {
         updateMainFrameTitle();
         getProductTree().select(selectedNode);
         updateState();
-    }
-
-    /**
-     * Returns the selected drawing editor.
-     *
-     * @return the selected drawing editor, or <code>null</code> if no drawing editor is selected
-     */
-    public DrawingEditor getSelectedDrawingEditor() {
-        final Component contentPane = getContentPaneOfSelectedInternalFrame();
-        if (contentPane instanceof DrawingEditor) {
-            return (DrawingEditor) contentPane;
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -1952,17 +1941,17 @@ public class VisatApp extends BasicApp implements AppContext {
         addCommandsToToolBar(toolBar, new String[]{
                 // These IDs are defined in the module.xml
                 "selectTool",
-                "rangeFinder",
+//                "rangeFinder",
                 "zoomTool",
                 "pannerTool",
-                "pinTool",
-                "gcpTool",
-                "drawLineTool",
-                "drawRectangleTool",
-                "drawEllipseTool",
-                "drawPolylineTool",
-                "drawPolygonTool",
-                "deleteShape",
+//                "pinTool",
+//                "gcpTool",
+//                "drawLineTool",
+//                "drawRectangleTool",
+//                "drawEllipseTool",
+//                "drawPolylineTool",
+//                "drawPolygonTool",
+//                "deleteShape",
 //                "magicStickTool",
                 null,
         });
@@ -2271,10 +2260,7 @@ public class VisatApp extends BasicApp implements AppContext {
             Debug.trace("VisatApp: internal frame activated: " + e);
             setSelectedProductNode(e.getInternalFrame());
             final Component contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof DrawingEditor) {
-                final DrawingEditor drawingEditor = (DrawingEditor) contentPane;
-                drawingEditor.setTool(ToolAction.getActiveTool());
-            }
+            setInteractor(contentPane, ToolAction.getActiveInteractor());
             updateMainFrameTitle();
             updateState();
             clearStatusBarMessage();
@@ -2289,10 +2275,7 @@ public class VisatApp extends BasicApp implements AppContext {
         public void internalFrameDeactivated(final InternalFrameEvent e) {
             Debug.trace("VisatApp: internal frame deactivated: " + e);
             final Component contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof DrawingEditor) {
-                final DrawingEditor drawingEditor = (DrawingEditor) contentPane;
-                drawingEditor.setTool(null);
-            }
+            setInteractor(contentPane, NullInteractor.INSTANCE);
             updateState();
         }
 
@@ -2306,10 +2289,7 @@ public class VisatApp extends BasicApp implements AppContext {
             Debug.trace("VisatApp: internal frame opened: " + e);
             setSelectedProductNode(e.getInternalFrame());
             final Container contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof DrawingEditor) {
-                final DrawingEditor drawingEditor = (DrawingEditor) contentPane;
-                drawingEditor.setTool(ToolAction.getActiveTool());
-            }
+            setInteractor(contentPane, ToolAction.getActiveInteractor());
         }
 
         /**
@@ -2395,6 +2375,14 @@ public class VisatApp extends BasicApp implements AppContext {
         public void internalFrameDeiconified(final InternalFrameEvent e) {
             updateState();
         }
+
+        private void setInteractor(Component contentPane, Interactor activeInteractor) {
+            if (contentPane instanceof FigureEditor) {
+                final FigureEditor drawingEditor = (FigureEditor) contentPane;
+                drawingEditor.setInteractor(activeInteractor);
+            }
+        }
+
     }
 
     /**

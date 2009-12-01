@@ -42,9 +42,7 @@ import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.PopupMenuHandler;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
-import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.MaskCollectionLayer;
@@ -71,7 +69,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -165,7 +162,7 @@ public class ProductSceneView extends BasicView
 
 
     private ProductSceneImage sceneImage;
-    private LayerCanvas layerCanvas;
+    private FigureEditorLayerCanvas layerCanvas;
 
     // todo - (re)move following variables, they don't belong to here (nf - 28.10.2008)
     // {{
@@ -179,9 +176,7 @@ public class ProductSceneView extends BasicView
     private boolean pixelBorderDrawn; // has it been drawn?
     private double pixelBorderViewScale;
     private final Vector<PixelPositionListener> pixelPositionListeners;
-    // }}
 
-    private Tool tool;
     private Layer selectedLayer;
     private LayerUI selectedLayerUI;
 
@@ -191,13 +186,6 @@ public class ProductSceneView extends BasicView
     private RasterChangeHandler rasterChangeHandler;
     private boolean scrollBarsShown;
     private AdjustableViewScrollPane scrollPane;
-
-
-    private final UndoContext undoContext;
-    private final DefaultRendering rendering;
-    private final FigureSelectionContext figureSelectionContext;
-    private Rectangle selectionRectangle;
-    private Interactor interactor;
 
 
     public ProductSceneView(ProductSceneImage sceneImage) {
@@ -215,27 +203,13 @@ public class ProductSceneView extends BasicView
         this.pixelBorderViewScale = 2.0;
         this.pixelPositionListeners = new Vector<PixelPositionListener>();
 
-        this.layerCanvas = new LayerCanvas(sceneImage.getRootLayer(),
+        this.layerCanvas = new FigureEditorLayerCanvas(sceneImage.getRootLayer(),
                                            new DefaultViewport(isModelYAxisDown(baseImageLayer)));
 
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(
                 PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
         this.layerCanvas.setNavControlShown(navControlShown);
         this.layerCanvas.setPreferredSize(new Dimension(400, 400));
-
-        // todo - use global application undo context
-        this.undoContext = new DefaultUndoContext(this);
-        // todo - create new FigureCollection, e.g. based on all selected figure layers
-        this.figureSelectionContext = new FigureSelectionContext(this);
-        this.interactor = NullInteractor.INSTANCE;
-        this.rendering = new DefaultRendering(layerCanvas.getViewport());
-
-        RepaintHandler repaintHandler = new RepaintHandler();
-        figureSelectionContext.getFigureCollection().addListener(repaintHandler);
-        figureSelectionContext.getFigureSelection().addListener(repaintHandler);
-
-        InteractionDispatcher interactionDispatcher = new InteractionDispatcher(this);
-        interactionDispatcher.registerListeners(this);
 
         this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN,
                                                                              false);
@@ -245,19 +219,6 @@ public class ProductSceneView extends BasicView
         } else {
             add(layerCanvas, BorderLayout.CENTER);
         }
-
-        layerCanvas.addOverlay(new LayerCanvas.Overlay() {
-            @Override
-            public void paintOverlay(LayerCanvas canvas, Graphics2D graphics) {
-                getFigureSelection().draw(rendering);
-                if (getSelectionRectangle() != null) {
-                    graphics.setPaint(StyleDefaults.SELECTION_RECT_FILL_PAINT);
-                    graphics.fill(getSelectionRectangle());
-                    graphics.setPaint(StyleDefaults.SELECTION_RECT_STROKE_PAINT);
-                    graphics.draw(getSelectionRectangle());
-                }
-            }
-        });
 
         registerLayerCanvasListeners();
 
@@ -272,48 +233,42 @@ public class ProductSceneView extends BasicView
 
     @Override
     public SelectionContext getSelectionContext() {
-        return figureSelectionContext;
+        return layerCanvas.getSelectionContext();
     }
 
     @Override
     public UndoContext getUndoContext() {
-        return undoContext;
+        return layerCanvas.getUndoContext();
     }
 
     @Override
     public Rectangle getSelectionRectangle() {
-        return selectionRectangle;
+        return layerCanvas.getSelectionRectangle();
     }
 
     @Override
     public void setSelectionRectangle(Rectangle rectangle) {
-        if (selectionRectangle != rectangle
-                && (selectionRectangle == null || !selectionRectangle.equals(rectangle))) {
-            selectionRectangle = rectangle;
-            repaint();
-        }
-    }
-
-    @Override
-    public Interactor getInteractor() {
-        return interactor;
+        layerCanvas.getSelectionContext();
     }
 
     @Override
     public void setInteractor(Interactor interactor) {
-        this.interactor.deactivate(this);
-        this.interactor = interactor;
-        this.interactor.activate(this);
+        layerCanvas.setInteractor(interactor);
     }
 
     @Override
     public FigureSelection getFigureSelection() {
-        return figureSelectionContext.getFigureSelection();
+        return layerCanvas.getFigureSelection();
     }
 
     @Override
     public FigureCollection getFigureCollection() {
-        return figureSelectionContext.getFigureCollection();
+        return layerCanvas.getFigureCollection();
+    }
+
+    @Override
+    public Interactor getInteractor() {
+        return layerCanvas.getInteractor();
     }
 
     @Override
@@ -323,7 +278,6 @@ public class ProductSceneView extends BasicView
 
     // End FigureEditor implementation
     /////////////////////////////////////////////////////////////////////////
-
 
     private AdjustableViewScrollPane createScrollPane() {
         AbstractButton zoomAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomAll13.gif"),
@@ -685,7 +639,7 @@ public class ProductSceneView extends BasicView
 
     @Deprecated
     public Figure getCurrentShapeFigure() {
-        return  null;
+        return null;
     }
 
     @Deprecated
@@ -874,7 +828,7 @@ public class ProductSceneView extends BasicView
         final Product currentProduct = getRaster().getProduct();
         final Product otherProduct = view.getRaster().getProduct();
         if (otherProduct == currentProduct ||
-                otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
+            otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
 
             Viewport viewPortToChange = view.layerCanvas.getViewport();
             Viewport myViewPort = layerCanvas.getViewport();
@@ -968,7 +922,7 @@ public class ProductSceneView extends BasicView
         }
     }
 
-    protected class RasterChangeHandler implements ProductNodeListener {
+    private final class RasterChangeHandler implements ProductNodeListener {
 
         @Override
         public void nodeChanged(final ProductNodeEvent event) {
@@ -1028,10 +982,6 @@ public class ProductSceneView extends BasicView
         return getSceneImage().getGcpLayer(create);
     }
 
-    private LayerUI getSelectedLayerUI() {
-        return selectedLayerUI;
-    }
-
     private static boolean isModelYAxisDown(ImageLayer baseImageLayer) {
         return baseImageLayer.getImageToModelTransform().getDeterminant() > 0.0;
     }
@@ -1039,7 +989,6 @@ public class ProductSceneView extends BasicView
     private void registerLayerCanvasListeners() {
         layerCanvasComponentHandler = new LayerCanvasComponentHandler();
         layerCanvasMouseHandler = new LayerCanvasMouseHandler();
-        layerCanvasKeyHandler = new LayerCanvasKeyHandler();
 
         layerCanvas.addComponentListener(layerCanvasComponentHandler);
         layerCanvas.addMouseListener(layerCanvasMouseHandler);
@@ -1060,25 +1009,14 @@ public class ProductSceneView extends BasicView
         layerCanvas.removeKeyListener(layerCanvasKeyHandler);
     }
 
-    private void fireToolEvent(MouseEvent e) {
-        if (tool != null) {
-            ToolInputEvent toolInputEvent = createToolInputEvent(e);
-            tool.handleEvent(toolInputEvent);
-        }
-    }
-
-    private ToolInputEvent createToolInputEvent(MouseEvent e) {
-        return new ToolInputEvent(layerCanvas, e, pixelX, pixelY, isPixelPosValid(levelPixelX, levelPixelY, level));
-    }
-
-    private ToolInputEvent createToolInputEvent(KeyEvent e) {
-        return new ToolInputEvent(layerCanvas, e, pixelX, pixelY, isPixelPosValid(levelPixelX, levelPixelY, level));
+    public boolean isPixelPosValid() {
+        return isPixelPosValid(levelPixelX, levelPixelY, level);
     }
 
     private boolean isPixelPosValid(int currentPixelX, int currentPixelY, int currentLevel) {
         return currentPixelX >= 0 && currentPixelX < baseImageLayer.getImage(
                 currentLevel).getWidth() && currentPixelY >= 0
-                && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
+               && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
     }
 
     private void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
@@ -1091,12 +1029,6 @@ public class ProductSceneView extends BasicView
     private void firePixelPosNotAvailable() {
         for (PixelPositionListener listener : pixelPositionListeners) {
             listener.pixelPosNotAvailable();
-        }
-    }
-
-    private void drawToolNoTransf(Graphics2D g2d) {
-        if (tool.getDrawable() != null) {
-            tool.getDrawable().draw(g2d);
         }
     }
 
@@ -1134,7 +1066,7 @@ public class ProductSceneView extends BasicView
 
     private boolean isPixelBorderDisplayEnabled() {
         return pixelBorderShown &&
-                getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
+               getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
     }
 
     private void drawPixelBorder(int currentPixelX, int currentPixelY, int currentLevel, boolean showBorder) {
@@ -1167,37 +1099,37 @@ public class ProductSceneView extends BasicView
     private final class LayerCanvasMouseHandler implements MouseInputListener, MouseWheelListener {
 
         @Override
-        public final void mouseClicked(MouseEvent e) {
+        public void mouseClicked(MouseEvent e) {
             updatePixelPos(e, false);
         }
 
         @Override
-        public final void mouseEntered(MouseEvent e) {
+        public void mouseEntered(MouseEvent e) {
             updatePixelPos(e, false);
         }
 
         @Override
-        public final void mousePressed(MouseEvent e) {
+        public void mousePressed(MouseEvent e) {
             updatePixelPos(e, false);
         }
 
         @Override
-        public final void mouseReleased(MouseEvent e) {
+        public void mouseReleased(MouseEvent e) {
             updatePixelPos(e, false);
         }
 
         @Override
-        public final void mouseExited(MouseEvent e) {
+        public void mouseExited(MouseEvent e) {
             updatePixelPos(e, false);
         }
 
         @Override
-        public final void mouseDragged(MouseEvent e) {
+        public void mouseDragged(MouseEvent e) {
             updatePixelPos(e, true);
         }
 
         @Override
-        public final void mouseMoved(MouseEvent e) {
+        public void mouseMoved(MouseEvent e) {
             updatePixelPos(e, true);
         }
 
@@ -1212,7 +1144,6 @@ public class ProductSceneView extends BasicView
 
         private void updatePixelPos(MouseEvent e, boolean showBorder) {
             setPixelPos(e, showBorder);
-            fireToolEvent(e);
         }
     }
 
@@ -1227,44 +1158,105 @@ public class ProductSceneView extends BasicView
         }
     }
 
-    private class LayerCanvasKeyHandler implements KeyListener {
 
-        /**
-         * Invoked when a key has been pressed.
-         */
+    private static class FigureEditorLayerCanvas extends LayerCanvas implements FigureEditor {
+        private final UndoContext undoContext;
+        private final DefaultRendering rendering;
+        private final FigureSelectionContext figureSelectionContext;
+        private Rectangle selectionRectangle;
+        private Interactor interactor;
+
+        private FigureEditorLayerCanvas(Layer layer, Viewport viewport) {
+            super(layer, viewport);
+
+            // todo - use global application undo context
+            this.undoContext = new DefaultUndoContext(this);
+            // todo - create new FigureCollection, e.g. based on all selected figure layers
+            this.figureSelectionContext = new FigureSelectionContext(this);
+            this.interactor = NullInteractor.INSTANCE;
+            this.rendering = new DefaultRendering(getViewport());
+
+            RepaintHandler repaintHandler = new RepaintHandler();
+            figureSelectionContext.getFigureCollection().addListener(repaintHandler);
+            figureSelectionContext.getFigureSelection().addListener(repaintHandler);
+
+            InteractionDispatcher interactionDispatcher = new InteractionDispatcher(this);
+            interactionDispatcher.registerListeners(this);
+
+            addOverlay(new LayerCanvas.Overlay() {
+                @Override
+                public void paintOverlay(LayerCanvas canvas, Graphics2D graphics) {
+                    getFigureSelection().draw(new DefaultRendering(getViewport(), graphics));
+                    if (getSelectionRectangle() != null) {
+                        graphics.setPaint(StyleDefaults.SELECTION_RECT_FILL_PAINT);
+                        graphics.fill(getSelectionRectangle());
+                        graphics.setPaint(StyleDefaults.SELECTION_RECT_STROKE_PAINT);
+                        graphics.draw(getSelectionRectangle());
+                    }
+                }
+            });
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+        // Begin FigureEditor implementation
+
         @Override
-        public void keyPressed(KeyEvent e) {
-            if (tool != null) {
-                tool.handleEvent(createToolInputEvent(e));
+        public SelectionContext getSelectionContext() {
+            return figureSelectionContext;
+        }
+
+        @Override
+        public UndoContext getUndoContext() {
+            return undoContext;
+        }
+
+        @Override
+        public Rectangle getSelectionRectangle() {
+            return selectionRectangle;
+        }
+
+        @Override
+        public void setSelectionRectangle(Rectangle rectangle) {
+            if (selectionRectangle != rectangle
+                && (selectionRectangle == null || !selectionRectangle.equals(rectangle))) {
+                selectionRectangle = rectangle;
+                repaint();
             }
         }
 
-        /**
-         * Invoked when a key has been released.
-         */
         @Override
-        public void keyReleased(KeyEvent e) {
-            if (tool != null) {
-                tool.handleEvent(createToolInputEvent(e));
+        public Interactor getInteractor() {
+            return interactor;
+        }
+
+        @Override
+        public void setInteractor(Interactor interactor) {
+            if (this.interactor != interactor) {
+                this.interactor.deactivate();
+                this.interactor = interactor;
+                this.interactor.activate();
             }
         }
 
-        /**
-         * Invoked when a key has been typed. This event occurs when a key
-         * press is followed by a key dispose.
-         */
         @Override
-        public void keyTyped(KeyEvent e) {
-            if (tool != null) {
-                tool.handleEvent(createToolInputEvent(e));
-            }
+        public FigureSelection getFigureSelection() {
+            return figureSelectionContext.getFigureSelection();
         }
-    }
 
-    private class RepaintHandler extends AbstractFigureChangeListener {
         @Override
-        public void figureChanged(FigureChangeEvent event) {
-            repaint();
+        public FigureCollection getFigureCollection() {
+            return figureSelectionContext.getFigureCollection();
+        }
+
+        // End FigureEditor implementation
+        /////////////////////////////////////////////////////////////////////////
+
+        private class RepaintHandler extends AbstractFigureChangeListener {
+
+            @Override
+            public void figureChanged(FigureChangeEvent event) {
+                repaint();
+            }
         }
     }
 }

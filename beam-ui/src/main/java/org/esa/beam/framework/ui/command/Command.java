@@ -46,10 +46,10 @@ import java.util.ResourceBundle;
  */
 public abstract class Command implements ConfigurableExtension {
 
-    private String _commandID;
-    private final Action _action;
-    private EventListenerList _eventListenerList;
-    private static CommandUIFactory _commandUIFactory = new DefaultCommandUIFactory();
+    private String commandID;
+    private final Action action;
+    private EventListenerList eventListenerList;
+    private static CommandUIFactory commandUIFactory = new DefaultCommandUIFactory();
 
     /**
      * The key used for storing a large icon for the action, used for toolbar buttons.
@@ -69,7 +69,7 @@ public abstract class Command implements ConfigurableExtension {
     public static final String HELP_ID_KEY = "_helpId";
 
     protected Command() {
-        _action = createAction();
+        action = createAction();
         setCommandID(getClass().getName());
     }
 
@@ -80,16 +80,16 @@ public abstract class Command implements ConfigurableExtension {
     }
 
     public String getCommandID() {
-        return _commandID;
+        return commandID;
     }
 
     public void setCommandID(String commandId) {
-        _commandID = commandId;
-        _action.putValue(Action.ACTION_COMMAND_KEY, commandId);
+        commandID = commandId;
+        action.putValue(Action.ACTION_COMMAND_KEY, commandId);
     }
 
     public Action getAction() {
-        return _action;
+        return action;
     }
 
     public boolean isEnabled() {
@@ -448,7 +448,7 @@ public abstract class Command implements ConfigurableExtension {
 
 
     protected EventListenerList getEventListenerList() {
-        return _eventListenerList;
+        return eventListenerList;
     }
 
     /**
@@ -459,10 +459,10 @@ public abstract class Command implements ConfigurableExtension {
      */
     protected void addEventListener(Class t, EventListener l) {
         if (l != null) {
-            if (_eventListenerList == null) {
-                _eventListenerList = new EventListenerList();
+            if (eventListenerList == null) {
+                eventListenerList = new EventListenerList();
             }
-            _eventListenerList.add(t, l);
+            eventListenerList.add(t, l);
         }
     }
 
@@ -473,8 +473,8 @@ public abstract class Command implements ConfigurableExtension {
      * @param l the command listener
      */
     protected void removeEventListener(Class t, EventListener l) {
-        if (l != null && _eventListenerList != null) {
-            _eventListenerList.remove(t, l);
+        if (l != null && eventListenerList != null) {
+            eventListenerList.remove(t, l);
         }
     }
 
@@ -600,12 +600,12 @@ public abstract class Command implements ConfigurableExtension {
     }
 
     public static CommandUIFactory getCommandUIFactory() {
-        return _commandUIFactory;
+        return commandUIFactory;
     }
 
     public static void setCommandUIFactory(CommandUIFactory commandUIFactory) {
         Guardian.assertNotNull("commandUIFactory", commandUIFactory);
-        _commandUIFactory = commandUIFactory;
+        Command.commandUIFactory = commandUIFactory;
     }
 
     /**

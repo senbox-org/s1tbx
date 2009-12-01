@@ -16,10 +16,10 @@
  */
 package org.esa.beam.framework.ui.command;
 
-import org.esa.beam.framework.ui.tool.Tool;
-import org.esa.beam.framework.ui.tool.ToolAdapter;
-import org.esa.beam.framework.ui.tool.ToolEvent;
-import org.esa.beam.framework.ui.tool.ToolListener;
+import com.bc.ceres.swing.figure.AbstractInteractorListener;
+import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.InteractorListener;
+import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import org.esa.beam.util.Guardian;
 
 import javax.swing.AbstractAction;
@@ -36,38 +36,36 @@ import java.awt.event.ActionEvent;
  */
 public class ToolCommand extends SelectableCommand {
 
-    private Tool tool;
-    private final ToolListener toolListener;
+    private Interactor tool;
+    private final InteractorListener toolListener;
 
     public ToolCommand(String commandID) {
         super(commandID);
+        tool = NullInteractor.INSTANCE;
         toolListener = new InternalToolListener();
     }
 
-    public ToolCommand(String commandID, CommandStateListener listener, Tool tool) {
-        super(commandID);
-        toolListener = new InternalToolListener();
+    public ToolCommand(String commandID, CommandStateListener listener, Interactor tool) {
+        this(commandID);
         setTool(tool);
         addCommandStateListener(listener);
     }
 
-    public Tool getTool() {
+    public Interactor getTool() {
         return tool;
     }
 
-    public void setTool(Tool tool) {
+    public final void setTool(Interactor tool) {
         Guardian.assertNotNull("tool", tool);
-        Tool oldTool = this.tool;
+        Interactor oldTool = this.tool;
         if (tool == oldTool) {
             return;
         }
         if (oldTool != null) {
-            oldTool.removeToolListener(toolListener);
+            oldTool.removeListener(toolListener);
         }
         this.tool = tool;
-        this.tool.addToolListener(toolListener);
-        setSelected(this.tool.isActive());
-        setEnabled(this.tool.isEnabled());
+        this.tool.addListener(toolListener);
     }
 
     @Override
@@ -79,7 +77,6 @@ public class ToolCommand extends SelectableCommand {
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        tool.setEnabled(enabled);
         adjustToolActivationState();
     }
 
@@ -147,48 +144,17 @@ public class ToolCommand extends SelectableCommand {
     }
 
 
-    class InternalToolListener extends ToolAdapter {
+    private class InternalToolListener extends AbstractInteractorListener {
 
-        /**
-         * Invoked if a tool was activated.
-         *
-         * @param toolEvent the event which caused the state change.
-         */
         @Override
-        public void toolActivated(ToolEvent toolEvent) {
+        public void interactorActivated(Interactor interactor) {
             setSelected(true);
         }
 
-        /**
-         * Invoked if a tool was activated.
-         *
-         * @param toolEvent the event which caused the state change.
-         */
         @Override
-        public void toolDeactivated(ToolEvent toolEvent) {
+        public void interactorDeactivated(Interactor interactor) {
             setSelected(false);
         }
-
-        /**
-         * Invoked if a tool was enabled.
-         *
-         * @param toolEvent the event which caused the state change.
-         */
-        @Override
-        public void toolEnabled(ToolEvent toolEvent) {
-            setEnabled(true);
-        }
-
-        /**
-         * Invoked if a tool was disabled.
-         *
-         * @param toolEvent the event which caused the state change.
-         */
-        @Override
-        public void toolDisabled(ToolEvent toolEvent) {
-            setEnabled(false);
-        }
-
     }
 
 }

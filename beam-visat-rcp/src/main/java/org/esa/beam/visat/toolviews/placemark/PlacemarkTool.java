@@ -1,6 +1,11 @@
 package org.esa.beam.visat.toolviews.placemark;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.draw.Drawable;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.Command;
@@ -11,8 +16,11 @@ import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPopupMenu;
+import java.awt.Cursor;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -67,8 +75,8 @@ public abstract class PlacemarkTool extends AbstractTool {
     @Override
     public void mouseDragged(ToolInputEvent e) {
         if (getDraggedPlacemark() != null && e.isPixelPosValid()) {
-            PixelPos pixelPos = new PixelPos((float) e.getPixelPos().getX() + 0.5f,
-                                             (float) e.getPixelPos().getY() + 0.5f);
+            PixelPos pixelPos = new PixelPos((float) e.getPixelX() + 0.5f,
+                                             (float) e.getPixelY() + 0.5f);
             if (pixelPos.isValid()) {
                 getDraggedPlacemark().setPixelPos(pixelPos);
             }
