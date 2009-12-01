@@ -107,13 +107,13 @@ public class Mask extends Band {
     @Override
     protected RenderedImage createSourceImage() {
         final MultiLevelImage image = getImageType().createImage(this);
-        if (isMaskImageValid(image)) {
+        if (isMaskImageInvalid(image)) {
             throw new IllegalStateException("Invalid mask image.");
         }
         return image;
     }
 
-    private boolean isMaskImageValid(MultiLevelImage image) {
+    private boolean isMaskImageInvalid(MultiLevelImage image) {
         return image.getSampleModel().getDataType() != DataBuffer.TYPE_BYTE
                || image.getNumBands() != 1
                || image.getWidth() != getSceneRasterWidth()
