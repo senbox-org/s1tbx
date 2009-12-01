@@ -24,12 +24,6 @@ public class ZoomInteractor extends ViewportInteractor {
     }
 
     @Override
-    public void activate() {
-        super.activate();
-
-    }
-
-    @Override
     public void mousePressed(MouseEvent event) {
         graphics = event.getComponent().getGraphics();
         viewportX = event.getX();
