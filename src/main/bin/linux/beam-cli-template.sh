@@ -11,7 +11,9 @@ if [ -z "$BEAM4_HOME" ]; then
     exit 2
 fi
 
-"$BEAM4_HOME/jre/bin/java" \
+. "$BEAM4_HOME/bin/detect_java.sh"
+
+"$app_java_home/bin/java" \
     -Xmx1024M \
     -Dceres.context=beam \
     "-Dbeam.mainClass=${beam.mainClass}" \
