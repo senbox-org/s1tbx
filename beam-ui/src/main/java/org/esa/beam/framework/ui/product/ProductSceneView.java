@@ -11,20 +11,13 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.grender.support.DefaultRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
-import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
 import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.figure.FigureSelection;
-import com.bc.ceres.swing.figure.Interactor;
-import com.bc.ceres.swing.figure.interactions.NullInteractor;
-import com.bc.ceres.swing.figure.support.FigureSelectionContext;
-import com.bc.ceres.swing.figure.support.InteractionDispatcher;
-import com.bc.ceres.swing.figure.support.StyleDefaults;
-import com.bc.ceres.swing.selection.SelectionContext;
+import com.bc.ceres.swing.figure.FigureEditorHolder;
+import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
+import com.bc.ceres.swing.figure.support.DefaultFigureEditor2;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import org.esa.beam.framework.datamodel.ImageInfo;
@@ -91,7 +84,7 @@ import java.util.Vector;
  * @version $ Revision: $ $ Date: $
  */
 public class ProductSceneView extends BasicView
-        implements FigureEditor, ProductNodeView, PropertyMapChangeListener, PixelInfoFactory, LayerContext {
+        implements FigureEditorHolder, ProductNodeView, PropertyMapChangeListener, PixelInfoFactory, LayerContext {
 
     public static final String BASE_IMAGE_LAYER_ID = "org.esa.beam.layers.baseImage";
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
@@ -162,6 +155,7 @@ public class ProductSceneView extends BasicView
     private boolean scrollBarsShown;
     private AdjustableViewScrollPane scrollPane;
 
+    private UndoContext undoContext;
 
     public ProductSceneView(ProductSceneImage sceneImage) {
         Assert.notNull(sceneImage, "sceneImage");
@@ -178,8 +172,12 @@ public class ProductSceneView extends BasicView
         this.pixelBorderViewScale = 2.0;
         this.pixelPositionListeners = new Vector<PixelPositionListener>();
 
+        // todo - use global application undo context
+        undoContext = new DefaultUndoContext(this);
+
         this.layerCanvas = new FigureEditorLayerCanvas(sceneImage.getRootLayer(),
-                                           new DefaultViewport(isModelYAxisDown(baseImageLayer)));
+                                                       new DefaultViewport(isModelYAxisDown(baseImageLayer)),
+                                                       undoContext);
 
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(
                 PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
@@ -203,56 +201,10 @@ public class ProductSceneView extends BasicView
         setMaskOverlayEnabled(true);
     }
 
-    /////////////////////////////////////////////////////////////////////////
-    // Begin FigureEditor implementation
-
     @Override
-    public SelectionContext getSelectionContext() {
-        return layerCanvas.getSelectionContext();
+    public FigureEditor getFigureEditor() {
+        return layerCanvas.getFigureEditor();
     }
-
-    @Override
-    public UndoContext getUndoContext() {
-        return layerCanvas.getUndoContext();
-    }
-
-    @Override
-    public Rectangle getSelectionRectangle() {
-        return layerCanvas.getSelectionRectangle();
-    }
-
-    @Override
-    public void setSelectionRectangle(Rectangle rectangle) {
-        layerCanvas.getSelectionContext();
-    }
-
-    @Override
-    public void setInteractor(Interactor interactor) {
-        layerCanvas.setInteractor(interactor);
-    }
-
-    @Override
-    public FigureSelection getFigureSelection() {
-        return layerCanvas.getFigureSelection();
-    }
-
-    @Override
-    public FigureCollection getFigureCollection() {
-        return layerCanvas.getFigureCollection();
-    }
-
-    @Override
-    public Interactor getInteractor() {
-        return layerCanvas.getInteractor();
-    }
-
-    @Override
-    public Viewport getViewport() {
-        return layerCanvas.getViewport();
-    }
-
-    // End FigureEditor implementation
-    /////////////////////////////////////////////////////////////////////////
 
     private AdjustableViewScrollPane createScrollPane() {
         AbstractButton zoomAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomAll13.gif"),
@@ -798,7 +750,7 @@ public class ProductSceneView extends BasicView
         final Product currentProduct = getRaster().getProduct();
         final Product otherProduct = view.getRaster().getProduct();
         if (otherProduct == currentProduct ||
-            otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
+                otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
 
             Viewport viewPortToChange = view.layerCanvas.getViewport();
             Viewport myViewPort = layerCanvas.getViewport();
@@ -984,7 +936,7 @@ public class ProductSceneView extends BasicView
     private boolean isPixelPosValid(int currentPixelX, int currentPixelY, int currentLevel) {
         return currentPixelX >= 0 && currentPixelX < baseImageLayer.getImage(
                 currentLevel).getWidth() && currentPixelY >= 0
-               && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
+                && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
     }
 
     private void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
@@ -1034,7 +986,7 @@ public class ProductSceneView extends BasicView
 
     private boolean isPixelBorderDisplayEnabled() {
         return pixelBorderShown &&
-               getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
+                getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
     }
 
     private void drawPixelBorder(int currentPixelX, int currentPixelY, int currentLevel, boolean showBorder) {
@@ -1126,108 +1078,32 @@ public class ProductSceneView extends BasicView
         }
     }
 
+    private static class FigureEditorLayerCanvas extends LayerCanvas implements FigureEditorHolder {
 
-    private static class FigureEditorLayerCanvas extends LayerCanvas implements FigureEditor {
-        private final UndoContext undoContext;
-        private final DefaultRendering rendering;
-        private final FigureSelectionContext figureSelectionContext;
-        private Rectangle selectionRectangle;
-        private Interactor interactor;
+        private final FigureCollection figureCollection;
+        private final DefaultFigureEditor2 figureEditor;
 
-        private FigureEditorLayerCanvas(Layer layer, Viewport viewport) {
-            super(layer, viewport);
+        private FigureEditorLayerCanvas(Layer rootLayer, Viewport viewport, UndoContext undoContext) {
+            super(rootLayer, viewport);
+            // todo - use FigureCollection from FigureLayer(s)!
+            figureCollection = new DefaultFigureCollection();
 
-            // todo - use global application undo context
-            this.undoContext = new DefaultUndoContext(this);
-            // todo - create new FigureCollection, e.g. based on all selected figure layers
-            this.figureSelectionContext = new FigureSelectionContext(this);
-            this.interactor = NullInteractor.INSTANCE;
-            this.rendering = new DefaultRendering(viewport);
-
-            RepaintHandler repaintHandler = new RepaintHandler();
-            figureSelectionContext.getFigureCollection().addListener(repaintHandler);
-            figureSelectionContext.getFigureSelection().addListener(repaintHandler);
-
-            InteractionDispatcher interactionDispatcher = new InteractionDispatcher(this);
-            interactionDispatcher.registerListeners(this);
+            figureEditor = new DefaultFigureEditor2(this, undoContext, figureCollection);
 
             addOverlay(new LayerCanvas.Overlay() {
                 @Override
                 public void paintOverlay(LayerCanvas canvas, Graphics2D graphics) {
-                    DefaultRendering rendering = new DefaultRendering(getViewport(), graphics);
-                    getFigureCollection().draw(rendering);
-                    getFigureSelection().draw(rendering);
-                    if (getSelectionRectangle() != null) {
-                        graphics.setPaint(StyleDefaults.SELECTION_RECT_FILL_PAINT);
-                        graphics.fill(getSelectionRectangle());
-                        graphics.setPaint(StyleDefaults.SELECTION_RECT_STROKE_PAINT);
-                        graphics.draw(getSelectionRectangle());
-                    }
+                    // todo - figureEditor.drawFigures(graphics, true);
+                    figureEditor.drawFigures(graphics, false);
+                    figureEditor.drawSelectionRectangle(graphics);
                 }
             });
         }
 
-        /////////////////////////////////////////////////////////////////////////
-        // Begin FigureEditor implementation
-
         @Override
-        public SelectionContext getSelectionContext() {
-            return figureSelectionContext;
+        public FigureEditor getFigureEditor() {
+            return figureEditor;
         }
 
-        @Override
-        public UndoContext getUndoContext() {
-            return undoContext;
-        }
-
-        @Override
-        public Rectangle getSelectionRectangle() {
-            return selectionRectangle;
-        }
-
-        @Override
-        public void setSelectionRectangle(Rectangle rectangle) {
-            if (selectionRectangle != rectangle
-                && (selectionRectangle == null || !selectionRectangle.equals(rectangle))) {
-                selectionRectangle = rectangle;
-                repaint();
-            }
-        }
-
-        @Override
-        public Interactor getInteractor() {
-            return interactor;
-        }
-
-        @Override
-        public void setInteractor(Interactor interactor) {
-            if (this.interactor != interactor) {
-                this.interactor.deactivate();
-                this.interactor = interactor;
-                this.interactor.activate();
-                setCursor(interactor.getCursor());
-            }
-        }
-
-        @Override
-        public FigureSelection getFigureSelection() {
-            return figureSelectionContext.getFigureSelection();
-        }
-
-        @Override
-        public FigureCollection getFigureCollection() {
-            return figureSelectionContext.getFigureCollection();
-        }
-
-        // End FigureEditor implementation
-        /////////////////////////////////////////////////////////////////////////
-
-        private class RepaintHandler extends AbstractFigureChangeListener {
-
-            @Override
-            public void figureChanged(FigureChangeEvent event) {
-                repaint();
-            }
-        }
     }
 }

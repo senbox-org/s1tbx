@@ -70,9 +70,9 @@ public class ToolAction extends ToolCommand {
         @Override
         public void interactorActivated(Interactor interactor) {
             activeInteractor = interactor;
-            final FigureEditor drawingEditor = VisatApp.getApp().getSelectedProductSceneView();
-            if (drawingEditor != null) {
-                drawingEditor.setInteractor(activeInteractor);
+            final FigureEditor figureEditor = VisatApp.getApp().getSelectedProductSceneView().getFigureEditor();
+            if (figureEditor != null) {
+                figureEditor.setInteractor(activeInteractor);
             }
             maybeShowInteractorUsageTip();
         }
