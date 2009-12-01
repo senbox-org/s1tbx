@@ -13,6 +13,10 @@
         dialog and a configuration panel for connecting remote module repositories.
     </description>
 
+    <dependency>
+        <module>ceres-glayer</module>
+    </dependency>
+    
     <changelog>
         <![CDATA[
         <p>Changes in 0.8<br/>
