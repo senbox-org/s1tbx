@@ -1224,6 +1224,7 @@ public class ProductSceneView extends BasicView
                 this.interactor.deactivate();
                 this.interactor = interactor;
                 this.interactor.activate();
+                setCursor(interactor.getCursor());
             }
         }
 
