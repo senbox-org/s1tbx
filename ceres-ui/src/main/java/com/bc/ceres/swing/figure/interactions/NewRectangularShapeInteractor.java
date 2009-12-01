@@ -1,6 +1,5 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.figure.AbstractInteractor;
 import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
@@ -49,8 +48,8 @@ public abstract class NewRectangularShapeInteractor extends FigureEditorInteract
         if (rectangularShape.isEmpty()) {
             figureEditor.getFigureCollection().removeFigure(figure);
         } else {
-            // todo - move to FigureEditor.insert(figure, memento)
-            figureEditor.getUndoContext().postEdit(new FigureInsertEdit(figureEditor, figure));
+            // todo - move to FigureEditor.insert(figure, false, figure)
+            figureEditor.getUndoContext().postEdit(new FigureInsertEdit(figureEditor, false, figure));
         }
         stopInteraction(event);
     }

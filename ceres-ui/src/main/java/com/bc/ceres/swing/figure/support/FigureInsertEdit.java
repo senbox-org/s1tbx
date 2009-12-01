@@ -13,9 +13,9 @@ public class FigureInsertEdit extends AbstractUndoableEdit {
     private FigureEditor figureEditor;
     private Figure[] addedFigures;
 
-    public FigureInsertEdit(FigureEditor figureEditor, Figure... figuresToInsert) {
+    public FigureInsertEdit(FigureEditor figureEditor, boolean performInsert, Figure... figuresToInsert) {
         this.figureEditor = figureEditor;
-        this.addedFigures = figureEditor.getFigureCollection().addFigures(figuresToInsert);
+        this.addedFigures = performInsert ? figureEditor.getFigureCollection().addFigures(figuresToInsert) : figuresToInsert.clone();
 
         figureEditor.getFigureSelection().removeFigures();
         figureEditor.getFigureSelection().setSelectionStage(0);

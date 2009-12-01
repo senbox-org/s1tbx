@@ -82,8 +82,8 @@ public class FigureSelectionContext implements SelectionContext {
     @Override
     public void insert(Transferable contents) throws IOException, UnsupportedFlavorException {
         Figure[] figures = (Figure[]) contents.getTransferData(FigureTransferable.FIGURES_DATA_FLAVOR);
-        // todo - move to FigureEditor.insert(figures)
-        figureEditor.getUndoContext().postEdit(new FigureInsertEdit(figureEditor, figures));
+        // todo - move to FigureEditor.insert(true, figures)
+        figureEditor.getUndoContext().postEdit(new FigureInsertEdit(figureEditor, true, figures));
     }
 
     @Override
@@ -94,8 +94,8 @@ public class FigureSelectionContext implements SelectionContext {
     @Override
     public void deleteSelection() {
         Figure[] figures = getFigureSelection().getFigures();
-        // todo - move to FigureEditor.delete(figures)
-        figureEditor.getUndoContext().postEdit(new FigureDeleteEdit(figureEditor, figures));
+        // todo - move to FigureEditor.delete(true, figures)
+        figureEditor.getUndoContext().postEdit(new FigureDeleteEdit(figureEditor, true, figures));
     }
 
     @Override

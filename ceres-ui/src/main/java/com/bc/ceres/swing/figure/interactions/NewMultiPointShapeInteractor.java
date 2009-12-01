@@ -81,8 +81,8 @@ public class NewMultiPointShapeInteractor extends FigureEditorInteractor {
 
         if (points.size() == 2) {
             figure = new DefaultShapeFigure(createPath(), isPolygonal(), StyleDefaults.INSERT_STYLE);
-            // todo - move to FigureEditor.insert(figures)
-            figureEditor.getUndoContext().postEdit(new FigureInsertEdit(figureEditor, figure));
+            // todo - move to FigureEditor.insert(false, figure)
+            figureEditor.getUndoContext().postEdit(new FigureInsertEdit(figureEditor, false, figure));
         }
     }
 

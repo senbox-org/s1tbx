@@ -43,8 +43,8 @@ public class NewLineShapeInteractor extends FigureEditorInteractor {
     @Override
     public void mouseReleased(MouseEvent event) {
         FigureEditor figureEditor = getFigureEditor(event);
-        // todo - move to FigureEditor.insert(figure, memento)
-        figureEditor.getUndoContext().postEdit(new FigureInsertEdit(figureEditor, figure));
+        // todo - move to FigureEditor.insert(false, figure)
+        figureEditor.getUndoContext().postEdit(new FigureInsertEdit(figureEditor, false, figure));
         stopInteraction(event);
     }
 

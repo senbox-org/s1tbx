@@ -14,12 +14,12 @@ public class FigureDeleteEdit extends AbstractUndoableEdit {
     private Figure[] deletedFigures;
     private int[] deletedPositions;
 
-    public FigureDeleteEdit(FigureEditor figureEditor, Figure... figuresToDelete) {
+    public FigureDeleteEdit(FigureEditor figureEditor, boolean performDelete, Figure... figuresToDelete) {
 
         Figure[] figures = figureEditor.getFigureCollection().getFigures();
 
         this.figureEditor = figureEditor;
-        this.deletedFigures = figureEditor.getFigureCollection().removeFigures(figuresToDelete);
+        this.deletedFigures = performDelete ? figureEditor.getFigureCollection().removeFigures(figuresToDelete) : figuresToDelete.clone();
         this.deletedPositions = new int[this.deletedFigures.length];
 
         figureEditor.getFigureSelection().removeFigures(this.deletedFigures);
