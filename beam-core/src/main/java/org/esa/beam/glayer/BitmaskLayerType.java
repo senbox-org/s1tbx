@@ -7,12 +7,12 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glevel.MultiLevelSource;
+
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.glevel.MaskImageMultiLevelSource;
 
 import java.awt.geom.AffineTransform;
 
@@ -49,27 +49,21 @@ public class BitmaskLayerType extends ImageLayer.Type {
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-        MultiLevelSource multiLevelSource = (MultiLevelSource)configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
-        if (multiLevelSource == null) {
-            multiLevelSource = createMultiLevelSource(configuration);
-        }
-        configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-        final ImageLayer layer = new ImageLayer(this, multiLevelSource, configuration);
-        final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_NAME_BITMASK_DEF);
-        layer.setName(bitmaskDef.getName());
-        // TODO: Is this correct? (rq-2009-05-11)
-        layer.setTransparency(bitmaskDef.getTransparency());
-
-        return layer;
-    }
-
-    private MultiLevelSource createMultiLevelSource(PropertyContainer configuration) {
-        final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_NAME_BITMASK_DEF);
         final Product product = (Product) configuration.getValue(PROPERTY_NAME_PRODUCT);
-        final AffineTransform transform = (AffineTransform) configuration.getValue(
-                ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
-
-        return MaskImageMultiLevelSource.create(product, bitmaskDef.getColor(), bitmaskDef.getExpr(), false, transform);
+        final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_NAME_BITMASK_DEF);
+        configuration.removeProperty(configuration.getProperty(PROPERTY_NAME_PRODUCT));
+        configuration.removeProperty(configuration.getProperty(PROPERTY_NAME_BITMASK_DEF));
+        String maskName = bitmaskDef.getName();
+        Mask mask = product.getMaskGroup().get(maskName);
+        if (mask == null) {
+            throw new IllegalArgumentException("Mask '" + maskName + "'not available in product.");
+        }
+        MaskLayerType maskLayerType = LayerTypeRegistry.getLayerType(MaskLayerType.class);
+        PropertyContainer maskConfiguration = maskLayerType.createLayerConfig(null);
+        Property maskProperty = maskConfiguration.getProperty(MaskLayerType.PROPERTY_NAME_MASK);
+        configuration.addProperty(maskProperty);
+        configuration.setValue(MaskLayerType.PROPERTY_NAME_MASK, mask);
+        return maskLayerType.createLayer(ctx, configuration);
     }
 
     @Override
@@ -85,6 +79,7 @@ public class BitmaskLayerType extends ImageLayer.Type {
         return vc;
     }
 
+    
     public Layer createLayer(BitmaskDef bitmaskDef, Product product, AffineTransform i2m) {
         final PropertyContainer configuration = createLayerConfig(null);
         configuration.setValue(PROPERTY_NAME_BITMASK_DEF, bitmaskDef);

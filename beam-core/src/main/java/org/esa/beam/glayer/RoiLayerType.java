@@ -9,6 +9,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Mask.ImageType;
 
 import java.awt.Color;
 
@@ -17,12 +18,14 @@ import java.awt.Color;
  * @author Marco Peters
  * @version $ Revision: $ Date: $
  * @since BEAM 4.6
+ * @deprecated since 4.7, use {@link MaskLayerType}
  */
+@Deprecated
 public class RoiLayerType extends ImageLayer.Type {
 
     public static final String ROI_LAYER_ID = "org.esa.beam.layers.roi";
-    public static final String PROPERTY_NAME_COLOR = "color";
-    public static final String PROPERTY_NAME_TRANSPARENCY = "transparency";
+    public static final String PROPERTY_NAME_COLOR = ImageType.PROPERTY_NAME_COLOR;
+    public static final String PROPERTY_NAME_TRANSPARENCY = ImageType.PROPERTY_NAME_TRANSPARENCY;
     public static final String PROPERTY_NAME_RASTER = "raster";
 
     @Override

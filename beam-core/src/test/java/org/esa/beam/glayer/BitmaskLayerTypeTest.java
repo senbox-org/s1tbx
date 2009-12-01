@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
 
 import org.esa.beam.framework.datamodel.Band;
@@ -53,7 +54,9 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
 
         final Layer layer = getLayerType().createLayer(null, config);
         assertNotNull(layer);
-        assertSame(getLayerType(), layer.getLayerType());
+        
+        MaskLayerType maskLayerType = LayerTypeRegistry.getLayerType(MaskLayerType.class);
+        assertSame(maskLayerType, layer.getLayerType());
         assertTrue(layer instanceof ImageLayer);
         ImageLayer imageLayer = (ImageLayer) layer;
         assertNotNull(imageLayer.getMultiLevelSource());
