@@ -249,41 +249,41 @@ public class ImageManager {
 
     public static int getDataBufferType(int productDataType) {
         switch (productDataType) {
-            case ProductData.TYPE_INT8:
-            case ProductData.TYPE_UINT8:
-                return DataBuffer.TYPE_BYTE;
-            case ProductData.TYPE_INT16:
-                return DataBuffer.TYPE_SHORT;
-            case ProductData.TYPE_UINT16:
-                return DataBuffer.TYPE_USHORT;
-            case ProductData.TYPE_INT32:
-            case ProductData.TYPE_UINT32:
-                return DataBuffer.TYPE_INT;
-            case ProductData.TYPE_FLOAT32:
-                return DataBuffer.TYPE_FLOAT;
-            case ProductData.TYPE_FLOAT64:
-                return DataBuffer.TYPE_DOUBLE;
-            default:
-                throw new IllegalArgumentException("productDataType");
+        case ProductData.TYPE_INT8:
+        case ProductData.TYPE_UINT8:
+            return DataBuffer.TYPE_BYTE;
+        case ProductData.TYPE_INT16:
+            return DataBuffer.TYPE_SHORT;
+        case ProductData.TYPE_UINT16:
+            return DataBuffer.TYPE_USHORT;
+        case ProductData.TYPE_INT32:
+        case ProductData.TYPE_UINT32:
+            return DataBuffer.TYPE_INT;
+        case ProductData.TYPE_FLOAT32:
+            return DataBuffer.TYPE_FLOAT;
+        case ProductData.TYPE_FLOAT64:
+            return DataBuffer.TYPE_DOUBLE;
+        default:
+            throw new IllegalArgumentException("productDataType");
         }
     }
 
     public static int getProductDataType(int dataBufferType) {
         switch (dataBufferType) {
-            case DataBuffer.TYPE_BYTE:
-                return ProductData.TYPE_UINT8;
-            case DataBuffer.TYPE_SHORT:
-                return ProductData.TYPE_INT16;
-            case DataBuffer.TYPE_USHORT:
-                return ProductData.TYPE_UINT16;
-            case DataBuffer.TYPE_INT:
-                return ProductData.TYPE_INT32;
-            case DataBuffer.TYPE_FLOAT:
-                return ProductData.TYPE_FLOAT32;
-            case DataBuffer.TYPE_DOUBLE:
-                return ProductData.TYPE_FLOAT64;
-            default:
-                throw new IllegalArgumentException("dataBufferType");
+        case DataBuffer.TYPE_BYTE:
+            return ProductData.TYPE_UINT8;
+        case DataBuffer.TYPE_SHORT:
+            return ProductData.TYPE_INT16;
+        case DataBuffer.TYPE_USHORT:
+            return ProductData.TYPE_UINT16;
+        case DataBuffer.TYPE_INT:
+            return ProductData.TYPE_INT32;
+        case DataBuffer.TYPE_FLOAT:
+            return ProductData.TYPE_FLOAT32;
+        case DataBuffer.TYPE_DOUBLE:
+            return ProductData.TYPE_FLOAT64;
+        default:
+            throw new IllegalArgumentException("dataBufferType");
         }
     }
 
@@ -305,8 +305,8 @@ public class ImageManager {
         Assert.notNull(rasterDataNodes,
                        "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
-                || rasterDataNodes.length == 3
-                || rasterDataNodes.length == 4,
+                     || rasterDataNodes.length == 3
+                     || rasterDataNodes.length == 4,
                      "invalid number of bands");
 
         prepareImageInfos(rasterDataNodes, ProgressMonitor.NULL);
@@ -624,7 +624,7 @@ public class ImageManager {
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 
@@ -805,6 +805,8 @@ public class ImageManager {
      * @param level          the level
      *
      * @return the image, or null if the band has no valid ROI definition
+     *
+     * @deprecated since BEAM 4.7, no replacement.
      */
     public RenderedImage createColoredRoiImage(RasterDataNode rasterDataNode, Color color, int level) {
         final RenderedImage roiImage = createRoiMaskImage(rasterDataNode, level);
@@ -821,6 +823,8 @@ public class ImageManager {
      * @param level          the level
      *
      * @return the ROI, or null if the band has no valid ROI definition
+     *
+     * @deprecated since BEAM 4.7, no replacement.
      */
     public RenderedImage createRoiMaskImage(final RasterDataNode rasterDataNode, int level) {
         final ROIDefinition roiDefinition = rasterDataNode.getROIDefinition();
@@ -840,7 +844,7 @@ public class ImageManager {
         if (roiDefinition.isValueRangeEnabled()) {
             final String escapedName = BandArithmetic.createExternalName(rasterDataNode.getName());
             String rangeExpr = escapedName + " >= " + roiDefinition.getValueRangeMin() + " && "
-                    + escapedName + " <= " + roiDefinition.getValueRangeMax();
+                               + escapedName + " <= " + roiDefinition.getValueRangeMax();
             final String validMaskExpression = rasterDataNode.getValidMaskExpression();
             if (validMaskExpression != null) {
                 rangeExpr += " && " + validMaskExpression;
@@ -1001,9 +1005,10 @@ public class ImageManager {
             }
         }
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
+
         private static final ImageManager instance = new ImageManager();
     }
 }
