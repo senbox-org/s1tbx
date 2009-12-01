@@ -1,8 +1,9 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.figure.AbstractInteractor;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.Handle;
+import com.bc.ceres.swing.figure.FigureEditorInteractor;
+import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.undo.RestorableEdit;
 
 import java.awt.Cursor;
@@ -10,13 +11,14 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
+import java.awt.event.InputEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 // todo - this Interactor should not be restricted to figure contexts, is the inner Tool interface the solution?
 // todo - remove dependency to com.bc.ceres.swing.RestorableEdit
 
-public class SelectionInteractor extends AbstractInteractor {
+public class SelectionInteractor extends FigureEditorInteractor {
 
     private final Tool TOOL_SELECT_POINT = new SelectPointTool();
     private final Tool TOOL_SELECT_RECTANGLE = new SelectRectangleTool();
@@ -32,24 +34,17 @@ public class SelectionInteractor extends AbstractInteractor {
         tool = new NullTool();
     }
 
-    public void setSelectionRectangle(Rectangle rectangle) {
-        getFigureEditor().setSelectionRectangle(rectangle);
-    }
-
-    public Rectangle getSelectionRectangle() {
-        return getFigureEditor().getSelectionRectangle();
-    }
-
     @Override
-    public void cancelInteraction() {
+    public void cancelInteraction(InputEvent event) {
         if (!canceled) {
             canceled = true;
+            FigureEditor figureEditor = getFigureEditor(event);
             if (figureMemento != null) {
-                getFigureEditor().getFigureSelection().setMemento(figureMemento);
+                figureEditor.getFigureSelection().setMemento(figureMemento);
                 figureMemento = null;
             }
-            getFigureEditor().getFigureSelection().removeFigures();
-            super.cancelInteraction();
+            figureEditor.getFigureSelection().removeFigures();
+            super.cancelInteraction(event);
         }
     }
 
@@ -102,19 +97,21 @@ public class SelectionInteractor extends AbstractInteractor {
         if (cursor == null && isMouseOverSelection(event)) {
             cursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
         }
-        if (cursor == null && getSelectionRectangle() != null) {
+
+        FigureEditor figureEditor = getFigureEditor(event);
+        if (cursor == null && figureEditor.getSelectionRectangle() != null) {
             cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
         }
         if (cursor == null) {
             cursor = Cursor.getDefaultCursor();
         }
-        getFigureEditor().setCursor(cursor);
+        figureEditor.setCursor(cursor);
     }
 
     private Point2D.Double toModelDelta(MouseEvent event) {
         Point2D.Double p = new Point2D.Double(event.getX() - referencePoint.x,
                                               event.getY() - referencePoint.y);
-        AffineTransform transform = v2m();
+        AffineTransform transform = v2m(event);
         transform.deltaTransform(p, p);
         return p;
     }
@@ -126,18 +123,18 @@ public class SelectionInteractor extends AbstractInteractor {
     }
 
     private boolean isMouseOverSelection(MouseEvent event) {
-        return getFigureEditor().getFigureSelection().contains(toModelPoint(event));
+        return getFigureEditor(event).getFigureSelection().contains(toModelPoint(event));
     }
 
     private Figure findFigure(MouseEvent event) {
-        return getFigureEditor().getFigureCollection().getFigure(toModelPoint(event));
+        return getFigureEditor(event).getFigureCollection().getFigure(toModelPoint(event));
     }
 
     private Handle findHandle(MouseEvent event) {
-        for (Handle handle : getFigureEditor().getFigureSelection().getHandles()) {
+        for (Handle handle : getFigureEditor(event).getFigureSelection().getHandles()) {
             if (handle.isSelectable()) {
                 Point2D p = handle.getLocation();
-                AffineTransform m2v = m2v();
+                AffineTransform m2v = m2v(event);
                 m2v.transform(p, p);
                 p = new Point2D.Double(event.getX() - p.getX(),
                                        event.getY() - p.getY());
@@ -152,7 +149,7 @@ public class SelectionInteractor extends AbstractInteractor {
     private boolean selectHandle(MouseEvent event) {
         Handle handle = findHandle(event);
         if (handle != null) {
-            getFigureEditor().getFigureSelection().setSelectedHandle(handle);
+            getFigureEditor(event).getFigureSelection().setSelectedHandle(handle);
             return true;
         }
         return false;
@@ -184,39 +181,41 @@ public class SelectionInteractor extends AbstractInteractor {
     private class MoveSelectionTool implements Tool {
         @Override
         public void start(MouseEvent event) {
-            figureMemento = getFigureEditor().getFigureSelection().createMemento();
+            figureMemento = getFigureEditor(event).getFigureSelection().createMemento();
         }
 
         @Override
         public void drag(MouseEvent event) {
-            dragFigure(getFigureEditor().getFigureSelection(), event);
+            dragFigure(getFigureEditor(event).getFigureSelection(), event);
         }
 
         @Override
         public void end(MouseEvent event) {
             // todo - move to FigureEditor.change(figure, memento)
-            getFigureEditor().getUndoContext().postEdit(new RestorableEdit("Move Figure", getFigureEditor().getFigureSelection(), figureMemento));
+            FigureEditor figureEditor = getFigureEditor(event);
+            figureEditor.getUndoContext().postEdit(new RestorableEdit("Move Figure", figureEditor.getFigureSelection(), figureMemento));
         }
     }
 
     private class MoveHandleTool implements Tool {
         @Override
         public void start(MouseEvent event) {
-            figureMemento = getFigureEditor().getFigureSelection().createMemento();
+            figureMemento = getFigureEditor(event).getFigureSelection().createMemento();
         }
 
         @Override
         public void drag(MouseEvent event) {
-            final Handle selectedHandle = getFigureEditor().getFigureSelection().getSelectedHandle();
+            final Handle selectedHandle = getFigureEditor(event).getFigureSelection().getSelectedHandle();
             dragFigure(selectedHandle, event);
         }
 
         @Override
         public void end(MouseEvent event) {
             // Handles may have been moved, selection no longer required
-            getFigureEditor().getFigureSelection().setSelectedHandle(null);
+            FigureEditor figureEditor = getFigureEditor(event);
+            figureEditor.getFigureSelection().setSelectedHandle(null);
             // todo - move to FigureEditor.change(figure, memento)
-            getFigureEditor().getUndoContext().postEdit(new RestorableEdit("Change Figure Shape", getFigureEditor().getFigureSelection(), figureMemento));
+            figureEditor.getUndoContext().postEdit(new RestorableEdit("Change Figure Shape", figureEditor.getFigureSelection(), figureMemento));
         }
     }
 
@@ -239,60 +238,61 @@ public class SelectionInteractor extends AbstractInteractor {
 
             // Then check if user has selected a figure
             Figure clickedFigure = findFigure(event);
+            FigureEditor figureEditor = getFigureEditor(event);
             if (clickedFigure == null) {
                 // Nothing clicked, thus clear selection.
-                getFigureEditor().getFigureSelection().removeFigures();
-                getFigureEditor().getFigureSelection().setSelectionStage(0);
-            } else if (getFigureEditor().getFigureSelection().getFigureCount() == 0) {
+                figureEditor.getFigureSelection().removeFigures();
+                figureEditor.getFigureSelection().setSelectionStage(0);
+            } else if (figureEditor.getFigureSelection().getFigureCount() == 0) {
                 // If figure clicked and current selection is empty then select this figure at first selection level.
-                getFigureEditor().getFigureSelection().addFigure(clickedFigure);
+                figureEditor.getFigureSelection().addFigure(clickedFigure);
                 // Single selection starts at selection level 1 (highlighted boundary)
-                getFigureEditor().getFigureSelection().setSelectionStage(1);
-            } else if (getFigureEditor().getFigureSelection().getFigureCount() == 1) {
+                figureEditor.getFigureSelection().setSelectionStage(1);
+            } else if (figureEditor.getFigureSelection().getFigureCount() == 1) {
                 // If figure clicked and we already have a single figure selected.
-                if (getFigureEditor().getFigureSelection().contains(clickedFigure)) {
+                if (figureEditor.getFigureSelection().contains(clickedFigure)) {
                     // If the clicked figure is the currently selected figure, then increment selection level.
-                    int selectionLevel = getFigureEditor().getFigureSelection().getSelectionStage() + 1;
+                    int selectionLevel = figureEditor.getFigureSelection().getSelectionStage() + 1;
                     if (selectionLevel > clickedFigure.getMaxSelectionStage()) {
                         selectionLevel = 0;
                     }
-                    getFigureEditor().getFigureSelection().setSelectionStage(selectionLevel);
+                    figureEditor.getFigureSelection().setSelectionStage(selectionLevel);
                 } else {
                     // If the clicked figure is NOT the currently selected figure, then
                     // if CTRL down add the clicked figure to the selection,
                     // otherwise clicked figure is new selection.
                     if (event.isControlDown()) {
-                        getFigureEditor().getFigureSelection().addFigure(clickedFigure);
+                        figureEditor.getFigureSelection().addFigure(clickedFigure);
                         // Multiple selection is always at selection level 2 (scale handles + rotation handle).
-                        getFigureEditor().getFigureSelection().setSelectionStage(2);
+                        figureEditor.getFigureSelection().setSelectionStage(2);
                     } else {
-                        getFigureEditor().getFigureSelection().removeFigures();
-                        getFigureEditor().getFigureSelection().addFigure(clickedFigure);
+                        figureEditor.getFigureSelection().removeFigures();
+                        figureEditor.getFigureSelection().addFigure(clickedFigure);
                         // Single selection starts at selection level 1 (highlighted boundary)
-                        getFigureEditor().getFigureSelection().setSelectionStage(1);
+                        figureEditor.getFigureSelection().setSelectionStage(1);
                     }
                 }
-            } else if (getFigureEditor().getFigureSelection().getFigureCount() >= 2) {
+            } else if (figureEditor.getFigureSelection().getFigureCount() >= 2) {
                 // If figure clicked and we already have more than one figure selected.
-                if (getFigureEditor().getFigureSelection().contains(clickedFigure)) {
+                if (figureEditor.getFigureSelection().contains(clickedFigure)) {
                     // If the clicked figure is a currently selected figure, then
                     // if CTRL down, we deleselct clicked figure, otherwise do nothing.
                     if (event.isControlDown()) {
-                        getFigureEditor().getFigureSelection().removeFigure(clickedFigure);
+                        figureEditor.getFigureSelection().removeFigure(clickedFigure);
                     }
                 } else {
                     // If the clicked figure is NOT a currently selected figure, then
                     // if CTRL down we add clicked figure to selection, otherwise
                     // the clicked figure is the only selected one.
                     if (event.isControlDown()) {
-                        getFigureEditor().getFigureSelection().addFigure(clickedFigure);
+                        figureEditor.getFigureSelection().addFigure(clickedFigure);
                     } else {
-                        getFigureEditor().getFigureSelection().removeFigures();
-                        getFigureEditor().getFigureSelection().addFigure(clickedFigure);
+                        figureEditor.getFigureSelection().removeFigures();
+                        figureEditor.getFigureSelection().addFigure(clickedFigure);
                     }
                 }
                 // Multiple selection is always at selection level 2 (scale handles + rotation handle).
-                getFigureEditor().getFigureSelection().setSelectionStage(2);
+                figureEditor.getFigureSelection().setSelectionStage(2);
             }
         }
 
@@ -318,27 +318,28 @@ public class SelectionInteractor extends AbstractInteractor {
                 height *= -1;
                 y -= height;
             }
-            setSelectionRectangle(new Rectangle(x, y, width, height));
+            getFigureEditor(event).setSelectionRectangle(new Rectangle(x, y, width, height));
         }
 
         @Override
         public void end(MouseEvent event) {
-            if (getSelectionRectangle() != null) {
-                AffineTransform transform = v2m();
-                Shape shape = transform.createTransformedShape(getSelectionRectangle());
+            FigureEditor figureEditor = getFigureEditor(event);
+            if (figureEditor.getSelectionRectangle() != null) {
+                AffineTransform transform = v2m(event);
+                Shape shape = transform.createTransformedShape(figureEditor.getSelectionRectangle());
                 if (!event.isControlDown()) {
-                    getFigureEditor().getFigureSelection().removeFigures();
+                    figureEditor.getFigureSelection().removeFigures();
                 }
-                final Figure[] figures = getFigureEditor().getFigureCollection().getFigures(shape);
-                getFigureEditor().getFigureSelection().addFigures(figures);
-                if (getFigureEditor().getFigureSelection().getFigureCount() == 0) {
-                    getFigureEditor().getFigureSelection().setSelectionStage(0);
-                } else if (getFigureEditor().getFigureSelection().getFigureCount() == 1) {
-                    getFigureEditor().getFigureSelection().setSelectionStage(1);
+                final Figure[] figures = figureEditor.getFigureCollection().getFigures(shape);
+                figureEditor.getFigureSelection().addFigures(figures);
+                if (figureEditor.getFigureSelection().getFigureCount() == 0) {
+                    figureEditor.getFigureSelection().setSelectionStage(0);
+                } else if (figureEditor.getFigureSelection().getFigureCount() == 1) {
+                    figureEditor.getFigureSelection().setSelectionStage(1);
                 } else {
-                    getFigureEditor().getFigureSelection().setSelectionStage(2);
+                    figureEditor.getFigureSelection().setSelectionStage(2);
                 }
-                setSelectionRectangle(null);
+                figureEditor.setSelectionRectangle(null);
             }
         }
     }

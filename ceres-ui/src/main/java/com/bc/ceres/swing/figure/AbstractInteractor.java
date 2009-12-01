@@ -1,58 +1,51 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.figure.Interactor;
-import com.bc.ceres.swing.figure.InteractorListener;
-
+import java.awt.Cursor;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.Cursor;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 public abstract class AbstractInteractor implements Interactor {
-    private FigureEditor figureEditor;
+
     private ArrayList<InteractorListener> listeners;
+    private boolean active;
 
     protected AbstractInteractor() {
         listeners = new ArrayList<InteractorListener>(3);
     }
 
-    public FigureEditor getFigureEditor() {
-        return figureEditor;
+    @Override
+    public boolean isActive() {
+        return active;
     }
 
     @Override
-    public void activate(FigureEditor figureEditor) {
-        if (this.figureEditor != null) {
-            deactivate(this.figureEditor);
+    public void activate() {
+        if (!active) {
+            this.active = true;
+            fireActivated();
         }
-        this.figureEditor = figureEditor;
-        fireActivated();
     }
 
     @Override
-    public void deactivate(FigureEditor figureEditor) {
-        if (this.figureEditor == figureEditor) {
-            this.figureEditor = null;
+    public void deactivate() {
+        if (active) {
+            this.active = false;
             fireDeactivated();
         }
     }
 
-    @Override
-    public void cancelInteraction() {
-        fireCancelled();
+    protected void startInteraction(InputEvent inputEvent) {
+        fireStarted(inputEvent);
     }
 
-    @Override
-    public void startInteraction() {
-        fireStarted();
+    protected void stopInteraction(InputEvent inputEvent) {
+        fireStopped(inputEvent);
     }
 
-    @Override
-    public void stopInteraction() {
-        fireStopped();
+    protected void cancelInteraction(InputEvent inputEvent) {
+        fireCancelled(inputEvent);
     }
 
     @Override
@@ -100,7 +93,7 @@ public abstract class AbstractInteractor implements Interactor {
     public void keyTyped(KeyEvent event) {
         // System.out.println("onKeyTyped: interaction = " + this + ", keyChar = " + (int) event.getKeyChar());
         if (event.getKeyChar() == 27) {
-            cancelInteraction();
+            cancelInteraction(event);
         }
     }
 
@@ -119,22 +112,6 @@ public abstract class AbstractInteractor implements Interactor {
         return this.listeners.toArray(new InteractorListener[this.listeners.size()]);
     }
 
-    protected AffineTransform v2m() {
-        return getFigureEditor().getViewport().getViewToModelTransform();
-    }
-
-    protected AffineTransform m2v() {
-        return getFigureEditor().getViewport().getModelToViewTransform();
-    }
-
-    protected Point2D toModelPoint(MouseEvent event) {
-        return toModelPoint(event.getPoint());
-    }
-
-    protected Point2D toModelPoint(Point2D point) {
-        return v2m().transform(point, null);
-    }
-
     private void fireActivated() {
         for (InteractorListener listener : getListeners()) {
             listener.interactorActivated(this);
@@ -147,21 +124,21 @@ public abstract class AbstractInteractor implements Interactor {
         }
     }
 
-    private void fireStarted() {
+    private void fireStarted(InputEvent inputEvent) {
         for (InteractorListener listener : getListeners()) {
-            listener.interactionStarted(this);
+            listener.interactionStarted(this, inputEvent);
         }
     }
 
-    private void fireStopped() {
+    private void fireStopped(InputEvent inputEvent) {
         for (InteractorListener listener : getListeners()) {
-            listener.interactionStopped(this);
+            listener.interactionStopped(this, inputEvent);
         }
     }
 
-    private void fireCancelled() {
+    private void fireCancelled(InputEvent inputEvent) {
         for (InteractorListener listener : getListeners()) {
-            listener.interactionCancelled(this);
+            listener.interactionCancelled(this, inputEvent);
         }
     }
 }

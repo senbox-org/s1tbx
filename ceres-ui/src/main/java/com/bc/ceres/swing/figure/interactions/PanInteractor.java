@@ -1,12 +1,13 @@
 package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.swing.figure.AbstractInteractor;
+import com.bc.ceres.swing.figure.ViewportInteractor;
 
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 
-public class PanInteractor extends AbstractInteractor {
+public class PanInteractor extends ViewportInteractor {
+
     private int viewportX;
     private int viewportY;
 
@@ -18,7 +19,7 @@ public class PanInteractor extends AbstractInteractor {
 
     @Override
     public void mouseDragged(MouseEvent event) {
-        Viewport viewport = getFigureEditor().getViewport();
+        Viewport viewport = getViewport(event);
         int viewportX = event.getX();
         int viewportY = event.getY();
         final double dx = viewportX - this.viewportX;

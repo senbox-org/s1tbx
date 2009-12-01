@@ -1,19 +1,21 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.figure.AbstractInteractor;
+import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
-import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.FigureInsertEdit;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.Shape;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewMultiPointShapeInteractor extends AbstractInteractor {
+public class NewMultiPointShapeInteractor extends FigureEditorInteractor {
+
     private final List<Point2D> points;
     private final boolean polygonal;
     private DefaultShapeFigure figure;
@@ -45,52 +47,49 @@ public class NewMultiPointShapeInteractor extends AbstractInteractor {
     }
 
     @Override
-    public void cancelInteraction() {
-        if (points.size() > 0) {
+    public void cancelInteraction(InputEvent event) {
+        if (!points.isEmpty()) {
             points.remove(points.size() - 1);
             points.remove(points.size() - 1);
             if (points.isEmpty()) {
-                getFigureEditor().getFigureCollection().removeFigure(figure);
+                getFigureEditor(event).getFigureCollection().removeFigure(figure);
                 figure = null;
             }
-            super.cancelInteraction();
+            super.cancelInteraction(event);
         }
-    }
-
-    @Override
-    public void mousePressed(MouseEvent event) {
     }
 
     @Override
     public void mouseClicked(MouseEvent event) {
         if (event.getClickCount() > 1) {
             points.clear();
-            getFigureEditor().getFigureSelection().removeFigures();
-            stopInteraction();
+            getFigureEditor(event).getFigureSelection().removeFigures();
+            stopInteraction(event);
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent event) {
+        final FigureEditor figureEditor = getFigureEditor(event);
         if (points.isEmpty()) {
-            getFigureEditor().getFigureSelection().removeFigures();
-            startInteraction();
+            figureEditor.getFigureSelection().removeFigures();
+            startInteraction(event);
         }
 
-        points.add(toModelPoint(event.getPoint()));
-        points.add(toModelPoint(event.getPoint()));
+        points.add(toModelPoint(event));
+        points.add(toModelPoint(event));
 
         if (points.size() == 2) {
             figure = new DefaultShapeFigure(createPath(), isPolygonal(), StyleDefaults.INSERT_STYLE);
             // todo - move to FigureEditor.insert(figures)
-            getFigureEditor().getUndoContext().postEdit(new FigureInsertEdit(getFigureEditor(), figure));
+            figureEditor.getUndoContext().postEdit(new FigureInsertEdit(figureEditor, figure));
         }
     }
 
     @Override
     public void mouseMoved(MouseEvent event) {
-        if (points.size() > 0) {
-            points.set(points.size() - 1, toModelPoint(event.getPoint()));
+        if (!points.isEmpty()) {
+            points.set(points.size() - 1, toModelPoint(event));
             figure.setShape(createPath());
         }
     }

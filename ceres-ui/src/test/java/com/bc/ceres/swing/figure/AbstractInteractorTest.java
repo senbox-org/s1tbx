@@ -1,16 +1,15 @@
 package com.bc.ceres.swing.figure;
 
+import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import junit.framework.TestCase;
 
 import javax.swing.JMenu;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-
-import com.bc.ceres.swing.figure.AbstractInteractor;
-import com.bc.ceres.swing.figure.Interactor;
-import com.bc.ceres.swing.figure.InteractorListener;
-import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
+import java.awt.event.MouseEvent;
 
 public class AbstractInteractorTest extends TestCase {
+
     public void testListeners() {
         DefaultFigureEditor editor = new DefaultFigureEditor();
         AbstractInteractor interactor = new AbstractInteractor() {
@@ -18,29 +17,31 @@ public class AbstractInteractorTest extends TestCase {
         MyInteractorListener listener = new MyInteractorListener();
         interactor.addListener(listener);
 
-        interactor.activate(editor);
+        MouseEvent event = new MouseEvent(editor, 0, 0, 0, 0, 0, 1, false, 0);
+
+        interactor.activate();
         assertEquals("a;", listener.trace);
 
-        interactor.deactivate(editor);
+        interactor.deactivate();
         assertEquals("a;d;", listener.trace);
 
-        interactor.activate(editor);
+        interactor.activate();
         assertEquals("a;d;a;", listener.trace);
 
-        interactor.cancelInteraction();
+        interactor.cancelInteraction(event);
         assertEquals("a;d;a;c;", listener.trace);
 
-        interactor.activate(editor);
-        assertEquals("a;d;a;c;d;a;", listener.trace);
+        interactor.activate();
+        assertEquals("a;d;a;c;", listener.trace);
 
-        interactor.startInteraction();
-        assertEquals("a;d;a;c;d;a;s;", listener.trace);
+        interactor.startInteraction(event);
+        assertEquals("a;d;a;c;s;", listener.trace);
 
-        interactor.stopInteraction();
-        assertEquals("a;d;a;c;d;a;s;e;", listener.trace);
+        interactor.stopInteraction(event);
+        assertEquals("a;d;a;c;s;e;", listener.trace);
 
-        interactor.deactivate(editor);
-        assertEquals("a;d;a;c;d;a;s;e;d;", listener.trace);
+        interactor.deactivate();
+        assertEquals("a;d;a;c;s;e;d;", listener.trace);
     }
 
     public void testEscKeyPressedInvokesCancel() {
@@ -62,6 +63,7 @@ public class AbstractInteractorTest extends TestCase {
     }
 
     private static class MyInteractorListener implements InteractorListener {
+
         String trace = "";
 
         @Override
@@ -75,17 +77,17 @@ public class AbstractInteractorTest extends TestCase {
         }
 
         @Override
-        public void interactionStarted(Interactor interactor) {
+        public void interactionStarted(Interactor interactor, InputEvent event) {
             trace += "s;";
         }
 
         @Override
-        public void interactionStopped(Interactor interactor) {
+        public void interactionStopped(Interactor interactor, InputEvent inputEvent) {
             trace += "e;";
         }
 
         @Override
-        public void interactionCancelled(Interactor interactor) {
+        public void interactionCancelled(Interactor interactor, InputEvent inputEvent) {
             trace += "c;";
         }
     }

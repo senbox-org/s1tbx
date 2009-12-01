@@ -3,6 +3,8 @@ package com.bc.ceres.swing.figure;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.InteractorListener;
 
+import java.awt.event.InputEvent;
+
 public class AbstractInteractorListener implements InteractorListener {
     @Override
     public void interactorActivated(Interactor interactor) {
@@ -13,14 +15,14 @@ public class AbstractInteractorListener implements InteractorListener {
     }
 
     @Override
-    public void interactionStarted(Interactor interactor) {
+    public void interactionStarted(Interactor interactor, InputEvent event) {
     }
 
     @Override
-    public void interactionStopped(Interactor interactor) {
+    public void interactionStopped(Interactor interactor, InputEvent inputEvent) {
     }
 
     @Override
-    public void interactionCancelled(Interactor interactor) {
+    public void interactionCancelled(Interactor interactor, InputEvent inputEvent) {
     }
 }

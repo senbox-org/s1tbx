@@ -15,15 +15,11 @@ public interface Interactor extends MouseListener, MouseMotionListener, KeyListe
 
     Cursor getCursor();
 
-    void activate(FigureEditor figureEditor);
+    boolean isActive();
 
-    void deactivate(FigureEditor figureEditor);
+    void activate();
 
-    void startInteraction();
-
-    void stopInteraction();
-
-    void cancelInteraction();
+    void deactivate();
 
     void addListener(InteractorListener l);
 

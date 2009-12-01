@@ -20,6 +20,16 @@ public interface FigureEditor extends InteractorHolder, ViewportOwner {
 
     void setSelectionRectangle(Rectangle rectangle);
 
+    /**
+     * Sets the new interactor.
+     * Usually implemented as follows:
+     * <pre>
+     * this.interactor.deactivate(this);
+     * this.interactor = interactor;
+     * this.interactor.activate(this);
+     * </pre>
+     * @param interactor The new interactor.
+     */
     void setInteractor(Interactor interactor);
 
     FigureSelection getFigureSelection();

@@ -2,6 +2,7 @@ package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.figure.AbstractInteractor;
+import com.bc.ceres.swing.figure.ViewportInteractor;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -12,7 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
-public class ZoomInteractor extends AbstractInteractor {
+public class ZoomInteractor extends ViewportInteractor {
     private int viewportX;
     private int viewportY;
     private Graphics graphics;
@@ -50,7 +51,7 @@ public class ZoomInteractor extends AbstractInteractor {
         if (graphics == null) {
             return;
         }
-        Viewport viewport = getFigureEditor().getViewport();
+        Viewport viewport = getViewport(event);
         if (!zoomRect.isEmpty()) {
             AffineTransform v2m = viewport.getViewToModelTransform();
             Shape transformedShape = v2m.createTransformedShape(zoomRect);
