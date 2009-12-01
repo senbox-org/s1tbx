@@ -1,7 +1,6 @@
 package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.swing.figure.AbstractInteractor;
 import com.bc.ceres.swing.figure.ViewportInteractor;
 
 import java.awt.Color;
@@ -22,6 +21,12 @@ public class ZoomInteractor extends ViewportInteractor {
     @Override
     public Cursor getCursor() {
         return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+    }
+
+    @Override
+    public void activate() {
+        super.activate();
+
     }
 
     @Override
