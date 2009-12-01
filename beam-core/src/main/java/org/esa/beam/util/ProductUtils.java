@@ -43,7 +43,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductVisitorAdapter;
 import org.esa.beam.framework.datamodel.RGBChannelDef;
-import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.ScatterPlot;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
@@ -745,11 +744,11 @@ public class ProductUtils {
     }
 
     /**
-     * Creates the boundary in map coordinates for the given product, source rectangle (in product pixel coordinates)
-     * and the given map transfromation. The method delegates to {@link #createMapEnvelope(org.esa.beam.framework.datamodel.Product,
-     * java.awt.Rectangle,int,org.esa.beam.framework.dataop.maptransf.MapTransform) createMapEnvelope(product, rect,
-     * step, mapTransform)} where <code>step</code> is the half of the minimum of the product scene raster width and
-     * height.
+     * Creates the boundary in map coordinates for the given product, source rectangle (in product
+     * pixel coordinates) and the given map transfromation. The method delegates to
+     * {@link #createMapBoundary(Product, Rectangle,int,MapTransform) createMapBoundary(product, rect,
+     * step, mapTransform)} where <code>step</code> is the half of the minimum of the product scene
+     * raster width and height.
      *
      * @param product      The product.
      * @param rect         The rectangle in pixel coordinates.
@@ -1126,10 +1125,9 @@ public class ProductUtils {
         Guardian.assertNotNull("source", source);
         Guardian.assertNotNull("target", target);
 
-        int numCodings = source.getNumFlagCodings();
-
+        int numCodings = source.getFlagCodingGroup().getNodeCount();
         for (int n = 0; n < numCodings; n++) {
-            FlagCoding sourceFlagCoding = source.getFlagCodingAt(n);
+            FlagCoding sourceFlagCoding = source.getFlagCodingGroup().get(n);
             copyFlagCoding(sourceFlagCoding, target);
         }
     }
@@ -1170,6 +1168,7 @@ public class ProductUtils {
      *
      * @see org.esa.beam.framework.datamodel.Product#getBitmaskDefs()
      * @see RasterDataNode#getBitmaskOverlayInfo()
+     * @deprecated since BEAM 4.7
      */
     public static void copyBitmaskDefsAndOverlays(final Product sourceProduct, final Product targetProduct) {
         Guardian.assertNotNull("sourceProduct", sourceProduct);
@@ -1203,17 +1202,20 @@ public class ProductUtils {
     }
 
     /**
-     * Copies the bitmask definitions from the source product to the target.
-     * <p>IMPORTANT NOTE: This method should only be used, if it is known that all bitmask definitions
-     * in the source product will also be valid in the target product.
-     * Furthermore this method does NOT copy the bitmask overlay information from source bands
-     * to target bands.
+     * Copies the bitmask definitions from the source product to the target product.
+     * <p/>
+     * IMPORTANT NOTE: This method should only be used, if it is known that all bitmask
+     * definitions in the source product will also be valid in the target product. This
+     * method does NOT copy the bitmask overlay information from the source bands to
+     * the target bands.
      *
      * @param sourceProduct the source product
      * @param targetProduct the target product
      *
      * @see #copyBitmaskDefsAndOverlays
+     * @deprecated since BEAM 4.7.
      */
+    @Deprecated
     public static void copyBitmaskDefs(Product sourceProduct, Product targetProduct) {
         Guardian.assertNotNull("sourceProduct", sourceProduct);
         Guardian.assertNotNull("target", targetProduct);
@@ -1235,7 +1237,7 @@ public class ProductUtils {
     public static void copyFlagBands(Product sourceProduct, Product targetProduct) {
         Guardian.assertNotNull("source", sourceProduct);
         Guardian.assertNotNull("target", targetProduct);
-        if (sourceProduct.getNumFlagCodings() > 0) {
+        if (sourceProduct.getFlagCodingGroup().getNodeCount() > 0) {
             Band sourceBand;
             Band targetBand;
             FlagCoding coding;
@@ -1250,7 +1252,7 @@ public class ProductUtils {
                 coding = sourceBand.getFlagCoding();
                 if (coding != null) {
                     targetBand = copyBand(bandName, sourceProduct, targetProduct);
-                    targetBand.setFlagCoding(targetProduct.getFlagCoding(coding.getName()));
+                    targetBand.setSampleCoding(targetProduct.getFlagCodingGroup().get(coding.getName()));
                 }
             }
         }
@@ -1457,7 +1459,7 @@ public class ProductUtils {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #createScatterPlotImage(org.esa.beam.framework.datamodel.RasterDataNode, float, float, org.esa.beam.framework.datamodel.RasterDataNode, float, float, java.awt.image.RenderedImage, int, int, java.awt.Color, java.awt.image.BufferedImage, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createScatterPlotImage(RasterDataNode, float, float, RasterDataNode, float, float, RenderedImage, int, int, Color, BufferedImage, ProgressMonitor)} instead
      */
     public static BufferedImage createScatterPlotImage(final RasterDataNode raster1,
                                                        final float sampleMin1,
@@ -1493,8 +1495,11 @@ public class ProductUtils {
      * @param height     the height of the output image
      * @param background the background color of the output image
      * @param image      an image to be used as output image, if <code>null</code> a new image is created
+     * @param pm         the progress monitor
      *
      * @return the scatter plot image
+     *
+     * @throws java.io.IOException when an error occurred.
      */
     public static BufferedImage createScatterPlotImage(final RasterDataNode raster1,
                                                        final float sampleMin1,
@@ -1747,8 +1752,8 @@ public class ProductUtils {
             normalized = 1;
         } else if (!negNormalized && posNormalized) {
             normalized = -1;
-            for (int i = 0; i < polygon.length; i++) {
-                polygon[i].lon += 360.0F;
+            for (GeoPos aPolygon : polygon) {
+                aPolygon.lon += 360.0F;
             }
         } else if (negNormalized && posNormalized) {
             normalized = 2;
