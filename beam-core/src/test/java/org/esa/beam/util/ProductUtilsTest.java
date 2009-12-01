@@ -33,6 +33,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -372,7 +373,7 @@ public class ProductUtilsTest extends TestCase {
         source.addBand(b2);
         source.addBand(b3);
 
-        final Map bandMapping = new HashMap();
+        final Map<Band, RasterDataNode> bandMapping = new HashMap<Band, RasterDataNode>();
 
         // Should NOT copy any bands because source is NOT geo-coded
         final Product target1 = new Product("target1", "test", 300, 400);
@@ -717,12 +718,12 @@ public class ProductUtilsTest extends TestCase {
 
     public void testCopyMetadata() {
         try {
-            ProductUtils.copyMetadata((Product) null, (Product) null);
+            ProductUtils.copyMetadata((Product) null, null);
             fail();
         } catch (NullPointerException expected) {
         }
         try {
-            ProductUtils.copyMetadata((MetadataElement) null, (MetadataElement) null);
+            ProductUtils.copyMetadata((MetadataElement) null, null);
             fail();
         } catch (NullPointerException expected) {
         }
