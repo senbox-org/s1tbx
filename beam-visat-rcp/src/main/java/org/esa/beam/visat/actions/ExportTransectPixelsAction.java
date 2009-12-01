@@ -1,6 +1,7 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -9,7 +10,6 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TransectProfileData;
-import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.SelectExportMethodDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;

@@ -1,5 +1,7 @@
 package org.esa.beam.visat.actions;
 
+import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -9,8 +11,6 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -136,7 +136,7 @@ public class ImportShapeAction extends ExecCommand {
             return;
         }
 
-        final Figure figure = new ShapeFigure(shape, true, null);
+        final Figure figure = new DefaultShapeFigure(shape, true, null);
         productSceneView.setCurrentShapeFigure(figure);
     }
 

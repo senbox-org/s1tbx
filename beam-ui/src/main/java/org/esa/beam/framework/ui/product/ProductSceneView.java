@@ -11,14 +11,15 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.grender.support.DefaultRendering;
-import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.figure.Interactor;
-import com.bc.ceres.swing.figure.FigureSelection;
-import com.bc.ceres.swing.figure.FigureCollection;
+import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
+import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureChangeEvent;
+import com.bc.ceres.swing.figure.FigureCollection;
+import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.FigureSelection;
+import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.figure.support.FigureSelectionContext;
 import com.bc.ceres.swing.figure.support.InteractionDispatcher;
@@ -34,7 +35,6 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.LayerUI;
 import org.esa.beam.framework.ui.PixelInfoFactory;
@@ -685,7 +685,7 @@ public class ProductSceneView extends BasicView
 
     @Deprecated
     public Figure getCurrentShapeFigure() {
-        return getNumFigures() > 0 ? getFigureAt(0) : null;
+        return  null;
     }
 
     @Deprecated
@@ -882,25 +882,6 @@ public class ProductSceneView extends BasicView
         }
     }
 
-    // todo remove
-    @Deprecated
-    public int getNumFigures() {
-        final FigureLayer figureLayer = getFigureLayer(false);
-        if (figureLayer != null) {
-            return figureLayer.getFigureList().size();
-        }
-        return 0;
-    }
-
-    // todo remove
-    @Deprecated
-    public Figure getFigureAt(int index) {
-        FigureLayer figureLayer = getFigureLayer(false);
-        if (figureLayer != null) {
-            return figureLayer.getFigureList().get(index);
-        }
-        return null;
-    }
 
     protected void copyPixelInfoStringToClipboard() {
         SystemUtils.copyToClipboard(createPixelInfoString(pixelX, pixelY));

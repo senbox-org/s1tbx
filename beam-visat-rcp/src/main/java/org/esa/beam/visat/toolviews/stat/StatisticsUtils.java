@@ -1,9 +1,9 @@
 package org.esa.beam.visat.toolviews.stat;
 
+import com.bc.ceres.swing.figure.Figure;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TransectProfileData;
-import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
