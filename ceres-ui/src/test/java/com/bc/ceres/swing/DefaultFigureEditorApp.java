@@ -19,6 +19,7 @@ import com.bc.ceres.swing.figure.interactions.NewTextInteractor;
 import com.bc.ceres.swing.figure.interactions.PanInteractor;
 import com.bc.ceres.swing.figure.interactions.SelectionInteractor;
 import com.bc.ceres.swing.figure.interactions.ZoomInteractor;
+import com.bc.ceres.swing.figure.interactions.NewLineShapeInteractor;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
@@ -57,6 +58,7 @@ public class DefaultFigureEditorApp {
     private static final Interactor SELECTION_INTERACTOR = new SelectionInteractor();
     private static final Interactor ZOOM_INTERACTOR = new ZoomInteractor();
     private static final Interactor PAN_INTERACTOR = new PanInteractor();
+    private static final Interactor NEW_LINE_INTERACTOR = new NewLineShapeInteractor();
     private static final Interactor NEW_RECT_INTERACTOR = new NewRectangleShapeInteractor();
     private static final Interactor NEW_ELLI_INTERACTOR = new NewEllipseShapeInteractor();
     private static final Interactor NEW_POLYLINE_INTERACTOR = new NewPolylineShapeInteractor();
@@ -102,6 +104,7 @@ public class DefaultFigureEditorApp {
         AbstractButton selectButton = createInteractorButton(figureEditor, "S", SELECTION_INTERACTOR);
         AbstractButton zoomButton = createInteractorButton(figureEditor, "Z", ZOOM_INTERACTOR);
         AbstractButton panButton = createInteractorButton(figureEditor, "P", PAN_INTERACTOR);
+        AbstractButton newLineButton = createInteractorButton(figureEditor, "L", NEW_LINE_INTERACTOR);
         AbstractButton newRectButton = createInteractorButton(figureEditor, "R", NEW_RECT_INTERACTOR);
         AbstractButton newElliButton = createInteractorButton(figureEditor, "E", NEW_ELLI_INTERACTOR);
         AbstractButton newPLButton = createInteractorButton(figureEditor, "PL", NEW_POLYLINE_INTERACTOR);
@@ -112,6 +115,7 @@ public class DefaultFigureEditorApp {
         toolBar.add(selectButton);
         toolBar.add(zoomButton);
         toolBar.add(panButton);
+        toolBar.add(newLineButton);
         toolBar.add(newRectButton);
         toolBar.add(newElliButton);
         toolBar.add(newPLButton);
@@ -122,6 +126,7 @@ public class DefaultFigureEditorApp {
         group.add(selectButton);
         group.add(zoomButton);
         group.add(panButton);
+        group.add(newLineButton);
         group.add(newRectButton);
         group.add(newElliButton);
         group.add(newPLButton);
