@@ -385,13 +385,13 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
     }
 
     private void writeFlagCodings() throws IOException {
-        if (getSourceProduct().getNumFlagCodings() == 0) {
+        if (getSourceProduct().getFlagCodingGroup().getNodeCount() == 0) {
             return;
         }
         int groupID = createH5G(_fileID, "/flag_codings");
         try {
-            for (int i = 0; i < getSourceProduct().getNumFlagCodings(); i++) {
-                FlagCoding flagCoding = getSourceProduct().getFlagCodingAt(i);
+            for (int i = 0; i < getSourceProduct().getFlagCodingGroup().getNodeCount(); i++) {
+                FlagCoding flagCoding = getSourceProduct().getFlagCodingGroup().get(i);
                 writeMetadataElement(groupID, flagCoding);
             }
         } catch (IOException e) {

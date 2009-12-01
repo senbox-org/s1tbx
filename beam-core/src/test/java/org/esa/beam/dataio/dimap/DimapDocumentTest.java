@@ -1389,7 +1389,7 @@ public class DimapDocumentTest extends TestCase {
         }
 
         private void addFlagCodingElements() { // Übernommen
-            String[] codingNames = getProduct().getFlagCodingNames();
+            String[] codingNames = getProduct().getFlagCodingGroup().getNodeNames();
             for (int i = 0; i < codingNames.length; i++) {
                 Element flagCodingElem = new Element(DimapProductConstants.TAG_FLAG_CODING);
                 flagCodingElem.setAttribute(DimapProductConstants.ATTRIB_NAME, codingNames[i]);

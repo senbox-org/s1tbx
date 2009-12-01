@@ -483,7 +483,7 @@ public abstract class Processor {
     protected final void copyFlagBandData(Product inputProduct, Product outputProduct, ProgressMonitor pm) throws
                                                                                                            IOException,
                                                                                                            ProcessorException {
-        if (inputProduct.getNumFlagCodings() > 0) {
+        if (inputProduct.getFlagCodingGroup().getNodeCount() > 0) {
             // loop over bands and check if they have a flags coding attached
             for (int n = 0; n < inputProduct.getNumBands(); n++) {
                 if (inputProduct.getBandAt(n).getFlagCoding() != null) {
@@ -688,7 +688,7 @@ public abstract class Processor {
      */
     protected void copyFlagBands(Product inputProduct, Product outputProduct) {
         ProductUtils.copyFlagBands(inputProduct, outputProduct);
-        if (inputProduct.getNumFlagCodings() > 0) {
+        if (inputProduct.getFlagCodingGroup().getNodeCount() > 0) {
             // loop over bands and check if they have a flags coding attached
             for (int n = 0; n < inputProduct.getNumBands(); n++) {
                 final Band band = inputProduct.getBandAt(n);
