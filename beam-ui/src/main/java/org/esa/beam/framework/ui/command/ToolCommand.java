@@ -122,6 +122,7 @@ public class ToolCommand extends SelectableCommand {
             /**
              * Invoked when an action occurs.
              */
+            @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 if (!tool.isActive()) {
                     tool.activate();
