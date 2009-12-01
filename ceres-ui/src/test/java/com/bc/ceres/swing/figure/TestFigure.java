@@ -22,6 +22,11 @@ public class TestFigure extends AbstractFigure {
         this.selectable = selectable;
     }
 
+    @Override
+    public Shape getShape() {
+        return shape;  
+    }
+
     public void setShape(Shape shape) {
         this.shape = shape;
         fireFigureChanged();

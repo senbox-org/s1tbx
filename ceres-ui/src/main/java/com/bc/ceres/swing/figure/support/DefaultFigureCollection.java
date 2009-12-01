@@ -10,6 +10,7 @@ import com.bc.ceres.grender.Rendering;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Area;
 import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +42,15 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
         this.figureSet = new HashSet<Figure>(list);
         this.changeDelegate = new ChangeDelegate();
         addListener(new BoundsUpdater());
+    }
+
+    @Override
+    public Shape getShape() {
+        Area area = new Area();
+        for (Figure figure : figureList) {
+            area.add(new Area(figure.getShape()));
+        }
+        return area;
     }
 
     @Override

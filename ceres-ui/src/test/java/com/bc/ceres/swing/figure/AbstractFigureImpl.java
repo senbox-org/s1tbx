@@ -3,6 +3,7 @@ package com.bc.ceres.swing.figure;
 import com.bc.ceres.grender.Rendering;
 
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -11,6 +12,11 @@ import java.awt.geom.Rectangle2D;
 class AbstractFigureImpl extends AbstractFigure {
 
     public AbstractFigureImpl() {
+    }
+
+    @Override
+    public Shape getShape() {
+        return null;
     }
 
     @Override

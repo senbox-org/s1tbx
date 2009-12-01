@@ -24,6 +24,11 @@ public interface Figure extends Restorable, Cloneable {
         COLLECTION
     }
 
+    // Temporarily solution
+    // todo - (1) remove or
+    // todo - (2) rename to getAsShape()
+    Shape getShape();
+
     boolean isSelectable();
 
     boolean isSelected();
