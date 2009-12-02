@@ -33,6 +33,7 @@ import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -53,11 +54,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.io.File;
 import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.prefs.Preferences;
 
 @org.junit.Ignore
-public class FigureEditorApp {
+public abstract class FigureEditorApp {
     private static final Interactor SELECTION_INTERACTOR = new SelectionInteractor();
     private static final Interactor ZOOM_INTERACTOR = new ZoomInteractor();
     private static final Interactor PAN_INTERACTOR = new PanInteractor();
@@ -76,12 +79,20 @@ public class FigureEditorApp {
     private final CutAction cutAction;
     private final CopyAction copyAction;
     private final PasteAction pasteAction;
+    private FigureEditorPanel figureEditorPanel;
 
     public FigureEditorApp() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+            // ok
+        }
+
         DefaultSelectionManager selectionManager = new DefaultSelectionManager();
         DefaultUndoContext undoContext = new DefaultUndoContext(this);
 
-        FigureEditorPanel figureEditorPanel = new FigureEditorPanel(undoContext);
+        figureEditorPanel = new FigureEditorPanel(undoContext);
         selectionManager.setSelectionContext(figureEditorPanel.getFigureEditor().getSelectionContext());
 
         undoAction = new UndoAction(undoContext) {
@@ -134,15 +145,17 @@ public class FigureEditorApp {
         group.add(newPGButton);
 
         figureEditorPanel.getFigureEditor().setInteractor(SELECTION_INTERACTOR);
-        FigureFactory figureFactory = new DefaultFigureFactory();
+        figureEditorPanel.setPreferredSize(new Dimension(1024, 1024));
+
         FigureCollection drawing = figureEditorPanel.getFigureEditor().getFigureCollection();
+
+        FigureFactory figureFactory = new DefaultFigureFactory();
         drawing.addFigure(figureFactory.createPolygonalFigure(new Rectangle(20, 30, 200, 100), DefaultFigureStyle.createShapeStyle(Color.BLUE, Color.GREEN)));
         drawing.addFigure(figureFactory.createPolygonalFigure(new Rectangle(90, 10, 100, 200), DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.ORANGE)));
         drawing.addFigure(figureFactory.createLinealFigure(new Rectangle(110, 60, 70, 140), DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.BLACK)));
         drawing.addFigure(figureFactory.createLinealFigure(new Line2D.Double(200, 100, 300, 100), DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.BLACK)));
         drawing.addFigure(figureFactory.createPolygonalFigure(new Ellipse2D.Double(50, 100, 80, 80), DefaultFigureStyle.createShapeStyle(Color.YELLOW, Color.RED)));
         drawing.addFigure(figureFactory.createPolygonalFigure(new Ellipse2D.Double(220, 120, 150, 300), DefaultFigureStyle.createShapeStyle(Color.GREEN, Color.BLUE)));
-        figureEditorPanel.setPreferredSize(new Dimension(1024, 1024));
 
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(createFileMenu());
@@ -201,14 +214,38 @@ public class FigureEditorApp {
     }
 
     public static void main(String[] args) {
+        run(new FigureEditorApp() {
+            @Override
+            protected void loadFigureCollection(File file, FigureCollection figureCollection) {
+                JOptionPane.showMessageDialog(getFrame(), "Not implemented.");
+            }
+
+            @Override
+            protected void storeFigureCollection(FigureCollection figureCollection, File file) {
+                JOptionPane.showMessageDialog(getFrame(), "Not implemented.");
+            }
+        });
+    }
+
+    public static void run(FigureEditorApp drawingApp) {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            String systemLookAndFeelClassName = UIManager.getSystemLookAndFeelClassName();
+            System.out.println("systemLookAndFeelClassName = " + systemLookAndFeelClassName);
+            UIManager.setLookAndFeel(systemLookAndFeelClassName);
         } catch (Exception e) {
+            e.printStackTrace(System.err);
             // ok
         }
         Locale.setDefault(Locale.ENGLISH);
-        FigureEditorApp drawingApp = new FigureEditorApp();
         drawingApp.startUp();
+    }
+
+    protected abstract void loadFigureCollection(File file, FigureCollection figureCollection);
+
+    protected abstract void storeFigureCollection(FigureCollection figureCollection, File file);
+
+    public JFrame getFrame() {
+        return frame;
     }
 
     private void startUp() {
@@ -222,6 +259,8 @@ public class FigureEditorApp {
 
     private JMenu createFileMenu() {
         JMenu menu = new JMenu("File");
+        menu.add(new OpenAction());
+        menu.add(new SaveAsAction());
         menu.add(new ExitAction());
         return menu;
     }
@@ -262,6 +301,46 @@ public class FigureEditorApp {
             }
         });
         return selectButton;
+    }
+
+    private class OpenAction extends AbstractAction {
+        private OpenAction() {
+            putValue(Action.NAME, "Open...");
+            putValue(Action.ACTION_COMMAND_KEY, getClass().getName());
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            File lastDir = new File(Preferences.userNodeForPackage(FigureEditorApp.class).get("lastDir", "."));
+            JFileChooser chooser = new JFileChooser(lastDir);
+            chooser.setAcceptAllFileFilterUsed(true);
+            int i = chooser.showOpenDialog(frame);
+            if (i == JFileChooser.APPROVE_OPTION && chooser.getSelectedFile() != null) {
+                Preferences.userNodeForPackage(FigureEditorApp.class).put("lastDir", chooser.getCurrentDirectory().getPath());
+                figureEditorPanel.getFigureEditor().getFigureSelection().removeFigures();
+                figureEditorPanel.getFigureEditor().getFigureCollection().removeFigures();
+                loadFigureCollection(chooser.getSelectedFile(), figureEditorPanel.getFigureEditor().getFigureCollection());
+            }
+        }
+    }
+
+    private class SaveAsAction extends AbstractAction {
+        private SaveAsAction() {
+            putValue(Action.NAME, "Save As...");
+            putValue(Action.ACTION_COMMAND_KEY, getClass().getName());
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            File lastDir = new File(Preferences.userNodeForPackage(FigureEditorApp.class).get("lastDir", "."));
+            JFileChooser chooser = new JFileChooser(lastDir);
+            chooser.setAcceptAllFileFilterUsed(true);
+            int i = chooser.showSaveDialog(frame);
+            if (i == JFileChooser.APPROVE_OPTION && chooser.getSelectedFile() != null) {
+                Preferences.userNodeForPackage(FigureEditorApp.class).put("lastDir", chooser.getCurrentDirectory().getPath());
+                storeFigureCollection(figureEditorPanel.getFigureEditor().getFigureCollection(), chooser.getSelectedFile());
+            }
+        }
     }
 
     private class ExitAction extends AbstractAction {

@@ -5,6 +5,7 @@ import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.figure.AbstractFigure;
 import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.FigureStyle;
+import com.bc.ceres.swing.figure.Figure;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -12,6 +13,7 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.Paint;
 import java.awt.BasicStroke;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -23,9 +25,13 @@ import java.util.Arrays;
 public class DefaultShapeFigure extends AbstractFigure {
     private Shape shape;
     private Rank rank;
-    private final FigureStyle normalStyle;
-    private final FigureStyle selectedStyle;
+    private  FigureStyle normalStyle;
+    private  FigureStyle selectedStyle;
     private boolean selected;                        
+
+    public DefaultShapeFigure() {
+        this(null, true, new DefaultFigureStyle());
+    }
 
     public DefaultShapeFigure(Shape shape, boolean polygonal, FigureStyle normalStyle) {
         this.shape = shape;
@@ -43,12 +49,27 @@ public class DefaultShapeFigure extends AbstractFigure {
         fireFigureChanged();
     }
 
+    public void setRank(Rank rank) {
+        this.rank = rank;
+        fireFigureChanged();
+    }
+
     public FigureStyle getNormalStyle() {
         return normalStyle;
     }
 
     public FigureStyle getSelectedStyle() {
         return selectedStyle;
+    }
+
+    public void setNormalStyle(FigureStyle normalStyle) {
+        this.normalStyle = normalStyle;
+        fireFigureChanged();
+    }
+
+    public void setSelectedStyle(FigureStyle selectedStyle) {
+        this.selectedStyle = selectedStyle;
+        fireFigureChanged();
     }
 
     @Override
@@ -81,14 +102,21 @@ public class DefaultShapeFigure extends AbstractFigure {
 
     @Override
     public void draw(Rendering rendering) {
+        if (shape == null) {
+            return;
+        }
 
-        final Graphics2D g = rendering.getGraphics();
-        final Viewport vp = rendering.getViewport();
-        final AffineTransform oldTransform = g.getTransform();
+        Viewport vp = rendering.getViewport();
+        Rectangle2D vbounds = vp.getViewBounds();
+        Rectangle2D mbounds = vp.getViewToModelTransform().createTransformedShape(vbounds).getBounds2D();
+        if (!getBounds().intersects(mbounds)) {
+            return;
+        }
+
+        Graphics2D g = rendering.getGraphics();
+        AffineTransform oldTransform = g.getTransform();
         try {
-            AffineTransform newTransform = new AffineTransform(oldTransform);
-            newTransform.concatenate(vp.getModelToViewTransform());
-            g.setTransform(newTransform);
+            g.transform(vp.getModelToViewTransform());
 
             if (rank == Rank.POLYGONAL) {
                 Paint fillPaint = getNormalStyle().getFillPaint();

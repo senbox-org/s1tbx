@@ -12,6 +12,7 @@ import com.bc.ceres.swing.undo.UndoContext;
 import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Color;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
@@ -35,6 +36,7 @@ public class FigureEditorPanel extends JPanel implements FigureEditorHolder, Adj
         super(null);
 
         requestFocusInWindow(); // to receive key events
+        setBackground(Color.WHITE);
 
         this.figureCollection = figureCollection;
         this.viewport = new DefaultViewport(true);
