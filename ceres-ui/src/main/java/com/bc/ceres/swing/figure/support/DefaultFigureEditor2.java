@@ -1,22 +1,21 @@
 package com.bc.ceres.swing.figure.support;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportOwner;
 import com.bc.ceres.grender.support.DefaultRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
+import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.Interactor;
-import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.selection.SelectionContext;
-import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.RestorableEdit;
+import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 
 import javax.swing.JComponent;
@@ -131,9 +130,7 @@ public class DefaultFigureEditor2 implements FigureEditor {
     @Override
     public void setInteractor(Interactor interactor) {
         if (this.interactor != interactor) {
-            this.interactor.deactivate();
             this.interactor = interactor;
-            this.interactor.activate();
             getEditorComponent().setCursor(interactor.getCursor());
         }
     }
