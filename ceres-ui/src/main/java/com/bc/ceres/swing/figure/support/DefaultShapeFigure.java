@@ -340,15 +340,15 @@ public class DefaultShapeFigure extends AbstractFigure {
         FigureStyle selectedHandleStyle = getSelectedHandleStyle();
         ArrayList<Handle> handleList = new ArrayList<Handle>();
         PathIterator pathIterator = shape.getPathIterator(null);
-        int vertexIndex = 0;
+        int segmentIndex = 0;
         while (!pathIterator.isDone()) {
             final double[] seg = new double[6];
             final int type = pathIterator.currentSegment(seg);
             if (type != PathIterator.SEG_CLOSE) {
-                handleList.add(new VertexHandle(this, vertexIndex, handleStyle, selectedHandleStyle));
+                handleList.add(new VertexHandle(this, segmentIndex, handleStyle, selectedHandleStyle));
             }
             pathIterator.next();
-            vertexIndex++;
+            segmentIndex++;
         }
         return handleList.toArray(new Handle[handleList.size()]);
     }

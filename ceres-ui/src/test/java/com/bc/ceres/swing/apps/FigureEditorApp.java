@@ -54,6 +54,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.awt.geom.Area;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -156,6 +157,11 @@ public abstract class FigureEditorApp {
         drawing.addFigure(figureFactory.createLinealFigure(new Line2D.Double(200, 100, 300, 100), DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.BLACK)));
         drawing.addFigure(figureFactory.createPolygonalFigure(new Ellipse2D.Double(50, 100, 80, 80), DefaultFigureStyle.createShapeStyle(Color.YELLOW, Color.RED)));
         drawing.addFigure(figureFactory.createPolygonalFigure(new Ellipse2D.Double(220, 120, 150, 300), DefaultFigureStyle.createShapeStyle(Color.GREEN, Color.BLUE)));
+
+        Area area = new Area(new Rectangle(0, 0, 100, 100));
+        area.subtract(new Area(new Rectangle(25, 25, 50, 50)));
+        area.add(new Area(new Rectangle(75, 75, 50, 50)));
+        drawing.addFigure(figureFactory.createPolygonalFigure(area, DefaultFigureStyle.createShapeStyle(Color.RED, Color.ORANGE)));
 
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(createFileMenu());
