@@ -3,19 +3,39 @@ package org.esa.beam.visat.toolviews.mask;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.jexp.impl.Tokenizer;
+import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.dataio.dimap.spi.DimapPersistable;
+import org.esa.beam.dataio.dimap.spi.DimapPersistence;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.AbstractDialog;
+import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.io.BeamFileChooser;
+import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.visat.VisatApp;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+import javax.swing.filechooser.FileFilter;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Marco Peters
@@ -24,16 +44,16 @@ import java.beans.PropertyChangeListener;
  */
 class MaskFormActions {
 
-    private MaskAction[] maskActions;
+    private final MaskAction[] maskActions;
 
-    MaskFormActions(MaskForm maskForm) {
+    MaskFormActions(AbstractToolView maskToolView, MaskForm maskForm) {
         maskActions = new MaskAction[]{
                 new NewBandMathAction(maskForm), new NewRangeAction(maskForm),
                 new NewUnionAction(maskForm), new NewIntersectionAction(maskForm),
                 new NewDifferenceAction(maskForm), new NewComplementAction(maskForm),
                 new CopyAction(maskForm), new NullAction(maskForm),
                 new EditAction(maskForm), new RemoveAction(maskForm),
-                new ImportAction(maskForm), new ExportAction(maskForm),
+                new ImportAction(maskToolView, maskForm), new ExportAction(maskToolView, maskForm),
         };
     }
 
@@ -284,7 +304,7 @@ class MaskFormActions {
     private static class RemoveAction extends MaskAction {
 
         private RemoveAction(MaskForm maskForm) {
-            super(maskForm, "icons/Remove24.gif", "editButton", "Edit the selected mask.");
+            super(maskForm, "icons/Remove24.gif", "editButton", "Remove the selected mask.");
         }
 
         @Override
@@ -302,39 +322,127 @@ class MaskFormActions {
         }
     }
 
-    private static class ImportAction extends MaskAction {
+    private static class ImportAction extends MaskIOAction {
 
-        private ImportAction(MaskForm maskForm) {
-            super(maskForm, "icons/Import24.gif", "importButton", "Import masks from file.");
+        private ImportAction(AbstractToolView maskToolView, MaskForm maskForm) {
+            super(maskForm, "icons/Import24.gif", "importButton", "Import masks from file.", maskToolView);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // todo - implement
+            importBitmaskDefs();
         }
 
         @Override
         void updateState() {
             setEnabled(getMaskForm().isInManagementMode());
         }
+
+        private void importBitmaskDefs() {
+            final JFileChooser fileChooser = new BeamFileChooser();
+            fileChooser.setDialogTitle("Import Bitmask Definitions From XML File");         /*I18N*/
+            final FileFilter fileFilter = new BeamFileFilter("XML", ".xml", "XML files (*.xml)");
+            fileChooser.setFileFilter(fileFilter);
+            fileChooser.setCurrentDirectory(getDirectory());
+
+            if (fileChooser.showOpenDialog(getMaskToolView().getPaneWindow()) == JFileChooser.APPROVE_OPTION) {
+                final File file = fileChooser.getSelectedFile();
+                if (file != null) {
+                    setDirectory(file.getAbsoluteFile().getParentFile());
+                    if (file.canRead()) {
+                        try {
+                            final SAXBuilder saxBuilder = new SAXBuilder();
+                            final Document document = saxBuilder.build(file);
+                            final Element rootElement = document.getRootElement();
+                            @SuppressWarnings({"unchecked"})
+                            final List<Element> children = rootElement.getChildren(DimapProductConstants.TAG_MASK);
+                            for (final Element child : children) {
+                                final DimapPersistable persistable = DimapPersistence.getPersistable(child);
+                                if (persistable != null) {
+                                    final Product product = getMaskForm().getProduct();
+                                    final Mask mask = (Mask) persistable.createObjectFromXml(child, product);
+                                    product.getMaskGroup().add(mask);
+                                }
+                            }
+                        } catch (IOException e) {
+                            showErrorDialog("I/O Error.\nFailed to import bitmask definition.");        /*I18N*/
+                        } catch (JDOMException e) {
+                            showErrorDialog("I/O Error.\nFailed to import bitmask definition.");        /*I18N*/
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    private static class ExportAction extends MaskAction {
+    private static class ExportAction extends MaskIOAction {
 
-        private ExportAction(MaskForm maskForm) {
-            super(maskForm, "icons/Export24.gif", "exportButton", "Export masks from file.");
+        private ExportAction(AbstractToolView maskToolView, MaskForm maskForm) {
+            super(maskForm, "icons/Export24.gif", "exportButton", "Export masks to file.", maskToolView);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // todo - implement
+            exportSelectedMasks();
         }
 
         @Override
         void updateState() {
-            setEnabled(getMaskForm().isInManagementMode()
-                       && getMaskForm().getSelectedRowCount() > 0);
+            setEnabled(getMaskForm().isInManagementMode() && getMaskForm().getSelectedRowCount() > 0);
         }
+
+        private void exportSelectedMasks() {
+            final Mask[] masks = getMaskForm().getSelectedMasks();
+            if (masks == null) {
+                return;
+            }
+            final JFileChooser fileChooser = new BeamFileChooser();
+            fileChooser.setDialogTitle("Export Masks");                                            /*I18N*/
+            final FileFilter fileFilter = new BeamFileFilter("XML", ".xml", "XML files (*.xml)");
+            fileChooser.setFileFilter(fileFilter);
+            final File targetDirectory = getDirectory();
+            fileChooser.setCurrentDirectory(targetDirectory);
+            fileChooser.setSelectedFile(new File(targetDirectory, masks[0].getName()));
+            final int result = fileChooser.showSaveDialog(getMaskToolView().getPaneWindow());
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                if (file != null) {
+                    if (!VisatApp.getApp().promptForOverwrite(file)) {
+                        return;
+                    }
+                    setDirectory(file.getAbsoluteFile().getParentFile());
+                    file = FileUtils.ensureExtension(file, ".xml");
+
+                    final Document document = new Document(new Element(DimapProductConstants.TAG_MASKS));
+                    for (final Mask mask : masks) {
+                        final DimapPersistable persistable = DimapPersistence.getPersistable(mask);
+                        if (persistable != null) {
+                            final Element element = persistable.createXmlFromObject(mask);
+                            document.getRootElement().addContent(element);
+                        }
+                    }
+
+                    FileWriter writer = null;
+                    try {
+                        writer = new FileWriter(file);
+                        final Format format = Format.getPrettyFormat();
+                        final XMLOutputter outputter = new XMLOutputter(format);
+                        outputter.output(document, writer);
+                    } catch (IOException e) {
+                        showErrorDialog("I/O Error.\nFailed to export masks.");                    /*I18N*/
+                    } finally {
+                        if (writer != null) {
+                            try {
+                                writer.close();
+                            } catch (IOException e) {
+                                // ignore
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     private static class EditAction extends MaskAction {

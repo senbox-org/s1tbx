@@ -16,11 +16,14 @@
  */
 package org.esa.beam.visat.toolviews.mask;
 
+import org.esa.beam.framework.ui.application.support.AbstractToolView;
+
 public class MaskViewerToolView extends MaskToolView {
+
     public static final String ID = MaskViewerToolView.class.getName();
 
     @Override
-    protected MaskForm createMaskForm() {
+    protected MaskForm createMaskForm(AbstractToolView maskToolView) {
         return new MaskViewerForm();
     }
 }

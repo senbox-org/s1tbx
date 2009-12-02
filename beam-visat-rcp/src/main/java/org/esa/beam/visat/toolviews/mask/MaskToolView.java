@@ -94,8 +94,7 @@ public abstract class MaskToolView extends AbstractToolView {
 
     @Override
     public JComponent createControl() {
-
-        maskForm = createMaskForm();
+        maskForm = createMaskForm(this);
 
         AbstractButton helpButton = maskForm.getHelpButton();
         if (helpButton != null) {
@@ -119,7 +118,7 @@ public abstract class MaskToolView extends AbstractToolView {
         return maskForm.createContentPanel();
     }
 
-    protected abstract MaskForm createMaskForm();
+    protected abstract MaskForm createMaskForm(AbstractToolView maskToolView);
 
     private class MaskIFL extends InternalFrameAdapter {
 

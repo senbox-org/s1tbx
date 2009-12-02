@@ -24,7 +24,7 @@ public class MaskFormTest extends TestCase {
     public void setUp() {
         product = createTestProduct();
 
-        maskManagerForm = new MaskManagerForm();
+        maskManagerForm = new MaskManagerForm(null);
         maskManagerForm.reconfigureMaskTable(product, null);
 
         maskViewerForm = new MaskViewerForm();

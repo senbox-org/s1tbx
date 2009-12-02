@@ -18,6 +18,7 @@ package org.esa.beam.visat.toolviews.mask;
 
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
 import javax.swing.AbstractButton;
@@ -34,13 +35,12 @@ class MaskManagerForm extends MaskForm {
     private final AbstractButton helpButton;
     private final MaskFormActions actions;
 
-    MaskManagerForm() {
+    MaskManagerForm(AbstractToolView maskToolView) {
         super(true);
-
 
         helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"), false);
         helpButton.setName("helpButton");
-        actions = new MaskFormActions(this);
+        actions = new MaskFormActions(maskToolView, this);
 
         updateState();
     }
@@ -64,7 +64,6 @@ class MaskManagerForm extends MaskForm {
 
     @Override
     public JPanel createContentPanel() {
-
         JPanel buttonPanel = GridBagUtils.createPanel();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
@@ -104,5 +103,4 @@ class MaskManagerForm extends MaskForm {
 
         return contentPane1;
     }
-
 }
