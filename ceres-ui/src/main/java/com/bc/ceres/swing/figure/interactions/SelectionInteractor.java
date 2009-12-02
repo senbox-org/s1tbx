@@ -4,7 +4,7 @@ import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.undo.RestorableEdit;
+import com.bc.ceres.swing.figure.FigureSelection;
 
 import java.awt.Cursor;
 import java.awt.Point;
@@ -111,7 +111,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
     private Point2D.Double toModelDelta(MouseEvent event) {
         Point2D.Double p = new Point2D.Double(event.getX() - referencePoint.x,
                                               event.getY() - referencePoint.y);
-        AffineTransform transform = v2m(event);
+        AffineTransform transform = getViewToModelTransform(event);
         transform.deltaTransform(p, p);
         return p;
     }
@@ -131,10 +131,12 @@ public class SelectionInteractor extends FigureEditorInteractor {
     }
 
     private Handle findHandle(MouseEvent event) {
-        for (Handle handle : getFigureEditor(event).getFigureSelection().getHandles()) {
+        FigureEditor figureEditor = getFigureEditor(event);
+        FigureSelection figureSelection = figureEditor.getFigureSelection();
+        for (Handle handle : figureSelection.getHandles()) {
             if (handle.isSelectable()) {
                 Point2D p = handle.getLocation();
-                AffineTransform m2v = m2v(event);
+                AffineTransform m2v = getModelToViewTransform(event);
                 m2v.transform(p, p);
                 p = new Point2D.Double(event.getX() - p.getX(),
                                        event.getY() - p.getY());
@@ -323,7 +325,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
         public void end(MouseEvent event) {
             FigureEditor figureEditor = getFigureEditor(event);
             if (figureEditor.getSelectionRectangle() != null) {
-                AffineTransform transform = v2m(event);
+                AffineTransform transform = getViewToModelTransform(event);
                 Shape shape = transform.createTransformedShape(figureEditor.getSelectionRectangle());
                 if (!event.isControlDown()) {
                     figureEditor.getFigureSelection().removeFigures();

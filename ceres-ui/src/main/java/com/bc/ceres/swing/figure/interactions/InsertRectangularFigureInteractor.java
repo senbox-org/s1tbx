@@ -1,20 +1,19 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.figure.FigureEditorInteractor;
+import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.Point;
-import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.RectangularShape;
 
-public abstract class NewRectangularShapeInteractor extends FigureEditorInteractor {
+public abstract class InsertRectangularFigureInteractor extends InsertFigureInteractor {
     private Point referencePoint;
     private boolean canceled;
-    private DefaultShapeFigure figure;
+    private Figure figure;
     private RectangularShape rectangularShape;
 
     protected abstract RectangularShape createRectangularShape(Point2D point);
@@ -36,7 +35,7 @@ public abstract class NewRectangularShapeInteractor extends FigureEditorInteract
         referencePoint = event.getPoint();
         canceled = false;
         rectangularShape = createRectangularShape(toModelPoint(event, referencePoint));
-        figure = new DefaultShapeFigure(v2m(event).createTransformedShape(rectangularShape), true, StyleDefaults.INSERT_STYLE);
+        figure = getFigureFactory().createPolygonalFigure(toModelShape(event, rectangularShape), StyleDefaults.INSERT_STYLE);
         figureEditor.getFigureCollection().addFigure(figure);
         startInteraction(event);
     }
@@ -67,6 +66,6 @@ public abstract class NewRectangularShapeInteractor extends FigureEditorInteract
             y -= height;
         }
         rectangularShape.setFrame(x, y, width, height);
-        figure.setShape(v2m(event).createTransformedShape(rectangularShape));
+        figure.setShape(getViewToModelTransform(event).createTransformedShape(rectangularShape));
     }
 }

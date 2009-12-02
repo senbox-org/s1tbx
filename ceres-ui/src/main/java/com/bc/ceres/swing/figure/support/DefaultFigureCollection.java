@@ -53,6 +53,16 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
         return area;
     }
 
+    /**
+     * Throws a runtime exception "Operation not supported".
+     * @param shape Ignored.
+     * @throws RuntimeException Always "Operation not supported".
+     */
+    @Override
+    public void setShape(Shape shape) {
+        throw new IllegalStateException("Operation not supported.");
+    }
+
     @Override
     public boolean isSelectable() {
         return true; 

@@ -17,6 +17,7 @@ import java.awt.geom.Rectangle2D;
  * @since Ceres 0.10
  */
 public interface Figure extends Restorable, Cloneable {
+
     enum Rank {
         PUNCTUAL,
         LINEAL,
@@ -26,8 +27,13 @@ public interface Figure extends Restorable, Cloneable {
 
     // Temporarily solution
     // todo - (1) remove or
-    // todo - (2) rename to getAsShape()
+    // todo - (2) rename to getGeometryAsShape()
     Shape getShape();
+
+    // Temporarily solution
+    // todo - (1) remove or
+    // todo - (2) rename to setGeometryFromShape()
+    void setShape(Shape shape);
 
     boolean isSelectable();
 

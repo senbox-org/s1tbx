@@ -19,7 +19,7 @@ import java.awt.geom.Rectangle2D;
 public class FigureEditorPanel extends JPanel implements FigureEditorHolder, AdjustableView {
 
 
-    private DefaultFigureEditor2 figureEditor;
+    private DefaultFigureEditor figureEditor;
     private FigureCollection figureCollection;
     private Viewport viewport;
 
@@ -38,7 +38,7 @@ public class FigureEditorPanel extends JPanel implements FigureEditorHolder, Adj
 
         this.figureCollection = figureCollection;
         this.viewport = new DefaultViewport(true);
-        this.figureEditor = new DefaultFigureEditor2(this, undoContext, figureCollection);
+        this.figureEditor = new DefaultFigureEditor(this, undoContext, figureCollection);
 
         addComponentListener(new ComponentAdapter() {
             @Override

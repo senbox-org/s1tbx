@@ -4,6 +4,7 @@ import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportOwner;
 
 import java.awt.Component;
+import java.awt.Shape;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
@@ -22,11 +23,11 @@ public abstract class ViewportInteractor extends AbstractInteractor {
         return null;
     }
 
-    protected AffineTransform v2m(InputEvent inputEvent) {
+    protected AffineTransform getViewToModelTransform(InputEvent inputEvent) {
         return getViewport(inputEvent).getViewToModelTransform();
     }
 
-    protected AffineTransform m2v(InputEvent inputEvent) {
+    protected AffineTransform getModelToViewTransform(InputEvent inputEvent) {
         return getViewport(inputEvent).getModelToViewTransform();
     }
 
@@ -35,6 +36,11 @@ public abstract class ViewportInteractor extends AbstractInteractor {
     }
 
     protected Point2D toModelPoint(InputEvent inputEvent, Point2D point) {
-        return v2m(inputEvent).transform(point, null);
+        return getViewToModelTransform(inputEvent).transform(point, null);
     }
+
+    protected Shape toModelShape(InputEvent inputEvent, Shape shape) {
+        return getViewToModelTransform(inputEvent).createTransformedShape(shape);
+    }
+
 }

@@ -25,7 +25,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 
-public class DefaultFigureEditor2 implements FigureEditor {
+public class DefaultFigureEditor implements FigureEditor {
 
     private final UndoContext undoContext;
     private final DefaultRendering rendering;
@@ -34,11 +34,11 @@ public class DefaultFigureEditor2 implements FigureEditor {
     private Interactor interactor;
     private final JComponent editorComponent;
 
-    public DefaultFigureEditor2(JComponent editorComponent) {
+    public DefaultFigureEditor(JComponent editorComponent) {
         this(editorComponent, null, new DefaultFigureCollection());
     }
 
-    public DefaultFigureEditor2(JComponent editorComponent, UndoContext undoContext, FigureCollection figureCollection) {
+    public DefaultFigureEditor(JComponent editorComponent, UndoContext undoContext, FigureCollection figureCollection) {
         Assert.notNull(editorComponent, "editorComponent");
         this.editorComponent = editorComponent;
 
@@ -98,17 +98,23 @@ public class DefaultFigureEditor2 implements FigureEditor {
         if (newRect == oldRect) {
             return;
         }
+        Rectangle2D repaintRect = null;
         if (oldRect == null) {
             selectionRectangle = newRect;
-            getEditorComponent().repaint(newRect);
+            repaintRect = newRect;
         } else if (newRect == null) {
             selectionRectangle = newRect;
             getEditorComponent().repaint(oldRect);
+            repaintRect = oldRect;
         } else if (!oldRect.equals(newRect)) {
             selectionRectangle = newRect;
-            Rectangle2D r = oldRect.createUnion(newRect);
-            getEditorComponent().repaint((int) r.getX(), (int) r.getX(),
-                                       (int) (1 + r.getX()), (int) (1 + r.getHeight()));
+            repaintRect = oldRect.createUnion(newRect);
+        }
+        if (repaintRect != null) {
+            getEditorComponent().repaint((int) (repaintRect.getX() - 2),
+                                         (int) (repaintRect.getY() - 2),
+                                         (int) (repaintRect.getWidth() + 4),
+                                         (int) (repaintRect.getHeight()) + 4);
         }
     }
 

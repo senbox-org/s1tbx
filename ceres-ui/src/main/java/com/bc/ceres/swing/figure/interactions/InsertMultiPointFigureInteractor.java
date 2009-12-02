@@ -1,8 +1,7 @@
 package com.bc.ceres.swing.figure.interactions;
 
+import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.figure.FigureEditorInteractor;
-import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.Shape;
@@ -13,13 +12,13 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewMultiPointShapeInteractor extends FigureEditorInteractor {
+public class InsertMultiPointFigureInteractor extends InsertFigureInteractor {
 
     private final List<Point2D> points;
     private final boolean polygonal;
-    private DefaultShapeFigure figure;
+    private Figure figure;
 
-    public NewMultiPointShapeInteractor(boolean polygonal) {
+    public InsertMultiPointFigureInteractor(boolean polygonal) {
         this.polygonal = polygonal;
         this.points = new ArrayList<Point2D>(8);
     }
@@ -86,7 +85,11 @@ public class NewMultiPointShapeInteractor extends FigureEditorInteractor {
         points.add(toModelPoint(event));
 
         if (points.size() == 2) {
-            figure = new DefaultShapeFigure(createPath(), isPolygonal(), StyleDefaults.INSERT_STYLE);
+            if (isPolygonal()) {
+                figure = getFigureFactory().createPolygonalFigure(createPath(), StyleDefaults.INSERT_STYLE);
+            } else {
+                figure = getFigureFactory().createLinealFigure(createPath(), StyleDefaults.INSERT_STYLE);
+            }
             getFigureEditor(event).getFigureCollection().addFigure(figure);
         }
     }

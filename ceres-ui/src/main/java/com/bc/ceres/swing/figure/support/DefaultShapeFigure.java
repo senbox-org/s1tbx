@@ -25,7 +25,7 @@ public class DefaultShapeFigure extends AbstractFigure {
     private Rank rank;
     private final FigureStyle normalStyle;
     private final FigureStyle selectedStyle;
-    private boolean selected;
+    private boolean selected;                        
 
     public DefaultShapeFigure(Shape shape, boolean polygonal, FigureStyle normalStyle) {
         this.shape = shape;
@@ -289,7 +289,6 @@ public class DefaultShapeFigure extends AbstractFigure {
 
     @Override
     public Handle[] createHandles(int selectionStage) {
-        System.out.println("selectionStage = " + selectionStage);
         if (selectionStage == 1) {
             // No handles at level 1, only high-lighting, see draw() & isSelected()
             return new Handle[0];

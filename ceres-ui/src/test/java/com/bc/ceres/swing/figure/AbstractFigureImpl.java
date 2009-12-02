@@ -20,6 +20,10 @@ class AbstractFigureImpl extends AbstractFigure {
     }
 
     @Override
+    public void setShape(Shape shape) {
+    }
+
+    @Override
     public boolean isSelected() {
         return false;
     }

@@ -2,20 +2,26 @@ package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorInteractor;
+import com.bc.ceres.swing.figure.FigureFactory;
+import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 
-public class NewLineShapeInteractor extends FigureEditorInteractor {
+public class InsertLineFigureInteractor extends InsertFigureInteractor {
 
     private Point referencePoint;
     private boolean canceled;
-    private DefaultShapeFigure figure;
+    private Figure figure;
     private Line2D line;
+
+    public InsertLineFigureInteractor() {
+    }
 
     @Override
     public void cancelInteraction(InputEvent event) {
@@ -34,7 +40,7 @@ public class NewLineShapeInteractor extends FigureEditorInteractor {
         referencePoint = event.getPoint();
         canceled = false;
         line = new Line2D.Double(referencePoint, referencePoint);
-        figure = new DefaultShapeFigure(v2m(event).createTransformedShape(line), true, StyleDefaults.INSERT_STYLE);
+        figure = getFigureFactory().createLinealFigure(toModelShape(event, line), StyleDefaults.INSERT_STYLE);
         figureEditor.getFigureCollection().addFigure(figure);
         startInteraction(event);
     }
@@ -49,6 +55,6 @@ public class NewLineShapeInteractor extends FigureEditorInteractor {
     @Override
     public void mouseDragged(MouseEvent event) {
         line.setLine(referencePoint, event.getPoint());
-        figure.setShape(v2m(event).createTransformedShape(line));
+        figure.setShape(toModelShape(event, line));
     }
 }

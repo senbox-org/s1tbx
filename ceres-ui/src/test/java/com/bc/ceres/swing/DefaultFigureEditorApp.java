@@ -10,18 +10,18 @@ import com.bc.ceres.swing.actions.SelectAllAction;
 import com.bc.ceres.swing.actions.UndoAction;
 import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.FigureCollection;
+import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.Interactor;
-import com.bc.ceres.swing.figure.interactions.NewEllipseShapeInteractor;
-import com.bc.ceres.swing.figure.interactions.NewLineShapeInteractor;
-import com.bc.ceres.swing.figure.interactions.NewPolygonShapeInteractor;
-import com.bc.ceres.swing.figure.interactions.NewPolylineShapeInteractor;
-import com.bc.ceres.swing.figure.interactions.NewRectangleShapeInteractor;
-import com.bc.ceres.swing.figure.interactions.NewTextInteractor;
+import com.bc.ceres.swing.figure.interactions.InsertEllipseFigureInteractor;
+import com.bc.ceres.swing.figure.interactions.InsertLineFigureInteractor;
+import com.bc.ceres.swing.figure.interactions.InsertPolygonFigureInteractor;
+import com.bc.ceres.swing.figure.interactions.InsertPolylineFigureInteractor;
+import com.bc.ceres.swing.figure.interactions.InsertRectangleFigureInteractor;
 import com.bc.ceres.swing.figure.interactions.PanInteractor;
 import com.bc.ceres.swing.figure.interactions.SelectionInteractor;
 import com.bc.ceres.swing.figure.interactions.ZoomInteractor;
+import com.bc.ceres.swing.figure.support.DefaultFigureFactory;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
-import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.bc.ceres.swing.figure.support.FigureEditorPanel;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
@@ -52,6 +52,7 @@ import java.awt.datatransfer.FlavorListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.text.MessageFormat;
 import java.util.Locale;
 
@@ -59,12 +60,11 @@ public class DefaultFigureEditorApp {
     private static final Interactor SELECTION_INTERACTOR = new SelectionInteractor();
     private static final Interactor ZOOM_INTERACTOR = new ZoomInteractor();
     private static final Interactor PAN_INTERACTOR = new PanInteractor();
-    private static final Interactor NEW_LINE_INTERACTOR = new NewLineShapeInteractor();
-    private static final Interactor NEW_RECT_INTERACTOR = new NewRectangleShapeInteractor();
-    private static final Interactor NEW_ELLI_INTERACTOR = new NewEllipseShapeInteractor();
-    private static final Interactor NEW_POLYLINE_INTERACTOR = new NewPolylineShapeInteractor();
-    private static final Interactor NEW_POLYGON_INTERACTOR = new NewPolygonShapeInteractor();
-    private static final Interactor NEW_TEXT_INTERACTOR = new NewTextInteractor();
+    private static final Interactor NEW_LINE_INTERACTOR = new InsertLineFigureInteractor();
+    private static final Interactor NEW_RECT_INTERACTOR = new InsertRectangleFigureInteractor();
+    private static final Interactor NEW_ELLI_INTERACTOR = new InsertEllipseFigureInteractor();
+    private static final Interactor NEW_POLYLINE_INTERACTOR = new InsertPolylineFigureInteractor();
+    private static final Interactor NEW_POLYGON_INTERACTOR = new InsertPolygonFigureInteractor();
 
     private final JFrame frame;
 
@@ -111,7 +111,6 @@ public class DefaultFigureEditorApp {
         AbstractButton newElliButton = createInteractorButton(figureEditorPanel, "E", NEW_ELLI_INTERACTOR);
         AbstractButton newPLButton = createInteractorButton(figureEditorPanel, "PL", NEW_POLYLINE_INTERACTOR);
         AbstractButton newPGButton = createInteractorButton(figureEditorPanel, "PG", NEW_POLYGON_INTERACTOR);
-        AbstractButton newTButton = createInteractorButton(figureEditorPanel, "T", NEW_TEXT_INTERACTOR);
 
         JToolBar toolBar = new JToolBar();
         toolBar.add(selectButton);
@@ -122,7 +121,6 @@ public class DefaultFigureEditorApp {
         toolBar.add(newElliButton);
         toolBar.add(newPLButton);
         toolBar.add(newPGButton);
-        toolBar.add(newTButton);
 
         ButtonGroup group = new ButtonGroup();
         group.add(selectButton);
@@ -133,16 +131,16 @@ public class DefaultFigureEditorApp {
         group.add(newElliButton);
         group.add(newPLButton);
         group.add(newPGButton);
-        group.add(newTButton);
 
         figureEditorPanel.getFigureEditor().setInteractor(SELECTION_INTERACTOR);
-
+        FigureFactory figureFactory = new DefaultFigureFactory();
         FigureCollection drawing = figureEditorPanel.getFigureEditor().getFigureCollection();
-        drawing.addFigure(new DefaultShapeFigure(new Rectangle(20, 30, 200, 100), true, DefaultFigureStyle.createShapeStyle(Color.BLUE, Color.GREEN)));
-        drawing.addFigure(new DefaultShapeFigure(new Rectangle(90, 10, 100, 200), true, DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.ORANGE)));
-        drawing.addFigure(new DefaultShapeFigure(new Rectangle(110, 60, 70, 140), false, DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.BLACK)));
-        drawing.addFigure(new DefaultShapeFigure(new Ellipse2D.Double(50, 100, 80, 80), true, DefaultFigureStyle.createShapeStyle(Color.YELLOW, Color.RED)));
-        drawing.addFigure(new DefaultShapeFigure(new Ellipse2D.Double(220, 120, 150, 300), true, DefaultFigureStyle.createShapeStyle(Color.GREEN, Color.BLUE)));
+        drawing.addFigure(figureFactory.createPolygonalFigure(new Rectangle(20, 30, 200, 100), DefaultFigureStyle.createShapeStyle(Color.BLUE, Color.GREEN)));
+        drawing.addFigure(figureFactory.createPolygonalFigure(new Rectangle(90, 10, 100, 200), DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.ORANGE)));
+        drawing.addFigure(figureFactory.createLinealFigure(new Rectangle(110, 60, 70, 140), DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.BLACK)));
+        drawing.addFigure(figureFactory.createLinealFigure(new Line2D.Double(200, 100, 300, 100), DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.BLACK)));
+        drawing.addFigure(figureFactory.createPolygonalFigure(new Ellipse2D.Double(50, 100, 80, 80), DefaultFigureStyle.createShapeStyle(Color.YELLOW, Color.RED)));
+        drawing.addFigure(figureFactory.createPolygonalFigure(new Ellipse2D.Double(220, 120, 150, 300), DefaultFigureStyle.createShapeStyle(Color.GREEN, Color.BLUE)));
         figureEditorPanel.setPreferredSize(new Dimension(1024, 1024));
 
         JMenuBar menuBar = new JMenuBar();

@@ -72,7 +72,7 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
         return shape;
     }
 
-    protected void setShape(Shape shape) {
+    public void setShape(Shape shape) {
         this.shape = shape;
     }
 
