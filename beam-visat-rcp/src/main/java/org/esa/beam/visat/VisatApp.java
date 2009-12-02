@@ -18,7 +18,9 @@ package org.esa.beam.visat;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.FigureEditorHolder;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
@@ -71,12 +73,12 @@ import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.command.CommandManager;
+import org.esa.beam.framework.ui.command.ToolCommand;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTree;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
-import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.jai.BandOpImage;
 import org.esa.beam.util.Debug;
@@ -92,7 +94,6 @@ import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowImageViewRGBAction;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
 import org.esa.beam.visat.actions.ShowToolBarAction;
-import org.esa.beam.visat.actions.ToolAction;
 import org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView;
 import org.esa.beam.visat.toolviews.stat.StatisticsToolView;
 
@@ -120,6 +121,7 @@ import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
@@ -349,6 +351,9 @@ public class VisatApp extends BasicApp implements AppContext {
     private final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
     private File sessionFile;
 
+    private Interactor activeInteractor = NullInteractor.INSTANCE;
+    private Interactor defaultInteractor;
+    private AbstractInteractorListener activeInteractorListener;
 
     /**
      * Constructs the VISAT application instance. The constructor does not start the application nor does it perform any GUI
@@ -404,6 +409,23 @@ public class VisatApp extends BasicApp implements AppContext {
             Command[] commands = VisatActivator.getInstance().getCommands();
             for (Command command : commands) {
                 addCommand(command, getCommandManager());
+                if("selectTool".equals(command.getCommandID())){
+                    ToolCommand toolCommand = (ToolCommand) command;
+                    defaultInteractor = toolCommand.getTool();
+                    activeInteractorListener = new AbstractInteractorListener() {
+                        @Override
+                        public void interactionStopped(Interactor interactor, InputEvent inputEvent) {
+                            setActiveInteractor(defaultInteractor);
+                        }
+
+                        @Override
+                        public void interactionCancelled(Interactor interactor, InputEvent inputEvent) {
+                            setActiveInteractor(defaultInteractor);
+                        }
+                    };
+                    setActiveInteractor(defaultInteractor);
+                    toolCommand.setSelected(true);
+                }
             }
             pm.worked(1);
 
@@ -419,6 +441,27 @@ public class VisatApp extends BasicApp implements AppContext {
 
         } finally {
             pm.done();
+        }
+    }
+
+
+    public Interactor getActiveInteractor() {
+        return activeInteractor;
+    }
+
+    public void setActiveInteractor(Interactor interactor) {
+        activeInteractor.deactivate();
+        activeInteractor.removeListener(activeInteractorListener);
+        activeInteractor = interactor;
+        activeInteractor.activate();
+        activeInteractor.addListener(activeInteractorListener);
+        setInteractor(getSelectedProductSceneView(), activeInteractor);
+    }
+
+    private void setInteractor(Component contentPane, Interactor activeInteractor) {
+        if (contentPane instanceof FigureEditorHolder) {
+            final FigureEditor figureEditor = ((FigureEditorHolder) contentPane).getFigureEditor();
+            figureEditor.setInteractor(activeInteractor);
         }
     }
 
@@ -2239,7 +2282,7 @@ public class VisatApp extends BasicApp implements AppContext {
     /**
      * A method used to update a <code>ProductSceneView</code>.
      */
-    public static interface ViewUpdateMethod {
+    public interface ViewUpdateMethod {
 
         void updateView(ProductSceneView view);
     }
@@ -2260,7 +2303,7 @@ public class VisatApp extends BasicApp implements AppContext {
             Debug.trace("VisatApp: internal frame activated: " + e);
             setSelectedProductNode(e.getInternalFrame());
             final Component contentPane = e.getInternalFrame().getContentPane();
-            setInteractor(contentPane, ToolAction.getActiveInteractor());
+            setInteractor(contentPane, activeInteractor);
             updateMainFrameTitle();
             updateState();
             clearStatusBarMessage();
@@ -2275,7 +2318,7 @@ public class VisatApp extends BasicApp implements AppContext {
         public void internalFrameDeactivated(final InternalFrameEvent e) {
             Debug.trace("VisatApp: internal frame deactivated: " + e);
             final Component contentPane = e.getInternalFrame().getContentPane();
-            setInteractor(contentPane, NullInteractor.INSTANCE);
+            setInteractor(contentPane, activeInteractor);
             updateState();
         }
 
@@ -2289,7 +2332,7 @@ public class VisatApp extends BasicApp implements AppContext {
             Debug.trace("VisatApp: internal frame opened: " + e);
             setSelectedProductNode(e.getInternalFrame());
             final Container contentPane = e.getInternalFrame().getContentPane();
-            setInteractor(contentPane, ToolAction.getActiveInteractor());
+            setInteractor(contentPane, activeInteractor);
         }
 
         /**
@@ -2314,10 +2357,6 @@ public class VisatApp extends BasicApp implements AppContext {
             Debug.trace("VisatApp: internal frame closed: " + e);
             final String title = e.getInternalFrame().getTitle();
             final Container contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof DrawingEditor) {
-                final DrawingEditor drawingEditor = (DrawingEditor) contentPane;
-                drawingEditor.setTool(null);
-            }
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView productSceneView = (ProductSceneView) contentPane;
                 removePropertyMapChangeListener(productSceneView);
@@ -2376,12 +2415,6 @@ public class VisatApp extends BasicApp implements AppContext {
             updateState();
         }
 
-        private void setInteractor(Component contentPane, Interactor activeInteractor) {
-            if (contentPane instanceof FigureEditor) {
-                final FigureEditor drawingEditor = (FigureEditor) contentPane;
-                drawingEditor.setInteractor(activeInteractor);
-            }
-        }
 
     }
 

@@ -42,7 +42,7 @@ public class ToolCommand extends SelectableCommand {
     public ToolCommand(String commandID) {
         super(commandID);
         tool = NullInteractor.INSTANCE;
-        toolListener = new InternalToolListener();
+        toolListener = new InternalInteractorListener();
     }
 
     public ToolCommand(String commandID, CommandStateListener listener, Interactor tool) {
@@ -66,18 +66,6 @@ public class ToolCommand extends SelectableCommand {
         }
         this.tool = tool;
         this.tool.addListener(toolListener);
-    }
-
-    @Override
-    public void setSelected(boolean selected) {
-        super.setSelected(selected);
-        adjustToolActivationState();
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        adjustToolActivationState();
     }
 
     /**
@@ -124,28 +112,12 @@ public class ToolCommand extends SelectableCommand {
              */
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                if (!tool.isActive()) {
-                    tool.activate();
                     fireActionPerformed(actionEvent, null);
-                }
             }
         };
     }
 
-    private void adjustToolActivationState() {
-        if (isSelected() && isEnabled()) {
-            if (!tool.isActive()) {
-                tool.activate();
-            }
-        } else if (!isSelected() || !isEnabled()) {
-            if (tool.isActive()) {
-                tool.deactivate();
-            }
-        }
-    }
-
-
-    private class InternalToolListener extends AbstractInteractorListener {
+    private class InternalInteractorListener extends AbstractInteractorListener {
 
         @Override
         public void interactorActivated(Interactor interactor) {
