@@ -1626,7 +1626,7 @@
         <action>
             <id>drawLineTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <interactor>com.bc.ceres.swing.figure.interactions.NewLineShapeInteractor</interactor>
+            <interactor>com.bc.ceres.swing.figure.interactions.InsertLineFigureInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>pinTool</placeAfter>
             <text>Draw Line</text>
@@ -1640,7 +1640,7 @@
         <action>
             <id>drawRectangleTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <interactor>com.bc.ceres.swing.figure.interactions.NewRectangleShapeInteractor</interactor>
+            <interactor>com.bc.ceres.swing.figure.interactions.InsertRectangleFigureInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>drawLineTool</placeAfter>
             <text>Draw Rectangle</text>
@@ -1654,7 +1654,7 @@
         <action>
             <id>drawEllipseTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <interactor>com.bc.ceres.swing.figure.interactions.NewEllipseShapeInteractor</interactor>
+            <interactor>com.bc.ceres.swing.figure.interactions.InsertEllipseFigureInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>drawRectangleTool</placeAfter>
             <text>Draw Ellipse</text>
@@ -1668,7 +1668,7 @@
         <action>
             <id>drawPolylineTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <interactor>com.bc.ceres.swing.figure.interactions.NewPolylineShapeInteractor</interactor>
+            <interactor>com.bc.ceres.swing.figure.interactions.InsertPolylineFigureInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>drawEllipseTool</placeAfter>
             <text>Draw Polyline</text>
@@ -1682,7 +1682,7 @@
         <action>
             <id>drawPolygonTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <interactor>com.bc.ceres.swing.figure.interactions.NewPolygonShapeInteractor</interactor>
+            <interactor>com.bc.ceres.swing.figure.interactions.InsertPolygonFigureInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>drawPolylineTool</placeAfter>
             <text>Draw Polygon</text>

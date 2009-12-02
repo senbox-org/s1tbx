@@ -17,7 +17,7 @@ import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorHolder;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
-import com.bc.ceres.swing.figure.support.DefaultFigureEditor2;
+import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import org.esa.beam.framework.datamodel.ImageInfo;
@@ -1081,14 +1081,14 @@ public class ProductSceneView extends BasicView
     private static class FigureEditorLayerCanvas extends LayerCanvas implements FigureEditorHolder {
 
         private final FigureCollection figureCollection;
-        private final DefaultFigureEditor2 figureEditor;
+        private final DefaultFigureEditor figureEditor;
 
         private FigureEditorLayerCanvas(Layer rootLayer, Viewport viewport, UndoContext undoContext) {
             super(rootLayer, viewport);
             // todo - use FigureCollection from FigureLayer(s)!
             figureCollection = new DefaultFigureCollection();
 
-            figureEditor = new DefaultFigureEditor2(this, undoContext, figureCollection);
+            figureEditor = new DefaultFigureEditor(this, undoContext, figureCollection);
 
             addOverlay(new LayerCanvas.Overlay() {
                 @Override
