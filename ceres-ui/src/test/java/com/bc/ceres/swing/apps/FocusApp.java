@@ -1,4 +1,4 @@
-package com.bc.ceres.swing;
+package com.bc.ceres.swing.apps;
 
 import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 import com.bc.ceres.grender.AdjustableView;
@@ -33,6 +33,7 @@ import java.awt.event.FocusListener;
 import java.util.Arrays;
 import java.util.Comparator;
 
+@org.junit.Ignore
 public class FocusApp {
     public static void main(String[] args) {
         try {

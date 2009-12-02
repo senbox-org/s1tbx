@@ -1,4 +1,4 @@
-package com.bc.ceres.swing;
+package com.bc.ceres.swing.apps;
 
 import com.bc.ceres.swing.actions.CopyAction;
 import com.bc.ceres.swing.actions.CutAction;
@@ -42,6 +42,7 @@ import java.awt.event.WindowEvent;
 import java.text.MessageFormat;
 import java.util.Locale;
 
+@org.junit.Ignore
 public class MultiSelectionSourceApp {
     public static void main(String[] args) {
         try {

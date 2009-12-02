@@ -1,4 +1,4 @@
-package com.bc.ceres.swing;
+package com.bc.ceres.swing.apps;
 
 import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 import com.bc.ceres.swing.actions.CopyAction;
@@ -56,6 +56,7 @@ import java.awt.geom.Line2D;
 import java.text.MessageFormat;
 import java.util.Locale;
 
+@org.junit.Ignore
 public class FigureEditorApp {
     private static final Interactor SELECTION_INTERACTOR = new SelectionInteractor();
     private static final Interactor ZOOM_INTERACTOR = new ZoomInteractor();
