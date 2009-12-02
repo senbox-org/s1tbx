@@ -38,7 +38,6 @@ public class RoiLayerType extends ImageLayer.Type {
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
-        configuration.removeProperty(configuration.getProperty(PROPERTY_NAME_RASTER));
         String maskName = raster.getName() + "_roi";
         final Mask mask = raster.getProduct().getMaskGroup().get(maskName);
         if (mask == null) {
@@ -51,10 +50,15 @@ public class RoiLayerType extends ImageLayer.Type {
 
         MaskLayerType maskLayerType = LayerTypeRegistry.getLayerType(MaskLayerType.class);
         PropertyContainer maskConfiguration = maskLayerType.createLayerConfig(null);
-        Property maskProperty = maskConfiguration.getProperty(MaskLayerType.PROPERTY_NAME_MASK);
-        configuration.addProperty(maskProperty);
-        configuration.setValue(MaskLayerType.PROPERTY_NAME_MASK, mask);
-        return maskLayerType.createLayer(ctx, configuration);
+        for (Property property : maskConfiguration.getProperties()) {
+            String propertyName = property.getName();
+            Property srcProperty = configuration.getProperty(propertyName);
+            if (srcProperty != null) {
+                maskConfiguration.setValue(propertyName, srcProperty.getValue());
+            }
+        }
+        maskConfiguration.setValue(MaskLayerType.PROPERTY_NAME_MASK, mask);
+        return maskLayerType.createLayer(ctx, maskConfiguration);
     }
 
     @Override

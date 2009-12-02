@@ -40,7 +40,7 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
         productManager.addProduct(product);
     }
 
-    public static ProductManager getProductManager() {
+    protected static ProductManager getProductManager() {
         return productManager;
     }
 
@@ -65,10 +65,10 @@ public abstract class AbstractLayerConfigurationPersistencyTest {
         final SessionDomConverter domConverter = new SessionDomConverter(getProductManager());
         final DomElement originalDomElement = new DefaultDomElement("configuration");
         domConverter.convertValueToDom(layer.getConfiguration(), originalDomElement);
-        System.out.println(originalDomElement.toXml());
+        //System.out.println(originalDomElement.toXml());
         
-        final PropertyContainer restoredConfiguration = (PropertyContainer) domConverter.convertDomToValue(originalDomElement,
-                                                                                                     layerType.createLayerConfig(null));
+        PropertyContainer template = layer.getLayerType().createLayerConfig(null);
+        final PropertyContainer restoredConfiguration = (PropertyContainer) domConverter.convertDomToValue(originalDomElement, template);
         compareConfigurations(layer.getConfiguration(), restoredConfiguration);
 
         final DomElement restoredDomElement = new DefaultDomElement("configuration");

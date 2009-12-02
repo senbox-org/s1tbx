@@ -51,19 +51,23 @@ public class BitmaskLayerType extends ImageLayer.Type {
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         final Product product = (Product) configuration.getValue(PROPERTY_NAME_PRODUCT);
         final BitmaskDef bitmaskDef = (BitmaskDef) configuration.getValue(PROPERTY_NAME_BITMASK_DEF);
-        configuration.removeProperty(configuration.getProperty(PROPERTY_NAME_PRODUCT));
-        configuration.removeProperty(configuration.getProperty(PROPERTY_NAME_BITMASK_DEF));
         String maskName = bitmaskDef.getName();
         Mask mask = product.getMaskGroup().get(maskName);
         if (mask == null) {
             throw new IllegalArgumentException("Mask '" + maskName + "'not available in product.");
         }
+        
         MaskLayerType maskLayerType = LayerTypeRegistry.getLayerType(MaskLayerType.class);
         PropertyContainer maskConfiguration = maskLayerType.createLayerConfig(null);
-        Property maskProperty = maskConfiguration.getProperty(MaskLayerType.PROPERTY_NAME_MASK);
-        configuration.addProperty(maskProperty);
-        configuration.setValue(MaskLayerType.PROPERTY_NAME_MASK, mask);
-        return maskLayerType.createLayer(ctx, configuration);
+        for (Property property : maskConfiguration.getProperties()) {
+            String propertyName = property.getName();
+            Property srcProperty = configuration.getProperty(propertyName);
+            if (srcProperty != null) {
+                maskConfiguration.setValue(propertyName, srcProperty.getValue());
+            }
+        }
+        maskConfiguration.setValue(MaskLayerType.PROPERTY_NAME_MASK, mask);
+        return maskLayerType.createLayer(ctx, maskConfiguration);
     }
 
     @Override

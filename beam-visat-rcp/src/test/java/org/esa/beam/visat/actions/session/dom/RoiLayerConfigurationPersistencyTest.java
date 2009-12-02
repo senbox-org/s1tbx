@@ -5,6 +5,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -28,6 +29,9 @@ public class RoiLayerConfigurationPersistencyTest extends AbstractLayerConfigura
     public void setup() {
         product = createTestProduct("Test", "Test");
         raster = addVirtualBand(product, "virtualBand", ProductData.TYPE_INT32, "17");
+        Mask mask = new Mask(raster.getName() + "_roi", product.getSceneRasterWidth(), product.getSceneRasterHeight(), new Mask.BandMathType());
+        product.getMaskGroup().add(mask);
+        Mask.BandMathType.setExpression(mask, "virtualBand == 17");
 
         getProductManager().addProduct(product);
     }
