@@ -6,10 +6,9 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
-
 import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Mask.ImageType;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import java.awt.Color;
 
@@ -40,7 +39,7 @@ public class RoiLayerType extends ImageLayer.Type {
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
         configuration.removeProperty(configuration.getProperty(PROPERTY_NAME_RASTER));
-        String maskName = raster.getName()+"_roi";
+        String maskName = raster.getName() + "_roi";
         final Mask mask = raster.getProduct().getMaskGroup().get(maskName);
         if (mask == null) {
             throw new IllegalArgumentException("Mask '" + maskName + "'not available in product.");
@@ -49,7 +48,7 @@ public class RoiLayerType extends ImageLayer.Type {
         mask.setImageTransparency(transparency);
         final Color color = (Color) configuration.getValue(PROPERTY_NAME_COLOR);
         mask.setImageColor(color);
-        
+
         MaskLayerType maskLayerType = LayerTypeRegistry.getLayerType(MaskLayerType.class);
         PropertyContainer maskConfiguration = maskLayerType.createLayerConfig(null);
         Property maskProperty = maskConfiguration.getProperty(MaskLayerType.PROPERTY_NAME_MASK);
