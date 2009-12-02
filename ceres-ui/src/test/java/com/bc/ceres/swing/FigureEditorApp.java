@@ -56,7 +56,7 @@ import java.awt.geom.Line2D;
 import java.text.MessageFormat;
 import java.util.Locale;
 
-public class DefaultFigureEditorApp {
+public class FigureEditorApp {
     private static final Interactor SELECTION_INTERACTOR = new SelectionInteractor();
     private static final Interactor ZOOM_INTERACTOR = new ZoomInteractor();
     private static final Interactor PAN_INTERACTOR = new PanInteractor();
@@ -76,7 +76,7 @@ public class DefaultFigureEditorApp {
     private final CopyAction copyAction;
     private final PasteAction pasteAction;
 
-    public DefaultFigureEditorApp() {
+    public FigureEditorApp() {
         DefaultSelectionManager selectionManager = new DefaultSelectionManager();
         DefaultUndoContext undoContext = new DefaultUndoContext(this);
 
@@ -206,7 +206,7 @@ public class DefaultFigureEditorApp {
             // ok
         }
         Locale.setDefault(Locale.ENGLISH);
-        DefaultFigureEditorApp drawingApp = new DefaultFigureEditorApp();
+        FigureEditorApp drawingApp = new FigureEditorApp();
         drawingApp.startUp();
     }
 
