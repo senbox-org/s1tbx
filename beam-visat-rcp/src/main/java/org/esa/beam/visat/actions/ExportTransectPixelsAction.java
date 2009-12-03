@@ -2,6 +2,7 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -69,7 +70,7 @@ public class ExportTransectPixelsAction extends ExecCommand {
         // Get the displayed raster data node (band or tie-point grid)
         final RasterDataNode raster = view.getRaster();
         // Get the transect of the displayed raster data node
-        final Figure transect = view.getCurrentShapeFigure();
+        final ShapeFigure transect = view.getCurrentShapeFigure();
         if (transect == null) {
             VisatApp.getApp().showErrorDialog(DLG_TITLE,
                                               ERR_MSG_BASE + "There is no transect defined in the selected band.");  /*I18N*/

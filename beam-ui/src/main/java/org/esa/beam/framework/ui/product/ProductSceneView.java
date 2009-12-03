@@ -16,6 +16,7 @@ import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorHolder;
+import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.undo.UndoContext;
@@ -531,7 +532,7 @@ public class ProductSceneView extends BasicView
     }
 
     @Deprecated
-    public Figure getCurrentShapeFigure() {
+    public ShapeFigure getCurrentShapeFigure() {
         return null;
     }
 

@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.ShapeFigure;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TransectProfileData;
@@ -70,7 +71,7 @@ public class StatisticsUtils {
                 final Container contentPane = internalFrame.getContentPane();
                 if (contentPane instanceof ProductSceneView) {
                     final ProductSceneView sceneView = (ProductSceneView) contentPane;
-                    final Figure currentShapeFigure = sceneView.getCurrentShapeFigure();
+                    final ShapeFigure currentShapeFigure = sceneView.getCurrentShapeFigure();
                     if (currentShapeFigure != null) {
                         return currentShapeFigure.getShape();
                     }
