@@ -767,18 +767,6 @@
 
         <action>
             <parent>export</parent>
-            <id>exportROIImageFile</id>
-            <class>org.esa.beam.visat.actions.ExportRoiImageAction</class>
-            <text>Export ROI Overlay as Image...</text>
-            <mnemonic>O</mnemonic>
-            <shortDescr>Export the current ROI overlay as an image.</shortDescr>
-            <description>Export the current ROI overlay as an image.</description>
-            <context>image</context>
-            <helpId>exportROIImageFile</helpId>
-        </action>
-
-        <action>
-            <parent>export</parent>
             <id>exportPinPixels</id>
             <class>org.esa.beam.visat.actions.pin.ExportPinPixelsAction</class>
             <text>Export Pin Pixels...</text>
@@ -1092,7 +1080,7 @@
             <parent>view</parent>
             <id>showNoDataOverlay</id>
             <class>org.esa.beam.visat.actions.ShowNoDataOverlayAction</class>
-            <placeBefore>showROIOverlay</placeBefore>
+            <placeBefore>showShapeOverlay</placeBefore>
             <text>Show No-Data Overlay</text>
             <toggle>true</toggle>
             <shortDescr>Show no-data overlay</shortDescr>
@@ -1106,25 +1094,9 @@
 
         <action>
             <parent>view</parent>
-            <id>showROIOverlay</id>
-            <class>org.esa.beam.visat.actions.ShowROIOverlayAction</class>
-            <placeAfter>showNoDataOverlay</placeAfter>
-            <text>Show ROI Overlay</text>
-            <toggle>true</toggle>
-            <mnemonic>O</mnemonic>
-            <shortDescr>Show/hide ROI overlay</shortDescr>
-            <description>Show/hide ROI overlay for the selected image</description>
-            <context>image</context>
-            <smallIcon>icons/ROIOverlay16.gif</smallIcon>
-            <largeIcon>icons/ROIOverlay24.gif</largeIcon>
-            <helpId>showROIOverlay</helpId>
-        </action>
-
-        <action>
-            <parent>view</parent>
             <id>showShapeOverlay</id>
             <class>org.esa.beam.visat.actions.ShowShapeOverlayAction</class>
-            <placeAfter>showROIOverlay</placeAfter>
+            <placeAfter>showNoDataOverlay</placeAfter>
             <text>Show Shape Overlay</text>
             <toggle>true</toggle>
             <mnemonic>O</mnemonic>

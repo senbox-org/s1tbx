@@ -1958,7 +1958,6 @@ public class VisatApp extends BasicApp implements AppContext {
         final CommandBar toolBar = createToolBar(LAYERS_TOOL_BAR_ID, "Layers");
         addCommandsToToolBar(toolBar, new String[]{
                 "showNoDataOverlay",
-                "showROIOverlay",
                 "showShapeOverlay",
                 "showGraticuleOverlay",
                 PinDescriptor.INSTANCE.getShowLayerCommandId(),
