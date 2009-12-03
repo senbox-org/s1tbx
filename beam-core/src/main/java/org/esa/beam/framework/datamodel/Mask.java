@@ -169,6 +169,13 @@ public class Mask extends Band {
          */
         public abstract MultiLevelImage createImage(Mask mask);
 
+        public void transferMask(Mask mask, Product product) {
+        }
+
+        public boolean canTransferMask(Mask mask, Product product) {
+            return false;
+        }
+
         /**
          * Creates a prototype image configuration.
          *
