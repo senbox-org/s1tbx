@@ -66,7 +66,7 @@ public class AdjustableViewScrollPane extends JPanel {
     private boolean hsbVisible;
     private boolean vsbVisible;
 
-    private boolean debug = true;
+    private boolean debug = false;
 
     /**
      * Constructs a new view pane with an empty view component.
