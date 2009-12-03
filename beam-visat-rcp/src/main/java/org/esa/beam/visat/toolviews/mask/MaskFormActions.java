@@ -325,7 +325,7 @@ class MaskFormActions {
     private static class ImportAction extends MaskIOAction {
 
         private ImportAction(AbstractToolView maskToolView, MaskForm maskForm) {
-            super(maskForm, "icons/Import24.gif", "importButton", "Import masks from file.", maskToolView);
+            super(maskToolView, maskForm, "icons/Import24.gif", "importButton", "Import masks from file.");
         }
 
         @Override
@@ -340,7 +340,7 @@ class MaskFormActions {
 
         private void importBitmaskDefs() {
             final JFileChooser fileChooser = new BeamFileChooser();
-            fileChooser.setDialogTitle("Import Bitmask Definitions From XML File");         /*I18N*/
+            fileChooser.setDialogTitle("Import Masks from XML");
             final FileFilter fileFilter = new BeamFileFilter("XML", ".xml", "XML files (*.xml)");
             fileChooser.setFileFilter(fileFilter);
             fileChooser.setCurrentDirectory(getDirectory());
@@ -365,9 +365,9 @@ class MaskFormActions {
                                 }
                             }
                         } catch (IOException e) {
-                            showErrorDialog("I/O Error.\nFailed to import bitmask definition.");        /*I18N*/
+                            showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));
                         } catch (JDOMException e) {
-                            showErrorDialog("I/O Error.\nFailed to import bitmask definition.");        /*I18N*/
+                            showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));
                         }
                     }
                 }
@@ -378,7 +378,7 @@ class MaskFormActions {
     private static class ExportAction extends MaskIOAction {
 
         private ExportAction(AbstractToolView maskToolView, MaskForm maskForm) {
-            super(maskForm, "icons/Export24.gif", "exportButton", "Export masks to file.", maskToolView);
+            super(maskToolView, maskForm, "icons/Export24.gif", "exportButton", "Export masks to file.");
         }
 
         @Override
@@ -393,11 +393,11 @@ class MaskFormActions {
 
         private void exportSelectedMasks() {
             final Mask[] masks = getMaskForm().getSelectedMasks();
-            if (masks == null) {
+            if (masks.length == 0) {
                 return;
             }
             final JFileChooser fileChooser = new BeamFileChooser();
-            fileChooser.setDialogTitle("Export Masks");                                            /*I18N*/
+            fileChooser.setDialogTitle("Export Masks to XML");
             final FileFilter fileFilter = new BeamFileFilter("XML", ".xml", "XML files (*.xml)");
             fileChooser.setFileFilter(fileFilter);
             final File targetDirectory = getDirectory();
@@ -429,7 +429,7 @@ class MaskFormActions {
                         final XMLOutputter outputter = new XMLOutputter(format);
                         outputter.output(document, writer);
                     } catch (IOException e) {
-                        showErrorDialog("I/O Error.\nFailed to export masks.");                    /*I18N*/
+                        showErrorDialog("Failed to export mask(s): " + e.getMessage());
                     } finally {
                         if (writer != null) {
                             try {
@@ -442,7 +442,6 @@ class MaskFormActions {
                 }
             }
         }
-
     }
 
     private static class EditAction extends MaskAction {

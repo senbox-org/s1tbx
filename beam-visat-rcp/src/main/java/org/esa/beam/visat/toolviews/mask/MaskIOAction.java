@@ -11,8 +11,9 @@ abstract class MaskIOAction extends MaskAction {
 
     private final AbstractToolView maskToolView;
 
-    public MaskIOAction(MaskForm maskForm, String iconPath, String buttonName, String description,
-                        AbstractToolView maskToolView) {
+    public MaskIOAction(AbstractToolView maskToolView, MaskForm maskForm, String iconPath, String buttonName,
+                        String description
+    ) {
         super(maskForm, iconPath, buttonName, description);
         this.maskToolView = maskToolView;
     }
