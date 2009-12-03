@@ -1,19 +1,19 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
-import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.RectangularShape;
+import java.awt.Point;
 
 public abstract class InsertRectangularFigureInteractor extends InsertFigureInteractor {
     private Point referencePoint;
     private boolean canceled;
-    private Figure figure;
+    private ShapeFigure figure;
     private RectangularShape rectangularShape;
 
     protected abstract RectangularShape createRectangularShape(Point2D point);

@@ -58,8 +58,8 @@ public class DefaultFigureEditor implements FigureEditor {
         this.rendering = new DefaultRendering(viewport);
 
         RepaintHandler repaintHandler = new RepaintHandler();
-        this.figureSelectionContext.getFigureCollection().addListener(repaintHandler);
-        this.figureSelectionContext.getFigureSelection().addListener(repaintHandler);
+        this.figureSelectionContext.getFigureCollection().addChangeListener(repaintHandler);
+        this.figureSelectionContext.getFigureSelection().addChangeListener(repaintHandler);
     }
 
     @Override

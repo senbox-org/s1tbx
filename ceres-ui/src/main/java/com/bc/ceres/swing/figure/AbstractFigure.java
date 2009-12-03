@@ -1,14 +1,11 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.support.RotateHandle;
 import com.bc.ceres.swing.figure.support.ScaleHandle;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
-import java.awt.geom.Point2D;
 import java.awt.Shape;
-import java.awt.Stroke;
-import java.awt.BasicStroke;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,8 +82,9 @@ public abstract class AbstractFigure implements Figure {
     /**
      * The default implementation returns an empty array.
      *
+     * @param shape The shape defining the area in which the figures must be contained.
+     *
      * @return Always an empty array.
-     * @param shape
      */
     @Override
     public Figure[] getFigures(Shape shape) {
@@ -241,12 +239,33 @@ public abstract class AbstractFigure implements Figure {
     }
 
     @Override
-    public synchronized double[] getVertex(int index) {
+    public Point2D getVertex(int index) {
+        double[] segment = getSegment(index);
+        return segment != null ? new Point2D.Double(segment[0], segment[1]) : null;
+    }
+
+    @Override
+    public void setVertex(int index, Point2D newSeg) {
+        setSegment(index, new double[]{newSeg.getX(), newSeg.getY()});
+    }
+
+    @Override
+    public double[] getSegment(int index) {
         throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
     }
 
     @Override
-    public synchronized void setVertex(int index, double[] newSeg) {
+    public void setSegment(int index, double[] segment) {
+        throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
+    }
+
+    @Override
+    public void addSegment(int index, double[] segment) {
+        throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
+    }
+
+    @Override
+    public void removeSegment(int index) {
         throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
     }
 
@@ -293,7 +312,7 @@ public abstract class AbstractFigure implements Figure {
     }
 
     @Override
-    public synchronized void addListener(FigureChangeListener listener) {
+    public synchronized void addChangeListener(FigureChangeListener listener) {
         if (listenerList == null) {
             listenerList = new ArrayList<FigureChangeListener>(3);
         }
@@ -301,14 +320,14 @@ public abstract class AbstractFigure implements Figure {
     }
 
     @Override
-    public synchronized void removeListener(FigureChangeListener listener) {
+    public synchronized void removeChangeListener(FigureChangeListener listener) {
         if (listenerList != null) {
             listenerList.remove(listener);
         }
     }
 
     @Override
-    public synchronized FigureChangeListener[] getListeners() {
+    public synchronized FigureChangeListener[] getChangeListeners() {
         if (listenerList != null) {
             return listenerList.toArray(new FigureChangeListener[listenerList.size()]);
         } else {
@@ -337,21 +356,21 @@ public abstract class AbstractFigure implements Figure {
 
     protected void fireFigureChanged() {
         FigureChangeEvent event = FigureChangeEvent.createChangedEvent(this);
-        for (FigureChangeListener listener : getListeners()) {
+        for (FigureChangeListener listener : getChangeListeners()) {
             listener.figureChanged(event);
         }
     }
 
     protected void fireFiguresAdded(Figure... figures) {
         FigureChangeEvent event = FigureChangeEvent.createAddedEvent(this, figures);
-        for (FigureChangeListener listener : getListeners()) {
+        for (FigureChangeListener listener : getChangeListeners()) {
             listener.figuresAdded(event);
         }
     }
 
     protected void fireFiguresRemoved(Figure... figures) {
         FigureChangeEvent event = FigureChangeEvent.createRemovedEvent(this, figures);
-        for (FigureChangeListener listener : getListeners()) {
+        for (FigureChangeListener listener : getChangeListeners()) {
             listener.figuresRemoved(event);
         }
     }

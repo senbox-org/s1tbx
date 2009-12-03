@@ -12,7 +12,7 @@ import java.awt.geom.Point2D;
  * @author Norman Fomferra
  * @since Ceres 0.10
  */
-public interface Handle extends Figure {
+public interface Handle extends ShapeFigure {
     Point2D getLocation();
 
     Cursor getCursor();

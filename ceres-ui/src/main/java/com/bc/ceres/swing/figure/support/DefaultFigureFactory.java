@@ -4,6 +4,7 @@ import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.FigureStyle;
+import com.bc.ceres.swing.figure.ShapeFigure;
 
 import java.awt.Shape;
 import java.awt.geom.Point2D;
@@ -16,12 +17,12 @@ public class DefaultFigureFactory implements FigureFactory {
     }
 
     @Override
-    public Figure createLinealFigure(Shape geometry, FigureStyle style) {
+    public ShapeFigure createLinealFigure(Shape geometry, FigureStyle style) {
         return new DefaultShapeFigure(geometry, false, style);
     }
 
     @Override
-    public Figure createPolygonalFigure(Shape geometry, FigureStyle style) {
+    public ShapeFigure createPolygonalFigure(Shape geometry, FigureStyle style) {
         return new DefaultShapeFigure(geometry, true, style);
     }
 

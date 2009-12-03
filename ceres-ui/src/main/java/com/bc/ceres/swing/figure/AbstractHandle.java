@@ -37,7 +37,7 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
                 updateLocation();
             }
         };
-        this.figure.addListener(listener);
+        this.figure.addChangeListener(listener);
         this.location = new Point2D.Double();
     }
 
@@ -68,10 +68,12 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
         return normalStyle;
     }
 
+    @Override
     public Shape getShape() {
         return shape;
     }
 
+    @Override
     public void setShape(Shape shape) {
         this.shape = shape;
     }
@@ -114,7 +116,7 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     @Override
     public void dispose() {
         super.dispose();
-        figure.removeListener(listener);
+        figure.removeChangeListener(listener);
     }
 
     @Override

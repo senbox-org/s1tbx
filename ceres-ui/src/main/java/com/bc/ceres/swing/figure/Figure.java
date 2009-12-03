@@ -18,30 +18,16 @@ import java.awt.geom.Rectangle2D;
  */
 public interface Figure extends Restorable, Cloneable {
 
+    ///////////////////////////////////////////
+    // {{
+    // todo - interface FigureGeometry?
+
     enum Rank {
         PUNCTUAL,
         LINEAL,
         POLYGONAL,
         COLLECTION
     }
-
-    // Temporarily solution
-    // todo - (1) remove or
-    // todo - (2) rename to getGeometryAsShape()
-    Shape getShape();
-
-    // Temporarily solution
-    // todo - (1) remove or
-    // todo - (2) rename to setGeometryFromShape()
-    void setShape(Shape shape);
-
-    boolean isSelectable();
-
-    boolean isSelected();
-
-    void setSelected(boolean selected);
-
-    void draw(Rendering rendering);
 
     boolean contains(Figure figure);
 
@@ -57,11 +43,29 @@ public interface Figure extends Restorable, Cloneable {
 
     void rotate(Point2D point, double theta);
 
-    // todo - why not use Point2D
-    double[] getVertex(int index);
+    // todo remove?
+    Point2D getVertex(int index);
 
-    // todo - why not use Point2D
-    void setVertex(int index, double[] vertex);
+    // todo remove?
+    void setVertex(int index, Point2D vertex);
+
+    double[] getSegment(int index);
+
+    void setSegment(int index, double[] segment);
+
+    void addSegment(int index, double[] segment);
+
+    void removeSegment(int index);
+    // }}
+    ///////////////////////////////////////////
+
+    boolean isSelectable();
+
+    boolean isSelected();
+
+    void setSelected(boolean selected);
+
+    void draw(Rendering rendering);
 
     int getFigureCount();
 
@@ -91,11 +95,11 @@ public interface Figure extends Restorable, Cloneable {
 
     Handle[] createHandles(int selectionStage);
 
-    void addListener(FigureChangeListener l);
+    void addChangeListener(FigureChangeListener l);
 
-    void removeListener(FigureChangeListener listener);
+    void removeChangeListener(FigureChangeListener listener);
 
-    FigureChangeListener[] getListeners();
+    FigureChangeListener[] getChangeListeners();
 
     void dispose();
 

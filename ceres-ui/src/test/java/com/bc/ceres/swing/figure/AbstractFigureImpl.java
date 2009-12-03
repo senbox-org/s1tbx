@@ -15,15 +15,6 @@ class AbstractFigureImpl extends AbstractFigure {
     }
 
     @Override
-    public Shape getShape() {
-        return null;
-    }
-
-    @Override
-    public void setShape(Shape shape) {
-    }
-
-    @Override
     public boolean isSelected() {
         return false;
     }

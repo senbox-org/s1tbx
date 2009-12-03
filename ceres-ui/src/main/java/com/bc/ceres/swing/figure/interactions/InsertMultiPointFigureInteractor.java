@@ -2,6 +2,7 @@ package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.Shape;
@@ -16,7 +17,7 @@ public class InsertMultiPointFigureInteractor extends InsertFigureInteractor {
 
     private final List<Point2D> points;
     private final boolean polygonal;
-    private Figure figure;
+    private ShapeFigure figure;
 
     public InsertMultiPointFigureInteractor(boolean polygonal) {
         this.polygonal = polygonal;
@@ -27,7 +28,7 @@ public class InsertMultiPointFigureInteractor extends InsertFigureInteractor {
         return polygonal;
     }
 
-    protected Shape createPath() {
+    protected Path2D createPath() {
         Point2D[] points = getPoints();
         Path2D.Double path = new Path2D.Double();
         path.moveTo(points[0].getX(), points[0].getY());
@@ -52,6 +53,8 @@ public class InsertMultiPointFigureInteractor extends InsertFigureInteractor {
             if (points.isEmpty()) {
                 getFigureEditor(event).getFigureCollection().removeFigure(figure);
                 figure = null;
+            } else {
+                figure.setShape(createPath());
             }
             super.cancelInteraction(event);
         }

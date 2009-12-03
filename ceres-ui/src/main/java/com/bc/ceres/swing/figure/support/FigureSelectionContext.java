@@ -38,7 +38,7 @@ public class FigureSelectionContext implements SelectionContext {
         this.figureEditor = figureEditor;
         this.figureCollection = figureCollection;
         this.figureSelection = figureSelection;
-        this.figureSelection.addListener(new FigureSelectionMulticaster());
+        this.figureSelection.addChangeListener(new FigureSelectionMulticaster());
         this.selectionChangeSupport = new SelectionChangeSupport(figureEditor);
     }
 

@@ -1,8 +1,8 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
+import java.awt.geom.Point2D;
 
 public class InsertRectangleFigureInteractor extends InsertRectangularFigureInteractor {
     @Override

@@ -41,26 +41,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
         this.figureList = new ArrayList<Figure>(list);
         this.figureSet = new HashSet<Figure>(list);
         this.changeDelegate = new ChangeDelegate();
-        addListener(new BoundsUpdater());
-    }
-
-    @Override
-    public Shape getShape() {
-        Area area = new Area();
-        for (Figure figure : figureList) {
-            area.add(new Area(figure.getShape()));
-        }
-        return area;
-    }
-
-    /**
-     * Throws a runtime exception "Operation not supported".
-     * @param shape Ignored.
-     * @throws RuntimeException Always "Operation not supported".
-     */
-    @Override
-    public void setShape(Shape shape) {
-        throw new IllegalStateException("Operation not supported.");
+        addChangeListener(new BoundsUpdater());
     }
 
     @Override
@@ -187,7 +168,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     protected synchronized boolean addFigureImpl(int index, Figure figure) {
         figureSet.add(figure);
         figureList.add(index, figure);
-        figure.addListener(changeDelegate);
+        figure.addChangeListener(changeDelegate);
         return true;
     }
 
@@ -196,7 +177,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
         boolean b = figureSet.remove(figure);
         if (b) {
             figureList.remove(figure);
-            figure.removeListener(changeDelegate);
+            figure.removeChangeListener(changeDelegate);
         }
         return b;
     }
@@ -205,7 +186,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     protected synchronized Figure[] removeFiguresImpl() {
         Figure[] allFigures = getFigures();
         for (Figure figure : allFigures) {
-            figure.removeListener(changeDelegate);
+            figure.removeChangeListener(changeDelegate);
         }
         figureSet.clear();
         figureList.clear();

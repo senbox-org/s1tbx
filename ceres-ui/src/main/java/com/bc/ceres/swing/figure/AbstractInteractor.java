@@ -91,7 +91,7 @@ public abstract class AbstractInteractor implements Interactor {
 
     @Override
     public void keyTyped(KeyEvent event) {
-        // System.out.println("onKeyTyped: interaction = " + this + ", keyChar = " + (int) event.getKeyChar());
+        System.out.println("onKeyTyped: interaction = " + this + ", keyChar = " + (int) event.getKeyChar());
         if (event.getKeyChar() == 27) {
             cancelInteraction(event);
         }

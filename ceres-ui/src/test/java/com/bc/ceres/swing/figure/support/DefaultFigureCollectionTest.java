@@ -26,7 +26,7 @@ public class DefaultFigureCollectionTest extends TestCase {
         fc.addFigure(f2);
 
         MyFigureListener listener = new MyFigureListener();
-        fc.addListener(listener);
+        fc.addChangeListener(listener);
 
         assertEquals("", listener.trace);
         f1.addFigure(new DefaultFigureCollection());
@@ -72,7 +72,7 @@ public class DefaultFigureCollectionTest extends TestCase {
     public void testListener() {
         DefaultFigureCollection fc = new DefaultFigureCollection();
         MyFigureListener listener = new MyFigureListener();
-        fc.addListener(listener);
+        fc.addChangeListener(listener);
 
         DefaultFigureCollection f1 = new DefaultFigureCollection();
         fc.addFigure(f1);

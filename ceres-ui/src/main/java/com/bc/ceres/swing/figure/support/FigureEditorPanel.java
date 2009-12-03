@@ -36,6 +36,8 @@ public class FigureEditorPanel extends JPanel implements FigureEditorHolder, Adj
         super(null);
 
         requestFocusInWindow(); // to receive key events
+        setFocusable(true);
+        setRequestFocusEnabled(true);
         setBackground(Color.WHITE);
 
         this.figureCollection = figureCollection;

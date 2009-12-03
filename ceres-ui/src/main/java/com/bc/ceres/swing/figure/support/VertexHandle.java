@@ -7,6 +7,7 @@ import static com.bc.ceres.swing.figure.support.StyleDefaults.VERTEX_HANDLE_SIZE
 
 import java.awt.Shape;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 
 
 public class VertexHandle extends AbstractHandle {
@@ -24,21 +25,18 @@ public class VertexHandle extends AbstractHandle {
 
     @Override
     public void updateLocation() {
-        final double[] segment = getFigure().getVertex(vertexIndex);
-        double x = segment[0];
-        double y = segment[1];
-        setLocation(x, y);
+        final Point2D vertex = getFigure().getVertex(vertexIndex);
+        if (vertex != null) {
+            setLocation(vertex.getX(), vertex.getY());
+        }
     }
 
     @Override
     public void move(double dx, double dy) {
         setLocation(getX() + dx, getY() + dy);
-        
-        final double[] segment = getFigure().getVertex(vertexIndex);
-        if (segment != null) {
-            segment[0] += dx;
-            segment[1] += dy;
-            getFigure().setVertex(vertexIndex, segment);
+        final Point2D vertex = getFigure().getVertex(vertexIndex);
+        if (vertex != null) {
+            getFigure().setVertex(vertexIndex, new Point2D.Double(vertex.getX()+dx, vertex.getY()+dy));
         }
     }
 

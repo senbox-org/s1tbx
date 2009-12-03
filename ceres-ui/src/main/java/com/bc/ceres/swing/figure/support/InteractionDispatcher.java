@@ -76,6 +76,7 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
 
     @Override
     public void keyReleased(KeyEvent e) {
+        System.out.println("e = " + e);
         getInteractor().keyReleased(e);
     }
 

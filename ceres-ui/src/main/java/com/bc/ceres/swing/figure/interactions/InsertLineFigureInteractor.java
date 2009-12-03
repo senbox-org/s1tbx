@@ -12,13 +12,13 @@ import java.awt.Shape;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 
 public class InsertLineFigureInteractor extends InsertFigureInteractor {
 
-    private Point referencePoint;
     private boolean canceled;
     private Figure figure;
-    private Line2D line;
 
     public InsertLineFigureInteractor() {
     }
@@ -35,12 +35,17 @@ public class InsertLineFigureInteractor extends InsertFigureInteractor {
 
     @Override
     public void mousePressed(MouseEvent event) {
+        canceled = false;
+
         FigureEditor figureEditor = getFigureEditor(event);
         figureEditor.getFigureSelection().removeFigures();
-        referencePoint = event.getPoint();
-        canceled = false;
-        line = new Line2D.Double(referencePoint, referencePoint);
-        figure = getFigureFactory().createLinealFigure(toModelShape(event, line), StyleDefaults.INSERT_STYLE);
+        Point2D referencePoint = toModelPoint(event);
+
+        Path2D linePath = new Path2D.Double();
+        linePath.moveTo(referencePoint.getX(), referencePoint.getY());
+        linePath.lineTo(referencePoint.getX(), referencePoint.getY());
+
+        figure = getFigureFactory().createLinealFigure(linePath, StyleDefaults.INSERT_STYLE);
         figureEditor.getFigureCollection().addFigure(figure);
         startInteraction(event);
     }
@@ -54,7 +59,6 @@ public class InsertLineFigureInteractor extends InsertFigureInteractor {
 
     @Override
     public void mouseDragged(MouseEvent event) {
-        line.setLine(referencePoint, event.getPoint());
-        figure.setShape(toModelShape(event, line));
+        figure.setVertex(1, toModelPoint(event));
     }
 }
