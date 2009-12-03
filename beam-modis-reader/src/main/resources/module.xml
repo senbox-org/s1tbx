@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-modis-reader</symbolicName>
-    <version>1.1</version>
+    <version>1.2</version>
     <name>MODIS (MOD,MXD,MYD) Product Reader</name>
 
 
@@ -15,6 +15,9 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.2:<br/>
+        Support for MOD09GA and MYD09GA products<br/>
+
         Changes in 1.1:<br/>
         [BEAM-923] Wrong exception type thrown on format errors<br/>
         ]]>

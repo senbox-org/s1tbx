@@ -12,7 +12,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-modis-reader</artifactId>
     <name>MODIS (MOD,MXD,MYD) Product Reader</name>
-    <version>1.1</version>
+    <version>1.2</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>
