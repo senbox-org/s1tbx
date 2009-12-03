@@ -365,7 +365,7 @@ public class BandArithmetic {
         return productIndex;
     }
 
-    public static RasterDataNode[] getRefRasters(String expression, Product[] products) throws ParseException {
+    public static RasterDataNode[] getRefRasters(String expression, Product... products) throws ParseException {
         return getRefRasters(expression, products, 0);
     }
 
