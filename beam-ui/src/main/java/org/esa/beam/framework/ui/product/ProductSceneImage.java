@@ -189,15 +189,6 @@ public class ProductSceneImage implements LayerContext {
         return layer;
     }
 
-    ImageLayer getRoiLayer(boolean create) {
-        ImageLayer layer = (ImageLayer) getLayer(ProductSceneView.ROI_LAYER_ID);
-        if (layer == null && create) {
-            layer = createRoiLayer(getImageToModelTransform());
-            addLayer(getFirstImageLayerIndex(), layer);
-        }
-        return layer;
-    }
-
     GraticuleLayer getGraticuleLayer(boolean create) {
         GraticuleLayer layer = (GraticuleLayer) getLayer(ProductSceneView.GRATICULE_LAYER_ID);
         if (layer == null && create) {
@@ -403,20 +394,6 @@ public class ProductSceneImage implements LayerContext {
                                     configuration.getPropertyDouble(
                                             FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
                                             FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
-    }
-
-    private ImageLayer createRoiLayer(AffineTransform imageToModelTransform) {
-        final LayerType roiLayerType = LayerTypeRegistry.getLayerType(RoiLayerType.class);
-
-        final Color color = configuration.getPropertyColor(RoiLayerType.PROPERTY_NAME_COLOR, Color.RED);
-        final double transparency = configuration.getPropertyDouble(RoiLayerType.PROPERTY_NAME_TRANSPARENCY, 0.5);
-
-        final PropertyContainer template = roiLayerType.createLayerConfig(null);
-        template.setValue(RoiLayerType.PROPERTY_NAME_COLOR, color);
-        template.setValue(RoiLayerType.PROPERTY_NAME_TRANSPARENCY, transparency);
-        template.setValue(RoiLayerType.PROPERTY_NAME_RASTER, getRaster());
-        template.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
-        return (ImageLayer) roiLayerType.createLayer(this, template);
     }
 
     private GraticuleLayer createGraticuleLayer(AffineTransform i2mTransform) {

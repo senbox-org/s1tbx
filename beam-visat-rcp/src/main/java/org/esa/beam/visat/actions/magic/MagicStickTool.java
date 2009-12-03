@@ -96,8 +96,9 @@ public class MagicStickTool extends AbstractTool {
             protected void done() {
                 try {
                     final BufferedImage image = get();
-                    view.setROIImage(image);
-                    view.setROIOverlayEnabled(true);
+                    // the following methods were removed in BEAM 4.7 (rq-20091102)
+                    // view.setROIImage(image);
+                    // view.setROIOverlayEnabled(true);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 } catch (ExecutionException e1) {

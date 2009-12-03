@@ -107,7 +107,6 @@ public class ShowImageViewRGBAction extends ExecCommand {
 
                 ProductSceneView productSceneView = new ProductSceneView(productSceneImage);
                 productSceneView.setNoDataOverlayEnabled(false);
-                productSceneView.setROIOverlayEnabled(false);
                 productSceneView.setGraticuleOverlayEnabled(false);
                 productSceneView.setPinOverlayEnabled(false);
                 productSceneView.setLayerProperties(visatApp.getPreferences());
