@@ -78,10 +78,10 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
             while (featureIterator.hasNext()) {
                 SimpleFeature simpleFeature = featureIterator.next();
                 numFeatures++;
-                System.out.println("Loaded feature " + numFeatures);
+                System.out.printf("Loaded feature %d%n", numFeatures);
                 figureCollection.addFigure(new SimpleFeatureFigure(simpleFeature));
             }
-            System.out.println("Done loading " + numFeatures + " features");
+            System.out.printf("Done loading %d features%n", numFeatures);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getFrame(), "Error: " + e.getMessage());
         }
@@ -219,9 +219,8 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
             System.out.println("coordinates!!!!!!");
             for (List<Coordinate> path : pathList) {
                 Coordinate[] coordinates = path.toArray(new Coordinate[path.size()]);
-                for (int i = 0; i < coordinates.length; i++) {
-                    Coordinate coordinate = coordinates[i];
-                    System.out.println("coordinate = " + coordinate);
+                for (Coordinate coordinate : coordinates) {
+                    System.out.printf("coordinate = %s%n", coordinate);
                 }
                 rings.add(geometryFactory.createLinearRing(coordinates));
             }
