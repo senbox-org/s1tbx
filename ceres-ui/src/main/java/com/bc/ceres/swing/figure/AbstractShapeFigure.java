@@ -29,6 +29,7 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
     private  FigureStyle normalStyle;
     private  FigureStyle selectedStyle;
     private boolean selected;
+    private boolean selectable;
 
     protected AbstractShapeFigure() {
         this(true, new DefaultFigureStyle());
@@ -38,6 +39,7 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
         this.rank = polygonal ? Rank.POLYGONAL : Rank.LINEAL;
         this.normalStyle = normalStyle;
         this.selectedStyle = DefaultFigureStyle.createShapeStyle(null, new Color(255, 255, 0, 180), new BasicStroke(5.0f));
+        this.selectable = true;
     }
 
     @Override
@@ -70,7 +72,11 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
 
     @Override
     public boolean isSelectable() {
-        return true;
+        return selectable;
+    }
+
+    protected void setSelectable(boolean selectable) {
+        this.selectable = selectable;
     }
 
     @Override
