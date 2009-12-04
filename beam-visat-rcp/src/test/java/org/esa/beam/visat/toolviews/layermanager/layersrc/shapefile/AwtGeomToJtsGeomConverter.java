@@ -1,0 +1,101 @@
+package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.Polygon;
+
+import java.awt.Shape;
+import java.awt.geom.PathIterator;
+import java.util.ArrayList;
+import java.util.List;
+
+class AwtGeomToJtsGeomConverter {
+
+    private GeometryFactory geometryFactory;
+
+    AwtGeomToJtsGeomConverter() {
+        this(new GeometryFactory());
+    }
+
+    AwtGeomToJtsGeomConverter(GeometryFactory geometryFactory) {
+        this.geometryFactory = geometryFactory;
+    }
+
+    public MultiLineString createMultiLineString(Shape geometry) {
+        List<LineString> lineStringList = createLineStringList(geometry, 1.0);
+        LineString[] lineStrings = lineStringList.toArray(new LineString[lineStringList.size()]);
+        return geometryFactory.createMultiLineString(lineStrings);
+    }
+
+    public Polygon createPolygon(Shape geometry) {
+        List<LinearRing> linearRings = createLinearRingList(geometry, 1.0);
+        LinearRing exteriorRing = linearRings.get(linearRings.size() - 1);
+        LinearRing[] interiorRings = null;
+        if (linearRings.size() > 1) {
+            List<LinearRing> subList = linearRings.subList(0, linearRings.size() - 1);
+            interiorRings = subList.toArray(new LinearRing[subList.size()]);
+        }
+        return geometryFactory.createPolygon(exteriorRing, interiorRings);
+    }
+
+    public List<LinearRing> createLinearRingList(Shape geometry, double flatness) {
+        List<List<Coordinate>> pathList = createPathList(geometry, flatness, true);
+        List<LinearRing> linearRingList = new ArrayList<LinearRing>();
+        for (List<Coordinate> path : pathList) {
+            Coordinate[] pathCoordinates = path.toArray(new Coordinate[path.size()]);
+            linearRingList.add(geometryFactory.createLinearRing(pathCoordinates));
+        }
+        return linearRingList;
+    }
+
+    public List<LineString> createLineStringList(Shape geometry, double flatness) {
+        List<List<Coordinate>> pathList = createPathList(geometry, flatness, false);
+        List<LineString> strings = new ArrayList<LineString>();
+        for (List<Coordinate> path : pathList) {
+            strings.add(geometryFactory.createLineString(path.toArray(new Coordinate[path.size()])));
+        }
+        return strings;
+    }
+
+    public List<List<Coordinate>> createPathList(Shape geometry, double flatness, boolean forceClosedPaths) {
+        List<Coordinate> path = new ArrayList<Coordinate>(16);
+        List<List<Coordinate>> pathList = new ArrayList<List<Coordinate>>(4);
+        PathIterator pathIterator;
+        if (flatness > 0.0) {
+            pathIterator = geometry.getPathIterator(null, flatness);
+        } else {
+            pathIterator = geometry.getPathIterator(null);
+        }
+        double[] seg = new double[6];
+        int segType = -1;
+        while (!pathIterator.isDone()) {
+            segType = pathIterator.currentSegment(seg);
+            if (segType == PathIterator.SEG_CLOSE) {
+                if (forceClosedPaths) {
+                    forcePathClosed(path);
+                }
+                pathList.add(path);
+                path = new ArrayList<Coordinate>(16);
+            } else {
+                path.add(new Coordinate(seg[0], seg[1]));
+            }
+            pathIterator.next();
+        }
+        if (forceClosedPaths && segType != PathIterator.SEG_CLOSE) {
+            forcePathClosed(path);
+        }
+        return pathList;
+    }
+
+    private void forcePathClosed(List<Coordinate> coordinates) {
+        Coordinate first = coordinates.get(0);
+        Coordinate last = coordinates.get(coordinates.size() - 1);
+        if (!first.equals2D(last)) {
+            coordinates.add(new Coordinate(first.x, first.y));
+        }
+    }
+
+}
