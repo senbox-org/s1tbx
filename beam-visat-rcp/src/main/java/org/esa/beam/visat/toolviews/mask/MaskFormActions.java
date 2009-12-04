@@ -634,6 +634,7 @@ class MaskFormActions {
                 if (sourcProduct.isCompatibleProduct(targetProduct, 1.0e-3f)) {
                     copyBandData(selectedMasks, targetProduct);
                 } else {
+                    throw new IllegalStateException("not implemented !!!"); 
                     // TODO: reproject
                 }
             }
