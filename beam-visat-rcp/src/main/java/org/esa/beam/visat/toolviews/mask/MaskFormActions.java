@@ -118,11 +118,10 @@ class MaskFormActions {
         return getMaskAction(NullAction.class);
     }
 
-
     private static class NewBandMathAction extends BandMathAction {
 
         private NewBandMathAction(MaskForm maskForm) {
-            super(maskForm, "BandMath24.png", "bandMathButton", "Creates a new mask based on a band math expression");
+            super(maskForm, "BandMath24.png", "bandMathButton", "Creates a new mask based on a logical expression");
         }
 
         @Override
@@ -132,7 +131,7 @@ class MaskFormActions {
                     new Product[]{product}, product, null);
             expressionPane.setEmptyExpressionAllowed(false);
             expressionPane.setCode("");
-            if (expressionPane.showModalDialog(null, "New Band-Math Mask") == AbstractDialog.ID_OK) {
+            if (expressionPane.showModalDialog(null, "New Logical Expression") == AbstractDialog.ID_OK) {
                 final String code = expressionPane.getCode();
                 if (!code.isEmpty()) {
                     return code;
