@@ -191,19 +191,14 @@ public abstract class FigureEditorApp {
         area.subtract(new Area(new Rectangle(-26, -26, 50, 50)));
 //        drawing.addFigure(figureFactory.createPolygonalFigure(area, DefaultFigureStyle.createShapeStyle(Color.RED, Color.ORANGE)));
 
-        Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO);
-        path.append(rectPath(true, 12, 12, 25, 25), false);
+        Path2D path = new Path2D.Double(Path2D.WIND_EVEN_ODD);
+        path.append(rectPath(true, 0, 0, 100, 100), false);
+        path.append(rectPath(false, 12, 12, 25, 25), false);
         path.append(rectPath(false, 65, 65, 25, 25), false);
-        path.append(rectPath(false, 0, 0, 100, 100), false);
         DefaultFigureStyle shapeStyle = DefaultFigureStyle.createShapeStyle(new Color(0, 0, 255, 127), Color.ORANGE);
         drawing.addFigure(figureFactory.createPolygonalFigure(path, shapeStyle));
 
-        path = new Path2D.Double(Path2D.WIND_NON_ZERO);
-        path.append(rectPath(true, 12, 12, 25, 25), false);
-        path.append(rectPath(false, 65, 65, 25, 25), false);
-        path.append(rectPath(true, 0, 0, 100, 100), false);
-//       drawing.addFigure(figureFactory.createPolygonalFigure(path, DefaultFigureStyle.createShapeStyle(new Color(255, 70, 128, 127), Color.ORANGE)));
-        /*
+       /*
         Area a2 = new Area();
         a2.add(new Area(new Rectangle(0, 0, 100, 100)));
         a2.subtract(new Area(new Rectangle(12, 12, 25, 25)));

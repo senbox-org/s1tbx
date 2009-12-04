@@ -10,7 +10,6 @@ import java.awt.Graphics2D;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
@@ -64,18 +63,6 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
             }
             fireFigureChanged();
         }
-    }
-
-    @Override
-    public void selectHandle(Point2D point) {
-        Handle selectedHandle = null;
-        for (Handle handle : handles) {
-            if (handle.contains(point)) {
-                selectedHandle = handle;
-                break;
-            }
-        }
-        setSelectedHandle(selectedHandle);
     }
 
     @Override

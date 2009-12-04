@@ -1,12 +1,6 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.swing.undo.Restorable;
-import com.bc.ceres.grender.Rendering;
-
-import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 
 
 /**

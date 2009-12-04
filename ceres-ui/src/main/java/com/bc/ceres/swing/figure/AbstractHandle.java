@@ -1,21 +1,17 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.swing.figure.FigureChangeEvent;
-import com.bc.ceres.swing.figure.Handle;
-import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.FigureStyle;
-import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 
 import java.awt.Cursor;
-import java.awt.Shape;
 import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.AffineTransform;
 
 public abstract class AbstractHandle extends AbstractFigure implements Handle {
+
     private final Figure figure;
     private final FigureStyle normalStyle;
     private final FigureStyle selectedStyle;
@@ -109,8 +105,11 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     }
 
     @Override
-    public boolean contains(Point2D point) {
-        return getShape().contains(point);
+    public boolean isCloseTo(Point2D point, AffineTransform m2v) {
+        Point2D delta = new Point2D.Double(point.getX() - location.getX(),
+                                           point.getY() - location.getY());
+        m2v.deltaTransform(delta, delta);
+        return getShape().contains(delta);
     }
 
     @Override
@@ -137,7 +136,8 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
             AffineTransform m2v = vp.getModelToViewTransform();
             Point2D transfLocation = m2v.transform(location, null);
             AffineTransform newTransform = new AffineTransform(oldTransform);
-            newTransform.concatenate(AffineTransform.getTranslateInstance(transfLocation.getX(), transfLocation.getY()));
+            newTransform.concatenate(
+                    AffineTransform.getTranslateInstance(transfLocation.getX(), transfLocation.getY()));
             g.setTransform(newTransform);
 
             drawHandle(g);

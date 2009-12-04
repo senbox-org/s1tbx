@@ -3,6 +3,7 @@ package com.bc.ceres.swing.figure;
 import junit.framework.TestCase;
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 
 public class AbstractFigureTest extends TestCase {
 
@@ -11,10 +12,10 @@ public class AbstractFigureTest extends TestCase {
         assertNotNull(f.getChangeListeners());
         assertEquals(false, f.isSelectable());
         assertEquals(0, f.getChangeListeners().length);
-        assertEquals(null, f.getFigure(null));
+        assertEquals(null, f.getFigure(null, new AffineTransform()));
         assertEquals(0, f.getFigureCount());
         assertEquals(0, f.getMaxSelectionStage());
-        assertNull(f.getFigure(null));
+        assertNull(f.getFigure(null, new AffineTransform()));
         assertNotNull(f.getFigures((Shape) null));
         assertEquals(0, f.getFigures(null).length);
         assertNotNull(f.getFigures());

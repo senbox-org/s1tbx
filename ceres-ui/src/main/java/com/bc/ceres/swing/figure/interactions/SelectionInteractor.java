@@ -1,17 +1,17 @@
 package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.Handle;
-import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.FigureSelection;
+import com.bc.ceres.swing.figure.Handle;
 
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
@@ -123,24 +123,23 @@ public class SelectionInteractor extends FigureEditorInteractor {
     }
 
     private boolean isMouseOverSelection(MouseEvent event) {
-        return getFigureEditor(event).getFigureSelection().contains(toModelPoint(event));
+        return getFigureEditor(event).getFigureSelection().isCloseTo(toModelPoint(event),
+                                                                    getModelToViewTransform(event));
     }
 
     private Figure findFigure(MouseEvent event) {
-        return getFigureEditor(event).getFigureCollection().getFigure(toModelPoint(event));
+        return getFigureEditor(event).getFigureCollection().getFigure(toModelPoint(event), 
+                                                                      getModelToViewTransform(event));
     }
 
     private Handle findHandle(MouseEvent event) {
         FigureEditor figureEditor = getFigureEditor(event);
         FigureSelection figureSelection = figureEditor.getFigureSelection();
+        Point2D modelPoint = toModelPoint(event);
+        AffineTransform m2v = getModelToViewTransform(event);
         for (Handle handle : figureSelection.getHandles()) {
             if (handle.isSelectable()) {
-                Point2D p = handle.getLocation();
-                AffineTransform m2v = getModelToViewTransform(event);
-                m2v.transform(p, p);
-                p = new Point2D.Double(event.getX() - p.getX(),
-                                       event.getY() - p.getY());
-                if (handle.contains(p)) {
+                if (handle.isCloseTo(modelPoint, m2v)) {
                     return handle;
                 }
             }

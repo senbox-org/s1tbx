@@ -1,17 +1,17 @@
 package com.bc.ceres.swing.figure.support;
 
+import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.swing.figure.AbstractFigure;
 import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
-import com.bc.ceres.swing.figure.FigureChangeEvent;
-import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureCollection;
-import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.swing.figure.Handle;
 
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Area;
-import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -108,7 +108,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     }
 
     @Override
-    public boolean contains(Point2D point) {
+    public boolean isCloseTo(Point2D point, AffineTransform m2v) {
         return getBounds().contains(point);
     }
 
@@ -133,10 +133,10 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     }
 
     @Override
-    public synchronized Figure getFigure(Point2D p) {
+    public synchronized Figure getFigure(Point2D p, AffineTransform m2v) {
         Figure selectedShape = null;
         for (Figure figure : getFigures()) {
-            if (figure.contains(p)) {
+            if (figure.isCloseTo(p, m2v)) {
                 selectedShape = figure;
             }
         }

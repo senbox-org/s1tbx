@@ -45,7 +45,7 @@ public abstract class AbstractPointFigure extends AbstractFigure {
     }
 
     @Override
-    public boolean contains(Point2D point) {
+    public boolean isCloseTo(Point2D point, AffineTransform m2v) {
         double dx = location.getX() - point.getX();
         double dy = location.getY() - point.getY();
         return dx * dx + dy * dy <= radius * radius;

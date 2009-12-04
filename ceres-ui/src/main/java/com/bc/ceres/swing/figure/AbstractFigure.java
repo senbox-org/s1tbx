@@ -5,6 +5,7 @@ import com.bc.ceres.swing.figure.support.ScaleHandle;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public abstract class AbstractFigure implements Figure {
      * @return Always {@code false}.
      */
     @Override
-    public boolean contains(Point2D point) {
+    public boolean isCloseTo(Point2D point, AffineTransform m2v) {
         return false;
     }
 
@@ -75,7 +76,7 @@ public abstract class AbstractFigure implements Figure {
      * @return Always {@code null}.
      */
     @Override
-    public Figure getFigure(Point2D p) {
+    public Figure getFigure(Point2D p, AffineTransform m2v) {
         return null;
     }
 

@@ -2,8 +2,6 @@ package com.bc.ceres.swing.figure;
 
 import com.bc.ceres.swing.selection.Selection;
 
-import java.awt.geom.Point2D;
-
 /**
  * A selection of figures.
  * <p/>
@@ -55,6 +53,4 @@ public interface FigureSelection extends FigureCollection, Selection {
     Handle getSelectedHandle();
 
     void setSelectedHandle(Handle handle);
-
-    void selectHandle(Point2D point);
 }

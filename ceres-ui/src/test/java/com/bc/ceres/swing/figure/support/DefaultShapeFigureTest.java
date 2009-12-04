@@ -1,17 +1,23 @@
 package com.bc.ceres.swing.figure.support;
 
-import junit.framework.TestCase;
+import org.junit.Ignore;
 
-import java.awt.Rectangle;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 
-public class DefaultShapeFigureTest extends TestCase {
-    public void testArea() {
+@Ignore
+public class DefaultShapeFigureTest {
+
+    public static void main(String[] args) {
+       /*
         Area area = new Area(new Rectangle(0, 0, 100, 100));
         area.subtract(new Area(new Rectangle(25, 25, 50, 50)));
         area.add(new Area(new Rectangle(75, 75, 50, 50)));
@@ -25,14 +31,29 @@ public class DefaultShapeFigureTest extends TestCase {
 
         show(new Path2D.Double(new Rectangle(87, 87, 25, 25)));
         show(new Ellipse2D.Float(87, 87, 25, 25));
+         */
 
 
-        Path2D path = new Path2D.Double(Path2D.WIND_NON_ZERO);
-        path.append(new Rectangle(12, 12, 25, 25), false);
-        path.append(new Rectangle(65, 65, 25, 25), false);
-        path.append(new Rectangle(0, 0, 100, 100), false);
-        show(path);
+        doit(Path2D.WIND_EVEN_ODD, false, false, false);
+        doit(Path2D.WIND_EVEN_ODD, false, false, true);
+        doit(Path2D.WIND_EVEN_ODD, false, true, false);
+        doit(Path2D.WIND_EVEN_ODD, false, true, true);
+        doit(Path2D.WIND_EVEN_ODD, true, false, false);
+        doit(Path2D.WIND_EVEN_ODD, true, false, true);
+        doit(Path2D.WIND_EVEN_ODD, true, true, false);
+        doit(Path2D.WIND_EVEN_ODD, true, true, true);
+        doit(Path2D.WIND_NON_ZERO, false, false, false);
+        doit(Path2D.WIND_NON_ZERO, false, false, true);
+        doit(Path2D.WIND_NON_ZERO, false, true, false);
+        doit(Path2D.WIND_NON_ZERO, false, true, true);
+        doit(Path2D.WIND_NON_ZERO, true, false, false);
+        doit(Path2D.WIND_NON_ZERO, true, false, true);
+        doit(Path2D.WIND_NON_ZERO, true, true, false);
+        doit(Path2D.WIND_NON_ZERO, true, true, true);
 
+
+
+           /*
         Area a2 = new Area();
         a2.add(new Area(new Rectangle(0, 0, 100, 100)));
         a2.subtract(new Area(new Rectangle(12, 12, 25, 25)));
@@ -41,10 +62,77 @@ public class DefaultShapeFigureTest extends TestCase {
         a2.subtract(new Area(new Rectangle(200 + 12, 200 + 12, 25, 25)));
         a2.subtract(new Area(new Rectangle(200 + 65, 200 + 65, 25, 25)));
         show(a2);
+        */
     }
 
-    private void show(Shape shape) {
-        System.out.println("Shape " + shape.getClass());
+    private static void doit(int winding, boolean clockwise1, boolean clockwise2, boolean clockwise3) {
+        Path2D path;
+        path = new Path2D.Double(winding);
+        path.append(rectPath(clockwise1, 0, 0, 100, 100), false);
+        path.append(rectPath(clockwise2, 12, 12, 25, 25), false);
+        path.append(rectPath(clockwise3, 65, 65, 25, 25), false);
+        StringBuilder sb =new StringBuilder();
+        if(winding == Path2D.WIND_EVEN_ODD) {
+            sb.append("WEO");
+        }else {
+            sb.append("WNZ");
+        }
+        sb.append((" - "));
+        sb.append(String.valueOf(clockwise1));
+        sb.append((", "));
+        sb.append(String.valueOf(clockwise2));
+        sb.append((", "));
+        sb.append(String.valueOf(clockwise3));
+        show(path, sb.toString());
+    }
+
+    private static Path2D rectPath(boolean clockwise, int x, int y, int w, int h) {
+        Path2D.Double linePath = new Path2D.Double();
+        linePath.moveTo(x, y);
+        if (clockwise) {
+            linePath.lineTo(x, y + h);
+            linePath.lineTo(x + w, y + h);
+            linePath.lineTo(x + w, y);
+        } else {
+            linePath.lineTo(x + w, y);
+            linePath.lineTo(x + w, y + h);
+            linePath.lineTo(x, y + h);
+        }
+        linePath.lineTo(x, y);
+        linePath.closePath();
+        return linePath;
+    }
+
+
+    private static void show(final Shape shape, String title) {
+        JFrame frame = new JFrame(title);
+        JPanel canvas = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.setColor(Color.GRAY);
+                    for (int i = 0; i < getWidth(); i+=10) {
+                        g.drawLine(i, 0, i, getHeight());
+                    }
+                for (int i = 0; i < getHeight(); i+=10) {
+                    g.drawLine( 0, i, getWidth(), i);
+                }
+
+                Graphics2D graphics2D = (Graphics2D) g;
+                graphics2D.translate(10, 10);
+                 graphics2D.setPaint(new Color(255, 255, 255, 150));
+                graphics2D.fill(shape);
+                graphics2D.setPaint(Color.BLUE);
+                graphics2D.draw(shape);
+            }
+        };
+        canvas.setBorder(new EmptyBorder(9,9,9,9));
+        canvas.setPreferredSize(new Dimension(shape.getBounds().width+20, shape.getBounds().height+20));
+        frame.getContentPane().add(canvas) ;
+        frame.pack();
+        frame.setVisible(true);
+
+        System.out.println("Shape " +title);
         PathIterator pathIterator = shape.getPathIterator(null);
 
         if (pathIterator.getWindingRule() == PathIterator.WIND_EVEN_ODD) {

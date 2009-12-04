@@ -12,6 +12,7 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
@@ -143,8 +144,19 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
     }
 
     @Override
-    public boolean contains(Point2D point) {
-        return getShape().contains(point);
+    public boolean isCloseTo(Point2D point, AffineTransform m2v) {
+        if (getRank() == Rank.POLYGONAL) {
+            return getShape().contains(point);
+        } else {
+            try {
+                Point2D viewPoint = m2v.transform(point, null);
+                Rectangle2D.Double aDouble = new Rectangle2D.Double(viewPoint.getX()-1.5, viewPoint.getY()-1.5, 3.0, 3.0);
+                Rectangle2D rectangle2D = m2v.createInverse().createTransformedShape(aDouble).getBounds2D();
+                return getShape().intersects(rectangle2D);
+            } catch (NoninvertibleTransformException e) {
+                return false;
+            }
+        }
     }
 
     @Override
