@@ -32,7 +32,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import javax.swing.JOptionPane;
 import java.awt.Color;
 import java.awt.Shape;
-import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -45,7 +44,7 @@ import java.util.Map;
 
 public class FeatureFigureEditorApp extends FigureEditorApp {
 
-    FeatureCollection featureCollection;
+    private FeatureCollection featureCollection;
 
     public FeatureFigureEditorApp() {
         SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
@@ -108,7 +107,7 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
         private final SimpleFeature simpleFeature;
         private final Geometry geometry;
 
-        public SimpleFeatureFigure(SimpleFeature simpleFeature) {
+        private SimpleFeatureFigure(SimpleFeature simpleFeature) {
             getNormalStyle().setValue(FigureStyle.FILL.getName(), Color.WHITE);
             getNormalStyle().setValue(FigureStyle.STROKE.getName(), Color.BLACK);
 
@@ -121,7 +120,7 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
             try {
                 setShape(new LiteShape2(geometry, null, null, true));
             } catch (Exception e) {
-                throw new IllegalArgumentException("simpleFeature");
+                throw new IllegalArgumentException("simpleFeature", e);
             }
             Rank rank = getRank(geometry);
             System.out.println("rank = " + rank);
@@ -158,11 +157,11 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
 
     private static class SimpleFeatureFigureFactory implements FigureFactory {
         private final FeatureCollection featureCollection;
-        int id;
+        private int id;
         private GeometryFactory geometryFactory;
 
 
-        public SimpleFeatureFigureFactory(FeatureCollection featureCollection) {
+        private SimpleFeatureFigureFactory(FeatureCollection featureCollection) {
             this.featureCollection = featureCollection;
             this.geometryFactory = new GeometryFactory();
         }
@@ -178,7 +177,8 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
             if (lineStringList.size() == 1) {
                 return createShapeFigure(lineStringList.get(0));
             } else {
-                return createShapeFigure(geometryFactory.createMultiLineString(lineStringList.toArray(new LineString[0])));
+                LineString[] lineStrings = lineStringList.toArray(new LineString[lineStringList.size()]);
+                return createShapeFigure(geometryFactory.createMultiLineString(lineStrings));
             }
         }
 
@@ -186,7 +186,11 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
         public ShapeFigure createPolygonalFigure(Shape geometry, FigureStyle style) {
             List<LinearRing> linearRings = ringList(geometry, 1.0);
             LinearRing exteriorRing = linearRings.get(linearRings.size() - 1);
-            LinearRing[] interiorRings = linearRings.size() > 1 ? linearRings.subList(0, linearRings.size() - 1).toArray(new LinearRing[0]) : null;
+            LinearRing[] interiorRings = null;
+            if (linearRings.size() > 1) {
+                List<LinearRing> subList = linearRings.subList(0, linearRings.size() - 1);
+                interiorRings = subList.toArray(new LinearRing[subList.size()]);
+            }
             return createShapeFigure(geometryFactory.createPolygon(exteriorRing, interiorRings));
         }
 
@@ -206,7 +210,7 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
             SimpleFeatureType ft = (SimpleFeatureType) featureCollection.getSchema();
             SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(ft);
             sfb.set("geometry", geometry1);
-            return new SimpleFeatureFigure(sfb.buildFeature("" + id++));
+            return new SimpleFeatureFigure(sfb.buildFeature(String.valueOf(id++)));
         }
 
         private List<LinearRing> ringList(Shape geometry, double flatness) {
