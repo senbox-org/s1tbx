@@ -1,4 +1,4 @@
-package com.bc.ceres.swing.apps;
+package com.bc.ceres.swing.demo;
 
 import com.bc.ceres.swing.actions.CopyAction;
 import com.bc.ceres.swing.actions.CutAction;
