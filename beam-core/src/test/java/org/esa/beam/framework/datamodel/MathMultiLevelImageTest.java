@@ -1,10 +1,17 @@
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.ResolutionLevel;
+import org.esa.beam.jai.VirtualBandOpImage;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.awt.image.RenderedImage;
 import java.util.Arrays;
 
 public class MathMultiLevelImageTest {
@@ -18,7 +25,19 @@ public class MathMultiLevelImageTest {
         product = new Product("P", "T", 1, 1);
         virtualBand = new VirtualBand("V", ProductData.TYPE_INT8, 1, 1, "1");
         product.addBand(virtualBand);
-        image = new MathMultiLevelImage("V != 1", product);
+
+        final String expression = "V != 1";
+        final MultiLevelModel multiLevelModel = ImageManager.createMultiLevelModel(product);
+        final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
+            @Override
+            public RenderedImage createImage(int level) {
+                return VirtualBandOpImage.createMask(expression,
+                                                     product,
+                                                     ResolutionLevel.create(getModel(), level));
+            }
+        };
+
+        image = new MathMultiLevelImage(expression, product, multiLevelSource);
     }
 
     @Test

@@ -18,14 +18,7 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.jai.ImageManager;
-import org.esa.beam.jai.ResolutionLevel;
-import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
 
@@ -238,10 +231,10 @@ public class VirtualBand extends Band {
     @Override
     public String toString() {
         return getClass().getName() + "["
-                + getName() + ","
-                + ProductData.getTypeString(getDataType()) + "," +
-                +getRasterWidth() + "," +
-                +getRasterHeight() + "]";
+               + getName() + ","
+               + ProductData.getTypeString(getDataType()) + "," +
+               +getRasterWidth() + "," +
+               +getRasterHeight() + "]";
     }
 
     /**
@@ -272,20 +265,8 @@ public class VirtualBand extends Band {
      * @return A multi-level image.
      */
     public static MultiLevelImage createVirtualSourceImage(final RasterDataNode raster, final String expression) {
-        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(raster);
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
-
-            @Override
-            public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.create(expression,
-                                                 raster.getDataType(),
-                                                 raster.isNoDataValueUsed() ? raster.getGeophysicalNoDataValue() : null,
-                                                 raster.getProduct(),
-                                                 ResolutionLevel.create(getModel(), level));
-            }
-        });
+        return MathMultiLevelImage.create(expression, raster);
     }
-
 }
 
 

@@ -15,7 +15,6 @@ import com.bc.jexp.impl.Tokenizer;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VectorDataMaskOpImage;
-import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.StringUtils;
 
 import javax.media.jai.KernelJAI;
@@ -228,13 +227,7 @@ public class Mask extends Band {
          */
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            return new MathMultiLevelImage(getExpression(mask), mask.getProduct()) {
-                @Override
-                public void reset() {
-                    super.reset();
-                    mask.fireProductNodeDataChanged();
-                }
-            };
+            return MathMultiLevelImage.createMask(getExpression(mask), mask);
         }
 
         /**
@@ -350,13 +343,7 @@ public class Mask extends Band {
 
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            return new MathMultiLevelImage(getExpression(mask), mask.getProduct()) {
-                @Override
-                public void reset() {
-                    super.reset();
-                    mask.fireProductNodeDataChanged();
-                }
-            };
+            return MathMultiLevelImage.createMask(getExpression(mask), mask);
         }
 
         @Override
