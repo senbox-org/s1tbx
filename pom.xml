@@ -76,7 +76,6 @@
         <module>ceres-binding</module>
         <module>ceres-ui</module>
         <module>ceres-deploy</module>
-        <module>ceres-fs</module>
         <module>ceres-glayer</module>
         <module>ceres-binio</module>
         <module>ceres-launcher</module>
