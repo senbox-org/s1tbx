@@ -3,7 +3,6 @@ package com.bc.ceres.swing.figure;
 import junit.framework.TestCase;
 
 import java.awt.Shape;
-import java.awt.Point;
 
 public class AbstractFigureTest extends TestCase {
 
@@ -85,26 +84,6 @@ public class AbstractFigureTest extends TestCase {
             // ok
         }
 
-        try {
-            f.getVertex(0);
-            fail("IllegalStateException expected!");
-        } catch (IllegalStateException e) {
-            // ok
-        }
-
-        try {
-            f.setVertex(0, null);
-            fail("NullPointerException expected!");
-        } catch (NullPointerException e) {
-            // ok
-        }
-
-        try {
-            f.setVertex(0, new Point());
-            fail("IllegalStateException expected!");
-        } catch (IllegalStateException e) {
-            // ok
-        }
     }
 
     public void testThatChildrenAreNotSupported() {

@@ -1,17 +1,11 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.figure.FigureEditorInteractor;
-import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
+import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
-import java.awt.Point;
-import java.awt.Shape;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
@@ -59,6 +53,10 @@ public class InsertLineFigureInteractor extends InsertFigureInteractor {
 
     @Override
     public void mouseDragged(MouseEvent event) {
-        figure.setVertex(1, toModelPoint(event));
+        double[] segment = figure.getSegment(1);
+        Point2D referencePoint = toModelPoint(event);
+        segment[0] = referencePoint.getX();
+        segment[1] = referencePoint.getY();
+        figure.setSegment(1, segment);
     }
 }

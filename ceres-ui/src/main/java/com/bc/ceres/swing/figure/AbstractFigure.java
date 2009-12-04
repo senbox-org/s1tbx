@@ -239,17 +239,6 @@ public abstract class AbstractFigure implements Figure {
     }
 
     @Override
-    public Point2D getVertex(int index) {
-        double[] segment = getSegment(index);
-        return segment != null ? new Point2D.Double(segment[0], segment[1]) : null;
-    }
-
-    @Override
-    public void setVertex(int index, Point2D newSeg) {
-        setSegment(index, new double[]{newSeg.getX(), newSeg.getY()});
-    }
-
-    @Override
     public double[] getSegment(int index) {
         throw new IllegalStateException(OPERATION_NOT_SUPPORTED);
     }

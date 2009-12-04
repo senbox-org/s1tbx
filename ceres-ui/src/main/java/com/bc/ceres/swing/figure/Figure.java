@@ -1,9 +1,8 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.swing.undo.Restorable;
 import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.swing.undo.Restorable;
 
-import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -42,12 +41,6 @@ public interface Figure extends Restorable, Cloneable {
     void scale(Point2D point, double sx, double sy);
 
     void rotate(Point2D point, double theta);
-
-    // todo remove?
-    Point2D getVertex(int index);
-
-    // todo remove?
-    void setVertex(int index, Point2D vertex);
 
     double[] getSegment(int index);
 

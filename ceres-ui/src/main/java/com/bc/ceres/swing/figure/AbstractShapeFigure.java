@@ -2,20 +2,15 @@ package com.bc.ceres.swing.figure;
 
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.swing.figure.AbstractFigure;
-import com.bc.ceres.swing.figure.Handle;
-import com.bc.ceres.swing.figure.FigureStyle;
-import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.VertexHandle;
-import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
-import java.awt.Paint;
-import java.awt.BasicStroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -295,71 +290,6 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
             pathIterator.next();
             i++;
         }
-        setShape(path);
-    }
-
-    @Override
-    public void addSegment(int index, double[] segment) {
-        final Path2D.Double path = new Path2D.Double();
-        final PathIterator pathIterator = getShape().getPathIterator(null);
-        final double[] seg = new double[6];
-        int i= 0;
-        while (!pathIterator.isDone()) {
-            final int type = pathIterator.currentSegment(seg);
-            if(i == index) {
-                if(segment.length == 2) {
-                    path.lineTo(seg[0], seg[1]);
-                }
-                if(segment.length == 4) {
-                    path.quadTo(seg[0], seg[1], seg[2], seg[3]);
-                }
-                if(segment.length == 6) {
-                    path.curveTo(seg[0], seg[1], seg[2], seg[3], seg[4], seg[5]);
-                }
-
-            }
-            if (type == PathIterator.SEG_MOVETO) {
-                path.moveTo(seg[0], seg[1]);
-            } else if (type == PathIterator.SEG_LINETO) {
-                path.lineTo(seg[0], seg[1]);
-            } else if (type == PathIterator.SEG_QUADTO) {
-                path.quadTo(seg[0], seg[1], seg[2], seg[3]);
-            } else if (type == PathIterator.SEG_CUBICTO) {
-                path.curveTo(seg[0], seg[1], seg[2], seg[3], seg[4], seg[5]);
-            } else if (type == PathIterator.SEG_CLOSE) {
-                path.closePath();
-            }
-            pathIterator.next();
-            i++;
-        }
-        setShape(path);
-    }
-
-    @Override
-    public void removeSegment(int index) {
-        final Path2D.Double path = new Path2D.Double();
-        final PathIterator pathIterator = getShape().getPathIterator(null);
-        final double[] seg = new double[6];
-        int i= 0;
-        while (!pathIterator.isDone()) {
-            if (i != index) {
-                final int type = pathIterator.currentSegment(seg);
-                if (type == PathIterator.SEG_MOVETO) {
-                    path.moveTo(seg[0], seg[1]);
-                } else if (type == PathIterator.SEG_LINETO) {
-                    path.lineTo(seg[0], seg[1]);
-                } else if (type == PathIterator.SEG_QUADTO) {
-                    path.quadTo(seg[0], seg[1], seg[2], seg[3]);
-                } else if (type == PathIterator.SEG_CUBICTO) {
-                    path.curveTo(seg[0], seg[1], seg[2], seg[3], seg[4], seg[5]);
-                } else if (type == PathIterator.SEG_CLOSE) {
-                    path.closePath();
-                }
-            }
-            pathIterator.next();
-            i++;
-        }
-        path.closePath();
         setShape(path);
     }
 
