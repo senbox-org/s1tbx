@@ -62,7 +62,6 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.prefs.Preferences;
 
-@org.junit.Ignore
 public abstract class FigureEditorApp {
     private static final Interactor SELECTION_INTERACTOR = new SelectionInteractor();
     private static final Interactor ZOOM_INTERACTOR = new ZoomInteractor();

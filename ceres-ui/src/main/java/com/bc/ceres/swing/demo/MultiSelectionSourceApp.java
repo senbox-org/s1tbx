@@ -42,7 +42,6 @@ import java.awt.event.WindowEvent;
 import java.text.MessageFormat;
 import java.util.Locale;
 
-@org.junit.Ignore
 public class MultiSelectionSourceApp {
     public static void main(String[] args) {
         try {

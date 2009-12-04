@@ -6,17 +6,17 @@ import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
 
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
-import javax.swing.Icon;
-import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -24,16 +24,15 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Window;
-import java.awt.Dimension;
-import java.awt.geom.Rectangle2D;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.Comparator;
 
-@org.junit.Ignore
 public class FocusApp {
     public static void main(String[] args) {
         try {
@@ -43,7 +42,7 @@ public class FocusApp {
         }
 
         JPanel panel = new MyJPanel();
-        panel.setPreferredSize(new Dimension(512,512));
+        panel.setPreferredSize(new Dimension(512, 512));
 
         AdjustableViewScrollPane viewScrollPane = new AdjustableViewScrollPane(panel);
         JFrame jFrame = new JFrame("x");
@@ -201,6 +200,7 @@ public class FocusApp {
 
         /**
          * @return The default zoom factor.
+         *
          * @see com.bc.ceres.grender.Viewport#getZoomFactor()
          */
         @Override
@@ -210,6 +210,7 @@ public class FocusApp {
 
         /**
          * @return The minimum zoom factor.
+         *
          * @see com.bc.ceres.grender.Viewport#getZoomFactor()
          */
         @Override
@@ -219,6 +220,7 @@ public class FocusApp {
 
         /**
          * @return The maximum zoom factor.
+         *
          * @see com.bc.ceres.grender.Viewport#getZoomFactor()
          */
         @Override
