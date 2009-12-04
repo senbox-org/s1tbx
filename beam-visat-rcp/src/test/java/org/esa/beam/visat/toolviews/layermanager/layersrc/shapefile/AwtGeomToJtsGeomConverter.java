@@ -5,14 +5,16 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import java.awt.Shape;
 import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-class AwtGeomToJtsGeomConverter {
+public class AwtGeomToJtsGeomConverter {
 
     private GeometryFactory geometryFactory;
 
@@ -22,6 +24,10 @@ class AwtGeomToJtsGeomConverter {
 
     AwtGeomToJtsGeomConverter(GeometryFactory geometryFactory) {
         this.geometryFactory = geometryFactory;
+    }
+
+    public Point createPoint(Point2D point) {
+        return geometryFactory.createPoint(new Coordinate(point.getX(), point.getY()));
     }
 
     public MultiLineString createMultiLineString(Shape shape) {
@@ -101,5 +107,4 @@ class AwtGeomToJtsGeomConverter {
             path.add(new Coordinate(first.x, first.y));
         }
     }
-
 }
