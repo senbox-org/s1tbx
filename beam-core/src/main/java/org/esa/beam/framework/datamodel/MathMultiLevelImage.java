@@ -19,6 +19,10 @@ import java.util.List;
 /**
  * A {@link MultiLevelImage} computed from raster data arithmetics. A {@link MathMultiLevelImage}
  * resets itsself whenever any referred raster data have changed.
+ *
+ * @author Ralf Quast
+ * @version $Revision$ $Date$
+ * @since BEAM 4.7
  */
 class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeListener {
 
