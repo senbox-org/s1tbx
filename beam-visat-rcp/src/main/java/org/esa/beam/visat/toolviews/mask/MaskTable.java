@@ -164,8 +164,7 @@ class MaskTable extends JTable {
 
         private String getToolTipText(int rowIndex) {
             Mask mask = getMask(rowIndex);
-            // todo - return appropriate info text
-            return mask.getImageType().getClass().getName();
+            return mask.getDescription();
         }
     }
 
