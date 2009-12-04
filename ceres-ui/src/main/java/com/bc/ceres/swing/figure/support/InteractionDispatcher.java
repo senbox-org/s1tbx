@@ -12,15 +12,17 @@ import java.awt.event.MouseMotionListener;
 
 public class InteractionDispatcher implements MouseListener, MouseMotionListener, KeyListener {
     private final InteractorHolder interactorHolder;
+    private JComponent component;
 
     public InteractionDispatcher(InteractorHolder interactorHolder) {
         this.interactorHolder = interactorHolder;
     }
 
     public void registerListeners(JComponent component) {
-        component.addMouseListener(this);
-        component.addMouseMotionListener(this);
-        component.addKeyListener(this);
+        this.component = component;
+        this.component.addMouseListener(this);
+        this.component.addMouseMotionListener(this);
+        this.component.addKeyListener(this);
     }
 
     public void unregisterListeners(JComponent component) {
@@ -31,6 +33,8 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        // request focus to get notified about key events
+        component.requestFocusInWindow();
         getInteractor().mouseClicked(e);
     }
 
