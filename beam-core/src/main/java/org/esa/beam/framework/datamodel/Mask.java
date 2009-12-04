@@ -228,15 +228,13 @@ public class Mask extends Band {
          */
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            MultiLevelSource mls = new AbstractMultiLevelSource(ImageManager.createMultiLevelModel(mask)) {
+            return new MathMultiLevelImage(getExpression(mask), mask.getProduct()) {
                 @Override
-                public RenderedImage createImage(int level) {
-                    return VirtualBandOpImage.createMask(getExpression(mask),
-                                                         mask.getProduct(),
-                                                         ResolutionLevel.create(getModel(), level));
+                public void reset() {
+                    super.reset();
+                    mask.fireProductNodeDataChanged();
                 }
             };
-            return new DefaultMultiLevelImage(mls);
         }
 
         /**
@@ -352,17 +350,13 @@ public class Mask extends Band {
 
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            MultiLevelSource mls = new AbstractMultiLevelSource(ImageManager.createMultiLevelModel(mask)) {
+            return new MathMultiLevelImage(getExpression(mask), mask.getProduct()) {
                 @Override
-                public RenderedImage createImage(int level) {
-                    final String expression = getExpression(mask);
-
-                    return VirtualBandOpImage.createMask(expression,
-                                                         mask.getProduct(),
-                                                         ResolutionLevel.create(getModel(), level));
+                public void reset() {
+                    super.reset();
+                    mask.fireProductNodeDataChanged();
                 }
             };
-            return new DefaultMultiLevelImage(mls);
         }
 
         @Override
