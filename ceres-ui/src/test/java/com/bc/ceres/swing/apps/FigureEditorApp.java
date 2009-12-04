@@ -45,18 +45,18 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.BasicStroke;
 import java.awt.datatransfer.FlavorEvent;
 import java.awt.datatransfer.FlavorListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Area;
-import java.awt.geom.Path2D;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -88,12 +88,12 @@ public abstract class FigureEditorApp {
         Locale.setDefault(Locale.ENGLISH);
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             // ok
         }
     }
 
-    public FigureEditorApp() {
+    protected FigureEditorApp() {
     }
 
     private void init() {
