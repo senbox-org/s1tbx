@@ -20,7 +20,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.processor.ProcessorConstants;
@@ -39,7 +38,6 @@ import org.esa.beam.util.ProductUtils;
 import java.awt.Point;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
@@ -49,7 +47,7 @@ import java.util.Vector;
 public class L3UpdateProcessor extends L3SubProcessor {
 
     protected File databaseDir;
-    protected Vector<ProductRef> _inputProductRefs;
+    protected Vector<ProductRef> inputProductRefs;
 
     protected TemporalBinDatabase temporalDB;
 
@@ -129,7 +127,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
                 addWarningMessage(message);
                 continue;
             }
-            _inputProductRefs.add(prodRef);
+            inputProductRefs.add(prodRef);
         }
 
         getLogger().info(ProcessorConstants.LOG_MSG_SUCCESS);
@@ -151,7 +149,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
      * the list is shrinked to contain only existing files.
      */
     protected void validateInputProductReferences() {
-        final int numProds = _inputProductRefs.size();
+        final int numProds = inputProductRefs.size();
         Vector<ProductRef> validRefs = new Vector<ProductRef>();
         File prodFile = null;
         ProductRef prodRef = null;
@@ -159,7 +157,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
         // loop over all products, check if the files are on disk
         // ------------------------------------------------------
         for (int n = 0; n < numProds; n++) {
-            prodRef = _inputProductRefs.elementAt(n);
+            prodRef = inputProductRefs.elementAt(n);
             prodFile = new File(prodRef.getFilePath());
             if (!prodFile.exists()) {
                 // flag to the parent processor
@@ -174,8 +172,8 @@ public class L3UpdateProcessor extends L3SubProcessor {
 
         // copy all valid product references to the member vector
         // ------------------------------------------------------
-        _inputProductRefs.clear();
-        _inputProductRefs.addAll(validRefs);
+        inputProductRefs.clear();
+        inputProductRefs.addAll(validRefs);
     }
 
     /**
@@ -183,46 +181,50 @@ public class L3UpdateProcessor extends L3SubProcessor {
      * geophysical parameter (band) and the bitmask expression.
      *
      * @param ref the <code>ProductRef</code> designating the product to be loaded
+     * @return the loaded and validated product
+     * @throws ProcessorException if the product can not be used for processing
      */
-    protected Product loadValidatedProduct(ProductRef ref) throws IOException {
-        Product prod = ProductIO.readProduct(ref.getFile(), null);
+    protected Product loadValidatedProduct(ProductRef ref) throws ProcessorException {
+        try {
+            Product prod = ProductIO.readProduct(ref.getFile(), null);
+            if (prod == null) {
+               throw new ProcessorException("Unknown type of product.");
+            } else if (!productContainsBands(prod)) {
+                throw new ProcessorException("The product does not contain all the bands expected.");
+            } else if (!bitmasksAreApplicable(prod)) {
+                throw new ProcessorException("The bitmasks are not applicable to this product");
+            } else if (!productIsInArea(prod)) {
+                throw new ProcessorException("The product does not intersect area of interest.");
+            } else {
+                return prod;
+            }
 
-        final String messagePart2;
-        if (prod == null) {
-            messagePart2 = "Unknown type of product.";
-        } else if (!productContainsBands(prod)) {
-            messagePart2 = "The product does not contain all the bands expected.";
-        } else if (!bitmasksAreApplicable(prod)) {
-            messagePart2 = "The bitmasks are not applicable to this product";
-        } else if (!productIsInArea(prod)) {
-            messagePart2 = "The product does not intersect area of interest.";
-        } else {
-            return prod;
+        } catch (IOException e) {
+            throw new ProcessorException(e.getMessage(),e);
         }
+    }
 
+    private void handleError(ProductRef ref, String messagePart2) {
         raiseErrorFlag();
         final String messagePart1 = "Unable to use product '" + ref.getFilePath() + "'. ";
         final String message = messagePart1 + messagePart2;
         getLogger().warning(message);
         addWarningMessage(message);
-        return null;
     }
 
 
-    /**
+    /*
      * This is actual L3 spatial and temporal binning routine.
      */
-    protected void processInputProducts(ProgressMonitor pm) throws IOException,
-                                                                   ProcessorException {
-        ProductRef prodRef = null;
+    protected void processInputProducts(ProgressMonitor pm) throws IOException, ProcessorException {
 
         // loop over all product references
         // --------------------------------
         // step is times 2 so we can trace the subprocedures
-        pm.beginTask("Processing input product...", _inputProductRefs.size() * 2);
+        pm.beginTask("Processing input product...", inputProductRefs.size() * 2);
         try {
-            for (int i = 0; i < _inputProductRefs.size(); i++) {
-                prodRef = _inputProductRefs.elementAt(i);
+            for (int i = 0; i < inputProductRefs.size(); i++) {
+                ProductRef prodRef = inputProductRefs.elementAt(i);
 
                 // get the product according - can return "null" if the product is not valid.
                 // When this happens, the approipriate error message is already logged by the
@@ -271,7 +273,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
         }
     }
 
-    /**
+    /*
      * Processes the temporal binning
      */
     protected void processTemporal(SpatialBinDatabase spatialDB, ProgressMonitor pm) throws IOException {
@@ -361,10 +363,10 @@ public class L3UpdateProcessor extends L3SubProcessor {
      * Assures that the vectors used are constructed and that the're empty.
      */
     protected void assureValidVectors() {
-        if (_inputProductRefs == null) {
-            _inputProductRefs = new Vector<ProductRef>();
+        if (inputProductRefs == null) {
+            inputProductRefs = new Vector<ProductRef>();
         }
-        _inputProductRefs.clear();
+        inputProductRefs.clear();
     }
 
     /**
