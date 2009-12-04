@@ -44,7 +44,7 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
 
     @Override
     protected FigureFactory getFigureFactory() {
-        return new SimpleFeatureFigureFactory2(featureCollection);
+        return new SimpleFeatureFigureFactory(featureCollection);
     }
 
     @Override

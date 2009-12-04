@@ -1,7 +1,9 @@
+
+
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
+import com.bc.ceres.swing.figure.AbstractShapeFigure;
 import com.bc.ceres.swing.figure.FigureStyle;
-import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.LineString;
@@ -11,10 +13,13 @@ import com.vividsolutions.jts.geom.Point;
 import org.geotools.geometry.jts.LiteShape2;
 import org.opengis.feature.simple.SimpleFeature;
 
-class SimpleFeatureFigure extends DefaultShapeFigure {
+import java.awt.Shape;
+
+
+class SimpleFeatureFigure extends AbstractShapeFigure {
 
     private final SimpleFeature simpleFeature;
-    private final Geometry geometry;
+    private Geometry geometry;
 
     SimpleFeatureFigure(SimpleFeature simpleFeature, FigureStyle style) {
 
@@ -24,15 +29,32 @@ class SimpleFeatureFigure extends DefaultShapeFigure {
             throw new IllegalArgumentException("simpleFeature");
         }
         geometry = (Geometry) o;
-        try {
-            setShape(new LiteShape2(geometry, null, null, true));
-        } catch (Exception e) {
-            throw new IllegalArgumentException("simpleFeature", e);
-        }
         Rank rank = getRank(geometry);
         System.out.println("rank = " + rank);
         setRank(rank);
         setNormalStyle(style);
+    }
+
+    @Override
+    public Shape getShape() {
+        try {
+            return new LiteShape2(geometry, null, null, true);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("simpleFeature", e);
+        }
+    }
+
+    @Override
+    public void setShape(Shape shape) {
+        AwtGeomToJtsGeomConverter converter = new AwtGeomToJtsGeomConverter();
+        if (getRank() == Rank.POLYGONAL) {
+            geometry = converter.createPolygon(shape);
+        } else {
+            geometry = converter.createMultiLineString(shape);
+        }
+        simpleFeature.setDefaultGeometry(geometry);
+        fireFigureChanged();
+        System.out.println("geometry: " + geometry);
     }
 
     public SimpleFeature getSimpleFeature() {
