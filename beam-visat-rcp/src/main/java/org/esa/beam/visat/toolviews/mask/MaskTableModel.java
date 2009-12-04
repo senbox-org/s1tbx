@@ -265,7 +265,6 @@ class MaskTableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-
         Mask mask = getMaskGroup().get(rowIndex);
         int column = modeIdxs[columnIndex];
 
