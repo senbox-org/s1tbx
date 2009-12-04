@@ -6,15 +6,6 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Rectangle2D;
-import java.util.Iterator;
-import java.util.List;
-
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
@@ -23,6 +14,15 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
+
+import java.awt.Color;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Rectangle2D;
+import java.util.List;
 
 // @todo 1 nf/nf make this class a ProductNode?
 
@@ -69,6 +69,7 @@ public class ROIDefinition implements Cloneable {
 
     /**
      * Gets the bitmask expression.
+     *
      * @return the expression, can be an empty string, never null
      */
     public String getBitmaskExpr() {
@@ -77,6 +78,7 @@ public class ROIDefinition implements Cloneable {
 
     /**
      * Sets the bitmask expression.
+     *
      * @param bitmaskExpr the expression, can be an empty string, must not be null
      */
     public void setBitmaskExpr(String bitmaskExpr) {
@@ -159,7 +161,7 @@ public class ROIDefinition implements Cloneable {
         clone.setShapeEnabled(isShapeEnabled());
         final Figure shapeFigure = getShapeFigure();
         if (shapeFigure != null) {
-            clone.setShapeFigure((Figure) shapeFigure.clone());
+            clone.setShapeFigure(shapeFigure.clone());
         }
 
         clone.setValueRangeEnabled(isValueRangeEnabled());
@@ -203,37 +205,37 @@ public class ROIDefinition implements Cloneable {
                 Line2D.Float line = (Line2D.Float) shape;
                 writer.printLine(indent + 1, DimapProductConstants.TAG_SHAPE_FIGURE,
                                  new String[][]{
-                                     new String[]{DimapProductConstants.ATTRIB_TYPE, "Line2D"},
-                                     new String[]{
-                                         DimapProductConstants.ATTRIB_VALUE, "" + line.getX1()
-                                                                             + "," + line.getY1()
-                                                                             + "," + line.getX2()
-                                                                             + "," + line.getY2()
-                                     }
+                                         new String[]{DimapProductConstants.ATTRIB_TYPE, "Line2D"},
+                                         new String[]{
+                                                 DimapProductConstants.ATTRIB_VALUE, "" + line.getX1()
+                                                                                     + "," + line.getY1()
+                                                                                     + "," + line.getX2()
+                                                                                     + "," + line.getY2()
+                                         }
                                  }, "");
             } else if (shape instanceof Rectangle2D.Float) {
                 final Rectangle2D.Float rectangle = (Rectangle2D.Float) shape;
                 writer.printLine(indent + 1, DimapProductConstants.TAG_SHAPE_FIGURE,
                                  new String[][]{
-                                     new String[]{DimapProductConstants.ATTRIB_TYPE, "Rectangle2D"},
-                                     new String[]{
-                                         DimapProductConstants.ATTRIB_VALUE, "" + rectangle.getX()
-                                                                             + "," + rectangle.getY()
-                                                                             + "," + rectangle.getWidth()
-                                                                             + "," + rectangle.getHeight()
-                                     }
+                                         new String[]{DimapProductConstants.ATTRIB_TYPE, "Rectangle2D"},
+                                         new String[]{
+                                                 DimapProductConstants.ATTRIB_VALUE, "" + rectangle.getX()
+                                                                                     + "," + rectangle.getY()
+                                                                                     + "," + rectangle.getWidth()
+                                                                                     + "," + rectangle.getHeight()
+                                         }
                                  }, "");
             } else if (shape instanceof Ellipse2D.Float) {
                 final Ellipse2D.Float ellipse = (Ellipse2D.Float) shape;
                 writer.printLine(indent + 1, DimapProductConstants.TAG_SHAPE_FIGURE,
                                  new String[][]{
-                                     new String[]{DimapProductConstants.ATTRIB_TYPE, "Ellipse2D"},
-                                     new String[]{
-                                         DimapProductConstants.ATTRIB_VALUE, "" + ellipse.getX()
-                                                                             + "," + ellipse.getY()
-                                                                             + "," + ellipse.getWidth()
-                                                                             + "," + ellipse.getHeight()
-                                     }
+                                         new String[]{DimapProductConstants.ATTRIB_TYPE, "Ellipse2D"},
+                                         new String[]{
+                                                 DimapProductConstants.ATTRIB_VALUE, "" + ellipse.getX()
+                                                                                     + "," + ellipse.getY()
+                                                                                     + "," + ellipse.getWidth()
+                                                                                     + "," + ellipse.getHeight()
+                                         }
                                  }, "");
             } else {
                 final String[][] atribs = new String[][]{new String[]{DimapProductConstants.ATTRIB_TYPE, "Path"}};
@@ -248,47 +250,47 @@ public class ROIDefinition implements Cloneable {
                     case PathIterator.SEG_MOVETO:
                         writer.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
                                          new String[][]{
-                                             new String[]{DimapProductConstants.ATTRIB_TYPE, "moveTo"},
-                                             new String[]{
-                                                 DimapProductConstants.ATTRIB_VALUE,
-                                                 "" + floats[0] + "," + floats[1]
-                                             }
+                                                 new String[]{DimapProductConstants.ATTRIB_TYPE, "moveTo"},
+                                                 new String[]{
+                                                         DimapProductConstants.ATTRIB_VALUE,
+                                                         "" + floats[0] + "," + floats[1]
+                                                 }
                                          }, "");
                         break;
                     case PathIterator.SEG_LINETO:
                         writer.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
                                          new String[][]{
-                                             new String[]{DimapProductConstants.ATTRIB_TYPE, "lineTo"},
-                                             new String[]{
-                                                 DimapProductConstants.ATTRIB_VALUE,
-                                                 "" + floats[0] + "," + floats[1]
-                                             }
+                                                 new String[]{DimapProductConstants.ATTRIB_TYPE, "lineTo"},
+                                                 new String[]{
+                                                         DimapProductConstants.ATTRIB_VALUE,
+                                                         "" + floats[0] + "," + floats[1]
+                                                 }
                                          }, "");
                         break;
                     case PathIterator.SEG_QUADTO:
                         writer.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
                                          new String[][]{
-                                             new String[]{DimapProductConstants.ATTRIB_TYPE, "quadTo"},
-                                             new String[]{
-                                                 DimapProductConstants.ATTRIB_VALUE,
-                                                 "" + floats[0] + "," + floats[1] + "," + floats[2] + "," + floats[3]
-                                             }
+                                                 new String[]{DimapProductConstants.ATTRIB_TYPE, "quadTo"},
+                                                 new String[]{
+                                                         DimapProductConstants.ATTRIB_VALUE,
+                                                         "" + floats[0] + "," + floats[1] + "," + floats[2] + "," + floats[3]
+                                                 }
                                          }, "");
                         break;
                     case PathIterator.SEG_CUBICTO:
                         writer.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
                                          new String[][]{
-                                             new String[]{DimapProductConstants.ATTRIB_TYPE, "cubicTo"},
-                                             new String[]{
-                                                 DimapProductConstants.ATTRIB_VALUE,
-                                                 "" + floats[0] + "," + floats[1] + "," + floats[2] + "," + floats[3] + "," + floats[4] + "," + floats[5]
-                                             }
+                                                 new String[]{DimapProductConstants.ATTRIB_TYPE, "cubicTo"},
+                                                 new String[]{
+                                                         DimapProductConstants.ATTRIB_VALUE,
+                                                         "" + floats[0] + "," + floats[1] + "," + floats[2] + "," + floats[3] + "," + floats[4] + "," + floats[5]
+                                                 }
                                          }, "");
                         break;
                     case PathIterator.SEG_CLOSE:
                         writer.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
                                          new String[][]{
-                                             new String[]{DimapProductConstants.ATTRIB_TYPE, "close"}
+                                                 new String[]{DimapProductConstants.ATTRIB_TYPE, "close"}
                                          }, "");
                     }
                     iterator.next();
@@ -389,12 +391,12 @@ public class ROIDefinition implements Cloneable {
                     setShapeFigure(ShapeFigure.createEllipseArea(x, y, w, h, null));
                 }
             } else if ("Path".equals(type)) {
-                final List pathSegElems = figureElement.getChildren(DimapProductConstants.TAG_PATH_SEG);
+                @SuppressWarnings({"unchecked"})
+                final List<Element> pathSegElems = figureElement.getChildren(DimapProductConstants.TAG_PATH_SEG);
                 GeneralPath path = new GeneralPath();
                 boolean pathOk = false;
                 boolean isPathClosed = false;
-                for (Iterator iterator = pathSegElems.iterator(); iterator.hasNext();) {
-                    Element pathSegElem = (Element) iterator.next();
+                for (final Element pathSegElem : pathSegElems) {
                     final String segType = pathSegElem.getAttributeValue(DimapProductConstants.ATTRIB_TYPE);
                     if ("moveTo".equals(segType)) {
                         final String coords = pathSegElem.getAttributeValue(DimapProductConstants.ATTRIB_VALUE);
@@ -452,5 +454,56 @@ public class ROIDefinition implements Cloneable {
     public void dispose() {
         _shapeFigure = null;
         _bitmaskExpr = null;
+    }
+
+    static Mask toMask(ROIDefinition roiDefinition, RasterDataNode node) {
+        final StringBuilder expressionBuilder = new StringBuilder();
+
+        if (roiDefinition.isInverted()) {
+            expressionBuilder.append("!(");
+        }
+        if (roiDefinition.isBitmaskEnabled()) {
+            if (roiDefinition.isValueRangeEnabled()) {
+                expressionBuilder.append("(");
+            }
+            expressionBuilder.append(roiDefinition.getBitmaskExpr());
+            if (roiDefinition.isValueRangeEnabled()) {
+                expressionBuilder.append(")");
+            }
+        }
+        if (roiDefinition.isValueRangeEnabled()) {
+            if (roiDefinition.isBitmaskEnabled()) {
+                if (roiDefinition.isOrCombined()) {
+                    expressionBuilder.append(" || ");
+                } else {
+                    expressionBuilder.append(" && ");
+                }
+                expressionBuilder.append("(");
+            }
+            expressionBuilder.append(node.getName());
+            expressionBuilder.append(" >= ");
+            expressionBuilder.append(roiDefinition.getValueRangeMin());
+            expressionBuilder.append(" && ");
+            expressionBuilder.append(node.getName());
+            expressionBuilder.append(" <= ");
+            expressionBuilder.append(roiDefinition.getValueRangeMax());
+            if (roiDefinition.isBitmaskEnabled()) {
+                expressionBuilder.append(")");
+            }
+        }
+        if (roiDefinition.isInverted()) {
+            expressionBuilder.append(")");
+        }
+
+        final String maskName = node.getName() + "_roi";
+        final int w = node.getSceneRasterWidth();
+        final int h = node.getSceneRasterHeight();
+        final Mask mask = new Mask(maskName, w, h, new Mask.BandMathType());
+
+        mask.setImageColor(Color.RED);
+        mask.setImageTransparency(0.5);
+        Mask.BandMathType.setExpression(mask, expressionBuilder.toString());
+
+        return mask;
     }
 }

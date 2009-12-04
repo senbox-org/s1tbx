@@ -16,16 +16,15 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import java.awt.geom.GeneralPath;
-import java.io.StringWriter;
-
 import junit.framework.TestCase;
-
 import org.esa.beam.dataio.dimap.DimapDocumentTest;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
+
+import java.awt.geom.GeneralPath;
+import java.io.StringWriter;
 
 public class ROIDefinitionTest extends TestCase {
 
@@ -33,6 +32,19 @@ public class ROIDefinitionTest extends TestCase {
 
     public ROIDefinitionTest(String name) {
         super(name);
+    }
+
+    public void testToMask() {
+        final ROIDefinition roiDefinition = new ROIDefinition();
+        roiDefinition.setBitmaskExpr("true");
+        roiDefinition.setBitmaskEnabled(true);
+        roiDefinition.setValueRangeMin(1.0f);
+        roiDefinition.setValueRangeMax(2.0f);
+        roiDefinition.setValueRangeEnabled(true);
+        roiDefinition.setInverted(true);
+
+        final Mask mask = ROIDefinition.toMask(roiDefinition, new Band("B", ProductData.TYPE_INT8, 10, 10));
+        assertEquals("!((true) && (B >= 1.0 && B <= 2.0))", Mask.BandMathType.getExpression(mask));
     }
 
     public void testWriteXml() {
