@@ -6,8 +6,12 @@ import com.bc.jexp.impl.Tokenizer;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.Mask.BandMathType;
+import org.esa.beam.framework.datamodel.Mask.ImageType;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
@@ -54,6 +58,7 @@ class MaskFormActions {
                 new CopyAction(maskForm), new NullAction(maskForm),
                 new EditAction(maskForm), new RemoveAction(maskForm),
                 new ImportAction(maskToolView, maskForm), new ExportAction(maskToolView, maskForm),
+                new TransferAction(maskForm), new NullAction(maskForm)
         };
     }
 
@@ -582,6 +587,92 @@ class MaskFormActions {
             });
             mask.setDescription(code);
             getMaskForm().addMask(mask);
+        }
+    }
+    
+    private static class TransferAction extends MaskAction  {
+
+        private TransferAction(MaskForm maskForm) {
+            super(maskForm, "icons/MultiAssignProducts24.gif", "transferButton", "Transfer the selected mask.");
+        }
+        
+        @Override
+        void updateState() {
+            setEnabled(getMaskForm().isInManagementMode() && 
+                       getMaskForm().getSelectedRowCount() > 0 && 
+                       VisatApp.getApp().getProductManager().getProducts().length > 1);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            final Product sourcProduct = getMaskForm().getProduct();
+            Mask[] selectedMasks = getMaskForm().getSelectedMasks();
+            Product[] allProducts = VisatApp.getApp().getProductManager().getProducts();
+            final CopyMaskDialog dialog = new CopyMaskDialog(sourcProduct, allProducts, selectedMasks);
+            if (dialog.show() == AbstractDialog.ID_OK) {
+                Product[] maskPixelTargetProducts = dialog.getMaskPixelTargets();
+                copyMaskPixel(selectedMasks, sourcProduct, maskPixelTargetProducts);
+                
+                Product[] maskDefinitionTargetProducts = dialog.getMaskDefinitionTargets();
+                copyMaskDefinition(selectedMasks, maskDefinitionTargetProducts);
+            }
+        }
+
+        private static void copyMaskDefinition(Mask[] selectedMasks, Product[] maskPixelTargetProducts) {
+            for (Product targetProduct : maskPixelTargetProducts) {
+                for (Mask selectedMask : selectedMasks) {
+                    ImageType imageType = selectedMask.getImageType();
+                    if (imageType.canTransferMask(selectedMask, targetProduct)) {
+                        imageType.transferMask(selectedMask, targetProduct);
+                    }
+                }
+            }
+        }
+        
+        private static void copyMaskPixel(Mask[] selectedMasks, Product sourcProduct, Product[] maskPixelTargetProducts) {
+            for (Product targetProduct : maskPixelTargetProducts) {
+                if (sourcProduct.isCompatibleProduct(targetProduct, 1.0e-3f)) {
+                    copyBandData(selectedMasks, targetProduct);
+                } else {
+                    // TODO: reproject
+                }
+            }
+        }
+
+        private static void copyBandData(Mask[] selectedMasks, Product targetProduct) {
+            for (Mask mask : selectedMasks) {
+                String bandName = getAvaliableBandName("mask." + mask.getName(), targetProduct);
+                String maskName = getAvailableMaskName(mask.getName(), targetProduct.getMaskGroup());
+                int dataType = mask.getDataType();
+                Band band = targetProduct.addBand(bandName, dataType);
+                int width = targetProduct.getSceneRasterWidth();
+                int height = targetProduct.getSceneRasterHeight();
+                Mask targetMask = new Mask(maskName, width, height, new Mask.BandMathType());
+                BandMathType.setExpression(targetMask, bandName);
+                targetMask.setDescription(mask.getDescription() + " (from " + mask.getProduct().getDisplayName()+ ")");
+                targetMask.setImageColor(mask.getImageColor());
+                targetMask.setImageTransparency(mask.getImageTransparency());
+                targetProduct.getMaskGroup().add(targetMask);
+                band.setSourceImage(mask.getSourceImage());
+            }
+        }
+        
+        private static String getAvailableMaskName(String name, ProductNodeGroup<Mask> maskGroup) {
+            int index = 1;
+            String foundName = name;
+            while (maskGroup.contains(foundName)) {
+                foundName = name + "_" + index;
+            }
+            return foundName;
+        }
+        
+        private static String getAvaliableBandName(String name, Product product) {
+            int index = 1;
+            String foundName = name;
+            while (product.containsBand(foundName)) {
+                foundName = name + "_" + index;
+            }
+            return foundName;
         }
     }
 }
