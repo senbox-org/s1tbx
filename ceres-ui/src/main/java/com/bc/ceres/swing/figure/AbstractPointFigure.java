@@ -6,33 +6,23 @@ import com.bc.ceres.grender.Viewport;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 
-public abstract class AbstractPointFigure extends AbstractFigure {
-    private final Point2D.Double location;
-    private final double radius;
+public abstract class AbstractPointFigure extends AbstractFigure implements PointFigure {
 
-    protected AbstractPointFigure(Point2D location, double radius) {
-        this.location = new Point2D.Double(location.getX(), location.getY());
-        this.radius = radius;
+    protected AbstractPointFigure() {
     }
 
-    public double getX() {
-        return location.x;
-    }
-
-    public double getY() {
-        return location.y;
-    }
-
+    @Override
     public Point2D getLocation() {
-        return (Point2D) location.clone();
+        return new Point2D.Double(getX(), getY());
     }
 
-    public void setLocation(double x, double y) {
-        location.setLocation(x, y);
-        fireFigureChanged();
+    @Override
+    public void setLocation(Point2D location) {
+        setLocation(location.getX(), location.getY());
     }
+
+    public abstract void setLocation(double x, double y);
 
     @Override
     public final Rank getRank() {
@@ -40,25 +30,19 @@ public abstract class AbstractPointFigure extends AbstractFigure {
     }
 
     @Override
-    public Rectangle2D getBounds() {
-        return new Rectangle2D.Double(location.getX() - radius, location.getY() - radius, 2 * radius, 2 * radius);
-    }
-
-    @Override
-    public boolean isCloseTo(Point2D point, AffineTransform m2v) {
-        double dx = location.getX() - point.getX();
-        double dy = location.getY() - point.getY();
-        return dx * dx + dy * dy <= radius * radius;
-    }
-
-    @Override
     public void scale(Point2D point, double sx, double sy) {
-        // todo
+        final double x0 = point.getX();
+        final double y0 = point.getY();
+        setLocation(x0 + (getX() - x0) * sx, y0 + (getY() - y0) * sy);
+
     }
 
     @Override
     public void rotate(Point2D point, double theta) {
-        // todo
+        final AffineTransform transform = new AffineTransform();
+        transform.rotate(theta, point.getX(), point.getY());
+        Point2D point2D = transform.transform(getLocation(), null);
+        setLocation(point2D);
     }
 
     @Override
@@ -74,17 +58,15 @@ public abstract class AbstractPointFigure extends AbstractFigure {
 
         try {
             AffineTransform m2v = vp.getModelToViewTransform();
-            Point2D transfLocation = m2v.transform(location, null);
-            AffineTransform newTransform = new AffineTransform(oldTransform);
-            newTransform.concatenate(AffineTransform.getTranslateInstance(transfLocation.getX(), transfLocation.getY()));
-            g.setTransform(newTransform);
+            Point2D viewLocation = m2v.transform(getLocation(), null);
+            g.translate(viewLocation.getX(), viewLocation.getY());
 
-            drawPointSymbol(g);
+            drawPointSymbol(rendering);
 
         } finally {
             g.setTransform(oldTransform);
         }
     }
 
-    protected abstract void drawPointSymbol(Graphics2D g);
+    protected abstract void drawPointSymbol(Rendering rendering);
 }

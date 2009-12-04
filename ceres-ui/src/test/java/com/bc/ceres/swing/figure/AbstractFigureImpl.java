@@ -3,16 +3,14 @@ package com.bc.ceres.swing.figure;
 import com.bc.ceres.grender.Rendering;
 
 import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**
  * Only implements abstract Figure methods, no overrides!
  */
 class AbstractFigureImpl extends AbstractFigure {
-
-    public AbstractFigureImpl() {
-    }
 
     @Override
     public boolean isSelected() {
@@ -39,5 +37,10 @@ class AbstractFigureImpl extends AbstractFigure {
 
     void postChangeEvent() {
         fireFigureChanged();
+    }
+
+    @Override
+    public boolean isCloseTo(Point2D point, AffineTransform m2v) {
+        return false;
     }
 }

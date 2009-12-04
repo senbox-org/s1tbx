@@ -16,6 +16,8 @@ public abstract class AbstractFigure implements Figure {
     private static final String OPERATION_NOT_SUPPORTED = "Operation not supported.";
     protected static final Handle[] NO_HANDLES = new Handle[0];
 
+    private boolean selectable;
+    private boolean selected;
 
     protected AbstractFigure() {
     }
@@ -27,17 +29,27 @@ public abstract class AbstractFigure implements Figure {
      */
     @Override
     public boolean isSelectable() {
-        return false;
+        return selectable;
     }
 
-    /**
-     * The default implementation returns {@code false}.
-     *
-     * @return Always {@code false}.
-     */
+    public void setSelectable(boolean selectable) {
+        if (this.selectable != selectable) {
+            this.selectable = selectable;
+            fireFigureChanged();
+        }
+    }
+
     @Override
-    public boolean isCloseTo(Point2D point, AffineTransform m2v) {
-        return false;
+    public boolean isSelected() {
+        return selected;
+    }
+
+    @Override
+    public void setSelected(boolean selected) {
+        if (this.selected != selected) {
+            this.selected = selected;
+            fireFigureChanged();
+        }
     }
 
     /**

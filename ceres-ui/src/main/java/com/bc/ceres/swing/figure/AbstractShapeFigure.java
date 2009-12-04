@@ -21,11 +21,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public abstract class AbstractShapeFigure extends AbstractFigure implements ShapeFigure {
+
     private Rank rank;
-    private  FigureStyle normalStyle;
-    private  FigureStyle selectedStyle;
-    private boolean selected;
-    private boolean selectable;
+    private FigureStyle normalStyle;
+    private FigureStyle selectedStyle;
 
     protected AbstractShapeFigure() {
         this(true, new DefaultFigureStyle());
@@ -34,8 +33,9 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
     protected AbstractShapeFigure(boolean polygonal, FigureStyle normalStyle) {
         this.rank = polygonal ? Rank.POLYGONAL : Rank.LINEAL;
         this.normalStyle = normalStyle;
-        this.selectedStyle = DefaultFigureStyle.createShapeStyle(null, new Color(255, 255, 0, 180), new BasicStroke(5.0f));
-        this.selectable = true;
+        this.selectedStyle = DefaultFigureStyle.createShapeStyle(null, new Color(255, 255, 0, 180),
+                                                                 new BasicStroke(5.0f));
+        setSelectable(true);
     }
 
     @Override
@@ -64,28 +64,6 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
     public void setSelectedStyle(FigureStyle selectedStyle) {
         this.selectedStyle = selectedStyle;
         fireFigureChanged();
-    }
-
-    @Override
-    public boolean isSelectable() {
-        return selectable;
-    }
-
-    protected void setSelectable(boolean selectable) {
-        this.selectable = selectable;
-    }
-
-    @Override
-    public boolean isSelected() {
-        return selected;
-    }
-
-    @Override
-    public void setSelected(boolean selected) {
-        if (this.selected != selected) {
-            this.selected = selected;
-            fireFigureChanged();
-        }
     }
 
     @Override
@@ -150,7 +128,8 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
         } else {
             try {
                 Point2D viewPoint = m2v.transform(point, null);
-                Rectangle2D.Double aDouble = new Rectangle2D.Double(viewPoint.getX()-1.5, viewPoint.getY()-1.5, 3.0, 3.0);
+                Rectangle2D.Double aDouble = new Rectangle2D.Double(viewPoint.getX() - 1.5, viewPoint.getY() - 1.5, 3.0,
+                                                                    3.0);
                 Rectangle2D rectangle2D = m2v.createInverse().createTransformedShape(aDouble).getBounds2D();
                 return getShape().intersects(rectangle2D);
             } catch (NoninvertibleTransformException e) {

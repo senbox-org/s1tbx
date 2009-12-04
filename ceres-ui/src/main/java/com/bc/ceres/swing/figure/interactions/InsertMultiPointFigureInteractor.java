@@ -1,11 +1,9 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
-import java.awt.Shape;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D;
@@ -70,6 +68,11 @@ public class InsertMultiPointFigureInteractor extends InsertFigureInteractor {
                 points.clear();
                 FigureEditor figureEditor = getFigureEditor(event);
                 figureEditor.getFigureSelection().removeFigures();
+                if (isPolygonal()) {
+                    // todo - JTS wants at least 4 coords for a polygon, what the fu...
+                    //figure.removeSegment(1);
+                    //figure.removeSegment(1);
+                }
                 figureEditor.insertFigures(false, figure);
                 stopInteraction(event);
             }
@@ -79,15 +82,23 @@ public class InsertMultiPointFigureInteractor extends InsertFigureInteractor {
     @Override
     public void mouseReleased(MouseEvent event) {
         final FigureEditor figureEditor = getFigureEditor(event);
+
+        boolean starting = false;
         if (points.isEmpty()) {
             figureEditor.getFigureSelection().removeFigures();
             startInteraction(event);
+            starting = true;
         }
 
         points.add(toModelPoint(event));
         points.add(toModelPoint(event));
+        if (isPolygonal()) {
+            // todo - JTS wants at least 4 coords for a polygon, what the fu...
+            // points.add(toModelPoint(event));
+            // points.add(toModelPoint(event));
+        }
 
-        if (points.size() == 2) {
+        if (starting) {
             if (isPolygonal()) {
                 figure = getFigureFactory().createPolygonalFigure(createPath(), StyleDefaults.INSERT_STYLE);
             } else {

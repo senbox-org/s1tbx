@@ -57,6 +57,7 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -197,6 +198,10 @@ public abstract class FigureEditorApp {
         path.append(rectPath(false, 65, 65, 25, 25), false);
         DefaultFigureStyle shapeStyle = DefaultFigureStyle.createShapeStyle(new Color(0, 0, 255, 127), Color.ORANGE);
         drawing.addFigure(figureFactory.createPolygonalFigure(path, shapeStyle));
+
+        for (int i = 0; i < 10; i++) {
+            drawing.addFigure(figureFactory.createPunctualFigure(new Point2D.Double(200+100*Math.random(), 200 + 100*Math.random()), null));
+        }
 
        /*
         Area a2 = new Area();
