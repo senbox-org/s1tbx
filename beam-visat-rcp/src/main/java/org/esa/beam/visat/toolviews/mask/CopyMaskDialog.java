@@ -53,7 +53,7 @@ class CopyMaskDialog extends ModalDialog {
     private final Map<Product, ButtonModel> dataMap;
 
     CopyMaskDialog(Product product, Product[] allProducts, Mask[] selectedMasks) {
-        super(null, "Copy Masks", ModalDialog.ID_OK_CANCEL | ModalDialog.ID_HELP, "copyMaskEditor");
+        super(null, "Copy Mask(s)", ModalDialog.ID_OK_CANCEL | ModalDialog.ID_HELP, "copyMaskEditor");
         this.sourceProduct = product;
         this.allProducts = allProducts;
         this.selectedMasks = selectedMasks;
@@ -95,7 +95,7 @@ class CopyMaskDialog extends ModalDialog {
         final JPanel panel = new JPanel(layout);
         panel.add(new JLabel(" "));
         panel.add(new JLabel("Definition"));
-        panel.add(new JLabel("Mask pixel"));
+        panel.add(new JLabel("Pixels"));
         int row = 1;
         for (Product targetProduct : allProducts) {
             if (targetProduct != sourceProduct) {

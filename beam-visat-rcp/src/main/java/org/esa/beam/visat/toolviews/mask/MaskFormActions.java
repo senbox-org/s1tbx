@@ -593,7 +593,7 @@ class MaskFormActions {
     private static class TransferAction extends MaskAction  {
 
         private TransferAction(MaskForm maskForm) {
-            super(maskForm, "icons/MultiAssignProducts24.gif", "transferButton", "Transfer the selected mask.");
+            super(maskForm, "icons/MultiAssignProducts24.gif", "transferButton", "Transfer the selected mask(s) to other products.");
         }
         
         @Override
