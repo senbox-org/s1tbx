@@ -6,6 +6,7 @@ import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.ShapeFigure;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -79,12 +80,20 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
                 SimpleFeature simpleFeature = featureIterator.next();
                 numFeatures++;
                 System.out.printf("Loaded feature %d%n", numFeatures);
-                figureCollection.addFigure(new SimpleFeatureFigure(simpleFeature));
+                DefaultFigureStyle figureStyle = createDefaultStyle();
+                figureCollection.addFigure(new SimpleFeatureFigure(simpleFeature, figureStyle));
             }
             System.out.printf("Done loading %d features%n", numFeatures);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getFrame(), "Error: " + e.getMessage());
         }
+    }
+
+    private static DefaultFigureStyle createDefaultStyle() {
+        DefaultFigureStyle figureStyle = new DefaultFigureStyle();
+        figureStyle.setStrokePaint(Color.BLACK);
+        figureStyle.setFillPaint(Color.WHITE);
+        return figureStyle;
     }
 
     @Override
@@ -104,12 +113,11 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
     }
 
     private static class SimpleFeatureFigure extends DefaultShapeFigure {
+
         private final SimpleFeature simpleFeature;
         private final Geometry geometry;
 
-        private SimpleFeatureFigure(SimpleFeature simpleFeature) {
-            getNormalStyle().setValue(FigureStyle.FILL.getName(), Color.WHITE);
-            getNormalStyle().setValue(FigureStyle.STROKE.getName(), Color.BLACK);
+        private SimpleFeatureFigure(SimpleFeature simpleFeature, FigureStyle style) {
 
             this.simpleFeature = simpleFeature;
             Object o = simpleFeature.getDefaultGeometry();
@@ -125,6 +133,7 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
             Rank rank = getRank(geometry);
             System.out.println("rank = " + rank);
             setRank(rank);
+            setNormalStyle(style);
         }
 
         public SimpleFeature getSimpleFeature() {
@@ -156,6 +165,7 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
     }
 
     private static class SimpleFeatureFigureFactory implements FigureFactory {
+
         private final FeatureCollection featureCollection;
         private int id;
         private GeometryFactory geometryFactory;
@@ -175,10 +185,10 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
         public ShapeFigure createLinealFigure(Shape geometry, FigureStyle style) {
             List<LineString> lineStringList = stringList(geometry, 1.0);
             if (lineStringList.size() == 1) {
-                return createShapeFigure(lineStringList.get(0));
+                return createShapeFigure(lineStringList.get(0), style);
             } else {
                 LineString[] lineStrings = lineStringList.toArray(new LineString[lineStringList.size()]);
-                return createShapeFigure(geometryFactory.createMultiLineString(lineStrings));
+                return createShapeFigure(geometryFactory.createMultiLineString(lineStrings), style);
             }
         }
 
@@ -191,7 +201,7 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
                 List<LinearRing> subList = linearRings.subList(0, linearRings.size() - 1);
                 interiorRings = subList.toArray(new LinearRing[subList.size()]);
             }
-            return createShapeFigure(geometryFactory.createPolygon(exteriorRing, interiorRings));
+            return createShapeFigure(geometryFactory.createPolygon(exteriorRing, interiorRings), style);
         }
 
         @Override
@@ -203,14 +213,14 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
             }
             Geometry[] geometries = geometryList.toArray(new Geometry[geometryList.size()]);
             GeometryCollection geometry1 = geometryFactory.createGeometryCollection(geometries);
-            return createShapeFigure(geometry1);
+            return createShapeFigure(geometry1, createDefaultStyle());
         }
 
-        private ShapeFigure createShapeFigure(Geometry geometry1) {
+        private ShapeFigure createShapeFigure(Geometry geometry1, FigureStyle style) {
             SimpleFeatureType ft = (SimpleFeatureType) featureCollection.getSchema();
             SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(ft);
             sfb.set("geometry", geometry1);
-            return new SimpleFeatureFigure(sfb.buildFeature(String.valueOf(id++)));
+            return new SimpleFeatureFigure(sfb.buildFeature(String.valueOf(id++)), style);
         }
 
         private List<LinearRing> ringList(Shape geometry, double flatness) {
@@ -239,7 +249,9 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
         private List<List<Coordinate>> coordinates(Shape geometry, double flatness, boolean forceClosedRings) {
             List<Coordinate> coordinates = new ArrayList<Coordinate>(16);
             List<List<Coordinate>> pathList = new ArrayList<List<Coordinate>>(4);
-            PathIterator pathIterator = flatness > 0.0 ? geometry.getPathIterator(null, flatness) : geometry.getPathIterator(null);
+            PathIterator pathIterator = flatness > 0.0 ? geometry.getPathIterator(null,
+                                                                                  flatness) : geometry.getPathIterator(
+                    null);
             double[] seg = new double[6];
             int segType = -1;
             while (!pathIterator.isDone()) {
