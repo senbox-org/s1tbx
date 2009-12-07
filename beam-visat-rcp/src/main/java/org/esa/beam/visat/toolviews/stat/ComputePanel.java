@@ -39,14 +39,16 @@ import javax.swing.JScrollPane;
  * @author Marco Zuehlke
  */
 class ComputePanel extends JPanel {
-
-    private static final String SELECTED_MASK = "selected_mask";
-    private final ProductNodeListener productNodeListener;
-
+    
     interface ComputeMasks {
         void compute(Mask[] selectedMasks);
     }
-   
+    
+    private static final Mask ENTIRE_IMAGE_MASK = new Mask("Entire Image", 1,1, new NoMaskType());
+    private static final Mask[] ENTIRE_IMAGE_MASKS = new Mask[] {ENTIRE_IMAGE_MASK};
+    private static final String SELECTED_MASK = "selected_mask";
+
+    private final ProductNodeListener productNodeListener;
     private final JButton computeButton;
     private final Property masksPoperty;
     private final JComponent maskUiComponent;
@@ -62,12 +64,12 @@ class ComputePanel extends JPanel {
 
         PropertyContainer model = PropertyContainer.createMapBacked(new HashMap<String, Object>());
         if (multiMaskSelection) {
-            masksPoperty = Property.create(SELECTED_MASK, Mask[].class, new Mask[0], true);
+            masksPoperty = Property.create(SELECTED_MASK, Mask[].class, ENTIRE_IMAGE_MASKS, true);
         } else {
             masksPoperty = Property.create(SELECTED_MASK, Mask.class, ENTIRE_IMAGE_MASK, true);
         }
         model.addProperty(masksPoperty);
-        masksPoperty.getDescriptor().setValueSet(new ValueSet(new Mask[] {ENTIRE_IMAGE_MASK}));
+        masksPoperty.getDescriptor().setValueSet(new ValueSet(ENTIRE_IMAGE_MASKS));
         
         computeButton = new JButton("Compute");     /*I18N*/
         computeButton.setMnemonic('A');
@@ -77,7 +79,6 @@ class ComputePanel extends JPanel {
                 Mask[] selectedMasks;
                 if (multiMaskSelection) {
                     selectedMasks = (Mask[]) masksPoperty.getValue();
-                    
                 } else {
                     selectedMasks = new Mask[] {(Mask) masksPoperty.getValue()};
                 }
@@ -146,7 +147,7 @@ class ComputePanel extends JPanel {
 
     void updateMaskListState() {
         if (raster== null || raster.getProduct() == null) {
-            masksPoperty.getDescriptor().setValueSet(new ValueSet(new Mask[] {ENTIRE_IMAGE_MASK}));
+            masksPoperty.getDescriptor().setValueSet(new ValueSet(ENTIRE_IMAGE_MASKS));
             return;
         }
         ProductNodeGroup<Mask> maskGroup = raster.getProduct().getMaskGroup();
@@ -175,8 +176,7 @@ class ComputePanel extends JPanel {
         }
         
     }
-    private static final  Mask ENTIRE_IMAGE_MASK = new Mask("Entire Image", 1,1, new NoMaskType());
-    
+ 
     private static class MaskListCellRenderer extends DefaultListCellRenderer {
         
         @Override
