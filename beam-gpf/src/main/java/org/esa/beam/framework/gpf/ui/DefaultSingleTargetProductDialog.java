@@ -86,8 +86,10 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
                 final Product selectedProduct = (Product) event.getSelection().getSelectedValue();
-                final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
-                targetProductSelectorModel.setProductName(selectedProduct.getName() + getTargetProductNameSuffix());
+                if (selectedProduct != null ) {
+                    final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
+                    targetProductSelectorModel.setProductName(selectedProduct.getName() + getTargetProductNameSuffix());
+                }
             }
         });
 
