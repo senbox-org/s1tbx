@@ -19,6 +19,7 @@ package org.esa.beam.gpf.common.reproject;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.resources.geometry.XRectangle2D;
@@ -136,11 +137,10 @@ public class ImageGeometry {
 
     public static ImageGeometry createCollocationTargetGeometry(Product collocationProduct) {
         GeoCoding geoCoding = collocationProduct.getGeoCoding();
-        AffineTransform i2m = (AffineTransform) geoCoding.getImageToMapTransform();
-        CoordinateReferenceSystem mapCRS = geoCoding.getMapCRS();
+        
         ImageGeometry imageGeometry = new ImageGeometry();
-        imageGeometry.mapCrs = mapCRS;
-        imageGeometry.i2m = (AffineTransform) i2m.clone();
+        imageGeometry.mapCrs = ImageManager.getModelCrs(geoCoding);
+        imageGeometry.i2m = ImageManager.getImageToModelTransform(geoCoding);
         imageGeometry.width = collocationProduct.getSceneRasterWidth();
         imageGeometry.height = collocationProduct.getSceneRasterHeight();
         return imageGeometry;
