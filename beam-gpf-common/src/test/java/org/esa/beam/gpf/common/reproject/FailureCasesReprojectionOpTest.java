@@ -30,7 +30,7 @@ public class FailureCasesReprojectionOpTest extends AbstractReprojectionOpTest {
     public void testParameterAmbigouity_wkt_collocateProduct() {
         final Map<String, Product> productMap = new HashMap<String, Product>(5);
         productMap.put("source", sourceProduct);
-        productMap.put("collocate", sourceProduct);
+        productMap.put("collocateWith", sourceProduct);
         parameterMap.put("crs", UTM33N_WKT);
         createReprojectedProduct(productMap);
     }

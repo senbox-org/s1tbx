@@ -57,7 +57,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
         productMap = new HashMap<String, Product>(5);
         productMap.put("source", sourceProduct);
-        productMap.put("collocate", collocationProduct);
+        productMap.put("collocateWith", collocationProduct);
         parameterMap.remove("crs");
         final Product targetProduct = createReprojectedProduct(productMap);
         assertNotNull(targetProduct);

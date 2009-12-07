@@ -114,7 +114,7 @@ class ReprojectionForm extends JTabbedPane {
         final Map<String, Product> productMap = new HashMap<String, Product>(5);
         productMap.put("source", getSourceProduct());
         if (crsSelectionPanel.isCollocate()) {
-            productMap.put("collocate", crsSelectionPanel.getCollocationProduct());
+            productMap.put("collocateWith", crsSelectionPanel.getCollocationProduct());
         }
         return productMap;
     }

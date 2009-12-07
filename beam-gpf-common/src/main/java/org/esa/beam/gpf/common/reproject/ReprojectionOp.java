@@ -85,7 +85,7 @@ public class ReprojectionOp extends Operator {
 
     @SourceProduct(alias = "source", description = "The product which will be reprojected.")
     private Product sourceProduct;
-    @SourceProduct(alias = "collocate", optional = true, label = "Collocation product",
+    @SourceProduct(alias = "collocateWith", optional = true, label = "Collocation product",
                    description = "The source product will be collocated with this product.")
     private Product collocationProduct;
     @TargetProduct

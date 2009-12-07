@@ -334,7 +334,7 @@ public class MosaicOp extends Operator {
         for (Product sourceProduct : sourceProducts) {
             HashMap<String, Product> projProducts = new HashMap<String, Product>();
             projProducts.put("source", sourceProduct);
-            projProducts.put("collocate", targetProduct);
+            projProducts.put("collocateWith", targetProduct);
             reprojProductList.add(GPF.createProduct("Reproject", projParameters, projProducts));
         }
         return reprojProductList.toArray(new Product[reprojProductList.size()]);

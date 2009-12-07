@@ -658,7 +658,7 @@ class MaskFormActions {
             final Map<String, Object> projParameters = Collections.EMPTY_MAP;
             Map<String, Product> projProducts = new HashMap<String, Product>();
             projProducts.put("source", sourceProduct);
-            projProducts.put("collocate", targetProduct);
+            projProducts.put("collocateWith", targetProduct);
             Product reprojectedProduct = GPF.createProduct("Reproject", projParameters, projProducts);
             
             for (Mask mask : selectedMasks) {
