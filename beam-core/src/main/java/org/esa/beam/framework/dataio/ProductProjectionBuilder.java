@@ -436,7 +436,8 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         }
         addGeoCodingToProduct(targetGC, product);
         addBandsToProduct(product);
-        addBitmaskDefsToProduct(product);
+        ProductUtils.copyMasks(getSourceProduct(), product);
+        ProductUtils.copyOverlayMasks(getSourceProduct(), product);
         copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(),
                        PlacemarkSymbol.createDefaultPinSymbol());
         copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(),

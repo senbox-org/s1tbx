@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ProductUtils;
 
 import java.io.IOException;
 
@@ -287,7 +288,8 @@ public class ProductFlipper extends AbstractProductBuilder {
         if (!isMetadataIgnored()) {
             addGeoCodingToProduct(product);
         }
-        addBitmaskDefsToProduct(product);
+        ProductUtils.copyMasks(getSourceProduct(), product);
+        ProductUtils.copyOverlayMasks(getSourceProduct(), product);
         return product;
     }
 

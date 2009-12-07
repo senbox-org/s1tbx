@@ -154,7 +154,6 @@ public class ReprojectionOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-
         validateCrsParameters();
         validateResamplingParameter();
         validateReferencingParameters();
@@ -204,13 +203,14 @@ public class ReprojectionOp extends Operator {
             reprojectRasterDataNodes(sourceProduct.getTiePointGrids());
         }
         /*
-        * Bitmask definitions and placemarks
+        * Placemarks & masks
         */
-        ProductUtils.copyBitmaskDefsAndOverlays(sourceProduct, targetProduct);
         copyPlacemarks(sourceProduct.getPinGroup(), targetProduct.getPinGroup(),
                        PlacemarkSymbol.createDefaultPinSymbol());
         copyPlacemarks(sourceProduct.getGcpGroup(), targetProduct.getGcpGroup(),
                        PlacemarkSymbol.createDefaultGcpSymbol());
+        ProductUtils.copyMasks(sourceProduct, targetProduct);
+        ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
     }
 
     @Override
@@ -364,7 +364,7 @@ public class ReprojectionOp extends Operator {
         final CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
         final AffineTransform i2mSourceProduct = ImageManager.getImageToModelTransform(sourceGeoCoding);
         final AffineTransform i2mTargetProduct = ImageManager.getImageToModelTransform(targetProduct.getGeoCoding());
-        
+
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
@@ -372,10 +372,10 @@ public class ReprojectionOp extends Operator {
             public RenderedImage createImage(int targetLevel) {
                 int sourceLevel = getSourceLevel(srcModel, targetLevel);
                 RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
-                
+
                 final Rectangle sourceBounds = new Rectangle(leveledSourceImage.getWidth(),
                                                              leveledSourceImage.getHeight());
-                
+
                 // the following transformation maps the source level image to level zero and then to the model,
                 // which either is a map or an image CRS
                 final AffineTransform i2mSource = srcModel.getImageToModelTransform(sourceLevel);

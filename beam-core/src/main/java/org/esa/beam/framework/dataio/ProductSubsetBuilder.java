@@ -336,8 +336,8 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         if (!isMetadataIgnored()) {
             addGeoCodingToProduct(product);
         }
-        addBitmaskDefsToProduct(product);
-        addBitmaskOverlayInfosToBandAndTiePointGrids(product);
+        ProductUtils.copyMasks(getSourceProduct(), product);
+        ProductUtils.copyOverlayMasks(getSourceProduct(), product);
         setSceneRasterStartAndStopTime(product);
         addSubsetInfoMetadata(product);
         addPlacemarks(product);

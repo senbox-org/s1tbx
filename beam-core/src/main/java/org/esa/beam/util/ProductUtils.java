@@ -35,12 +35,14 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductVisitorAdapter;
 import org.esa.beam.framework.datamodel.RGBChannelDef;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -1213,7 +1215,7 @@ public class ProductUtils {
      * @param targetProduct the target product
      *
      * @see #copyBitmaskDefsAndOverlays
-     * @deprecated since BEAM 4.7.
+     * @deprecated since BEAM 4.7, use {@link #copyMasks(Product, Product)} instead.
      */
     @Deprecated
     public static void copyBitmaskDefs(Product sourceProduct, Product targetProduct) {
@@ -1225,6 +1227,59 @@ public class ProductUtils {
         for (int i = 0; i < numBitmaskDefs; i++) {
             BitmaskDef bitmaskDef = sourceProduct.getBitmaskDefAt(i);
             targetProduct.addBitmaskDef(bitmaskDef.createCopy());
+        }
+    }
+
+    /**
+     * Copies the {@link Mask}s from the source product to the target product.
+     * <p/>
+     * IMPORTANT NOTE: This method should only be used, if it is known that all masks
+     * in the source product will also be valid in the target product. This method does
+     * <em>not</em> copy overlay masks from the source bands to the target bands.
+     *
+     * @param sourceProduct the source product
+     * @param targetProduct the target product
+     */
+    public static void copyMasks(Product sourceProduct, Product targetProduct) {
+        final ProductNodeGroup<Mask> sourceMaskGroup = sourceProduct.getMaskGroup();
+        for (int i = 0; i < sourceMaskGroup.getNodeCount(); i++) {
+            final Mask mask = sourceMaskGroup.get(i);
+            targetProduct.getMaskGroup().add(mask.getImageType().transferMask(mask, targetProduct));
+        }
+    }
+
+    /**
+     * Copies the overlay {@link Mask}s from the source product's raster data nodes to
+     * the target product's raster data nodes.
+     * <p/>
+     * IMPORTANT NOTE: This method should only be used, if it is known that all masks
+     * in the source product will also be valid in the target product. This method does
+     * <em>not</em> copy overlay masks, which are not contained in the target product's
+     * mask group.
+     *
+     * @param sourceProduct the source product
+     * @param targetProduct the target product
+     */
+    public static void copyOverlayMasks(Product sourceProduct, Product targetProduct) {
+        for (RasterDataNode sourceNode : sourceProduct.getTiePointGrids()) {
+            copyOverlayMasks(sourceNode, targetProduct);
+        }
+        for (RasterDataNode sourceNode : sourceProduct.getBands()) {
+            copyOverlayMasks(sourceNode, targetProduct);
+        }
+    }
+
+    private static void copyOverlayMasks(final RasterDataNode sourceNode, final Product targetProduct) {
+        final RasterDataNode targetNode = targetProduct.getRasterDataNode(sourceNode.getName());
+        if (targetNode != null) {
+            final ProductNodeGroup<Mask> sourceMaskGroup = sourceNode.getOverlayMaskGroup();
+            final ProductNodeGroup<Mask> targetMaskGroup = targetProduct.getMaskGroup();
+            for (int i = 0; i < sourceMaskGroup.getNodeCount(); i++) {
+                final Mask mask = targetMaskGroup.get(sourceMaskGroup.get(i).getName());
+                if (mask != null) {
+                    targetNode.getOverlayMaskGroup().add(mask);
+                }
+            }
         }
     }
 

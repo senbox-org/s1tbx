@@ -6,7 +6,17 @@
  */
 package org.esa.beam.framework.dataio;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 
@@ -61,8 +71,8 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
         setNewProductDesc(desc != null ? desc : sourceProduct.getDescription());
         final Product product = readProductNodes(sourceProduct, subsetDef);
         if (sourceProduct.getQuicklookBandName() != null
-                && product.getQuicklookBandName() == null
-                && product.containsBand(sourceProduct.getQuicklookBandName())) {
+            && product.getQuicklookBandName() == null
+            && product.containsBand(sourceProduct.getQuicklookBandName())) {
             product.setQuicklookBandName(sourceProduct.getQuicklookBandName());
         }
         product.setModified(true);
@@ -120,25 +130,42 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
         subsetElem.addAttribute(new MetadataAttribute(name, data, true));
     }
 
-    protected void addBitmaskDefsToProduct(Product product) {
-        ProductUtils.copyBitmaskDefsAndOverlays(getSourceProduct(), product);
+    /**
+     * Copies the bitmask definitions from the source product to a given target product.
+     *
+     * @param targetProduct the taget product.
+     *
+     * @deprecated since BEAM 4.7.
+     */
+    @Deprecated
+    protected void addBitmaskDefsToProduct(Product targetProduct) {
+        ProductUtils.copyBitmaskDefsAndOverlays(getSourceProduct(), targetProduct);
     }
 
-    protected void addBitmaskOverlayInfosToBandAndTiePointGrids(final Product product) {
-        copyBitmaskOverlayInfo(getSourceProduct().getBands(), product);
-        copyBitmaskOverlayInfo(getSourceProduct().getTiePointGrids(), product);
+    /**
+     * Copies the bitmask overlay info for all source bands and tie point grids in the source product
+     * to a given target product.
+     *
+     * @param targetProduct the taget product.
+     *
+     * @deprecated since BEAM 4.7.
+     */
+    @Deprecated
+    protected void addBitmaskOverlayInfosToBandAndTiePointGrids(final Product targetProduct) {
+        copyBitmaskOverlayInfo(getSourceProduct().getBands(), targetProduct);
+        copyBitmaskOverlayInfo(getSourceProduct().getTiePointGrids(), targetProduct);
     }
 
-    private static void copyBitmaskOverlayInfo(final RasterDataNode[] sourceNodes, final Product product) {
+    private static void copyBitmaskOverlayInfo(final RasterDataNode[] sourceNodes, final Product targetProduct) {
         for (final RasterDataNode sourceNode : sourceNodes) {
-            final RasterDataNode destNode = product.getRasterDataNode(sourceNode.getName());
+            final RasterDataNode destNode = targetProduct.getRasterDataNode(sourceNode.getName());
             if (destNode != null) {
                 final BitmaskOverlayInfo bitmaskOverlayInfo = sourceNode.getBitmaskOverlayInfo();
                 if (bitmaskOverlayInfo != null) {
                     final BitmaskOverlayInfo info = new BitmaskOverlayInfo();
                     final BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
                     for (BitmaskDef bitmaskDef : bitmaskDefs) {
-                        info.addBitmaskDef(product.getBitmaskDef(bitmaskDef.getName()));
+                        info.addBitmaskDef(targetProduct.getBitmaskDef(bitmaskDef.getName()));
                     }
                     destNode.setBitmaskOverlayInfo(info);
                 }
