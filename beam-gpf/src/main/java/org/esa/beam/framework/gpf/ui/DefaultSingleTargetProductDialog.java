@@ -9,9 +9,12 @@ import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
-import com.bc.ceres.swing.selection.SelectionChangeListener;
+
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -41,12 +44,14 @@ import java.util.Map;
  */
 public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog {
 
-    private String operatorName;
-    private List<SourceProductSelector> sourceProductSelectorList;
-    private Map<Field, SourceProductSelector> sourceProductSelectorMap;
-    private Map<String, Object> parameterMap;
-    private JTabbedPane form;
+    private final String operatorName;
+    private final List<SourceProductSelector> sourceProductSelectorList;
+    private final Map<Field, SourceProductSelector> sourceProductSelectorMap;
+    private final Map<String, Object> parameterMap;
+    private final JTabbedPane form;
+    private PropertyDescriptor[] rasterDataNodeTypeProperties;
     private String targetProductNameSuffix;
+    private ProductChangedHandler productChangedHandler;
 
     public static SingleTargetProductDialog createDefaultDialog(String operatorName, AppContext appContext) {
         return new DefaultSingleTargetProductDialog(operatorName, appContext, operatorName, null);
@@ -62,6 +67,8 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             throw new IllegalArgumentException("operatorName");
         }
 
+        sourceProductSelectorList = new ArrayList<SourceProductSelector>(3);
+        sourceProductSelectorMap = new HashMap<Field, SourceProductSelector>(3);
         // Fetch source products
         initSourceProductSelectors(operatorSpi);
         if (!sourceProductSelectorList.isEmpty()) {
@@ -81,18 +88,6 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         }
         ioParametersPanel.add(getTargetProductSelector().createDefaultPanel());
         ioParametersPanel.add(tableLayout.createVerticalSpacer());
-        sourceProductSelectorList.get(0).addSelectionChangeListener(new AbstractSelectionChangeListener() {
-
-            @Override
-            public void selectionChanged(SelectionChangeEvent event) {
-                final Product selectedProduct = (Product) event.getSelection().getSelectedValue();
-                if (selectedProduct != null ) {
-                    final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
-                    targetProductSelectorModel.setProductName(selectedProduct.getName() + getTargetProductNameSuffix());
-                }
-            }
-        });
-
 
         this.form = new JTabbedPane();
         this.form.add("I/O Parameters", ioParametersPanel);
@@ -110,25 +105,28 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         }
         if (propertyContainer.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {
-                SourceProductSelector sourceProductSelector = sourceProductSelectorList.get(0);
-                for (Property property : propertyContainer.getProperties()) {
+                Property[] properties = propertyContainer.getProperties();
+                List<PropertyDescriptor> rdnTypeProperties = new ArrayList<PropertyDescriptor>(properties.length);
+                for (Property property : properties) {
                     PropertyDescriptor parameterDescriptor = property.getDescriptor();
                     if (parameterDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
-                        SelectionChangeListener valueSetUpdater = new ValueSetUpdater(parameterDescriptor);
-                        sourceProductSelector.addSelectionChangeListener(valueSetUpdater);
+                        rdnTypeProperties.add(parameterDescriptor);
                     }
                 }
+                rasterDataNodeTypeProperties = rdnTypeProperties.toArray(new PropertyDescriptor[rdnTypeProperties.size()]);
             }
             ValueEditorsPane parametersPane = new ValueEditorsPane(propertyContainer);
             final JPanel paremetersPanel = parametersPane.createPanel();
             paremetersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", new JScrollPane(paremetersPanel));
         }
+        if (!sourceProductSelectorList.isEmpty()) {
+            productChangedHandler = new ProductChangedHandler();
+            sourceProductSelectorList.get(0).addSelectionChangeListener(productChangedHandler);
+        }
     }
 
     private void initSourceProductSelectors(OperatorSpi operatorSpi) {
-        sourceProductSelectorList = new ArrayList<SourceProductSelector>(3);
-        sourceProductSelectorMap = new HashMap<Field, SourceProductSelector>(3);
         final Field[] fields = operatorSpi.getOperatorClass().getDeclaredFields();
         for (Field field : fields) {
             final SourceProduct annot = field.getAnnotation(SourceProduct.class);
@@ -188,6 +186,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
     @Override
     public void hide() {
+        productChangedHandler.releaseProduct();
         releaseSourceProductSelectors();
         super.hide();
     }
@@ -256,31 +255,86 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             return true;
         }
     }
+    private class ProductChangedHandler extends AbstractSelectionChangeListener implements ProductNodeListener {
+        
+        private Product currentProduct;
 
-    private static class ValueSetUpdater extends AbstractSelectionChangeListener {
-
-        private final PropertyDescriptor propertyDescriptor;
-
-        private ValueSetUpdater(PropertyDescriptor propertyDescriptor) {
-            this.propertyDescriptor = propertyDescriptor;
+        public void releaseProduct() {
+            if (currentProduct != null) {
+                currentProduct.removeProductNodeListener(this);
+                currentProduct = null;
+            }
         }
-
+        
         @Override
         public void selectionChanged(SelectionChangeEvent event) {
             Selection selection = event.getSelection();
-            String[] values = new String[0];
             if (selection != null) {
                 final Product selectedProduct = (Product) selection.getSelectedValue();
-                if (selectedProduct != null) {
-                    Object object = propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
-                    if (object != null) {
-                        Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
-                        boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.getType().isArray();
-                        values = RasterDataNodeValues.getNames(selectedProduct, rasterDataNodeType, includeEmptyValue);
+                if (selectedProduct != currentProduct) {
+                    if (currentProduct != null) {
+                        currentProduct.removeProductNodeListener(this);
                     }
+                    currentProduct = selectedProduct;
+                    if (currentProduct != null) {
+                        currentProduct.addProductNodeListener(this);
+                    }
+                    updateTargetProductname();
+                    updateValueSets(currentProduct);
                 }
             }
-            propertyDescriptor.setValueSet(new ValueSet(values));
         }
+
+        @Override
+        public void nodeAdded(ProductNodeEvent event) {
+            handleProductNodeEvent(event);
+        }
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            handleProductNodeEvent(event);
+        }
+
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+            handleProductNodeEvent(event);
+        }
+
+        @Override
+        public void nodeRemoved(ProductNodeEvent event) {
+            handleProductNodeEvent(event);
+        }
+        
+        private void updateTargetProductname() {
+            String productName = "";
+            if (currentProduct != null) {
+                productName = currentProduct.getName();
+            }
+            final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
+            targetProductSelectorModel.setProductName(productName + getTargetProductNameSuffix());
+        }
+        
+        private void handleProductNodeEvent(ProductNodeEvent event) {
+            updateValueSets(currentProduct);
+        }
+        
+        private void updateValueSets(Product product) {
+            for (PropertyDescriptor propertyDescriptor : rasterDataNodeTypeProperties) {
+                updateValueSet(propertyDescriptor, product);
+            }
+        }
+    }
+
+    private static void updateValueSet(PropertyDescriptor propertyDescriptor, Product product) {
+        String[] values = new String[0];
+        if (product != null) {
+            Object object = propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
+            if (object != null) {
+                Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
+                boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.getType().isArray();
+                values = RasterDataNodeValues.getNames(product, rasterDataNodeType, includeEmptyValue);
+            }
+        }
+        propertyDescriptor.setValueSet(new ValueSet(values));
     }
 }
