@@ -1,6 +1,7 @@
 package org.esa.beam.framework.ui.application.support;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.swing.selection.SelectionContext;
 import org.esa.beam.framework.ui.application.PageComponentContext;
 import org.esa.beam.framework.ui.application.PageComponentDescriptor;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -236,6 +237,17 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
     }
 
     /**
+     * Gets the current selection context, if any.
+     *
+     * @return The current selection context, or {@code null} if none exists.
+     * @since BEAM 4.7
+     */
+    @Override
+    public SelectionContext getSelectionContext() {
+        return null;
+    }
+
+    /**
      * Returns whether the toolview is visible.
      * @return if the toolview is visible
      */
@@ -243,9 +255,8 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
         return context.getPane().getControl().isVisible();
     }
 
-
-
     private void assertDescriptorSet() {
         Assert.state(descriptor != null, "descriptor != null");
     }
+
 }

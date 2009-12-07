@@ -856,21 +856,6 @@
 
         <action>
             <parent>edit</parent>
-            <id>delete</id>
-            <class>org.esa.beam.visat.actions.DeleteAction</class>
-            <text>Delete</text>
-            <shortDescr>Delete object.</shortDescr>
-            <description>Deletes the selected object.</description>
-            <mnemonic>D</mnemonic>
-            <accelerator>control D</accelerator>
-            <smallIcon></smallIcon>
-            <largeIcon>icons/Remove24.gif</largeIcon>
-            <helpId>delete</helpId>
-            <context>band</context>
-        </action>
-
-        <action>
-            <parent>edit</parent>
             <id>preferences</id>
             <class>org.esa.beam.visat.actions.PreferencesAction</class>
             <text>Preferences...</text>
@@ -885,18 +870,23 @@
         </action>
 
         <action>
+            <id>properties</id>
+            <class>org.esa.beam.visat.actions.PropertiesAction</class>
+            <placeBefore>preferences</placeBefore>
             <parent>edit</parent>
-            <id>deleteShape</id>
-            <class>org.esa.beam.visat.actions.DeleteShapeAction</class>
-            <text>Delete Shape</text>
-            <shortDescr>Delete shape.</shortDescr>
-            <description>Delete current shape.</description>
-            <context>image,band,tiePointGrid</context>
-            <placeAfter>delete</placeAfter>
-            <smallIcon>icons/DeleteShapeTool16.gif</smallIcon>
-            <largeIcon>icons/DeleteShapeTool24.gif</largeIcon>
-            <helpId>deleteShape</helpId>
+            <text>Properties...</text>
+            <mnemonic>e</mnemonic>
+            <shortDescr>Opens the property editor.</shortDescr>
+            <description>Opens the property editor.</description>
+            <smallIcon>icons/Properties16.gif</smallIcon>
+            <largeIcon>icons/Properties24.gif</largeIcon>
+            <helpId>showPropertyEditor</helpId>
+            <context>product,band,tiepointgrid</context>
+            <placeAtContextTop>true</placeAtContextTop>
+            <separatorAfter>true</separatorAfter>
         </action>
+
+
 
         <!--####################-->
         <!-- Data Menu          -->
@@ -1471,38 +1461,6 @@
             <largeIcon>icons/GcpOverlay24.gif</largeIcon>
             <context>image</context>
             <helpId>showGcpOverlay</helpId>
-        </action>
-
-        <action>
-            <id>deleteSelectedPin</id>
-            <class>org.esa.beam.visat.actions.DeletePinAction</class>
-            <placeAfter>delete</placeAfter>
-            <parent>edit</parent>
-            <text>Delete Selected Pin</text>
-            <separatorAfter>false</separatorAfter>
-            <shortDescr>Deletes the pin</shortDescr>
-            <description>Deletes the selected pin</description>
-            <smallIcon>icons/DeletePin16.gif</smallIcon>
-            <largeIcon>icons/DeletePin24.gif</largeIcon>
-            <context>pin</context>
-            <helpId>deletePin</helpId>
-        </action>
-
-        <action>
-            <id>properties</id>
-            <class>org.esa.beam.visat.actions.PropertiesAction</class>
-            <placeBefore>preferences</placeBefore>
-            <parent>edit</parent>
-            <text>Properties...</text>
-            <mnemonic>e</mnemonic>
-            <shortDescr>Opens the property editor.</shortDescr>
-            <description>Opens the property editor.</description>
-            <smallIcon>icons/Properties16.gif</smallIcon>
-            <largeIcon>icons/Properties24.gif</largeIcon>
-            <helpId>showPropertyEditor</helpId>
-            <context>product,band,tiepointgrid</context>
-            <placeAtContextTop>true</placeAtContextTop>
-            <separatorAfter>true</separatorAfter>
         </action>
 
         <action>

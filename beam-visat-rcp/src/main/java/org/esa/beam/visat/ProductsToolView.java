@@ -4,15 +4,20 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
+import com.bc.ceres.swing.selection.SelectionContext;
+import com.bc.ceres.swing.selection.support.TreeSelectionContext;
 import com.jidesoft.swing.JideScrollPane;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -29,13 +34,18 @@ import org.geotools.styling.Symbolizer;
 
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.beans.PropertyVetoException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The tool window which displays the tree of open products.
@@ -49,6 +59,7 @@ public class ProductsToolView extends AbstractToolView {
      */
     private ProductTree productTree;
     private VisatApp visatApp;
+    private TreeSelectionContext selectionContext;
 
     public ProductsToolView() {
         this.visatApp = VisatApp.getApp();
@@ -89,7 +100,7 @@ public class ProductsToolView extends AbstractToolView {
             @Override
             public void productAdded(final ProductManager.Event event) {
                 productTree.addProduct(event.getProduct());
-                visatApp.getPage().showToolView(ID);
+                visatApp.getApplicationPage().showToolView(ID);
             }
 
             @Override
@@ -121,8 +132,28 @@ public class ProductsToolView extends AbstractToolView {
             }
         });
 
+        selectionContext = new ProductTreeSelectionContext(productTree);
     }
 
+    /**
+     * Gets the current selection context, if any.
+     *
+     * @return The current selection context, or {@code null} if none exists.
+     * @since BEAM 4.7
+     */
+    @Override
+    public SelectionContext getSelectionContext() {
+        return selectionContext;
+    }
+
+    /**
+     * The default implementation does nothing.
+     * <p>Clients shall not call this method directly.</p>
+     */
+    @Override
+    public void componentFocusLost() {
+        super.componentFocusLost();
+    }
 
     /**
      * This listener listens to product tree events in VISAT's product browser.
@@ -243,6 +274,147 @@ public class ProductsToolView extends AbstractToolView {
                 }
             } catch (PropertyVetoException ignore) {
             }
+        }
+    }
+
+    static class ProductTreeSelectionContext extends TreeSelectionContext {
+        ProductTreeSelectionContext(ProductTree tree) {
+            super(tree);
+        }
+
+        @Override
+        public boolean canDeleteSelection() {
+            return getSelectedObject() instanceof Band;
+        }
+
+        @Override
+        public void deleteSelection() {
+            Band band = (Band) getSelectedObject();
+            final String[] virtualBands = getVirtualBandsReferencing(band);
+            final String[] validMaskNodes = getRasterDataNodesValidMaskReferencing(band);
+            final String[] masks = getMasksReferencing(band);
+            String message = "Do you really want to delete the band '" + band.getName() + "'?\n"
+                    + "This action cannot be undone.\n\n";
+            if (virtualBands.length > 0
+                    || validMaskNodes.length > 0
+                    || masks.length > 0) {
+                message += "The band to be deleted is referenced by\n"; /*I18N*/
+            }
+            String indent = "    ";
+            if (virtualBands.length > 0) {
+                message += "the expression of virtual band(s):\n"; /*I18N*/
+                for (String virtualBand : virtualBands) {
+                    message += indent + virtualBand + "\n";
+                }
+            }
+            if (validMaskNodes.length > 0) {
+                message += "the valid-mask expression of band(s) or tie-point grid(s)\n"; /*I18N*/
+                for (String validMaskNode : validMaskNodes) {
+                    message += indent + validMaskNode + "\n";
+                }
+            }
+            if (masks.length > 0) {
+                message += "the mask(s):\n"; /*I18N*/
+                for (String mask : masks) {
+                    message += indent + mask + "\n";
+                }
+            }
+
+            final int status = VisatApp.getApp().showQuestionDialog("Delete Band",
+                                                                    message, null);
+            if (status == JOptionPane.YES_OPTION) {
+                final JInternalFrame[] internalFrames = VisatApp.getApp().findInternalFrames(band);
+                for (final JInternalFrame internalFrame : internalFrames) {
+                    try {
+                        internalFrame.setClosed(true);
+                    } catch (PropertyVetoException e) {
+                        Debug.trace(e);
+                    }
+                }
+                if (band.hasRasterData()) {
+                    band.unloadRasterData();
+                }
+                final Product product = band.getProduct();
+                product.removeBand(band);
+            }
+        }
+
+        private Object getSelectedObject() {
+            TreePath treePath = (TreePath) getSelection().getSelectedValue();
+            return ((DefaultMutableTreeNode) treePath.getLastPathComponent()).getUserObject();
+        }
+
+        private static String[] getRasterDataNodesValidMaskReferencing(final RasterDataNode node) {
+            final Product product = node.getProduct();
+            final List<String> namesList = new ArrayList<String>();
+            if (product != null) {
+                for (int i = 0; i < product.getNumBands(); i++) {
+                    final Band band = product.getBandAt(i);
+                    if (band != node) {
+                        if (isNodeReferencedByExpression(node, band.getValidPixelExpression())) {
+                            namesList.add(band.getName());
+                        }
+                    }
+                }
+                for (int i = 0; i < product.getNumTiePointGrids(); i++) {
+                    final TiePointGrid tiePointGrid = product.getTiePointGridAt(i);
+                    if (tiePointGrid != node) {
+                        if (isNodeReferencedByExpression(node, tiePointGrid.getValidPixelExpression())) {
+                            namesList.add(tiePointGrid.getName());
+                        }
+                    }
+                }
+            }
+            return namesList.toArray(new String[namesList.size()]);
+        }
+
+        private static String[] getMasksReferencing(final RasterDataNode node) {
+            final Product product = node.getProduct();
+            final List<String> namesList = new ArrayList<String>();
+            if (product != null) {
+                final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+                final Mask[] masks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
+                for (final Mask mask : masks) {
+                    final String expression;
+                    if (mask.getImageType() instanceof Mask.BandMathType) {
+                        expression = Mask.BandMathType.getExpression(mask);
+                    } else if (mask.getImageType() instanceof Mask.RangeType) {
+                        expression = Mask.RangeType.getRasterName(mask);
+                    } else {
+                        expression = null;
+                    }
+                    if (isNodeReferencedByExpression(node, expression)) {
+                        namesList.add(mask.getName());
+                    }
+                }
+            }
+            return namesList.toArray(new String[namesList.size()]);
+        }
+
+        private static String[] getVirtualBandsReferencing(final RasterDataNode node) {
+            final Product product = node.getProduct();
+            final List<String> namesList = new ArrayList<String>();
+            if (product != null) {
+                for (int i = 0; i < product.getNumBands(); i++) {
+                    final Band band = product.getBandAt(i);
+                    if (band instanceof VirtualBand) {
+                        final VirtualBand virtualBand = (VirtualBand) band;
+                        if (isNodeReferencedByExpression(node, virtualBand.getExpression())) {
+                            namesList.add(virtualBand.getName());
+                        }
+                    }
+                }
+            }
+            return namesList.toArray(new String[namesList.size()]);
+        }
+
+        @SuppressWarnings({"SimplifiableIfStatement"})
+        private static boolean isNodeReferencedByExpression(RasterDataNode node, String expression) {
+            if (expression == null || expression.trim().isEmpty()) {
+                return false;
+            }
+
+            return expression.matches(".*\\b" + node.getName() + "\\b.*");
         }
     }
 }

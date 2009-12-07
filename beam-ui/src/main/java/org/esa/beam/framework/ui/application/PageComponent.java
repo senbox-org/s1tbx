@@ -1,6 +1,7 @@
 package org.esa.beam.framework.ui.application;
 
 import com.bc.ceres.binding.PropertyChangeEmitter;
+import com.bc.ceres.swing.selection.SelectionContext;
 
 import javax.swing.Icon;
 
@@ -89,4 +90,11 @@ public interface PageComponent extends ControlFactory, PropertyChangeEmitter {
     // todo - harmonize with descriptor
     String getTitle(); // todo - rename to displayName
     Icon getIcon();
+
+    /**
+     * Gets the current selection context, if any.
+     * @return The current selection context, or {@code null} if none exists.
+     * @since BEAM 4.7
+     */
+    SelectionContext getSelectionContext();
 }

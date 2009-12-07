@@ -148,31 +148,33 @@ public class BasicApp {
 
     private static final String _IMAGE_RESOURCE_PATH = "/org/esa/beam/resources/images/";
 
-    private boolean _uiDefaultsInitialized;
+    private boolean uiDefaultsInitialized;
 
     private final ApplicationDescriptor applicationDescriptor;
 
-    private File _preferencesFile;
+    private File preferencesFile;
 
-    private CommandManager _commandManager;
-    private CommandUIFactory _commandUIFactory;
-    private MainFrame _mainFrame; // <JIDE/>
-    private CommandBar _mainToolBar;  // <JIDE/>
-    private com.jidesoft.status.StatusBar _statusBar; // <JIDE/>
-    private PropertyMap _preferences;
-    private SuppressibleOptionPane _suppressibleOptionPane;
-    private FileHistory _fileHistory;
-    private boolean _debugEnabled;
-    private MouseListener _mouseOverActionHandler;
-    private ResourceBundle _resourceBundle;
-    private boolean _startedUp;
-    private boolean _startingUp;
+    private CommandManager commandManager;
+    private CommandUIFactory commandUIFactory;
+    private MainFrame mainFrame; // <JIDE/>
+    private CommandBar mainToolBar;  // <JIDE/>
+    private com.jidesoft.status.StatusBar statusBar; // <JIDE/>
+    private PropertyMap preferences;
+    private SuppressibleOptionPane suppressibleOptionPane;
+    private FileHistory fileHistory;
+    private boolean debugEnabled;
+    private MouseListener mouseOverActionHandler;
+    private ResourceBundle resourceBundle;
+    private boolean startedUp;
+    private boolean startingUp;
     private boolean _shuttingDown;
-    private ContainerListener _popupMenuListener;
-    private Logger _logger;
-    private Formatter _logFormatter;
-    private ActionListener _closeHandler;
+    private ContainerListener popupMenuListener;
+    private Logger logger;
+    private Formatter logFormatter;
+    private ActionListener closeHandler;
     private Map<String, CommandBar> toolBars;
+    private boolean unexpectedShutdown;  // fix BEAM-712 (nf 2007.11.02)
+
 
 
     // todo - move somewhere else
@@ -185,9 +187,9 @@ public class BasicApp {
     @Deprecated
     public static final String OVRINS_STATUS_BAR_ITEM_KEY = "OvrIns";
     public static final String MEMORY_STATUS_BAR_ITEM_KEY = "Memory";
-    private File _beamUserDir;
-    private File _appUserDir;
-    private boolean _frameBoundsRestored;
+    private File beamUserDir;
+    private File appUserDir;
+    private boolean frameBoundsRestored;
 
 
     static {
@@ -202,9 +204,10 @@ public class BasicApp {
             // todo - check logging, use Ceres logger! (nf - 05.05.2009)
             // BeamLogManager.setSystemLoggerName(applicationDescriptor.getSymbolicName());
         }
-        _fileHistory = new FileHistory(10, "recent.files");
-        _mouseOverActionHandler = new MouseOverActionHandler();
-        _closeHandler = new ActionListener() {
+        fileHistory = new FileHistory(10, "recent.files");
+        mouseOverActionHandler = new MouseOverActionHandler();
+        closeHandler = new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 shutDown();
             }
@@ -248,32 +251,32 @@ public class BasicApp {
      * @return the handler used if the user moves the mouse  over a menu item or toolbar button
      */
     public MouseListener getMouseOverActionHandler() {
-        return _mouseOverActionHandler;
+        return mouseOverActionHandler;
     }
 
     public boolean isFrameBoundsRestored() {
-        return _frameBoundsRestored;
+        return frameBoundsRestored;
     }
 
     /**
      * @return the application's status bar
      */
     public com.jidesoft.status.StatusBar getStatusBar() {
-        return _statusBar;
+        return statusBar;
     }
 
     /**
      * @return the application's main tool bar
      */
     public CommandBar getMainToolBar() {
-        return _mainToolBar;
+        return mainToolBar;
     }
 
     /**
      * @return the user's preferences file
      */
     public File getPreferencesFile() {
-        return _preferencesFile;
+        return preferencesFile;
     }
 
 
@@ -281,11 +284,11 @@ public class BasicApp {
      * @return the application logger
      */
     public Logger getLogger() {
-        return _logger;
+        return logger;
     }
 
     public boolean isStartedUp() {
-        return _startedUp;
+        return startedUp;
     }
 
     public boolean isShuttingDown() {
@@ -311,11 +314,11 @@ public class BasicApp {
      * @throws Exception if an error occurs
      */
     public void startUp(ProgressMonitor pm) throws Exception {
-        if (_startedUp || _startingUp) {
+        if (startedUp || startingUp) {
             throw new IllegalStateException("startUp");
         }
 
-        _startingUp = true;
+        startingUp = true;
 
         try {
             pm.beginTask("Starting " + getAppName(), 6);
@@ -366,19 +369,19 @@ public class BasicApp {
             getMainFrame().setVisible(true);
             updateState();
         } finally {
-            _startedUp = true;
-            _startingUp = false;
+            startedUp = true;
+            startingUp = false;
         }
     }
 
     private void logStartUpInfo() {
-        _logger.info("BEAM user directory is '" + _beamUserDir + "'");    /*I18N*/
-        if (_resourceBundle != null) {
-            _logger.info(
+        logger.info("BEAM user directory is '" + beamUserDir + "'");    /*I18N*/
+        if (resourceBundle != null) {
+            logger.info(
                     "Resource bundle loaded from '" + applicationDescriptor.getResourceBundleName() + "'"); /*I18N*/
         }
-        if (_preferencesFile != null) {
-            _logger.info("User preferences loaded from '" + _preferencesFile.getPath() + "'");/*I18N*/
+        if (preferencesFile != null) {
+            logger.info("User preferences loaded from '" + preferencesFile.getPath() + "'");/*I18N*/
         }
     }
 
@@ -390,9 +393,9 @@ public class BasicApp {
     }
 
     private void initStatusBar() {
-        _statusBar = createStatusBar();
-        if (_statusBar != null) {
-            getMainFrame().getContentPane().add(BorderLayout.SOUTH, _statusBar);
+        statusBar = createStatusBar();
+        if (statusBar != null) {
+            getMainFrame().getContentPane().add(BorderLayout.SOUTH, statusBar);
         }
     }
 
@@ -416,11 +419,11 @@ public class BasicApp {
     }
 
     private void initMainToolBar() {
-        _mainToolBar = createMainToolBar();
-        if (_mainToolBar != null) {
-            _mainToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
-            _mainToolBar.getContext().setInitIndex(2);
-            getMainFrame().getDockableBarManager().addDockableBar(_mainToolBar);
+        mainToolBar = createMainToolBar();
+        if (mainToolBar != null) {
+            mainToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
+            mainToolBar.getContext().setInitIndex(2);
+            getMainFrame().getDockableBarManager().addDockableBar(mainToolBar);
         }
     }
 
@@ -447,28 +450,28 @@ public class BasicApp {
     private void configureLayoutPersitence() {
         getMainFrame().getLayoutPersistence().setProfileKey(getAppName());
         getMainFrame().getLayoutPersistence().setUsePref(false);
-        getMainFrame().getLayoutPersistence().setLayoutDirectory(_appUserDir.getPath());
+        getMainFrame().getLayoutPersistence().setLayoutDirectory(appUserDir.getPath());
         getMainFrame().getLayoutPersistence().beginLoadLayoutData();
         getMainFrame().getDockableBarManager().setProfileKey(getAppName());
     }
 
     private void initCommandManager() {
-        _commandManager = new DefaultCommandManager();
-        _commandUIFactory = new DefaultCommandUIFactory();
-        _commandUIFactory.setCommandManager(_commandManager);
+        commandManager = new DefaultCommandManager();
+        commandUIFactory = new DefaultCommandUIFactory();
+        commandUIFactory.setCommandManager(commandManager);
     }
 
     private void initMainFrame() {
-        _mainFrame = new MainFrame();
-        _mainFrame.setTitle(getMainFrameTitle());
-        _mainFrame.setName("mainFrame" + getAppName());
-        _mainFrame.setDefaultCloseOperation(MainFrame.DO_NOTHING_ON_CLOSE);
-        _mainFrame.addWindowListener(new WindowAdapter() {
+        mainFrame = new MainFrame();
+        mainFrame.setTitle(getMainFrameTitle());
+        mainFrame.setName("mainFrame" + getAppName());
+        mainFrame.setDefaultCloseOperation(MainFrame.DO_NOTHING_ON_CLOSE);
+        mainFrame.addWindowListener(new WindowAdapter() {
 
             @Override
             public void windowClosing(WindowEvent e) {
                 Debug.trace("BasicApp: application main frame is closing, calling exit handler...");
-                _closeHandler.actionPerformed(new ActionEvent(e.getSource(), e.getID(), "close"));
+                closeHandler.actionPerformed(new ActionEvent(e.getSource(), e.getID(), "close"));
             }
         });
     }
@@ -482,10 +485,10 @@ public class BasicApp {
             final Logger logger = BeamUiActivator.getInstance().getModuleContext().getLogger();
             BeamLogManager.setSystemLoggerName(logger.getName());
         }
-        _logFormatter = BeamLogManager.createFormatter(getAppName(), getAppVersion(), getAppCopyright());
+        logFormatter = BeamLogManager.createFormatter(getAppName(), getAppVersion(), getAppCopyright());
         // todo - check logging, use Ceres logger! (nf - 05.05.2009)
-        //BeamLogManager.configureSystemLogger(_logFormatter, false);
-        _logger = BeamLogManager.getSystemLogger();
+        //BeamLogManager.configureSystemLogger(logFormatter, false);
+        logger = BeamLogManager.getSystemLogger();
     }
 
     private boolean initLookAndFeel() {
@@ -494,7 +497,7 @@ public class BasicApp {
         String defaultLAFClassName = getDefaultLookAndFeelClassName();
 
         String newLafClassName = getPreferences().getPropertyString(PROPERTY_KEY_APP_UI_LAF, defaultLAFClassName);
-        if (!_uiDefaultsInitialized || !currentLafClassName.equals(newLafClassName)) {
+        if (!uiDefaultsInitialized || !currentLafClassName.equals(newLafClassName)) {
             try {
                 UIManager.setLookAndFeel(newLafClassName);
                 LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
@@ -547,9 +550,6 @@ public class BasicApp {
         Debug.trace(getAppName() + ": handleImminentExit exited");
     }
 
-
-    private boolean unexpectedShutdown;  // fix BEAM-712 (nf 2007.11.02)
-
     private void initShutdownHook() {
 
         Thread shutdownHook = new Thread(getAppName() + " shut-down hook") {
@@ -558,10 +558,10 @@ public class BasicApp {
             public void run() {
                 if (isStartedUp() && !isShuttingDown()) {
                     unexpectedShutdown = true; // fix BEAM-712 (nf 2007.11.02)
-                    _logger.severe("Unexpectedly shutting down " + getAppName());/*I18N*/
+                    logger.severe("Unexpectedly shutting down " + getAppName());/*I18N*/
                     handleImminentExit();
                 } else {
-                    _logger.severe("Nominally shutting down " + getAppName());/*I18N*/
+                    logger.severe("Nominally shutting down " + getAppName());/*I18N*/
                 }
             }
         };
@@ -645,7 +645,7 @@ public class BasicApp {
     }
 
     public MainFrame getMainFrame() {
-        return _mainFrame;
+        return mainFrame;
     }
 
     protected CommandBar createToolBar(String toolBarId, String title) {
@@ -686,12 +686,12 @@ public class BasicApp {
     }
 
     public boolean isStatusBarVisible() {
-        return (_statusBar != null) && _statusBar.isVisible();
+        return (statusBar != null) && statusBar.isVisible();
     }
 
     public void setStatusBarVisible(boolean visible) {
-        if (_statusBar != null) {
-            _statusBar.setVisible(visible);
+        if (statusBar != null) {
+            statusBar.setVisible(visible);
         }
     }
 
@@ -722,7 +722,7 @@ public class BasicApp {
      * @return the resource bundle, or <code>null</code> if a bundle does not exist
      */
     public ResourceBundle getResourceBundle() {
-        return _resourceBundle;
+        return resourceBundle;
     }
 
     /**
@@ -742,8 +742,8 @@ public class BasicApp {
      *         status bar and returns it.
      */
     private LabelStatusBarItem getStatusBarLabel() {
-        if (_statusBar != null) {
-            return (LabelStatusBarItem) _statusBar.getItemByName(MESSAGE_STATUS_BAR_ITEM_KEY);
+        if (statusBar != null) {
+            return (LabelStatusBarItem) statusBar.getItemByName(MESSAGE_STATUS_BAR_ITEM_KEY);
         }
         return null;
     }
@@ -756,7 +756,7 @@ public class BasicApp {
      * @return the command manager, never <code>null</code>
      */
     public CommandManager getCommandManager() {
-        return _commandManager;
+        return commandManager;
     }
 
     /**
@@ -766,12 +766,12 @@ public class BasicApp {
      */
     public void setCommandManager(CommandManager commandManager) {
         Guardian.assertNotNull("commandManager", commandManager);
-        _commandManager = commandManager;
-        _commandUIFactory.setCommandManager(commandManager);
+        this.commandManager = commandManager;
+        commandUIFactory.setCommandManager(commandManager);
     }
 
     public CommandUIFactory getCommandUIFactory() {
-        return _commandUIFactory;
+        return commandUIFactory;
     }
 
     /**
@@ -780,7 +780,7 @@ public class BasicApp {
      */
     public final void updateState() {
         Debug.trace("BasicApp: updating application state...");
-        _commandManager.updateState();
+        commandManager.updateState();
     }
 
     /**
@@ -838,8 +838,8 @@ public class BasicApp {
                 toolbar.addSeparator();
                 toolAdded = false;
             }
-            for (int j = 0; j < _commandManager.getNumCommands(); j++) {
-                Command command = _commandManager.getCommandAt(j);
+            for (int j = 0; j < commandManager.getNumCommands(); j++) {
+                Command command = commandManager.getCommandAt(j);
                 // @todo 2 nf/nf - ask whether location=toolbar or not
                 if (command instanceof ExecCommand && command.getLargeIcon() != null) {
                     String rootParent = findRootParent(command);
@@ -862,7 +862,7 @@ public class BasicApp {
     private String findRootParent(Command command) {
         String parent = command.getParent();
         if (parent != null) {
-            CommandGroup commandGroup = _commandManager.getCommandGroup(parent);
+            CommandGroup commandGroup = commandManager.getCommandGroup(parent);
             if (commandGroup != null) {
                 return findRootParent(commandGroup);
             }
@@ -871,9 +871,9 @@ public class BasicApp {
     }
 
 
-    protected final void insertCommandMenuItems() {
-        for (int i = 0; i < _commandManager.getNumCommands(); i++) {
-            insertCommandMenuItem(_commandManager.getCommandAt(i));
+    protected void insertCommandMenuItems() {
+        for (int i = 0; i < commandManager.getNumCommands(); i++) {
+            insertCommandMenuItem(commandManager.getCommandAt(i));
         }
     }
 
@@ -882,8 +882,8 @@ public class BasicApp {
         if (resourceBundle == null) {
             return;
         }
-        for (int i = 0; i < _commandManager.getNumCommands(); i++) {
-            _commandManager.getCommandAt(i).configure(resourceBundle);
+        for (int i = 0; i < commandManager.getNumCommands(); i++) {
+            commandManager.getCommandAt(i).configure(resourceBundle);
         }
     }
 
@@ -919,8 +919,8 @@ public class BasicApp {
     }
 
     private ContainerListener getOrCreatePopupMenuListener() {
-        if (_popupMenuListener == null) {
-            _popupMenuListener = new ContainerListener() {
+        if (popupMenuListener == null) {
+            popupMenuListener = new ContainerListener() {
                 public void componentAdded(ContainerEvent e) {
                     Component component = e.getChild();
                     component.addMouseListener(getMouseOverActionHandler());
@@ -932,7 +932,7 @@ public class BasicApp {
                 }
             };
         }
-        return _popupMenuListener;
+        return popupMenuListener;
     }
 
 
@@ -955,33 +955,33 @@ public class BasicApp {
 
     protected final void loadPreferences() {
 
-        if (_preferencesFile == null) {
+        if (preferencesFile == null) {
             return;
         }
 
         // Note, at this point the logging file is still not open!
         try {
-            getPreferences().load(_preferencesFile);
+            getPreferences().load(preferencesFile);
         } catch (IOException e) {
-            _logger.warning("Failed to load user preferences from " + _preferencesFile);
-            _logger.warning("Using application default values...");
+            logger.warning("Failed to load user preferences from " + preferencesFile);
+            logger.warning("Using application default values...");
         }
     }
 
     protected final void savePreferences() {
 
-        if (_preferencesFile == null) {
+        if (preferencesFile == null) {
             return;
         }
 
         setPreferences();
 
         try {
-            _logger.info("Storing user preferences in '" + _preferencesFile.getPath() + "'...");/*I18N*/
-            getPreferences().store(_preferencesFile, getAppName() + " " + getAppVersion() + " - User preferences file");
-            _logger.info("User preferences stored");/*I18N*/
+            logger.info("Storing user preferences in '" + preferencesFile.getPath() + "'...");/*I18N*/
+            getPreferences().store(preferencesFile, getAppName() + " " + getAppVersion() + " - User preferences file");
+            logger.info("User preferences stored");/*I18N*/
         } catch (IOException e) {
-            _logger.warning("Failed to store user preferences");/*I18N*/
+            logger.warning("Failed to store user preferences");/*I18N*/
         }
     }
 
@@ -990,7 +990,7 @@ public class BasicApp {
         //////////////////////////////////////////////////////////////
         // Store file history
 
-        _fileHistory.copyInto(getPreferences());
+        fileHistory.copyInto(getPreferences());
 
         //////////////////////////////////////////////////////////////
         // Store frame properties
@@ -1008,7 +1008,7 @@ public class BasicApp {
 
         //////////////////////////////////////////////////////////////
 
-        getPreferences().setPropertyBool(PROPERTY_KEY_APP_DEBUG_ENABLED, _debugEnabled);
+        getPreferences().setPropertyBool(PROPERTY_KEY_APP_DEBUG_ENABLED, debugEnabled);
     }
 
 
@@ -1018,7 +1018,7 @@ public class BasicApp {
 
         ExecCommand command;
 
-        _logger.info("Applying user preferences...");  /*I18N*/
+        logger.info("Applying user preferences...");  /*I18N*/
 
         //////////////////////////////////////////////////////////////
         // Set frame bounds
@@ -1028,17 +1028,17 @@ public class BasicApp {
         int width = getPreferences().getPropertyInt("frame.size.width", 0);
         int height = getPreferences().getPropertyInt("frame.size.height", 0);
 
-        _frameBoundsRestored = false;
+        frameBoundsRestored = false;
         if (x >= 0 && y >= 0 && width > 0 && height > 0) {
             getMainFrame().setBounds(x, y, width, height);
-            _frameBoundsRestored = true;
+            frameBoundsRestored = true;
         }
 
         //////////////////////////////////////////////////////////////
         // Set menu bar visibility
 
         bV = getPreferences().getPropertyBool("view.showToolBar", Boolean.TRUE);
-        command = _commandManager.getExecCommand("showToolBar");
+        command = commandManager.getExecCommand("showToolBar");
         if (command != null) {
             command.setSelected(bV);
         }
@@ -1047,7 +1047,7 @@ public class BasicApp {
         // Set status bar visibility
 
         bV = getPreferences().getPropertyBool("view.showStatusBar", Boolean.TRUE);
-        command = _commandManager.getExecCommand("showStatusBar");
+        command = commandManager.getExecCommand("showStatusBar");
         if (command != null) {
             command.setSelected(bV);
         }
@@ -1055,13 +1055,13 @@ public class BasicApp {
         //////////////////////////////////////////////////////////////
         // Initialize file history
 
-        _fileHistory.initBy(getPreferences());
+        fileHistory.initBy(getPreferences());
 
         //////////////////////////////////////////////////////////////
 
         bV = getPreferences().getPropertyBool(PROPERTY_KEY_APP_DEBUG_ENABLED, Boolean.FALSE);
-        _debugEnabled = bV;
-        if (_debugEnabled) {
+        debugEnabled = bV;
+        if (debugEnabled) {
             Debug.setEnabled(true);
         }
 
@@ -1071,7 +1071,7 @@ public class BasicApp {
 
         //////////////////////////////////////////////////////////////
 
-        _logger.info("User preferences applied");/*I18N*/
+        logger.info("User preferences applied");/*I18N*/
     }
 
     /**
@@ -1080,7 +1080,7 @@ public class BasicApp {
     protected final void applyLookAndFeelPreferences() {
         boolean startingUp = !isStartedUp();
         // Don't reset look-and-feel if already done on start-up!
-        if (startingUp && _uiDefaultsInitialized) {
+        if (startingUp && uiDefaultsInitialized) {
             return;
         }
 
@@ -1118,7 +1118,7 @@ public class BasicApp {
             updateComponentTreeUI();
         }
 
-        _uiDefaultsInitialized = true;
+        uiDefaultsInitialized = true;
     }
 
     private void changeUIDefaultsFonts(final UIDefaults uiDefaults, final String fontName, final int fontSize) {
@@ -1194,8 +1194,8 @@ public class BasicApp {
      * other top-level containers beside the main frame.
      */
     protected void updateComponentTreeUI() {
-        _mainFrame.getDockableBarManager().updateComponentTreeUI();
-        _mainFrame.getDockingManager().updateComponentTreeUI();
+        mainFrame.getDockableBarManager().updateComponentTreeUI();
+        mainFrame.getDockingManager().updateComponentTreeUI();
         SwingUtilities.updateComponentTreeUI(getMainFrame());
     }
 
@@ -1413,7 +1413,7 @@ public class BasicApp {
 
     protected void historyPush(File file) {
         // to replace getAbsolutPath() replaced by getPath()?
-        _fileHistory.push(file.getAbsolutePath());
+        fileHistory.push(file.getAbsolutePath());
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1463,7 +1463,7 @@ public class BasicApp {
 
         getMainFrame().setCursor(Cursor.getDefaultCursor());
         setStatusBarMessage("Error.");
-        _logger.log(Level.SEVERE, message, e);
+        logger.log(Level.SEVERE, message, e);
         showErrorDialog("Error", message);
         clearStatusBarMessage();
     }
@@ -1472,7 +1472,7 @@ public class BasicApp {
 // Message Dialog Support
 
     public final SuppressibleOptionPane getSuppressibleOptionPane() {
-        return _suppressibleOptionPane;
+        return suppressibleOptionPane;
     }
 
     public final void showErrorDialog(String message) {
@@ -1510,8 +1510,8 @@ public class BasicApp {
     }
 
     public final void showMessageDialog(String title, String message, int messageType, String preferencesKey) {
-        if (_suppressibleOptionPane != null && !StringUtils.isNullOrEmpty(preferencesKey)) {
-            _suppressibleOptionPane.showMessageDialog(preferencesKey, getMainFrame(),
+        if (suppressibleOptionPane != null && !StringUtils.isNullOrEmpty(preferencesKey)) {
+            suppressibleOptionPane.showMessageDialog(preferencesKey, getMainFrame(),
                                                       message,
                                                       getAppName() + " - " + title,
                                                       messageType);
@@ -1532,8 +1532,8 @@ public class BasicApp {
     }
 
     public final int showQuestionDialog(String title, String message, boolean allowCancel, String preferencesKey) {
-        if (_suppressibleOptionPane != null && !StringUtils.isNullOrEmpty(preferencesKey)) {
-            return _suppressibleOptionPane.showConfirmDialog(preferencesKey,
+        if (suppressibleOptionPane != null && !StringUtils.isNullOrEmpty(preferencesKey)) {
+            return suppressibleOptionPane.showConfirmDialog(preferencesKey,
                                                              getMainFrame(),
                                                              message,
                                                              getAppName() + " - " + title,
@@ -1644,12 +1644,12 @@ public class BasicApp {
             try {
                 BeamLogManager.ensureLogPathFromPatternExists(logPattern);
                 Handler handler = new FileHandler(logPattern);
-                handler.setFormatter(_logFormatter);
+                handler.setFormatter(logFormatter);
                 if (cacheHandler != null) {
                     cacheHandler.transferRecords(handler);
                 }
-                _logger.addHandler(handler);
-                _logger.setLevel(logLevel == SystemUtils.LL_DEBUG ? Level.FINEST :
+                logger.addHandler(handler);
+                logger.setLevel(logLevel == SystemUtils.LL_DEBUG ? Level.FINEST :
                                  logLevel == SystemUtils.LL_INFO ? Level.INFO :
                                  logLevel == SystemUtils.LL_WARNING ? Level.WARNING :
                                  logLevel == SystemUtils.LL_ERROR ? Level.SEVERE :
@@ -1672,12 +1672,12 @@ public class BasicApp {
             }
             if (echoOn) {
                 final ConsoleHandler handler = new ConsoleHandler();
-                handler.setFormatter(_logFormatter);
+                handler.setFormatter(logFormatter);
                 handler.setLevel(Level.FINE);
                 if (cacheHandler != null) {
                     cacheHandler.transferRecords(handler);
                 }
-                _logger.addHandler(handler);
+                logger.addHandler(handler);
             }
         }
     }
@@ -1706,20 +1706,20 @@ public class BasicApp {
     }
 
     public final PropertyMap getPreferences() {
-        return _preferences;
+        return preferences;
     }
 
     public final FileHistory getFileHistory() {
-        return _fileHistory;
+        return fileHistory;
     }
 
     public ActionListener getCloseHandler() {
-        return _closeHandler;
+        return closeHandler;
     }
 
     public void setCloseHandler(ActionListener closeHandler) {
         Guardian.assertNotNull("closeHandler", closeHandler);
-        _closeHandler = closeHandler;
+        this.closeHandler = closeHandler;
     }
 
     private String getMainFrameTitle() {
@@ -1782,10 +1782,10 @@ public class BasicApp {
         if (userHome == null) {
             throw new IllegalStateException("Java system property 'user.home' not set");
         }
-        _beamUserDir = SystemUtils.getApplicationDataDir(true);
-        _appUserDir = new File(_beamUserDir, getAppSymbolicName());
-        if (!_appUserDir.exists() && !_appUserDir.mkdir()) {
-            throw new IOException("Failed to create directory '" + _appUserDir + "'.");
+        beamUserDir = SystemUtils.getApplicationDataDir(true);
+        appUserDir = new File(beamUserDir, getAppSymbolicName());
+        if (!appUserDir.exists() && !appUserDir.mkdir()) {
+            throw new IOException("Failed to create directory '" + appUserDir + "'.");
         }
     }
 
@@ -1793,30 +1793,30 @@ public class BasicApp {
     // Loads locale-specific resources: strings, images, et cetera
     private void initResources() throws MissingResourceException {
         if (applicationDescriptor.getResourceBundleName() != null) {
-            _resourceBundle = ResourceBundle.getBundle(applicationDescriptor.getResourceBundleName(),
+            resourceBundle = ResourceBundle.getBundle(applicationDescriptor.getResourceBundleName(),
                                                        Locale.getDefault(), getClass().getClassLoader());
         } else {
-            _resourceBundle = null;
+            resourceBundle = null;
         }
     }
 
     private void initPreferences() {
-        _preferences = new PropertyMap();
+        preferences = new PropertyMap();
 
-        _preferences.setPropertyBool(PROPERTY_KEY_APP_DEBUG_ENABLED, false);
+        preferences.setPropertyBool(PROPERTY_KEY_APP_DEBUG_ENABLED, false);
 
-        _preferences.setPropertyString(PROPERTY_KEY_APP_UI_FONT_NAME, "SansSerif");
-        _preferences.setPropertyInt(PROPERTY_KEY_APP_UI_FONT_SIZE, 12);
+        preferences.setPropertyString(PROPERTY_KEY_APP_UI_FONT_NAME, "SansSerif");
+        preferences.setPropertyInt(PROPERTY_KEY_APP_UI_FONT_SIZE, 12);
 
-        _preferences.setPropertyBool(PROPERTY_KEY_APP_LOG_ENABLED, false);
-        _preferences.setPropertyString(PROPERTY_KEY_APP_LOG_PREFIX, getAppName());
-        _preferences.setPropertyString(PROPERTY_KEY_APP_LOG_LEVEL, SystemUtils.LLS_INFO);
-        _preferences.setPropertyBool(PROPERTY_KEY_APP_LOG_ECHO, false);
+        preferences.setPropertyBool(PROPERTY_KEY_APP_LOG_ENABLED, false);
+        preferences.setPropertyString(PROPERTY_KEY_APP_LOG_PREFIX, getAppName());
+        preferences.setPropertyString(PROPERTY_KEY_APP_LOG_LEVEL, SystemUtils.LLS_INFO);
+        preferences.setPropertyBool(PROPERTY_KEY_APP_LOG_ECHO, false);
 
-        _preferencesFile = new File(_appUserDir, "preferences.properties");
+        preferencesFile = new File(appUserDir, "preferences.properties");
         loadPreferences();
 
-        _suppressibleOptionPane = new SuppressibleOptionPane(getPreferences());
+        suppressibleOptionPane = new SuppressibleOptionPane(getPreferences());
     }
 
     /**

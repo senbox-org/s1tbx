@@ -21,6 +21,7 @@ import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
+import com.bc.ceres.swing.selection.SelectionContext;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -228,6 +229,17 @@ public class ProductSceneView extends BasicView
 
     ProductSceneImage getSceneImage() {
         return sceneImage;
+    }
+
+    /**
+     * Gets the current selection context, if any.
+     *
+     * @return The current selection context, or {@code null} if none exists.
+     * @since BEAM 4.7
+     */
+    @Override
+    public SelectionContext getSelectionContext() {
+        return getFigureEditor().getSelectionContext();
     }
 
     /**
