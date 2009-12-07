@@ -516,7 +516,7 @@ public class Mask extends Band {
             return (Double) mask.getImageConfig().getValue(PROPERTY_NAME_MAXIMUM);
         }
 
-        private static String getExpression(Mask mask) {
+        public static String getExpression(Mask mask) {
             final Double min = getMinimum(mask);
             final Double max = getMaximum(mask);
             final String rasterName = getRasterName(mask);
