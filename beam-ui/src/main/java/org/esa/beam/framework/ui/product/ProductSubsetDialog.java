@@ -266,7 +266,7 @@ public class ProductSubsetDialog extends ModalDialog {
                     if (overlayMask.getImageType() instanceof Mask.BandMathType) {
                         expression = Mask.BandMathType.getExpression(overlayMask);
                     } else if (overlayMask.getImageType() instanceof Mask.RangeType) {
-                        expression = Mask.RangeType.getRasterName(overlayMask);
+                        expression = Mask.RangeType.getExpression(overlayMask);
                     } else {
                         expression = null;
                     }
