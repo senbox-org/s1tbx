@@ -9,7 +9,10 @@ import com.bc.ceres.swing.TableLayout;
 
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.UIUtils;
 
@@ -38,6 +41,7 @@ import javax.swing.JScrollPane;
 class ComputePanel extends JPanel {
 
     private static final String SELECTED_MASK = "selected_mask";
+    private final ProductNodeListener productNodeListener;
 
     interface ComputeMasks {
         void compute(Mask[] selectedMasks);
@@ -50,17 +54,10 @@ class ComputePanel extends JPanel {
     private RasterDataNode raster;
     private Product product;
 
-
-    static ComputePanel createComputePane(final ComputeMasks method,
-                                          final boolean multiMaskSelection,
-                                          final RasterDataNode raster) {
-         return new ComputePanel(method, multiMaskSelection, raster);
-     }
-
-    private ComputePanel(final ComputeMasks method,
-                         final boolean multiMaskSelection,
-                         final RasterDataNode raster) {
-
+    ComputePanel(final ComputeMasks method,
+                 final boolean multiMaskSelection,
+                 final RasterDataNode raster) {
+        productNodeListener = new PNL();
         final Icon icon = UIUtils.loadImageIcon("icons/Gears20.gif");
 
         PropertyContainer model = PropertyContainer.createMapBacked(new HashMap<String, Object>());
@@ -85,7 +82,7 @@ class ComputePanel extends JPanel {
                     selectedMasks = new Mask[] {(Mask) masksPoperty.getValue()};
                 }
                 if (selectedMasks.length == 0) {
-                    selectedMasks = new Mask[] {ENTIRE_IMAGE_MASK};
+                    selectedMasks = new Mask[] {null};
                 } else {
                     for (int i = 0; i < selectedMasks.length; i++) {
                         if (selectedMasks[i] == ENTIRE_IMAGE_MASK) {
@@ -132,8 +129,16 @@ class ComputePanel extends JPanel {
         if (this.raster != raster) {
             this.raster = raster;
             computeButton.setEnabled(this.raster != null);
-            if (product != raster.getProduct()) {
+            if (raster == null) {
+                if (product != null) {
+                    product.removeProductNodeListener(productNodeListener);
+                }
+                product = null;
+            } else if (product != raster.getProduct()) {
                 product = raster.getProduct();
+                if (product != null) {
+                    product.addProductNodeListener(productNodeListener);
+                }
                 updateMaskListState();
             }
         }
@@ -185,5 +190,35 @@ class ComputePanel extends JPanel {
             }
             return this;
         }  
+    }
+    
+    private class PNL implements ProductNodeListener {
+
+        @Override
+        public void nodeAdded(ProductNodeEvent event) {
+            handleEvent(event);
+        }
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            handleEvent(event);
+        }
+
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+            handleEvent(event);
+        }
+
+        @Override
+        public void nodeRemoved(ProductNodeEvent event) {
+            handleEvent(event);
+        }
+        
+        private void handleEvent(ProductNodeEvent event) {
+            ProductNode sourceNode = event.getSourceNode();
+            if (sourceNode instanceof Mask) {
+                updateMaskListState();
+            }
+        }
     }
 }

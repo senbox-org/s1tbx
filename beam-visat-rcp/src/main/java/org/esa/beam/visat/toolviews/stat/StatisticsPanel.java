@@ -22,7 +22,7 @@ import java.util.List;
  *
  * @author Marco Peters
  */
-class StatisticsPanel extends TextPagePanel {
+class StatisticsPanel extends TextPagePanel implements ComputePanel.ComputeMasks {
 
     private static final String DEFAULT_STATISTICS_TEXT = "No statistics computed yet.";  /*I18N*/
     private static final String TITLE_PREFIX = "Statistics";
@@ -41,16 +41,7 @@ class StatisticsPanel extends TextPagePanel {
     @Override
     protected void initContent() {
         super.initContent();
-      final ComputePanel.ComputeMasks computeMasks = new ComputePanel.ComputeMasks() {
-            
-            @Override
-            public void compute(Mask[] selectedMasks) {
-                computeStatistics(selectedMasks);
-                
-            }
-        };
-
-        computePanel = ComputePanel.createComputePane(computeMasks, true, getRaster());
+        computePanel = new ComputePanel(this, true, getRaster());
         final JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(computePanel, BorderLayout.NORTH);
         final JPanel helpPanel = new JPanel(new BorderLayout());
@@ -91,7 +82,8 @@ class StatisticsPanel extends TextPagePanel {
         }
     }
 
-    private void computeStatistics(final Mask[] selectedMasks) {
+    @Override
+    public void compute(final Mask[] selectedMasks) {
         final String title = "Computing Statistics";
         SwingWorker<Object, ComputeResult> swingWorker = new ProgressMonitorSwingWorker<Object, ComputeResult>(this, title) {
 

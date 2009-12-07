@@ -42,7 +42,7 @@ import java.awt.image.RenderedImage;
  * @author Marco Peters
  * @version $Revision$ $Date$
  */
-class HistogramPanel extends PagePanel {
+class HistogramPanel extends PagePanel implements ComputePanel.ComputeMasks {
 
     private static final String NO_DATA_MESSAGE = "No histogram computed yet.\n" +
                                                   "TIP: To zoom within the chart draw a rectangle\n" +
@@ -172,16 +172,7 @@ class HistogramPanel extends PagePanel {
 
         histogramDisplay = createChartPanel(chart);
 
-        final ComputePanel.ComputeMasks computeMasks = new ComputePanel.ComputeMasks() {
-            
-            @Override
-            public void compute(Mask[] selectedMasks) {
-                computeHistogram(selectedMasks);
-                
-            }
-        };
-
-        computePanel = ComputePanel.createComputePane(computeMasks, false, getRaster());
+        computePanel = new ComputePanel(this, false, getRaster());
         final TableLayout rightPanelLayout = new TableLayout(1);
         final JPanel rightPanel = new JPanel(rightPanelLayout);
         rightPanelLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
@@ -254,7 +245,8 @@ class HistogramPanel extends PagePanel {
         return optionsPane;
     }
 
-    private void computeHistogram(final Mask[] selectedMasks) {
+    @Override
+    public void compute(final Mask[] selectedMasks) {
         final RenderedImage maskImage;
         if (selectedMasks.length > 0 && selectedMasks[0] != null) {
             maskImage = selectedMasks[0].getSourceImage();

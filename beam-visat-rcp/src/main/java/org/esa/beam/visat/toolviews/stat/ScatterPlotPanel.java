@@ -51,7 +51,7 @@ import java.util.concurrent.ExecutionException;
  *
  * @author Marco Peters
  */
-class ScatterPlotPanel extends PagePanel {
+class ScatterPlotPanel extends PagePanel implements ComputePanel.ComputeMasks {
 
     private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" +
                                                   "TIP: To zoom within the chart draw a rectangle\n" +
@@ -190,19 +190,8 @@ class ScatterPlotPanel extends PagePanel {
     }
 
     private void createUI() {
-       final ComputePanel.ComputeMasks computeMasks = new ComputePanel.ComputeMasks() {
-            
-            @Override
-            public void compute(Mask[] selectedMasks) {
-                computeScatterPlot(selectedMasks);
-                
-            }
-        };
-
-        computePanel = ComputePanel.createComputePane(computeMasks, false, getRaster());
-
+        computePanel = new ComputePanel(this, false, getRaster());
         plot = new XYImagePlot();
-
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.getRenderer().setBaseToolTipGenerator(new XYPlotToolTipGenerator());
@@ -349,7 +338,8 @@ class ScatterPlotPanel extends PagePanel {
         }
     }
 
-    private void computeScatterPlot(Mask[] selectedMasks) {
+    @Override
+    public void compute(Mask[] selectedMasks) {
 
         final RasterDataNode rasterX = getRaster(X_VAR);
         final RasterDataNode rasterY = getRaster(Y_VAR);
