@@ -63,7 +63,7 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
     public SimpleFeature createSimpleFeature(Geometry geometry) {
         SimpleFeatureType ft = (SimpleFeatureType) featureCollection.getSchema();
         SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(ft);
-        sfb.set("geometry", geometry);
+        sfb.set("geom", geometry);
         return sfb.buildFeature(String.valueOf(currentFeatureId++));
     }
 
