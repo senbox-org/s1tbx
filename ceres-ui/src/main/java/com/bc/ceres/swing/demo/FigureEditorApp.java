@@ -334,6 +334,7 @@ public abstract class FigureEditorApp {
         JMenu menu = new JMenu("File");
         menu.add(new OpenAction());
         menu.add(new SaveAsAction());
+        menu.addSeparator();
         menu.add(new ExitAction());
         return menu;
     }
