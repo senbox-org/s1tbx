@@ -59,6 +59,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.prefs.Preferences;
@@ -200,10 +201,10 @@ public abstract class FigureEditorApp {
         drawing.addFigure(figureFactory.createPolygonalFigure(path, shapeStyle));
 
         for (int i = 0; i < 10; i++) {
-            drawing.addFigure(figureFactory.createPunctualFigure(new Point2D.Double(200+100*Math.random(), 200 + 100*Math.random()), null));
+            drawing.addFigure(figureFactory.createPunctualFigure(new Point2D.Double(200 + 100 * Math.random(), 200 + 100 * Math.random()), null));
         }
 
-       /*
+        /*
         Area a2 = new Area();
         a2.add(new Area(new Rectangle(0, 0, 100, 100)));
         a2.subtract(new Area(new Rectangle(12, 12, 25, 25)));
@@ -313,9 +314,9 @@ public abstract class FigureEditorApp {
 
     protected abstract FigureFactory getFigureFactory();
 
-    protected abstract void loadFigureCollection(File file, FigureCollection figureCollection);
+    protected abstract void loadFigureCollection(File file, FigureCollection figureCollection) throws IOException;
 
-    protected abstract void storeFigureCollection(FigureCollection figureCollection, File file);
+    protected abstract void storeFigureCollection(FigureCollection figureCollection, File file) throws IOException;
 
     public JFrame getFrame() {
         return frame;
@@ -384,7 +385,7 @@ public abstract class FigureEditorApp {
         }
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent event) {
             File lastDir = new File(Preferences.userNodeForPackage(FigureEditorApp.class).get("lastDir", "."));
             JFileChooser chooser = new JFileChooser(lastDir);
             chooser.setAcceptAllFileFilterUsed(true);
@@ -393,7 +394,11 @@ public abstract class FigureEditorApp {
                 Preferences.userNodeForPackage(FigureEditorApp.class).put("lastDir", chooser.getCurrentDirectory().getPath());
                 figureEditorPanel.getFigureEditor().getFigureSelection().removeFigures();
                 figureEditorPanel.getFigureEditor().getFigureCollection().removeFigures();
-                loadFigureCollection(chooser.getSelectedFile(), figureEditorPanel.getFigureEditor().getFigureCollection());
+                try {
+                    loadFigureCollection(chooser.getSelectedFile(), figureEditorPanel.getFigureEditor().getFigureCollection());
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(getFrame(), "Error: " + e.getMessage());
+                }
             }
         }
     }
@@ -405,14 +410,18 @@ public abstract class FigureEditorApp {
         }
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent event) {
             File lastDir = new File(Preferences.userNodeForPackage(FigureEditorApp.class).get("lastDir", "."));
             JFileChooser chooser = new JFileChooser(lastDir);
             chooser.setAcceptAllFileFilterUsed(true);
             int i = chooser.showSaveDialog(frame);
             if (i == JFileChooser.APPROVE_OPTION && chooser.getSelectedFile() != null) {
                 Preferences.userNodeForPackage(FigureEditorApp.class).put("lastDir", chooser.getCurrentDirectory().getPath());
-                storeFigureCollection(figureEditorPanel.getFigureEditor().getFigureCollection(), chooser.getSelectedFile());
+                try {
+                    storeFigureCollection(figureEditorPanel.getFigureEditor().getFigureCollection(), chooser.getSelectedFile());
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(getFrame(), "Error: " + e.getMessage());
+                }
             }
         }
     }
@@ -428,5 +437,4 @@ public abstract class FigureEditorApp {
             frame.dispose();
         }
     }
-
 }
