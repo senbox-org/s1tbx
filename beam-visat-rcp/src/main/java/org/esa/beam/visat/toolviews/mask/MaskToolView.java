@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -111,7 +112,20 @@ public abstract class MaskToolView extends AbstractToolView {
             }
         }
 
-        setSceneView(VisatApp.getApp().getSelectedProductSceneView());
+        ProductSceneView selectedProductSceneView = VisatApp.getApp().getSelectedProductSceneView();
+        if (selectedProductSceneView != null) {
+            setSceneView(selectedProductSceneView);
+        } else {
+            ProductNode selectedProductNode = VisatApp.getApp().getSelectedProductNode();
+            if (selectedProductNode instanceof Product) {
+                Product product = (Product) selectedProductNode;
+                maskForm.reconfigureMaskTable(product, null);
+            } else if (selectedProductNode instanceof RasterDataNode) {
+                RasterDataNode rdn = (RasterDataNode) selectedProductNode;
+                maskForm.reconfigureMaskTable(rdn.getProduct(), rdn);
+            }
+        }
+        updateTitle();
 
         // Add an internal frame listsner to VISAT so that we can update our
         // mask manager with the information of the currently activated
