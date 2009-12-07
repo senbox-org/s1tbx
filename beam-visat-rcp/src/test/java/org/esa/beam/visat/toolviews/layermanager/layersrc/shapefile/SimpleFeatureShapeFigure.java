@@ -35,9 +35,6 @@ public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements Sim
         geometryType = geometry.getGeometryType();
         Rank rank = getRank(geometry);
         setRank(rank);
-        for (int i = 0; i < geometry.getNumGeometries(); i++) {
-            Geometry geom = geometry.getGeometryN(i);
-        }
         setNormalStyle(style);
     }
 
