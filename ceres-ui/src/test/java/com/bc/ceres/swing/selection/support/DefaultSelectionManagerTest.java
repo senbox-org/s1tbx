@@ -9,7 +9,7 @@ import com.bc.ceres.swing.selection.TracingSelectionChangeListener;
 public class DefaultSelectionManagerTest extends TestCase {
     public void testDefaults() {
         DefaultSelectionManager sm = new DefaultSelectionManager(this);
-        assertNotNull(sm.getSelectionContext());
+        assertNull(sm.getSelectionContext());
         assertNotNull(sm.getSelection());
         assertEquals(true, sm.getSelection().isEmpty());
     }

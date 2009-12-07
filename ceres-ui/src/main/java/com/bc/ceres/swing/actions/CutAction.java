@@ -20,7 +20,8 @@ public class CutAction extends AbstractSelectionAction {
 
     @Override
     public boolean isExecutable() {
-        return !getSelection().isEmpty()
+        return super.isExecutable()
+                && !getSelection().isEmpty()
                 && getSelectionContext().canDeleteSelection();
     }
 

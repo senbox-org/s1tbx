@@ -31,11 +31,11 @@ public class DefaultSelectionManager implements SelectionManager {
         Object eventSource = realEventSource != null ? realEventSource : this;
         this.selectionChangeSupport = new SelectionChangeSupport(eventSource);
         this.selectionChangeMulticaster = new SelectionChangeMulticaster();
-        this.selectionContext = NullSelectionContext.INSTANCE;
+        this.selectionContext = null;
         this.selection = Selection.EMPTY;
         if (GraphicsEnvironment.isHeadless()) {
             this.clipboard = new Clipboard("HeadlessClipboard");
-        }else {
+        } else {
             this.clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         }
     }
@@ -55,21 +55,26 @@ public class DefaultSelectionManager implements SelectionManager {
     }
 
     @Override
-    public void setSelectionContext(SelectionContext selectionContext) {
+    public void setSelectionContext(SelectionContext newSelectionContext) {
         SelectionContext oldSelectionContext = this.selectionContext;
         Selection oldSelection = this.selection;
-        if (oldSelectionContext != selectionContext) {
-            oldSelectionContext.removeSelectionChangeListener(selectionChangeMulticaster);
-            boolean selectionChange = !oldSelection.equals(selectionContext.getSelection());
-            this.selectionContext = selectionContext;
-            this.selection = selectionContext.getSelection();
+        if (oldSelectionContext != newSelectionContext) {
+            if (oldSelectionContext != null) {
+                oldSelectionContext.removeSelectionChangeListener(selectionChangeMulticaster);
+            }
+            Selection newSelection = newSelectionContext != null ? newSelectionContext.getSelection() : Selection.EMPTY;
+            boolean selectionChange = !oldSelection.equals(newSelection);
+            this.selectionContext = newSelectionContext;
+            this.selection = newSelection;
             SelectionChangeEvent changeEvent = selectionChangeSupport.createEvent(this.selectionContext,
                                                                                   this.selection);
             selectionChangeSupport.fireSelectionContextChange(changeEvent);
             if (selectionChange) {
                 selectionChangeSupport.fireSelectionChange(changeEvent);
             }
-            this.selectionContext.addSelectionChangeListener(selectionChangeMulticaster);
+            if (this.selectionContext != null) {
+                this.selectionContext.addSelectionChangeListener(selectionChangeMulticaster);
+            }
         }
     }
 

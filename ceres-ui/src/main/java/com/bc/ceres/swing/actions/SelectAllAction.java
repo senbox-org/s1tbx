@@ -17,7 +17,8 @@ public class SelectAllAction extends AbstractSelectionAction {
 
     @Override
     public boolean isExecutable() {
-        return getSelectionContext().canSelectAll();
+        return super.isExecutable()
+                && getSelectionContext().canSelectAll();
     }
 
     @Override

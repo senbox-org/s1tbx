@@ -30,14 +30,14 @@ public interface SelectionManager extends SelectionSource {
     /**
      * Gets the current selection context.
      *
-     * @return The current selection context.
+     * @return The current selection context, or {@code null}.
      */
     SelectionContext getSelectionContext();
 
     /**
      * Sets a new selection context.
      *
-     * @param selectionContext The new selection context.
+     * @param selectionContext The new selection context, or {@code null}.
      */
     void setSelectionContext(SelectionContext selectionContext);
 }

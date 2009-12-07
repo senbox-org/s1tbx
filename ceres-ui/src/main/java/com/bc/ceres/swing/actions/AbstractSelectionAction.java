@@ -37,6 +37,16 @@ public abstract class AbstractSelectionAction extends AbstractSystemAction imple
         updateState();
     }
 
+    /**
+     * Checks if a selection context exists.
+     * Overrides should first test the return value of {@code super.isExecutable()}.
+     * @return {@code true}, if so.
+     */
+    @Override
+    public boolean isExecutable() {
+        return getSelectionContext() != null;
+    }
+
     public Selection getSelection() {
         return selectionManager.getSelection();
     }

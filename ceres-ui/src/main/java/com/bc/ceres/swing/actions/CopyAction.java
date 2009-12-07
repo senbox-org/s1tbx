@@ -20,7 +20,7 @@ public class CopyAction extends AbstractSelectionAction {
 
     @Override
     public boolean isExecutable() {
-        return !getSelection().isEmpty();
+        return super.isExecutable() && !getSelection().isEmpty();
     }
 
     @Override
