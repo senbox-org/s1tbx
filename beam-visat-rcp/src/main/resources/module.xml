@@ -143,6 +143,9 @@
         <module>beam-processing</module>
     </dependency>
     <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
         <module>ceres-binding</module>
     </dependency>
     <dependency>

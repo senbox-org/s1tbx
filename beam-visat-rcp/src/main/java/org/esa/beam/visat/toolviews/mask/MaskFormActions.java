@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.mask;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.jexp.impl.Tokenizer;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
@@ -13,6 +14,7 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.Mask.BandMathType;
 import org.esa.beam.framework.datamodel.Mask.ImageType;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
@@ -39,7 +41,11 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Marco Peters
@@ -634,28 +640,48 @@ class MaskFormActions {
                 if (sourcProduct.isCompatibleProduct(targetProduct, 1.0e-3f)) {
                     copyBandData(selectedMasks, targetProduct);
                 } else {
-                    throw new IllegalStateException("not implemented !!!"); 
-                    // TODO: reproject
+                    reprojectBandData(selectedMasks, sourcProduct, targetProduct);
                 }
             }
         }
 
         private static void copyBandData(Mask[] selectedMasks, Product targetProduct) {
             for (Mask mask : selectedMasks) {
-                String bandName = getAvaliableBandName("mask." + mask.getName(), targetProduct);
-                String maskName = getAvailableMaskName(mask.getName(), targetProduct.getMaskGroup());
-                int dataType = mask.getDataType();
-                Band band = targetProduct.addBand(bandName, dataType);
-                int width = targetProduct.getSceneRasterWidth();
-                int height = targetProduct.getSceneRasterHeight();
-                Mask targetMask = new Mask(maskName, width, height, new Mask.BandMathType());
-                BandMathType.setExpression(targetMask, bandName);
-                targetMask.setDescription(mask.getDescription() + " (from " + mask.getProduct().getDisplayName()+ ")");
-                targetMask.setImageColor(mask.getImageColor());
-                targetMask.setImageTransparency(mask.getImageTransparency());
-                targetProduct.getMaskGroup().add(targetMask);
+                Band band = createBandCopy(targetProduct, mask);
                 band.setSourceImage(mask.getSourceImage());
             }
+        }
+
+
+        
+        private static void reprojectBandData(Mask[] selectedMasks, Product sourceProduct, Product targetProduct) {
+            final Map<String, Object> projParameters = Collections.EMPTY_MAP;
+            Map<String, Product> projProducts = new HashMap<String, Product>();
+            projProducts.put("source", sourceProduct);
+            projProducts.put("collocate", targetProduct);
+            Product reprojectedProduct = GPF.createProduct("Reproject", projParameters, projProducts);
+            
+            for (Mask mask : selectedMasks) {
+                Band band = createBandCopy(targetProduct, mask);
+                MultiLevelImage image = reprojectedProduct.getMaskGroup().get(mask.getName()).getSourceImage();
+                band.setSourceImage(image);
+            }
+        }
+        
+        private static Band createBandCopy(Product targetProduct, Mask mask) {
+            String bandName = getAvaliableBandName("mask_" + mask.getName(), targetProduct);
+            String maskName = getAvailableMaskName(mask.getName(), targetProduct.getMaskGroup());
+            int dataType = mask.getDataType();
+            Band band = targetProduct.addBand(bandName, dataType);
+            int width = targetProduct.getSceneRasterWidth();
+            int height = targetProduct.getSceneRasterHeight();
+            Mask targetMask = new Mask(maskName, width, height, new Mask.BandMathType());
+            BandMathType.setExpression(targetMask, bandName);
+            targetMask.setDescription(mask.getDescription() + " (from " + mask.getProduct().getDisplayName()+ ")");
+            targetMask.setImageColor(mask.getImageColor());
+            targetMask.setImageTransparency(mask.getImageTransparency());
+            targetProduct.getMaskGroup().add(targetMask);
+            return band;
         }
         
         private static String getAvailableMaskName(String name, ProductNodeGroup<Mask> maskGroup) {
