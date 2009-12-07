@@ -17,9 +17,12 @@ import java.awt.Shape;
 
 
 public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements SimpleFeatureFigure {
+    private static final String GEOMETRY_TYPE_POLYGON = "Polygon";
+    private static final String GEOMETRY_TYPE_MULTIPOLYGON = "MultiPolygon";
 
     private final SimpleFeature simpleFeature;
     private Geometry geometry;
+    private String geometryType;
 
     public SimpleFeatureShapeFigure(SimpleFeature simpleFeature, FigureStyle style) {
 
@@ -29,9 +32,20 @@ public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements Sim
             throw new IllegalArgumentException("simpleFeature");
         }
         geometry = (Geometry) o;
+        geometryType = geometry.getGeometryType();
         Rank rank = getRank(geometry);
-        System.out.println("rank = " + rank);
         setRank(rank);
+        System.out.println("___________________________________________");
+        System.out.println("featureID = " + simpleFeature.getID());
+        System.out.println("rank = " + rank);
+        System.out.println("geometryType = " + geometry.getGeometryType());
+        System.out.println("geometry.getNumGeometries() = " + geometry.getNumGeometries());
+        for (int i = 0; i < geometry.getNumGeometries(); i++) {
+            Geometry geom = geometry.getGeometryN(i);
+            System.out.println("type = " + geom.getGeometryType());
+            System.out.printf("geometry.%d = %s%n", i, geom);
+        }
+        System.out.println("___________________________________________");
         setNormalStyle(style);
     }
 
@@ -47,14 +61,15 @@ public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements Sim
     @Override
     public void setShape(Shape shape) {
         AwtGeomToJtsGeomConverter converter = new AwtGeomToJtsGeomConverter();
-        if (getRank() == Rank.POLYGONAL) {
+        if (geometryType.equalsIgnoreCase(GEOMETRY_TYPE_POLYGON)) {
             geometry = converter.createPolygon(shape);
+        } else if (geometryType.equalsIgnoreCase(GEOMETRY_TYPE_MULTIPOLYGON)) {
+            geometry = converter.createMultiPolygon(shape);
         } else {
             geometry = converter.createMultiLineString(shape);
         }
         simpleFeature.setDefaultGeometry(geometry);
         fireFigureChanged();
-        System.out.println("geometry: " + geometry);
     }
 
     @Override

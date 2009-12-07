@@ -5,6 +5,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -45,6 +46,16 @@ public class AwtGeomToJtsGeomConverter {
             interiorRings = subList.toArray(new LinearRing[subList.size()]);
         }
         return geometryFactory.createPolygon(exteriorRing, interiorRings);
+    }
+
+    public MultiPolygon createMultiPolygon(Shape shape) {
+        List<LinearRing> linearRings = createLinearRingList(shape, 1.0);
+        Polygon[] polygons = new Polygon[linearRings.size()];
+        for (int i = 0; i < linearRings.size(); i++) {
+            LinearRing linearRing = linearRings.get(i);
+            polygons[i] = geometryFactory.createPolygon(linearRing, null);
+        }
+        return geometryFactory.createMultiPolygon(polygons);
     }
 
     public List<LinearRing> createLinearRingList(Shape shape, double flatness) {

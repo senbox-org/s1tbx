@@ -55,15 +55,11 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
             featureFeatureSource = getFeatureSource(file);
             featureTypeSimpleFeatureFeatureCollection = featureFeatureSource.getFeatures();
             Iterator<SimpleFeature> featureIterator = featureTypeSimpleFeatureFeatureCollection.iterator();
-            int numFeatures = 0;
             while (featureIterator.hasNext()) {
                 SimpleFeature simpleFeature = featureIterator.next();
-                numFeatures++;
-                System.out.printf("Loaded feature %d%n", numFeatures);
                 DefaultFigureStyle figureStyle = SimpleFeatureFigureFactory.createDefaultStyle();
                 figureCollection.addFigure(new SimpleFeatureShapeFigure(simpleFeature, figureStyle));
             }
-            System.out.printf("Done loading %d features%n", numFeatures);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getFrame(), "Error: " + e.getMessage());
         }
