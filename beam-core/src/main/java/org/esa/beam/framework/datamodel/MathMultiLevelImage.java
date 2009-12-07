@@ -12,9 +12,11 @@ import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 
 import java.awt.image.RenderedImage;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.AbstractSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * A {@link MultiLevelImage} computed from raster data arithmetics. A {@link MathMultiLevelImage}
@@ -26,8 +28,7 @@ import java.util.List;
  */
 class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeListener {
 
-    private final Product product;
-    private final List<ProductNode> nodeList = new ArrayList<ProductNode>();
+    private final Map<Product, Set<ProductNode>> nodeMap = new WeakHashMap<Product, Set<ProductNode>>();
 
     /**
      * Creates a new mask {@link MultiLevelImage} computed from raster data arithmetics. The mask
@@ -103,12 +104,26 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
      */
     MathMultiLevelImage(String expression, Product product, MultiLevelSource multiLevelSource) {
         super(multiLevelSource);
-        this.product = product;
         try {
-            final RasterDataNode[] rasters = BandArithmetic.getRefRasters(expression, product);
+            final RasterDataNode[] rasters;
+            final ProductManager productManager = product.getProductManager();
+            if (productManager != null) {
+                rasters = BandArithmetic.getRefRasters(expression,
+                                                       productManager.getProducts(),
+                                                       productManager.getProductIndex(product));
+            } else {
+                rasters = BandArithmetic.getRefRasters(expression, product);
+            }
             if (rasters.length > 0) {
-                Collections.addAll(nodeList, rasters);
-                product.addProductNodeListener(this);
+                for (final RasterDataNode raster : rasters) {
+                    if (!nodeMap.containsKey(raster.getProduct())) {
+                        nodeMap.put(raster.getProduct(), new WeakHashSet<ProductNode>());
+                    }
+                    nodeMap.get(raster.getProduct()).add(raster);
+                }
+                for (final Product key : nodeMap.keySet()) {
+                    key.addProductNodeListener(this);
+                }
             }
         } catch (ParseException e) {
             // ignore, we do not need to listen to raster data nodes
@@ -117,8 +132,10 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
 
     @Override
     public void dispose() {
-        product.removeProductNodeListener(this);
-        nodeList.clear();
+        for (final Product key : nodeMap.keySet()) {
+            key.removeProductNodeListener(this);
+        }
+        nodeMap.clear();
         super.dispose();
     }
 
@@ -128,8 +145,11 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
 
     @Override
     public void nodeDataChanged(ProductNodeEvent event) {
-        if (nodeList.contains(event.getSourceNode())) {
-            reset();
+        final Product product = event.getSourceNode().getProduct();
+        if (nodeMap.containsKey(product)) {
+            if (nodeMap.get(product).contains(event.getSourceNode())) {
+                reset();
+            }
         }
     }
 
@@ -139,11 +159,57 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
 
     @Override
     public void nodeRemoved(ProductNodeEvent event) {
-        nodeList.remove(event.getSourceNode());
     }
 
-    List<ProductNode> getNodeList() {
-        return Collections.unmodifiableList(nodeList);
+    // for testing only
+    Map<Product, Set<ProductNode>> getNodeMap() {
+        return nodeMap;
     }
 
+    // implementation copied from {@code HashSet}
+    static class WeakHashSet<E> extends AbstractSet<E> {
+
+        private static final Object PRESENT = new Object();
+        private final WeakHashMap<E, Object> map;
+
+        WeakHashSet() {
+            map = new WeakHashMap<E, Object>();
+        }
+
+        @Override
+        public Iterator<E> iterator() {
+            return map.keySet().iterator();
+        }
+
+        @Override
+        public int size() {
+            return map.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return map.isEmpty();
+        }
+
+        @Override
+        public boolean contains(Object key) {
+            //noinspection SuspiciousMethodCalls
+            return map.containsKey(key);
+        }
+
+        @Override
+        public boolean add(E e) {
+            return map.put(e, PRESENT) == null;
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            return map.remove(o) == PRESENT;
+        }
+
+        @Override
+        public void clear() {
+            map.clear();
+        }
+    }
 }

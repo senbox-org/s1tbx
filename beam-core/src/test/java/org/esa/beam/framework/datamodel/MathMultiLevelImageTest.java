@@ -1,7 +1,6 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
@@ -16,62 +15,85 @@ import java.util.Arrays;
 
 public class MathMultiLevelImageTest {
 
-    private Product product;
-    private VirtualBand virtualBand;
+    private Product p;
+    private Product q;
+    private VirtualBand v;
+    private VirtualBand w;
     private MathMultiLevelImage image;
 
     @Before
     public void setup() {
-        product = new Product("P", "T", 1, 1);
-        virtualBand = new VirtualBand("V", ProductData.TYPE_INT8, 1, 1, "1");
-        product.addBand(virtualBand);
+        p = new Product("P", "T", 1, 1);
+        v = new VirtualBand("V", ProductData.TYPE_INT8, 1, 1, "1");
+        p.addBand(v);
 
-        final String expression = "V != 1";
-        final MultiLevelModel multiLevelModel = ImageManager.createMultiLevelModel(product);
-        final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
+        q = new Product("Q", "T", 1, 1);
+        w = new VirtualBand("W", ProductData.TYPE_INT8, 1, 1, "0");
+        q.addBand(w);
+
+        final ProductManager pm = new ProductManager();
+        pm.addProduct(p);
+        pm.addProduct(q);
+
+        final String expression = "$1.V == $2.W";
+        final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(v);
+        image = new MathMultiLevelImage(expression, p, new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.createMask(expression,
-                                                     product,
-                                                     ResolutionLevel.create(getModel(), level));
+                return VirtualBandOpImage.createMask(expression, p, ResolutionLevel.create(getModel(), level));
             }
-        };
-
-        image = new MathMultiLevelImage(expression, product, multiLevelSource);
+        });
     }
 
     @Test
     public void imageIsUpdated() {
         assertTrue(0 == image.getImage(0).getData().getSample(0, 0, 0));
-        virtualBand.setExpression("0");
+        w.setExpression("1");
         assertTrue(0 != image.getImage(0).getData().getSample(0, 0, 0));
     }
 
     @Test
-    public void listenerIsAdded() {
-        assertTrue(Arrays.asList(product.getProductNodeListeners()).contains(image));
+    public void listenersAreAdded() {
+        assertTrue(Arrays.asList(p.getProductNodeListeners()).contains(image));
+        assertTrue(Arrays.asList(q.getProductNodeListeners()).contains(image));
     }
 
     @Test
-    public void listenerIsRemoved() {
+    public void listenersAreRemoved() {
         image.dispose();
-        assertFalse(Arrays.asList(product.getProductNodeListeners()).contains(image));
+        assertFalse(Arrays.asList(p.getProductNodeListeners()).contains(image));
+        assertFalse(Arrays.asList(q.getProductNodeListeners()).contains(image));
     }
 
     @Test
-    public void nodeIsAdded() {
-        assertTrue(image.getNodeList().contains(virtualBand));
+    public void nodesAreAdded() {
+        assertTrue(image.getNodeMap().containsKey(p));
+        assertTrue(image.getNodeMap().containsKey(q));
+        assertTrue(image.getNodeMap().get(p).contains(v));
+        assertTrue(image.getNodeMap().get(q).contains(w));
     }
 
     @Test
-    public void nodeIsRemoved() {
-        assertTrue(product.removeBand(virtualBand));
-        assertFalse(image.getNodeList().contains(virtualBand));
+    public void nodesAreRemoved() {
+        p.dispose();
+        q.dispose();
+
+        v = null;
+        w = null;
+
+        try {
+            System.gc();
+            Thread.sleep(100);
+            assertTrue(image.getNodeMap().get(p).isEmpty());
+            assertTrue(image.getNodeMap().get(q).isEmpty());
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     @Test
-    public void nodeListIsCleared() {
+    public void nodeMapIsCleared() {
         image.dispose();
-        assertTrue(image.getNodeList().isEmpty());
+        assertTrue(image.getNodeMap().isEmpty());
     }
 }
