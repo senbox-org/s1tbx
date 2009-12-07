@@ -36,6 +36,21 @@ public class MaskTest {
         assertEquals(Color.RED, imageConfig.getValue("color"));
         assertEquals(0.5, imageConfig.getValue("transparency"));
     }
+    
+    @Test
+    public void testRenameBand() {
+        Product product = new Product("t", "d", 1, 1);
+        Band band = product.addBand("b", ProductData.TYPE_INT8);
+        Mask mask = new Mask("m", 1, 1, new Mask.BandMathType());
+        Mask.BandMathType.setExpression(mask, "b == 2");
+        product.getMaskGroup().add(mask);
+        
+        String expression = Mask.BandMathType.getExpression(mask);
+        assertEquals("b == 2", expression);
+        band.setName("c");
+        expression = Mask.BandMathType.getExpression(mask);
+        assertEquals("c == 2", expression);
+    }
 
     private static class NullImageType extends Mask.ImageType {
 
