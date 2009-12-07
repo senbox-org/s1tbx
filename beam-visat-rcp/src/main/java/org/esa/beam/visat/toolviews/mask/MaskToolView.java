@@ -16,6 +16,7 @@
  */
 package org.esa.beam.visat.toolviews.mask;
 
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
@@ -38,12 +39,13 @@ public abstract class MaskToolView extends AbstractToolView {
     private final ProductNodeListener titleUpdater;
     private ProductSceneView sceneView;
     private MaskForm maskForm;
+    private String prefixTitle;
 
     public MaskToolView() {
         this.titleUpdater = createTitleUpdater();
     }
 
-    public void setSceneView(final ProductSceneView sceneView) {
+    private void setSceneView(final ProductSceneView sceneView) {
         if (this.sceneView != sceneView) {
             if (this.sceneView != null) {
                 this.sceneView.getProduct().removeProductNodeListener(titleUpdater);
@@ -58,7 +60,6 @@ public abstract class MaskToolView extends AbstractToolView {
             } else {
                 maskForm.clearMaskTable();
             }
-
             updateTitle();
         }
     }
@@ -72,9 +73,13 @@ public abstract class MaskToolView extends AbstractToolView {
                 titleAddtion = " - " + sceneView.getRaster().getDisplayName();
             }
         } else {
-            titleAddtion = "";
+            if (maskForm.getProduct() != null) {
+                titleAddtion = " - " + maskForm.getProduct().getDisplayName();
+            } else {
+                titleAddtion = "";
+            }
         }
-        setTitle(getDescriptor().getTitle() + titleAddtion);
+        getDescriptor().setTitle(prefixTitle + titleAddtion);
     }
 
     private ProductNodeListener createTitleUpdater() {
@@ -94,6 +99,7 @@ public abstract class MaskToolView extends AbstractToolView {
 
     @Override
     public JComponent createControl() {
+        prefixTitle = getDescriptor().getTitle();
         maskForm = createMaskForm(this);
 
         AbstractButton helpButton = maskForm.getHelpButton();
@@ -146,12 +152,17 @@ public abstract class MaskToolView extends AbstractToolView {
 
     private class MaskPTL extends ProductTreeListenerAdapter {
         @Override
-            public void productSelected(Product product, int clickCount) {
-            if (sceneView == null) {
-                  if (maskForm.getProduct() == null) {
-                      maskForm.reconfigureMaskTable(product, null);
-                  }
+        public void productSelected(Product product, int clickCount) {
+            if (sceneView == null && maskForm.getProduct() != product) {
+                maskForm.reconfigureMaskTable(product, null);
+                updateTitle();
             }
+        }
+        
+        @Override
+        public void bandSelected(Band band, int clickCount) {
+            maskForm.reconfigureMaskTable(band.getProduct(), band);
+            updateTitle();
         }
     }
 }
