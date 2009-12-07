@@ -232,9 +232,9 @@ public class VirtualBand extends Band {
     public String toString() {
         return getClass().getName() + "["
                + getName() + ","
-               + ProductData.getTypeString(getDataType()) + "," +
-               +getRasterWidth() + "," +
-               +getRasterHeight() + "]";
+               + ProductData.getTypeString(getDataType()) + ","
+               + getRasterWidth() + ","
+               + getRasterHeight() + "]";
     }
 
     /**
