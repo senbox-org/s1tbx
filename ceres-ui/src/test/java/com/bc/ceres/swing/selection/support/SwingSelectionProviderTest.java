@@ -143,16 +143,15 @@ public class SwingSelectionProviderTest extends TestCase {
         final SelectionChangeHandler listener = new SelectionChangeHandler();
         selectionContext.addSelectionChangeListener(listener);
 
-        Selection selection = new DefaultSelection(new Object[]{new Object[]{TREE_GEMUESE, LEAF_ZWIEBELN}});
+        Selection selection = new DefaultSelection<TreePath>(new TreePath(new Object[]{TREE_GEMUESE, LEAF_ZWIEBELN}));
         selectionContext.setSelection(selection);
         assertNotSame(selection, selectionContext.getSelection());
         //assertEquals(selection, selectionContext.getSelection());
         assertEquals("1;", listener.callSeq);
 
-        selection = new DefaultSelection<Object>(new Object[]{
-                new Object[]{TREE_OBST, LEAF_AEPFEL},
-                new Object[]{TREE_GEMUESE, LEAF_ZWIEBELN}
-        });
+        selection = new DefaultSelection<TreePath>(
+                new TreePath(new Object[]{TREE_OBST, LEAF_AEPFEL}),
+                new TreePath(new Object[]{TREE_GEMUESE, LEAF_ZWIEBELN}));
         selectionContext.setSelection(selection);
         assertNotSame(selection, selectionContext.getSelection());
         //assertEquals(selection, selectionContext.getSelection());
@@ -164,12 +163,11 @@ public class SwingSelectionProviderTest extends TestCase {
         assertEquals(selection, selectionContext.getSelection());
         assertEquals("1;2;0;", listener.callSeq);
 
-        selection = new DefaultSelection(new Object[]{
-                new Object[]{TREE_OBST, LEAF_AEPFEL},
-                new Object[]{TREE_OBST, LEAF_BEEREN},
-                new Object[]{TREE_GEMUESE, LEAF_SAUERKRAUT},
-                new Object[]{TREE_GEMUESE, LEAF_ZWIEBELN}
-        });
+        selection = new DefaultSelection<TreePath>(
+                new TreePath(new Object[]{TREE_OBST, LEAF_AEPFEL}),
+                new TreePath(new Object[]{TREE_OBST, LEAF_BEEREN}),
+                new TreePath(new Object[]{TREE_GEMUESE, LEAF_SAUERKRAUT}),
+                new TreePath(new Object[]{TREE_GEMUESE, LEAF_ZWIEBELN}));
         selectionContext.setSelection(selection);
         assertNotSame(selection, selectionContext.getSelection());
         //assertEquals(selection, selectionContext.getSelection());

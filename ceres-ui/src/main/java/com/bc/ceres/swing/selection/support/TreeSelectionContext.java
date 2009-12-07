@@ -28,13 +28,8 @@ public class TreeSelectionContext extends AbstractSelectionContext {
     public Selection getSelection() {
         final TreePath[] treePaths = tree.getSelectionPaths();
         final Selection selection;
-        if (treePaths != null) {
-            final Object[] elements = new Object[treePaths.length];
-            for (int i = 0; i < treePaths.length; i++) {
-                final Object[] path = treePaths[i].getPath();
-                elements[i] = path;
-            }
-            selection = new DefaultSelection<Object>(elements);
+        if (treePaths != null && treePaths.length > 0) {
+            selection = new DefaultSelection<TreePath>(treePaths);
         } else {
             selection = DefaultSelection.EMPTY;
         }
@@ -43,15 +38,10 @@ public class TreeSelectionContext extends AbstractSelectionContext {
 
     @Override
     public void setSelection(Selection selection) {
-        final Object[] elements = selection.getSelectedValues();
-        if (elements.length > 0) {
-            TreePath[] treePaths = new TreePath[elements.length];
-            for (int i = 0; i < elements.length; i++) {
-                final Object[] path = (Object[]) elements[i];
-                treePaths[i] = new TreePath(path);
-            }
-            tree.setSelectionPaths(treePaths);
-        } else {
+        Object[] objects = selection.getSelectedValues();
+        if (objects instanceof TreePath[] && objects.length > 0) {
+            tree.setSelectionPaths((TreePath[]) objects);
+        } else if (objects == null || objects.length == 0) {
             tree.clearSelection();
         }
     }
