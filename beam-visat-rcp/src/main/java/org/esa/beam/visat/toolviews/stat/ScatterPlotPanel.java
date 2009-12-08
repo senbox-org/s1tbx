@@ -51,7 +51,7 @@ import java.util.concurrent.ExecutionException;
  *
  * @author Marco Peters
  */
-class ScatterPlotPanel extends PagePanel implements ComputePanel.ComputeMasks {
+class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.ComputeMask {
 
     private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" +
                                                   "TIP: To zoom within the chart draw a rectangle\n" +
@@ -69,7 +69,7 @@ class ScatterPlotPanel extends PagePanel implements ComputePanel.ComputeMasks {
     private static Parameter[] minParams = new Parameter[2];
     private static Parameter[] maxParams = new Parameter[2];
 
-    private ComputePanel computePanel;
+    private SingleRoiComputePanel computePanel;
     private ChartPanel scatterPlotDisplay;
     private boolean adjustingAutoMinMax;
     private XYImagePlot plot;
@@ -190,7 +190,7 @@ class ScatterPlotPanel extends PagePanel implements ComputePanel.ComputeMasks {
     }
 
     private void createUI() {
-        computePanel = new ComputePanel(this, false, getRaster());
+        computePanel = new SingleRoiComputePanel(this, getRaster());
         plot = new XYImagePlot();
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setNoDataMessage(NO_DATA_MESSAGE);
@@ -339,7 +339,7 @@ class ScatterPlotPanel extends PagePanel implements ComputePanel.ComputeMasks {
     }
 
     @Override
-    public void compute(Mask[] selectedMasks) {
+    public void compute(Mask selectedMask) {
 
         final RasterDataNode rasterX = getRaster(X_VAR);
         final RasterDataNode rasterY = getRaster(Y_VAR);
@@ -349,10 +349,10 @@ class ScatterPlotPanel extends PagePanel implements ComputePanel.ComputeMasks {
         }
 
         final RenderedImage maskImage;
-        if (selectedMasks.length > 0 && selectedMasks[0] != null) {
-            maskImage = selectedMasks[0].getSourceImage();
-        } else {
+        if (selectedMask == null) {
             maskImage = null;
+        } else {
+            maskImage = selectedMask.getSourceImage();
         }
         ProgressMonitorSwingWorker<ScatterPlot, Object> swingWorker = new ProgressMonitorSwingWorker<ScatterPlot, Object>(
                 this, "Computing scatter plot") {

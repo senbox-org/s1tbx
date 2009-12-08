@@ -42,7 +42,7 @@ import java.awt.image.RenderedImage;
  * @author Marco Peters
  * @version $Revision$ $Date$
  */
-class HistogramPanel extends PagePanel implements ComputePanel.ComputeMasks {
+class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeMask {
 
     private static final String NO_DATA_MESSAGE = "No histogram computed yet.\n" +
                                                   "TIP: To zoom within the chart draw a rectangle\n" +
@@ -57,7 +57,7 @@ class HistogramPanel extends PagePanel implements ComputePanel.ComputeMasks {
     private Parameter histoMaxParam;
     private ChartPanel histogramDisplay;
     private boolean histogramComputing;
-    private ComputePanel computePanel;
+    private SingleRoiComputePanel computePanel;
     private XIntervalSeriesCollection dataset;
 
     private JFreeChart chart;
@@ -172,7 +172,7 @@ class HistogramPanel extends PagePanel implements ComputePanel.ComputeMasks {
 
         histogramDisplay = createChartPanel(chart);
 
-        computePanel = new ComputePanel(this, false, getRaster());
+        computePanel = new SingleRoiComputePanel(this, getRaster());
         final TableLayout rightPanelLayout = new TableLayout(1);
         final JPanel rightPanel = new JPanel(rightPanelLayout);
         rightPanelLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
@@ -246,12 +246,12 @@ class HistogramPanel extends PagePanel implements ComputePanel.ComputeMasks {
     }
 
     @Override
-    public void compute(final Mask[] selectedMasks) {
+    public void compute(final Mask selectedMask) {
         final RenderedImage maskImage;
-        if (selectedMasks.length > 0 && selectedMasks[0] != null) {
-            maskImage = selectedMasks[0].getSourceImage();
-        } else {
+        if (selectedMask == null) {
             maskImage = null;
+        } else {
+            maskImage = selectedMask.getSourceImage();
         }
 
         final int numBins = ((Number) numBinsParam.getValue()).intValue();
