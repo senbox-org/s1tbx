@@ -132,7 +132,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     @Deprecated
     private ROIDefinition roiDefinition;
-    
+
     private final ProductNodeGroup<Mask> roiMasks;
 
     /**
@@ -183,7 +183,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         noDataValueUsed = false;
         geophysicalNoDataValue = 0.0;
         validPixelExpression = null;
-        
+
         overlayMasks = new ProductNodeGroup<Mask>(this, "overlayMasks", false);
         roiMasks = new ProductNodeGroup<Mask>(this, "roiMasks", false);
     }
@@ -1646,7 +1646,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public ProductNodeGroup<Mask> getOverlayMaskGroup() {
         return overlayMasks;
     }
-    
+
     /**
      * @return The roi mask group.
      */
@@ -2397,12 +2397,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             this.bitmaskOverlayInfo = bitmaskOverlayInfo;
             fireProductNodeChanged(PROPERTY_NAME_BITMASK_OVERLAY_INFO);
 
-            getOverlayMaskGroup().removeAll();
-            if (bitmaskOverlayInfo != null) {
-                for (final BitmaskDef def : bitmaskOverlayInfo.getBitmaskDefs()) {
-                    final Mask mask = getProduct().getMaskGroup().get(def.getName());
-                    if (mask != null) {
-                        getOverlayMaskGroup().add(mask);
+            if (getProduct() != null) {
+                getOverlayMaskGroup().removeAll();
+                if (bitmaskOverlayInfo != null) {
+                    for (final BitmaskDef def : bitmaskOverlayInfo.getBitmaskDefs()) {
+                        final Mask mask = getProduct().getMaskGroup().get(def.getName());
+                        if (mask != null) {
+                            getOverlayMaskGroup().add(mask);
+                        }
                     }
                 }
             }
