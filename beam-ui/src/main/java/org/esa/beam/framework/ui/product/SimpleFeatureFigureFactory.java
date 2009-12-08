@@ -1,5 +1,6 @@
-package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
+package org.esa.beam.framework.ui.product;
 
+import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.PointFigure;
@@ -25,7 +26,7 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
     private AwtGeomToJtsGeomConverter toJtsGeom;
     private long currentFeatureId;
 
-    public  SimpleFeatureFigureFactory(FeatureCollection featureCollection) {
+    public SimpleFeatureFigureFactory(FeatureCollection featureCollection) {
         this.featureCollection = featureCollection;
         this.toJtsGeom = new AwtGeomToJtsGeomConverter();
         this.currentFeatureId = System.nanoTime();
@@ -50,6 +51,22 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
     public ShapeFigure createPolygonalFigure(Shape shape, FigureStyle style) {
         Polygon polygon = toJtsGeom.createPolygon(shape);
         return createShapeFigure(polygon, style);
+    }
+
+    public Figure cre(SimpleFeature simpleFeature) {
+        Object o = simpleFeature.getDefaultGeometry();
+        Object attribute = simpleFeature.getAttribute("style");
+        FigureStyle figureStyle = new DefaultFigureStyle();
+        if (attribute instanceof String) {
+            String css = (String) attribute;
+            figureStyle.fromCssString(css);
+        }
+        if (o instanceof Point) {
+            return new SimpleFeaturePointFigure(simpleFeature, figureStyle);
+        } else {
+            return new SimpleFeatureShapeFigure(simpleFeature, figureStyle);
+        }
+
     }
 
     public PointFigure createPointFigure(Point geometry, FigureStyle style) {

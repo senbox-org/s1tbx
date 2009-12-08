@@ -7,21 +7,19 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 import com.bc.ceres.glayer.swing.LayerCanvas;
-import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
+import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorHolder;
 import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
+import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
-import com.bc.ceres.swing.selection.SelectionContext;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -37,7 +35,6 @@ import org.esa.beam.framework.ui.PopupMenuHandler;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.MaskCollectionLayer;
 import org.esa.beam.glayer.NoDataLayerType;
@@ -134,7 +131,7 @@ public class ProductSceneView extends BasicView
 
 
     private ProductSceneImage sceneImage;
-    private FigureEditorLayerCanvas layerCanvas;
+    private LayerCanvas layerCanvas;
 
     // todo - (re)move following variables, they don't belong to here (nf - 28.10.2008)
     // {{
@@ -158,6 +155,7 @@ public class ProductSceneView extends BasicView
     private AdjustableViewScrollPane scrollPane;
 
     private UndoContext undoContext;
+    private DefaultFigureEditor figureEditor;
 
     public ProductSceneView(ProductSceneImage sceneImage) {
         Assert.notNull(sceneImage, "sceneImage");
@@ -174,17 +172,25 @@ public class ProductSceneView extends BasicView
         this.pixelBorderViewScale = 2.0;
         this.pixelPositionListeners = new Vector<PixelPositionListener>();
 
+        figureEditor = new DefaultFigureEditor(this, undoContext, new DefaultFigureCollection());
+
         // todo - use global application undo context
         undoContext = new DefaultUndoContext(this);
 
-        this.layerCanvas = new FigureEditorLayerCanvas(sceneImage.getRootLayer(),
-                                                       new DefaultViewport(isModelYAxisDown(baseImageLayer)),
-                                                       undoContext);
+        this.layerCanvas = new LayerCanvas(sceneImage.getRootLayer(),
+                                           new DefaultViewport(isModelYAxisDown(baseImageLayer)));
 
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(
                 PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
         this.layerCanvas.setNavControlShown(navControlShown);
         this.layerCanvas.setPreferredSize(new Dimension(400, 400));
+        this.layerCanvas.addOverlay(new LayerCanvas.Overlay() {
+            @Override
+            public void paintOverlay(LayerCanvas canvas, Rendering rendering) {
+                figureEditor.drawFigureSelection(rendering);
+                figureEditor.drawSelectionRectangle(rendering);
+            }
+        });
 
         this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN,
                                                                              false);
@@ -205,7 +211,7 @@ public class ProductSceneView extends BasicView
 
     @Override
     public FigureEditor getFigureEditor() {
-        return layerCanvas.getFigureEditor();
+        return figureEditor;
     }
 
     private AdjustableViewScrollPane createScrollPane() {
@@ -533,8 +539,8 @@ public class ProductSceneView extends BasicView
     }
 
     public boolean isShapeOverlayEnabled() {
-        final FigureLayer figureLayer = getFigureLayer(false);
-        return figureLayer != null && figureLayer.isVisible();
+        final VectorDataLayer vectorDataLayer = getFigureLayer(false);
+        return vectorDataLayer != null && vectorDataLayer.isVisible();
     }
 
     public void setShapeOverlayEnabled(boolean enabled) {
@@ -610,9 +616,9 @@ public class ProductSceneView extends BasicView
         if (gcpLayer != null) {
             ProductSceneImage.setGcpLayerStyle(configuration, gcpLayer);
         }
-        final FigureLayer figureLayer = getFigureLayer(false);
-        if (figureLayer != null) {
-            ProductSceneImage.setFigureLayerStyle(configuration, figureLayer);
+        final VectorDataLayer vectorDataLayer = getFigureLayer(false);
+        if (vectorDataLayer != null) {
+            ProductSceneImage.setFigureLayerStyle(configuration, vectorDataLayer);
         }
         final GraticuleLayer graticuleLayer = getGraticuleLayer(false);
         if (graticuleLayer != null) {
@@ -658,8 +664,17 @@ public class ProductSceneView extends BasicView
         if (oldLayer != layer) {
             selectedLayer = layer;
             firePropertyChange(PROPERTY_NAME_SELECTED_LAYER, oldLayer, selectedLayer);
+            maybeUpdateFigureEditor();
         }
     }
+
+    private void maybeUpdateFigureEditor() {
+        if (selectedLayer instanceof VectorDataLayer) {
+            VectorDataLayer vectorDataLayer = (VectorDataLayer) selectedLayer;
+            figureEditor.setFigureCollection(vectorDataLayer.getFigureCollection());
+        }
+    }
+
 
     public void disposeLayers() {
         getSceneImage().getRootLayer().dispose();
@@ -854,7 +869,7 @@ public class ProductSceneView extends BasicView
         return getSceneImage().getNoDataLayer(create);
     }
 
-    private FigureLayer getFigureLayer(boolean create) {
+    private VectorDataLayer getFigureLayer(boolean create) {
         return getSceneImage().getFigureLayer(create);
     }
 
@@ -1053,32 +1068,4 @@ public class ProductSceneView extends BasicView
         }
     }
 
-    private static class FigureEditorLayerCanvas extends LayerCanvas implements FigureEditorHolder {
-
-        private final FigureCollection figureCollection;
-        private final DefaultFigureEditor figureEditor;
-
-        private FigureEditorLayerCanvas(Layer rootLayer, Viewport viewport, UndoContext undoContext) {
-            super(rootLayer, viewport);
-            // todo - use FigureCollection from FigureLayer(s)!
-            figureCollection = new DefaultFigureCollection();
-
-            figureEditor = new DefaultFigureEditor(this, undoContext, figureCollection);
-
-            addOverlay(new LayerCanvas.Overlay() {
-                @Override
-                public void paintOverlay(LayerCanvas canvas, Graphics2D graphics) {
-                    // todo - figureEditor.drawFigures(graphics, true);
-                    figureEditor.drawFigures(graphics, false);
-                    figureEditor.drawSelectionRectangle(graphics);
-                }
-            });
-        }
-
-        @Override
-        public FigureEditor getFigureEditor() {
-            return figureEditor;
-        }
-
-    }
 }

@@ -1,4 +1,4 @@
-package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
+package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.swing.figure.AbstractPointFigure;
@@ -22,7 +22,7 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
     private Point geometry;
     private double radius; // in model coordinates
 
-    SimpleFeaturePointFigure(SimpleFeature simpleFeature, FigureStyle style) {
+    public SimpleFeaturePointFigure(SimpleFeature simpleFeature, FigureStyle style) {
         this.simpleFeature = simpleFeature;
         Object o = simpleFeature.getDefaultGeometry();
         if (!(o instanceof Point)) {

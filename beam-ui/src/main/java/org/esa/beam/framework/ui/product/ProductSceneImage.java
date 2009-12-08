@@ -19,11 +19,8 @@ import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.glayer.BitmaskCollectionLayer;
 import org.esa.beam.glayer.BitmaskLayerType;
-import org.esa.beam.glayer.FigureLayer;
-import org.esa.beam.glayer.FigureLayerType;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.GraticuleLayerType;
 import org.esa.beam.glayer.MaskCollectionLayerType;
@@ -32,14 +29,12 @@ import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glayer.RasterImageLayerType;
 import org.esa.beam.glayer.RgbImageLayerType;
-import org.esa.beam.glayer.RoiLayerType;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.PropertyMap;
 
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
 
 // todo - Layer API: make it implement ProductSceneViewContext
 public class ProductSceneImage implements LayerContext {
@@ -216,8 +211,8 @@ public class ProductSceneImage implements LayerContext {
         return layer;
     }
 
-    FigureLayer getFigureLayer(boolean create) {
-        FigureLayer layer = (FigureLayer) getLayer(ProductSceneView.FIGURE_LAYER_ID);
+    VectorDataLayer getFigureLayer(boolean create) {
+        VectorDataLayer layer = (VectorDataLayer) getLayer(ProductSceneView.FIGURE_LAYER_ID);
         if (layer == null && create) {
             layer = createFigureLayer(getImageToModelTransform());
             addLayer(getFirstImageLayerIndex(), layer);
@@ -339,61 +334,65 @@ public class ProductSceneImage implements LayerContext {
         return maskCollectionLayer;
     }
 
-    private FigureLayer createFigureLayer(AffineTransform i2mTransform) {
-        final LayerType figureType = LayerTypeRegistry.getLayerType(FigureLayerType.class);
+    private VectorDataLayer createFigureLayer(AffineTransform i2mTransform) {
+        final LayerType figureType = LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
         final PropertyContainer template = figureType.createLayerConfig(null);
-        template.setValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST, new ArrayList<Figure>());
-        template.setValue(FigureLayer.PROPERTY_NAME_TRANSFORM, i2mTransform);
-        template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                          configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                                                        FigureLayer.DEFAULT_SHAPE_OUTLINED));
-        template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                          configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                                                         FigureLayer.DEFAULT_SHAPE_OUTL_COLOR));
-        template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
-                          configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
-                                                          FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
-        template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                          configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                                                          FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH));
-        template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
-                          configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
-                                                        FigureLayer.DEFAULT_SHAPE_FILLED));
-        template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                          configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                                                         FigureLayer.DEFAULT_SHAPE_FILL_COLOR));
-        template.setValue(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
-                          configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
-                                                          FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
+        /*
+        template.setValue(VectorDataLayer.PROPERTY_NAME_FIGURE_LIST, new ArrayList<Figure>());
+        template.setValue(VectorDataLayer.PROPERTY_NAME_TRANSFORM, i2mTransform);
+        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTLINED,
+                          configuration.getPropertyBool(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTLINED,
+                                                        VectorDataLayer.DEFAULT_SHAPE_OUTLINED));
+        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
+                          configuration.getPropertyColor(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
+                                                         VectorDataLayer.DEFAULT_SHAPE_OUTL_COLOR));
+        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
+                          configuration.getPropertyDouble(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
+                                                          VectorDataLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
+        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
+                          configuration.getPropertyDouble(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
+                                                          VectorDataLayer.DEFAULT_SHAPE_OUTL_WIDTH));
+        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_FILLED,
+                          configuration.getPropertyBool(VectorDataLayer.PROPERTY_NAME_SHAPE_FILLED,
+                                                        VectorDataLayer.DEFAULT_SHAPE_FILLED));
+        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
+                          configuration.getPropertyColor(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
+                                                         VectorDataLayer.DEFAULT_SHAPE_FILL_COLOR));
+        template.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
+                          configuration.getPropertyDouble(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
+                                                          VectorDataLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
 
-        return (FigureLayer) figureType.createLayer(this, template);
+        */
+        return (VectorDataLayer) figureType.createLayer(this, template);
     }
 
     static void setFigureLayerStyle(PropertyMap configuration, Layer layer) {
         final PropertyContainer layerConfiguration = layer.getConfiguration();
-        layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                                    configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED,
-                                                                  FigureLayer.DEFAULT_SHAPE_OUTLINED));
-        layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                                    configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
-                                                                   FigureLayer.DEFAULT_SHAPE_OUTL_COLOR));
-        layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
+/*
+        layerConfiguration.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTLINED,
+                                    configuration.getPropertyBool(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTLINED,
+                                                                  VectorDataLayer.DEFAULT_SHAPE_OUTLINED));
+        layerConfiguration.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
+                                    configuration.getPropertyColor(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR,
+                                                                   VectorDataLayer.DEFAULT_SHAPE_OUTL_COLOR));
+        layerConfiguration.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
                                     configuration.getPropertyDouble(
-                                            FigureLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
-                                            FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
-        layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                                    configuration.getPropertyDouble(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
-                                                                    FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH));
-        layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
-                                    configuration.getPropertyBool(FigureLayer.PROPERTY_NAME_SHAPE_FILLED,
-                                                                  FigureLayer.DEFAULT_SHAPE_FILLED));
-        layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                                    configuration.getPropertyColor(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
-                                                                   FigureLayer.DEFAULT_SHAPE_FILL_COLOR));
-        layerConfiguration.setValue(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
+                                            VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY,
+                                            VectorDataLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
+        layerConfiguration.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
+                                    configuration.getPropertyDouble(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH,
+                                                                    VectorDataLayer.DEFAULT_SHAPE_OUTL_WIDTH));
+        layerConfiguration.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_FILLED,
+                                    configuration.getPropertyBool(VectorDataLayer.PROPERTY_NAME_SHAPE_FILLED,
+                                                                  VectorDataLayer.DEFAULT_SHAPE_FILLED));
+        layerConfiguration.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
+                                    configuration.getPropertyColor(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_COLOR,
+                                                                   VectorDataLayer.DEFAULT_SHAPE_FILL_COLOR));
+        layerConfiguration.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
                                     configuration.getPropertyDouble(
-                                            FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
-                                            FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
+                                            VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY,
+                                            VectorDataLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
+*/
     }
 
     private GraticuleLayer createGraticuleLayer(AffineTransform i2mTransform) {

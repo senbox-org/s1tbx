@@ -7,6 +7,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.DefaultLayerCanvasModel;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glayer.swing.LayerCanvasModel;
+import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.DefaultViewport;
@@ -51,8 +52,9 @@ public class NavigationCanvas extends JPanel {
         });
         thumbnailCanvas.addOverlay(new LayerCanvas.Overlay() {
             @Override
-            public void paintOverlay(LayerCanvas canvas, Graphics2D g) {
+            public void paintOverlay(LayerCanvas canvas, Rendering rendering) {
                 if (moveSliderRect != null && !moveSliderRect.isEmpty()) {
+                    Graphics2D g = rendering.getGraphics();
                     g.setColor(new Color(getForeground().getRed(), getForeground().getGreen(),
                                          getForeground().getBlue(), 82));
                     final Rectangle bounds = moveSliderRect.getBounds();

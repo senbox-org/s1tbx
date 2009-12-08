@@ -1,4 +1,4 @@
-package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
+package org.esa.beam.framework.ui.product;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;

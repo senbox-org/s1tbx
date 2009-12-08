@@ -21,6 +21,7 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glayer.swing.NavControl;
 import com.bc.ceres.glayer.swing.WakefulComponent;
+import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -400,20 +401,20 @@ public final class WorldMapPane extends JPanel {
     private class BoundaryOverlay implements LayerCanvas.Overlay {
 
         @Override
-        public void paintOverlay(LayerCanvas canvas, Graphics2D graphics) {
+        public void paintOverlay(LayerCanvas canvas, Rendering rendering) {
             for (final GeoPos[] extraGeoBoundary : dataModel.getAdditionalGeoBoundaries()) {
-                drawGeoBoundary(graphics, extraGeoBoundary, false, null, null);
+                drawGeoBoundary(rendering.getGraphics(), extraGeoBoundary, false, null, null);
             }
 
             final Product selectedProduct = dataModel.getSelectedProduct();
             for (final Product product : dataModel.getProducts()) {
                 if (selectedProduct != product) {
-                    drawProduct(graphics, product, false);
+                    drawProduct(rendering.getGraphics(), product, false);
                 }
             }
 
             if (selectedProduct != null) {
-                drawProduct(graphics, selectedProduct, true);
+                drawProduct(rendering.getGraphics(), selectedProduct, true);
             }
 
         }

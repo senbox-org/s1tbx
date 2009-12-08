@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.nav;
 
 import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -39,7 +40,7 @@ class CursorOverlay implements LayerCanvas.Overlay {
     }
 
     @Override
-    public void paintOverlay(LayerCanvas canvas, Graphics2D graphics) {
+    public void paintOverlay(LayerCanvas canvas, Rendering rendering) {
         if (geoPosition == null || !geoPosition.isValid()) {
             return;
         }
@@ -56,7 +57,7 @@ class CursorOverlay implements LayerCanvas.Overlay {
 
         final Viewport viewport = canvas.getViewport();
 
-        drawCursor(graphics, viewport, pixelPos);
+        drawCursor(rendering.getGraphics(), viewport, pixelPos);
     }
 
     private void drawCursor(Graphics2D graphics, Viewport viewport, PixelPos pixelPos) {

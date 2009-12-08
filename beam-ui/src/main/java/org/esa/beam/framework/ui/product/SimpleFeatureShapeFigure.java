@@ -1,6 +1,4 @@
-
-
-package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
+package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.swing.figure.AbstractShapeFigure;
 import com.bc.ceres.swing.figure.FigureStyle;
