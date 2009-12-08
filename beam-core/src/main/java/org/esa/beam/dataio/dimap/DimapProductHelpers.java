@@ -39,6 +39,7 @@ import org.esa.beam.framework.datamodel.PointingFactoryRegistry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ROIDefinition;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.SampleCoding;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
@@ -1031,60 +1032,56 @@ public class DimapProductHelpers {
         }
 
         private void addBitmaskOverlays(Element imageDisplayElem, Product product) {
-            final List overlays = imageDisplayElem.getChildren(DimapProductConstants.TAG_BITMASK_OVERLAY);
-            for (Object overlay : overlays) {
-                final Element overlayElem = (Element) overlay;
+            @SuppressWarnings({"unchecked"})
+            final List<Element> overlays = imageDisplayElem.getChildren(DimapProductConstants.TAG_BITMASK_OVERLAY);
+
+            for (final Element overlayElem : overlays) {
                 final Element bitmaskNamesElem = overlayElem.getChild(DimapProductConstants.TAG_BITMASK);
-                String namesCSV = null;
-                if (bitmaskNamesElem != null) {
-                    namesCSV = bitmaskNamesElem.getAttributeValue(DimapProductConstants.ATTRIB_NAMES);
+                if (bitmaskNamesElem == null) {
+                    continue;
                 }
-                String[] names = null;
-                if (namesCSV != null && namesCSV.length() > 0) {
-                    names = StringUtils.csvToArray(namesCSV);
+                final String namesCSV = bitmaskNamesElem.getAttributeValue(DimapProductConstants.ATTRIB_NAMES);
+                if (namesCSV == null || namesCSV.length() == 0) {
+                    continue;
                 }
-                if (names != null) {
-                    BitmaskOverlayInfo bitmaskOverlayInfo = null;
-                    final Element bandIndexElem = overlayElem.getChild(DimapProductConstants.TAG_BAND_INDEX);
-                    if (bandIndexElem != null) {
-                        final String bandName = getBandName(getRootElement(), bandIndexElem.getTextTrim());
-                        if (bandName != null) {
-                            final Band band = product.getBand(bandName);
-                            if (band != null) {
-                                bitmaskOverlayInfo = band.getBitmaskOverlayInfo();
-                                if (bitmaskOverlayInfo == null) {
-                                    bitmaskOverlayInfo = new BitmaskOverlayInfo();
-                                    band.setBitmaskOverlayInfo(bitmaskOverlayInfo);
-                                }
-                            }
+                final String[] names = StringUtils.csvToArray(namesCSV);
+                final Element bandIndexElem = overlayElem.getChild(DimapProductConstants.TAG_BAND_INDEX);
+                if (bandIndexElem != null) {
+                    final String bandName = getBandName(getRootElement(), bandIndexElem.getTextTrim());
+                    if (bandName != null) {
+                        final Band band = product.getBand(bandName);
+                        if (band != null) {
+                            setBitmaskOverlayInfo(band, names);
                         }
                     }
-                    if (bitmaskOverlayInfo == null) {
-                        final Element tiePointGridIndexElem = overlayElem.getChild(
-                                DimapProductConstants.TAG_TIE_POINT_GRID_INDEX);
-                        if (tiePointGridIndexElem != null) {
-                            final String tiePointGridName = getTiePointGridName(getRootElement(),
-                                                                                tiePointGridIndexElem.getTextTrim());
-                            if (tiePointGridName != null) {
-                                final TiePointGrid tiePointGrid = product.getTiePointGrid(tiePointGridName);
-                                if (tiePointGrid != null) {
-                                    bitmaskOverlayInfo = tiePointGrid.getBitmaskOverlayInfo();
-                                    if (bitmaskOverlayInfo == null) {
-                                        bitmaskOverlayInfo = new BitmaskOverlayInfo();
-                                        tiePointGrid.setBitmaskOverlayInfo(bitmaskOverlayInfo);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (bitmaskOverlayInfo != null) {
-                        for (String name : names) {
-                            final BitmaskDef def = product.getBitmaskDef(name);
-                            bitmaskOverlayInfo.addBitmaskDef(def);
+                }
+                final Element tpgIndexElem = overlayElem.getChild(DimapProductConstants.TAG_TIE_POINT_GRID_INDEX);
+                if (tpgIndexElem != null) {
+                    final String tpgName = getTiePointGridName(getRootElement(), tpgIndexElem.getTextTrim());
+                    if (tpgName != null) {
+                        final TiePointGrid tiePointGrid = product.getTiePointGrid(tpgName);
+                        if (tiePointGrid != null) {
+                            setBitmaskOverlayInfo(tiePointGrid, names);
                         }
                     }
                 }
             }
+        }
+
+        private void setBitmaskOverlayInfo(RasterDataNode rasterDataNode, String[] bitmaskNames) {
+            final BitmaskOverlayInfo bitmaskOverlayInfo = new BitmaskOverlayInfo();
+            if (rasterDataNode.getBitmaskOverlayInfo() != null) {
+                for (final BitmaskDef def : rasterDataNode.getBitmaskOverlayInfo().getBitmaskDefs()) {
+                    bitmaskOverlayInfo.addBitmaskDef(def);
+                }
+            }
+            for (final String name : bitmaskNames) {
+                final BitmaskDef def = rasterDataNode.getProduct().getBitmaskDef(name);
+                if (def != null) {
+                    bitmaskOverlayInfo.addBitmaskDef(def);
+                }
+            }
+            rasterDataNode.setBitmaskOverlayInfo(bitmaskOverlayInfo);
         }
 
         private void addBandStatistics(Element imageDisplayElem, Product product) {
