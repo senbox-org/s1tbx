@@ -26,7 +26,7 @@ public class VectorDataGroupTest {
     }
 
     @Test
-    public void masksAreCoupledWithVectorData() {
+    public void maskGroupIsCoupledWithVectorDataGroup() {
         final SimpleFeatureType featureType = getFeatureType();
         final VectorData v = new VectorData("V", featureType);
 
@@ -58,11 +58,23 @@ public class VectorDataGroupTest {
         assertEquals(0, maskGroup.getNodeCount());
     }
 
-    private SimpleFeatureType getFeatureType() {
-        final SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
-        ftb.setCRS(DefaultGeographicCRS.WGS84);
-        ftb.setName("TestVectorType");
+    @Test
+    public void cannotAddNullToVectorDataGroup() {
+        try {
+            vectorDataGroup.add(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
-        return ftb.buildFeatureType();
+        assertEquals(2, vectorDataGroup.getNodeCount());
+        assertEquals(2, maskGroup.getNodeCount());
+    }
+
+    private SimpleFeatureType getFeatureType() {
+        final SimpleFeatureTypeBuilder featureTypeBuilder = new SimpleFeatureTypeBuilder();
+        featureTypeBuilder.setCRS(DefaultGeographicCRS.WGS84);
+        featureTypeBuilder.setName("TestVectorType");
+
+        return featureTypeBuilder.buildFeatureType();
     }
 }
