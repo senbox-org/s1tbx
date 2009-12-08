@@ -1170,8 +1170,10 @@ public class ProductUtils {
      *
      * @see org.esa.beam.framework.datamodel.Product#getBitmaskDefs()
      * @see RasterDataNode#getBitmaskOverlayInfo()
-     * @deprecated since BEAM 4.7
+     * @deprecated since BEAM 4.7, use {@link #copyMasks(Product, Product)} and
+     *             {@link #copyOverlayMasks(Product, Product)}instead.
      */
+    @Deprecated
     public static void copyBitmaskDefsAndOverlays(final Product sourceProduct, final Product targetProduct) {
         Guardian.assertNotNull("sourceProduct", sourceProduct);
         Guardian.assertNotNull("targetProduct", targetProduct);
@@ -1188,10 +1190,11 @@ public class ProductUtils {
             final Band targetBand = targetProduct.getBand(sourceBand.getName());
             if (targetBand != null && sourceBand.getBitmaskOverlayInfo() != null) {
                 final BitmaskDef[] sourceBandBitmaskDefs = sourceBand.getBitmaskOverlayInfo().getBitmaskDefs();
-                BitmaskOverlayInfo targetBitmaskOverlayInfo = targetBand.getBitmaskOverlayInfo();
-                if (targetBitmaskOverlayInfo == null) {
-                    targetBitmaskOverlayInfo = new BitmaskOverlayInfo();
-                    targetBand.setBitmaskOverlayInfo(targetBitmaskOverlayInfo);
+                final BitmaskOverlayInfo targetBitmaskOverlayInfo = new BitmaskOverlayInfo();
+                if (targetBand.getBitmaskOverlayInfo() != null) {
+                    for (final BitmaskDef def : targetBitmaskOverlayInfo.getBitmaskDefs()) {
+                        targetBitmaskOverlayInfo.addBitmaskDef(def);
+                    }
                 }
                 for (final BitmaskDef sourceBandBitmaskDef : sourceBandBitmaskDefs) {
                     final BitmaskDef targetBandBitmaskDef = targetProduct.getBitmaskDef(sourceBandBitmaskDef.getName());
@@ -1199,6 +1202,7 @@ public class ProductUtils {
                         targetBitmaskOverlayInfo.addBitmaskDef(targetBandBitmaskDef);
                     }
                 }
+                targetBand.setBitmaskOverlayInfo(targetBitmaskOverlayInfo);
             }
         }
     }
