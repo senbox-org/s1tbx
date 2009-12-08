@@ -55,6 +55,7 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
         sftb.setCRS(crs);
         sftb.setName(typeName);
         sftb.add("geom", geometryType);
+        sftb.add("style", String.class);
         sftb.setDefaultGeometry("geom");
         return sftb.buildFeatureType();
     }
