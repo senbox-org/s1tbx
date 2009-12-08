@@ -30,6 +30,7 @@ import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Pin;
@@ -42,7 +43,6 @@ import org.esa.beam.framework.datamodel.SampleCoding;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
@@ -273,13 +273,18 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writeMasks(int indent) {
-        final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
-        final int nodeCount = maskGroup.getNodeCount();
-        if (nodeCount > 0) {
+        final Mask[] masks = product.getMaskGroup().toArray(new Mask[product.getMaskGroup().getNodeCount()]);
+        int persistableMaskCount = 0;
+        for (final Mask mask : masks) {
+            final DimapPersistable persistable = DimapPersistence.getPersistable(mask);
+            if (persistable != null) {
+                persistableMaskCount++;
+            }
+        }
+        if (persistableMaskCount > 0) {
             final String[] bdTags = createTags(indent, DimapProductConstants.TAG_MASKS);
             println(bdTags[0]);
-            for (int i = 0; i < nodeCount; i++) {
-                final Mask mask = maskGroup.get(i);
+            for (final Mask mask : masks) {
                 final DimapPersistable persistable = DimapPersistence.getPersistable(mask);
                 if (persistable != null) {
                     final Element element = persistable.createXmlFromObject(mask);
@@ -552,7 +557,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         final double[] matrix = new double[6];
         final MathTransform transform = crsGeoCoding.getImageToMapTransform();
         if (transform instanceof AffineTransform) {
-            ((AffineTransform)transform).getMatrix(matrix);
+            ((AffineTransform) transform).getMatrix(matrix);
         }
 
         final String[] crsTags = createTags(indent, DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
