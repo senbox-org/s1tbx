@@ -2290,9 +2290,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             if (getProduct() != null) {
                 if (roiDefinition.isUsable()) {
                     final Mask mask = ROIDefinition.toMask(roiDefinition, this);
-
                     getProduct().getMaskGroup().add(mask);
-                    getOverlayMaskGroup().add(mask);
                 }
             }
 
@@ -2397,13 +2395,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             this.bitmaskOverlayInfo = bitmaskOverlayInfo;
             fireProductNodeChanged(PROPERTY_NAME_BITMASK_OVERLAY_INFO);
 
-            if (getProduct() != null) {
-                getOverlayMaskGroup().removeAll();
-                if (bitmaskOverlayInfo != null) {
-                    for (final BitmaskDef def : bitmaskOverlayInfo.getBitmaskDefs()) {
-                        final Mask mask = getProduct().getMaskGroup().get(def.getName());
-                        if (mask != null) {
-                            getOverlayMaskGroup().add(mask);
+            synchronized (overlayMasks) {
+                if (getProduct() != null) {
+                    overlayMasks.removeAll();
+                    if (bitmaskOverlayInfo != null) {
+                        final ProductNodeGroup<Mask> maskGroup = getProduct().getMaskGroup();
+                        for (final BitmaskDef def : bitmaskOverlayInfo.getBitmaskDefs()) {
+                            final Mask mask = maskGroup.get(def.getName());
+                            if (mask != null) {
+                                overlayMasks.add(mask);
+                            }
                         }
                     }
                 }
