@@ -294,6 +294,11 @@
               <artifactId>gt-render</artifactId>
               <version>2.5.3</version>
             </dependency>
+            <dependency>
+              <groupId>org.geotools</groupId>
+              <artifactId>gt-property</artifactId>
+              <version>2.5.3</version>
+            </dependency>
 
             <!-- JAI Libraries ############################################# -->
 
