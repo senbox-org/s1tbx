@@ -74,7 +74,7 @@ public class ProductTest extends TestCase {
         LinkedListProductVisitor visitor = new LinkedListProductVisitor();
         product.acceptVisitor(visitor);
         List<String> visitedList = visitor.getVisitedList();
-    
+
         assertEquals(true, visitedList.contains("bandGroup"));
         assertEquals(true, visitedList.contains("tiePointGridGroup"));
         assertEquals(true, visitedList.contains("bitmaskDefGroup"));
@@ -211,7 +211,7 @@ public class ProductTest extends TestCase {
         flagCoding.addFlag("F3", F3, null);
 
         product.getFlagCodingGroup().add(flagCoding);
-        band.setFlagCoding(flagCoding);
+        band.setSampleCoding(flagCoding);
 
         band.ensureRasterData();
         final byte[] elems = new byte[]{
@@ -264,7 +264,7 @@ public class ProductTest extends TestCase {
         flagCoding.addFlag("F3", F3, null);
 
         product.getFlagCodingGroup().add(flagCoding);
-        band.setFlagCoding(flagCoding);
+        band.setSampleCoding(flagCoding);
 
         ProductData data = band.createCompatibleRasterData();
         final short[] elems = new short[]{
@@ -351,9 +351,7 @@ public class ProductTest extends TestCase {
         boolean[] line = new boolean[4];
         for (int y = 0; y < 4; y++) {
             product.readBitmask(0, y, 4, 1, term, line, ProgressMonitor.NULL);
-            for (int x = 0; x < 4; x++) {
-                res[y * 4 + x] = line[x];
-            }
+            System.arraycopy(line, 0, res, y * 4, 4);
         }
     }
 
@@ -566,7 +564,7 @@ public class ProductTest extends TestCase {
         flagCoding.addFlag("F3", F3, null);
 
         product.getFlagCodingGroup().add(flagCoding);
-        band.setFlagCoding(flagCoding);
+        band.setSampleCoding(flagCoding);
 
         band.ensureRasterData();
         final byte[] elems = new byte[]{
@@ -653,7 +651,7 @@ public class ProductTest extends TestCase {
         flagCoding.addFlag("F3", F3, null);
 
         product.getFlagCodingGroup().add(flagCoding);
-        band.setFlagCoding(flagCoding);
+        band.setSampleCoding(flagCoding);
 
         band.ensureRasterData();
         final byte[] elems = new byte[]{
@@ -733,7 +731,7 @@ public class ProductTest extends TestCase {
         final FlagCoding flagCoding = new FlagCoding("fc");
         final int f1Mask = 1;
         flagCoding.addFlag("f1", f1Mask, "");
-        flagsBand.setFlagCoding(flagCoding);
+        flagsBand.setSampleCoding(flagCoding);
         product.getFlagCodingGroup().add(flagCoding);
         final byte[] elems = new byte[]{
                 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0,
@@ -762,7 +760,7 @@ public class ProductTest extends TestCase {
         flagCoding.addFlag("F1", F1, null);
 
         product.getFlagCodingGroup().add(flagCoding);
-        band.setFlagCoding(flagCoding);
+        band.setSampleCoding(flagCoding);
 
         final byte[] elems = new byte[]{
                 0, F1, 0, 0,
