@@ -167,12 +167,12 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
     }
 
     // implementation copied from {@code HashSet}
-    static class WeakHashSet<E> extends AbstractSet<E> {
+    private static class WeakHashSet<E> extends AbstractSet<E> {
 
         private static final Object PRESENT = new Object();
         private final WeakHashMap<E, Object> map;
 
-        WeakHashSet() {
+        private WeakHashSet() {
             map = new WeakHashMap<E, Object>();
         }
 
@@ -192,9 +192,9 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
         }
 
         @Override
-        public boolean contains(Object key) {
+        public boolean contains(Object o) {
             //noinspection SuspiciousMethodCalls
-            return map.containsKey(key);
+            return map.containsKey(o);
         }
 
         @Override
