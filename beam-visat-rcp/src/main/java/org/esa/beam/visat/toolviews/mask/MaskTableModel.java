@@ -90,7 +90,7 @@ class MaskTableModel extends AbstractTableModel {
 
     private static final String[] COLUMN_NAMES = {
             "Visibility",
-            "Roi",
+            "ROI",
             "Name",
             "Type",
             "Colour",
