@@ -376,9 +376,10 @@ public class DimapDocumentTest extends TestCase {
         final TiePointGrid tiePointGrid = createTiePointGrid("tpg1", sceneRasterWidth, sceneRasterHeight, 21.1f, 14.2f,
                                                              16.3f, 32.004f,
                                                              false);
-        tiePointGrid.setBitmaskOverlayInfo(new BitmaskOverlayInfo());
-        tiePointGrid.getBitmaskOverlayInfo().addBitmaskDef(def1);
-        tiePointGrid.getBitmaskOverlayInfo().addBitmaskDef(def2);
+        final BitmaskOverlayInfo overlayInfo = new BitmaskOverlayInfo();
+        overlayInfo.addBitmaskDef(def1);
+        overlayInfo.addBitmaskDef(def2);
+        tiePointGrid.setBitmaskOverlayInfo(overlayInfo);
         product.addTiePointGrid(tiePointGrid);
 
         product.addTiePointGrid(
@@ -467,9 +468,10 @@ public class DimapDocumentTest extends TestCase {
 
         final BitmaskDef def1 = product.getBitmaskDef("name1");
         final BitmaskDef def2 = product.getBitmaskDef("name3");
-        band2.setBitmaskOverlayInfo(new BitmaskOverlayInfo());
-        band2.getBitmaskOverlayInfo().addBitmaskDef(def1);
-        band2.getBitmaskOverlayInfo().addBitmaskDef(def2);
+        final BitmaskOverlayInfo overlayInfo = new BitmaskOverlayInfo();
+        overlayInfo.addBitmaskDef(def1);
+        overlayInfo.addBitmaskDef(def2);
+        band2.setBitmaskOverlayInfo(overlayInfo);
 
         Band flags1 = new Band("Flags1", ProductData.TYPE_INT8, sceneRasterWidth, sceneRasterHeight);
         flags1.setDescription(flags1.getName() + "-Description");
