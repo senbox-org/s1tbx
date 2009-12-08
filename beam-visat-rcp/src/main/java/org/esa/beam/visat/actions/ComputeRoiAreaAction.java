@@ -94,7 +94,12 @@ public class ComputeRoiAreaAction extends ExecCommand {
         final RasterDataNode raster = view.getRaster();
         assert raster != null;
         
-        String[] maskNames = raster.getProduct().getMaskGroup().getNodeNames();
+        String[] maskNames;
+        if (raster.getRoiMaskGroup().getNodeCount() > 0) {
+            maskNames = raster.getRoiMaskGroup().getNodeNames();
+        } else {
+            maskNames = raster.getProduct().getMaskGroup().getNodeNames();
+        }
         JPanel panel = new JPanel();
         BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.X_AXIS);
         panel.setLayout(boxLayout);
