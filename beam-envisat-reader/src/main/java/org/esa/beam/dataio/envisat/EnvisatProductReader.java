@@ -22,7 +22,7 @@ import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
@@ -57,6 +57,7 @@ import java.util.Vector;
  * @see org.esa.beam.dataio.envisat.EnvisatProductReaderPlugIn
  */
 public class EnvisatProductReader extends AbstractProductReader {
+
     private static final String ENVISAT_AMORGOS_USE_PIXEL_GEO_CODING = "beam.envisat.amorgos.usePixelGeoCoding";
 
     /**
@@ -331,19 +332,13 @@ public class EnvisatProductReader extends AbstractProductReader {
 
 
     private void addDefaultBitmaskDefsToBands(Product product) {
-        for (int i = 0; i < product.getNumBands(); i++) {
-            Band band = product.getBandAt(i);
-            final String[] bitmaskNames = getDefaultBitmaskNames(band.getName());
-            if (bitmaskNames != null) {
-                for (String bitmaskName : bitmaskNames) {
-                    final BitmaskDef bitmaskDef = product.getBitmaskDef(bitmaskName);
-                    if (bitmaskDef != null) {
-                        BitmaskOverlayInfo bitmaskOverlayInfo = band.getBitmaskOverlayInfo();
-                        if (bitmaskOverlayInfo == null) {
-                            bitmaskOverlayInfo = new BitmaskOverlayInfo();
-                            band.setBitmaskOverlayInfo(bitmaskOverlayInfo);
-                        }
-                        bitmaskOverlayInfo.addBitmaskDef(bitmaskDef);
+        for (final Band band : product.getBands()) {
+            final String[] maskNames = getDefaultBitmaskNames(band.getName());
+            if (maskNames != null) {
+                for (final String maskName : maskNames) {
+                    final Mask mask = product.getMaskGroup().get(maskName);
+                    if (mask != null) {
+                        band.getOverlayMaskGroup().add(mask);
                     }
                 }
             }
