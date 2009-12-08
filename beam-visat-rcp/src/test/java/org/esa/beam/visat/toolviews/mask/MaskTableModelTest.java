@@ -31,7 +31,7 @@ public class MaskTableModelTest extends TestCase {
         assertEquals(true, maskTableModel.isInManagmentMode());
         assertEquals(7, maskTableModel.getColumnCount());
         assertEquals("Visibility", maskTableModel.getColumnName(0));
-        assertEquals("Roi", maskTableModel.getColumnName(1));
+        assertEquals("ROI", maskTableModel.getColumnName(1));
         assertEquals("Name", maskTableModel.getColumnName(2));
         assertEquals("Type", maskTableModel.getColumnName(3));
         assertEquals("Colour", maskTableModel.getColumnName(4));
