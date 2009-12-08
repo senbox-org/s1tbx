@@ -1069,19 +1069,19 @@ public class DimapProductHelpers {
         }
 
         private void setBitmaskOverlayInfo(RasterDataNode rasterDataNode, String[] bitmaskNames) {
-            final BitmaskOverlayInfo bitmaskOverlayInfo = new BitmaskOverlayInfo();
+            final BitmaskOverlayInfo overlayInfo = new BitmaskOverlayInfo();
             if (rasterDataNode.getBitmaskOverlayInfo() != null) {
                 for (final BitmaskDef def : rasterDataNode.getBitmaskOverlayInfo().getBitmaskDefs()) {
-                    bitmaskOverlayInfo.addBitmaskDef(def);
+                    overlayInfo.addBitmaskDef(def);
                 }
             }
             for (final String name : bitmaskNames) {
                 final BitmaskDef def = rasterDataNode.getProduct().getBitmaskDef(name);
                 if (def != null) {
-                    bitmaskOverlayInfo.addBitmaskDef(def);
+                    overlayInfo.addBitmaskDef(def);
                 }
             }
-            rasterDataNode.setBitmaskOverlayInfo(bitmaskOverlayInfo);
+            rasterDataNode.setBitmaskOverlayInfo(overlayInfo);
         }
 
         private void addBandStatistics(Element imageDisplayElem, Product product) {
