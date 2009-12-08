@@ -6,6 +6,8 @@
  */
 package org.esa.beam.util;
 
+import com.bc.ceres.core.runtime.Version;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +19,7 @@ public class VersionChecker  {
 
     private String _remoteVersionUrlString;
     private File _localVersionFile;
+    private static final String VERSION_PREFIX = "VERSION ";
 
     public VersionChecker() {
         // todo - use application.properties with version ID set by Maven (resource Filter!)
@@ -43,6 +46,15 @@ public class VersionChecker  {
     public int compareVersions() throws IOException {
         final String remoteVersion = getRemoteVersion();
         final String localVersion = getLocalVersion();
+        return compareVersions(localVersion, remoteVersion);
+    }
+
+    static int compareVersions(String localVersion, String remoteVersion) {
+        if (localVersion.startsWith(VERSION_PREFIX) && remoteVersion.startsWith(VERSION_PREFIX)) {
+            Version v1 = Version.parseVersion(localVersion.substring(VERSION_PREFIX.length()));
+            Version v2 = Version.parseVersion(remoteVersion.substring(VERSION_PREFIX.length()));
+            return v1.compareTo(v2);
+        }
         return localVersion.compareTo(remoteVersion);
     }
 
@@ -70,7 +82,7 @@ public class VersionChecker  {
         } finally {
             reader.close();
         }
-        if (line == null || !line.startsWith("VERSION ")) {
+        if (line == null || !line.startsWith(VERSION_PREFIX)) {
             throw new IOException("unexpected version file format");
         }
         return line;
