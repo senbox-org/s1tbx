@@ -22,7 +22,7 @@ import org.esa.beam.util.StringUtils;
 
 public class ModisProductDbTest_getSupportedProductTypes extends TestCase {
 
-    public void testFail() throws ProductIOException {
+    public void testSupportetProductTypes() throws ProductIOException {
         final String[] expectedProductTypes = new String[]{
                 "MOD021KM", "MYD021KM",
                 "MOD021KM_IMAPP",
@@ -34,14 +34,14 @@ public class ModisProductDbTest_getSupportedProductTypes extends TestCase {
                 "MOD28L2", "MYD28L2",
                 "MODOCQC", "MYDOCQC",
                 "MOD13A2", "MYD13A2",
-                "MOD15A2", "MYD15A2"
+                "MOD15A2", "MYD15A2",
+                "MOD09GA", "MYD09GA"
         };
 
         final String[] types = ModisProductDb.getInstance().getSupportetProductTypes();
         assertNotNull(types);
         assertEquals(expectedProductTypes.length, types.length);
-        for (int i = 0; i < expectedProductTypes.length; i++) {
-            final String type = expectedProductTypes[i];
+        for (final String type : expectedProductTypes) {
             assertTrue("type <" + type + "> not in the result", StringUtils.contains(types, type));
         }
     }
