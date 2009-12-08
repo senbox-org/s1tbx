@@ -47,6 +47,6 @@ public class RasterDataNodeValuesTest extends TestCase {
         
         String[] maskNames = RasterDataNodeValues.getNames(testProduct, Mask.class);
         assertNotNull(maskNames);
-        assertEquals(0, maskNames.length);
+        assertEquals(2, maskNames.length);
     }
 }

@@ -36,14 +36,14 @@ public class MaskFormTest extends TestCase {
         assertNotNull(maskManagerForm.getHelpButton());
         assertEquals("helpButton", maskManagerForm.getHelpButton().getName());
         assertNotNull(maskManagerForm.createContentPanel());
-        assertEquals(12, maskManagerForm.getRowCount());
+        assertEquals(14, maskManagerForm.getRowCount());
     }
 
     public void testMaskViewerForm() {
         assertSame(product, maskViewerForm.getProduct());
         assertNull(maskViewerForm.getHelpButton());
         assertNotNull(maskViewerForm.createContentPanel());
-        assertEquals(12, maskViewerForm.getRowCount());
+        assertEquals(14, maskViewerForm.getRowCount());
     }
 
     static Product createTestProduct() {

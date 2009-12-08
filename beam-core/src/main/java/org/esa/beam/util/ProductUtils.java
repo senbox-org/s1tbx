@@ -1239,7 +1239,9 @@ public class ProductUtils {
      * <p/>
      * IMPORTANT NOTE: This method should only be used, if it is known that all masks
      * in the source product will also be valid in the target product. This method does
-     * <em>not</em> copy overlay masks from the source bands to the target bands.
+     * <em>not</em> copy overlay masks from the source bands to the target bands. Also
+     * note that a source mask is not copied to the target product, when there already
+     * is a mask in the target product with the same name as the source mask.
      *
      * @param sourceProduct the source product
      * @param targetProduct the target product
@@ -1248,6 +1250,9 @@ public class ProductUtils {
         final ProductNodeGroup<Mask> sourceMaskGroup = sourceProduct.getMaskGroup();
         for (int i = 0; i < sourceMaskGroup.getNodeCount(); i++) {
             final Mask mask = sourceMaskGroup.get(i);
+            if (targetProduct.getMaskGroup().contains(mask.getName())) {
+                continue;
+            }
             targetProduct.getMaskGroup().add(mask.getImageType().transferMask(mask, targetProduct));
         }
     }
