@@ -2396,6 +2396,17 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (this.bitmaskOverlayInfo != bitmaskOverlayInfo) {
             this.bitmaskOverlayInfo = bitmaskOverlayInfo;
             fireProductNodeChanged(PROPERTY_NAME_BITMASK_OVERLAY_INFO);
+
+            getOverlayMaskGroup().removeAll();
+            if (bitmaskOverlayInfo != null) {
+                for (final BitmaskDef def : bitmaskOverlayInfo.getBitmaskDefs()) {
+                    final Mask mask = getProduct().getMaskGroup().get(def.getName());
+                    if (mask != null) {
+                        getOverlayMaskGroup().add(mask);
+                    }
+                }
+            }
+
             setModified(true);
         }
     }
