@@ -45,7 +45,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -167,24 +166,24 @@ public abstract class FigureEditorApp {
 
         FigureCollection drawing = figureEditorPanel.getFigureEditor().getFigureCollection();
 
-        drawing.addFigure(figureFactory.createPolygonalFigure(new Rectangle(20, 30, 200, 100), DefaultFigureStyle.createShapeStyle(Color.BLUE, Color.GREEN)));
-        drawing.addFigure(figureFactory.createPolygonalFigure(new Rectangle(90, 10, 100, 200), DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.ORANGE)));
+        drawing.addFigure(figureFactory.createPolygonalFigure(new Rectangle(20, 30, 200, 100), DefaultFigureStyle.createPolygonStyle(Color.BLUE, Color.GREEN, 1.0)));
+        drawing.addFigure(figureFactory.createPolygonalFigure(new Rectangle(90, 10, 100, 200), DefaultFigureStyle.createPolygonStyle(Color.MAGENTA, Color.ORANGE, 1.0)));
         Path2D linePath = rectPath(true, 110, 60, 70, 140);
-        drawing.addFigure(figureFactory.createLinealFigure(linePath, DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.BLACK)));
+        drawing.addFigure(figureFactory.createLinealFigure(linePath, DefaultFigureStyle.createLineStyle(Color.GRAY, 1.0)));
 
         linePath = new Path2D.Double();
         linePath.moveTo(110, 60);
         linePath.lineTo(110 + 70, 60);
         linePath.lineTo(110 + 70, 60 + 140);
-        drawing.addFigure(figureFactory.createLinealFigure(linePath, DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.BLACK)));
+        drawing.addFigure(figureFactory.createLinealFigure(linePath, DefaultFigureStyle.createLineStyle(Color.BLACK, 1.0)));
 
         linePath = new Path2D.Double();
         linePath.moveTo(200, 100);
         linePath.lineTo(300, 200);
-        drawing.addFigure(figureFactory.createLinealFigure(linePath, DefaultFigureStyle.createShapeStyle(Color.MAGENTA, Color.BLACK, new BasicStroke(10))));
+        drawing.addFigure(figureFactory.createLinealFigure(linePath, DefaultFigureStyle.createLineStyle(Color.MAGENTA, 5.0)));
 
-        drawing.addFigure(figureFactory.createPolygonalFigure(new Ellipse2D.Double(50, 100, 80, 80), DefaultFigureStyle.createShapeStyle(Color.YELLOW, Color.RED)));
-        drawing.addFigure(figureFactory.createPolygonalFigure(new Ellipse2D.Double(220, 120, 150, 300), DefaultFigureStyle.createShapeStyle(Color.GREEN, Color.BLUE)));
+        drawing.addFigure(figureFactory.createPolygonalFigure(new Ellipse2D.Double(50, 100, 80, 80), DefaultFigureStyle.createPolygonStyle(Color.YELLOW, Color.RED, 1.0)));
+        drawing.addFigure(figureFactory.createPolygonalFigure(new Ellipse2D.Double(220, 120, 150, 300), DefaultFigureStyle.createPolygonStyle(Color.GREEN, Color.BLUE, 1.0)));
 
         Area area = new Area(new Rectangle(0, 0, 100, 100));
         area.subtract(new Area(new Rectangle(25, 25, 50, 50)));
@@ -197,7 +196,7 @@ public abstract class FigureEditorApp {
         path.append(rectPath(true, 0, 0, 100, 100), false);
         path.append(rectPath(false, 12, 12, 25, 25), false);
         path.append(rectPath(false, 65, 65, 25, 25), false);
-        DefaultFigureStyle shapeStyle = DefaultFigureStyle.createShapeStyle(new Color(0, 0, 255, 127), Color.ORANGE);
+        DefaultFigureStyle shapeStyle = DefaultFigureStyle.createPolygonStyle(new Color(0, 0, 255, 127), Color.ORANGE, 1.0);
         drawing.addFigure(figureFactory.createPolygonalFigure(path, shapeStyle));
 
         for (int i = 0; i < 10; i++) {
