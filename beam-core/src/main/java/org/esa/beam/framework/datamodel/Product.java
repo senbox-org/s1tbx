@@ -231,7 +231,6 @@ public class Product extends ProductNode {
             @Override
             public boolean add(VectorData node) {
                 final boolean added = super.add(node);
-                ;
                 if (added) {
                     getMaskGroup().add(createMask(node));
                 }
