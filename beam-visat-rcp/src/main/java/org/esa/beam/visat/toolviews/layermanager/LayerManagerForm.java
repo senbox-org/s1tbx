@@ -1,8 +1,8 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.LayerStyleListener;
 import com.bc.ceres.glayer.support.LayerUtils;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.swing.TreeCellExtender;
 import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.CheckBoxTreeSelectionModel;
@@ -327,14 +327,7 @@ class LayerManagerForm extends AbstractLayerForm {
     }
 
 
-    private class RootLayerListener extends LayerStyleListener {
-
-        @Override
-        public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event) {
-            if (!adjusting) {
-                updateFormControl();
-            }
-        }
+    private class RootLayerListener extends AbstractLayerListener {
 
         @Override
         public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
