@@ -1278,36 +1278,54 @@ public class Product extends ProductNode {
      * old bitmask definition not contained in this container, the new bitmask definition was added. Ignored if the new
      * bitmask definition is <code>null</code>.
      *
-     * @param bitmaskDefOld the bitmask definition to be replaced.
-     * @param bitmaskDefNew the new bitmask definition.
+     * @param oldBitmaskDef the bitmask definition to be replaced.
+     * @param newBitmaskDef the new bitmask definition.
+     *
+     * @deprecated since BEAM 4.7, no replacement.
      */
-    public void replaceBitmaskDef(final BitmaskDef bitmaskDefOld, final BitmaskDef bitmaskDefNew) {
-        if (bitmaskDefNew != null) {
-            final int insertIndex = bitmaskDefGroup.indexOf(bitmaskDefOld);
+    @Deprecated
+    public void replaceBitmaskDef(final BitmaskDef oldBitmaskDef, final BitmaskDef newBitmaskDef) {
+        if (newBitmaskDef != null) {
+            final Mask oldMask;
+            final int insertIndex = bitmaskDefGroup.indexOf(oldBitmaskDef);
             if (insertIndex == -1) {
-                addBitmaskDef(bitmaskDefNew);
+                oldMask = null;
+                addBitmaskDef(newBitmaskDef);
             } else {
-                if (bitmaskDefGroup.remove(bitmaskDefOld)) {
-                    fireNodeRemoved(bitmaskDefOld);
+                if (bitmaskDefGroup.remove(oldBitmaskDef)) {
+                    fireNodeRemoved(oldBitmaskDef);
                 }
-                bitmaskDefGroup.add(insertIndex, bitmaskDefNew);
-                fireNodeAdded(bitmaskDefNew);
+                bitmaskDefGroup.add(insertIndex, newBitmaskDef);
+                fireNodeAdded(newBitmaskDef);
+
+                // also adjust mask group
+                oldMask = maskGroup.get(oldBitmaskDef.getName());
+                if (oldMask != null) {
+                    maskGroup.remove(oldMask);
+                }
+                maskGroup.add(createMask(newBitmaskDef));
             }
-        }
-        final Band[] bands = getBands();
-        for (Band band : bands) {
-            final BitmaskOverlayInfo overlayInfo = band.getBitmaskOverlayInfo();
-            if (overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDefOld)) {
-                overlayInfo.removeBitmaskDef(bitmaskDefOld);
-                overlayInfo.addBitmaskDef(bitmaskDefNew);
+            for (final Band band : getBands()) {
+                final BitmaskOverlayInfo overlayInfo = band.getBitmaskOverlayInfo();
+                if (overlayInfo != null && overlayInfo.containsBitmaskDef(oldBitmaskDef)) {
+                    overlayInfo.removeBitmaskDef(oldBitmaskDef);
+                    overlayInfo.addBitmaskDef(newBitmaskDef);
+
+                    // also adjust overlay mask group
+                    band.getOverlayMaskGroup().remove(oldMask);
+                    band.getOverlayMaskGroup().add(maskGroup.get(newBitmaskDef.getName()));
+                }
             }
-        }
-        final TiePointGrid[] grids = getTiePointGrids();
-        for (TiePointGrid grid : grids) {
-            final BitmaskOverlayInfo overlayInfo = grid.getBitmaskOverlayInfo();
-            if (overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDefOld)) {
-                overlayInfo.removeBitmaskDef(bitmaskDefOld);
-                overlayInfo.addBitmaskDef(bitmaskDefNew);
+            for (final TiePointGrid grid : getTiePointGrids()) {
+                final BitmaskOverlayInfo overlayInfo = grid.getBitmaskOverlayInfo();
+                if (overlayInfo != null && overlayInfo.containsBitmaskDef(oldBitmaskDef)) {
+                    overlayInfo.removeBitmaskDef(oldBitmaskDef);
+                    overlayInfo.addBitmaskDef(newBitmaskDef);
+
+                    // also adjust overlay mask group
+                    grid.getOverlayMaskGroup().remove(oldMask);
+                    grid.getOverlayMaskGroup().add(maskGroup.get(newBitmaskDef.getName()));
+                }
             }
         }
     }
@@ -2258,15 +2276,21 @@ public class Product extends ProductNode {
         }
         bitmaskDefGroup.add(bitmaskDef);
 
-        Mask mask = new Mask(bitmaskDef.getName(),
-                             getSceneRasterWidth(),
-                             getSceneRasterHeight(),
-                             new Mask.BandMathType());
+        final Mask mask = createMask(bitmaskDef);
+        maskGroup.add(mask);
+    }
+
+    private Mask createMask(BitmaskDef bitmaskDef) {
+        final Mask mask = new Mask(bitmaskDef.getName(),
+                                   getSceneRasterWidth(),
+                                   getSceneRasterHeight(),
+                                   new Mask.BandMathType());
         mask.setDescription(bitmaskDef.getDescription());
         mask.getImageConfig().setValue("color", bitmaskDef.getColor());
         mask.getImageConfig().setValue("transparency", (double) bitmaskDef.getTransparency());
         mask.getImageConfig().setValue("expression", bitmaskDef.getExpr());
-        getMaskGroup().add(mask);
+
+        return mask;
     }
 
     /**
