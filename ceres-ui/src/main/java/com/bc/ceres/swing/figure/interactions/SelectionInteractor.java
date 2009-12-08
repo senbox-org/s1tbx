@@ -105,7 +105,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
         if (cursor == null) {
             cursor = Cursor.getDefaultCursor();
         }
-        figureEditor.setCursor(cursor);
+        figureEditor.getEditorComponent().setCursor(cursor);
     }
 
     private Point2D.Double toModelDelta(MouseEvent event) {

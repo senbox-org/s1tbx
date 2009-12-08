@@ -25,6 +25,7 @@ import com.bc.ceres.glayer.support.LayerViewInvalidationListener;
 import com.bc.ceres.glayer.swing.NavControl.NavControlModel;
 import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.InteractiveRendering;
+import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
 
@@ -345,7 +346,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
         if (!isPaintingForPrint()) {
             for (Overlay overlay : overlays) {
-                overlay.paintOverlay(this, (Graphics2D) g);
+                overlay.paintOverlay(this, canvasRendering);
             }
         }
 
@@ -424,7 +425,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     public interface Overlay {
 
-        void paintOverlay(LayerCanvas canvas, Graphics2D graphics);
+        void paintOverlay(LayerCanvas canvas, Rendering rendering);
     }
 
     private class ModelChangeHandler extends LayerViewInvalidationListener implements LayerCanvasModel.ChangeListener {

@@ -1,16 +1,9 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.swing.selection.SelectionContext;
-import com.bc.ceres.swing.undo.UndoContext;
-import com.bc.ceres.swing.figure.InteractorHolder;
-import com.bc.ceres.swing.figure.Interactor;
-import com.bc.ceres.swing.figure.FigureSelection;
-import com.bc.ceres.swing.figure.FigureCollection;
-import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
 import com.bc.ceres.grender.ViewportOwner;
+import com.bc.ceres.swing.selection.SelectionContext;
 
 import javax.swing.JComponent;
-import java.awt.Cursor;
 import java.awt.Rectangle;
 
 /**
@@ -20,7 +13,7 @@ import java.awt.Rectangle;
  * @author Norman Fomferra
  * @since Ceres 0.10
  */
-public interface FigureEditor extends InteractorHolder, ViewportOwner {
+public interface FigureEditor extends InteractorHolder, ViewportOwner, SelectionContext {
 
     JComponent getEditorComponent();
 
@@ -35,8 +28,6 @@ public interface FigureEditor extends InteractorHolder, ViewportOwner {
     FigureSelection getFigureSelection();
 
     FigureCollection getFigureCollection();
-
-    void setCursor(Cursor cursor);
 
     void insertFigures(boolean performInsert, Figure... figures);
 
