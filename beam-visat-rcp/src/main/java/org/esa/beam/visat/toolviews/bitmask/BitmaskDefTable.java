@@ -200,6 +200,7 @@ public class BitmaskDefTable extends JTable {
             this.setOpaque(true); //MUST do this for background to show up.
         }
 
+        @Override
         public Component getTableCellRendererComponent(JTable table,
                                                        Object color,
                                                        boolean selected,
@@ -241,6 +242,7 @@ public class BitmaskDefTable extends JTable {
             }
         }
 
+        @Override
         public Component getTableCellRendererComponent(JTable table,
                                                        Object value,
                                                        boolean isSelected,
@@ -260,6 +262,7 @@ public class BitmaskDefTable extends JTable {
             checkBox.setHorizontalAlignment(JCheckBox.CENTER);
             checkBox.addActionListener(new ActionListener() {
 
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     final int rowIndex = getSelectedRow();
                     if (rowIndex >= 0) {
