@@ -388,10 +388,5 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
 
         return sb.toString();
     }
-
-    @Override
-    public void handleLayerContentChanged() {
-        computePanel.updateMaskListState();
-    }
 }
 

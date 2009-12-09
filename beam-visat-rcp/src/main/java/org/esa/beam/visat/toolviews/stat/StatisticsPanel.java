@@ -22,12 +22,12 @@ import java.util.List;
  *
  * @author Marco Peters
  */
-class StatisticsPanel extends TextPagePanel implements ComputePanel.ComputeMasks {
+class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.ComputeMasks {
 
     private static final String DEFAULT_STATISTICS_TEXT = "No statistics computed yet.";  /*I18N*/
     private static final String TITLE_PREFIX = "Statistics";
 
-    private ComputePanel computePanel;
+    private MultipleRoiComputePanel computePanel;
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, DEFAULT_STATISTICS_TEXT, helpID);
@@ -41,7 +41,7 @@ class StatisticsPanel extends TextPagePanel implements ComputePanel.ComputeMasks
     @Override
     protected void initContent() {
         super.initContent();
-        computePanel = new ComputePanel(this, true, getRaster());
+        computePanel = new MultipleRoiComputePanel(this, getRaster());
         final JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(computePanel, BorderLayout.NORTH);
         final JPanel helpPanel = new JPanel(new BorderLayout());
@@ -235,10 +235,5 @@ class StatisticsPanel extends TextPagePanel implements ComputePanel.ComputeMasks
         } else {
             return getRaster().scale(stat.getStandardDeviation());
         }
-    }
-
-    @Override
-    public void handleLayerContentChanged() {
-        computePanel.updateMaskListState();
     }
 }

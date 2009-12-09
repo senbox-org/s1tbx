@@ -631,11 +631,5 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
 
         return sb.toString();
     }
-
-
-    @Override
-    public void handleLayerContentChanged() {
-        computePanel.updateMaskListState();
-    }
 }
 
