@@ -206,17 +206,16 @@ class ReprojectionForm extends JTabbedPane {
             if (sourceProduct != null) {
                 crs = crsSelectionPanel.getCrs(ProductUtils.getCenterGeoPos(sourceProduct));
                 if (crs != null) {
-                    infoForm.setCrs(crs.getName().getCode(), crs.toString());
+                    infoForm.setCrsInfoText(crs.getName().getCode(), crs.toString());
                 } else {
-                    infoForm.setCrs("No valid 'Coordinate Reference System' selected.", null);
+                    infoForm.setCrsErrorText("No valid 'Coordinate Reference System' selected.");
                 }
             } else {
-                infoForm.setCrs("No source product selected.", null);
+                infoForm.setCrsErrorText("No source product selected.");
                 crs = null;
             }
         } catch (FactoryException e) {
-            infoForm.setCrs(e.getMessage(), null);
-            appContext.handleError("Defined 'Coordinate Reference System' is invalid.\n" + e.getMessage(), e);
+            infoForm.setCrsErrorText(e.getMessage());
             crs = null;
         }
         if (sourceProduct != null && crs != null) {
@@ -263,9 +262,13 @@ class ReprojectionForm extends JTabbedPane {
             }
         }
 
-        void setCrs(String crsText, String wkt) {
+        void setCrsErrorText(String infoText) {
+            setCrsInfoText("<html><b>"+infoText+"</b>", null);
+        }                             
+
+        void setCrsInfoText(String infoText, String wkt) {
             this.wkt = wkt;
-            crsLabel.setText(crsText);
+            crsLabel.setText(infoText);
             boolean hasWKT = (wkt != null);
             wktButton.setEnabled(hasWKT);
         }
