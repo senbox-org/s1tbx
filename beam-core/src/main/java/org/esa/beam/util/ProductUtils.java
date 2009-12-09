@@ -1250,10 +1250,10 @@ public class ProductUtils {
         final ProductNodeGroup<Mask> sourceMaskGroup = sourceProduct.getMaskGroup();
         for (int i = 0; i < sourceMaskGroup.getNodeCount(); i++) {
             final Mask mask = sourceMaskGroup.get(i);
-            if (targetProduct.getMaskGroup().contains(mask.getName())) {
-                continue;
+            if (!targetProduct.getMaskGroup().contains(mask.getName())
+                && mask.getImageType().canTransferMask(mask, targetProduct)) {
+                mask.getImageType().transferMask(mask, targetProduct);
             }
-            targetProduct.getMaskGroup().add(mask.getImageType().transferMask(mask, targetProduct));
         }
     }
 
