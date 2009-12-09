@@ -9,6 +9,7 @@ import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
@@ -38,19 +39,21 @@ public class DefaultFigureEditor implements FigureEditor{
     private final FigureSelection figureSelection;
     private final SelectionChangeSupport selectionChangeSupport;
     private final Viewport viewport;
-
+    private final FigureFactory figureFactory;
 
     public DefaultFigureEditor(JComponent editorComponent) {
-        this(editorComponent, new DefaultViewport(true), null, new DefaultFigureCollection());
+        this(editorComponent, new DefaultViewport(true), null, new DefaultFigureCollection(), new DefaultFigureFactory());
     }
 
     public DefaultFigureEditor(JComponent editorComponent,
                                Viewport viewport,
                                UndoContext undoContext,
-                               FigureCollection figureCollection) {
+                               FigureCollection figureCollection,
+                               FigureFactory figureFactory) {
         Assert.notNull(editorComponent, "editorComponent");
         Assert.notNull(viewport, "viewport");
         Assert.notNull(figureCollection, "figureCollection");
+        Assert.notNull(figureFactory, "figureFactory");
 
         this.editorComponent = editorComponent;
         this.editorComponent.setFocusable(true);
@@ -70,6 +73,8 @@ public class DefaultFigureEditor implements FigureEditor{
         RepaintHandler repaintHandler = new RepaintHandler();
         this.figureCollection.addChangeListener(repaintHandler);
         this.figureSelection.addChangeListener(repaintHandler);
+
+        this.figureFactory = figureFactory;
     }
 
     @Override
@@ -146,6 +151,11 @@ public class DefaultFigureEditor implements FigureEditor{
      public FigureSelection getFigureSelection() {
          return figureSelection;
      }
+
+    @Override
+    public FigureFactory getFigureFactory() {
+        return figureFactory;
+    }
 
      @Override
      public Selection getSelection() {

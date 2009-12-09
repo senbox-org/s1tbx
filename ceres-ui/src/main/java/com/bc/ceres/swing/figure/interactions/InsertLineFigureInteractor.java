@@ -2,6 +2,7 @@ package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.event.InputEvent;
@@ -9,13 +10,10 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
-public class InsertLineFigureInteractor extends InsertFigureInteractor {
+public class InsertLineFigureInteractor extends FigureEditorInteractor {
 
     private boolean canceled;
     private Figure figure;
-
-    public InsertLineFigureInteractor() {
-    }
 
     @Override
     public void cancelInteraction(InputEvent event) {
@@ -39,7 +37,7 @@ public class InsertLineFigureInteractor extends InsertFigureInteractor {
         linePath.moveTo(referencePoint.getX(), referencePoint.getY());
         linePath.lineTo(referencePoint.getX(), referencePoint.getY());
 
-        figure = getFigureFactory().createLinealFigure(linePath, StyleDefaults.INSERT_STYLE);
+        figure = figureEditor.getFigureFactory().createLinealFigure(linePath, StyleDefaults.INSERT_STYLE);
         figureEditor.getFigureCollection().addFigure(figure);
         startInteraction(event);
     }

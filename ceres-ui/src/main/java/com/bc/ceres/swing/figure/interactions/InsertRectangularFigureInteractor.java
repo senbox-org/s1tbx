@@ -1,6 +1,7 @@
 package com.bc.ceres.swing.figure.interactions;
 
 import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
@@ -10,7 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.RectangularShape;
 
-public abstract class InsertRectangularFigureInteractor extends InsertFigureInteractor {
+public abstract class InsertRectangularFigureInteractor extends FigureEditorInteractor {
     private Point referencePoint;
     private boolean canceled;
     private ShapeFigure figure;
@@ -35,7 +36,7 @@ public abstract class InsertRectangularFigureInteractor extends InsertFigureInte
         referencePoint = event.getPoint();
         canceled = false;
         rectangularShape = createRectangularShape(toModelPoint(event, referencePoint));
-        figure = getFigureFactory().createPolygonalFigure(toModelShape(event, rectangularShape), StyleDefaults.INSERT_STYLE);
+        figure = figureEditor.getFigureFactory().createPolygonalFigure(toModelShape(event, rectangularShape), StyleDefaults.INSERT_STYLE);
         figureEditor.getFigureCollection().addFigure(figure);
         startInteraction(event);
     }

@@ -20,10 +20,10 @@ import java.awt.geom.Point2D;
 
 public class SelectionInteractor extends FigureEditorInteractor {
 
-    private final Tool TOOL_SELECT_POINT = new SelectPointTool();
-    private final Tool TOOL_SELECT_RECTANGLE = new SelectRectangleTool();
-    private final Tool TOOL_MOVE_SELECTION = new MoveSelectionTool();
-    private final Tool TOOL_MOVE_HANDLE = new MoveHandleTool();
+    private final Tool selectPointTool = new SelectPointTool();
+    private final Tool selectRectangleTool = new SelectRectangleTool();
+    private final Tool moveSelectionTool = new MoveSelectionTool();
+    private final Tool moveHandleTool = new MoveHandleTool();
 
     private boolean canceled;
     private Point referencePoint;
@@ -52,21 +52,21 @@ public class SelectionInteractor extends FigureEditorInteractor {
     public void mousePressed(MouseEvent event) {
         referencePoint = event.getPoint();
         canceled = false;
-        tool = TOOL_SELECT_POINT;
+        tool = selectPointTool;
         figureMemento = null;
     }
 
     @Override
     public void mouseDragged(MouseEvent event) {
         if (!canceled) {
-            if (tool == TOOL_SELECT_POINT) {
+            if (tool == selectPointTool) {
                 if (selectHandle(event)) {
-                    tool = TOOL_MOVE_HANDLE;
+                    tool = moveHandleTool;
                 } else {
                     if (isMouseOverSelection(event)) {
-                        tool = TOOL_MOVE_SELECTION;
+                        tool = moveSelectionTool;
                     } else {
-                        tool = TOOL_SELECT_RECTANGLE;
+                        tool = selectRectangleTool;
                     }
                 }
                 tool.start(event);

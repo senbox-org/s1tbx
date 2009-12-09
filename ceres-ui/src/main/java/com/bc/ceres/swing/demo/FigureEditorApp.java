@@ -13,7 +13,6 @@ import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.InsertEllipseFigureInteractor;
-import com.bc.ceres.swing.figure.interactions.InsertFigureInteractor;
 import com.bc.ceres.swing.figure.interactions.InsertLineFigureInteractor;
 import com.bc.ceres.swing.figure.interactions.InsertPolygonFigureInteractor;
 import com.bc.ceres.swing.figure.interactions.InsertPolylineFigureInteractor;
@@ -67,11 +66,11 @@ public abstract class FigureEditorApp {
     private static final Interactor SELECTION_INTERACTOR = new SelectionInteractor();
     private static final Interactor ZOOM_INTERACTOR = new ZoomInteractor();
     private static final Interactor PAN_INTERACTOR = new PanInteractor();
-    private static final InsertFigureInteractor NEW_LINE_INTERACTOR = new InsertLineFigureInteractor();
-    private static final InsertFigureInteractor NEW_RECT_INTERACTOR = new InsertRectangleFigureInteractor();
-    private static final InsertFigureInteractor NEW_ELLI_INTERACTOR = new InsertEllipseFigureInteractor();
-    private static final InsertFigureInteractor NEW_POLYLINE_INTERACTOR = new InsertPolylineFigureInteractor();
-    private static final InsertFigureInteractor NEW_POLYGON_INTERACTOR = new InsertPolygonFigureInteractor();
+    private static final Interactor NEW_LINE_INTERACTOR = new InsertLineFigureInteractor();
+    private static final Interactor NEW_RECT_INTERACTOR = new InsertRectangleFigureInteractor();
+    private static final Interactor NEW_ELLI_INTERACTOR = new InsertEllipseFigureInteractor();
+    private static final Interactor NEW_POLYLINE_INTERACTOR = new InsertPolylineFigureInteractor();
+    private static final Interactor NEW_POLYGON_INTERACTOR = new InsertPolygonFigureInteractor();
 
     private JFrame frame;
 
@@ -124,13 +123,7 @@ public abstract class FigureEditorApp {
         selectAllAction = new SelectAllAction(selectionManager);
         deleteAction = new DeleteAction(selectionManager);
 
-        FigureFactory figureFactory = getFigureFactory();
-        // todo - set FigureFactory on FigureEditor?
-        NEW_LINE_INTERACTOR.setFigureFactory(figureFactory);
-        NEW_RECT_INTERACTOR.setFigureFactory(figureFactory);
-        NEW_ELLI_INTERACTOR.setFigureFactory(figureFactory);
-        NEW_POLYLINE_INTERACTOR.setFigureFactory(figureFactory);
-        NEW_POLYGON_INTERACTOR.setFigureFactory(figureFactory);
+
 
         AbstractButton selectButton = createInteractorButton(figureEditorPanel, "S", SELECTION_INTERACTOR);
         AbstractButton zoomButton = createInteractorButton(figureEditorPanel, "Z", ZOOM_INTERACTOR);
@@ -166,6 +159,7 @@ public abstract class FigureEditorApp {
 
         FigureCollection drawing = figureEditorPanel.getFigureEditor().getFigureCollection();
 
+        FigureFactory figureFactory = figureEditorPanel.getFigureEditor().getFigureFactory();
         drawing.addFigure(figureFactory.createPolygonalFigure(new Rectangle(20, 30, 200, 100), DefaultFigureStyle.createPolygonStyle(Color.BLUE, Color.GREEN, 1.0)));
         drawing.addFigure(figureFactory.createPolygonalFigure(new Rectangle(90, 10, 100, 200), DefaultFigureStyle.createPolygonStyle(Color.MAGENTA, Color.ORANGE, 1.0)));
         Path2D linePath = rectPath(true, 110, 60, 70, 140);

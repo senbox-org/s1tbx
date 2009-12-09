@@ -14,6 +14,7 @@ import java.awt.Rectangle;
  * @since Ceres 0.10
  */
 public interface FigureEditor extends InteractorAware, ViewportAware, SelectionContext {
+    FigureFactory getFigureFactory();
 
     JComponent getEditorComponent();
 
