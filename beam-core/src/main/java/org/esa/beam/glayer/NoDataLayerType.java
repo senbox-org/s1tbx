@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.geom.AffineTransform;
 
 /**
+ * A layer used to display the no-data mask of a raster data node.
  * @author Marco Peters
  * @version $ Revision: $ Date: $
  * @since BEAM 4.6
@@ -22,13 +23,7 @@ public class NoDataLayerType extends ImageLayer.Type {
 
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
     public static final String PROPERTY_NAME_COLOR = "color";
-    public static final String PROPERTY_NAME_TRANSPARENCY = "transparency";
     public static final String PROPERTY_NAME_RASTER = "raster";
-
-    @Override
-    public String getName() {
-        return "No-Data Layer";
-    }
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
@@ -52,7 +47,7 @@ public class NoDataLayerType extends ImageLayer.Type {
 
         final ImageLayer noDataLayer;
         noDataLayer = new ImageLayer(this, multiLevelSource, configuration);
-        noDataLayer.setName(getName());
+        noDataLayer.setName("No-Data Layer");
         noDataLayer.setId(NO_DATA_LAYER_ID);
         noDataLayer.setVisible(false);
         return noDataLayer;

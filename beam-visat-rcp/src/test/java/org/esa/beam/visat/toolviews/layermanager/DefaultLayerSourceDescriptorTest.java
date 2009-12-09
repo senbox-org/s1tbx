@@ -9,9 +9,10 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerSource;
 import org.junit.AfterClass;
-import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class DefaultLayerSourceDescriptorTest {
 
@@ -69,11 +70,6 @@ public class DefaultLayerSourceDescriptorTest {
 
 
     private static class SimpleTestLayerType extends LayerType {
-
-        @Override
-        public String getName() {
-            return "simple layer";
-        }
 
         @Override
         public boolean isValidFor(LayerContext ctx) {

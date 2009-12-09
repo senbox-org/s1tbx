@@ -11,11 +11,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.geom.AffineTransform;
 
-/**
- * @author Marco Peters
- * @version $ Revision $ Date $
- * @since BEAM 4.6
- */
+
 public class GraticuleLayerType extends LayerType {
 
     public static final String PROPERTY_NAME_RASTER = "raster";
@@ -44,11 +40,6 @@ public class GraticuleLayerType extends LayerType {
     public static final Color DEFAULT_TEXT_FG_COLOR = Color.WHITE;
     public static final Color DEFAULT_TEXT_BG_COLOR = Color.BLACK;
     public static final double DEFAULT_TEXT_BG_TRANSPARENCY = 0.7;
-
-    @Override
-    public String getName() {
-        return "Graticule Layer";
-    }
 
     @Override
     public boolean isValidFor(LayerContext ctx) {

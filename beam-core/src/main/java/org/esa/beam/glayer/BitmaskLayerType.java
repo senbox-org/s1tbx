@@ -7,7 +7,6 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
-
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.Mask;
@@ -17,22 +16,11 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import java.awt.geom.AffineTransform;
 
 
-/**
- * @author Marco Peters
- * @version $ Revision: $ Date: $
- * @since BEAM 4.6
- * @deprecated since 4.7, use {@link MaskLayerType}
- */
 @Deprecated
 public class BitmaskLayerType extends ImageLayer.Type {
 
     public static final String PROPERTY_NAME_BITMASK_DEF = "bitmaskDef";
     public static final String PROPERTY_NAME_PRODUCT = "product";
-
-    @Override
-    public String getName() {
-        return "Bitmask Layer";
-    }
 
     public static Layer createBitmaskLayer(RasterDataNode raster, final BitmaskDef bitmaskDef,
                                            AffineTransform i2mTransform) {

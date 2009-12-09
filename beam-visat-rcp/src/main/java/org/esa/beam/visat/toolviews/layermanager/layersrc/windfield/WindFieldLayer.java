@@ -44,6 +44,7 @@ public class WindFieldLayer extends Layer {
     public WindFieldLayer(LayerType layerType, RasterDataNode windu, RasterDataNode windv,
                           PropertyContainer configuration) {
         super(layerType, configuration);
+        setName("Wind Speed");
         this.windu = windu;
         this.windv = windv;
         palette = new Color[256];

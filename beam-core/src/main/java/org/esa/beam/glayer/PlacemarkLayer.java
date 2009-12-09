@@ -47,7 +47,8 @@ public class PlacemarkLayer extends Layer {
     public PlacemarkLayer(Product product, PlacemarkDescriptor placemarkDescriptor,
                           AffineTransform imageToModelTransform) {
         this(LAYER_TYPE, product, placemarkDescriptor, imageToModelTransform,
-             initConfiguration(LAYER_TYPE.createLayerConfig(null), product, placemarkDescriptor, imageToModelTransform));
+             initConfiguration(LAYER_TYPE.createLayerConfig(null), product, placemarkDescriptor,
+                               imageToModelTransform));
     }
 
     protected PlacemarkLayer(LayerType layerType, Product product, PlacemarkDescriptor placemarkDescriptor,
@@ -62,8 +63,8 @@ public class PlacemarkLayer extends Layer {
 
 
     private static PropertyContainer initConfiguration(PropertyContainer configurationTemplate, Product product,
-                                                    PlacemarkDescriptor placemarkDescriptor,
-                                                    AffineTransform imageToModelTransform) {
+                                                       PlacemarkDescriptor placemarkDescriptor,
+                                                       AffineTransform imageToModelTransform) {
         configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_PRODUCT, product);
         configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_PLACEMARK_DESCRIPTOR, placemarkDescriptor);
         configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);

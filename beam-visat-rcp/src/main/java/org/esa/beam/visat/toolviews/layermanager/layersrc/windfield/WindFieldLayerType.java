@@ -26,10 +26,6 @@ public class WindFieldLayerType extends LayerType {
         return new WindFieldLayer(type, windu, windv, template);
     }
 
-    @Override
-    public String getName() {
-        return "Wind Speed";
-    }
 
     @Override
     public boolean isValidFor(LayerContext ctx) {

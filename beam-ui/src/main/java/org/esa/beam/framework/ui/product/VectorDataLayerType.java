@@ -19,11 +19,6 @@ public class VectorDataLayerType extends LayerType {
     public static int id;
 
     @Override
-    public String getName() {
-        return "Vector Data";
-    }
-
-    @Override
     public boolean isValidFor(LayerContext ctx) {
         return true;
     }

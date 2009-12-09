@@ -25,12 +25,6 @@ public class RgbImageLayerType extends ImageLayer.Type {
     private static final String PROPERTY_NAME_EXPRESSION_G = "expressionG";
     private static final String PROPERTY_NAME_EXPRESSION_B = "expressionB";
 
-
-    @Override
-    public String getName() {
-        return "RGB Layer";
-    }
-
     @Override
     public ImageLayer createLayer(LayerContext ctx, PropertyContainer configuration) {
         MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(
@@ -54,7 +48,9 @@ public class RgbImageLayerType extends ImageLayer.Type {
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
-        return new ImageLayer(this, multiLevelSource, configuration);
+        final ImageLayer layer = new ImageLayer(this, multiLevelSource, configuration);
+        layer.setName("RGB Layer");
+        return layer;
     }
 
     @Override

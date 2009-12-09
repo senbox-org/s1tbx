@@ -17,11 +17,6 @@ public class RasterImageLayerType extends ImageLayer.Type {
     public static final String PROPERTY_NAME_RASTER = "raster";
 
     @Override
-    public String getName() {
-        return "Raster Data Layer";
-    }
-
-    @Override
     public ImageLayer createLayer(LayerContext ctx, PropertyContainer configuration) {
         MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(
                 ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);

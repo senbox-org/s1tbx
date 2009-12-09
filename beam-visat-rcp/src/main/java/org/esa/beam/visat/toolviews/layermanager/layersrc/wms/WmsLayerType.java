@@ -43,12 +43,6 @@ public class WmsLayerType extends ImageLayer.Type {
     public static final String PROPERTY_NAME_STYLE_NAME = "styleName";
     public static final String PROPERTY_NAME_IMAGE_SIZE = "imageSize";
 
-
-    @Override
-    public String getName() {
-        return "Wms Layer";
-    }
-
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         final WebMapServer mapServer;

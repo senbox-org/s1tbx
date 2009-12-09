@@ -16,19 +16,10 @@ import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Marco Peters
- * @version $ Revision $ Date $
- * @since BEAM 4.6
- */
+@Deprecated
 public class FigureLayerType extends LayerType {
 
     public static final String FIGURE_LAYER_ID = "org.esa.beam.layers.figure";
-
-    @Override
-    public String getName() {
-        return "Figure Layer";
-    }
 
     @Override
     public boolean isValidFor(LayerContext ctx) {

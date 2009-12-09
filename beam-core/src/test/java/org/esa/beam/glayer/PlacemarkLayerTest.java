@@ -35,7 +35,6 @@ public class PlacemarkLayerTest extends TestCase {
         assertEquals(i2m, placemarkLayer.getImageToModelTransform());
 
         assertTrue(type instanceof PlacemarkLayerType);
-        assertNotNull(type.getName());
     }
 
     public void testLayerDataChanges() {

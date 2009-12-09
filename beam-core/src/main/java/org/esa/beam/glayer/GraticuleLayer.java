@@ -59,6 +59,7 @@ public class GraticuleLayer extends Layer {
 
     public GraticuleLayer(GraticuleLayerType type, RasterDataNode raster, PropertyContainer configuration) {
         super(type, configuration);
+        setName("Graticule Layer");
         this.raster = raster;
         
         this.i2mTransform = (AffineTransform) getConfiguration().getValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM);

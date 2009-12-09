@@ -17,7 +17,7 @@ import java.awt.Font;
 import java.awt.geom.AffineTransform;
 
 /**
- * todo - add API doc
+ * A layer used to display placemarks.
  *
  * @author Marco Peters
  * @version $ Revision $ Date $
@@ -29,10 +29,6 @@ public class PlacemarkLayerType extends LayerType {
     public static final String PROPERTY_PLACEMARK_DESCRIPTOR = "placemarkDescriptor";
     public static final String PROPERTY_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
 
-    @Override
-    public String getName() {
-        return "Placemark";
-    }
 
     @Override
     public boolean isValidFor(LayerContext ctx) {

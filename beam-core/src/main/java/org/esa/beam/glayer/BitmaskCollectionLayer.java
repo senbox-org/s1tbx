@@ -16,8 +16,8 @@
  */
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -160,11 +160,6 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
         public static final String PROPERTY_NAME_RASTER = "raster";
         public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
-
-        @Override
-        public String getName() {
-            return "Bitmask Collection Layer";
-        }
 
         @Override
         public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {

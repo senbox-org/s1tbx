@@ -26,11 +26,6 @@ public class MaskLayerType extends ImageLayer.Type {
 
     public static final String PROPERTY_NAME_MASK = "mask";
 
-    @Override
-    public String getName() {
-        return "Mask Layer";
-    }
-
     public static Layer createLayer(RasterDataNode raster, Mask mask) {
         MaskLayerType type = LayerTypeRegistry.getLayerType(MaskLayerType.class);
         PropertyContainer configuration = type.createLayerConfig(null);

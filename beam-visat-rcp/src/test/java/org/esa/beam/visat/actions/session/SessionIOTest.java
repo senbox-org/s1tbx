@@ -11,42 +11,14 @@ import com.bc.ceres.glayer.LayerType;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
 import junit.framework.TestCase;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.geotools.feature.NameImpl;
-import org.geotools.feature.simple.SimpleFeatureImpl;
-import org.geotools.feature.simple.SimpleFeatureTypeImpl;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.feature.type.AttributeDescriptorImpl;
-import org.geotools.feature.type.AttributeTypeImpl;
-import org.geotools.feature.type.GeometryDescriptorImpl;
-import org.geotools.feature.type.GeometryTypeImpl;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.util.SimpleInternationalString;
-import org.geotools.xml.DocumentWriter;
-import org.geotools.xml.schema.Element;
-import org.geotools.xml.gml.GMLSchema;
-import org.geotools.filter.identity.FeatureIdImpl;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.AttributeType;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.feature.type.GeometryType;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.simple.SimpleFeature;
 
-import javax.naming.OperationNotSupportedException;
 import java.awt.Rectangle;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.HashMap;
 
 public class SessionIOTest extends TestCase {
 /* todo - May be useful for final implementation, otherwise remove
@@ -221,7 +193,7 @@ public class SessionIOTest extends TestCase {
                 e.printStackTrace();
             }
 
-            final LayerMemento memento = new LayerMemento(layer.getLayerType().getName(), configuration);
+            final LayerMemento memento = new LayerMemento(layer.getLayerType().getClass().getSimpleName(), configuration);
             xs.toXML(memento, writer);
         }
 

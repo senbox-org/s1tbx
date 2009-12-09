@@ -48,11 +48,6 @@ public class FeatureLayerType extends LayerType {
     public static final String PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY = "featureCollectionClipGeometry";
 
     @Override
-    public String getName() {
-        return "Feature Layer";
-    }
-
-    @Override
     public boolean isValidFor(LayerContext ctx) {
         return true;
     }
