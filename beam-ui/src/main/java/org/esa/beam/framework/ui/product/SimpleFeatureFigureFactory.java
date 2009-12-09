@@ -12,8 +12,11 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -53,7 +56,7 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
         return createShapeFigure(polygon, style);
     }
 
-    public Figure cre(SimpleFeature simpleFeature) {
+    public Figure createFigure(SimpleFeature simpleFeature) {
         Object o = simpleFeature.getDefaultGeometry();
         Object attribute = simpleFeature.getAttribute("style");
         FigureStyle figureStyle = new DefaultFigureStyle();
@@ -90,5 +93,21 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
         figureStyle.setFillPaint(Color.WHITE);
         figureStyle.setStroke(new BasicStroke(1.0f));
         return figureStyle;
+    }
+
+    public static  SimpleFeatureType createSimpleFeatureType(String typeName, Class<?> geometryType) {
+        return createSimpleFeatureType(typeName, geometryType, DefaultGeographicCRS.WGS84);
+    }
+
+    public static  SimpleFeatureType createSimpleFeatureType(String typeName, 
+                                                      Class<?> geometryType,
+                                                      CoordinateReferenceSystem crs) {
+        SimpleFeatureTypeBuilder sftb = new SimpleFeatureTypeBuilder();
+        sftb.setCRS(crs);
+        sftb.setName(typeName);
+        sftb.add("geom", geometryType);
+        sftb.add("css_style", String.class);
+        sftb.setDefaultGeometry("geom");
+        return sftb.buildFeatureType();
     }
 }

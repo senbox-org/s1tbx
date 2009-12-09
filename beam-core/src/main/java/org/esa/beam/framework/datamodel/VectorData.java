@@ -14,11 +14,12 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * This is a preliminary API under construction for BEAM 4.7. Not intended for public use.
  *
  * @author Norman Fomferra
- * @since BEAM 4.7
  * @version $Revision$ $Date$
- * @see Product#getVectorDataGroup() 
+ * @see Product#getVectorDataGroup()
+ * @since BEAM 4.7
  */
 public class VectorData extends ProductNode {
+
     private final SimpleFeatureType featureType;
     private final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
     private final CollectionListener featureCollectionListener;
@@ -50,10 +51,15 @@ public class VectorData extends ProductNode {
         this.featureCollectionListener = new CollectionListener() {
             @Override
             public void collectionChanged(CollectionEvent tce) {
-                fireProductNodeChanged("featureCollection");
+                fireFeatureCollectionChanged();
             }
         };
         this.featureCollection.addListener(featureCollectionListener);
+    }
+
+    public void fireFeatureCollectionChanged() {
+        System.out.println("VectorData '" + getName() + "': fireProductNodeChanged");
+        fireProductNodeChanged("featureCollection");
     }
 
     /**

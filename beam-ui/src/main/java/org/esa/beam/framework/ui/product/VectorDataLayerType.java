@@ -15,11 +15,12 @@ import org.esa.beam.framework.datamodel.VectorData;
 public class VectorDataLayerType extends LayerType {
     public static final String PROPERTY_NAME_VECTOR_DATA = "vectorData";
 
-    public static final String VECTOR_DATA_LAYER_ID = "org.esa.beam.layers.vectorData";
+    public static final String VECTOR_DATA_LAYER_ID_PREFIX = "org.esa.beam.layers.vectorData";
+    public static int id;
 
     @Override
     public String getName() {
-        return " Vector Layer";
+        return "Vector Data";
     }
 
     @Override
@@ -29,10 +30,11 @@ public class VectorDataLayerType extends LayerType {
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-        VectorData vectorData = (VectorData) configuration.getValue(PROPERTY_NAME_VECTOR_DATA);
-        final VectorDataLayer layer = new VectorDataLayer(this, vectorData, configuration);
-        layer.setId(VECTOR_DATA_LAYER_ID);
-
+        ProductSceneView sceneView = (ProductSceneView) ctx;
+        String vectorDataName = (String) configuration.getValue(PROPERTY_NAME_VECTOR_DATA);
+        VectorData data = sceneView.getProduct().getVectorDataGroup().get(vectorDataName);
+        final VectorDataLayer layer = new VectorDataLayer(this, data, configuration);
+        layer.setId(VECTOR_DATA_LAYER_ID_PREFIX+(++id));
         return layer;
     }
 
@@ -40,7 +42,6 @@ public class VectorDataLayerType extends LayerType {
     public PropertyContainer createLayerConfig(LayerContext ctx) {
         final PropertyContainer vc = new PropertyContainer();
         vc.addProperty(Property.create(VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA, String.class));
-
         return vc;
     }
     /*
