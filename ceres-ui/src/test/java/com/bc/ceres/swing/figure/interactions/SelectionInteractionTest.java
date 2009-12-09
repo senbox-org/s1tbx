@@ -1,23 +1,26 @@
 package com.bc.ceres.swing.figure.interactions;
 
-import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
+import com.bc.ceres.swing.figure.support.DefaultFigureFactory;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
-import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.figure.support.FigureEditorPanel;
 import junit.framework.TestCase;
 
-import javax.swing.JPanel;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 
 public class SelectionInteractionTest extends TestCase {
+
     public void testModeChange() {
         DefaultShapeFigure f1 = new DefaultShapeFigure(new Rectangle(10, 10, 10, 10), true, new DefaultFigureStyle());
         DefaultShapeFigure f2 = new DefaultShapeFigure(new Rectangle(30, 10, 10, 10), true, new DefaultFigureStyle());
-        FigureEditorPanel panel = new FigureEditorPanel();
+        FigureEditorPanel panel = new FigureEditorPanel(null,
+                                                        new DefaultFigureCollection(),
+                                                        new DefaultFigureFactory());
         FigureEditor fe = panel.getFigureEditor();
         fe.getFigureCollection().addFigure(f1);
         fe.getFigureCollection().addFigure(f2);

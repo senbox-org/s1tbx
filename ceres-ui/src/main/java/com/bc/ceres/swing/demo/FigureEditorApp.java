@@ -20,6 +20,7 @@ import com.bc.ceres.swing.figure.interactions.InsertRectangleFigureInteractor;
 import com.bc.ceres.swing.figure.interactions.PanInteractor;
 import com.bc.ceres.swing.figure.interactions.SelectionInteractor;
 import com.bc.ceres.swing.figure.interactions.ZoomInteractor;
+import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
 import com.bc.ceres.swing.figure.support.DefaultFigureFactory;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.FigureEditorPanel;
@@ -100,7 +101,7 @@ public abstract class FigureEditorApp {
         DefaultSelectionManager selectionManager = new DefaultSelectionManager();
         DefaultUndoContext undoContext = new DefaultUndoContext(this);
 
-        figureEditorPanel = new FigureEditorPanel(undoContext);
+        figureEditorPanel = new FigureEditorPanel(undoContext, new DefaultFigureCollection(), getFigureFactory());
         selectionManager.setSelectionContext(figureEditorPanel.getFigureEditor().getSelectionContext());
 
         undoAction = new UndoAction(undoContext) {

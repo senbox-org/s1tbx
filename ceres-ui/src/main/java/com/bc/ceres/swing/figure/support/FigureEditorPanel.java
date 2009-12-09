@@ -27,14 +27,6 @@ public class FigureEditorPanel extends JPanel implements FigureEditorAware, Adju
     private DefaultRendering rendering;
     private Viewport viewport;
 
-    public FigureEditorPanel() {
-        this(null);
-    }
-
-    public FigureEditorPanel(UndoContext undoContext) {
-        this(undoContext, new DefaultFigureCollection(), new DefaultFigureFactory());
-    }
-
     public FigureEditorPanel(UndoContext undoContext,
                              FigureCollection figureCollection,
                              FigureFactory figureFactory) {

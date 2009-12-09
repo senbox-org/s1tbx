@@ -1,5 +1,7 @@
 package com.bc.ceres.swing.figure;
 
+import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
+import com.bc.ceres.swing.figure.support.DefaultFigureFactory;
 import com.bc.ceres.swing.figure.support.FigureEditorPanel;
 import junit.framework.TestCase;
 
@@ -11,7 +13,9 @@ import java.awt.event.MouseEvent;
 public class AbstractInteractorTest extends TestCase {
 
     public void testListeners() {
-        FigureEditorPanel figureEditorPanel = new FigureEditorPanel();
+        FigureEditorPanel figureEditorPanel = new FigureEditorPanel(null,
+                                                                    new DefaultFigureCollection(),
+                                                                    new DefaultFigureFactory());
         AbstractInteractor interactor = new AbstractInteractor() {
         };
         MyInteractorListener listener = new MyInteractorListener();
