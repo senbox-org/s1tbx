@@ -83,6 +83,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -213,20 +215,14 @@ public class ProductSceneView extends BasicView
             public void insertFigures(boolean performInsert, Figure... figures) {
                 super.insertFigures(performInsert, figures);
                 System.out.println("PSV: insertFigures " + performInsert + ", " + figures.length);
-                for (Figure figure : figures) {
-                    if (figure instanceof SimpleFeatureFigure) {
-                        SimpleFeatureFigure simpleFeatureFigure = (SimpleFeatureFigure) figure;
-                        figureFactory.getVectorData().getFeatureCollection().add(
-                                simpleFeatureFigure.getSimpleFeature());
-                    }
-                }
+                figureFactory.getVectorData().getFeatureCollection().addAll(toSimpleFeatureList(figures));
             }
 
             @Override
             public void deleteFigures(boolean performDelete, Figure... figures) {
                 super.deleteFigures(performDelete, figures);
                 System.out.println("PSV: deleteFigures " + performDelete + ", " + figures.length);
-
+                figureFactory.getVectorData().getFeatureCollection().removeAll(toSimpleFeatureList(figures));
             }
 
             @Override
@@ -236,6 +232,17 @@ public class ProductSceneView extends BasicView
                 figureFactory.getVectorData().fireFeatureCollectionChanged();
             }
 
+            private List<SimpleFeature> toSimpleFeatureList(Figure[] figures) {
+                SimpleFeature[] features = new SimpleFeature[figures.length];
+                for (int i = 0, figuresLength = figures.length; i < figuresLength; i++) {
+                    Figure figure = figures[i];
+                    if (figure instanceof SimpleFeatureFigure) {
+                        SimpleFeatureFigure simpleFeatureFigure = (SimpleFeatureFigure) figure;
+                        features[i] = simpleFeatureFigure.getSimpleFeature();
+                    }
+                }
+                return Arrays.asList(features);
+            }
         };
 
         this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN,
