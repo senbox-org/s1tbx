@@ -172,7 +172,7 @@ class MultipleRoiComputePanel extends JPanel {
         boolean useRoi = useRoiCheckBox.isSelected() && useRoiCheckBox.isEnabled();
         int numRoiMasks = maskNameComboBox.getModel().getSize();
         boolean hasMultipleRois = numRoiMasks > 1;
-        boolean singleRoi = singleButton.isSelected() && singleButton.isEnabled();
+        boolean singleRoi = singleButton.isSelected();
         
         singleButton.setEnabled(hasMultipleRois && useRoi);
         iterateButton.setEnabled(hasMultipleRois && useRoi);   
