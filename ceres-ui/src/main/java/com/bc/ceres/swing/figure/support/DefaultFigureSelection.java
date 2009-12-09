@@ -34,7 +34,7 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
         if (this.selectionStage != selectionStage) {
             this.selectionStage = selectionStage;
             if (selectionStage == 0) {
-                removeFigures();
+                removeAllFigures();
             }
             updateHandles();
             fireFigureChanged();
@@ -181,10 +181,10 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
     }
 
     @Override
-    public Figure[] removeFigures() {
+    public Figure[] removeAllFigures() {
         disposeHandles();
         selectionStage = 0;
-        return super.removeFigures();
+        return super.removeAllFigures();
     }
 
     @Override

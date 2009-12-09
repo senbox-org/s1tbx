@@ -16,11 +16,7 @@ public abstract class ViewportInteractor extends AbstractInteractor {
     }
 
     protected Viewport getViewport(InputEvent inputEvent) {
-        final Component component = inputEvent.getComponent();
-        if (component instanceof ViewportAware) {
-            return ((ViewportAware) component).getViewport();
-        }
-        return null;
+        return getViewport(inputEvent.getComponent());
     }
 
     protected AffineTransform getViewToModelTransform(InputEvent inputEvent) {
@@ -41,6 +37,19 @@ public abstract class ViewportInteractor extends AbstractInteractor {
 
     protected Shape toModelShape(InputEvent inputEvent, Shape shape) {
         return getViewToModelTransform(inputEvent).createTransformedShape(shape);
+    }
+
+    private Viewport getViewport(Component component) {
+        while (true) {
+            if (component instanceof ViewportAware) {
+                return ((ViewportAware) component).getViewport();
+            } else if (component instanceof Viewport) {
+                return (Viewport) component;
+            } else if (component == null || component.getParent() == null) {
+                return null;
+            }
+            component = component.getParent();
+        }
     }
 
 }

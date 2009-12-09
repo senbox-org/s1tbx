@@ -391,8 +391,8 @@ public abstract class FigureEditorApp {
             int i = chooser.showOpenDialog(frame);
             if (i == JFileChooser.APPROVE_OPTION && chooser.getSelectedFile() != null) {
                 Preferences.userNodeForPackage(FigureEditorApp.class).put("lastDir", chooser.getCurrentDirectory().getPath());
-                figureEditorPanel.getFigureEditor().getFigureSelection().removeFigures();
-                figureEditorPanel.getFigureEditor().getFigureCollection().removeFigures();
+                figureEditorPanel.getFigureEditor().getFigureSelection().removeAllFigures();
+                figureEditorPanel.getFigureEditor().getFigureCollection().removeAllFigures();
                 try {
                     loadFigureCollection(chooser.getSelectedFile(), figureEditorPanel.getFigureEditor().getFigureCollection());
                 } catch (IOException e) {

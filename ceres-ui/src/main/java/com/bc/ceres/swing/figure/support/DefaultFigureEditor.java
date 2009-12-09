@@ -3,8 +3,6 @@ package com.bc.ceres.swing.figure.support;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.grender.ViewportAware;
-import com.bc.ceres.grender.support.DefaultRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
 import com.bc.ceres.swing.figure.Figure;
@@ -25,7 +23,6 @@ import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import javax.swing.JComponent;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.Rectangle2D;
@@ -34,38 +31,37 @@ import java.io.IOException;
 public class DefaultFigureEditor implements FigureEditor{
 
     private final UndoContext undoContext;
-    private final DefaultRendering rendering;
     private Rectangle selectionRectangle;
     private Interactor interactor;
     private final JComponent editorComponent;
     private FigureCollection figureCollection;
     private final FigureSelection figureSelection;
     private final SelectionChangeSupport selectionChangeSupport;
+    private final Viewport viewport;
 
 
     public DefaultFigureEditor(JComponent editorComponent) {
-        this(editorComponent, null, new DefaultFigureCollection());
+        this(editorComponent, new DefaultViewport(true), null, new DefaultFigureCollection());
     }
 
     public DefaultFigureEditor(JComponent editorComponent,
+                               Viewport viewport,
                                UndoContext undoContext,
                                FigureCollection figureCollection) {
         Assert.notNull(editorComponent, "editorComponent");
-        this.editorComponent = editorComponent;
+        Assert.notNull(viewport, "viewport");
+        Assert.notNull(figureCollection, "figureCollection");
 
-        Viewport viewport;
-        if (editorComponent instanceof ViewportAware) {
-            viewport = ((ViewportAware) editorComponent).getViewport();
-            InteractionDispatcher interactionDispatcher = new InteractionDispatcher(this);
-            interactionDispatcher.registerListeners(this.editorComponent);
-        } else {
-            viewport = new DefaultViewport(true);
-        }
-        editorComponent.setFocusable(true);
+        this.editorComponent = editorComponent;
+        this.editorComponent.setFocusable(true);
+
+        this.viewport = viewport;
+
+        InteractionDispatcher interactionDispatcher = new InteractionDispatcher(this);
+        interactionDispatcher.registerListeners(this.editorComponent);
 
         this.undoContext = undoContext != null ? undoContext : new DefaultUndoContext(this);
         this.interactor = NullInteractor.INSTANCE;
-        this.rendering = new DefaultRendering(viewport);
         this.figureCollection = figureCollection;
         this.figureSelection = new DefaultFigureSelection();
         this.figureSelection.addChangeListener(new FigureSelectionMulticaster());
@@ -135,7 +131,7 @@ public class DefaultFigureEditor implements FigureEditor{
 
     public void setFigureCollection(FigureCollection figureCollection) {
         if (this.figureCollection != figureCollection) {
-            figureSelection.removeFigures();
+            figureSelection.removeAllFigures();
             setSelectionRectangle(null);
             this.figureCollection = figureCollection;
         }
@@ -204,7 +200,7 @@ public class DefaultFigureEditor implements FigureEditor{
 
      @Override
      public void selectAll() {
-         figureSelection.removeFigures();
+         figureSelection.removeAllFigures();
          figureSelection.addFigures(getFigureCollection().getFigures());
          figureSelection.setSelectionStage(figureSelection.getMaxSelectionStage());
      }
@@ -241,12 +237,19 @@ public class DefaultFigureEditor implements FigureEditor{
 
     @Override
     public Viewport getViewport() {
-        return rendering.getViewport();
+        return viewport;
     }
 
-    public void draw(Graphics2D graphics) {
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        rendering.setGraphics(graphics);
+    /**
+     * Calls
+     * <pre>
+     * drawFigureCollection(rendering);
+     * drawFigureSelection(rendering);
+     * drawSelectionRectangle(rendering);
+     * </pre>
+     * @param rendering The rendering.
+     */
+    public void draw(Rendering rendering) {
         drawFigureCollection(rendering);
         drawFigureSelection(rendering);
         drawSelectionRectangle(rendering);

@@ -107,7 +107,7 @@ public class FigureSelectionContext implements SelectionContext {
 
     @Override
     public void selectAll() {
-        figureSelection.removeFigures();
+        figureSelection.removeAllFigures();
         figureSelection.addFigures(getFigureCollection().getFigures());
         figureSelection.setSelectionStage(figureSelection.getMaxSelectionStage());
     }

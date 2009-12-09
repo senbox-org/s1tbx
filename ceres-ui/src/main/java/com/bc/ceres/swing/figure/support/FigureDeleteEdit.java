@@ -70,6 +70,6 @@ public class FigureDeleteEdit extends AbstractUndoableEdit {
     public void redo() throws CannotRedoException {
         super.redo();
         figureEditor.getFigureCollection().removeFigures(deletedFigures);
-        figureEditor.getFigureSelection().removeFigures();
+        figureEditor.getFigureSelection().removeAllFigures();
     }
 }

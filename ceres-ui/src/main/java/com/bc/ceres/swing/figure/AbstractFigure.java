@@ -165,7 +165,7 @@ public abstract class AbstractFigure implements Figure {
 
 
     @Override
-    public Figure[] removeFigures() {
+    public Figure[] removeAllFigures() {
         if (getFigureCount() > 0) {
             Figure[] figures = removeFiguresImpl();
             fireFigureChanged();

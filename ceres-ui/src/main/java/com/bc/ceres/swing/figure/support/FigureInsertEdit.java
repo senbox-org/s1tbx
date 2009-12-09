@@ -17,7 +17,7 @@ public class FigureInsertEdit extends AbstractUndoableEdit {
         this.figureEditor = figureEditor;
         this.addedFigures = performInsert ? figureEditor.getFigureCollection().addFigures(figuresToInsert) : figuresToInsert.clone();
 
-        figureEditor.getFigureSelection().removeFigures();
+        figureEditor.getFigureSelection().removeAllFigures();
         figureEditor.getFigureSelection().setSelectionStage(0);
 
 // todo - check, this may be ok, if SelectInteraction is auto-activated
@@ -40,7 +40,7 @@ public class FigureInsertEdit extends AbstractUndoableEdit {
     @Override
     public void undo() throws CannotUndoException {
         super.undo();
-        figureEditor.getFigureSelection().removeFigures();
+        figureEditor.getFigureSelection().removeAllFigures();
         figureEditor.getFigureSelection().setSelectionStage(0);
         figureEditor.getFigureCollection().removeFigures(addedFigures);
     }
@@ -48,7 +48,7 @@ public class FigureInsertEdit extends AbstractUndoableEdit {
     @Override
     public void redo() throws CannotRedoException {
         super.redo();
-        figureEditor.getFigureSelection().removeFigures();
+        figureEditor.getFigureSelection().removeAllFigures();
         figureEditor.getFigureSelection().setSelectionStage(0);
         figureEditor.getFigureCollection().addFigures(addedFigures);
     }

@@ -21,7 +21,7 @@ public class InsertLineFigureInteractor extends InsertFigureInteractor {
     public void cancelInteraction(InputEvent event) {
         if (!canceled) {
             canceled = true;
-            getFigureEditor(event).getFigureSelection().removeFigures();
+            getFigureEditor(event).getFigureSelection().removeAllFigures();
             getFigureEditor(event).getFigureCollection().removeFigure(figure);
             super.cancelInteraction(event);
         }
@@ -32,7 +32,7 @@ public class InsertLineFigureInteractor extends InsertFigureInteractor {
         canceled = false;
 
         FigureEditor figureEditor = getFigureEditor(event);
-        figureEditor.getFigureSelection().removeFigures();
+        figureEditor.getFigureSelection().removeAllFigures();
         Point2D referencePoint = toModelPoint(event);
 
         Path2D linePath = new Path2D.Double();

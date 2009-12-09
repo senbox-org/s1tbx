@@ -1,14 +1,11 @@
 package com.bc.ceres.swing.figure.support;
 
+import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.FigureSelection;
+import com.bc.ceres.swing.figure.TestFigure;
 import junit.framework.TestCase;
 
 import java.awt.Rectangle;
-
-import com.bc.ceres.swing.figure.support.DefaultShapeFigure;
-import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
-import com.bc.ceres.swing.figure.FigureSelection;
-import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.TestFigure;
 
 public class DefaultFigureSelectionTest extends TestCase {
 
@@ -46,7 +43,7 @@ public class DefaultFigureSelectionTest extends TestCase {
         assertSame(false, f3.isSelected());
         assertSame(true, f4.isSelected());
 
-        figureSelection.removeFigures();
+        figureSelection.removeAllFigures();
         assertEquals(0, figureSelection.getFigureCount());
         assertSame(false, f1.isSelected());
         assertSame(false, f2.isSelected());

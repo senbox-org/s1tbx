@@ -43,7 +43,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
                 figureEditor.getFigureSelection().setMemento(figureMemento);
                 figureMemento = null;
             }
-            figureEditor.getFigureSelection().removeFigures();
+            figureEditor.getFigureSelection().removeAllFigures();
             super.cancelInteraction(event);
         }
     }
@@ -240,7 +240,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
             FigureEditor figureEditor = getFigureEditor(event);
             if (clickedFigure == null) {
                 // Nothing clicked, thus clear selection.
-                figureEditor.getFigureSelection().removeFigures();
+                figureEditor.getFigureSelection().removeAllFigures();
                 figureEditor.getFigureSelection().setSelectionStage(0);
             } else if (figureEditor.getFigureSelection().getFigureCount() == 0) {
                 // If figure clicked and current selection is empty then select this figure at first selection level.
@@ -265,7 +265,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
                         // Multiple selection is always at selection level 2 (scale handles + rotation handle).
                         figureEditor.getFigureSelection().setSelectionStage(2);
                     } else {
-                        figureEditor.getFigureSelection().removeFigures();
+                        figureEditor.getFigureSelection().removeAllFigures();
                         figureEditor.getFigureSelection().addFigure(clickedFigure);
                         // Single selection starts at selection level 1 (highlighted boundary)
                         figureEditor.getFigureSelection().setSelectionStage(1);
@@ -286,7 +286,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
                     if (event.isControlDown()) {
                         figureEditor.getFigureSelection().addFigure(clickedFigure);
                     } else {
-                        figureEditor.getFigureSelection().removeFigures();
+                        figureEditor.getFigureSelection().removeAllFigures();
                         figureEditor.getFigureSelection().addFigure(clickedFigure);
                     }
                 }
@@ -327,7 +327,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
                 AffineTransform transform = getViewToModelTransform(event);
                 Shape shape = transform.createTransformedShape(figureEditor.getSelectionRectangle());
                 if (!event.isControlDown()) {
-                    figureEditor.getFigureSelection().removeFigures();
+                    figureEditor.getFigureSelection().removeAllFigures();
                 }
                 final Figure[] figures = figureEditor.getFigureCollection().getFigures(shape);
                 figureEditor.getFigureSelection().addFigures(figures);

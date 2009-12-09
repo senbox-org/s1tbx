@@ -67,7 +67,7 @@ public class InsertMultiPointFigureInteractor extends InsertFigureInteractor {
             } else {
                 points.clear();
                 FigureEditor figureEditor = getFigureEditor(event);
-                figureEditor.getFigureSelection().removeFigures();
+                figureEditor.getFigureSelection().removeAllFigures();
                 if (isPolygonal()) {
                     // todo - JTS wants at least 4 coords for a polygon, what the fu...
                     //figure.removeSegment(1);
@@ -85,7 +85,7 @@ public class InsertMultiPointFigureInteractor extends InsertFigureInteractor {
 
         boolean starting = false;
         if (points.isEmpty()) {
-            figureEditor.getFigureSelection().removeFigures();
+            figureEditor.getFigureSelection().removeAllFigures();
             startInteraction(event);
             starting = true;
         }

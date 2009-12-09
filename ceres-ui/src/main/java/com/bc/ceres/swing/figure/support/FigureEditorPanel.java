@@ -3,6 +3,7 @@ package com.bc.ceres.swing.figure.support;
 import com.bc.ceres.grender.AdjustableView;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
+import com.bc.ceres.grender.support.DefaultRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
@@ -22,6 +23,7 @@ public class FigureEditorPanel extends JPanel implements FigureEditorAware, Adju
 
     private DefaultFigureEditor figureEditor;
     private FigureCollection figureCollection;
+    private DefaultRendering rendering;
     private Viewport viewport;
 
     public FigureEditorPanel() {
@@ -41,7 +43,9 @@ public class FigureEditorPanel extends JPanel implements FigureEditorAware, Adju
 
         this.figureCollection = figureCollection;
         this.viewport = new DefaultViewport(true);
-        this.figureEditor = new DefaultFigureEditor(this, undoContext, figureCollection);
+        this.figureEditor = new DefaultFigureEditor(this, this.viewport, undoContext, figureCollection);
+
+        rendering = new DefaultRendering(this.viewport);
 
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -66,8 +70,9 @@ public class FigureEditorPanel extends JPanel implements FigureEditorAware, Adju
         super.paintComponent(g);
 
         Graphics2D g2d = (Graphics2D) g.create();
+        rendering.setGraphics(g2d);
         try {
-            figureEditor.draw(g2d);
+            figureEditor.draw(rendering);
         } finally {
             g2d.dispose();
         }

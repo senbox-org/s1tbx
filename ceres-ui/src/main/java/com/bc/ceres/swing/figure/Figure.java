@@ -95,13 +95,13 @@ public interface Figure extends Restorable, Cloneable {
 
     Figure[] removeFigures(Figure... figures);
 
-    Figure[] removeFigures();
+    Figure[] removeAllFigures();
 
     int getMaxSelectionStage();
 
     Handle[] createHandles(int selectionStage);
 
-    void addChangeListener(FigureChangeListener l);
+    void addChangeListener(FigureChangeListener listener);
 
     void removeChangeListener(FigureChangeListener listener);
 

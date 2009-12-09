@@ -4,11 +4,11 @@ import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
+import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.RectangularShape;
-import java.awt.Point;
 
 public abstract class InsertRectangularFigureInteractor extends InsertFigureInteractor {
     private Point referencePoint;
@@ -22,7 +22,7 @@ public abstract class InsertRectangularFigureInteractor extends InsertFigureInte
     public void cancelInteraction(InputEvent event) {
         if (!canceled) {
             canceled = true;
-            getFigureEditor(event).getFigureSelection().removeFigures();
+            getFigureEditor(event).getFigureSelection().removeAllFigures();
             getFigureEditor(event).getFigureCollection().removeFigure(figure);
             super.cancelInteraction(event);
         }
@@ -31,7 +31,7 @@ public abstract class InsertRectangularFigureInteractor extends InsertFigureInte
     @Override
     public void mousePressed(MouseEvent event) {
         FigureEditor figureEditor = getFigureEditor(event);
-        figureEditor.getFigureSelection().removeFigures();
+        figureEditor.getFigureSelection().removeAllFigures();
         referencePoint = event.getPoint();
         canceled = false;
         rectangularShape = createRectangularShape(toModelPoint(event, referencePoint));

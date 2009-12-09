@@ -1,12 +1,11 @@
 package com.bc.ceres.swing.figure.support;
 
+import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.FigureChangeEvent;
+import com.bc.ceres.swing.figure.FigureChangeListener;
 import junit.framework.TestCase;
 
 import java.awt.geom.Rectangle2D;
-
-import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.FigureChangeListener;
-import com.bc.ceres.swing.figure.FigureChangeEvent;
 
 public class DefaultFigureCollectionTest extends TestCase {
     public void testDefaultProperties() {
@@ -65,7 +64,7 @@ public class DefaultFigureCollectionTest extends TestCase {
         assertEquals(1, fc.getFigures().length);
         assertSame(f2, fc.getFigures()[0]);
 
-        fc.removeFigures();
+        fc.removeAllFigures();
         assertEquals(0, fc.getFigureCount());
     }
 
@@ -90,7 +89,7 @@ public class DefaultFigureCollectionTest extends TestCase {
         assertEquals(1, listener.children.length);
         assertSame(f2, listener.children[0]);
 
-        fc.removeFigures();
+        fc.removeAllFigures();
         assertEquals("cacacr", listener.trace);
         assertSame(fc, listener.figure);
         assertSame(fc, listener.parent);
