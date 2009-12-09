@@ -183,6 +183,11 @@ public class PropertyContainer implements PropertySet {
     }
 
     @Override
+    public boolean isPropertyDefined(String name) {
+        return propertyMap.containsKey(name);
+    }
+
+    @Override
     public Property getProperty(String name) {
         Assert.notNull(name, "name");
         return propertyMap.get(name);

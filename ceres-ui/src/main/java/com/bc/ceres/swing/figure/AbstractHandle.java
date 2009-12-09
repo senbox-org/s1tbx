@@ -150,10 +150,10 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     protected void drawHandle(Graphics2D g) {
         FigureStyle handleStyle = isSelected() ? selectedStyle : normalStyle;
 
-        g.setPaint(handleStyle.getFillPaint());
+        g.setPaint(handleStyle.getFillColor());
         g.fill(getShape());
 
-        g.setPaint(handleStyle.getStrokePaint());
+        g.setPaint(handleStyle.getStrokeColor());
         g.setStroke(handleStyle.getStroke());
         g.draw(getShape());
     }

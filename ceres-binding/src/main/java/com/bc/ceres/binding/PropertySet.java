@@ -20,11 +20,23 @@ public interface PropertySet extends PropertyChangeEmitter {
     Property[] getProperties();
 
     /**
+     * Tests if the named property is defined in this set.
+     * For undefined properties, the method  {@link #getProperty(String) getProperty(name)} will
+     * always return {@code null}.
+     *
+     * @param name The property name  (case sensitive).
+     *
+     * @return {@code true} if the property is defined.
+     */
+    boolean isPropertyDefined(String name);
+
+    /**
      * Gets the named property.
      *
      * @param name The property name  (case sensitive).
      *
      * @return The property, or {@code null} if the property does not exist.
+     * @see #isPropertyDefined(String) 
      */
     Property getProperty(String name);
 

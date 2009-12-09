@@ -90,14 +90,14 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
             g.transform(vp.getModelToViewTransform());
 
             if (rank == Rank.POLYGONAL) {
-                Paint fillPaint = getNormalStyle().getFillPaint();
+                Paint fillPaint = getNormalStyle().getFillColor();
                 if (fillPaint != null) {
                     g.setPaint(fillPaint);
                     g.fill(shape);
                 }
             }
 
-            Paint strokePaint = getNormalStyle().getStrokePaint();
+            Paint strokePaint = getNormalStyle().getStrokeColor();
             if (strokePaint != null) {
                 Stroke normalStroke = getNormalStyle().getStroke(1.0 / vp.getZoomFactor());
                 g.setPaint(strokePaint);
@@ -106,7 +106,7 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
             }
 
             if (isSelected()) {
-                Paint selectedStrokePaint = getSelectedStyle().getStrokePaint();
+                Paint selectedStrokePaint = getSelectedStyle().getStrokeColor();
                 if (selectedStrokePaint != null) {
                     Stroke selectedStroke = getSelectedStyle().getStroke(1.0 / vp.getZoomFactor());
                     g.setStroke(selectedStroke);
