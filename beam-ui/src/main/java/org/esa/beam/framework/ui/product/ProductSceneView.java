@@ -29,6 +29,7 @@ import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.Polygon;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -55,6 +56,7 @@ import org.esa.beam.util.SystemUtils;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.AbstractButton;
 import javax.swing.JMenuItem;
@@ -266,9 +268,14 @@ public class ProductSceneView extends BasicView
 
         VectorData vectorData = getProduct().getVectorDataGroup().get("_figures");
         if (vectorData == null) {
+            GeoCoding geoCoding = getRaster().getGeoCoding();
+            CoordinateReferenceSystem crs = null;
+            if (geoCoding != null) {
+                crs = geoCoding.getMapCRS();
+            }
             vectorData = new VectorData("_figures", SimpleFeatureFigureFactory.createSimpleFeatureType("_figure",
                                                                                                        Geometry.class,
-                                                                                                       getRaster().getGeoCoding().getMapCRS()));
+                                                                                                       crs));
             getProduct().getVectorDataGroup().add(vectorData);
         }
 
