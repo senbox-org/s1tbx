@@ -4,6 +4,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.cs.DefaultEllipsoidalCS;
+import org.geotools.referencing.operation.DefiningConversion;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CRSFactory;
@@ -34,11 +35,13 @@ class OperationMethodCrsProvider extends AbstractCrsProvider {
     public CoordinateReferenceSystem getCRS(final GeoPos referencePos, ParameterValueGroup parameters,
                                             GeodeticDatum datum) throws FactoryException {
         final CRSFactory crsFactory = ReferencingFactoryFinder.getCRSFactory(null);
-        final CoordinateOperationFactory coFactory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
+//        final CoordinateOperationFactory coFactory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
 
         final HashMap<String, Object> projProperties = new HashMap<String, Object>();
         projProperties.put("name", getName() + " / " + datum.getName().getCode());
-        final Conversion conversion = coFactory.createDefiningConversion(projProperties, delegate, parameters);
+        final Conversion conversion = new DefiningConversion(projProperties, delegate, parameters);
+// (mz, 2009.12.09 -- don't use CoordinateOperationFactory, because it caches Operations that are not equal!)
+//        final Conversion conversion = coFactory.createDefiningConversion(projProperties, delegate, parameters);
         final HashMap<String, Object> baseCrsProperties = new HashMap<String, Object>();
         baseCrsProperties.put("name", datum.getName().getCode());
         final GeographicCRS baseCrs = crsFactory.createGeographicCRS(baseCrsProperties, datum,
