@@ -27,7 +27,7 @@ import com.bc.ceres.swing.actions.SelectAllAction;
 import com.bc.ceres.swing.actions.UndoAction;
 import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.figure.FigureEditorHolder;
+import com.bc.ceres.swing.figure.FigureEditorAware;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
@@ -474,8 +474,8 @@ public class VisatApp extends BasicApp implements AppContext {
     }
 
     private void setInteractor(Component contentPane, Interactor interactor) {
-        if (contentPane instanceof FigureEditorHolder) {
-            final FigureEditor figureEditor = ((FigureEditorHolder) contentPane).getFigureEditor();
+        if (contentPane instanceof FigureEditorAware) {
+            final FigureEditor figureEditor = ((FigureEditorAware) contentPane).getFigureEditor();
             figureEditor.setInteractor(interactor);
         }
     }

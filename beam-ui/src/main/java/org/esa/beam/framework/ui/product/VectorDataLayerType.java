@@ -1,9 +1,11 @@
 package org.esa.beam.framework.ui.product;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
+import org.esa.beam.framework.datamodel.VectorData;
 
 /**
  * @author Marco Peters
@@ -11,12 +13,13 @@ import com.bc.ceres.glayer.LayerType;
  * @since BEAM 4.7
  */
 public class VectorDataLayerType extends LayerType {
+    public static final String PROPERTY_NAME_VECTOR_DATA = "vectorData";
 
-    public static final String FIGURE_LAYER_ID = "org.esa.beam.layers.vectorData";
+    public static final String VECTOR_DATA_LAYER_ID = "org.esa.beam.layers.vectorData";
 
     @Override
     public String getName() {
-        return "Figure Layer";
+        return " Vector Layer";
     }
 
     @Override
@@ -26,37 +29,18 @@ public class VectorDataLayerType extends LayerType {
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-//        final List<Figure> figureList = (List<Figure>) configuration.getValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST);
-//        final AffineTransform transform = (AffineTransform) configuration.getValue(FigureLayer.PROPERTY_NAME_TRANSFORM);
-//        final FigureLayer layer = new VectorDataLayer(this, figureList, transform, configuration);
-//        layer.setId(FIGURE_LAYER_ID);
+        VectorData vectorData = (VectorData) configuration.getValue(PROPERTY_NAME_VECTOR_DATA);
+        final VectorDataLayer layer = new VectorDataLayer(this, vectorData, configuration);
+        layer.setId(VECTOR_DATA_LAYER_ID);
 
-        return null;
+        return layer;
     }
 
     @Override
     public PropertyContainer createLayerConfig(LayerContext ctx) {
         final PropertyContainer vc = new PropertyContainer();
-        /*
-        vc.addProperty(Property.create(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTLINED, Boolean.class, VectorDataLayer.DEFAULT_SHAPE_OUTLINED, true));
+        vc.addProperty(Property.create(VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA, String.class));
 
-        vc.addProperty(Property.create(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR, Color.class, VectorDataLayer.DEFAULT_SHAPE_OUTL_COLOR, true));
-
-        vc.addProperty(Property.create(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_TRANSPARENCY, Double.class, VectorDataLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY, true));
-
-        vc.addProperty(Property.create(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH, Double.class, VectorDataLayer.DEFAULT_SHAPE_OUTL_WIDTH, true));
-
-        vc.addProperty(Property.create(VectorDataLayer.PROPERTY_NAME_SHAPE_FILLED, Boolean.class, VectorDataLayer.DEFAULT_SHAPE_FILLED, true));
-
-        vc.addProperty(Property.create(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_COLOR, Color.class, VectorDataLayer.DEFAULT_SHAPE_FILL_COLOR, true));
-
-        vc.addProperty(Property.create(VectorDataLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY, Double.class, VectorDataLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY, true));
-
-        vc.addProperty(Property.create(VectorDataLayer.PROPERTY_NAME_TRANSFORM, AffineTransform.class, new AffineTransform(), true));
-        final Property figureListModel = Property.create(VectorDataLayer.PROPERTY_NAME_FIGURE_LIST, ArrayList.class, new ArrayList(), true);
-        figureListModel.getDescriptor().setDomConverter(new FigureListDomConverter());
-        vc.addProperty(figureListModel);
-        */
         return vc;
     }
     /*

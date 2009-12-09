@@ -10,10 +10,11 @@ import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.ViewportAware;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.figure.FigureEditorHolder;
+import com.bc.ceres.swing.figure.FigureEditorAware;
 import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
@@ -83,7 +84,8 @@ import java.util.Vector;
  * @version $ Revision: $ $ Date: $
  */
 public class ProductSceneView extends BasicView
-        implements FigureEditorHolder, ProductNodeView, PropertyMapChangeListener, PixelInfoFactory, LayerContext {
+        implements FigureEditorAware, ProductNodeView, PropertyMapChangeListener, PixelInfoFactory, LayerContext,
+                   ViewportAware {
 
     public static final String BASE_IMAGE_LAYER_ID = "org.esa.beam.layers.baseImage";
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
@@ -172,13 +174,13 @@ public class ProductSceneView extends BasicView
         this.pixelBorderViewScale = 2.0;
         this.pixelPositionListeners = new Vector<PixelPositionListener>();
 
-        figureEditor = new DefaultFigureEditor(this, undoContext, new DefaultFigureCollection());
-
         // todo - use global application undo context
         undoContext = new DefaultUndoContext(this);
 
         this.layerCanvas = new LayerCanvas(sceneImage.getRootLayer(),
                                            new DefaultViewport(isModelYAxisDown(baseImageLayer)));
+        figureEditor = new DefaultFigureEditor(this, undoContext, new DefaultFigureCollection());
+
 
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(
                 PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
@@ -212,6 +214,11 @@ public class ProductSceneView extends BasicView
     @Override
     public FigureEditor getFigureEditor() {
         return figureEditor;
+    }
+
+    @Override
+    public Viewport getViewport() {
+        return layerCanvas.getViewport();
     }
 
     private AdjustableViewScrollPane createScrollPane() {
