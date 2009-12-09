@@ -6,7 +6,7 @@ import com.bc.ceres.grender.ViewportListener;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
-import com.bc.ceres.swing.figure.FigureEditorHolder;
+import com.bc.ceres.swing.figure.FigureEditorAware;
 import com.bc.ceres.swing.undo.UndoContext;
 
 import javax.swing.JPanel;
@@ -17,7 +17,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
 
-public class FigureEditorPanel extends JPanel implements FigureEditorHolder, AdjustableView {
+public class FigureEditorPanel extends JPanel implements FigureEditorAware, AdjustableView {
 
 
     private DefaultFigureEditor figureEditor;
@@ -74,7 +74,7 @@ public class FigureEditorPanel extends JPanel implements FigureEditorHolder, Adj
     }
 
     /////////////////////////////////////////////////////////////////////////
-    // FigureEditorHolder implementation
+    // FigureEditorAware implementation
 
     @Override
     public FigureEditor getFigureEditor() {

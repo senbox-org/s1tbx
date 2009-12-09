@@ -3,7 +3,7 @@ package com.bc.ceres.swing.figure.support;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.grender.ViewportOwner;
+import com.bc.ceres.grender.ViewportAware;
 import com.bc.ceres.grender.support.DefaultRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
@@ -54,8 +54,8 @@ public class DefaultFigureEditor implements FigureEditor{
         this.editorComponent = editorComponent;
 
         Viewport viewport;
-        if (editorComponent instanceof ViewportOwner) {
-            viewport = ((ViewportOwner) editorComponent).getViewport();
+        if (editorComponent instanceof ViewportAware) {
+            viewport = ((ViewportAware) editorComponent).getViewport();
             InteractionDispatcher interactionDispatcher = new InteractionDispatcher(this);
             interactionDispatcher.registerListeners(this.editorComponent);
         } else {

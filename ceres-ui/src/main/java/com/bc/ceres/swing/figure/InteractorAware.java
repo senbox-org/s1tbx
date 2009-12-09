@@ -1,5 +1,5 @@
 package com.bc.ceres.swing.figure;
 
-public interface InteractorHolder {
+public interface InteractorAware {
     Interactor getInteractor();
 }

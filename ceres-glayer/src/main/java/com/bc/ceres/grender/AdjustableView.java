@@ -16,8 +16,6 @@
  */
 package com.bc.ceres.grender;
 
-import com.bc.ceres.grender.Viewport;
-
 import java.awt.geom.Rectangle2D;
 
 
@@ -25,7 +23,7 @@ import java.awt.geom.Rectangle2D;
  * {@link javax.swing.JComponent JComponent}s implementing this interface are views which can
  * be adjusted using the {@link com.bc.ceres.glayer.swing.AdjustableViewScrollPane}.
  */
-public interface AdjustableView extends ViewportOwner {
+public interface AdjustableView extends ViewportAware {
 
     /**
      * @return The maximum visible model bounds in model coordinates.

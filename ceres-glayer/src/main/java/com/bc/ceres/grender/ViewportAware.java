@@ -16,15 +16,10 @@
  */
 package com.bc.ceres.grender;
 
-import com.bc.ceres.grender.Viewport;
-
-import java.awt.geom.Rectangle2D;
-
-
 /**
- * Something which owns a viewport, most likely a view GUI component.
+ * Something which knows about a viewport, most likely a view GUI component.
  */
-public interface ViewportOwner {
+public interface ViewportAware {
     /**
      * @return The viewport.
      */

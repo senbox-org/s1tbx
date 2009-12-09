@@ -1,6 +1,6 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.grender.ViewportOwner;
+import com.bc.ceres.grender.ViewportAware;
 import com.bc.ceres.swing.selection.SelectionContext;
 
 import javax.swing.JComponent;
@@ -13,7 +13,7 @@ import java.awt.Rectangle;
  * @author Norman Fomferra
  * @since Ceres 0.10
  */
-public interface FigureEditor extends InteractorHolder, ViewportOwner, SelectionContext {
+public interface FigureEditor extends InteractorAware, ViewportAware, SelectionContext {
 
     JComponent getEditorComponent();
 

@@ -1,7 +1,7 @@
 package com.bc.ceres.swing.figure.support;
 
 import com.bc.ceres.swing.figure.Interactor;
-import com.bc.ceres.swing.figure.InteractorHolder;
+import com.bc.ceres.swing.figure.InteractorAware;
 
 import javax.swing.JComponent;
 import java.awt.event.KeyEvent;
@@ -11,11 +11,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 public class InteractionDispatcher implements MouseListener, MouseMotionListener, KeyListener {
-    private final InteractorHolder interactorHolder;
+    private final InteractorAware interactorAware;
     private JComponent component;
 
-    public InteractionDispatcher(InteractorHolder interactorHolder) {
-        this.interactorHolder = interactorHolder;
+    public InteractionDispatcher(InteractorAware interactorAware) {
+        this.interactorAware = interactorAware;
     }
 
     public void registerListeners(JComponent component) {
@@ -85,6 +85,6 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
     }
 
     private Interactor getInteractor() {
-        return interactorHolder.getInteractor();
+        return interactorAware.getInteractor();
     }
 }

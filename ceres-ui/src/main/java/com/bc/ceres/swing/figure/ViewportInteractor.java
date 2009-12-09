@@ -1,7 +1,7 @@
 package com.bc.ceres.swing.figure;
 
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.grender.ViewportOwner;
+import com.bc.ceres.grender.ViewportAware;
 
 import java.awt.Component;
 import java.awt.Shape;
@@ -17,8 +17,8 @@ public abstract class ViewportInteractor extends AbstractInteractor {
 
     protected Viewport getViewport(InputEvent inputEvent) {
         final Component component = inputEvent.getComponent();
-        if (component instanceof ViewportOwner) {
-            return ((ViewportOwner) component).getViewport();
+        if (component instanceof ViewportAware) {
+            return ((ViewportAware) component).getViewport();
         }
         return null;
     }
