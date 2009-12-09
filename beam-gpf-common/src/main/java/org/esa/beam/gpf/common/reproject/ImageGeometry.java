@@ -27,6 +27,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -80,6 +81,24 @@ public class ImageGeometry {
     
     void changeYAxisDirection() {
         pixelSizeY = -pixelSizeY;
+    }
+    
+
+    public static Point2D calculateEastingNorthing(Product sourceProduct, CoordinateReferenceSystem targetCrs, double referencePixelX, double referencePixelY, 
+                                                  double pixelSizeX, double pixelSizeY) {
+        Rectangle2D mapBoundary = createMapBoundary(sourceProduct, targetCrs);
+        double easting = mapBoundary.getX() + referencePixelX * pixelSizeX;
+        double northing = (mapBoundary.getY() + mapBoundary.getHeight()) - referencePixelY * pixelSizeY;
+        return new Point2D.Double(easting, northing);
+    }
+    
+    public static Rectangle calculateProductSize(Product sourceProduct, CoordinateReferenceSystem targetCrs, double pixelSizeX, double pixelSizeY) {
+        Rectangle2D mapBoundary = createMapBoundary(sourceProduct, targetCrs);
+        double mapW = mapBoundary.getWidth();
+        double mapH = mapBoundary.getHeight();
+        int width = 1 + (int) Math.floor(mapW / pixelSizeX);
+        int height = 1 + (int) Math.floor(mapH / pixelSizeY);
+        return new Rectangle(width, height);
     }
     
     public static ImageGeometry createTargetGeometry(Product sourceProduct, CoordinateReferenceSystem targetCrs,

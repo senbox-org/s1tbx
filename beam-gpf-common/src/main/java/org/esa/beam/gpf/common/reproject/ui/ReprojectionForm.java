@@ -15,6 +15,7 @@ import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.DemSelector;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.gpf.common.reproject.ImageGeometry;
 import org.esa.beam.util.ProductUtils;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -31,6 +32,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -53,11 +55,12 @@ class ReprojectionForm extends JTabbedPane {
     private final SourceProductSelector sourceProductSelector;
     private final TargetProductSelector targetProductSelector;
     private final Model reprojectionModel;
-    private final PropertyContainer reprojectionlContainer;
+    private final PropertyContainer reprojectionContainer;
 
     private DemSelector demSelector;
     private CrsSelectionPanel crsSelectionPanel;
-    private PropertyContainer outputParameterContainer;
+    
+    private OutputGeometryFormModel formModel;
 
     private JButton outputParamButton;
     private InfoForm infoForm;
@@ -75,7 +78,7 @@ class ReprojectionForm extends JTabbedPane {
             this.sourceProductSelector.setProductFilter(new GeoCodingProductFilter());
         }
         this.reprojectionModel = new Model();
-        this.reprojectionlContainer = PropertyContainer.createObjectBacked(reprojectionModel);
+        this.reprojectionContainer = PropertyContainer.createObjectBacked(reprojectionModel);
         createUI();
     }
 
@@ -96,16 +99,17 @@ class ReprojectionForm extends JTabbedPane {
             }
         }
 
-        if (outputParameterContainer != null) {
-            parameterMap.put("referencePixelX", outputParameterContainer.getValue("referencePixelX"));
-            parameterMap.put("referencePixelY", outputParameterContainer.getValue("referencePixelY"));
-            parameterMap.put("easting", outputParameterContainer.getValue("easting"));
-            parameterMap.put("northing", outputParameterContainer.getValue("northing"));
-            parameterMap.put("orientation", outputParameterContainer.getValue("orientation"));
-            parameterMap.put("pixelSizeX", outputParameterContainer.getValue("pixelSizeX"));
-            parameterMap.put("pixelSizeY", outputParameterContainer.getValue("pixelSizeY"));
-            parameterMap.put("width", outputParameterContainer.getValue("width"));
-            parameterMap.put("height", outputParameterContainer.getValue("height"));
+        if (formModel != null) {
+            PropertyContainer container = formModel.getPropertyContainer();
+            parameterMap.put("referencePixelX", container.getValue("referencePixelX"));
+            parameterMap.put("referencePixelY", container.getValue("referencePixelY"));
+            parameterMap.put("easting", container.getValue("easting"));
+            parameterMap.put("northing", container.getValue("northing"));
+            parameterMap.put("orientation", container.getValue("orientation"));
+            parameterMap.put("pixelSizeX", container.getValue("pixelSizeX"));
+            parameterMap.put("pixelSizeY", container.getValue("pixelSizeY"));
+            parameterMap.put("width", container.getValue("width"));
+            parameterMap.put("height", container.getValue("height"));
         }
         return parameterMap;
     }
@@ -218,19 +222,26 @@ class ReprojectionForm extends JTabbedPane {
             infoForm.setCrsErrorText(e.getMessage());
             crs = null;
         }
-        if (sourceProduct != null && crs != null) {
-            OutputGeometryFormModel formModel = new OutputGeometryFormModel(sourceProduct, crs);
-            outputParameterContainer = formModel.getValueContainer();
-        }
+        formModel = null;
 
         updateOutputParameterState();
         updateProductSize();
     }
 
     private void updateProductSize() {
-        if (outputParameterContainer != null) {
-            infoForm.setWidth((Integer) outputParameterContainer.getValue("width"));
-            infoForm.setHeight((Integer) outputParameterContainer.getValue("height"));
+        if (formModel != null) {
+            PropertyContainer container = formModel.getPropertyContainer();
+            infoForm.setWidth((Integer) container.getValue("width"));
+            infoForm.setHeight((Integer) container.getValue("height"));
+        } else {
+            Product sourceProduct = getSourceProduct();
+            if (sourceProduct != null && crs != null) {
+                ImageGeometry iGeometry = ImageGeometry.createTargetGeometry(sourceProduct, crs, 
+                                                                                 null, null, null, null, null, null, null, null, null);
+                Rectangle imageRect = iGeometry.getImageRect();
+                infoForm.setWidth(imageRect.width);
+                infoForm.setHeight(imageRect.height);
+            }
         }
     }
 
@@ -348,7 +359,7 @@ class ReprojectionForm extends JTabbedPane {
         final JPanel outputSettingsPanel = new JPanel(tableLayout);
         outputSettingsPanel.setBorder(BorderFactory.createTitledBorder("Output Settings"));
 
-        final BindingContext context = new BindingContext(reprojectionlContainer);
+        final BindingContext context = new BindingContext(reprojectionContainer);
 
         final JCheckBox preserveResolutionCheckBox = new JCheckBox("Preserve resolution");
         context.bind(Model.PRESERVE_RESOLUTION, preserveResolutionCheckBox);
@@ -356,7 +367,7 @@ class ReprojectionForm extends JTabbedPane {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final boolean collocate = (Boolean) evt.getNewValue();
-                reprojectionlContainer.setValue(Model.PRESERVE_RESOLUTION,
+                reprojectionContainer.setValue(Model.PRESERVE_RESOLUTION,
                                                 collocate || reprojectionModel.preserveResolution);
                 preserveResolutionCheckBox.setEnabled(!collocate);
             }
@@ -385,7 +396,7 @@ class ReprojectionForm extends JTabbedPane {
         context.bind(Model.RESAMPLING_METHOD, resampleComboBox);
         outputSettingsPanel.add(resampleComboBox);
 
-        reprojectionlContainer.addPropertyChangeListener(Model.PRESERVE_RESOLUTION, new PropertyChangeListener() {
+        reprojectionContainer.addPropertyChangeListener(Model.PRESERVE_RESOLUTION, new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 updateOutputParameterState();
@@ -433,32 +444,33 @@ class ReprojectionForm extends JTabbedPane {
     private class OutputParamActionListener implements ActionListener {
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent event) {
             try {
                 final Product sourceProduct = getSourceProduct();
                 if (sourceProduct == null) {
                     showWarningMessage("Please select a product to project.\n");
                     return;
                 }
-                final GeoPos referencePos = ProductUtils.getCenterGeoPos(sourceProduct);
-                final CoordinateReferenceSystem crs = crsSelectionPanel.getCrs(referencePos);
                 if (crs == null) {
                     showWarningMessage("Please specify a 'Coordinate Reference System' first.\n");
                     return;
                 }
-                final OutputGeometryFormModel formModel = new OutputGeometryFormModel(sourceProduct, crs);
+                if (formModel == null) {
+                    formModel = new OutputGeometryFormModel(sourceProduct, crs);
+                }
                 final OutputGeometryForm form = new OutputGeometryForm(formModel);
                 final ModalDialog modalDialog = new ModalDialog(appContext.getApplicationWindow(),
                                                                 "Output Parameters",
                                                                 ModalDialog.ID_OK_CANCEL, null);
                 modalDialog.setContent(form);
                 if (modalDialog.show() == ModalDialog.ID_OK) {
-                    outputParameterContainer = formModel.getValueContainer();
                     updateProductSize();
+                } else {
+                    formModel = null;
                 }
-            } catch (Exception fe) {
+            } catch (Exception e) {
                 appContext.handleError("Could not create a 'Coordinate Reference System'.\n" +
-                                       fe.getMessage(), fe);
+                                       e.getMessage(), e);
             }
         }
     }

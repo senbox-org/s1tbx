@@ -46,7 +46,7 @@ class OutputGeometryForm extends JPanel {
     private final BindingContext context;
 
     OutputGeometryForm(OutputGeometryFormModel model) {
-        context = new BindingContext(model.getValueContainer());
+        context = new BindingContext(model.getPropertyContainer());
         createUI();
     }
 

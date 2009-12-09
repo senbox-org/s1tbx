@@ -25,6 +25,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.gpf.common.reproject.ImageGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.awt.Rectangle;
+import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -36,38 +38,34 @@ class OutputGeometryFormModel {
 
     private class ChangeListener implements PropertyChangeListener {
         @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            Double pixelSizeX = (Double) propertyContainer.getValue("pixelSizeX");
-            Double pixelSizeY = (Double) propertyContainer.getValue("pixelSizeY");
-            Integer width = (Integer) propertyContainer.getValue("width");
-            Integer height = (Integer) propertyContainer.getValue("height");
-            Double easting = (Double) propertyContainer.getValue("easting");
-            Double northing = (Double) propertyContainer.getValue("northing");
-            Double referencePixelX = (Double) propertyContainer.getValue("referencePixelX");
-            Double referencePixelY = (Double) propertyContainer.getValue("referencePixelY");
-            Double orientation = (Double) propertyContainer.getValue("orientation");
-            if (fitProductSize) {
-                width = null;
-                height = null;
+        public void propertyChange(PropertyChangeEvent event) {
+            String propertyName = event.getPropertyName();
+
+            if (fitProductSize && propertyName.startsWith("pixelSize")) {
+                Double pixelSizeX = (Double) propertyContainer.getValue("pixelSizeX");
+                Double pixelSizeY = (Double) propertyContainer.getValue("pixelSizeY");
+                Rectangle productSize = ImageGeometry.calculateProductSize(sourceProduct, targetCrs, pixelSizeX, pixelSizeY);
+                propertyContainer.setValue("width", productSize.width);
+                propertyContainer.setValue("height", productSize.height);
             }
-            if (referencePixelLocation == 0) {
-                referencePixelX = 0.5;
-                referencePixelY = 0.5;
-                easting = null;
-                northing = null;
-            } else if (referencePixelLocation == 1) {
-                referencePixelX = 0.5 * (Integer) propertyContainer.getValue("width");
-                referencePixelY = 0.5 * (Integer) propertyContainer.getValue("height");
-                easting = null;
-                northing = null;
+            if (propertyName.startsWith("referencePixelLocation")) {
+                double pixelSizeX = (Double) propertyContainer.getValue("pixelSizeX");
+                double pixelSizeY = (Double) propertyContainer.getValue("pixelSizeY");
+                double referencePixelX = (Double) propertyContainer.getValue("referencePixelX");
+                double referencePixelY = (Double) propertyContainer.getValue("referencePixelY");
+                if (referencePixelLocation == 0) {
+                    referencePixelX = 0.5;
+                    referencePixelY = 0.5;
+                } else if (referencePixelLocation == 1) {
+                    referencePixelX = 0.5 * (Integer) propertyContainer.getValue("width");
+                    referencePixelY = 0.5 * (Integer) propertyContainer.getValue("height");
+                }
+                Point2D eastingNorthing = ImageGeometry.calculateEastingNorthing(sourceProduct, targetCrs, referencePixelX, referencePixelY, pixelSizeX, pixelSizeY);
+                propertyContainer.setValue("easting", eastingNorthing.getX());
+                propertyContainer.setValue("northing", eastingNorthing.getY());
+                propertyContainer.setValue("referencePixelX", referencePixelX);
+                propertyContainer.setValue("referencePixelY", referencePixelY);
             }
-            ImageGeometry ig = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs, 
-                                                                  pixelSizeX, pixelSizeY, 
-                                                                  width, height, orientation, 
-                                                                  easting, northing, 
-                                                                  referencePixelX, referencePixelY);
-            
-            updateImgaeGeometry(ig);
         }
     }
     
@@ -93,23 +91,7 @@ class OutputGeometryFormModel {
         propertyContainer.addPropertyChangeListener(new ChangeListener());
     }
     
-    PropertyContainer getValueContainer() {
+    PropertyContainer getPropertyContainer() {
         return propertyContainer;
-    }
-
-    ImageGeometry getImageGeometry() {
-        return imageGeometry;
-    }
-
-    private void updateImgaeGeometry(ImageGeometry newImageGeometry) {
-        PropertyContainer newVC=  PropertyContainer.createObjectBacked(newImageGeometry);
-        Property[] properties = newVC.getProperties();
-        for (Property property : properties) {
-            Property targetModel = propertyContainer.getProperty(property.getDescriptor().getName());
-            try {
-                targetModel.setValue(property.getValue());
-            } catch (ValidationException ignored) {
-            }
-        }
     }
 }
