@@ -13,10 +13,12 @@ import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportAware;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.FigureChangeListener;
+import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorAware;
+import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.ShapeFigure;
-import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.undo.UndoContext;
@@ -177,10 +179,9 @@ public class ProductSceneView extends BasicView
         // todo - use global application undo context
         undoContext = new DefaultUndoContext(this);
 
-        this.layerCanvas = new LayerCanvas(sceneImage.getRootLayer(),
-                                           new DefaultViewport(isModelYAxisDown(baseImageLayer)));
-        figureEditor = new DefaultFigureEditor(this, undoContext, new DefaultFigureCollection());
+        DefaultViewport viewport = new DefaultViewport(isModelYAxisDown(baseImageLayer));
 
+        this.layerCanvas = new LayerCanvas(sceneImage.getRootLayer(), viewport);
 
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(
                 PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
@@ -193,6 +194,8 @@ public class ProductSceneView extends BasicView
                 figureEditor.drawSelectionRectangle(rendering);
             }
         });
+
+        figureEditor = new DefaultFigureEditor(layerCanvas, viewport, undoContext, NullFigureCollection.INSTANCE);
 
         this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN,
                                                                              false);
@@ -248,6 +251,7 @@ public class ProductSceneView extends BasicView
      * Gets the current selection context, if any.
      *
      * @return The current selection context, or {@code null} if none exists.
+     *
      * @since BEAM 4.7
      */
     @Override
@@ -751,7 +755,7 @@ public class ProductSceneView extends BasicView
         final Product currentProduct = getRaster().getProduct();
         final Product otherProduct = view.getRaster().getProduct();
         if (otherProduct == currentProduct ||
-                otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
+            otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
 
             Viewport viewPortToChange = view.layerCanvas.getViewport();
             Viewport myViewPort = layerCanvas.getViewport();
@@ -774,6 +778,7 @@ public class ProductSceneView extends BasicView
     }
 
     // only called from VISAT
+
     public void updateImage() {
         getBaseImageLayer().regenerate();
     }
@@ -784,6 +789,7 @@ public class ProductSceneView extends BasicView
     }
 
     // used by PropertyEditor
+
     public void updateNoDataImage() {
         // change configuration of layer ; not setting MultiLevelSource
         final String expression = getRaster().getValidMaskExpression();
@@ -933,7 +939,7 @@ public class ProductSceneView extends BasicView
     private boolean isPixelPosValid(int currentPixelX, int currentPixelY, int currentLevel) {
         return currentPixelX >= 0 && currentPixelX < baseImageLayer.getImage(
                 currentLevel).getWidth() && currentPixelY >= 0
-                && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
+               && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
     }
 
     private void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
@@ -983,7 +989,7 @@ public class ProductSceneView extends BasicView
 
     private boolean isPixelBorderDisplayEnabled() {
         return pixelBorderShown &&
-                getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
+               getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
     }
 
     private void drawPixelBorder(int currentPixelX, int currentPixelY, int currentLevel, boolean showBorder) {
@@ -1072,6 +1078,183 @@ public class ProductSceneView extends BasicView
         @Override
         public void componentHidden(ComponentEvent e) {
             firePixelPosNotAvailable();
+        }
+    }
+
+
+    static class NullFigureCollection implements FigureCollection {
+
+        static final FigureCollection INSTANCE = new NullFigureCollection();
+
+        private NullFigureCollection() {
+        }
+
+        @Override
+        public boolean contains(Figure figure) {
+            return false;
+        }
+
+        @Override
+        public boolean isCloseTo(Point2D point, AffineTransform m2v) {
+            return false;
+        }
+
+        @Override
+        public Rectangle2D getBounds() {
+            return new Rectangle();
+        }
+
+        @Override
+        public Rank getRank() {
+            return Figure.Rank.COLLECTION;
+        }
+
+        @Override
+        public void move(double dx, double dy) {
+        }
+
+        @Override
+        public void scale(Point2D point, double sx, double sy) {
+        }
+
+        @Override
+        public void rotate(Point2D point, double theta) {
+        }
+
+        @Override
+        public double[] getSegment(int index) {
+            return null;
+        }
+
+        @Override
+        public void setSegment(int index, double[] segment) {
+        }
+
+        @Override
+        public void addSegment(int index, double[] segment) {
+        }
+
+        @Override
+        public void removeSegment(int index) {
+        }
+
+        @Override
+        public boolean isSelectable() {
+            return false;
+        }
+
+        @Override
+        public boolean isSelected() {
+            return false;
+        }
+
+        @Override
+        public void setSelected(boolean selected) {
+        }
+
+        @Override
+        public void draw(Rendering rendering) {
+        }
+
+        @Override
+        public int getFigureCount() {
+            return 0;
+        }
+
+        @Override
+        public int getFigureIndex(Figure figure) {
+            return 0;
+        }
+
+        @Override
+        public Figure getFigure(int index) {
+            return null;
+        }
+
+        @Override
+        public Figure getFigure(Point2D point, AffineTransform m2v) {
+            return null;
+        }
+
+        @Override
+        public Figure[] getFigures() {
+            return new Figure[0];
+        }
+
+        @Override
+        public Figure[] getFigures(Shape shape) {
+            return new Figure[0];
+        }
+
+        @Override
+        public boolean addFigure(Figure figure) {
+            return false;
+        }
+
+        @Override
+        public boolean addFigure(int index, Figure figure) {
+            return false;
+        }
+
+        @Override
+        public Figure[] addFigures(Figure... figures) {
+            return new Figure[0];
+        }
+
+        @Override
+        public boolean removeFigure(Figure figure) {
+            return false;
+        }
+
+        @Override
+        public Figure[] removeFigures(Figure... figures) {
+            return new Figure[0];
+        }
+
+        @Override
+        public Figure[] removeAllFigures() {
+            return new Figure[0];
+        }
+
+        @Override
+        public int getMaxSelectionStage() {
+            return 0;
+        }
+
+        @Override
+        public Handle[] createHandles(int selectionStage) {
+            return new Handle[0];
+        }
+
+        @Override
+        public void addChangeListener(FigureChangeListener listener) {
+        }
+
+        @Override
+        public void removeChangeListener(FigureChangeListener listener) {
+        }
+
+        @Override
+        public FigureChangeListener[] getChangeListeners() {
+            return new FigureChangeListener[0];
+        }
+
+        @Override
+        public void dispose() {
+        }
+
+        @Override
+        public Object createMemento() {
+            return null;
+        }
+
+        @Override
+        public void setMemento(Object memento) {
+        }
+
+        @Override
+        public Object clone() {
+            return INSTANCE;
         }
     }
 
