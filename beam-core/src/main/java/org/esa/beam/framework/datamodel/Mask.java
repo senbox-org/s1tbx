@@ -8,16 +8,9 @@ import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.impl.Tokenizer;
-
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
-import org.esa.beam.jai.ImageManager;
-import org.esa.beam.jai.ResolutionLevel;
-import org.esa.beam.jai.VectorDataMaskOpImage;
 import org.esa.beam.util.StringUtils;
 
 import java.awt.Color;
@@ -27,9 +20,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.media.jai.KernelJAI;
-import javax.media.jai.operator.DilateDescriptor;
 
 /**
  * A {@code Mask} is used to mask image pixels of other raster data nodes.
@@ -236,7 +226,7 @@ public class Mask extends Band {
         public MultiLevelImage createImage(final Mask mask) {
             return MathMultiLevelImage.createMask(getExpression(mask), mask);
         }
-        
+
         @Override
         public boolean canTransferMask(Mask mask, Product targetProduct) {
             String expression = getExpression(mask);
@@ -244,7 +234,8 @@ public class Mask extends Band {
                 return false;
             }
             try {
-                RasterDataNode[] refRasters = BandArithmetic.getRefRasters(expression, new Product[] {mask.getProduct()});
+                RasterDataNode[] refRasters = BandArithmetic.getRefRasters(expression,
+                                                                           new Product[]{mask.getProduct()});
                 for (RasterDataNode rdn : refRasters) {
                     if (rdn instanceof Mask) {
                         if (!targetProduct.getMaskGroup().contains(rdn.getName())) {
@@ -264,7 +255,7 @@ public class Mask extends Band {
             }
             return true;
         }
-        
+
         @Override
         public Mask transferMask(Mask mask, Product targetProduct) {
             String expression = getExpression(mask);
@@ -275,18 +266,19 @@ public class Mask extends Band {
             int width = targetProduct.getSceneRasterWidth();
             int height = targetProduct.getSceneRasterHeight();
             Mask newMask = new Mask(maskName, width, height, this);
-            newMask.setDescription(mask.getDescription() + " (from " + mask.getProduct().getDisplayName()+ ")");
+            newMask.setDescription(mask.getDescription() + " (from " + mask.getProduct().getDisplayName() + ")");
             setImageStyle(newMask.getImageConfig(), mask.getImageColor(), mask.getImageTransparency());
             setExpression(newMask, expression);
             targetProduct.getMaskGroup().add(newMask);
             return newMask;
         }
 
-        private static Map<Mask, Mask> transferDependentMasks(String expression, Product srcProduct, Product targetProduct) {
+        private static Map<Mask, Mask> transferDependentMasks(String expression, Product srcProduct,
+                                                              Product targetProduct) {
             Map<Mask, Mask> translationMap = new HashMap<Mask, Mask>();
             RasterDataNode[] refRasters;
             try {
-                refRasters = BandArithmetic.getRefRasters(expression, new Product[] {srcProduct});
+                refRasters = BandArithmetic.getRefRasters(expression, new Product[]{srcProduct});
             } catch (ParseException e) {
                 return translationMap;
             }
@@ -299,7 +291,7 @@ public class Mask extends Band {
             }
             return translationMap;
         }
-        
+
         private static String translateExpression(Map<Mask, Mask> translationMap, String expression) {
             for (Map.Entry<Mask, Mask> entry : translationMap.entrySet()) {
                 String srcName = entry.getKey().getName();
@@ -308,6 +300,7 @@ public class Mask extends Band {
             }
             return expression;
         }
+
         /**
          * Creates a prototype image configuration.
          *
@@ -364,20 +357,7 @@ public class Mask extends Band {
          */
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            MultiLevelSource mls = new AbstractMultiLevelSource(ImageManager.createMultiLevelModel(mask)) {
-                @Override
-                public RenderedImage createImage(int level) {
-                    VectorDataMaskOpImage opImage = new VectorDataMaskOpImage(getVectorData(mask),
-                                                                              ResolutionLevel.create(getModel(),
-                                                                                                     level));
-                    return DilateDescriptor.create(opImage, new KernelJAI(3, 3, new float[]{
-                            1, 0, 1,
-                            0, 1, 0,
-                            1, 0, 1,
-                    }), null);
-                }
-            };
-            return new DefaultMultiLevelImage(mls);
+            return VectorMultiLevelImage.createMask(getVectorData(mask), mask);
         }
 
         /**
@@ -423,7 +403,7 @@ public class Mask extends Band {
         public MultiLevelImage createImage(final Mask mask) {
             return MathMultiLevelImage.createMask(getExpression(mask), mask);
         }
-        
+
         @Override
         public boolean canTransferMask(Mask mask, Product product) {
             String rasterName = getRasterName(mask);
@@ -432,7 +412,7 @@ public class Mask extends Band {
             }
             return product.containsRasterDataNode(rasterName);
         }
-        
+
         @Override
         public Mask transferMask(Mask mask, Product targetProduct) {
             String originalMaskName = mask.getName();
@@ -440,7 +420,7 @@ public class Mask extends Band {
             int width = targetProduct.getSceneRasterWidth();
             int height = targetProduct.getSceneRasterHeight();
             Mask newMask = new Mask(maskName, width, height, this);
-            newMask.setDescription(mask.getDescription() + " (from " + mask.getProduct().getDisplayName()+ ")");
+            newMask.setDescription(mask.getDescription() + " (from " + mask.getProduct().getDisplayName() + ")");
             setImageStyle(newMask.getImageConfig(), mask.getImageColor(), mask.getImageTransparency());
             setRasterName(newMask, getRasterName(mask));
             setMinimum(newMask, getMinimum(mask));
@@ -524,7 +504,7 @@ public class Mask extends Band {
             return rasterName + " >= " + min + " && " + rasterName + " <= " + max;
         }
     }
-    
+
     private static String getAvailableMaskName(String name, ProductNodeGroup<Mask> maskGroup) {
         int index = 1;
         String foundName = name;

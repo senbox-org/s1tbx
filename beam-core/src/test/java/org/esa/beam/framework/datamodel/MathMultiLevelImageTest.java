@@ -37,12 +37,12 @@ public class MathMultiLevelImageTest {
 
         final String expression = "$1.V == $2.W";
         final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(v);
-        image = new MathMultiLevelImage(expression, p, new AbstractMultiLevelSource(multiLevelModel) {
+        image = new MathMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {
                 return VirtualBandOpImage.createMask(expression, p, ResolutionLevel.create(getModel(), level));
             }
-        });
+        }, expression, p);
     }
 
     @Test

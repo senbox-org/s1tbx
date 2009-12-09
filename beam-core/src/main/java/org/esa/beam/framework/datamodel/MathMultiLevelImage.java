@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 /**
- * A {@link MultiLevelImage} computed from raster data arithmetics. A {@link MathMultiLevelImage}
+ * A {@link MultiLevelImage} computed from raster data arithmetics. The {@link MathMultiLevelImage}
  * resets itsself whenever any referred raster data have changed.
  *
  * @author Ralf Quast
@@ -52,7 +52,7 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
                                                      ResolutionLevel.create(getModel(), level));
             }
         };
-        return new MathMultiLevelImage(expression, associatedNode.getProduct(), multiLevelSource) {
+        return new MathMultiLevelImage(multiLevelSource, expression, associatedNode.getProduct()) {
             @Override
             public void reset() {
                 super.reset();
@@ -85,7 +85,7 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
                                                  ResolutionLevel.create(getModel(), level));
             }
         };
-        return new MathMultiLevelImage(expression, associatedNode.getProduct(), multiLevelSource) {
+        return new MathMultiLevelImage(multiLevelSource, expression, associatedNode.getProduct()) {
             @Override
             public void reset() {
                 super.reset();
@@ -98,28 +98,28 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
      * Creates a new {@link MultiLevelImage} computed from raster data arithmetics. The created
      * image resets itsself whenever any referred raster data have changed.
      *
-     * @param expression       the raster data arithmetic expression.
-     * @param product          the parent of the raster data referred in {@code expression}.
      * @param multiLevelSource the multi-level image source
+     * @param expression       the raster data arithmetic expression.
+     * @param product          the parent of the raster data node(s) referred in {@code expression}.
      */
-    MathMultiLevelImage(String expression, Product product, MultiLevelSource multiLevelSource) {
+    MathMultiLevelImage(MultiLevelSource multiLevelSource, String expression, Product product) {
         super(multiLevelSource);
         try {
-            final RasterDataNode[] rasters;
+            final RasterDataNode[] nodes;
             final ProductManager productManager = product.getProductManager();
             if (productManager != null) {
-                rasters = BandArithmetic.getRefRasters(expression,
-                                                       productManager.getProducts(),
-                                                       productManager.getProductIndex(product));
+                nodes = BandArithmetic.getRefRasters(expression,
+                                                     productManager.getProducts(),
+                                                     productManager.getProductIndex(product));
             } else {
-                rasters = BandArithmetic.getRefRasters(expression, product);
+                nodes = BandArithmetic.getRefRasters(expression, product);
             }
-            if (rasters.length > 0) {
-                for (final RasterDataNode raster : rasters) {
-                    if (!nodeMap.containsKey(raster.getProduct())) {
-                        nodeMap.put(raster.getProduct(), new WeakHashSet<ProductNode>());
+            if (nodes.length > 0) {
+                for (final RasterDataNode node : nodes) {
+                    if (!nodeMap.containsKey(node.getProduct())) {
+                        nodeMap.put(node.getProduct(), new WeakHashSet<ProductNode>());
                     }
-                    nodeMap.get(raster.getProduct()).add(raster);
+                    nodeMap.get(node.getProduct()).add(node);
                 }
                 for (final Product key : nodeMap.keySet()) {
                     key.addProductNodeListener(this);
@@ -161,7 +161,7 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
     public void nodeRemoved(ProductNodeEvent event) {
     }
 
-    // for testing only
+    // use for testing only
     Map<Product, Set<ProductNode>> getNodeMap() {
         return nodeMap;
     }
