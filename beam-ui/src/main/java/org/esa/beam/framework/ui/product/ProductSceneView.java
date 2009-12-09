@@ -49,6 +49,7 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.glayer.GraticuleLayer;
 import org.esa.beam.glayer.MaskCollectionLayer;
 import org.esa.beam.glayer.NoDataLayerType;
+import org.esa.beam.framework.ui.product.VectorDataCollectionLayer;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
@@ -106,6 +107,7 @@ public class ProductSceneView extends BasicView
     public static final String BASE_IMAGE_LAYER_ID = "org.esa.beam.layers.baseImage";
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
     public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
+    public static final String VECTOR_DATA_LAYER_ID = VectorDataCollectionLayer.ID;
     public static final String MASKS_LAYER_ID = MaskCollectionLayer.ID;
     public static final String ROI_LAYER_ID = "org.esa.beam.layers.roi";
     public static final String GRATICULE_LAYER_ID = "org.esa.beam.layers.graticule";
@@ -150,7 +152,6 @@ public class ProductSceneView extends BasicView
 
     private ProductSceneImage sceneImage;
     private LayerCanvas layerCanvas;
-
     // todo - (re)move following variables, they don't belong to here (nf - 28.10.2008)
     // {{
     private final ImageLayer baseImageLayer;
@@ -162,16 +163,16 @@ public class ProductSceneView extends BasicView
     private boolean pixelBorderShown; // can it be shown?
     private boolean pixelBorderDrawn; // has it been drawn?
     private double pixelBorderViewScale;
+
     private final Vector<PixelPositionListener> pixelPositionListeners;
 
     private Layer selectedLayer;
-
     private ComponentAdapter layerCanvasComponentHandler;
     private LayerCanvasMouseHandler layerCanvasMouseHandler;
     private RasterChangeHandler rasterChangeHandler;
     private boolean scrollBarsShown;
-    private AdjustableViewScrollPane scrollPane;
 
+    private AdjustableViewScrollPane scrollPane;
     private UndoContext undoContext;
     private DefaultFigureEditor figureEditor;
     private MyFigureFactory figureFactory;
@@ -281,7 +282,7 @@ public class ProductSceneView extends BasicView
 
         int index = getRootLayer().getChildIndex("_figures");
         if (index == -1) {
-            getRootLayer().getChildren().add(0, new VectorDataLayer(this, vectorData));
+            getRootLayer().getChildren().add(0, new VectorDataLayer(getSceneImage(), vectorData));
         }
 
         //new SimpleFeatureFigureFactory()
@@ -626,13 +627,13 @@ public class ProductSceneView extends BasicView
     }
 
     public boolean isShapeOverlayEnabled() {
-        final VectorDataLayer vectorDataLayer = getFigureLayer(false);
-        return vectorDataLayer != null && vectorDataLayer.isVisible();
+        final Layer layer = getVectorDataCollectionLayer(false);
+        return layer != null && layer.isVisible();
     }
 
     public void setShapeOverlayEnabled(boolean enabled) {
         if (isShapeOverlayEnabled() != enabled) {
-            getFigureLayer(true).setVisible(enabled);
+            getVectorDataCollectionLayer(true).setVisible(enabled);
         }
     }
 
@@ -703,9 +704,9 @@ public class ProductSceneView extends BasicView
         if (gcpLayer != null) {
             ProductSceneImage.setGcpLayerStyle(configuration, gcpLayer);
         }
-        final VectorDataLayer vectorDataLayer = getFigureLayer(false);
-        if (vectorDataLayer != null) {
-            ProductSceneImage.setFigureLayerStyle(configuration, vectorDataLayer);
+        final Layer collectionLayer = getVectorDataCollectionLayer(false);
+        if (collectionLayer != null) {
+            ProductSceneImage.setFigureLayerStyle(configuration, collectionLayer);
         }
         final GraticuleLayer graticuleLayer = getGraticuleLayer(false);
         if (graticuleLayer != null) {
@@ -959,13 +960,13 @@ public class ProductSceneView extends BasicView
         return getSceneImage().getNoDataLayer(create);
     }
 
-    private VectorDataLayer getFigureLayer(boolean create) {
-        return getSceneImage().getFigureLayer(create);
-    }
-
     @Deprecated
     private Layer getBitmaskLayer(boolean create) {
         return getSceneImage().getBitmaskLayer(create);
+    }
+
+    private Layer getVectorDataCollectionLayer(boolean create) {
+        return getSceneImage().getVectorDataCollectionLayer(create);
     }
 
     private Layer getMaskCollectionLayer(boolean create) {

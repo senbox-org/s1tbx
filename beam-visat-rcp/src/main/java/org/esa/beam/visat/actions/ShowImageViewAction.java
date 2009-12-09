@@ -185,6 +185,7 @@ public class ShowImageViewAction extends ExecCommand {
                 sceneImage = new ProductSceneImage(raster, app.getPreferences(), SubProgressMonitor.create(pm, 1));
             }
             sceneImage.initBitmaskLayer();
+            sceneImage.initVectorDataCollectionLayer();
             sceneImage.initMaskCollectionLayer();
         } finally {
             pm.done();

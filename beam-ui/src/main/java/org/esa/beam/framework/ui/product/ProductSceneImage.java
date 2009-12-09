@@ -19,6 +19,7 @@ import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VectorData;
 import org.esa.beam.glayer.BitmaskCollectionLayer;
 import org.esa.beam.glayer.BitmaskLayerType;
 import org.esa.beam.glayer.GraticuleLayer;
@@ -175,6 +176,15 @@ public class ProductSceneImage implements LayerContext {
     }
 
 
+    Layer getVectorDataCollectionLayer(boolean create) {
+        Layer layer = getLayer(ProductSceneView.VECTOR_DATA_LAYER_ID);
+        if (layer == null && create) {
+            layer = createVectorDataCollectionLayer();
+            addLayer(getFirstImageLayerIndex(), layer);
+        }
+        return layer;
+    }
+
     Layer getMaskCollectionLayer(boolean create) {
         Layer layer = getLayer(ProductSceneView.MASKS_LAYER_ID);
         if (layer == null && create) {
@@ -220,7 +230,7 @@ public class ProductSceneImage implements LayerContext {
         return layer;
     }
 
-    private RasterDataNode getRaster() {
+    RasterDataNode getRaster() {
         return rasters[0];
     }
 
@@ -233,6 +243,12 @@ public class ProductSceneImage implements LayerContext {
     public void initBitmaskLayer() {
         if (mustEnableBitmaskLayer()) {
             getBitmaskLayer(true);
+        }
+    }
+
+    public void initVectorDataCollectionLayer() {
+        if (mustEnableVectorDataCollectionLayer()) {
+            getVectorDataCollectionLayer(true);
         }
     }
 
@@ -254,6 +270,10 @@ public class ProductSceneImage implements LayerContext {
             }
         }
         return false;
+    }
+
+    private boolean mustEnableVectorDataCollectionLayer() {
+        return getRaster().getProduct().getVectorDataGroup().getNodeCount() > 0;
     }
 
     private boolean mustEnableMaskCollectionLayer() {
@@ -319,6 +339,19 @@ public class ProductSceneImage implements LayerContext {
             bitmaskCollectionLayer.getChildren().add(layer);
         }
         return bitmaskCollectionLayer;
+    }
+
+    private synchronized Layer createVectorDataCollectionLayer() {
+        final LayerType layerType = LayerTypeRegistry.getLayerType(VectorDataCollectionLayerType.class);
+        final Layer collectionLayer = layerType.createLayer(this, layerType.createLayerConfig(this));
+        final ProductNodeGroup<VectorData> vectorDataGroup = getRaster().getProduct().getVectorDataGroup();
+
+        for (final VectorData vectorData : vectorDataGroup.toArray(new VectorData[vectorDataGroup.getNodeCount()])) {
+            final Layer layer = VectorDataLayerType.createLayer(vectorData);
+            collectionLayer.getChildren().add(layer);
+        }
+
+        return collectionLayer;
     }
 
     private synchronized Layer createMaskCollectionLayer() {
