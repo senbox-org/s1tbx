@@ -154,7 +154,10 @@ class MultipleRoiComputePanel extends JPanel {
     private void updateMaskListState() {
         boolean hasRaster = (raster != null);
         computeButton.setEnabled(hasRaster);
-        int roiCount = raster.getRoiMaskGroup().getNodeCount();
+        int roiCount = 0;
+        if (hasRaster) {
+            roiCount = raster.getRoiMaskGroup().getNodeCount();
+        }
         boolean hasRois = (hasRaster && roiCount > 0);
         useRoiCheckBox.setEnabled(hasRois);
         if (hasRois) {
