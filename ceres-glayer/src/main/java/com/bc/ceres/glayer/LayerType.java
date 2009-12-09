@@ -16,14 +16,6 @@ public abstract class LayerType extends ExtensibleObject {
     protected LayerType() {
     }
 
-    // todo - Layer API: remove, no framework use (nf)
-    /**
-     * Gets the name for this layer type.
-     *
-     * @return A name.
-     */
-    public abstract String getName();
-
     /**
      * Tests if this type can create layers for the given application provided context.
      * Note that some applications may provide their context through the extension object interface

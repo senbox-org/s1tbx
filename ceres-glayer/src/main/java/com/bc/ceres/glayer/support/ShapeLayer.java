@@ -1,7 +1,10 @@
 package com.bc.ceres.glayer.support;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
@@ -28,14 +31,14 @@ public class ShapeLayer extends Layer {
     private final AffineTransform modelToShapeTransform;
 
     public ShapeLayer(Shape[] shapes, AffineTransform shapeToModelTransform) {
-        this(LayerTypeRegistry.getLayerType(ShapeLayerType.class), Arrays.asList(shapes), shapeToModelTransform);
+        this(LayerTypeRegistry.getLayerType(Type.class), Arrays.asList(shapes), shapeToModelTransform);
     }
 
-    private ShapeLayer(ShapeLayerType layerType,List<Shape> shapes, AffineTransform shapeToModelTransform) {
+    private ShapeLayer(Type layerType,List<Shape> shapes, AffineTransform shapeToModelTransform) {
        this(layerType, shapes, shapeToModelTransform, layerType.createLayerConfig(null));
     }
 
-    public ShapeLayer(ShapeLayerType layerType, List<Shape> shapes,
+    public ShapeLayer(Type layerType, List<Shape> shapes,
                       AffineTransform shapeToModelTransform, PropertyContainer configuration) {
         super(layerType, configuration);
         this.shapeList = new ArrayList<Shape>(shapes);
@@ -98,4 +101,37 @@ public class ShapeLayer extends Layer {
         }
     }
 
+    public static class Type extends LayerType {
+
+        public static final String PROPERTY_SHAPE_LIST = "shapes";
+        public static final String PROPTERY_SHAPE_TO_MODEL_TRANSFORM = "shapeToModelTransform";
+
+        @Override
+        public boolean isValidFor(LayerContext ctx) {
+            return true;
+        }
+
+        @Override
+        public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+            final List<Shape> shapeList = (List<Shape>) configuration.getValue(PROPERTY_SHAPE_LIST);
+            final AffineTransform modelTransform = (AffineTransform) configuration.getValue(
+                    PROPTERY_SHAPE_TO_MODEL_TRANSFORM);
+            return new ShapeLayer(this, shapeList, modelTransform, configuration);
+        }
+
+        @Override
+        public PropertyContainer createLayerConfig(LayerContext ctx) {
+            final PropertyContainer vc = new PropertyContainer();
+
+            final Property shapeList = Property.create(PROPERTY_SHAPE_LIST, List.class);
+            shapeList.getDescriptor().setDefaultValue(new ArrayList<Shape>());
+            vc.addProperty(shapeList);
+
+            final Property transform = Property.create(PROPTERY_SHAPE_TO_MODEL_TRANSFORM, AffineTransform.class,
+                                                       new AffineTransform(), true);
+            vc.addProperty(transform);
+
+            return vc;
+        }
+    }
 }

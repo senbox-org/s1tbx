@@ -12,12 +12,8 @@ import com.bc.ceres.binding.PropertyContainer;
  */
 public class CollectionLayer extends Layer {
 
-    private static Type type() {
-        return LayerTypeRegistry.getLayerType(Type.class);
-    }
-
     public CollectionLayer() {
-        this(type().getName());
+        this("Collection Layer");
     }
 
     public CollectionLayer(String name) {
@@ -34,12 +30,11 @@ public class CollectionLayer extends Layer {
         return true;
     }
 
-    public static class Type extends LayerType {
+    private static Type type() {
+        return LayerTypeRegistry.getLayerType(Type.class);
+    }
 
-        @Override
-        public String getName() {
-            return "Collection Layer";
-        }
+    public static class Type extends LayerType {
 
         @Override
         public boolean isValidFor(LayerContext ctx) {
@@ -53,7 +48,8 @@ public class CollectionLayer extends Layer {
 
         @Override
         public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-            return new CollectionLayer(this, configuration, "Collection layer");
+            return new CollectionLayer(this, configuration, "Collection Layer");
         }
     }
+
 }

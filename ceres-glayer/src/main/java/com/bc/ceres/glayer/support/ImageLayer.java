@@ -92,6 +92,7 @@ public class ImageLayer extends Layer {
         super(layerType, configuration);
         Assert.notNull(multiLevelSource);
         this.multiLevelSource = multiLevelSource;
+        setName("Image Layer");
     }
 
     @Override
@@ -270,11 +271,6 @@ public class ImageLayer extends Layer {
     public static class Type extends LayerType {
 
         @Override
-        public String getName() {
-            return "Image Layer";
-        }
-
-        @Override
         public boolean isValidFor(LayerContext ctx) {
             return true;
         }
@@ -306,8 +302,6 @@ public class ImageLayer extends Layer {
             if (configuration.getProperty(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM) == null) {
                 configuration.addProperty(Property.create(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
             }
-            // configuration.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
-
             return configuration.getProperty(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
         }
 

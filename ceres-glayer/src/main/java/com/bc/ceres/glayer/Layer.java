@@ -1,7 +1,7 @@
 package com.bc.ceres.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.grender.Rendering;
@@ -65,7 +65,7 @@ public abstract class Layer extends ExtensibleObject {
         this.configuration = configuration;
         Assert.notNull(layerType, "layerType");
         this.layerType = layerType;
-        this.name = layerType.getName();
+        this.name = createDefaultName(layerType);
         this.parent = null;
         this.id = Long.toHexString(System.nanoTime() + (instanceCount.incrementAndGet()));
         this.children = new LayerList();
@@ -518,6 +518,15 @@ public abstract class Layer extends ExtensibleObject {
         public void propertyChange(PropertyChangeEvent event) {
             fireLayerPropertyChanged(event);
         }
+    }
+
+    private static String createDefaultName(LayerType layerType) {
+        String name = layerType.getClass().getSimpleName();
+        final String suffix = "Type";
+        if (name.endsWith(suffix)) {
+            return name.substring(0, name.length() - suffix.length());
+        }
+        return name;
     }
 
     /**

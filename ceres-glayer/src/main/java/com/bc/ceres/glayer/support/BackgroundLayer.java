@@ -1,7 +1,7 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -57,10 +57,6 @@ public class BackgroundLayer extends Layer {
 
         private static final String COLOR = "color";
 
-        @Override
-        public String getName() {
-            return "Background Layer";
-        }
 
         @Override
         public boolean isValidFor(LayerContext ctx) {
@@ -78,7 +74,9 @@ public class BackgroundLayer extends Layer {
 
         @Override
         public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
-            return new BackgroundLayer(this, configuration);
+            final BackgroundLayer layer = new BackgroundLayer(this, configuration);
+            layer.setName("Background Layer");
+            return layer;
         }
     }
 }
