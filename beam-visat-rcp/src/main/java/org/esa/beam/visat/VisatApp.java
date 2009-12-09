@@ -31,7 +31,6 @@ import com.bc.ceres.swing.figure.FigureEditorAware;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
-import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.selection.SelectionManager;
 import com.bc.ceres.swing.selection.support.DefaultSelectionManager;
 import com.bc.ceres.swing.undo.UndoContext;
@@ -74,7 +73,6 @@ import org.esa.beam.framework.param.ParamExceptionHandler;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
-import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.FileHistory;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.NewProductDialog;
@@ -2355,37 +2353,10 @@ public class VisatApp extends BasicApp implements AppContext {
             setSelectedProductNode(e.getInternalFrame());
             final Component contentPane = e.getInternalFrame().getContentPane();
             setInteractor(contentPane, activeInteractor);
-            setSelectionContext(contentPane);
+            getApplicationPage().setActiveComponent();
             updateMainFrameTitle();
             updateState();
             clearStatusBarMessage();
-        }
-
-        /**
-         * CLears the current selection context provided by the given component.
-         * @param contentPane The component being activated.
-         */
-        private void setSelectionContext(Component contentPane) {
-            if (contentPane instanceof BasicView) {
-                BasicView view = (BasicView) contentPane;
-                SelectionContext context = view.getSelectionContext();
-                getApplicationPage().getSelectionManager().setSelectionContext(context);
-            }
-        }
-
-        /**
-         * Clears the current selection context if it is the one provided by the given component.
-         * @param contentPane The component being closed.
-         */
-        private void clearSelectionContext(Component contentPane) {
-            if (contentPane instanceof BasicView) {
-                BasicView view = (BasicView) contentPane;
-                SelectionManager selectionManager = getApplicationPage().getSelectionManager();
-                SelectionContext context = view.getSelectionContext();
-                if (context != null && selectionManager.getSelectionContext() == context) {
-                    selectionManager.setSelectionContext(null);
-                }
-            }
         }
 
         /**
@@ -2398,6 +2369,7 @@ public class VisatApp extends BasicApp implements AppContext {
             Debug.trace("VisatApp: internal frame deactivated: " + e);
             final Component contentPane = e.getInternalFrame().getContentPane();
             setInteractor(contentPane, NullInteractor.INSTANCE);
+            getApplicationPage().setActiveComponent();  
             updateState();
         }
 
@@ -2437,7 +2409,7 @@ public class VisatApp extends BasicApp implements AppContext {
             final String title = e.getInternalFrame().getTitle();
             final Container contentPane = e.getInternalFrame().getContentPane();
             setInteractor(contentPane, NullInteractor.INSTANCE);
-            clearSelectionContext(contentPane);
+
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView productSceneView = (ProductSceneView) contentPane;
                 removePropertyMapChangeListener(productSceneView);
