@@ -17,8 +17,8 @@ import org.opengis.referencing.operation.TransformException;
 public class VectorDataTest {
     @Test
     public void testVectorData() throws TransformException, FactoryException {
-        SimpleFeatureType pinType = createPlacemarkFeaureType("PinType", "pixelPoint");
-        SimpleFeatureType gcpType = createPlacemarkFeaureType("GcpType", "geoPoint");
+        SimpleFeatureType pinType = createPlacemarkFeatureType("PinType", "pixelPoint");
+        SimpleFeatureType gcpType = createPlacemarkFeatureType("GcpType", "geoPoint");
         testVectorData(new VectorData("Pins", pinType), "Pins", pinType);
         testVectorData(new VectorData("GCPs", gcpType), "GCPs", gcpType);
     }
@@ -28,8 +28,8 @@ public class VectorDataTest {
         Product p = new Product("p", "pt", 512, 512);
         assertEquals(2, p.getVectorDataGroup().getNodeCount());
 
-        SimpleFeatureType pinType = createPlacemarkFeaureType("PinType", "pixelPoint");
-        SimpleFeatureType gcpType = createPlacemarkFeaureType("GcpType", "geoPoint");
+        SimpleFeatureType pinType = createPlacemarkFeatureType("PinType", "pixelPoint");
+        SimpleFeatureType gcpType = createPlacemarkFeatureType("GcpType", "geoPoint");
 
         p.getVectorDataGroup().add(new VectorData("Pins2", pinType));
         p.getVectorDataGroup().add(new VectorData("GCPs2", gcpType));
@@ -52,7 +52,7 @@ public class VectorDataTest {
         assertSame(expectedType, vectorData.getFeatureCollection().getSchema());
     }
 
-    private static SimpleFeatureType createPlacemarkFeaureType(String typeName, String defaultGeometryName) {
+    private static SimpleFeatureType createPlacemarkFeatureType(String typeName, String defaultGeometryName) {
         SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
         DefaultGeographicCRS crs = DefaultGeographicCRS.WGS84;
         ftb.setCRS(crs);
@@ -73,6 +73,4 @@ public class VectorDataTest {
         fb.add(gf.createPoint(new Coordinate(pixelPos.x, pixelPos.y)));
         return fb.buildFeature(id);
     }
-
-
 }
