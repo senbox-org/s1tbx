@@ -9,10 +9,8 @@ import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
-
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
-import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -255,8 +253,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             return true;
         }
     }
+
     private class ProductChangedHandler extends AbstractSelectionChangeListener implements ProductNodeListener {
-        
+
         private Product currentProduct;
 
         public void releaseProduct() {
@@ -265,7 +264,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                 currentProduct = null;
             }
         }
-        
+
         @Override
         public void selectionChanged(SelectionChangeEvent event) {
             Selection selection = event.getSelection();
@@ -304,7 +303,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         public void nodeRemoved(ProductNodeEvent event) {
             handleProductNodeEvent(event);
         }
-        
+
         private void updateTargetProductname() {
             String productName = "";
             if (currentProduct != null) {
@@ -313,11 +312,11 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
             targetProductSelectorModel.setProductName(productName + getTargetProductNameSuffix());
         }
-        
+
         private void handleProductNodeEvent(ProductNodeEvent event) {
             updateValueSets(currentProduct);
         }
-        
+
         private void updateValueSets(Product product) {
             for (PropertyDescriptor propertyDescriptor : rasterDataNodeTypeProperties) {
                 updateValueSet(propertyDescriptor, product);
