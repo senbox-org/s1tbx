@@ -844,6 +844,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             final DefaultMutableTreeNode groupTNode;
             if (sourceNode instanceof Mask) {
                 groupTNode = getTreeNodeFor(MASKS, productTNode);
+            } else if (sourceNode instanceof Mask) {
+                groupTNode = getTreeNodeFor(VECTOR_DATA, productTNode);
             } else {
                 groupTNode = getTreeNodeFor(BANDS, productTNode);
             }
