@@ -6,7 +6,6 @@ import com.vividsolutions.jts.geom.LinearRing;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,11 +30,6 @@ public class VectorDataMultiLevelImageTest {
         product.getVectorDataGroup().add(pyramids);
 
         image = new VectorDataMultiLevelImage(VectorDataMultiLevelImage.createMaskMultiLevelSource(pyramids), pyramids);
-    }
-
-    @After
-    public void tearDown() {
-        image.dispose();
     }
 
     @Test
