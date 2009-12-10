@@ -61,6 +61,9 @@ h3. Ceres Binding API Changes
 * PropertyContainer.setValue(String propertyName, Object value) now throws IllegalArgumentException
  by wrapping a previously thrown ValidationException.
 
+* PropertySet is an interface which has been extracted from PropertyContainer.
+  Thus, in many places (including public BEAM API) the use of PropertyContainer has been replaced by PropertySet
+
 
 h3. Ceres Layer API Changes
 
