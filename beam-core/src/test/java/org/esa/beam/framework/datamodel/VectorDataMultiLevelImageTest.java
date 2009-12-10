@@ -35,9 +35,7 @@ public class VectorDataMultiLevelImageTest {
 
     @After
     public void tearDown() {
-        image = null;
-        pyramids = null;
-        product = null;
+        image.dispose();
     }
 
     @Test
