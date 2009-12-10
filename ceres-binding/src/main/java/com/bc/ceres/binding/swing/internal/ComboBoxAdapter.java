@@ -76,7 +76,7 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
     }
 
     private PropertyDescriptor getValueDescriptor() {
-        return getBinding().getContext().getPropertyContainer().getDescriptor(getBinding().getPropertyName());
+        return getBinding().getContext().getPropertySet().getDescriptor(getBinding().getPropertyName());
     }
 
     private void adjustComboBoxModel() {

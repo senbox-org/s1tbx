@@ -1,10 +1,10 @@
 package com.bc.ceres.binding.swing;
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.internal.TextComponentAdapter;
 import junit.framework.TestCase;
 
@@ -20,11 +20,11 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.BadLocationException;
-import java.util.Arrays;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Arrays;
 
-public class BindingContextTest extends TestCase implements BindingContext.ErrorHandler {
+public class BindingContextTest extends TestCase {
 
     private BindingContext bindingContextVB;
     private PropertyContainer propertyContainerVB;
@@ -40,21 +40,17 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
     protected void setUp() throws Exception {
         propertyContainerVB = PropertyContainer.createValueBacked(TestPojo.class);
         propertyContainerVB.getDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
-        bindingContextVB = new BindingContext(propertyContainerVB, this);
+        bindingContextVB = new BindingContext(propertyContainerVB, null);
+        bindingContextVB.addProblemListener(new MyBindingProblemListener());
 
         pojo = new TestPojo();
         propertyContainerOB = PropertyContainer.createObjectBacked(pojo);
         propertyContainerOB.getDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
-        bindingContextOB = new BindingContext(propertyContainerOB, this);
+        bindingContextOB = new BindingContext(propertyContainerOB, null);
+        bindingContextVB.addProblemListener(new MyBindingProblemListener());
 
         error = null;
         component = null;
-    }
-
-    @Override
-    public void handleError(Exception error, JComponent component) {
-        this.error = error;
-        this.component = component;
     }
 
     private void clearError() {
@@ -119,7 +115,7 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         comboBox.setEditable(false);
 
         final ValueSet valueSet = new ValueSet(new Object[]{10, 20});
-        final PropertyDescriptor descriptor = binding.getContext().getPropertyContainer().getDescriptor("intValue");
+        final PropertyDescriptor descriptor = binding.getContext().getPropertySet().getDescriptor("intValue");
         descriptor.setValueSet(valueSet);
 
         assertEquals(2, comboBox.getModel().getSize());
@@ -160,7 +156,7 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
         assertEquals("stringValue", textField.getName());
 
         textField.setText("Bibo");
-        textField.postActionEvent();        
+        textField.postActionEvent();
         assertEquals("Bibo", propertyContainerOB.getValue("stringValue"));
 
         propertyContainerOB.setValue("stringValue", "Samson");
@@ -470,7 +466,21 @@ public class BindingContextTest extends TestCase implements BindingContext.Error
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            trace += "V;";  
+            trace += "V;";
+        }
+    }
+
+    private class MyBindingProblemListener implements BindingProblemListener {
+        @Override
+            public void problemReported(BindingProblem newProblem, BindingProblem oldProblem) {
+            error = newProblem.getCause();
+            component = newProblem.getBinding().getComponents()[0];
+        }
+
+        @Override
+            public void problemCleared(BindingProblem oldProblem) {
+            error = null;
+            component = null;
         }
     }
 }

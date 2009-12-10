@@ -81,7 +81,7 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
     }
 
     private PropertyDescriptor getValueDescriptor() {
-        return getBinding().getContext().getPropertyContainer().getDescriptor(getBinding().getPropertyName());
+        return getBinding().getContext().getPropertySet().getDescriptor(getBinding().getPropertyName());
     }
 
     private void updateListModel() {
@@ -113,7 +113,7 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
         if (getBinding().isAdjustingComponents()) {
             return;
         }
-        final Property model = getBinding().getContext().getPropertyContainer().getProperty(getBinding().getPropertyName());
+        final Property model = getBinding().getContext().getPropertySet().getProperty(getBinding().getPropertyName());
         Object[] selectedValues = list.getSelectedValues();
         Object array = Array.newInstance(model.getDescriptor().getType().getComponentType(), selectedValues.length);
         for (int i = 0; i < selectedValues.length; i++) {

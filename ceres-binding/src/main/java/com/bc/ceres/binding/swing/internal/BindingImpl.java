@@ -64,7 +64,6 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
         if (oldProblem == null || !newProblem.equals(oldProblem)) {
             this.problem = newProblem;
             fireProblemReported(newProblem, oldProblem);
-            componentAdapter.handleError(newProblem.getCause());
         }
         return newProblem;
     }
@@ -91,13 +90,13 @@ public final class BindingImpl implements Binding, PropertyChangeListener {
 
     @Override
     public Object getPropertyValue() {
-        return context.getPropertyContainer().getValue(getPropertyName());
+        return context.getPropertySet().getValue(getPropertyName());
     }
 
     @Override
     public void setPropertyValue(Object value) {
         try {
-            context.getPropertyContainer().setValue(getPropertyName(), value);
+            context.getPropertySet().setValue(getPropertyName(), value);
             clearProblem();
         } catch (IllegalArgumentException e) {
             if (e.getCause() instanceof BindingException) {

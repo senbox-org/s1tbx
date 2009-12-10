@@ -1,9 +1,10 @@
 package com.bc.ceres.binding.swing;
 
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.swing.internal.AbstractButtonAdapter;
 import com.bc.ceres.binding.swing.internal.BindingImpl;
 import com.bc.ceres.binding.swing.internal.ButtonGroupAdapter;
@@ -43,36 +44,36 @@ import java.util.Map;
  */
 public class BindingContext {
 
-    private final PropertyContainer propertyContainer;
-    private BindingContext.ErrorHandler errorHandler;
+    private final PropertySet propertySet;
     private Map<String, BindingImpl> bindingMap;
     private Map<String, EnablePCL> enablePCLMap;
     private ArrayList<BindingProblemListener> bindingProblemListeners;
 
     /**
-     * Constructor.
+     * Constructor. Uses an empty, default property set and a
+     * default problem handler which will display an error dialog box on any binding errors.
      */
     public BindingContext() {
         this(new PropertyContainer());
     }
 
     /**
-     * Constructor.
+     * Constructor. Uses a default problem handler which will display an error dialog box on any binding errors.
      *
-     * @param propertyContainer The value container.
+     * @param propertySet The property set.
      */
-    public BindingContext(PropertyContainer propertyContainer) {
-        this(propertyContainer, new VerbousProblemHandler());
+    public BindingContext(PropertySet propertySet) {
+        this(propertySet, new VerbousProblemHandler());
     }
 
     /**
      * Constructor.
      *
-     * @param propertyContainer The value container.
+     * @param propertySet    The property set.
      * @param problemHandler A problem handler, or {@code null}.
      */
-    public BindingContext(PropertyContainer propertyContainer, BindingProblemListener problemHandler) {
-        this.propertyContainer = propertyContainer;
+    public BindingContext(PropertySet propertySet, BindingProblemListener problemHandler) {
+        this.propertySet = propertySet;
         this.bindingMap = new HashMap<String, BindingImpl>(17);
         this.enablePCLMap = new HashMap<String, EnablePCL>(11);
         if (problemHandler != null) {
@@ -81,72 +82,14 @@ public class BindingContext {
     }
 
     /**
-     * Constructor.
-     *
-     * @param propertyContainer The value container.
-     * @param errorHandler   The error handler, or {@code null}.
-     *
-     * @deprecated Since 0.10, for error handling use {@link #addProblemListener(BindingProblemListener)}
-     *             and {@link #getProblems()} instead
+     * @return The property set.
      */
-    @Deprecated
-    public BindingContext(PropertyContainer propertyContainer, BindingContext.ErrorHandler errorHandler) {
-        this(propertyContainer, (BindingProblemListener) null);
-        this.errorHandler = errorHandler;
-    }
-
-    /**
-     * @return The value container.
-     */
-    public PropertyContainer getPropertyContainer() {
-        return propertyContainer;
-    }
-
-    /**
-     * @return The error handler or {@code null}.
-     *
-     * @deprecated Since 0.10, for error handling use {@link #addProblemListener(BindingProblemListener)}
-     *             and {@link #getProblems()} instead
-     */
-    @Deprecated
-    public ErrorHandler getErrorHandler() {
-        return errorHandler;
-    }
-
-    /**
-     * Sets the error handler.
-     *
-     * @param errorHandler The error handler, or {@code null}.
-     *
-     * @deprecated Since 0.10, for error handling use {@link #addProblemListener(BindingProblemListener)}
-     *             and {@link #getProblems()} instead
-     */
-    @Deprecated
-    public void setErrorHandler(ErrorHandler errorHandler) {
-        this.errorHandler = errorHandler;
-    }
-
-    /**
-     * Delegates the call to the error handler, if any.
-     *
-     * @param error     The error.
-     * @param component The Swing component in which the error occured.
-     *
-     * @see #getErrorHandler()
-     * @see #setErrorHandler(ErrorHandler)
-     * @deprecated Since 0.10, for error handling use {@link #addProblemListener(BindingProblemListener)}
-     *             and {@link BindingContext#getProblems()} instead
-     */
-    @Deprecated
-    public void handleError(Exception error, JComponent component) {
-        if (errorHandler != null) {
-            errorHandler.handleError(error, component);
-        }
+    public PropertySet getPropertySet() {
+        return propertySet;
     }
 
     /**
      * @return {@code true} if this context has problems.
-     *
      * @since Ceres 0.10
      */
     public boolean hasProblems() {
@@ -160,7 +103,6 @@ public class BindingContext {
 
     /**
      * @return The array of problems this context might have.
-     *
      * @since Ceres 0.10
      */
     public BindingProblem[] getProblems() {
@@ -178,7 +120,6 @@ public class BindingContext {
      * Adds a problem listener to this context.
      *
      * @param listener The listener.
-     *
      * @since Ceres 0.10
      */
     public void addProblemListener(BindingProblemListener listener) {
@@ -193,7 +134,6 @@ public class BindingContext {
      * Removes a problem listener from this context.
      *
      * @param listener The listener.
-     *
      * @since Ceres 0.10
      */
     public void removeProblemListener(BindingProblemListener listener) {
@@ -205,7 +145,6 @@ public class BindingContext {
 
     /**
      * @return The array of problem listeners.
-     *
      * @since Ceres 0.10
      */
     public BindingProblemListener[] getProblemListeners() {
@@ -231,7 +170,6 @@ public class BindingContext {
      * Gets the binding for the given property name.
      *
      * @param propertyName The property name.
-     *
      * @return The binding, or {@code null} if no such exists.
      */
     public Binding getBinding(String propertyName) {
@@ -252,9 +190,7 @@ public class BindingContext {
      *
      * @param propertyName     The property name.
      * @param componentAdapter The component adapter.
-     *
      * @return The resulting binding.
-     *
      * @see #unbind(Binding)
      */
     public Binding bind(String propertyName, ComponentAdapter componentAdapter) {
@@ -278,7 +214,6 @@ public class BindingContext {
      * </ol>
      *
      * @param binding The binding.
-     *
      * @see #bind(String, ComponentAdapter)
      */
     public void unbind(Binding binding) {
@@ -296,7 +231,6 @@ public class BindingContext {
      *
      * @param propertyName The property name.
      * @param component    The Swing component.
-     *
      * @return The resulting binding.
      */
     public Binding bind(final String propertyName, final JTextComponent component) {
@@ -308,7 +242,6 @@ public class BindingContext {
      *
      * @param propertyName The property name.
      * @param component    The Swing component.
-     *
      * @return The resulting binding.
      */
     public Binding bind(final String propertyName, final JTextField component) {
@@ -320,7 +253,6 @@ public class BindingContext {
      *
      * @param propertyName The property name.
      * @param component    The Swing component.
-     *
      * @return The resulting binding.
      */
     public Binding bind(final String propertyName, final JFormattedTextField component) {
@@ -332,7 +264,6 @@ public class BindingContext {
      *
      * @param propertyName The property name.
      * @param component    The Swing component.
-     *
      * @return The resulting binding.
      */
     public Binding bind(final String propertyName, final JCheckBox component) {
@@ -344,7 +275,6 @@ public class BindingContext {
      *
      * @param propertyName The property name.
      * @param component    The Swing component.
-     *
      * @return The resulting binding.
      */
     public Binding bind(String propertyName, JRadioButton component) {
@@ -358,7 +288,6 @@ public class BindingContext {
      * @param component        The Swing component.
      * @param selectionIsValue if {@code true}, the current list selection provides the value,
      *                         if {@code false}, the list content is the value.
-     *
      * @return The resulting binding.
      */
     public Binding bind(final String propertyName, final JList component, final boolean selectionIsValue) {
@@ -374,7 +303,6 @@ public class BindingContext {
      *
      * @param propertyName The property name.
      * @param component    The Swing component.
-     *
      * @return The resulting binding.
      */
     public Binding bind(final String propertyName, final JSpinner component) {
@@ -386,7 +314,6 @@ public class BindingContext {
      *
      * @param propertyName The property name.
      * @param component    The Swing component.
-     *
      * @return The resulting binding.
      */
     public Binding bind(final String propertyName, final JComboBox component) {
@@ -398,12 +325,11 @@ public class BindingContext {
      *
      * @param propertyName The property name.
      * @param buttonGroup  The button group.
-     *
      * @return The resulting binding.
      */
     public Binding bind(final String propertyName, final ButtonGroup buttonGroup) {
         return bind(propertyName, buttonGroup,
-                    ButtonGroupAdapter.createButtonToValueMap(buttonGroup, getPropertyContainer(), propertyName));
+                    ButtonGroupAdapter.createButtonToValueMap(buttonGroup, getPropertySet(), propertyName));
     }
 
     /**
@@ -412,7 +338,6 @@ public class BindingContext {
      * @param propertyName The property name.
      * @param buttonGroup  The button group.
      * @param valueSet     The mapping from a button to the actual property value.
-     *
      * @return The resulting binding.
      */
     public Binding bind(final String propertyName, final ButtonGroup buttonGroup,
@@ -427,7 +352,7 @@ public class BindingContext {
      * @param l The property change listener.
      */
     public void addPropertyChangeListener(PropertyChangeListener l) {
-        propertyContainer.addPropertyChangeListener(l);
+        propertySet.addPropertyChangeListener(l);
     }
 
     /**
@@ -437,7 +362,7 @@ public class BindingContext {
      * @param l    The property change listener.
      */
     public void addPropertyChangeListener(String name, PropertyChangeListener l) {
-        propertyContainer.addPropertyChangeListener(name, l);
+        propertySet.addPropertyChangeListener(name, l);
     }
 
     /**
@@ -446,7 +371,7 @@ public class BindingContext {
      * @param l The property change listener.
      */
     public void removePropertyChangeListener(PropertyChangeListener l) {
-        propertyContainer.removePropertyChangeListener(l);
+        propertySet.removePropertyChangeListener(l);
     }
 
     /**
@@ -456,7 +381,7 @@ public class BindingContext {
      * @param l    The property change listener.
      */
     public void removePropertyChangeListener(String name, PropertyChangeListener l) {
-        propertyContainer.removePropertyChangeListener(name, l);
+        propertySet.removePropertyChangeListener(name, l);
     }
 
     /**
@@ -464,9 +389,8 @@ public class BindingContext {
      * triggered by the given component.
      *
      * @param component The component.
-     *
      * @see #preventPropertyChanges(javax.swing.JComponent)
-     * @see #getPropertyContainer()
+     * @see #getPropertySet()
      * @since Ceres 0.10
      */
     @SuppressWarnings({"MethodMayBeStatic"})
@@ -485,9 +409,8 @@ public class BindingContext {
      * By default, component validation and property changes are permitted for most Swing components.
      *
      * @param component The component.
-     *
      * @see #permitPropertyChanges(javax.swing.JComponent)
-     * @see #getPropertyContainer()
+     * @see #getPropertySet()
      * @since Ceres 0.10
      */
     @SuppressWarnings({"MethodMayBeStatic"})
@@ -508,7 +431,7 @@ public class BindingContext {
     }
 
     private String getToolTipText(String propertyName) {
-        final Property property = propertyContainer.getProperty(propertyName);
+        final Property property = propertySet.getProperty(propertyName);
         StringBuilder toolTipText = new StringBuilder(32);
         final PropertyDescriptor propertyDescriptor = property.getDescriptor();
         if (propertyDescriptor.getDescription() != null) {
@@ -550,7 +473,7 @@ public class BindingContext {
         final Binding binding = getBinding(targetPropertyName);
         if (binding != null) {
             enablePCL.apply();
-            propertyContainer.addPropertyChangeListener(sourcePropertyName, enablePCL);
+            propertySet.addPropertyChangeListener(sourcePropertyName, enablePCL);
         } else {
             enablePCLMap.put(targetPropertyName, enablePCL);
         }
@@ -560,7 +483,7 @@ public class BindingContext {
                                       final boolean enabled,
                                       final String sourcePropertyName,
                                       final Object sourcePropertyValue) {
-        Object propertyValue = propertyContainer.getValue(sourcePropertyName);
+        Object propertyValue = propertySet.getValue(sourcePropertyName);
         boolean conditionIsTrue = propertyValue == sourcePropertyValue
                 || (propertyValue != null && propertyValue.equals(sourcePropertyValue));
         for (JComponent component : components) {
@@ -573,7 +496,7 @@ public class BindingContext {
         if (enablePCLMap.containsKey(binding.getPropertyName())) {
             EnablePCL enablePCL = enablePCLMap.remove(binding.getPropertyName());
             enablePCL.apply();
-            propertyContainer.addPropertyChangeListener(enablePCL.sourcePropertyName, enablePCL);
+            propertySet.addPropertyChangeListener(enablePCL.sourcePropertyName, enablePCL);
         }
     }
 
@@ -636,22 +559,5 @@ public class BindingContext {
                                  sourcePropertyName,
                                  sourcePropertyValue);
         }
-    }
-
-    /**
-     * An error handler.
-     *
-     * @deprecated Since 0.10, for error handling use {@link BindingContext#addProblemListener(BindingProblemListener)}
-     *             and {@link BindingContext#getProblems()} instead
-     */
-    @Deprecated
-    public interface ErrorHandler {
-        /**
-         * Handles an error.
-         *
-         * @param error     A {@link com.bc.ceres.binding.BindingException}
-         * @param component The component.
-         */
-        void handleError(Exception error, JComponent component);
     }
 }

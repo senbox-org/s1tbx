@@ -90,24 +90,4 @@ public abstract class ComponentAdapter {
      * @see #unbindComponents()
      */
     public abstract void adjustComponents();
-
-    /**
-     * Handles an error occured while transferring data from the bound property to the
-     * Swing component or vice versa.
-     * Delegates the call to {@link BindingContext#handleError(Exception, javax.swing.JComponent)}  handleError()}
-     * of the binding context using this adapters's first component:
-     * <pre>
-     * getBinding().getContext().handleError(exception, getComponents()[0]);
-     * </pre>
-     *
-     * @param error The error.
-     *
-     * @see #getComponents()
-     * @deprecated Since 0.10, for error handling use {@link BindingContext#addProblemListener(BindingProblemListener)} 
-     *             and {@link BindingContext#getProblems()} instead
-     */
-    @Deprecated
-    public void handleError(Exception error) {
-        getBinding().getContext().handleError(error, getComponents()[0]);
-    }
 }

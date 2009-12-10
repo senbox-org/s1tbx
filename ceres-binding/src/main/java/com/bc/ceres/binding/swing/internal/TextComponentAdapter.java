@@ -17,8 +17,8 @@
 package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.BindingException;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 
 import javax.swing.InputVerifier;
@@ -70,7 +70,7 @@ public class TextComponentAdapter extends ComponentAdapter implements ActionList
 
     @Override
     public void adjustComponents() {
-        final PropertyContainer propertyContainer = getBinding().getContext().getPropertyContainer();
+        final PropertySet propertyContainer = getBinding().getContext().getPropertySet();
         final Property property = propertyContainer.getProperty(getBinding().getPropertyName());
         if (property != null) {
             textComponent.setText(property.getValueAsText());
@@ -81,7 +81,7 @@ public class TextComponentAdapter extends ComponentAdapter implements ActionList
 
     void adjustValue() {
         try {
-            final PropertyContainer propertyContainer = getBinding().getContext().getPropertyContainer();
+            final PropertySet propertyContainer = getBinding().getContext().getPropertySet();
             final Property property = propertyContainer.getProperty(getBinding().getPropertyName());
             property.setValueFromText(textComponent.getText());
             getBinding().clearProblem();

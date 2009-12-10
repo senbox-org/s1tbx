@@ -53,7 +53,7 @@ public class SpinnerAdapter extends ComponentAdapter implements ChangeListener {
     }
 
     private void updateSpinnerModel() {
-        PropertyDescriptor propertyDescriptor = getBinding().getContext().getPropertyContainer().getDescriptor(getBinding().getPropertyName());
+        PropertyDescriptor propertyDescriptor = getBinding().getContext().getPropertySet().getDescriptor(getBinding().getPropertyName());
         if (propertyDescriptor.getValueRange() != null) {
             Class<?> type = propertyDescriptor.getType();
 
