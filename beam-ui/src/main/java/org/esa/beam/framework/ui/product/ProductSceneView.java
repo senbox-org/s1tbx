@@ -286,7 +286,7 @@ public class ProductSceneView extends BasicView
             if (geoCoding != null) {
                 crs = geoCoding.getMapCRS();
             }
-            vectorData = new VectorData("_figures", SimpleFeatureFigureFactory.createSimpleFeatureType("_figure",
+            vectorData = new VectorData("_figures", SimpleFeatureFigureFactory.createSimpleFeatureType("_figures",
                                                                                                        Geometry.class,
                                                                                                        crs));
             getProduct().getVectorDataGroup().add(vectorData);
