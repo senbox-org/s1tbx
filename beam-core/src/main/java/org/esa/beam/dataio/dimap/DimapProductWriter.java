@@ -17,6 +17,8 @@
 package org.esa.beam.dataio.dimap;
 
 import com.bc.ceres.core.ProgressMonitor;
+
+import org.esa.beam.dataio.propertystore.PropertyDataStore;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -25,13 +27,21 @@ import org.esa.beam.framework.datamodel.FilterBand;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VectorData;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.logging.BeamLogManager;
+import org.geotools.data.DataStore;
+import org.geotools.data.DefaultTransaction;
+import org.geotools.data.FeatureStore;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -101,6 +111,7 @@ public class DimapProductWriter extends AbstractProductWriter {
 
         ensureNamingConvention();
         writeDimapDocument();
+        writeVectorData();
         writeTiePointGrids();
         getSourceProduct().setProductWriter(this);
         deleteRemovedNodes();
@@ -473,6 +484,58 @@ public class DimapProductWriter extends AbstractProductWriter {
                     files[i].delete();
                 }
             }
+        }
+    }
+    
+    private void writeVectorData() {
+        Product product = getSourceProduct();
+        ProductNodeGroup<VectorData> vectorDataGroup = product.getVectorDataGroup();
+        boolean hasVectorData = false;
+        for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
+            VectorData vectorData = vectorDataGroup.get(i);
+            String name = vectorData.getName();
+            if ("pins".equals(name) || "ground_control_points".equals(name)) {
+                hasVectorData = true;
+                break;
+            }
+        }
+        if (hasVectorData) {
+            File vectorDataDir = new File(_dataOutputDir, "vector_data");
+            if (vectorDataDir.exists()) {
+                File[] files = vectorDataDir.listFiles();
+                for (File file : files) {
+                    file.delete();
+                }
+            } else {
+                vectorDataDir.mkdirs();
+            }
+            for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
+                VectorData vectorData = vectorDataGroup.get(i);
+                String name = vectorData.getName();
+                if (!"pins".equals(name) && !"ground_control_points".equals(name)) {
+                    writeVectorData(vectorDataDir, vectorData);
+                }
+            }
+        }
+    }
+    
+    private void writeVectorData(File vectorDataDir, VectorData vectorData) {
+        DefaultTransaction transaction = null;
+        try {
+            DataStore dataStore = new PropertyDataStore(vectorDataDir, vectorData.getName());
+            SimpleFeatureType simpleFeatureType = vectorData.getFeatureType();
+            dataStore.createSchema(simpleFeatureType);
+            FeatureStore<SimpleFeatureType, SimpleFeature> featureSource = 
+                (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore.getFeatureSource(simpleFeatureType.getName());
+            transaction = new DefaultTransaction(vectorData.getName());
+            featureSource.setTransaction(transaction);
+            featureSource.addFeatures(vectorData.getFeatureCollection());
+            transaction.commit();
+        } catch (IOException e) {
+            BeamLogManager.getSystemLogger().throwing("DimapProductWriter", "writeVectorData", e);
+        } finally {
+            if (transaction != null)
+                transaction.close();
         }
     }
 }

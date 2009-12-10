@@ -18,6 +18,8 @@ package org.esa.beam.dataio.dimap;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+
+import org.esa.beam.dataio.propertystore.PropertyDataStore;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -28,17 +30,19 @@ import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VectorData;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
+import org.geotools.data.DataStore;
+import org.geotools.data.FeatureSource;
+import org.geotools.feature.FeatureCollection;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
-import javax.imageio.stream.FileImageInputStream;
-import javax.imageio.stream.ImageInputStream;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,6 +51,11 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Hashtable;
 import java.util.Map;
+
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.ImageInputStream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 /**
  * The <code>DimapProductReader</code> class is an implementation of the <code>ProductReader</code> interface
@@ -139,6 +148,7 @@ public class DimapProductReader extends AbstractProductReader {
         if (product == null) {
             initGeoCodings(dom);
         }
+        readVectorData();
         this.product.setProductReader(this);
         this.product.setFileLocation(inputFile);
         this.product.setModified(false);
@@ -359,5 +369,29 @@ public class DimapProductReader extends AbstractProductReader {
         }
         return null;
     }
-
+    
+    private void readVectorData() {
+        File dataDir = new File(inputDir, FileUtils.getFilenameWithoutExtension(inputFile) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION);
+        File vectorDataDir = new File(dataDir, "vector_data");
+        if (vectorDataDir.exists()) {
+            File[] vectorFiles = vectorDataDir.listFiles();
+            for (File vectorFile : vectorFiles) {
+                String propertiesSuffix = ".properties";
+                String name = vectorFile.getName();
+                if (name.endsWith(propertiesSuffix)) {
+                    name = name.substring(0, name.length() - propertiesSuffix.length());
+                }
+                DataStore dataStore = new PropertyDataStore(vectorDataDir, name);
+                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+                try {
+                    featureSource = dataStore.getFeatureSource(name);
+                    FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
+                    VectorData vectorData = new VectorData(name, featureCollection);
+                    product.getVectorDataGroup().add(vectorData);
+                } catch (IOException e) {
+                    BeamLogManager.getSystemLogger().throwing("DimapProductReader", "readVectorData", e);
+                }
+            }
+        }
+    }
 }
