@@ -85,6 +85,10 @@ abstract class MaskForm {
         return maskTable.getProduct();
     }
 
+    public RasterDataNode getRaster() {
+        return maskTable.getModel().getVisibleBand();
+    }
+    
     public Mask getSelectedMask() {
         return maskTable.getSelectedMask();
     }
@@ -135,4 +139,5 @@ abstract class MaskForm {
     void clearMaskTable() {
         maskTable.clear();
     }
+
 }

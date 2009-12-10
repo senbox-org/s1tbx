@@ -74,7 +74,9 @@ public abstract class MaskToolView extends AbstractToolView {
                 titleAddtion = " - " + sceneView.getRaster().getDisplayName();
             }
         } else {
-            if (maskForm.getProduct() != null) {
+            if (maskForm.getRaster() != null) {
+                titleAddtion = " - " + maskForm.getRaster().getDisplayName();
+            } else if (maskForm.getProduct() != null) {
                 titleAddtion = " - " + maskForm.getProduct().getDisplayName();
             } else {
                 titleAddtion = "";
@@ -167,10 +169,10 @@ public abstract class MaskToolView extends AbstractToolView {
     private class MaskPTL extends ProductTreeListenerAdapter {
         @Override
         public void productSelected(Product product, int clickCount) {
-            if (sceneView == null && maskForm.getProduct() != product) {
+//            if (sceneView == null && maskForm.getProduct() != product) {
                 maskForm.reconfigureMaskTable(product, null);
                 updateTitle();
-            }
+//            }
         }
         
         @Override
