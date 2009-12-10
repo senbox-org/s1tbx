@@ -2,6 +2,7 @@ package com.bc.ceres.glayer;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.grender.Rendering;
@@ -44,7 +45,7 @@ public abstract class Layer extends ExtensibleObject {
     private transient final ArrayList<LayerListener> layerListenerList;
     private transient final ConfigurationPCL configurationPCL;
 
-    private final PropertyContainer configuration;
+    private final PropertySet configuration;
 
     protected Layer(LayerType layerType) {
         this(layerType, new PropertyContainer());
@@ -61,7 +62,7 @@ public abstract class Layer extends ExtensibleObject {
      * @param layerType     the layer type.
      * @param configuration the configuration used by the layer type to create this layer.
      */
-    protected Layer(LayerType layerType, PropertyContainer configuration) {
+    protected Layer(LayerType layerType, PropertySet configuration) {
         this.configuration = configuration;
         Assert.notNull(layerType, "layerType");
         this.layerType = layerType;
@@ -92,7 +93,7 @@ public abstract class Layer extends ExtensibleObject {
      *
      * @return the configuration.
      */
-    public PropertyContainer getConfiguration() {
+    public PropertySet getConfiguration() {
         return configuration;
     }
 
@@ -243,7 +244,7 @@ public abstract class Layer extends ExtensibleObject {
     protected final <T> T getConfigurationProperty(String propertyName, T defaultValue) {
         T value = defaultValue;
 
-        final PropertyContainer configuration = getConfiguration();
+        final PropertySet configuration = getConfiguration();
         final Property model = configuration.getProperty(propertyName);
         if (model != null) {
             final Class<?> expectedType = defaultValue.getClass();

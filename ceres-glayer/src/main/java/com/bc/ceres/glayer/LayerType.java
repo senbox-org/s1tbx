@@ -1,6 +1,6 @@
 package com.bc.ceres.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ExtensibleObject;
 
 /**
@@ -35,7 +35,7 @@ public abstract class LayerType extends ExtensibleObject {
      * @param layerConfig The layer configuration.
      * @return A new layer instance.
      */
-    public abstract Layer createLayer(LayerContext ctx, PropertyContainer layerConfig);
+    public abstract Layer createLayer(LayerContext ctx, PropertySet layerConfig);
 
     /**
      * Creates a default configuration instance for the type of layers this type can create.
@@ -47,5 +47,5 @@ public abstract class LayerType extends ExtensibleObject {
      * @param ctx An application provided context, may be {@code null}. The parameter may be ignored by many layer types.
      * @return A new layer (default) configuration.
      */
-    public abstract PropertyContainer createLayerConfig(LayerContext ctx);
+    public abstract PropertySet createLayerConfig(LayerContext ctx);
 }

@@ -2,6 +2,7 @@ package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -39,7 +40,7 @@ public class ShapeLayer extends Layer {
     }
 
     public ShapeLayer(Type layerType, List<Shape> shapes,
-                      AffineTransform shapeToModelTransform, PropertyContainer configuration) {
+                      AffineTransform shapeToModelTransform, PropertySet configuration) {
         super(layerType, configuration);
         this.shapeList = new ArrayList<Shape>(shapes);
         this.shapeToModelTransform = shapeToModelTransform;
@@ -112,7 +113,7 @@ public class ShapeLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+        public Layer createLayer(LayerContext ctx, PropertySet configuration) {
             final List<Shape> shapeList = (List<Shape>) configuration.getValue(PROPERTY_SHAPE_LIST);
             final AffineTransform modelTransform = (AffineTransform) configuration.getValue(
                     PROPTERY_SHAPE_TO_MODEL_TRANSFORM);
@@ -120,7 +121,7 @@ public class ShapeLayer extends Layer {
         }
 
         @Override
-        public PropertyContainer createLayerConfig(LayerContext ctx) {
+        public PropertySet createLayerConfig(LayerContext ctx) {
             final PropertyContainer vc = new PropertyContainer();
 
             final Property shapeList = Property.create(PROPERTY_SHAPE_LIST, List.class);

@@ -1,6 +1,7 @@
 package com.bc.ceres.glayer;
 
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 
 
 /**
@@ -20,7 +21,7 @@ public class CollectionLayer extends Layer {
         this(type(), type().createLayerConfig(null), name);
     }
 
-    public CollectionLayer(Type type, PropertyContainer configuration, String name) {
+    public CollectionLayer(Type type, PropertySet configuration, String name) {
         super(type, configuration);
         setName(name);
     }
@@ -42,12 +43,12 @@ public class CollectionLayer extends Layer {
         }
 
         @Override
-        public PropertyContainer createLayerConfig(LayerContext ctx) {
+        public PropertySet createLayerConfig(LayerContext ctx) {
             return new PropertyContainer();
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+        public Layer createLayer(LayerContext ctx, PropertySet configuration) {
             return new CollectionLayer(this, configuration, "Collection Layer");
         }
     }

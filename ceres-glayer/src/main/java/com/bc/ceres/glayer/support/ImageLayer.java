@@ -2,6 +2,7 @@ package com.bc.ceres.glayer.support;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -88,7 +89,7 @@ public class ImageLayer extends Layer {
         this(LAYER_TYPE, multiLevelSource,  initConfiguration(LAYER_TYPE.createLayerConfig(null), multiLevelSource));
     }
 
-    public ImageLayer(Type layerType, MultiLevelSource multiLevelSource, PropertyContainer configuration) {
+    public ImageLayer(Type layerType, MultiLevelSource multiLevelSource, PropertySet configuration) {
         super(layerType, configuration);
         Assert.notNull(multiLevelSource);
         this.multiLevelSource = multiLevelSource;
@@ -261,7 +262,7 @@ public class ImageLayer extends Layer {
         return getConfigurationProperty(PROPERTY_NAME_BORDER_COLOR, DEFAULT_BORDER_COLOR);
     }
 
-    private static PropertyContainer initConfiguration(PropertyContainer configuration, MultiLevelSource multiLevelSource) {
+    private static PropertySet initConfiguration(PropertySet configuration, MultiLevelSource multiLevelSource) {
         configuration.setValue(PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         final AffineTransform imageToModelTransform = multiLevelSource.getModel().getImageToModelTransform(0);
         configuration.setValue(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
@@ -276,14 +277,14 @@ public class ImageLayer extends Layer {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+        public Layer createLayer(LayerContext ctx, PropertySet configuration) {
             MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(
                     ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
             return new ImageLayer(this, multiLevelSource, configuration);
         }
 
         @Override
-        public PropertyContainer createLayerConfig(LayerContext ctx) {
+        public PropertySet createLayerConfig(LayerContext ctx) {
             final PropertyContainer template = new PropertyContainer();
 
             addMultiLevelSourceModel(template);
