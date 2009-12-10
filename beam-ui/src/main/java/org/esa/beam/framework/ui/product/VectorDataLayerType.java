@@ -57,35 +57,4 @@ public class VectorDataLayerType extends LayerType {
 
         return layer;
     }
-    /*
-    private static class FigureListDomConverter implements DomConverter {
-
-        @Override
-        public Class<?> getValueType() {
-            return ArrayList.class;
-        }
-
-        @Override
-        public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                ValidationException {
-            final DomElement[] listElements = parentElement.getChildren("figure");
-            final ArrayList figureList = new ArrayList();
-            final DomConverter figureDomConverter = new AbstractFigureDomConverter();
-            for (DomElement figureElement : listElements) {
-                figureList.add(figureDomConverter.convertDomToValue(figureElement, null));
-            }
-            return figureList;
-        }
-
-        @Override
-        public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
-            ArrayList figureList = (ArrayList) value;
-            final DomConverter figureDomConverter = new AbstractFigureDomConverter();
-            for (Object figure : figureList) {
-                DomElement figureElement = parentElement.createChild("figure");
-                figureDomConverter.convertValueToDom(figure, figureElement);
-            }
-        }
-    }
-    */
 }
