@@ -20,7 +20,7 @@ import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.ValueEditorsPane;
+import org.esa.beam.framework.ui.PropertyPane;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -113,7 +113,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                 }
                 rasterDataNodeTypeProperties = rdnTypeProperties.toArray(new PropertyDescriptor[rdnTypeProperties.size()]);
             }
-            ValueEditorsPane parametersPane = new ValueEditorsPane(propertyContainer);
+            PropertyPane parametersPane = new PropertyPane(propertyContainer);
             final JPanel paremetersPanel = parametersPane.createPanel();
             paremetersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", new JScrollPane(paremetersPanel));

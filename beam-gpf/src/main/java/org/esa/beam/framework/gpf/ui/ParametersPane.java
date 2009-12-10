@@ -2,7 +2,7 @@ package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
-import org.esa.beam.framework.ui.ValueEditorsPane;
+import org.esa.beam.framework.ui.PropertyPane;
 
 import javax.swing.JPanel;
 
@@ -13,10 +13,10 @@ import javax.swing.JPanel;
  * <p>If the {@code displayName} property of a {@link com.bc.ceres.binding.PropertyDescriptor ValueDescriptor} is set, it will be used as label, otherwise
  * a label is derived from the {@code name} property.</p>
  *
- * @deprecated Use {@link org.esa.beam.framework.ui.ValueEditorsPane} instead.
+ * @deprecated Use {@link org.esa.beam.framework.ui.PropertyPane} instead.
  */
 @Deprecated
-public class ParametersPane extends ValueEditorsPane {
+public class ParametersPane extends PropertyPane {
 
     public ParametersPane(BindingContext bindingContext) {
         super(bindingContext);

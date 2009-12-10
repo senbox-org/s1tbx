@@ -21,10 +21,10 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 
 
-public class ValueEditorsPaneTest extends TestCase {
+public class PropertyPaneTest extends TestCase {
 
     public void testComponentsInPanel() throws ConversionException {
-        ValueEditorsPane parametersPane = createPane(new BindingContext.SilentProblemHandler());
+        PropertyPane parametersPane = createPane(new BindingContext.SilentProblemHandler());
         JPanel panel = parametersPane.createPanel();
         Component[] components = panel.getComponents();
         assertEquals(14, components.length);
@@ -71,7 +71,7 @@ public class ValueEditorsPaneTest extends TestCase {
     }
 
     public static void main(String[] args) throws ConversionException {
-        final ModalDialog dialog = new ModalDialog(null, "ValueEditorsPaneTest", ModalDialog.ID_OK + ModalDialog.ID_CANCEL, null) {
+        final ModalDialog dialog = new ModalDialog(null, "PropertyPaneTest", ModalDialog.ID_OK + ModalDialog.ID_CANCEL, null) {
             @Override
             protected void onOK() {
                 hide();
@@ -83,7 +83,7 @@ public class ValueEditorsPaneTest extends TestCase {
             }
         };
 
-        ValueEditorsPane valueEditorsPane = createPane(new BindingProblemListener() {
+        PropertyPane propertyPane = createPane(new BindingProblemListener() {
             @Override
             public void problemReported(BindingProblem newProblem, BindingProblem oldProblem) {
                 JOptionPane.showMessageDialog(dialog.getJDialog(), newProblem.getCause().getMessage());
@@ -93,11 +93,11 @@ public class ValueEditorsPaneTest extends TestCase {
             public void problemCleared(BindingProblem oldProblem) {
             }
         });
-        JPanel panel = valueEditorsPane.createPanel();
+        JPanel panel = propertyPane.createPanel();
         dialog.setContent(panel);
         dialog.show();
 
-        valueEditorsPane.getBindingContext().getPropertySet().addPropertyChangeListener(new PropertyChangeListener() {
+        propertyPane.getBindingContext().getPropertySet().addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -106,7 +106,7 @@ public class ValueEditorsPaneTest extends TestCase {
         });
     }
 
-    private static ValueEditorsPane createPane(BindingProblemListener bpl) throws ConversionException {
+    private static PropertyPane createPane(BindingProblemListener bpl) throws ConversionException {
         PropertyContainer vc = PropertyContainer.createObjectBacked(new V());
 
         vc.getDescriptor("threshold").setValueRange(
@@ -115,7 +115,7 @@ public class ValueEditorsPaneTest extends TestCase {
                 new ValueSet(new String[]{"NN", "CC", "BQ"}));
 
         BindingContext sbc = new BindingContext(vc, bpl);
-        return new ValueEditorsPane(sbc);
+        return new PropertyPane(sbc);
     }
 
 }

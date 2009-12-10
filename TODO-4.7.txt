@@ -64,6 +64,10 @@ h3. Ceres Binding API Changes
 * PropertySet is an interface which has been extracted from PropertyContainer.
   Thus, in many places (including public BEAM API) the use of PropertyContainer has been replaced by PropertySet
 
+* ValueEditor --> PropertyEditor
+* ValueEditorRegistry --> PropertyEditorRegistry
+* ValueEditorsPane --> PropertyPane
+
 
 h3. Ceres Layer API Changes
 

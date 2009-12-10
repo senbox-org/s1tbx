@@ -18,7 +18,7 @@ package org.esa.beam.framework.ui;
 
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.swing.ValueEditor;
+import com.bc.ceres.binding.swing.PropertyEditor;
 import com.jidesoft.combobox.ColorComboBox;
 
 import java.awt.Color;
@@ -32,7 +32,7 @@ import javax.swing.JComponent;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class ColorEditor extends ValueEditor {
+public class ColorEditor extends PropertyEditor {
 
     @Override
     public boolean isValidFor(PropertyDescriptor propertyDescriptor) {

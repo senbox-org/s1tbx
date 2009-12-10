@@ -26,7 +26,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
-import org.esa.beam.framework.ui.ValueEditorsPane;
+import org.esa.beam.framework.ui.PropertyPane;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.io.BeamFileChooser;
@@ -233,8 +233,8 @@ public class ExportImageAction extends AbstractExportImageAction {
 
         public JComponent createComponent() {
             BindingContext bindingContext = new BindingContext(propertyContainer);
-            ValueEditorsPane valueEditorsPane = new ValueEditorsPane(bindingContext);
-            return valueEditorsPane.createPanel();
+            PropertyPane propertyPane = new PropertyPane(bindingContext);
+            return propertyPane.createPanel();
         }
 
         public Dimension getDimension() {

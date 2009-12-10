@@ -10,7 +10,7 @@ import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.ValueEditorsPane;
+import org.esa.beam.framework.ui.PropertyPane;
 import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
 
 import javax.swing.JComponent;
@@ -44,7 +44,7 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
         initializeBinding(appContext, bindingContext);
         // ODOT
 
-        ValueEditorsPane parametersPane = new ValueEditorsPane(bindingContext);
+        PropertyPane parametersPane = new PropertyPane(bindingContext);
         return parametersPane.createPanel();
     }
 

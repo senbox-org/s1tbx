@@ -12,7 +12,7 @@ import com.jidesoft.swing.SearchableUtils;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.ValueEditorsPane;
+import org.esa.beam.framework.ui.PropertyPane;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.datum.DefaultGeodeticDatum;
@@ -312,7 +312,7 @@ public class CustomCrsPanel extends JPanel {
                                                             ModalDialog.ID_OK_CANCEL, null);
             final ParameterValueGroup workCopy = model.parameters.clone();
             final PropertyContainer propertyContainer = createValueContainer(workCopy);
-            modalDialog.setContent(new ValueEditorsPane(propertyContainer).createPanel());
+            modalDialog.setContent(new PropertyPane(propertyContainer).createPanel());
             if (modalDialog.show() == AbstractDialog.ID_OK) {
                 vc.setValue(PARAMETERS, workCopy);
             }

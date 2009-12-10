@@ -18,8 +18,8 @@ package org.esa.beam.gpf.common.reproject.ui;
 
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.swing.ValueEditor;
-import com.bc.ceres.binding.swing.ValueEditorRegistry;
+import com.bc.ceres.binding.swing.PropertyEditor;
+import com.bc.ceres.binding.swing.PropertyEditorRegistry;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -140,8 +140,8 @@ class OutputGeometryForm extends JPanel {
     
     private JComponent[] createComponents(String propertyName) {
         PropertyDescriptor descriptor = context.getPropertySet().getDescriptor(propertyName);
-        ValueEditorRegistry valueEditorRegistry = ValueEditorRegistry.getInstance();
-        ValueEditor editor = valueEditorRegistry.findValueEditor(descriptor);
+        PropertyEditorRegistry propertyEditorRegistry = PropertyEditorRegistry.getInstance();
+        PropertyEditor editor = propertyEditorRegistry.findValueEditor(descriptor);
         return editor.createComponents(descriptor, context);
     }
 

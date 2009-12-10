@@ -19,7 +19,7 @@ package org.esa.beam.visat.actions;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VectorData;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.ValueEditorsPane;
+import org.esa.beam.framework.ui.PropertyPane;
 import org.esa.beam.framework.ui.product.SimpleFeatureFigureFactory;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -51,8 +51,8 @@ public class NewVectorDataAction extends ExecCommand {
     public void actionPerformed(CommandEvent event) {
         DialogData data = new DialogData();
         PropertySet propertySet = PropertyContainer.createObjectBacked(data);
-        ValueEditorsPane valueEditorsPane = new ValueEditorsPane(propertySet);
-        JPanel panel = valueEditorsPane.createPanel();
+        PropertyPane propertyPane = new PropertyPane(propertySet);
+        JPanel panel = propertyPane.createPanel();
         panel.setPreferredSize(new Dimension(200, -1));
         ModalDialog dialog = new ModalDialog(VisatApp.getApp().getMainFrame(),
                                              "New Vector Data",
