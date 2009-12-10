@@ -299,9 +299,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             productTreeNode.add(tiePointGridGroupTreeNode);
         }
 
-        productTreeNode.add(createBandNodes(product));
         productTreeNode.add(createMaskNodes(product));
         productTreeNode.add(createVectorDataNodes(product));
+        productTreeNode.add(createBandNodes(product));
 
         return productTreeNode;
     }
