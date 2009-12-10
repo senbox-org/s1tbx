@@ -49,9 +49,7 @@ public class VectorDataLayer extends Layer {
         getConfiguration().setValue(VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA, vectorData.getName());
     }
 
-    VectorDataLayer(VectorDataLayerType vectorDataLayerType,
-                    VectorData vectorData,
-                    PropertySet configuration) {
+    VectorDataLayer(VectorDataLayerType vectorDataLayerType, VectorData vectorData, PropertySet configuration) {
         super(vectorDataLayerType, configuration);
         this.vectorData = vectorData;
         setName(vectorData.getName());
@@ -91,7 +89,7 @@ public class VectorDataLayer extends Layer {
                 figureMap.remove(simpleFeature);
             } else {
                 figureCollection.addFigure(
-                        new SimpleFeatureFigureFactory(featureCollection).createFigure(simpleFeature));
+                        getFigureFactory().createFigure(simpleFeature));
             }
         }
 
@@ -99,6 +97,10 @@ public class VectorDataLayer extends Layer {
         figureCollection.removeFigures(remainingFigures.toArray(new Figure[remainingFigures.size()]));
 
         fireLayerDataChanged(null);
+    }
+
+    private SimpleFeatureFigureFactory getFigureFactory() {
+        return new SimpleFeatureFigureFactory(vectorData.getFeatureCollection());
     }
 
     public FigureCollection getFigureCollection() {
@@ -119,16 +121,13 @@ public class VectorDataLayer extends Layer {
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
-            if (event.getSourceNode() == VectorDataLayer.this.vectorData
-                && ProductNode.PROPERTY_NAME_NAME.equals(event.getPropertyName())) {
-                setName(VectorDataLayer.this.vectorData.getName());
-            }
-        }
-
-        @Override
-        public void nodeDataChanged(ProductNodeEvent event) {
             if (event.getSourceNode() == VectorDataLayer.this.vectorData) {
-                updateFigureCollection();
+                if (ProductNode.PROPERTY_NAME_NAME.equals(event.getPropertyName())) {
+                    setName(VectorDataLayer.this.vectorData.getName());
+                }
+                if (VectorData.PROPERTY_NAME_FEATURE_COLLECTION.equals(event.getPropertyName())) {
+                    updateFigureCollection();
+                }
             }
         }
     }

@@ -71,7 +71,7 @@ class VectorDataMultiLevelImage extends DefaultMultiLevelImage implements Produc
     @Override
     public void nodeChanged(ProductNodeEvent event) {
         if (event.getSourceNode() == vectorDataReference.get()) {
-            if (event.getPropertyName().equals("featureCollection")) {
+            if (event.getPropertyName().equals(VectorData.PROPERTY_NAME_FEATURE_COLLECTION)) {
                 reset();
             }
         }

@@ -20,6 +20,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
  */
 public class VectorData extends ProductNode {
 
+    public static final String PROPERTY_NAME_FEATURE_COLLECTION = "featureCollection";
+    
     private final SimpleFeatureType featureType;
     private final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
     private final CollectionListener featureCollectionListener;
@@ -59,7 +61,7 @@ public class VectorData extends ProductNode {
 
     public void fireFeatureCollectionChanged() {
         System.out.println("VectorData '" + getName() + "': fireProductNodeChanged");
-        fireProductNodeChanged("featureCollection");
+        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION);
     }
 
     /**
