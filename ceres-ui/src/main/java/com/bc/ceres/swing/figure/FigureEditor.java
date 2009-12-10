@@ -35,4 +35,8 @@ public interface FigureEditor extends InteractorAware, ViewportAware, SelectionC
     void deleteFigures(boolean performDelete, Figure... figures);
 
     void changeFigure(Figure figure, Object figureMemento, String presentationName);
+
+    FigureStyle getDefaultLineStyle();
+
+    FigureStyle getDefaultPolygonStyle();
 }

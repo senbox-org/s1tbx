@@ -11,6 +11,7 @@ import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.FigureSelection;
+import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.selection.Selection;
@@ -22,6 +23,8 @@ import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 
 import javax.swing.JComponent;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
@@ -29,7 +32,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
-public class DefaultFigureEditor implements FigureEditor{
+public class DefaultFigureEditor implements FigureEditor {
 
     private final UndoContext undoContext;
     private Rectangle selectionRectangle;
@@ -40,6 +43,8 @@ public class DefaultFigureEditor implements FigureEditor{
     private final SelectionChangeSupport selectionChangeSupport;
     private final Viewport viewport;
     private final FigureFactory figureFactory;
+    private FigureStyle defaultLineStyle;
+    private FigureStyle defaultPolygonStyle;
 
     public DefaultFigureEditor(JComponent editorComponent) {
         this(editorComponent, new DefaultViewport(true), null, new DefaultFigureCollection(), new DefaultFigureFactory());
@@ -75,6 +80,12 @@ public class DefaultFigureEditor implements FigureEditor{
         this.figureSelection.addChangeListener(repaintHandler);
 
         this.figureFactory = figureFactory;
+
+        this.defaultLineStyle = DefaultFigureStyle.createLineStyle(new Color(255, 255, 255, 200),
+                                                                   new BasicStroke(1.0f));
+        this.defaultPolygonStyle = DefaultFigureStyle.createPolygonStyle(new Color(0, 0, 255, 200),
+                                                                         new Color(255, 255, 255, 200),
+                                                                         new BasicStroke(1.0f));
     }
 
     @Override
@@ -142,95 +153,95 @@ public class DefaultFigureEditor implements FigureEditor{
         }
     }
 
-     @Override
-     public FigureCollection getFigureCollection() {
-         return figureCollection;
-     }
+    @Override
+    public FigureCollection getFigureCollection() {
+        return figureCollection;
+    }
 
-     @Override
-     public FigureSelection getFigureSelection() {
-         return figureSelection;
-     }
+    @Override
+    public FigureSelection getFigureSelection() {
+        return figureSelection;
+    }
 
     @Override
     public FigureFactory getFigureFactory() {
         return figureFactory;
     }
 
-     @Override
-     public Selection getSelection() {
-         return figureSelection;
-     }
+    @Override
+    public Selection getSelection() {
+        return figureSelection;
+    }
 
-     @Override
-     public void setSelection(Selection selection) {
-         // todo - implement (select all figures that are equal to the ones in selection)
-     }
+    @Override
+    public void setSelection(Selection selection) {
+        // todo - implement (select all figures that are equal to the ones in selection)
+    }
 
-     @Override
-     public void addSelectionChangeListener(SelectionChangeListener listener) {
-         selectionChangeSupport.addSelectionChangeListener(listener);
-     }
+    @Override
+    public void addSelectionChangeListener(SelectionChangeListener listener) {
+        selectionChangeSupport.addSelectionChangeListener(listener);
+    }
 
-     @Override
-     public void removeSelectionChangeListener(SelectionChangeListener listener) {
-         selectionChangeSupport.removeSelectionChangeListener(listener);
-     }
+    @Override
+    public void removeSelectionChangeListener(SelectionChangeListener listener) {
+        selectionChangeSupport.removeSelectionChangeListener(listener);
+    }
 
-     @Override
-     public SelectionChangeListener[] getSelectionChangeListeners() {
-         return selectionChangeSupport.getSelectionChangeListeners();
-     }
+    @Override
+    public SelectionChangeListener[] getSelectionChangeListeners() {
+        return selectionChangeSupport.getSelectionChangeListeners();
+    }
 
-     @Override
-     public void insert(Transferable contents) throws IOException, UnsupportedFlavorException {
-         Figure[] figures = (Figure[]) contents.getTransferData(FigureTransferable.FIGURES_DATA_FLAVOR);
-         if (figures != null && figures.length  > 0) {
-             insertFigures(true, figures);
-         }
-     }
+    @Override
+    public void insert(Transferable contents) throws IOException, UnsupportedFlavorException {
+        Figure[] figures = (Figure[]) contents.getTransferData(FigureTransferable.FIGURES_DATA_FLAVOR);
+        if (figures != null && figures.length > 0) {
+            insertFigures(true, figures);
+        }
+    }
 
-     @Override
-     public boolean canDeleteSelection() {
-         return !getFigureSelection().isEmpty();
-     }
+    @Override
+    public boolean canDeleteSelection() {
+        return !getFigureSelection().isEmpty();
+    }
 
-     @Override
-     public void deleteSelection() {
-         Figure[] figures = getFigureSelection().getFigures();
-         if (figures.length  > 0) {
-             deleteFigures(true, figures);
-         }
-     }
+    @Override
+    public void deleteSelection() {
+        Figure[] figures = getFigureSelection().getFigures();
+        if (figures.length > 0) {
+            deleteFigures(true, figures);
+        }
+    }
 
-     @Override
-     public boolean canInsert(Transferable contents) {
-         return contents.isDataFlavorSupported(FigureTransferable.FIGURES_DATA_FLAVOR);
-     }
+    @Override
+    public boolean canInsert(Transferable contents) {
+        return contents.isDataFlavorSupported(FigureTransferable.FIGURES_DATA_FLAVOR);
+    }
 
-     @Override
-     public void selectAll() {
-         figureSelection.removeAllFigures();
-         figureSelection.addFigures(getFigureCollection().getFigures());
-         figureSelection.setSelectionStage(figureSelection.getMaxSelectionStage());
-     }
+    @Override
+    public void selectAll() {
+        figureSelection.removeAllFigures();
+        figureSelection.addFigures(getFigureCollection().getFigures());
+        figureSelection.setSelectionStage(figureSelection.getMaxSelectionStage());
+    }
 
-     @Override
-     public boolean canSelectAll() {
-         return getFigureCollection().getFigureCount() > 0;
-     }
+    @Override
+    public boolean canSelectAll() {
+        return getFigureCollection().getFigureCount() > 0;
+    }
 
-     private class FigureSelectionMulticaster extends AbstractFigureChangeListener {
-         @Override
-         public void figuresAdded(FigureChangeEvent event) {
-             selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
-         }
+    private class FigureSelectionMulticaster extends AbstractFigureChangeListener {
+        @Override
+        public void figuresAdded(FigureChangeEvent event) {
+            selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
+        }
 
-         @Override
-         public void figuresRemoved(FigureChangeEvent event) {
-             selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
-         }
-     }
+        @Override
+        public void figuresRemoved(FigureChangeEvent event) {
+            selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
+        }
+    }
 
     @Override
     public Interactor getInteractor() {
@@ -250,6 +261,26 @@ public class DefaultFigureEditor implements FigureEditor{
         return viewport;
     }
 
+    @Override
+    public FigureStyle getDefaultLineStyle() {
+        return defaultLineStyle;
+    }
+
+    public void setDefaultLineStyle(FigureStyle defaultLineStyle) {
+        Assert.notNull(defaultLineStyle, "defaultLineStyle");
+        this.defaultLineStyle = defaultLineStyle;
+    }
+
+    @Override
+    public FigureStyle getDefaultPolygonStyle() {
+        return defaultPolygonStyle;
+    }
+
+    public void setDefaultPolygonStyle(FigureStyle defaultPolygonStyle) {
+        Assert.notNull(defaultPolygonStyle, "defaultPolygonStyle");
+        this.defaultPolygonStyle = defaultPolygonStyle;
+    }
+
     /**
      * Calls
      * <pre>
@@ -257,6 +288,7 @@ public class DefaultFigureEditor implements FigureEditor{
      * drawFigureSelection(rendering);
      * drawSelectionRectangle(rendering);
      * </pre>
+     *
      * @param rendering The rendering.
      */
     public void draw(Rendering rendering) {

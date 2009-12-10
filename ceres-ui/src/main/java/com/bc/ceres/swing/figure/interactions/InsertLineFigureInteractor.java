@@ -37,7 +37,7 @@ public class InsertLineFigureInteractor extends FigureEditorInteractor {
         linePath.moveTo(referencePoint.getX(), referencePoint.getY());
         linePath.lineTo(referencePoint.getX(), referencePoint.getY());
 
-        figure = figureEditor.getFigureFactory().createLinealFigure(linePath, StyleDefaults.INSERT_STYLE);
+        figure = figureEditor.getFigureFactory().createLineFigure(linePath, StyleDefaults.INSERT_STYLE);
         figureEditor.getFigureCollection().addFigure(figure);
         startInteraction(event);
     }

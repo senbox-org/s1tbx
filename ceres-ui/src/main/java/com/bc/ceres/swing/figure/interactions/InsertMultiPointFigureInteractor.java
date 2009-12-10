@@ -3,7 +3,7 @@ package com.bc.ceres.swing.figure.interactions;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.ShapeFigure;
-import com.bc.ceres.swing.figure.support.StyleDefaults;
+import com.bc.ceres.swing.figure.FigureFactory;
 
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
@@ -100,10 +100,11 @@ public class InsertMultiPointFigureInteractor extends FigureEditorInteractor {
         }
 
         if (starting) {
+            FigureFactory factory = figureEditor.getFigureFactory();
             if (isPolygonal()) {
-                figure = figureEditor.getFigureFactory().createPolygonalFigure(createPath(), StyleDefaults.INSERT_STYLE);
+                figure = factory.createPolygonFigure(createPath(), figureEditor.getDefaultPolygonStyle());
             } else {
-                figure = figureEditor.getFigureFactory().createLinealFigure(createPath(), StyleDefaults.INSERT_STYLE);
+                figure = factory.createLineFigure(createPath(), figureEditor.getDefaultLineStyle());
             }
             figureEditor.getFigureCollection().addFigure(figure);
         }

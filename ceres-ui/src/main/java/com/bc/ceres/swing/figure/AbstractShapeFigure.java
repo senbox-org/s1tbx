@@ -10,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.BasicStroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
@@ -32,8 +33,8 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
     protected AbstractShapeFigure(boolean polygonal, FigureStyle normalStyle) {
         this.rank = polygonal ? Rank.POLYGONAL : Rank.LINEAL;
         this.normalStyle = normalStyle;
-        this.selectedStyle = DefaultFigureStyle.createPolygonStyle(null, new Color(255, 255, 0, 180),
-                                                                 5.0);
+        this.selectedStyle = DefaultFigureStyle.createLineStyle(new Color(255, 255, 0, 180),
+                                                                new BasicStroke(4.0f));
         setSelectable(true);
     }
 
@@ -90,14 +91,14 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
             g.transform(vp.getModelToViewTransform());
 
             if (rank == Rank.POLYGONAL) {
-                Paint fillPaint = getNormalStyle().getFillColor();
+                Paint fillPaint = getNormalStyle().getFillPaint();
                 if (fillPaint != null) {
                     g.setPaint(fillPaint);
                     g.fill(shape);
                 }
             }
 
-            Paint strokePaint = getNormalStyle().getStrokeColor();
+            Paint strokePaint = getNormalStyle().getStrokePaint();
             if (strokePaint != null) {
                 Stroke normalStroke = getNormalStyle().getStroke(1.0 / vp.getZoomFactor());
                 g.setPaint(strokePaint);
@@ -106,7 +107,7 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
             }
 
             if (isSelected()) {
-                Paint selectedStrokePaint = getSelectedStyle().getStrokeColor();
+                Paint selectedStrokePaint = getSelectedStyle().getStrokePaint();
                 if (selectedStrokePaint != null) {
                     Stroke selectedStroke = getSelectedStyle().getStroke(1.0 / vp.getZoomFactor());
                     g.setStroke(selectedStroke);

@@ -69,10 +69,10 @@ public class RotateHandle extends AbstractHandle {
         g.setStroke(StyleDefaults.SELECTION_STROKE);
         g.draw(connectionLine);
 
-        g.setPaint(getNormalStyle().getFillColor());
+        g.setPaint(getNormalStyle().getFillPaint());
         g.fill(anchorShape);
 
-        g.setPaint(getNormalStyle().getStrokeColor());
+        g.setPaint(getNormalStyle().getStrokePaint());
         g.setStroke(getNormalStyle().getStroke());
         g.draw(anchorShape);
         g.draw(new Line2D.Double(0, 0, 0, 0));

@@ -1,9 +1,9 @@
 package com.bc.ceres.swing.figure.support;
 
+import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.swing.figure.FigureStyle;
 
@@ -13,6 +13,8 @@ import java.awt.Paint;
 import java.awt.Stroke;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +29,8 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     private String name;
     private Map<String, Object> values;
     private Stroke stroke;
+    private Paint strokePaint;
+    private Paint fillPaint;
 
     public DefaultFigureStyle() {
         this("");
@@ -40,55 +44,33 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     public DefaultFigureStyle(String name) {
         this.name = name;
         this.values = new HashMap<String, Object>();
-        addPropertyChangeListener(new StrokeNuller());
+        addPropertyChangeListener(new EffectivePropertyNuller());
     }
 
-    public static FigureStyle createLineStyle(Color strokePaint) {
-        return createLineStyle(strokePaint, 0.0);
+    public static FigureStyle createLineStyle(Paint strokePaint) {
+        return createLineStyle(strokePaint, null);
     }
 
-    public static FigureStyle createLineStyle(Color strokePaint, double strokeWidth) {
+    public static FigureStyle createLineStyle(Paint strokePaint, Stroke stroke) {
         DefaultFigureStyle figureStyle = new DefaultFigureStyle("line-style");
-        setStroke(figureStyle, strokePaint, strokeWidth);
+        setStroke(figureStyle, strokePaint, stroke);
+        setFill(figureStyle, null);
         return figureStyle;
     }
 
-    public static DefaultFigureStyle createPolygonStyle(Color fillPaint) {
+    public static DefaultFigureStyle createPolygonStyle(Paint fillPaint) {
         return createPolygonStyle(fillPaint, null);
     }
 
-    public static DefaultFigureStyle createPolygonStyle(Color fillPaint, Color strokePaint) {
-        return createPolygonStyle(fillPaint, strokePaint, 0.0);
+    public static DefaultFigureStyle createPolygonStyle(Paint fillPaint, Paint strokePaint) {
+        return createPolygonStyle(fillPaint, strokePaint, null);
     }
 
-    public static DefaultFigureStyle createPolygonStyle(Color fillPaint, Color strokePaint, double strokeWidth) {
+    public static DefaultFigureStyle createPolygonStyle(Paint fillPaint, Paint strokePaint, Stroke stroke) {
         DefaultFigureStyle figureStyle = new DefaultFigureStyle("polygon-style");
         setFill(figureStyle, fillPaint);
-        setStroke(figureStyle, strokePaint, strokeWidth);
+        setStroke(figureStyle, strokePaint, stroke);
         return figureStyle;
-    }
-
-    private static void setFill(DefaultFigureStyle figureStyle, Color fillPaint) {
-        if (fillPaint != null) {
-            figureStyle.setFillPaint(fillPaint);
-            if (fillPaint.getAlpha() != 255) {
-                figureStyle.setFillOpacity(getOpacity(fillPaint));
-            }
-        }
-    }
-
-    private static void setStroke(DefaultFigureStyle figureStyle, Color strokePaint, double strokeWidth) {
-        if (strokePaint != null) {
-            figureStyle.setStrokePaint(strokePaint);
-            if (strokePaint.getAlpha() != 255) {
-                figureStyle.setStrokeOpacity(getOpacity(strokePaint));
-            }
-            figureStyle.setStrokeWidth(strokeWidth);
-        }
-    }
-
-    private static double getOpacity(Color color) {
-        return Math.round(100.0 * (color.getAlpha() / 255.0)) / 100.0;
     }
 
     @Override
@@ -130,15 +112,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     @Override
     public Stroke getStroke() {
         if (stroke == null) {
-            if (getValue(STROKE_COLOR.getName()) != null) {
-                Number number = (Number) getValue(STROKE_WIDTH.getName());
-                if (number != null) {
-                    float width = number.floatValue();
-                    stroke = new BasicStroke(width);
-                } else {
-                    stroke = new BasicStroke();
-                }
-            }
+            stroke = createEffectiveStroke(getStrokeWidth());
         }
         return stroke;
     }
@@ -163,6 +137,23 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         this.stroke = stroke;
     }
 
+    /**
+     * Gets the effective stroke paint used for drawing the exterior of a lineal or polygonal shape.
+     * The effective paint may result from a number of different style properties.
+     *
+     * @return The effective stroke paint used for drawing.
+     */
+    @Override
+    public Paint getStrokePaint() {
+        if (this.strokePaint == null) {
+            Color strokeColor = getStrokeColor();
+            if (strokeColor != null) {
+                this.strokePaint = getEffectivePaint(strokeColor, getStrokeOpacity());
+            }
+        }
+        return strokePaint;
+    }
+
     @Override
     public Color getStrokeColor() {
         Object value = getValue(STROKE_COLOR.getName());
@@ -173,8 +164,8 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         }
     }
 
-    public void setStrokePaint(Paint strokePaint) {
-        setValue(STROKE_COLOR.getName(), strokePaint);
+    public void setStrokeColor(Color strokeColor) {
+        setValue(STROKE_COLOR.getName(), strokeColor);
     }
 
     @Override
@@ -205,6 +196,23 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         setValue(STROKE_WIDTH.getName(), width);
     }
 
+    /**
+     * Gets the effective fill paint used for drawing the interior of a polygonal shape.
+     * The effective paint may result from a number of different style properties.
+     *
+     * @return The effective fill paint used for drawing.
+     */
+    @Override
+    public Paint getFillPaint() {
+        if (fillPaint == null) {
+            Color fillColor = getFillColor();
+            if (fillColor != null) {
+                this.fillPaint = getEffectivePaint(fillColor, getFillOpacity());
+            }
+        }
+        return fillPaint;
+    }
+
     @Override
     public Color getFillColor() {
         Object value = getValue(FILL_COLOR.getName());
@@ -215,8 +223,8 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         }
     }
 
-    public void setFillPaint(Paint fillPaint) {
-        setValue(FILL_COLOR.getName(), fillPaint);
+    public void setFillColor(Color fillColor) {
+        setValue(FILL_COLOR.getName(), fillColor);
     }
 
     @Override
@@ -231,30 +239,6 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
 
     public void setFillOpacity(double opacity) {
         setValue(FILL_OPACITY.getName(), opacity);
-    }
-
-    // Only called once by prototype singleton
-    private void initPrototypeProperties() {
-        Field[] declaredFields = FigureStyle.class.getDeclaredFields();
-        for (Field declaredField : declaredFields) {
-            if (declaredField.getType() == Property.class) {
-                try {
-                    Property prototypeProperty = (Property) declaredField.get(null);
-                    prototypeProperty.getDescriptor().setDefaultConverter();
-                    if (Color.class.isAssignableFrom(prototypeProperty.getType())) {
-                        prototypeProperty.getDescriptor().setConverter(new CssColorConverter());
-                    }
-                    defineProperty(prototypeProperty, prototypeProperty.getValue());
-                } catch (IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        }
-        try {
-            setDefaultValues();
-        } catch (ValidationException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     @Override
@@ -277,19 +261,9 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         return sb.toString();
     }
 
-    private synchronized Map<String, Property> getOrderedMap() {
-        // Using a TreeMap makes sure that entries are ordered by key
-        Property[] properties = getProperties();
-        Map<String, Property> propertyMap = new TreeMap<String, Property>();
-        for (Property property1 : properties) {
-            propertyMap.put(property1.getName(), property1);
-        }
-        return propertyMap;
-    }
-
-
     @Override
     public void fromCssString(String css) {
+        resetEffectiveProperties();
         StringTokenizer st = new StringTokenizer(css, ";", false);
         while (st.hasMoreElements()) {
             String token = st.nextToken();
@@ -319,6 +293,81 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         }
     }
 
+    private synchronized Map<String, Property> getOrderedMap() {
+        // Using a TreeMap makes sure that entries are ordered by key
+        Property[] properties = getProperties();
+        Map<String, Property> propertyMap = new TreeMap<String, Property>();
+        for (Property property1 : properties) {
+            propertyMap.put(property1.getName(), property1);
+        }
+        return propertyMap;
+    }
+
+    private static void setFill(DefaultFigureStyle figureStyle, Paint fillPaint) {
+        if (fillPaint instanceof Color) {
+            Color fillColor = (Color) fillPaint;
+            if (fillColor.getAlpha() == 255) {
+                figureStyle.setFillColor(fillColor);
+            } else {
+                figureStyle.setFillColor(new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue()));
+                figureStyle.setFillOpacity(getOpacity(fillColor));
+            }
+        } else if (fillPaint == null) {
+            figureStyle.setFillColor(null);
+        }
+        figureStyle.fillPaint = fillPaint;
+    }
+
+    private static void setStroke(DefaultFigureStyle figureStyle, Paint strokePaint, Stroke stroke) {
+        if (strokePaint instanceof Color) {
+            Color strokeColor = (Color) strokePaint;
+            if (strokeColor.getAlpha() == 255) {
+                figureStyle.setStrokeColor(strokeColor);
+            } else {
+                figureStyle.setStrokeColor(new Color(strokeColor.getRed(), strokeColor.getGreen(), strokeColor.getBlue()));
+                figureStyle.setStrokeOpacity(getOpacity(strokeColor));
+            }
+        } else if (strokePaint == null) {
+            figureStyle.setStrokeColor(null);
+        }
+        // check for other paints here
+        if (stroke instanceof BasicStroke) {
+            BasicStroke basicStroke = (BasicStroke) stroke;
+            figureStyle.setStrokeWidth(basicStroke.getLineWidth());
+            // add other stuff here
+        }
+        figureStyle.strokePaint = strokePaint;
+        figureStyle.stroke = stroke;
+    }
+
+    private static double getOpacity(Color strokeColor) {
+        return Math.round(100.0/255.0 * strokeColor.getAlpha())/100.0;
+    }
+
+    // Only called once by prototype singleton
+    private void initPrototypeProperties() {
+        Field[] declaredFields = FigureStyle.class.getDeclaredFields();
+        for (Field declaredField : declaredFields) {
+            if (declaredField.getType() == Property.class) {
+                try {
+                    Property prototypeProperty = (Property) declaredField.get(null);
+                    prototypeProperty.getDescriptor().setDefaultConverter();
+                    if (Color.class.isAssignableFrom(prototypeProperty.getType())) {
+                        prototypeProperty.getDescriptor().setConverter(new CssColorConverter());
+                    }
+                    defineProperty(prototypeProperty, prototypeProperty.getValue());
+                } catch (IllegalAccessException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        }
+        try {
+            setDefaultValues();
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     private void defineProperty(Property prototypeProperty, Object value) {
         MapEntryAccessor accessor = new MapEntryAccessor(values, prototypeProperty.getName());
         Property property = new Property(prototypeProperty.getDescriptor(), accessor);
@@ -326,11 +375,42 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         setValue(property.getName(), value);
     }
 
-    private class StrokeNuller implements PropertyChangeListener {
+    private static Paint getEffectivePaint(Color color, double opacity) {
+        int alpha = min(max((int) (opacity * 255), 0), 255);
+        if (color.getAlpha() == alpha) {
+            return color;
+        }
+        return new Color(color.getRed(),
+                         color.getGreen(),
+                         color.getBlue(),
+                         alpha);
+    }
+
+    private static Stroke createEffectiveStroke(double width) {
+        return new BasicStroke((float) width);
+    }
+
+    private void resetEffectiveProperties() {
+        resetEffectiveStrokeProperties();
+        resetEffectiveFillProperties();
+    }
+
+    private void resetEffectiveStrokeProperties() {
+        stroke = null;
+        strokePaint = null;
+    }
+
+    private void resetEffectiveFillProperties() {
+        fillPaint = null;
+    }
+
+    private class EffectivePropertyNuller implements PropertyChangeListener {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().startsWith("stroke")) {
-                stroke = null;
+                resetEffectiveStrokeProperties();
+            } else if (evt.getPropertyName().startsWith("fill")) {
+                resetEffectiveFillProperties();
             }
         }
     }
