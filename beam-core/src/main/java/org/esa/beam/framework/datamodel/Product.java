@@ -1343,7 +1343,7 @@ public class Product extends ProductNode {
                 if (oldMask != null) {
                     maskGroup.remove(oldMask);
                 }
-                maskGroup.add(createMask(newBitmaskDef));
+                maskGroup.add(newBitmaskDef.createMask(sceneRasterWidth, insertIndex));
             }
             for (final Band band : getBands()) {
                 final BitmaskOverlayInfo overlayInfo = band.getBitmaskOverlayInfo();
@@ -2315,22 +2315,7 @@ public class Product extends ProductNode {
             bitmaskDef.setDescription(defaultDescription);
         }
         bitmaskDefGroup.add(bitmaskDef);
-
-        final Mask mask = createMask(bitmaskDef);
-        maskGroup.add(mask);
-    }
-
-    private Mask createMask(BitmaskDef bitmaskDef) {
-        final Mask mask = new Mask(bitmaskDef.getName(),
-                                   getSceneRasterWidth(),
-                                   getSceneRasterHeight(),
-                                   new Mask.BandMathType());
-        mask.setDescription(bitmaskDef.getDescription());
-        mask.getImageConfig().setValue("color", bitmaskDef.getColor());
-        mask.getImageConfig().setValue("transparency", (double) bitmaskDef.getTransparency());
-        mask.getImageConfig().setValue("expression", bitmaskDef.getExpr());
-
-        return mask;
+        maskGroup.add(bitmaskDef.createMask(sceneRasterWidth, sceneRasterHeight));
     }
 
     /**

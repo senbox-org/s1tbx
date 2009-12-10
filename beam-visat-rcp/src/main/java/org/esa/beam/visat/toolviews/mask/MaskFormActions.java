@@ -8,6 +8,7 @@ import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -18,6 +19,7 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
+import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
@@ -26,22 +28,29 @@ import org.esa.beam.visat.VisatApp;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.input.DOMBuilder;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.xml.sax.SAXException;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
+
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -351,8 +360,12 @@ class MaskFormActions {
         private void importBitmaskDefs() {
             final JFileChooser fileChooser = new BeamFileChooser();
             fileChooser.setDialogTitle("Import Masks from XML");
-            final FileFilter fileFilter = new BeamFileFilter("XML", ".xml", "XML files (*.xml)");
-            fileChooser.setFileFilter(fileFilter);
+            final FileFilter beamFF = new BeamFileFilter("BITMASK_DEFINITION_FILE", ".bmd", "Bitmask definition files (*.bmd)");
+            fileChooser.addChoosableFileFilter(beamFF);
+            final FileFilter beamFFXml = new BeamFileFilter("BITMASK_DEFINITION_FILE_XML", ".bmdx", "Bitmask definition xml files (*.bmdx)");
+            fileChooser.addChoosableFileFilter(beamFFXml);
+            final FileFilter maskFF = new BeamFileFilter("XML", ".xml", "XML files (*.xml)");
+            fileChooser.setFileFilter(maskFF);
             fileChooser.setCurrentDirectory(getDirectory());
 
             if (fileChooser.showOpenDialog(getMaskToolView().getPaneWindow()) == JFileChooser.APPROVE_OPTION) {
@@ -360,27 +373,94 @@ class MaskFormActions {
                 if (file != null) {
                     setDirectory(file.getAbsoluteFile().getParentFile());
                     if (file.canRead()) {
-                        try {
-                            final SAXBuilder saxBuilder = new SAXBuilder();
-                            final Document document = saxBuilder.build(file);
-                            final Element rootElement = document.getRootElement();
-                            @SuppressWarnings({"unchecked"})
-                            final List<Element> children = rootElement.getChildren(DimapProductConstants.TAG_MASK);
-                            for (final Element child : children) {
-                                final DimapPersistable persistable = DimapPersistence.getPersistable(child);
-                                if (persistable != null) {
-                                    final Product product = getMaskForm().getProduct();
-                                    final Mask mask = (Mask) persistable.createObjectFromXml(child, product);
-                                    product.getMaskGroup().add(mask);
-                                }
-                            }
-                        } catch (IOException e) {
-                            showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));
-                        } catch (JDOMException e) {
-                            showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));
+                        if (beamFF.accept(file)) {
+                            importBitmaskDef(file);
+                        } else if (beamFFXml.accept(file)) {
+                            importBitmaskDefs(file);
+                        } else {
+                            importMasks(file);
                         }
+                        
                     }
                 }
+            }
+        }
+        private void importBitmaskDef(File file) {
+            final PropertyMap propertyMap = new PropertyMap();
+            try {
+                propertyMap.load(file); // Overwrite existing values
+                String name = propertyMap.getPropertyString("bitmaskName", "bitmask");
+                final String description = propertyMap.getPropertyString("bitmaskDesc", null);
+                final String expr = propertyMap.getPropertyString("bitmaskExpr", "");
+                final Color color = propertyMap.getPropertyColor("bitmaskColor", Color.yellow);
+                final float transp = (float) propertyMap.getPropertyDouble("bitmaskTransparency", 0.5);
+                final BitmaskDef bitmaskDef = new BitmaskDef(name, description, expr, color, transp);
+                Product product = getMaskForm().getProduct();
+                Mask mask = bitmaskDef.createMask(product.getSceneRasterWidth(), product.getSceneRasterHeight());
+                if (mask != null) {
+                    getMaskForm().getProduct().getMaskGroup().add(mask);
+                }
+//                    addOrOverwriteBitmaskDef(bitmaskDef);
+            } catch (IOException e) {
+                showErrorDialog("I/O Error.\nFailed to import bitmask definition.");        /*I18N*/
+            }
+        }
+        private void importBitmaskDefs(File file) {
+            try {
+                try {
+                    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    final DocumentBuilder builder = factory.newDocumentBuilder();
+                    final org.w3c.dom.Document w3cDocument = builder.parse(file);
+                    final Document document = new DOMBuilder().build(w3cDocument);
+                    final Element rootElement = document.getRootElement();
+                    final List children = rootElement.getChildren(DimapProductConstants.TAG_BITMASK_DEFINITION);
+                    Product product = getMaskForm().getProduct();
+                    if (children != null) {
+                        for (Object aChildren : children) {
+                            final Element element = (Element) aChildren;
+                            final BitmaskDef bitmaskDef = BitmaskDef.createBitmaskDef(element);
+                            if (bitmaskDef != null) {
+                                Mask mask = bitmaskDef.createMask(product.getSceneRasterWidth(), product.getSceneRasterHeight());
+                                if (mask != null) {
+                                    getMaskForm().getProduct().getMaskGroup().add(mask);
+                                }
+//                                addOrOverwriteBitmaskDef(bitmaskDef);
+                            }
+                        }
+                    }
+                } catch (FactoryConfigurationError error) {
+                    throw new IOException(error.toString());
+                } catch (ParserConfigurationException e) {
+                    throw new IOException(e.toString());
+                } catch (SAXException e) {
+                    throw new IOException(e.toString());
+                } catch (IOException e) {
+                    throw new IOException(e.toString());
+                }
+            } catch (IOException e) {
+                showErrorDialog("I/O Error.\nFailed to import bitmask definition.");        /*I18N*/
+            }
+        }
+        
+        private void importMasks(File file) {
+            try {
+                final SAXBuilder saxBuilder = new SAXBuilder();
+                final Document document = saxBuilder.build(file);
+                final Element rootElement = document.getRootElement();
+                @SuppressWarnings({"unchecked"})
+                final List<Element> children = rootElement.getChildren(DimapProductConstants.TAG_MASK);
+                for (final Element child : children) {
+                    final DimapPersistable persistable = DimapPersistence.getPersistable(child);
+                    if (persistable != null) {
+                        final Product product = getMaskForm().getProduct();
+                        final Mask mask = (Mask) persistable.createObjectFromXml(child, product);
+                        product.getMaskGroup().add(mask);
+                    }
+                }
+            } catch (IOException e) {
+                showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));
+            } catch (JDOMException e) {
+                showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));
             }
         }
     }

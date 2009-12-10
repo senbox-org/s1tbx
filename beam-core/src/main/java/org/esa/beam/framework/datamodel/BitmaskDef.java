@@ -16,6 +16,7 @@ import com.bc.jexp.Term;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.datamodel.Mask.BandMathType;
 import org.esa.beam.util.*;
 import org.jdom.Element;
 
@@ -27,7 +28,9 @@ import java.awt.Color;
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
+ * @deprecated since BEAM 4.7, use {@code Mask} with {@code Mask.BandMathType} instead.
  */
+@Deprecated
 public class BitmaskDef extends ProductNode {
 
     public final static String PROPERTY_NAME_COLOR = "color";
@@ -274,5 +277,14 @@ public class BitmaskDef extends ProductNode {
         _expr = null;
         _color = null;
         super.dispose();
+    }
+    
+    public Mask createMask(int width, int height) {
+        final Mask mask = new Mask(getName(), width, height, new Mask.BandMathType());
+        mask.setDescription(getDescription());
+        mask.setImageColor(getColor());
+        mask.setImageTransparency(getTransparency());
+        BandMathType.setExpression(mask, getExpr());
+        return mask;
     }
 }
