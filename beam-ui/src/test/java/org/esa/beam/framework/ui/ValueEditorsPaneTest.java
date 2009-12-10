@@ -83,7 +83,7 @@ public class ValueEditorsPaneTest extends TestCase {
             }
         };
 
-        ValueEditorsPane propertyPane = createPane(new BindingProblemListener() {
+        ValueEditorsPane valueEditorsPane = createPane(new BindingProblemListener() {
             @Override
             public void problemReported(BindingProblem newProblem, BindingProblem oldProblem) {
                 JOptionPane.showMessageDialog(dialog.getJDialog(), newProblem.getCause().getMessage());
@@ -93,11 +93,11 @@ public class ValueEditorsPaneTest extends TestCase {
             public void problemCleared(BindingProblem oldProblem) {
             }
         });
-        JPanel panel = propertyPane.createPanel();
+        JPanel panel = valueEditorsPane.createPanel();
         dialog.setContent(panel);
         dialog.show();
 
-        propertyPane.getBindingContext().getPropertySet().addPropertyChangeListener(new PropertyChangeListener() {
+        valueEditorsPane.getBindingContext().getPropertySet().addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
