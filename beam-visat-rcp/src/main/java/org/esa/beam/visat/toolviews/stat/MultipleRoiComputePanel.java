@@ -175,11 +175,14 @@ class MultipleRoiComputePanel extends JPanel {
         boolean useRoi = useRoiCheckBox.isSelected() && useRoiCheckBox.isEnabled();
         int numRoiMasks = maskNameComboBox.getModel().getSize();
         boolean hasMultipleRois = numRoiMasks > 1;
-        boolean singleRoi = singleButton.isSelected();
+        boolean useSingleRoi = singleButton.isSelected();
         
         singleButton.setEnabled(hasMultipleRois && useRoi);
-        iterateButton.setEnabled(hasMultipleRois && useRoi);   
-        maskNameComboBox.setEnabled(hasMultipleRois && useRoi && singleRoi);
+        iterateButton.setEnabled(hasMultipleRois && useRoi);
+        if (hasMultipleRois && useRoi && !singleButton.isSelected() && !iterateButton.isSelected()) {
+            iterateButton.setSelected(true);
+        }
+        maskNameComboBox.setEnabled(hasMultipleRois && useRoi && useSingleRoi);
     }
     
     private class PNL implements ProductNodeListener {
