@@ -13,7 +13,7 @@ import org.esa.beam.framework.datamodel.ProductNode;
  * must return {@code true} if, and only if, the argument is an instance of this class.
  *
  * @author Ralf Quast
- * @version $ Revision: $ $ Date: $
+ * @version $ Revision $ $ Date $
  * @since BEAM 4.7
  */
 public interface ProductLayerContext extends LayerContext {
