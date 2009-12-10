@@ -12,17 +12,16 @@ import java.awt.event.MouseMotionListener;
 
 public class InteractionDispatcher implements MouseListener, MouseMotionListener, KeyListener {
     private final InteractorAware interactorAware;
-    private JComponent component;
+    private final boolean debug = Boolean.getBoolean(InteractionDispatcher.class.getName() + ".debug");
 
     public InteractionDispatcher(InteractorAware interactorAware) {
         this.interactorAware = interactorAware;
     }
 
     public void registerListeners(JComponent component) {
-        this.component = component;
-        this.component.addMouseListener(this);
-        this.component.addMouseMotionListener(this);
-        this.component.addKeyListener(this);
+        component.addMouseListener(this);
+        component.addMouseMotionListener(this);
+        component.addKeyListener(this);
     }
 
     public void unregisterListeners(JComponent component) {
@@ -32,59 +31,94 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
     }
 
     @Override
-    public void mouseClicked(MouseEvent e) {
-        // request focus to get notified about key events
-        component.requestFocusInWindow();
-        getInteractor().mouseClicked(e);
+    public void mouseClicked(MouseEvent event) {
+        if (debug) {
+            System.out.println("InteractionDispatcher.mouseClicked: event = " + event);
+        }
+        getInteractor().mouseClicked(event);
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {
-        getInteractor().mousePressed(e);
+    public void mousePressed(MouseEvent event) {
+        if (debug) {
+            System.out.println("InteractionDispatcher.mousePressed: event = " + event);
+        }
+        ensureKeyEventsReceived(event);
+        getInteractor().mousePressed(event);
     }
 
     @Override
-    public void mouseMoved(MouseEvent e) {
-        getInteractor().mouseMoved(e);
+    public void mouseMoved(MouseEvent event) {
+        if (debug) {
+            // System.out.println("InteractionDispatcher.mouseMoved: event = " + event);
+        }
+        getInteractor().mouseMoved(event);
     }
 
     @Override
-    public void mouseDragged(MouseEvent e) {
-        getInteractor().mouseDragged(e);
+    public void mouseDragged(MouseEvent event) {
+        if (debug) {
+            // System.out.println("InteractionDispatcher.mouseDragged: event = " + event);
+        }
+        getInteractor().mouseDragged(event);
     }
 
     @Override
-    public void mouseReleased(MouseEvent e) {
-        getInteractor().mouseReleased(e);
+    public void mouseReleased(MouseEvent event) {
+        if (debug) {
+            System.out.println("InteractionDispatcher.mouseReleased: event = " + event);
+        }
+        getInteractor().mouseReleased(event);
     }
 
     @Override
-    public void mouseEntered(MouseEvent e) {
-        getInteractor().mouseEntered(e);
+    public void mouseEntered(MouseEvent event) {
+        if (debug) {
+            System.out.println("InteractionDispatcher.mouseEntered: event = " + event);
+        }
+        ensureKeyEventsReceived(event);
+        getInteractor().mouseEntered(event);
     }
 
     @Override
-    public void mouseExited(MouseEvent e) {
-        getInteractor().mouseExited(e);
+    public void mouseExited(MouseEvent event) {
+        if (debug) {
+            System.out.println("InteractionDispatcher.mouseExited: event = " + event);
+        }
+        getInteractor().mouseExited(event);
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-        getInteractor().keyTyped(e);
+    public void keyTyped(KeyEvent event) {
+        if (debug) {
+            System.out.println("InteractionDispatcher.keyTyped: event = " + event);
+        }
+        getInteractor().keyTyped(event);
     }
 
     @Override
-    public void keyPressed(KeyEvent e) {
-        getInteractor().keyPressed(e);
+    public void keyPressed(KeyEvent event) {
+        if (debug) {
+            System.out.println("InteractionDispatcher.keyPressed: event = " + event);
+        }
+        getInteractor().keyPressed(event);
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
-        System.out.println("e = " + e);
-        getInteractor().keyReleased(e);
+    public void keyReleased(KeyEvent event) {
+        if (debug) {
+            System.out.println("InteractionDispatcher.keyReleased: event = " + event);
+        }
+        getInteractor().keyReleased(event);
     }
 
     private Interactor getInteractor() {
         return interactorAware.getInteractor();
     }
+
+    private void ensureKeyEventsReceived(MouseEvent e) {
+        // request focus to get notified about key events
+        e.getComponent().requestFocusInWindow();
+    }
+
 }

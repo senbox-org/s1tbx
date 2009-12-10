@@ -53,42 +53,129 @@ public abstract class AbstractInteractor implements Interactor {
         return Cursor.getDefaultCursor();
     }
 
+    /**
+     * Invoked when the mouse enters a component.
+     * <p/>
+     * The default implementation does nothing.
+     *
+     * @param event The mouse event.
+     */
     @Override
-    public void mouseClicked(MouseEvent event) {
+    public void mouseEntered(MouseEvent event) {
     }
 
+    /**
+     * Invoked when the mouse exits a component.
+     * <p/>
+     * The default implementation does nothing.
+     *
+     * @param event The mouse event.
+     */
+    @Override
+    public void mouseExited(MouseEvent event) {
+    }
+
+    /**
+     * Invoked when a mouse button has been pressed on a component.
+     * <p/>
+     * The default implementation does nothing.
+     *
+     * @param event The mouse event.
+     */
     @Override
     public void mousePressed(MouseEvent event) {
     }
 
-    @Override
-    public void mouseDragged(MouseEvent event) {
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent event) {
-    }
-
+    /**
+     * Invoked when a mouse button has been released on a component.
+     * <p/>
+     * The default implementation does nothing.
+     *
+     * @param event The mouse event.
+     */
     @Override
     public void mouseReleased(MouseEvent event) {
     }
 
+    /**
+     * Invoked when the mouse button has been clicked (pressed
+     * and released) on a component.
+     * <p/>
+     * The default implementation does nothing.
+     *
+     * @param event The mouse event.
+     */
     @Override
-    public void mouseEntered(MouseEvent e) {
+    public void mouseClicked(MouseEvent event) {
     }
 
+    /**
+     * Invoked when a mouse button is pressed on a component and then
+     * dragged.  <code>MOUSE_DRAGGED</code> events will continue to be
+     * delivered to the component where the drag originated until the
+     * mouse button is released (regardless of whether the mouse position
+     * is within the bounds of the component).
+     * <p/>
+     * Due to platform-dependent Drag&Drop implementations,
+     * <code>MOUSE_DRAGGED</code> events may not be delivered during a native
+     * Drag&Drop operation.
+     * <p/>
+     * The default implementation does nothing.
+     *
+     * @param event The mouse event.
+     */
     @Override
-    public void mouseExited(MouseEvent e) {
+    public void mouseDragged(MouseEvent event) {
     }
 
+    /**
+     * Invoked when the mouse cursor has been moved onto a component
+     * but no buttons have been pushed.
+     * <p/>
+     * The default implementation does nothing.
+     *
+     * @param event The mouse event.
+     */
+    @Override
+    public void mouseMoved(MouseEvent event) {
+    }
+
+    /**
+     * Invoked when a key has been pressed.
+     * See the class description for {@link KeyEvent} for a definition of
+     * a key pressed event.
+     * <p/>
+     * The default implementation does nothing.
+     *
+     * @param event The key event.
+     */
     @Override
     public void keyPressed(KeyEvent event) {
     }
 
+    /**
+     * Invoked when a key has been released.
+     * See the class description for {@link KeyEvent} for a definition of
+     * a key released event.
+     * <p/>
+     * The default implementation does nothing.
+     *
+     * @param event The key event.
+     */
     @Override
     public void keyReleased(KeyEvent event) {
     }
 
+    /**
+     * Invoked when a key has been typed.
+     * See the class description for {@link KeyEvent} for a definition of
+     * a key typed event.
+     * <p/>
+     * The default implementation calls {@link #cancelInteraction(java.awt.event.InputEvent)} if the
+     * "ESC" key has been typed.
+     *
+     * @param event The key event.
+     */
     @Override
     public void keyTyped(KeyEvent event) {
         System.out.println("onKeyTyped: interaction = " + this + ", keyChar = " + (int) event.getKeyChar());
