@@ -520,6 +520,7 @@ public class ProductSceneView extends BasicView
     /**
      * @return the associated product.
      */
+    @Override
     public Product getProduct() {
         return getRaster().getProduct();
     }
