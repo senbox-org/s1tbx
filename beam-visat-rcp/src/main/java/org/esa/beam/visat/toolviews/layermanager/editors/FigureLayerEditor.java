@@ -69,7 +69,7 @@ public class FigureLayerEditor extends AbstractBindingLayerEditor {
         vd6.setAttribute("valueEditor", valueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
         addValueDescriptor(vd6);
 
-        boolean outlined = (Boolean) bindingContext.getPropertyContainer().getValue(
+        boolean outlined = (Boolean) bindingContext.getPropertySet().getValue(
                 FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED);
         bindingContext.bindEnabledState(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_COLOR, outlined,
                                         FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED, outlined);
@@ -78,7 +78,7 @@ public class FigureLayerEditor extends AbstractBindingLayerEditor {
         bindingContext.bindEnabledState(FigureLayer.PROPERTY_NAME_SHAPE_OUTL_WIDTH, outlined,
                                         FigureLayer.PROPERTY_NAME_SHAPE_OUTLINED, outlined);
 
-        boolean filled = (Boolean) bindingContext.getPropertyContainer().getValue(FigureLayer.PROPERTY_NAME_SHAPE_FILLED);
+        boolean filled = (Boolean) bindingContext.getPropertySet().getValue(FigureLayer.PROPERTY_NAME_SHAPE_FILLED);
         bindingContext.bindEnabledState(FigureLayer.PROPERTY_NAME_SHAPE_FILL_COLOR, filled,
                                         FigureLayer.PROPERTY_NAME_SHAPE_FILLED, filled);
         bindingContext.bindEnabledState(FigureLayer.PROPERTY_NAME_SHAPE_FILL_TRANSPARENCY, filled,

@@ -197,7 +197,7 @@ class MosaicExpressionsPanel extends JPanel {
         final JComboBox combineComboBox = new JComboBox();
         bindingContext.bind("combine", combineComboBox);
         bindingContext.bindEnabledState("combine", false, "updateMode", true);
-        final String displayName = bindingContext.getPropertyContainer().getDescriptor("combine").getDisplayName();
+        final String displayName = bindingContext.getPropertySet().getDescriptor("combine").getDisplayName();
         combinePanel.add(new JLabel(displayName + ":"));
         combinePanel.add(combineComboBox);
         return combinePanel;

@@ -139,14 +139,14 @@ class OutputGeometryForm extends JPanel {
     }
     
     private JComponent[] createComponents(String propertyName) {
-        PropertyDescriptor descriptor = context.getPropertyContainer().getDescriptor(propertyName);
+        PropertyDescriptor descriptor = context.getPropertySet().getDescriptor(propertyName);
         ValueEditorRegistry valueEditorRegistry = ValueEditorRegistry.getInstance();
         ValueEditor editor = valueEditorRegistry.findValueEditor(descriptor);
         return editor.createComponents(descriptor, context);
     }
 
     private JComponent createUnitComponent(String propertyName) {
-        PropertyDescriptor descriptor = context.getPropertyContainer().getDescriptor(propertyName);
+        PropertyDescriptor descriptor = context.getPropertySet().getDescriptor(propertyName);
         JLabel unitLabel = new JLabel(descriptor.getUnit());
         context.getBinding(propertyName).addComponent(unitLabel);
         return unitLabel;

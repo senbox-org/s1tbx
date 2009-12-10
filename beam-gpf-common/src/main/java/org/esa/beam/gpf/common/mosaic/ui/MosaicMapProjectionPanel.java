@@ -1,6 +1,7 @@
 package org.esa.beam.gpf.common.mosaic.ui;
 
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -266,9 +267,9 @@ class MosaicMapProjectionPanel extends JPanel {
             public void propertyChange(PropertyChangeEvent evt) {
                 if ("orthorectify".equals(evt.getPropertyName()) ||
                     "updateMode".equals(evt.getPropertyName())) {
-                    final PropertyContainer propertyContainer = binding.getPropertyContainer();
-                    boolean updateMode = Boolean.TRUE.equals(propertyContainer.getValue("updateMode"));
-                    boolean orthorectify = Boolean.TRUE.equals(propertyContainer.getValue("orthoretify"));
+                    final PropertySet propertySet = binding.getPropertySet();
+                    boolean updateMode = Boolean.TRUE.equals(propertySet.getValue("updateMode"));
+                    boolean orthorectify = Boolean.TRUE.equals(propertySet.getValue("orthoretify"));
                     demComboBox.setEnabled(orthorectify && !updateMode);
                 }
             }

@@ -31,7 +31,7 @@ public class NoDataLayerEditor extends AbstractBindingLayerEditor {
         vd.setDefaultConverter();
 
         addValueDescriptor(vd);
-        bindingContext.getPropertyContainer().addPropertyChangeListener(NoDataLayerType.PROPERTY_NAME_COLOR,
+        bindingContext.getPropertySet().addPropertyChangeListener(NoDataLayerType.PROPERTY_NAME_COLOR,
                                                                      new UpdateImagePropertyChangeListener());
     }
 

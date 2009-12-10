@@ -44,7 +44,7 @@ public class VariablesTableAdapterTest {
         table.setValueAt("B", 1, 1);
         assertEquals("B", table.getValueAt(1, 1));
 
-        bindingContext.getPropertyContainer().setValue("variables", new MosaicOp.Variable[]{
+        bindingContext.getPropertySet().setValue("variables", new MosaicOp.Variable[]{
                 new MosaicOp.Variable("d", "D")
         });
 

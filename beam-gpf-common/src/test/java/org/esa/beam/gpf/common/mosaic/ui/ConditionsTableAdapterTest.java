@@ -48,7 +48,7 @@ public class ConditionsTableAdapterTest {
         table.setValueAt(false, 1, 2);
         assertEquals(false, table.getValueAt(1, 2));
 
-        bindingContext.getPropertyContainer().setValue("conditions", new MosaicOp.Condition[]{
+        bindingContext.getPropertySet().setValue("conditions", new MosaicOp.Condition[]{
                 new MosaicOp.Condition("d", "D", true)
         });
 

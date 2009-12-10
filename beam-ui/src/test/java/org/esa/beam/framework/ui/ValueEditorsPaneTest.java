@@ -97,7 +97,7 @@ public class ValueEditorsPaneTest extends TestCase {
         dialog.setContent(panel);
         dialog.show();
 
-        propertyPane.getBindingContext().getPropertyContainer().addPropertyChangeListener(new PropertyChangeListener() {
+        propertyPane.getBindingContext().getPropertySet().addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {

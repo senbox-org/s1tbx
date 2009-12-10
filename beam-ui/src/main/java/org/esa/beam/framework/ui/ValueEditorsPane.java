@@ -3,6 +3,7 @@ package org.esa.beam.framework.ui;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ValueEditor;
 import com.bc.ceres.binding.swing.ValueEditorRegistry;
@@ -38,7 +39,7 @@ public class ValueEditorsPane {
     }
 
     public JPanel createPanel() {
-        PropertyContainer propertyContainer = bindingContext.getPropertyContainer();
+        PropertySet propertyContainer = bindingContext.getPropertySet();
         Property[] models = propertyContainer.getProperties();
 
         boolean displayUnitColumn = displayUnitColumn(models);

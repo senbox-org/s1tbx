@@ -5,6 +5,7 @@ import com.bc.ceres.binding.PropertyAccessor;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
@@ -39,8 +40,8 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
         // TODO - replace this code block with the following line (rq-20090528)
         // bindingContext = new BindingContext(layer.getConfiguration());
         bindingContext = new BindingContext();
-        PropertyContainer propertyContainer = bindingContext.getPropertyContainer();
-        propertyContainer.addPropertyChangeListener(new UpdateStylePropertyChangeListener());
+        PropertySet propertySet = bindingContext.getPropertySet();
+        propertySet.addPropertyChangeListener(new UpdateStylePropertyChangeListener());
         initializeBinding(appContext, bindingContext);
         // ODOT
 
@@ -58,12 +59,12 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
         valueData.put(propertyName, value);
         PropertyAccessor accessor = new MapEntryAccessor(valueData, propertyName);
         Property model = new Property(propertyDescriptor, accessor);
-        bindingContext.getPropertyContainer().addProperty(model);
+        bindingContext.getPropertySet().addProperty(model);
     }
 
     @Override
     public void updateControl() {
-        final Property[] properties = bindingContext.getPropertyContainer().getProperties();
+        final Property[] properties = bindingContext.getPropertySet().getProperties();
         for (Property property : properties) {
             final PropertyDescriptor propertyDescriptor = property.getDescriptor();
             String propertyName = propertyDescriptor.getName();

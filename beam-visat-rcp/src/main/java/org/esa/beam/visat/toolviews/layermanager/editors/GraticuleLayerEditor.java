@@ -113,7 +113,7 @@ public class GraticuleLayerEditor extends AbstractBindingLayerEditor {
         vd10.setAttribute("valueEditor", valueEditorRegistry.getValueEditor(RangeEditor.class.getName()));
         addValueDescriptor(vd10);
 
-        boolean resAuto = (Boolean) bindingContext.getPropertyContainer().getValue(
+        boolean resAuto = (Boolean) bindingContext.getPropertySet().getValue(
                 GraticuleLayerType.PROPERTY_NAME_RES_AUTO);
         bindingContext.bindEnabledState(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS, resAuto,
                                         GraticuleLayerType.PROPERTY_NAME_RES_AUTO, resAuto);
@@ -122,7 +122,7 @@ public class GraticuleLayerEditor extends AbstractBindingLayerEditor {
         bindingContext.bindEnabledState(GraticuleLayerType.PROPERTY_NAME_RES_LON, !resAuto,
                                         GraticuleLayerType.PROPERTY_NAME_RES_AUTO, resAuto);
 
-        boolean textEnabled = (Boolean) bindingContext.getPropertyContainer().getValue(
+        boolean textEnabled = (Boolean) bindingContext.getPropertySet().getValue(
                 GraticuleLayerType.PROPERTY_NAME_TEXT_ENABLED);
         bindingContext.bindEnabledState(GraticuleLayerType.PROPERTY_NAME_TEXT_FG_COLOR, textEnabled,
                                         GraticuleLayerType.PROPERTY_NAME_TEXT_ENABLED, textEnabled);

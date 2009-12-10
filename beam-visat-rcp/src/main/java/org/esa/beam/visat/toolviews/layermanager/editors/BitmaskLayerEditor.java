@@ -1,9 +1,9 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
-import com.bc.ceres.binding.PropertyAccessor;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyAccessor;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.swing.BindingContext;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.ui.AppContext;
@@ -24,12 +24,12 @@ public class BitmaskLayerEditor extends ImageLayerEditor {
     protected void initializeBinding(AppContext appContext, BindingContext bindingContext) {
         super.initializeBinding(appContext, bindingContext);
 
-        final PropertyContainer vc = bindingContext.getPropertyContainer();
+        final PropertySet vc = bindingContext.getPropertySet();
         addBitmaskColorValueModel(vc);
         addBitmaskTransparencyValueModel(vc);
     }
 
-    private void addBitmaskColorValueModel(PropertyContainer vc) {
+    private void addBitmaskColorValueModel(PropertySet vc) {
         final Property model = getLayer().getConfiguration().getProperty(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF);
         final PropertyAccessor accessor = new BitmaskColorAccessor(model);
         final PropertyDescriptor descriptor = new PropertyDescriptor("bitmaskColor", Color.class);
@@ -39,7 +39,7 @@ public class BitmaskLayerEditor extends ImageLayerEditor {
         vc.addProperty(new Property(descriptor, accessor));
     }
 
-    private void addBitmaskTransparencyValueModel(PropertyContainer vc) {
+    private void addBitmaskTransparencyValueModel(PropertySet vc) {
         final Property model = getLayer().getConfiguration().getProperty(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF);
         final PropertyAccessor accessor = new BitmaskTransparencyAccessor(model);
         final PropertyDescriptor descriptor = new PropertyDescriptor("bitmaskTransparency", Float.class);

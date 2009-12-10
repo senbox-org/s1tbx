@@ -79,10 +79,10 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         gammaField.setColumns(6);
         gammaField.setHorizontalAlignment(JTextField.RIGHT);
 
-        moreOptionsForm.getBindingContext().getPropertyContainer().addProperty(channelSourceNameModel);
+        moreOptionsForm.getBindingContext().getPropertySet().addProperty(channelSourceNameModel);
         moreOptionsForm.getBindingContext().bind(CHANNEL_SOURCE_NAME_PROPERTY, channelSourceNameBox);
 
-        moreOptionsForm.getBindingContext().getPropertyContainer().addProperty(gammaModel);
+        moreOptionsForm.getBindingContext().getPropertySet().addProperty(gammaModel);
         moreOptionsForm.getBindingContext().bind(GAMMA_PROPERTY, gammaField);
 
         moreOptionsForm.addRow(new JLabel("Source band: "), channelSourceNameBox);
@@ -203,7 +203,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
             sourceNames[i] = channelSourcesList.get(i).getName();
         }
 
-        moreOptionsForm.getBindingContext().getPropertyContainer().getProperty(CHANNEL_SOURCE_NAME_PROPERTY).getDescriptor().setValueSet(new ValueSet(sourceNames));
+        moreOptionsForm.getBindingContext().getPropertySet().getProperty(CHANNEL_SOURCE_NAME_PROPERTY).getDescriptor().setValueSet(new ValueSet(sourceNames));
 
         acknowledgeChannel();
     }
