@@ -1362,6 +1362,15 @@
             <placeBefore>createFilteredBand</placeBefore>
         </action>
 
+<!-- TODO -->
+        <action>
+            <id>newVectorData</id>
+            <class>org.esa.beam.visat.actions.NewVectorDataAction</class>
+            <text>New Vector Data...</text>
+            <helpId>newVectorData</helpId>
+            <parent>tools</parent>
+        </action>
+
         <action>
             <id>helpTopics</id>
             <parent>help</parent>

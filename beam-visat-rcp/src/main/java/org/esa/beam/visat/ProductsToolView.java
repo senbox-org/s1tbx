@@ -44,6 +44,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.beans.PropertyVetoException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -284,21 +285,53 @@ public class ProductsToolView extends AbstractToolView {
 
         @Override
         public boolean canDeleteSelection() {
-            return getSelectedObject() instanceof Band;
+            Object selectedObject = getSelectedObject();
+            return isDeletableRasterData(selectedObject)
+                    || isDeletableVectorData(selectedObject);
+        }
+
+        private boolean isDeletableVectorData(Object selectedObject) {
+            if (selectedObject instanceof VectorData) {
+                // todo - dont delete pins + GCP vector data (nf)
+                return true;
+            } else return false;
+        }
+
+        private boolean isDeletableRasterData(Object selectedObject) {
+            return selectedObject instanceof Band
+                    || selectedObject instanceof TiePointGrid;
         }
 
         @Override
         public void deleteSelection() {
-            Band band = (Band) getSelectedObject();
-            final String[] virtualBands = getVirtualBandsReferencing(band);
-            final String[] validMaskNodes = getRasterDataNodesValidMaskReferencing(band);
-            final String[] masks = getMasksReferencing(band);
-            String message = "Do you really want to delete the band '" + band.getName() + "'?\n"
-                    + "This action cannot be undone.\n\n";
+            Object selectedObject = getSelectedObject();
+            if (isDeletableRasterData(selectedObject)) {
+                deleteRasterData((RasterDataNode) selectedObject);
+            } else if (isDeletableVectorData(selectedObject)) {
+                deleteVectorData((VectorData) selectedObject);
+            }
+        }
+
+        private void deleteVectorData(VectorData vectorData) {
+            String message = MessageFormat.format("Do you really want to delete the vector data ''{0}''?\nThis action cannot be undone.\n\n", vectorData.getName());
+            int status = VisatApp.getApp().showQuestionDialog("Delete Vector Data",
+                                                              message, null);
+            if (status == JOptionPane.YES_OPTION) {
+                Product product = vectorData.getProduct();
+                product.getVectorDataGroup().remove(vectorData);
+            }
+        }
+
+        private void deleteRasterData(RasterDataNode raster) {
+            String[] virtualBands = getReferencedVirtualBands(raster);
+            String[] validMaskNodes = getReferencedValidMasks(raster);
+            String[] masks = getReferencedMasks(raster);
+
+            String message = MessageFormat.format("Do you really want to delete the raster data ''{0}''?\nThis action cannot be undone.\n\n", raster.getName());
             if (virtualBands.length > 0
                     || validMaskNodes.length > 0
                     || masks.length > 0) {
-                message += "The band to be deleted is referenced by\n"; /*I18N*/
+                message += "The raster to be deleted is referenced by\n"; /*I18N*/
             }
             String indent = "    ";
             if (virtualBands.length > 0) {
@@ -320,10 +353,10 @@ public class ProductsToolView extends AbstractToolView {
                 }
             }
 
-            final int status = VisatApp.getApp().showQuestionDialog("Delete Band",
+            final int status = VisatApp.getApp().showQuestionDialog("Delete Raster Data",
                                                                     message, null);
             if (status == JOptionPane.YES_OPTION) {
-                final JInternalFrame[] internalFrames = VisatApp.getApp().findInternalFrames(band);
+                final JInternalFrame[] internalFrames = VisatApp.getApp().findInternalFrames(raster);
                 for (final JInternalFrame internalFrame : internalFrames) {
                     try {
                         internalFrame.setClosed(true);
@@ -331,11 +364,18 @@ public class ProductsToolView extends AbstractToolView {
                         Debug.trace(e);
                     }
                 }
-                if (band.hasRasterData()) {
-                    band.unloadRasterData();
+                if (raster.hasRasterData()) {
+                    raster.unloadRasterData();
                 }
-                final Product product = band.getProduct();
-                product.removeBand(band);
+                final Product product = raster.getProduct();
+                if (raster instanceof Mask) {
+                    product.getMaskGroup().remove((Mask) raster);
+                    // todo - if type==Vector also remove vector data node (nf)
+                } else if (raster instanceof Band) {
+                    product.removeBand((Band) raster);
+                } else if (raster instanceof TiePointGrid) {
+                    product.removeTiePointGrid((TiePointGrid) raster);
+                }
             }
         }
 
@@ -344,7 +384,7 @@ public class ProductsToolView extends AbstractToolView {
             return ((DefaultMutableTreeNode) treePath.getLastPathComponent()).getUserObject();
         }
 
-        private static String[] getRasterDataNodesValidMaskReferencing(final RasterDataNode node) {
+        private static String[] getReferencedValidMasks(final RasterDataNode node) {
             final Product product = node.getProduct();
             final List<String> namesList = new ArrayList<String>();
             if (product != null) {
@@ -368,7 +408,7 @@ public class ProductsToolView extends AbstractToolView {
             return namesList.toArray(new String[namesList.size()]);
         }
 
-        private static String[] getMasksReferencing(final RasterDataNode node) {
+        private static String[] getReferencedMasks(final RasterDataNode node) {
             final Product product = node.getProduct();
             final List<String> namesList = new ArrayList<String>();
             if (product != null) {
@@ -391,7 +431,7 @@ public class ProductsToolView extends AbstractToolView {
             return namesList.toArray(new String[namesList.size()]);
         }
 
-        private static String[] getVirtualBandsReferencing(final RasterDataNode node) {
+        private static String[] getReferencedVirtualBands(final RasterDataNode node) {
             final Product product = node.getProduct();
             final List<String> namesList = new ArrayList<String>();
             if (product != null) {
