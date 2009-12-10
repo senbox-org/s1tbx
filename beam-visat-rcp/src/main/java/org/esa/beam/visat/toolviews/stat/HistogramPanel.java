@@ -88,7 +88,6 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     protected void updateContent() {
         if (computePanel != null) {
             computePanel.setRaster(getRaster());
-            setRaster(getRaster());
             if (!(Boolean) autoMinMaxEnabledParam.getValue()) {
                 return;
             }
@@ -109,6 +108,8 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
             }
             histoMinParam.setDefaultValue();
             histoMaxParam.setDefaultValue();
+            chart.getXYPlot().setDataset(null);
+            chart.fireChartChanged();
         }
     }
 

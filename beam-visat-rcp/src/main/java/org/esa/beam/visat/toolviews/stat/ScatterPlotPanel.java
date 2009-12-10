@@ -98,6 +98,8 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     @Override
     protected void updateContent() {
         if (scatterPlotDisplay != null) {
+            plot.setImage(null);
+            plot.setDataset(null);
             final String[] availableBands = createAvailableBandList();
             updateParameters(X_VAR, availableBands);
             updateParameters(Y_VAR, availableBands);
