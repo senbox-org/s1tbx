@@ -357,7 +357,7 @@ public class Mask extends Band {
          */
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            return VectorMultiLevelImage.createMask(getVectorData(mask), mask);
+            return VectorDataMultiLevelImage.createMask(getVectorData(mask), mask);
         }
 
         /**

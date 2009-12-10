@@ -18,11 +18,11 @@ import java.awt.Polygon;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 
-public class VectorMultiLevelImageTest {
+public class VectorDataMultiLevelImageTest {
 
     private Product product;
     private VectorData pyramids;
-    private VectorMultiLevelImage image;
+    private VectorDataMultiLevelImage image;
 
     @Before
     public void setup() {
@@ -30,7 +30,7 @@ public class VectorMultiLevelImageTest {
         pyramids = new VectorData("pyramids", createPyramidFeatureType());
         product.getVectorDataGroup().add(pyramids);
 
-        image = new VectorMultiLevelImage(VectorMultiLevelImage.createMaskMultiLevelSource(pyramids), pyramids);
+        image = new VectorDataMultiLevelImage(VectorDataMultiLevelImage.createMaskMultiLevelSource(pyramids), pyramids);
     }
 
     @After

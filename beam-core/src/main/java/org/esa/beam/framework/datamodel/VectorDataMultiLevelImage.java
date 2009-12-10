@@ -13,14 +13,14 @@ import java.awt.image.RenderedImage;
 import java.lang.ref.WeakReference;
 
 /**
- * A {@link MultiLevelImage} computed from vector data. The {@link VectorMultiLevelImage}
+ * A {@link MultiLevelImage} computed from vector data. The {@link VectorDataMultiLevelImage}
  * resets itsself whenever the referred vector data have changed.
  *
  * @author Ralf Quast
  * @version $Revision: $ $Date: $
  * @since BEAM 4.7
  */
-class VectorMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeListener {
+class VectorDataMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeListener {
 
     private final WeakReference<VectorData> vectorDataReference;
 
@@ -38,7 +38,7 @@ class VectorMultiLevelImage extends DefaultMultiLevelImage implements ProductNod
      */
     static MultiLevelImage createMask(final VectorData vectorData, final RasterDataNode associatedNode) {
         final MultiLevelSource multiLevelSource = createMaskMultiLevelSource(vectorData);
-        return new VectorMultiLevelImage(multiLevelSource, vectorData) {
+        return new VectorDataMultiLevelImage(multiLevelSource, vectorData) {
             @Override
             public void reset() {
                 super.reset();
@@ -54,7 +54,7 @@ class VectorMultiLevelImage extends DefaultMultiLevelImage implements ProductNod
      * @param multiLevelSource the multi-level image source
      * @param vectorData       the vector data referred.
      */
-    VectorMultiLevelImage(MultiLevelSource multiLevelSource, final VectorData vectorData) {
+    VectorDataMultiLevelImage(MultiLevelSource multiLevelSource, final VectorData vectorData) {
         super(multiLevelSource);
 
         this.vectorDataReference = new WeakReference<VectorData>(vectorData);
