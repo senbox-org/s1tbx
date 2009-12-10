@@ -7,14 +7,20 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.glayer.ProductLayerContext;
 
 public class VectorDataCollectionLayerType extends CollectionLayer.Type {
 
     @Override
+    public boolean isValidFor(LayerContext ctx) {
+        return ctx instanceof ProductLayerContext;
+    }
+
+    @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         Assert.notNull(ctx, "ctx");
-        final ProductSceneImage sceneImage = (ProductSceneImage) ctx;
-        final ProductNodeGroup<VectorData> vectorDataGroup = sceneImage.getRaster().getProduct().getVectorDataGroup();
+        final ProductLayerContext plc = (ProductLayerContext) ctx;
+        final ProductNodeGroup<VectorData> vectorDataGroup = plc.getProduct().getVectorDataGroup();
 
         return new VectorDataCollectionLayer(this, vectorDataGroup, configuration);
     }

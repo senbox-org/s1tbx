@@ -4,7 +4,6 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
@@ -17,6 +16,7 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorData;
@@ -28,6 +28,7 @@ import org.esa.beam.glayer.MaskCollectionLayerType;
 import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glayer.PlacemarkLayer;
+import org.esa.beam.glayer.ProductLayerContext;
 import org.esa.beam.glayer.RasterImageLayerType;
 import org.esa.beam.glayer.RgbImageLayerType;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
@@ -38,7 +39,7 @@ import java.awt.Color;
 import java.awt.geom.AffineTransform;
 
 // todo - Layer API: make it implement ProductSceneViewContext
-public class ProductSceneImage implements LayerContext {
+public class ProductSceneImage implements ProductLayerContext {
 
     private static final ImageLayerFilter IMAGE_LAYER_FILTER = new ImageLayerFilter();
     private final String name;
@@ -230,7 +231,7 @@ public class ProductSceneImage implements LayerContext {
         return layer;
     }
 
-    RasterDataNode getRaster() {
+    private RasterDataNode getRaster() {
         return rasters[0];
     }
 
@@ -528,6 +529,11 @@ public class ProductSceneImage implements LayerContext {
 
     private BandImageMultiLevelSource getBandImageMultiLevelSource() {
         return bandImageMultiLevelSource;
+    }
+
+    @Override
+    public Product getProduct() {
+        return getRaster().getProduct();
     }
 
     private static class ImageLayerFilter implements LayerFilter {

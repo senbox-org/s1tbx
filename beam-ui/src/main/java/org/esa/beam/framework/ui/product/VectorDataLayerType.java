@@ -9,6 +9,7 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.glayer.ProductLayerContext;
 
 /**
  * @author Marco Peters
@@ -32,15 +33,15 @@ public class VectorDataLayerType extends LayerType {
 
     @Override
     public boolean isValidFor(LayerContext ctx) {
-        return true;
+        return ctx instanceof ProductLayerContext;
     }
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         Assert.notNull(ctx, "ctx");
-        final ProductSceneView sceneView = (ProductSceneView) ctx;
+        final ProductLayerContext plc = (ProductLayerContext) ctx;
         final String vectorDataName = (String) configuration.getValue(PROPERTY_NAME_VECTOR_DATA);
-        final VectorData vectorData = sceneView.getRaster().getProduct().getVectorDataGroup().get(vectorDataName);
+        final VectorData vectorData = plc.getProduct().getVectorDataGroup().get(vectorDataName);
 
         return createLayer(vectorData, configuration);
     }
