@@ -1349,12 +1349,12 @@ public class ProductSceneView extends BasicView
         }
 
         @Override
-        public PointFigure createPunctualFigure(Point2D point, FigureStyle style) {
+        public PointFigure createPointFigure(Point2D point, FigureStyle style) {
             return new SimpleFeaturePointFigure(createSimpleFeature(toJtsGeom.createPoint(point)), style);
         }
 
         @Override
-        public ShapeFigure createLinealFigure(Shape shape, FigureStyle style) {
+        public ShapeFigure createLineFigure(Shape shape, FigureStyle style) {
             MultiLineString multiLineString = toJtsGeom.createMultiLineString(shape);
             if (multiLineString.getNumGeometries() == 1) {
                 return createShapeFigure(multiLineString.getGeometryN(0), style);
@@ -1364,7 +1364,7 @@ public class ProductSceneView extends BasicView
         }
 
         @Override
-        public ShapeFigure createPolygonalFigure(Shape shape, FigureStyle style) {
+        public ShapeFigure createPolygonFigure(Shape shape, FigureStyle style) {
             Polygon polygon = toJtsGeom.createPolygon(shape);
             return createShapeFigure(polygon, style);
         }

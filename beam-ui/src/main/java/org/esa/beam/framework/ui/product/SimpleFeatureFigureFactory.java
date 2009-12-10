@@ -37,12 +37,12 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
     }
 
     @Override
-    public PointFigure createPunctualFigure(Point2D point, FigureStyle style) {
+    public PointFigure createPointFigure(Point2D point, FigureStyle style) {
         return new SimpleFeaturePointFigure(createSimpleFeature(toJtsGeom.createPoint(point), style), style);
     }
 
     @Override
-    public ShapeFigure createLinealFigure(Shape shape, FigureStyle style) {
+    public ShapeFigure createLineFigure(Shape shape, FigureStyle style) {
         MultiLineString multiLineString = toJtsGeom.createMultiLineString(shape);
         if (multiLineString.getNumGeometries() == 1) {
             return createShapeFigure(multiLineString.getGeometryN(0), style);
@@ -52,7 +52,7 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
     }
 
     @Override
-    public ShapeFigure createPolygonalFigure(Shape shape, FigureStyle style) {
+    public ShapeFigure createPolygonFigure(Shape shape, FigureStyle style) {
         Polygon polygon = toJtsGeom.createPolygon(shape);
         return createShapeFigure(polygon, style);
     }
@@ -91,8 +91,8 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
 
     public static DefaultFigureStyle createDefaultStyle() {
         DefaultFigureStyle figureStyle = new DefaultFigureStyle();
-        figureStyle.setStrokePaint(Color.BLACK);
-        figureStyle.setFillPaint(Color.WHITE);
+        figureStyle.setStrokeColor(Color.BLACK);
+        figureStyle.setFillColor(Color.WHITE);
         figureStyle.setStroke(new BasicStroke(1.0f));
         return figureStyle;
     }
