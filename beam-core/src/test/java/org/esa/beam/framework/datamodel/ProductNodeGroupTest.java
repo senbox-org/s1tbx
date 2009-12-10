@@ -9,9 +9,9 @@ public class ProductNodeGroupTest extends TestCase {
 
         assertEquals(false, p.isModified());
 
+        ProductNodeGroup<Pin> pinGroup = p.getPinGroup();
         PNL listener = new PNL();
         p.addProductNodeListener(listener);
-        ProductNodeGroup<Pin> pinGroup = p.getPinGroup();
 
         assertNotNull(pinGroup);
         assertSame(p, pinGroup.getOwner());
@@ -73,7 +73,9 @@ public class ProductNodeGroupTest extends TestCase {
         MetadataElement root = new MetadataElement("root");
         MetadataElement child = new MetadataElement("child");
 
-        ProductNodeGroup<MetadataElement> referencingGroup = new ProductNodeGroup<MetadataElement>(null, "metadataElements", false);
+        ProductNodeGroup<MetadataElement> referencingGroup = new ProductNodeGroup<MetadataElement>(null,
+                                                                                                   "metadataElements",
+                                                                                                   false);
         child.setOwner(root);
         assertSame(root, child.getOwner());
         referencingGroup.add(child);
@@ -83,7 +85,8 @@ public class ProductNodeGroupTest extends TestCase {
         assertEquals(false, referencingGroup.contains(child));
         assertSame(root, child.getOwner());
 
-        ProductNodeGroup<MetadataElement> owningGroup = new ProductNodeGroup<MetadataElement>(null, "metadataElements", true);
+        ProductNodeGroup<MetadataElement> owningGroup = new ProductNodeGroup<MetadataElement>(null, "metadataElements",
+                                                                                              true);
         child.setOwner(root);
         assertSame(root, child.getOwner());
         owningGroup.add(child);
@@ -95,26 +98,39 @@ public class ProductNodeGroupTest extends TestCase {
     }
 
     private static class PNL implements ProductNodeListener {
+
         String trace = "";
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
-            trace += "c:" + event.getSourceNode().getName() + "." + event.getPropertyName() + ";";
+            if (event.getSource() instanceof Band
+                || event.getSource() instanceof Pin) {
+                trace += "c:" + event.getSourceNode().getName() + "." + event.getPropertyName() + ";";
+            }
         }
 
         @Override
         public void nodeDataChanged(ProductNodeEvent event) {
-            trace += "dc:" + event.getSourceNode().getName() + ";";
+            if (event.getSource() instanceof Band
+                || event.getSource() instanceof Pin) {
+                trace += "dc:" + event.getSourceNode().getName() + ";";
+            }
         }
 
         @Override
         public void nodeAdded(ProductNodeEvent event) {
-            trace += "+" + event.getSourceNode().getName() + ";";
+            if (event.getSource() instanceof Band
+                || event.getSource() instanceof Pin) {
+                trace += "+" + event.getSourceNode().getName() + ";";
+            }
         }
 
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
-            trace += "-" + event.getSourceNode().getName() + ";";
+            if (event.getSource() instanceof Band
+                || event.getSource() instanceof Pin) {
+                trace += "-" + event.getSourceNode().getName() + ";";
+            }
         }
     }
 }

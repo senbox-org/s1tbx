@@ -43,7 +43,6 @@ import org.esa.beam.framework.dataop.barithm.SingleFlagSymbol;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.util.AwtGeomToJtsGeomConverter;
 import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -273,13 +272,12 @@ public class Product extends ProductNode {
         this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
-        final SimpleFeatureType pinFeatureType = createPlacemarkFeatureType("PinType", "pixelPoint");
         this.pinGroup = new ProductNodeGroup<Pin>(this, "pinGroup", true) {
             @Override
             public boolean add(Pin pin) {
                 final boolean added = super.add(pin);
                 if (added) {
-                    addToPinVectorData(pin, pinFeatureType);
+                    addToVectorData(pin);
                 }
                 return added;
             }
@@ -287,30 +285,42 @@ public class Product extends ProductNode {
             @Override
             public void add(int index, Pin pin) {
                 super.add(index, pin);
-                addToPinVectorData(pin, pinFeatureType);
+                addToVectorData(pin);
             }
 
-            private void addToPinVectorData(Pin pin, SimpleFeatureType pinFeatureType) {
-                final AwtGeomToJtsGeomConverter converter = new AwtGeomToJtsGeomConverter();
-                final SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(pinFeatureType);
-                featureBuilder.add(pin.getLabel());
-                final float lat = pin.getGeoPos().getLat();
-                final float lon = pin.getGeoPos().getLon();
-                featureBuilder.add(converter.createPoint(new Point2D.Float(lon, lat)));
-                featureBuilder.add(converter.createPoint(pin.getPixelPos()));
-                final SimpleFeature feature = featureBuilder.buildFeature(pin.getName());
-                vectorDataGroup.get("pins").getFeatureCollection().add(feature);
+            @Override
+            public boolean remove(Pin pin) {
+                final boolean removed = super.remove(pin);
+                if (removed) {
+                    removeFromVectorData(pin);
+                }
+                return removed;
+            }
+
+            private void addToVectorData(final Pin pin) {
+                vectorDataGroup.get("pins").getFeatureCollection().add(pin.getFeature());
+            }
+
+            private void removeFromVectorData(Pin pin) {
+                final Iterator<SimpleFeature> iterator = vectorDataGroup.get("pins").getFeatureCollection().iterator();
+                while (iterator.hasNext()) {
+                    final SimpleFeature feature = iterator.next();
+                    if (feature == pin.getFeature()) {
+                        iterator.remove();
+                        break;
+                    }
+                }
             }
         };
+        
         this.gcpGroup = new ProductNodeGroup<Pin>(this, "gcpGroup", true);
 
         // todo - review me, this is test code (nf 10.2009)
-        this.vectorDataGroup.add(new VectorData("pins", pinFeatureType));
+        this.vectorDataGroup.add(new VectorData("pins", Pin.getPinFeatureType()));
         this.vectorDataGroup.add(
                 new VectorData("ground_control_points", createPlacemarkFeatureType("GcpType", "geoPoint")));
 
         if ("true".equals(System.getProperty("beam.maskDev"))) {
-
             // todo - review me, this is test code (nf 10.2009)
             VectorData testShapes1 = createTestShapes1("test_shapes_1");
             this.vectorDataGroup.add(testShapes1);

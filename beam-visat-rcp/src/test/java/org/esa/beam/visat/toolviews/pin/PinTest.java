@@ -18,7 +18,14 @@ package org.esa.beam.visat.toolviews.pin;
 
 import junit.framework.TestCase;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
@@ -30,13 +37,15 @@ import java.util.Vector;
 
 public class PinTest extends TestCase {
 
+    private static final String _NODE_ADDED = "nodeAdded";
+    private static final String _NODE_CHANGED = "nodeChanged";
+    private static final String _NODE_DATA_CHANGED = "ndc";
+    private static final String _NODE_REMOVED = "nodeRemoved";
+    private static final String _ls = SystemUtils.LS;
+
     private Product product;
     private Vector eventTypes;
     private Vector events;
-    private final String _NODE_ADDED = "nodeAdded";
-    private final String _NODE_CHANGED = "nodeChanged";
-    private final String _NODE_REMOVED = "nodeRemoved";
-    private final String _ls = SystemUtils.LS;
 
 
     @Override
@@ -45,24 +54,36 @@ public class PinTest extends TestCase {
         eventTypes = new Vector();
         events = new Vector();
         product.addProductNodeListener(new ProductNodeListener() {
+            @Override
             public void nodeChanged(ProductNodeEvent event) {
-                eventTypes.add(_NODE_CHANGED);
-                events.add(event);
+                if (event.getSource() instanceof Pin) {
+                    eventTypes.add(_NODE_CHANGED);
+                    events.add(event);
+                }
             }
 
+            @Override
             public void nodeDataChanged(ProductNodeEvent event) {
-                eventTypes.add("ndc");
-                events.add(event);
+                if (event.getSource() instanceof Pin) {
+                    eventTypes.add(_NODE_DATA_CHANGED);
+                    events.add(event);
+                }
             }
 
+            @Override
             public void nodeAdded(ProductNodeEvent event) {
-                eventTypes.add(_NODE_ADDED);
-                events.add(event);
+                if (event.getSource() instanceof Pin) {
+                    eventTypes.add(_NODE_ADDED);
+                    events.add(event);
+                }
             }
 
+            @Override
             public void nodeRemoved(ProductNodeEvent event) {
-                eventTypes.add(_NODE_REMOVED);
-                events.add(event);
+                if (event.getSource() instanceof Pin) {
+                    eventTypes.add(_NODE_REMOVED);
+                    events.add(event);
+                }
             }
         });
     }
@@ -72,7 +93,8 @@ public class PinTest extends TestCase {
     }
 
     public void testPinEvents() {
-        final Pin pin1 = new Pin("pinName", "pinLabel", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol());
+        final Pin pin1 = new Pin("pinName", "pinLabel", "", null, new GeoPos(),
+                                 PlacemarkSymbol.createDefaultPinSymbol());
 
         assertEquals(0, product.getPinGroup().getNodeCount());
         assertEquals(0, events.size());
@@ -133,7 +155,8 @@ public class PinTest extends TestCase {
     }
 
     public void testWriteXML_XmlWriterIsNull() {
-        Pin placemark = new Pin("pinName", "pinLabel", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol());
+        Pin placemark = new Pin("pinName", "pinLabel", "", null, new GeoPos(),
+                                PlacemarkSymbol.createDefaultPinSymbol());
 
         try {
             placemark.writeXML(null, 1);
@@ -159,42 +182,43 @@ public class PinTest extends TestCase {
     }
 
     public void testWriteXML_DifferentValidIndent() {
-        Pin pin = new Pin("pinName", "pinLabel", "", null, new GeoPos(4f, 87f), PlacemarkSymbol.createDefaultPinSymbol());
+        Pin pin = new Pin("pinName", "pinLabel", "", null, new GeoPos(4f, 87f),
+                          PlacemarkSymbol.createDefaultPinSymbol());
         pin.setDescription("pinDescription");
         pin.setSymbol(PlacemarkSymbol.createDefaultPinSymbol());
 
         StringWriter stringWriter = new StringWriter();
         pin.writeXML(new XmlWriter(stringWriter, false), 0);
         String expected = "" +
-                "<Placemark name=\"pinName\">" + _ls +
-                "    <LABEL>pinLabel</LABEL>" + _ls +
-                "    <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
-                "    <LATITUDE>4.0</LATITUDE>" + _ls +
-                "    <LONGITUDE>87.0</LONGITUDE>" + _ls +
-                "    <FillColor>" + _ls +
-                "        <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
-                "    </FillColor>" + _ls +
-                "    <OutlineColor>" + _ls +
-                "        <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
-                "    </OutlineColor>" + _ls +
-                "</Placemark>" + _ls;
+                          "<Placemark name=\"pinName\">" + _ls +
+                          "    <LABEL>pinLabel</LABEL>" + _ls +
+                          "    <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
+                          "    <LATITUDE>4.0</LATITUDE>" + _ls +
+                          "    <LONGITUDE>87.0</LONGITUDE>" + _ls +
+                          "    <FillColor>" + _ls +
+                          "        <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
+                          "    </FillColor>" + _ls +
+                          "    <OutlineColor>" + _ls +
+                          "        <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
+                          "    </OutlineColor>" + _ls +
+                          "</Placemark>" + _ls;
         assertEquals(expected, stringWriter.toString());
 
         stringWriter = new StringWriter();
         pin.writeXML(new XmlWriter(stringWriter, false), 3);
         expected = "" +
-                "            <Placemark name=\"pinName\">" + _ls +
-                "                <LABEL>pinLabel</LABEL>" + _ls +
-                "                <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
-                "                <LATITUDE>4.0</LATITUDE>" + _ls +
-                "                <LONGITUDE>87.0</LONGITUDE>" + _ls +
-                "                <FillColor>" + _ls +
-                "                    <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
-                "                </FillColor>" + _ls +
-                "                <OutlineColor>" + _ls +
-                "                    <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
-                "                </OutlineColor>" + _ls +
-                "            </Placemark>" + _ls;
+                   "            <Placemark name=\"pinName\">" + _ls +
+                   "                <LABEL>pinLabel</LABEL>" + _ls +
+                   "                <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
+                   "                <LATITUDE>4.0</LATITUDE>" + _ls +
+                   "                <LONGITUDE>87.0</LONGITUDE>" + _ls +
+                   "                <FillColor>" + _ls +
+                   "                    <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
+                   "                </FillColor>" + _ls +
+                   "                <OutlineColor>" + _ls +
+                   "                    <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
+                   "                </OutlineColor>" + _ls +
+                   "            </Placemark>" + _ls;
         assertEquals(expected, stringWriter.toString());
     }
 
