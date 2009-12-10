@@ -20,7 +20,7 @@ import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
-import com.bc.ceres.binding.swing.ValueEditor;
+import com.bc.ceres.binding.swing.PropertyEditor;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -33,7 +33,7 @@ import javax.swing.JScrollPane;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class MultiSelectionEditor extends ValueEditor {
+public class MultiSelectionEditor extends PropertyEditor {
 
     @Override
     public boolean isValidFor(PropertyDescriptor propertyDescriptor) {

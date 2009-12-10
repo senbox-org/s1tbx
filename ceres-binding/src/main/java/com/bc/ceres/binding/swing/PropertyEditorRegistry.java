@@ -25,69 +25,69 @@ import com.bc.ceres.core.ServiceRegistryManager;
 import java.util.ServiceLoader;
 
 /**
- * A registry for {@link ValueEditor}.
+ * A registry for {@link PropertyEditor}.
  *
  * @author Marco Zuehlke
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class ValueEditorRegistry {
+public class PropertyEditorRegistry {
 
-    private static ValueEditorRegistry instance;
+    private static PropertyEditorRegistry instance;
 
-    private final ServiceRegistry<ValueEditor> registry;
-    private final ValueEditor defaultEditor;
+    private final ServiceRegistry<PropertyEditor> registry;
+    private final PropertyEditor defaultEditor;
 
-    private ValueEditorRegistry() {
-        registry = ServiceRegistryManager.getInstance().getServiceRegistry(ValueEditor.class);
+    private PropertyEditorRegistry() {
+        registry = ServiceRegistryManager.getInstance().getServiceRegistry(PropertyEditor.class);
 
-        final ServiceLoader<ValueEditor> serviceLoader = ServiceLoader.load(ValueEditor.class);
-        for (final ValueEditor valueEditor : serviceLoader) {
-            registry.addService(valueEditor);
+        final ServiceLoader<PropertyEditor> serviceLoader = ServiceLoader.load(PropertyEditor.class);
+        for (final PropertyEditor propertyEditor : serviceLoader) {
+            registry.addService(propertyEditor);
         }
         defaultEditor = registry.getService(TextFieldEditor.class.getName());
     }
 
-    public static synchronized ValueEditorRegistry getInstance() {
+    public static synchronized PropertyEditorRegistry getInstance() {
         if (instance == null) {
-            instance = new ValueEditorRegistry();
+            instance = new PropertyEditorRegistry();
         }
         return instance;
     }
 
-    public static synchronized void setInstance(ValueEditorRegistry registry) {
+    public static synchronized void setInstance(PropertyEditorRegistry registry) {
         instance = registry;
     }
 
     /**
-     * Gets a {@link ValueEditor} by its class name.
+     * Gets a {@link PropertyEditor} by its class name.
      *
-     * @param className The class name of the {@link ValueEditor}.
+     * @param className The class name of the {@link PropertyEditor}.
      *
      * @return the value editor or {@code null} if no editor exist for the given class name.
      */
-    public ValueEditor getValueEditor(String className) {
+    public PropertyEditor getValueEditor(String className) {
         return registry.getService(className);
     }
 
     /**
-     * Finds a matching {@link ValueEditor} for the given {@link com.bc.ceres.binding.PropertyDescriptor}.
+     * Finds a matching {@link PropertyEditor} for the given {@link com.bc.ceres.binding.PropertyDescriptor}.
      * <p/>
      * At first , if set, the property {@code "valueEditor"} of the value descriptor
-     * is used. Afterwards all registered {@link ValueEditor}s are tested,
+     * is used. Afterwards all registered {@link PropertyEditor}s are tested,
      * whether the can provide an editor. As a fallback a {@link TextFieldEditor} is returned.
      *
      * @param propertyDescriptor the value descriptor
      *
      * @return the editor that can edit values described by the value descriptor
      */
-    public ValueEditor findValueEditor(PropertyDescriptor propertyDescriptor) {
+    public PropertyEditor findValueEditor(PropertyDescriptor propertyDescriptor) {
         Assert.notNull(propertyDescriptor, "propertyDescriptor");
-        ValueEditor valueEditor = (ValueEditor) propertyDescriptor.getAttribute("valueEditor");
-        if (valueEditor != null) {
-            return valueEditor;
+        PropertyEditor propertyEditor = (PropertyEditor) propertyDescriptor.getAttribute("propertyEditor");
+        if (propertyEditor != null) {
+            return propertyEditor;
         }
-        for (ValueEditor editor : registry.getServices()) {
+        for (PropertyEditor editor : registry.getServices()) {
             if (editor.isValidFor(propertyDescriptor)) {
                 return editor;
             }

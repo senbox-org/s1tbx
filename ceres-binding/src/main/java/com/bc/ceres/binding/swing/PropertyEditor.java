@@ -29,7 +29,7 @@ import javax.swing.JLabel;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public abstract class ValueEditor {
+public abstract class PropertyEditor {
     
     /**
      * Checks if this value editor can be used for the values

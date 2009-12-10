@@ -20,7 +20,7 @@ import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
-import com.bc.ceres.binding.swing.ValueEditor;
+import com.bc.ceres.binding.swing.PropertyEditor;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -40,7 +40,7 @@ import javax.swing.JTextField;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class FileEditor extends ValueEditor {
+public class FileEditor extends PropertyEditor {
 
     @Override
     public boolean isValidFor(PropertyDescriptor propertyDescriptor) {

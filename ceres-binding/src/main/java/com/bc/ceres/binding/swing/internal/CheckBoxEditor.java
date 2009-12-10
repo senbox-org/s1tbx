@@ -19,7 +19,7 @@ package com.bc.ceres.binding.swing.internal;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
-import com.bc.ceres.binding.swing.ValueEditor;
+import com.bc.ceres.binding.swing.PropertyEditor;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -31,7 +31,7 @@ import javax.swing.JComponent;
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public class CheckBoxEditor extends ValueEditor {
+public class CheckBoxEditor extends PropertyEditor {
 
     @Override
     public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
