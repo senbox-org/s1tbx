@@ -16,8 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.bc.ceres.swing.selection.SelectionContext;
-
 /**
  * Abstract "convenience" implementation of <code>ApplicationPage</code>.
  *
@@ -294,10 +292,13 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
         }
 
         Debug.trace("setActiveComponent: pageComponent = " + pageComponent);
-
+        if (settingActiveComponent) {
+            return;
+        }
 
         // if pageComponent is already active, don't do anything
-        if (this.activeComponent == pageComponent || settingActiveComponent) {
+        if (this.activeComponent == pageComponent) {
+            setActiveSelectionContext();
             return;
         }
 
@@ -310,12 +311,18 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
         this.activeComponent = pageComponent;
         fireFocusGained(this.activeComponent);
 
-        SelectionContext selectionContext = pageComponent.getSelectionContext();
-        getSelectionManager().setSelectionContext(selectionContext);
+        setActiveSelectionContext();
 
         settingActiveComponent = false;
     }
 
+    private void setActiveSelectionContext() {
+        if (activeComponent!= null) {
+            getSelectionManager().setSelectionContext(activeComponent.getSelectionContext());
+        } else {
+            getSelectionManager().setSelectionContext(null);
+        }
+    }
 
 
     /**
