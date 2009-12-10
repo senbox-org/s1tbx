@@ -1,15 +1,14 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertSame;
 import org.esa.beam.framework.datamodel.Band;
@@ -50,7 +49,7 @@ public class WmsLayerConfigurationPersistencyTest {
     @Test
     public void testPersistency() throws ValidationException, ConversionException, MalformedURLException {
         final WmsLayerType wmsLayerType = LayerTypeRegistry.getLayerType(WmsLayerType.class);
-        final PropertyContainer configuration = wmsLayerType.createLayerConfig(null);
+        final PropertySet configuration = wmsLayerType.createLayerConfig(null);
         configuration.setValue(WmsLayerType.PROPERTY_NAME_STYLE_NAME, "FancyStyle");
         configuration.setValue(WmsLayerType.PROPERTY_NAME_URL, new URL("http://www.mapserver.org"));
         configuration.setValue(WmsLayerType.PROPERTY_NAME_CRS_ENVELOPE, new CRSEnvelope("EPSG:4324", -10, 20, 15, 50));
@@ -70,8 +69,8 @@ public class WmsLayerConfigurationPersistencyTest {
 
     }
 
-    private static void compareConfigurations(PropertyContainer originalConfiguration,
-                                              PropertyContainer restoredConfiguration) {
+    private static void compareConfigurations(PropertySet originalConfiguration,
+                                              PropertySet restoredConfiguration) {
         for (final Property originalModel : originalConfiguration.getProperties()) {
             final PropertyDescriptor originalDescriptor = originalModel.getDescriptor();
             final Property restoredModel = restoredConfiguration.getProperty(originalDescriptor.getName());

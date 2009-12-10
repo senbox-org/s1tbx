@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.windfield;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -20,7 +21,7 @@ public class WindFieldLayerType extends LayerType {
 
     public static WindFieldLayer createLayer(RasterDataNode windu, RasterDataNode windv) {
         LayerType type = LayerTypeRegistry.getLayerType(WindFieldLayerType.class);
-        final PropertyContainer template = type.createLayerConfig(null);
+        final PropertySet template = type.createLayerConfig(null);
         template.setValue("windu", windu);
         template.setValue("windv", windv);
         return new WindFieldLayer(type, windu, windv, template);
@@ -34,14 +35,14 @@ public class WindFieldLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final RasterDataNode windu = (RasterDataNode) configuration.getValue("windu");
         final RasterDataNode windv = (RasterDataNode) configuration.getValue("windv");
         return new WindFieldLayer(this, windu, windv, configuration);
     }
 
     @Override
-    public PropertyContainer createLayerConfig(LayerContext ctx) {
+    public PropertySet createLayerConfig(LayerContext ctx) {
         final PropertyContainer propertyContainer = new PropertyContainer();
         // todo - how do I know whether my value model type can be serialized or not? (nf)
         propertyContainer.addProperty(new Property(new PropertyDescriptor("windu", RasterDataNode.class), new DefaultPropertyAccessor()));

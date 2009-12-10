@@ -16,7 +16,7 @@
  */
 package org.esa.beam.framework.ui.product;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.grender.Rendering;
@@ -51,7 +51,7 @@ public class VectorDataLayer extends Layer {
 
     VectorDataLayer(VectorDataLayerType vectorDataLayerType,
                     VectorData vectorData,
-                    PropertyContainer configuration) {
+                    PropertySet configuration) {
         super(vectorDataLayerType, configuration);
         this.vectorData = vectorData;
         setName(vectorData.getName());

@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -26,7 +26,7 @@ public class NoDataLayerType extends ImageLayer.Type {
     public static final String PROPERTY_NAME_RASTER = "raster";
 
     @Override
-    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final Color color = (Color) configuration.getValue(PROPERTY_NAME_COLOR);
         Assert.notNull(color, PROPERTY_NAME_COLOR);
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
@@ -54,8 +54,8 @@ public class NoDataLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public PropertyContainer createLayerConfig(LayerContext ctx) {
-        final PropertyContainer prototype = super.createLayerConfig(ctx);
+    public PropertySet createLayerConfig(LayerContext ctx) {
+        final PropertySet prototype = super.createLayerConfig(ctx);
 
         prototype.addProperty(Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class));
         prototype.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);

@@ -1,6 +1,6 @@
 package org.esa.beam.framework.ui.product;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
@@ -27,7 +27,7 @@ public class VectorDataCollectionLayer extends CollectionLayer {
 
     public VectorDataCollectionLayer(VectorDataCollectionLayerType layerType,
                                      ProductNodeGroup<VectorData> vectorDataGroup,
-                                     PropertyContainer configuration) {
+                                     PropertySet configuration) {
         super(layerType, configuration, "Vector Data Layers");
         Assert.notNull(vectorDataGroup, "vectorDataGroup");
 

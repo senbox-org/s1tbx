@@ -1,10 +1,9 @@
 package org.esa.beam.visat.actions.session.dom;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
-
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.glayer.BitmaskLayerType;
@@ -38,7 +37,7 @@ public class BitmaskLayerConfigurationPersistencyTest extends AbstractLayerConfi
 
     @Override
     protected Layer createLayer(LayerType layerType) throws Exception {
-        final PropertyContainer originalConfiguration = layerType.createLayerConfig(null);
+        final PropertySet originalConfiguration = layerType.createLayerConfig(null);
         assertNotNull(originalConfiguration);
 
         originalConfiguration.setValue("bitmaskDef", bitmaskDef);

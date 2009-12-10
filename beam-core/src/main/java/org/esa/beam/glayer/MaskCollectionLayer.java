@@ -16,7 +16,7 @@
  */
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
@@ -44,7 +44,7 @@ public class MaskCollectionLayer extends CollectionLayer {
 
     public MaskCollectionLayer(MaskCollectionLayerType layerType,
                                RasterDataNode raster,
-                               PropertyContainer configuration) {
+                               PropertySet configuration) {
         super(layerType, configuration, "Masks");
         Assert.notNull(raster, "raster");
         this.raster = raster;

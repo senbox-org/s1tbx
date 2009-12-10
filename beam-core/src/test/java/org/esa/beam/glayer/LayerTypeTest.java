@@ -1,11 +1,10 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
-
 import org.junit.Test;
 
 public abstract class LayerTypeTest {
@@ -43,7 +42,7 @@ public abstract class LayerTypeTest {
         }
     }
 
-    protected static void ensurePropertyIsDefined(PropertyContainer template, String name, Class<?> type) {
+    protected static void ensurePropertyIsDefined(PropertySet template, String name, Class<?> type) {
         final Property model = template.getProperty(name);
         org.junit.Assert.assertNotNull(model);
 
@@ -54,7 +53,7 @@ public abstract class LayerTypeTest {
         org.junit.Assert.assertNotNull(model.getValue());
     }
 
-    protected static void ensurePropertyIsDeclaredButNotDefined(PropertyContainer template, String name, Class<?> type) {
+    protected static void ensurePropertyIsDeclaredButNotDefined(PropertySet template, String name, Class<?> type) {
         final Property model = template.getProperty(name);
         org.junit.Assert.assertNotNull(model);
 

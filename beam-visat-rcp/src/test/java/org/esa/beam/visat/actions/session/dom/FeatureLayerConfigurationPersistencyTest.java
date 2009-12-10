@@ -1,6 +1,6 @@
 package org.esa.beam.visat.actions.session.dom;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
@@ -37,7 +37,7 @@ public class FeatureLayerConfigurationPersistencyTest extends AbstractLayerConfi
     @Override
     protected Layer createLayer(LayerType layerType) throws Exception {
 
-        final PropertyContainer configuration = layerType.createLayerConfig(null);
+        final PropertySet configuration = layerType.createLayerConfig(null);
 
         final URL shapefileUrl = getClass().getResource("bundeslaender.shp");
         configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL, shapefileUrl);

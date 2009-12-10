@@ -1,6 +1,6 @@
 package org.esa.beam.framework.ui.product;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
@@ -309,7 +309,7 @@ public class ProductSceneImage implements LayerContext {
         final Color borderColor = configuration.getPropertyColor("image.border.color",
                                                                  ImageLayer.DEFAULT_BORDER_COLOR);
 
-        final PropertyContainer layerConfiguration = layer.getConfiguration();
+        final PropertySet layerConfiguration = layer.getConfiguration();
         layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, borderShown);
         layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, borderWidth);
         layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, borderColor);
@@ -317,7 +317,7 @@ public class ProductSceneImage implements LayerContext {
 
     private Layer createNoDataLayer(AffineTransform imageToModelTransform) {
         final LayerType noDatatype = LayerTypeRegistry.getLayerType(NoDataLayerType.class);
-        final PropertyContainer configTemplate = noDatatype.createLayerConfig(null);
+        final PropertySet configTemplate = noDatatype.createLayerConfig(null);
 
         final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
         configTemplate.setValue(NoDataLayerType.PROPERTY_NAME_COLOR, color);
@@ -329,7 +329,7 @@ public class ProductSceneImage implements LayerContext {
     @Deprecated
     private Layer createBitmaskCollectionLayer(AffineTransform i2mTransform) {
         final LayerType bitmaskCollectionType = LayerTypeRegistry.getLayerType(BitmaskCollectionLayer.Type.class);
-        final PropertyContainer layerConfig = bitmaskCollectionType.createLayerConfig(null);
+        final PropertySet layerConfig = bitmaskCollectionType.createLayerConfig(null);
         layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_RASTER, getRaster());
         layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
         final Layer bitmaskCollectionLayer = bitmaskCollectionType.createLayer(this, layerConfig);
@@ -356,7 +356,7 @@ public class ProductSceneImage implements LayerContext {
 
     private synchronized Layer createMaskCollectionLayer() {
         final LayerType maskCollectionType = LayerTypeRegistry.getLayerType(MaskCollectionLayerType.class);
-        final PropertyContainer layerConfig = maskCollectionType.createLayerConfig(null);
+        final PropertySet layerConfig = maskCollectionType.createLayerConfig(null);
         layerConfig.setValue(MaskCollectionLayerType.PROPERTY_NAME_RASTER, getRaster());
         final Layer maskCollectionLayer = maskCollectionType.createLayer(this, layerConfig);
         ProductNodeGroup<Mask> productNodeGroup = getRaster().getProduct().getMaskGroup();
@@ -369,7 +369,7 @@ public class ProductSceneImage implements LayerContext {
 
     private VectorDataLayer createFigureLayer(AffineTransform i2mTransform) {
         final LayerType figureType = LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
-        final PropertyContainer template = figureType.createLayerConfig(null);
+        final PropertySet template = figureType.createLayerConfig(null);
         /*
         template.setValue(VectorDataLayer.PROPERTY_NAME_FIGURE_LIST, new ArrayList<Figure>());
         template.setValue(VectorDataLayer.PROPERTY_NAME_TRANSFORM, i2mTransform);
@@ -400,7 +400,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     static void setFigureLayerStyle(PropertyMap configuration, Layer layer) {
-        final PropertyContainer layerConfiguration = layer.getConfiguration();
+        final PropertySet layerConfiguration = layer.getConfiguration();
 /*
         layerConfiguration.setValue(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTLINED,
                                     configuration.getPropertyBool(VectorDataLayer.PROPERTY_NAME_SHAPE_OUTLINED,
@@ -430,7 +430,7 @@ public class ProductSceneImage implements LayerContext {
 
     private GraticuleLayer createGraticuleLayer(AffineTransform i2mTransform) {
         final LayerType layerType = LayerTypeRegistry.getLayerType(GraticuleLayerType.class);
-        final PropertyContainer template = layerType.createLayerConfig(null);
+        final PropertySet template = layerType.createLayerConfig(null);
         template.setValue(GraticuleLayerType.PROPERTY_NAME_RASTER, getRaster());
         template.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM, i2mTransform);
         final GraticuleLayer graticuleLayer = (GraticuleLayer) layerType.createLayer(null, template);
@@ -442,7 +442,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     static void setGraticuleLayerStyle(PropertyMap configuration, Layer layer) {
-        final PropertyContainer layerConfiguration = layer.getConfiguration();
+        final PropertySet layerConfiguration = layer.getConfiguration();
 
         layerConfiguration.setValue(GraticuleLayerType.PROPERTY_NAME_RES_AUTO,
                                     configuration.getPropertyBool(GraticuleLayerType.PROPERTY_NAME_RES_AUTO,
@@ -494,7 +494,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     static void setPinLayerStyle(PropertyMap configuration, Layer layer) {
-        final PropertyContainer layerConfiguration = layer.getConfiguration();
+        final PropertySet layerConfiguration = layer.getConfiguration();
 
         layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED,
                                     configuration.getPropertyBool("pin.text.enabled", Boolean.TRUE));
@@ -516,7 +516,7 @@ public class ProductSceneImage implements LayerContext {
     }
 
     static void setGcpLayerStyle(PropertyMap configuration, Layer layer) {
-        final PropertyContainer layerConfiguration = layer.getConfiguration();
+        final PropertySet layerConfiguration = layer.getConfiguration();
 
         layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED,
                                     configuration.getPropertyBool("gcp.text.enabled", Boolean.TRUE));

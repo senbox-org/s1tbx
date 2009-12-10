@@ -4,6 +4,7 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
@@ -36,7 +37,7 @@ public class PlacemarkLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final Product product = (Product) configuration.getValue(PlacemarkLayerType.PROPERTY_PRODUCT);
         final String descriptorName = PlacemarkLayerType.PROPERTY_PLACEMARK_DESCRIPTOR;
         PlacemarkDescriptor placemarkDescriptor = (PlacemarkDescriptor)configuration.getValue(descriptorName);
@@ -47,7 +48,7 @@ public class PlacemarkLayerType extends LayerType {
     }
 
     @Override
-    public PropertyContainer createLayerConfig(LayerContext ctx) {
+    public PropertySet createLayerConfig(LayerContext ctx) {
         final PropertyContainer propertyContainer = new PropertyContainer();
 
         final Property textBgColorModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR, Color.class, PlacemarkLayer.DEFAULT_TEXT_BG_COLOR, true);

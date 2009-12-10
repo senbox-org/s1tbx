@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -17,7 +17,7 @@ public class RasterImageLayerType extends ImageLayer.Type {
     public static final String PROPERTY_NAME_RASTER = "raster";
 
     @Override
-    public ImageLayer createLayer(LayerContext ctx, PropertyContainer configuration) {
+    public ImageLayer createLayer(LayerContext ctx, PropertySet configuration) {
         MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(
                 ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         if (multiLevelSource == null) {
@@ -31,8 +31,8 @@ public class RasterImageLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public PropertyContainer createLayerConfig(LayerContext ctx) {
-        final PropertyContainer template = super.createLayerConfig(ctx);
+    public PropertySet createLayerConfig(LayerContext ctx) {
+        final PropertySet template = super.createLayerConfig(ctx);
 
         template.addProperty(Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class));
         template.getDescriptor(PROPERTY_NAME_RASTER).setItemAlias("raster");
@@ -42,7 +42,7 @@ public class RasterImageLayerType extends ImageLayer.Type {
     }
 
     public Layer createLayer(RasterDataNode raster, MultiLevelSource multiLevelSource) {
-        final PropertyContainer configuration = createLayerConfig(null);
+        final PropertySet configuration = createLayerConfig(null);
         configuration.setValue(PROPERTY_NAME_RASTER, raster);
         if (multiLevelSource == null) {
             multiLevelSource = BandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);

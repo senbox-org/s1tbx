@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.ceres.glayer.CollectionLayer;
@@ -9,10 +10,9 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerSource;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class DefaultLayerSourceDescriptorTest {
 
@@ -77,12 +77,12 @@ public class DefaultLayerSourceDescriptorTest {
         }
 
         @Override
-        public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+        public Layer createLayer(LayerContext ctx, PropertySet configuration) {
             return new CollectionLayer();
         }
 
         @Override
-        public PropertyContainer createLayerConfig(LayerContext ctx) {
+        public PropertySet createLayerConfig(LayerContext ctx) {
             return new PropertyContainer();
         }
     }

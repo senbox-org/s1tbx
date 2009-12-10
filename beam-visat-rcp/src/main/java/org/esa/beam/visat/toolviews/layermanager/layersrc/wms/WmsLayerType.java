@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerTypeRegistry;
@@ -44,7 +45,7 @@ public class WmsLayerType extends ImageLayer.Type {
     public static final String PROPERTY_NAME_IMAGE_SIZE = "imageSize";
 
     @Override
-    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final WebMapServer mapServer;
         try {
             mapServer = getWmsServer(configuration);
@@ -59,7 +60,7 @@ public class WmsLayerType extends ImageLayer.Type {
         final AffineTransform i2mTransform = multiLevelSource.getModel().getImageToModelTransform(0);
 
         final ImageLayer.Type imageLayerType = LayerTypeRegistry.getLayerType(ImageLayer.Type.class);
-        final PropertyContainer config = imageLayerType.createLayerConfig(ctx);
+        final PropertySet config = imageLayerType.createLayerConfig(ctx);
         config.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         config.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,i2mTransform);
         config.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
@@ -72,7 +73,7 @@ public class WmsLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public PropertyContainer createLayerConfig(LayerContext ctx) {
+    public PropertySet createLayerConfig(LayerContext ctx) {
         final PropertyContainer template = new PropertyContainer();
 
         template.addProperty(Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class));
@@ -86,7 +87,7 @@ public class WmsLayerType extends ImageLayer.Type {
     }
 
     @SuppressWarnings({"unchecked"})
-    private static DefaultMultiLevelSource createMultiLevelSource(PropertyContainer configuration,
+    private static DefaultMultiLevelSource createMultiLevelSource(PropertySet configuration,
                                                                   WebMapServer wmsServer,
                                                                   org.geotools.data.ows.Layer layer) {
         DefaultMultiLevelSource multiLevelSource;
@@ -132,7 +133,7 @@ public class WmsLayerType extends ImageLayer.Type {
         return server.getCapabilities().getLayerList().get(layerIndex);
     }
 
-    private static WebMapServer getWmsServer(PropertyContainer configuration) throws IOException, ServiceException {
+    private static WebMapServer getWmsServer(PropertySet configuration) throws IOException, ServiceException {
         return new WebMapServer((URL) configuration.getValue(WmsLayerType.PROPERTY_NAME_URL));
     }
 

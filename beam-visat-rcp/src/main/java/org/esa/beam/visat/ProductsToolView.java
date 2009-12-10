@@ -1,6 +1,6 @@
 package org.esa.beam.visat;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
@@ -204,7 +204,7 @@ public class ProductsToolView extends AbstractToolView {
             if (clickCount == 2) {
                 LayerType flt = LayerTypeRegistry.getLayerType(FeatureLayerType.class);
 
-                final PropertyContainer conf = flt.createLayerConfig(sceneView);
+                final PropertySet conf = flt.createLayerConfig(sceneView);
                 final StyleBuilder builder = new StyleBuilder();
                 Mark mark = builder.createMark("circle", Color.RED);
                 Graphic g = builder.createGraphic(null, mark, null);

@@ -2,6 +2,7 @@ package org.esa.beam.worldmap;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.support.ImageLayer;
@@ -37,7 +38,7 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         if (multiLevelSource == null) {
             synchronized (this) {
                 if (multiLevelSource == null) {
@@ -60,7 +61,7 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public PropertyContainer createLayerConfig(LayerContext ctx) {
+    public PropertySet createLayerConfig(LayerContext ctx) {
         return new PropertyContainer();
     }
 

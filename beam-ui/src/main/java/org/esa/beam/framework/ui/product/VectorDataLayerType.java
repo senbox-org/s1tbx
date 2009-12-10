@@ -2,6 +2,7 @@ package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -23,7 +24,7 @@ public class VectorDataLayerType extends LayerType {
 
     public static Layer createLayer(VectorData vectorData) {
         final VectorDataLayerType layerType = LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
-        final PropertyContainer configuration = layerType.createLayerConfig(null);
+        final PropertySet configuration = layerType.createLayerConfig(null);
         configuration.setValue(PROPERTY_NAME_VECTOR_DATA, vectorData.getName());
 
         return layerType.createLayer(vectorData, configuration);
@@ -35,7 +36,7 @@ public class VectorDataLayerType extends LayerType {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         Assert.notNull(ctx, "ctx");
         final ProductSceneView sceneView = (ProductSceneView) ctx;
         final String vectorDataName = (String) configuration.getValue(PROPERTY_NAME_VECTOR_DATA);
@@ -45,13 +46,13 @@ public class VectorDataLayerType extends LayerType {
     }
 
     @Override
-    public PropertyContainer createLayerConfig(LayerContext ctx) {
+    public PropertySet createLayerConfig(LayerContext ctx) {
         final PropertyContainer configuration = new PropertyContainer();
         configuration.addProperty(Property.create(VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA, String.class));
         return configuration;
     }
 
-    private Layer createLayer(VectorData vectorData, PropertyContainer configuration) {
+    private Layer createLayer(VectorData vectorData, PropertySet configuration) {
         final VectorDataLayer layer = new VectorDataLayer(this, vectorData, configuration);
         layer.setId(VECTOR_DATA_LAYER_ID_PREFIX + (++id));
 

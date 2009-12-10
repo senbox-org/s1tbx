@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerTypeRegistry;
@@ -28,7 +28,7 @@ public class MaskLayerType extends ImageLayer.Type {
 
     public static Layer createLayer(RasterDataNode raster, Mask mask) {
         MaskLayerType type = LayerTypeRegistry.getLayerType(MaskLayerType.class);
-        PropertyContainer configuration = type.createLayerConfig(null);
+        PropertySet configuration = type.createLayerConfig(null);
         configuration.setValue(MaskLayerType.PROPERTY_NAME_MASK, mask);
         Layer layer = type.createLayer(null, configuration);
         layer.setVisible(raster.getOverlayMaskGroup().contains(mask));
@@ -36,7 +36,7 @@ public class MaskLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         MultiLevelSource multiLevelSource = (MultiLevelSource)configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         if (multiLevelSource == null) {
             multiLevelSource = createMultiLevelSource(configuration);
@@ -49,7 +49,7 @@ public class MaskLayerType extends ImageLayer.Type {
         return layer;
     }
 
-    public static MultiLevelSource createMultiLevelSource(PropertyContainer configuration) {
+    public static MultiLevelSource createMultiLevelSource(PropertySet configuration) {
         final Mask mask = (Mask) configuration.getValue(PROPERTY_NAME_MASK);
         return createMultiLevelSource(mask);
     }
@@ -66,12 +66,12 @@ public class MaskLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public PropertyContainer createLayerConfig(LayerContext ctx) {
-        final PropertyContainer vc = super.createLayerConfig(ctx);
+    public PropertySet createLayerConfig(LayerContext ctx) {
+        final PropertySet layerConfig = super.createLayerConfig(ctx);
 
-        vc.addProperty(Property.create(PROPERTY_NAME_MASK, Mask.class));
-        vc.getProperty(PROPERTY_NAME_MASK).getDescriptor().setNotNull(true);
+        layerConfig.addProperty(Property.create(PROPERTY_NAME_MASK, Mask.class));
+        layerConfig.getProperty(PROPERTY_NAME_MASK).getDescriptor().setNotNull(true);
 
-        return vc;
+        return layerConfig;
     }
 }

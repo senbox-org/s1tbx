@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.product;
 
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
@@ -92,7 +92,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         final RasterDataNode rasterDataNode = (RasterDataNode) tree.getSelectionPath().getLastPathComponent();
 
         LayerType type = LayerTypeRegistry.getLayerType(RasterImageLayerType.class.getName());
-        PropertyContainer configuration = type.createLayerConfig(getContext().getLayerContext());
+        PropertySet configuration = type.createLayerConfig(getContext().getLayerContext());
         configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, rasterDataNode);
         final GeoCoding geoCoding = rasterDataNode.getGeoCoding();
         AffineTransform i2mTransform = ImageManager.getImageToModelTransform(geoCoding);

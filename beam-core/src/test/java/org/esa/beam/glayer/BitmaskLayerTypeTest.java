@@ -1,19 +1,17 @@
 package org.esa.beam.glayer;
 
-import static junit.framework.Assert.assertSame;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
-
+import static junit.framework.Assert.assertSame;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -27,7 +25,7 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
 
     @Test
     public void testConfigurationTemplate() {
-        final PropertyContainer template = getLayerType().createLayerConfig(null);
+        final PropertySet template = getLayerType().createLayerConfig(null);
 
         assertNotNull(template);
         ensurePropertyIsDeclaredButNotDefined(template, "bitmaskDef", BitmaskDef.class);
@@ -47,7 +45,7 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
         final BitmaskDef bitmaskDef = new BitmaskDef("bitmask", "description", "A == 42", Color.BLUE, 0.4f);
         product.addBitmaskDef(bitmaskDef);
 
-        final PropertyContainer config = getLayerType().createLayerConfig(null);
+        final PropertySet config = getLayerType().createLayerConfig(null);
         config.setValue("product", product);
         config.setValue("imageToModelTransform", new AffineTransform());
         config.setValue("bitmaskDef", bitmaskDef);

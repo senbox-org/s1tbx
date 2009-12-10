@@ -1,6 +1,6 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
@@ -52,7 +52,7 @@ public class PlacemarkLayer extends Layer {
     }
 
     protected PlacemarkLayer(LayerType layerType, Product product, PlacemarkDescriptor placemarkDescriptor,
-                             AffineTransform imageToModelTransform, PropertyContainer configuration) {
+                             AffineTransform imageToModelTransform, PropertySet configuration) {
         super(layerType, configuration);
         this.product = product;
         this.placemarkDescriptor = placemarkDescriptor;
@@ -62,7 +62,7 @@ public class PlacemarkLayer extends Layer {
     }
 
 
-    private static PropertyContainer initConfiguration(PropertyContainer configurationTemplate, Product product,
+    private static PropertySet initConfiguration(PropertySet configurationTemplate, Product product,
                                                        PlacemarkDescriptor placemarkDescriptor,
                                                        AffineTransform imageToModelTransform) {
         configurationTemplate.setValue(PlacemarkLayerType.PROPERTY_PRODUCT, product);

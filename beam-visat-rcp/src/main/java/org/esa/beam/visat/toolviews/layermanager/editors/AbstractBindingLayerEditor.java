@@ -1,11 +1,10 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.PropertyAccessor;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyAccessor;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
@@ -69,7 +68,7 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
             final PropertyDescriptor propertyDescriptor = property.getDescriptor();
             String propertyName = propertyDescriptor.getName();
             Binding binding = bindingContext.getBinding(propertyName);
-            PropertyContainer configuration = layer.getConfiguration();
+            PropertySet configuration = layer.getConfiguration();
 
             if (configuration.getProperty(propertyName) != null) {
                 final Object value = configuration.getProperty(propertyName).getValue();

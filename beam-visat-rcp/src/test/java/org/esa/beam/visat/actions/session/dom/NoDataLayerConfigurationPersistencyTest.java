@@ -1,10 +1,9 @@
 package org.esa.beam.visat.actions.session.dom;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
-
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -39,7 +38,7 @@ public class NoDataLayerConfigurationPersistencyTest extends AbstractLayerConfig
 
     @Override
     protected Layer createLayer(LayerType layerType) throws Exception {
-        final PropertyContainer configuration = layerType.createLayerConfig(null);
+        final PropertySet configuration = layerType.createLayerConfig(null);
         configuration.setValue("raster", raster);
         configuration.setValue("color", new Color(17, 11, 67));
         configuration.setValue("imageToModelTransform", new AffineTransform());

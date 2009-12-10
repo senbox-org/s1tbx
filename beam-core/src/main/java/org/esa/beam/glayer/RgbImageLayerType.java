@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -26,7 +26,7 @@ public class RgbImageLayerType extends ImageLayer.Type {
     private static final String PROPERTY_NAME_EXPRESSION_B = "expressionB";
 
     @Override
-    public ImageLayer createLayer(LayerContext ctx, PropertyContainer configuration) {
+    public ImageLayer createLayer(LayerContext ctx, PropertySet configuration) {
         MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(
                 ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         if (multiLevelSource == null) {
@@ -54,8 +54,8 @@ public class RgbImageLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public PropertyContainer createLayerConfig(LayerContext ctx) {
-        final PropertyContainer prototype = super.createLayerConfig(ctx);
+    public PropertySet createLayerConfig(LayerContext ctx) {
+        final PropertySet prototype = super.createLayerConfig(ctx);
 
         final Property productModel = Property.create(PROPERTY_NAME_PRODUCT, Product.class);
         productModel.getDescriptor().setNotNull(true);
@@ -90,7 +90,7 @@ public class RgbImageLayerType extends ImageLayer.Type {
         if (product != rasters[2].getProduct()) {
             throw new IllegalArgumentException("rasters[0].getProduct() != rasters[2].getProduct()");
         }
-        final PropertyContainer configuration = createLayerConfig(null);
+        final PropertySet configuration = createLayerConfig(null);
 
         final String expressionR = getExpression(rasters[0]);
         final String expressionG = getExpression(rasters[1]);

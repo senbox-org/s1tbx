@@ -1,6 +1,6 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.Band;
@@ -8,7 +8,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -23,7 +23,7 @@ public class RasterImageLayerTypeTest extends LayerTypeTest {
     public void testDefaultConfiguration() {
         final LayerType layerType = getLayerType();
 
-        final PropertyContainer template = layerType.createLayerConfig(null);
+        final PropertySet template = layerType.createLayerConfig(null);
         assertNotNull(template);
 
         ensurePropertyIsDeclaredButNotDefined(template, "raster", RasterDataNode.class);

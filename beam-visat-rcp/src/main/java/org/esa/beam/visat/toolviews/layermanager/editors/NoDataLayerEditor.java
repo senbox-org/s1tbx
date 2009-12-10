@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -41,7 +41,7 @@ public class NoDataLayerEditor extends AbstractBindingLayerEditor {
         public void propertyChange(PropertyChangeEvent evt) {
             if (getLayer() != null) {
                 final ImageLayer layer = (ImageLayer) getLayer();
-                final PropertyContainer configuration = layer.getConfiguration();
+                final PropertySet configuration = layer.getConfiguration();
                 final Color newColor = (Color) evt.getNewValue();
                 final RasterDataNode raster = (RasterDataNode) configuration.getValue(
                         NoDataLayerType.PROPERTY_NAME_RASTER);

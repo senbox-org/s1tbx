@@ -1,10 +1,9 @@
 package org.esa.beam.visat.actions.session.dom;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
-
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.LineFigure;
 import org.esa.beam.glayer.FigureLayer;
@@ -26,7 +25,7 @@ public class FigureLayerConfigurationPersistencyTest extends AbstractLayerConfig
 
     @Override
     protected Layer createLayer(LayerType layerType) throws Exception {
-        final PropertyContainer configuration = layerType.createLayerConfig(null);
+        final PropertySet configuration = layerType.createLayerConfig(null);
         final ArrayList<Figure> figureList = new ArrayList<Figure>();
         figureList.add(createFigure());
         configuration.setValue(FigureLayer.PROPERTY_NAME_FIGURE_LIST, figureList);

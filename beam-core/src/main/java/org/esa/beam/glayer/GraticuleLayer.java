@@ -16,7 +16,7 @@
  */
 package org.esa.beam.glayer;
 
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.grender.Rendering;
@@ -57,7 +57,7 @@ public class GraticuleLayer extends Layer {
         this(LAYER_TYPE, raster, initConfiguration(LAYER_TYPE.createLayerConfig(null), raster));
     }
 
-    public GraticuleLayer(GraticuleLayerType type, RasterDataNode raster, PropertyContainer configuration) {
+    public GraticuleLayer(GraticuleLayerType type, RasterDataNode raster, PropertySet configuration) {
         super(type, configuration);
         setName("Graticule Layer");
         this.raster = raster;
@@ -71,7 +71,7 @@ public class GraticuleLayer extends Layer {
 
     }
 
-    private static PropertyContainer initConfiguration(PropertyContainer configurationTemplate, RasterDataNode raster) {
+    private static PropertySet initConfiguration(PropertySet configurationTemplate, RasterDataNode raster) {
         configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_RASTER, raster);
         configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM,
                                        raster.getSourceImage().getModel().getImageToModelTransform(0));

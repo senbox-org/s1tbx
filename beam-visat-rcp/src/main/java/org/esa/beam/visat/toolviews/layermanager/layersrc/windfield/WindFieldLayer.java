@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.windfield;
 
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
@@ -42,7 +43,7 @@ public class WindFieldLayer extends Layer {
     }
 
     public WindFieldLayer(LayerType layerType, RasterDataNode windu, RasterDataNode windv,
-                          PropertyContainer configuration) {
+                          PropertySet configuration) {
         super(layerType, configuration);
         setName("Wind Speed");
         this.windu = windu;

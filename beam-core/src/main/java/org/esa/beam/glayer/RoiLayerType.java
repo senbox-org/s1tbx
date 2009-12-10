@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerTypeRegistry;
@@ -24,7 +24,7 @@ public class RoiLayerType extends ImageLayer.Type {
      * Converts a RoiLayer into a MaskLayer, for backward compatibility.
      */
     @Override
-    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
         String maskName = raster.getName() + "_roi";
         final Mask mask = raster.getProduct().getMaskGroup().get(maskName);
@@ -37,7 +37,7 @@ public class RoiLayerType extends ImageLayer.Type {
         mask.setImageColor(color);
 
         MaskLayerType maskLayerType = LayerTypeRegistry.getLayerType(MaskLayerType.class);
-        PropertyContainer maskConfiguration = maskLayerType.createLayerConfig(null);
+        PropertySet maskConfiguration = maskLayerType.createLayerConfig(null);
         for (Property property : maskConfiguration.getProperties()) {
             String propertyName = property.getName();
             Property srcProperty = configuration.getProperty(propertyName);
@@ -50,8 +50,8 @@ public class RoiLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public PropertyContainer createLayerConfig(LayerContext ctx) {
-        final PropertyContainer prototype = super.createLayerConfig(ctx);
+    public PropertySet createLayerConfig(LayerContext ctx) {
+        final PropertySet prototype = super.createLayerConfig(ctx);
 
         final Property rasterModel = Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class);
         rasterModel.getDescriptor().setNotNull(true);

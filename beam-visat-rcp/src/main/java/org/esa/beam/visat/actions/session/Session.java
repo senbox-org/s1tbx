@@ -1,10 +1,11 @@
 package org.esa.beam.visat.actions.session;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
@@ -35,9 +36,9 @@ import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.glayer.MaskCollectionLayerType;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.actions.session.dom.SessionDomConverter;
-import org.esa.beam.glayer.MaskCollectionLayerType;
 
 import javax.swing.JComponent;
 import javax.swing.RootPaneContainer;
@@ -187,9 +188,9 @@ public class Session {
         for (int i = 0; i < layers.size(); i++) {
             Layer layer = layers.get(i);
             if (isSerializableLayer(layer)) {
-                PropertyContainer configuration = layer.getConfiguration();
+                PropertySet configuration = layer.getConfiguration();
                 // todo - check - why create a configuration copy here?! (nf, 10.2009)
-                PropertyContainer configurationCopy = getConfigurationCopy(configuration);
+                PropertySet configurationCopy = getConfigurationCopy(configuration);
                 SessionDomConverter domConverter = new SessionDomConverter(productManager);
                 DomElement element = new DefaultDomElement("configuration");
                 try {
@@ -210,7 +211,7 @@ public class Session {
     }
 
 
-    private static PropertyContainer getConfigurationCopy(PropertyContainer propertyContainer) {
+    private static PropertyContainer getConfigurationCopy(PropertySet propertyContainer) {
         final PropertyContainer configuration = new PropertyContainer();
 
         for (Property model : propertyContainer.getProperties()) {
@@ -430,7 +431,7 @@ public class Session {
         final LayerType type = LayerTypeRegistry.getLayerType(layerRef.layerTypeName);
         if (type != null) {
             final SessionDomConverter converter = new SessionDomConverter(productManager);
-            final PropertyContainer template = type.createLayerConfig(layerContext);
+            final PropertySet template = type.createLayerConfig(layerContext);
             converter.convertDomToValue(layerRef.configuration, template);
             final Layer layer = type.createLayer(layerContext, template);
             layer.setId(layerRef.id);

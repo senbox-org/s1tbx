@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.support.ImageLayer;
@@ -22,7 +23,7 @@ public class ImageFileLayerType extends ImageLayer.Type {
     static final String PROPERTY_NAME_WORLD_TRANSFORM = "worldTransform";
 
     @Override
-    public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
+    public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final File file = (File) configuration.getValue(PROPERTY_NAME_IMAGE_FILE);
         final AffineTransform transform = (AffineTransform) configuration.getValue(PROPERTY_NAME_WORLD_TRANSFORM);
         RenderedImage image = FileLoadDescriptor.create(file.getPath(), null, true, null);
@@ -33,7 +34,7 @@ public class ImageFileLayerType extends ImageLayer.Type {
     }
 
     @Override
-    public PropertyContainer createLayerConfig(LayerContext ctx) {
+    public PropertySet createLayerConfig(LayerContext ctx) {
         final PropertyContainer template = new PropertyContainer();
 
         final Property filePathModel = Property.create(PROPERTY_NAME_IMAGE_FILE, File.class);
