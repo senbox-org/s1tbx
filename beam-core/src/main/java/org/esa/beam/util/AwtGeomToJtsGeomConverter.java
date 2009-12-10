@@ -1,4 +1,4 @@
-package org.esa.beam.framework.ui.product;
+package org.esa.beam.util;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -19,7 +19,7 @@ public class AwtGeomToJtsGeomConverter {
 
     private GeometryFactory geometryFactory;
 
-    AwtGeomToJtsGeomConverter() {
+    public AwtGeomToJtsGeomConverter() {
         this(new GeometryFactory());
     }
 

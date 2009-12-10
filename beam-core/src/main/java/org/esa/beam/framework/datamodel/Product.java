@@ -43,6 +43,7 @@ import org.esa.beam.framework.dataop.barithm.SingleFlagSymbol;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.util.AwtGeomToJtsGeomConverter;
 import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -229,28 +230,28 @@ public class Product extends ProductNode {
         this.bitmaskDefGroup = new ProductNodeGroup<BitmaskDef>(this, "bitmaskDefGroup", true);
         this.vectorDataGroup = new ProductNodeGroup<VectorData>(this, "vectorDataGroup", true) {
             @Override
-            public boolean add(VectorData node) {
-                final boolean added = super.add(node);
+            public boolean add(VectorData vectorData) {
+                final boolean added = super.add(vectorData);
                 if (added) {
-                    getMaskGroup().add(createMask(node));
+                    getMaskGroup().add(createMask(vectorData));
                 }
                 return added;
             }
 
             @Override
-            public void add(int index, VectorData node) {
-                super.add(index, node);
-                getMaskGroup().add(createMask(node));
+            public void add(int index, VectorData vectorData) {
+                super.add(index, vectorData);
+                getMaskGroup().add(createMask(vectorData));
             }
 
             @Override
-            public boolean remove(VectorData node) {
-                final boolean removed = super.remove(node);
+            public boolean remove(VectorData vectorData) {
+                final boolean removed = super.remove(vectorData);
                 if (removed) {
                     final Mask[] masks = getMaskGroup().toArray(new Mask[getMaskGroup().getNodeCount()]);
                     for (final Mask mask : masks) {
                         if (mask.getImageType() instanceof Mask.VectorDataType) {
-                            if (Mask.VectorDataType.getVectorData(mask) == node) {
+                            if (Mask.VectorDataType.getVectorData(mask) == vectorData) {
                                 getMaskGroup().remove(mask);
                                 break;
                             }
@@ -260,23 +261,51 @@ public class Product extends ProductNode {
                 return removed;
             }
 
-            private Mask createMask(VectorData node) {
-                final Mask mask = new Mask(node.getName(),
+            private Mask createMask(VectorData vectorData) {
+                final Mask mask = new Mask(vectorData.getName(),
                                            getSceneRasterWidth(),
                                            getSceneRasterHeight(),
                                            new Mask.VectorDataType());
-                Mask.VectorDataType.setVectorData(mask, node);
+                Mask.VectorDataType.setVectorData(mask, vectorData);
                 return mask;
             }
         };
         this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
-        this.pinGroup = new ProductNodeGroup<Pin>(this, "pinGroup", true);
+        final SimpleFeatureType pinFeatureType = createPlacemarkFeatureType("PinType", "pixelPoint");
+        this.pinGroup = new ProductNodeGroup<Pin>(this, "pinGroup", true) {
+            @Override
+            public boolean add(Pin pin) {
+                final boolean added = super.add(pin);
+                if (added) {
+                    addToPinVectorData(pin, pinFeatureType);
+                }
+                return added;
+            }
+
+            @Override
+            public void add(int index, Pin pin) {
+                super.add(index, pin);
+                addToPinVectorData(pin, pinFeatureType);
+            }
+
+            private void addToPinVectorData(Pin pin, SimpleFeatureType pinFeatureType) {
+                final AwtGeomToJtsGeomConverter converter = new AwtGeomToJtsGeomConverter();
+                final SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(pinFeatureType);
+                featureBuilder.add(pin.getLabel());
+                final float lat = pin.getGeoPos().getLat();
+                final float lon = pin.getGeoPos().getLon();
+                featureBuilder.add(converter.createPoint(new Point2D.Float(lon, lat)));
+                featureBuilder.add(converter.createPoint(pin.getPixelPos()));
+                final SimpleFeature feature = featureBuilder.buildFeature(pin.getName());
+                vectorDataGroup.get("pins").getFeatureCollection().add(feature);
+            }
+        };
         this.gcpGroup = new ProductNodeGroup<Pin>(this, "gcpGroup", true);
 
         // todo - review me, this is test code (nf 10.2009)
-        this.vectorDataGroup.add(new VectorData("pins", createPlacemarkFeatureType("PinType", "pixelPoint")));
+        this.vectorDataGroup.add(new VectorData("pins", pinFeatureType));
         this.vectorDataGroup.add(
                 new VectorData("ground_control_points", createPlacemarkFeatureType("GcpType", "geoPoint")));
 
