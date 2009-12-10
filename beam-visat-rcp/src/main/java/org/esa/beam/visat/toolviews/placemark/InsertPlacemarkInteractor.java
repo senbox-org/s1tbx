@@ -28,21 +28,25 @@ import java.util.Collection;
 public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
 
     private final PlacemarkDescriptor placemarkDescriptor;
-    private Pin draggedPlacemark;
+    private Pin selectedPlacemark;
     private Cursor cursor;
 
     protected InsertPlacemarkInteractor(PlacemarkDescriptor placemarkDescriptor) {
         this.placemarkDescriptor = placemarkDescriptor;
-        cursor = createCursor(placemarkDescriptor);
+        this.cursor = createCursor(placemarkDescriptor);
     }
 
+    @Override
+    public Cursor getCursor() {
+        return cursor;
+    }
 
     @Override
     public void mouseClicked(MouseEvent event) {
         activateOverlay();
-        if (isSingleLeftClick(event)) {
+        if (isSingleButton1Click(event)) {
             selectOrInsertPlacemark(event);
-        } else if (isDoubleLeftClick(event)) {
+        } else if (isMultiButton1Click(event)) {
             selectAndEditPlacemark(event);
         } else if (event.isPopupTrigger()) {
             showPopupMenu(event);
@@ -53,22 +57,34 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
     public void mousePressed(MouseEvent event) {
         ProductSceneView sceneView = getProductSceneView(event);
         if (sceneView != null) {
+            startInteraction(event);
             Pin draggedPlacemark = getPlacemarkForPixelPos(event, sceneView.getCurrentPixelX(), sceneView.getCurrentPixelY());
-            setDraggedPlacemark(draggedPlacemark);
+            setSelectedPlacemark(draggedPlacemark);
         }
     }
 
     @Override
+    public void mouseReleased(MouseEvent event) {
+        ProductSceneView sceneView = getProductSceneView(event);
+        if (sceneView != null) {
+            completeInteraction(sceneView);
+            stopInteraction(event);
+            setSelectedPlacemark(null);
+        }
+    }
+
+    protected abstract void completeInteraction(ProductSceneView sceneView);
+
+    @Override
     public void mouseDragged(MouseEvent event) {
         ProductSceneView sceneView = getProductSceneView(event);
-        if (sceneView == null) {
-            return;
-        }
-        if (getDraggedPlacemark() != null && sceneView.isPixelPosValid()) {
+        if (sceneView != null
+                && getSelectedPlacemark() != null
+                && sceneView.isPixelPosValid()) {
             PixelPos pixelPos = new PixelPos((float) sceneView.getCurrentPixelX() + 0.5f,
                                              (float) sceneView.getCurrentPixelY() + 0.5f);
             if (pixelPos.isValid()) {
-                getDraggedPlacemark().setPixelPos(pixelPos);
+                getSelectedPlacemark().setPixelPos(pixelPos);
             }
         }
     }
@@ -139,11 +155,6 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
 
     protected ProductNodeGroup<Pin> getPlacemarkGroup(Product product) {
         return placemarkDescriptor.getPlacemarkGroup(product);
-    }
-
-    @Override
-    public Cursor getCursor() {
-        return cursor;
     }
 
     private static Cursor createCursor(PlacemarkDescriptor placemarkDescriptor) {
@@ -256,45 +267,26 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
         return null;
     }
 
-    protected Pin getDraggedPlacemark() {
-        return draggedPlacemark;
+    protected Pin getSelectedPlacemark() {
+        return selectedPlacemark;
     }
 
-    protected void setDraggedPlacemark(Pin draggedPlacemark) {
-        this.draggedPlacemark = draggedPlacemark;
+    protected void setSelectedPlacemark(Pin selectedPlacemark) {
+        this.selectedPlacemark = selectedPlacemark;
     }
 
     // todo - move these to AbstractInteraction? (nf)
 
 
-    protected static boolean isSingleLeftClick(MouseEvent e) {
-        final boolean b = isLeftMouseButtonDown(e)
-                && e.getClickCount() == 1;
-        return b;
+    protected static boolean isSingleButton1Click(MouseEvent e) {
+        return isLeftMouseButtonDown(e) && e.getClickCount() == 1;
     }
 
-    protected static boolean isDoubleLeftClick(MouseEvent e) {
-        final boolean b = isLeftMouseButtonDown(e)
-                && e.getClickCount() > 1;
-        return b;
+    protected static boolean isMultiButton1Click(MouseEvent e) {
+        return isLeftMouseButtonDown(e) && e.getClickCount() > 1;
     }
-
 
     protected static boolean isLeftMouseButtonDown(MouseEvent e) {
-        final boolean b = (e.getModifiers() & MouseEvent.BUTTON1_DOWN_MASK) != 0;
-        return b;
+        return (e.getModifiers() & MouseEvent.BUTTON1_DOWN_MASK) != 0;
     }
-
-    protected static boolean isShiftKeyDown(MouseEvent e) {
-        return e.isShiftDown();
-    }
-
-    protected static boolean isControlKeyDown(MouseEvent e) {
-        return (e.isControlDown());
-    }
-
-    protected static boolean isAltKeyDown(MouseEvent e) {
-        return (e.isAltDown());
-    }
-
 }
