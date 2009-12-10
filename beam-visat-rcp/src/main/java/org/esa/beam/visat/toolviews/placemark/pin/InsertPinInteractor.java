@@ -34,7 +34,7 @@ public class InsertPinInteractor extends InsertPlacemarkInteractor {
     @Override
     public void completeInteraction(ProductSceneView sceneView) {
         if (getSelectedPlacemark() != null
-                && sceneView.isPixelPosValid()) {
+                && sceneView.isCurrentPixelPosValid()) {
             GeoCoding geoCoding = sceneView.getRaster().getGeoCoding();
             if (geoCoding != null && geoCoding.canGetGeoPos()) {
                 getSelectedPlacemark().setGeoPos(geoCoding.getGeoPos(getSelectedPlacemark().getPixelPos(), null));

@@ -43,6 +43,7 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
 
     @Override
     public void mouseClicked(MouseEvent event) {
+        System.out.println("InsertPlacemarkInteractor.mouseClicked: event = " + event);
         activateOverlay();
         if (isSingleButton1Click(event)) {
             selectOrInsertPlacemark(event);
@@ -55,11 +56,12 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
 
     @Override
     public void mousePressed(MouseEvent event) {
+        System.out.println("InsertPlacemarkInteractor.mousePressed: event = " + event);
         ProductSceneView sceneView = getProductSceneView(event);
         if (sceneView != null) {
             startInteraction(event);
-            Pin draggedPlacemark = getPlacemarkForPixelPos(event, sceneView.getCurrentPixelX(), sceneView.getCurrentPixelY());
-            setSelectedPlacemark(draggedPlacemark);
+            Pin selectedPlacemark = getPlacemarkForPixelPos(event, sceneView.getCurrentPixelX(), sceneView.getCurrentPixelY());
+            setSelectedPlacemark(selectedPlacemark);
         }
     }
 
@@ -80,7 +82,7 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
         ProductSceneView sceneView = getProductSceneView(event);
         if (sceneView != null
                 && getSelectedPlacemark() != null
-                && sceneView.isPixelPosValid()) {
+                && sceneView.isCurrentPixelPosValid()) {
             PixelPos pixelPos = new PixelPos((float) sceneView.getCurrentPixelX() + 0.5f,
                                              (float) sceneView.getCurrentPixelY() + 0.5f);
             if (pixelPos.isValid()) {
@@ -94,7 +96,7 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
         if (view == null) {
             return;
         }
-        if (!view.isPixelPosValid()) {
+        if (!view.isCurrentPixelPosValid()) {
             return;
         }
         Product product = view.getProduct();
@@ -122,7 +124,7 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
         if (view == null) {
             return;
         }
-        if (!view.isPixelPosValid()) {
+        if (!view.isCurrentPixelPosValid()) {
             return;
         }
         final Product product = view.getProduct();
@@ -277,7 +279,6 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
 
     // todo - move these to AbstractInteraction? (nf)
 
-
     protected static boolean isSingleButton1Click(MouseEvent e) {
         return isLeftMouseButtonDown(e) && e.getClickCount() == 1;
     }
@@ -287,6 +288,6 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
     }
 
     protected static boolean isLeftMouseButtonDown(MouseEvent e) {
-        return (e.getModifiers() & MouseEvent.BUTTON1_DOWN_MASK) != 0;
+        return (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0;
     }
 }

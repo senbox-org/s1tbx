@@ -363,8 +363,7 @@ public class VisatApp extends BasicApp implements AppContext {
     private File sessionFile;
 
     private Interactor activeInteractor = NullInteractor.INSTANCE;
-    private Interactor defaultInteractor;
-    private AbstractInteractorListener activeInteractorListener;
+    private Interactor selectionInteractor;
 
     /**
      * Constructs the VISAT application instance. The constructor does not start the application nor does it perform any GUI
@@ -419,27 +418,7 @@ public class VisatApp extends BasicApp implements AppContext {
                                                        desktopPane);
 
             pm.setTaskName("Loading commands");
-            Command[] commands = VisatActivator.getInstance().getCommands();
-            for (Command command : commands) {
-                addCommand(command, getCommandManager());
-                if ("selectTool".equals(command.getCommandID())) {
-                    ToolCommand toolCommand = (ToolCommand) command;
-                    defaultInteractor = toolCommand.getTool();
-                    activeInteractorListener = new AbstractInteractorListener() {
-                        @Override
-                        public void interactionStopped(Interactor interactor, InputEvent inputEvent) {
-                            setActiveInteractor(defaultInteractor);
-                        }
-
-                        @Override
-                        public void interactionCancelled(Interactor interactor, InputEvent inputEvent) {
-                            setActiveInteractor(defaultInteractor);
-                        }
-                    };
-                    setActiveInteractor(defaultInteractor);
-                    toolCommand.setSelected(true);
-                }
-            }
+            loadCommands();
             pm.worked(1);
 
             pm.setTaskName("Loading tool windows");
@@ -457,6 +436,19 @@ public class VisatApp extends BasicApp implements AppContext {
         }
     }
 
+    private void loadCommands() {
+        Command[] commands = VisatActivator.getInstance().getCommands();
+        for (Command command : commands) {
+            addCommand(command, getCommandManager());
+            if ("selectTool".equals(command.getCommandID())) {
+                ToolCommand toolCommand = (ToolCommand) command;
+                selectionInteractor = toolCommand.getTool();
+                setActiveInteractor(selectionInteractor);
+                toolCommand.setSelected(true);
+            }
+        }
+    }
+
 
     public Interactor getActiveInteractor() {
         return activeInteractor;
@@ -464,10 +456,8 @@ public class VisatApp extends BasicApp implements AppContext {
 
     public void setActiveInteractor(Interactor interactor) {
         activeInteractor.deactivate();
-        activeInteractor.removeListener(activeInteractorListener);
         activeInteractor = interactor;
         activeInteractor.activate();
-        activeInteractor.addListener(activeInteractorListener);
         setInteractor(getSelectedProductSceneView(), activeInteractor);
     }
 
@@ -1990,8 +1980,8 @@ public class VisatApp extends BasicApp implements AppContext {
 //                "rangeFinder",
                 "zoomTool",
                 "pannerTool",
-//                "pinTool",
-//                "gcpTool",
+                "pinTool",
+                "gcpTool",
                 "drawLineTool",
                 "drawRectangleTool",
                 "drawEllipseTool",

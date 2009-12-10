@@ -1518,12 +1518,12 @@
             <context>image</context>
             <helpId>rangeFinder</helpId>
         </action>
-
+-->
 
         <action>
             <id>pinTool</id>
             <class>org.esa.beam.visat.actions.PlacemarkToolAction</class>
-            <tool>org.esa.beam.visat.toolviews.placemark.pin.PinTool</tool>
+            <interactor>org.esa.beam.visat.toolviews.placemark.pin.InsertPinInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>pannerTool</placeAfter>
             <text>Pin Tool</text>
@@ -1531,16 +1531,13 @@
             <description>Sets, edits or deletes pins</description>
             <largeIcon>icons/PinTool24.gif</largeIcon>
             <selected>false</selected>
-            -->
-<!--<context>image</context>-->
-<!--
             <helpId>pinTool</helpId>
         </action>
 
         <action>
             <id>gcpTool</id>
             <class>org.esa.beam.visat.actions.PlacemarkToolAction</class>
-            <tool>org.esa.beam.visat.toolviews.placemark.gcp.GcpTool</tool>
+            <interactor>org.esa.beam.visat.toolviews.placemark.gcp.InsertGcpInteractor</interactor>
             <parent>tools</parent>
             <placeAfter>pinTool</placeAfter>
             <placeBefore>drawLineTool</placeBefore>
@@ -1549,12 +1546,8 @@
             <description>Sets, edits or deletes GCPs</description>
             <largeIcon>icons/GcpTool24.gif</largeIcon>
             <selected>false</selected>
-            -->
-<!--<context>image</context>-->
-<!--
             <helpId>gcpTool</helpId>
         </action>
--->
 
         <action>
             <id>drawLineTool</id>

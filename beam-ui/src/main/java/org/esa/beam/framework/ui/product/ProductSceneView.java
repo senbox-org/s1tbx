@@ -302,16 +302,14 @@ public class ProductSceneView extends BasicView
         ///////////////////////////////
     }
 
-    public int getCurrentLevel() {
-        return currentLevel;
+    @Override
+    public FigureEditor getFigureEditor() {
+        return figureEditor;
     }
 
-    public int getCurrentLevelPixelX() {
-        return currentLevelPixelX;
-    }
-
-    public int getCurrentLevelPixelY() {
-        return currentLevelPixelY;
+    @Override
+    public Viewport getViewport() {
+        return layerCanvas.getViewport();
     }
 
     public int getCurrentPixelX() {
@@ -322,14 +320,8 @@ public class ProductSceneView extends BasicView
         return currentPixelY;
     }
 
-    @Override
-    public FigureEditor getFigureEditor() {
-        return figureEditor;
-    }
-
-    @Override
-    public Viewport getViewport() {
-        return layerCanvas.getViewport();
+    public boolean isCurrentPixelPosValid() {
+        return isPixelPosValid(currentLevelPixelX, currentLevelPixelY, currentLevel);
     }
 
     private AdjustableViewScrollPane createScrollPane() {
@@ -1040,10 +1032,6 @@ public class ProductSceneView extends BasicView
         layerCanvas.removeComponentListener(layerCanvasComponentHandler);
         layerCanvas.removeMouseListener(layerCanvasMouseHandler);
         layerCanvas.removeMouseMotionListener(layerCanvasMouseHandler);
-    }
-
-    public boolean isPixelPosValid() {
-        return isPixelPosValid(currentLevelPixelX, currentLevelPixelY, currentLevel);
     }
 
     private boolean isPixelPosValid(int currentPixelX, int currentPixelY, int currentLevel) {
