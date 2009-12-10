@@ -31,6 +31,9 @@ import java.awt.Dimension;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.ValidationException;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -39,32 +42,35 @@ import com.vividsolutions.jts.geom.Geometry;
  * @since BEAM 4.7
  */
 public class NewVectorDataAction extends ExecCommand {
+    private static final String DIALOG_TITLE = "New Vector Data";
 
-    // todo - add validators (nf)
-    static class DialogData {
-        String name;
-        String description;
-    }
+    // todo - add help (nf)
+    private static final String HELP_ID = "";
 
+    static int areas = 0;
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        DialogData data = new DialogData();
-        PropertySet propertySet = PropertyContainer.createObjectBacked(data);
-        PropertyPane propertyPane = new PropertyPane(propertySet);
+        final Product product = VisatApp.getApp().getSelectedProduct();
+        DialogData dialogData = new DialogData();
+        PropertySet propertySet = PropertyContainer.createObjectBacked(dialogData);
+        propertySet.getDescriptor("name").setNotNull(true);
+        propertySet.getDescriptor("name").setNotEmpty(true);
+        propertySet.getDescriptor("name").setValidator(new NameValidator(product));
+        propertySet.getDescriptor("description").setNotNull(true);
+
+        final PropertyPane propertyPane = new PropertyPane(propertySet);
         JPanel panel = propertyPane.createPanel();
-        panel.setPreferredSize(new Dimension(200, -1));
-        ModalDialog dialog = new ModalDialog(VisatApp.getApp().getMainFrame(),
-                                             "New Vector Data",
-                                             ModalDialog.ID_OK | ModalDialog.ID_CANCEL,
-                                             "");
+        panel.setPreferredSize(new Dimension(400, 100));
+        ModalDialog dialog = new MyModalDialog(propertyPane);
         dialog.setContent(panel);
         int i = dialog.show();
         if (i == ModalDialog.ID_OK) {
-            Product product = VisatApp.getApp().getSelectedProduct();
             // todo - always use same schema name! (nf)
             SimpleFeatureType type = SimpleFeatureFigureFactory.createSimpleFeatureType("X", Geometry.class);
-            product.getVectorDataGroup().add(new VectorDataNode(data.name, type));
+            VectorDataNode vectorDataNode = new VectorDataNode(dialogData.name, type);
+            vectorDataNode.setDescription(dialogData.description);
+            product.getVectorDataGroup().add(vectorDataNode);
         }
     }
 
@@ -76,5 +82,51 @@ public class NewVectorDataAction extends ExecCommand {
         Product product = VisatApp.getApp().getSelectedProduct();
         setEnabled(product != null);
     }
+
+    private static class NameValidator implements Validator {
+        private final Product product;
+
+        public NameValidator(Product product) {
+            this.product = product;
+        }
+
+        @Override
+            public void validateValue(Property property, Object value) throws ValidationException {
+            String name = (String) value;
+            if (product.getVectorDataGroup().contains(name)) {
+                 throw new ValidationException("Vector data with name '"+name+"' already exists.\n" +
+                         "Please choose another one.");
+             }
+        }
+    }
+
+    private static class MyModalDialog extends ModalDialog {
+        private final PropertyPane propertyPane;
+
+        public MyModalDialog(PropertyPane propertyPane) {
+            super(VisatApp.getApp().getMainFrame(),
+                  DIALOG_TITLE,
+                  ModalDialog.ID_OK_CANCEL_HELP,
+                  HELP_ID);
+            this.propertyPane = propertyPane;
+        }
+
+        /**
+         * Called in order to perform input validation.
+         *
+         * @return {@code true} if and only if the validation was successful.
+         */
+        @Override
+        protected boolean verifyUserInput() {
+            return !propertyPane.getBindingContext().hasProblems();
+        }
+    }
+
+    // todo - add validators (nf)
+    static class DialogData {
+        String name = "area_" + (++areas);
+        String description = "";
+    }
+
 
 }
