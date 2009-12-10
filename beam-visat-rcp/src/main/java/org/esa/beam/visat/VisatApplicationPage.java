@@ -140,16 +140,17 @@ public class VisatApplicationPage extends AbstractApplicationPage {
         if (toolView != null) {
             setActiveComponent(toolView);
         } else {
+            SelectionContext context = null;
             // No tool view currently selected, must look for active "DocView".
             JInternalFrame selectedFrame = documentPane.getSelectedFrame();
-            Container pageComponent = selectedFrame.getContentPane();
-            if (pageComponent instanceof BasicView) {
-                BasicView view = (BasicView) pageComponent;
-                SelectionContext context = view.getSelectionContext();
-                getSelectionManager().setSelectionContext(context);
-            } else {
-                getSelectionManager().setSelectionContext(null);
+            if (selectedFrame != null) {
+                Container pageComponent = selectedFrame.getContentPane();
+                if (pageComponent instanceof BasicView) {
+                    BasicView view = (BasicView) pageComponent;
+                    context = view.getSelectionContext();
+                }
             }
+            getSelectionManager().setSelectionContext(context);
         }
     }
 
@@ -168,9 +169,9 @@ public class VisatApplicationPage extends AbstractApplicationPage {
         State initState = toolViewDescriptor.getInitState();
         DockableFrame frame = dockingManager.getFrame(toolView.getId());
         return frame != null
-               && frame.getContext().getDockPreviousState() == null
-               && frame.getContext().getFloatPreviousState() == null
-               && initState == State.HIDDEN;
+                && frame.getContext().getDockPreviousState() == null
+                && frame.getContext().getFloatPreviousState() == null
+                && initState == State.HIDDEN;
     }
 
 
