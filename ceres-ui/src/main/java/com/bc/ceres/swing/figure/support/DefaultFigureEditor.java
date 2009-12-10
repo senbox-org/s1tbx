@@ -82,7 +82,7 @@ public class DefaultFigureEditor implements FigureEditor {
         this.figureFactory = figureFactory;
 
         this.defaultLineStyle = DefaultFigureStyle.createLineStyle(new Color(255, 255, 255, 200),
-                                                                   new BasicStroke(1.0f));
+                                                                   new BasicStroke(1.5f));
         this.defaultPolygonStyle = DefaultFigureStyle.createPolygonStyle(new Color(0, 0, 255, 200),
                                                                          new Color(255, 255, 255, 200),
                                                                          new BasicStroke(1.0f));
@@ -231,18 +231,6 @@ public class DefaultFigureEditor implements FigureEditor {
         return getFigureCollection().getFigureCount() > 0;
     }
 
-    private class FigureSelectionMulticaster extends AbstractFigureChangeListener {
-        @Override
-        public void figuresAdded(FigureChangeEvent event) {
-            selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
-        }
-
-        @Override
-        public void figuresRemoved(FigureChangeEvent event) {
-            selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
-        }
-    }
-
     @Override
     public Interactor getInteractor() {
         return interactor;
@@ -319,6 +307,18 @@ public class DefaultFigureEditor implements FigureEditor {
         @Override
         public void figureChanged(FigureChangeEvent event) {
             getEditorComponent().repaint();
+        }
+    }
+
+    private class FigureSelectionMulticaster extends AbstractFigureChangeListener {
+        @Override
+        public void figuresAdded(FigureChangeEvent event) {
+            selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
+        }
+
+        @Override
+        public void figuresRemoved(FigureChangeEvent event) {
+            selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
         }
     }
 
