@@ -13,7 +13,13 @@ import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.LineFigure;
 import org.esa.beam.framework.draw.ShapeFigure;
 
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Paint;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.util.HashMap;
 import java.util.Map;
 
