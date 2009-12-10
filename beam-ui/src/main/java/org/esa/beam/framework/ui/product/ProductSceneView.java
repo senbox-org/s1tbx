@@ -152,17 +152,28 @@ public class ProductSceneView extends BasicView
 
     private ProductSceneImage sceneImage;
     private LayerCanvas layerCanvas;
-    // todo - (re)move following variables, they don't belong to here (nf - 28.10.2008)
-    // {{
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Properties corresponding to the base image displaying the raster data returned by #getRaster()
+    //
+    // layer which displays the base image
     private final ImageLayer baseImageLayer;
-    private int pixelX = -1;
-    private int pixelY = -1;
-    private int levelPixelX = -1;
-    private int levelPixelY = -1;
-    private int level = 0;
+    // current resolution level of the base image
+    private int currentLevel = 0;
+    // current pixel X (from mouse cursor) at current resolution level of the base image
+    private int currentLevelPixelX = -1;
+    // current pixel Y (from mouse cursor) at current resolution level of the base image
+    private int currentLevelPixelY = -1;
+    // current pixel X (from mouse cursor) at highest resolution level of the base image
+    private int currentPixelX = -1;
+    // current pixel Y (from mouse cursor) at highest resolution level of the base image
+    private int currentPixelY = -1;
+    // display properties for the current pixel (from mouse cursor)
     private boolean pixelBorderShown; // can it be shown?
     private boolean pixelBorderDrawn; // has it been drawn?
     private double pixelBorderViewScale;
+    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private final Vector<PixelPositionListener> pixelPositionListeners;
 
@@ -289,6 +300,26 @@ public class ProductSceneView extends BasicView
 
         // TEST TEST TEST
         ///////////////////////////////
+    }
+
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
+
+    public int getCurrentLevelPixelX() {
+        return currentLevelPixelX;
+    }
+
+    public int getCurrentLevelPixelY() {
+        return currentLevelPixelY;
+    }
+
+    public int getCurrentPixelX() {
+        return currentPixelX;
+    }
+
+    public int getCurrentPixelY() {
+        return currentPixelY;
     }
 
     @Override
@@ -843,7 +874,7 @@ public class ProductSceneView extends BasicView
 
 
     protected void copyPixelInfoStringToClipboard() {
-        SystemUtils.copyToClipboard(createPixelInfoString(pixelX, pixelY));
+        SystemUtils.copyToClipboard(createPixelInfoString(currentPixelX, currentPixelY));
     }
 
     protected void disposeImageDisplayComponent() {
@@ -1011,7 +1042,7 @@ public class ProductSceneView extends BasicView
     }
 
     public boolean isPixelPosValid() {
-        return isPixelPosValid(levelPixelX, levelPixelY, level);
+        return isPixelPosValid(currentLevelPixelX, currentLevelPixelY, currentLevel);
     }
 
     private boolean isPixelPosValid(int currentPixelX, int currentPixelY, int currentLevel) {
@@ -1043,22 +1074,22 @@ public class ProductSceneView extends BasicView
 
         AffineTransform m2iTransform = baseImageLayer.getModelToImageTransform();
         Point2D imageP = m2iTransform.transform(modelP, null);
-        pixelX = (int) Math.floor(imageP.getX());
-        pixelY = (int) Math.floor(imageP.getY());
+        currentPixelX = (int) Math.floor(imageP.getX());
+        currentPixelY = (int) Math.floor(imageP.getY());
 
         AffineTransform m2iLevelTransform = baseImageLayer.getModelToImageTransform(currentLevel);
         Point2D imageLevelP = m2iLevelTransform.transform(modelP, null);
         int currentPixelX = (int) Math.floor(imageLevelP.getX());
         int currentPixelY = (int) Math.floor(imageLevelP.getY());
-        if (currentPixelX != levelPixelX || currentPixelY != levelPixelY || currentLevel != level) {
+        if (currentPixelX != currentLevelPixelX || currentPixelY != currentLevelPixelY || currentLevel != this.currentLevel) {
             if (isPixelBorderDisplayEnabled() && (showBorder || pixelBorderDrawn)) {
                 drawPixelBorder(currentPixelX, currentPixelY, currentLevel, showBorder);
             }
-            levelPixelX = currentPixelX;
-            levelPixelY = currentPixelY;
-            level = currentLevel;
+            currentLevelPixelX = currentPixelX;
+            currentLevelPixelY = currentPixelY;
+            this.currentLevel = currentLevel;
             if (e.getID() != MouseEvent.MOUSE_EXITED) {
-                firePixelPosChanged(e, levelPixelX, levelPixelY, level);
+                firePixelPosChanged(e, currentLevelPixelX, currentLevelPixelY, this.currentLevel);
             } else {
                 firePixelPosNotAvailable();
             }
@@ -1074,7 +1105,7 @@ public class ProductSceneView extends BasicView
         final Graphics g = getGraphics();
         g.setXORMode(Color.white);
         if (pixelBorderDrawn) {
-            drawPixelBorder(g, levelPixelX, levelPixelY, level);
+            drawPixelBorder(g, currentLevelPixelX, currentLevelPixelY, this.currentLevel);
             pixelBorderDrawn = false;
         }
         if (showBorder) {
