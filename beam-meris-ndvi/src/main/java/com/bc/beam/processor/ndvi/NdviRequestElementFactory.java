@@ -41,7 +41,6 @@ import java.util.Map;
  */
 public class NdviRequestElementFactory implements RequestElementFactory {
 
-    private static NdviRequestElementFactory _factory;
 
     private DefaultRequestElementFactory _defaultFactory;
     private Map<String, ParamProperties> _paramPropertiesMap;
@@ -55,20 +54,24 @@ public class NdviRequestElementFactory implements RequestElementFactory {
         return Holder.instance;
     }
 
+    @Override
     public ProductRef createInputProductRef(final File url, final String fileFormat, final String typeId) throws
                                                                                                          RequestElementFactoryException {
         return _defaultFactory.createInputProductRef(url, fileFormat, typeId);
     }
 
+    @Override
     public ProductRef createOutputProductRef(final File url, final String fileFormat, final String typeId) throws
                                                                                                           RequestElementFactoryException {
         return _defaultFactory.createOutputProductRef(url, fileFormat, typeId);
     }
 
+    @Override
     public Parameter createDefaultInputProductParameter() {
         return _defaultFactory.createDefaultInputProductParameter();
     }
 
+    @Override
     public Parameter createDefaultOutputProductParameter() {
         final File defaultValue = new File(SystemUtils.getUserHomeDir(), NdviProcessor.DEFAULT_OUTPUT_PRODUCT_NAME);
         final Parameter parameter = _defaultFactory.createDefaultOutputProductParameter();
@@ -80,19 +83,22 @@ public class NdviRequestElementFactory implements RequestElementFactory {
         return _defaultFactory.createOutputFormatParameter();
     }
 
+    @Override
     public Parameter createDefaultLogPatternParameter(final String prefix) {
         return _defaultFactory.createDefaultLogPatternParameter(prefix);
     }
 
+    @Override
     public Parameter createLogToOutputParameter(final String value) throws ParamValidateException {
         return _defaultFactory.createLogToOutputParameter(value);
     }
 
     // todo: move this implementation up to DefaultREF
+    @Override
     public Parameter createParameter(final String name, final String value) throws RequestElementFactoryException {
         final Parameter parameter;
         if (ProcessorConstants.OUTPUT_FORMAT_PARAM_NAME.equalsIgnoreCase(name)) {
-            parameter = _factory.createOutputFormatParameter();
+            parameter = getInstance().createOutputFormatParameter();
         } else {
             parameter = createParameter(name);
         }
@@ -134,37 +140,35 @@ public class NdviRequestElementFactory implements RequestElementFactory {
     }
 
     private static ParamProperties createLowerBandProperties() {
-        final ParamProperties paramProperties;
-        paramProperties = new ParamProperties(String.class,
-                                              NdviProcessor.LOWER_BAND_PARAM_DEFAULT,
-                                              EnvisatConstants.MERIS_L1B_BAND_NAMES);
+        final ParamProperties paramProperties = new ParamProperties(String.class,
+                                                                    NdviProcessor.LOWER_BAND_PARAM_DEFAULT,
+                                                                    EnvisatConstants.MERIS_L1B_BAND_NAMES);
         paramProperties.setLabel("Lower band");
         return paramProperties;
     }
 
     private static ParamProperties createUpperbandProperties() {
-        final ParamProperties paramProperties;
-        paramProperties = new ParamProperties(String.class,
-                                              NdviProcessor.UPPER_BAND_PARAM_DEFAULT,
-                                              EnvisatConstants.MERIS_L1B_BAND_NAMES);
+        final ParamProperties paramProperties = new ParamProperties(String.class,
+                                                                    NdviProcessor.UPPER_BAND_PARAM_DEFAULT,
+                                                                    EnvisatConstants.MERIS_L1B_BAND_NAMES);
         paramProperties.setLabel("Upper band");
         return paramProperties;
     }
 
     private static ParamProperties createUpperFactorProperties() {
-        final ParamProperties paramProperties;
-        paramProperties = new ParamProperties(Float.class, NdviProcessor.UPPER_FACTOR_PARAM_DEFAULT);
-        paramProperties.setMinValue(new Float(0));
-        paramProperties.setMaxValue(new Float(10));
+        final ParamProperties paramProperties = new ParamProperties(Float.class,
+                                                                    NdviProcessor.UPPER_FACTOR_PARAM_DEFAULT);
+        paramProperties.setMinValue((float) 0);
+        paramProperties.setMaxValue((float) 10);
         paramProperties.setLabel("Upper factor");
         return paramProperties;
     }
 
     private static ParamProperties createLowerFactorProperties() {
-        final ParamProperties paramProperties;
-        paramProperties = new ParamProperties(Float.class, NdviProcessor.LOWER_FACTOR_PARAM_DEFAULT);
-        paramProperties.setMinValue(new Float(0));
-        paramProperties.setMaxValue(new Float(10));
+        final ParamProperties paramProperties = new ParamProperties(Float.class,
+                                                                    NdviProcessor.LOWER_FACTOR_PARAM_DEFAULT);
+        paramProperties.setMinValue((float) 0);
+        paramProperties.setMaxValue((float) 10);
         paramProperties.setLabel("Lower factor");
         return paramProperties;
     }
