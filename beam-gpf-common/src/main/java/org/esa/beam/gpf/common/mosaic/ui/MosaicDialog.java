@@ -89,30 +89,34 @@ class MosaicDialog extends SingleTargetProductDialog {
         final MosaicOp.Condition[] conditions = mosaicModel.getConditions();
         for (Map.Entry<String, Product> entry : sourceProductMap.entrySet()) {
             Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{entry.getValue()}, 0);
-            for (MosaicOp.Variable variable : variables) {
-                try {
-                    new ParserImpl(namespace, false).parse(variable.getExpression());
-                } catch (ParseException e) {
-                    final String msg = String.format("Expression '%s' is invalid for product '%s'.\n%s",
-                                                     variable.getName(),
-                                                     entry.getKey(),
-                                                     e.getMessage());
-                    showErrorDialog(msg);
-                    e.printStackTrace();
-                    return false;
+            if (conditions != null) {
+                for (MosaicOp.Variable variable : variables) {
+                    try {
+                        new ParserImpl(namespace, false).parse(variable.getExpression());
+                    } catch (ParseException e) {
+                        final String msg = String.format("Expression '%s' is invalid for product '%s'.\n%s",
+                                                         variable.getName(),
+                                                         entry.getKey(),
+                                                         e.getMessage());
+                        showErrorDialog(msg);
+                        e.printStackTrace();
+                        return false;
+                    }
                 }
             }
-            for (MosaicOp.Condition condition : conditions) {
-                try {
-                    new ParserImpl(namespace, false).parse(condition.getExpression());
-                } catch (ParseException e) {
-                    final String msg = String.format("Expression '%s' is invalid for product '%s'.\n%s",
-                                                     condition.getName(),
-                                                     entry.getKey(),
-                                                     e.getMessage());
-                    showErrorDialog(msg);
-                    e.printStackTrace();
-                    return false;
+            if (conditions != null) {
+                for (MosaicOp.Condition condition : conditions) {
+                    try {
+                        new ParserImpl(namespace, false).parse(condition.getExpression());
+                    } catch (ParseException e) {
+                        final String msg = String.format("Expression '%s' is invalid for product '%s'.\n%s",
+                                                         condition.getName(),
+                                                         entry.getKey(),
+                                                         e.getMessage());
+                        showErrorDialog(msg);
+                        e.printStackTrace();
+                        return false;
+                    }
                 }
             }
         }
