@@ -284,11 +284,6 @@ public class VisatApp extends BasicApp implements AppContext {
     public static final boolean PROPERTY_DEFAULT_DISPLAY_GEOLOCATION_AS_DECIMAL = false;
 
     /**
-     * Location key "browserPane" for plugin comonents
-     */
-    public static final String LOCATION_BROWSERPANE = "browserPane";
-
-    /**
      * default value for preference save product annotations (ADS) or not
      */
     public static final boolean DEFAULT_VALUE_SAVE_PRODUCT_ANNOTATIONS = false;
