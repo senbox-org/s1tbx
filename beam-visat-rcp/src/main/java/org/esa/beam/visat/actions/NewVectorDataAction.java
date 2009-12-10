@@ -17,7 +17,7 @@
 package org.esa.beam.visat.actions;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.PropertyPane;
 import org.esa.beam.framework.ui.product.SimpleFeatureFigureFactory;
@@ -64,7 +64,7 @@ public class NewVectorDataAction extends ExecCommand {
             Product product = VisatApp.getApp().getSelectedProduct();
             // todo - always use same schema name! (nf)
             SimpleFeatureType type = SimpleFeatureFigureFactory.createSimpleFeatureType("X", Geometry.class);
-            product.getVectorDataGroup().add(new VectorData(data.name, type));
+            product.getVectorDataGroup().add(new VectorDataNode(data.name, type));
         }
     }
 

@@ -17,7 +17,7 @@
 package org.esa.beam.framework.ui.product;
 
 import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 
 // todo - this is a stupid interface, use SelectionService/SelectionProvide instead (nf, 10.2009)
 
@@ -45,10 +45,10 @@ public interface ProductTreeListener2 extends ProductTreeListener {
     /**
      * Called when a product's node has been selected in the tree.
      *
-     * @param vectorData The selected vector data.
+     * @param vectorDataNode The selected vector data.
      * @param clickCount The number of mouse clicks.
      *
      * @since BEAM 4.7
      */
-    void vectorDataSelected(VectorData vectorData, int clickCount);
+    void vectorDataSelected(VectorDataNode vectorDataNode, int clickCount);
 }

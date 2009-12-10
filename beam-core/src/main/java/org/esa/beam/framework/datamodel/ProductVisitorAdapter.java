@@ -89,6 +89,6 @@ public class ProductVisitorAdapter implements ProductVisitor {
     }
 
     @Override
-    public void visit(VectorData data) {
+    public void visit(VectorDataNode dataNode) {
     }
 }

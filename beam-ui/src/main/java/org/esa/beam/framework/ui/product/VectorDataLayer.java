@@ -26,7 +26,7 @@ import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
@@ -41,37 +41,37 @@ public class VectorDataLayer extends Layer {
 
     private static final VectorDataLayerType TYPE = new VectorDataLayerType();
     private FigureCollection figureCollection;
-    private VectorData vectorData;
+    private VectorDataNode vectorDataNode;
     private VectorDataChangeHandler vectorDataChangeHandler;
 
-    public VectorDataLayer(LayerContext ctx, VectorData vectorData) {
-        this(TYPE, vectorData, TYPE.createLayerConfig(ctx));
-        getConfiguration().setValue(VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA, vectorData.getName());
+    public VectorDataLayer(LayerContext ctx, VectorDataNode vectorDataNode) {
+        this(TYPE, vectorDataNode, TYPE.createLayerConfig(ctx));
+        getConfiguration().setValue(VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA, vectorDataNode.getName());
     }
 
-    VectorDataLayer(VectorDataLayerType vectorDataLayerType, VectorData vectorData, PropertySet configuration) {
+    VectorDataLayer(VectorDataLayerType vectorDataLayerType, VectorDataNode vectorDataNode, PropertySet configuration) {
         super(vectorDataLayerType, configuration);
-        this.vectorData = vectorData;
-        setName(vectorData.getName());
+        this.vectorDataNode = vectorDataNode;
+        setName(vectorDataNode.getName());
         figureCollection = new DefaultFigureCollection();
         vectorDataChangeHandler = new VectorDataChangeHandler();
-        vectorData.getProduct().addProductNodeListener(vectorDataChangeHandler);
+        vectorDataNode.getProduct().addProductNodeListener(vectorDataChangeHandler);
         updateFigureCollection();
     }
 
-    public VectorData getVectorData() {
-        return vectorData;
+    public VectorDataNode getVectorData() {
+        return vectorDataNode;
     }
 
     @Override
     protected void disposeLayer() {
-        vectorData.getProduct().removeProductNodeListener(vectorDataChangeHandler);
-        vectorData = null;
+        vectorDataNode.getProduct().removeProductNodeListener(vectorDataChangeHandler);
+        vectorDataNode = null;
         super.disposeLayer();
     }
 
     private void updateFigureCollection() {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorData.getFeatureCollection();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
 
         Figure[] figures = figureCollection.getFigures();
         Map<SimpleFeature, SimpleFeatureFigure> figureMap = new HashMap<SimpleFeature, SimpleFeatureFigure>();
@@ -100,7 +100,7 @@ public class VectorDataLayer extends Layer {
     }
 
     private SimpleFeatureFigureFactory getFigureFactory() {
-        return new SimpleFeatureFigureFactory(vectorData.getFeatureCollection());
+        return new SimpleFeatureFigureFactory(vectorDataNode.getFeatureCollection());
     }
 
     public FigureCollection getFigureCollection() {
@@ -121,11 +121,11 @@ public class VectorDataLayer extends Layer {
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
-            if (event.getSourceNode() == VectorDataLayer.this.vectorData) {
+            if (event.getSourceNode() == VectorDataLayer.this.vectorDataNode) {
                 if (ProductNode.PROPERTY_NAME_NAME.equals(event.getPropertyName())) {
-                    setName(VectorDataLayer.this.vectorData.getName());
+                    setName(VectorDataLayer.this.vectorDataNode.getName());
                 }
-                if (VectorData.PROPERTY_NAME_FEATURE_COLLECTION.equals(event.getPropertyName())) {
+                if (VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION.equals(event.getPropertyName())) {
                     updateFigureCollection();
                 }
             }

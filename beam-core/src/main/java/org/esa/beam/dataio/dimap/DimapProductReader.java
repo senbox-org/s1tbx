@@ -30,7 +30,7 @@ import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.io.FileUtils;
@@ -386,8 +386,8 @@ public class DimapProductReader extends AbstractProductReader {
                 try {
                     featureSource = dataStore.getFeatureSource(name);
                     FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
-                    VectorData vectorData = new VectorData(name, featureCollection);
-                    product.getVectorDataGroup().add(vectorData);
+                    VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
+                    product.getVectorDataGroup().add(vectorDataNode);
                 } catch (IOException e) {
                     BeamLogManager.getSystemLogger().throwing("DimapProductReader", "readVectorData", e);
                 }

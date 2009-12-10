@@ -9,7 +9,7 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import static org.esa.beam.framework.ui.product.VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA;
 
 import java.lang.ref.WeakReference;
@@ -23,15 +23,15 @@ public class VectorDataCollectionLayer extends CollectionLayer {
     public static final String ID = VectorDataCollectionLayer.class.getName();
 
     private final ProductNodeListener pnl;
-    private final transient WeakReference<ProductNodeGroup<VectorData>> reference;
+    private final transient WeakReference<ProductNodeGroup<VectorDataNode>> reference;
 
     public VectorDataCollectionLayer(VectorDataCollectionLayerType layerType,
-                                     ProductNodeGroup<VectorData> vectorDataGroup,
+                                     ProductNodeGroup<VectorDataNode> vectorDataGroup,
                                      PropertySet configuration) {
         super(layerType, configuration, "Vector Data Layers");
         Assert.notNull(vectorDataGroup, "vectorDataGroup");
 
-        reference = new WeakReference<ProductNodeGroup<VectorData>>(vectorDataGroup);
+        reference = new WeakReference<ProductNodeGroup<VectorDataNode>>(vectorDataGroup);
         pnl = new PNL();
 
         setId(ID);
@@ -50,14 +50,14 @@ public class VectorDataCollectionLayer extends CollectionLayer {
         return reference.get().getProduct();
     }
 
-    private Layer createLayer(final VectorData vectorData) {
-        return VectorDataLayerType.createLayer(vectorData);
+    private Layer createLayer(final VectorDataNode vectorDataNode) {
+        return VectorDataLayerType.createLayer(vectorDataNode);
     }
 
-    private Layer getLayer(VectorData vectorData) {
+    private Layer getLayer(VectorDataNode vectorDataNode) {
         for (final Layer child : getChildren()) {
             final Object value = child.getConfiguration().getValue(PROPERTY_NAME_VECTOR_DATA);
-            if (vectorData == value) {
+            if (vectorDataNode == value) {
                 return child;
             }
         }
@@ -65,18 +65,18 @@ public class VectorDataCollectionLayer extends CollectionLayer {
     }
 
     synchronized void updateChildren() {
-        final ProductNodeGroup<VectorData> vectorDataGroup = reference.get();
-        final Map<VectorData, Layer> children = new HashMap<VectorData, Layer>();
+        final ProductNodeGroup<VectorDataNode> vectorDataGroup = reference.get();
+        final Map<VectorDataNode, Layer> children = new HashMap<VectorDataNode, Layer>();
         for (final Layer child : getChildren()) {
             final String name = (String) child.getConfiguration().getValue(PROPERTY_NAME_VECTOR_DATA);
-            final VectorData vectorData = vectorDataGroup.get(name);
-            children.put(vectorData, child);
+            final VectorDataNode vectorDataNode = vectorDataGroup.get(name);
+            children.put(vectorDataNode, child);
         }
         final Set<Layer> orphans = new HashSet<Layer>(children.values());
-        for (final VectorData vectorData : vectorDataGroup.toArray(new VectorData[vectorDataGroup.getNodeCount()])) {
-            final Layer child = children.get(vectorData);
+        for (final VectorDataNode vectorDataNode : vectorDataGroup.toArray(new VectorDataNode[vectorDataGroup.getNodeCount()])) {
+            final Layer child = children.get(vectorDataNode);
             if (child == null) {
-                final Layer layer = createLayer(vectorData);
+                final Layer layer = createLayer(vectorDataNode);
                 getChildren().add(layer);
             } else {
                 orphans.remove(child);
@@ -93,9 +93,9 @@ public class VectorDataCollectionLayer extends CollectionLayer {
         @Override
         public synchronized void nodeChanged(ProductNodeEvent event) {
             final ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode instanceof VectorData) {
-                final VectorData vectorData = (VectorData) sourceNode;
-                final Layer layer = getLayer(vectorData);
+            if (sourceNode instanceof VectorDataNode) {
+                final VectorDataNode vectorDataNode = (VectorDataNode) sourceNode;
+                final Layer layer = getLayer(vectorDataNode);
                 if (layer != null) {
                     layer.regenerate();
                 }

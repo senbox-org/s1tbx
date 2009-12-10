@@ -31,7 +31,7 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.ExceptionHandler;
 import org.esa.beam.framework.ui.PopupMenuFactory;
@@ -352,7 +352,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
     private static DefaultMutableTreeNode createVectorDataNodes(Product product) {
         DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(VECTOR_DATA);
-        ProductNodeGroup<VectorData> vectorDataGroup = product.getVectorDataGroup();
+        ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
         for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
             DefaultMutableTreeNode childTreeNode = new DefaultMutableTreeNode(vectorDataGroup.get(i));
             treeNode.add(childTreeNode);
@@ -596,8 +596,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     toolTipBuffer.append(grid.getRasterWidth());
                     toolTipBuffer.append(" x ");
                     toolTipBuffer.append(grid.getRasterHeight());
-                } else if (productNode instanceof VectorData) {
-                    VectorData grid = (VectorData) productNode;
+                } else if (productNode instanceof VectorDataNode) {
+                    VectorDataNode grid = (VectorDataNode) productNode;
                     this.setIcon(vectorDataIcon);
                     toolTipBuffer.append(", type = ");
                     toolTipBuffer.append(grid.getFeatureType().toString());
@@ -714,10 +714,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     l.tiePointGridSelected((TiePointGrid) node, clickCount);
                 } else if (node instanceof Band) {
                     l.bandSelected((Band) node, clickCount);
-                } else if (node instanceof VectorData) {
+                } else if (node instanceof VectorDataNode) {
                     if (l instanceof ProductTreeListener2) {
                         ProductTreeListener2 l2 = (ProductTreeListener2) l;
-                        l2.vectorDataSelected((VectorData) node, clickCount);
+                        l2.vectorDataSelected((VectorDataNode) node, clickCount);
                     }
                 }
                 if (node instanceof ProductNode) {
@@ -841,7 +841,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             groupTNode = getTNode(productTNode, BANDS);
         } else if (sourceNode instanceof TiePointGrid) {
             groupTNode = getTNode(productTNode, TIE_POINT_GRIDS);
-        } else if (sourceNode instanceof VectorData) {
+        } else if (sourceNode instanceof VectorDataNode) {
             groupTNode = getTNode(productTNode, VECTOR_DATA);
         } else if (sourceNode instanceof FlagCoding) {
             groupTNode = getTNode(productTNode, FLAG_CODINGS);

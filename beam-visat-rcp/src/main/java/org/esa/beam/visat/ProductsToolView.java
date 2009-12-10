@@ -16,7 +16,7 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -196,8 +196,8 @@ public class ProductsToolView extends AbstractToolView {
         }
 
         @Override
-        public void vectorDataSelected(VectorData vectorData, int clickCount) {
-            setSelectedProductNode(vectorData);
+        public void vectorDataSelected(VectorDataNode vectorDataNode, int clickCount) {
+            setSelectedProductNode(vectorDataNode);
             final ProductSceneView sceneView = visatApp.getSelectedProductSceneView();
             if (sceneView == null) {
                 return;
@@ -212,9 +212,9 @@ public class ProductsToolView extends AbstractToolView {
                 Symbolizer s = builder.createPointSymbolizer(g);
                 Style style = builder.createStyle(s);
                 conf.setValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE, style);
-                conf.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION, vectorData.getFeatureCollection());
+                conf.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION, vectorDataNode.getFeatureCollection());
                 final Layer layer = flt.createLayer(sceneView, conf);
-                layer.setName(vectorData.getName());
+                layer.setName(vectorDataNode.getName());
                 layer.setVisible(true);
 
                 sceneView.getRootLayer().getChildren().add(0, layer);
@@ -291,7 +291,7 @@ public class ProductsToolView extends AbstractToolView {
         }
 
         private boolean isDeletableVectorData(Object selectedObject) {
-            if (selectedObject instanceof VectorData) {
+            if (selectedObject instanceof VectorDataNode) {
                 // todo - dont delete pins + GCP vector data (nf)
                 return true;
             } else return false;
@@ -308,17 +308,17 @@ public class ProductsToolView extends AbstractToolView {
             if (isDeletableRasterData(selectedObject)) {
                 deleteRasterData((RasterDataNode) selectedObject);
             } else if (isDeletableVectorData(selectedObject)) {
-                deleteVectorData((VectorData) selectedObject);
+                deleteVectorData((VectorDataNode) selectedObject);
             }
         }
 
-        private void deleteVectorData(VectorData vectorData) {
-            String message = MessageFormat.format("Do you really want to delete the vector data ''{0}''?\nThis action cannot be undone.\n\n", vectorData.getName());
+        private void deleteVectorData(VectorDataNode vectorDataNode) {
+            String message = MessageFormat.format("Do you really want to delete the vector data ''{0}''?\nThis action cannot be undone.\n\n", vectorDataNode.getName());
             int status = VisatApp.getApp().showQuestionDialog("Delete Vector Data",
                                                               message, null);
             if (status == JOptionPane.YES_OPTION) {
-                Product product = vectorData.getProduct();
-                product.getVectorDataGroup().remove(vectorData);
+                Product product = vectorDataNode.getProduct();
+                product.getVectorDataGroup().remove(vectorDataNode);
             }
         }
 

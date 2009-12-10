@@ -18,7 +18,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * @see Product#getVectorDataGroup()
  * @since BEAM 4.7
  */
-public class VectorData extends ProductNode {
+public class VectorDataNode extends ProductNode {
 
     public static final String PROPERTY_NAME_FEATURE_COLLECTION = "featureCollection";
     
@@ -34,7 +34,7 @@ public class VectorData extends ProductNode {
      *
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
-    public VectorData(String name, SimpleFeatureType featureType) {
+    public VectorDataNode(String name, SimpleFeatureType featureType) {
         this(name, new DefaultFeatureCollection(name, featureType));
     }
 
@@ -46,7 +46,7 @@ public class VectorData extends ProductNode {
      *
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
-    public VectorData(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
+    public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
         super(name, "");
         this.featureType = featureCollection.getSchema();
         this.featureCollection = featureCollection;
@@ -60,7 +60,7 @@ public class VectorData extends ProductNode {
     }
 
     public void fireFeatureCollectionChanged() {
-        System.out.println("VectorData '" + getName() + "': fireProductNodeChanged");
+        System.out.println("VectorDataNode '" + getName() + "': fireProductNodeChanged");
         fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION);
     }
 

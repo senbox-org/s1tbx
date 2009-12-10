@@ -109,7 +109,7 @@ public interface ProductVisitor {
     /**
      * Visits a node group.
      *
-     * @param vectorData the group to be visited
+     * @param vectorDataNode the group to be visited
      */
-    void visit(VectorData vectorData);
+    void visit(VectorDataNode vectorDataNode);
 }

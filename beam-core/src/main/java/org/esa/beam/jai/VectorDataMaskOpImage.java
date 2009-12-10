@@ -6,7 +6,7 @@ import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Lineal;
 import com.vividsolutions.jts.geom.Polygonal;
 import com.vividsolutions.jts.geom.Puntal;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.LiteShape2;
@@ -32,20 +32,20 @@ public class VectorDataMaskOpImage extends SingleBandedOpImage {
 
     private static final byte FALSE = (byte) 0;
     private static final byte TRUE = (byte) 255;
-    private final VectorData vectorData;
+    private final VectorDataNode vectorDataNode;
 
-    public VectorDataMaskOpImage(VectorData vectorData, ResolutionLevel level) {
+    public VectorDataMaskOpImage(VectorDataNode vectorDataNode, ResolutionLevel level) {
         super(DataBuffer.TYPE_BYTE,
-              vectorData.getProduct().getSceneRasterWidth(),
-              vectorData.getProduct().getSceneRasterHeight(),
-              vectorData.getProduct().getPreferredTileSize(),
+              vectorDataNode.getProduct().getSceneRasterWidth(),
+              vectorDataNode.getProduct().getSceneRasterHeight(),
+              vectorDataNode.getProduct().getPreferredTileSize(),
               null,
               level);
-        this.vectorData = vectorData;
+        this.vectorDataNode = vectorDataNode;
     }
 
-    public VectorData getVectorData() {
-        return vectorData;
+    public VectorDataNode getVectorData() {
+        return vectorDataNode;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class VectorDataMaskOpImage extends SingleBandedOpImage {
         graphics2D.translate(-(tile.getMinX() + 0.5), -(tile.getMinY() + 0.5));
         graphics2D.setColor(Color.WHITE);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features = vectorData.getFeatureCollection();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> features = vectorDataNode.getFeatureCollection();
         FeatureIterator<SimpleFeature> featureIterator = features.features();
         AffineTransform2D transform = new AffineTransform2D(
                 AffineTransform.getScaleInstance(1.0 / getScale(), 1.0 / getScale()));

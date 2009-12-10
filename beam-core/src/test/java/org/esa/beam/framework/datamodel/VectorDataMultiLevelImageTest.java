@@ -20,13 +20,13 @@ import java.util.Arrays;
 public class VectorDataMultiLevelImageTest {
 
     private Product product;
-    private VectorData pyramids;
+    private VectorDataNode pyramids;
     private VectorDataMultiLevelImage image;
 
     @Before
     public void setup() {
         product = new Product("P", "T", 11, 11);
-        pyramids = new VectorData("pyramids", createPyramidFeatureType());
+        pyramids = new VectorDataNode("pyramids", createPyramidFeatureType());
         product.getVectorDataGroup().add(pyramids);
 
         image = new VectorDataMultiLevelImage(VectorDataMultiLevelImage.createMaskMultiLevelSource(pyramids), pyramids);

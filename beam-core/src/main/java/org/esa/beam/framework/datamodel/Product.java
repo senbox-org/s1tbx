@@ -149,7 +149,7 @@ public class Product extends ProductNode {
     private final MetadataElement metadataRoot;
     private final ProductNodeGroup<Band> bandGroup;
     private final ProductNodeGroup<TiePointGrid> tiePointGridGroup;
-    private final ProductNodeGroup<VectorData> vectorDataGroup;
+    private final ProductNodeGroup<VectorDataNode> vectorDataGroup;
     private final ProductNodeGroup<FlagCoding> flagCodingGroup;
     private final ProductNodeGroup<IndexCoding> indexCodingGroup;
     private final ProductNodeGroup<Mask> maskGroup;
@@ -227,30 +227,30 @@ public class Product extends ProductNode {
         this.bandGroup = new ProductNodeGroup<Band>(this, "bandGroup", true);
         this.tiePointGridGroup = new ProductNodeGroup<TiePointGrid>(this, "tiePointGridGroup", true);
         this.bitmaskDefGroup = new ProductNodeGroup<BitmaskDef>(this, "bitmaskDefGroup", true);
-        this.vectorDataGroup = new ProductNodeGroup<VectorData>(this, "vectorDataGroup", true) {
+        this.vectorDataGroup = new ProductNodeGroup<VectorDataNode>(this, "vectorDataGroup", true) {
             @Override
-            public boolean add(VectorData vectorData) {
-                final boolean added = super.add(vectorData);
+            public boolean add(VectorDataNode vectorDataNode) {
+                final boolean added = super.add(vectorDataNode);
                 if (added) {
-                    getMaskGroup().add(createMask(vectorData));
+                    getMaskGroup().add(createMask(vectorDataNode));
                 }
                 return added;
             }
 
             @Override
-            public void add(int index, VectorData vectorData) {
-                super.add(index, vectorData);
-                getMaskGroup().add(createMask(vectorData));
+            public void add(int index, VectorDataNode vectorDataNode) {
+                super.add(index, vectorDataNode);
+                getMaskGroup().add(createMask(vectorDataNode));
             }
 
             @Override
-            public boolean remove(VectorData vectorData) {
-                final boolean removed = super.remove(vectorData);
+            public boolean remove(VectorDataNode vectorDataNode) {
+                final boolean removed = super.remove(vectorDataNode);
                 if (removed) {
                     final Mask[] masks = getMaskGroup().toArray(new Mask[getMaskGroup().getNodeCount()]);
                     for (final Mask mask : masks) {
                         if (mask.getImageType() instanceof Mask.VectorDataType) {
-                            if (Mask.VectorDataType.getVectorData(mask) == vectorData) {
+                            if (Mask.VectorDataType.getVectorData(mask) == vectorDataNode) {
                                 getMaskGroup().remove(mask);
                                 break;
                             }
@@ -260,12 +260,12 @@ public class Product extends ProductNode {
                 return removed;
             }
 
-            private Mask createMask(VectorData vectorData) {
-                final Mask mask = new Mask(vectorData.getName(),
+            private Mask createMask(VectorDataNode vectorDataNode) {
+                final Mask mask = new Mask(vectorDataNode.getName(),
                                            getSceneRasterWidth(),
                                            getSceneRasterHeight(),
                                            new Mask.VectorDataType());
-                Mask.VectorDataType.setVectorData(mask, vectorData);
+                Mask.VectorDataType.setVectorData(mask, vectorDataNode);
                 return mask;
             }
         };
@@ -316,15 +316,15 @@ public class Product extends ProductNode {
         this.gcpGroup = new ProductNodeGroup<Pin>(this, "gcpGroup", true);
 
         // todo - review me, this is test code (nf 10.2009)
-        this.vectorDataGroup.add(new VectorData("pins", Pin.getPinFeatureType()));
+        this.vectorDataGroup.add(new VectorDataNode("pins", Pin.getPinFeatureType()));
         this.vectorDataGroup.add(
-                new VectorData("ground_control_points", createPlacemarkFeatureType("GcpType", "geoPoint")));
+                new VectorDataNode("ground_control_points", createPlacemarkFeatureType("GcpType", "geoPoint")));
 
         if ("true".equals(System.getProperty("beam.maskDev"))) {
             // todo - review me, this is test code (nf 10.2009)
-            VectorData testShapes1 = createTestShapes1("test_shapes_1");
+            VectorDataNode testShapes1 = createTestShapes1("test_shapes_1");
             this.vectorDataGroup.add(testShapes1);
-            VectorData testShapes2 = createTestShapes2("test_shapes_2");
+            VectorDataNode testShapes2 = createTestShapes2("test_shapes_2");
             this.vectorDataGroup.add(testShapes2);
 
             Mask testShapes1Mask = new Mask("test_shapes_1", sceneRasterWidth, sceneRasterHeight,
@@ -354,7 +354,7 @@ public class Product extends ProductNode {
         });
     }
 
-    private static VectorData createTestShapes1(String name) {
+    private static VectorDataNode createTestShapes1(String name) {
         SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
         DefaultGeographicCRS crs = DefaultGeographicCRS.WGS84;
         ftb.setCRS(crs);
@@ -381,10 +381,10 @@ public class Product extends ProductNode {
             fc.add(f);
         }
 
-        return new VectorData(name, fc);
+        return new VectorDataNode(name, fc);
     }
 
-    private static VectorData createTestShapes2(String name) {
+    private static VectorDataNode createTestShapes2(String name) {
         SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
         DefaultGeographicCRS crs = DefaultGeographicCRS.WGS84;
         ftb.setCRS(crs);
@@ -411,7 +411,7 @@ public class Product extends ProductNode {
             fc.add(f);
         }
 
-        return new VectorData(name, fc);
+        return new VectorDataNode(name, fc);
     }
 
     private static SimpleFeatureType createPlacemarkFeatureType(String typeName, String defaultGeometryName) {
@@ -1177,7 +1177,7 @@ public class Product extends ProductNode {
     //////////////////////////////////////////////////////////////////////////
     // Vector data support
 
-    public ProductNodeGroup<VectorData> getVectorDataGroup() {
+    public ProductNodeGroup<VectorDataNode> getVectorDataGroup() {
         return vectorDataGroup;
     }
 

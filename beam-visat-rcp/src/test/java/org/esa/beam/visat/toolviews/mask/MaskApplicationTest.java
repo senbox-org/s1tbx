@@ -1,14 +1,10 @@
 package org.esa.beam.visat.toolviews.mask;
 
 import com.jidesoft.utils.Lm;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VectorData;
 import org.esa.beam.framework.ui.GridLayout2;
 import org.junit.Test;
 
@@ -19,12 +15,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
 import java.util.Locale;
-
-import junit.framework.TestCase;
 
 public class MaskApplicationTest {
     private final Product product;

@@ -8,7 +8,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.glayer.ProductLayerContext;
 
 /**
@@ -23,12 +23,12 @@ public class VectorDataLayerType extends LayerType {
     public static final String VECTOR_DATA_LAYER_ID_PREFIX = "org.esa.beam.layers.vectorData";
     private static int id;
 
-    public static Layer createLayer(VectorData vectorData) {
+    public static Layer createLayer(VectorDataNode vectorDataNode) {
         final VectorDataLayerType layerType = LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
         final PropertySet configuration = layerType.createLayerConfig(null);
-        configuration.setValue(PROPERTY_NAME_VECTOR_DATA, vectorData.getName());
+        configuration.setValue(PROPERTY_NAME_VECTOR_DATA, vectorDataNode.getName());
 
-        return layerType.createLayer(vectorData, configuration);
+        return layerType.createLayer(vectorDataNode, configuration);
     }
 
     @Override
@@ -41,9 +41,9 @@ public class VectorDataLayerType extends LayerType {
         Assert.notNull(ctx, "ctx");
         final ProductLayerContext plc = (ProductLayerContext) ctx;
         final String vectorDataName = (String) configuration.getValue(PROPERTY_NAME_VECTOR_DATA);
-        final VectorData vectorData = plc.getProduct().getVectorDataGroup().get(vectorDataName);
+        final VectorDataNode vectorDataNode = plc.getProduct().getVectorDataGroup().get(vectorDataName);
 
-        return createLayer(vectorData, configuration);
+        return createLayer(vectorDataNode, configuration);
     }
 
     @Override
@@ -53,8 +53,8 @@ public class VectorDataLayerType extends LayerType {
         return configuration;
     }
 
-    private Layer createLayer(VectorData vectorData, PropertySet configuration) {
-        final VectorDataLayer layer = new VectorDataLayer(this, vectorData, configuration);
+    private Layer createLayer(VectorDataNode vectorDataNode, PropertySet configuration) {
+        final VectorDataLayer layer = new VectorDataLayer(this, vectorDataNode, configuration);
         layer.setId(VECTOR_DATA_LAYER_ID_PREFIX + (++id));
 
         return layer;

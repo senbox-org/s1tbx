@@ -19,7 +19,7 @@ import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.glayer.BitmaskCollectionLayer;
 import org.esa.beam.glayer.BitmaskLayerType;
 import org.esa.beam.glayer.GraticuleLayer;
@@ -345,10 +345,10 @@ public class ProductSceneImage implements ProductLayerContext {
     private synchronized Layer createVectorDataCollectionLayer() {
         final LayerType layerType = LayerTypeRegistry.getLayerType(VectorDataCollectionLayerType.class);
         final Layer collectionLayer = layerType.createLayer(this, layerType.createLayerConfig(this));
-        final ProductNodeGroup<VectorData> vectorDataGroup = getRaster().getProduct().getVectorDataGroup();
+        final ProductNodeGroup<VectorDataNode> vectorDataGroup = getRaster().getProduct().getVectorDataGroup();
 
-        for (final VectorData vectorData : vectorDataGroup.toArray(new VectorData[vectorDataGroup.getNodeCount()])) {
-            final Layer layer = VectorDataLayerType.createLayer(vectorData);
+        for (final VectorDataNode vectorDataNode : vectorDataGroup.toArray(new VectorDataNode[vectorDataGroup.getNodeCount()])) {
+            final Layer layer = VectorDataLayerType.createLayer(vectorDataNode);
             collectionLayer.getChildren().add(layer);
         }
 

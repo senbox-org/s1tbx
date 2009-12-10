@@ -369,7 +369,7 @@ public class Mask extends Band {
         public PropertyContainer createImageConfig() {
 
             PropertyDescriptor vectorDataDescriptor = new PropertyDescriptor(PROPERTY_NAME_VECTOR_DATA,
-                                                                             VectorData.class);
+                                                                             VectorDataNode.class);
             vectorDataDescriptor.setNotNull(true);
 
             PropertyContainer imageConfig = super.createImageConfig();
@@ -378,12 +378,12 @@ public class Mask extends Band {
             return imageConfig;
         }
 
-        public static VectorData getVectorData(Mask mask) {
-            return (VectorData) mask.getImageConfig().getValue(PROPERTY_NAME_VECTOR_DATA);
+        public static VectorDataNode getVectorData(Mask mask) {
+            return (VectorDataNode) mask.getImageConfig().getValue(PROPERTY_NAME_VECTOR_DATA);
         }
 
-        public static void setVectorData(Mask mask, VectorData vectorData) {
-            mask.getImageConfig().setValue(PROPERTY_NAME_VECTOR_DATA, vectorData);
+        public static void setVectorData(Mask mask, VectorDataNode vectorDataNode) {
+            mask.getImageConfig().setValue(PROPERTY_NAME_VECTOR_DATA, vectorDataNode);
         }
     }
 

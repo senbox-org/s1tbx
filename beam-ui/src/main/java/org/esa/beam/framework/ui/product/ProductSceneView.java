@@ -37,7 +37,7 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.PixelInfoFactory;
@@ -279,22 +279,22 @@ public class ProductSceneView extends BasicView
         ///////////////////////////////
         // TEST TEST TEST
 
-        VectorData vectorData = getProduct().getVectorDataGroup().get("_figures");
-        if (vectorData == null) {
+        VectorDataNode vectorDataNode = getProduct().getVectorDataGroup().get("_figures");
+        if (vectorDataNode == null) {
             GeoCoding geoCoding = getRaster().getGeoCoding();
             CoordinateReferenceSystem crs = null;
             if (geoCoding != null) {
                 crs = geoCoding.getMapCRS();
             }
-            vectorData = new VectorData("_figures", SimpleFeatureFigureFactory.createSimpleFeatureType("_figures",
+            vectorDataNode = new VectorDataNode("_figures", SimpleFeatureFigureFactory.createSimpleFeatureType("_figures",
                                                                                                        Geometry.class,
                                                                                                        crs));
-            getProduct().getVectorDataGroup().add(vectorData);
+            getProduct().getVectorDataGroup().add(vectorDataNode);
         }
 
         int index = getRootLayer().getChildIndex("_figures");
         if (index == -1) {
-            getRootLayer().getChildren().add(0, new VectorDataLayer(getSceneImage(), vectorData));
+            getRootLayer().getChildren().add(0, new VectorDataLayer(getSceneImage(), vectorDataNode));
         }
 
         //new SimpleFeatureFigureFactory()
@@ -1359,7 +1359,7 @@ public class ProductSceneView extends BasicView
 
     public static class MyFigureFactory implements FigureFactory {
 
-        private VectorData vectorData;
+        private VectorDataNode vectorDataNode;
         private AwtGeomToJtsGeomConverter toJtsGeom;
         private long currentFeatureId;
 
@@ -1368,12 +1368,12 @@ public class ProductSceneView extends BasicView
             this.currentFeatureId = System.nanoTime();
         }
 
-        public VectorData getVectorData() {
-            return vectorData;
+        public VectorDataNode getVectorData() {
+            return vectorDataNode;
         }
 
-        public void setVectorData(VectorData vectorData) {
-            this.vectorData = vectorData;
+        public void setVectorData(VectorDataNode vectorDataNode) {
+            this.vectorDataNode = vectorDataNode;
         }
 
         @Override
@@ -1402,7 +1402,7 @@ public class ProductSceneView extends BasicView
         }
 
         private SimpleFeature createSimpleFeature(Geometry geometry) {
-            SimpleFeatureType ft = vectorData.getFeatureType();
+            SimpleFeatureType ft = vectorDataNode.getFeatureType();
             SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(ft);
             sfb.set(ft.getGeometryDescriptor().getLocalName(), geometry);
             return sfb.buildFeature(createFeatureId(ft));

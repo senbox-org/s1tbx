@@ -83,8 +83,8 @@ public class LinkedListProductVisitor extends ProductVisitorAdapter {
     }
 
     @Override
-    public void visit(VectorData data) {
-        visitedList.add(data.getName()); 
+    public void visit(VectorDataNode dataNode) {
+        visitedList.add(dataNode.getName());
     }
 
     public List<String> getVisitedList() {

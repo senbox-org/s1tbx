@@ -30,7 +30,7 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -489,11 +489,11 @@ public class DimapProductWriter extends AbstractProductWriter {
     
     private void writeVectorData() {
         Product product = getSourceProduct();
-        ProductNodeGroup<VectorData> vectorDataGroup = product.getVectorDataGroup();
+        ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
         boolean hasVectorData = false;
         for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
-            VectorData vectorData = vectorDataGroup.get(i);
-            String name = vectorData.getName();
+            VectorDataNode vectorDataNode = vectorDataGroup.get(i);
+            String name = vectorDataNode.getName();
             if ("pins".equals(name) || "ground_control_points".equals(name)) {
                 hasVectorData = true;
                 break;
@@ -510,26 +510,26 @@ public class DimapProductWriter extends AbstractProductWriter {
                 vectorDataDir.mkdirs();
             }
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
-                VectorData vectorData = vectorDataGroup.get(i);
-                String name = vectorData.getName();
+                VectorDataNode vectorDataNode = vectorDataGroup.get(i);
+                String name = vectorDataNode.getName();
                 if (!"pins".equals(name) && !"ground_control_points".equals(name)) {
-                    writeVectorData(vectorDataDir, vectorData);
+                    writeVectorData(vectorDataDir, vectorDataNode);
                 }
             }
         }
     }
     
-    private void writeVectorData(File vectorDataDir, VectorData vectorData) {
+    private void writeVectorData(File vectorDataDir, VectorDataNode vectorDataNode) {
         DefaultTransaction transaction = null;
         try {
-            DataStore dataStore = new PropertyDataStore(vectorDataDir, vectorData.getName());
-            SimpleFeatureType simpleFeatureType = vectorData.getFeatureType();
+            DataStore dataStore = new PropertyDataStore(vectorDataDir, vectorDataNode.getName());
+            SimpleFeatureType simpleFeatureType = vectorDataNode.getFeatureType();
             dataStore.createSchema(simpleFeatureType);
             FeatureStore<SimpleFeatureType, SimpleFeature> featureSource = 
                 (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore.getFeatureSource(simpleFeatureType.getName());
-            transaction = new DefaultTransaction(vectorData.getName());
+            transaction = new DefaultTransaction(vectorDataNode.getName());
             featureSource.setTransaction(transaction);
-            featureSource.addFeatures(vectorData.getFeatureCollection());
+            featureSource.addFeatures(vectorDataNode.getFeatureCollection());
             transaction.commit();
         } catch (IOException e) {
             BeamLogManager.getSystemLogger().throwing("DimapProductWriter", "writeVectorData", e);

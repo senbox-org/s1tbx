@@ -1,3 +1,9 @@
+VectorDataNode:
+===============
+When reprojecting (subsetting?) products, we must also transform geometry and align CRS of feature collections in
+vector data nodes!!!
+Pins/GCPs need special treatment!
+
 CrsGeoCoding:
 =============
 Stupid name because GeoCoding *has* a CRS, it isn't one. CrsGeoCoding is the GeoTools replacement for MapGeoCoding!!

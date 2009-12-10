@@ -9,7 +9,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 public class VectorDataGroupTest {
 
-    private ProductNodeGroup<VectorData> vectorDataGroup;
+    private ProductNodeGroup<VectorDataNode> vectorDataGroup;
     private ProductNodeGroup<Mask> maskGroup;
 
     @Before
@@ -28,7 +28,7 @@ public class VectorDataGroupTest {
     @Test
     public void maskGroupIsCoupledWithVectorDataGroup() {
         final SimpleFeatureType featureType = getFeatureType();
-        final VectorData v = new VectorData("V", featureType);
+        final VectorDataNode v = new VectorDataNode("V", featureType);
 
         vectorDataGroup.add(v);
         assertEquals(3, vectorDataGroup.getNodeCount());
@@ -36,7 +36,7 @@ public class VectorDataGroupTest {
         assertSame(v, vectorDataGroup.get(2));
         assertTrue(maskGroup.contains(v.getName()));
 
-        final VectorData u = new VectorData("U", featureType);
+        final VectorDataNode u = new VectorDataNode("U", featureType);
         vectorDataGroup.add(2, u);
         assertEquals(4, vectorDataGroup.getNodeCount());
         assertEquals(4, maskGroup.getNodeCount());

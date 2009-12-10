@@ -14,13 +14,13 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 
-public class VectorDataTest {
+public class VectorDataNodeTest {
     @Test
     public void testVectorData() throws TransformException, FactoryException {
         SimpleFeatureType pinType = createPlacemarkFeatureType("PinType", "pixelPoint");
         SimpleFeatureType gcpType = createPlacemarkFeatureType("GcpType", "geoPoint");
-        testVectorData(new VectorData("Pins", pinType), "Pins", pinType);
-        testVectorData(new VectorData("GCPs", gcpType), "GCPs", gcpType);
+        testVectorData(new VectorDataNode("Pins", pinType), "Pins", pinType);
+        testVectorData(new VectorDataNode("GCPs", gcpType), "GCPs", gcpType);
     }
 
     @Test
@@ -31,8 +31,8 @@ public class VectorDataTest {
         SimpleFeatureType pinType = createPlacemarkFeatureType("PinType", "pixelPoint");
         SimpleFeatureType gcpType = createPlacemarkFeatureType("GcpType", "geoPoint");
 
-        p.getVectorDataGroup().add(new VectorData("Pins2", pinType));
-        p.getVectorDataGroup().add(new VectorData("GCPs2", gcpType));
+        p.getVectorDataGroup().add(new VectorDataNode("Pins2", pinType));
+        p.getVectorDataGroup().add(new VectorDataNode("GCPs2", gcpType));
         assertEquals(4, p.getVectorDataGroup().getNodeCount());
 
         testVectorData(p, "Pins2", pinType);
@@ -40,16 +40,16 @@ public class VectorDataTest {
     }
 
     private static void testVectorData(Product p, String expectedName, SimpleFeatureType expectedType) {
-        VectorData pins = p.getVectorDataGroup().get(expectedName);
+        VectorDataNode pins = p.getVectorDataGroup().get(expectedName);
         assertNotNull(pins);
         testVectorData(pins, expectedName, expectedType);
     }
 
-    private static void testVectorData(VectorData vectorData, String expectedName, SimpleFeatureType expectedType) {
-        assertEquals(expectedName, vectorData.getName());
-        assertNotNull(vectorData.getFeatureCollection());
-        assertSame(expectedType, vectorData.getFeatureType());
-        assertSame(expectedType, vectorData.getFeatureCollection().getSchema());
+    private static void testVectorData(VectorDataNode vectorDataNode, String expectedName, SimpleFeatureType expectedType) {
+        assertEquals(expectedName, vectorDataNode.getName());
+        assertNotNull(vectorDataNode.getFeatureCollection());
+        assertSame(expectedType, vectorDataNode.getFeatureType());
+        assertSame(expectedType, vectorDataNode.getFeatureCollection().getSchema());
     }
 
     private static SimpleFeatureType createPlacemarkFeatureType(String typeName, String defaultGeometryName) {

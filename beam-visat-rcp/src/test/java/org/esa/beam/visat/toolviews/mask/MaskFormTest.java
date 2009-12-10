@@ -6,7 +6,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.VectorData;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -83,14 +83,14 @@ public class MaskFormTest extends TestCase {
         }
 
         for (int i = 0; i < product.getVectorDataGroup().getNodeCount(); i++) {
-            VectorData vectorData = product.getVectorDataGroup().get(i);
-            Mask mask = new Mask(vectorData.getName(),
+            VectorDataNode vectorDataNode = product.getVectorDataGroup().get(i);
+            Mask mask = new Mask(vectorDataNode.getName(),
                                  product.getSceneRasterWidth(),
                                  product.getSceneRasterHeight(),
                                  new Mask.VectorDataType());
             mask.getImageConfig().setValue("color", colors[i % colors.length].brighter());
             mask.getImageConfig().setValue("transparency", 0.1);
-            mask.getImageConfig().setValue("vectorData", vectorData);
+            mask.getImageConfig().setValue("vectorData", vectorDataNode);
             product.getMaskGroup().add(mask);
         }
         return product;
