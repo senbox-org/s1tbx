@@ -37,9 +37,9 @@ public class VectorDataLayerType extends LayerType {
     @Override
     public Layer createLayer(LayerContext ctx, PropertyContainer configuration) {
         Assert.notNull(ctx, "ctx");
-        final ProductSceneImage sceneImage = (ProductSceneImage) ctx;
+        final ProductSceneView sceneView = (ProductSceneView) ctx;
         final String vectorDataName = (String) configuration.getValue(PROPERTY_NAME_VECTOR_DATA);
-        final VectorData vectorData = sceneImage.getRaster().getProduct().getVectorDataGroup().get(vectorDataName);
+        final VectorData vectorData = sceneView.getRaster().getProduct().getVectorDataGroup().get(vectorDataName);
 
         return createLayer(vectorData, configuration);
     }
