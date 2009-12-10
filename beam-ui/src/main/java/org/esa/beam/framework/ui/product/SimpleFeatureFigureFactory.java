@@ -96,12 +96,12 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
         return figureStyle;
     }
 
-    public static SimpleFeatureType createSimpleFeatureType(String typeName, Class<?> geometryType) {
+    public static SimpleFeatureType createSimpleFeatureType(String typeName, Class<? extends Geometry> geometryType) {
         return createSimpleFeatureType(typeName, geometryType, DefaultGeographicCRS.WGS84);
     }
 
     public static SimpleFeatureType createSimpleFeatureType(String typeName,
-                                                            Class<?> geometryType,
+                                                            Class<? extends Geometry> geometryType,
                                                             CoordinateReferenceSystem crs) {
         SimpleFeatureTypeBuilder sftb = new SimpleFeatureTypeBuilder();
         sftb.setCRS(crs);
