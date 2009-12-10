@@ -37,7 +37,7 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
 
     @Override
     public PointFigure createPunctualFigure(Point2D point, FigureStyle style) {
-        return new SimpleFeaturePointFigure(createSimpleFeature(toJtsGeom.createPoint(point)), style);
+        return new SimpleFeaturePointFigure(createSimpleFeature(toJtsGeom.createPoint(point), style), style);
     }
 
     @Override
@@ -73,17 +73,18 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
     }
 
     public PointFigure createPointFigure(Point geometry, FigureStyle style) {
-        return new SimpleFeaturePointFigure(createSimpleFeature(geometry), style);
+        return new SimpleFeaturePointFigure(createSimpleFeature(geometry, style), style);
     }
 
     public ShapeFigure createShapeFigure(Geometry geometry, FigureStyle style) {
-        return new SimpleFeatureShapeFigure(createSimpleFeature(geometry), style);
+        return new SimpleFeatureShapeFigure(createSimpleFeature(geometry, style), style);
     }
 
-    public SimpleFeature createSimpleFeature(Geometry geometry) {
+    public SimpleFeature createSimpleFeature(Geometry geometry, FigureStyle style) {
         SimpleFeatureType ft = (SimpleFeatureType) featureCollection.getSchema();
         SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(ft);
         sfb.set("geom", geometry);
+        sfb.set("style", style.toCssString());
         return sfb.buildFeature(String.valueOf(currentFeatureId++));
     }
 
@@ -106,7 +107,7 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
         sftb.setCRS(crs);
         sftb.setName(typeName);
         sftb.add("geom", geometryType);
-        sftb.add("css_style", String.class);
+        sftb.add("style", String.class);
         sftb.setDefaultGeometry("geom");
         return sftb.buildFeatureType();
     }
