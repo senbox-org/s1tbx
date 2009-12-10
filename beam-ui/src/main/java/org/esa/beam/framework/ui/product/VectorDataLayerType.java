@@ -19,7 +19,7 @@ public class VectorDataLayerType extends LayerType {
 
     public static final String PROPERTY_NAME_VECTOR_DATA = "vectorData";
     public static final String VECTOR_DATA_LAYER_ID_PREFIX = "org.esa.beam.layers.vectorData";
-    public static int id;
+    private static int id;
 
     public static Layer createLayer(VectorData vectorData) {
         final VectorDataLayerType layerType = LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
