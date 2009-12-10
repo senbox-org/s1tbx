@@ -58,19 +58,18 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
     }
 
     public Figure createFigure(SimpleFeature simpleFeature) {
-        Object o = simpleFeature.getDefaultGeometry();
-        Object attribute = simpleFeature.getAttribute("style");
-        FigureStyle figureStyle = new DefaultFigureStyle();
-        if (attribute instanceof String) {
-            String css = (String) attribute;
+        final Object geometry = simpleFeature.getDefaultGeometry();
+        final Object styleAttribute = simpleFeature.getAttribute("style");
+        final FigureStyle figureStyle = new DefaultFigureStyle();
+        if (styleAttribute instanceof String) {
+            String css = (String) styleAttribute;
             figureStyle.fromCssString(css);
         }
-        if (o instanceof Point) {
+        if (geometry instanceof Point) {
             return new SimpleFeaturePointFigure(simpleFeature, figureStyle);
         } else {
             return new SimpleFeatureShapeFigure(simpleFeature, figureStyle);
         }
-
     }
 
     public PointFigure createPointFigure(Point geometry, FigureStyle style) {
@@ -97,13 +96,13 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
         return figureStyle;
     }
 
-    public static  SimpleFeatureType createSimpleFeatureType(String typeName, Class<?> geometryType) {
+    public static SimpleFeatureType createSimpleFeatureType(String typeName, Class<?> geometryType) {
         return createSimpleFeatureType(typeName, geometryType, DefaultGeographicCRS.WGS84);
     }
 
-    public static  SimpleFeatureType createSimpleFeatureType(String typeName, 
-                                                      Class<?> geometryType,
-                                                      CoordinateReferenceSystem crs) {
+    public static SimpleFeatureType createSimpleFeatureType(String typeName,
+                                                            Class<?> geometryType,
+                                                            CoordinateReferenceSystem crs) {
         SimpleFeatureTypeBuilder sftb = new SimpleFeatureTypeBuilder();
         sftb.setCRS(crs);
         sftb.setName(typeName);
