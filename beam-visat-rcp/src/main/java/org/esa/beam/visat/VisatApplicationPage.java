@@ -128,9 +128,10 @@ public class VisatApplicationPage extends AbstractApplicationPage {
 
     @Override
     protected void setActiveComponent() {
-        ToolView toolView = null;
         String activeFrameKey = dockingManager.getActiveFrameKey();
         System.out.println("setActiveComponent: " + activeFrameKey);
+
+        ToolView toolView = null;
         if (activeFrameKey != null) {
             DockableFrame activeFrame = dockingManager.getFrame(activeFrameKey);
             if (activeFrame != null) {
