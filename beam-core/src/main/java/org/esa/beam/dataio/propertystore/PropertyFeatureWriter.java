@@ -111,7 +111,7 @@ class PropertyFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFe
                 return live;
             }
             else {
-                fid = Long.toString(System.nanoTime())+"-"+Long.toString(fidRandom.nextLong());
+                fid = Long.toString(System.nanoTime())+"."+Long.toString(Math.abs(fidRandom.nextLong()));
                 Object values[] = DataUtilities.defaultValues( type );
 
                 origional = null;                                            
