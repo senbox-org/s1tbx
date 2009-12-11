@@ -55,7 +55,7 @@ Figures:
 * Move-Handle bug: many handles are created while dragging
   ==> PRE, MP, DONE
 * Layer style editor doesn't work anymore
-  ==> PRE, MP, OPEN
+  ==> FINAL, MP, OPEN
 * New edit menu:
   - Test Cut/Copy/Paste!
   - What about Undo/Redo?!? (should work!)
