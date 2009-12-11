@@ -32,16 +32,20 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.data.DataStore;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.crs.ForceCoordinateSystemFeatureResults;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.SchemaException;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -147,8 +151,8 @@ public class DimapProductReader extends AbstractProductReader {
         bindBandsToFiles(dom);
         if (product == null) {
             initGeoCodings(dom);
+            readVectorData();
         }
-        readVectorData();
         this.product.setProductReader(this);
         this.product.setFileLocation(inputFile);
         this.product.setModified(false);
@@ -381,15 +385,20 @@ public class DimapProductReader extends AbstractProductReader {
                 if (name.endsWith(propertiesSuffix)) {
                     name = name.substring(0, name.length() - propertiesSuffix.length());
                 }
-                DataStore dataStore = new PropertyDataStore(vectorDataDir, name);
                 FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
                 try {
+                    DataStore dataStore = new PropertyDataStore(vectorDataDir, name);
                     featureSource = dataStore.getFeatureSource(name);
                     FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
-                    VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
+                    CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(product.getGeoCoding());
+                    FeatureCollection<SimpleFeatureType, SimpleFeature> forcesFeatureCollection = new ForceCoordinateSystemFeatureResults( featureCollection, modelCrs);
+                    VectorDataNode vectorDataNode = new VectorDataNode(name, forcesFeatureCollection);
                     product.getVectorDataGroup().add(vectorDataNode);
                 } catch (IOException e) {
                     BeamLogManager.getSystemLogger().throwing("DimapProductReader", "readVectorData", e);
+                } catch (SchemaException e) {
+                    BeamLogManager.getSystemLogger().throwing("DimapProductReader", "readVectorData", e);
+                    e.printStackTrace();
                 }
             }
         }

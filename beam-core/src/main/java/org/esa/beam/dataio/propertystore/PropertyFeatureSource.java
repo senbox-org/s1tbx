@@ -32,8 +32,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 
 class PropertyFeatureSource extends AbstractFeatureLocking {
-
-
     String typeName;
     SimpleFeatureType featureType;
     PropertyDataStore store;
@@ -60,23 +58,29 @@ class PropertyFeatureSource extends AbstractFeatureLocking {
             }
         });        
     }
+    
+    @Override
     public DataStore getDataStore() {
         return store;
     }
 
+    @Override
     public void addFeatureListener(FeatureListener listener) {
         store.listenerManager.addFeatureListener(this, listener);
     }
 
+    @Override
     public void removeFeatureListener(
         FeatureListener listener) {
         store.listenerManager.removeFeatureListener(this, listener);
     }
 
+    @Override
     public SimpleFeatureType getSchema() {
         return featureType;
     }
     
+    @Override
     public int getCount(Query query) {
         if( Filter.INCLUDE == query.getFilter() && getTransaction() == Transaction.AUTO_COMMIT ){
             File file = new File( store.directory, typeName+".properties" );            
@@ -89,6 +93,7 @@ class PropertyFeatureSource extends AbstractFeatureLocking {
         }
         return -1;
     }
+    
     private int countFile(File file){
         try {
             LineNumberReader reader = new LineNumberReader( new FileReader( file ) );
@@ -99,6 +104,8 @@ class PropertyFeatureSource extends AbstractFeatureLocking {
             return -1;
         }
     }
+    
+    @Override
     public ReferencedEnvelope getBounds() {
         File file = new File( store.directory, typeName+".properties" );                
         if( cacheBounds != null && file.lastModified() == cacheTimestamp ){            
@@ -115,5 +122,4 @@ class PropertyFeatureSource extends AbstractFeatureLocking {
         // bounds are unavailable!
         return null;
     }
-
 }

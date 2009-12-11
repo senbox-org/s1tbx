@@ -494,7 +494,7 @@ public class DimapProductWriter extends AbstractProductWriter {
         for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
             VectorDataNode vectorDataNode = vectorDataGroup.get(i);
             String name = vectorDataNode.getName();
-            if ("pins".equals(name) || "ground_control_points".equals(name)) {
+            if (!"pins".equals(name) && !"ground_control_points".equals(name)) {
                 hasVectorData = true;
                 break;
             }
@@ -522,12 +522,13 @@ public class DimapProductWriter extends AbstractProductWriter {
     private void writeVectorData(File vectorDataDir, VectorDataNode vectorDataNode) {
         DefaultTransaction transaction = null;
         try {
-            DataStore dataStore = new PropertyDataStore(vectorDataDir, vectorDataNode.getName());
+            String name = vectorDataNode.getName();
+            DataStore dataStore = new PropertyDataStore(vectorDataDir, name);
             SimpleFeatureType simpleFeatureType = vectorDataNode.getFeatureType();
             dataStore.createSchema(simpleFeatureType);
             FeatureStore<SimpleFeatureType, SimpleFeature> featureSource = 
-                (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore.getFeatureSource(simpleFeatureType.getName());
-            transaction = new DefaultTransaction(vectorDataNode.getName());
+                (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore.getFeatureSource(name);
+            transaction = new DefaultTransaction("");
             featureSource.setTransaction(transaction);
             featureSource.addFeatures(vectorDataNode.getFeatureCollection());
             transaction.commit();

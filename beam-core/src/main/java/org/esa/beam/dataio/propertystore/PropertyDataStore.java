@@ -48,21 +48,18 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/property/src/main/java/org/geotools/data/property/PropertyDataStore.java $
  */
 public class PropertyDataStore extends AbstractDataStore {
-    protected File directory;
-    protected String namespaceURI;
-    public PropertyDataStore(File dir) {
-        this( dir, null );
-    }
-    public PropertyDataStore(File dir, String namespaceURI) {
+    final File directory;
+    final String typeName;
+    
+    public PropertyDataStore(File dir, String typeName) {
         if( !dir.isDirectory()){
             throw new IllegalArgumentException( dir +" is not a directory");
         }
-        if ( namespaceURI == null ) {
-            namespaceURI = dir.getName();
-        }
-        directory = dir;
-        this.namespaceURI = namespaceURI;
+        this.directory = dir;
+        this.typeName = typeName;
     }
+    
+    @Override
     public ServiceInfo getInfo() {
         DefaultServiceInfo info = new DefaultServiceInfo();
         info.setDescription("Features from Directory "+directory );
@@ -74,10 +71,8 @@ public class PropertyDataStore extends AbstractDataStore {
         }
         return info;
     }
-    
-    public void setNamespaceURI(String namespaceURI) {
-        this.namespaceURI = namespaceURI;
-    }
+ 
+    @Override
     public String[] getTypeNames() {
         String list[] = directory.list( new FilenameFilter(){
             public boolean accept(File dir, String name) {
@@ -89,21 +84,20 @@ public class PropertyDataStore extends AbstractDataStore {
         }
         return list;
     }
-    // START SNIPPET: getSchema
+
     @Override
     public SimpleFeatureType getSchema(String typeName) throws IOException {
         //look for type name
-        String typeSpec = property( typeName, "_");
+        String typeSpec = property("_");
         try {
-            return DataUtilities.createType( namespaceURI+"."+typeName,typeSpec );
+            return DataUtilities.createType(typeName,typeSpec );
         } catch (SchemaException e) {
             e.printStackTrace();
             throw new DataSourceException( typeName+" schema not available", e);
         }
     }
-    // END SNIPPET: getSchema
 
-    private String property( String typeName, String key ) throws IOException {
+    private String property(String key ) throws IOException {
         File file = new File( directory, typeName+".properties");
         BufferedReader reader = new BufferedReader( new FileReader( file ) );
         try {        
@@ -118,23 +112,30 @@ public class PropertyDataStore extends AbstractDataStore {
         }        
         return null;        
     }
+    
+    @Override
     protected  FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader(String typeName) throws IOException {
         return new PropertyFeatureReader( directory, typeName );        
     }
+    
+    @Override
     protected FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(String typeName) throws IOException {
         return new PropertyFeatureWriter( this, typeName );
     }
+    
+    @Override
     public void createSchema(SimpleFeatureType featureType) throws IOException {
-        String typeName = featureType.getTypeName();
         File file = new File( directory, typeName+".properties");
         BufferedWriter writer = new BufferedWriter( new FileWriter( file ) );
         writer.write("_=");
         writer.write( DataUtilities.spec( featureType ) );
         writer.close();
     }
+    
     //
     // Access to Optimizations
     //
+    @Override
     public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(final String typeName) throws IOException {
         return new PropertyFeatureSource( this, typeName );
     }        

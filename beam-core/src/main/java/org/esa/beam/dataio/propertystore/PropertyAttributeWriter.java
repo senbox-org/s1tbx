@@ -49,31 +49,41 @@ import com.vividsolutions.jts.geom.Geometry;
  * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/property/src/main/java/org/geotools/data/property/PropertyAttributeWriter.java $
  */
 class PropertyAttributeWriter implements AttributeWriter {
-    BufferedWriter writer;    
-    SimpleFeatureType type;    
-    public PropertyAttributeWriter( File file, SimpleFeatureType featureType ) throws IOException {
+    private BufferedWriter writer;    
+    private SimpleFeatureType type;
+    
+    PropertyAttributeWriter( File file, SimpleFeatureType featureType ) throws IOException {
         writer = new BufferedWriter( new FileWriter( file ) );
         type = featureType;                
         writer.write( "_=" );
         writer.write( DataUtilities.spec( type ) );                                        
     }
+    
+    @Override
     public int getAttributeCount() {
         return type.getAttributeCount();
     }
+    
+    @Override
     public AttributeDescriptor getAttributeType(int index) throws ArrayIndexOutOfBoundsException {
         return type.getDescriptor(index);
     }
+    
+    @Override
     public boolean hasNext() throws IOException {
         return false;
-    }    
+    }
+    
+    @Override
     public void next() throws IOException {
         if( writer == null){
             throw new IOException("Writer has been closed");
         }
         writer.newLine();
         writer.flush();
-    }            
-    public void echoLine( String line ) throws IOException{
+    }
+    
+    void echoLine( String line ) throws IOException{
         if( writer == null ){
             throw new IOException("Writer has been closed");
         }
@@ -82,12 +92,15 @@ class PropertyAttributeWriter implements AttributeWriter {
         }
         writer.write( line );
     }
-    public void writeFeatureID( String fid ) throws IOException{
+    
+    void writeFeatureID( String fid ) throws IOException{
         if( writer == null){
             throw new IOException("Writer has been closed");
         }        
         writer.write( fid );                
     }
+    
+    @Override
     public void write(int position, Object attribute) throws IOException {
         if( writer == null){
             throw new IOException("Writer has been closed");
@@ -103,6 +116,8 @@ class PropertyAttributeWriter implements AttributeWriter {
             writer.write( attribute.toString() );
         }
     }
+    
+    @Override
     public void close() throws IOException {
         if( writer == null){
             throw new IOException("Writer has already been closed");            

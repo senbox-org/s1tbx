@@ -42,8 +42,9 @@ class PropertyFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFe
     PropertyAttributeWriter writer;
     
     SimpleFeature origional = null;
-    SimpleFeature live = null;    
-    public PropertyFeatureWriter( PropertyDataStore dataStore, String typeName ) throws IOException {
+    SimpleFeature live = null;
+    
+    PropertyFeatureWriter( PropertyDataStore dataStore, String typeName ) throws IOException {
         store = dataStore;
         File dir = store.directory;        
         read = new File( dir, typeName+".properties");
@@ -52,9 +53,13 @@ class PropertyFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFe
         reader = new PropertyAttributeReader( read );
         writer = new PropertyAttributeWriter( write, reader.type );
     }    
+    
+    @Override
     public SimpleFeatureType getFeatureType() {
         return reader.type;
     }
+    
+    @Override
     public boolean hasNext() throws IOException {
         if( writer == null) {
             throw new IOException( "Writer has been closed" );
@@ -69,6 +74,7 @@ class PropertyFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFe
         }
         return reader.hasNext();
     }
+    
     private void writeImplementation( SimpleFeature f ) throws IOException{
         writer.next();
         writer.writeFeatureID( f.getID() );        
@@ -79,6 +85,8 @@ class PropertyFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFe
         		writer.write( i, f.getAttribute( i ));
         }   
     }
+    
+    @Override
     public SimpleFeature next() throws IOException {
         if( writer == null ) {
             throw new IOException( "Writer has been closed" );
@@ -112,6 +120,8 @@ class PropertyFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFe
             throw new DataSourceException( message, e );
         }
     }       
+    
+    @Override
     public void write() throws IOException {
         if( live == null){
             throw new IOException( "No current feature to write");            
@@ -136,6 +146,8 @@ class PropertyFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFe
         origional = null;
         live = null;
     }
+    
+    @Override
     public void remove() throws IOException {
         if( live == null){
             throw new IOException( "No current feature to remove");
@@ -146,7 +158,9 @@ class PropertyFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFe
         }                     
         origional = null; 
         live = null; // prevent live and remove from being written out       
-    }    
+    }
+    
+    @Override
     public void close() throws IOException {
         if( writer == null ){
             throw new IOException( "writer already closed");            
