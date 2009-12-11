@@ -25,12 +25,11 @@ VectorDataNode:
   ==>  PRE, NF, DONE partly, see TODOs in code
 * Still need to transfer model-CRS into feature types.
   What about the image-CRS in Property DataStore? What is the EPSG code?!?!
-  ==> PRE, MZ, OPEN
+  ==> PRE, MZ, DONE
 * When reprojecting (subsetting?) products, we must also transform geometry and
   align CRS of feature collections in vector data nodes!!! Use FeatureCollectionClipper
-  in ShapefileLayer code. Pins/GCPs need special
-  treatment!
-  ==> PRE, MZ/*, OPEN
+  in ShapefileLayer code. Pins/GCPs need special treatment!
+  ==> PRE, MZ, DONE
 * Import shape/shapefile must create or insert into vector data node
   Check if GeoTools shapefile DataStore is already used.
   ==> PRE, MZ/*, OPEN

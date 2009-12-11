@@ -336,8 +336,10 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         if (!isMetadataIgnored()) {
             addGeoCodingToProduct(product);
         }
+        ProductUtils.copyVectorData(getSourceProduct(), product);
         ProductUtils.copyMasks(getSourceProduct(), product);
         ProductUtils.copyOverlayMasks(getSourceProduct(), product);
+        ProductUtils.copyRoiMasks(getSourceProduct(), product);
         setSceneRasterStartAndStopTime(product);
         addSubsetInfoMetadata(product);
         addPlacemarks(product);
