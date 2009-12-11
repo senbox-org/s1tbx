@@ -5,52 +5,52 @@ Masks:
   It is only used for bitmask overlay, no mask management.
   ==> FINAL, ?, OPEN
 * Mask manager shall test for dependencies before deleting
-  ==> RC, NF, OPEN
+  ==> PRE, NF, OPEN
 * Remove masks from product tree
-  ==> RC, NF, OPEN
+  ==> PRE, NF, OPEN
 * Add tool button for new VectorDataNode.
-  ==> RC, NF, OPEN
+  ==> PRE, NF, OPEN
 
 VectorDataNode:
 ===============
 * Need action to create new VectorDataNode.
   ==> DONE
 * New VectorDataNode shall be selected in product tree
-  ==> RC, NF, OPEN
+  ==> PRE, NF, OPEN
 * Need action to delete existing VectorDataNode.
-  ==>  RC, NF, DONE partly, see TODOs in code
+  ==>  PRE, NF, DONE partly, see TODOs in code
 * Still need to transfer model-CRS into feature types.
   What about the image-CRS in Property DataStore? What is the EPSG code?!?!
-  ==> RC, MZ, OPEN
+  ==> PRE, MZ, OPEN
 * When reprojecting (subsetting?) products, we must also transform geometry and
   align CRS of feature collections in vector data nodes!!! Use FeatureCollectionClipper
   in ShapefileLayer code. Pins/GCPs need special
   treatment!
-  ==> RC, MZ/*, OPEN
+  ==> PRE, MZ/*, OPEN
 * Import shape/shapefile must create or insert into vector data node
   Check if GeoTools shapefile DataStore is already used.
-  ==> RC, MZ/*, OPEN
+  ==> PRE, MZ/*, OPEN
 * Export vector data node to shapefile
   ==> FINAL, ?, OPEN
 * Presentation name "Vector data" ==> "Geometries" + "Geometry", ...
-  ==> RC, RQ, OPEN
+  ==> PRE, RQ, OPEN
 
 Figures:
 ========
 * Make pin/GCP use a GeoTools feature --> and then a figure
-  ==> RC, RQ, OPEN
+  ==> PRE, RQ, OPEN
 * Polygon bug: JTS wants 0 or 3 points.
-  ==> RC, NF, OPEN
-* Still can't rotate figures. Remove handle in RC?
+  ==> PRE, NF, OPEN
+* Still can't rotate figures. Remove handle in PRE?
   ==> FINAL, NF, OPEN
 * Still no repaint while drawing new figures
-  ==> RC, RQ, OPEN
+  ==> PRE, RQ, OPEN
 * Still can not add/remove geometry vertices
   ==> FINAL, NF, OPEN
 * Move-Handle bug: many handles are created while dragging
-  ==> RC, NF, OPEN
+  ==> PRE, NF, OPEN
 * Layer style editor doesn't work anymore
-  ==> RC, MP, OPEN
+  ==> PRE, MP, OPEN
 * New edit menu:
   - Test Cut/Copy/Paste!
   - What about Undo/Redo?!? (should work!)
@@ -66,14 +66,14 @@ Figures:
   2. If not, display dialog: user can select existing vector data nodes, or create a new one.
       2.a Select choosen vector data node in VISAT
       2.b If layer exists, select it, otherwise create new layer, and select --> ok
-  ==> RC, NF/MP, OPEN
+  ==> PRE, NF/MP, OPEN
 
 Layers:
 =======
 * Remove old Pin/GCP/Figure Layers, also code!
-  ==> RC, RQ, OPEN
+  ==> PRE, RQ, OPEN
 * Auto-create vector data layer if new vector data nores are created/deleted...
-  ==> RC, NF/MP, DONE
+  ==> PRE, NF/MP, DONE
 
 CrsGeoCoding:
 =============
@@ -119,7 +119,7 @@ Mask DIMAP I/O
 - Product.maskGroup
   ==> DONE
 - RasterDataNode.overlayMaskGroup, RasterDataNode.roiMaskGroup
-  ==> RC, RQ/MZ, OPEN
+  ==> PRE, RQ/MZ, OPEN
 
 //////////////////////////////////////////////////////////////////////////////////////
 // TODO put in Wiki
