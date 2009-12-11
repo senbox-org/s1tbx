@@ -10,6 +10,10 @@ Masks:
   ==> PRE, NF, OPEN
 * Add tool button for new VectorDataNode.
   ==> PRE, NF, OPEN
+* Masks are inserted multiple times in product tree. Nodes are not removed on delete.
+  ==> PRE, NF, DONE
+* Old "zoom to ROI" missing
+  ==> FINAL, ?, OPEN
 
 VectorDataNode:
 ===============
@@ -37,6 +41,8 @@ VectorDataNode:
 
 Figures:
 ========
+* First zoom does not show zooming rectangle
+  ==> PRE, MP, OPEN
 * Make pin/GCP use a GeoTools feature --> and then a figure
   ==> PRE, RQ, OPEN
 * Polygon bug: JTS wants 0 or 3 points.
