@@ -138,10 +138,7 @@ masks, vectors, layers
 - zoom to figger
 - black drawing under the figger
 - vector mark for pin/gcp will be zoomed with the image view
-
-ROI
----
--new vector data will be add to old figger roi.
+- edit range mask -> mask wrong
 
 save product/session
 ------------
