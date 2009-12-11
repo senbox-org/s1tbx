@@ -138,7 +138,7 @@ masks, vectors, layers
 - zoom to figger
 - black drawing under the figger
 - vector mark for pin/gcp will be zoomed with the image view
-- edit range mask -> mask wrong
+- edit mask ->  changes will not applyed
 
 save product/session
 ------------
