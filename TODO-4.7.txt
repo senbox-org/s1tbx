@@ -74,6 +74,9 @@ Layers:
   ==> PRE, RQ, OPEN
 * Auto-create vector data layer if new vector data nores are created/deleted...
   ==> PRE, NF/MP, DONE
+* When a vector data layer detects new incoming features the style is always the default style:
+  Black fill, no stroke
+  ==> PRE, RQ, OPEN
 
 CrsGeoCoding:
 =============
