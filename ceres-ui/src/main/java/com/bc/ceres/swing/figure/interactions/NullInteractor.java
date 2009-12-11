@@ -25,7 +25,8 @@ public final class NullInteractor implements Interactor {
     }
 
     @Override
-    public void activate() {
+    public boolean activate() {
+        return false;
     }
 
     @Override

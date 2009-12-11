@@ -17,7 +17,7 @@ public interface Interactor extends MouseListener, MouseMotionListener, KeyListe
 
     boolean isActive();
 
-    void activate();
+    boolean activate();
 
     void deactivate();
 

@@ -9,7 +9,7 @@ public interface InteractorListener {
 
     void interactorDeactivated(Interactor interactor);
 
-    void interactionStarted(Interactor interactor, InputEvent event);
+    void interactionStarted(Interactor interactor, InputEvent inputEvent);
 
     void interactionStopped(Interactor interactor, InputEvent inputEvent);
 

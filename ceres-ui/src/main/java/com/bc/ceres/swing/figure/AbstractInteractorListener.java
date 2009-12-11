@@ -5,7 +5,7 @@ import com.bc.ceres.swing.figure.InteractorListener;
 
 import java.awt.event.InputEvent;
 
-public class AbstractInteractorListener implements InteractorListener {
+public class AbstractInteractorListener implements InteractorListener, InteractorInterceptor {
     @Override
     public void interactorActivated(Interactor interactor) {
     }
@@ -15,7 +15,7 @@ public class AbstractInteractorListener implements InteractorListener {
     }
 
     @Override
-    public void interactionStarted(Interactor interactor, InputEvent event) {
+    public void interactionStarted(Interactor interactor, InputEvent inputEvent) {
     }
 
     @Override
@@ -24,5 +24,24 @@ public class AbstractInteractorListener implements InteractorListener {
 
     @Override
     public void interactionCancelled(Interactor interactor, InputEvent inputEvent) {
+    }
+
+    /**
+     * @param interactor The interactor.
+     * @return The default implementation returns {@code true}.
+     */
+    @Override
+    public boolean canActivateInteractor(Interactor interactor) {
+        return true;
+    }
+
+    /**
+     * @param interactor The interactor.
+     * @param inputEvent The interactor.
+     * @return The default implementation returns {@code true}.
+     */
+    @Override
+    public boolean canStartInteraction(Interactor interactor, InputEvent inputEvent) {
+        return true;
     }
 }

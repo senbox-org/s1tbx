@@ -1,4 +1,4 @@
-package com.bc.ceres.swing.figure.support;
+package com.bc.ceres.swing.figure;
 
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.InteractorAware;
@@ -35,7 +35,9 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
         if (debug) {
             System.out.println("InteractionDispatcher.mouseClicked: event = " + event);
         }
-        getInteractor().mouseClicked(event);
+        if (getInteractor().isActive()) {
+            getInteractor().mouseClicked(event);
+        }
     }
 
     @Override
@@ -44,7 +46,9 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
             System.out.println("InteractionDispatcher.mousePressed: event = " + event);
         }
         ensureKeyEventsReceived(event);
-        getInteractor().mousePressed(event);
+        if (getInteractor().isActive()) {
+            getInteractor().mousePressed(event);
+        }
     }
 
     @Override
@@ -52,7 +56,9 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
         if (debug) {
             // System.out.println("InteractionDispatcher.mouseMoved: event = " + event);
         }
-        getInteractor().mouseMoved(event);
+        if (getInteractor().isActive()) {
+            getInteractor().mouseMoved(event);
+        }
     }
 
     @Override
@@ -60,7 +66,9 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
         if (debug) {
             // System.out.println("InteractionDispatcher.mouseDragged: event = " + event);
         }
-        getInteractor().mouseDragged(event);
+        if (getInteractor().isActive()) {
+            getInteractor().mouseDragged(event);
+        }
     }
 
     @Override
@@ -68,7 +76,9 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
         if (debug) {
             System.out.println("InteractionDispatcher.mouseReleased: event = " + event);
         }
-        getInteractor().mouseReleased(event);
+        if (getInteractor().isActive()) {
+            getInteractor().mouseReleased(event);
+        }
     }
 
     @Override
@@ -77,7 +87,9 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
             System.out.println("InteractionDispatcher.mouseEntered: event = " + event);
         }
         ensureKeyEventsReceived(event);
-        getInteractor().mouseEntered(event);
+        if (getInteractor().isActive()) {
+            getInteractor().mouseEntered(event);
+        }
     }
 
     @Override
@@ -85,7 +97,9 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
         if (debug) {
             System.out.println("InteractionDispatcher.mouseExited: event = " + event);
         }
-        getInteractor().mouseExited(event);
+        if (getInteractor().isActive()) {
+            getInteractor().mouseExited(event);
+        }
     }
 
     @Override
@@ -93,7 +107,9 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
         if (debug) {
             System.out.println("InteractionDispatcher.keyTyped: event = " + event);
         }
-        getInteractor().keyTyped(event);
+        if (getInteractor().isActive()) {
+            getInteractor().keyTyped(event);
+        }
     }
 
     @Override
@@ -101,7 +117,9 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
         if (debug) {
             System.out.println("InteractionDispatcher.keyPressed: event = " + event);
         }
-        getInteractor().keyPressed(event);
+        if (getInteractor().isActive()) {
+            getInteractor().keyPressed(event);
+        }
     }
 
     @Override
@@ -109,7 +127,9 @@ public class InteractionDispatcher implements MouseListener, MouseMotionListener
         if (debug) {
             System.out.println("InteractionDispatcher.keyReleased: event = " + event);
         }
-        getInteractor().keyReleased(event);
+        if (getInteractor().isActive()) {
+            getInteractor().keyReleased(event);
+        }
     }
 
     private Interactor getInteractor() {

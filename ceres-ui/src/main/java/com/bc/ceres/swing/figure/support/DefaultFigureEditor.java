@@ -13,6 +13,7 @@ import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.InteractionDispatcher;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeListener;

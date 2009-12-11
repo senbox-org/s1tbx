@@ -18,34 +18,35 @@ public class AbstractInteractorTest extends TestCase {
                                                                     new DefaultFigureFactory());
         AbstractInteractor interactor = new AbstractInteractor() {
         };
+
         MyInteractorListener listener = new MyInteractorListener();
         interactor.addListener(listener);
 
         MouseEvent event = new MouseEvent(figureEditorPanel, 0, 0, 0, 0, 0, 1, false, 0);
 
         interactor.activate();
-        assertEquals("a;", listener.trace);
+        assertEquals("a?;a;", listener.trace);
 
         interactor.deactivate();
-        assertEquals("a;d;", listener.trace);
+        assertEquals("a?;a;d;", listener.trace);
 
         interactor.activate();
-        assertEquals("a;d;a;", listener.trace);
+        assertEquals("a?;a;d;a?;a;", listener.trace);
 
         interactor.cancelInteraction(event);
-        assertEquals("a;d;a;c;", listener.trace);
+        assertEquals("a?;a;d;a?;a;c;", listener.trace);
 
         interactor.activate();
-        assertEquals("a;d;a;c;", listener.trace);
+        assertEquals("a?;a;d;a?;a;c;", listener.trace);
 
         interactor.startInteraction(event);
-        assertEquals("a;d;a;c;s;", listener.trace);
+        assertEquals("a?;a;d;a?;a;c;s?;s;", listener.trace);
 
         interactor.stopInteraction(event);
-        assertEquals("a;d;a;c;s;e;", listener.trace);
+        assertEquals("a?;a;d;a?;a;c;s?;s;e;", listener.trace);
 
         interactor.deactivate();
-        assertEquals("a;d;a;c;s;e;d;", listener.trace);
+        assertEquals("a?;a;d;a?;a;c;s?;s;e;d;", listener.trace);
     }
 
     public void testEscKeyPressedInvokesCancel() {
@@ -66,9 +67,21 @@ public class AbstractInteractorTest extends TestCase {
         assertEquals("c;", listener.trace); // ==> cancel() NOT called
     }
 
-    private static class MyInteractorListener implements InteractorListener {
+    private static class MyInteractorListener extends AbstractInteractorListener {
 
         String trace = "";
+
+        @Override
+        public boolean canActivateInteractor(Interactor interactor) {
+            trace += "a?;";
+            return true;
+        }
+
+        @Override
+        public boolean canStartInteraction(Interactor interactor, InputEvent inputEvent) {
+            trace += "s?;";
+            return true;
+        }
 
         @Override
         public void interactorActivated(Interactor interactor) {

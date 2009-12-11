@@ -8,8 +8,8 @@ import java.util.ArrayList;
 
 public abstract class AbstractInteractor implements Interactor {
 
-    private ArrayList<InteractorListener> listeners;
     private boolean active;
+    private ArrayList<InteractorListener> listeners;
 
     protected AbstractInteractor() {
         listeners = new ArrayList<InteractorListener>(3);
@@ -21,31 +21,26 @@ public abstract class AbstractInteractor implements Interactor {
     }
 
     @Override
-    public void activate() {
+    public boolean activate() {
         if (!active) {
-            this.active = true;
-            fireActivated();
+            active = canActivateInteractor();
+            if (isActive()) {
+                for (InteractorListener listener : getListeners()) {
+                    listener.interactorActivated(this);
+                }
+            }
         }
+        return isActive();
     }
 
     @Override
     public void deactivate() {
         if (active) {
-            this.active = false;
-            fireDeactivated();
+            active = false;
+            for (InteractorListener listener : getListeners()) {
+                listener.interactorDeactivated(this);
+            }
         }
-    }
-
-    protected void startInteraction(InputEvent inputEvent) {
-        fireStarted(inputEvent);
-    }
-
-    protected void stopInteraction(InputEvent inputEvent) {
-        fireStopped(inputEvent);
-    }
-
-    protected void cancelInteraction(InputEvent inputEvent) {
-        fireCancelled(inputEvent);
     }
 
     @Override
@@ -178,7 +173,7 @@ public abstract class AbstractInteractor implements Interactor {
      */
     @Override
     public void keyTyped(KeyEvent event) {
-        System.out.println("onKeyTyped: interaction = " + this + ", keyChar = " + (int) event.getKeyChar());
+        // System.out.println("onKeyTyped: interaction = " + this + ", keyChar = " + (int) event.getKeyChar());
         if (event.getKeyChar() == 27) {
             cancelInteraction(event);
         }
@@ -199,33 +194,63 @@ public abstract class AbstractInteractor implements Interactor {
         return this.listeners.toArray(new InteractorListener[this.listeners.size()]);
     }
 
-    private void fireActivated() {
-        for (InteractorListener listener : getListeners()) {
-            listener.interactorActivated(this);
+    protected boolean startInteraction(InputEvent inputEvent) {
+        if (canStartInteraction(inputEvent)) {
+            for (InteractorListener listener : getListeners()) {
+                listener.interactionStarted(this, inputEvent);
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 
-    private void fireDeactivated() {
-        for (InteractorListener listener : getListeners()) {
-            listener.interactorDeactivated(this);
-        }
-    }
-
-    private void fireStarted(InputEvent inputEvent) {
-        for (InteractorListener listener : getListeners()) {
-            listener.interactionStarted(this, inputEvent);
-        }
-    }
-
-    private void fireStopped(InputEvent inputEvent) {
+    protected void stopInteraction(InputEvent inputEvent) {
         for (InteractorListener listener : getListeners()) {
             listener.interactionStopped(this, inputEvent);
         }
     }
 
-    private void fireCancelled(InputEvent inputEvent) {
+    protected void cancelInteraction(InputEvent inputEvent) {
         for (InteractorListener listener : getListeners()) {
             listener.interactionCancelled(this, inputEvent);
         }
     }
+
+    protected static boolean isSingleButton1Click(MouseEvent e) {
+        return isLeftMouseButtonDown(e) && e.getClickCount() == 1;
+    }
+
+    protected static boolean isMultiButton1Click(MouseEvent e) {
+        return isLeftMouseButtonDown(e) && e.getClickCount() > 1;
+    }
+
+    protected static boolean isLeftMouseButtonDown(MouseEvent e) {
+        return (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0;
+    }
+
+    private boolean canActivateInteractor() {
+        for (InteractorListener listener : getListeners()) {
+            if (listener instanceof InteractorInterceptor) {
+                final InteractorInterceptor interactorInterceptor = (InteractorInterceptor) listener;
+                if (!interactorInterceptor.canActivateInteractor(this)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean canStartInteraction(InputEvent inputEvent) {
+        for (InteractorListener listener : getListeners()) {
+            if (listener instanceof InteractorInterceptor) {
+                final InteractorInterceptor interactorInterceptor = (InteractorInterceptor) listener;
+                if (!interactorInterceptor.canStartInteraction(this, inputEvent)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 }

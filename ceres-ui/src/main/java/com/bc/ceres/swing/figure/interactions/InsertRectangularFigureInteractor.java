@@ -16,6 +16,7 @@ public abstract class InsertRectangularFigureInteractor extends FigureEditorInte
     private boolean canceled;
     private ShapeFigure figure;
     private RectangularShape rectangularShape;
+    private boolean started;
 
     protected abstract RectangularShape createRectangularShape(Point2D point);
 
@@ -30,44 +31,56 @@ public abstract class InsertRectangularFigureInteractor extends FigureEditorInte
     }
 
     @Override
+    protected void stopInteraction(InputEvent inputEvent) {
+        super.stopInteraction(inputEvent);
+        started = false;
+    }
+
+    @Override
     public void mousePressed(MouseEvent event) {
-        FigureEditor figureEditor = getFigureEditor(event);
-        figureEditor.getFigureSelection().removeAllFigures();
-        referencePoint = event.getPoint();
-        canceled = false;
-        rectangularShape = createRectangularShape(toModelPoint(event, referencePoint));
-        figure = figureEditor.getFigureFactory().createPolygonFigure(toModelShape(event, rectangularShape),
-                                                                     figureEditor.getDefaultPolygonStyle());
-        figureEditor.getFigureCollection().addFigure(figure);
-        startInteraction(event);
+        started = startInteraction(event);
+        if (started) {
+            FigureEditor figureEditor = getFigureEditor(event);
+            figureEditor.getFigureSelection().removeAllFigures();
+            referencePoint = event.getPoint();
+            canceled = false;
+            rectangularShape = createRectangularShape(toModelPoint(event, referencePoint));
+            figure = figureEditor.getFigureFactory().createPolygonFigure(toModelShape(event, rectangularShape),
+                                                                         figureEditor.getDefaultPolygonStyle());
+            figureEditor.getFigureCollection().addFigure(figure);
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent event) {
-        FigureEditor figureEditor = getFigureEditor(event);
-        if (rectangularShape.isEmpty()) {
-            figureEditor.getFigureCollection().removeFigure(figure);
-        } else {
-            figureEditor.insertFigures(false, figure);
+        if (started) {
+            FigureEditor figureEditor = getFigureEditor(event);
+            if (rectangularShape.isEmpty()) {
+                figureEditor.getFigureCollection().removeFigure(figure);
+            } else {
+                figureEditor.insertFigures(false, figure);
+            }
+            stopInteraction(event);
         }
-        stopInteraction(event);
     }
 
     @Override
     public void mouseDragged(MouseEvent event) {
-        int width = event.getX() - referencePoint.x;
-        int height = event.getY() - referencePoint.y;
-        int x = referencePoint.x;
-        int y = referencePoint.y;
-        if (width < 0) {
-            width *= -1;
-            x -= width;
+        if (started) {
+            int width = event.getX() - referencePoint.x;
+            int height = event.getY() - referencePoint.y;
+            int x = referencePoint.x;
+            int y = referencePoint.y;
+            if (width < 0) {
+                width *= -1;
+                x -= width;
+            }
+            if (height < 0) {
+                height *= -1;
+                y -= height;
+            }
+            rectangularShape.setFrame(x, y, width, height);
+            figure.setShape(getViewToModelTransform(event).createTransformedShape(rectangularShape));
         }
-        if (height < 0) {
-            height *= -1;
-            y -= height;
-        }
-        rectangularShape.setFrame(x, y, width, height);
-        figure.setShape(getViewToModelTransform(event).createTransformedShape(rectangularShape));
     }
 }
