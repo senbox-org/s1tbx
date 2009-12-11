@@ -46,13 +46,15 @@ public class InsertFigureInteractorHandler extends AbstractInteractorListener {
         }
 
         VectorDataLayer vectorDataLayer = null;
-        if (layers.size() > 0) {
+        if (layers.size() == 1) {
+            vectorDataLayer = layers.values().iterator().next();
+        } else if (layers.size() > 1) {
             JList listBox = new JList(layers.keySet().toArray());
             JPanel panel = new JPanel(new BorderLayout(4, 4));
-            panel.add(new JLabel("Please select a target layer:"), BorderLayout.NORTH);
+            panel.add(new JLabel("Please select a geometry container:"), BorderLayout.NORTH);
             panel.add(new JScrollPane(listBox), BorderLayout.CENTER);
             ModalDialog dialog = new ModalDialog(SwingUtilities.getWindowAncestor(productSceneView),
-                                                 "Select Geometry Layer",
+                                                 "Select Geometry",
                                                  ModalDialog.ID_OK_CANCEL_HELP, "");
             dialog.setContent(panel);
             int i = dialog.show();
@@ -64,9 +66,11 @@ public class InsertFigureInteractorHandler extends AbstractInteractorListener {
             } else {
                 return false;
             }
+        } else {
+            vectorDataLayer = newVectorDataLayer(productSceneView.getProduct(), collectionLayer, false);
         }
         if (vectorDataLayer == null) {
-            vectorDataLayer = newLayer(collectionLayer);
+            vectorDataLayer = newVectorDataLayer(productSceneView.getProduct(), collectionLayer, true);
         }
         if (vectorDataLayer == null) {
             return false;
@@ -75,14 +79,31 @@ public class InsertFigureInteractorHandler extends AbstractInteractorListener {
         return productSceneView.getSelectedLayer() == vectorDataLayer;
     }
 
-    private static VectorDataLayer newLayer(Layer collectionLayer) {
-        NewVectorDataAction action = new NewVectorDataAction();
-        action.run();
-        String value = action.getVectorDataName();
-        if (value != null) {
-            Layer layer = LayerUtils.getChildLayerByName(collectionLayer, value);
+    private static VectorDataLayer newVectorDataLayer(Product product, Layer collectionLayer, boolean interactive) {
+        String name;
+        if (interactive){
+            NewVectorDataAction action = new NewVectorDataAction();
+            action.run();
+            name = action.getVectorDataName();
+        } else{
+            name = "geometry";
+            NewVectorDataAction.createVectorDataNode(product, name, "Default container for geometries.");
+        }
+        if (name != null) {
+            Layer layer = LayerUtils.getChildLayerByName(collectionLayer, name);
             if (layer instanceof VectorDataLayer) {
                 return (VectorDataLayer) layer;
+            }
+        }
+        return null;
+    }
+
+    private VectorDataLayer getVectorDataLayer(Product product, Layer layer) {
+        if (layer instanceof VectorDataLayer) {
+            final VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
+            final VectorDataNode vectorDataNode = vectorDataLayer.getVectorData();
+            if (!product.isInternalNode(vectorDataNode)) {
+                return vectorDataLayer;
             }
         }
         return null;
@@ -101,14 +122,4 @@ public class InsertFigureInteractorHandler extends AbstractInteractorListener {
         return productSceneView;
     }
 
-    private VectorDataLayer getVectorDataLayer(Product product, Layer layer) {
-        if (layer instanceof VectorDataLayer) {
-            final VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
-            final VectorDataNode vectorDataNode = vectorDataLayer.getVectorData();
-            if (!product.isInternalNode(vectorDataNode)) {
-                return vectorDataLayer;
-            }
-        }
-        return null;
-    }
 }

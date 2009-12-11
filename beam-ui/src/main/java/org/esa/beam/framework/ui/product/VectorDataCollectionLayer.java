@@ -28,7 +28,7 @@ public class VectorDataCollectionLayer extends CollectionLayer {
     public VectorDataCollectionLayer(VectorDataCollectionLayerType layerType,
                                      ProductNodeGroup<VectorDataNode> vectorDataGroup,
                                      PropertySet configuration) {
-        super(layerType, configuration, "Vector Data Layers");
+        super(layerType, configuration, "Geometries");
         Assert.notNull(vectorDataGroup, "vectorDataGroup");
 
         reference = new WeakReference<ProductNodeGroup<VectorDataNode>>(vectorDataGroup);

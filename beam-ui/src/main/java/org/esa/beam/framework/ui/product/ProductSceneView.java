@@ -276,22 +276,6 @@ public class ProductSceneView extends BasicView
         getRaster().getProduct().addProductNodeListener(rasterChangeHandler);
 
         setMaskOverlayEnabled(true);
-
-        ///////////////////////////////
-        // TEST TEST TEST
-
-        VectorDataNode vectorDataNode = getProduct().getVectorDataGroup().get("_figures");
-        if (vectorDataNode == null) {
-            GeoCoding geoCoding = getRaster().getGeoCoding();
-            CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(geoCoding);
-            vectorDataNode = new VectorDataNode("_figures", SimpleFeatureFigureFactory.createSimpleFeatureType("_figures",
-                                                                                                       Geometry.class,
-                                                                                                       modelCrs));
-            getProduct().getVectorDataGroup().add(vectorDataNode);
-        }
-
-        // TEST TEST TEST
-        ///////////////////////////////
     }
 
     @Override

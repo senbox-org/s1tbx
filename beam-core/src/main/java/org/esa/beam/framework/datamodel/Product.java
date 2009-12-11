@@ -97,6 +97,7 @@ public class Product extends ProductNode {
 
     public static final String PIN_FEATURE_TYPE_NAME = "Pin";
     public static final String GCP_FEATURE_TYPE_NAME = "GCP";
+    public static final String GEOMETRY_FEATURE_TYPE_NAME = "Geometry";
 
     /**
      * The location file of this product.
@@ -315,7 +316,7 @@ public class Product extends ProductNode {
         };
 
         this.gcpGroup = new ProductNodeGroup<Pin>(this, "gcpGroup", true);
-
+        // todo - remove here, add only on demand (nf)
         this.vectorDataGroup.add(new VectorDataNode("pins", Pin.getPinFeatureType()));
         this.vectorDataGroup.add(new VectorDataNode("ground_control_points", createPlacemarkFeatureType(GCP_FEATURE_TYPE_NAME, "geoPoint")));
 
@@ -331,66 +332,6 @@ public class Product extends ProductNode {
                 }
             }
         });
-    }
-
-    private static VectorDataNode createTestShapes1(String name) {
-        SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
-        DefaultGeographicCRS crs = DefaultGeographicCRS.WGS84;
-        ftb.setCRS(crs);
-        ftb.setName(name);
-        ftb.add("geometry", Polygon.class);
-        ftb.setDefaultGeometry("geometry");
-        SimpleFeatureType ft = ftb.buildFeatureType();
-
-        GeometryFactory gf = new GeometryFactory();
-        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(ft);
-        DefaultFeatureCollection fc = new DefaultFeatureCollection(name, ft);
-        for (int i = 0; i < 10; i++) {
-            double x = i * 100;
-            double y = i * 100;
-            SimpleFeature f = fb.buildFeature(name + "_" + i, new Object[]{
-                    gf.createPolygon(gf.createLinearRing(new Coordinate[]{
-                            new Coordinate(x, y),
-                            new Coordinate(x + 100, y),
-                            new Coordinate(x + 100, y + 100),
-                            new Coordinate(x, y + 100),
-                            new Coordinate(x, y),
-                    }), null)
-            });
-            fc.add(f);
-        }
-
-        return new VectorDataNode(name, fc);
-    }
-
-    private static VectorDataNode createTestShapes2(String name) {
-        SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
-        DefaultGeographicCRS crs = DefaultGeographicCRS.WGS84;
-        ftb.setCRS(crs);
-        ftb.setName(name);
-        ftb.add("geometry", LineString.class);
-        ftb.setDefaultGeometry("geometry");
-        SimpleFeatureType ft = ftb.buildFeatureType();
-
-        GeometryFactory gf = new GeometryFactory();
-        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(ft);
-        DefaultFeatureCollection fc = new DefaultFeatureCollection(name, ft);
-        for (int i = 0; i < 10; i++) {
-            double x = i * 100;
-            double y = i * 100;
-            SimpleFeature f = fb.buildFeature(name + "_" + i, new Object[]{
-                    gf.createLineString(new Coordinate[]{
-                            new Coordinate(x, y),
-                            new Coordinate(x + 50, y + 50),
-                            new Coordinate(x + 100, y + 50),
-                            new Coordinate(x + 150, y + 100),
-                            new Coordinate(x + 200, y + 100),
-                    })
-            });
-            fc.add(f);
-        }
-
-        return new VectorDataNode(name, fc);
     }
 
     private static SimpleFeatureType createPlacemarkFeatureType(String typeName, String defaultGeometryName) {

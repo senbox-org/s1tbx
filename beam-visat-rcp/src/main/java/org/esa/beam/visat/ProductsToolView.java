@@ -314,8 +314,8 @@ public class ProductsToolView extends AbstractToolView {
         }
 
         private void deleteVectorData(VectorDataNode vectorDataNode) {
-            String message = MessageFormat.format("Do you really want to delete the vector data ''{0}''?\nThis action cannot be undone.\n\n", vectorDataNode.getName());
-            int status = VisatApp.getApp().showQuestionDialog("Delete Vector Data",
+            String message = MessageFormat.format("Do you really want to delete the geometry ''{0}''?\nThis action cannot be undone.\n\n", vectorDataNode.getName());
+            int status = VisatApp.getApp().showQuestionDialog("Delete Geometry",
                                                               message, null);
             if (status == JOptionPane.YES_OPTION) {
                 Product product = vectorDataNode.getProduct();

@@ -44,13 +44,13 @@ import java.awt.Dimension;
  * @since BEAM 4.7
  */
 public class NewVectorDataAction extends ExecCommand {
-    private static final String DIALOG_TITLE = "New Geometry Container";
+    private static final String DIALOG_TITLE = "New Geometry";
 
     public static final String VECTOR_DATA_NAME = "vectorDataName";
 
     // todo - add help (nf)
     private static final String HELP_ID = "";
-    static int areas = 0;
+    static int numItems = 0;
 
     public String getVectorDataName() {
         return (String) getProperty(VECTOR_DATA_NAME);
@@ -77,16 +77,20 @@ public class NewVectorDataAction extends ExecCommand {
         dialog.setContent(panel);
         int i = dialog.show();
         if (i == ModalDialog.ID_OK) {
-            // todo - always use same schema name! (nf)
-            CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(product.getGeoCoding());
-            SimpleFeatureType type = SimpleFeatureFigureFactory.createSimpleFeatureType("X", Geometry.class, modelCrs);
-            VectorDataNode vectorDataNode = new VectorDataNode(dialogData.name, type);
-            vectorDataNode.setDescription(dialogData.description);
-            product.getVectorDataGroup().add(vectorDataNode);
+            createVectorDataNode(product, dialogData.name, dialogData.description);
             setProperty(VECTOR_DATA_NAME, dialogData.name);
         } else {
             setProperty(VECTOR_DATA_NAME, null);
         }
+    }
+
+    public static VectorDataNode createVectorDataNode(Product product, String name, String description) {
+        CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(product.getGeoCoding());
+        SimpleFeatureType type = SimpleFeatureFigureFactory.createSimpleFeatureType(Product.GEOMETRY_FEATURE_TYPE_NAME, Geometry.class, modelCrs);
+        VectorDataNode vectorDataNode = new VectorDataNode(name, type);
+        vectorDataNode.setDescription(description);
+        product.getVectorDataGroup().add(vectorDataNode);
+        return vectorDataNode;
     }
 
     /**
@@ -139,7 +143,7 @@ public class NewVectorDataAction extends ExecCommand {
 
     // todo - add validators (nf)
     static class DialogData {
-        String name = "area_" + (++areas);
+        String name = "geometry_" + (++numItems);
         String description = "";
     }
 

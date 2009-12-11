@@ -1362,12 +1362,11 @@
             <placeBefore>createFilteredBand</placeBefore>
         </action>
 
-<!-- TODO -->
         <action>
-            <id>newVectorData</id>
+            <id>newGeometry</id>
             <class>org.esa.beam.visat.actions.NewVectorDataAction</class>
-            <text>New Vector Data...</text>
-            <helpId>newVectorData</helpId>
+            <text>New Geometry...</text>
+            <helpId>newGeometry</helpId>
             <parent>tools</parent>
         </action>
 
