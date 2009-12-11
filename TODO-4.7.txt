@@ -3,74 +3,126 @@ Masks:
 * Old bitmask overlay window: Only list "real" bitmasks. What is real?
   E.g. Flag-related masks, masks set my reader, masks initially in the product,...
   It is only used for bitmask overlay, no mask management.
-
+  ==> FINAL, ?, OPEN
+* Mask manager shall test for dependencies before deleting
+  ==> RC, NF, OPEN
+* Remove masks from product tree
+  ==> RC, NF, OPEN
+* Add tool button for new VectorDataNode.
+  ==> RC, NF, OPEN
 
 VectorDataNode:
 ===============
-* Need action to create new VectorDataNode. (DONE)
-* Need action to delete old VectorDataNode. (DONE, partly, see TODOs in code)
+* Need action to create new VectorDataNode.
+  ==> DONE
+* New VectorDataNode shall be selected in product tree
+  ==> RC, NF, OPEN
+* Need action to delete existing VectorDataNode.
+  ==>  RC, NF, DONE partly, see TODOs in code
 * Still need to transfer model-CRS into feature types.
   What about the image-CRS in Property DataStore? What is the EPSG code?!?!
-* When reprojecting (subsetting?) products, we must also transform geometry and align CRS of feature collections in
-  vector data nodes!!! Pins/GCPs need special treatment!
-* Import shapefile vector data node (export shapefile is BEAM 4.8)
-* What is the presentation name for VectorDataNode? E.g.
-  "Vector data", "Vector data container", "Shapes", "Geometry", ...
+  ==> RC, MZ, OPEN
+* When reprojecting (subsetting?) products, we must also transform geometry and
+  align CRS of feature collections in vector data nodes!!! Use FeatureCollectionClipper
+  in ShapefileLayer code. Pins/GCPs need special
+  treatment!
+  ==> RC, MZ/*, OPEN
+* Import shape/shapefile must create or insert into vector data node
+  Check if GeoTools shapefile DataStore is already used.
+  ==> RC, MZ/*, OPEN
+* Export vector data node to shapefile
+  ==> FINAL, ?, OPEN
+* Presentation name "Vector data" ==> "Geometries" + "Geometry", ...
+  ==> RC, RQ, OPEN
 
 Figures:
 ========
 * Make pin/GCP use a GeoTools feature --> and then a figure
+  ==> RC, RQ, OPEN
 * Polygon bug: JTS wants 0 or 3 points.
-* Still can't rotate figures
+  ==> RC, NF, OPEN
+* Still can't rotate figures. Remove handle in RC?
+  ==> FINAL, NF, OPEN
 * Still no repaint while drawing new figures
+  ==> RC, RQ, OPEN
 * Still can not add/remove geometry vertices
+  ==> FINAL, NF, OPEN
 * Move-Handle bug: many handles are created while dragging
+  ==> RC, NF, OPEN
 * Layer style editor doesn't work anymore
+  ==> RC, MP, OPEN
 * New edit menu:
   - Test Cut/Copy/Paste!
   - What about Undo/Redo?!? (should work!)
-* Allow for geometric operations add/sub/intersection
-* Before using an insert line/polygon interaction, we need a target layer for the figures to be inserted:
-  1. If layer is selected AND layer is a vector layer --> ok
-  2. If vector data node is selected:
-      2.a If corresp. layer exists, select it --> ok
-      2.b otherwise create corresp. layer, goto 2.a
-  3. If vector data mask is selected:
-      3.a Get corresponding vector data node
-      3.b Goto 2 using this vector data node 
+  - After Paste: select inserted figures and displace a few (view) pixels
+  ==> FINAL, ?, OPEN
+* Allow for geometric operations on geometries: add/sub/intersection (JTS!)
+  ==> FINAL, ?, OPEN
+* Before using an insert line/polygon interaction, we need a target layer for the figures
+  to be inserted:
+  For pins/GCP: use existing, predefined vector data nodes and corresp. layers.
+  For all others:
+  1. If layer is selected AND layer is a vector layer  --> ok
+  2. If not, display dialog: user can select existing vector data nodes, or create a new one.
+      2.a Select choosen vector data node in VISAT
+      2.b If layer exists, select it, otherwise create new layer, and select --> ok
+  ==> RC, NF/MP, OPEN
+
+Layers:
+=======
+* Remove old Pin/GCP/Figure Layers, also code!
+  ==> RC, RQ, OPEN
+* Auto-create vector data layer if new vector data nores are created/deleted...
+  ==> RC, NF/MP, DONE
 
 CrsGeoCoding:
 =============
-Stupid name because GeoCoding *has* a CRS, it isn't one. CrsGeoCoding is the GeoTools replacement for MapGeoCoding!!
+* Rename CrsGeoCoding into DefaultGeoCoding.
+  ==> FINAL, ?, OPEN
+* Deprecate map package and remove usage.
+  ==> FINAL, ?, OPEN
 
 GeoCoding.getDatum():
 =====================
-It is still the "old" BEAM Datum and should have already been replaced by the GeoTools one.
+* It is still the "old" BEAM Datum and should have already been replaced by the GeoTools one.
+  Deprecate. Review.
+  ==> FINAL, ?, DONE?
+
 
 <X>LayerType:
 =============
-We once decided that we wanted to introduce static factory method for each(!) layer type following the JAI-Descriptor
-concept. Nothing done so far.
+* We once decided that we wanted to introduce static factory methods for each(!) layer type
+  following the JAI-Descriptor concept. Nothing done so far.
+  ==> FINAL, ?, OPEN
+* Don't use class names e.g. in Session I/O.
+  ==> FINAL, ?, OPEN
 
-Rectangle RasterDataNode.areaOfInterest:
+Geometry RasterDataNode.areaOfInterest:
 ========================================
-We need this new property for boosting statitics computation and possibly also display.
-This property is optional but some product readers may set it, e.g. SMOS reader.
-Tile bounds can easily be tesated for intersection with areaOfInterest and possibly ignored. 
+* We need this new property for boosting statistics computation
+  and possibly also display. This property is optional but some product
+  readers may set it, e.g. SMOS reader. Tile bounds can easily be
+  tested for intersection with areaOfInterest and possibly ignored.
+  Also very important for S3/SMOS-Box!
+  ==> FINAL, ?, OPEN
 
 FeatureLayer:
 =============
 
 Several problems:
-- Target-CRS called FC-CRS, which is actually a view CRS.
+- Property name: Target-CRS is named FC-CRS, which is actually a view CRS.
 - Clipping done against WGS84-CRS geometry if and only if feature ceollection has not been loaded from a shapefile (?!?).
+  ==> FINAL, ?, OPEN
 
 Mask DIMAP I/O
 ==============
-- Product.masks
-- RasterDataNode.imageInfo.maskReferenceList
+- Product.maskGroup
+  ==> DONE
+- RasterDataNode.overlayMaskGroup, RasterDataNode.roiMaskGroup
+  ==> RC, RQ/MZ, OPEN
 
-
+//////////////////////////////////////////////////////////////////////////////////////
+// TODO put in Wiki
 
 h2. API changes:
 
