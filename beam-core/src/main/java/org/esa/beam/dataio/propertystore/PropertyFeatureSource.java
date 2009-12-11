@@ -47,7 +47,7 @@ class PropertyFeatureSource extends AbstractFeatureLocking {
         store.listenerManager.addFeatureListener( this, new FeatureListener(){
             public void changed(FeatureEvent featureEvent) {
                 if( cacheBounds != null ){
-                    if( featureEvent.getEventType() == FeatureEvent.FEATURES_ADDED ){
+                    if( featureEvent.getType() == FeatureEvent.Type.ADDED ){
                         cacheBounds.expandToInclude( featureEvent.getBounds() );
                     }
                     else {

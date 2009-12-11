@@ -22,8 +22,8 @@ import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 
 import org.geotools.data.FeatureReader;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 

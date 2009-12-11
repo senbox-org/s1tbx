@@ -21,14 +21,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.Random;
 
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
-import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -43,9 +44,11 @@ class PropertyFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFe
     
     SimpleFeature origional = null;
     SimpleFeature live = null;
+    Random fidRandom;
     
     PropertyFeatureWriter( PropertyDataStore dataStore, String typeName ) throws IOException {
         store = dataStore;
+        fidRandom = new Random(System.nanoTime());
         File dir = store.directory;        
         read = new File( dir, typeName+".properties");
         write = File.createTempFile( typeName+System.currentTimeMillis(), null, dir );        
@@ -108,7 +111,7 @@ class PropertyFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFe
                 return live;
             }
             else {
-                fid = type.getName()+"."+System.currentTimeMillis();
+                fid = Long.toString(System.nanoTime())+"-"+Long.toString(fidRandom.nextLong());
                 Object values[] = DataUtilities.defaultValues( type );
 
                 origional = null;                                            

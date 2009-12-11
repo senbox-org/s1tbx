@@ -16,12 +16,6 @@
  */
 package org.esa.beam.dataio.propertystore;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.NoSuchElementException;
-
 import org.geotools.data.AttributeReader;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
@@ -29,11 +23,12 @@ import org.geotools.feature.SchemaException;
 import org.geotools.util.Converters;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.GeometryDescriptor;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.NoSuchElementException;
 
 
 /**
@@ -70,8 +65,6 @@ import com.vividsolutions.jts.io.WKTReader;
  * @source $URL: http://svn.osgeo.org/geotools/trunk/modules/plugin/property/src/main/java/org/geotools/data/property/PropertyAttributeReader.java $
  */
 class PropertyAttributeReader implements AttributeReader {
-    /** DOCUMENT ME!  */
-    private static final WKTReader wktReader = new WKTReader(new GeometryFactory());
 
     /** DOCUMENT ME! */
     BufferedReader reader;
