@@ -76,13 +76,6 @@ public class VirtualBandTest extends AbstractRasterDataNodeTest {
             }
 
             @Override
-            protected void fireNodeAdded(ProductNode sourceNode) {
-                if (isActive[0]) {
-                    fail("Event not expected");
-                }
-            }
-
-            @Override
             protected void fireNodeDataChanged(DataNode sourceNode) {
                 if (isActive[0]) {
                     fail("Event not expected");
@@ -90,11 +83,19 @@ public class VirtualBandTest extends AbstractRasterDataNodeTest {
             }
 
             @Override
-            protected void fireNodeRemoved(ProductNode sourceNode) {
+            protected void fireNodeAdded(ProductNode childNode, ProductNodeGroup parentNode) {
                 if (isActive[0]) {
                     fail("Event not expected");
                 }
             }
+
+            @Override
+            protected void fireNodeRemoved(ProductNode childNode, ProductNodeGroup parentNode) {
+                if (isActive[0]) {
+                    fail("Event not expected");
+                }
+            }
+
 
         };
         product.addBand(virtualBand);

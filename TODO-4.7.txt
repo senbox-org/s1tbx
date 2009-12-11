@@ -130,6 +130,13 @@ Mask DIMAP I/O
 - RasterDataNode.overlayMaskGroup, RasterDataNode.roiMaskGroup
   ==> PRE, RQ/MZ, OPEN
 
+Other API Stuff:
+================
+Avoid adding too much node listeners to a product:
+   abstract ProductNode.handleRename(node, oldName, newName)
+   abstract ProductNode.handleNodeDataChanged(node, oldName, newName)
+
+
 GUI Tests results
 ==============
 new mosaic processor

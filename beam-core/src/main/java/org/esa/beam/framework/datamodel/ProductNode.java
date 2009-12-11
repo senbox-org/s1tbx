@@ -484,7 +484,7 @@ public abstract class ProductNode {
             node.setOwner(this);
             Product product = getProduct();
             if (product != null) {
-                product.fireNodeAdded(node);
+                product.fireNodeAdded(node, null);
             }
             setModified(true);
         }
@@ -517,7 +517,7 @@ public abstract class ProductNode {
                 Product product = getProduct();
                 if (product != null) {
                     product.setModified(true);
-                    product.fireNodeRemoved(node);
+                    product.fireNodeRemoved(node, null);
                 }
                 node.setOwner(null);
             }

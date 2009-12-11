@@ -830,6 +830,12 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     selectedTNode = (DefaultMutableTreeNode) toSelectTNode;
                 }
             }
+
+            groupTNode.remove(sourceTNode);
+            getTreeModel().nodeStructureChanged(groupTNode);
+            if (selectedTNode != null) {
+                select(selectedTNode.getUserObject());
+            }
         }
     }
 

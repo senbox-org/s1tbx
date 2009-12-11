@@ -132,17 +132,23 @@ public class MaskCollectionLayer extends CollectionLayer {
 
         @Override
         public void nodeDataChanged(ProductNodeEvent event) {
-            nodeChanged(event);
+            if (event.getSourceNode() instanceof Mask) {
+                nodeChanged(event);
+            }
         }
 
         @Override
         public void nodeAdded(ProductNodeEvent event) {
-            updateChildren();
+            if (event.getSourceNode() instanceof Mask) {
+                updateChildren();
+            }
         }
 
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
-            updateChildren();
+            if (event.getSourceNode() instanceof Mask) {
+                updateChildren();
+            }
         }
     }
 
