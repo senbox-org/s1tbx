@@ -45,7 +45,7 @@ Figures:
 * Make pin/GCP use a GeoTools feature --> and then a figure
   ==> PRE, RQ, OPEN
 * Polygon bug: JTS wants 0 or 3 points.
-  ==> PRE, MP, ONGOING
+  ==> PRE, MP, DONE
 * Still can't rotate figures. Remove handle in PRE?
   ==> FINAL, NF, OPEN
 * Still no repaint while drawing new figures
