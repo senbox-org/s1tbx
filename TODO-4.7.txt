@@ -121,6 +121,25 @@ Mask DIMAP I/O
 - RasterDataNode.overlayMaskGroup, RasterDataNode.roiMaskGroup
   ==> PRE, RQ/MZ, OPEN
 
+GUI Tests results
+==============
+new mosaic processor
+------------------
+- has no menu and therefore it is not possible to work with the request files
+
+masks, vectors, layers
+-----------------------
+- Deleting of a band, mask, vector causes NullPointerexception
+- Selection mask in the Mask manager causes duplication of this mask in the mask node of the product tree
+- 3 PINs but in Statistic: "Number of considered pixels: 2"
+- zoom to figger
+- black drawing under the figger
+- vector mark for pin/gcp will be zoomed with the image view
+
+ROI
+---
+-new vector data will be add to old figger roi.
+
 //////////////////////////////////////////////////////////////////////////////////////
 // TODO put in Wiki
 
@@ -169,8 +188,3 @@ h3. Ceres Layer API Changes
 
 h3. Ceres Core API Changes
 * Renamed class ServiceRegistryFactory to ServiceRegistryManager
-
-h3. GUI Tests result
-* Deleting band, mask, vector causes NullPointerexception
-* Selection mask in the Mask manager causes duplication of this mask in the mask node of the product tree
-* 3 PINs but in Statistic: "Number of considered pixels: 2"
