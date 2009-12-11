@@ -198,27 +198,6 @@ public class ProductsToolView extends AbstractToolView {
         @Override
         public void vectorDataSelected(VectorDataNode vectorDataNode, int clickCount) {
             setSelectedProductNode(vectorDataNode);
-            final ProductSceneView sceneView = visatApp.getSelectedProductSceneView();
-            if (sceneView == null) {
-                return;
-            }
-            if (clickCount == 2) {
-                LayerType flt = LayerTypeRegistry.getLayerType(FeatureLayerType.class);
-
-                final PropertySet conf = flt.createLayerConfig(sceneView);
-                final StyleBuilder builder = new StyleBuilder();
-                Mark mark = builder.createMark("circle", Color.RED);
-                Graphic g = builder.createGraphic(null, mark, null);
-                Symbolizer s = builder.createPointSymbolizer(g);
-                Style style = builder.createStyle(s);
-                conf.setValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE, style);
-                conf.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION, vectorDataNode.getFeatureCollection());
-                final Layer layer = flt.createLayer(sceneView, conf);
-                layer.setName(vectorDataNode.getName());
-                layer.setVisible(true);
-
-                sceneView.getRootLayer().getChildren().add(0, layer);
-            }
         }
 
         @Override
