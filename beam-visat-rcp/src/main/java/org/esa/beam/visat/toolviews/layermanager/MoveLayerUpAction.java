@@ -44,6 +44,9 @@ class MoveLayerUpAction extends AbstractAction {
 
     public boolean canMove(Layer layer) {
         final Layer parentLayer = layer.getParent();
+        if (parentLayer == null) {
+            return false;
+        }
         final int layerIndex = parentLayer.getChildIndex(layer.getId());
         return layerIndex > 0;
     }
