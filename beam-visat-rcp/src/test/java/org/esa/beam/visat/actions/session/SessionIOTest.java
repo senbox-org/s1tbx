@@ -64,22 +64,17 @@ public class SessionIOTest extends TestCase {
                     "B");
         testViewRef(session.getViewRef(3), 3, ProductSceneView.class.getName(), new Rectangle(200, 100, 200, 100), 15,
                     "D");
-///////////////////////////////////////////////////
-//        TODO - Update this when VectorDataLayers are stable
 
-//        assertEquals(3, session.getViewRef(3).getLayerCount());
-//        assertEquals("[15] D", session.getViewRef(3).getLayerRef(0).name);
-//        final Session.LayerRef graticuleLayerRef = session.getViewRef(3).getLayerRef(1);
-//        assertEquals("Graticule", graticuleLayerRef.name);
-//        assertNotNull(graticuleLayerRef.configuration);
-//        assertEquals(14, graticuleLayerRef.configuration.getChildCount());
-//        final Session.LayerRef bitmaskCollectionLayerRef = session.getViewRef(3).getLayerRef(2);
-//        assertEquals("Bitmask Collection", bitmaskCollectionLayerRef.name);
-//        assertNotNull(bitmaskCollectionLayerRef.configuration);
-//        assertEquals(2, bitmaskCollectionLayerRef.configuration.getChildCount());
-
-//
-///////////////////////////////////////////////////
+        assertEquals(3, session.getViewRef(3).getLayerCount());
+        assertEquals("[15] D", session.getViewRef(3).getLayerRef(0).name);
+        final Session.LayerRef graticuleLayerRef = session.getViewRef(3).getLayerRef(1);
+        assertEquals("Graticule", graticuleLayerRef.name);
+        assertNotNull(graticuleLayerRef.configuration);
+        assertEquals(14, graticuleLayerRef.configuration.getChildCount());
+        final Session.LayerRef bitmaskCollectionLayerRef = session.getViewRef(3).getLayerRef(2);
+        assertEquals("Bitmask Collection", bitmaskCollectionLayerRef.name);
+        assertNotNull(bitmaskCollectionLayerRef.configuration);
+        assertEquals(2, bitmaskCollectionLayerRef.configuration.getChildCount());
     }
 
     private void testProductRef(Session.ProductRef productRef, int expectedId, String expectedRelFile) {
