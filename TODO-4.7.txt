@@ -19,7 +19,8 @@ VectorDataNode:
 ===============
 * Need action to create new VectorDataNode.
   ==> DONE
-* New VectorDataNode shall be selected in product tree
+* New VectorDataNode shall be selected in product tree. Selection of VectorDataNode in product
+  tree shall select corresponding layer.
   ==> PRE, NF, OPEN
 * Need action to delete existing VectorDataNode.
   ==>  PRE, NF, DONE partly, see TODOs in code
@@ -36,10 +37,12 @@ VectorDataNode:
 * Export vector data node to shapefile
   ==> FINAL, ?, OPEN
 * Presentation name "Vector data" ==> "Geometries" + "Geometry", ...
-  ==> PRE, RQ, OPEN
+  ==> PRE, NF, DONE
 
 Figures:
 ========
+* The black figures!
+  ==> PRE, ?, OPEN
 * First zoom does not show zooming rectangle
   ==> PRE, MP, DONE
 * Make pin/GCP use a GeoTools feature --> and then a figure
