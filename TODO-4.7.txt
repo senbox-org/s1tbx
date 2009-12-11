@@ -143,15 +143,86 @@ new mosaic processor
 ------------------
 - has no menu and therefore it is not possible to work with the request files
 
+-UTM proj. problem:
+add some products (distributed on the world) to product list
+select area: west long = 5, east long. = 20, north lat. = 65, south lat.= 50
+select UTM, North, zone 32
+
+output product: north lat.:	0°00'02" N, south lat.:	15°23'04" S  !!!!!
+Map CRS:
+PROJCS["UTM Zone 32 / World Geodetic System 1984",
+  GEOGCS["World Geodetic System 1984",
+    DATUM["World Geodetic System 1984",
+      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+      AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH]],
+  PROJECTION["Transverse_Mercator"],
+  PARAMETER["central_meridian", 9.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 0.0],
+
+- select/deselect 'Update target product' checkBox causes IllegalArgumentException
+
+a) select: open product in VISAT - open mosaic - check in 'Update target product' --> the name of target product will be change to open in VISAT data automatically -->
+beam-debug: AbstractProductReader.close(): org.esa.beam.dataio.envisat.EnvisatProductReader[input=C:\Projects\Testing\testdata\in\MERIS\MER_RR__1_test
+.N1]
+org.esa.beam.framework.gpf.OperatorException: Product has no metadata element named 'Processing_Graph'
+        at org.esa.beam.gpf.common.mosaic.MosaicOp.getOperatorParameters(MosaicOp.java:486)
+        at org.esa.beam.gpf.common.mosaic.ui.MosaicIOPanel$2.selectionChanged(MosaicIOPanel.java:106)
+        at com.bc.ceres.swing.selection.support.SelectionChangeSupport.fireSelectionChange(SelectionChangeSupport.java:56)
+        at com.bc.ceres.swing.selection.support.SelectionChangeSupport.fireSelectionChange(SelectionChangeSupport.java:51)
+        at com.bc.ceres.swing.selection.AbstractSelectionContext.fireSelectionChange(AbstractSelectionContext.java:81)
+        at com.bc.ceres.swing.selection.support.ComboBoxSelectionContext.access$100(ComboBoxSelectionContext.java:15)
+        at com.bc.ceres.swing.selection.support.ComboBoxSelectionContext$ComboBoxSelectionHandler.itemStateChanged(ComboBoxSelectionContext.java:56)
+
+b) deselect: check out 'Update target product' --> Mosaic GUI will not be changed to the "not Update modus"
+    (to get the "not Update modus" you shall select and deselect 'Update target product' checkbox over againe)
+    
+Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: The product name '' is not valid.
+Names must not start with a dot and must not
+contain any of the following characters: \/:*?"<>|
+        at com.bc.ceres.binding.PropertyContainer.setValue(PropertyContainer.java:248)
+        at org.esa.beam.framework.gpf.ui.TargetProductSelectorModel.setValueContainerValue(TargetProductSelectorModel.java:148)
+        at org.esa.beam.framework.gpf.ui.TargetProductSelectorModel.setProductName(TargetProductSelectorModel.java:124)
+        at org.esa.beam.gpf.common.mosaic.ui.MosaicIOPanel$TargetProductSelectorUpdater.propertyChange(MosaicIOPanel.java:387)
+        at java.beans.PropertyChangeSupport.firePropertyChange(Unknown Source)
+        at java.beans.PropertyChangeSupport.firePropertyChange(Unknown Source)
+        at java.beans.PropertyChangeSupport.firePropertyChange(Unknown Source)
+        at com.bc.ceres.binding.Property.setValue(Property.java:152)
+        at com.bc.ceres.binding.PropertyContainer.setValue(PropertyContainer.java:246)
+        at org.esa.beam.gpf.common.mosaic.ui.MosaicIOPanel$2.selectionChanged(MosaicIOPanel.java:113)
+        at com.bc.ceres.swing.selection.support.SelectionChangeSupport.fireSelectionChange(SelectionChangeSupport.java:56)
+        at com.bc.ceres.swing.selection.support.SelectionChangeSupport.fireSelectionChange(SelectionChangeSupport.java:51)
+        at com.bc.ceres.swing.selection.AbstractSelectionContext.fireSelectionChange(AbstractSelectionContext.java:81)
+        at com.bc.ceres.swing.selection.support.ComboBoxSelectionContext.access$100(ComboBoxSelectionContext.java:15)
+        at com.bc.ceres.swing.selection.support.ComboBoxSelectionContext$ComboBoxSelectionHandler.itemStateChanged(ComboBoxSelectionContext.java:56)
+
+- missing CRS information
+
+
 masks, vectors, layers
 -----------------------
 - Deleting of a band, mask, vector causes NullPointerexception
-- Selection mask in the Mask manager causes duplication of this mask in the mask node of the product tree
+Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
+        at org.esa.beam.visat.VisatApp.updateMainFrameTitle(VisatApp.java:1410)
+        at org.esa.beam.visat.VisatApp.setSelectedProductNode(VisatApp.java:871)
+        at org.esa.beam.visat.ProductsToolView$VisatPTL.setSelectedProductNode(ProductsToolView.java:267)
+        at org.esa.beam.visat.ProductsToolView$VisatPTL.vectorDataSelected(ProductsToolView.java:200)
+        at org.esa.beam.framework.ui.product.ProductTree.fireNodeSelected(ProductTree.java:720)
+        at org.esa.beam.framework.ui.product.ProductTree.access$300(ProductTree.java:76)
+        at org.esa.beam.framework.ui.product.ProductTree$PTMouseListener.mousePressed(ProductTree.java:438)
+                
 - 3 PINs but in Statistic: "Number of considered pixels: 2"
 - zoom to figger
 - black drawing under the figger
 - vector mark for pin/gcp will be zoomed with the image view
-- edit mask ->  changes will not applyed
+- edit mask ->  changes will not be applyed
+- range mask disregard No-Data and valid pixel expression
 
 save product/session
 ------------
