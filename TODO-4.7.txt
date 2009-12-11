@@ -117,3 +117,8 @@ h3. Ceres Layer API Changes
 
 h3. Ceres Core API Changes
 * Renamed class ServiceRegistryFactory to ServiceRegistryManager
+
+h3. GUI Tests result
+* Deleting band, mask, vector causes NullPointerexception
+* Selection mask in the Mask manager causes duplication of this mask in the mask node of the product tree
+* 3 PINs but in Statistic: "Number of considered pixels: 2"
