@@ -218,9 +218,6 @@ masks, vectors, layers
 - zoom to figger. in Layer manager can be zoomed to figger layer. (?)
 ------------------------------------------------------------------------
 
-- black drawing under the figger
-------------------------------------------------------------------------
-
 - vector mark for pin/gcp will be zoomed with the image view
 ------------------------------------------------------------------------
 
@@ -233,53 +230,16 @@ masks, vectors, layers
 - range mask disregards No-Data and valid pixel expression
 ------------------------------------------------------------------------
 
-- new vector node causes some nullPointerException:
-
-a) save and close product
-
-Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
-        at org.esa.beam.visat.toolviews.layermanager.MoveLayerDownAction.canMove(MoveLayerDownAction.java:47)
-        at org.esa.beam.visat.toolviews.layermanager.LayerManagerForm.updateFormControl(LayerManagerForm.java:197)
-        at org.esa.beam.visat.toolviews.layermanager.LayerManagerToolView.layerSelectionChanged(LayerManagerToolView.java:62)
-        at org.esa.beam.visat.toolviews.layermanager.AbstractLayerToolView.setSelectedLayer(AbstractLayerToolView.java:134)
-        at org.esa.beam.visat.toolviews.layermanager.AbstractLayerToolView.setSelectedView(AbstractLayerToolView.java:126)
-        at org.esa.beam.visat.toolviews.layermanager.AbstractLayerToolView.access$200(AbstractLayerToolView.java:39)
-        at org.esa.beam.visat.toolviews.layermanager.AbstractLayerToolView$LayerManagerIFL.internalFrameActivated(AbstractLayerToolView.java:145)
-
-b) save -close - open session, containing figger, - select _figger or new vector node - draw figger
-
-PSV: insertFigures false, 1
-Exception in thread "AWT-EventQueue-0" java.lang.UnsupportedOperationException
-        at org.geotools.feature.collection.AbstractFeatureCollection.add(AbstractFeatureCollection.java:189)
-        at org.geotools.feature.collection.AbstractFeatureCollection.addAll(AbstractFeatureCollection.java:210)
-        at org.esa.beam.framework.ui.product.ProductSceneView$2.insertFigures(ProductSceneView.java:233)
-        at com.bc.ceres.swing.figure.interactions.InsertRectangularFigureInteractor.mouseReleased(InsertRectangularFigureInteractor.java:51)
-        at com.bc.ceres.swing.figure.InteractionDispatcher.mouseReleased(InteractionDispatcher.java:71)
-
-        c) close VISAT
-
-Exception while removing reference: java.util.concurrent.RejectedExecutionException
-java.util.concurrent.RejectedExecutionException
-        at java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(Unknown Source)
-        at java.util.concurrent.ThreadPoolExecutor.reject(Unknown Source)
-        at java.util.concurrent.ThreadPoolExecutor.execute(Unknown Source)
-        at java.util.concurrent.AbstractExecutorService.submit(Unknown Source)
-        at sun.awt.shell.Win32ShellFolderManager2$ComInvoker.invoke(Unknown Source)
-        at sun.awt.shell.Win32ShellFolder2$FolderDisposer.dispose(Unknown Source)
-        at sun.java2d.Disposer.run(Unknown Source)
-        at java.lang.Thread.run(Unknown Source)
-------------------------------------------------------------------------
-
 - roi is lost by save session; save - close - open session --> roi will not be preselected  ?
 ------------------------------------------------------------------------
 
-- new arithmetic band get figger in black
-------------------------------------------------------------------------
+- NullPointer after delete mask, which was used in the expression for other mask
+-------------------------------------------------------------------------
 
-- save-close-open session, containing figger, all figger will be black
-------------------------------------------------------------------------
+Porduct modified
+==================
 
-- NullPointer after delete mask, used in the expression for uther mask
+open product - open band --> product will be modified
 
 
 //////////////////////////////////////////////////////////////////////////////////////
