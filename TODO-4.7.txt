@@ -1,17 +1,21 @@
 VectorDataNode:
 ===============
-When reprojecting (subsetting?) products, we must also transform geometry and align CRS of feature collections in
-vector data nodes!!!
-Pins/GCPs need special treatment!
+* When reprojecting (subsetting?) products, we must also transform geometry and align CRS of feature collections in
+  vector data nodes!!! Pins/GCPs need special treatment!
+* Import shapefile vector data node (export shapefile is BEAM 4.8)
 
 Figures:
 ========
-Before using an insert line/polygon tool, we need a target layer:
-1. If layer is selected AND layer is a vector layer --> ok
-2. If vector data node is selected:
+* Polygon bug: JTS wants 0 or 3 points.
+* Move-Handle bug: many handles are created while dragging
+* Layer style editor doesn't work anymore
+* What about Undo/Redo?!? (should work!)
+* Before using an insert line/polygon tool, we need a target layer:
+  1. If layer is selected AND layer is a vector layer --> ok
+  2. If vector data node is selected:
       2.a If corresp. layer exists, select it --> ok
       2.b otherwise create corresp. layer, goto 2.a
-3. If vector data mask is selected:
+  3. If vector data mask is selected:
       3.a Get corresponding vector data node
       3.b Goto 2 using this vector data node 
 
