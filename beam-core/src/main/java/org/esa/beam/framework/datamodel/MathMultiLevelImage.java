@@ -31,37 +31,6 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
     private final Map<Product, Set<ProductNode>> nodeMap = new WeakHashMap<Product, Set<ProductNode>>();
 
     /**
-     * Creates a new mask {@link MultiLevelImage} computed from raster data arithmetics. The mask
-     * image created is reset whenever any referred raster data have changed.
-     * <p/>
-     * A 'node data changed' event is fired from the associated {@link RasterDataNode} whenever
-     * the mask image is reset.
-     *
-     * @param expression     the raster data arithmetic expression.
-     * @param associatedNode the {@link RasterDataNode} associated with the image being created.
-     *
-     * @return the {@code MultiLevelImage} created.
-     */
-    static MultiLevelImage createMask(final String expression, final RasterDataNode associatedNode) {
-        final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(associatedNode);
-        final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
-            @Override
-            public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.createMask(expression,
-                                                     associatedNode.getProduct(),
-                                                     ResolutionLevel.create(getModel(), level));
-            }
-        };
-        return new MathMultiLevelImage(multiLevelSource, expression, associatedNode.getProduct()) {
-            @Override
-            public void reset() {
-                super.reset();
-                associatedNode.fireProductNodeDataChanged();
-            }
-        };
-    }
-
-    /**
      * Creates a new {@link MultiLevelImage} computed from raster data arithmetics. The image
      * created is reset whenever any referred raster data have changed.
      * <p/>
