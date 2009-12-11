@@ -25,7 +25,6 @@ public class ZoomInteractor extends ViewportInteractor {
 
     @Override
     public void mousePressed(MouseEvent event) {
-        graphics = event.getComponent().getGraphics();
         viewportX = event.getX();
         viewportY = event.getY();
         setZoomRect(event);
@@ -33,9 +32,7 @@ public class ZoomInteractor extends ViewportInteractor {
 
     @Override
     public void mouseDragged(MouseEvent event) {
-        if (graphics == null) {
-            return;
-        }
+        graphics = event.getComponent().getGraphics();
         graphics.setXORMode(Color.white);
         if (!zoomRect.isEmpty()) {
             drawZoomRect();
