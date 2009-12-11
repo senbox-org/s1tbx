@@ -292,9 +292,10 @@ public class ProductsToolView extends AbstractToolView {
 
         private boolean isDeletableVectorData(Object selectedObject) {
             if (selectedObject instanceof VectorDataNode) {
-                // todo - dont delete pins + GCP vector data (nf)
-                return true;
-            } else return false;
+                final VectorDataNode vectorDataNode = (VectorDataNode) selectedObject;
+                return vectorDataNode.getProduct().isInternalNode(vectorDataNode);
+            }
+            return false;
         }
 
         private boolean isDeletableRasterData(Object selectedObject) {

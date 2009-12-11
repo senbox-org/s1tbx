@@ -90,11 +90,13 @@ public class Product extends ProductNode {
     public static final String METADATA_ROOT_NAME = "metadata";
     public static final String HISTORY_ROOT_NAME = "history";
 
-
     public static final String PROPERTY_NAME_FILE_LOCATION = "fileLocation";
     public static final String PROPERTY_NAME_GEOCODING = "geoCoding";
     public static final String PROPERTY_NAME_POINTING = "pointing";
     public static final String PROPERTY_NAME_PRODUCT_TYPE = "productType";
+
+    public static final String PIN_FEATURE_TYPE_NAME = "Pin";
+    public static final String GCP_FEATURE_TYPE_NAME = "GCP";
 
     /**
      * The location file of this product.
@@ -314,32 +316,10 @@ public class Product extends ProductNode {
 
         this.gcpGroup = new ProductNodeGroup<Pin>(this, "gcpGroup", true);
 
-        // todo - review me, this is test code (nf 10.2009)
         this.vectorDataGroup.add(new VectorDataNode("pins", Pin.getPinFeatureType()));
-        this.vectorDataGroup.add(
-                new VectorDataNode("ground_control_points", createPlacemarkFeatureType("GcpType", "geoPoint")));
+        this.vectorDataGroup.add(new VectorDataNode("ground_control_points", createPlacemarkFeatureType(GCP_FEATURE_TYPE_NAME, "geoPoint")));
 
-        if ("true".equals(System.getProperty("beam.maskDev"))) {
-            // todo - review me, this is test code (nf 10.2009)
-            VectorDataNode testShapes1 = createTestShapes1("test_shapes_1");
-            this.vectorDataGroup.add(testShapes1);
-            VectorDataNode testShapes2 = createTestShapes2("test_shapes_2");
-            this.vectorDataGroup.add(testShapes2);
-
-            Mask testShapes1Mask = new Mask("test_shapes_1", sceneRasterWidth, sceneRasterHeight,
-                                            new Mask.VectorDataType());
-            testShapes1Mask.getImageConfig().setValue("vectorData", testShapes1);
-            this.maskGroup.add(testShapes1Mask);
-
-            Mask testShapes2Mask = new Mask("test_shapes_2", sceneRasterWidth, sceneRasterHeight,
-                                            new Mask.VectorDataType());
-            testShapes2Mask.getImageConfig().setValue("vectorData", testShapes2);
-            this.maskGroup.add(testShapes2Mask);
-
-        }
-        // todo - remove, only needed because the vector data stuff above modified the product (nf 10.2009)
         setModified(false);
-
 
         addProductNodeListener(new ProductNodeListenerAdapter() {
             @Override
@@ -1156,6 +1136,12 @@ public class Product extends ProductNode {
 
     public ProductNodeGroup<VectorDataNode> getVectorDataGroup() {
         return vectorDataGroup;
+    }
+
+    public boolean isInternalNode(VectorDataNode vectorDataNode) {
+        final SimpleFeatureType simpleFeatureType = vectorDataNode.getFeatureType();
+        final String typeName = simpleFeatureType.getTypeName();
+        return PIN_FEATURE_TYPE_NAME.equals(typeName) || GCP_FEATURE_TYPE_NAME.equals(typeName);
     }
 
     //////////////////////////////////////////////////////////////////////////

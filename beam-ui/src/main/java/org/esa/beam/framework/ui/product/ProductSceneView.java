@@ -981,7 +981,7 @@ public class ProductSceneView extends BasicView
         return getSceneImage().getBitmaskLayer(create);
     }
 
-    private Layer getVectorDataCollectionLayer(boolean create) {
+    public Layer getVectorDataCollectionLayer(boolean create) {
         return getSceneImage().getVectorDataCollectionLayer(create);
     }
 

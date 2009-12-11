@@ -16,13 +16,19 @@
  */
 package org.esa.beam.visat.actions;
 
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.PropertyPane;
-import org.esa.beam.framework.ui.product.SimpleFeatureFigureFactory;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.framework.ui.product.SimpleFeatureFigureFactory;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.visat.VisatApp;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -31,28 +37,31 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import javax.swing.JPanel;
 import java.awt.Dimension;
 
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertySet;
-import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.ValidationException;
-import com.vividsolutions.jts.geom.Geometry;
-
 /**
  * Creates a new vector data node.
+ *
  * @author Norman Fomferra
  * @since BEAM 4.7
  */
 public class NewVectorDataAction extends ExecCommand {
-    private static final String DIALOG_TITLE = "New Vector Data";
+    private static final String DIALOG_TITLE = "New Geometry Container";
+
+    public static final String VECTOR_DATA_NAME = "vectorDataName";
 
     // todo - add help (nf)
     private static final String HELP_ID = "";
-
     static int areas = 0;
+
+    public String getVectorDataName() {
+        return (String) getProperty(VECTOR_DATA_NAME);
+    }
 
     @Override
     public void actionPerformed(CommandEvent event) {
+        run();
+    }
+
+    public void run() {
         final Product product = VisatApp.getApp().getSelectedProduct();
         DialogData dialogData = new DialogData();
         PropertySet propertySet = PropertyContainer.createObjectBacked(dialogData);
@@ -74,6 +83,9 @@ public class NewVectorDataAction extends ExecCommand {
             VectorDataNode vectorDataNode = new VectorDataNode(dialogData.name, type);
             vectorDataNode.setDescription(dialogData.description);
             product.getVectorDataGroup().add(vectorDataNode);
+            setProperty(VECTOR_DATA_NAME, dialogData.name);
+        } else {
+            setProperty(VECTOR_DATA_NAME, null);
         }
     }
 
@@ -94,12 +106,12 @@ public class NewVectorDataAction extends ExecCommand {
         }
 
         @Override
-            public void validateValue(Property property, Object value) throws ValidationException {
+        public void validateValue(Property property, Object value) throws ValidationException {
             String name = (String) value;
             if (product.getVectorDataGroup().contains(name)) {
-                 throw new ValidationException("Vector data with name '"+name+"' already exists.\n" +
-                         "Please choose another one.");
-             }
+                throw new ValidationException("Vector data with name '" + name + "' already exists.\n" +
+                        "Please choose another one.");
+            }
         }
     }
 

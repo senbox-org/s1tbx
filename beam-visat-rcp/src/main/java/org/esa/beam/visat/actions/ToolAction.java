@@ -40,6 +40,8 @@ public class ToolAction extends ToolCommand {
     private static Interactor activeInteractor = NullInteractor.INSTANCE;
 
     private InteractorListener activationHandler;
+    private static final String INTERACTOR_ELEMENT_NAME = "interactor";
+    private static final String INTERACTOR_LISTENER_ELEMENT_NAME = "interactorListener";
 
     public ToolAction() {
         super(ToolAction.class.getName());
@@ -49,12 +51,12 @@ public class ToolAction extends ToolCommand {
     @Override
     public void updateState(final CommandEvent event) {
         setEnabled(VisatApp.getApp().getSelectedProductSceneView() != null);
-        setSelected(getTool().isActive());
+        setSelected(getInteractor().isActive());
     }
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        VisatApp.getApp().setActiveInteractor(getTool());
+        VisatApp.getApp().setActiveInteractor(getInteractor());
     }
 
     private class ToolActivationHandler extends AbstractInteractorListener {
@@ -77,45 +79,62 @@ public class ToolAction extends ToolCommand {
 
     }
 
-
     @Override
     public void configure(ConfigurationElement config) throws CoreException {
-        String interactorClassName = getConfigString(config, "interactor");
-        if (interactorClassName != null) {
-            Class<?> aClass;
-            try {
-                aClass = config.getDeclaringExtension().getDeclaringModule().loadClass(interactorClassName);
-            } catch (ClassNotFoundException e) {
-                String msg = MessageFormat.format("[{0}]: Not able to load class [{1}]",
-                                                  config.getDeclaringExtension().getDeclaringModule().getName(),
-                                                  interactorClassName);
-                throw new CoreException(msg, e);
-            }
-            Class<Interactor> interactorClass;
-            if (Interactor.class.isAssignableFrom(aClass)) {
-                interactorClass = (Class<Interactor>) aClass;
-            } else {
-                String msg = MessageFormat.format("[{0}]: Specified class [{1}] must be derieved from [{2}]",
-                                                  config.getDeclaringExtension().getDeclaringModule().getName(),
-                                                  interactorClassName,
-                                                  Interactor.class.getName());
-                throw new CoreException(msg);
-            }
-
-            try {
-                setTool(interactorClass.newInstance());
-            } catch (Exception e) {
-                String msg = MessageFormat.format("[{0}]: Not able to create new instance of class [{1}]",
-                                                  config.getDeclaringExtension().getDeclaringModule().getName(),
-                                                  interactorClass.getName());
-                throw new CoreException(msg, e);
-            }
-
-
-        }
+        configureInteractor(config);
         super.configure(config);
-        getTool().addListener(activationHandler);
+    }
 
+    private void configureInteractor(ConfigurationElement config) throws CoreException {
+        String interactorClassName = getConfigString(config, INTERACTOR_ELEMENT_NAME);
+        if (interactorClassName != null) {
+            Interactor interactor = loadObjectInstance(config, Interactor.class, interactorClassName);
+            interactor.addListener(activationHandler);
+            String interactorListenerClassName = getConfigString(config, INTERACTOR_LISTENER_ELEMENT_NAME);
+            if (interactorListenerClassName != null) {
+                InteractorListener interactorListener = loadObjectInstance(config, InteractorListener.class, interactorListenerClassName);
+                interactor.addListener(interactorListener);
+            }
+            setInteractor(interactor);
+        } else {
+            String msg = MessageFormat.format("[{0}]: Missing element [{1}] whose value must be an instance of [{2}]",
+                                              config.getDeclaringExtension().getDeclaringModule().getName(),
+                                              INTERACTOR_ELEMENT_NAME,
+                                              Interactor.class.getName());
+            throw new CoreException(msg);
+        }
+    }
+
+    private <T> T loadObjectInstance(ConfigurationElement config, Class<? extends T> baseClass, String implClassName) throws CoreException {
+        Class<?> derivedClass;
+        try {
+            derivedClass = config.getDeclaringExtension().getDeclaringModule().loadClass(implClassName);
+        } catch (ClassNotFoundException e) {
+            String msg = MessageFormat.format("[{0}]: Not able to load class [{1}]",
+                                              config.getDeclaringExtension().getDeclaringModule().getName(),
+                                              implClassName);
+            throw new CoreException(msg, e);
+        }
+        Class<? extends T> interactorClass;
+        if (baseClass.isAssignableFrom(derivedClass)) {
+            interactorClass = (Class<? extends T>) derivedClass;
+        } else {
+            String msg = MessageFormat.format("[{0}]: Specified class [{1}] must be derived from [{2}]",
+                                              config.getDeclaringExtension().getDeclaringModule().getName(),
+                                              implClassName,
+                                              baseClass.getName());
+            throw new CoreException(msg);
+        }
+        final T instance;
+        try {
+            instance = interactorClass.newInstance();
+        } catch (Exception e) {
+            String msg = MessageFormat.format("[{0}]: Not able to create new instance of class [{1}]",
+                                              config.getDeclaringExtension().getDeclaringModule().getName(),
+                                              interactorClass.getName());
+            throw new CoreException(msg, e);
+        }
+        return instance;
     }
 
 }

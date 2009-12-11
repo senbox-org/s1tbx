@@ -30,6 +30,7 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
     private final PlacemarkDescriptor placemarkDescriptor;
     private Pin selectedPlacemark;
     private Cursor cursor;
+    private boolean started;
 
     protected InsertPlacemarkInteractor(PlacemarkDescriptor placemarkDescriptor) {
         this.placemarkDescriptor = placemarkDescriptor;
@@ -42,54 +43,63 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
     }
 
     @Override
-    public void mouseClicked(MouseEvent event) {
-        System.out.println("InsertPlacemarkInteractor.mouseClicked: event = " + event);
-        activateOverlay();
-        if (isSingleButton1Click(event)) {
-            selectOrInsertPlacemark(event);
-        } else if (isMultiButton1Click(event)) {
-            selectAndEditPlacemark(event);
-        } else if (event.isPopupTrigger()) {
-            showPopupMenu(event);
-        }
-    }
-
-    @Override
     public void mousePressed(MouseEvent event) {
+        started = false;
         System.out.println("InsertPlacemarkInteractor.mousePressed: event = " + event);
         ProductSceneView sceneView = getProductSceneView(event);
         if (sceneView != null) {
-            startInteraction(event);
-            Pin selectedPlacemark = getPlacemarkForPixelPos(event, sceneView.getCurrentPixelX(), sceneView.getCurrentPixelY());
-            setSelectedPlacemark(selectedPlacemark);
+            started = startInteraction(event);
+            if (started) {
+                Pin selectedPlacemark = getPlacemarkForPixelPos(event, sceneView.getCurrentPixelX(), sceneView.getCurrentPixelY());
+                setSelectedPlacemark(selectedPlacemark);
+            }
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent event) {
-        ProductSceneView sceneView = getProductSceneView(event);
-        if (sceneView != null) {
-            completeInteraction(sceneView);
-            stopInteraction(event);
-            setSelectedPlacemark(null);
+        if (started) {
+            ProductSceneView sceneView = getProductSceneView(event);
+            if (sceneView != null) {
+                completeInteraction(sceneView);
+                stopInteraction(event);
+                setSelectedPlacemark(null);
+            }
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent event) {
+        if (started) {
+            System.out.println("InsertPlacemarkInteractor.mouseClicked: event = " + event);
+            activateOverlay();
+            if (isSingleButton1Click(event)) {
+                selectOrInsertPlacemark(event);
+            } else if (isMultiButton1Click(event)) {
+                selectAndEditPlacemark(event);
+            } else if (event.isPopupTrigger()) {
+                showPopupMenu(event);
+            }
+        }
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent event) {
+        if (started) {
+            ProductSceneView sceneView = getProductSceneView(event);
+            if (sceneView != null
+                    && getSelectedPlacemark() != null
+                    && sceneView.isCurrentPixelPosValid()) {
+                PixelPos pixelPos = new PixelPos((float) sceneView.getCurrentPixelX() + 0.5f,
+                                                 (float) sceneView.getCurrentPixelY() + 0.5f);
+                if (pixelPos.isValid()) {
+                    getSelectedPlacemark().setPixelPos(pixelPos);
+                }
+            }
         }
     }
 
     protected abstract void completeInteraction(ProductSceneView sceneView);
-
-    @Override
-    public void mouseDragged(MouseEvent event) {
-        ProductSceneView sceneView = getProductSceneView(event);
-        if (sceneView != null
-                && getSelectedPlacemark() != null
-                && sceneView.isCurrentPixelPosValid()) {
-            PixelPos pixelPos = new PixelPos((float) sceneView.getCurrentPixelX() + 0.5f,
-                                             (float) sceneView.getCurrentPixelY() + 0.5f);
-            if (pixelPos.isValid()) {
-                getSelectedPlacemark().setPixelPos(pixelPos);
-            }
-        }
-    }
 
     private void selectOrInsertPlacemark(MouseEvent event) {
         ProductSceneView view = getProductSceneView(event);
@@ -277,17 +287,4 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
         this.selectedPlacemark = selectedPlacemark;
     }
 
-    // todo - move these to AbstractInteraction? (nf)
-
-    protected static boolean isSingleButton1Click(MouseEvent e) {
-        return isLeftMouseButtonDown(e) && e.getClickCount() == 1;
-    }
-
-    protected static boolean isMultiButton1Click(MouseEvent e) {
-        return isLeftMouseButtonDown(e) && e.getClickCount() > 1;
-    }
-
-    protected static boolean isLeftMouseButtonDown(MouseEvent e) {
-        return (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0;
-    }
 }

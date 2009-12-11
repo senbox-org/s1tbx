@@ -1562,6 +1562,7 @@
             <id>drawLineTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.InsertLineFigureInteractor</interactor>
+            <interactorListener>org.esa.beam.visat.actions.InsertFigureInteractorHandler</interactorListener>
             <parent>tools</parent>
             <placeAfter>pinTool</placeAfter>
             <text>Draw Line</text>
@@ -1576,6 +1577,7 @@
             <id>drawRectangleTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.InsertRectangleFigureInteractor</interactor>
+            <interactorListener>org.esa.beam.visat.actions.InsertFigureInteractorHandler</interactorListener>
             <parent>tools</parent>
             <placeAfter>drawLineTool</placeAfter>
             <text>Draw Rectangle</text>
@@ -1590,6 +1592,7 @@
             <id>drawEllipseTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.InsertEllipseFigureInteractor</interactor>
+            <interactorListener>org.esa.beam.visat.actions.InsertFigureInteractorHandler</interactorListener>
             <parent>tools</parent>
             <placeAfter>drawRectangleTool</placeAfter>
             <text>Draw Ellipse</text>
@@ -1604,6 +1607,7 @@
             <id>drawPolylineTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.InsertPolylineFigureInteractor</interactor>
+            <interactorListener>org.esa.beam.visat.actions.InsertFigureInteractorHandler</interactorListener>
             <parent>tools</parent>
             <placeAfter>drawEllipseTool</placeAfter>
             <text>Draw Polyline</text>
@@ -1618,6 +1622,7 @@
             <id>drawPolygonTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.InsertPolygonFigureInteractor</interactor>
+            <interactorListener>org.esa.beam.visat.actions.InsertFigureInteractorHandler</interactorListener>
             <parent>tools</parent>
             <placeAfter>drawPolylineTool</placeAfter>
             <text>Draw Polygon</text>

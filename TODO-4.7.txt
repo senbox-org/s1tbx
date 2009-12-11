@@ -251,7 +251,7 @@ Exception in thread "AWT-EventQueue-0" java.lang.UnsupportedOperationException
         at org.geotools.feature.collection.AbstractFeatureCollection.addAll(AbstractFeatureCollection.java:210)
         at org.esa.beam.framework.ui.product.ProductSceneView$2.insertFigures(ProductSceneView.java:233)
         at com.bc.ceres.swing.figure.interactions.InsertRectangularFigureInteractor.mouseReleased(InsertRectangularFigureInteractor.java:51)
-        at com.bc.ceres.swing.figure.support.InteractionDispatcher.mouseReleased(InteractionDispatcher.java:71)
+        at com.bc.ceres.swing.figure.InteractionDispatcher.mouseReleased(InteractionDispatcher.java:71)
 
         c) close VISAT
 

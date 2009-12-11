@@ -545,6 +545,6 @@ public class Pin extends ProductNode {
 
         private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
         private static final SimpleFeatureType PIN_FEATURE_TYPE =
-                createPlacemarkFeatureType("PinType", PROPERTY_NAME_PIXELPOS);
+                createPlacemarkFeatureType(Product.PIN_FEATURE_TYPE_NAME, PROPERTY_NAME_PIXELPOS);
     }
 }

@@ -25,7 +25,6 @@ import com.bc.ceres.swing.actions.PasteAction;
 import com.bc.ceres.swing.actions.RedoAction;
 import com.bc.ceres.swing.actions.SelectAllAction;
 import com.bc.ceres.swing.actions.UndoAction;
-import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorAware;
 import com.bc.ceres.swing.figure.Interactor;
@@ -132,7 +131,6 @@ import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
@@ -437,7 +435,7 @@ public class VisatApp extends BasicApp implements AppContext {
             addCommand(command, getCommandManager());
             if ("selectTool".equals(command.getCommandID())) {
                 ToolCommand toolCommand = (ToolCommand) command;
-                selectionInteractor = toolCommand.getTool();
+                selectionInteractor = toolCommand.getInteractor();
                 setActiveInteractor(selectionInteractor);
                 toolCommand.setSelected(true);
             }

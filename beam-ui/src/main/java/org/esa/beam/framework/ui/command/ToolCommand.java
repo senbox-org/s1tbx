@@ -36,36 +36,36 @@ import java.awt.event.ActionEvent;
  */
 public class ToolCommand extends SelectableCommand {
 
-    private Interactor tool;
+    private Interactor interactor;
     private final InteractorListener toolListener;
 
     public ToolCommand(String commandID) {
         super(commandID);
-        tool = NullInteractor.INSTANCE;
+        interactor = NullInteractor.INSTANCE;
         toolListener = new InternalInteractorListener();
     }
 
-    public ToolCommand(String commandID, CommandStateListener listener, Interactor tool) {
+    public ToolCommand(String commandID, CommandStateListener listener, Interactor interactor) {
         this(commandID);
-        setTool(tool);
+        setInteractor(interactor);
         addCommandStateListener(listener);
     }
 
-    public Interactor getTool() {
-        return tool;
+    public Interactor getInteractor() {
+        return interactor;
     }
 
-    public final void setTool(Interactor tool) {
-        Guardian.assertNotNull("tool", tool);
-        Interactor oldTool = this.tool;
-        if (tool == oldTool) {
+    public final void setInteractor(Interactor interactor) {
+        Guardian.assertNotNull("interactor", interactor);
+        Interactor oldTool = this.interactor;
+        if (interactor == oldTool) {
             return;
         }
         if (oldTool != null) {
             oldTool.removeListener(toolListener);
         }
-        this.tool = tool;
-        this.tool.addListener(toolListener);
+        this.interactor = interactor;
+        this.interactor.addListener(toolListener);
     }
 
     /**
