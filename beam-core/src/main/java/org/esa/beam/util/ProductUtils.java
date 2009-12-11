@@ -1549,7 +1549,7 @@ public class ProductUtils {
         ProductNodeGroup<VectorDataNode> vectorDataGroup = sourceProduct.getVectorDataGroup();
         RasterDataNode sourceRDN = getRasterDataNode(sourceProduct);
         RasterDataNode targetRDN = getRasterDataNode(targetProduct);
-        if (sourceRDN == null || targetRDN == null) {
+        if (sourceRDN == null || targetRDN == null || sourceProduct.getGeoCoding() == null || targetProduct.getGeoCoding() == null) {
             return;
         }
         Geometry sourceGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(sourceRDN);
