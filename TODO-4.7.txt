@@ -42,7 +42,7 @@ VectorDataNode:
 Figures:
 ========
 * First zoom does not show zooming rectangle
-  ==> PRE, MP, OPEN
+  ==> PRE, MP, ONGOING
 * Make pin/GCP use a GeoTools feature --> and then a figure
   ==> PRE, RQ, OPEN
 * Polygon bug: JTS wants 0 or 3 points.
@@ -54,7 +54,7 @@ Figures:
 * Still can not add/remove geometry vertices
   ==> FINAL, NF, OPEN
 * Move-Handle bug: many handles are created while dragging
-  ==> PRE, MP, ONGOING
+  ==> PRE, MP, DONE
 * Layer style editor doesn't work anymore
   ==> PRE, MP, OPEN
 * New edit menu:
