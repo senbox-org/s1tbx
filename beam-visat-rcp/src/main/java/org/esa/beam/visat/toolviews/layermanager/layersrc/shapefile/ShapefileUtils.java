@@ -6,6 +6,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.FeatureCollectionClipper;
 import org.esa.beam.util.ProductUtils;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
@@ -55,7 +56,7 @@ public class ShapefileUtils {
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadShapefile(URL url,
                                                                                     RasterDataNode targetRaster) throws IOException {
         final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(targetRaster.getGeoCoding());
-        final Geometry clipGeometry = createGeoBoundaryPolygon(targetRaster);
+        final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(targetRaster);
         return createFeatureCollection(url, targetCrs, clipGeometry);
     }
 
@@ -66,7 +67,7 @@ public class ShapefileUtils {
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(url);
         featureCollection = featureSource.getFeatures();
-        featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, targetCrs);
+        featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, null, targetCrs);
         return featureCollection;
     }
 
@@ -79,17 +80,5 @@ public class ShapefileUtils {
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         featureSource = shapefileStore.getFeatureSource(typeName);
         return featureSource;
-    }
-
-    public static Geometry createGeoBoundaryPolygon(RasterDataNode targetRaster) {
-        GeometryFactory gf = new GeometryFactory();
-        GeoPos[] geoPositions = ProductUtils.createGeoBoundary(targetRaster, null, 100);
-        Coordinate[] coordinates = new Coordinate[geoPositions.length + 1];
-        for (int i = 0; i < geoPositions.length; i++) {
-            GeoPos geoPos = geoPositions[i];
-            coordinates[i] = new Coordinate(geoPos.lon, geoPos.lat);
-        }
-        coordinates[coordinates.length - 1] = coordinates[0];
-        return gf.createPolygon(gf.createLinearRing(coordinates), null);
     }
 }

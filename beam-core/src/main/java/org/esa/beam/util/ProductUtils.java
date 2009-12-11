@@ -25,6 +25,8 @@ import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
+import com.vividsolutions.jts.geom.Geometry;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
@@ -49,6 +51,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.ScatterPlot;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
@@ -70,6 +73,14 @@ import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
+import org.geotools.data.store.ReprojectingFeatureCollection;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
@@ -1277,20 +1288,58 @@ public class ProductUtils {
             copyOverlayMasks(sourceNode, targetProduct);
         }
     }
+    
+    /**
+     * Copies the ROI {@link Mask}s from the source product's raster data nodes to
+     * the target product's raster data nodes.
+     * <p/>
+     * IMPORTANT NOTE: This method should only be used, if it is known that all masks
+     * in the source product will also be valid in the target product. This method does
+     * <em>not</em> copy ROI masks, which are not contained in the target product's
+     * mask group.
+     *
+     * @param sourceProduct the source product
+     * @param targetProduct the target product
+     */
+    public static void copyRoiMasks(Product sourceProduct, Product targetProduct) {
+        for (RasterDataNode sourceNode : sourceProduct.getTiePointGrids()) {
+            copyRoiMasks(sourceNode, targetProduct);
+        }
+        for (RasterDataNode sourceNode : sourceProduct.getBands()) {
+            copyRoiMasks(sourceNode, targetProduct);
+        }
+    }
 
     private static void copyOverlayMasks(final RasterDataNode sourceNode, final Product targetProduct) {
-        final RasterDataNode targetNode = targetProduct.getRasterDataNode(sourceNode.getName());
+        String[] maskNames = sourceNode.getOverlayMaskGroup().getNodeNames();
+        RasterDataNode targetNode = targetProduct.getRasterDataNode(sourceNode.getName());
         if (targetNode != null) {
-            final ProductNodeGroup<Mask> sourceMaskGroup = sourceNode.getOverlayMaskGroup();
-            final ProductNodeGroup<Mask> targetMaskGroup = targetProduct.getMaskGroup();
-            for (int i = 0; i < sourceMaskGroup.getNodeCount(); i++) {
-                final Mask mask = targetMaskGroup.get(sourceMaskGroup.get(i).getName());
-                if (mask != null) {
-                    targetNode.getOverlayMaskGroup().add(mask);
-                }
+            ProductNodeGroup<Mask> overlayMaskGroup = targetNode.getOverlayMaskGroup();
+            ProductNodeGroup<Mask> maskGroup = targetProduct.getMaskGroup();
+            addMasksToGroup(maskNames, maskGroup, overlayMaskGroup);
+        }
+    }
+    
+    private static void copyRoiMasks(final RasterDataNode sourceNode, final Product targetProduct) {
+        String[] maskNames = sourceNode.getRoiMaskGroup().getNodeNames();
+        RasterDataNode targetNode = targetProduct.getRasterDataNode(sourceNode.getName());
+        if (targetNode != null) {
+            ProductNodeGroup<Mask> roiMaskGroup = targetNode.getRoiMaskGroup();
+            ProductNodeGroup<Mask> maskGroup = targetProduct.getMaskGroup();
+            addMasksToGroup(maskNames, maskGroup, roiMaskGroup);
+        }
+    }
+
+    
+    private static void addMasksToGroup(String[] maskNames, ProductNodeGroup<Mask> maskGroup, ProductNodeGroup<Mask> specialMaskGroup) {
+        for (String maskName : maskNames) {
+            final Mask mask = maskGroup.get(maskName);
+            if (mask != null) {
+                specialMaskGroup.add(mask);
             }
         }
     }
+
 
     /**
      * Copies all bands which contain a flagcoding from the source product to the target product.
@@ -1494,6 +1543,43 @@ public class ProductUtils {
             TiePointGrid srcTPG = sourceProduct.getTiePointGridAt(i);
             targetProduct.addTiePointGrid(srcTPG.cloneTiePointGrid());
         }
+    }
+    
+    public static void copyVectorData(Product sourceProduct, Product targetProduct) {
+        ProductNodeGroup<VectorDataNode> vectorDataGroup = sourceProduct.getVectorDataGroup();
+        RasterDataNode sourceRDN = getRasterDataNode(sourceProduct);
+        RasterDataNode targetRDN = getRasterDataNode(targetProduct);
+        if (sourceRDN == null || targetRDN == null) {
+            return;
+        }
+        Geometry sourceGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(sourceRDN);
+        Geometry targetGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(targetRDN);
+        CoordinateReferenceSystem targetCRS = ImageManager.getModelCrs(targetProduct.getGeoCoding());
+        for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
+            VectorDataNode vectorDataNode = vectorDataGroup.get(i);
+            String name = vectorDataNode.getName();
+            if (!"pins".equals(name) && !"ground_control_points".equals(name)) {
+                FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
+                ReprojectingFeatureCollection wgs84Collection = new ReprojectingFeatureCollection(featureCollection, DefaultGeographicCRS.WGS84);
+                FeatureCollection<SimpleFeatureType, SimpleFeature> clippedToSource = FeatureCollectionClipper.doOperation(wgs84Collection, sourceGeometry, null, null);
+                FeatureCollection<SimpleFeatureType, SimpleFeature> clippedToTarget = FeatureCollectionClipper.doOperation(clippedToSource, targetGeometry, null, targetCRS);
+                VectorDataNode targetVDN = new VectorDataNode(name, clippedToTarget);
+                targetVDN.setDescription(vectorDataNode.getDescription());
+                targetProduct.getVectorDataGroup().add(targetVDN);
+            }
+        }
+    }
+    
+    private static RasterDataNode getRasterDataNode(Product product) {
+        Band[] bands = product.getBands();
+        if (bands.length > 0) {
+            return bands[0];
+        }
+        TiePointGrid[] tiePointGrids = product.getTiePointGrids();
+        if (tiePointGrids.length > 0) {
+            return tiePointGrids[0];
+        }
+        return null;
     }
 
     /**

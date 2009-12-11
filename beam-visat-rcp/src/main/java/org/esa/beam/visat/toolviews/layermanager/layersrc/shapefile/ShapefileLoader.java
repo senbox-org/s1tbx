@@ -12,6 +12,7 @@ import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.util.FeatureCollectionClipper;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
@@ -63,7 +64,7 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
             pm.beginTask("Reading shapes", ProgressMonitor.UNKNOWN);
             final ProductSceneView sceneView = context.getAppContext().getSelectedProductSceneView();
             CoordinateReferenceSystem targetCrs = (CoordinateReferenceSystem) context.getLayerContext().getCoordinateReferenceSystem();
-            final Geometry clipGeometry = ShapefileUtils.createGeoBoundaryPolygon(sceneView.getRaster());
+            final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(sceneView.getRaster());
 
             File file = new File((String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH));
             Object featureCollectionValue = context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION);

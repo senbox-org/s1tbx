@@ -23,8 +23,10 @@ import org.esa.beam.framework.ui.PropertyPane;
 import org.esa.beam.framework.ui.product.SimpleFeatureFigureFactory;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.visat.VisatApp;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JPanel;
 import java.awt.Dimension;
@@ -67,7 +69,8 @@ public class NewVectorDataAction extends ExecCommand {
         int i = dialog.show();
         if (i == ModalDialog.ID_OK) {
             // todo - always use same schema name! (nf)
-            SimpleFeatureType type = SimpleFeatureFigureFactory.createSimpleFeatureType("X", Geometry.class);
+            CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(product.getGeoCoding());
+            SimpleFeatureType type = SimpleFeatureFigureFactory.createSimpleFeatureType("X", Geometry.class, modelCrs);
             VectorDataNode vectorDataNode = new VectorDataNode(dialogData.name, type);
             vectorDataNode.setDescription(dialogData.description);
             product.getVectorDataGroup().add(vectorDataNode);

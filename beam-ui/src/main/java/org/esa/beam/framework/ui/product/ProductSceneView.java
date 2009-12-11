@@ -51,6 +51,7 @@ import org.esa.beam.glayer.MaskCollectionLayer;
 import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glayer.ProductLayerContext;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.AwtGeomToJtsGeomConverter;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
@@ -282,13 +283,10 @@ public class ProductSceneView extends BasicView
         VectorDataNode vectorDataNode = getProduct().getVectorDataGroup().get("_figures");
         if (vectorDataNode == null) {
             GeoCoding geoCoding = getRaster().getGeoCoding();
-            CoordinateReferenceSystem crs = null;
-            if (geoCoding != null) {
-                crs = geoCoding.getMapCRS();
-            }
+            CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(geoCoding);
             vectorDataNode = new VectorDataNode("_figures", SimpleFeatureFigureFactory.createSimpleFeatureType("_figures",
                                                                                                        Geometry.class,
-                                                                                                       crs));
+                                                                                                       modelCrs));
             getProduct().getVectorDataGroup().add(vectorDataNode);
         }
 

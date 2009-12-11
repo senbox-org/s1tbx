@@ -1,10 +1,12 @@
-package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
+package org.esa.beam.util;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import junit.framework.TestCase;
+
+import org.esa.beam.util.FeatureCollectionClipper;
 import org.geotools.data.AbstractFeatureSource;
 import org.geotools.data.DataStore;
 import org.geotools.data.FeatureListener;
@@ -91,9 +93,10 @@ public class FeatureCollectionClipperTest extends TestCase {
                      marcoSource.getBounds(Query.ALL));
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> normanSource = FeatureCollectionClipper.doOperation(
-                marcoSource.getFeatures(), clipGeometry, null);
+                marcoSource.getFeatures(), clipGeometry, null, null);
 
         assertNotNull(normanSource);
+        assertEquals(marcoSource.getFeatures().getID(), normanSource.getID());
         assertEquals(marcoType, normanSource.getSchema());
         assertEquals(2, normanSource.size());
         assertEquals(25, normanSource.getBounds().getMinX(), 1e-10);

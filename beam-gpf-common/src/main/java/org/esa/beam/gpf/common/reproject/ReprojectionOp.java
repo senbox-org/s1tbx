@@ -209,8 +209,10 @@ public class ReprojectionOp extends Operator {
                        PlacemarkSymbol.createDefaultPinSymbol());
         copyPlacemarks(sourceProduct.getGcpGroup(), targetProduct.getGcpGroup(),
                        PlacemarkSymbol.createDefaultGcpSymbol());
+        ProductUtils.copyVectorData(sourceProduct, targetProduct);
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
+        ProductUtils.copyRoiMasks(sourceProduct, targetProduct);
     }
 
     @Override

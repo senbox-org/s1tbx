@@ -1,9 +1,13 @@
-package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
+package org.esa.beam.util;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
@@ -22,9 +26,7 @@ import org.opengis.referencing.operation.TransformException;
 import java.util.Iterator;
 
 
-class FeatureCollectionClipper {
-
-    private static int idCounter;
+public class FeatureCollectionClipper {
 
     private FeatureCollectionClipper() {
     }
@@ -32,6 +34,7 @@ class FeatureCollectionClipper {
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> doOperation(
             FeatureCollection<SimpleFeatureType, SimpleFeature> sourceCollection,
             Geometry clipGeometry,
+            String targetID,
             CoordinateReferenceSystem targetCrs) {
 
 
@@ -42,6 +45,9 @@ class FeatureCollectionClipper {
         }
         if (targetCrs == null) {
             targetCrs = sourceCrs;
+        }
+        if (targetID == null || targetID.isEmpty()) {
+            targetID = sourceCollection.getID();
         }
 
         final Class<?> geometryBinding = sourceSchema.getGeometryDescriptor().getType().getBinding();
@@ -55,19 +61,13 @@ class FeatureCollectionClipper {
         } else {
             try {
                 targetSchema = FeatureTypes.transform(sourceSchema, targetCrs);
-                MathTransform transform = CRS.findMathTransform(sourceCrs, targetCrs);
-                transformer = new GeometryCoordinateSequenceTransformer();
-                transformer.setMathTransform(transform);
-                transformer.setCoordinateReferenceSystem(targetCrs);
+                transformer = getTransform(sourceCrs, targetCrs);
             } catch (SchemaException e) {
-                throw new IllegalStateException(e);
-            } catch (FactoryException e) {
                 throw new IllegalStateException(e);
             }
         }
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> targetCollection = new DefaultFeatureCollection(createId(),
-                                                                                                            targetSchema);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> targetCollection = new DefaultFeatureCollection(targetID, targetSchema);
         Iterator<SimpleFeature> iterator = sourceCollection.iterator();
         try {
             while (iterator.hasNext()) {
@@ -105,9 +105,29 @@ class FeatureCollectionClipper {
 
         return targetCollection;
     }
-
-    private static String createId() {
-        idCounter++;
-        return FeatureCollectionClipper.class + "_" + idCounter;
+    
+    private static GeometryCoordinateSequenceTransformer getTransform(CoordinateReferenceSystem sourceCrs, CoordinateReferenceSystem targetCrs) {
+        GeometryCoordinateSequenceTransformer transformer;
+        try {
+            MathTransform transform = CRS.findMathTransform(sourceCrs, targetCrs);
+            transformer = new GeometryCoordinateSequenceTransformer();
+            transformer.setMathTransform(transform);
+            transformer.setCoordinateReferenceSystem(targetCrs);
+        } catch (FactoryException e) {
+            throw new IllegalStateException(e);
+        }
+        return transformer;
+    }
+    
+    public static Geometry createGeoBoundaryPolygon(RasterDataNode targetRaster) {
+        GeometryFactory gf = new GeometryFactory();
+        GeoPos[] geoPositions = ProductUtils.createGeoBoundary(targetRaster, null, 100);
+        Coordinate[] coordinates = new Coordinate[geoPositions.length + 1];
+        for (int i = 0; i < geoPositions.length; i++) {
+            GeoPos geoPos = geoPositions[i];
+            coordinates[i] = new Coordinate(geoPos.lon, geoPos.lat);
+        }
+        coordinates[coordinates.length - 1] = coordinates[0];
+        return gf.createPolygon(gf.createLinearRing(coordinates), null);
     }
 }
