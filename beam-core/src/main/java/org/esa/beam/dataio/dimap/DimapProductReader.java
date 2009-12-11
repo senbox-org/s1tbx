@@ -39,6 +39,7 @@ import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.data.DataStore;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.crs.ForceCoordinateSystemFeatureResults;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.SchemaException;
 import org.jdom.Document;
@@ -80,7 +81,7 @@ public class DimapProductReader extends AbstractProductReader {
 
     private int sourceRasterWidth;
     private int sourceRasterHeight;
-    private Map bandDataFiles;
+    private Map<Band, File> bandDataFiles;
 
     /**
      * Construct a new instance of a product reader for the given BEAM-DIMAP product reader plug-in.
@@ -160,7 +161,7 @@ public class DimapProductReader extends AbstractProductReader {
     }
 
 
-    private void initGeoCodings(Document dom) throws IOException {
+    private void initGeoCodings(Document dom) {
         final GeoCoding[] geoCodings = DimapProductHelpers.createGeoCoding(dom, product);
         if (geoCodings != null) {
             if (geoCodings.length == 1) {
@@ -186,7 +187,7 @@ public class DimapProductReader extends AbstractProductReader {
             if (band instanceof VirtualBand || band instanceof FilterBand) {
                 continue;
             }
-            final File dataFile = (File) bandDataFiles.get(band);
+            final File dataFile = bandDataFiles.get(band);
             if (dataFile == null) {
                 product.removeBand(band);
                 BeamLogManager.getSystemLogger().warning(
@@ -300,7 +301,7 @@ public class DimapProductReader extends AbstractProductReader {
         final int sourceMaxX = sourceOffsetX + sourceWidth - 1;
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
 
-        final File dataFile = (File) bandDataFiles.get(destBand);
+        final File dataFile = bandDataFiles.get(destBand);
         final ImageInputStream inputStream = getOrCreateImageInputStream(destBand, dataFile);
 
         int destPos = 0;
@@ -392,10 +393,12 @@ public class DimapProductReader extends AbstractProductReader {
                     FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
                     CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(product.getGeoCoding());
                     FeatureCollection<SimpleFeatureType, SimpleFeature> forcesFeatureCollection = new ForceCoordinateSystemFeatureResults( featureCollection, modelCrs);
-                    VectorDataNode vectorDataNode = new VectorDataNode(name, forcesFeatureCollection);
+                    DefaultFeatureCollection defaultFeatureCollection = new DefaultFeatureCollection(forcesFeatureCollection);
+                    VectorDataNode vectorDataNode = new VectorDataNode(name, defaultFeatureCollection);
                     product.getVectorDataGroup().add(vectorDataNode);
                 } catch (IOException e) {
                     BeamLogManager.getSystemLogger().throwing("DimapProductReader", "readVectorData", e);
+                    e.printStackTrace();
                 } catch (SchemaException e) {
                     BeamLogManager.getSystemLogger().throwing("DimapProductReader", "readVectorData", e);
                     e.printStackTrace();
