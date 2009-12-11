@@ -290,13 +290,6 @@ public class ProductSceneView extends BasicView
             getProduct().getVectorDataGroup().add(vectorDataNode);
         }
 
-        int index = getRootLayer().getChildIndex("_figures");
-        if (index == -1) {
-            getRootLayer().getChildren().add(0, new VectorDataLayer(getSceneImage(), vectorDataNode));
-        }
-
-        //new SimpleFeatureFigureFactory()
-
         // TEST TEST TEST
         ///////////////////////////////
     }
