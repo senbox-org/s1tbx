@@ -1,16 +1,36 @@
+Masks:
+======
+* Old bitmask overlay window: Only list "real" bitmasks. What is real?
+  E.g. Flag-related masks, masks set my reader, masks initially in the product,...
+  It is only used for bitmask overlay, no mask management.
+
+
 VectorDataNode:
 ===============
+* Need action to create new VectorDataNode. (DONE)
+* Need action to delete old VectorDataNode. (DONE, partly, see TODOs in code)
+* Still need to transfer model-CRS into feature types.
+  What about the image-CRS in Property DataStore? What is the EPSG code?!?!
 * When reprojecting (subsetting?) products, we must also transform geometry and align CRS of feature collections in
   vector data nodes!!! Pins/GCPs need special treatment!
 * Import shapefile vector data node (export shapefile is BEAM 4.8)
+* What is the presentation name for VectorDataNode? E.g.
+  "Vector data", "Vector data container", "Shapes", "Geometry", ...
 
 Figures:
 ========
+* Make pin/GCP use a GeoTools feature --> and then a figure
 * Polygon bug: JTS wants 0 or 3 points.
+* Still can't rotate figures
+* Still no repaint while drawing new figures
+* Still can not add/remove geometry vertices
 * Move-Handle bug: many handles are created while dragging
 * Layer style editor doesn't work anymore
-* What about Undo/Redo?!? (should work!)
-* Before using an insert line/polygon tool, we need a target layer:
+* New edit menu:
+  - Test Cut/Copy/Paste!
+  - What about Undo/Redo?!? (should work!)
+* Allow for geometric operations add/sub/intersection
+* Before using an insert line/polygon interaction, we need a target layer for the figures to be inserted:
   1. If layer is selected AND layer is a vector layer --> ok
   2. If vector data node is selected:
       2.a If corresp. layer exists, select it --> ok
