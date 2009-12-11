@@ -76,16 +76,20 @@ public class InsertFigureInteractorHandler extends AbstractInteractorListener {
             return false;
         }
         productSceneView.setSelectedLayer(vectorDataLayer);
-        return productSceneView.getSelectedLayer() == vectorDataLayer;
+        if (productSceneView.getSelectedLayer() == vectorDataLayer) {
+            vectorDataLayer.setVisible(true);
+            return true;
+        }
+        return false;
     }
 
     private static VectorDataLayer newVectorDataLayer(Product product, Layer collectionLayer, boolean interactive) {
         String name;
-        if (interactive){
+        if (interactive) {
             NewVectorDataAction action = new NewVectorDataAction();
             action.run();
             name = action.getVectorDataName();
-        } else{
+        } else {
             name = "geometry";
             NewVectorDataAction.createVectorDataNode(product, name, "Default container for geometries.");
         }
