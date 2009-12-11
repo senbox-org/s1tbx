@@ -73,13 +73,13 @@ public class InsertMultiPointFigureInteractor extends FigureEditorInteractor {
     }
 
     private void removeNotNeededPoints() {
-        points.remove(points.size() - 1); // remove last temporary point
         final int moreThanFour = points.size() - 4;
         int i = Math.min(2, moreThanFour);
         while (i > 0) {
             points.remove(0); // remove additional points inserted for JTS polygon
             i--;
         }
+        points.remove(points.size() - 1); // remove last temporary point
     }
 
     @Override
