@@ -1558,7 +1558,7 @@ public class ProductUtils {
         for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
             VectorDataNode vectorDataNode = vectorDataGroup.get(i);
             String name = vectorDataNode.getName();
-            if (!"pins".equals(name) && !"ground_control_points".equals(name)) {
+            if (!sourceProduct.isInternalNode(vectorDataNode)) {
                 FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
                 ReprojectingFeatureCollection wgs84Collection = new ReprojectingFeatureCollection(featureCollection, DefaultGeographicCRS.WGS84);
                 FeatureCollection<SimpleFeatureType, SimpleFeature> clippedToSource = FeatureCollectionClipper.doOperation(wgs84Collection, sourceGeometry, null, null);

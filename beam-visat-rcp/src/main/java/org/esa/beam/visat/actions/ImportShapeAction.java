@@ -276,7 +276,7 @@ public class ImportShapeAction extends ExecCommand {
         }
         String name = FileUtils.getFilenameWithoutExtension(file);
         CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(geoCoding);
-        SimpleFeatureType simpleFeatureType = SimpleFeatureFigureFactory.createSimpleFeatureType(name, Geometry.class, modelCrs);
+        SimpleFeatureType simpleFeatureType = SimpleFeatureFigureFactory.createSimpleFeatureType(Product.GEOMETRY_FEATURE_TYPE_NAME, Geometry.class, modelCrs);
         DefaultFeatureCollection featureCollection = new DefaultFeatureCollection(name, simpleFeatureType);
         
         SimpleFeatureFigureFactory simpleFeatureFigureFactory = new SimpleFeatureFigureFactory(featureCollection);

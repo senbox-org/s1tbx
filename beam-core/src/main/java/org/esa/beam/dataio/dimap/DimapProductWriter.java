@@ -494,7 +494,7 @@ public class DimapProductWriter extends AbstractProductWriter {
         for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
             VectorDataNode vectorDataNode = vectorDataGroup.get(i);
             String name = vectorDataNode.getName();
-            if (!"pins".equals(name) && !"ground_control_points".equals(name)) {
+            if (!product.isInternalNode(vectorDataNode)) {
                 hasVectorData = true;
                 break;
             }
@@ -511,8 +511,7 @@ public class DimapProductWriter extends AbstractProductWriter {
             }
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
                 VectorDataNode vectorDataNode = vectorDataGroup.get(i);
-                String name = vectorDataNode.getName();
-                if (!"pins".equals(name) && !"ground_control_points".equals(name)) {
+                if (!product.isInternalNode(vectorDataNode)) {
                     writeVectorData(vectorDataDir, vectorDataNode);
                 }
             }
