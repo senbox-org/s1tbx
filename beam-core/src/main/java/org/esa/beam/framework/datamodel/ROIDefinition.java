@@ -479,7 +479,12 @@ public class ROIDefinition implements Cloneable {
             expParts.add("pins");
         }
         if (roiDefinition.isShapeEnabled()) {
-            // TODO
+            Shape shape = roiDefinition.getShapeFigure().getShape();
+            if (shape != null) {
+                // TODO create vector data node
+                // TODO add it to the product
+                // TODO use the corresponding mask here
+            }
         }
         
         final StringBuilder expressionBuilder = new StringBuilder();
