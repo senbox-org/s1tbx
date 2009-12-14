@@ -1564,6 +1564,7 @@ public class ProductUtils {
                 FeatureCollection<SimpleFeatureType, SimpleFeature> clippedToSource = FeatureCollectionClipper.doOperation(wgs84Collection, sourceGeometry, null, null);
                 FeatureCollection<SimpleFeatureType, SimpleFeature> clippedToTarget = FeatureCollectionClipper.doOperation(clippedToSource, targetGeometry, null, targetCRS);
                 VectorDataNode targetVDN = new VectorDataNode(name, clippedToTarget);
+                targetVDN.setDefaultCSS(vectorDataNode.getDefaultCSS());
                 targetVDN.setDescription(vectorDataNode.getDescription());
                 targetProduct.getVectorDataGroup().add(targetVDN);
             }
