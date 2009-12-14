@@ -21,7 +21,6 @@ import org.esa.beam.framework.datamodel.AbstractBand;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -55,13 +54,17 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A tree-view component for multiple <code>Product</code>s. Clients can register one or more
@@ -76,11 +79,12 @@ import java.util.Map;
 public class ProductTree extends JTree implements PopupMenuFactory {
     private static final String METADATA = "Metadata";
     private static final String BANDS = "Bands";
-    private static final String MASKS = "Masks";
     private static final String VECTOR_DATA = "Geometries";
     private static final String TIE_POINT_GRIDS = "Tie-point grids";
     private static final String FLAG_CODINGS = "Flag codings";
     private static final String INDEX_CODINGS = "Index codings";
+// Uncomment for debugging masks:
+//    private static final String MASKS = "Masks";
 
     private final ProductNodeListener productNodeListener;
 
@@ -94,9 +98,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      */
     private CommandManager commandManager;
 
-    private ExceptionHandler exceptionHandler;
     private CommandUIFactory commandUIFactory;
-    private Map<RasterDataNode, Integer> openedRasterMap;
+    private Set<ProductNode> activeProductNodes;
+    private Map<ProductNode, Integer> openedProductNodes;
 
     /**
      * Constructs a new single selection <code>ProductTree</code>.
@@ -111,7 +115,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      * @param multipleSelect whether or not the tree is multiple selection capable
      */
     public ProductTree(final boolean multipleSelect) {
-        productNodeListener = new ProductTreePTL();
+        productNodeListener = new ProductTreePNL();
         getSelectionModel().setSelectionMode(multipleSelect
                 ? TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION
                 : TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -129,9 +133,89 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         final PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
         addMouseListener(popupMenuHandler);
         addKeyListener(popupMenuHandler);
-        openedRasterMap = new HashMap<RasterDataNode, Integer>();
+        activeProductNodes = new HashSet<ProductNode>();
+        openedProductNodes = new HashMap<ProductNode, Integer>();
 
         TreeCellExtender.equip(this);
+    }
+
+    /**
+     * Notifies this product tree, that a product scene view has opened.
+     *
+     * @param view The view.
+     * @deprecated since BEAM 4.7, use {@link #registerOpenedProductNodes(org.esa.beam.framework.datamodel.ProductNode[])} instead
+     */
+    @Deprecated
+    public void sceneViewOpened(ProductSceneView view) {
+        registerOpenedProductNodes(view.getRasters());
+    }
+
+    /**
+     * Notifies this product tree, that a product scene view has closed.
+     *
+     * @param view The view.
+     * @deprecated since BEAM 4.7, use {@link #deregisterOpenedProductNodes(org.esa.beam.framework.datamodel.ProductNode[])} instead
+     */
+    @Deprecated
+    public void sceneViewClosed(ProductSceneView view) {
+        deregisterOpenedProductNodes(view.getRasters());
+    }
+
+    /**
+     * Registers "opened" product nodes, e.g. visible nodes, nodes currently edited, etc.
+     * Opened product nodes may be diffently displayed.
+     *
+     * @param nodes The products nodes which are in process.
+     * @see #registerActiveProductNodes(org.esa.beam.framework.datamodel.ProductNode[])
+     */
+    public void registerOpenedProductNodes(ProductNode... nodes) {
+        for (ProductNode node : nodes) {
+            Integer count = 1;
+            if (openedProductNodes.containsKey(node)) {
+                count += openedProductNodes.get(node);
+            }
+            openedProductNodes.put(node, count);
+        }
+        updateUI();
+    }
+
+    /**
+     * Deregisters "opened" product nodes, e.g. visible nodes, nodes currently edited, etc.
+     * Opened product nodes may be diffently displayed.
+     *
+     * @param nodes The products nodes which are in process.
+     * @see #deregisterActiveProductNodes(org.esa.beam.framework.datamodel.ProductNode[])
+     */
+    public void deregisterOpenedProductNodes(ProductNode... nodes) {
+        boolean changed = false;
+        for (ProductNode node : nodes) {
+            int count = -1;
+            if (openedProductNodes.containsKey(node)) {
+                count += openedProductNodes.get(node);
+            }
+            if (count == 0) {
+                openedProductNodes.remove(node);
+                changed = true;
+            } else if (count > 0) {
+                openedProductNodes.put(node, count);
+                changed = true;
+            }
+        }
+        if (changed) {
+            updateUI();
+        }
+    }
+
+    public void registerActiveProductNodes(ProductNode... nodes) {
+        if (activeProductNodes.addAll(Arrays.asList(nodes))) {
+            updateUI();
+        }
+    }
+
+    public void deregisterActiveProductNodes(ProductNode... nodes) {
+        if (activeProductNodes.removeAll(Arrays.asList(nodes))) {
+            updateUI();
+        }
     }
 
     @Override
@@ -239,11 +323,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      *
      * @param listener the listener to be removed.
      */
-    public boolean removeProductTreeListener(ProductTreeListener listener) {
+    public void removeProductTreeListener(ProductTreeListener listener) {
         if (listener != null && productTreeListenerList != null) {
-            return productTreeListenerList.remove(listener);
+            productTreeListenerList.remove(listener);
         }
-        return false;
     }
 
     public void setCommandManager(CommandManager commandManager) {
@@ -258,8 +341,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         this.commandUIFactory = commandUIFactory;
     }
 
+    @Deprecated
     public void setExceptionHandler(ExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
     }
 
     private DefaultMutableTreeNode createProductListTreeNode(Product[] products) {
@@ -296,7 +379,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             productTreeNode.add(tiePointGridGroupTreeNode);
         }
 
-        productTreeNode.add(createMaskNodes(product));
+// Uncomment for debugging masks:
+//        productTreeNode.add(createMaskNodes(product));
+
         productTreeNode.add(createVectorDataNodes(product));
         productTreeNode.add(createBandNodes(product));
 
@@ -340,6 +425,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         return treeNode;
     }
 
+// Uncomment for debugging masks:
+/*
     private static DefaultMutableTreeNode createMaskNodes(Product product) {
         DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(MASKS);
         ProductNodeGroup<Mask> productNodeGroup = product.getMaskGroup();
@@ -349,6 +436,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         }
         return treeNode;
     }
+*/
 
     private static DefaultMutableTreeNode createVectorDataNodes(Product product) {
         DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(VECTOR_DATA);
@@ -398,34 +486,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         return indexCodingsGroupTreeNode;
     }
 
-    public void sceneViewOpened(ProductSceneView view) {
-        final RasterDataNode[] rasters = view.getRasters();
-        for (RasterDataNode raster : rasters) {
-            Integer count = 1;
-            if (openedRasterMap.containsKey(raster)) {
-                count += openedRasterMap.get(raster);
-            }
-            openedRasterMap.put(raster, count);
-        }
-        updateUI();
-    }
-
-    public void sceneViewClosed(ProductSceneView view) {
-        final RasterDataNode[] rasters = view.getRasters();
-        for (RasterDataNode raster : rasters) {
-            Integer count = -1;
-            if (openedRasterMap.containsKey(raster)) {
-                count += openedRasterMap.get(raster);
-            }
-            if (count <= 0) {
-                openedRasterMap.remove(raster);
-            } else {
-                openedRasterMap.put(raster, count);
-            }
-        }
-        updateUI();
-    }
-
     private class PTMouseListener extends MouseAdapter {
 
         @Override
@@ -455,34 +515,42 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
         ImageIcon productIcon;
         ImageIcon metadataIcon;
-        ImageIcon bandAsSwathIcon;
-        ImageIcon bandAsSwathIconUnloaded;
-        ImageIcon bandAsTiePointIcon;
-        ImageIcon bandAsTiePointIconUnloaded;
-        ImageIcon bandFlagsIcon;
-        ImageIcon bandFlagsIconUnloaded;
-        ImageIcon bandIndexesIcon;
-        ImageIcon bandIndexesIconUnloaded;
-        ImageIcon bandVirtualIcon;
-        ImageIcon bandVirtualIconUnloaded;
-        ImageIcon maskIcon;
-        ImageIcon vectorDataIcon;
+        ImageIcon tiePointGridVisibleIcon;
+        ImageIcon tiePointGridInvisibleIcon;
+        ImageIcon bandVisibleIcon;
+        ImageIcon bandInvisibleIcon;
+        ImageIcon bandVirtualVisibleIcon;
+        ImageIcon bandVirtualInvisibleIcon;
+        ImageIcon bandFlagsVisibleIcon;
+        ImageIcon bandFlagsInvisibleIcon;
+        ImageIcon bandIndexedVisibleIcon;
+        ImageIcon bandIndexedInvisibleIcon;
+        ImageIcon vectorDataNormalIcon;
+        ImageIcon vectorDataFocusedIcon;
+
+        Font normalFont;
+        Font boldFont;
+
+        // Uncomment for debugging masks:
+        // ImageIcon maskIcon;
 
         public PTCellRenderer() {
             productIcon = UIUtils.loadImageIcon("icons/RsProduct16.gif");
             metadataIcon = UIUtils.loadImageIcon("icons/RsMetaData16.gif");
-            bandAsSwathIcon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
-            bandAsSwathIconUnloaded = UIUtils.loadImageIcon("icons/RsBandAsSwath16Disabled.gif");
-            bandAsTiePointIcon = UIUtils.loadImageIcon("icons/RsBandAsTiePoint16.gif");
-            bandAsTiePointIconUnloaded = UIUtils.loadImageIcon("icons/RsBandAsTiePoint16Disabled.gif");
-            bandIndexesIcon = UIUtils.loadImageIcon("icons/RsBandIndexes16.gif");
-            bandIndexesIconUnloaded = UIUtils.loadImageIcon("icons/RsBandIndexes16Disabled.gif");
-            bandFlagsIcon = UIUtils.loadImageIcon("icons/RsBandFlags16.gif");
-            bandFlagsIconUnloaded = UIUtils.loadImageIcon("icons/RsBandFlags16Disabled.gif");
-            bandVirtualIcon = UIUtils.loadImageIcon("icons/RsBandVirtual16.gif");
-            bandVirtualIconUnloaded = UIUtils.loadImageIcon("icons/RsBandVirtual16Disabled.gif");
-            maskIcon = UIUtils.loadImageIcon("icons/RsMask16.gif");
-            vectorDataIcon = UIUtils.loadImageIcon("icons/RsVectorData16.gif");
+            bandVisibleIcon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
+            bandInvisibleIcon = UIUtils.loadImageIcon("icons/RsBandAsSwath16Disabled.gif");
+            tiePointGridVisibleIcon = UIUtils.loadImageIcon("icons/RsBandAsTiePoint16.gif");
+            tiePointGridInvisibleIcon = UIUtils.loadImageIcon("icons/RsBandAsTiePoint16Disabled.gif");
+            bandIndexedVisibleIcon = UIUtils.loadImageIcon("icons/RsBandIndexes16.gif");
+            bandIndexedInvisibleIcon = UIUtils.loadImageIcon("icons/RsBandIndexes16Disabled.gif");
+            bandFlagsVisibleIcon = UIUtils.loadImageIcon("icons/RsBandFlags16.gif");
+            bandFlagsInvisibleIcon = UIUtils.loadImageIcon("icons/RsBandFlags16Disabled.gif");
+            bandVirtualVisibleIcon = UIUtils.loadImageIcon("icons/RsBandVirtual16.gif");
+            bandVirtualInvisibleIcon = UIUtils.loadImageIcon("icons/RsBandVirtual16Disabled.gif");
+            vectorDataNormalIcon = UIUtils.loadImageIcon("icons/RsVectorData16.gif");
+            vectorDataFocusedIcon = UIUtils.loadImageIcon("icons/RsVectorData16.gif");
+            // Uncomment for debugging masks:
+            // maskIcon = UIUtils.loadImageIcon("icons/RsMask16.gif");
         }
 
         @Override
@@ -502,8 +570,15 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                                                row,
                                                hasFocus);
 
+            if (normalFont == null) {
+                normalFont = getFont();
+                boldFont = getFont().deriveFont(Font.BOLD);
+            }
+
             DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) value;
             value = treeNode.getUserObject();
+
+            setFont(normalFont);
 
             if (value instanceof Product[]) {
                 this.setText("Open products");
@@ -511,6 +586,13 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 this.setIcon(null);
             } else if (value instanceof ProductNode) {
                 final ProductNode productNode = (ProductNode) value;
+                final boolean active = activeProductNodes.contains(productNode);
+                final boolean opened = openedProductNodes.containsKey(productNode);
+
+                if (active) {
+                    setFont(boldFont);
+                }
+
                 String text = productNode.getName();
                 final StringBuffer toolTipBuffer = new StringBuffer(32);
 
@@ -548,37 +630,38 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                         toolTipBuffer.append(" nm");
                     }
 
-                    final boolean isBandOpen = openedRasterMap.containsKey(band);
                     if (band instanceof VirtualBand) {
                         toolTipBuffer.append(", expr = ");
                         toolTipBuffer.append(((VirtualBand) band).getExpression());
-                        if (isBandOpen) {
-                            this.setIcon(bandVirtualIcon);
+                        if (opened) {
+                            this.setIcon(bandVirtualVisibleIcon);
                         } else {
-                            this.setIcon(bandVirtualIconUnloaded);
+                            this.setIcon(bandVirtualInvisibleIcon);
                         }
+// Uncomment for debugging masks:
+/*
                     } else if (band instanceof Mask) {
-                        // todo - BEAM 4.7 Masks - display representative tooltip text (nf 10.2009)
                         toolTipBuffer.append(", type = ");
                         toolTipBuffer.append(((Mask) band).getImageType().getClass().getSimpleName());
                         this.setIcon(maskIcon);
+*/
                     } else if (band.getFlagCoding() != null) {
-                        if (isBandOpen) {
-                            this.setIcon(bandFlagsIcon);
+                        if (opened) {
+                            this.setIcon(bandFlagsVisibleIcon);
                         } else {
-                            this.setIcon(bandFlagsIconUnloaded);
+                            this.setIcon(bandFlagsInvisibleIcon);
                         }
                     } else if (band.getIndexCoding() != null) {
-                        if (isBandOpen) {
-                            this.setIcon(bandIndexesIcon);
+                        if (opened) {
+                            this.setIcon(bandIndexedVisibleIcon);
                         } else {
-                            this.setIcon(bandIndexesIconUnloaded);
+                            this.setIcon(bandIndexedInvisibleIcon);
                         }
                     } else {
-                        if (isBandOpen) {
-                            this.setIcon(bandAsSwathIcon);
+                        if (opened) {
+                            this.setIcon(bandVisibleIcon);
                         } else {
-                            this.setIcon(bandAsSwathIconUnloaded);
+                            this.setIcon(bandInvisibleIcon);
                         }
                     }
                     toolTipBuffer.append(", raster size = ");
@@ -587,10 +670,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     toolTipBuffer.append(band.getRasterHeight());
                 } else if (productNode instanceof TiePointGrid) {
                     TiePointGrid grid = (TiePointGrid) productNode;
-                    if (openedRasterMap.containsKey(grid)) {
-                        this.setIcon(bandAsTiePointIcon);
+                    if (opened) {
+                        this.setIcon(tiePointGridVisibleIcon);
                     } else {
-                        this.setIcon(bandAsTiePointIconUnloaded);
+                        this.setIcon(tiePointGridInvisibleIcon);
                     }
                     toolTipBuffer.append(", raster size = ");
                     toolTipBuffer.append(grid.getRasterWidth());
@@ -598,9 +681,13 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     toolTipBuffer.append(grid.getRasterHeight());
                 } else if (productNode instanceof VectorDataNode) {
                     VectorDataNode grid = (VectorDataNode) productNode;
-                    this.setIcon(vectorDataIcon);
+                    if (opened) {
+                        this.setIcon(vectorDataFocusedIcon);
+                    } else {
+                        this.setIcon(vectorDataNormalIcon);
+                    }
                     toolTipBuffer.append(", type = ");
-                    toolTipBuffer.append(grid.getFeatureType().toString());
+                    toolTipBuffer.append(grid.getFeatureType().getTypeName());
                     toolTipBuffer.append(", #features = ");
                     toolTipBuffer.append(grid.getFeatureCollection().size());
                 }
@@ -701,7 +788,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     }
 
     private void fireNodeSelected(Object node, int clickCount) {
-        //Debug.trace("Selected Node: " + node);
         if (productTreeListenerList != null) {
             for (ProductTreeListener l : productTreeListenerList) {
                 if (node instanceof Product[]) {
@@ -715,9 +801,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 } else if (node instanceof Band) {
                     l.bandSelected((Band) node, clickCount);
                 } else if (node instanceof VectorDataNode) {
+                    final VectorDataNode vectorDataNode = (VectorDataNode) node;
                     if (l instanceof ProductTreeListener2) {
                         ProductTreeListener2 l2 = (ProductTreeListener2) l;
-                        l2.vectorDataSelected((VectorDataNode) node, clickCount);
+                        l2.vectorDataSelected(vectorDataNode, clickCount);
                     }
                 }
                 if (node instanceof ProductNode) {
@@ -762,7 +849,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         return (DefaultTreeModel) getModel();
     }
 
-    private class ProductTreePTL implements ProductNodeListener {
+    private class ProductTreePNL implements ProductNodeListener {
 
         @Override
         public void nodeChanged(final ProductNodeEvent event) {
@@ -802,6 +889,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 return;
             }
             ProductNode sourceNode = event.getSourceNode();
+            openedProductNodes.remove(sourceNode);
+            activeProductNodes.remove(sourceNode);
+
             DefaultMutableTreeNode rootTNode = getRootTNode();
             DefaultMutableTreeNode productTNode = getTNode(rootTNode, sourceNode.getProduct());
             DefaultMutableTreeNode groupTNode = getGroupTNode(sourceNode, productTNode);
@@ -841,9 +931,11 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
     private DefaultMutableTreeNode getGroupTNode(ProductNode sourceNode, DefaultMutableTreeNode productTNode) {
         DefaultMutableTreeNode groupTNode = null;
-        if (sourceNode instanceof Mask) {
+// Uncomment for debugging masks:
+        /*if (sourceNode instanceof Mask) {
             groupTNode = getTNode(productTNode, MASKS);
-        } else if (sourceNode instanceof AbstractBand) {
+        } else*/
+        if (sourceNode instanceof AbstractBand) {
             groupTNode = getTNode(productTNode, BANDS);
         } else if (sourceNode instanceof TiePointGrid) {
             groupTNode = getTNode(productTNode, TIE_POINT_GRIDS);

@@ -13,7 +13,7 @@ import java.awt.Window;
 import java.beans.PropertyChangeListener;
 
 
-// todo - extract superclass AbstractPageComponent
+// todo - extract superclass AbstractPageComponent (nf)
 /**
  * An abstract base class for client {@link org.esa.beam.framework.ui.application.ToolView}s.
  * <p>Clients should use this class a base class for their tool view implementations.</p>

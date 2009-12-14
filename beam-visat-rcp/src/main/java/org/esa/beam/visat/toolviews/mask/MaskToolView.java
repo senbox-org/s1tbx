@@ -35,6 +35,8 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.awt.Container;
 
+// todo - a stripped version of this class may serve as base class for all VISAT tool views (nf)
+
 public abstract class MaskToolView extends AbstractToolView {
 
     private final ProductNodeListener titleUpdater;

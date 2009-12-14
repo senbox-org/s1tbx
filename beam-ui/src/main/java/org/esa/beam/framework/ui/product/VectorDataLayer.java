@@ -67,7 +67,7 @@ public class VectorDataLayer extends Layer {
         });
     }
 
-    public VectorDataNode getVectorData() {
+    public VectorDataNode getVectorDataNode() {
         return vectorDataNode;
     }
 

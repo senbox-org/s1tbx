@@ -5,9 +5,9 @@ Masks:
   It is only used for bitmask overlay, no mask management.
   ==> FINAL, ?, OPEN
 * Mask manager shall test for dependencies before deleting
-  ==> PRE, NF, OPEN
+  ==> FINAL, NF, OPEN
 * Remove masks from product tree
-  ==> PRE, NF, OPEN
+  ==> PRE, NF, CLOSED
 * Add tool button for new VectorDataNode.
   ==> PRE, NF, OPEN
 * Masks are inserted multiple times in product tree. Nodes are not removed on delete.
@@ -21,7 +21,7 @@ VectorDataNode:
   ==> DONE
 * New VectorDataNode shall be selected in product tree. Selection of VectorDataNode in product
   tree shall select corresponding layer.
-  ==> PRE, NF, OPEN
+  ==> PRE, NF, CLOSED
 * Need action to delete existing VectorDataNode.
   ==>  PRE, NF, DONE partly, see TODOs in code
 * Still need to transfer model-CRS into feature types.
@@ -57,6 +57,8 @@ Figures:
   ==> PRE, MP, DONE
 * Still can not add/remove geometry vertices
   ==> FINAL, NF, OPEN
+* Still cannot draw true circles/squares and also adjust lines and points on grid.
+  ==> FINAL, ?, OPEN
 * Move-Handle bug: many handles are created while dragging
   ==> PRE, MP, DONE
 * Sampling of created handles should be dependent (on model?)
@@ -78,7 +80,7 @@ Figures:
   2. If not, display dialog: user can select existing vector data nodes, or create a new one.
       2.a Select choosen vector data node in VISAT
       2.b If layer exists, select it, otherwise create new layer, and select --> ok
-  ==> PRE, NF/MP, OPEN
+  ==> PRE, NF/MP, DONE
 
 Layers:
 =======

@@ -105,7 +105,7 @@ public class InsertFigureInteractorHandler extends AbstractInteractorListener {
     private VectorDataLayer getVectorDataLayer(Product product, Layer layer) {
         if (layer instanceof VectorDataLayer) {
             final VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
-            final VectorDataNode vectorDataNode = vectorDataLayer.getVectorData();
+            final VectorDataNode vectorDataNode = vectorDataLayer.getVectorDataNode();
             if (!product.isInternalNode(vectorDataNode)) {
                 return vectorDataLayer;
             }

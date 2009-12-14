@@ -4,7 +4,9 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -757,8 +759,7 @@ public class ProductSceneView extends BasicView
         if (selectedLayer instanceof VectorDataLayer) {
             VectorDataLayer vectorDataLayer = (VectorDataLayer) selectedLayer;
             figureEditor.setFigureCollection(vectorDataLayer.getFigureCollection());
-            figureFactory.setVectorData(vectorDataLayer.getVectorData());
-
+            figureFactory.setVectorData(vectorDataLayer.getVectorDataNode());
         }
     }
 

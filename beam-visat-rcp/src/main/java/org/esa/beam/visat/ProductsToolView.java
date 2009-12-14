@@ -1,9 +1,8 @@
 package org.esa.beam.visat;
 
-import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.LayerTypeRegistry;
+import com.bc.ceres.glayer.LayerFilter;
+import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.selection.support.TreeSelectionContext;
 import com.jidesoft.swing.JideScrollPane;
@@ -23,14 +22,9 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTree;
 import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
+import org.esa.beam.framework.ui.product.VectorDataLayer;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayerType;
-import org.geotools.styling.Graphic;
-import org.geotools.styling.Mark;
-import org.geotools.styling.Style;
-import org.geotools.styling.StyleBuilder;
-import org.geotools.styling.Symbolizer;
 
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
@@ -40,9 +34,10 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -86,53 +81,11 @@ public class ProductsToolView extends AbstractToolView {
 
     private void initProductTree() {
         productTree = new ProductTree();
-        productTree.setExceptionHandler(new org.esa.beam.framework.ui.ExceptionHandler() {
-
-            @Override
-            public boolean handleException(final Exception e) {
-                visatApp.showErrorDialog(e.getMessage());
-                return true;
-            }
-        });
         productTree.addProductTreeListener(new VisatPTL());
         productTree.setCommandManager(visatApp.getCommandManager());
         productTree.setCommandUIFactory(visatApp.getCommandUIFactory());
-        visatApp.getProductManager().addListener(new ProductManager.Listener() {
-            @Override
-            public void productAdded(final ProductManager.Event event) {
-                productTree.addProduct(event.getProduct());
-                visatApp.getApplicationPage().showToolView(ID);
-            }
-
-            @Override
-            public void productRemoved(final ProductManager.Event event) {
-                final Product product = event.getProduct();
-                productTree.removeProduct(product);
-                if (visatApp.getSelectedProduct() == product) {
-                    visatApp.setSelectedProductNode((ProductNode) null);
-                }
-            }
-        });
-
-        visatApp.addInternalFrameListener(new InternalFrameAdapter() {
-
-            @Override
-            public void internalFrameOpened(InternalFrameEvent e) {
-                final Container contentPane = e.getInternalFrame().getContentPane();
-                if (contentPane instanceof ProductSceneView) {
-                    productTree.sceneViewOpened((ProductSceneView) contentPane);
-                }
-            }
-
-            @Override
-            public void internalFrameClosed(InternalFrameEvent e) {
-                final Container contentPane = e.getInternalFrame().getContentPane();
-                if (contentPane instanceof ProductSceneView) {
-                    productTree.sceneViewClosed((ProductSceneView) contentPane);
-                }
-            }
-        });
-
+        visatApp.getProductManager().addListener(new ProductManagerL());
+        visatApp.addInternalFrameListener(new SceneViewListener());
         selectionContext = new ProductTreeSelectionContext(productTree);
     }
 
@@ -147,13 +100,49 @@ public class ProductsToolView extends AbstractToolView {
         return selectionContext;
     }
 
-    /**
-     * The default implementation does nothing.
-     * <p>Clients shall not call this method directly.</p>
-     */
-    @Override
-    public void componentFocusLost() {
-        super.componentFocusLost();
+    private void registerActiveVectorDataNode(ProductSceneView sceneView) {
+        VectorDataNode vectorDataNode = getSelectedVectorDataNode(sceneView);
+        if (vectorDataNode != null) {
+            productTree.registerActiveProductNodes(vectorDataNode);
+        }
+    }
+
+    private void deregisterActiveVectorDataNode(ProductSceneView sceneView) {
+        VectorDataNode vectorDataNode = getSelectedVectorDataNode(sceneView);
+        if (vectorDataNode != null) {
+            productTree.deregisterActiveProductNodes(vectorDataNode);
+        }
+    }
+
+    private VectorDataNode getSelectedVectorDataNode(ProductSceneView sceneView) {
+        final Layer layer = sceneView.getSelectedLayer();
+        if (layer instanceof VectorDataLayer) {
+            final VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
+            return vectorDataLayer.getVectorDataNode();
+        } else {
+            return null;
+        }
+    }
+
+    private void setSelectedVectorDataNode(final VectorDataNode vectorDataNode) {
+        final ProductSceneView sceneView = visatApp.getSelectedProductSceneView();
+        if (sceneView != null) {
+            setSelectedVectorDataNode(sceneView, vectorDataNode);
+        }
+    }
+
+    private void setSelectedVectorDataNode(ProductSceneView sceneView, final VectorDataNode vectorDataNode) {
+        final LayerFilter layerFilter = new LayerFilter() {
+            @Override
+            public boolean accept(Layer layer) {
+                return layer instanceof VectorDataLayer && ((VectorDataLayer) layer).getVectorDataNode() == vectorDataNode;
+            }
+        };
+        Layer layer = LayerUtils.getChildLayer(sceneView.getRootLayer(), layerFilter, LayerUtils.SearchMode.DEEP);
+        if (layer != null) {
+            layer.setVisible(true);
+            sceneView.setSelectedLayer(layer);
+        }
     }
 
     /**
@@ -196,8 +185,9 @@ public class ProductsToolView extends AbstractToolView {
         }
 
         @Override
-        public void vectorDataSelected(VectorDataNode vectorDataNode, int clickCount) {
+        public void vectorDataSelected(final VectorDataNode vectorDataNode, int clickCount) {
             setSelectedProductNode(vectorDataNode);
+            setSelectedVectorDataNode(vectorDataNode);
         }
 
         @Override
@@ -241,8 +231,9 @@ public class ProductsToolView extends AbstractToolView {
             }
         }
 
+
         private void setSelectedProductNode(ProductNode product) {
-            deselectInternalFrame();
+            //deselectInternalFrame();
             visatApp.setSelectedProductNode(product);
         }
 
@@ -437,4 +428,89 @@ public class ProductsToolView extends AbstractToolView {
             return expression.matches(".*\\b" + node.getName() + "\\b.*");
         }
     }
+
+    private class ProductManagerL implements ProductManager.Listener {
+        @Override
+        public void productAdded(final ProductManager.Event event) {
+            productTree.addProduct(event.getProduct());
+            visatApp.getApplicationPage().showToolView(ID);
+        }
+
+        @Override
+        public void productRemoved(final ProductManager.Event event) {
+            final Product product = event.getProduct();
+            productTree.removeProduct(product);
+            if (visatApp.getSelectedProduct() == product) {
+                visatApp.setSelectedProductNode((ProductNode) null);
+            }
+        }
+    }
+
+    private class SelectedLayerListener implements PropertyChangeListener {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            final Layer oldLayer = (Layer) evt.getOldValue();
+            final Layer newLayer = (Layer) evt.getNewValue();
+            if (oldLayer instanceof VectorDataLayer) {
+                productTree.deregisterActiveProductNodes(((VectorDataLayer) oldLayer).getVectorDataNode());
+            }
+            if (newLayer instanceof VectorDataLayer) {
+                productTree.registerActiveProductNodes(((VectorDataLayer) newLayer).getVectorDataNode());
+            }
+        }
+    }
+
+    private class SceneViewListener extends InternalFrameAdapter {
+        private PropertyChangeListener selectedLayerPCL = new SelectedLayerListener();
+
+        private ProductSceneView getView(InternalFrameEvent e) {
+            final Container contentPane = e.getInternalFrame().getContentPane();
+            if (contentPane instanceof ProductSceneView) {
+                return (ProductSceneView) contentPane;
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public void internalFrameOpened(InternalFrameEvent e) {
+            final ProductSceneView sceneView = getView(e);
+            if (sceneView != null) {
+                sceneView.addPropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_LAYER, selectedLayerPCL);
+                productTree.registerOpenedProductNodes(sceneView.getRasters());
+                productTree.registerActiveProductNodes(sceneView.getRasters());
+                registerActiveVectorDataNode(sceneView);
+            }
+        }
+
+        @Override
+        public void internalFrameClosed(InternalFrameEvent e) {
+            final ProductSceneView sceneView = getView(e);
+            if (sceneView != null) {
+                sceneView.removePropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_LAYER, selectedLayerPCL);
+                productTree.deregisterOpenedProductNodes(sceneView.getRasters());
+                productTree.deregisterActiveProductNodes(sceneView.getRasters());
+                deregisterActiveVectorDataNode(sceneView);
+            }
+        }
+
+        @Override
+        public void internalFrameActivated(InternalFrameEvent e) {
+            final ProductSceneView sceneView = getView(e);
+            if (sceneView != null) {
+                productTree.registerActiveProductNodes(sceneView.getRasters());
+                registerActiveVectorDataNode(sceneView);
+            }
+        }
+
+        @Override
+        public void internalFrameDeactivated(InternalFrameEvent e) {
+            final ProductSceneView sceneView = getView(e);
+            if (sceneView != null) {
+                productTree.deregisterActiveProductNodes(sceneView.getRasters());
+                deregisterActiveVectorDataNode(sceneView);
+            }
+        }
+    }
+
 }
