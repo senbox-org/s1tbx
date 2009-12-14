@@ -4,10 +4,9 @@ import com.bc.ceres.swing.figure.AbstractShapeFigure;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Lineal;
+import com.vividsolutions.jts.geom.Polygonal;
+import com.vividsolutions.jts.geom.Puntal;
 import org.esa.beam.util.AwtGeomToJtsGeomConverter;
 import org.geotools.geometry.jts.LiteShape2;
 import org.opengis.feature.simple.SimpleFeature;
@@ -71,19 +70,13 @@ public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements Sim
     }
 
     public static Rank getRank(Geometry geometry) {
-        if (geometry instanceof Point) {
-            return Rank.PUNCTUAL;
-        }
-        if (geometry instanceof MultiPoint) {
-            return Rank.PUNCTUAL;
-        }
-        if (geometry instanceof LineString) {
+        if (geometry instanceof Puntal) {
+            return Rank.PUNTAL;
+        } else if (geometry instanceof Lineal) {
             return Rank.LINEAL;
-        }
-        if (geometry instanceof MultiLineString) {
-            return Rank.LINEAL;
-        }
-        if (geometry instanceof GeometryCollection) {
+        } else if (geometry instanceof Polygonal) {
+            return Rank.POLYGONAL;
+        } else if (geometry instanceof GeometryCollection) {
             return Rank.COLLECTION;
         }
         return Rank.POLYGONAL;
