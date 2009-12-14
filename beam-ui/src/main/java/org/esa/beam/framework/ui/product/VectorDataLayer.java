@@ -20,7 +20,9 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
 import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -57,6 +59,12 @@ public class VectorDataLayer extends Layer {
         vectorDataChangeHandler = new VectorDataChangeHandler();
         vectorDataNode.getProduct().addProductNodeListener(vectorDataChangeHandler);
         updateFigureCollection();
+        figureCollection.addChangeListener(new AbstractFigureChangeListener() {
+            @Override
+            public void figureChanged(FigureChangeEvent event) {
+                fireLayerDataChanged(null);
+            }
+        });
     }
 
     public VectorDataNode getVectorData() {
