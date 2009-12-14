@@ -88,7 +88,7 @@ public class VectorDataCollectionLayer extends CollectionLayer {
         }
     }
 
-    public class PNL implements ProductNodeListener {
+    private class PNL implements ProductNodeListener {
 
         @Override
         public synchronized void nodeChanged(ProductNodeEvent event) {
