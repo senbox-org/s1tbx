@@ -548,7 +548,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             bandVirtualVisibleIcon = UIUtils.loadImageIcon("icons/RsBandVirtual16.gif");
             bandVirtualInvisibleIcon = UIUtils.loadImageIcon("icons/RsBandVirtual16Disabled.gif");
             vectorDataNormalIcon = UIUtils.loadImageIcon("icons/RsVectorData16.gif");
-            vectorDataFocusedIcon = UIUtils.loadImageIcon("icons/RsVectorData16.gif");
+            vectorDataFocusedIcon = UIUtils.loadImageIcon("icons/RsVectorDataFocus16.gif");
             // Uncomment for debugging masks:
             // maskIcon = UIUtils.loadImageIcon("icons/RsMask16.gif");
         }
