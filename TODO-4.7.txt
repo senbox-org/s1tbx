@@ -52,7 +52,7 @@ Figures:
 * Still can't rotate figures. Remove handle in PRE?
   ==> FINAL, NF, OPEN
 * Still no repaint while drawing new figures
-  ==> PRE, RQ, OPEN
+  ==> PRE, MP, ONGOING
 * Still can not add/remove geometry vertices
   ==> FINAL, NF, OPEN
 * Move-Handle bug: many handles are created while dragging
