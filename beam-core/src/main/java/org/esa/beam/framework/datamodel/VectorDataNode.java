@@ -23,7 +23,7 @@ public class VectorDataNode extends ProductNode {
 
     public static final String PROPERTY_NAME_FEATURE_COLLECTION = "featureCollection";
 
-    private static final String DEFAULT_STYLE = "fill:#0000ff; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width=1.0";
+    private static final String DEFAULT_STYLE = "fill:#00ff00; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0";
 
     private final SimpleFeatureType featureType;
     private final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;

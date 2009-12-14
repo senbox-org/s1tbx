@@ -23,6 +23,7 @@ import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.PointFigure;
 import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
@@ -750,6 +751,10 @@ public class ProductSceneView extends BasicView
             VectorDataLayer vectorDataLayer = (VectorDataLayer) selectedLayer;
             figureEditor.setFigureCollection(vectorDataLayer.getFigureCollection());
             figureFactory.setVectorData(vectorDataLayer.getVectorDataNode());
+            final DefaultFigureStyle style = new DefaultFigureStyle();
+            style.fromCssString(vectorDataLayer.getVectorDataNode().getDefaultCSS());
+            figureEditor.setDefaultLineStyle(style);
+            figureEditor.setDefaultPolygonStyle(style);
         }
     }
 
