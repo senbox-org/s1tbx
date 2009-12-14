@@ -33,7 +33,7 @@ VectorDataNode:
   ==> PRE, MZ, DONE
 * Import shape/shapefile must create or insert into vector data node
   Check if GeoTools shapefile DataStore is already used.
-  ==> PRE, MZ/*, OPEN
+  ==> PRE, MZ/*, DONE
 * Export vector data node to shapefile
   ==> FINAL, ?, OPEN
 * Presentation name "Vector data" ==> "Geometries" + "Geometry", ...
