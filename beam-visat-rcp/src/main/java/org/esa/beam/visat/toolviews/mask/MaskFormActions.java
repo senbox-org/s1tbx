@@ -607,7 +607,7 @@ class MaskFormActions {
                 model.setRasterName((String) selectedMaskConfig.getValue(Mask.RangeType.PROPERTY_NAME_RASTER));
                 final RangeEditorDialog rangeEditorDialog = new RangeEditorDialog(window, model);
                 if (rangeEditorDialog.show() == AbstractDialog.ID_OK) {
-                    final String description = String.format("%s < %s < %s",
+                    final String description = String.format("%s <= %s <= %s",
                                                              model.getMinValue(), model.getRasterName(),
                                                              model.getMaxValue());
                     selectedMask.setDescription(description);
@@ -617,7 +617,7 @@ class MaskFormActions {
                 }
             } else if (type instanceof Mask.VectorDataType) {
                 JOptionPane.showMessageDialog(window,
-                                              "Use the VISAT geometry tools to add new lines or polygons.\n" +
+                                              "Use the VISAT geometry tools to add new points, lines or polygons.\n" +
                                                       "You can then use the select tool to select and modify the shape\n" +
                                                       "and position of the geometries.",
                                               "Edit Geometry Mask",
