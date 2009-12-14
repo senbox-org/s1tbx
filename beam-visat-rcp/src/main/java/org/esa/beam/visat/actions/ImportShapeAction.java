@@ -93,7 +93,7 @@ public class ImportShapeAction extends ExecCommand {
         }
 
         final RasterDataNode raster = productSceneView.getRaster();
-        final GeoCoding geoCoding = raster.getProduct().getGeoCoding();
+        final GeoCoding geoCoding = raster.getGeoCoding();
         if (isShapefile(file)
                 && (geoCoding == null || !geoCoding.canGetPixelPos())) {
             visatApp.showErrorDialog(DLG_TITLE,
@@ -114,12 +114,10 @@ public class ImportShapeAction extends ExecCommand {
 
         final Rectangle2D rasterBounds = new Rectangle(0, 0, raster.getSceneRasterWidth(),
                                                        raster.getSceneRasterHeight());
-        ReferencedEnvelope rasterRefEnvelope = new ReferencedEnvelope(rasterBounds, geoCoding.getImageCRS());
+        BoundingBox rasterBB = new ReferencedEnvelope(rasterBounds, geoCoding.getImageCRS());
         ReferencedEnvelope shapeRefEnvelope = featureColl.getBounds();
         
-        if (!rasterRefEnvelope.contains((BoundingBox)shapeRefEnvelope) &&
-                !shapeRefEnvelope.contains((BoundingBox)rasterRefEnvelope) && 
-                !shapeRefEnvelope.intersects((BoundingBox)rasterBounds)) {
+        if (!shapeRefEnvelope.intersects(rasterBB)) {
             visatApp.showErrorDialog(DLG_TITLE, "The shape was loaded successfully,\n"
                     + "but no part is located within the scene boundaries."); /* I18N */
             return;
