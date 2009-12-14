@@ -22,6 +22,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.List;
 
 // @todo 1 nf/nf make this class a ProductNode?
@@ -457,44 +458,45 @@ public class ROIDefinition implements Cloneable {
     }
 
     static Mask toMask(ROIDefinition roiDefinition, RasterDataNode node) {
-        final StringBuilder expressionBuilder = new StringBuilder();
-
-        if (roiDefinition.isInverted()) {
-            expressionBuilder.append("!(");
-        }
+        final List<String> expParts = new ArrayList<String>();
         if (roiDefinition.isBitmaskEnabled()) {
-            if (roiDefinition.isValueRangeEnabled()) {
-                expressionBuilder.append("(");
-            }
-            expressionBuilder.append(roiDefinition.getBitmaskExpr());
-            if (roiDefinition.isValueRangeEnabled()) {
-                expressionBuilder.append(")");
-            }
+            expParts.add(roiDefinition.getBitmaskExpr());
         }
         if (roiDefinition.isValueRangeEnabled()) {
-            if (roiDefinition.isBitmaskEnabled()) {
+            final StringBuilder rangeBuilder = new StringBuilder();
+            rangeBuilder.append("(");
+            rangeBuilder.append(node.getName());
+            rangeBuilder.append(" >= ");
+            rangeBuilder.append(roiDefinition.getValueRangeMin());
+            rangeBuilder.append(" && ");
+            rangeBuilder.append(node.getName());
+            rangeBuilder.append(" <= ");
+            rangeBuilder.append(roiDefinition.getValueRangeMax());
+            rangeBuilder.append(")");
+            expParts.add(rangeBuilder.toString());
+        }
+        if (roiDefinition.isPinUseEnabled()) {
+            expParts.add("pins");
+        }
+        if (roiDefinition.isShapeEnabled()) {
+            // TODO
+        }
+        
+        final StringBuilder expressionBuilder = new StringBuilder();
+        for (int i = 0; i < expParts.size(); i++) {
+            expressionBuilder.append(expParts.get(i));
+            if (i < (expParts.size() - 1)) {
                 if (roiDefinition.isOrCombined()) {
                     expressionBuilder.append(" || ");
                 } else {
                     expressionBuilder.append(" && ");
-                }
-                expressionBuilder.append("(");
+                }   
             }
-            expressionBuilder.append(node.getName());
-            expressionBuilder.append(" >= ");
-            expressionBuilder.append(roiDefinition.getValueRangeMin());
-            expressionBuilder.append(" && ");
-            expressionBuilder.append(node.getName());
-            expressionBuilder.append(" <= ");
-            expressionBuilder.append(roiDefinition.getValueRangeMax());
-            if (roiDefinition.isBitmaskEnabled()) {
-                expressionBuilder.append(")");
-            }
-        }
-        if (roiDefinition.isInverted()) {
-            expressionBuilder.append(")");
         }
         String expression = expressionBuilder.toString();
+        if (roiDefinition.isInverted()) {
+            expression = "!(" + expression + ")";
+        }
         if (!expression.isEmpty()) {
             final String maskName = node.getName() + "_roi";
             final int w = node.getSceneRasterWidth();
@@ -503,7 +505,7 @@ public class ROIDefinition implements Cloneable {
 
             mask.setImageColor(Color.RED);
             mask.setImageTransparency(0.5);
-            Mask.BandMathType.setExpression(mask, expressionBuilder.toString());
+            Mask.BandMathType.setExpression(mask, expression);
             return mask;
         } else {
             return null;
