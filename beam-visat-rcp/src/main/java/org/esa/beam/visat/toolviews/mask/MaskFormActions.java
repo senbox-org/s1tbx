@@ -59,6 +59,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 /**
  * @author Marco Peters
@@ -72,9 +74,9 @@ class MaskFormActions {
     MaskFormActions(AbstractToolView maskToolView, MaskForm maskForm) {
         maskActions = new MaskAction[]{
                 new NewBandMathAction(maskForm), new NewRangeAction(maskForm),
-                new _NewVectorDataNodeAction(maskForm), new NullAction(maskForm),
-                new NewUnionAction(maskForm), new NewIntersectionAction(maskForm),
-                new NewDifferenceAction(maskForm), new NewComplementAction(maskForm),
+                new _NewVectorDataNodeAction(maskForm), new NewUnionAction(maskForm),
+                new NewIntersectionAction(maskForm), new NewComplementAction(maskForm),
+                new NewDifferenceAction(maskForm), new NewInvDifferenceAction(maskForm),
                 new CopyAction(maskForm), new NullAction(maskForm),
                 new EditAction(maskForm), new RemoveAction(maskForm),
                 new ImportAction(maskToolView, maskForm), new ExportAction(maskToolView, maskForm),
@@ -177,7 +179,7 @@ class MaskFormActions {
 
         private _NewVectorDataNodeAction(MaskForm maskForm) {
             super(maskForm,
-                  "/org/esa/beam/resources/images/icons/NewVectorDataNode24.gif",
+                  "Geometry24.png",
                   "newGeometry",
                   "Creates a new mask based on geometry (lines and polygons))");
             action = new NewVectorDataNodeAction();
@@ -291,12 +293,42 @@ class MaskFormActions {
 
         private NewDifferenceAction(MaskForm maskForm) {
             super(maskForm, "Difference24.png", "differenceButton",
-                  "Creates the difference of the selected masks");
+                  "Creates the difference of the selected masks (in top-down order)");
         }
 
         @Override
         String getCode(ActionEvent e) {
             Mask[] selectedMasks = getMaskForm().getSelectedMasks();
+            StringBuilder code = new StringBuilder();
+            code.append(BandArithmetic.createExternalName(selectedMasks[0].getName()));
+            if (selectedMasks.length > 1) {
+                code.append(" && !(");
+                code.append(createCodeFromSelection("||", selectedMasks, 1));
+                code.append(")");
+            }
+            return code.toString();
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(getMaskForm().isInManagementMode() && getMaskForm().getSelectedRowCount() > 1);
+        }
+
+    }
+
+    private static class NewInvDifferenceAction extends BandMathAction {
+
+        private NewInvDifferenceAction(MaskForm maskForm) {
+            super(maskForm, "InvDifference24.png", "invDifferenceButton",
+                  "Creates the difference of the selected masks (in bottom-up order)");
+        }
+
+        @Override
+        String getCode(ActionEvent e) {
+            Mask[] selectedMasks = getMaskForm().getSelectedMasks();
+            final List<Mask> reverseList = new ArrayList<Mask>(Arrays.asList(selectedMasks));
+            Collections.reverse(reverseList);
+            selectedMasks =  reverseList.toArray(new Mask[selectedMasks.length]);
             StringBuilder code = new StringBuilder();
             code.append(BandArithmetic.createExternalName(selectedMasks[0].getName()));
             if (selectedMasks.length > 1) {

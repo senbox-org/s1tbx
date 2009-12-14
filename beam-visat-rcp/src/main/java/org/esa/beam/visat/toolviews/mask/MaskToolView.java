@@ -115,10 +115,12 @@ public abstract class MaskToolView extends AbstractToolView {
             public void valueChanged(ListSelectionEvent e) {
                 if (sceneView != null) {
                     Mask selectedMask = maskForm.getSelectedMask();
-                    VectorDataNode vectorDataNode = Mask.VectorDataType.getVectorData(selectedMask);
-                    if (vectorDataNode != null) {
-                        VisatApp.getApp().setSelectedProductNode(vectorDataNode);
-                        NewVectorDataNodeAction.setSelectedVectorDataNode(sceneView, vectorDataNode);
+                    if (selectedMask != null) {
+                        VectorDataNode vectorDataNode = Mask.VectorDataType.getVectorData(selectedMask);
+                        if (vectorDataNode != null) {
+                            VisatApp.getApp().setSelectedProductNode(vectorDataNode);
+                            NewVectorDataNodeAction.setSelectedVectorDataNode(sceneView, vectorDataNode);
+                        }
                     }
                 }
             }
