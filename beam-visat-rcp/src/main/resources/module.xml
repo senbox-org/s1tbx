@@ -1087,22 +1087,6 @@
 
         <action>
             <parent>view</parent>
-            <id>showShapeOverlay</id>
-            <class>org.esa.beam.visat.actions.ShowShapeOverlayAction</class>
-            <placeAfter>showNoDataOverlay</placeAfter>
-            <text>Show Shape Overlay</text>
-            <toggle>true</toggle>
-            <mnemonic>O</mnemonic>
-            <shortDescr>Show/hide shape overlay</shortDescr>
-            <description>Show/hide shape overlay for the selected image</description>
-            <context>image</context>
-            <smallIcon>icons/ShapeOverlay16.gif</smallIcon>
-            <largeIcon>icons/ShapeOverlay24.gif</largeIcon>
-            <helpId>showShapeOverlay</helpId>
-        </action>
-
-        <action>
-            <parent>view</parent>
             <id>showGraticuleOverlay</id>
             <class>org.esa.beam.visat.actions.ShowGraticuleOverlayAction</class>
             <placeAfter>showShapeOverlay</placeAfter>
