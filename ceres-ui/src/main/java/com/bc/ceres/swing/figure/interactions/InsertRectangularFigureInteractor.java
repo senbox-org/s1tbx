@@ -3,7 +3,6 @@ package com.bc.ceres.swing.figure.interactions;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.ShapeFigure;
-import com.bc.ceres.swing.figure.support.StyleDefaults;
 
 import java.awt.Point;
 import java.awt.event.InputEvent;
