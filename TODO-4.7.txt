@@ -49,6 +49,8 @@ Figures:
   ==> PRE, RQ, OPEN
 * Polygon bug: JTS wants 0 or 3 points.
   ==> PRE, MP, DONE
+* Remove rotate handle in PRE?
+  ==> PRE, MP, ONGOING
 * Still can't rotate figures. Remove handle in PRE?
   ==> FINAL, NF, OPEN
 * Still no repaint while drawing new figures
