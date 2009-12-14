@@ -11,11 +11,9 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerUtils;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
-import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -27,7 +25,6 @@ import org.esa.beam.glayer.GraticuleLayerType;
 import org.esa.beam.glayer.MaskCollectionLayerType;
 import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.glayer.NoDataLayerType;
-import org.esa.beam.glayer.PlacemarkLayer;
 import org.esa.beam.glayer.ProductLayerContext;
 import org.esa.beam.glayer.RasterImageLayerType;
 import org.esa.beam.glayer.RgbImageLayerType;
@@ -205,30 +202,34 @@ public class ProductSceneImage implements ProductLayerContext {
     }
 
     Layer getGcpLayer(boolean create) {
-        Layer layer = getLayer(ProductSceneView.GCP_LAYER_ID);
-        if (layer == null && create) {
-            layer = createGcpLayer(getImageToModelTransform());
-            addLayer(0, layer);
-        }
-        return layer;
+        return LayerUtils.getChildLayer(getVectorDataCollectionLayer(create),
+                                        new FeatureTypeNameLayerFilter(Product.GCP_FEATURE_TYPE_NAME),
+                                        LayerUtils.SearchMode.DEEP);
     }
 
     Layer getPinLayer(boolean create) {
-        Layer layer = getLayer(ProductSceneView.PIN_LAYER_ID);
-        if (layer == null && create) {
-            layer = createPinLayer(getImageToModelTransform());
-            addLayer(0, layer);
-        }
-        return layer;
+        return LayerUtils.getChildLayer(getVectorDataCollectionLayer(create),
+                                        new FeatureTypeNameLayerFilter(Product.PIN_FEATURE_TYPE_NAME),
+                                        LayerUtils.SearchMode.DEEP);
     }
 
-    VectorDataLayer getFigureLayer(boolean create) {
-        VectorDataLayer layer = (VectorDataLayer) getLayer(ProductSceneView.FIGURE_LAYER_ID);
-        if (layer == null && create) {
-            layer = createFigureLayer(getImageToModelTransform());
-            addLayer(getFirstImageLayerIndex(), layer);
+    private static class FeatureTypeNameLayerFilter implements LayerFilter {
+
+        private String featureTypeName;
+
+        private FeatureTypeNameLayerFilter(String featureTypeName) {
+            this.featureTypeName = featureTypeName;
         }
-        return layer;
+
+        @Override
+        public boolean accept(Layer layer) {
+            if (layer instanceof VectorDataLayer) {
+                final VectorDataLayer vectorLayer = (VectorDataLayer) layer;
+                final String typeName = vectorLayer.getVectorDataNode().getFeatureType().getTypeName();
+                return featureTypeName.equals(typeName);
+            }
+            return false;
+        }
     }
 
     private RasterDataNode getRaster() {
@@ -481,50 +482,6 @@ public class ProductSceneImage implements ProductLayerContext {
                                     configuration.getPropertyDouble(
                                             GraticuleLayerType.PROPERTY_NAME_TEXT_BG_TRANSPARENCY,
                                             GraticuleLayerType.DEFAULT_TEXT_BG_TRANSPARENCY));
-    }
-
-    private PlacemarkLayer createPinLayer(AffineTransform i2mTransform) {
-        final PlacemarkLayer pinLayer = new PlacemarkLayer(getRaster().getProduct(), PinDescriptor.INSTANCE,
-                                                           i2mTransform);
-        pinLayer.setName("Pins");
-        pinLayer.setId(ProductSceneView.PIN_LAYER_ID);
-        pinLayer.setVisible(false);
-        setPinLayerStyle(configuration, pinLayer);
-
-        return pinLayer;
-    }
-
-    static void setPinLayerStyle(PropertyMap configuration, Layer layer) {
-        final PropertySet layerConfiguration = layer.getConfiguration();
-
-        layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED,
-                                    configuration.getPropertyBool("pin.text.enabled", Boolean.TRUE));
-        layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR,
-                                    configuration.getPropertyColor("pin.text.fg.color", Color.WHITE));
-        layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR,
-                                    configuration.getPropertyColor("pin.text.bg.color", Color.BLACK));
-    }
-
-    private PlacemarkLayer createGcpLayer(AffineTransform i2mTransform) {
-        final PlacemarkLayer gcpLayer = new PlacemarkLayer(getRaster().getProduct(), GcpDescriptor.INSTANCE,
-                                                           i2mTransform);
-        gcpLayer.setName("Ground Control Points");
-        gcpLayer.setId(ProductSceneView.GCP_LAYER_ID);
-        gcpLayer.setVisible(false);
-        setGcpLayerStyle(configuration, gcpLayer);
-
-        return gcpLayer;
-    }
-
-    static void setGcpLayerStyle(PropertyMap configuration, Layer layer) {
-        final PropertySet layerConfiguration = layer.getConfiguration();
-
-        layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED,
-                                    configuration.getPropertyBool("gcp.text.enabled", Boolean.TRUE));
-        layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR,
-                                    configuration.getPropertyColor("gcp.text.fg.color", Color.WHITE));
-        layerConfiguration.setValue(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR,
-                                    configuration.getPropertyColor("gcp.text.bg.color", Color.BLACK));
     }
 
     private BandImageMultiLevelSource getBandImageMultiLevelSource() {

@@ -4,9 +4,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
-import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -694,14 +692,6 @@ public class ProductSceneView extends BasicView
         final ImageLayer imageLayer = getBaseImageLayer();
         if (imageLayer != null) {
             ProductSceneImage.setBaseImageLayerStyle(configuration, imageLayer);
-        }
-        final Layer pinLayer = getPinLayer(false);
-        if (pinLayer != null) {
-            ProductSceneImage.setPinLayerStyle(configuration, pinLayer);
-        }
-        final Layer gcpLayer = getGcpLayer(false);
-        if (gcpLayer != null) {
-            ProductSceneImage.setGcpLayerStyle(configuration, gcpLayer);
         }
         final Layer collectionLayer = getVectorDataCollectionLayer(false);
         if (collectionLayer != null) {

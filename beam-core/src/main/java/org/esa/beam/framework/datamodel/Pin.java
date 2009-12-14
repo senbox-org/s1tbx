@@ -36,7 +36,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.text.MessageFormat;
 
 // todo - rename to Placemark (se - 20090126) 
@@ -110,6 +109,11 @@ public class Pin extends ProductNode {
         feature = createPinFeature(name, label, pixelPos, geoPos, symbol);
     }
 
+    public Pin(SimpleFeature feature) {
+        super(feature.getID(), "");
+        this.feature = feature;
+    }
+
     /**
      * Returns the {@link SimpleFeature}, underlying this pin.
      *
@@ -169,37 +173,6 @@ public class Pin extends ProductNode {
     public void setSymbol(final PlacemarkSymbol symbol) {
         Guardian.assertNotNull("symbol", symbol);
         setFeatureSymbol(symbol);
-    }
-
-    /**
-     * Tests if a certain pixel position is contained (covered) by this pin's symbol shape.
-     *
-     * @param pixelX the pixel x-coordinate.
-     * @param pixelY the pixel y-coordinate.
-     *
-     * @return {@code true} if the given pixel position is contained in this pin's
-     *         symbol shape, {@code false} otherwise
-     *
-     * @deprecated in 4.1, no replacement. Pin symbols are not in raster coordinates anymore
-     */
-    @Deprecated
-    public boolean isPixelPosContainedInSymbolShape(float pixelX, float pixelY) {
-        final Shape shape = getSymbol().getShape();
-        if (shape != null) {
-            final PixelPos pixelPos = getPixelPos();
-            if (pixelPos != null) {
-                final PixelPos refPoint = getFeatureSymbol().getRefPoint();
-                double x = pixelX - pixelPos.getX();
-                double y = pixelY - pixelPos.getY();
-                if (refPoint != null) {
-                    x += refPoint.getX();
-                    y += refPoint.getY();
-                }
-                return shape.contains(x, y);
-            }
-        }
-
-        return false;
     }
 
     public void setPixelPos(PixelPos pixelPos) {
