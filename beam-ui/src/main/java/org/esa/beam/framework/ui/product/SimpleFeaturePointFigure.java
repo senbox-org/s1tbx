@@ -58,6 +58,7 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
         Coordinate coordinate = geometry.getCoordinate();
         coordinate.x = x;
         coordinate.y = y;
+        geometry.geometryChanged();
         fireFigureChanged();
     }
 
