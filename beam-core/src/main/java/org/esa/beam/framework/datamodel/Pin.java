@@ -62,8 +62,6 @@ public class Pin extends ProductNode {
 
     private final SimpleFeature feature;
 
-    private PlacemarkSymbol symbol;
-
     /**
      * Returns the type of features underlying all pins.
      *
@@ -109,8 +107,7 @@ public class Pin extends ProductNode {
         if (pixelPos == null && geoPos == null) {
             throw new IllegalArgumentException("pixelPos == null && geoPos == null");
         }
-        feature = createPinFeature(name, label, pixelPos, geoPos);
-        this.symbol = symbol;
+        feature = createPinFeature(name, label, pixelPos, geoPos, symbol);
     }
 
     /**
@@ -166,15 +163,12 @@ public class Pin extends ProductNode {
     }
 
     public PlacemarkSymbol getSymbol() {
-        return symbol;
+        return getFeatureSymbol();
     }
 
     public void setSymbol(final PlacemarkSymbol symbol) {
         Guardian.assertNotNull("symbol", symbol);
-        if (this.symbol != symbol) {
-            this.symbol = symbol;
-            fireProductNodeChanged(PROPERTY_NAME_PINSYMBOL);
-        }
+        setFeatureSymbol(symbol);
     }
 
     /**
@@ -194,7 +188,7 @@ public class Pin extends ProductNode {
         if (shape != null) {
             final PixelPos pixelPos = getPixelPos();
             if (pixelPos != null) {
-                final PixelPos refPoint = symbol.getRefPoint();
+                final PixelPos refPoint = getFeatureSymbol().getRefPoint();
                 double x = pixelX - pixelPos.getX();
                 double y = pixelY - pixelPos.getY();
                 if (refPoint != null) {
@@ -279,11 +273,11 @@ public class Pin extends ProductNode {
             writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_PIXEL_X, pixelPos.x);
             writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_PIXEL_Y, pixelPos.y);
         }
-        final Color fillColor = (Color) symbol.getFillPaint();
+        final Color fillColor = (Color) getFeatureSymbol().getFillPaint();
         if (fillColor != null) {
             writeColor(DimapProductConstants.TAG_PLACEMARK_FILL_COLOR, indent, fillColor, writer);
         }
-        final Color outlineColor = symbol.getOutlineColor();
+        final Color outlineColor = getFeatureSymbol().getOutlineColor();
         if (outlineColor != null) {
             writeColor(DimapProductConstants.TAG_PLACEMARK_OUTLINE_COLOR, indent, outlineColor, writer);
         }
@@ -410,9 +404,10 @@ public class Pin extends ProductNode {
      */
     @Override
     public void dispose() {
+        final PlacemarkSymbol symbol = getFeatureSymbol();
         if (symbol != null) {
             symbol.dispose();
-            symbol = null;
+            setFeatureSymbol(null);
         }
         super.dispose();
     }
@@ -448,6 +443,17 @@ public class Pin extends ProductNode {
 
     private String getFeatureLabel() {
         return (String) feature.getAttribute(PROPERTY_NAME_LABEL);
+    }
+
+    private void setFeatureSymbol(PlacemarkSymbol symbol) {
+        if (getFeatureSymbol() != symbol) {
+            feature.setAttribute("symbol", symbol);
+            fireProductNodeChanged(PROPERTY_NAME_PINSYMBOL);
+        }
+    }
+
+    private PlacemarkSymbol getFeatureSymbol() {
+        return (PlacemarkSymbol) feature.getAttribute("symbol");
     }
 
     private void setPixelCoordinate(PixelPos pixelPos) {
@@ -496,7 +502,8 @@ public class Pin extends ProductNode {
         return null;
     }
 
-    private SimpleFeature createPinFeature(String name, String label, PixelPos pixelPos, GeoPos geoPos) {
+    private SimpleFeature createPinFeature(String name, String label, PixelPos pixelPos, GeoPos geoPos,
+                                           PlacemarkSymbol symbol) {
         final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(Holder.PIN_FEATURE_TYPE);
 
         if (label == null) {
@@ -511,6 +518,11 @@ public class Pin extends ProductNode {
         if (geoPos != null) {
             final Coordinate coordinate = new Coordinate(geoPos.getLon(), geoPos.getLat());
             builder.set(PROPERTY_NAME_GEOPOS, createPoint(coordinate, PROPERTY_NAME_GEOPOS));
+        }
+        if (symbol == null) {
+            builder.set("symbol", PlacemarkSymbol.createDefaultPinSymbol());
+        } else {
+            builder.set("symbol", symbol);
         }
 
         return builder.buildFeature(name);
@@ -539,7 +551,7 @@ public class Pin extends ProductNode {
         builder.add(PROPERTY_NAME_PIXELPOS, Point.class, crs);
         // todo: rq/rq - geoCRS? mapCRS??
         builder.add(PROPERTY_NAME_GEOPOS, Point.class, crs);
-        // todo: rq/rq - symbol
+        builder.add("symbol", PlacemarkSymbol.class);
         builder.setDefaultGeometry(defaultGeometryName);
 
         return builder.buildFeatureType();

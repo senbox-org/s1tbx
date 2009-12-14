@@ -6,6 +6,8 @@ import com.bc.ceres.swing.figure.FigureStyle;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.draw.ShapeFigure;
 import org.opengis.feature.simple.SimpleFeature;
 
 import java.awt.BasicStroke;
@@ -69,9 +71,16 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
 
     @Override
     public boolean isCloseTo(Point2D point, AffineTransform m2v) {
-        double dx = point.getX() - getX();
-        double dy = point.getY() - getY();
-        return dx * dx + dy * dy < radius * radius;
+
+        final double dx = point.getX() - getX();
+        final double dy = point.getY() - getY();
+        final Object symbolAttribute = simpleFeature.getAttribute("symbol");
+        if (symbolAttribute instanceof ShapeFigure) {
+            final Rectangle2D bounds = ((ShapeFigure) symbolAttribute).getBounds();
+            return bounds.contains(dx, -dy);
+        } else {
+            return dx * dx + dy * dy < radius * radius;
+        }
     }
 
     @Override
@@ -80,11 +89,20 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
         double scale = Math.sqrt(Math.abs(determinant));
         rendering.getGraphics().setPaint(Color.BLUE);
         rendering.getGraphics().setStroke(new BasicStroke(1.0f));
-        drawCross(rendering, scale);
+        final Object symbolAttribute = simpleFeature.getAttribute("symbol");
+        if (symbolAttribute instanceof ShapeFigure) {
+            ((ShapeFigure) symbolAttribute).draw(rendering.getGraphics());
+        } else {
+            drawCross(rendering, scale);
+        }
         if (isSelected()) {
             rendering.getGraphics().setPaint(new Color(255, 255, 0, 200));
             rendering.getGraphics().setStroke(new BasicStroke(3.0f));
-            drawCross(rendering, scale);
+            if (symbolAttribute instanceof PlacemarkSymbol) {
+                ((PlacemarkSymbol) symbolAttribute).drawSelected(rendering.getGraphics());
+            } else {
+                drawCross(rendering, scale);
+            }
         }
     }
 
