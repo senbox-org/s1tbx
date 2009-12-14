@@ -120,7 +120,7 @@ public class Pin extends ProductNode {
      *
      * @since BEAM 4.7
      */
-    public SimpleFeature getFeature() {
+    public SimpleFeature getSimpleFeature() {
         return feature;
     }
 

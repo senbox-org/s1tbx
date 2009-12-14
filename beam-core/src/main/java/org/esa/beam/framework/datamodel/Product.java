@@ -25,9 +25,6 @@ import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.dataio.ProductFlipper;
 import org.esa.beam.framework.dataio.ProductProjectionBuilder;
@@ -50,13 +47,10 @@ import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.geometry.coordinate.Polygon;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
@@ -300,14 +294,14 @@ public class Product extends ProductNode {
             }
 
             private void addToVectorData(final Pin pin) {
-                vectorDataGroup.get("pins").getFeatureCollection().add(pin.getFeature());
+                vectorDataGroup.get("pins").getFeatureCollection().add(pin.getSimpleFeature());
             }
 
             private void removeFromVectorData(Pin pin) {
                 final Iterator<SimpleFeature> iterator = vectorDataGroup.get("pins").getFeatureCollection().iterator();
                 while (iterator.hasNext()) {
                     final SimpleFeature feature = iterator.next();
-                    if (feature == pin.getFeature()) {
+                    if (feature == pin.getSimpleFeature()) {
                         iterator.remove();
                         break;
                     }
