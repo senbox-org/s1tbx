@@ -2290,7 +2290,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             if (getProduct() != null) {
                 if (roiDefinition.isUsable()) {
                     final Mask mask = ROIDefinition.toMask(roiDefinition, this);
-                    getProduct().getMaskGroup().add(mask);
+                    if (mask != null) {
+                        getProduct().getMaskGroup().add(mask);
+                    }
                 }
             }
 

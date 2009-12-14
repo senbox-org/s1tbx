@@ -494,16 +494,19 @@ public class ROIDefinition implements Cloneable {
         if (roiDefinition.isInverted()) {
             expressionBuilder.append(")");
         }
+        String expression = expressionBuilder.toString();
+        if (!expression.isEmpty()) {
+            final String maskName = node.getName() + "_roi";
+            final int w = node.getSceneRasterWidth();
+            final int h = node.getSceneRasterHeight();
+            final Mask mask = new Mask(maskName, w, h, new Mask.BandMathType());
 
-        final String maskName = node.getName() + "_roi";
-        final int w = node.getSceneRasterWidth();
-        final int h = node.getSceneRasterHeight();
-        final Mask mask = new Mask(maskName, w, h, new Mask.BandMathType());
-
-        mask.setImageColor(Color.RED);
-        mask.setImageTransparency(0.5);
-        Mask.BandMathType.setExpression(mask, expressionBuilder.toString());
-
-        return mask;
+            mask.setImageColor(Color.RED);
+            mask.setImageTransparency(0.5);
+            Mask.BandMathType.setExpression(mask, expressionBuilder.toString());
+            return mask;
+        } else {
+            return null;
+        }
     }
 }
