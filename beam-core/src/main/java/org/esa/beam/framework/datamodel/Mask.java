@@ -366,7 +366,7 @@ public class Mask extends Band {
         public static final String PROPERTY_NAME_VECTOR_DATA = "vectorData";
 
         public VectorDataType() {
-            super("Vector");
+            super("Geometry");
         }
 
         /**
