@@ -57,6 +57,8 @@ Figures:
   ==> FINAL, NF, OPEN
 * Move-Handle bug: many handles are created while dragging
   ==> PRE, MP, DONE
+* Sampling of created handles should be dependent (on model?)
+  ==> PRE, NF, OPEN
 * Layer style editor doesn't work anymore
   ==> FINAL, MP, OPEN
 * New edit menu:
