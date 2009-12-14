@@ -481,6 +481,7 @@ public class ROIDefinition implements Cloneable {
         if (roiDefinition.isShapeEnabled()) {
             Shape shape = roiDefinition.getShapeFigure().getShape();
             if (shape != null) {
+                // TODO added: mz , 2009-12-14
                 // TODO create vector data node
                 // TODO add it to the product
                 // TODO use the corresponding mask here
