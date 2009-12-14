@@ -62,10 +62,10 @@ public class MaskApplicationTest {
         selectedProduct = null;
         selectedBand = null;
 
-        maskManagerForm = new MaskManagerForm(null);
+        maskManagerForm = new MaskManagerForm(null, null);
         maskManagerForm.reconfigureMaskTable(selectedProduct, selectedBand);
 
-        maskViewerForm = new MaskViewerForm();
+        maskViewerForm = new MaskViewerForm(null);
         maskViewerForm.reconfigureMaskTable(selectedProduct, selectedBand);
     }
 

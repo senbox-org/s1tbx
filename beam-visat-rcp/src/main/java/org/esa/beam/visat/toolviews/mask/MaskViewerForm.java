@@ -19,12 +19,13 @@ package org.esa.beam.visat.toolviews.mask;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 
 class MaskViewerForm extends MaskForm {
 
-    public MaskViewerForm() {
-        super(false);
+    public MaskViewerForm(ListSelectionListener selectionListener) {
+        super(false, selectionListener);
     }
 
     @Override

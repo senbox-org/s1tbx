@@ -27,6 +27,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 
@@ -35,8 +36,8 @@ class MaskManagerForm extends MaskForm {
     private final AbstractButton helpButton;
     private final MaskFormActions actions;
 
-    MaskManagerForm(AbstractToolView maskToolView) {
-        super(true);
+    MaskManagerForm(AbstractToolView maskToolView, ListSelectionListener selectionListener) {
+        super(true, selectionListener);
 
         helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"), false);
         helpButton.setName("helpButton");

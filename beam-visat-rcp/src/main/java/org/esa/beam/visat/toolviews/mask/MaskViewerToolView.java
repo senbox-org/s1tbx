@@ -18,12 +18,14 @@ package org.esa.beam.visat.toolviews.mask;
 
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 
+import javax.swing.event.ListSelectionListener;
+
 public class MaskViewerToolView extends MaskToolView {
 
     public static final String ID = MaskViewerToolView.class.getName();
 
     @Override
-    protected MaskForm createMaskForm(AbstractToolView maskToolView) {
-        return new MaskViewerForm();
+    protected MaskForm createMaskForm(AbstractToolView maskToolView, ListSelectionListener selectionListener) {
+        return new MaskViewerForm(selectionListener);
     }
 }

@@ -21,6 +21,9 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
+import com.bc.ceres.glayer.LayerFilter;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.LayerUtils;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VectorDataNode;
@@ -29,6 +32,8 @@ import org.esa.beam.framework.ui.PropertyPane;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.SimpleFeatureFigureFactory;
+import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.VectorDataLayer;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.visat.VisatApp;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -36,6 +41,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JPanel;
 import java.awt.Dimension;
+import java.text.MessageFormat;
 
 /**
  * Creates a new vector data node.
@@ -43,7 +49,7 @@ import java.awt.Dimension;
  * @author Norman Fomferra
  * @since BEAM 4.7
  */
-public class NewVectorDataAction extends ExecCommand {
+public class NewVectorDataNodeAction extends ExecCommand {
     private static final String DIALOG_TITLE = "New Geometry";
 
     public static final String VECTOR_DATA_NAME = "vectorDataName";
@@ -90,6 +96,11 @@ public class NewVectorDataAction extends ExecCommand {
         VectorDataNode vectorDataNode = new VectorDataNode(name, type);
         vectorDataNode.setDescription(description);
         product.getVectorDataGroup().add(vectorDataNode);
+        final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
+        if (sceneView != null) {
+            VisatApp.getApp().setSelectedProductNode(vectorDataNode);
+            setSelectedVectorDataNode(sceneView, vectorDataNode);
+        }
         return vectorDataNode;
     }
 
@@ -100,6 +111,21 @@ public class NewVectorDataAction extends ExecCommand {
     public void updateState() {
         Product product = VisatApp.getApp().getSelectedProduct();
         setEnabled(product != null);
+    }
+
+    // todo - same code in org.esa.beam.visat.ProductsToolView (nf)
+    public static void setSelectedVectorDataNode(ProductSceneView sceneView, final VectorDataNode vectorDataNode) {
+        final LayerFilter layerFilter = new LayerFilter() {
+            @Override
+            public boolean accept(Layer layer) {
+                return layer instanceof VectorDataLayer && ((VectorDataLayer) layer).getVectorDataNode() == vectorDataNode;
+            }
+        };
+        Layer layer = LayerUtils.getChildLayer(sceneView.getRootLayer(), layerFilter, LayerUtils.SearchMode.DEEP);
+        if (layer != null) {
+            layer.setVisible(true);
+            sceneView.setSelectedLayer(layer);
+        }
     }
 
     private static class NameValidator implements Validator {
@@ -113,8 +139,9 @@ public class NewVectorDataAction extends ExecCommand {
         public void validateValue(Property property, Object value) throws ValidationException {
             String name = (String) value;
             if (product.getVectorDataGroup().contains(name)) {
-                throw new ValidationException("Vector data with name '" + name + "' already exists.\n" +
-                        "Please choose another one.");
+                final String pattern = "A geometry collection with name ''{0}'' already exists.\n" +
+                        "Please choose another one.";
+                throw new ValidationException(MessageFormat.format(pattern, name));
             }
         }
     }

@@ -36,8 +36,9 @@ abstract class MaskForm {
 
     private final MaskTable maskTable;
 
-    protected MaskForm(boolean maskManagmentMode) {
+    protected MaskForm(boolean maskManagmentMode, ListSelectionListener selectionListener) {
         maskTable = new MaskTable(maskManagmentMode);
+        maskTable.getSelectionModel().addListSelectionListener(selectionListener);
         maskTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -88,7 +89,7 @@ abstract class MaskForm {
     public RasterDataNode getRaster() {
         return maskTable.getModel().getVisibleBand();
     }
-    
+
     public Mask getSelectedMask() {
         return maskTable.getSelectedMask();
     }
@@ -108,6 +109,7 @@ abstract class MaskForm {
     public void insertMask(Mask mask, int index) {
         maskTable.insertMask(mask, index);
     }
+
     public void removeMask(Mask mask) {
         maskTable.removeMask(mask);
     }

@@ -77,7 +77,7 @@ class MaskTable extends JTable {
 
     Mask getSelectedMask() {
         int selectedRow = getSelectedRow();
-        return getMask(selectedRow);
+        return selectedRow >= 0 ? getMask(selectedRow) : null;
     }
 
     Mask[] getSelectedMasks() {

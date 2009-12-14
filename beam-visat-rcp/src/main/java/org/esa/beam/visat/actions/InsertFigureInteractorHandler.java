@@ -86,12 +86,12 @@ public class InsertFigureInteractorHandler extends AbstractInteractorListener {
     private static VectorDataLayer newVectorDataLayer(Product product, Layer collectionLayer, boolean interactive) {
         String name;
         if (interactive) {
-            NewVectorDataAction action = new NewVectorDataAction();
-            action.run();
-            name = action.getVectorDataName();
+            NewVectorDataNodeAction nodeAction = new NewVectorDataNodeAction();
+            nodeAction.run();
+            name = nodeAction.getVectorDataName();
         } else {
             name = "geometry";
-            NewVectorDataAction.createVectorDataNode(product, name, "Default container for geometries.");
+            NewVectorDataNodeAction.createVectorDataNode(product, name, "Default container for geometries.");
         }
         if (name != null) {
             Layer layer = LayerUtils.getChildLayerByName(collectionLayer, name);

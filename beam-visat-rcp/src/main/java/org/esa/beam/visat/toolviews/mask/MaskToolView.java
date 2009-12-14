@@ -17,22 +17,27 @@
 package org.esa.beam.visat.toolviews.mask;
 
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.actions.NewVectorDataNodeAction;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.Container;
 
 // todo - a stripped version of this class may serve as base class for all VISAT tool views (nf)
@@ -105,7 +110,19 @@ public abstract class MaskToolView extends AbstractToolView {
     @Override
     public JComponent createControl() {
         prefixTitle = getDescriptor().getTitle();
-        maskForm = createMaskForm(this);
+        maskForm = createMaskForm(this, new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (sceneView != null) {
+                    Mask selectedMask = maskForm.getSelectedMask();
+                    VectorDataNode vectorDataNode = Mask.VectorDataType.getVectorData(selectedMask);
+                    if (vectorDataNode != null) {
+                        VisatApp.getApp().setSelectedProductNode(vectorDataNode);
+                        NewVectorDataNodeAction.setSelectedVectorDataNode(sceneView, vectorDataNode);
+                    }
+                }
+            }
+        });
 
         AbstractButton helpButton = maskForm.getHelpButton();
         if (helpButton != null) {
@@ -142,7 +159,7 @@ public abstract class MaskToolView extends AbstractToolView {
         return maskForm.createContentPanel();
     }
 
-    protected abstract MaskForm createMaskForm(AbstractToolView maskToolView);
+    protected abstract MaskForm createMaskForm(AbstractToolView maskToolView, ListSelectionListener selectionListener);
 
     private class MaskIFL extends InternalFrameAdapter {
 
@@ -172,11 +189,11 @@ public abstract class MaskToolView extends AbstractToolView {
         @Override
         public void productSelected(Product product, int clickCount) {
 //            if (sceneView == null && maskForm.getProduct() != product) {
-                maskForm.reconfigureMaskTable(product, null);
-                updateTitle();
+            maskForm.reconfigureMaskTable(product, null);
+            updateTitle();
 //            }
         }
-        
+
         @Override
         public void bandSelected(Band band, int clickCount) {
             maskForm.reconfigureMaskTable(band.getProduct(), band);

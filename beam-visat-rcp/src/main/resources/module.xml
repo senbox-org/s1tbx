@@ -357,7 +357,7 @@
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
-
+<!--
         <toolView>
             <id>org.esa.beam.visat.toolviews.bitmask.BitmaskOverlayToolView</id>
             <class>org.esa.beam.visat.toolviews.bitmask.BitmaskOverlayToolView</class>
@@ -372,14 +372,14 @@
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
-
+-->
         <toolView>
             <id>org.esa.beam.visat.toolviews.mask.MaskManagerToolView</id>
             <class>org.esa.beam.visat.toolviews.mask.MaskManagerToolView</class>
             <title>Mask / ROI Manager</title>
             <mnemonic>M</mnemonic>
             <accelerator>ctrl alt M</accelerator>
-            <description>Manage binary data masks.</description>
+            <description>Manage binary data masks and ROIs.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/MaskManager16.png</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/MaskManager24.png</largeIcon>
             <helpId>showMaskManagerWnd</helpId>
@@ -391,13 +391,13 @@
         <toolView>
             <id>org.esa.beam.visat.toolviews.mask.MaskViewerToolView</id>
             <class>org.esa.beam.visat.toolviews.mask.MaskViewerToolView</class>
-            <title>Bitmask Overlay (2)</title>
+            <title>Mask Overlays</title>
             <mnemonic>B</mnemonic>
             <accelerator>ctrl alt B</accelerator>
-            <description>Inspect flag masks.</description>
+            <description>Overlay binary data masks.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.png</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.png</largeIcon>
-            <helpId>showMaskViewerWnd</helpId>
+            <helpId>showMaskOverlayWnd</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
@@ -1364,10 +1364,15 @@
 
         <action>
             <id>newGeometry</id>
-            <class>org.esa.beam.visat.actions.NewVectorDataAction</class>
+            <class>org.esa.beam.visat.actions.NewVectorDataNodeAction</class>
             <text>New Geometry...</text>
+            <description>Create a new geometry container for drawing line strings and polygons.</description>
+            <smallIcon>icons/NewVectorDataNode16.gif</smallIcon>
+            <largeIcon>icons/NewVectorDataNode24.gif</largeIcon>
             <helpId>newGeometry</helpId>
             <parent>tools</parent>
+            <separatorBefore>true</separatorBefore>
+            <separatorAfter>true</separatorAfter>
         </action>
 
         <action>

@@ -140,6 +140,19 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     }
 
     /**
+     * Selects the specified object in this tree's model. If the given object has no representation in the tree, the
+     * current selection will not be changed.
+     *
+     * @param toSelect the object whose representation in the tree will be selected.
+     */
+    public void select(Object toSelect) {
+        final TreePath path = getTreePath(toSelect);
+        if (path != null) {
+            setSelectionPath(path);
+        }
+    }
+
+    /**
      * Notifies this product tree, that a product scene view has opened.
      *
      * @param view The view.
@@ -271,19 +284,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         invalidate();
         doLayout();
         fireProductAdded(product);
-    }
-
-    /**
-     * Selects the specified object in this tree's model. If the given object has no representation in the tree, the
-     * current selection will not be changed.
-     *
-     * @param toSelect the object whose representation in the tree will be selected.
-     */
-    public void select(Object toSelect) {
-        final TreePath path = getTreePath(toSelect);
-        if (path != null) {
-            setSelectionPath(path);
-        }
     }
 
     /**
@@ -681,7 +681,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     toolTipBuffer.append(grid.getRasterHeight());
                 } else if (productNode instanceof VectorDataNode) {
                     VectorDataNode grid = (VectorDataNode) productNode;
-                    if (opened) {
+                    if (active) {
                         this.setIcon(vectorDataFocusedIcon);
                     } else {
                         this.setIcon(vectorDataNormalIcon);

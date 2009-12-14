@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import java.awt.Insets;
+import java.awt.Window;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -34,7 +35,7 @@ class RangeEditorDialog extends ModalDialog {
 
     public static void main(String[] args) {
         final String[] rasterNames = new String[]{"raster_1", "raster_2", "raster_3"};
-        final RangeEditorDialog editorDialog = new RangeEditorDialog(new Model(rasterNames));
+        final RangeEditorDialog editorDialog = new RangeEditorDialog(null, new Model(rasterNames));
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -43,8 +44,8 @@ class RangeEditorDialog extends ModalDialog {
         });
     }
 
-    RangeEditorDialog(Model model) {
-        super(null, "New Range Mask",
+    RangeEditorDialog(Window window, Model model) {
+        super(window, "New Range Mask",
               ModalDialog.ID_OK_CANCEL | ModalDialog.ID_HELP, "rangeEditor");
         this.model = model;
         container = PropertyContainer.createObjectBacked(this.model);
@@ -79,9 +80,9 @@ class RangeEditorDialog extends ModalDialog {
         final JFormattedTextField maxValueField = new JFormattedTextField(formatter);
         final JComboBox rasterNameComboBox = new JComboBox(rasterModel);
         panel.add(minValueField);
-        panel.add(new JLabel("<html><b>&lt;</b>"));
+        panel.add(new JLabel("<html><b>&lt;=</b>"));
         panel.add(rasterNameComboBox);
-        panel.add(new JLabel("<html><b>&lt;</b>"));
+        panel.add(new JLabel("<html><b>&lt;=</b>"));
         panel.add(maxValueField);
         final BindingContext context = new BindingContext(container);
         context.bind("rasterName", rasterNameComboBox);
