@@ -235,8 +235,103 @@ masks, vectors, layers
 - roi is lost by save session; save - close - open session --> roi will not be preselected  ?
 ------------------------------------------------------------------------
 
+- layers are lost by save session; save - close - open session --> layers will not be preselected and visible ?
+------------------------------------------------------------------------
+
 - NullPointer after delete mask, which was used in the expression for other mask
 -------------------------------------------------------------------------
+
+create pin/gcp --> pins/gcps are visible, but the pins/gcps visibility is not selected in the Mask Manager.
+                   Layer manager contains 3* pin/gcp nodes and only 2 are selected 
+-------------------------------------------------------------------------
+
+- It is not possible to open old dim prodict containing ROI with Shape:
+
+Product:
+         <ROI_Definition>
+             <EXPRESSION>not l1_flags.INVALID</EXPRESSION>
+             <VALUE_RANGE_MAX>1.0</VALUE_RANGE_MAX>
+             <VALUE_RANGE_MIN>0.0</VALUE_RANGE_MIN>
+             <BITMASK_ENABLED>false</BITMASK_ENABLED>
+             <INVERTED>false</INVERTED>
+             <OR_COMBINED>false</OR_COMBINED>
+             <SHAPE_ENABLED>true</SHAPE_ENABLED>
+             <VALUE_RANGE_ENABLED>false</VALUE_RANGE_ENABLED>
+             <PIN_USE_ENABLED>false</PIN_USE_ENABLED>
+             <ROI_ONE_DIMENSIONS>false</ROI_ONE_DIMENSIONS>
+             <Shape_Figure type="Ellipse2D" value="90.5,37.5,222.0,210.0" />
+             <BAND_INDEX>12</BAND_INDEX>
+
+Exception:
+
+java.lang.IllegalArgumentException: Value for 'Expression' must not be empty.
+         at com.bc.ceres.binding.PropertyContainer.setValue(PropertyContainer.java:248)
+         at org.esa.beam.framework.datamodel.Mask$BandMathType.setExpression(Mask.java:332)
+         at org.esa.beam.framework.datamodel.ROIDefinition.toMask(ROIDefinition.java:505)
+         at org.esa.beam.framework.datamodel.RasterDataNode.setROIDefinition(RasterDataNode.java:2292)
+         at org.esa.beam.dataio.dimap.DimapProductHelpers$ProductBuilder.addRoiDefinitions(DimapProductHelpers.java:1029)
+         at org.esa.beam.dataio.dimap.DimapProductHelpers$ProductBuilder.addDisplayInfosToBandsAndTiePointGrids(DimapProductHelpers.java:1015)
+         at org.esa.beam.dataio.dimap.DimapProductHelpers$ProductBuilder.createProduct(DimapProductHelpers.java:832)
+         at org.esa.beam.dataio.dimap.DimapProductHelpers$ProductBuilder.access$100(DimapProductHelpers.java:809)
+         at org.esa.beam.dataio.dimap.DimapProductHelpers.createProduct(DimapProductHelpers.java:112)
+         at org.esa.beam.dataio.dimap.DimapProductReader.processProduct(DimapProductReader.java:142)
+         at org.esa.beam.dataio.dimap.DimapProductReader.readProductNodesImpl(DimapProductReader.java:127)
+         at org.esa.beam.framework.dataio.AbstractProductReader.readProductNodes(AbstractProductReader.java:159)
+         at org.esa.beam.visat.VisatApp$OpenProductRunnable.loadProduct(VisatApp.java:2621)
+         at org.esa.beam.visat.VisatApp$OpenProductRunnable.run(VisatApp.java:2555)
+         at java.util.concurrent.Executors$RunnableAdapter.call(Unknown Source)
+         at java.util.concurrent.FutureTask$Sync.innerRun(Unknown Source)
+         at java.util.concurrent.FutureTask.run(Unknown Source)
+         at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
+         at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+         at java.lang.Thread.run(Unknown Source)
+ Caused by: com.bc.ceres.binding.ValidationException: Value for 'Expression' must not be empty.
+         at com.bc.ceres.binding.validators.NotEmptyValidator.validateValue(NotEmptyValidator.java:13)
+         at com.bc.ceres.binding.validators.MultiValidator.validateValue(MultiValidator.java:36)
+         at com.bc.ceres.binding.Property.validate(Property.java:191)
+         at com.bc.ceres.binding.Property.setValue(Property.java:148)
+         at com.bc.ceres.binding.PropertyContainer.setValue(PropertyContainer.java:246)
+         ... 19 more
+------------------------------------------------------
+
+draw polygon
+
+ a) quick double-click does not close polygon drawing
+
+Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: Number of points must be 0 or >3
+	at com.vividsolutions.jts.geom.LinearRing.validateConstruction(LinearRing.java:98)
+	at com.vividsolutions.jts.geom.LinearRing.<init>(LinearRing.java:90)
+	at com.vividsolutions.jts.geom.GeometryFactory.createLinearRing(GeometryFactory.java:338)
+	at com.vividsolutions.jts.geom.GeometryFactory.createLinearRing(GeometryFactory.java:328)
+	at org.esa.beam.util.AwtGeomToJtsGeomConverter.createLinearRingList(AwtGeomToJtsGeomConverter.java:66)
+	at org.esa.beam.util.AwtGeomToJtsGeomConverter.createPolygon(AwtGeomToJtsGeomConverter.java:41)
+	at org.esa.beam.framework.ui.product.SimpleFeatureShapeFigure.setShape(SimpleFeatureShapeFigure.java:53)
+	at com.bc.ceres.swing.figure.interactions.InsertMultiPointFigureInteractor.mouseClicked(InsertMultiPointFigureInteractor.java:65)
+	at com.bc.ceres.swing.figure.InteractionDispatcher.mouseClicked(InteractionDispatcher.java:39)
+	at java.awt.AWTEventMulticaster.mouseClicked(AWTEventMulticaster.java:252)
+	at java.awt.AWTEventMulticaster.mouseClicked(AWTEventMulticaster.java:252)
+	at java.awt.Component.processMouseEvent(Component.java:6266)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4247)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:174)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:169)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
+
+	b)
 
 Porduct modified
 ==================
