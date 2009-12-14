@@ -1,27 +1,27 @@
 Masks:
 ======
+* Remove masks from product tree
+  ==> PRE, NF, CLOSED
+* Masks are inserted multiple times in product tree. Nodes are not removed on delete.
+  ==> PRE, NF, DONE
+* Add tool button for new VectorDataNode.
+  ==> PRE, NF, OPEN
 * Old bitmask overlay window: Only list "real" bitmasks. What is real?
   E.g. Flag-related masks, masks set my reader, masks initially in the product,...
   It is only used for bitmask overlay, no mask management.
   ==> FINAL, ?, OPEN
 * Mask manager shall test for dependencies before deleting
   ==> FINAL, NF, OPEN
-* Remove masks from product tree
-  ==> PRE, NF, CLOSED
-* Add tool button for new VectorDataNode.
-  ==> PRE, NF, OPEN
-* Masks are inserted multiple times in product tree. Nodes are not removed on delete.
-  ==> PRE, NF, DONE
 * Old "zoom to ROI" missing
   ==> FINAL, ?, OPEN
 
 VectorDataNode:
 ===============
 * Need action to create new VectorDataNode.
-  ==> DONE
+  ==> PRE, ?, DONE
 * New VectorDataNode shall be selected in product tree. Selection of VectorDataNode in product
   tree shall select corresponding layer.
-  ==> PRE, NF, CLOSED
+  ==> PRE, NF, DONE
 * Need action to delete existing VectorDataNode.
   ==>  PRE, NF, DONE partly, see TODOs in code
 * Still need to transfer model-CRS into feature types.
@@ -34,10 +34,10 @@ VectorDataNode:
 * Import shape/shapefile must create or insert into vector data node
   Check if GeoTools shapefile DataStore is already used.
   ==> PRE, MZ/*, DONE
-* Export vector data node to shapefile
-  ==> FINAL, ?, OPEN
 * Presentation name "Vector data" ==> "Geometries" + "Geometry", ...
   ==> PRE, NF, DONE
+* Export vector data node to shapefile
+  ==> FINAL, ?, OPEN
 
 Figures:
 ========
@@ -51,27 +51,10 @@ Figures:
   ==> PRE, MP, DONE
 * Remove rotate handle in PRE?
   ==> PRE, MP, DONE
-* Still can't rotate figures.
-  ==> FINAL, NF, OPEN
 * Still no repaint while drawing new figures
   ==> PRE, MP, DONE
-* Still can not add/remove geometry vertices
-  ==> FINAL, NF, OPEN
-* Still cannot draw true circles/squares and also adjust lines and points on grid.
-  ==> FINAL, ?, OPEN
 * Move-Handle bug: many handles are created while dragging
   ==> PRE, MP, DONE
-* Sampling of created handles should be dependent (on model?)
-  ==> PRE, NF, OPEN
-* Layer style editor doesn't work anymore
-  ==> FINAL, MP, OPEN
-* New edit menu:
-  - Test Cut/Copy/Paste!
-  - What about Undo/Redo?!? (should work!)
-  - After Paste: select inserted figures and displace a few (view) pixels
-  ==> FINAL, ?, OPEN
-* Allow for geometric operations on geometries: add/sub/intersection (JTS!)
-  ==> FINAL, ?, OPEN
 * Before using an insert line/polygon interaction, we need a target layer for the figures
   to be inserted:
   For pins/GCP: use existing, predefined vector data nodes and corresp. layers.
@@ -81,6 +64,23 @@ Figures:
       2.a Select choosen vector data node in VISAT
       2.b If layer exists, select it, otherwise create new layer, and select --> ok
   ==> PRE, NF/MP, DONE
+* Sampling of created handles should be dependent (on model?)
+  ==> PRE, NF, OPEN
+* Still can't rotate figures.
+  ==> FINAL, NF, OPEN
+* Still can not add/remove geometry vertices
+  ==> FINAL, NF, OPEN
+* Still cannot draw true circles/squares and also adjust lines and points on grid.
+  ==> FINAL, ?, OPEN
+* Layer style editor doesn't work anymore
+  ==> FINAL, MP, OPEN
+* New edit menu:
+  - Test Cut/Copy/Paste!
+  - What about Undo/Redo?!? (should work!)
+  - After Paste: select inserted figures and displace a few (view) pixels
+  ==> FINAL, ?, OPEN
+* Allow for geometric operations on geometries: add/sub/intersection (JTS!)
+  ==> FINAL, ?, OPEN
 
 Layers:
 =======
