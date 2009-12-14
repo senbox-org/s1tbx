@@ -62,7 +62,6 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
             g.translate(viewLocation.getX(), viewLocation.getY());
 
             drawPointSymbol(rendering);
-
         } finally {
             g.setTransform(oldTransform);
         }
