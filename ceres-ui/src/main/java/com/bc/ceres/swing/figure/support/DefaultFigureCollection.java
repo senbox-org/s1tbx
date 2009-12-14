@@ -41,6 +41,9 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
         this.figureList = new ArrayList<Figure>(list);
         this.figureSet = new HashSet<Figure>(list);
         this.changeDelegate = new ChangeDelegate();
+        for (Figure figure : figureList) {
+            figure.addChangeListener(changeDelegate);
+        }
         addChangeListener(new BoundsUpdater());
     }
 
