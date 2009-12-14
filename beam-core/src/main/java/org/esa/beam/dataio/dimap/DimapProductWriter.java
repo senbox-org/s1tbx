@@ -493,7 +493,6 @@ public class DimapProductWriter extends AbstractProductWriter {
         boolean hasVectorData = false;
         for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
             VectorDataNode vectorDataNode = vectorDataGroup.get(i);
-            String name = vectorDataNode.getName();
             if (!product.isInternalNode(vectorDataNode)) {
                 hasVectorData = true;
                 break;

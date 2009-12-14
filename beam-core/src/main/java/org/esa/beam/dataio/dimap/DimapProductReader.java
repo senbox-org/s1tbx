@@ -392,16 +392,16 @@ public class DimapProductReader extends AbstractProductReader {
                     featureSource = dataStore.getFeatureSource(name);
                     FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
                     CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(product.getGeoCoding());
-                    FeatureCollection<SimpleFeatureType, SimpleFeature> forcesFeatureCollection = new ForceCoordinateSystemFeatureResults( featureCollection, modelCrs);
-                    DefaultFeatureCollection defaultFeatureCollection = new DefaultFeatureCollection(forcesFeatureCollection);
+                    if (modelCrs != null) {
+                        featureCollection = new ForceCoordinateSystemFeatureResults(featureCollection, modelCrs);
+                    }
+                    DefaultFeatureCollection defaultFeatureCollection = new DefaultFeatureCollection(featureCollection);
                     VectorDataNode vectorDataNode = new VectorDataNode(name, defaultFeatureCollection);
                     product.getVectorDataGroup().add(vectorDataNode);
                 } catch (IOException e) {
                     BeamLogManager.getSystemLogger().throwing("DimapProductReader", "readVectorData", e);
-                    e.printStackTrace();
                 } catch (SchemaException e) {
                     BeamLogManager.getSystemLogger().throwing("DimapProductReader", "readVectorData", e);
-                    e.printStackTrace();
                 }
             }
         }
