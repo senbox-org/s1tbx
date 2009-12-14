@@ -136,7 +136,7 @@ Mask DIMAP I/O
 - Product.maskGroup
   ==> DONE
 - RasterDataNode.overlayMaskGroup, RasterDataNode.roiMaskGroup
-  ==> PRE, RQ/MZ, OPEN
+  ==> PRE, RQ/MZ, DONE
 
 Other API Stuff:
 ================
