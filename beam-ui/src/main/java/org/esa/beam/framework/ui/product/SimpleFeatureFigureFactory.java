@@ -57,14 +57,16 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
         return createShapeFigure(polygon, style);
     }
 
-    public Figure createFigure(SimpleFeature simpleFeature) {
-        final Object geometry = simpleFeature.getDefaultGeometry();
-        final Object styleAttribute = simpleFeature.getAttribute("style");
-        final FigureStyle figureStyle = new DefaultFigureStyle();
-        if (styleAttribute instanceof String) {
-            String css = (String) styleAttribute;
-            figureStyle.fromCssString(css);
+    public Figure createFigure(SimpleFeature simpleFeature, String defaultCSS) {
+        Object geometry = simpleFeature.getDefaultGeometry();
+        Object styleAttribute = simpleFeature.getAttribute("style");
+        System.out.println("styleAttribute = [" + styleAttribute + "]");
+        String css = defaultCSS;
+        if (styleAttribute instanceof String && !((String)styleAttribute).isEmpty()) {
+            css = (String) styleAttribute;
         }
+        FigureStyle figureStyle = new DefaultFigureStyle();
+        figureStyle.fromCssString(css);
         if (geometry instanceof Point) {
             return new SimpleFeaturePointFigure(simpleFeature, figureStyle);
         } else {

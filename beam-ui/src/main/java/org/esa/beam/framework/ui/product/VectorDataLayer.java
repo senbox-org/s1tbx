@@ -99,7 +99,7 @@ public class VectorDataLayer extends Layer {
                 figureMap.remove(simpleFeature);
             } else {
                 figureCollection.addFigure(
-                        getFigureFactory().createFigure(simpleFeature));
+                        getFigureFactory().createFigure(simpleFeature, vectorDataNode.getDefaultCSS()));
             }
         }
 
