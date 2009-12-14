@@ -1,6 +1,5 @@
 package com.bc.ceres.swing.figure;
 
-import com.bc.ceres.swing.figure.support.RotateHandle;
 import com.bc.ceres.swing.figure.support.ScaleHandle;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
 
@@ -382,7 +381,8 @@ public abstract class AbstractFigure implements Figure {
 
         FigureStyle handleStyle = getHandleStyle();
 
-        handleList.add(new RotateHandle(this, handleStyle));
+        //  TODO - reactivate RotateHandle and fix rotation implementation in 4.7-FINAL
+//        handleList.add(new RotateHandle(this, handleStyle));
 
         handleList.add(new ScaleHandle(this, ScaleHandle.NW, -distance, -distance, handleStyle));
         handleList.add(new ScaleHandle(this, ScaleHandle.NE, +distance, -distance, handleStyle));
