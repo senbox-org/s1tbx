@@ -580,6 +580,9 @@ public final class DimapProductConstants {
     public static final String TAG_VALUE_RANGE_ENABLED = "VALUE_RANGE_ENABLED";
     public static final String TAG_PATH_SEG = "SEGMENT";
     public static final String TAG_PIN_USE_ENABLED = "PIN_USE_ENABLED";
+    public static final String TAG_MASK_USAGE = "Mask_Usage";
+    public static final String TAG_ROI = "ROI";
+    public static final String TAG_OVERLAY = "OVERLAY";
 
     // BEAM-Dimap image interpretation tags
     public static final String TAG_IMAGE_INTERPRETATION = "Image_Interpretation";

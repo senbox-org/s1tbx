@@ -376,11 +376,12 @@ public class DimapDocumentTest extends TestCase {
         final TiePointGrid tiePointGrid = createTiePointGrid("tpg1", sceneRasterWidth, sceneRasterHeight, 21.1f, 14.2f,
                                                              16.3f, 32.004f,
                                                              false);
+        product.addTiePointGrid(tiePointGrid);
+        
         final BitmaskOverlayInfo overlayInfo = new BitmaskOverlayInfo();
         overlayInfo.addBitmaskDef(def1);
         overlayInfo.addBitmaskDef(def2);
         tiePointGrid.setBitmaskOverlayInfo(overlayInfo);
-        product.addTiePointGrid(tiePointGrid);
 
         product.addTiePointGrid(
                 createTiePointGrid("tpg2", sceneRasterWidth, sceneRasterHeight, 21.1f, 14.2f, 16.3f, 32.004f, true));
@@ -806,14 +807,14 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <NO_DATA_COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />");
         pw.println("            <HISTOGRAM_MATCHING>Normalize</HISTOGRAM_MATCHING>");
         pw.println("        </Band_Statistics>");
-        pw.println("        <Bitmask_Overlay>");
+        pw.println("        <Mask_Usage>");
         pw.println("            <BAND_INDEX>1</BAND_INDEX>");
-        pw.println("            <BITMASK names=\"name1,name3\" />");
-        pw.println("        </Bitmask_Overlay>");
-        pw.println("        <Bitmask_Overlay>");
+        pw.println("            <OVERLAY names=\"name1,name3\" />");
+        pw.println("        </Mask_Usage>");
+        pw.println("        <Mask_Usage>");
         pw.println("            <TIE_POINT_GRID_INDEX>0</TIE_POINT_GRID_INDEX>");
-        pw.println("            <BITMASK names=\"name2,name3\" />");
-        pw.println("        </Bitmask_Overlay>");
+        pw.println("            <OVERLAY names=\"name2,name3\" />");
+        pw.println("        </Mask_Usage>");
         pw.println("    </Image_Display>");
         pw.println("    <Masks>");
         pw.println("        <Mask type=\"Math\">");

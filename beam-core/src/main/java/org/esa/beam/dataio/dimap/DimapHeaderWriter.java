@@ -301,8 +301,8 @@ public final class DimapHeaderWriter extends XmlWriter {
         final Band[] bands = product.getBands();
         final String[] idTags = createTags(indent, DimapProductConstants.TAG_IMAGE_DISPLAY);
         writeBandStatistics(sXmlW, indent, bands);
-        writeBitmaskDefinitions(sXmlW, indent + 1, bands);
-        writeBitmaskDefinitions(sXmlW, indent + 1, product.getTiePointGrids());
+        writeMaskUsages(sXmlW, indent + 1, bands);
+        writeMaskUsages(sXmlW, indent + 1, product.getTiePointGrids());
 
         sXmlW.close();
         final String childTags = stringWriter.toString();
@@ -365,34 +365,38 @@ public final class DimapHeaderWriter extends XmlWriter {
         }
     }
 
-    protected void writeBitmaskDefinitions(XmlWriter pw, int indent, RasterDataNode[] rasterDataNodes) {
+    protected void writeMaskUsages(XmlWriter pw, int indent, RasterDataNode[] rasterDataNodes) {
         Guardian.assertNotNull("pw", pw);
         Guardian.assertNotNull("rasterDataNodes", rasterDataNodes);
         for (int i = 0; i < rasterDataNodes.length; i++) {
             final RasterDataNode rasterDataNode = rasterDataNodes[i];
-            final BitmaskOverlayInfo bitmaskOverlayInfo = rasterDataNode.getBitmaskOverlayInfo();
-            if (bitmaskOverlayInfo != null) {
-                final BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
-                if (bitmaskDefs.length > 0) {
-                    final String[] boTags = createTags(indent, DimapProductConstants.TAG_BITMASK_OVERLAY);
-                    pw.println(boTags[0]);
-                    if (rasterDataNode instanceof Band) {
-                        pw.printLine(indent + 1, DimapProductConstants.TAG_BAND_INDEX, i);
-                    } else {
-                        pw.printLine(indent + 1, DimapProductConstants.TAG_TIE_POINT_GRID_INDEX, i);
-                    }
-                    final String[] bitmaskDefNames = new String[bitmaskDefs.length];
-                    for (int j = 0; j < bitmaskDefNames.length; j++) {
-                        bitmaskDefNames[j] = bitmaskDefs[j].getName();
-                    }
-                    final String[][] attributes = new String[1][];
+            ProductNodeGroup<Mask> roiMaskGroup = rasterDataNode.getRoiMaskGroup();
+            ProductNodeGroup<Mask> overlayMaskGroup = rasterDataNode.getOverlayMaskGroup();
+            if (roiMaskGroup.getNodeCount() > 0 || overlayMaskGroup.getNodeCount() > 0) {
+                final String[] boTags = createTags(indent, DimapProductConstants.TAG_MASK_USAGE);
+                pw.println(boTags[0]);
+                if (rasterDataNode instanceof Band) {
+                    pw.printLine(indent + 1, DimapProductConstants.TAG_BAND_INDEX, i);
+                } else {
+                    pw.printLine(indent + 1, DimapProductConstants.TAG_TIE_POINT_GRID_INDEX, i);
+                }
+                
+                final String[][] attributes = new String[1][];
+                if (roiMaskGroup.getNodeCount() > 0) {
                     attributes[0] = new String[]{
                             DimapProductConstants.ATTRIB_NAMES,
-                            StringUtils.arrayToCsv(bitmaskDefNames)
+                            StringUtils.arrayToCsv(roiMaskGroup.getNodeNames())
                     };
-                    pw.printLine(indent + 1, DimapProductConstants.TAG_BITMASK, attributes, null);
-                    pw.println(boTags[1]);
+                    pw.printLine(indent + 1, DimapProductConstants.TAG_ROI, attributes, null);
                 }
+                if (overlayMaskGroup.getNodeCount() > 0) {
+                    attributes[0] = new String[]{
+                            DimapProductConstants.ATTRIB_NAMES,
+                            StringUtils.arrayToCsv(overlayMaskGroup.getNodeNames())
+                    };
+                    pw.printLine(indent + 1, DimapProductConstants.TAG_OVERLAY, attributes, null);
+                }
+                pw.println(boTags[1]);
             }
         }
     }
