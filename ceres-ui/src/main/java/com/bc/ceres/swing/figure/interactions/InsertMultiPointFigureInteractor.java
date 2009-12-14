@@ -62,10 +62,10 @@ public class InsertMultiPointFigureInteractor extends FigureEditorInteractor {
                     figureEditor.getFigureSelection().removeAllFigures();
                     if (isPolygonal()) {
                         removeNotNeededPoints();
-                        figure.setShape(createPath());
                     }
-                    figureEditor.insertFigures(false, figure);
+                    figure.setShape(createPath());
                     points.clear();
+                    figureEditor.insertFigures(false, figure);
                     stopInteraction(event);
                 }
             }
