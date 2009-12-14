@@ -23,7 +23,7 @@ public interface Figure extends Restorable, Cloneable {
     // todo - interface FigureGeometry?
 
     enum Rank {
-        PUNCTUAL,
+        PUNTAL,
         LINEAL,
         POLYGONAL,
         COLLECTION

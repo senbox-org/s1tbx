@@ -32,7 +32,7 @@ class AbstractFigureImpl extends AbstractFigure {
 
     @Override
     public Rank getRank() {
-        return Rank.PUNCTUAL;
+        return Rank.PUNTAL;
     }
 
     void postChangeEvent() {

@@ -26,7 +26,7 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
 
     @Override
     public final Rank getRank() {
-        return Rank.PUNCTUAL;
+        return Rank.PUNTAL;
     }
 
     @Override
