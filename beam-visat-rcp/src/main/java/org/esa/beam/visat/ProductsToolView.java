@@ -114,7 +114,7 @@ public class ProductsToolView extends AbstractToolView {
         }
     }
 
-    private VectorDataNode getSelectedVectorDataNode(ProductSceneView sceneView) {
+    private static VectorDataNode getSelectedVectorDataNode(ProductSceneView sceneView) {
         final Layer layer = sceneView.getSelectedLayer();
         if (layer instanceof VectorDataLayer) {
             final VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
@@ -124,14 +124,14 @@ public class ProductsToolView extends AbstractToolView {
         }
     }
 
-    private void setSelectedVectorDataNode(final VectorDataNode vectorDataNode) {
+    private void setSelectedVectorDataNode(VectorDataNode vectorDataNode) {
         final ProductSceneView sceneView = visatApp.getSelectedProductSceneView();
         if (sceneView != null) {
             setSelectedVectorDataNode(sceneView, vectorDataNode);
         }
     }
 
-    private void setSelectedVectorDataNode(ProductSceneView sceneView, final VectorDataNode vectorDataNode) {
+    private static void setSelectedVectorDataNode(ProductSceneView sceneView, final VectorDataNode vectorDataNode) {
         final LayerFilter layerFilter = new LayerFilter() {
             @Override
             public boolean accept(Layer layer) {
@@ -140,7 +140,6 @@ public class ProductsToolView extends AbstractToolView {
         };
         Layer layer = LayerUtils.getChildLayer(sceneView.getRootLayer(), layerFilter, LayerUtils.SearchMode.DEEP);
         if (layer != null) {
-            layer.setVisible(true);
             sceneView.setSelectedLayer(layer);
         }
     }
