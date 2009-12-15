@@ -161,6 +161,10 @@ CHRIS-GeoCorrection
 * Auto-Download Telemetry
 * NullPointerException after map-projection if not saved to file
 
+SMOS-Box:
+=========
+* Speed up statistics
+* use RasterDataNode.areaOfInterest (see above)
 
 
 GUI Tests results
