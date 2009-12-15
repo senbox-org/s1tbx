@@ -166,9 +166,19 @@ SMOS-Box:
 * Speed up statistics
 * use RasterDataNode.areaOfInterest (see above)
 
+Envisat Reprocessing 3:
+=======================
+* Format update
 
+Reprojection:
+=============
+* Old org.esa.beam.framework.dataop.maptransf still heavily in use!
+  Most writers, e.g. GeoTIFF don't work
+
+
+#################################################################
 GUI Tests results
-=================
+#################################################################
 
 new mosaic processor
 ====================
