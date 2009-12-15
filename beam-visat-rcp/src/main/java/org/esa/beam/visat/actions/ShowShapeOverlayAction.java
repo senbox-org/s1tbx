@@ -1,8 +1,6 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerFilter;
-import com.bc.ceres.glayer.support.LayerUtils;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -13,46 +11,43 @@ public class ShowShapeOverlayAction extends AbstractShowOverlayAction {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
+        VisatApp visatApp = VisatApp.getApp();
+        final ProductSceneView view = visatApp.getSelectedProductSceneView();
         if (view != null) {
-            final Layer layer = getGeometryLayer(view.getRootLayer());
+            final Layer layer = getSelectedVectorDataLayer(view);
             if (layer != null) {
                 layer.setVisible(!layer.isVisible());
             }
         }
     }
 
-    private Layer getGeometryLayer(Layer rootLayer) {
-        return LayerUtils.getChildLayer(rootLayer, new GeometryLayerFilter(), LayerUtils.SearchMode.DEEP);
+    private static VectorDataLayer getSelectedVectorDataLayer(ProductSceneView sceneView) {
+        final Layer layer = sceneView.getSelectedLayer();
+        if (layer instanceof VectorDataLayer) {
+            final VectorDataLayer vectorLayer = (VectorDataLayer) layer;
+            final String typeName = vectorLayer.getVectorDataNode().getFeatureType().getTypeName();
+            if (Product.GEOMETRY_FEATURE_TYPE_NAME.equals(typeName)) {
+                return vectorLayer;
+            }
+        }
+        return null;
     }
 
     @Override
     protected void updateEnableState(ProductSceneView view) {
-        setEnabled(view != null && getGeometryLayer(view.getRootLayer()) != null);
+        setEnabled(view != null && getSelectedVectorDataLayer(view) != null);
     }
 
     @Override
     protected void updateSelectState(ProductSceneView view) {
         if (view != null) {
-            final Layer layer = getGeometryLayer(view.getRootLayer());
+            final Layer layer = getSelectedVectorDataLayer(view);
             if (layer != null) {
                 setSelected(layer.isVisible());
             }
+        } else {
+            setSelected(false);
         }
-        setSelected(false);
-
-    }
-
-    private static class GeometryLayerFilter implements LayerFilter {
-
-        @Override
-        public boolean accept(Layer layer) {
-            if (layer instanceof VectorDataLayer) {
-                final VectorDataLayer vectorLayer = (VectorDataLayer) layer;
-                final String typeName = vectorLayer.getVectorDataNode().getFeatureType().getTypeName();
-                return Product.GEOMETRY_FEATURE_TYPE_NAME.equals(typeName);
-            }
-            return false;
-        }
+        System.out.println("isSelected() = " + isSelected());
     }
 }
