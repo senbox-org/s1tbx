@@ -250,7 +250,7 @@ public class NavigationToolView extends AbstractToolView {
             }
         });
         rotationAngleField.setColumns(6);
-        rotationAngleField.setEditable(false);
+        rotationAngleField.setEditable(true);
         rotationAngleField.setHorizontalAlignment(JTextField.CENTER);
         rotationAngleField.addActionListener(new ActionListener() {
             @Override
