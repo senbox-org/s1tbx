@@ -16,9 +16,7 @@
  */
 package org.esa.beam.visat.toolviews.placemark.pin;
 
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.toolviews.placemark.InsertPlacemarkInteractor;
 
 /**
@@ -29,16 +27,5 @@ public class InsertPinInteractor extends InsertPlacemarkInteractor {
 
     public InsertPinInteractor() {
         super(PinDescriptor.INSTANCE);
-    }
-
-    @Override
-    public void completeInteraction(ProductSceneView sceneView) {
-        if (getSelectedPlacemark() != null
-                && sceneView.isCurrentPixelPosValid()) {
-            GeoCoding geoCoding = sceneView.getRaster().getGeoCoding();
-            if (geoCoding != null && geoCoding.canGetGeoPos()) {
-                getSelectedPlacemark().setGeoPos(geoCoding.getGeoPos(getSelectedPlacemark().getPixelPos(), null));
-            }
-        }
     }
 }
