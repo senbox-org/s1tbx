@@ -18,7 +18,7 @@ import java.io.IOException;
  * a {@link org.esa.beam.framework.datamodel.RasterDataNode}.
  */
 public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
-    private RasterDataNode rasterDataNode;
+    private final RasterDataNode rasterDataNode;
 
     private static Dimension getPreferredTileSize(RasterDataNode rdn) {
         Product product = rdn.getProduct();
@@ -65,12 +65,6 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
     }
 
     protected abstract void computeProductData(ProductData productData, Rectangle destRect) throws IOException;
-
-    @Override
-    public synchronized void dispose() {
-        rasterDataNode = null;
-        super.dispose();
-    }
 
     @Override
     public String toString() {
