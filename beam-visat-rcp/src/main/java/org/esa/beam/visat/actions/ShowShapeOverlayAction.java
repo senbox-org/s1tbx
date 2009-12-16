@@ -48,6 +48,5 @@ public class ShowShapeOverlayAction extends AbstractShowOverlayAction {
         } else {
             setSelected(false);
         }
-        System.out.println("isSelected() = " + isSelected());
     }
 }
