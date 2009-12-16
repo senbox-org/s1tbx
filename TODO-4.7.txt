@@ -174,6 +174,8 @@ Reprojection:
 =============
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
   Most writers, e.g. GeoTIFF don't work
+* If figures/geometries existed in source product, layer boundaries are wrong
+  after reprojection
 
 
 #################################################################
