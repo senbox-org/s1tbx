@@ -24,6 +24,8 @@ import org.esa.beam.visat.toolviews.placemark.PlacemarkTool;
 /**
  * A tool used to create (single click), select (single click on a pin) or edit (double click on a pin) the pins
  * displayed in product scene view.
+ *
+ * @deprecated since BEAM 4.7, replaced by InsertPinInteractor
  */
 public class PinTool extends PlacemarkTool {
 
