@@ -7,6 +7,7 @@ import static com.bc.ceres.swing.figure.support.StyleDefaults.*;
 
 import java.awt.Shape;
 import java.awt.geom.Path2D;
+import java.awt.geom.Ellipse2D;
 
 
 public class VertexHandle extends AbstractHandle {
@@ -43,6 +44,7 @@ public class VertexHandle extends AbstractHandle {
     }
 
     private static Shape createHandleShape() {
+        /*
         Path2D path = new Path2D.Double();
         path.moveTo(0.0, -0.5 * VERTEX_HANDLE_SIZE);
         path.lineTo(0.5 * VERTEX_HANDLE_SIZE, 0.0);
@@ -50,5 +52,7 @@ public class VertexHandle extends AbstractHandle {
         path.lineTo(-0.5 * VERTEX_HANDLE_SIZE, 0.0);
         path.closePath();
         return path;
+        */
+        return new Ellipse2D.Double(-0.5 * VERTEX_HANDLE_SIZE, -0.5 * VERTEX_HANDLE_SIZE, VERTEX_HANDLE_SIZE, VERTEX_HANDLE_SIZE);
     }
 }
