@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import org.esa.beam.framework.datamodel.CombinedFXYGeoCoding;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FXYGeoCoding;
 import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -150,6 +151,8 @@ class GeoCodingPanel extends TextPagePanel {
             writeCombinedFXYGeoCoding((CombinedFXYGeoCoding) geoCoding, nodeType, sb);
         } else if (geoCoding instanceof GcpGeoCoding) {
             writeGcpGeoCoding((GcpGeoCoding) geoCoding, nodeType, sb);
+        } else if (geoCoding instanceof CrsGeoCoding) {
+            writeCrsGeoCoding((CrsGeoCoding) geoCoding, nodeType, sb);
         } else if (geoCoding != null) {
             writeUnknownGeoCoding(geoCoding, nodeType, sb);
         } else {
@@ -192,7 +195,17 @@ class GeoCodingPanel extends TextPagePanel {
                                     String.valueOf(pixelPos.getX()), String.valueOf(pixelPos.getY()),
                                     geoPos.getLatString(), geoPos.getLonString()));
         }
+    }
 
+    private void writeCrsGeoCoding(CrsGeoCoding geoCoding, String nodeType, StringBuffer sb) {
+        sb.append("\n");
+        sb.append("\nThe ").append(nodeType).append(" uses a referenced geo-coding.\n");
+        sb.append("\n");
+        sb.append("WKT of Map CRS:\n\n");
+        sb.append(geoCoding.getMapCRS().toString());
+        sb.append("\n\n\n");
+        sb.append("Image To Map:\n\n");
+        sb.append(geoCoding.getImageToMapTransform().toString());
     }
 
     private void writeUnknownGeoCoding(GeoCoding geoCoding, String nodeType, StringBuffer sb) {
