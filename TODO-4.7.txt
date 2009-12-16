@@ -255,14 +255,25 @@ contain any of the following characters: \/:*?"<>|
 masks, vectors, layers
 =======================
 
-- zoom to figger. in Layer manager can be zoomed to figger layer. (?)
+it is not possible to delete a geometry vector. OK? 
 ------------------------------------------------------------------------
 
-- vector mark for pin/gcp will be zoomed with the image view
-------------------------------------------------------------------------
+it is not possible to use geom. as ROI in projection
 
-- edit mask ->  no effect
-------------------------------------------------------------------------
+project data
+open band
+draw figge
+select geometry as roi in mask manager -->
+roi is empty
+--------------------------------------------------------------------------------------------------------------------
+
+select pin:
+
+select pin on the view --> is not selected in PIN Manager and is not selected for Spectrum and Pixel Info
+select PIN in PIN Manager --> on the image view will be PIN- Layer selected.
+change pixel Pos. (coord.) in PIN Manager --> PIN- Layer will be moved but not the PIN
+
+------------------------------------------------------------------------------
 
 - change transparency in Mask Manager ->  no effect
 ------------------------------------------------------------------------
@@ -276,65 +287,26 @@ masks, vectors, layers
 - layers are lost by save session; save - close - open session --> layers will not be preselected and visible ?
 ------------------------------------------------------------------------
 
-- NullPointer after delete mask, which was used in the expression for other mask
+- saved figgers are black; create figger, save - close - open session --> figger is black
+------------------------------------------------------------------------
+
+- pin/gcps are unvisible in the UTM projection
+create some pins/gcps
+utm proj.
+open proj. image view -->
+no pins on the image visible,
+however one pin and one gcp are visible in the bottom far away from the image
+open pin manager --> all pins are present
+
 -------------------------------------------------------------------------
 
-create pin/gcp --> pins/gcps are visible, but the pins/gcps visibility is not selected in the Mask Manager.
-                   Layer manager contains 3* pin/gcp nodes and only 2 are selected 
--------------------------------------------------------------------------
-
-- It is not possible to open old dim prodict containing ROI with Shape:
-
-Product:
-         <ROI_Definition>
-             <EXPRESSION>not l1_flags.INVALID</EXPRESSION>
-             <VALUE_RANGE_MAX>1.0</VALUE_RANGE_MAX>
-             <VALUE_RANGE_MIN>0.0</VALUE_RANGE_MIN>
-             <BITMASK_ENABLED>false</BITMASK_ENABLED>
-             <INVERTED>false</INVERTED>
-             <OR_COMBINED>false</OR_COMBINED>
-             <SHAPE_ENABLED>true</SHAPE_ENABLED>
-             <VALUE_RANGE_ENABLED>false</VALUE_RANGE_ENABLED>
-             <PIN_USE_ENABLED>false</PIN_USE_ENABLED>
-             <ROI_ONE_DIMENSIONS>false</ROI_ONE_DIMENSIONS>
-             <Shape_Figure type="Ellipse2D" value="90.5,37.5,222.0,210.0" />
-             <BAND_INDEX>12</BAND_INDEX>
-
-Exception:
-
-java.lang.IllegalArgumentException: Value for 'Expression' must not be empty.
-         at com.bc.ceres.binding.PropertyContainer.setValue(PropertyContainer.java:248)
-         at org.esa.beam.framework.datamodel.Mask$BandMathType.setExpression(Mask.java:332)
-         at org.esa.beam.framework.datamodel.ROIDefinition.toMask(ROIDefinition.java:505)
-         at org.esa.beam.framework.datamodel.RasterDataNode.setROIDefinition(RasterDataNode.java:2292)
-         at org.esa.beam.dataio.dimap.DimapProductHelpers$ProductBuilder.addRoiDefinitions(DimapProductHelpers.java:1029)
-         at org.esa.beam.dataio.dimap.DimapProductHelpers$ProductBuilder.addDisplayInfosToBandsAndTiePointGrids(DimapProductHelpers.java:1015)
-         at org.esa.beam.dataio.dimap.DimapProductHelpers$ProductBuilder.createProduct(DimapProductHelpers.java:832)
-         at org.esa.beam.dataio.dimap.DimapProductHelpers$ProductBuilder.access$100(DimapProductHelpers.java:809)
-         at org.esa.beam.dataio.dimap.DimapProductHelpers.createProduct(DimapProductHelpers.java:112)
-         at org.esa.beam.dataio.dimap.DimapProductReader.processProduct(DimapProductReader.java:142)
-         at org.esa.beam.dataio.dimap.DimapProductReader.readProductNodesImpl(DimapProductReader.java:127)
-         at org.esa.beam.framework.dataio.AbstractProductReader.readProductNodes(AbstractProductReader.java:159)
-         at org.esa.beam.visat.VisatApp$OpenProductRunnable.loadProduct(VisatApp.java:2621)
-         at org.esa.beam.visat.VisatApp$OpenProductRunnable.run(VisatApp.java:2555)
-         at java.util.concurrent.Executors$RunnableAdapter.call(Unknown Source)
-         at java.util.concurrent.FutureTask$Sync.innerRun(Unknown Source)
-         at java.util.concurrent.FutureTask.run(Unknown Source)
-         at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(Unknown Source)
-         at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
-         at java.lang.Thread.run(Unknown Source)
- Caused by: com.bc.ceres.binding.ValidationException: Value for 'Expression' must not be empty.
-         at com.bc.ceres.binding.validators.NotEmptyValidator.validateValue(NotEmptyValidator.java:13)
-         at com.bc.ceres.binding.validators.MultiValidator.validateValue(MultiValidator.java:36)
-         at com.bc.ceres.binding.Property.validate(Property.java:191)
-         at com.bc.ceres.binding.Property.setValue(Property.java:148)
-         at com.bc.ceres.binding.PropertyContainer.setValue(PropertyContainer.java:246)
-         ... 19 more
-------------------------------------------------------
+Layer Manager contains Bitmasks node if an MERIS lev. 2 product will be opened
+which was projected with previous BEAM version
+---------------------------------------------------------------------------
 
 draw polygon
 
- a) quick double-click does not close polygon drawing
+quick double-click does not close polygon drawing
 
 Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: Number of points must be 0 or >3
 	at com.vividsolutions.jts.geom.LinearRing.validateConstruction(LinearRing.java:98)
@@ -369,12 +341,176 @@ Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: Numbe
 	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
 	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
 
-	b)
+
 
 Porduct modified
 ==================
 
 open product - open band --> product will be modified
+
+
+not reproducible (NullPointer)Exception
+===============
+
+collocate 2 prod., not save
+open band (slave)
+draw figger
+
+beam-debug: An exception occured:
+java.lang.RuntimeException: java.io.FileNotFoundException: C:\Projects\Testing\testdata\out\coll.data\radiance_2_M.img (Das System kann die angegebene
+ Datei nicht finden)
+        at org.esa.beam.jai.RasterDataNodeOpImage.computeRect(RasterDataNodeOpImage.java:59)
+        at javax.media.jai.SourcelessOpImage.computeTile(SourcelessOpImage.java:137)
+        at com.sun.media.jai.util.SunTileScheduler.scheduleTile(SunTileScheduler.java:904)
+        at javax.media.jai.OpImage.getTile(OpImage.java:1129)
+        at org.esa.beam.visat.toolviews.spectrum.SpectrumGraph.getSample(SpectrumGraph.java:133)
+        at org.esa.beam.visat.toolviews.spectrum.SpectrumGraph.readValues(SpectrumGraph.java:123)
+        at org.esa.beam.visat.toolviews.spectrum.SpectraDiagram.updateSpectra(SpectraDiagram.java:94)
+        at org.esa.beam.visat.toolviews.spectrum.SpectrumToolView.recreateSpectraDiagram(SpectrumToolView.java:493)
+        at org.esa.beam.visat.toolviews.spectrum.SpectrumToolView.access$200(SpectrumToolView.java:66)
+        at org.esa.beam.visat.toolviews.spectrum.SpectrumToolView$ProductNodeHandler.nodeAdded(SpectrumToolView.java:613)
+        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1424)
+        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1411)
+        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1406)
+        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1394)
+        at org.esa.beam.framework.datamodel.Product.fireNodeAdded(Product.java:1384)
+        at org.esa.beam.framework.datamodel.ProductNodeGroup.notifyAdded(ProductNodeGroup.java:325)
+        at org.esa.beam.framework.datamodel.ProductNodeGroup.add(ProductNodeGroup.java:170)
+        at org.esa.beam.framework.datamodel.Product$1.add(Product.java:231)
+        at org.esa.beam.framework.datamodel.Product$1.add(Product.java:226)
+        at org.esa.beam.visat.actions.NewVectorDataNodeAction.createVectorDataNode(NewVectorDataNodeAction.java:98)
+        at org.esa.beam.visat.actions.InsertFigureInteractorHandler.newVectorDataLayer(InsertFigureInteractorHandler.java:94)
+        at org.esa.beam.visat.actions.InsertFigureInteractorHandler.canStartInteraction(InsertFigureInteractorHandler.java:70)
+        at com.bc.ceres.swing.figure.AbstractInteractor.canStartInteraction(AbstractInteractor.java:248)
+        at com.bc.ceres.swing.figure.AbstractInteractor.startInteraction(AbstractInteractor.java:198)
+        at com.bc.ceres.swing.figure.interactions.InsertMultiPointFigureInteractor.mouseReleased(InsertMultiPointFigureInteractor.java:88)
+        at com.bc.ceres.swing.figure.InteractionDispatcher.mouseReleased(InteractionDispatcher.java:80)
+        at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
+        at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
+        at java.awt.Component.processMouseEvent(Unknown Source)
+        at javax.swing.JComponent.processMouseEvent(Unknown Source)
+        at java.awt.Component.processEvent(Unknown Source)
+        at java.awt.Container.processEvent(Unknown Source)
+        at java.awt.Component.dispatchEventImpl(Unknown Source)
+        at java.awt.Container.dispatchEventImpl(Unknown Source)
+        at java.awt.Component.dispatchEvent(Unknown Source)
+        at java.awt.LightweightDispatcher.retargetMouseEvent(Unknown Source)
+        at java.awt.LightweightDispatcher.processMouseEvent(Unknown Source)
+        at java.awt.LightweightDispatcher.dispatchEvent(Unknown Source)
+        at java.awt.Container.dispatchEventImpl(Unknown Source)
+        at java.awt.Window.dispatchEventImpl(Unknown Source)
+        at java.awt.Component.dispatchEvent(Unknown Source)
+        at java.awt.EventQueue.dispatchEvent(Unknown Source)
+        at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+        at java.awt.EventDispatchThread.run(Unknown Source)
+Caused by: java.io.FileNotFoundException: C:\Projects\Testing\testdata\out\coll.data\radiance_2_M.img (Das System kann die angegebene Datei nicht find
+en)
+        at java.io.RandomAccessFile.open(Native Method)
+        at java.io.RandomAccessFile.<init>(Unknown Source)
+        at javax.imageio.stream.FileImageInputStream.<init>(Unknown Source)
+        at org.esa.beam.dataio.dimap.DimapProductReader.getOrCreateImageInputStream(DimapProductReader.java:362)
+        at org.esa.beam.dataio.dimap.DimapProductReader.readBandRasterDataImpl(DimapProductReader.java:305)
+        at org.esa.beam.framework.dataio.AbstractProductReader.readBandRasterData(AbstractProductReader.java:240)
+        at org.esa.beam.jai.BandOpImage.computeProductData(BandOpImage.java:37)
+        at org.esa.beam.jai.RasterDataNodeOpImage.computeRect(RasterDataNodeOpImage.java:57)
+        ... 47 more
+Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
+        at com.sun.media.jai.util.SunCachedTile.<init>(SunCachedTile.java:80)
+        at com.sun.media.jai.util.SunTileCache.add(SunTileCache.java:257)
+        at javax.media.jai.OpImage.addTileToCache(OpImage.java:1087)
+        at javax.media.jai.OpImage.getTile(OpImage.java:1142)
+        at org.esa.beam.visat.toolviews.spectrum.SpectrumGraph.getSample(SpectrumGraph.java:133)
+        at org.esa.beam.visat.toolviews.spectrum.SpectrumGraph.readValues(SpectrumGraph.java:123)
+        at org.esa.beam.visat.toolviews.spectrum.SpectraDiagram.updateSpectra(SpectraDiagram.java:94)
+        at org.esa.beam.visat.toolviews.spectrum.SpectrumToolView.recreateSpectraDiagram(SpectrumToolView.java:493)
+        at org.esa.beam.visat.toolviews.spectrum.SpectrumToolView.access$200(SpectrumToolView.java:66)
+        at org.esa.beam.visat.toolviews.spectrum.SpectrumToolView$ProductNodeHandler.nodeAdded(SpectrumToolView.java:613)
+        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1424)
+        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1411)
+        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1406)
+        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1394)
+        at org.esa.beam.framework.datamodel.Product.fireNodeAdded(Product.java:1384)
+        at org.esa.beam.framework.datamodel.ProductNodeGroup.notifyAdded(ProductNodeGroup.java:325)
+        at org.esa.beam.framework.datamodel.ProductNodeGroup.add(ProductNodeGroup.java:170)
+        at org.esa.beam.framework.datamodel.Product$1.add(Product.java:231)
+        at org.esa.beam.framework.datamodel.Product$1.add(Product.java:226)
+        at org.esa.beam.visat.actions.NewVectorDataNodeAction.createVectorDataNode(NewVectorDataNodeAction.java:98)
+        at org.esa.beam.visat.actions.InsertFigureInteractorHandler.newVectorDataLayer(InsertFigureInteractorHandler.java:94)
+        at org.esa.beam.visat.actions.InsertFigureInteractorHandler.canStartInteraction(InsertFigureInteractorHandler.java:70)
+        at com.bc.ceres.swing.figure.AbstractInteractor.canStartInteraction(AbstractInteractor.java:248)
+        at com.bc.ceres.swing.figure.AbstractInteractor.startInteraction(AbstractInteractor.java:198)
+        at com.bc.ceres.swing.figure.interactions.InsertMultiPointFigureInteractor.mouseReleased(InsertMultiPointFigureInteractor.java:88)
+        at com.bc.ceres.swing.figure.InteractionDispatcher.mouseReleased(InteractionDispatcher.java:80)
+        at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
+        at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
+        at java.awt.Component.processMouseEvent(Unknown Source)
+
+
+----------------------------------------------------------------------------------------------
+
+different manipulations with Pin GCP
+ 
+Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
+   at javax.swing.BufferStrategyPaintManager.flushAccumulatedRegion(Unknown Source)
+   at javax.swing.BufferStrategyPaintManager.endPaint(Unknown Source)
+   at javax.swing.RepaintManager.endPaint(Unknown Source)
+   at javax.swing.JComponent.paint(Unknown Source)
+   at java.awt.GraphicsCallback$PaintCallback.run(Unknown Source)
+   at sun.awt.SunGraphicsCallback.runOneComponent(Unknown Source)
+   at sun.awt.SunGraphicsCallback.runComponents(Unknown Source)
+   at java.awt.Container.paint(Unknown Source)
+   at javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
+   at javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
+   at javax.swing.RepaintManager.seqPaintDirtyRegions(Unknown Source)
+   at javax.swing.SystemEventQueueUtilities$ComponentWorkRequest.run(Unknown Source)
+   at java.awt.event.InvocationEvent.dispatch(Unknown Source)
+   at java.awt.EventQueue.dispatchEvent(Unknown Source)
+   at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+   at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+   at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+   at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+   at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+   at java.awt.EventDispatchThread.run(Unknown Source)
+
+------------------------------------------------------------------
+
+WARNING: tileComputed: tile == null!
+beam-debug: JAI Error: Problem occurs when computing a tile by the owner.
+beam-debug: An exception occured:
+java.lang.NullPointerException
+        at org.esa.beam.framework.dataop.barithm.BandArithmetic.registerTiePointGridSymbols(BandArithmetic.java:478)
+        at org.esa.beam.framework.dataop.barithm.BandArithmetic.registerProductSymbols(BandArithmetic.java:468)
+        at org.esa.beam.framework.dataop.barithm.BandArithmetic.createDefaultNamespace(BandArithmetic.java:188)
+        at org.esa.beam.framework.dataop.barithm.BandArithmetic.createDefaultNamespace(BandArithmetic.java:160)
+        at org.esa.beam.jai.VirtualBandOpImage.parseExpression(VirtualBandOpImage.java:237)
+        at org.esa.beam.jai.VirtualBandOpImage.computeRect(VirtualBandOpImage.java:202)
+        at javax.media.jai.SourcelessOpImage.computeTile(SourcelessOpImage.java:137)
+        at com.sun.media.jai.util.SunTileScheduler.scheduleTile(SunTileScheduler.java:904)
+        at javax.media.jai.OpImage.getTile(OpImage.java:1129)
+        at javax.media.jai.PointOpImage.computeTile(PointOpImage.java:911)
+        at com.sun.media.jai.util.SunTileScheduler.scheduleTile(SunTileScheduler.java:904)
+        at javax.media.jai.OpImage.getTile(OpImage.java:1129)
+        at javax.media.jai.RenderedOp.getTile(RenderedOp.java:2257)
+        at com.sun.media.jai.util.RequestJob.compute(SunTileScheduler.java:247)
+        at com.sun.media.jai.util.WorkerThread.run(SunTileScheduler.java:468)
+beam-debug: JAI Error: Problem occurs when computing a tile by the owner.
+beam-debug: An exception occured:
+java.lang.NullPointerException
+        at com.sun.media.jai.util.SunCachedTile.<init>(SunCachedTile.java:80)
+        at com.sun.media.jai.util.SunTileCache.add(SunTileCache.java:257)
+        at javax.media.jai.OpImage.addTileToCache(OpImage.java:1087)
+        at javax.media.jai.OpImage.getTile(OpImage.java:1142)
+        at javax.media.jai.PointOpImage.computeTile(PointOpImage.java:911)
+        at com.sun.media.jai.util.SunTileScheduler.scheduleTile(SunTileScheduler.java:904)
+        at javax.media.jai.OpImage.getTile(OpImage.java:1129)
+        at javax.media.jai.RenderedOp.getTile(RenderedOp.java:2257)
+        at com.sun.media.jai.util.RequestJob.compute(SunTileScheduler.java:247)
+        at com.sun.media.jai.util.WorkerThread.run(SunTileScheduler.java:468)
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////
