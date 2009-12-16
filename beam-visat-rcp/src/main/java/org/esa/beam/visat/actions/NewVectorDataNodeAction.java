@@ -109,7 +109,11 @@ public class NewVectorDataNodeAction extends ExecCommand {
      */
     @Override
     public void updateState() {
-        Product product = VisatApp.getApp().getSelectedProduct();
+        VisatApp app = VisatApp.getApp();
+        Product product = null;
+        if (app != null) {
+            product = app.getSelectedProduct();
+        }
         setEnabled(product != null);
     }
 
