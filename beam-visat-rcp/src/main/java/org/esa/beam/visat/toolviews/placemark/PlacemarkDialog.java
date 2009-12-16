@@ -16,7 +16,15 @@
  */
 package org.esa.beam.visat.toolviews.placemark;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.Parameter;
@@ -28,7 +36,13 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.Paint;
+import java.awt.Window;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -237,6 +251,7 @@ public class PlacemarkDialog extends ModalDialog {
         paramUsePixelPos.getProperties().setLabel("Use pixel position");/*I18N*/
         paramUsePixelPos.setUIEnabled(canGetPixelPos || canGetGeoPos);
         paramUsePixelPos.addParamChangeListener(new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 if (isSimultaneousEditingAllowed()) {
                     boolean value = isUsePixelPos();
@@ -249,6 +264,7 @@ public class PlacemarkDialog extends ModalDialog {
         });
 
         ParamChangeListener geoChangeListener = new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 updatePixelPos();
             }
@@ -267,6 +283,7 @@ public class PlacemarkDialog extends ModalDialog {
         paramLon.addParamChangeListener(geoChangeListener);
 
         ParamChangeListener pixelChangeListener = new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 updateGeoPos();
             }
@@ -291,6 +308,7 @@ public class PlacemarkDialog extends ModalDialog {
         }
 
         ParamChangeListener colorChangelistener = new ParamChangeListener() {
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 symbol.setFillPaint((Paint) paramColorFill.getValue());
                 symbol.setOutlineColor((Color) paramColorOutline.getValue());

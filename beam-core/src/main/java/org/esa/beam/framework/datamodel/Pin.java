@@ -62,6 +62,17 @@ public class Pin extends ProductNode {
     private final SimpleFeature feature;
 
     /**
+     * Returns the type of features underlying all GCPs.
+     *
+     * @return the type of features underlying all GCPs.
+     *
+     * @since BEAM 4.7
+     */
+    public static SimpleFeatureType getGcpFeatureType() {
+        return Holder.GCP_FEATURE_TYPE;
+    }
+
+    /**
      * Returns the type of features underlying all pins.
      *
      * @return the type of features underlying all pins.
@@ -563,5 +574,7 @@ public class Pin extends ProductNode {
         private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
         private static final SimpleFeatureType PIN_FEATURE_TYPE =
                 createPlacemarkFeatureType(Product.PIN_FEATURE_TYPE_NAME, PROPERTY_NAME_PIXELPOS);
+        private static final SimpleFeatureType GCP_FEATURE_TYPE =
+                createPlacemarkFeatureType(Product.GCP_FEATURE_TYPE_NAME, PROPERTY_NAME_GEOPOS);
     }
 }
