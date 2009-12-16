@@ -17,7 +17,6 @@
 package org.esa.beam.dataio.modis;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.geom.PolyLine;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
@@ -26,6 +25,7 @@ import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.Range;
 
 import java.awt.geom.Area;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -384,5 +384,53 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
             return true;
         }
         return false;
+    }
+
+    private static class PolyLine {
+
+        private float _x1;
+        private float _y1;
+        private boolean _started;
+        private ArrayList<Line2D.Float> _lines;
+
+        public PolyLine() {
+            _started = false;
+        }
+
+        public void lineTo(final float x, final float y) {
+            _lines.add(new Line2D.Float(_x1, _y1, x, y));
+            setXY1(x, y);
+        }
+
+        public void moveTo(final float x, final float y) {
+            if (_started) {
+                throw new IllegalStateException("Polyline alredy started");
+            }
+            setXY1(x, y);
+            _lines = new ArrayList<Line2D.Float>();
+            _started = true;
+        }
+
+        private void setXY1(final float x, final float y) {
+            _x1 = x;
+            _y1 = y;
+        }
+
+        public double getDistance(final float x, final float y) {
+            double smallestDistPoints = Double.MAX_VALUE;
+            double pointsDist = smallestDistPoints;
+            if (_lines != null && _lines.size() > 0) {
+                for (final Line2D.Float line : _lines) {
+                    final double distPoints = line.ptSegDistSq(x, y);
+                    if (distPoints < smallestDistPoints) {
+                        smallestDistPoints = distPoints;
+                    }
+                }
+
+                pointsDist = Math.sqrt(smallestDistPoints);
+            }
+
+            return pointsDist;
+        }
     }
 }
