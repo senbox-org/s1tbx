@@ -1621,8 +1621,8 @@ public class Product extends ProductNode {
 
     @Override
     public void setModified(final boolean modified) {
-        boolean oldSttate = isModified();
-        if (oldSttate != modified) {
+        final boolean oldState = isModified();
+        if (oldState != modified) {
             super.setModified(modified);
             if (!modified) {
                 bandGroup.setModified(false);

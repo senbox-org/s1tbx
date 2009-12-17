@@ -155,11 +155,8 @@ public abstract class ProductNode {
     /**
      * Sets this node's modified flag.
      * <p/>
-     * <p>If the modified flag changes to true and this node has an owner, the owner's modified flag is also set to
+     * If the modified flag changes to true and this node has an owner, the owner's modified flag is also set to
      * true.
-     * <p/>
-     * <p>If the modified flag changes and if this node is part of a <code>Product</code>, the method fires a
-     * 'NodeChange' event on the product.
      *
      * @param modified whether or not this node is beeing marked as modified.
      *
