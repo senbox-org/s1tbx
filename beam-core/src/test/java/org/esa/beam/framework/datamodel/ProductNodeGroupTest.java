@@ -69,13 +69,26 @@ public class ProductNodeGroupTest extends TestCase {
         listener.trace = "";
     }
 
+    public void testNodeChangeIsObservable() {
+        final Product p = new Product("p", "t", 10, 10);
+        final ProductNodeGroup<Pin> pinGroup = p.getPinGroup();
+
+        final Pin pin = new Pin("p1", "l1", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
+        pinGroup.add(pin);
+
+        final PNL listener = new PNL();
+        p.addProductNodeListener(listener);
+
+        pin.setLabel("new label");
+        assertEquals(true, p.isModified());
+        assertEquals("c:p1.label;", listener.trace);
+    }
+
     public void testOwnership() {
         MetadataElement root = new MetadataElement("root");
         MetadataElement child = new MetadataElement("child");
 
-        ProductNodeGroup<MetadataElement> referencingGroup = new ProductNodeGroup<MetadataElement>(null,
-                                                                                                   "metadataElements",
-                                                                                                   false);
+        ProductNodeGroup<MetadataElement> referencingGroup = new ProductNodeGroup<MetadataElement>(null, "metadataElements", false);
         child.setOwner(root);
         assertSame(root, child.getOwner());
         referencingGroup.add(child);
@@ -85,8 +98,7 @@ public class ProductNodeGroupTest extends TestCase {
         assertEquals(false, referencingGroup.contains(child));
         assertSame(root, child.getOwner());
 
-        ProductNodeGroup<MetadataElement> owningGroup = new ProductNodeGroup<MetadataElement>(null, "metadataElements",
-                                                                                              true);
+        ProductNodeGroup<MetadataElement> owningGroup = new ProductNodeGroup<MetadataElement>(null, "metadataElements", true);
         child.setOwner(root);
         assertSame(root, child.getOwner());
         owningGroup.add(child);
