@@ -18,7 +18,7 @@ Reprojection:
 Masks:
 ======
 * Mask transparency ignored (at some point in time)
-  ==> PRE, NF, OPEN
+  ==> PRE, RQ, CLOSED
 * Add tool button for new VectorDataNode. Name it "Create Geometry Collection..."
   ==> PRE, NF, OPEN
 * Check if Masks are valid on import
