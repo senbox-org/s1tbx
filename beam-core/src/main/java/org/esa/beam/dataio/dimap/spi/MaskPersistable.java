@@ -1,12 +1,13 @@
 package org.esa.beam.dataio.dimap.spi;
 
 import com.bc.ceres.binding.PropertyContainer;
-import static org.esa.beam.dataio.dimap.DimapProductConstants.*;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.jdom.Element;
 
 import java.awt.Color;
+
+import static org.esa.beam.dataio.dimap.DimapProductConstants.*;
 
 /**
  * @author Marco Peters
@@ -52,8 +53,8 @@ public abstract class MaskPersistable implements DimapPersistable {
         root.addContent(colorElement);
         final String transparency = String.valueOf(config.getValue(Mask.ImageType.PROPERTY_NAME_TRANSPARENCY));
         root.addContent(createElement(TAG_TRANSPARENCY, transparency));
-
         configureElement(root, mask);
+        
         return root;
     }
 
