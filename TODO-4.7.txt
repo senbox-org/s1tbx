@@ -1,11 +1,27 @@
+Reprojection:
+=============
+* After reprojection, geometries are transformed, but geometry masks have no pixels
+  ==> PRE, MP/MZ, OPEN
+* GeoTIFF wont work with GeoTools CRS
+  ==> PRE, MP/MZ, OPEN
+* If figures/geometries existed in source product, layer boundaries are wrong
+  after reprojection
+  ==> PRE, MP/MZ, OPEN
+
+* Old org.esa.beam.framework.dataop.maptransf still heavily in use!
+  Remove usage, deprecate and/or remove classes.
+  ==> FINAL, ?, OPEN
+* Rename CrsGeoCoding into DefaultGeoCoding.
+  ==> FINAL, ?, OPEN
+
+
 Masks:
 ======
-* Remove masks from product tree
-  ==> PRE, NF, CLOSED
-* Masks are inserted multiple times in product tree. Nodes are not removed on delete.
-  ==> PRE, NF, DONE
-* Add tool button for new VectorDataNode.
+* Mask transparency ignored (at some point in time)
   ==> PRE, NF, OPEN
+* Add tool button for new VectorDataNode. Name it "Create Geometry Collection..."
+  ==> PRE, NF, OPEN
+
 * Old bitmask overlay window: Only list "real" bitmasks. What is real?
   E.g. Flag-related masks, masks set my reader, masks initially in the product,...
   It is only used for bitmask overlay, no mask management.
@@ -14,62 +30,59 @@ Masks:
   ==> FINAL, NF, OPEN
 * Old "zoom to ROI" missing
   ==> FINAL, ?, OPEN
+* We need a special mask type masking out no-data pixels. If no-data value
+  is set, it shall be used in its raw form by the mask image (OpImage).
+  If valid-expression is set, it shall be AND-ed with the no-data mask,
+  if any.
+  ==> FINAL, ?, OPEN
+
+* Remove masks from product tree
+  ==> PRE, NF, CLOSED
+* Masks are inserted multiple times in product tree. Nodes are not removed on delete.
+  ==> PRE, NF, CLOSED
+* DIMAP I/O for Product.maskGroup
+  ==> PRE, MZ, CLOSED
+* DIMAP I/O for RasterDataNode.overlayMaskGroup, RasterDataNode.roiMaskGroup
+  ==> PRE, RQ/MZ, CLOSED
+
 
 VectorDataNode:
 ===============
-* Need action to create new VectorDataNode.
-  ==> PRE, ?, DONE
-* New VectorDataNode shall be selected in product tree. Selection of VectorDataNode in product
-  tree shall select corresponding layer.
-  ==> PRE, NF, DONE
 * Need action to delete existing VectorDataNode.
-  ==>  PRE, NF, DONE partly, see TODOs in code
-* Still need to transfer model-CRS into feature types.
-  What about the image-CRS in Property DataStore? What is the EPSG code?!?!
-  ==> PRE, MZ, DONE
-* When reprojecting (subsetting?) products, we must also transform geometry and
-  align CRS of feature collections in vector data nodes!!! Use FeatureCollectionClipper
-  in ShapefileLayer code. Pins/GCPs need special treatment!
-  ==> PRE, MZ, DONE
-* Import shape/shapefile must create or insert into vector data node
-  Check if GeoTools shapefile DataStore is already used.
-  ==> PRE, MZ/*, DONE
-* Presentation name "Vector data" ==> "Geometries" + "Geometry", ...
-  ==> PRE, NF, DONE
+  ==>  PRE, NF, OPEN (see TODOs in code)
+* Figures are not updated on geometry change
+  ==> PRE, RQ/NF, OPEN
+* Pins/GCP are different from other geometries, harmonize!
+  ==> PRE, RQ/NF, OPEN
+
 * Export vector data node to shapefile
   ==> FINAL, ?, OPEN
 
+* When reprojecting (subsetting?) products, we must also transform geometry and
+  align CRS of feature collections in vector data nodes!!! Use FeatureCollectionClipper
+  in ShapefileLayer code. Pins/GCPs need special treatment!
+  ==> PRE, MZ, CLOSED
+* Import shape/shapefile must create or insert into vector data node
+  Check if GeoTools shapefile DataStore is already used.
+  ==> PRE, MZ/*, CLOSED
+* Presentation name "Vector data" ==> "Geometries" + "Geometry", ...
+  ==> PRE, NF, CLOSED
+* Still need to transfer model-CRS into feature types.
+  What about the image-CRS in Property DataStore? What is the EPSG code?!?!
+  ==> PRE, MZ, CLOSED
+* Need action to create new VectorDataNode.
+  ==> PRE, ?, CLOSED
+* New VectorDataNode shall be selected in product tree. Selection of VectorDataNode in product
+  tree shall select corresponding layer.
+  ==> PRE, NF, CLOSED
+
 Figures:
 ========
-* Show shape layer action: shall set/clear visibility flag of selected geometry layer,
-  if other layer type selected, select first geometry layer and set/clear visibility flag. 
-  ==> PRE, MP, DONE
-* The black figures!
-  ==> PRE, NF, DONE
-* First zoom does not show zooming rectangle
-  ==> PRE, MP, DONE
-* Make pin/GCP use a GeoTools feature --> and then a figure
-  ==> PRE, RQ, OPEN
-* Polygon bug: JTS wants 0 or 3 points.
-  ==> PRE, MP, DONE
-* Remove rotate handle in PRE?
-  ==> PRE, MP, DONE
-* Still no repaint while drawing new figures
-  ==> PRE, MP, DONE
-* Move-Handle bug: many handles are created while dragging
-  ==> PRE, MP, DONE
-* Before using an insert line/polygon interaction, we need a target layer for the figures
-  to be inserted:
-  For pins/GCP: use existing, predefined vector data nodes and corresp. layers.
-  For all others:
-  1. If layer is selected AND layer is a vector layer  --> ok
-  2. If not, display dialog: user can select existing vector data nodes, or create a new one.
-      2.a Select choosen vector data node in VISAT
-      2.b If layer exists, select it, otherwise create new layer, and select --> ok
-  ==> PRE, NF/MP, DONE
-* Sampling of created handles should be dependent (on model?)
-  ==> PRE, NF, OPEN
+* Deprecate or even completely remove ald Figure + Tool classes
+  ==> FINAL, ?, OPEN
 * Still can't rotate figures.
+  ==> FINAL, NF, OPEN
+* Numer of created vertex handles should be dependent on current viewport
   ==> FINAL, NF, OPEN
 * Still can not add/remove geometry vertices
   ==> FINAL, NF, OPEN
@@ -85,97 +98,97 @@ Figures:
 * Allow for geometric operations on geometries: add/sub/intersection (JTS!)
   ==> FINAL, ?, OPEN
 
+* Show shape layer action: shall set/clear visibility flag of selected geometry layer,
+  if other layer type selected, select first geometry layer and set/clear visibility flag. 
+  ==> PRE, MP, CLOSED
+* The black figures!
+  ==> PRE, NF, CLOSED
+* First zoom does not show zooming rectangle
+  ==> PRE, MP, CLOSED
+* Polygon bug: JTS wants 0 or 3 points.
+  ==> PRE, MP, CLOSED
+* Remove rotate handle in PRE?
+  ==> PRE, MP, CLOSED
+* Still no repaint while drawing new figures
+  ==> PRE, MP, CLOSED
+* Move-Handle bug: many handles are created while dragging
+  ==> PRE, MP, CLOSED
+* Before using an insert line/polygon interaction, we need a target layer for the figures
+  to be inserted:
+  For pins/GCP: use existing, predefined vector data nodes and corresp. layers.
+  For all others:
+  1. If layer is selected AND layer is a vector layer  --> ok
+  2. If not, display dialog: user can select existing vector data nodes, or create a new one.
+      2.a Select choosen vector data node in VISAT
+      2.b If layer exists, select it, otherwise create new layer, and select --> ok
+  ==> PRE, NF/MP, CLOSED
+
 Layers:
 =======
-* Remove old Pin/GCP/Figure Layers, also code!
-  ==> PRE, RQ, OPEN
-* Auto-create vector data layer if new vector data nores are created/deleted...
-  ==> PRE, NF/MP, DONE
-* When a vector data layer detects new incoming features the style is always the default style:
-  Black fill, no stroke
+
+* Remove old Pin/GCP/Figure/Bitmask/ROI Layers usage, deprecate classes
   ==> PRE, RQ, OPEN
 
-CrsGeoCoding:
-=============
-* Rename CrsGeoCoding into DefaultGeoCoding.
-  ==> FINAL, ?, OPEN
-* Deprecate map package and remove usage.
-  ==> FINAL, ?, OPEN
-
-GeoCoding.getDatum():
-=====================
-* It is still the "old" BEAM Datum and should have already been replaced by the GeoTools one.
-  Deprecate. Review.
-  ==> FINAL, ?, DONE?
-
-
-<X>LayerType:
-=============
 * We once decided that we wanted to introduce static factory methods for each(!) layer type
   following the JAI-Descriptor concept. Nothing done so far.
+  ==> FINAL, ?, OPEN
+* Deprecate and/or remove old Layer class code
   ==> FINAL, ?, OPEN
 * Don't use class names e.g. in Session I/O.
   ==> FINAL, ?, OPEN
 
-Geometry RasterDataNode.areaOfInterest:
-========================================
-* We need this new property for boosting statistics computation
-  and possibly also display. This property is optional but some product
-  readers may set it, e.g. SMOS reader. Tile bounds can easily be
+* When a vector data layer detects new incoming features the style is always the default style:
+  Black fill, no stroke
+  ==> PRE, NF, CLOSED
+* Auto-create vector data layer if new vector data nores are created/deleted...
+  ==> PRE, NF/MP, CLOSED
+
+* It is still the "old" BEAM Datum and should have already been replaced by the GeoTools one.
+  Deprecate. Review.
+  ==> FINAL, ?, CLOSED?
+
+SMOS-Box:
+=========
+* Create add on installer
+  ==> PRE, ?, OPEN
+* Support missing 2 aux products
+  ==> PRE, ?, OPEN
+
+* Speed up statistics
+  ==> FINAL, ?, OPEN
+* We need the RasterDataNode.areaOfInterest:Geometry new property for boosting
+  statistics computation and possibly also display. This property is optional but
+  some product readers may set it, e.g. SMOS reader. Tile bounds can easily be
   tested for intersection with areaOfInterest and possibly ignored.
-  Also very important for S3/SMOS-Box!
+  Also very important for SMOS-Box 2.0.1
   ==> FINAL, ?, OPEN
 
-Mask RasterDataNode.validMask (of type (Mask.ImageType = NoDataType):
-=====================================================================
-* We need a special mask type masking out no-data pixels. If no-data value
-  is set, it shall be used in its raw form by the mask image (OpImage).
-  If valid-expression is set, it shall be AND-ed with the no-data mask,
-  if any.
-  ==> FINAL, ?, OPEN
-
-FeatureLayer:
-=============
-
-Several problems:
-- Property name: Target-CRS is named FC-CRS, which is actually a view CRS.
-- Clipping done against WGS84-CRS geometry if and only if feature ceollection has not been loaded from a shapefile (?!?).
-  ==> FINAL, ?, OPEN
-
-Mask DIMAP I/O
-==============
-- Product.maskGroup
-  ==> DONE
-- RasterDataNode.overlayMaskGroup, RasterDataNode.roiMaskGroup
-  ==> PRE, RQ/MZ, DONE
-
-Other API Stuff:
-================
-Avoid adding too much node listeners to a product:
-   abstract ProductNode.handleRename(node, oldName, newName)
-   abstract ProductNode.handleNodeDataChanged(node, oldName, newName)
-
+GlobToolbox
+===========
+* Create add on installer
+  ==> PRE, ?, OPEN
 
 CHRIS-GeoCorrection
 ===================
 * Auto-Download Telemetry
 * NullPointerException after map-projection if not saved to file
 
-SMOS-Box:
-=========
-* Speed up statistics
-* use RasterDataNode.areaOfInterest (see above)
-
 Envisat Reprocessing 3:
 =======================
 * Format update
 
-Reprojection:
-=============
-* Old org.esa.beam.framework.dataop.maptransf still heavily in use!
-  Most writers, e.g. GeoTIFF don't work
-* If figures/geometries existed in source product, layer boundaries are wrong
-  after reprojection
+Other BEAM/VISAT/API Stuff:
+===========================
+* Geocoding transfer in GPF ops (Sabine)
+* Auto-insert BlueMarble (if WSG-84 lat/lon) and Country shapes
+* dispose() method on MultiLevelImage shall not null its product node,
+  use WeakReference instead.
+* Don't dispose source MultiLevelImage, if the RasterDataNode is not the
+  owner, e.g. flag RasterDataNode.isSourceImageOwner()
+* Avoid adding too much node listeners to a product:
+  - abstract ProductNode.handleRename(node, oldName, newName)
+  - abstract ProductNode.handleNodeDataChanged(node, oldName, newName)
+
 
 
 #################################################################
