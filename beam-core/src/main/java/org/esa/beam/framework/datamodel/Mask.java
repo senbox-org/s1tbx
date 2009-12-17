@@ -249,27 +249,29 @@ public class Mask extends Band {
         }
 
         @Override
-        public boolean canTransferMask(Mask mask, Product targetProduct) {
-            String expression = getExpression(mask);
+        public boolean canTransferMask(Mask mask, Product product) {
+            final String expression = getExpression(mask);
             if (StringUtils.isNullOrEmpty(expression)) {
                 return false;
             }
             try {
-                RasterDataNode[] refRasters = BandArithmetic.getRefRasters(expression,
-                                                                           new Product[]{mask.getProduct()});
-                for (RasterDataNode rdn : refRasters) {
-                    if (rdn instanceof Mask) {
-                        if (!targetProduct.getMaskGroup().contains(rdn.getName())) {
-                            Mask refMask = (Mask) rdn;
-                            if (!canTransferMask(refMask, targetProduct)) {
+                if (mask.getProduct() != null) {
+                    for (RasterDataNode raster : BandArithmetic.getRefRasters(expression, mask.getProduct())) {
+                        if (raster instanceof Mask) {
+                            if (!product.getMaskGroup().contains(raster.getName())) {
+                                Mask refMask = (Mask) raster;
+                                if (!canTransferMask(refMask, product)) {
+                                    return false;
+                                }
+                            }
+                        } else {
+                            if (!product.containsRasterDataNode(raster.getName())) {
                                 return false;
                             }
                         }
-                    } else {
-                        if (!targetProduct.containsRasterDataNode(rdn.getName())) {
-                            return false;
-                        }
                     }
+                } else { // the mask has not been added to a product yet
+                    BandArithmetic.getRefRasters(expression, product);
                 }
             } catch (ParseException e) {
                 return false;
@@ -442,11 +444,8 @@ public class Mask extends Band {
 
         @Override
         public boolean canTransferMask(Mask mask, Product product) {
-            String rasterName = getRasterName(mask);
-            if (StringUtils.isNullOrEmpty(rasterName)) {
-                return false;
-            }
-            return product.containsRasterDataNode(rasterName);
+            final String rasterName = getRasterName(mask);
+            return !StringUtils.isNullOrEmpty(rasterName) && product.containsRasterDataNode(rasterName);
         }
 
         @Override

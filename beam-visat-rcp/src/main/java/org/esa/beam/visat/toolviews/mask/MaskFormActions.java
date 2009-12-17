@@ -28,12 +28,9 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.NewVectorDataNodeAction;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.DOMBuilder;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.xml.sax.SAXException;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -42,10 +39,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Window;
@@ -55,12 +48,12 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Arrays;
-import java.util.ArrayList;
 
 /**
  * @author Marco Peters
@@ -175,6 +168,7 @@ class MaskFormActions {
     }
 
     private static class _NewVectorDataNodeAction extends MaskAction {
+
         private NewVectorDataNodeAction action;
 
         private _NewVectorDataNodeAction(MaskForm maskForm) {
@@ -328,7 +322,7 @@ class MaskFormActions {
             Mask[] selectedMasks = getMaskForm().getSelectedMasks();
             final List<Mask> reverseList = new ArrayList<Mask>(Arrays.asList(selectedMasks));
             Collections.reverse(reverseList);
-            selectedMasks =  reverseList.toArray(new Mask[selectedMasks.length]);
+            selectedMasks = reverseList.toArray(new Mask[selectedMasks.length]);
             StringBuilder code = new StringBuilder();
             code.append(BandArithmetic.createExternalName(selectedMasks[0].getName()));
             if (selectedMasks.length > 1) {
@@ -409,7 +403,7 @@ class MaskFormActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            importBitmaskDefs();
+            importMasks();
         }
 
         @Override
@@ -417,15 +411,17 @@ class MaskFormActions {
             setEnabled(getMaskForm().isInManagementMode());
         }
 
-        private void importBitmaskDefs() {
+        private void importMasks() {
             final JFileChooser fileChooser = new BeamFileChooser();
-            fileChooser.setDialogTitle("Import Masks from XML");
-            final FileFilter beamFF = new BeamFileFilter("BITMASK_DEFINITION_FILE", ".bmd", "Bitmask definition files (*.bmd)");
-            fileChooser.addChoosableFileFilter(beamFF);
-            final FileFilter beamFFXml = new BeamFileFilter("BITMASK_DEFINITION_FILE_XML", ".bmdx", "Bitmask definition xml files (*.bmdx)");
-            fileChooser.addChoosableFileFilter(beamFFXml);
-            final FileFilter maskFF = new BeamFileFilter("XML", ".xml", "XML files (*.xml)");
-            fileChooser.setFileFilter(maskFF);
+            fileChooser.setDialogTitle("Import Masks from file");
+            final FileFilter bmdFilter = new BeamFileFilter("BITMASK_DEFINITION_FILE", ".bmd",
+                                                            "Bitmask definition files (*.bmd)");
+            fileChooser.addChoosableFileFilter(bmdFilter);
+            final FileFilter bmdxFilter = new BeamFileFilter("BITMASK_DEFINITION_FILE_XML", ".bmdx",
+                                                             "Bitmask definition xml files (*.bmdx)");
+            fileChooser.addChoosableFileFilter(bmdxFilter);
+            final FileFilter xmlFilter = new BeamFileFilter("XML", ".xml", "XML files (*.xml)");
+            fileChooser.setFileFilter(xmlFilter);
             fileChooser.setCurrentDirectory(getDirectory());
 
             if (fileChooser.showOpenDialog(getMaskToolView().getPaneWindow()) == JFileChooser.APPROVE_OPTION) {
@@ -433,12 +429,12 @@ class MaskFormActions {
                 if (file != null) {
                     setDirectory(file.getAbsoluteFile().getParentFile());
                     if (file.canRead()) {
-                        if (beamFF.accept(file)) {
-                            importBitmaskDef(file);
-                        } else if (beamFFXml.accept(file)) {
-                            importBitmaskDefs(file);
+                        if (bmdFilter.accept(file)) {
+                            importMaskFromBmd(file);
+                        } else if (bmdxFilter.accept(file)) {
+                            importMasksFromBmdx(file);
                         } else {
-                            importMasks(file);
+                            importMasksFromXml(file);
                         }
 
                     }
@@ -446,83 +442,69 @@ class MaskFormActions {
             }
         }
 
-        private void importBitmaskDef(File file) {
+        private void importMaskFromBmd(File file) {
             final PropertyMap propertyMap = new PropertyMap();
             try {
                 propertyMap.load(file); // Overwrite existing values
-                String name = propertyMap.getPropertyString("bitmaskName", "bitmask");
+                final String name = propertyMap.getPropertyString("bitmaskName", "bitmask");
                 final String description = propertyMap.getPropertyString("bitmaskDesc", null);
-                final String expr = propertyMap.getPropertyString("bitmaskExpr", "");
+                final String expression = propertyMap.getPropertyString("bitmaskExpr", "");
                 final Color color = propertyMap.getPropertyColor("bitmaskColor", Color.yellow);
-                final float transp = (float) propertyMap.getPropertyDouble("bitmaskTransparency", 0.5);
-                final BitmaskDef bitmaskDef = new BitmaskDef(name, description, expr, color, transp);
-                Product product = getMaskForm().getProduct();
-                Mask mask = bitmaskDef.createMask(product.getSceneRasterWidth(), product.getSceneRasterHeight());
-                if (mask != null) {
-                    getMaskForm().getProduct().getMaskGroup().add(mask);
-                }
-//                    addOrOverwriteBitmaskDef(bitmaskDef);
-            } catch (IOException e) {
-                showErrorDialog("I/O Error.\nFailed to import bitmask definition.");        /*I18N*/
+                final float transparency = (float) propertyMap.getPropertyDouble("bitmaskTransparency", 0.5);
+                final BitmaskDef def = new BitmaskDef(name, description, expression, color, transparency);
+                final Product product = getMaskForm().getProduct();
+                final Mask mask = def.createMask(product.getSceneRasterWidth(), product.getSceneRasterHeight());
+                addMaskToProductIfPossible(mask, product);
+            } catch (Exception e) {
+                showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));
             }
         }
 
-        private void importBitmaskDefs(File file) {
+        private void importMasksFromBmdx(File file) {
             try {
-                try {
-                    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                    final DocumentBuilder builder = factory.newDocumentBuilder();
-                    final org.w3c.dom.Document w3cDocument = builder.parse(file);
-                    final Document document = new DOMBuilder().build(w3cDocument);
-                    final Element rootElement = document.getRootElement();
-                    final List children = rootElement.getChildren(DimapProductConstants.TAG_BITMASK_DEFINITION);
-                    Product product = getMaskForm().getProduct();
-                    if (children != null) {
-                        for (Object aChildren : children) {
-                            final Element element = (Element) aChildren;
-                            final BitmaskDef bitmaskDef = BitmaskDef.createBitmaskDef(element);
-                            if (bitmaskDef != null) {
-                                Mask mask = bitmaskDef.createMask(product.getSceneRasterWidth(), product.getSceneRasterHeight());
-                                if (mask != null) {
-                                    getMaskForm().getProduct().getMaskGroup().add(mask);
-                                }
-//                                addOrOverwriteBitmaskDef(bitmaskDef);
-                            }
-                        }
+                final SAXBuilder saxBuilder = new SAXBuilder();
+                final Document document = saxBuilder.build(file);
+                final Element rootElement = document.getRootElement();
+                @SuppressWarnings({"unchecked"})
+                final List<Element> children = rootElement.getChildren(DimapProductConstants.TAG_BITMASK_DEFINITION);
+                final Product product = getMaskForm().getProduct();
+                for (Element element : children) {
+                    final BitmaskDef def = BitmaskDef.createBitmaskDef(element);
+                    if (def != null) {
+                        final Mask mask = def.createMask(product.getSceneRasterWidth(), product.getSceneRasterHeight());
+                        addMaskToProductIfPossible(mask, product);
                     }
-                } catch (FactoryConfigurationError error) {
-                    throw new IOException(error.toString());
-                } catch (ParserConfigurationException e) {
-                    throw new IOException(e.toString());
-                } catch (SAXException e) {
-                    throw new IOException(e.toString());
-                } catch (IOException e) {
-                    throw new IOException(e.toString());
                 }
-            } catch (IOException e) {
-                showErrorDialog("I/O Error.\nFailed to import bitmask definition.");        /*I18N*/
+            } catch (Exception e) {
+                showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));
             }
         }
 
-        private void importMasks(File file) {
+        private void importMasksFromXml(File file) {
             try {
                 final SAXBuilder saxBuilder = new SAXBuilder();
                 final Document document = saxBuilder.build(file);
                 final Element rootElement = document.getRootElement();
                 @SuppressWarnings({"unchecked"})
                 final List<Element> children = rootElement.getChildren(DimapProductConstants.TAG_MASK);
+                final Product product = getMaskForm().getProduct();
                 for (final Element child : children) {
                     final DimapPersistable persistable = DimapPersistence.getPersistable(child);
                     if (persistable != null) {
-                        final Product product = getMaskForm().getProduct();
                         final Mask mask = (Mask) persistable.createObjectFromXml(child, product);
-                        product.getMaskGroup().add(mask);
+                        addMaskToProductIfPossible(mask, product);
                     }
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));
-            } catch (JDOMException e) {
-                showErrorDialog(String.format("Failed to import mask(s): %s", e.getMessage()));
+            }
+        }
+
+        private void addMaskToProductIfPossible(Mask mask, Product product) throws Exception {
+            if (mask.getImageType().canTransferMask(mask, product)) {
+                product.getMaskGroup().add(mask);
+            } else {
+                throw new Exception(String.format("Cannot add mask '%s' to selected product.", mask.getName()));
             }
         }
     }
@@ -596,7 +578,7 @@ class MaskFormActions {
         }
     }
 
-   static Window getWindow(ActionEvent e) {
+    static Window getWindow(ActionEvent e) {
         Object source = e.getSource();
         Window window = null;
         if (source instanceof Component) {
@@ -650,8 +632,8 @@ class MaskFormActions {
             } else if (type instanceof Mask.VectorDataType) {
                 JOptionPane.showMessageDialog(window,
                                               "Use the VISAT geometry tools to add new points, lines or polygons.\n" +
-                                                      "You can then use the select tool to select and modify the shape\n" +
-                                                      "and position of the geometries.",
+                                              "You can then use the select tool to select and modify the shape\n" +
+                                              "and position of the geometries.",
                                               "Edit Geometry Mask",
                                               JOptionPane.INFORMATION_MESSAGE);
             } else {
@@ -754,14 +736,15 @@ class MaskFormActions {
     private static class TransferAction extends MaskAction {
 
         private TransferAction(MaskForm maskForm) {
-            super(maskForm, "icons/MultiAssignProducts24.gif", "transferButton", "Transfer the selected mask(s) to other products.");
+            super(maskForm, "icons/MultiAssignProducts24.gif", "transferButton",
+                  "Transfer the selected mask(s) to other products.");
         }
 
         @Override
         void updateState() {
             setEnabled(getMaskForm().isInManagementMode() &&
-                    getMaskForm().getSelectedRowCount() > 0 &&
-                    VisatApp.getApp().getProductManager().getProducts().length > 1);
+                       getMaskForm().getSelectedRowCount() > 0 &&
+                       VisatApp.getApp().getProductManager().getProducts().length > 1);
         }
 
         @Override
@@ -790,7 +773,8 @@ class MaskFormActions {
             }
         }
 
-        private static void copyMaskPixel(Mask[] selectedMasks, Product sourcProduct, Product[] maskPixelTargetProducts) {
+        private static void copyMaskPixel(Mask[] selectedMasks, Product sourcProduct,
+                                          Product[] maskPixelTargetProducts) {
             for (Product targetProduct : maskPixelTargetProducts) {
                 if (sourcProduct.isCompatibleProduct(targetProduct, 1.0e-3f)) {
                     copyBandData(selectedMasks, targetProduct);
