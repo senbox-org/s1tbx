@@ -43,7 +43,7 @@ Figures:
 ========
 * Show shape layer action: shall set/clear visibility flag of selected geometry layer,
   if other layer type selected, select first geometry layer and set/clear visibility flag. 
-  ==> PRE, ?, OPEN
+  ==> PRE, MP, DONE
 * The black figures!
   ==> PRE, NF, DONE
 * First zoom does not show zooming rectangle
