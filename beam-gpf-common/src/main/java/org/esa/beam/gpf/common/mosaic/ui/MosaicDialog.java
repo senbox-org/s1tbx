@@ -28,6 +28,7 @@ class MosaicDialog extends SingleTargetProductDialog {
         super(appContext, title, helpID);
         final TargetProductSelector selector = getTargetProductSelector();
         selector.getModel().setSaveToFileSelected(true);
+        selector.getModel().setProductName("mosaic");
         selector.getSaveToFileCheckBox().setEnabled(false);
         form = new MosaicForm(selector, appContext);
     }

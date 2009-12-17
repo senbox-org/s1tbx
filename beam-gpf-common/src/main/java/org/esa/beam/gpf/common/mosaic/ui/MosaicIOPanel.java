@@ -387,7 +387,7 @@ class MosaicIOPanel extends JPanel {
                 selectorModel.setProductDir(fileDir);
             } else {
                 selectorModel.setFormatName(ProductIO.DEFAULT_FORMAT_NAME);
-                selectorModel.setProductName("");
+                selectorModel.setProductName("mosaic");
                 String homeDirPath = SystemUtils.getUserHomeDir().getPath();
                 final PropertyMap prefs = appContext.getPreferences();
                 String saveDir = prefs.getPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, homeDirPath);
