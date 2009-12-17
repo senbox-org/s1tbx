@@ -17,9 +17,6 @@ Reprojection:
 
 Masks:
 ======
-* Check if Masks are valid on import
-  ==> PRE, ?, OPEN
-
 * Old bitmask overlay window: Only list "real" bitmasks. What is real?
   E.g. Flag-related masks, masks set my reader, masks initially in the product,...
   It is only used for bitmask overlay, no mask management.
@@ -34,6 +31,8 @@ Masks:
   if any.
   ==> FINAL, ?, OPEN
 
+* Check if Masks are valid on import
+  ==> PRE, RQ, CLOSED
 * Mask transparency ignored (at some point in time)
   ==> PRE, RQ, CLOSED
 * Add tool button for new VectorDataNode. Name it "Create Geometry Collection..."
@@ -51,6 +50,9 @@ Masks:
 VectorDataNode:
 ===============
 * Figures are not updated on geometry change
+  ==> PRE, RQ/NF, ONGOING
+* Synchronization of VectorDataNode simple features and pins/GCPs: Pins/GCPs auto-added due to new simple point
+  features do not fire property change events when moved
   ==> PRE, RQ/NF, ONGOING
 * Pins/GCP are different from other geometries, harmonize!
   ==> PRE, RQ/NF, OPEN
