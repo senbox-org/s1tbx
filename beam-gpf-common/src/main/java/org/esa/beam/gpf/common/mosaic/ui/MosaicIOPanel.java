@@ -8,8 +8,10 @@ import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
+import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
@@ -69,6 +71,7 @@ class MosaicIOPanel extends JPanel {
         sourceFileEditor = new ProductArrayEditor(new FileArrayEditorContext(appContext));
         targetProductSelector = selector;
         updateProductSelector = new SourceProductSelector(appContext);
+        updateProductSelector.setProductFilter(new UpdateProductFilter());
         init();
         propertyContainer.addPropertyChangeListener(MosaicFormModel.PROPERTY_UPDATE_MODE, new PropertyChangeListener() {
             @Override
@@ -392,4 +395,27 @@ class MosaicIOPanel extends JPanel {
             }
         }
     }
+    
+    public class UpdateProductFilter implements ProductFilter {
+
+        @Override
+        public boolean accept(Product product) {
+            ProductReader productReader = product.getProductReader();
+            final String formatName = productReader.getReaderPlugIn().getFormatNames()[0];
+            final ProductIOPlugInManager ioPlugInManager = ProductIOPlugInManager.getInstance();
+            final Iterator<ProductWriterPlugIn> writerIterator = ioPlugInManager.getWriterPlugIns(formatName);
+            if (writerIterator.hasNext()) {
+                try {
+                    final Map<String, Object> map = MosaicOp.getOperatorParameters(product);
+                } catch (OperatorException e) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
+    }
+
+
 }
