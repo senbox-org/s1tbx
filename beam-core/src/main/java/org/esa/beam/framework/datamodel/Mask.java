@@ -280,36 +280,41 @@ public class Mask extends Band {
         }
 
         @Override
-        public Mask transferMask(Mask mask, Product targetProduct) {
-            String expression = getExpression(mask);
-            Map<Mask, Mask> translationMap = transferDependentMasks(expression, mask.getProduct(), targetProduct);
-            expression = translateExpression(translationMap, expression);
-            String originalMaskName = mask.getName();
-            String maskName = getAvailableMaskName(originalMaskName, targetProduct.getMaskGroup());
-            int width = targetProduct.getSceneRasterWidth();
-            int height = targetProduct.getSceneRasterHeight();
-            Mask newMask = new Mask(maskName, width, height, this);
-            newMask.setDescription(mask.getDescription() + " (from " + mask.getProduct().getDisplayName() + ")");
-            setImageStyle(newMask.getImageConfig(), mask.getImageColor(), mask.getImageTransparency());
-            setExpression(newMask, expression);
-            targetProduct.getMaskGroup().add(newMask);
-            return newMask;
+        public Mask transferMask(Mask mask, Product product) {
+            if (canTransferMask(mask, product)) {
+                String expression = getExpression(mask);
+                final Map<Mask, Mask> translationMap = transferReferredMasks(expression, mask.getProduct(), product);
+                expression = translateExpression(translationMap, expression);
+                final String originalMaskName = mask.getName();
+                final String maskName = getAvailableMaskName(originalMaskName, product.getMaskGroup());
+                final int w = product.getSceneRasterWidth();
+                final int h = product.getSceneRasterHeight();
+                final Mask newMask = new Mask(maskName, w, h, this);
+                newMask.setDescription(mask.getDescription());
+                setImageStyle(newMask.getImageConfig(), mask.getImageColor(), mask.getImageTransparency());
+                setExpression(newMask, expression);
+                product.getMaskGroup().add(newMask);
+
+                return newMask;
+            }
+
+            return null;
         }
 
-        private static Map<Mask, Mask> transferDependentMasks(String expression, Product srcProduct,
-                                                              Product targetProduct) {
-            Map<Mask, Mask> translationMap = new HashMap<Mask, Mask>();
-            RasterDataNode[] refRasters;
+        private static Map<Mask, Mask> transferReferredMasks(String expression, Product sourceProduct,
+                                                             Product targetProduct) {
+            final Map<Mask, Mask> translationMap = new HashMap<Mask, Mask>();
+            final RasterDataNode[] rasters;
             try {
-                refRasters = BandArithmetic.getRefRasters(expression, new Product[]{srcProduct});
+                rasters = BandArithmetic.getRefRasters(expression, sourceProduct);
             } catch (ParseException e) {
                 return translationMap;
             }
-            for (RasterDataNode rdn : refRasters) {
-                if (rdn instanceof Mask && !targetProduct.getMaskGroup().contains(rdn.getName())) {
-                    Mask refMask = (Mask) rdn;
-                    Mask newMAsk = refMask.getImageType().transferMask(refMask, targetProduct);
-                    translationMap.put(refMask, newMAsk);
+            for (RasterDataNode raster : rasters) {
+                if (raster instanceof Mask && !targetProduct.getMaskGroup().contains(raster.getName())) {
+                    Mask refMask = (Mask) raster;
+                    Mask newMask = refMask.getImageType().transferMask(refMask, targetProduct);
+                    translationMap.put(refMask, newMask);
                 }
             }
             return translationMap;
@@ -449,19 +454,23 @@ public class Mask extends Band {
         }
 
         @Override
-        public Mask transferMask(Mask mask, Product targetProduct) {
-            String originalMaskName = mask.getName();
-            String maskName = getAvailableMaskName(originalMaskName, targetProduct.getMaskGroup());
-            int width = targetProduct.getSceneRasterWidth();
-            int height = targetProduct.getSceneRasterHeight();
-            Mask newMask = new Mask(maskName, width, height, this);
-            newMask.setDescription(mask.getDescription() + " (from " + mask.getProduct().getDisplayName() + ")");
-            setImageStyle(newMask.getImageConfig(), mask.getImageColor(), mask.getImageTransparency());
-            setRasterName(newMask, getRasterName(mask));
-            setMinimum(newMask, getMinimum(mask));
-            setMaximum(newMask, getMaximum(mask));
-            targetProduct.getMaskGroup().add(newMask);
-            return newMask;
+        public Mask transferMask(Mask mask, Product product) {
+            if (canTransferMask(mask, product)) {
+                final String originalMaskName = mask.getName();
+                final String maskName = getAvailableMaskName(originalMaskName, product.getMaskGroup());
+                final int w = product.getSceneRasterWidth();
+                final int h = product.getSceneRasterHeight();
+                final Mask newMask = new Mask(maskName, w, h, this);
+                newMask.setDescription(mask.getDescription());
+                setImageStyle(newMask.getImageConfig(), mask.getImageColor(), mask.getImageTransparency());
+                setRasterName(newMask, getRasterName(mask));
+                setMinimum(newMask, getMinimum(mask));
+                setMaximum(newMask, getMaximum(mask));
+                product.getMaskGroup().add(newMask);
+                return newMask;
+            }
+
+            return null;
         }
 
         @Override
