@@ -50,7 +50,7 @@ import java.text.MessageFormat;
  * @since BEAM 4.7
  */
 public class NewVectorDataNodeAction extends ExecCommand {
-    private static final String DIALOG_TITLE = "New Geometry";
+    private static final String DIALOG_TITLE = "New Geometry Container";
 
     public static final String VECTOR_DATA_NAME = "vectorDataName";
 
@@ -143,7 +143,7 @@ public class NewVectorDataNodeAction extends ExecCommand {
         public void validateValue(Property property, Object value) throws ValidationException {
             String name = (String) value;
             if (product.getVectorDataGroup().contains(name)) {
-                final String pattern = "A geometry collection with name ''{0}'' already exists.\n" +
+                final String pattern = "A geometry container with name ''{0}'' already exists.\n" +
                         "Please choose another one.";
                 throw new ValidationException(MessageFormat.format(pattern, name));
             }

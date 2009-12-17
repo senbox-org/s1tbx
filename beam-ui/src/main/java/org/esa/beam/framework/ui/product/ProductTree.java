@@ -525,8 +525,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         ImageIcon bandFlagsInvisibleIcon;
         ImageIcon bandIndexedVisibleIcon;
         ImageIcon bandIndexedInvisibleIcon;
-        ImageIcon vectorDataNormalIcon;
-        ImageIcon vectorDataFocusedIcon;
+        ImageIcon vectorDataIcon;
 
         Font normalFont;
         Font boldFont;
@@ -547,8 +546,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             bandFlagsInvisibleIcon = UIUtils.loadImageIcon("icons/RsBandFlags16Disabled.gif");
             bandVirtualVisibleIcon = UIUtils.loadImageIcon("icons/RsBandVirtual16.gif");
             bandVirtualInvisibleIcon = UIUtils.loadImageIcon("icons/RsBandVirtual16Disabled.gif");
-            vectorDataNormalIcon = UIUtils.loadImageIcon("icons/RsVectorData16.gif");
-            vectorDataFocusedIcon = UIUtils.loadImageIcon("icons/RsVectorDataFocus16.gif");
+            vectorDataIcon = UIUtils.loadImageIcon("icons/RsVectorData16.gif");
             // Uncomment for debugging masks:
             // maskIcon = UIUtils.loadImageIcon("icons/RsMask16.gif");
         }
@@ -681,11 +679,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     toolTipBuffer.append(grid.getRasterHeight());
                 } else if (productNode instanceof VectorDataNode) {
                     VectorDataNode grid = (VectorDataNode) productNode;
-                    if (active) {
-                        this.setIcon(vectorDataFocusedIcon);
-                    } else {
-                        this.setIcon(vectorDataNormalIcon);
-                    }
+                    this.setIcon(vectorDataIcon);
                     toolTipBuffer.append(", type = ");
                     toolTipBuffer.append(grid.getFeatureType().getTypeName());
                     toolTipBuffer.append(", #features = ");

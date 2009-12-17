@@ -74,13 +74,13 @@ class MaskFormActions {
     MaskFormActions(AbstractToolView maskToolView, MaskForm maskForm) {
         maskActions = new MaskAction[]{
                 new NewBandMathAction(maskForm), new NewRangeAction(maskForm),
-                new _NewVectorDataNodeAction(maskForm), new NewUnionAction(maskForm),
-                new NewIntersectionAction(maskForm), new NewComplementAction(maskForm),
+                new _NewVectorDataNodeAction(maskForm), new NullAction(maskForm),
+                new NewUnionAction(maskForm), new NewIntersectionAction(maskForm),
                 new NewDifferenceAction(maskForm), new NewInvDifferenceAction(maskForm),
-                new CopyAction(maskForm), new NullAction(maskForm),
-                new EditAction(maskForm), new RemoveAction(maskForm),
+                new NewComplementAction(maskForm), new NullAction(maskForm),
+                new CopyAction(maskForm), new EditAction(maskForm),
+                new RemoveAction(maskForm),new TransferAction(maskForm),
                 new ImportAction(maskToolView, maskForm), new ExportAction(maskToolView, maskForm),
-                new TransferAction(maskForm), new NullAction(maskForm)
         };
     }
 
@@ -179,9 +179,9 @@ class MaskFormActions {
 
         private _NewVectorDataNodeAction(MaskForm maskForm) {
             super(maskForm,
-                  "Geometry24.png",
+                  "NewVectorDataNode24.gif",
                   "newGeometry",
-                  "Creates a new mask based on geometry (lines and polygons))");
+                  "Creates a new mask based on a new geometry container (lines and polygons))");
             action = new NewVectorDataNodeAction();
         }
 

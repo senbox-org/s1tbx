@@ -1301,10 +1301,8 @@
             <class>org.esa.beam.visat.actions.CreateSubsetFromViewAction</class>
             <text>Create Subset from View...</text>
             <shortDescr>Creates a product subset from the selected view</shortDescr>
-            <description>Creates a product subset from the selected view by preselecting the subset area from
-                view
-            </description>
-            <context>subsetFromView</context>
+            <description>Creates a product subset from the selected view by preselecting the subset area from view</description>
+            <context>image</context>
             <helpId>subsetFromView</helpId>
             <parent>tools</parent>
             <placeAfter>detachPixelGeoCoding</placeAfter>
@@ -1318,13 +1316,13 @@
             <text>Create Elevation Band...</text>
             <shortDescr>Creates an elevation band from a selected DEM</shortDescr>
             <description>Creates an elevation band from a selected Digital Elevation Model (DEM)</description>
-            <context>createElevationBand</context>
+            <context>product</context>
             <helpId>createElevationBand</helpId>
             <parent>tools</parent>
             <placeAfter>createSubsetFromView</placeAfter>
-            <separatorAfter>false</separatorAfter>
+            <separatorBefore>createAsarNrcsBands</separatorBefore>
         </action>
-
+<!--
         <action>
             <id>createXYDisplacementBandsAction</id>
             <class>org.esa.beam.visat.actions.CreateXYDisplacementBandsAction</class>
@@ -1336,20 +1334,7 @@
             <placeAfter>createElevationBand</placeAfter>
             <separatorAfter>false</separatorAfter>
         </action>
-
-        <action>
-            <id>createFilteredBand</id>
-            <class>org.esa.beam.visat.actions.CreateFilteredBandAction</class>
-            <text>Create Filtered Band...</text>
-            <shortDescr>Creates an filtered band</shortDescr>
-            <description>Creates an filtered band from the currently selected band</description>
-            <context>createFilteredBand</context>
-            <helpId>createFilteredBand</helpId>
-            <parent>tools</parent>
-            <placeAfter>createElevationBand</placeAfter>
-            <separatorAfter>true</separatorAfter>
-        </action>
-
+-->
         <action>
             <id>createAsarNrcsBands</id>
             <class>org.esa.beam.visat.actions.CreateAsarNrcsBandsAction</class>
@@ -1363,15 +1348,30 @@
         </action>
 
         <action>
-            <id>newGeometry</id>
+            <id>createFilteredBand</id>
+            <class>org.esa.beam.visat.actions.CreateFilteredBandAction</class>
+            <text>Create Filtered Band...</text>
+            <shortDescr>Creates an filtered band</shortDescr>
+            <description>Creates an filtered band from the currently selected band</description>
+            <context>band</context>
+            <helpId>createFilteredBand</helpId>
+            <parent>tools</parent>
+            <placeAfter>createAsarNrcsBands</placeAfter>
+            <placeBefore>createVectorDataNode</placeBefore>
+        </action>
+
+        <action>
+            <id>createVectorDataNode</id>
             <class>org.esa.beam.visat.actions.NewVectorDataNodeAction</class>
-            <text>New Geometry...</text>
+            <text>Create Geometry Container...</text>
+            <shortDescr>Create a new geometry container</shortDescr>
             <description>Create a new geometry container for drawing line strings and polygons.</description>
             <smallIcon>icons/NewVectorDataNode16.gif</smallIcon>
             <largeIcon>icons/NewVectorDataNode24.gif</largeIcon>
-            <helpId>newGeometry</helpId>
+            <helpId>createVectorDataNode</helpId>
+            <context>product</context>
             <parent>tools</parent>
-            <separatorBefore>true</separatorBefore>
+            <placeAfter>createFilteredBand</placeAfter>
             <separatorAfter>true</separatorAfter>
         </action>
 
@@ -1540,7 +1540,7 @@
             <parent>tools</parent>
             <placeAfter>pannerTool</placeAfter>
             <text>Pin Tool</text>
-            <shortDescr>Sets, edits or deletes pins</shortDescr>
+            <shortDescr>Pin placing tool</shortDescr>
             <description>Sets, edits or deletes pins</description>
             <largeIcon>icons/PinTool24.gif</largeIcon>
             <selected>false</selected>
@@ -1555,8 +1555,8 @@
             <placeAfter>pinTool</placeAfter>
             <placeBefore>drawLineTool</placeBefore>
             <text>GCP Tool</text>
-            <shortDescr>Sets, edits or deletes GCPs</shortDescr>
-            <description>Sets, edits or deletes GCPs</description>
+            <shortDescr>GCP placing tool</shortDescr>
+            <description>Sets, edits or deletes ground control points</description>
             <largeIcon>icons/GcpTool24.gif</largeIcon>
             <selected>false</selected>
             <helpId>gcpTool</helpId>
@@ -1570,7 +1570,7 @@
             <parent>tools</parent>
             <placeAfter>pinTool</placeAfter>
             <text>Draw Line</text>
-            <shortDescr>Draw Line</shortDescr>
+            <shortDescr>Line drawing tool</shortDescr>
             <largeIcon>icons/DrawLineTool24.gif</largeIcon>
             <selected>false</selected>
             <context>image</context>
@@ -1585,7 +1585,7 @@
             <parent>tools</parent>
             <placeAfter>drawLineTool</placeAfter>
             <text>Draw Rectangle</text>
-            <shortDescr>Draw Rectangle</shortDescr>
+            <shortDescr>Rectangle drawing tool</shortDescr>
             <largeIcon>icons/DrawRectangleTool24.gif</largeIcon>
             <context>image</context>
             <selected>false</selected>
@@ -1600,7 +1600,7 @@
             <parent>tools</parent>
             <placeAfter>drawRectangleTool</placeAfter>
             <text>Draw Ellipse</text>
-            <shortDescr>Draw Ellipse</shortDescr>
+            <shortDescr>Ellipse drawing tool</shortDescr>
             <largeIcon>icons/DrawEllipseTool24.gif</largeIcon>
             <selected>false</selected>
             <context>image</context>
@@ -1615,7 +1615,7 @@
             <parent>tools</parent>
             <placeAfter>drawEllipseTool</placeAfter>
             <text>Draw Polyline</text>
-            <shortDescr>Draw Polyline</shortDescr>
+            <shortDescr>Polyline drawing tool</shortDescr>
             <largeIcon>icons/DrawPolylineTool24.gif</largeIcon>
             <selected>false</selected>
             <context>image</context>
@@ -1630,7 +1630,7 @@
             <parent>tools</parent>
             <placeAfter>drawPolylineTool</placeAfter>
             <text>Draw Polygon</text>
-            <shortDescr>Draw Polygon</shortDescr>
+            <shortDescr>Polygon drawing tool</shortDescr>
             <largeIcon>icons/DrawPolygonTool24.gif</largeIcon>
             <selected>false</selected>
             <context>image</context>
