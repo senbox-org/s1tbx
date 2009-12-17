@@ -51,7 +51,7 @@ Masks:
 VectorDataNode:
 ===============
 * Figures are not updated on geometry change
-  ==> PRE, RQ/NF, OPEN
+  ==> PRE, RQ/NF, ONGOING
 * Pins/GCP are different from other geometries, harmonize!
   ==> PRE, RQ/NF, OPEN
 
