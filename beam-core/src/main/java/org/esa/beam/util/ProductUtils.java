@@ -74,6 +74,7 @@ import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.data.store.ReprojectingFeatureCollection;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -1563,6 +1564,7 @@ public class ProductUtils {
                 ReprojectingFeatureCollection wgs84Collection = new ReprojectingFeatureCollection(featureCollection, DefaultGeographicCRS.WGS84);
                 FeatureCollection<SimpleFeatureType, SimpleFeature> clippedToSource = FeatureCollectionClipper.doOperation(wgs84Collection, sourceGeometry, null, null);
                 FeatureCollection<SimpleFeatureType, SimpleFeature> clippedToTarget = FeatureCollectionClipper.doOperation(clippedToSource, targetGeometry, null, targetCRS);
+                clippedToTarget = new DefaultFeatureCollection(clippedToTarget);
                 VectorDataNode targetVDN = new VectorDataNode(name, clippedToTarget);
                 targetVDN.setDefaultCSS(vectorDataNode.getDefaultCSS());
                 targetVDN.setDescription(vectorDataNode.getDescription());
