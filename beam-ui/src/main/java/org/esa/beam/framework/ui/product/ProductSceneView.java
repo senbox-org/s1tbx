@@ -4,7 +4,9 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
+import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
 import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -746,6 +748,15 @@ public class ProductSceneView extends BasicView
         }
     }
 
+    public VectorDataLayer selectVectorDataLayer(VectorDataNode vectorDataNode) {
+        LayerFilter layerFilter = new VectorDataLayerFilter(vectorDataNode);
+        VectorDataLayer layer = (VectorDataLayer)LayerUtils.getChildLayer(getRootLayer(), layerFilter, LayerUtils.SearchMode.DEEP);
+        if (layer != null) {
+            setSelectedLayer(layer);
+        }
+        return layer;
+    }
+
     private void maybeUpdateFigureEditor() {
         if (selectedLayer instanceof VectorDataLayer) {
             VectorDataLayer vectorDataLayer = (VectorDataLayer) selectedLayer;
@@ -895,7 +906,8 @@ public class ProductSceneView extends BasicView
 
     public int getFirstImageLayerIndex() {
         return sceneImage.getFirstImageLayerIndex();
-    }
+    }// todo - same code in org.esa.beam.visat.ProductsToolView (nf)
+
 
     /**
      * A band that is used as an RGB channel for RGB image views.
@@ -1378,6 +1390,19 @@ public class ProductSceneView extends BasicView
 
         private String createFeatureId(SimpleFeatureType ft) {
             return ft.getName() + "_" + Long.toHexString(currentFeatureId++);
+        }
+    }
+
+    private static class VectorDataLayerFilter implements LayerFilter {
+        private final VectorDataNode vectorDataNode;
+
+        public VectorDataLayerFilter(VectorDataNode vectorDataNode) {
+            this.vectorDataNode = vectorDataNode;
+        }
+
+        @Override
+            public boolean accept(Layer layer) {
+            return layer instanceof VectorDataLayer && ((VectorDataLayer) layer).getVectorDataNode() == vectorDataNode;
         }
     }
 }
