@@ -188,7 +188,7 @@ public class DimapProductReader extends AbstractProductReader {
                 continue;
             }
             final File dataFile = bandDataFiles.get(band);
-            if (dataFile == null) {
+            if (dataFile == null || !dataFile.canRead()) {
                 product.removeBand(band);
                 BeamLogManager.getSystemLogger().warning(
                         "DimapProductReader: Unable to read file '" + dataFile + "' referenced by '" + band.getName() + "'.");
