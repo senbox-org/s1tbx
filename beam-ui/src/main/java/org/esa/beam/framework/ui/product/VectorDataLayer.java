@@ -119,7 +119,11 @@ public class VectorDataLayer extends Layer {
 
     @Override
     protected Rectangle2D getLayerModelBounds() {
-        return figureCollection.getBounds();
+        if (figureCollection.getFigureCount() == 0) {
+            return null;
+        } else {
+            return figureCollection.getBounds();
+        }
     }
 
     @Override

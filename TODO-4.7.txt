@@ -1,11 +1,6 @@
 Reprojection:
 =============
-* After reprojection, geometries are transformed, but geometry masks have no pixels
-  ==> PRE, MP/MZ, OPEN
 * GeoTIFF wont work with GeoTools CRS
-  ==> PRE, MP/MZ, OPEN
-* If figures/geometries existed in source product, layer boundaries are wrong
-  after reprojection
   ==> PRE, MP/MZ, OPEN
 
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
@@ -13,6 +8,12 @@ Reprojection:
   ==> FINAL, ?, OPEN
 * Rename CrsGeoCoding into DefaultGeoCoding.
   ==> FINAL, ?, OPEN
+
+* After reprojection, geometries are transformed, but geometry masks have no pixels
+  ==> PRE, MZ, CLOSED
+* If figures/geometries existed in source product, layer boundaries are wrong
+  after reprojection
+  ==> PRE, MZ, CLOSED
 
 
 Masks:
