@@ -21,6 +21,8 @@ Masks:
   ==> PRE, NF, OPEN
 * Add tool button for new VectorDataNode. Name it "Create Geometry Collection..."
   ==> PRE, NF, OPEN
+* Check if Masks are valid on import
+  ==> PRE, ?, OPEN
 
 * Old bitmask overlay window: Only list "real" bitmasks. What is real?
   E.g. Flag-related masks, masks set my reader, masks initially in the product,...
