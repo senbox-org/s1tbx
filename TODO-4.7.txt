@@ -50,8 +50,6 @@ Masks:
 
 VectorDataNode:
 ===============
-* Need action to delete existing VectorDataNode.
-  ==>  PRE, NF, OPEN (see TODOs in code)
 * Figures are not updated on geometry change
   ==> PRE, RQ/NF, OPEN
 * Pins/GCP are different from other geometries, harmonize!
@@ -60,6 +58,8 @@ VectorDataNode:
 * Export vector data node to shapefile
   ==> FINAL, ?, OPEN
 
+* Need action to delete existing VectorDataNode.
+  ==>  PRE, NF, CLOSED
 * When reprojecting (subsetting?) products, we must also transform geometry and
   align CRS of feature collections in vector data nodes!!! Use FeatureCollectionClipper
   in ShapefileLayer code. Pins/GCPs need special treatment!

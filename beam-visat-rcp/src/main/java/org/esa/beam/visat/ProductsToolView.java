@@ -340,7 +340,6 @@ public class ProductsToolView extends AbstractToolView {
                 final Product product = raster.getProduct();
                 if (raster instanceof Mask) {
                     product.getMaskGroup().remove((Mask) raster);
-                    // todo - if type==Vector also remove vector data node (nf)
                 } else if (raster instanceof Band) {
                     product.removeBand((Band) raster);
                 } else if (raster instanceof TiePointGrid) {
