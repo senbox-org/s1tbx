@@ -17,10 +17,6 @@ Reprojection:
 
 Masks:
 ======
-* Mask transparency ignored (at some point in time)
-  ==> PRE, RQ, CLOSED
-* Add tool button for new VectorDataNode. Name it "Create Geometry Collection..."
-  ==> PRE, NF, OPEN
 * Check if Masks are valid on import
   ==> PRE, ?, OPEN
 
@@ -38,6 +34,10 @@ Masks:
   if any.
   ==> FINAL, ?, OPEN
 
+* Mask transparency ignored (at some point in time)
+  ==> PRE, RQ, CLOSED
+* Add tool button for new VectorDataNode. Name it "Create Geometry Collection..."
+  ==> PRE, NF, CLOSED
 * Remove masks from product tree
   ==> PRE, NF, CLOSED
 * Masks are inserted multiple times in product tree. Nodes are not removed on delete.
