@@ -713,7 +713,7 @@ public abstract class ProductFile {
      * @return the geophysical band reader, or <code>null</code> if this product doesn't support reading band data or if
      *         the a band with the given name was not found
      */
-    public BandLineReader getBandLineReader(final Band band) {
+    public synchronized BandLineReader getBandLineReader(final Band band) {
         if (_bandLineReaderMap == null) {
             _bandLineReaderMap = new java.util.Hashtable<Band, BandLineReader>();
             BandLineReader[] bandLineReaders = getBandLineReaders();
