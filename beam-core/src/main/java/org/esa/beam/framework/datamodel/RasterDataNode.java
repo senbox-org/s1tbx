@@ -1678,7 +1678,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
      * @see #setImageInfo
-     * @see org.esa.beam.util.ProductUtils#createRgbImage
      */
     public BufferedImage createRgbImage(ProgressMonitor pm) throws IOException {
         if (imageInfo != null) {

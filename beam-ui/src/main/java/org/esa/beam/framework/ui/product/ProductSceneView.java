@@ -602,12 +602,18 @@ public class ProductSceneView extends BasicView
         }
     }
 
+    /**
+     * @deprecated since BEAM 4.7
+     */
     @Deprecated
     public boolean isBitmaskOverlayEnabled() {
         final Layer bitmaskLayer = getBitmaskLayer(false);
         return bitmaskLayer != null && bitmaskLayer.isVisible();
     }
 
+    /**
+     * @deprecated since BEAM 4.7
+     */
     @Deprecated
     public void setBitmaskOverlayEnabled(boolean enabled) {
         if (isBitmaskOverlayEnabled() != enabled) {

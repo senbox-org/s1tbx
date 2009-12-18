@@ -2,6 +2,7 @@ package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -97,7 +98,8 @@ public class WriteRGBOp extends Operator {
     }
 
     private void writeImage() throws IOException {
-        BufferedImage outputImage = ProductUtils.createRgbImage(rgbChannelNodes, ProgressMonitor.NULL);
+        ImageInfo imageInfo = ProductUtils.createImageInfo(rgbChannelNodes, true, ProgressMonitor.NULL);
+        BufferedImage outputImage = ProductUtils.createRgbImage(rgbChannelNodes, imageInfo, ProgressMonitor.NULL);
         ParameterBlock storeParams = new ParameterBlock();
         storeParams.addSource(outputImage);
         storeParams.add(file);

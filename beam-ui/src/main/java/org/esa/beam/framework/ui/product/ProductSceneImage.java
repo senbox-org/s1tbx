@@ -163,6 +163,9 @@ public class ProductSceneImage implements ProductLayerContext {
         return layer;
     }
 
+    /**
+     * @deprecated since BEAM 4.7
+     */
     @Deprecated
     Layer getBitmaskLayer(boolean create) {
         Layer layer = getLayer(ProductSceneView.BITMASK_LAYER_ID);
@@ -241,6 +244,9 @@ public class ProductSceneImage implements ProductLayerContext {
         addLayer(0, createBaseImageLayer());
     }
 
+    /**
+     * @deprecated since BEAM 4.7
+     */
     @Deprecated
     public void initBitmaskLayer() {
         if (mustEnableBitmaskLayer()) {
