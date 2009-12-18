@@ -83,9 +83,7 @@ VectorDataNode:
 
 Figures:
 ========
-* Circular figures are not round on lat/lon projected products (see TODO in code)
-  ==> PRE, NF/MP, OPEN
-  
+
 * Deprecate or even completely remove ald Figure + Tool classes
   ==> FINAL, ?, OPEN
 * Still can't rotate figures.
@@ -106,6 +104,10 @@ Figures:
 * Allow for geometric operations on geometries: add/sub/intersection (JTS!)
   ==> FINAL, ?, OPEN
 
+* Figure changes are not propagated to other views (layers)
+  ==> PRE, NF, CLOSED
+* Circular figures are not round on lat/lon projected products (see TODO in code)
+  ==> PRE, NF, CLOSED
 * Show shape layer action: shall set/clear visibility flag of selected geometry layer,
   if other layer type selected, select first geometry layer and set/clear visibility flag. 
   ==> PRE, MP, CLOSED

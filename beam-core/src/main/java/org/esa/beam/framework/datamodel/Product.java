@@ -90,7 +90,7 @@ public class Product extends ProductNode {
 
     public static final String PIN_FEATURE_TYPE_NAME = "Pin";
     public static final String GCP_FEATURE_TYPE_NAME = "GCP";
-    public static final String GEOMETRY_FEATURE_TYPE_NAME = "Geometry";
+    public static final String GEOMETRY_FEATURE_TYPE_NAME = PlainFeatureFactory.DEFAULT_TYPE_NAME;
 
     /**
      * The location file of this product.

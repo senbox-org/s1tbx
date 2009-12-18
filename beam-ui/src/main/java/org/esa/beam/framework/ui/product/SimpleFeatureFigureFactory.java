@@ -5,19 +5,17 @@ import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.PointFigure;
 import com.bc.ceres.swing.figure.ShapeFigure;
+import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import org.esa.beam.framework.datamodel.PlainFeatureFactory;
 import org.esa.beam.util.AwtGeomToJtsGeomConverter;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -27,7 +25,7 @@ import java.awt.geom.Point2D;
 public class SimpleFeatureFigureFactory implements FigureFactory {
 
     private final FeatureCollection featureCollection;
-    private AwtGeomToJtsGeomConverter toJtsGeom;
+    private final AwtGeomToJtsGeomConverter toJtsGeom;
     private long currentFeatureId;
 
     public SimpleFeatureFigureFactory(FeatureCollection featureCollection) {
@@ -36,9 +34,14 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
         this.currentFeatureId = System.nanoTime();
     }
 
+    public FeatureCollection getFeatureCollection() {
+        return featureCollection;
+    }
+
     @Override
     public PointFigure createPointFigure(Point2D point, FigureStyle style) {
-        return new SimpleFeaturePointFigure(createSimpleFeature(toJtsGeom.createPoint(point), style), style);
+        final Point point1 = toJtsGeom.createPoint(point);
+        return createPointFigure(point1, style);
     }
 
     @Override
@@ -57,16 +60,21 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
         return createShapeFigure(polygon, style);
     }
 
-    public Figure createFigure(SimpleFeature simpleFeature, String defaultCSS) {
-        Object geometry = simpleFeature.getDefaultGeometry();
-        Object styleAttribute = simpleFeature.getAttribute("style");
-        System.out.println("styleAttribute = [" + styleAttribute + "]");
+    public PointFigure createPointFigure(Point geometry, FigureStyle style) {
+        return new SimpleFeaturePointFigure(createSimpleFeature(geometry, style), style);
+    }
+
+    public SimpleFeatureFigure createSimpleFeatureFigure(SimpleFeature simpleFeature, String defaultCSS) {
+        Object styleAttribute = simpleFeature.getAttribute(PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS);
+        //System.out.println("styleAttribute = [" + styleAttribute + "]");
         String css = defaultCSS;
-        if (styleAttribute instanceof String && !((String)styleAttribute).isEmpty()) {
+        if (styleAttribute instanceof String && !((String) styleAttribute).isEmpty()) {
             css = (String) styleAttribute;
         }
         FigureStyle figureStyle = new DefaultFigureStyle();
         figureStyle.fromCssString(css);
+
+        Object geometry = simpleFeature.getDefaultGeometry();
         if (geometry instanceof Point) {
             return new SimpleFeaturePointFigure(simpleFeature, figureStyle);
         } else {
@@ -74,23 +82,19 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
         }
     }
 
-    public PointFigure createPointFigure(Point geometry, FigureStyle style) {
-        return new SimpleFeaturePointFigure(createSimpleFeature(geometry, style), style);
-    }
-
     public ShapeFigure createShapeFigure(Geometry geometry, FigureStyle style) {
         return new SimpleFeatureShapeFigure(createSimpleFeature(geometry, style), style);
     }
 
     public SimpleFeature createSimpleFeature(Geometry geometry, FigureStyle style) {
-        SimpleFeatureType ft = (SimpleFeatureType) featureCollection.getSchema();
-        SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(ft);
-        sfb.set("geom", geometry);
-        sfb.set("style", style != null ? style.toCssString() : " ");
-        return sfb.buildFeature(String.valueOf(currentFeatureId++));
+        return PlainFeatureFactory.createPlainFeature((SimpleFeatureType) featureCollection.getSchema(),
+                                                      "ID" + Long.toHexString(currentFeatureId++),
+                                                      geometry,
+                                                      style != null ? style.toCssString() : "");
     }
 
-    public static DefaultFigureStyle createDefaultStyle() {
+    @Deprecated
+    public static DefaultFigureStyle createDefaultFigureStyle() {
         DefaultFigureStyle figureStyle = new DefaultFigureStyle();
         figureStyle.setStrokeColor(Color.BLACK);
         figureStyle.setFillColor(Color.WHITE);
@@ -98,19 +102,4 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
         return figureStyle;
     }
 
-    public static SimpleFeatureType createSimpleFeatureType(String typeName, Class<? extends Geometry> geometryType) {
-        return createSimpleFeatureType(typeName, geometryType, DefaultGeographicCRS.WGS84);
-    }
-
-    public static SimpleFeatureType createSimpleFeatureType(String typeName,
-                                                            Class<? extends Geometry> geometryType,
-                                                            CoordinateReferenceSystem crs) {
-        SimpleFeatureTypeBuilder sftb = new SimpleFeatureTypeBuilder();
-        sftb.setCRS(crs);
-        sftb.setName(typeName);
-        sftb.add("geom", geometryType);
-        sftb.add("style", String.class);
-        sftb.setDefaultGeometry("geom");
-        return sftb.buildFeatureType();
-    }
 }

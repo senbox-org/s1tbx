@@ -10,4 +10,8 @@ public interface SimpleFeatureFigure extends Figure {
     SimpleFeature getSimpleFeature();
 
     Geometry getGeometry();
+
+    void setGeometry(Geometry geometry);
+
+    void forceRegeneration();
 }

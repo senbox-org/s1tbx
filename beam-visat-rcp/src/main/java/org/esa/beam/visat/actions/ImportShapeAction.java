@@ -1,7 +1,6 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -16,6 +15,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.SimpleFeatureFigureFactory;
+import org.esa.beam.framework.datamodel.PlainFeatureFactory;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.AwtGeomToJtsGeomConverter;
 import org.esa.beam.util.Debug;
@@ -274,11 +274,12 @@ public class ImportShapeAction extends ExecCommand {
         }
         String name = FileUtils.getFilenameWithoutExtension(file);
         CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(geoCoding);
-        SimpleFeatureType simpleFeatureType = SimpleFeatureFigureFactory.createSimpleFeatureType(Product.GEOMETRY_FEATURE_TYPE_NAME, Geometry.class, modelCrs);
+        SimpleFeatureType simpleFeatureType = PlainFeatureFactory.createDefaultFeatureType(modelCrs);
         DefaultFeatureCollection featureCollection = new DefaultFeatureCollection(name, simpleFeatureType);
-        
+
+        // todo - Don't use SimpleFeatureFigureFactory here (nf)
         SimpleFeatureFigureFactory simpleFeatureFigureFactory = new SimpleFeatureFigureFactory(featureCollection);
-        DefaultFigureStyle defaultStyle = SimpleFeatureFigureFactory.createDefaultStyle();
+        DefaultFigureStyle defaultStyle = SimpleFeatureFigureFactory.createDefaultFigureStyle();
         AwtGeomToJtsGeomConverter awtGeomToJtsGeomConverter = new AwtGeomToJtsGeomConverter();
         Polygon polygon = awtGeomToJtsGeomConverter.createPolygon(path);
         SimpleFeature simpleFeature = simpleFeatureFigureFactory.createSimpleFeature(polygon, defaultStyle);

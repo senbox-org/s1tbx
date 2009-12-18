@@ -21,14 +21,13 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
-import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.PlainFeatureFactory;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.PropertyPane;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.ui.product.SimpleFeatureFigureFactory;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.visat.VisatApp;
@@ -79,16 +78,16 @@ public class NewVectorDataNodeAction extends ExecCommand {
         dialog.setContent(panel);
         int i = dialog.show();
         if (i == ModalDialog.ID_OK) {
-            createVectorDataNode(product, dialogData.name, dialogData.description);
+            createDefaultVectorDataNode(product, dialogData.name, dialogData.description);
             setProperty(VECTOR_DATA_NAME, dialogData.name);
         } else {
             setProperty(VECTOR_DATA_NAME, null);
         }
     }
 
-    public static VectorDataNode createVectorDataNode(Product product, String name, String description) {
+    public static VectorDataNode createDefaultVectorDataNode(Product product, String name, String description) {
         CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(product.getGeoCoding());
-        SimpleFeatureType type = SimpleFeatureFigureFactory.createSimpleFeatureType(Product.GEOMETRY_FEATURE_TYPE_NAME, Geometry.class, modelCrs);
+        SimpleFeatureType type = PlainFeatureFactory.createDefaultFeatureType(modelCrs);
         VectorDataNode vectorDataNode = new VectorDataNode(name, type);
         vectorDataNode.setDescription(description);
         product.getVectorDataGroup().add(vectorDataNode);

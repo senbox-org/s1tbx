@@ -41,8 +41,17 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
     }
 
     @Override
-    public Geometry getGeometry() {
+    public Point getGeometry() {
         return geometry;
+    }
+
+    @Override
+    public void setGeometry(Geometry geometry) {
+        this.geometry = (Point) geometry;
+    }
+
+    @Override
+    public void forceRegeneration() {
     }
 
     @Override

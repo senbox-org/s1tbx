@@ -34,6 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.awt.Color;
+import java.awt.BasicStroke;
 
 public class FeatureFigureEditorApp extends FigureEditorApp {
 
@@ -82,7 +84,7 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
         Iterator<SimpleFeature> featureIterator = featureTypeSimpleFeatureFeatureCollection.iterator();
         while (featureIterator.hasNext()) {
             SimpleFeature simpleFeature = featureIterator.next();
-            DefaultFigureStyle figureStyle = SimpleFeatureFigureFactory.createDefaultStyle();
+            DefaultFigureStyle figureStyle = createDefaultFigureStyle();
             Object o = simpleFeature.getDefaultGeometry();
             if (o instanceof Point) {
                 figureCollection.addFigure(new SimpleFeaturePointFigure(simpleFeature, figureStyle));
@@ -151,6 +153,14 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         featureSource = shapefileStore.getFeatureSource(typeName);
         return featureSource;
+    }
+
+    public static DefaultFigureStyle createDefaultFigureStyle() {
+        DefaultFigureStyle figureStyle = new DefaultFigureStyle();
+        figureStyle.setStrokeColor(Color.BLACK);
+        figureStyle.setFillColor(Color.WHITE);
+        figureStyle.setStroke(new BasicStroke(1.0f));
+        return figureStyle;
     }
 
 }

@@ -44,9 +44,12 @@ import java.util.Map;
 public class VectorDataLayer extends Layer {
 
     private static final VectorDataLayerType TYPE = new VectorDataLayerType();
-    private FigureCollection figureCollection;
     private VectorDataNode vectorDataNode;
+    private final SimpleFeatureFigureFactory figureFactory;
+    private FigureCollection figureCollection;
     private VectorDataChangeHandler vectorDataChangeHandler;
+    private boolean adjustingFigures;
+
 
     public VectorDataLayer(LayerContext ctx, VectorDataNode vectorDataNode) {
         this(TYPE, vectorDataNode, TYPE.createLayerConfig(ctx));
@@ -55,18 +58,16 @@ public class VectorDataLayer extends Layer {
 
     VectorDataLayer(VectorDataLayerType vectorDataLayerType, VectorDataNode vectorDataNode, PropertySet configuration) {
         super(vectorDataLayerType, configuration);
+
         this.vectorDataNode = vectorDataNode;
         setName(vectorDataNode.getName());
+        figureFactory = new SimpleFeatureFigureFactory(vectorDataNode.getFeatureCollection());
         figureCollection = new DefaultFigureCollection();
+        updateFigureCollection();
+
         vectorDataChangeHandler = new VectorDataChangeHandler();
         vectorDataNode.getProduct().addProductNodeListener(vectorDataChangeHandler);
-        updateFigureCollection();
-        figureCollection.addChangeListener(new AbstractFigureChangeListener() {
-            @Override
-            public void figureChanged(FigureChangeEvent event) {
-                fireLayerDataChanged(null);
-            }
-        });
+        figureCollection.addChangeListener(new FigureCollectionChangeListener());
     }
 
     public VectorDataNode getVectorDataNode() {
@@ -95,22 +96,23 @@ public class VectorDataLayer extends Layer {
         FeatureIterator<SimpleFeature> featureIterator = featureCollection.features();
         while (featureIterator.hasNext()) {
             SimpleFeature simpleFeature = featureIterator.next();
-            if (figureMap.containsKey(simpleFeature)) {
+            SimpleFeatureFigure featureFigure = figureMap.get(simpleFeature);
+            if (featureFigure != null) {
                 figureMap.remove(simpleFeature);
             } else {
-                figureCollection.addFigure(
-                        getFigureFactory().createFigure(simpleFeature, vectorDataNode.getDefaultCSS()));
+                featureFigure = getFigureFactory().createSimpleFeatureFigure(simpleFeature, vectorDataNode.getDefaultCSS());
+                figureCollection.addFigure(featureFigure);
             }
+            featureFigure.forceRegeneration();
         }
 
         Collection<SimpleFeatureFigure> remainingFigures = figureMap.values();
         figureCollection.removeFigures(remainingFigures.toArray(new Figure[remainingFigures.size()]));
 
-        fireLayerDataChanged(null);
     }
 
-    private SimpleFeatureFigureFactory getFigureFactory() {
-        return new SimpleFeatureFigureFactory(vectorDataNode.getFeatureCollection());
+    public SimpleFeatureFigureFactory getFigureFactory() {
+        return figureFactory;
     }
 
     public FigureCollection getFigureCollection() {
@@ -152,8 +154,24 @@ public class VectorDataLayer extends Layer {
                     setName(VectorDataLayer.this.vectorDataNode.getName());
                 }
                 if (VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION.equals(event.getPropertyName())) {
-                    updateFigureCollection();
+                    if (!adjustingFigures) {
+                        updateFigureCollection();
+                        fireLayerDataChanged(null); // todo - compute changed modelRegion instaed of passing null (nf)
+                    }
                 }
+            }
+        }
+    }
+
+    private class FigureCollectionChangeListener extends AbstractFigureChangeListener {
+        @Override
+        public void figureChanged(FigureChangeEvent event) {
+            try {
+                adjustingFigures = true;
+                VectorDataLayer.this.vectorDataNode.fireFeatureCollectionChanged();
+                fireLayerDataChanged(null); // todo - compute changed modelRegion instaed of passing null (nf)
+            } finally {
+                adjustingFigures = false;
             }
         }
     }

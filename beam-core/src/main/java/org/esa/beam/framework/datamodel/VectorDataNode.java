@@ -23,12 +23,25 @@ public class VectorDataNode extends ProductNode {
 
     public static final String PROPERTY_NAME_FEATURE_COLLECTION = "featureCollection";
 
-    private static final String DEFAULT_STYLE = "fill:#00ff00; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0";
+    private static final String DEFAULT_STYLE_FORMAT = "fill:%s; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0";
+    private static final String[] FILL_COLORS = {
+            "#ff0000", // red
+            "#00ff00", // green
+            "#0000ff", // blue
+            "#00aaff",
+            "#aa00ff",
+            "#ffaa00",
+            "#ff00aa",
+            "#aaff00",
+            "#00ffaa",
+    };
+    static int fillColorIndex;
+
 
     private final SimpleFeatureType featureType;
     private final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
     private final CollectionListener featureCollectionListener;
-    private String defaultCSS = DEFAULT_STYLE;
+    private String defaultCSS;
 
     /**
      * Constructs a new vector data node for the given feature collection.
@@ -61,6 +74,7 @@ public class VectorDataNode extends ProductNode {
             }
         };
         this.featureCollection.addListener(featureCollectionListener);
+        this.defaultCSS = String.format(DEFAULT_STYLE_FORMAT, FILL_COLORS[(fillColorIndex++) % FILL_COLORS.length]);
     }
 
     public void fireFeatureCollectionChanged() {

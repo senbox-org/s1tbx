@@ -91,7 +91,7 @@ public class InsertFigureInteractorHandler extends AbstractInteractorListener {
             name = nodeAction.getVectorDataName();
         } else {
             name = "geometry";
-            NewVectorDataNodeAction.createVectorDataNode(product, name, "Default container for geometries.");
+            NewVectorDataNodeAction.createDefaultVectorDataNode(product, name, "Default container for geometries.");
         }
         if (name != null) {
             Layer layer = LayerUtils.getChildLayerByName(collectionLayer, name);
