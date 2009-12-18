@@ -106,7 +106,7 @@ public class CustomCrsPanel extends JPanel {
         vc = PropertyContainer.createObjectBacked(model);
         vc.addPropertyChangeListener(new UpdateListener());
 
-        creatUI();
+        createUI();
         updateModel(OPERATION_WRAPPER);
     }
 
@@ -114,7 +114,7 @@ public class CustomCrsPanel extends JPanel {
         return model.operationWrapper.getCRS(referencePos, model.parameters, model.datum);
     }
 
-    private void creatUI() {
+    private void createUI() {
         final TableLayout tableLayout = new TableLayout(2);
         setLayout(tableLayout);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
