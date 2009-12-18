@@ -50,17 +50,17 @@ Masks:
 
 VectorDataNode:
 ===============
-* Figures are not updated on geometry change
-  ==> PRE, RQ/NF, ONGOING
 * Synchronization of VectorDataNode simple features and pins/GCPs: Pins/GCPs auto-added due to new simple point
   features do not fire property change events when moved
   ==> PRE, RQ/NF, ONGOING
 * Pins/GCP are different from other geometries, harmonize!
-  ==> PRE, RQ/NF, OPEN
+  ==> PRE, RQ/NF, ONGOING
 
 * Export vector data node to shapefile
   ==> FINAL, ?, OPEN
 
+* Figures are not updated on geometry change
+  ==> PRE, NF, CLOSED
 * Need action to delete existing VectorDataNode.
   ==>  PRE, NF, CLOSED
 * When reprojecting (subsetting?) products, we must also transform geometry and
