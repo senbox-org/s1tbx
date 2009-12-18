@@ -55,9 +55,7 @@ VectorDataNode:
 ===============
 * When saving VectorDataNodes to disk (DIMAP), schema name is lost. ==> Drawing tools don't work anymore,
   because the search for schema name 'Geometry'.
-  ==> PRE, RQ/NF, OPEN
-* "Transect plot" and "Export transect pixels", etc don't work anymore. Should work again for selected figure shape.
-  ==> PRE, MP/NF, OPEN
+  ==> PRE, NF, ONGOING (writing own CSV format)
 * Synchronization of VectorDataNode simple features and pins/GCPs: Pins/GCPs auto-added due to new simple point
   features do not fire property change events when moved
   ==> PRE, RQ/NF, ONGOING
@@ -70,6 +68,8 @@ VectorDataNode:
 * Export vector data node to shapefile
   ==> FINAL, ?, OPEN
 
+* "Transect plot" and "Export transect pixels", etc don't work anymore. Should work again for selected figure shape.
+  ==> PRE, NF, CLOSED (although profile plot isn't updated if the shape changes)
 * Figures are not updated on geometry change
   ==> PRE, NF, CLOSED
 * Need action to delete existing VectorDataNode.
