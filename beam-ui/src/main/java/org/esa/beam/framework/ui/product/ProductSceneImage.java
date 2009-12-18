@@ -147,7 +147,7 @@ public class ProductSceneImage implements ProductLayerContext {
     }
 
     int getFirstImageLayerIndex() {
-        return LayerUtils.getChildLayerIndex(getRootLayer(), IMAGE_LAYER_FILTER, LayerUtils.SearchMode.DEEP, 0);
+        return LayerUtils.getChildLayerIndex(getRootLayer(), LayerUtils.SEARCH_DEEP, 0, IMAGE_LAYER_FILTER);
     }
 
     ImageLayer getBaseImageLayer() {
@@ -206,14 +206,16 @@ public class ProductSceneImage implements ProductLayerContext {
 
     Layer getGcpLayer(boolean create) {
         return LayerUtils.getChildLayer(getVectorDataCollectionLayer(create),
-                                        new FeatureTypeNameLayerFilter(Product.GCP_FEATURE_TYPE_NAME),
-                                        LayerUtils.SearchMode.DEEP);
+                                        LayerUtils.SEARCH_DEEP,
+                                        new FeatureTypeNameLayerFilter(Product.GCP_FEATURE_TYPE_NAME)
+        );
     }
 
     Layer getPinLayer(boolean create) {
         return LayerUtils.getChildLayer(getVectorDataCollectionLayer(create),
-                                        new FeatureTypeNameLayerFilter(Product.PIN_FEATURE_TYPE_NAME),
-                                        LayerUtils.SearchMode.DEEP);
+                                        LayerUtils.SEARCH_DEEP,
+                                        new FeatureTypeNameLayerFilter(Product.PIN_FEATURE_TYPE_NAME)
+        );
     }
 
     private static class FeatureTypeNameLayerFilter implements LayerFilter {

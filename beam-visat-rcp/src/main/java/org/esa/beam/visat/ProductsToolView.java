@@ -138,7 +138,7 @@ public class ProductsToolView extends AbstractToolView {
                 return layer instanceof VectorDataLayer && ((VectorDataLayer) layer).getVectorDataNode() == vectorDataNode;
             }
         };
-        Layer layer = LayerUtils.getChildLayer(sceneView.getRootLayer(), layerFilter, LayerUtils.SearchMode.DEEP);
+        Layer layer = LayerUtils.getChildLayer(sceneView.getRootLayer(), LayerUtils.SEARCH_DEEP, layerFilter);
         if (layer != null) {
             sceneView.setSelectedLayer(layer);
         }

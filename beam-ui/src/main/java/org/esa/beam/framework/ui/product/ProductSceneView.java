@@ -21,7 +21,7 @@ import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorAware;
 import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.ShapeFigure;
-import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
+import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
@@ -603,25 +603,27 @@ public class ProductSceneView extends BasicView
         }
     }
 
-    @Deprecated
+    // todo - replace by getCurrentGeometry() (nf)
     public ShapeFigure getCurrentShapeFigure() {
-        return null;
-    }
-
-    @Deprecated
-    public void setCurrentShapeFigure(Figure currentShapeFigure) {
-        /*
-        setShapeOverlayEnabled(true);
-        final Figure oldShapeFigure = getCurrentShapeFigure();
-        if (currentShapeFigure != oldShapeFigure) {
-            if (oldShapeFigure != null && getFigureLayer(false) != null) {
-                getFigureLayer(false).removeFigure(oldShapeFigure);
+        FigureSelection figureSelection = getFigureEditor().getFigureSelection();
+        if (figureSelection .getFigureCount() > 0) {
+            Figure figure = figureSelection.getFigure(0);
+            if (figure instanceof ShapeFigure) {
+                return (ShapeFigure) figure;
             }
-            if (currentShapeFigure != null) {
-                getFigureLayer(true).addFigure(currentShapeFigure);
+        } else {
+            Layer layer = getSelectedLayer();
+            if (layer instanceof VectorDataLayer) {
+                final VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
+                if (vectorDataLayer.getFigureCollection().getFigureCount() > 0) {
+                    Figure figure = vectorDataLayer.getFigureCollection().getFigure(0);
+                    if (figure instanceof ShapeFigure) {
+                        return (ShapeFigure) figure;
+                    }
+                }
             }
         }
-        */
+        return null;
     }
 
     public boolean areScrollBarsShown() {
@@ -716,7 +718,9 @@ public class ProductSceneView extends BasicView
 
     public VectorDataLayer selectVectorDataLayer(VectorDataNode vectorDataNode) {
         LayerFilter layerFilter = new VectorDataLayerFilter(vectorDataNode);
-        VectorDataLayer layer = (VectorDataLayer)LayerUtils.getChildLayer(getRootLayer(), layerFilter, LayerUtils.SearchMode.DEEP);
+        VectorDataLayer layer = (VectorDataLayer)LayerUtils.getChildLayer(getRootLayer(),
+                                                                          LayerUtils.SEARCH_DEEP,
+                                                                          layerFilter);
         if (layer != null) {
             setSelectedLayer(layer);
         }

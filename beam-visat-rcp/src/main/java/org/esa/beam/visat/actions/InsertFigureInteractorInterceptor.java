@@ -40,8 +40,8 @@ public class InsertFigureInteractorInterceptor extends AbstractInteractorListene
         }
 
         List<Layer> layers = LayerUtils.getChildLayers(productSceneView.getRootLayer(),
-                                                       geometryFilter,
-                                                       LayerUtils.SearchMode.DEEP);
+                                                       LayerUtils.SEARCH_DEEP, geometryFilter
+        );
 
         VectorDataLayer vectorDataLayer;
         if (layers.size() == 0) {
@@ -49,8 +49,8 @@ public class InsertFigureInteractorInterceptor extends AbstractInteractorListene
             VectorDataNode vectorDataNode = nodeAction.run();
             LayerFilter nodeFilter = VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode);
             vectorDataLayer = (VectorDataLayer) LayerUtils.getChildLayer(productSceneView.getRootLayer(),
-                                                                         nodeFilter,
-                                                                         LayerUtils.SearchMode.DEEP);
+                                                                         LayerUtils.SEARCH_DEEP, nodeFilter
+            );
         } else if (layers.size() == 1) {
             vectorDataLayer = (VectorDataLayer) layers.get(0);
         } else {
