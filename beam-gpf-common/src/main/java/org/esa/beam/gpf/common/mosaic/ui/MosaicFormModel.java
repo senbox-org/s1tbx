@@ -49,6 +49,11 @@ class MosaicFormModel {
     public static final String PROPERTY_UPDATE_PRODUCT = "updateProduct";
     public static final String PROPERTY_UPDATE_MODE = "updateMode";
     public static final String PROPERTY_SHOW_SOURCE_PRODUCTS = "showSourceProducts";
+    
+    public static final String PROPERTY_WEST_BOUND = "westBound";
+    public static final String PROPERTY_NORTH_BOUND = "northBound";
+    public static final String PROPERTY_EAST_BOUND = "eastBound";
+    public static final String PROPERTY_SOUTH_BOUND = "southBound";
 
     private final PropertyContainer container;
     private final Map<String, Object> parameterMap = new HashMap<String, Object>();
@@ -231,10 +236,10 @@ class MosaicFormModel {
     }
 
     GeneralEnvelope getTargetEnvelope() {
-        final double west = (Double) getPropertyValue("westBound");
-        final double north = (Double) getPropertyValue("northBound");
-        final double east = (Double) getPropertyValue("eastBound");
-        final double south = (Double) getPropertyValue("southBound");
+        final double west = (Double) getPropertyValue(PROPERTY_WEST_BOUND);
+        final double north = (Double) getPropertyValue(PROPERTY_NORTH_BOUND);
+        final double east = (Double) getPropertyValue(PROPERTY_EAST_BOUND);
+        final double south = (Double) getPropertyValue(PROPERTY_SOUTH_BOUND);
 
         final Rectangle2D bounds = new Rectangle2D.Double();
         bounds.setFrameFromDiagonal(west, north, east, south);
