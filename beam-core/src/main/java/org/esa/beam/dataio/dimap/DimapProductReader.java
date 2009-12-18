@@ -395,6 +395,7 @@ public class DimapProductReader extends AbstractProductReader {
                     if (modelCrs != null) {
                         featureCollection = new ForceCoordinateSystemFeatureResults(featureCollection, modelCrs);
                     }
+                    // Must create a new FeatureCollection because the one we get is read-only
                     DefaultFeatureCollection defaultFeatureCollection = new DefaultFeatureCollection(featureCollection);
                     VectorDataNode vectorDataNode = new VectorDataNode(name, defaultFeatureCollection);
                     product.getVectorDataGroup().add(vectorDataNode);
