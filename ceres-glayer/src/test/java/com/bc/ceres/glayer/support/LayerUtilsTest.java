@@ -25,27 +25,27 @@ public class LayerUtilsTest extends TestCase {
     public void testGetChildLayerIndex() {
         Layer root = createLayerTree();
 
-        assertEquals(0, LayerUtils.getChildLayerIndex(root, new NameFilter("A"), LayerUtils.SearchMode.DEEP, -1));
-        assertEquals(1, LayerUtils.getChildLayerIndex(root, new NameFilter("B"), LayerUtils.SearchMode.DEEP, -1));
-        assertEquals(2, LayerUtils.getChildLayerIndex(root, new NameFilter("C"), LayerUtils.SearchMode.DEEP, -1));
-        assertEquals(2, LayerUtils.getChildLayerIndex(root, new NameFilter("C1"), LayerUtils.SearchMode.DEEP, -1));
-        assertEquals(2, LayerUtils.getChildLayerIndex(root, new NameFilter("C2"), LayerUtils.SearchMode.DEEP, -1));
-        assertEquals(2, LayerUtils.getChildLayerIndex(root, new NameFilter("C3"), LayerUtils.SearchMode.DEEP, -1));
-        assertEquals(-1, LayerUtils.getChildLayerIndex(root, new NameFilter("C4"), LayerUtils.SearchMode.DEEP, -1));
-        assertEquals(3, LayerUtils.getChildLayerIndex(root, new NameFilter("D"), LayerUtils.SearchMode.DEEP, -1));
-        assertEquals(-1, LayerUtils.getChildLayerIndex(root, new NameFilter("E"), LayerUtils.SearchMode.DEEP, -1));
+        assertEquals(0, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.DEEP, -1, new NameFilter("A")));
+        assertEquals(1, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.DEEP, -1, new NameFilter("B")));
+        assertEquals(2, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.DEEP, -1, new NameFilter("C")));
+        assertEquals(2, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.DEEP, -1, new NameFilter("C1")));
+        assertEquals(2, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.DEEP, -1, new NameFilter("C2")));
+        assertEquals(2, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.DEEP, -1, new NameFilter("C3")));
+        assertEquals(-1, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.DEEP, -1, new NameFilter("C4")));
+        assertEquals(3, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.DEEP, -1, new NameFilter("D")));
+        assertEquals(-1, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.DEEP, -1, new NameFilter("E")));
 
-        assertEquals(0, LayerUtils.getChildLayerIndex(root, new NameFilter("A"), LayerUtils.SearchMode.FLAT, -1));
-        assertEquals(1, LayerUtils.getChildLayerIndex(root, new NameFilter("B"), LayerUtils.SearchMode.FLAT, -1));
-        assertEquals(2, LayerUtils.getChildLayerIndex(root, new NameFilter("C"), LayerUtils.SearchMode.FLAT, -1));
-        assertEquals(-1, LayerUtils.getChildLayerIndex(root, new NameFilter("C1"), LayerUtils.SearchMode.FLAT, -1));
-        assertEquals(-1, LayerUtils.getChildLayerIndex(root, new NameFilter("C2"), LayerUtils.SearchMode.FLAT, -1));
-        assertEquals(-1, LayerUtils.getChildLayerIndex(root, new NameFilter("C3"), LayerUtils.SearchMode.FLAT, -1));
-        assertEquals(-1, LayerUtils.getChildLayerIndex(root, new NameFilter("C4"), LayerUtils.SearchMode.FLAT, -1));
-        assertEquals(3, LayerUtils.getChildLayerIndex(root, new NameFilter("D"), LayerUtils.SearchMode.FLAT, -1));
-        assertEquals(-1, LayerUtils.getChildLayerIndex(root, new NameFilter("E"), LayerUtils.SearchMode.FLAT, -1));
+        assertEquals(0, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.FLAT, -1, new NameFilter("A")));
+        assertEquals(1, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.FLAT, -1, new NameFilter("B")));
+        assertEquals(2, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.FLAT, -1, new NameFilter("C")));
+        assertEquals(-1, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.FLAT, -1, new NameFilter("C1")));
+        assertEquals(-1, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.FLAT, -1, new NameFilter("C2")));
+        assertEquals(-1, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.FLAT, -1, new NameFilter("C3")));
+        assertEquals(-1, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.FLAT, -1, new NameFilter("C4")));
+        assertEquals(3, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.FLAT, -1, new NameFilter("D")));
+        assertEquals(-1, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.FLAT, -1, new NameFilter("E")));
 
-        assertEquals(-999, LayerUtils.getChildLayerIndex(root, new NameFilter("E"), LayerUtils.SearchMode.DEEP, -999));
+        assertEquals(-999, LayerUtils.getChildLayerIndex(root, LayerUtils.SearchMode.DEEP, -999, new NameFilter("E")));
 
     }
 
