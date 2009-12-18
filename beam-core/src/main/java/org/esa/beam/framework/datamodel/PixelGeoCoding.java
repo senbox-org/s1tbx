@@ -16,9 +16,18 @@ import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
+import static org.esa.beam.util.ProductUtils.copyBand;
 import org.esa.beam.util.math.IndexValidator;
 
+import javax.media.jai.operator.ScaleDescriptor;
+import javax.media.jai.operator.CropDescriptor;
+import javax.media.jai.OperationDescriptorImpl;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.Interpolation;
+import javax.media.jai.InterpolationNearest;
 import java.io.IOException;
+import java.awt.image.RenderedImage;
+import java.awt.Rectangle;
 
 
 /**
@@ -87,7 +96,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         }
         if (latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2) {
             throw new IllegalArgumentException(
-                    "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
+                        "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
         if (searchRadius <= 0) {
             throw new IllegalArgumentException("searchRadius <= 0");
@@ -561,7 +570,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                 System.out.print("  ");
             }
             System.out.println(
-                    depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
+                        depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
         }
         return pixelFound;
     }
@@ -713,20 +722,51 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      */
     @Override
     public boolean transferGeoCoding(final Scene srcScene, final Scene destScene, final ProductSubsetDef subsetDef) {
-        final String latBandName = getLatBand().getName();
-        final String lonBandName = getLonBand().getName();
-        final Band latBand = destScene.getProduct().getBand(latBandName);
-        final Band lonBand = destScene.getProduct().getBand(lonBandName);
+        final Band srcLatBand = getLatBand();
+        final Band srcLonBand = getLonBand();
+        Band latBand = destScene.getProduct().getBand(srcLatBand.getName());
+        if (latBand == null) {
+            latBand = copyBand(srcLatBand.getName(), srcScene.getProduct(), destScene.getProduct());
+            latBand.setSourceImage(getSourceImage(subsetDef, srcLatBand));
+        }
+        Band lonBand = destScene.getProduct().getBand(srcLonBand.getName());
+        if (lonBand == null) {
+            lonBand = copyBand(srcLonBand.getName(), srcScene.getProduct(), destScene.getProduct());
+            lonBand.setSourceImage(getSourceImage(subsetDef, lonBand));
+        }
         if (_pixelPosEstimator instanceof AbstractGeoCoding) {
             AbstractGeoCoding origGeoCoding = (AbstractGeoCoding) _pixelPosEstimator;
             origGeoCoding.transferGeoCoding(srcScene, destScene, subsetDef);
         }
-        if (latBand != null && lonBand != null) {
-            destScene.setGeoCoding(new PixelGeoCoding(latBand, lonBand,
-                                                      getValidMask(),
-                                                      getSearchRadius()));
+        destScene.setGeoCoding(new PixelGeoCoding(latBand, lonBand,
+                                                  getValidMask(),
+                                                  getSearchRadius()));
+        return true;
+    }
+
+    private RenderedImage getSourceImage(ProductSubsetDef subsetDef, Band band) {
+        RenderedImage image = band.createSourceImage();
+        if (subsetDef != null) {
+            final Rectangle region = subsetDef.getRegion();
+            if (region != null) {
+                final float x = region.x;
+                final float y = region.y;
+                final float width = region.width;
+                final float height = region.height;
+                image = CropDescriptor.create(image, x, y, width, height, null);
+            }
+            final int subSamplingX = subsetDef.getSubSamplingX();
+            final int subSamplingY = subsetDef.getSubSamplingY();
+            if (subSamplingX != 1 || subSamplingY != 1) {
+                final float scaleX = 1f / subSamplingX;
+                final float scaleY = 1f / subSamplingY;
+                final float transX = 0f;
+                final float transY = 0f;
+                final Interpolation interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+                image = ScaleDescriptor.create(image, scaleX, scaleY, transX, transY, interpolation, null);
+            }
         }
-        return false;
+        return image;
     }
 
     private static class PixelGrid extends TiePointGrid {
