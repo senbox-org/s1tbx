@@ -25,6 +25,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
+
+/**
+ * @deprecated since BEAM 4.7, replaced by VectorDataLayer
+ */
+@Deprecated
 public class PlacemarkLayer extends Layer {
 
     private static final PlacemarkLayerType LAYER_TYPE = LayerTypeRegistry.getLayerType(PlacemarkLayerType.class);

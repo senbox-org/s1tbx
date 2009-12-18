@@ -12,7 +12,9 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import java.awt.Color;
 
-
+/**
+ * @deprecated since BEAM 4.7, replaced by MaskLayerType
+ */
 @Deprecated
 public class RoiLayerType extends ImageLayer.Type {
 

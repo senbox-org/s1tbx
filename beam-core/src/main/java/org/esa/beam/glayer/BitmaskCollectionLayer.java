@@ -33,6 +33,9 @@ import java.awt.geom.AffineTransform;
 import java.util.List;
 
 
+/**
+ * @deprecated since BEAM 4.7, replaced by MaskCollectionLayerType
+ */
 @Deprecated
 public class BitmaskCollectionLayer extends CollectionLayer {
 

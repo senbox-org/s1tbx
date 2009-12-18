@@ -20,10 +20,9 @@ import java.awt.geom.AffineTransform;
 /**
  * A layer used to display placemarks.
  *
- * @author Marco Peters
- * @version $ Revision $ Date $
- * @since BEAM 4.6
+ * @deprecated since BEAM 4.7, replaced by VectorDataLayer
  */
+@Deprecated
 public class PlacemarkLayerType extends LayerType {
 
     public static final String PROPERTY_PRODUCT = "product";
@@ -40,9 +39,9 @@ public class PlacemarkLayerType extends LayerType {
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final Product product = (Product) configuration.getValue(PlacemarkLayerType.PROPERTY_PRODUCT);
         final String descriptorName = PlacemarkLayerType.PROPERTY_PLACEMARK_DESCRIPTOR;
-        PlacemarkDescriptor placemarkDescriptor = (PlacemarkDescriptor)configuration.getValue(descriptorName);
+        PlacemarkDescriptor placemarkDescriptor = (PlacemarkDescriptor) configuration.getValue(descriptorName);
         final String transformName = PlacemarkLayerType.PROPERTY_IMAGE_TO_MODEL_TRANSFORM;
-        AffineTransform imageToModelTransform = (AffineTransform)configuration.getValue(transformName);
+        AffineTransform imageToModelTransform = (AffineTransform) configuration.getValue(transformName);
 
         return new PlacemarkLayer(this, product, placemarkDescriptor, imageToModelTransform, configuration);
     }
@@ -51,16 +50,20 @@ public class PlacemarkLayerType extends LayerType {
     public PropertySet createLayerConfig(LayerContext ctx) {
         final PropertyContainer propertyContainer = new PropertyContainer();
 
-        final Property textBgColorModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR, Color.class, PlacemarkLayer.DEFAULT_TEXT_BG_COLOR, true);
+        final Property textBgColorModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_BG_COLOR, Color.class,
+                                                          PlacemarkLayer.DEFAULT_TEXT_BG_COLOR, true);
         propertyContainer.addProperty(textBgColorModel);
 
-        final Property textFgColorModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR, Color.class, PlacemarkLayer.DEFAULT_TEXT_FG_COLOR, true);
+        final Property textFgColorModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_FG_COLOR, Color.class,
+                                                          PlacemarkLayer.DEFAULT_TEXT_FG_COLOR, true);
         propertyContainer.addProperty(textFgColorModel);
 
-        final Property textEnabledModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED, Boolean.class, PlacemarkLayer.DEFAULT_TEXT_ENABLED, true);
+        final Property textEnabledModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_ENABLED, Boolean.class,
+                                                          PlacemarkLayer.DEFAULT_TEXT_ENABLED, true);
         propertyContainer.addProperty(textEnabledModel);
 
-        final Property textFontModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_FONT, Font.class, PlacemarkLayer.DEFAULT_TEXT_FONT, true);
+        final Property textFontModel = Property.create(PlacemarkLayer.PROPERTY_NAME_TEXT_FONT, Font.class,
+                                                       PlacemarkLayer.DEFAULT_TEXT_FONT, true);
         propertyContainer.addProperty(textFontModel);
 
         final Property productModel = Property.create(PROPERTY_PRODUCT, Product.class);

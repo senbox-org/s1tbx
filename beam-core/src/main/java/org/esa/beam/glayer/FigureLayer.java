@@ -32,6 +32,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
+/**
+ * @deprecated since BEAM 4.7, replaced by VectorDataLayer
+ */
+@Deprecated
 public class FigureLayer extends Layer {
 
     public static final String PROPERTY_NAME_FIGURE_LIST = "figureList";
