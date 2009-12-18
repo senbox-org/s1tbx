@@ -83,6 +83,9 @@ VectorDataNode:
 
 Figures:
 ========
+* Circular figures are not round on lat/lon projected products (see TODO in code)
+  ==> PRE, NF/MP, OPEN
+  
 * Deprecate or even completely remove ald Figure + Tool classes
   ==> FINAL, ?, OPEN
 * Still can't rotate figures.
