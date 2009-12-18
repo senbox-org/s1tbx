@@ -13,12 +13,8 @@ import java.awt.geom.Rectangle2D;
 class AbstractFigureImpl extends AbstractFigure {
 
     @Override
-    public boolean isSelected() {
+    public boolean isCollection() {
         return false;
-    }
-
-    @Override
-    public void setSelected(boolean selected) {
     }
 
     @Override
@@ -32,7 +28,7 @@ class AbstractFigureImpl extends AbstractFigure {
 
     @Override
     public Rank getRank() {
-        return Rank.PUNTAL;
+        return Rank.POINT;
     }
 
     void postChangeEvent() {

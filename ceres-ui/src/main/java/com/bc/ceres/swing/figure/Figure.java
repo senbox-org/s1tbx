@@ -23,11 +23,20 @@ public interface Figure extends Restorable, Cloneable {
     // todo - interface FigureGeometry?
 
     enum Rank {
-        PUNTAL,
-        LINEAL,
-        POLYGONAL,
-        COLLECTION
+
+        NOT_SPECIFIED(-1),
+        POINT(0),
+        LINE(1),
+        AREA(2);
+
+        public final int value;
+
+        private Rank(int value) {
+            this.value = value;
+        }
     }
+
+    boolean isCollection();
 
     boolean contains(Figure figure);
 

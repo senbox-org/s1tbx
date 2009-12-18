@@ -77,8 +77,13 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     }
 
     @Override
+    public boolean isCollection() {
+        return true;
+    }
+
+    @Override
     public Rank getRank() {
-        return Rank.COLLECTION;
+        return Rank.NOT_SPECIFIED;
     }
 
     @Override

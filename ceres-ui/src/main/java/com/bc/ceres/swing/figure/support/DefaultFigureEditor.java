@@ -43,7 +43,7 @@ public class DefaultFigureEditor implements FigureEditor {
     private final FigureSelection figureSelection;
     private final SelectionChangeSupport selectionChangeSupport;
     private final Viewport viewport;
-    private final FigureFactory figureFactory;
+    private FigureFactory figureFactory;
     private FigureStyle defaultLineStyle;
     private FigureStyle defaultPolygonStyle;
 
@@ -59,7 +59,6 @@ public class DefaultFigureEditor implements FigureEditor {
         Assert.notNull(editorComponent, "editorComponent");
         Assert.notNull(viewport, "viewport");
         Assert.notNull(figureCollection, "figureCollection");
-        Assert.notNull(figureFactory, "figureFactory");
 
         this.editorComponent = editorComponent;
         this.editorComponent.setFocusable(true);
@@ -146,17 +145,17 @@ public class DefaultFigureEditor implements FigureEditor {
     }
 
 
+    @Override
+    public FigureCollection getFigureCollection() {
+        return figureCollection;
+    }
+
     public void setFigureCollection(FigureCollection figureCollection) {
         if (this.figureCollection != figureCollection) {
             figureSelection.removeAllFigures();
             setSelectionRectangle(null);
             this.figureCollection = figureCollection;
         }
-    }
-
-    @Override
-    public FigureCollection getFigureCollection() {
-        return figureCollection;
     }
 
     @Override
@@ -167,6 +166,10 @@ public class DefaultFigureEditor implements FigureEditor {
     @Override
     public FigureFactory getFigureFactory() {
         return figureFactory;
+    }
+
+    public void setFigureFactory(FigureFactory figureFactory) {
+        this.figureFactory = figureFactory;
     }
 
     @Override

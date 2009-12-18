@@ -30,8 +30,8 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
         this(true, new DefaultFigureStyle());
     }
 
-    protected AbstractShapeFigure(boolean polygonal, FigureStyle normalStyle) {
-        this.rank = polygonal ? Rank.POLYGONAL : Rank.LINEAL;
+    protected AbstractShapeFigure(boolean area, FigureStyle normalStyle) {
+        this.rank = area ? Rank.AREA : Rank.LINE;
         this.normalStyle = normalStyle;
         this.selectedStyle = DefaultFigureStyle.createLineStyle(new Color(255, 255, 0, 180),
                                                                 new BasicStroke(4.0f));
@@ -39,13 +39,17 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
     }
 
     @Override
+    public boolean isCollection() {
+        return false;
+    }
+
+    @Override
     public Rank getRank() {
         return rank;
     }
 
-    public void setRank(Rank rank) {
+    protected void setRank(Rank rank) {
         this.rank = rank;
-        fireFigureChanged();
     }
 
     public FigureStyle getNormalStyle() {
@@ -90,7 +94,7 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
         try {
             g.transform(vp.getModelToViewTransform());
 
-            if (rank == Rank.POLYGONAL) {
+            if (rank == Rank.AREA) {
                 Paint fillPaint = getNormalStyle().getFillPaint();
                 if (fillPaint != null) {
                     g.setPaint(fillPaint);
@@ -123,7 +127,7 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
 
     @Override
     public boolean isCloseTo(Point2D point, AffineTransform m2v) {
-        if (getRank() == Rank.POLYGONAL) {
+        if (getRank() == Rank.AREA) {
             return getShape().contains(point);
         } else {
             try {

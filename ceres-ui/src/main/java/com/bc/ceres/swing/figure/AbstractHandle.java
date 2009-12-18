@@ -46,6 +46,11 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
     }
 
     @Override
+    public boolean isCollection() {
+        return false;
+    }
+
+    @Override
     public Point2D getLocation() {
         return (Point2D) location.clone();
     }
@@ -76,7 +81,7 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
 
     @Override
     public Rank getRank() {
-        return Rank.POLYGONAL;
+        return Rank.AREA;
     }
 
     @Override

@@ -13,6 +13,11 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
     }
 
     @Override
+    public boolean isCollection() {
+        return false;
+    }
+
+    @Override
     public Point2D getLocation() {
         return new Point2D.Double(getX(), getY());
     }
@@ -26,7 +31,7 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
 
     @Override
     public final Rank getRank() {
-        return Rank.PUNTAL;
+        return Rank.POINT;
     }
 
     @Override
