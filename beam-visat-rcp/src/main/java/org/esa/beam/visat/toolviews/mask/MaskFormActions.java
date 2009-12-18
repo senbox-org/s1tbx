@@ -25,7 +25,6 @@ import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
-import org.esa.beam.visat.actions.NewVectorDataNodeAction;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -67,7 +66,7 @@ class MaskFormActions {
     MaskFormActions(AbstractToolView maskToolView, MaskForm maskForm) {
         maskActions = new MaskAction[]{
                 new NewBandMathAction(maskForm), new NewRangeAction(maskForm),
-                new _NewVectorDataNodeAction(maskForm), new NullAction(maskForm),
+                new NewVectorDataNodeAction(maskForm), new NullAction(maskForm),
                 new NewUnionAction(maskForm), new NewIntersectionAction(maskForm),
                 new NewDifferenceAction(maskForm), new NewInvDifferenceAction(maskForm),
                 new NewComplementAction(maskForm), new NullAction(maskForm),
@@ -167,16 +166,16 @@ class MaskFormActions {
 
     }
 
-    private static class _NewVectorDataNodeAction extends MaskAction {
+    private static class NewVectorDataNodeAction extends MaskAction {
 
-        private NewVectorDataNodeAction action;
+        private org.esa.beam.visat.actions.NewVectorDataNodeAction action;
 
-        private _NewVectorDataNodeAction(MaskForm maskForm) {
+        private NewVectorDataNodeAction(MaskForm maskForm) {
             super(maskForm,
                   "NewVectorDataNode24.gif",
                   "newGeometry",
                   "Creates a new mask based on a new geometry container (lines and polygons))");
-            action = new NewVectorDataNodeAction();
+            action = new org.esa.beam.visat.actions.NewVectorDataNodeAction();
         }
 
         @Override
@@ -717,8 +716,9 @@ class MaskFormActions {
         void addBandMathMask(String code) {
             final Mask mask = createNewMask(new Mask.BandMathType());
             final PropertyContainer imageConfig = mask.getImageConfig();
-            imageConfig.setValue("expression", code);
-            imageConfig.addPropertyChangeListener("expression", new PropertyChangeListener() {
+            final String propertyNameExpression = BandMathType.PROPERTY_NAME_EXPRESSION;
+            imageConfig.setValue(propertyNameExpression, code);
+            imageConfig.addPropertyChangeListener(propertyNameExpression, new PropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     if (evt.getOldValue().equals(mask.getDescription())) {

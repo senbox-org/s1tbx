@@ -5,6 +5,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -58,10 +60,20 @@ abstract class MaskAction extends AbstractAction {
         final Product product = maskForm.getProduct();
         final ProductNodeGroup<Mask> productNodeGroup = product.getMaskGroup();
         String maskName = getNewMaskName(productNodeGroup);
-        return new Mask(maskName,
-                        product.getSceneRasterWidth(),
-                        product.getSceneRasterHeight(),
-                        type);
+        final Mask mask = new Mask(maskName,
+                                   product.getSceneRasterWidth(),
+                                   product.getSceneRasterHeight(),
+                                   type);
+        final VisatApp visatApp = VisatApp.getApp();
+        if(visatApp != null) {
+            final PropertyMap preferences = visatApp.getPreferences();
+            mask.setImageColor(preferences.getPropertyColor("mask.color",
+                                                            Mask.ImageType.DEFAULT_COLOR));
+            mask.setImageTransparency(preferences.getPropertyDouble("mask.transparency",
+                                                                    Mask.ImageType.DEFAULT_TRANSPARENCY));
+        }
+
+        return mask;
     }
 
     private String getNewMaskName(ProductNodeGroup<Mask> maskGroup) {

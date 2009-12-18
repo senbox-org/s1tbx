@@ -153,8 +153,8 @@ public class Mask extends Band {
 
         public static final String PROPERTY_NAME_COLOR = "color";
         public static final String PROPERTY_NAME_TRANSPARENCY = "transparency";
-        private static final Color DEFAULT_COLOR = Color.RED;
-        private static final double DEFAULT_TRANSPARENCY = 0.5;
+        public static final Color DEFAULT_COLOR = Color.RED;
+        public static final double DEFAULT_TRANSPARENCY = 0.5;
         private final String name;
 
         protected ImageType(String name) {

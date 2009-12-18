@@ -21,6 +21,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.update.ConnectionConfigData;
 import com.bc.ceres.swing.update.ConnectionConfigPane;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamExceptionHandler;
@@ -38,7 +39,6 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.FigureLayer;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
-import static org.esa.beam.visat.VisatApp.*;
 import org.esa.beam.visat.actions.ShowModuleManagerAction;
 
 import javax.swing.BorderFactory;
@@ -59,6 +59,8 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
+import static org.esa.beam.visat.VisatApp.*;
+
 public class VisatPreferencesDialog extends ConfigDialog {
 
     private static final int _PAGE_INSET_TOP = 15;
@@ -76,11 +78,8 @@ public class VisatPreferencesDialog extends ConfigDialog {
         final LayerPropertiesPage layerPropertiesPage = new LayerPropertiesPage();
         layerPropertiesPage.addSubPage(new ImageDisplayPage());
         layerPropertiesPage.addSubPage(new NoDataOverlayPage());
+        layerPropertiesPage.addSubPage(new MaskOverlayPage());
         layerPropertiesPage.addSubPage(new GraticuleOverlayPage());
-        layerPropertiesPage.addSubPage(new PinOverlayPage());
-        layerPropertiesPage.addSubPage(new GCPOverlayPage());
-        layerPropertiesPage.addSubPage(new ShapeFigureOverlayPage());
-        layerPropertiesPage.addSubPage(new ROIOverlayPage());
         addRootPage(layerPropertiesPage);
         addRootPage(new RGBImageProfilePage());
         addRootPage(new LoggingPage());
@@ -1077,6 +1076,10 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
     }
 
+    /**
+     * @deprecated since BEAM 4.7
+     */
+    @Deprecated
     public static class PinOverlayPage extends DefaultConfigPage {
 
         public PinOverlayPage() {
@@ -1160,6 +1163,10 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
     }
 
+    /**
+     * @deprecated since BEAM 4.7
+     */
+    @Deprecated
     public static class GCPOverlayPage extends DefaultConfigPage {
 
         public GCPOverlayPage() {
@@ -1243,6 +1250,10 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
     }
 
+    /**
+     * @deprecated since BEAM 4.7
+     */
+    @Deprecated
     public static class ShapeFigureOverlayPage extends DefaultConfigPage {
 
         public ShapeFigureOverlayPage() {
@@ -1384,6 +1395,10 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
     }
 
+    /**
+     * @deprecated since BEAM 4.7, replaced by MaskOverlayPage
+     */
+    @Deprecated
     public static class ROIOverlayPage extends DefaultConfigPage {
 
         public ROIOverlayPage() {
@@ -1442,6 +1457,65 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
         @Override
         public void updatePageUI() {
+        }
+    }
+
+    public static class MaskOverlayPage extends DefaultConfigPage {
+
+        private static final String PARAMETER_NAME_MASK_COLOR = "mask.color";
+        private static final String PARAMETER_NAME_MASK_TRANSPARENCY = "mask.transparency";
+
+        public MaskOverlayPage() {
+            setTitle("Mask Layer");
+        }
+
+        @Override
+        protected void initConfigParams(ParamGroup configParams) {
+
+            Parameter param = new Parameter(PARAMETER_NAME_MASK_COLOR, Mask.ImageType.DEFAULT_COLOR.RED);
+            param.getProperties().setLabel("Mask colour"); /*I18N*/
+            configParams.addParameter(param);
+
+            param = new Parameter(PARAMETER_NAME_MASK_TRANSPARENCY, Mask.ImageType.DEFAULT_TRANSPARENCY);
+            param.getProperties().setLabel("Mask transparency"); /*I18N*/
+            param.getProperties().setMinValue(0.0);
+            param.getProperties().setMaxValue(0.95);
+            configParams.addParameter(param);
+        }
+
+        @Override
+        protected void initPageUI() {
+            JPanel pageUI = createPageUI();
+            setPageUI(pageUI);
+            updatePageUI();
+        }
+
+        private JPanel createPageUI() {
+            Parameter param;
+
+            JPanel pageUI = GridBagUtils.createPanel();
+            //pageUI.setBorder(UIUtils.createGroupBorder("ROI Overlay")); /*I18N*/
+
+            GridBagConstraints gbc = GridBagUtils.createConstraints("fill=HORIZONTAL,anchor=WEST");
+            gbc.gridy = 0;
+
+            param = getConfigParam(PARAMETER_NAME_MASK_COLOR);
+            gbc.weightx = 0;
+            pageUI.add(param.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            pageUI.add(param.getEditor().getEditorComponent(), gbc);
+            gbc.gridy++;
+
+            gbc.insets.top = _LINE_INSET_TOP;
+
+            param = getConfigParam(PARAMETER_NAME_MASK_TRANSPARENCY);
+            gbc.weightx = 0;
+            pageUI.add(param.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            pageUI.add(param.getEditor().getEditorComponent(), gbc);
+            gbc.gridy++;
+
+            return createPageUIContentPane(pageUI);
         }
     }
 
