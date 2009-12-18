@@ -71,6 +71,30 @@ public class LayerUtils {
         return null;
     }
 
+    public static List<Layer> getChildLayers(Layer root, LayerFilter filter, SearchMode mode) {
+        Assert.notNull(root, "root");
+        Assert.notNull(filter, "filter");
+        Assert.notNull(mode, "mode");
+
+        ArrayList<Layer> layers = new ArrayList<Layer>(16);
+        getChildLayers(root, filter, mode, layers);
+        return layers;
+    }
+
+    private static void getChildLayers(Layer root, LayerFilter filter, SearchMode mode, List<Layer> layers) {
+        for (Layer child : root.getChildren()) {
+            if (filter.accept(child)) {
+                layers.add(child);
+            }
+        }
+
+        if (mode == SearchMode.DEEP) {
+            for (Layer child : root.getChildren()) {
+                getChildLayers(child, filter, mode, layers);
+            }
+        }
+    }
+
     public static Layer[] getLayerPath(Layer root, Layer layer) {
         Assert.notNull(root, "root");
         Assert.notNull(layer, "layer");
