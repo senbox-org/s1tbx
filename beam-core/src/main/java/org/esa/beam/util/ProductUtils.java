@@ -27,6 +27,7 @@ import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.TopologyException;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
@@ -74,6 +75,7 @@ import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -1403,30 +1405,50 @@ public class ProductUtils {
         if (sourceProduct.getGeoCoding() == null || targetProduct.getGeoCoding() == null) {
             return;
         }
-        Geometry sourceGeometryWGS84 = FeatureCollectionClipper.createGeoBoundaryPolygon(sourceProduct);
-        Geometry targetGeometryWGS84 = FeatureCollectionClipper.createGeoBoundaryPolygon(targetProduct);
-        Geometry productIntersectionGeom = sourceGeometryWGS84.intersection(targetGeometryWGS84);
+        if (sourceProduct.isCompatibleProduct(targetProduct, 1.0e-3f)) {
+            for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
+                VectorDataNode vectorDataNode = vectorDataGroup.get(i);
+                String name = vectorDataNode.getName();
+                if (!sourceProduct.isInternalNode(vectorDataNode)) {
+                    FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
+                    featureCollection = new DefaultFeatureCollection(featureCollection);
+                    VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
+                    targetVDN.setDefaultCSS(vectorDataNode.getDefaultCSS());
+                    targetVDN.setDescription(vectorDataNode.getDescription());
+                    targetProduct.getVectorDataGroup().add(targetVDN);
+                }
+            }
+        } else {
+            Geometry sourceGeometryWGS84 = FeatureCollectionClipper.createGeoBoundaryPolygon(sourceProduct);
+            Geometry targetGeometryWGS84 = FeatureCollectionClipper.createGeoBoundaryPolygon(targetProduct);
+            Geometry productIntersectionGeom;
+            try {
+                productIntersectionGeom = sourceGeometryWGS84.intersection(targetGeometryWGS84);
+            } catch (TopologyException e) {
+                return;
+            }
         
-        CoordinateReferenceSystem srcModelCrs = ImageManager.getModelCrs(sourceProduct.getGeoCoding());
-        CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
-        GeometryCoordinateSequenceTransformer srcTransform = FeatureCollectionClipper.getTransform(DefaultGeographicCRS.WGS84, srcModelCrs);
-        Geometry clipGeometry;
-        try {
-            clipGeometry = srcTransform.transform(productIntersectionGeom);
-        } catch (TransformException e) {
-            return;
-        }
+            CoordinateReferenceSystem srcModelCrs = ImageManager.getModelCrs(sourceProduct.getGeoCoding());
+            CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
+            GeometryCoordinateSequenceTransformer srcTransform = FeatureCollectionClipper.getTransform(DefaultGeographicCRS.WGS84, srcModelCrs);
+            Geometry clipGeometry;
+            try {
+                clipGeometry = srcTransform.transform(productIntersectionGeom);
+            } catch (TransformException e) {
+                return;
+            }
         
-        for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
-            VectorDataNode vectorDataNode = vectorDataGroup.get(i);
-            String name = vectorDataNode.getName();
-            if (!sourceProduct.isInternalNode(vectorDataNode)) {
-                FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
-                featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, null, targetModelCrs);
-                VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
-                targetVDN.setDefaultCSS(vectorDataNode.getDefaultCSS());
-                targetVDN.setDescription(vectorDataNode.getDescription());
-                targetProduct.getVectorDataGroup().add(targetVDN);
+            for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
+                VectorDataNode vectorDataNode = vectorDataGroup.get(i);
+                String name = vectorDataNode.getName();
+                if (!sourceProduct.isInternalNode(vectorDataNode)) {
+                    FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
+                    featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, null, targetModelCrs);
+                    VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
+                    targetVDN.setDefaultCSS(vectorDataNode.getDefaultCSS());
+                    targetVDN.setDescription(vectorDataNode.getDescription());
+                    targetProduct.getVectorDataGroup().add(targetVDN);
+                }
             }
         }
     }
