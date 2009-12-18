@@ -59,6 +59,9 @@ VectorDataNode:
 * Pins/GCP are different from other geometries, harmonize!
   ==> PRE, RQ/NF, ONGOING
 
+* Pin & GCP Vector Data Nodes shall not be visible as long as there are no pins / GCPs
+  added to the product
+  ==> FINAL, ?, OPEN
 * Export vector data node to shapefile
   ==> FINAL, ?, OPEN
 
@@ -404,8 +407,8 @@ java.lang.RuntimeException: java.io.FileNotFoundException: C:\Projects\Testing\t
         at org.esa.beam.framework.datamodel.Product$1.add(Product.java:231)
         at org.esa.beam.framework.datamodel.Product$1.add(Product.java:226)
         at org.esa.beam.visat.actions.NewVectorDataNodeAction.createVectorDataNode(NewVectorDataNodeAction.java:98)
-        at org.esa.beam.visat.actions.InsertFigureInteractorHandler.newVectorDataLayer(InsertFigureInteractorHandler.java:94)
-        at org.esa.beam.visat.actions.InsertFigureInteractorHandler.canStartInteraction(InsertFigureInteractorHandler.java:70)
+        at org.esa.beam.visat.actions.InsertFigureInteractorInterceptor.newVectorDataLayer(InsertFigureInteractorHandler.java:94)
+        at org.esa.beam.visat.actions.InsertFigureInteractorInterceptor.canStartInteraction(InsertFigureInteractorHandler.java:70)
         at com.bc.ceres.swing.figure.AbstractInteractor.canStartInteraction(AbstractInteractor.java:248)
         at com.bc.ceres.swing.figure.AbstractInteractor.startInteraction(AbstractInteractor.java:198)
         at com.bc.ceres.swing.figure.interactions.InsertMultiPointFigureInteractor.mouseReleased(InsertMultiPointFigureInteractor.java:88)
@@ -464,8 +467,8 @@ Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
         at org.esa.beam.framework.datamodel.Product$1.add(Product.java:231)
         at org.esa.beam.framework.datamodel.Product$1.add(Product.java:226)
         at org.esa.beam.visat.actions.NewVectorDataNodeAction.createVectorDataNode(NewVectorDataNodeAction.java:98)
-        at org.esa.beam.visat.actions.InsertFigureInteractorHandler.newVectorDataLayer(InsertFigureInteractorHandler.java:94)
-        at org.esa.beam.visat.actions.InsertFigureInteractorHandler.canStartInteraction(InsertFigureInteractorHandler.java:70)
+        at org.esa.beam.visat.actions.InsertFigureInteractorInterceptor.newVectorDataLayer(InsertFigureInteractorHandler.java:94)
+        at org.esa.beam.visat.actions.InsertFigureInteractorInterceptor.canStartInteraction(InsertFigureInteractorHandler.java:70)
         at com.bc.ceres.swing.figure.AbstractInteractor.canStartInteraction(AbstractInteractor.java:248)
         at com.bc.ceres.swing.figure.AbstractInteractor.startInteraction(AbstractInteractor.java:198)
         at com.bc.ceres.swing.figure.interactions.InsertMultiPointFigureInteractor.mouseReleased(InsertMultiPointFigureInteractor.java:88)

@@ -20,11 +20,11 @@ public class ShowGraticuleOverlayAction extends AbstractShowOverlayAction {
 
     @Override
     protected void updateEnableState(ProductSceneView view) {
-        setEnabled(view != null && ProductUtils.canGetPixelPos(view.getRaster()));
+        setEnabled(ProductUtils.canGetPixelPos(view.getRaster()));
     }
 
     @Override
     protected void updateSelectState(ProductSceneView view) {
-        setSelected(view != null && view.isGraticuleOverlayEnabled());
+        setSelected(view.isGraticuleOverlayEnabled());
     }
 }

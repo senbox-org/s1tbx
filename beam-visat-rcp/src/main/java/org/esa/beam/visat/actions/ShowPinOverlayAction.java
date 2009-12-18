@@ -16,12 +16,10 @@ public class ShowPinOverlayAction extends AbstractShowOverlayAction {
 
     @Override
     protected void updateEnableState(ProductSceneView view) {
-        // todo - disable when pin group is empty?
-        setEnabled(view != null);
     }
 
     @Override
     protected void updateSelectState(ProductSceneView view) {
-        setSelected(view != null && view.isPinOverlayEnabled());
+        setSelected(view.isPinOverlayEnabled());
     }
 }

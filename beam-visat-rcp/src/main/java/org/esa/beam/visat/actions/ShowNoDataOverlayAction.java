@@ -16,11 +16,11 @@ public class ShowNoDataOverlayAction extends AbstractShowOverlayAction {
 
     @Override
     protected void updateEnableState(ProductSceneView view) {
-        setEnabled(view != null && view.getRaster().isValidMaskUsed());
+        setEnabled(view.getRaster().isValidMaskUsed());
     }
 
     @Override
     protected void updateSelectState(ProductSceneView view) {
-        setSelected(view != null && view.isNoDataOverlayEnabled());
+        setSelected(view.isNoDataOverlayEnabled());
     }
 }

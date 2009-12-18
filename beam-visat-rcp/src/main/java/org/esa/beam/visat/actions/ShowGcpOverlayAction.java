@@ -16,12 +16,10 @@ public class ShowGcpOverlayAction extends AbstractShowOverlayAction {
 
     @Override
     protected void updateEnableState(ProductSceneView view) {
-        // todo - disable when pin group is empty?
-        setEnabled(view != null);
     }
 
     @Override
     protected void updateSelectState(ProductSceneView view) {
-        setSelected(view != null && view.isGcpOverlayEnabled());
+        setSelected(view.isGcpOverlayEnabled());
     }
 }

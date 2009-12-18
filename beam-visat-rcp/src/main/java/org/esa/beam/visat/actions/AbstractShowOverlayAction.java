@@ -14,24 +14,22 @@
  */
 package org.esa.beam.visat.actions;
 
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.JInternalFrame;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.AbstractLayerListener;
-
-import java.awt.*;
+import java.awt.Container;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.beans.PropertyChangeEvent;
 
 /**
  * Abstract action for toggling the display of overlays.
@@ -51,9 +49,17 @@ abstract class AbstractShowOverlayAction extends ExecCommand {
             initialize();
         }
 
-        final ProductSceneView view = visatApp.getSelectedProductSceneView();
-        updateEnableState(view);
-        updateSelectState(view);
+        updateState(visatApp.getSelectedProductSceneView());
+    }
+
+    private void updateState(ProductSceneView view) {
+        if (view != null) {
+            updateEnableState(view);
+            updateSelectState(view);
+        } else {
+            setEnabled(false);
+            setSelected(false);
+        }
     }
 
     /**
@@ -102,12 +108,7 @@ abstract class AbstractShowOverlayAction extends ExecCommand {
 
         @Override
         public void internalFrameActivated(InternalFrameEvent e) {
-            final ProductSceneView view = getProductSceneView(e.getInternalFrame());
-
-            if (view != null) {
-                updateEnableState(view);
-                updateSelectState(view);
-            }
+            updateState(getProductSceneView(e.getInternalFrame()));
         }
 
         @Override

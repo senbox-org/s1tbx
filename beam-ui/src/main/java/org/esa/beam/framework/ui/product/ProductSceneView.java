@@ -537,24 +537,28 @@ public class ProductSceneView extends BasicView
     }
 
     public boolean isPinOverlayEnabled() {
-        final Layer pinLayer = getPinLayer(false);
+        Layer pinLayer = getPinLayer(false);
         return pinLayer != null && pinLayer.isVisible();
     }
 
     public void setPinOverlayEnabled(boolean enabled) {
         if (isPinOverlayEnabled() != enabled) {
-            getPinLayer(true).setVisible(enabled);
+            Layer layer = getPinLayer(true);
+            layer.setVisible(enabled);
+            setSelectedLayer(layer);
         }
     }
 
     public boolean isGcpOverlayEnabled() {
-        final Layer gcpLayer = getGcpLayer(false);
+        Layer gcpLayer = getGcpLayer(false);
         return gcpLayer != null && gcpLayer.isVisible();
     }
 
     public void setGcpOverlayEnabled(boolean enabled) {
         if (isGcpOverlayEnabled() != enabled) {
-            getGcpLayer(true).setVisible(enabled);
+            Layer layer = getGcpLayer(true);
+            layer.setVisible(enabled);
+            setSelectedLayer(layer);
         }
     }
 

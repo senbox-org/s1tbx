@@ -47,22 +47,17 @@ import java.text.MessageFormat;
 public class NewVectorDataNodeAction extends ExecCommand {
     private static final String DIALOG_TITLE = "New Geometry Container";
 
-    public static final String VECTOR_DATA_NAME = "vectorDataName";
 
     // todo - add help (nf)
     private static final String HELP_ID = "";
     static int numItems = 0;
-
-    public String getVectorDataName() {
-        return (String) getProperty(VECTOR_DATA_NAME);
-    }
 
     @Override
     public void actionPerformed(CommandEvent event) {
         run();
     }
 
-    public void run() {
+    public VectorDataNode run() {
         final Product product = VisatApp.getApp().getSelectedProduct();
         DialogData dialogData = new DialogData();
         PropertySet propertySet = PropertyContainer.createObjectBacked(dialogData);
@@ -78,10 +73,9 @@ public class NewVectorDataNodeAction extends ExecCommand {
         dialog.setContent(panel);
         int i = dialog.show();
         if (i == ModalDialog.ID_OK) {
-            createDefaultVectorDataNode(product, dialogData.name, dialogData.description);
-            setProperty(VECTOR_DATA_NAME, dialogData.name);
+            return createDefaultVectorDataNode(product, dialogData.name, dialogData.description);
         } else {
-            setProperty(VECTOR_DATA_NAME, null);
+            return null;
         }
     }
 
