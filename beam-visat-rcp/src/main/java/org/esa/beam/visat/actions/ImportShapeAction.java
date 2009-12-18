@@ -1,23 +1,20 @@
 package org.esa.beam.visat.actions;
 
-import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
-import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlainFeatureFactory;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.product.SimpleFeatureFigureFactory;
-import org.esa.beam.framework.datamodel.PlainFeatureFactory;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.AwtGeomToJtsGeomConverter;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
@@ -28,15 +25,14 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileUtils;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
-import java.awt.Rectangle;
-import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -57,8 +53,8 @@ public class ImportShapeAction extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        final ProductSceneView productSceneView = VisatApp.getApp().getSelectedProductSceneView();
-        setEnabled(productSceneView != null);
+        final Product product = VisatApp.getApp().getSelectedProduct();
+        setEnabled(product != null);
     }
 
     private void importShape(final VisatApp visatApp) {
@@ -87,75 +83,71 @@ public class ImportShapeAction extends ExecCommand {
     }
 
     private static void loadShape(final VisatApp visatApp, final File file) {
-        final ProductSceneView productSceneView = visatApp.getSelectedProductSceneView();
-        if (productSceneView == null) {
+        final Product product = VisatApp.getApp().getSelectedProduct();
+        if (product == null) {
             return;
         }
 
-        final RasterDataNode raster = productSceneView.getRaster();
-        final GeoCoding geoCoding = raster.getGeoCoding();
-        if (isShapefile(file)
-                && (geoCoding == null || !geoCoding.canGetPixelPos())) {
-            visatApp.showErrorDialog(DLG_TITLE,
-                                     "Failed to import shape.\n" +
-                                             "Current geo-coding cannot convert from geographic to pixel coordinates."); /*I18N*/
+        final GeoCoding geoCoding = product.getGeoCoding();
+        if (isShapefile(file) && (geoCoding == null || !geoCoding.canGetPixelPos())) {
+            visatApp.showErrorDialog(DLG_TITLE, "Failed to import shape.\n"
+                    + "Current geo-coding cannot convert from geographic to pixel coordinates."); /* I18N */
             return;
         }
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureColl;
+        VectorDataNode vectorDataNode;
         try {
-            featureColl = readShape(file, raster);
+            vectorDataNode = readShape(file, product);
         } catch (Exception e) {
-            visatApp.showErrorDialog(DLG_TITLE,
-                                     "Failed to import shape.\n" +
-                                             "An I/O Error occured:\n" + e.getMessage()); /*I18N*/
+            visatApp.showErrorDialog(DLG_TITLE, "Failed to import shape.\n" + "An I/O Error occured:\n"
+                    + e.getMessage()); /* I18N */
             return;
         }
 
-        final Rectangle2D rasterBounds = new Rectangle(0, 0, raster.getSceneRasterWidth(),
-                                                       raster.getSceneRasterHeight());
-        BoundingBox rasterBB = new ReferencedEnvelope(rasterBounds, geoCoding.getImageCRS());
-        ReferencedEnvelope shapeRefEnvelope = featureColl.getBounds();
-        
-        if (!shapeRefEnvelope.intersects(rasterBB)) {
+        if (vectorDataNode.getFeatureCollection().size() == 0) {
             visatApp.showErrorDialog(DLG_TITLE, "The shape was loaded successfully,\n"
                     + "but no part is located within the scene boundaries."); /* I18N */
             return;
         }
-        
-        String localPart = featureColl.getSchema().getName().getLocalPart();
-        Product product = productSceneView.getProduct();
         ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
-        String name = localPart;
+        vectorDataGroup.add(vectorDataNode);
+    }
+    
+    private static String findUniqueVectorName(String sugestedName, ProductNodeGroup<VectorDataNode> vectorDataGroup) {
+        String name = sugestedName;
         int index = 1;
         while (vectorDataGroup.contains(name)) {
-            name = localPart + "_" + index;
+            name = sugestedName + "_" + index;
             index++;
         }
-        VectorDataNode vectorDataNode = new VectorDataNode(name, featureColl);
-        vectorDataGroup.add(vectorDataNode);
+        return name;
     }
 
     private static boolean isShapefile(File file) {
         return file.getName().toLowerCase().endsWith(".shp");
     }
 
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> readShape(File file, RasterDataNode raster) throws IOException {
+    private static VectorDataNode readShape(File file, Product product) throws IOException {
         if (isShapefile(file)) {
-            return readShapeFromShapefile(file, raster);
+            return readShapeFromShapefile(file, product);
         } else {
-            return readShapeFromTextFile(file, raster.getGeoCoding());
+            return readShapeFromTextFile(file, product);
         }
     }
 
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> readShapeFromShapefile(File file, final RasterDataNode raster) throws IOException {
-        return ShapefileUtils.loadShapefile(file, raster);
+    private static VectorDataNode readShapeFromShapefile(File file, Product product) throws IOException {
+        FeatureCollection<SimpleFeatureType, SimpleFeature> loadShapefile = ShapefileUtils.loadShapefile(file, product);
+        ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
+        String name = findUniqueVectorName(loadShapefile.getSchema().getName().getLocalPart(), vectorDataGroup);
+        VectorDataNode vectorDataNode = new VectorDataNode(name, loadShapefile);
+        return vectorDataNode;
     }
 
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> readShapeFromTextFile(final File file, final GeoCoding geoCoding) throws IOException {
+    private static VectorDataNode readShapeFromTextFile(final File file, Product product) throws IOException {
         final FileReader fileReader = new FileReader(file);
         final LineNumberReader reader = new LineNumberReader(fileReader);
         final ArrayList<PixelPos> pixelPositions = new ArrayList<PixelPos>(256);
+        final GeoCoding geoCoding = product.getGeoCoding();
 
         try {
 
@@ -259,33 +251,52 @@ public class ImportShapeAction extends ExecCommand {
             fileReader.close();
         }
 
-        final Path2D.Float path = new Path2D.Float();
+        Geometry geometry = null;
         if (pixelPositions.size() > 0) {
+            GeometryFactory geometryFactory = new GeometryFactory();
+            ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
             PixelPos pixelPos0 = pixelPositions.get(0);
-            path.moveTo(pixelPos0.x, pixelPos0.y);
+            coordinates.add(new Coordinate(pixelPos0.x, pixelPos0.y));
             PixelPos pixelPos1 = null;
             for (int i = 1; i < pixelPositions.size(); i++) {
                 pixelPos1 = pixelPositions.get(i);
-                path.lineTo(pixelPos1.x, pixelPos1.y);
+                coordinates.add(new Coordinate(pixelPos1.x, pixelPos1.y));
             }
             if (pixelPos1 != null && pixelPos1.distanceSq(pixelPos0) < 1e-5) {
-                path.closePath();
+                coordinates.add(coordinates.get(0));
+            }
+            if (coordinates.get(0).equals(coordinates.get(coordinates.size() - 1))) {
+                geometry = geometryFactory.createLinearRing(coordinates.toArray(new Coordinate[coordinates.size()]));
+            } else {
+                geometry = geometryFactory.createLineString(coordinates.toArray(new Coordinate[coordinates.size()]));
             }
         }
-        String name = FileUtils.getFilenameWithoutExtension(file);
+        if (geometry == null) {
+            return null;
+        }
         CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(geoCoding);
+        AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(geoCoding);
+        GeometryCoordinateSequenceTransformer transformer;
+        transformer = new GeometryCoordinateSequenceTransformer();
+        transformer.setMathTransform(new AffineTransform2D(imageToModelTransform));
+        transformer.setCoordinateReferenceSystem(modelCrs);
+        try {
+            geometry = transformer.transform(geometry);
+        } catch (TransformException e) {
+            return null;
+        }
+ 
+        String name = FileUtils.getFilenameWithoutExtension(file);
+        findUniqueVectorName(name, product.getVectorDataGroup());
         SimpleFeatureType simpleFeatureType = PlainFeatureFactory.createDefaultFeatureType(modelCrs);
         DefaultFeatureCollection featureCollection = new DefaultFeatureCollection(name, simpleFeatureType);
 
-        // todo - Don't use SimpleFeatureFigureFactory here (nf)
-        SimpleFeatureFigureFactory simpleFeatureFigureFactory = new SimpleFeatureFigureFactory(featureCollection);
-        DefaultFigureStyle defaultStyle = SimpleFeatureFigureFactory.createDefaultFigureStyle();
-        AwtGeomToJtsGeomConverter awtGeomToJtsGeomConverter = new AwtGeomToJtsGeomConverter();
-        Polygon polygon = awtGeomToJtsGeomConverter.createPolygon(path);
-        SimpleFeature simpleFeature = simpleFeatureFigureFactory.createSimpleFeature(polygon, defaultStyle);
+        VectorDataNode vectorDataNode = new VectorDataNode(name, featureCollection);
+        String style = vectorDataNode.getDefaultCSS();
+        SimpleFeature simpleFeature = PlainFeatureFactory.createPlainFeature(simpleFeatureType, name, geometry, style);
         featureCollection.add(simpleFeature);
         
-        return featureCollection;
+        return vectorDataNode;
     }
 
     private static void setIODir(final PropertyMap propertyMap, final File dir) {

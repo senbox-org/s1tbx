@@ -5,9 +5,10 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.TopologyException;
 
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Product;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
@@ -73,7 +74,14 @@ public class FeatureCollectionClipper {
             while (iterator.hasNext()) {
                 SimpleFeature sourceFeature = iterator.next();
                 Geometry sourceGeometry = (Geometry) sourceFeature.getDefaultGeometry();
-                Geometry targetGeometry = sourceGeometry.intersection(clipGeometry);
+
+                Geometry targetGeometry;
+                try {
+                    targetGeometry = sourceGeometry.intersection(clipGeometry);
+                } catch (TopologyException e) {
+                    continue;
+                }
+                
                 if (!targetGeometry.isEmpty()) {
 
                     if (MultiPolygon.class.isAssignableFrom(geometryBinding)) {
@@ -106,7 +114,7 @@ public class FeatureCollectionClipper {
         return targetCollection;
     }
     
-    private static GeometryCoordinateSequenceTransformer getTransform(CoordinateReferenceSystem sourceCrs, CoordinateReferenceSystem targetCrs) {
+    public static GeometryCoordinateSequenceTransformer getTransform(CoordinateReferenceSystem sourceCrs, CoordinateReferenceSystem targetCrs) {
         GeometryCoordinateSequenceTransformer transformer;
         try {
             MathTransform transform = CRS.findMathTransform(sourceCrs, targetCrs);
@@ -119,9 +127,9 @@ public class FeatureCollectionClipper {
         return transformer;
     }
     
-    public static Geometry createGeoBoundaryPolygon(RasterDataNode targetRaster) {
+    public static Geometry createGeoBoundaryPolygon(Product product) {
         GeometryFactory gf = new GeometryFactory();
-        GeoPos[] geoPositions = ProductUtils.createGeoBoundary(targetRaster, null, 100);
+        GeoPos[] geoPositions = ProductUtils.createGeoBoundary(product, 100);
         Coordinate[] coordinates = new Coordinate[geoPositions.length + 1];
         for (int i = 0; i < geoPositions.length; i++) {
             GeoPos geoPos = geoPositions[i];

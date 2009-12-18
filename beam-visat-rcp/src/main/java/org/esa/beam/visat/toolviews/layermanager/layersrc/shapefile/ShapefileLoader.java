@@ -64,7 +64,7 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
             pm.beginTask("Reading shapes", ProgressMonitor.UNKNOWN);
             final ProductSceneView sceneView = context.getAppContext().getSelectedProductSceneView();
             CoordinateReferenceSystem targetCrs = (CoordinateReferenceSystem) context.getLayerContext().getCoordinateReferenceSystem();
-            final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(sceneView.getRaster());
+            final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(sceneView.getProduct());
 
             File file = new File((String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH));
             Object featureCollectionValue = context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION);

@@ -1,13 +1,11 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import org.esa.beam.framework.datamodel.GeoPos;
+
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.FeatureCollectionClipper;
-import org.esa.beam.util.ProductUtils;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
@@ -44,6 +42,24 @@ public class ShapefileUtils {
     }
 
     /**
+     * Loads a shapefile into a feature collection. The shapefile is clipped to the geometry of the given product.
+     *
+     * @param file         The shapefile.
+     * @param product      A geocoded product.
+     *
+     * @return The shapefile as a feature collection clipped to the geometry of the product.
+     *
+     * @throws IOException if the shapefile could not be read.
+     */
+    public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadShapefile(File file,
+                                                                                    Product product) throws IOException {
+        final URL url = file.toURI().toURL();
+        final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(product.getGeoCoding());
+        final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(product);
+        return createFeatureCollection(url, targetCrs, clipGeometry);
+    }
+    
+    /**
      * Loads a shapefile into a feature collection. The shapefile is clipped to the geometry of the given raster.
      *
      * @param url      The URL of the shapefile.
@@ -56,7 +72,7 @@ public class ShapefileUtils {
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadShapefile(URL url,
                                                                                     RasterDataNode targetRaster) throws IOException {
         final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(targetRaster.getGeoCoding());
-        final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(targetRaster);
+        final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(targetRaster.getProduct());
         return createFeatureCollection(url, targetCrs, clipGeometry);
     }
 

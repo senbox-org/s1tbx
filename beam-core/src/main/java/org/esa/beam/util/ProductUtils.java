@@ -17,6 +17,7 @@
 package org.esa.beam.util;
 
 import Jama.Matrix;
+
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
@@ -26,6 +27,7 @@ import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
 import com.vividsolutions.jts.geom.Geometry;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
@@ -72,15 +74,14 @@ import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
-import org.geotools.data.store.ReprojectingFeatureCollection;
-import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
-import javax.media.jai.PlanarImage;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -106,6 +107,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.media.jai.PlanarImage;
 
 /**
  * This class provides many static factory methods to be used in conjunction with data products.
@@ -1397,44 +1400,35 @@ public class ProductUtils {
 
     public static void copyVectorData(Product sourceProduct, Product targetProduct) {
         ProductNodeGroup<VectorDataNode> vectorDataGroup = sourceProduct.getVectorDataGroup();
-        RasterDataNode sourceRDN = getRasterDataNode(sourceProduct);
-        RasterDataNode targetRDN = getRasterDataNode(targetProduct);
-        if (sourceRDN == null || targetRDN == null || sourceProduct.getGeoCoding() == null || targetProduct.getGeoCoding() == null) {
+        if (sourceProduct.getGeoCoding() == null || targetProduct.getGeoCoding() == null) {
             return;
         }
-        Geometry sourceGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(sourceRDN);
-        Geometry targetGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(targetRDN);
-        CoordinateReferenceSystem targetCRS = ImageManager.getModelCrs(targetProduct.getGeoCoding());
+        Geometry sourceGeometryWGS84 = FeatureCollectionClipper.createGeoBoundaryPolygon(sourceProduct);
+        Geometry targetGeometryWGS84 = FeatureCollectionClipper.createGeoBoundaryPolygon(targetProduct);
+        Geometry productIntersectionGeom = sourceGeometryWGS84.intersection(targetGeometryWGS84);
+        
+        CoordinateReferenceSystem srcModelCrs = ImageManager.getModelCrs(sourceProduct.getGeoCoding());
+        CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
+        GeometryCoordinateSequenceTransformer srcTransform = FeatureCollectionClipper.getTransform(DefaultGeographicCRS.WGS84, srcModelCrs);
+        Geometry clipGeometry;
+        try {
+            clipGeometry = srcTransform.transform(productIntersectionGeom);
+        } catch (TransformException e) {
+            return;
+        }
+        
         for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
             VectorDataNode vectorDataNode = vectorDataGroup.get(i);
             String name = vectorDataNode.getName();
             if (!sourceProduct.isInternalNode(vectorDataNode)) {
                 FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
-                ReprojectingFeatureCollection wgs84Collection = new ReprojectingFeatureCollection(featureCollection,
-                                                                                                  DefaultGeographicCRS.WGS84);
-                FeatureCollection<SimpleFeatureType, SimpleFeature> clippedToSource = FeatureCollectionClipper.doOperation(
-                        wgs84Collection, sourceGeometry, null, null);
-                FeatureCollection<SimpleFeatureType, SimpleFeature> clippedToTarget = FeatureCollectionClipper.doOperation(
-                        clippedToSource, targetGeometry, null, targetCRS);
-                clippedToTarget = new DefaultFeatureCollection(clippedToTarget);
-                VectorDataNode targetVDN = new VectorDataNode(name, clippedToTarget);
+                featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, null, targetModelCrs);
+                VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
                 targetVDN.setDefaultCSS(vectorDataNode.getDefaultCSS());
                 targetVDN.setDescription(vectorDataNode.getDescription());
                 targetProduct.getVectorDataGroup().add(targetVDN);
             }
         }
-    }
-
-    private static RasterDataNode getRasterDataNode(Product product) {
-        Band[] bands = product.getBands();
-        if (bands.length > 0) {
-            return bands[0];
-        }
-        TiePointGrid[] tiePointGrids = product.getTiePointGrids();
-        if (tiePointGrids.length > 0) {
-            return tiePointGrids[0];
-        }
-        return null;
     }
 
     /**
