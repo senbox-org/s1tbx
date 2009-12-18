@@ -3,6 +3,9 @@ Reprojection:
 * GeoTIFF wont work with GeoTools CRS
   ==> PRE, MP/MZ, OPEN
 
+* Shapes are wrongly clipped on import, which results in problems when reprojecting. 
+  For now they are skipped while reprojecting. Fix import issue.
+  ==> FINAL, MZ/?, OPEN
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
   Remove usage, deprecate and/or remove classes.
   ==> FINAL, ?, OPEN
