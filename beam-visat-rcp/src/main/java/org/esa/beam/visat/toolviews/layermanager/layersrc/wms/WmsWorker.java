@@ -25,8 +25,8 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
+import org.geotools.data.ows.StyleImpl;
 import org.geotools.data.wms.WebMapServer;
-import org.opengis.layer.Style;
 
 import java.awt.Dimension;
 import java.net.URL;
@@ -61,7 +61,7 @@ abstract class WmsWorker extends ProgressMonitorSwingWorker<com.bc.ceres.glayer.
             template.setValue(WmsLayerType.PROPERTY_NAME_IMAGE_SIZE, mapImageSize);
             URL wmsUrl = (URL) context.getPropertyValue(WmsLayerSource.PROPERTY_NAME_WMS_URL);
             template.setValue(WmsLayerType.PROPERTY_NAME_URL, wmsUrl);
-            Style selectedStyle = (Style) context.getPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_STYLE);
+            StyleImpl selectedStyle = (StyleImpl) context.getPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_STYLE);
             String styleName = null;
             if (selectedStyle != null) {
                 styleName = selectedStyle.getName();

@@ -7,9 +7,9 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAss
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
+import org.geotools.data.ows.StyleImpl;
 import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.referencing.CRS;
-import org.opengis.layer.Style;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -177,7 +177,7 @@ class WmsAssistantPage2 extends AbstractLayerSourceAssistantPage {
                                                               bounds.getMaxX(),
                                                               bounds.getMaxY());
                     context.setPropertyValue(WmsLayerSource.PROPERTY_NAME_CRS_ENVELOPE, crsEnvelope);
-                    List<Style> styles = selectedLayer.getStyles();
+                    List<StyleImpl> styles = selectedLayer.getStyles();
                     if (!styles.isEmpty()) {
                         context.setPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_STYLE, styles.get(0));
                     } else {

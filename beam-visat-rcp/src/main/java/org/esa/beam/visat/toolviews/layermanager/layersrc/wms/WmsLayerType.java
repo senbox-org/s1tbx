@@ -13,11 +13,11 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 import org.geotools.data.ows.CRSEnvelope;
+import org.geotools.data.ows.StyleImpl;
 import org.geotools.data.wms.WebMapServer;
 import org.geotools.data.wms.request.GetMapRequest;
 import org.geotools.data.wms.response.GetMapResponse;
 import org.geotools.ows.ServiceException;
-import org.opengis.layer.Style;
 
 import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
@@ -94,11 +94,11 @@ public class WmsLayerType extends ImageLayer.Type {
         final String styleName = (String) configuration.getValue(WmsLayerType.PROPERTY_NAME_STYLE_NAME);
         final Dimension size = (Dimension) configuration.getValue(WmsLayerType.PROPERTY_NAME_IMAGE_SIZE);
         try {
-            List<Style> styleList = layer.getStyles();
-            Style style = null;
+            List<StyleImpl> styleList = layer.getStyles();
+            StyleImpl style = null;
             if (!styleList.isEmpty()) {
                 style = styleList.get(0);
-                for (Style currentstyle : styleList) {
+                for (StyleImpl currentstyle : styleList) {
                     if (currentstyle.getName().equals(styleName)) {
                         style = currentstyle;
                     }

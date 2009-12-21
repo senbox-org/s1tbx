@@ -5,7 +5,7 @@ import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAss
 import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
-import org.opengis.layer.Style;
+import org.geotools.data.ows.StyleImpl;
 import org.opengis.util.InternationalString;
 
 import javax.swing.DefaultListCellRenderer;
@@ -48,9 +48,9 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
         Layer selectedLayer = (Layer) context.getPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_LAYER);
         JLabel infoLabel = new JLabel(WmsAssistantPage2.getLatLonBoundingBoxText(selectedLayer.getLatLonBoundingBox()));
 
-        List<Style> styles = selectedLayer.getStyles();
+        List<StyleImpl> styles = selectedLayer.getStyles();
 
-        styleList = new JComboBox(styles.toArray(new Style[styles.size()]));
+        styleList = new JComboBox(styles.toArray(new StyleImpl[styles.size()]));
         styleList.setSelectedItem(context.getPropertyValue(WmsLayerSource.PROPERTY_NAME_SELECTED_STYLE));
         styleList.setRenderer(new StyleListCellRenderer());
         styleList.addItemListener(new StyleItemListener());
@@ -186,7 +186,7 @@ class WmsAssistantPage3 extends AbstractLayerSourceAssistantPage {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             String text = null;
             if (value != null) {
-                Style style = (Style) value;
+                StyleImpl style = (StyleImpl) value;
                 InternationalString title = style.getTitle();
                 text = title.toString();
             }
