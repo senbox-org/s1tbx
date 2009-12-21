@@ -5,11 +5,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import junit.framework.TestCase;
-
-import org.esa.beam.util.FeatureCollectionClipper;
-import org.geotools.data.AbstractFeatureSource;
-import org.geotools.data.DataStore;
-import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
 import org.geotools.data.memory.MemoryDataStore;
@@ -33,7 +28,6 @@ import org.opengis.feature.type.GeometryType;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Set;
 
 
 public class FeatureCollectionClipperTest extends TestCase {
@@ -87,10 +81,10 @@ public class FeatureCollectionClipperTest extends TestCase {
         assertSame(marcoType, marcoSource.getSchema());
         assertEquals(3, marcoSource.getCount(Query.ALL));
         assertEquals("MarcoType", marcoSource.getName().toString());
-        assertEquals(new ReferencedEnvelope(0, 50, 0, 10, DefaultGeographicCRS.WGS84),
-                     marcoSource.getBounds());
-        assertEquals(new ReferencedEnvelope(0, 50, 0, 10, DefaultGeographicCRS.WGS84),
-                     marcoSource.getBounds(Query.ALL));
+        final ReferencedEnvelope expectedEnvelope = new ReferencedEnvelope(0, 50, 0, 10,
+                                                                           DefaultGeographicCRS.WGS84);
+        assertTrue(expectedEnvelope.boundsEquals2D(marcoSource.getBounds(), 1.0e-6));
+        assertTrue(expectedEnvelope.boundsEquals2D(marcoSource.getBounds(Query.ALL), 1.0e-6));
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> normanSource = FeatureCollectionClipper.doOperation(
                 marcoSource.getFeatures(), clipGeometry, null, null);
@@ -99,37 +93,10 @@ public class FeatureCollectionClipperTest extends TestCase {
         assertEquals(marcoSource.getFeatures().getID(), normanSource.getID());
         assertEquals(marcoType, normanSource.getSchema());
         assertEquals(2, normanSource.size());
-        assertEquals(25, normanSource.getBounds().getMinX(), 1e-10);
-        assertEquals(50, normanSource.getBounds().getMaxX(), 1e-10);
-        assertEquals(0, normanSource.getBounds().getMinY(), 1e-10);
-        assertEquals(10, normanSource.getBounds().getMaxY(), 1e-10);
+        assertEquals(25, normanSource.getBounds().getMinX(), 1.0e-10);
+        assertEquals(50, normanSource.getBounds().getMaxX(), 1.0e-10);
+        assertEquals(0, normanSource.getBounds().getMinY(), 1.0e-10);
+        assertEquals(10, normanSource.getBounds().getMaxY(), 1.0e-10);
     }
 
-    public static class MemoryFeatureSource extends AbstractFeatureSource {
-
-        final MemoryDataStore dataStore;
-        final SimpleFeatureType schema;
-
-        public MemoryFeatureSource(SimpleFeatureType schema, SimpleFeature[] features, Set hints) {
-            super(hints);
-            this.schema = schema;
-            this.dataStore = new MemoryDataStore();
-        }
-
-
-        @Override
-        public DataStore getDataStore() {
-            return dataStore;
-        }
-
-        public void addFeatureListener(FeatureListener listener) {
-        }
-
-        public void removeFeatureListener(FeatureListener listener) {
-        }
-
-        public SimpleFeatureType getSchema() {
-            return schema;
-        }
-    }
 }
