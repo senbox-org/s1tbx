@@ -29,8 +29,8 @@ public class SimpleFeatureNodeTest {
         final Rectangle2D rectangle = new Rectangle2D.Double(0.0, 0.0, 0.5, 0.5);
         simpleFeatureNode = new SimpleFeatureNode(newPyramidFeature("Cheops", rectangle)) {
             @Override
-            public void fireProductNodeChanged(String propertyName, Object oldValue) {
-                super.fireProductNodeChanged(propertyName, oldValue);
+            public void fireProductNodeChanged(String propertyName, Object oldValue, Object newValue) {
+                super.fireProductNodeChanged(propertyName, oldValue, newValue);
                 if (eventTrace.length() > 0) {
                     eventTrace.append("; ");
                 }

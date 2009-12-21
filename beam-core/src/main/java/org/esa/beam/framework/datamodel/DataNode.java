@@ -120,7 +120,7 @@ public abstract class DataNode extends ProductNode {
         ProductData oldData = _data;
         _data = data;
 
-        fireProductNodeChanged(PROPERTY_NAME_DATA);
+        fireProductNodeChanged(PROPERTY_NAME_DATA, oldData, data);
         fireProductNodeDataChanged();
         // if data node already had data before, mark that it has been modified so
         // new data is stored on next incremental save
@@ -181,9 +181,10 @@ public abstract class DataNode extends ProductNode {
     }
 
     public void setReadOnly(boolean readOnly) {
-        if (_readOnly != readOnly) {
+        final boolean oldValue = _readOnly;
+        if (oldValue != readOnly) {
             _readOnly = readOnly;
-            fireProductNodeChanged(PROPERTY_NAME_READ_ONLY);
+            fireProductNodeChanged(PROPERTY_NAME_READ_ONLY, oldValue, readOnly);
             setModified(true);
         }
     }
@@ -193,9 +194,10 @@ public abstract class DataNode extends ProductNode {
     }
 
     public void setUnit(String unit) {
-        if (!ObjectUtils.equalObjects(_unit, unit)) {
+        final String oldValue = _unit;
+        if (!ObjectUtils.equalObjects(oldValue, unit)) {
             _unit = unit;
-            fireProductNodeChanged(PROPERTY_NAME_UNIT);
+            fireProductNodeChanged(PROPERTY_NAME_UNIT, oldValue, unit);
             setModified(true);
         }
     }
@@ -209,9 +211,10 @@ public abstract class DataNode extends ProductNode {
     }
 
     public void setSynthetic(boolean synthetic) {
-        if (_synthetic != synthetic) {
+        final boolean oldValue = _synthetic;
+        if (oldValue != synthetic) {
             _synthetic = synthetic;
-            fireProductNodeChanged(PROPERTY_NAME_SYNTHETIC);
+            fireProductNodeChanged(PROPERTY_NAME_SYNTHETIC, oldValue, synthetic);
             setModified(true);
         }
     }

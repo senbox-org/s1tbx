@@ -40,7 +40,7 @@ public class SimpleFeatureNode extends ProductNode {
         final Object oldValue = getSimpleFeatureAttribute(name);
         if (!equals(oldValue, value)) {
             simpleFeature.setAttribute(name, value);
-            fireProductNodeChanged(name, oldValue);
+            fireProductNodeChanged(name, oldValue, value);
         }
     }
 

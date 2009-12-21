@@ -117,7 +117,7 @@ public abstract class ProductNode {
     private void setNodeName(String trimmedName) {
         final String oldName = name;
         name = trimmedName;
-        fireProductNodeChanged(PROPERTY_NAME_NAME, oldName);
+        fireProductNodeChanged(PROPERTY_NAME_NAME, oldName, name);
         setModified(true);
     }
 
@@ -372,13 +372,18 @@ public abstract class ProductNode {
     }
 
     public void fireProductNodeChanged(final String propertyName) {
-        fireProductNodeChanged(propertyName, null);
+        fireProductNodeChanged(propertyName, null, null);
     }
 
+    @Deprecated // Since BEAM 4.7
     public void fireProductNodeChanged(String propertyName, final Object oldValue) {
+        fireProductNodeChanged(propertyName, oldValue, null);
+    }
+
+    public void fireProductNodeChanged(String propertyName, final Object oldValue, final Object newValue) {
         final Product product = getProduct();
         if (product != null) {
-            product.fireNodeChanged(this, propertyName, oldValue);
+            product.fireNodeChanged(this, propertyName, oldValue, newValue);
         }
     }
 

@@ -22,6 +22,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 public class VectorDataNode extends ProductNode {
 
     public static final String PROPERTY_NAME_FEATURE_COLLECTION = "featureCollection";
+    public static final String PROPERTY_NAME_FEATURE = "feature";
 
     private static final String DEFAULT_STYLE_FORMAT = "fill:%s; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0";
     private static final String[] FILL_COLORS = {
@@ -68,16 +69,39 @@ public class VectorDataNode extends ProductNode {
         this.featureCollectionListener = new CollectionListener() {
             @Override
             public void collectionChanged(CollectionEvent tce) {
-                fireFeatureCollectionChanged();
+                if (tce.getEventType() == CollectionEvent.FEATURES_ADDED) {
+                    fireFeatureCollectionChanged(null, tce.getFeatures());
+                } else if (tce.getEventType() == CollectionEvent.FEATURES_REMOVED) {
+                    fireFeatureCollectionChanged(tce.getFeatures(), null);
+                } else if (tce.getEventType() == CollectionEvent.FEATURES_CHANGED) {
+                    fireFeatureCollectionChanged(tce.getFeatures(), tce.getFeatures());
+                }
             }
         };
         this.featureCollection.addListener(featureCollectionListener);
         this.defaultCSS = String.format(DEFAULT_STYLE_FORMAT, FILL_COLORS[(fillColorIndex++) % FILL_COLORS.length]);
     }
 
-    public void fireFeatureCollectionChanged() {
-        System.out.println("VectorDataNode '" + getName() + "': fireProductNodeChanged");
-        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION);
+    /**
+     * Informs clients which have registered a {@link ProductNodeListener}
+     * with this {@link VectorDataNode} that one or more underlying
+     * OpenGIS {@code SimpleFeature}s have changed.
+     * <p/>
+     * The method fires a product node property change event. The property name is always
+     * {@link #PROPERTY_NAME_FEATURE_COLLECTION}. The following conventions apply for
+     * the {@code oldValue} and {@code newValue} fields of the fired
+     * {@link ProductNodeEvent}:
+     * <ol>
+     * <li>Features added: {@code oldValue} is {@code null}, {@code newValue} is the array containing all added features.</li>
+     * <li>Features removed: {@code oldValue} is the array containing all removed features, {@code newValue} is {@code null}.</li>
+     * <li>Features changed: {@code oldValue} is same as {@code newValue} which is the array containing all changed features.</li>
+     * </ol>
+     *
+     * @param oldFeatures The {@code oldValue} of the node event to be fired.
+     * @param newFeatures The {@code newValue} of the node event to be fired.
+     */
+    public void fireFeatureCollectionChanged(SimpleFeature[] oldFeatures, SimpleFeature[] newFeatures) {
+        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, oldFeatures, newFeatures);
     }
 
     /**

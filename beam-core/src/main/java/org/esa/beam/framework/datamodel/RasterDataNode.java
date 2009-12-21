@@ -1977,7 +1977,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (oldValue != sourceImage) {
             this.sourceImage = sourceImage;
             resetGeophysicalImage();
-            fireProductNodeChanged("sourceImage", oldValue);
+            fireProductNodeChanged("sourceImage", oldValue, sourceImage);
         }
     }
 
@@ -2148,7 +2148,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final Stx oldValue = this.stx;
         if (oldValue != stx) {
             this.stx = stx;
-            fireProductNodeChanged(PROPERTY_NAME_STX, oldValue);
+            fireProductNodeChanged(PROPERTY_NAME_STX, oldValue, stx);
         }
     }
 
@@ -2575,7 +2575,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 this.geophysicalImage.dispose();
             }
             this.geophysicalImage = geophysicalImage;
-            fireProductNodeChanged("geophysicalImage", oldValue);
+            fireProductNodeChanged("geophysicalImage", oldValue, geophysicalImage);
         }
     }
 
@@ -2594,7 +2594,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             this.validMaskImage.dispose();
             this.validMaskImage = validMaskImage;
             validMaskROI = null;
-            fireProductNodeChanged("validMaskImage", oldValue);
+            fireProductNodeChanged("validMaskImage", oldValue, validMaskImage);
         }
     }
 

@@ -6,6 +6,7 @@ import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.Debug;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.Feature;
 
 import java.util.Arrays;
 import java.util.List;
@@ -69,7 +70,11 @@ public class ProductSceneViewFigureEditor extends DefaultFigureEditor {
         Debug.trace("ProductSceneViewFigureEditor.changeFigure " + figure + ", " + presentationName);
         super.changeFigure(figure, figureMemento, presentationName);
         if (currentVectorDataNode != null) {
-            currentVectorDataNode.fireFeatureCollectionChanged();
+            if (figure instanceof SimpleFeatureFigure) {
+                SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
+                SimpleFeature[] features = {featureFigure.getSimpleFeature()};
+                currentVectorDataNode.fireFeatureCollectionChanged(features, features);
+            }
         } else {
             // warn
         }

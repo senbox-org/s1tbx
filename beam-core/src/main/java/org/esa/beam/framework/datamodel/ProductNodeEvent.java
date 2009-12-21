@@ -16,9 +16,9 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import java.util.EventObject;
-
 import org.esa.beam.util.Guardian;
+
+import java.util.EventObject;
 
 /**
  * A product node event informs a product change listener about the source of the notification.
@@ -38,6 +38,7 @@ public class ProductNodeEvent extends EventObject {
     private final int type;
     private final String propertyName;
     private final Object oldValue;
+    private final Object newValue;
 
     /**
      * Constructs a product node event.
@@ -63,6 +64,7 @@ public class ProductNodeEvent extends EventObject {
         this.propertyName = type == NODE_DATA_CHANGED ? "data" : null;
         this.type = type;
         this.oldValue = null;
+        this.newValue = null;
     }
 
     /**
@@ -71,14 +73,32 @@ public class ProductNodeEvent extends EventObject {
      * @param sourceNode   the product node whose property has changed
      * @param propertyName the name of the property that was changed.
      * @param oldValue     the old value.
+     * @deprecated Since BEAM 4.7
      */
+    @Deprecated
     public ProductNodeEvent(final ProductNode sourceNode, final String propertyName, final Object oldValue) {
+        this(sourceNode, propertyName, oldValue, null);
+    }
+
+    /**
+     * Constructs a productEvent object.
+     *
+     * @param sourceNode   The product node whose property has changed
+     * @param propertyName The name of the property that was changed.
+     * @param oldValue     The old value.
+     * @param newValue     The new value.
+     */
+    public ProductNodeEvent(final ProductNode sourceNode,
+                            final String propertyName,
+                            final Object oldValue,
+                            final Object newValue) {
         super(sourceNode);
         Guardian.assertNotNull("propertyName", propertyName);
         this.nodeGroup = getNodeGroup(sourceNode, null);
         this.propertyName = propertyName;
         this.type = NODE_CHANGED;
         this.oldValue = oldValue;
+        this.newValue = newValue;
     }
 
     /**
@@ -112,12 +132,21 @@ public class ProductNodeEvent extends EventObject {
     }
 
     /**
-     * Gets the old value if there is any given in the constructor.
+     * Gets the old property value if this is a property change event.
      *
      * @return the old value.
      */
     public Object getOldValue() {
         return oldValue;
+    }
+
+    /**
+     * Gets the new property value if this is a property change event.
+     *
+     * @return the new value.
+     */
+    public Object getNewValue() {
+        return newValue;
     }
 
     @Override

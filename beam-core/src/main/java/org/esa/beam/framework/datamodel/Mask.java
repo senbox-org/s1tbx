@@ -61,7 +61,7 @@ public class Mask extends Band {
                 if (isSourceImageSet()) {
                     getSourceImage().reset();
                 }
-                fireProductNodeChanged(evt.getPropertyName(), evt.getOldValue());
+                fireProductNodeChanged(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
             }
         };
         this.imageConfig = imageType.createImageConfig();

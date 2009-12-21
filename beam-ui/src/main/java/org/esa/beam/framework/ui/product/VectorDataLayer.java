@@ -156,7 +156,7 @@ public class VectorDataLayer extends Layer {
                 if (VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION.equals(event.getPropertyName())) {
                     if (!adjustingFigures) {
                         updateFigureCollection();
-                        fireLayerDataChanged(null); // todo - compute changed modelRegion instaed of passing null (nf)
+                        fireLayerDataChanged(null); // todo - compute changed modelRegion instead of passing null (nf)
                     }
                 }
             }
@@ -166,13 +166,28 @@ public class VectorDataLayer extends Layer {
     private class FigureCollectionChangeListener extends AbstractFigureChangeListener {
         @Override
         public void figureChanged(FigureChangeEvent event) {
-            try {
-                adjustingFigures = true;
-                VectorDataLayer.this.vectorDataNode.fireFeatureCollectionChanged();
-                fireLayerDataChanged(null); // todo - compute changed modelRegion instaed of passing null (nf)
-            } finally {
-                adjustingFigures = false;
+            final Figure sourceFigure = event.getSourceFigure();
+            if (sourceFigure instanceof SimpleFeatureFigure) {
+                SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) sourceFigure;
+                final SimpleFeature[] features = {featureFigure.getSimpleFeature()};
+                try {
+                    adjustingFigures = true;
+                    VectorDataLayer.this.vectorDataNode.fireFeatureCollectionChanged(features, features);
+                    fireLayerDataChanged(null); // todo - compute changed modelRegion instead of passing null (nf)
+                } finally {
+                    adjustingFigures = false;
+                }
             }
+        }
+
+        @Override
+        public void figuresAdded(FigureChangeEvent event) {
+
+        }
+
+        @Override
+        public void figuresRemoved(FigureChangeEvent event) {
+
         }
     }
 }
