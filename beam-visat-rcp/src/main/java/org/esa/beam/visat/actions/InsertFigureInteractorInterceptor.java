@@ -44,13 +44,12 @@ public class InsertFigureInteractorInterceptor extends AbstractInteractorListene
         );
 
         VectorDataLayer vectorDataLayer;
-        if (layers.size() == 0) {
+        if (layers.isEmpty()) {
             NewVectorDataNodeAction nodeAction = new NewVectorDataNodeAction();
             VectorDataNode vectorDataNode = nodeAction.run();
             LayerFilter nodeFilter = VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode);
             vectorDataLayer = (VectorDataLayer) LayerUtils.getChildLayer(productSceneView.getRootLayer(),
-                                                                         LayerUtils.SEARCH_DEEP, nodeFilter
-            );
+                                                                         LayerUtils.SEARCH_DEEP, nodeFilter);
         } else if (layers.size() == 1) {
             vectorDataLayer = (VectorDataLayer) layers.get(0);
         } else {
