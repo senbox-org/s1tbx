@@ -108,21 +108,21 @@ public class DefaultFigureCollectionTest extends TestCase {
         @Override
         public void figureChanged(FigureChangeEvent event) {
             trace += "c";
-            this.figure = event.getFigure();
+            this.figure = event.getSourceFigure();
         }
 
         @Override
         public void figuresAdded(FigureChangeEvent event) {
             trace += "a";
-            this.parent = event.getFigure();
-            this.children = event.getChilds();
+            this.parent = event.getSourceFigure();
+            this.children = event.getFigures();
         }
 
         @Override
         public void figuresRemoved(FigureChangeEvent event) {
             trace += "r";
-            this.parent = event.getFigure();
-            this.children = event.getChilds();
+            this.parent = event.getSourceFigure();
+            this.children = event.getFigures();
         }
     }
 }

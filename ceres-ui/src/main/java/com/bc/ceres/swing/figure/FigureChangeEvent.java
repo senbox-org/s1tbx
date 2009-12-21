@@ -16,40 +16,57 @@
  */
 package com.bc.ceres.swing.figure;
 
+import java.util.EventObject;
+
 /**
- * This event gets emitted, when a figure is changed.
+ * This event occurs, when a figure has been changed.
  *
  * @author Marco Zuehlke
- * @since ceres 0.10
+ * @author Norman Fomferra
+ * @since Ceres 0.10
  */
-public class FigureChangeEvent {
-    
-    private final Figure figure;
-    private final Figure[] childs;
+public class FigureChangeEvent extends EventObject {
+    public final static int FIGURE_CHANGED = 0;
+    public final static int FIGURES_ADDED = 1;
+    public final static int FIGURES_REMOVED = 2;
 
-    private FigureChangeEvent(Figure figure, Figure[] childs) {
-        this.figure = figure;
-        this.childs = childs;
-    }
-    
-    public Figure getFigure() {
-        return figure;
-    }
-    
-    public Figure[] getChilds() {
-        return childs;
-    }
-    
-    public static FigureChangeEvent createChangedEvent(Figure figure) {
-        return new FigureChangeEvent(figure, null);
-    }
-    
-    public static FigureChangeEvent createAddedEvent(Figure parent, Figure[] childs) {
-        return new FigureChangeEvent(parent, childs.clone());
+    private final int type;
+    private final Figure[] figures;
+
+    /**
+     * Constructor.
+     *
+     * @param sourceFigure The source figure which caused the event.
+     * @param type         The type of the event. Always one of {@link #FIGURES_ADDED},
+     *                     {@link #FIGURES_REMOVED}, {@link #FIGURE_CHANGED}.
+     * @param figures      The figures added or removed. Should be {@code null} if the event type
+     *                     is {@link #FIGURE_CHANGED}.
+     */
+    public FigureChangeEvent(Figure sourceFigure, int type, Figure[] figures) {
+        super(sourceFigure);
+        this.type = type;
+        this.figures = figures != null ? figures.clone() : null;
     }
 
-    public static FigureChangeEvent createRemovedEvent(Figure parent, Figure[] childs) {
-        return new FigureChangeEvent(parent, childs.clone());
+    /**
+     * @return The source figure which caused the event.
+     */
+    public Figure getSourceFigure() {
+        return (Figure) getSource();
+    }
+
+    /**
+     * @return The type of the event. Always one of {@link #FIGURES_ADDED}, {@link #FIGURES_REMOVED}, {@link #FIGURE_CHANGED}.
+     */
+    public int getType() {
+        return type;
+    }
+
+    /**
+     * @return The figures added or removed. Returns {@code null} if the event type is {@link #FIGURE_CHANGED}.
+     */
+    public Figure[] getFigures() {
+        return figures;
     }
 
 }

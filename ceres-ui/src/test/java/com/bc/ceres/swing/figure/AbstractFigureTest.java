@@ -40,7 +40,7 @@ public class AbstractFigureTest extends TestCase {
         f.addChangeListener(new AbstractFigureChangeListener() {
             @Override
             public void figureChanged(FigureChangeEvent event) {
-                figureBuf[0] = event.getFigure();
+                figureBuf[0] = event.getSourceFigure();
             }
         });
         assertEquals(null, figureBuf[0]);

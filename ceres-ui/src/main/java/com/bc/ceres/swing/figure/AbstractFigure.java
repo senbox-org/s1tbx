@@ -356,21 +356,21 @@ public abstract class AbstractFigure implements Figure {
     }
 
     protected void fireFigureChanged() {
-        FigureChangeEvent event = FigureChangeEvent.createChangedEvent(this);
+        FigureChangeEvent event = new FigureChangeEvent(this, FigureChangeEvent.FIGURE_CHANGED, null);
         for (FigureChangeListener listener : getChangeListeners()) {
             listener.figureChanged(event);
         }
     }
 
     protected void fireFiguresAdded(Figure... figures) {
-        FigureChangeEvent event = FigureChangeEvent.createAddedEvent(this, figures);
+        FigureChangeEvent event = new FigureChangeEvent(this, FigureChangeEvent.FIGURES_ADDED, figures);
         for (FigureChangeListener listener : getChangeListeners()) {
             listener.figuresAdded(event);
         }
     }
 
     protected void fireFiguresRemoved(Figure... figures) {
-        FigureChangeEvent event = FigureChangeEvent.createRemovedEvent(this, figures);
+        FigureChangeEvent event = new FigureChangeEvent(this, FigureChangeEvent.FIGURES_REMOVED, figures);
         for (FigureChangeListener listener : getChangeListeners()) {
             listener.figuresRemoved(event);
         }
