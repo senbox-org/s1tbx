@@ -3,7 +3,20 @@ package org.esa.beam.visat.toolviews.placemark;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.jidesoft.grid.SortableTable;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
@@ -11,39 +24,81 @@ import org.esa.beam.framework.ui.command.CommandManager;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
-import org.esa.beam.util.*;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.XmlWriter;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
-import org.esa.beam.visat.toolviews.placemark.PlacemarkDialog;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
 import org.xml.sax.SAXException;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
-import javax.swing.event.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -293,10 +348,10 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         Guardian.assertNotNull("product", product);
         String[] uniquePinNameAndLabel = PlacemarkNameFactory.createUniqueNameAndLabel(placemarkDescriptor, product);
         Pin newPlacemark = new Pin(uniquePinNameAndLabel[0],
-                             uniquePinNameAndLabel[1],
-                             "",
-                             new PixelPos(0, 0), null,
-                             placemarkDescriptor.createDefaultSymbol());
+                                   uniquePinNameAndLabel[1],
+                                   "",
+                                   new PixelPos(0, 0), null,
+                                   placemarkDescriptor.createDefaultSymbol());
         if (PlacemarkDialog.showEditPlacemarkDialog(getWindowAncestor(), product, newPlacemark, placemarkDescriptor)) {
             makePinNameUnique(newPlacemark);
             getPlacemarkGroup().add(newPlacemark);
@@ -310,11 +365,11 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         Pin activePlacemark = getPlacemarkGroup().getSelectedNode();
         Guardian.assertNotNull("activePlacemark", activePlacemark);
         Pin newPlacemark = new Pin("copy_of_" + activePlacemark.getName(),
-                             activePlacemark.getLabel(),
-                             activePlacemark.getDescription(),
-                             activePlacemark.getPixelPos(),
-                             activePlacemark.getGeoPos(),
-                             createPinSymbolCopy(activePlacemark.getSymbol()));
+                                   activePlacemark.getLabel(),
+                                   activePlacemark.getDescription(),
+                                   activePlacemark.getPixelPos(),
+                                   activePlacemark.getGeoPos(),
+                                   createPinSymbolCopy(activePlacemark.getSymbol()));
         if (PlacemarkDialog.showEditPlacemarkDialog(getWindowAncestor(), product, newPlacemark, placemarkDescriptor)) {
             makePinNameUnique(newPlacemark);
             getPlacemarkGroup().add(newPlacemark);
@@ -331,12 +386,15 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
         if (symbol.getFillPaint() instanceof Color) {
             final Color color = (Color) symbol.getFillPaint();
-            placemarkSymbol.setFillPaint(new Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
+            placemarkSymbol.setFillPaint(
+                    new Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
         }
         placemarkSymbol.setFilled(symbol.isFilled());
         final Color outlineColor = symbol.getOutlineColor();
         if (outlineColor != null) {
-            placemarkSymbol.setOutlineColor(new Color(outlineColor.getRed(), outlineColor.getGreen(), outlineColor.getBlue(), outlineColor.getAlpha()));
+            placemarkSymbol.setOutlineColor(
+                    new Color(outlineColor.getRed(), outlineColor.getGreen(), outlineColor.getBlue(),
+                              outlineColor.getAlpha()));
         }
         if (placemarkSymbol.getOutlineStroke() instanceof BasicStroke) {
             BasicStroke basicStroke = (BasicStroke) placemarkSymbol.getOutlineStroke();
@@ -355,7 +413,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         Guardian.assertNotNull("product", product);
         Pin activePlacemark = getPlacemarkGroup().getSelectedNode();
         Guardian.assertNotNull("activePlacemark", activePlacemark);
-        if (PlacemarkDialog.showEditPlacemarkDialog(getWindowAncestor(), product, activePlacemark, placemarkDescriptor)) {
+        if (PlacemarkDialog.showEditPlacemarkDialog(getWindowAncestor(), product, activePlacemark,
+                                                    placemarkDescriptor)) {
             makePinNameUnique(activePlacemark);
             updateUIState();
         }
@@ -365,7 +424,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         final Collection<Pin> placemarks = getPlacemarkGroup().getSelectedNodes();
         int i = JOptionPane.showConfirmDialog(getWindowAncestor(),
                                               "Do you really want to remove " + placemarks.size() + " selected" + placemarkDescriptor.getRoleLabel() + "(s)?\n" +
-                                                      "This action can not be undone.",
+                                              "This action can not be undone.",
                                               getDescriptor().getTitle() + " - Remove " + placemarkDescriptor.getRoleLabel() + "s",
                                               JOptionPane.OK_CANCEL_OPTION);
         if (i == JOptionPane.OK_OPTION) {
@@ -406,7 +465,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         if (makePlacemarkNameUnique0(newPlacemark)) {
             String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
             showWarningDialog(roleLabel + " has been renamed to '" + newPlacemark.getName() + "',\n" +
-                    "because a " + placemarkDescriptor.getRoleLabel() + " with the former name already exists.");
+                              "because a " + placemarkDescriptor.getRoleLabel() + " with the former name already exists.");
         }
     }
 
@@ -414,6 +473,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
      * Turns the first letter of the given string to upper case.
      *
      * @param string the string to change
+     *
      * @return a changed string
      */
     private String firstLetterUp(String string) {
@@ -519,21 +579,21 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         if (numInvalids > 0) {
             showWarningDialog("One or more " + placemarkDescriptor.getRoleLabel() + "s have not been imported,\n" +
-                    "because they can not be assigned to a product without a geo-coding."); /*I18N*/
+                              "because they can not be assigned to a product without a geo-coding."); /*I18N*/
         }
         if (numPinsRenamed > 0) {
             showWarningDialog("One or more " + placemarkDescriptor.getRoleLabel() + "s have been renamed,\n" +
-                    "because their former names are already existing."); /*I18N*/
+                              "because their former names are already existing."); /*I18N*/
         }
         if (numPinsOutOfBounds > 0) {
             if (numPinsOutOfBounds == placemarks.length) {
                 showErrorDialog(
                         "No " + placemarkDescriptor.getRoleLabel() + "s have been imported, because their pixel\n" +
-                                "positions are outside the product's bounds."); /*I18N*/
+                        "positions are outside the product's bounds."); /*I18N*/
             } else {
                 showErrorDialog(
                         numPinsOutOfBounds + " " + placemarkDescriptor.getRoleLabel() + "s have not been imported, because their pixel\n" +
-                                "positions are outside the product's bounds."); /*I18N*/
+                        "positions are outside the product's bounds."); /*I18N*/
             }
         }
     }
@@ -760,7 +820,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 int labelIndex = StringUtils.indexOf(strings, LABEL_COL_NAME);
                 if (nameIndex == -1 || lonIndex == -1 || latIndex == -1) {
                     throw new IOException("Invalid placemark file format:\n" +
-                            "at least the columns 'Name', 'Lon' and 'Lat' must be given.");
+                                          "at least the columns 'Name', 'Lon' and 'Lat' must be given.");
                 }
                 biggestIndex = biggestIndex > nameIndex ? biggestIndex : nameIndex;
                 biggestIndex = biggestIndex > lonIndex ? biggestIndex : lonIndex;
@@ -780,14 +840,14 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                         lon = Float.parseFloat(strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LON]]);
                     } catch (NumberFormatException e) {
                         throw new IOException("Invalid placemark file format:\n" +
-                                "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
+                                              "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
                     }
                     float lat;
                     try {
                         lat = Float.parseFloat(strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LAT]]);
                     } catch (NumberFormatException e) {
                         throw new IOException("Invalid placemark file format:\n" +
-                                "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
+                                              "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
                     }
                     String desc = null;
                     if (columnIndexes[PlacemarkManagerToolView.INDEX_FOR_DESC] >= 0 && strings.length > columnIndexes[PlacemarkManagerToolView.INDEX_FOR_DESC]) {
@@ -798,14 +858,14 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                         label = strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LABEL]];
                     }
                     Pin placemark = new Pin(name, label, "", null, new GeoPos(lat, lon),
-                                      placemarkDescriptor.createDefaultSymbol());
+                                            placemarkDescriptor.createDefaultSymbol());
                     if (desc != null) {
                         placemark.setDescription(desc);
                     }
                     placemarks.add(placemark);
                 } else {
                     throw new IOException("Invalid placemark file format:\n" +
-                            "data row " + row + ": values for 'Name', 'Lon' and 'Lat' must be given.");   /*I18N*/
+                                          "data row " + row + ": values for 'Name', 'Lon' and 'Lat' must be given.");   /*I18N*/
                 }
             }
         }
@@ -968,12 +1028,12 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             int minWidth;
             final int index = e.getToIndex();
             switch (index) {
-                case 0:
-                case 1:
-                    minWidth = 60;
-                    break;
-                default:
-                    minWidth = 80;
+            case 0:
+            case 1:
+                minWidth = 60;
+                break;
+            default:
+                minWidth = 80;
             }
             TableColumnModel columnModel = (TableColumnModel) e.getSource();
             columnModel.getColumn(index).setPreferredWidth(minWidth);
@@ -1045,7 +1105,9 @@ public class PlacemarkManagerToolView extends AbstractToolView {
      * @param parent  the parent window
      * @param product the product thew given pin belongs to
      * @param pin     the pin to edit
+     *
      * @return true, if pin has changed
+     *
      * @deprecated in 4.1, {@link PlacemarkDialog#showEditPlacemarkDialog(Window,Product, org.esa.beam.framework.datamodel.Pin ,PlacemarkDescriptor)} instead
      */
     @Deprecated
@@ -1059,6 +1121,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
      *
      * @param product  must be given and must contain a geocoding.
      * @param pixelPos must be given.
+     *
      * @return the geographical position which is equivalent to the given pixel position or <code>null</code> if the
      *         given pixel position is outside of the given product or the geocoding cannot get geographical positions.
      */
