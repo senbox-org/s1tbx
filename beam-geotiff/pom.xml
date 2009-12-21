@@ -5,7 +5,7 @@
     <artifactId>beam-geotiff</artifactId>
     <packaging>jar</packaging>
     <version>1.1</version>
-    <name>GeoTIFF Product IO</name>
+    <name>BEAM GeoTIFF Product Reader/Writer</name>
 
     <parent>
         <artifactId>beam</artifactId>

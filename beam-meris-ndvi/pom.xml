@@ -13,7 +13,7 @@
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-meris-ndvi</artifactId>
-    <name>MERIS NDVI Processor</name>
+    <name>BEAM MERIS NDVI Processor (Code Example)</name>
     <version>1.2.203-SNAPSHOT</version>
     <url>http://envisat.esa.int/beam/</url>
 

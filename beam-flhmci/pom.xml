@@ -11,7 +11,7 @@
         <version>4.7-SNAPSHOT</version>
     </parent>
 
-    <name>MERIS FLH/MCI Processor</name>
+    <name>BEAM MERIS FLH/MCI Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-flhmci</artifactId>
     <version>1.6.102-SNAPSHOT</version>

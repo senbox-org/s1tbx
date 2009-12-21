@@ -13,7 +13,7 @@
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-merisl3-reader</artifactId>
-    <name>MERIS Level-3 Product Reader</name>
+    <name>BEAM MERIS Level-3 Product Reader</name>
     <version>1.0.100</version>
     <url>http://envisat.esa.int/beam/</url>
 

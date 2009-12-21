@@ -11,7 +11,7 @@
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-envisat-reader</artifactId>
-    <name>Envisat Product Reader</name>
+    <name>BEAM Envisat Product Reader</name>
     <version>1.3.101-SNAPSHOT</version>
     <url>http://envisat.esa.int/beam/</url>
 

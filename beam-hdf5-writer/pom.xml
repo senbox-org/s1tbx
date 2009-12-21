@@ -11,7 +11,7 @@
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-hdf5-writer</artifactId>
-    <name>HDF5 Product Writer</name>
+    <name>BEAM HDF5 Product Writer</name>
     <version>1.0</version>
     <url>http://envisat.esa.int/beam/</url>
 

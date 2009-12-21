@@ -11,7 +11,7 @@
         <version>4.7-SNAPSHOT</version>
     </parent>
 
-    <name>AATSR SST Processor</name>
+    <name>BEAM AATSR SST Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-aatsr-sst</artifactId>
     <version>1.4.202-SNAPSHOT</version>

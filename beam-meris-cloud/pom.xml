@@ -11,7 +11,7 @@
         <version>4.7-SNAPSHOT</version>
     </parent>
 
-    <name>MERIS Cloud Probability Processor</name>
+    <name>BEAM MERIS Cloud Probability Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-meris-cloud</artifactId>
     <version>1.5.203-SNAPSHOT</version>
