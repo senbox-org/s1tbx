@@ -1,5 +1,6 @@
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
@@ -7,7 +8,6 @@ import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import com.bc.ceres.core.Assert;
 
 /**
  * A container which allows to store vector data in the BEAM product model.
@@ -28,18 +28,18 @@ public class VectorDataNode extends ProductNode {
             "#ff0000", // red
             "#00ff00", // green
             "#0000ff", // blue
+            "#aaff00",
             "#00aaff",
-            "#aa00ff",
             "#ffaa00",
             "#ff00aa",
-            "#aaff00",
+            "#aa00ff",
             "#00ffaa",
     };
     static int fillColorIndex;
 
 
     private final SimpleFeatureType featureType;
-    private final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+    private final ChangeEmittingFeatureCollection featureCollection;
     private final CollectionListener featureCollectionListener;
     private String defaultCSS;
 
@@ -48,7 +48,6 @@ public class VectorDataNode extends ProductNode {
      *
      * @param name        The node name.
      * @param featureType The feature type.
-     *
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     public VectorDataNode(String name, SimpleFeatureType featureType) {
@@ -60,13 +59,12 @@ public class VectorDataNode extends ProductNode {
      *
      * @param name              The node name.
      * @param featureCollection A feature collection.
-     *
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
         super(name, "");
         this.featureType = featureCollection.getSchema();
-        this.featureCollection = featureCollection;
+        this.featureCollection = new ChangeEmittingFeatureCollection(featureCollection);
         this.featureCollectionListener = new CollectionListener() {
             @Override
             public void collectionChanged(CollectionEvent tce) {
@@ -92,7 +90,7 @@ public class VectorDataNode extends ProductNode {
     /**
      * @return The feature collection.
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection() {
+    public ChangeEmittingFeatureCollection getFeatureCollection() {
         return featureCollection;
     }
 

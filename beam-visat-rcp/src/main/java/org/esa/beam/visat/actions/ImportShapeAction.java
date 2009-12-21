@@ -113,7 +113,7 @@ public class ImportShapeAction extends ExecCommand {
         vectorDataGroup.add(vectorDataNode);
     }
     
-    private static String findUniqueVectorName(String sugestedName, ProductNodeGroup<VectorDataNode> vectorDataGroup) {
+    private static String findUniqueVectorDataNodeName(String sugestedName, ProductNodeGroup<VectorDataNode> vectorDataGroup) {
         String name = sugestedName;
         int index = 1;
         while (vectorDataGroup.contains(name)) {
@@ -136,11 +136,10 @@ public class ImportShapeAction extends ExecCommand {
     }
 
     private static VectorDataNode readShapeFromShapefile(File file, Product product) throws IOException {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> loadShapefile = ShapefileUtils.loadShapefile(file, product);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = ShapefileUtils.loadShapefile(file, product);
         ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
-        String name = findUniqueVectorName(loadShapefile.getSchema().getName().getLocalPart(), vectorDataGroup);
-        VectorDataNode vectorDataNode = new VectorDataNode(name, loadShapefile);
-        return vectorDataNode;
+        String name = findUniqueVectorDataNodeName(featureCollection.getSchema().getName().getLocalPart(), vectorDataGroup);
+        return new VectorDataNode(name, featureCollection);
     }
 
     private static VectorDataNode readShapeFromTextFile(final File file, Product product) throws IOException {
@@ -287,7 +286,7 @@ public class ImportShapeAction extends ExecCommand {
         }
  
         String name = FileUtils.getFilenameWithoutExtension(file);
-        findUniqueVectorName(name, product.getVectorDataGroup());
+        findUniqueVectorDataNodeName(name, product.getVectorDataGroup());
         SimpleFeatureType simpleFeatureType = PlainFeatureFactory.createDefaultFeatureType(modelCrs);
         DefaultFeatureCollection featureCollection = new DefaultFeatureCollection(name, simpleFeatureType);
 
