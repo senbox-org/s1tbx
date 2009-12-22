@@ -27,45 +27,44 @@ public class PinGroupTest {
         pinBuilder = new SimpleFeatureBuilder(Pin.getPinFeatureType());
         pinGroup = new PinGroup(product, "pinGroup", pinVectorDataNode);
         pinFeatureCollection = pinVectorDataNode.getFeatureCollection();
-
     }
 
     @Test
     public void testManipulatingPinGroup() {
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(pinGroup, pinFeatureCollection);
 
         pinGroup.add(createPin("p1", new PixelPos(3, 1), new GeoPos(12, 34)));
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(pinGroup, pinFeatureCollection);
         final Pin pin2 = createPin("p2", new PixelPos(5, 4), new GeoPos(16, 48));
         pinGroup.add(pin2);
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(pinGroup, pinFeatureCollection);
         pinGroup.add(createPin("p3", new PixelPos(6, 2), new GeoPos(-45, 80)));
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(pinGroup, pinFeatureCollection);
 
         pinGroup.remove(pin2);
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(pinGroup, pinFeatureCollection);
 
         pinGroup.add(1, createPin("p4", new PixelPos(6, 3), new GeoPos(-60, 47)));
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(pinGroup, pinFeatureCollection);
     }
 
     @Test
-    public void testManipulatingVectorDataNode() {
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+    public void testManipulatingFeatureCollection() {
+        assertAreEqual(pinGroup, pinFeatureCollection);
 
         pinFeatureCollection.add(createPinFeature());
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(pinGroup, pinFeatureCollection);
         final SimpleFeature simpleFeature = createPinFeature();
         pinFeatureCollection.add(simpleFeature);
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(pinGroup, pinFeatureCollection);
         pinFeatureCollection.add(createPinFeature());
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(pinGroup, pinFeatureCollection);
 
         pinFeatureCollection.remove(simpleFeature);
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(pinGroup, pinFeatureCollection);
 
         pinFeatureCollection.add(createPinFeature());
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(pinGroup, pinFeatureCollection);
     }
 
     @Test
@@ -73,11 +72,12 @@ public class PinGroupTest {
         pinGroup.add(createPin("p1", new PixelPos(3, 1), new GeoPos(12, 34)));
         pinGroup.add(createPin("p2", new PixelPos(5, 4), new GeoPos(16, 48)));
         pinGroup.add(createPin("p3", new PixelPos(6, 2), new GeoPos(-45, 80)));
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
-        final CoordinateArraySequence coordinates = new CoordinateArraySequence(new Coordinate[]{new Coordinate(-30, 70)});
+        assertAreEqual(pinGroup, pinFeatureCollection);
+        final CoordinateArraySequence coordinates = new CoordinateArraySequence(
+                new Coordinate[]{new Coordinate(-30, 70)});
         final SimpleFeature changedFeature = pinGroup.get(2).getFeature();
         changedFeature.setDefaultGeometry(new Point(coordinates, new GeometryFactory()));
-        assertGroupCollectionAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(pinGroup, pinFeatureCollection);
 
         final SimpleFeature[] features = pinFeatureCollection.toArray(new SimpleFeature[pinFeatureCollection.size()]);
         assertEquals(changedFeature.getDefaultGeometry(), features[2].getDefaultGeometry());
@@ -87,14 +87,13 @@ public class PinGroupTest {
         return pinBuilder.buildFeature(String.valueOf(System.currentTimeMillis()));
     }
 
-    private static void assertGroupCollectionAreEqual(PinGroup pinGroup,
-                                                      FeatureCollection<SimpleFeatureType, SimpleFeature> pinFeatureCollection) {
-        final SimpleFeature[] features = pinFeatureCollection.toArray(new SimpleFeature[pinFeatureCollection.size()]);
-        assertEquals(pinGroup.getNodeCount(), features.length);
-        for (int i = 0; i < pinGroup.getNodeCount(); i++) {
-            SimpleFeature pinGroupFeature = pinGroup.get(i).getFeature();
+    private static void assertAreEqual(PinGroup group, FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+        final SimpleFeature[] features = collection.toArray(new SimpleFeature[collection.size()]);
+        assertEquals(group.getNodeCount(), features.length);
+        for (int i = 0; i < group.getNodeCount(); i++) {
+            SimpleFeature pinGroupFeature = group.get(i).getFeature();
             assertTrue("Feature of pin group is not contained in feature collection\n",
-                       pinFeatureCollection.contains(pinGroupFeature));
+                       collection.contains(pinGroupFeature));
 
         }
     }
