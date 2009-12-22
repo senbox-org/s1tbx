@@ -3,17 +3,21 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.Debug;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.Feature;
 
 import java.util.Arrays;
 import java.util.List;
 
 
 public class ProductSceneViewFigureEditor extends DefaultFigureEditor {
-    private ProductSceneView productSceneView;
+
+    private final ProductSceneView productSceneView;
     private VectorDataNode currentVectorDataNode;
 
     public ProductSceneViewFigureEditor(ProductSceneView productSceneView) {
@@ -23,6 +27,7 @@ public class ProductSceneViewFigureEditor extends DefaultFigureEditor {
               ProductSceneView.NullFigureCollection.INSTANCE,
               null);
         this.productSceneView = productSceneView;
+        this.productSceneView.getProduct().addProductNodeListener(new PinSelectionChangeListener());
     }
 
     public ProductSceneView getProductSceneView() {
@@ -92,4 +97,28 @@ public class ProductSceneViewFigureEditor extends DefaultFigureEditor {
         return Arrays.asList(features);
     }
 
+    private class PinSelectionChangeListener extends ProductNodeListenerAdapter {
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            if (currentVectorDataNode != null) {
+                if (event.getSourceNode() instanceof Pin) {
+                    if (event.getPropertyName().equals(Product.PROPERTY_NAME_SELECTED)) {
+                        final Pin pin = (Pin) event.getSourceNode();
+                        if (pin.getFeature().getFeatureType() == currentVectorDataNode.getFeatureType()) {
+                            for (final Figure figure : getFigureCollection().getFigures()) {
+                                if (((SimpleFeatureFigure) figure).getSimpleFeature() == pin.getFeature()) {
+                                    if (pin.isSelected()) {
+                                        getFigureSelection().addFigure(figure);
+                                    } else {
+                                        getFigureSelection().removeFigure(figure);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
