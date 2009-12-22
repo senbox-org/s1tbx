@@ -23,9 +23,9 @@ public class PinGroupTest {
     @Before()
     public void setup() {
         Product product = new Product("PinGroup Test", "TestType", 10, 10);
-        VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Pin.getPlacemarkFeatureType());
+        VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Pin.getPinFeatureType());
         product.getVectorDataGroup().add(pinVectorDataNode);
-        pinBuilder = new SimpleFeatureBuilder(Pin.getPlacemarkFeatureType());
+        pinBuilder = new SimpleFeatureBuilder(Pin.getPinFeatureType());
         pinGroup = new PinGroup(product, "pinGroup", pinVectorDataNode);
         pinFeatureCollection = pinVectorDataNode.getFeatureCollection();
     }
