@@ -24,7 +24,7 @@ public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements Sim
     private Class<?> geometryType;
 
     public SimpleFeatureShapeFigure(SimpleFeature simpleFeature, FigureStyle style) {
-
+                                  
         final Object geometry = simpleFeature.getDefaultGeometry();
         if (!(geometry instanceof Geometry)) {
             throw new IllegalArgumentException("simpleFeature: geometry type must be a " + Geometry.class);
