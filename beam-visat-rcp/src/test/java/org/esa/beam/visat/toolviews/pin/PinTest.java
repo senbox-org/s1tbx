@@ -94,7 +94,7 @@ public class PinTest extends TestCase {
 
     public void testPinEvents() {
         final Pin pin1 = new Pin("pinName", "pinLabel", "", null, new GeoPos(),
-                                 PlacemarkSymbol.createDefaultPinSymbol());
+                                 PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
 
         assertEquals(0, product.getPinGroup().getNodeCount());
         assertEquals(0, events.size());
