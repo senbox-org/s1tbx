@@ -351,7 +351,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                                    uniquePinNameAndLabel[1],
                                    "",
                                    new PixelPos(0, 0), null,
-                                   placemarkDescriptor.createDefaultSymbol());
+                                   placemarkDescriptor.createDefaultSymbol(),
+                                   product.getGeoCoding());
         if (PlacemarkDialog.showEditPlacemarkDialog(getWindowAncestor(), product, newPlacemark, placemarkDescriptor)) {
             makePinNameUnique(newPlacemark);
             getPlacemarkGroup().add(newPlacemark);
