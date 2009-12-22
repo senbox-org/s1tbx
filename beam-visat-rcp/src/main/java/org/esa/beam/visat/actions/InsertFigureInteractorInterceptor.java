@@ -40,13 +40,11 @@ public class InsertFigureInteractorInterceptor extends AbstractInteractorListene
         }
 
         List<Layer> layers = LayerUtils.getChildLayers(productSceneView.getRootLayer(),
-                                                       LayerUtils.SEARCH_DEEP, geometryFilter
-        );
+                                                       LayerUtils.SEARCH_DEEP, geometryFilter);
 
         VectorDataLayer vectorDataLayer;
         if (layers.isEmpty()) {
-            NewVectorDataNodeAction nodeAction = new NewVectorDataNodeAction();
-            VectorDataNode vectorDataNode = nodeAction.run();
+            VectorDataNode vectorDataNode = NewVectorDataNodeAction.createDefaultVectorDataNode(productSceneView.getProduct(), "geometry", "Default geometry container (automatically created)");
             LayerFilter nodeFilter = VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode);
             vectorDataLayer = (VectorDataLayer) LayerUtils.getChildLayer(productSceneView.getRootLayer(),
                                                                          LayerUtils.SEARCH_DEEP, nodeFilter);
