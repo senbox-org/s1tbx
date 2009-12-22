@@ -1,11 +1,16 @@
 package org.esa.beam.dataio.geometry;
 
-import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConverterRegistry;
 import com.vividsolutions.jts.geom.Geometry;
 import junit.framework.TestCase;
 import org.esa.beam.util.io.CsvReader;
+import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
@@ -17,8 +22,12 @@ public class VectorDataNodeReaderTest extends TestCase {
     public void testFeatureTypeDef() throws IOException {
 
         StringReader reader = new StringReader(
-                "Test_FT\n" +
-                        "name:String\tgeom:Geometry\tpixelX:Integer\tdescription\n");
+                "Test_FT\n"
+                        + "name:String\tgeom:Geometry\tpixel:Integer\tdescription\n"
+                        + "mark1\tPOINT(12.3 45.6)\t0\tThis is mark1.\n"
+                        + "mark2\tPOINT(78.9  0.1)\t1\tThis is mark2.\n"
+                        + "mark3\tPOINT(2.3 3.4)\t2\tThis is mark3.\n"
+        );
 
         CsvReader csvReader = new CsvReader(reader, new char[]{'\t'});
 
@@ -42,13 +51,51 @@ public class VectorDataNodeReaderTest extends TestCase {
         assertEquals("geom", ad1.getType().getName().getLocalPart());
         assertEquals(Geometry.class, ad1.getType().getBinding());
 
-        assertEquals("pixelX", ad2.getType().getName().getLocalPart());
+        assertEquals("pixel", ad2.getType().getName().getLocalPart());
         assertEquals(Integer.class, ad2.getType().getBinding());
 
         assertEquals("description", ad3.getType().getName().getLocalPart());
         assertEquals(String.class, ad3.getType().getBinding());
 
-        //Converter[] converters = new Converter[line2.length];
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = readerFeatures(csvReader, simpleFeatureType);
+
+        assertEquals(0, fc.size());
+    }
+
+    private FeatureCollection<SimpleFeatureType, SimpleFeature> readerFeatures(CsvReader csvReader, SimpleFeatureType simpleFeatureType) throws IOException {
+        Converter<?>[] converters = new Converter<?>[simpleFeatureType.getAttributeCount()];
+        for (int i = 0; i < converters.length; i++) {
+            Class<?> attributeType = simpleFeatureType.getType(i).getBinding();
+            Converter<?> converter = ConverterRegistry.getInstance().getConverter(attributeType);
+            if (converter == null) {
+                throw new IOException(String.format("No converter for type %s found.", attributeType));
+            }
+            converters[i] = converter;
+        }
+
+        DefaultFeatureCollection fc = new DefaultFeatureCollection("?", simpleFeatureType);
+        SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(simpleFeatureType);
+        long id = System.nanoTime();
+        while (true) {
+            String[] tokens = csvReader.readRecord();
+            if (tokens == null) {
+                break;
+            }
+            if (tokens.length != simpleFeatureType.getAttributeCount()) {
+                throw new IOException("Shit.");  // todo - msg
+            }
+            for (int i = 0; i < tokens.length; i++) {
+                String token = tokens[i];
+                try {
+                    Object value = converters[i].parse(token);
+                    sfb.set(simpleFeatureType.getDescriptor(i).getLocalName(), value);
+                } catch (ConversionException e) {
+                    throw new IOException("Shit.", e);  // todo - msg
+                }
+            }
+            fc.add(sfb.buildFeature("FID_" + Long.toHexString(id++)));
+        }
+        return fc;
     }
 
     private String readTypeName(CsvReader csvReader) throws IOException {
@@ -77,7 +124,7 @@ public class VectorDataNodeReaderTest extends TestCase {
             String attributeName = token;
             Class<?> attributeType = String.class;
             if (colonPos >= 0) {
-                attributeName = colonPos == 0 ? ("attribute_"+i) : token.substring(0, colonPos);
+                attributeName = colonPos == 0 ? ("attribute_" + i) : token.substring(0, colonPos);
                 String attributeTypeName = token.substring(colonPos + 1).trim();
                 try {
                     attributeType = jtc.parse(attributeTypeName);
