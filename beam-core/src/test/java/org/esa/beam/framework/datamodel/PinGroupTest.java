@@ -11,7 +11,8 @@ import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class PinGroupTest {
 
@@ -22,9 +23,9 @@ public class PinGroupTest {
     @Before()
     public void setup() {
         Product product = new Product("PinGroup Test", "TestType", 10, 10);
-        VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Pin.getPinFeatureType());
+        VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Pin.getPlacemarkFeatureType());
         product.getVectorDataGroup().add(pinVectorDataNode);
-        pinBuilder = new SimpleFeatureBuilder(Pin.getPinFeatureType());
+        pinBuilder = new SimpleFeatureBuilder(Pin.getPlacemarkFeatureType());
         pinGroup = new PinGroup(product, "pinGroup", pinVectorDataNode);
         pinFeatureCollection = pinVectorDataNode.getFeatureCollection();
     }
