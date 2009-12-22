@@ -28,11 +28,14 @@ public class DefaultFigureCollectionTest extends TestCase {
         MyFigureListener listener = new MyFigureListener();
         fc.addChangeListener(listener);
 
-        assertEquals("", listener.trace);
         f1.addFigure(new DefaultFigureCollection());
-        assertEquals("c", listener.trace);
+        assertNotNull(listener.lastEvent);
+        assertEquals(FigureChangeEvent.FIGURES_ADDED, listener.lastEvent.getType());
+        assertEquals(f1, listener.lastEvent.getSourceFigure());
         f2.addFigure(new DefaultFigureCollection());
-        assertEquals("cc", listener.trace);
+        assertNotNull(listener.lastEvent);
+        assertEquals(FigureChangeEvent.FIGURES_ADDED, listener.lastEvent.getType());
+        assertEquals(f2, listener.lastEvent.getSourceFigure());
     }
 
     public void testAddingAndRemovingChildren() {
@@ -76,53 +79,40 @@ public class DefaultFigureCollectionTest extends TestCase {
 
         DefaultFigureCollection f1 = new DefaultFigureCollection();
         fc.addFigure(f1);
-        assertEquals("ca", listener.trace);
-        assertSame(fc, listener.figure);
-        assertSame(fc, listener.parent);
-        assertEquals(1, listener.children.length);
-        assertSame(f1, listener.children[0]);
+        assertEquals(FigureChangeEvent.FIGURES_ADDED, listener.lastEvent.getType());
+        assertSame(fc, listener.lastEvent.getSourceFigure());
+        assertNotNull(listener.lastEvent.getFigures());
+        assertEquals(1, listener.lastEvent.getFigures().length);
+        assertSame(f1, listener.lastEvent.getFigures()[0]);
+
+        f1.setSelectable(true);
+        assertEquals(FigureChangeEvent.FIGURE_CHANGED, listener.lastEvent.getType());
+        assertSame(f1, listener.lastEvent.getSourceFigure());
+        assertNull(listener.lastEvent.getFigures());
 
         DefaultFigureCollection f2 = new DefaultFigureCollection();
         fc.addFigure(f2);
-        assertEquals("caca", listener.trace);
-        assertSame(fc, listener.figure);
-        assertSame(fc, listener.parent);
-        assertEquals(1, listener.children.length);
-        assertSame(f2, listener.children[0]);
+        assertEquals(FigureChangeEvent.FIGURES_ADDED, listener.lastEvent.getType());
+        assertSame(fc, listener.lastEvent.getSourceFigure());
+        assertNotNull(listener.lastEvent.getFigures());
+        assertEquals(1, listener.lastEvent.getFigures().length);
+        assertSame(f2, listener.lastEvent.getFigures()[0]);
 
         fc.removeAllFigures();
-        assertEquals("cacacr", listener.trace);
-        assertSame(fc, listener.figure);
-        assertSame(fc, listener.parent);
-        assertEquals(2, listener.children.length);
-        assertSame(f1, listener.children[0]);
-        assertSame(f2, listener.children[1]);
+        assertEquals(FigureChangeEvent.FIGURES_REMOVED, listener.lastEvent.getType());
+        assertSame(fc, listener.lastEvent.getSourceFigure());
+        assertNotNull(listener.lastEvent.getFigures());
+        assertEquals(2, listener.lastEvent.getFigures().length);
+        assertSame(f1, listener.lastEvent.getFigures()[0]);
+        assertSame(f2, listener.lastEvent.getFigures()[1]);
     }
 
     private static class MyFigureListener implements FigureChangeListener {
-        String trace = "";
-        Figure figure;
-        Figure parent;
-        Figure[] children;
+        FigureChangeEvent lastEvent;
 
         @Override
         public void figureChanged(FigureChangeEvent event) {
-            trace += "c";
-            this.figure = event.getSourceFigure();
-        }
-
-        @Override
-        public void figuresAdded(FigureChangeEvent event) {
-            trace += "a";
-            this.parent = event.getSourceFigure();
-            this.children = event.getFigures();
-        }
-
-        @Override
-        public void figuresRemoved(FigureChangeEvent event) {
-            trace += "r";
-            this.parent = event.getSourceFigure();
-            this.children = event.getFigures();
+            this.lastEvent = event;
         }
     }
 }

@@ -27,7 +27,7 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
         this.normalStyle = normalStyle;
         this.selectedStyle = selectedStyle;
 
-        this.listener = new AbstractFigureChangeListener() {
+        this.listener = new FigureChangeListener() {
             @Override
             public void figureChanged(FigureChangeEvent e) {
                 updateLocation();

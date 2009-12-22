@@ -19,6 +19,8 @@ public abstract class AbstractFigure implements Figure {
     private boolean selected;
 
     protected AbstractFigure() {
+        this.selectable = false;
+        this.selected = false;
     }
 
     /**
@@ -355,24 +357,24 @@ public abstract class AbstractFigure implements Figure {
         }
     }
 
-    protected void fireFigureChanged() {
-        FigureChangeEvent event = new FigureChangeEvent(this, FigureChangeEvent.FIGURE_CHANGED, null);
-        for (FigureChangeListener listener : getChangeListeners()) {
-            listener.figureChanged(event);
-        }
-    }
-
     protected void fireFiguresAdded(Figure... figures) {
         FigureChangeEvent event = new FigureChangeEvent(this, FigureChangeEvent.FIGURES_ADDED, figures);
-        for (FigureChangeListener listener : getChangeListeners()) {
-            listener.figuresAdded(event);
-        }
+        fireFigureChanged(event);
     }
 
     protected void fireFiguresRemoved(Figure... figures) {
         FigureChangeEvent event = new FigureChangeEvent(this, FigureChangeEvent.FIGURES_REMOVED, figures);
+        fireFigureChanged(event);
+    }
+
+    protected void fireFigureChanged() {
+        FigureChangeEvent event = new FigureChangeEvent(this, FigureChangeEvent.FIGURE_CHANGED, null);
+        fireFigureChanged(event);
+    }
+
+    protected void fireFigureChanged(FigureChangeEvent event) {
         for (FigureChangeListener listener : getChangeListeners()) {
-            listener.figuresRemoved(event);
+            listener.figureChanged(event);
         }
     }
 

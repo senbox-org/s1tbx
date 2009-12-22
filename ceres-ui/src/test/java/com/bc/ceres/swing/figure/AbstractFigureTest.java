@@ -16,7 +16,7 @@ public class AbstractFigureTest extends TestCase {
         assertEquals(0, f.getFigureCount());
         assertEquals(0, f.getMaxSelectionStage());
         assertNull(f.getFigure(null, new AffineTransform()));
-        assertNotNull(f.getFigures((Shape) null));
+        assertNotNull(f.getFigures(null));
         assertEquals(0, f.getFigures(null).length);
         assertNotNull(f.getFigures());
         assertEquals(0, f.getFigures().length);
@@ -27,7 +27,10 @@ public class AbstractFigureTest extends TestCase {
 
     public void testThatCloneDoesNotCopyListeners() {
         Figure f = new AbstractFigureImpl();
-        f.addChangeListener(new AbstractFigureChangeListener() {
+        f.addChangeListener(new FigureChangeListener() {
+            @Override
+            public void figureChanged(FigureChangeEvent event) {
+            }
         });
         AbstractFigure cf = (AbstractFigure) f.clone();
         assertNotNull(cf.getChangeListeners());
@@ -37,7 +40,7 @@ public class AbstractFigureTest extends TestCase {
     public void testListeners() {
         AbstractFigureImpl f = new AbstractFigureImpl();
         final Figure[] figureBuf = new Figure[1];
-        f.addChangeListener(new AbstractFigureChangeListener() {
+        f.addChangeListener(new FigureChangeListener() {
             @Override
             public void figureChanged(FigureChangeEvent event) {
                 figureBuf[0] = event.getSourceFigure();
@@ -50,7 +53,10 @@ public class AbstractFigureTest extends TestCase {
 
     public void testDisposeRemovesListeners() {
         Figure f = new AbstractFigureImpl();
-        f.addChangeListener(new AbstractFigureChangeListener() {
+        f.addChangeListener(new FigureChangeListener() {
+            @Override
+            public void figureChanged(FigureChangeEvent event) {
+            }
         });
         FigureChangeListener[] listeners = f.getChangeListeners();
         assertNotNull(listeners);

@@ -1,12 +1,12 @@
 package com.bc.ceres.swing.figure.support;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureSelection;
+import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionContext;
@@ -117,15 +117,15 @@ public class FigureSelectionContext implements SelectionContext {
         return getFigureCollection().getFigureCount() > 0;
     }
 
-    private class FigureSelectionMulticaster extends AbstractFigureChangeListener {
-        @Override
-        public void figuresAdded(FigureChangeEvent event) {
-            selectionChangeSupport.fireSelectionChange(FigureSelectionContext.this, figureSelection);
-        }
+    private class FigureSelectionMulticaster implements FigureChangeListener {
 
         @Override
-        public void figuresRemoved(FigureChangeEvent event) {
-            selectionChangeSupport.fireSelectionChange(FigureSelectionContext.this, figureSelection);
+        public void figureChanged(FigureChangeEvent event) {
+            if (event.getType() == FigureChangeEvent.FIGURES_ADDED
+                    || event.getType() == FigureChangeEvent.FIGURES_REMOVED) {
+                selectionChangeSupport.fireSelectionChange(FigureSelectionContext.this, figureSelection);
+            }
         }
+
     }
 }

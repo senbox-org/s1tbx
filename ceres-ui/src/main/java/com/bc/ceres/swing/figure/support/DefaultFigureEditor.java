@@ -4,7 +4,6 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
-import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureCollection;
@@ -14,6 +13,7 @@ import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.InteractionDispatcher;
+import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
@@ -307,22 +307,21 @@ public class DefaultFigureEditor implements FigureEditor {
         }
     }
 
-    private class RepaintHandler extends AbstractFigureChangeListener {
+    private class RepaintHandler implements FigureChangeListener {
         @Override
         public void figureChanged(FigureChangeEvent event) {
             getEditorComponent().repaint();
         }
     }
 
-    private class FigureSelectionMulticaster extends AbstractFigureChangeListener {
-        @Override
-        public void figuresAdded(FigureChangeEvent event) {
-            selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
-        }
+    private class FigureSelectionMulticaster implements FigureChangeListener {
 
         @Override
-        public void figuresRemoved(FigureChangeEvent event) {
-            selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
+        public void figureChanged(FigureChangeEvent event) {
+            if (event.getType() == FigureChangeEvent.FIGURES_ADDED
+                    || event.getType() == FigureChangeEvent.FIGURES_REMOVED) {
+                selectionChangeSupport.fireSelectionChange(DefaultFigureEditor.this, figureSelection);
+            }
         }
     }
 

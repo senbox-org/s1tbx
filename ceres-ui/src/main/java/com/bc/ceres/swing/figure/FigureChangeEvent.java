@@ -26,23 +26,49 @@ import java.util.EventObject;
  * @since Ceres 0.10
  */
 public class FigureChangeEvent extends EventObject {
-    public final static int FIGURE_CHANGED = 0;
-    public final static int FIGURES_ADDED = 1;
-    public final static int FIGURES_REMOVED = 2;
+    /**
+     * Possible event types.
+     */
+    public enum Type {
+        /**
+         * Figures have been added to a (source-) figure.
+         */
+        FIGURES_ADDED,
+        /**
+         * Figures have been removed from a (source-) figure.
+         */
+        FIGURES_REMOVED,
+        /**
+         * A (source-) figure has changed.
+         */
+        FIGURE_CHANGED,
+    }
 
-    private final int type;
+    /**
+     * Figures have been added to a (source-) figure.
+     */
+    public final static Type FIGURES_ADDED = Type.FIGURE_CHANGED;
+    /**
+     * Figures have been removed from a (source-) figure.
+     */
+    public final static Type FIGURES_REMOVED = Type.FIGURE_CHANGED;
+    /**
+     * A (source-) figure has changed.
+     */
+    public final static Type FIGURE_CHANGED = Type.FIGURE_CHANGED;
+
+    private final Type type;
     private final Figure[] figures;
 
     /**
      * Constructor.
      *
      * @param sourceFigure The source figure which caused the event.
-     * @param type         The type of the event. Always one of {@link #FIGURES_ADDED},
-     *                     {@link #FIGURES_REMOVED}, {@link #FIGURE_CHANGED}.
+     * @param type         The type of the event.
      * @param figures      The figures added or removed. Should be {@code null} if the event type
      *                     is {@link #FIGURE_CHANGED}.
      */
-    public FigureChangeEvent(Figure sourceFigure, int type, Figure[] figures) {
+    public FigureChangeEvent(Figure sourceFigure, Type type, Figure[] figures) {
         super(sourceFigure);
         this.type = type;
         this.figures = figures != null ? figures.clone() : null;
@@ -56,9 +82,9 @@ public class FigureChangeEvent extends EventObject {
     }
 
     /**
-     * @return The type of the event. Always one of {@link #FIGURES_ADDED}, {@link #FIGURES_REMOVED}, {@link #FIGURE_CHANGED}.
+     * @return The type of the event.
      */
-    public int getType() {
+    public Type getType() {
         return type;
     }
 
@@ -69,4 +95,12 @@ public class FigureChangeEvent extends EventObject {
         return figures;
     }
 
+    @Override
+    public String toString() {
+        return "FigureChangeEvent [" +
+                "source=" + getSourceFigure() +
+                ", type=" + type +
+                ", #figures=" + (figures == null ? 0 : figures.length) +
+                "]";
+    }
 }

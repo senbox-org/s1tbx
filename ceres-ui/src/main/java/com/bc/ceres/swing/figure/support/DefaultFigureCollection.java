@@ -2,11 +2,11 @@ package com.bc.ceres.swing.figure.support;
 
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.swing.figure.AbstractFigure;
-import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureChangeEvent;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.Handle;
+import com.bc.ceres.swing.figure.FigureChangeListener;
 
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
@@ -286,17 +286,17 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
         bounds = null;
     }
 
-    private class BoundsUpdater extends AbstractFigureChangeListener {
+    private class BoundsUpdater implements FigureChangeListener {
         @Override
         public void figureChanged(FigureChangeEvent e) {
             nullBounds();
         }
     }
 
-    private class ChangeDelegate extends AbstractFigureChangeListener {
+    private class ChangeDelegate implements FigureChangeListener {
         @Override
         public void figureChanged(FigureChangeEvent e) {
-            fireFigureChanged();
+            fireFigureChanged(e);
         }
     }
 }
