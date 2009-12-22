@@ -4,14 +4,6 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.GeometryCollection;
 import junit.framework.TestCase;
 import org.esa.beam.util.io.CsvReader;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -27,7 +19,7 @@ import java.io.StringReader;
 import java.util.List;
 
 public class VectorDataNodeReaderTest extends TestCase {
-    public void testFeatureTypeDef() throws IOException {
+    public void testReader() throws IOException {
 
         StringReader reader = new StringReader(
                 "Test_FT\n"
