@@ -1,4 +1,4 @@
-package org.esa.beam.visat.toolviews.layermanager;
+package org.esa.beam.framework.ui.layer;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
@@ -8,7 +8,6 @@ import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerSource;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
@@ -39,7 +38,7 @@ public class DefaultLayerSourceDescriptorTest {
         final String name = "Image from Web Mapping Server (WMS)";
         final String description = "Retrieves images from a Web Mapping Server (WMS)";
         DefaultLayerSourceDescriptor descriptor = new DefaultLayerSourceDescriptor(id, name, description,
-                                                                                   WmsLayerSource.class);
+                                                                                   SimpleLayerSource.class);
         assertEquals("wms-layer-source", descriptor.getId());
         assertEquals("Image from Web Mapping Server (WMS)", descriptor.getName());
         assertEquals("Retrieves images from a Web Mapping Server (WMS)", descriptor.getDescription());
@@ -47,7 +46,7 @@ public class DefaultLayerSourceDescriptorTest {
 
         final LayerSource layerSource = descriptor.createLayerSource();
         assertNotNull(layerSource);
-        assertTrue(layerSource instanceof WmsLayerSource);
+        assertTrue(layerSource instanceof SimpleLayerSource);
     }
 
     @Test

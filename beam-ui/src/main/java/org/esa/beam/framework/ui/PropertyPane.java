@@ -12,7 +12,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-// todo - Class has no BEAM dependencies, move into Ceres (ceres-ui) (nf)
+// todo - Class has no BEAM dependencies, move into Ceres (com.bc.ceres.binding.swing) (nf)
 
 /**
  * A utility class used to create a {@link JPanel} containing default Swing components and their corresponding bindings for the

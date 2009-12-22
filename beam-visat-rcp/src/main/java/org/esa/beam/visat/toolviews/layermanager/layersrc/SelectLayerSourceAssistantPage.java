@@ -1,7 +1,9 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc;
 
-import org.esa.beam.visat.toolviews.layermanager.LayerSource;
-import org.esa.beam.visat.toolviews.layermanager.LayerSourceDescriptor;
+import org.esa.beam.framework.ui.layer.LayerSource;
+import org.esa.beam.framework.ui.layer.LayerSourceDescriptor;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;

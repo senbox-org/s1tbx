@@ -1,8 +1,8 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import com.bc.ceres.glayer.swing.LayerCanvas;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.StyleImpl;

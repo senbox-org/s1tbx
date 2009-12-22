@@ -1,11 +1,11 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import org.esa.beam.framework.ui.FileHistory;
+import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.beam.util.PropertyMap;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.FilePathListCellRenderer;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;

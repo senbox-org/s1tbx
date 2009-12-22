@@ -1,9 +1,9 @@
-package org.esa.beam.visat.toolviews.layermanager.layersrc;
+package org.esa.beam.framework.ui.layer;
 
 import com.bc.ceres.glayer.LayerContext;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.layer.LayerSource;
 import org.esa.beam.framework.ui.assistant.AssistantPageContext;
-import org.esa.beam.visat.toolviews.layermanager.LayerSource;
 
 /**
  * Instances of this interface provide the context for implementations of {@link AbstractLayerSourceAssistantPage}.

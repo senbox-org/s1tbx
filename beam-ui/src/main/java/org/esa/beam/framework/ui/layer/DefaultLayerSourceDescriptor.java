@@ -1,9 +1,7 @@
-package org.esa.beam.visat.toolviews.layermanager;
+package org.esa.beam.framework.ui.layer;
 
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
-
-import org.esa.beam.visat.toolviews.layermanager.layersrc.SimpleLayerSource;
 
 /**
  * The {@code DefaultLayerSourceDescriptor} provides metadata and

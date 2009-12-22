@@ -1,8 +1,8 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.image;
 
 
-import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;

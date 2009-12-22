@@ -4,7 +4,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.swing.TableLayout;
 
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
+import org.esa.beam.framework.ui.layer.LayerEditor;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayer;
 
 import javax.swing.JComponent;

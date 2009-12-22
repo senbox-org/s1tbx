@@ -63,9 +63,7 @@
         <applicationDescriptor type="org.esa.beam.framework.ui.application.ApplicationDescriptor"
                                class="@descriptorClass"
                                autoConfig="true">
-            <descriptorClass type="java.lang.Class">
-                org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor
-            </descriptorClass>
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor</descriptorClass>
             <applicationId type="java.lang.String"/>
             <!-- ID of the ceres application -->
             <displayName type="java.lang.String"/>
@@ -83,9 +81,7 @@
         <toolView type="org.esa.beam.framework.ui.application.ToolViewDescriptor"
                   class="@descriptorClass"
                   autoConfig="true">
-            <descriptorClass type="java.lang.Class">
-                org.esa.beam.framework.ui.application.support.DefaultToolViewDescriptor
-            </descriptorClass>
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.application.support.DefaultToolViewDescriptor</descriptorClass>
             <class field="toolViewClass" type="java.lang.Class"/>
             <title type="java.lang.String"/>
             <description type="java.lang.String"/>
@@ -121,6 +117,35 @@
             <helpId type="java.lang.String"/>
         </action>
 
+    </extensionPoint>
+
+    <!--
+       todo - Describe configuration elements
+    -->
+    <extensionPoint id="layerEditors">
+        <layerEditor type="org.esa.beam.framework.ui.layer.LayerEditorDescriptor"
+                     class="@descriptorClass"
+                     autoConfig="true">
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerEditorDescriptor</descriptorClass>
+            <editor field="layerEditorClass" type="java.lang.Class"/>
+            <layerType field="layerTypeClass" type="java.lang.Class"/>
+        </layerEditor>
+    </extensionPoint>
+
+    <!--
+       todo - Describe configuration elements
+    -->
+    <extensionPoint id="layerSources">
+        <layerSource type="org.esa.beam.framework.ui.layer.LayerSourceDescriptor"
+                     class="@descriptorClass"
+                     autoConfig="true">
+            <descriptorClass type="java.lang.Class">org.esa.beam.framework.ui.layer.DefaultLayerSourceDescriptor</descriptorClass>
+            <id field="id" type="java.lang.String"/>
+            <name field="name" type="java.lang.String"/>
+            <description field="description" type="java.lang.String"/>
+            <class field="layerSourceClass" type="java.lang.Class"/>
+            <layerType field="layerTypeClassName" type="java.lang.String"/>
+        </layerSource>
     </extensionPoint>
 
 </module>

@@ -1,4 +1,4 @@
-package org.esa.beam.visat.toolviews.layermanager;
+package org.esa.beam.framework.ui.layer;
 
 import com.bc.ceres.glayer.LayerType;
 

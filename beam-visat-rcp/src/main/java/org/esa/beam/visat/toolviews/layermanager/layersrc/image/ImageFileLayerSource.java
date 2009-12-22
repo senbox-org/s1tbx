@@ -20,10 +20,10 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.layer.LayerSource;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.visat.toolviews.layermanager.LayerSource;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 
 import java.awt.geom.AffineTransform;
 import java.io.File;

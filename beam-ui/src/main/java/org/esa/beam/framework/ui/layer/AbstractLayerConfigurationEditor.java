@@ -1,4 +1,4 @@
-package org.esa.beam.visat.toolviews.layermanager.editors;
+package org.esa.beam.framework.ui.layer;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyAccessor;
@@ -11,7 +11,6 @@ import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.PropertyPane;
-import org.esa.beam.visat.toolviews.layermanager.LayerEditor;
 
 import javax.swing.JComponent;
 import java.beans.PropertyChangeEvent;
@@ -20,13 +19,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * General Editor for layers using {@link com.bc.ceres.binding.PropertyDescriptor ValueDescriptors}.
+ * Base class for editors allowing to modify a layer's configuration.
  *
  * @author Marco Zühlke
  * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
-public abstract class AbstractBindingLayerEditor implements LayerEditor {
+public abstract class AbstractLayerConfigurationEditor implements LayerEditor {
 
     private BindingContext bindingContext;
 
@@ -40,25 +39,12 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
         // bindingContext = new BindingContext(layer.getConfiguration());
         bindingContext = new BindingContext();
         PropertySet propertySet = bindingContext.getPropertySet();
-        propertySet.addPropertyChangeListener(new UpdateStylePropertyChangeListener());
+        propertySet.addPropertyChangeListener(new PropertyChangeHandler());
         initializeBinding(appContext, bindingContext);
         // ODOT
 
-        PropertyPane parametersPane = new PropertyPane(bindingContext);
-        return parametersPane.createPanel();
-    }
-
-    protected final void addValueDescriptor(PropertyDescriptor propertyDescriptor) {
-        Map<String, Object> valueData = new HashMap<String, Object>();
-        String propertyName = propertyDescriptor.getName();
-        Object value = getLayer().getConfiguration().getValue(propertyName);
-        if (value == null) {
-            value = propertyDescriptor.getDefaultValue();
-        }
-        valueData.put(propertyName, value);
-        PropertyAccessor accessor = new MapEntryAccessor(valueData, propertyName);
-        Property model = new Property(propertyDescriptor, accessor);
-        bindingContext.getPropertySet().addProperty(model);
+        PropertyPane propertyPane = new PropertyPane(bindingContext);
+        return propertyPane.createPanel();
     }
 
     @Override
@@ -80,17 +66,41 @@ public abstract class AbstractBindingLayerEditor implements LayerEditor {
         }
     }
 
-    protected final BindingContext getBindingContext() {
-        return bindingContext;
-    }
-
     protected final Layer getLayer() {
         return layer;
     }
 
+    protected final BindingContext getBindingContext() {
+        return bindingContext;
+    }
+
+    /**
+     * Overidden in order to subsequently call {@link #addPropertyDescriptor(com.bc.ceres.binding.PropertyDescriptor)}
+     * for each property that shall be editable by this editor.
+     *
+     * @param appContext The application context.
+     * @param bindingContext The binding context.
+     */
     protected abstract void initializeBinding(AppContext appContext, final BindingContext bindingContext);
 
-    private class UpdateStylePropertyChangeListener implements PropertyChangeListener {
+    /**
+     * Defines an editable property.
+     * @param propertyDescriptor The property's descriptor.
+     */
+    protected final void addPropertyDescriptor(PropertyDescriptor propertyDescriptor) {
+        Map<String, Object> valueData = new HashMap<String, Object>();
+        String propertyName = propertyDescriptor.getName();
+        Object value = getLayer().getConfiguration().getValue(propertyName);
+        if (value == null) {
+            value = propertyDescriptor.getDefaultValue();
+        }
+        valueData.put(propertyName, value);
+        PropertyAccessor accessor = new MapEntryAccessor(valueData, propertyName);
+        Property model = new Property(propertyDescriptor, accessor);
+        bindingContext.getPropertySet().addProperty(model);
+    }
+
+    private class PropertyChangeHandler implements PropertyChangeListener {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {

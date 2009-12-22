@@ -17,6 +17,7 @@ package org.esa.beam.visat.toolviews.layermanager;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.layer.LayerEditor;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;

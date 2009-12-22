@@ -1,4 +1,4 @@
-package org.esa.beam.visat.toolviews.layermanager.layersrc;
+package org.esa.beam.framework.ui.layer;
 
 
 import com.bc.ceres.glayer.CollectionLayer;
@@ -17,7 +17,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
-class CollectionLayerAssistantPage extends AbstractLayerSourceAssistantPage {
+public class CollectionLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private static final ArrayList<String> names = new ArrayList<String>();
     private JComboBox nameBox;

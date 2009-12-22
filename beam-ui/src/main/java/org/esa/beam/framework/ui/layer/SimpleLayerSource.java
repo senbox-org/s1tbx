@@ -1,10 +1,12 @@
-package org.esa.beam.visat.toolviews.layermanager.layersrc;
+package org.esa.beam.framework.ui.layer;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.binding.PropertyContainer;
-import org.esa.beam.visat.toolviews.layermanager.LayerSource;
+import org.esa.beam.framework.ui.layer.LayerSource;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 
 /**
  * This layer source uses the given layer type to construct new layer.

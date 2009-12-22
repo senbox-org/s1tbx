@@ -14,9 +14,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.toolviews.layermanager.layersrc;
+package org.esa.beam.framework.ui.layer;
 
-import org.esa.beam.visat.toolviews.layermanager.LayerSource;
+import org.esa.beam.framework.ui.layer.LayerSource;
 
 /**
  * This layer source creates a new and empty collection layer.

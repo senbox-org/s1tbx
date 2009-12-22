@@ -2,8 +2,8 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.geotools.styling.Style;
 import org.opengis.util.InternationalString;

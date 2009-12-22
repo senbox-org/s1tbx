@@ -154,19 +154,7 @@
 
     <categories>System,Application,VISAT</categories>
 
-    <extensionPoint id="layerEditors">
-        <layerEditor type="org.esa.beam.visat.toolviews.layermanager.LayerEditorDescriptor"
-                     class="@descriptorClass"
-                     autoConfig="true">
-            <descriptorClass type="java.lang.Class">
-                org.esa.beam.visat.toolviews.layermanager.DefaultLayerEditorDescriptor
-            </descriptorClass>
-            <editor field="layerEditorClass" type="java.lang.Class"/>
-            <layerType field="layerTypeClass" type="java.lang.Class"/>
-        </layerEditor>
-    </extensionPoint>
-
-    <extension point="beam-visat-rcp:layerEditors">
+    <extension point="beam-ui:layerEditors">
         <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.ImageLayerEditor</editor>
             <layerType>com.bc.ceres.glayer.support.ImageLayer$Type</layerType>
@@ -183,24 +171,13 @@
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.GraticuleLayerEditor</editor>
             <layerType>org.esa.beam.glayer.GraticuleLayerType</layerType>
         </layerEditor>
+        <layerEditor>
+            <editor>org.esa.beam.framework.ui.product.VectorDataLayerEditor</editor>
+            <layerType>org.esa.beam.framework.ui.product.VectorDataLayer</layerType>
+        </layerEditor>
     </extension>
 
-    <extensionPoint id="layerSources">
-        <layerSource type="org.esa.beam.visat.toolviews.layermanager.LayerSourceDescriptor"
-                     class="@descriptorClass"
-                     autoConfig="true">
-            <descriptorClass type="java.lang.Class">
-                org.esa.beam.visat.toolviews.layermanager.DefaultLayerSourceDescriptor
-            </descriptorClass>
-            <id field="id" type="java.lang.String"/>
-            <name field="name" type="java.lang.String"/>
-            <description field="description" type="java.lang.String"/>
-            <class field="layerSourceClass" type="java.lang.Class"/>
-            <layerType field="layerTypeClassName" type="java.lang.String"/>
-        </layerSource>
-    </extensionPoint>
-
-    <extension point="beam-visat-rcp:layerSources">
+    <extension point="beam-ui:layerSources">
         <layerSource>
             <id>wms-layer-source</id>
             <name>Image from Web Map Server (WMS)</name>
@@ -229,7 +206,7 @@
             <id>group-layer-source</id>
             <name>Layer Group</name>
             <description>Inserts an empty Layer Group</description>
-            <class>org.esa.beam.visat.toolviews.layermanager.layersrc.CollectionLayerSource</class>
+            <class>org.esa.beam.framework.ui.layer.CollectionLayerSource</class>
         </layerSource>
 
         <layerSource>

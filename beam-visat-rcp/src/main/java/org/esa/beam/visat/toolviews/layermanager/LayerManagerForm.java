@@ -1,19 +1,20 @@
 package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
+import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.swing.TreeCellExtender;
 import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.CheckBoxTreeSelectionModel;
+import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.layer.LayerSourceAssistantPane;
+import org.esa.beam.framework.ui.layer.LayerSourceDescriptor;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.visat.VisatActivator;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourceAssistantPane;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
 
 import javax.swing.AbstractButton;
@@ -216,7 +217,7 @@ class LayerManagerForm extends AbstractLayerForm {
         Layer[] children = selectedLayer.getChildren().toArray(new Layer[selectedLayer.getChildren().size()]);
         for (Layer childLayer : children) {
             if (isLayerProtectedImpl(childLayer) ||
-                isChildLayerProtected(childLayer)) {
+                    isChildLayerProtected(childLayer)) {
                 return true;
             }
         }
@@ -370,7 +371,7 @@ class LayerManagerForm extends AbstractLayerForm {
             LayerSourceAssistantPane pane = new LayerSourceAssistantPane(SwingUtilities.getWindowAncestor(control),
                                                                          "Add Layer",
                                                                          getAppContext());
-            LayerSourceDescriptor[] layerSourceDescriptors = VisatActivator.getInstance().getLayerSources();
+            LayerSourceDescriptor[] layerSourceDescriptors = BeamUiActivator.getInstance().getLayerSources();
             pane.show(new SelectLayerSourceAssistantPage(layerSourceDescriptors), screenBounds);
             screenBounds = pane.getWindow().getBounds();
         }

@@ -22,7 +22,7 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
 import org.geotools.data.ows.CRSEnvelope;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.ows.StyleImpl;

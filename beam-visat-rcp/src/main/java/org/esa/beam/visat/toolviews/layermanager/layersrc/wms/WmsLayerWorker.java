@@ -4,7 +4,7 @@ import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
 
 import java.awt.Dimension;
 import java.util.concurrent.ExecutionException;

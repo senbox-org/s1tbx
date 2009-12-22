@@ -16,9 +16,9 @@
  */
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
-import org.esa.beam.visat.toolviews.layermanager.LayerSource;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.LayerSource;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 
 /**
  * A layer source for ESRI shape files.

@@ -1,12 +1,14 @@
-package org.esa.beam.visat.toolviews.layermanager;
+package org.esa.beam.framework.ui.layer;
 
 import com.bc.ceres.core.ExtensionFactory;
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
-
 import junit.framework.TestCase;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.glayer.GraticuleLayerType;
-import org.esa.beam.visat.toolviews.layermanager.editors.GraticuleLayerEditor;
+
+import javax.swing.JComponent;
 
 public class DefaultLayerEditorDescriptorTest extends TestCase {
 
@@ -28,5 +30,16 @@ public class DefaultLayerEditorDescriptorTest extends TestCase {
         assertNotNull(extension);
         assertTrue(extension instanceof LayerEditor);
         assertTrue(extension instanceof GraticuleLayerEditor);
+    }
+
+    class GraticuleLayerEditor implements LayerEditor {
+        @Override
+        public JComponent createControl(AppContext appContext, Layer layer) {
+            return null;
+        }
+
+        @Override
+        public void updateControl() {
+        }
     }
 }

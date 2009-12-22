@@ -2,9 +2,9 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.windfield;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.visat.toolviews.layermanager.LayerSource;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.LayerSource;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 
 /**
  * A source for {@link WindFieldLayer}s.

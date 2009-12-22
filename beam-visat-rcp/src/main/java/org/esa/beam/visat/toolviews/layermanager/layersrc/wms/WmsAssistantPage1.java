@@ -1,9 +1,9 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
 import org.esa.beam.framework.ui.UserInputHistory;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
 import org.geotools.data.ows.WMSCapabilities;
 import org.geotools.data.wms.WebMapServer;
 

@@ -2,7 +2,7 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
 
 import java.util.concurrent.ExecutionException;
 

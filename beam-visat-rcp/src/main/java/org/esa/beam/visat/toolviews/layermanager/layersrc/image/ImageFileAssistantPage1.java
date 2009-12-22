@@ -5,10 +5,10 @@ import com.bc.ceres.glayer.tools.Tools;
 import org.esa.beam.framework.ui.FileHistory;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.AbstractLayerSourceAssistantPage;
+import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.FilePathListCellRenderer;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.LayerSourcePageContext;
+import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.PlanarImage;

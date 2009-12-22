@@ -7,6 +7,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.layer.AbstractLayerConfigurationEditor;
 import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.glevel.MaskImageMultiLevelSource;
 
@@ -20,7 +21,7 @@ import java.beans.PropertyChangeListener;
  * @version $ Revision: $ Date: $
  * @since BEAM 4.6
  */
-public class NoDataLayerEditor extends AbstractBindingLayerEditor {
+public class NoDataLayerEditor extends AbstractLayerConfigurationEditor {
 
     @Override
     protected void initializeBinding(AppContext appContext, final BindingContext bindingContext) {
@@ -30,7 +31,7 @@ public class NoDataLayerEditor extends AbstractBindingLayerEditor {
         vd.setDisplayName("No-data colour");
         vd.setDefaultConverter();
 
-        addValueDescriptor(vd);
+        addPropertyDescriptor(vd);
         bindingContext.getPropertySet().addPropertyChangeListener(NoDataLayerType.PROPERTY_NAME_COLOR,
                                                                      new UpdateImagePropertyChangeListener());
     }
