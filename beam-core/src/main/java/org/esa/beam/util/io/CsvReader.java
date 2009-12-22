@@ -108,7 +108,7 @@ public class CsvReader extends LineNumberReader {
      */
     public String[] readRecord() throws IOException {
 
-        String line = null;
+        String line;
 
         while (true) {
             line = readLine();
