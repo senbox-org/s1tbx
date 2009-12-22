@@ -13,6 +13,7 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.GeometryDescriptor;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -58,6 +59,9 @@ public class VectorDataNodeReaderTest extends TestCase {
 
         assertEquals("description", ad3.getType().getName().getLocalPart());
         assertEquals(String.class, ad3.getType().getBinding());
+
+        GeometryDescriptor geometryDescriptor = simpleFeatureType.getGeometryDescriptor();
+        assertEquals("geom", geometryDescriptor.getType().getName().getLocalPart());
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = readerFeatures(csvReader, simpleFeatureType);
 
