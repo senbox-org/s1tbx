@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.AbstractBand;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -925,11 +926,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
     private DefaultMutableTreeNode getGroupTNode(ProductNode sourceNode, DefaultMutableTreeNode productTNode) {
         DefaultMutableTreeNode groupTNode = null;
-// Uncomment for debugging masks:
-        /*if (sourceNode instanceof Mask) {
-            groupTNode = getTNode(productTNode, MASKS);
-        } else*/
-        if (sourceNode instanceof AbstractBand) {
+        if (sourceNode instanceof Mask) {
+            // Uncomment for debugging masks:
+            // groupTNode = getTNode(productTNode, MASKS);
+        } else if (sourceNode instanceof AbstractBand) {
             groupTNode = getTNode(productTNode, BANDS);
         } else if (sourceNode instanceof TiePointGrid) {
             groupTNode = getTNode(productTNode, TIE_POINT_GRIDS);
