@@ -1,4 +1,4 @@
-package org.esa.beam.dataio;
+package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;

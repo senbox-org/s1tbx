@@ -28,7 +28,7 @@ import com.bc.ceres.core.runtime.ModuleContext;
 import com.bc.ceres.core.runtime.ModuleRuntime;
 import com.bc.ceres.core.runtime.ModuleState;
 import com.vividsolutions.jts.geom.Geometry;
-import org.esa.beam.dataio.JtsGeometryConverter;
+import org.esa.beam.dataio.geometry.JtsGeometryConverter;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RGBImageProfileManager;
 import org.esa.beam.util.SystemUtils;
