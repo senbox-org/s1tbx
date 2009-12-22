@@ -20,9 +20,9 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.grender.Rendering;
-import com.bc.ceres.swing.figure.AbstractFigureChangeListener;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureChangeEvent;
+import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.support.DefaultFigureCollection;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -48,7 +48,7 @@ public class VectorDataLayer extends Layer {
     private final SimpleFeatureFigureFactory figureFactory;
     private FigureCollection figureCollection;
     private VectorDataChangeHandler vectorDataChangeHandler;
-    private boolean adjustingFigures;
+    private boolean reactingAgainstFigureChange;
 
 
     public VectorDataLayer(LayerContext ctx, VectorDataNode vectorDataNode) {
@@ -67,7 +67,7 @@ public class VectorDataLayer extends Layer {
 
         vectorDataChangeHandler = new VectorDataChangeHandler();
         vectorDataNode.getProduct().addProductNodeListener(vectorDataChangeHandler);
-        figureCollection.addChangeListener(new FigureCollectionChangeListener());
+        figureCollection.addChangeListener(new FigureChangeHandler());
     }
 
     public VectorDataNode getVectorDataNode() {
@@ -153,42 +153,34 @@ public class VectorDataLayer extends Layer {
                 if (ProductNode.PROPERTY_NAME_NAME.equals(event.getPropertyName())) {
                     setName(VectorDataLayer.this.vectorDataNode.getName());
                 }
-                if (VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION.equals(event.getPropertyName())) {
-                    if (!adjustingFigures) {
-                        updateFigureCollection();
-                        fireLayerDataChanged(null); // todo - compute changed modelRegion instead of passing null (nf)
-                    }
+                if (!reactingAgainstFigureChange
+                        && VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION.equals(event.getPropertyName())) {
+                    // System.out.println("VectorDataLayer$VectorDataChangeHandler.nodeChanged: event = " + event);
+                    updateFigureCollection();
+                    // todo - compute changed modelRegion instead of passing null (nf)
+                    fireLayerDataChanged(null);
                 }
             }
         }
     }
 
-    private class FigureCollectionChangeListener extends AbstractFigureChangeListener {
+    private class FigureChangeHandler implements FigureChangeListener {
         @Override
         public void figureChanged(FigureChangeEvent event) {
+            // System.out.println("VectorDataLayer$FigureChangeHandler.figureChanged: event = " + event);
             final Figure sourceFigure = event.getSourceFigure();
             if (sourceFigure instanceof SimpleFeatureFigure) {
-                System.out.println("sourceFigure = " + sourceFigure);
                 SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) sourceFigure;
                 final SimpleFeature[] features = {featureFigure.getSimpleFeature()};
                 try {
-                    adjustingFigures = true;
+                    reactingAgainstFigureChange = true;
                     VectorDataLayer.this.vectorDataNode.fireFeatureCollectionChanged(features, features);
-                    fireLayerDataChanged(null); // todo - compute changed modelRegion instead of passing null (nf)
+                    // todo - compute changed modelRegion instead of passing null (nf)
+                    fireLayerDataChanged(null);
                 } finally {
-                    adjustingFigures = false;
+                    reactingAgainstFigureChange = false;
                 }
             }
-        }
-
-        @Override
-        public void figuresAdded(FigureChangeEvent event) {
-
-        }
-
-        @Override
-        public void figuresRemoved(FigureChangeEvent event) {
-
         }
     }
 }
