@@ -76,11 +76,11 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
                                                                                           product);
         final String name = uniqueNameAndLabel[0];
         final String label = uniqueNameAndLabel[1];
-        final Pin newPlacemark = new Pin(name, label, "",
-                                         new PixelPos(view.getCurrentPixelX() + 0.5f,
-                                                      view.getCurrentPixelY() + 0.5f),
-                                         null,
-                                         placemarkDescriptor.createDefaultSymbol());
+        final PixelPos pixelPos = new PixelPos(view.getCurrentPixelX() + 0.5f,
+                                               view.getCurrentPixelY() + 0.5f);
+        final Pin newPlacemark = new Pin(name, label, "", pixelPos, null, placemarkDescriptor.createDefaultSymbol(),
+                                         product.getGeoCoding());
+
         getPlacemarkGroup(product).add(newPlacemark);
     }
 
