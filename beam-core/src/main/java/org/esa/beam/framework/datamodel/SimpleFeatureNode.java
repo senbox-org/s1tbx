@@ -3,17 +3,17 @@ package org.esa.beam.framework.datamodel;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.opengis.feature.simple.SimpleFeature;
 
-public class SimpleFeatureNode extends ProductNode {
+class SimpleFeatureNode extends ProductNode {
 
     private static final String PROPERTY_NAME_SIMPLE_FEATURE = "simpleFeature";
 
     private final SimpleFeature simpleFeature;
 
-    public SimpleFeatureNode(SimpleFeature simpleFeature) {
+    SimpleFeatureNode(SimpleFeature simpleFeature) {
         this(simpleFeature, null);
     }
 
-    public SimpleFeatureNode(SimpleFeature simpleFeature, String description) {
+    SimpleFeatureNode(SimpleFeature simpleFeature, String description) {
         super(simpleFeature.getID(), description);
         this.simpleFeature = simpleFeature;
     }
