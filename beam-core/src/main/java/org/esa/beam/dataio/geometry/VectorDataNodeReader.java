@@ -2,8 +2,9 @@ package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.ConverterRegistry;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.io.CsvReader;
+import org.esa.beam.util.io.FileUtils;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -11,26 +12,32 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
 public class VectorDataNodeReader {
-    public static final char DELIMITER_CHAR = '\t';
-    public static final String NULL_TEXT = "[null]";
 
-    static {
-        JtsGeometryConverter.registerConverter();
+    public VectorDataNode read(File file) throws IOException {
+        FileReader reader = new FileReader(file);
+        try {
+            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures(reader);
+            return new VectorDataNode(FileUtils.getFilenameWithoutExtension(file), featureCollection);
+        } finally {
+            reader.close();
+        }
     }
 
     public FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures(Reader reader) throws IOException {
-        CsvReader csvReader = new CsvReader(reader, new char[]{DELIMITER_CHAR});
+        CsvReader csvReader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR});
         SimpleFeatureType type = readFeatureType(csvReader);
         return readFeatures(csvReader, type);
     }
 
 
     private FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures(CsvReader csvReader, SimpleFeatureType simpleFeatureType) throws IOException {
-        Converter<?>[] converters = getConverters(simpleFeatureType);
+        Converter<?>[] converters = VectorDataNodeIO.getConverters(simpleFeatureType);
 
         DefaultFeatureCollection fc = new DefaultFeatureCollection("?", simpleFeatureType);
         SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeatureType);
@@ -51,7 +58,7 @@ public class VectorDataNodeReader {
                 } else {
                     try {
                         Object value = null;
-                        if (!NULL_TEXT.equals(token)) {
+                        if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
                             value = converters[i - 1].parse(token);
                         }
                         builder.set(simpleFeatureType.getDescriptor(i - 1).getLocalName(), value);
@@ -64,19 +71,6 @@ public class VectorDataNodeReader {
             fc.add(simpleFeature);
         }
         return fc;
-    }
-
-    static Converter[] getConverters(SimpleFeatureType simpleFeatureType) throws IOException {
-        Converter[] converters = new Converter[simpleFeatureType.getAttributeCount()];
-        for (int i = 0; i < converters.length; i++) {
-            Class<?> attributeType = simpleFeatureType.getType(i).getBinding();
-            Converter converter = ConverterRegistry.getInstance().getConverter(attributeType);
-            if (converter == null) {
-                throw new IOException(String.format("No converter for type %s found.", attributeType));
-            }
-            converters[i] = converter;
-        }
-        return converters;
     }
 
     private SimpleFeatureType readFeatureType(CsvReader csvReader) throws IOException {

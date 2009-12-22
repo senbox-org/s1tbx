@@ -1,23 +1,31 @@
 package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.Converter;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 public class VectorDataNodeWriter {
 
-    public static final char DELIMITER_CHAR = VectorDataNodeReader.DELIMITER_CHAR;
-    public static final String NULL_TEXT = VectorDataNodeReader.NULL_TEXT;
-
     private static long id = System.nanoTime();
+
+    public void write(VectorDataNode vectorDataNode, File file) throws IOException {
+        FileWriter writer = new FileWriter(file);
+        try {
+            writeFeatures(vectorDataNode.getFeatureCollection(), writer);
+        } finally {
+            writer.close();
+        }
+    }
 
     public void writeFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, Writer writer) throws IOException {
         SimpleFeatureType simpleFeatureType = featureCollection.getSchema();
@@ -26,7 +34,7 @@ public class VectorDataNodeWriter {
     }
 
     private void writeFeatures0(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, Writer writer) throws IOException {
-        Converter[] converters = VectorDataNodeReader.getConverters(featureCollection.getSchema());
+        Converter[] converters = VectorDataNodeIO.getConverters(featureCollection.getSchema());
         Iterator<SimpleFeature> featureIterator = featureCollection.iterator();
 
         while (featureIterator.hasNext()) {
@@ -41,12 +49,12 @@ public class VectorDataNodeWriter {
             List<Object> attributes = simpleFeature.getAttributes();
             for (int i = 0; i < attributes.size(); i++) {
                 Object value = attributes.get(i);
-                String text = NULL_TEXT;
+                String text = VectorDataNodeIO.NULL_TEXT;
                 if (value != null) {
                     Converter converter = converters[i];
                     text = converter.format(value);
                 }
-                writer.write(DELIMITER_CHAR);
+                writer.write(VectorDataNodeIO.DELIMITER_CHAR);
                 writer.write(text);
             }
             writer.write('\n');
@@ -65,7 +73,7 @@ public class VectorDataNodeWriter {
             String name = attributeDescriptor.getLocalName();
             String type = typeConverter.format(binding);
 
-            writer.write(DELIMITER_CHAR);
+            writer.write(VectorDataNodeIO.DELIMITER_CHAR);
             writer.write(name);
             writer.write(':');
             writer.write(type);
