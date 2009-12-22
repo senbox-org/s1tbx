@@ -22,9 +22,9 @@ public class JtsGeometryConverterTest {
     private static final GeometryFactory factory = new GeometryFactory();
 
     @BeforeClass
-    public static void setUp() throws Exception {
+     static void setUp() throws Exception {
         converter = new JtsGeometryConverter();
-        ConverterRegistry.getInstance().setConverter(Geometry.class, converter);
+        JtsGeometryConverter.registerConverter();
     }
 
     @Test

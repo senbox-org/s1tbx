@@ -65,16 +65,11 @@ public class BeamCoreActivator implements Activator {
     public void start(ModuleContext moduleContext) throws CoreException {
         this.moduleContext = moduleContext;
         registerRGBProfiles(moduleContext);
-        registerConverter();
     }
 
     @Override
     public void stop(ModuleContext moduleContext) throws CoreException {
         this.moduleContext = null;
-    }
-
-    private static void registerConverter()  {
-        ConverterRegistry.getInstance().setConverter(Geometry.class, new JtsGeometryConverter());
     }
 
     private static void registerRGBProfiles(ModuleContext moduleContext) throws CoreException {
