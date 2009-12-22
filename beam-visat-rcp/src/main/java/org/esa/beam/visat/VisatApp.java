@@ -1977,9 +1977,9 @@ public class VisatApp extends BasicApp implements AppContext {
                 "pinTool",
                 "gcpTool",
                 "drawLineTool",
+                "drawPolylineTool",
                 "drawRectangleTool",
                 "drawEllipseTool",
-                "drawPolylineTool",
                 "drawPolygonTool",
 // todo - activate magic stick (nf)
 //                "magicStickTool",
