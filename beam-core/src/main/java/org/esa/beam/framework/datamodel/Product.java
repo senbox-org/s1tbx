@@ -46,9 +46,6 @@ import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.geotools.feature.CollectionEvent;
-import org.geotools.feature.CollectionListener;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.Dimension;
@@ -272,8 +269,8 @@ public class Product extends ProductNode {
         final VectorDataNode gcpVectorDataNode = new VectorDataNode("ground_control_points",
                                                                     Pin.getGcpFeatureType());
         this.vectorDataGroup.add(gcpVectorDataNode);
-        this.pinGroup = new SynchronizedProductNodeGroup("pinGroup", pinVectorDataNode);
-        this.gcpGroup = new SynchronizedProductNodeGroup("gcpGroup", gcpVectorDataNode);
+        this.pinGroup = new PinGroup(this, "pinGroup", pinVectorDataNode);
+        this.gcpGroup = new PinGroup(this, "gcpGroup", gcpVectorDataNode);
 
         setModified(false);
 
@@ -2741,80 +2738,6 @@ public class Product extends ProductNode {
         });
     }
 
-    private class SynchronizedProductNodeGroup extends ProductNodeGroup<Pin> {
-
-        private final VectorDataNode vectorDataNode;
-
-        SynchronizedProductNodeGroup(String name, VectorDataNode vectorDataNode) {
-            super(Product.this, name, true);
-            this.vectorDataNode = vectorDataNode;
-            vectorDataNode.getFeatureCollection().addListener(new VectorDataFeatureCollectionListener());
-        }
-
-        @Override
-        public boolean add(Pin pin) {
-            final boolean added = super.add(pin);
-            if (added) {
-                addToVectorData(pin);
-            }
-            return added;
-        }
-
-        @Override
-        public void add(int index, Pin pin) {
-            super.add(index, pin);
-            addToVectorData(pin);
-        }
-
-        @Override
-        public boolean remove(Pin pin) {
-            final boolean removed = super.remove(pin);
-            if (removed) {
-                removeFromVectorData(pin);
-            }
-            return removed;
-        }
-
-        private void addToVectorData(final Pin pin) {
-            vectorDataNode.getFeatureCollection().add(pin.getSimpleFeature());
-        }
-
-        private void removeFromVectorData(Pin pin) {
-            final Iterator<SimpleFeature> iterator = vectorDataNode.getFeatureCollection().iterator();
-            while (iterator.hasNext()) {
-                final SimpleFeature feature = iterator.next();
-                if (feature == pin.getSimpleFeature()) {
-                    iterator.remove();
-                    break;
-                }
-            }
-        }
-
-        private class VectorDataFeatureCollectionListener implements CollectionListener {
-
-            @Override
-            public void collectionChanged(CollectionEvent tce) {
-                if (tce.getEventType() == CollectionEvent.FEATURES_ADDED) {
-                    final SimpleFeature[] features = tce.getFeatures();
-                    for (SimpleFeature feature : features) {
-                        final String pinName = feature.getID();
-                        if (!SynchronizedProductNodeGroup.this.contains(pinName)) {
-                            SynchronizedProductNodeGroup.super.add(new Pin(feature));
-                        }
-                    }
-                } else if (tce.getEventType() == CollectionEvent.FEATURES_REMOVED) {
-                    final SimpleFeature[] features = tce.getFeatures();
-                    for (SimpleFeature feature : features) {
-                        final String pinName = feature.getID();
-                        Pin pin = SynchronizedProductNodeGroup.this.get(pinName);
-                        if (pin != null) {
-                            SynchronizedProductNodeGroup.this.remove(pin);
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 

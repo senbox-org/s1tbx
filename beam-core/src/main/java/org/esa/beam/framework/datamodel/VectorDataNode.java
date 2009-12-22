@@ -84,7 +84,7 @@ public class VectorDataNode extends ProductNode {
 
     /**
      * Informs clients which have registered a {@link ProductNodeListener}
-     * with this {@link VectorDataNode} that one or more underlying
+     * with the {@link Product} containing this {@link VectorDataNode}, that one or more underlying
      * OpenGIS {@code SimpleFeature}s have changed.
      * <p/>
      * The method fires a product node property change event. The property name is always

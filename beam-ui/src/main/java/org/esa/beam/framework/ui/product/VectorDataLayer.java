@@ -168,6 +168,7 @@ public class VectorDataLayer extends Layer {
         public void figureChanged(FigureChangeEvent event) {
             final Figure sourceFigure = event.getSourceFigure();
             if (sourceFigure instanceof SimpleFeatureFigure) {
+                System.out.println("sourceFigure = " + sourceFigure);
                 SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) sourceFigure;
                 final SimpleFeature[] features = {featureFigure.getSimpleFeature()};
                 try {

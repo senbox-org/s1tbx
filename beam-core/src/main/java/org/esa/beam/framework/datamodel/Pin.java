@@ -58,6 +58,7 @@ public class Pin extends ProductNode {
     public static final String PROPERTY_NAME_PIXELPOS = "pixelPos";
     public static final String PROPERTY_NAME_GEOPOS = "geoPos";
     public static final String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
+    public static final String PROPERTY_NAME_FEATURE = "feature";
 
     private final SimpleFeature feature;
 
@@ -132,7 +133,7 @@ public class Pin extends ProductNode {
      *
      * @since BEAM 4.7
      */
-    public SimpleFeature getSimpleFeature() {
+    public SimpleFeature getFeature() {
         return feature;
     }
 
@@ -486,7 +487,10 @@ public class Pin extends ProductNode {
         return null;
     }
 
-    private SimpleFeature createPinFeature(String name, String label, PixelPos pixelPos, GeoPos geoPos,
+    private SimpleFeature createPinFeature(String name,
+                                           String label,
+                                           PixelPos pixelPos,
+                                           GeoPos geoPos,
                                            PlacemarkSymbol symbol) {
         final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(Holder.PIN_FEATURE_TYPE);
 
