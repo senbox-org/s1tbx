@@ -9,9 +9,10 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
 import org.junit.AfterClass;
-import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class DefaultLayerSourceDescriptorTest {
 
@@ -38,7 +39,7 @@ public class DefaultLayerSourceDescriptorTest {
         final String name = "Image from Web Mapping Server (WMS)";
         final String description = "Retrieves images from a Web Mapping Server (WMS)";
         DefaultLayerSourceDescriptor descriptor = new DefaultLayerSourceDescriptor(id, name, description,
-                                                                                   SimpleLayerSource.class);
+                                                                                   DummyLayerSource.class);
         assertEquals("wms-layer-source", descriptor.getId());
         assertEquals("Image from Web Mapping Server (WMS)", descriptor.getName());
         assertEquals("Retrieves images from a Web Mapping Server (WMS)", descriptor.getDescription());
@@ -46,7 +47,7 @@ public class DefaultLayerSourceDescriptorTest {
 
         final LayerSource layerSource = descriptor.createLayerSource();
         assertNotNull(layerSource);
-        assertTrue(layerSource instanceof SimpleLayerSource);
+        assertTrue(layerSource instanceof DummyLayerSource);
     }
 
     @Test
@@ -83,6 +84,41 @@ public class DefaultLayerSourceDescriptorTest {
         @Override
         public PropertySet createLayerConfig(LayerContext ctx) {
             return new PropertyContainer();
+        }
+    }
+
+    private static class DummyLayerSource implements LayerSource {
+
+        public DummyLayerSource() {
+        }
+
+        @Override
+        public boolean isApplicable(LayerSourcePageContext pageContext) {
+            return false;
+        }
+
+        @Override
+        public boolean hasFirstPage() {
+            return false;
+        }
+
+        @Override
+        public AbstractLayerSourceAssistantPage getFirstPage(LayerSourcePageContext pageContext) {
+            return null;
+        }
+
+        @Override
+        public boolean canFinish(LayerSourcePageContext pageContext) {
+            return false;
+        }
+
+        @Override
+        public boolean performFinish(LayerSourcePageContext pageContext) {
+            return false;
+        }
+
+        @Override
+        public void cancel(LayerSourcePageContext pageContext) {
         }
     }
 }
