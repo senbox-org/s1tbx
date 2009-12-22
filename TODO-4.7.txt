@@ -21,6 +21,17 @@ Reprojection:
 
 Masks:
 ======
+* Statistics window should use the most active product scene view, if not exists,
+  the selected band in the product tree view
+  ==> PRE, ?, OPEN
+* Mask visibility control is often not in sync. between Mask/ROI manager &
+  Layer Manager
+  ==> PRE, ?, OPEN
+* New geometry masks shall always be assigned as ROI by default 
+  Layer Manager
+  ==> PRE, ?, OPEN
+
+
 * Old bitmask overlay window: Only list "real" bitmasks. What is real?
   E.g. Flag-related masks, masks set my reader, masks initially in the product,...
   It is only used for bitmask overlay, no mask management.
