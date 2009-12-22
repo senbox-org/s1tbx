@@ -65,14 +65,25 @@ public class Pin extends ProductNode {
     private final SimpleFeature feature;
 
     /**
-     * Returns the type of features underlying all placemarks.
+     * Returns the type of features underlying all pins.
      *
-     * @return the type of features underlying all placemarks.
+     * @return the type of features underlying all pins.
      *
      * @since BEAM 4.7
      */
-    public static SimpleFeatureType getPlacemarkFeatureType() {
-        return Holder.PLACEMARK_FEATURE_TYPE;
+    public static SimpleFeatureType getPinFeatureType() {
+        return Holder.PIN_FEATURE_TYPE;
+    }
+
+    /**
+     * Returns the type of features underlying all pins.
+     *
+     * @return the type of features underlying all pins.
+     *
+     * @since BEAM 4.7
+     */
+    public static SimpleFeatureType getGcpFeatureType() {
+        return Holder.GCP_FEATURE_TYPE;
     }
 
     /**
@@ -526,10 +537,10 @@ public class Pin extends ProductNode {
         return null;
     }
 
-    private static SimpleFeatureType createFeatureType() {
+    private static SimpleFeatureType createFeatureType(String name) {
         final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
 
-        builder.setName("Placemark");
+        builder.setName(name);
         builder.add(Pin.PROPERTY_NAME_LABEL, String.class);
         builder.add(Pin.PROPERTY_NAME_PIXELPOS, Point.class);
         builder.add(Pin.PROPERTY_NAME_GEOMETRY, Point.class);
@@ -542,7 +553,7 @@ public class Pin extends ProductNode {
 
     private static SimpleFeature createFeature(String name, String label, PixelPos pixelPos, GeoPos geoPos,
                                                PlacemarkSymbol symbol, GeoCoding geoCoding) {
-        final SimpleFeatureType featureType = getPlacemarkFeatureType();
+        final SimpleFeatureType featureType = getPinFeatureType();
         final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
 
         if (label == null) {
@@ -559,7 +570,6 @@ public class Pin extends ProductNode {
         }
         if (geoPos != null) {
             builder.set(Pin.PROPERTY_NAME_GEOPOS, geometryFactory.createPoint(toCoordinate(geoPos)));
-            // todo - geometry?
         }
         builder.set("symbol", symbol);
 
@@ -568,6 +578,7 @@ public class Pin extends ProductNode {
 
     private static class Holder {
 
-        private static final SimpleFeatureType PLACEMARK_FEATURE_TYPE = createFeatureType();
+        private static final SimpleFeatureType PIN_FEATURE_TYPE = createFeatureType(Product.PIN_FEATURE_TYPE_NAME);
+        private static final SimpleFeatureType GCP_FEATURE_TYPE = createFeatureType(Product.GCP_FEATURE_TYPE_NAME);
     }
 }

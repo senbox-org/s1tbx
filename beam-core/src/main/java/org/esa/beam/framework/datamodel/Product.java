@@ -264,11 +264,9 @@ public class Product extends ProductNode {
         this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
-        final VectorDataNode pinVectorDataNode = new VectorDataNode("pins",
-                                                                    Pin.getPlacemarkFeatureType());
+        final VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Pin.getPinFeatureType());
         this.vectorDataGroup.add(pinVectorDataNode);
-        final VectorDataNode gcpVectorDataNode = new VectorDataNode("ground_control_points",
-                                                                    Pin.getPlacemarkFeatureType());
+        final VectorDataNode gcpVectorDataNode = new VectorDataNode("ground_control_points", Pin.getGcpFeatureType());
         this.vectorDataGroup.add(gcpVectorDataNode);
         this.pinGroup = new PinGroup(this, "pinGroup", pinVectorDataNode);
         this.gcpGroup = new PinGroup(this, "gcpGroup", gcpVectorDataNode);
