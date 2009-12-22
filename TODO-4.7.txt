@@ -27,9 +27,6 @@ Masks:
 * Mask visibility control is often not in sync. between Mask/ROI manager &
   Layer Manager
   ==> PRE, ?, OPEN
-* New geometry masks shall always be assigned as ROI by default 
-  Layer Manager
-  ==> PRE, ?, OPEN
 
 
 * Old bitmask overlay window: Only list "real" bitmasks. What is real?
@@ -46,6 +43,9 @@ Masks:
   if any.
   ==> FINAL, ?, OPEN
 
+* New geometry masks shall always be assigned as ROI by default 
+  Layer Manager
+  ==> PRE, MP, CLOSED
 * Check if Masks are valid on import
   ==> PRE, RQ, CLOSED
 * Mask transparency ignored (at some point in time)

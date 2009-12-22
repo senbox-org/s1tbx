@@ -21,9 +21,11 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PlainFeatureFactory;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.PropertyPane;
 import org.esa.beam.framework.ui.command.CommandEvent;
@@ -85,12 +87,22 @@ public class NewVectorDataNodeAction extends ExecCommand {
         VectorDataNode vectorDataNode = new VectorDataNode(name, type);
         vectorDataNode.setDescription(description);
         product.getVectorDataGroup().add(vectorDataNode);
+
         final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
         if (sceneView != null) {
             VisatApp.getApp().setSelectedProductNode(vectorDataNode);
             sceneView.selectVectorDataLayer(vectorDataNode);
+            final Mask mask = product.getMaskGroup().get(vectorDataNode.getName());
+            final ProductNodeGroup<Mask> roiMaskGroup = sceneView.getRaster().getRoiMaskGroup();
+            setAsRoi(mask, roiMaskGroup);
         }
         return vectorDataNode;
+    }
+
+    private static void setAsRoi(Mask mask, ProductNodeGroup<Mask> roiMaskGroup) {
+        if (!roiMaskGroup.contains(mask)) {
+            roiMaskGroup.add(mask);
+        }
     }
 
     /**
