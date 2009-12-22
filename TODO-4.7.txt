@@ -65,6 +65,8 @@ VectorDataNode:
 * Pin & GCP Vector Data Nodes shall not be visible as long as there are no pins / GCPs
   added to the product
   ==> FINAL, ?, OPEN
+* Use SLD from shapefile for styling figures
+  ==> FINAL, ?, OPEN
 * Export vector data node to shapefile
   ==> FINAL, ?, OPEN
 
