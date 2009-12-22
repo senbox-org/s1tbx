@@ -3,12 +3,16 @@ package org.esa.beam.dataio.geometry;
 import junit.framework.TestCase;
 import com.bc.ceres.binding.ConversionException;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygon;
 
 import java.util.Date;
-import java.awt.Polygon;
 
 
 public class JavaTypeConverterTest extends TestCase {
+    static {
+        JtsGeometryConverter.registerConverter();    
+    }
+
     public void testSuccess() throws ConversionException {
         JavaTypeConverter typeConverter = new JavaTypeConverter();
 

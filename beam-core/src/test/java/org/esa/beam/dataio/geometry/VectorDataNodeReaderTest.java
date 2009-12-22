@@ -4,6 +4,14 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import junit.framework.TestCase;
 import org.esa.beam.util.io.CsvReader;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -28,6 +36,8 @@ public class VectorDataNodeReaderTest extends TestCase {
                         + "mark2\tPOINT(78.9  0.1)\t1\tThis is mark2.\n"
                         + "mark3\tPOINT(2.3 3.4)\t2\tThis is mark3.\n"
         );
+
+        JtsGeometryConverter.registerConverter();
 
         CsvReader csvReader = new CsvReader(reader, new char[]{'\t'});
 

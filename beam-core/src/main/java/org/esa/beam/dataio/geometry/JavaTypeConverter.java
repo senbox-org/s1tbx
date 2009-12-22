@@ -36,9 +36,10 @@ public class JavaTypeConverter implements Converter<Class> {
     @Override
     public String format(Class javaType) {
         final String name = javaType.getName();
-        for (String defaultPackageQualifier : DEFAULT_PACKAGE_QUALIFIERS) {
+        for (int i = 1; i < DEFAULT_PACKAGE_QUALIFIERS.length; i++) {
+            String defaultPackageQualifier = DEFAULT_PACKAGE_QUALIFIERS[i];
             if (name.startsWith(defaultPackageQualifier)) {
-                 return name.substring(defaultPackageQualifier.length());
+                return name.substring(defaultPackageQualifier.length());
             }
         }
         return name;
