@@ -15,7 +15,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import org.esa.beam.util.converters.JtsGeometryConverter;
 
 public class JtsGeometryConverterTest {
 
@@ -23,7 +22,7 @@ public class JtsGeometryConverterTest {
     private static final GeometryFactory factory = new GeometryFactory();
 
     @BeforeClass
-     static void setUp() throws Exception {
+    public static void setUp() throws Exception {
         converter = new JtsGeometryConverter();
         JtsGeometryConverter.registerConverter();
     }
