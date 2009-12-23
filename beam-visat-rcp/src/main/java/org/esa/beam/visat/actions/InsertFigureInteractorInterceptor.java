@@ -10,6 +10,7 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.VectorDataLayer;
 import org.esa.beam.framework.ui.product.VectorDataLayerFilterFactory;
+import org.esa.beam.visat.VisatActivator;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -23,6 +24,7 @@ import java.util.List;
 
 
 public class InsertFigureInteractorInterceptor extends AbstractInteractorListener {
+    private static final String KEY_VECTOR_DATA_INITIAL_NAME = "geometry.initialName";
 
     @Override
     public boolean canStartInteraction(Interactor interactor, InputEvent inputEvent) {
@@ -44,7 +46,8 @@ public class InsertFigureInteractorInterceptor extends AbstractInteractorListene
 
         VectorDataLayer vectorDataLayer;
         if (layers.isEmpty()) {
-            VectorDataNode vectorDataNode = NewVectorDataNodeAction.createDefaultVectorDataNode(productSceneView.getProduct(), "geometry", "Default geometry container (automatically created)");
+            String name = VisatActivator.getInstance().getModuleContext().getRuntimeConfig().getContextProperty(KEY_VECTOR_DATA_INITIAL_NAME, "geometry");
+            VectorDataNode vectorDataNode = NewVectorDataNodeAction.createDefaultVectorDataNode(productSceneView.getProduct(), name, "Default geometry container (automatically created)");
             LayerFilter nodeFilter = VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode);
             vectorDataLayer = (VectorDataLayer) LayerUtils.getChildLayer(productSceneView.getRootLayer(),
                                                                          LayerUtils.SEARCH_DEEP, nodeFilter);
