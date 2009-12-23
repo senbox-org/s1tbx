@@ -16,6 +16,7 @@
  */
 package org.esa.beam.visat.toolviews.spectrum;
 
+import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Pin;
@@ -45,9 +46,6 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-
-import com.bc.ceres.glayer.support.ImageLayer;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -85,7 +83,7 @@ public class SpectrumToolView extends AbstractToolView {
     private AbstractButton showGridButton;
 // todo - not yet implemented for 4.1 but planned for 4.2 (mp - 31.10.2007)
 //    private AbstractButton showAveragePinSpectrumButton;
-//    private AbstractButton showGraphPointsButton;
+    //    private AbstractButton showGraphPointsButton;
     private int pixelX;
     private int pixelY;
     private int level;
@@ -159,7 +157,7 @@ public class SpectrumToolView extends AbstractToolView {
     private void updateUIState() {
         boolean hasView = getCurrentView() != null;
         boolean hasProduct = getCurrentProduct() != null;
-        boolean hasSelectedPins = hasProduct && getCurrentProduct().getPinGroup().getSelectedNode() != null;
+        boolean hasSelectedPins = hasView && getCurrentView().getSelectedPins().length > 0;
         boolean hasPins = hasProduct && getCurrentProduct().getPinGroup().getNodeCount() > 0;
         boolean hasDiagram = diagramCanvas.getDiagram() != null;
         filterButton.setEnabled(hasProduct);
@@ -194,10 +192,10 @@ public class SpectrumToolView extends AbstractToolView {
     private void maybeShowTip() {
         if (!tipShown) {
             final String message = "Tip: If you press the SHIFT key while moving the mouse cursor over \n" +
-                                   "an image, " + VisatApp.getApp().getAppName() + " adjusts the diagram axes " +
-                                   "to the local values at the\n" +
-                                   "current pixel position, if you release the SHIFT key again, then the\n" +
-                                   "min/max are accumulated again.";
+                    "an image, " + VisatApp.getApp().getAppName() + " adjusts the diagram axes " +
+                    "to the local values at the\n" +
+                    "current pixel position, if you release the SHIFT key again, then the\n" +
+                    "min/max are accumulated again.";
             VisatApp.getApp().showInfoDialog("Spectrum Tip", message, SUPPRESS_MESSAGE_KEY);
             tipShown = true;
         }
@@ -408,7 +406,7 @@ public class SpectrumToolView extends AbstractToolView {
         if (selectedBands == null) {
             selectedBands = allBandNames;
         }
-        BandChooser bandChooser = new BandChooser(getWindowAncestor(), "Available Spectral Bands",
+        BandChooser bandChooser = new BandChooser(getPaneWindow(), "Available Spectral Bands",
                                                   getDescriptor().getHelpId(),
                                                   allBandNames, selectedBands);
         if (bandChooser.show() == ModalDialog.ID_OK) {
@@ -466,12 +464,9 @@ public class SpectrumToolView extends AbstractToolView {
         SpectraDiagram spectraDiagram = new SpectraDiagram(getCurrentProduct());
 
         if (isShowingSpectraForSelectedPins()) {
-            ProductNodeGroup<Pin> pinGroup = getCurrentProduct().getPinGroup();
-            Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
+            Pin[] pins = getCurrentView().getSelectedPins();
             for (Pin pin : pins) {
-                if (pin.isSelected()) {
-                    spectraDiagram.addSpectrumGraph(pin);
-                }
+                spectraDiagram.addSpectrumGraph(pin);
             }
         } else if (isShowingSpectraForAllPins()) {
             ProductNodeGroup<Pin> pinGroup = getCurrentProduct().getPinGroup();

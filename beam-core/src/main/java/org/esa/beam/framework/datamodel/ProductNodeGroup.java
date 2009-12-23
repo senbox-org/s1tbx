@@ -266,61 +266,6 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
         super.dispose();
     }
 
-    /**
-     * @deprecated Since BEAM 4.6. Don't use anymore. Selection state is subject to UI.
-     */
-    @Deprecated
-    public void setSelectedNode(final int index) {
-        final ProductNode[] nodes = toArray();
-        for (int i = 0; i < nodes.length; i++) {
-            nodes[i].setSelected(i == index);
-        }
-    }
-
-
-    /**
-     * @deprecated Since BEAM 4.6. Don't use anymore. Selection state is subject to UI.
-     */
-    @Deprecated
-    public void setSelectedNode(final String name) {
-        if (name == null) {
-            return;
-        }
-        final int index = indexOf(name);
-        if (index != -1) {
-            setSelectedNode(index);
-        }
-    }
-
-    /**
-     * @deprecated Since BEAM 4.6. Don't use anymore. Selection state is subject to UI.
-     */
-    @Deprecated
-    public T getSelectedNode() {
-        final ProductNode[] nodes = toArray();
-        for (final ProductNode node : nodes) {
-            if (node.isSelected()) {
-                return (T) node;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @deprecated Since BEAM 4.6. Don't use anymore. Selection state is subject to UI.
-     */
-    @Deprecated
-    public Collection<T> getSelectedNodes() {
-        final Collection<T> selectedNodes = new ArrayList<T>(16);
-        final ProductNode[] nodes = toArray();
-        for (final ProductNode node : nodes) {
-            if (node.isSelected()) {
-                selectedNodes.add((T) node);
-            }
-        }
-        return selectedNodes;
-    }
-
     @Override
     public void updateExpression(final String oldExternalName, final String newExternalName) {
         if (takingOverNodeOwnership) {
@@ -360,6 +305,40 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 
         // Intended: set modified=true is last operation
         setModified(true);
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    // Deprecated API
+
+    /**
+     * @deprecated Since BEAM 4.7. Don't use anymore. Selection state is subject to UI.
+     */
+    @Deprecated
+    public void setSelectedNode(final String name) {
+    }
+
+    /**
+     * @deprecated Since BEAM 4.7. Don't use anymore. Selection state is subject to UI.
+     */
+    @Deprecated
+    public void setSelectedNode(final int index) {
+    }
+
+
+    /**
+     * @deprecated Since BEAM 4.7. Don't use anymore. Selection state is subject to UI.
+     */
+    @Deprecated
+    public T getSelectedNode() {
+        return null;
+    }
+
+    /**
+     * @deprecated Since BEAM 4.7. Don't use anymore. Selection state is subject to UI.
+     */
+    @Deprecated
+    public Collection<T> getSelectedNodes() {
+        return new ArrayList<T>(0);
     }
 
 }

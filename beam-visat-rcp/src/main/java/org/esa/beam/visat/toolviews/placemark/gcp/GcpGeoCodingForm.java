@@ -288,8 +288,7 @@ class GcpGeoCodingForm extends JPanel {
 
         public void nodeChanged(ProductNodeEvent event) {
             // exclude geo-coding changes to prevent recursion
-            if (!Product.PROPERTY_NAME_GEOCODING.equals(event.getPropertyName()) &&
-                !ProductNode.PROPERTY_NAME_SELECTED.equals(event.getPropertyName())) {
+            if (!Product.PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
                 updateGcpGeoCoding();
             }
         }

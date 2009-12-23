@@ -5,11 +5,8 @@ import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.ui.command.Command;
-import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.visat.VisatApp;
 
 import java.awt.Cursor;
 import java.awt.Image;
@@ -47,27 +44,16 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
         if (started) {
             ProductSceneView sceneView = getProductSceneView(event);
             if (sceneView != null) {
+                sceneView.selectVectorDataLayer(getPlacemarkGroup(sceneView.getProduct()).getVectorDataNode());
+                if (isSingleButton1Click(event)) {
+                    insertPlacemark(sceneView);
+                }
                 stopInteraction(event);
             }
         }
     }
 
-    @Override
-    public void mouseClicked(MouseEvent event) {
-        if (started) {
-            activateOverlay();
-            if (isSingleButton1Click(event)) {
-                selectOrInsertPlacemark(event);
-            }
-        }
-    }
-
-
-    private void selectOrInsertPlacemark(MouseEvent event) {
-        ProductSceneView view = getProductSceneView(event);
-        if (view == null) {
-            return;
-        }
+    private void insertPlacemark(ProductSceneView view) {
         if (!view.isCurrentPixelPosValid()) {
             return;
         }
@@ -84,21 +70,7 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
         getPlacemarkGroup(product).add(newPlacemark);
     }
 
-    private ExecCommand getShowOverlayCommand() {
-        Command command = VisatApp.getApp().getCommandManager().getCommand(getShowOverlayCommandId());
-        if (command != null) {
-            if (command instanceof ExecCommand) {
-                return (ExecCommand) command;
-            }
-        }
-        return null;
-    }
-
-    protected String getShowOverlayCommandId() {
-        return placemarkDescriptor.getShowLayerCommandId();
-    }
-
-    protected ProductNodeGroup<Pin> getPlacemarkGroup(Product product) {
+    private PlacemarkGroup getPlacemarkGroup(Product product) {
         return placemarkDescriptor.getPlacemarkGroup(product);
     }
 
@@ -112,7 +84,7 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
                                                               placemarkDescriptor.getRoleName());
     }
 
-    protected ProductSceneView getProductSceneView(MouseEvent event) {
+    private ProductSceneView getProductSceneView(MouseEvent event) {
         if (event.getComponent() instanceof ProductSceneView) {
             return (ProductSceneView) event.getComponent();
         }
@@ -121,13 +93,4 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
         }
         return null;
     }
-
-    private void activateOverlay() {
-        ExecCommand overlayCommand = getShowOverlayCommand();
-        if (overlayCommand != null) {
-            overlayCommand.setSelected(true);
-            overlayCommand.execute();
-        }
-    }
-
 }

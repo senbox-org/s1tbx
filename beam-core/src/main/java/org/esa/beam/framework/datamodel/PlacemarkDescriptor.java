@@ -19,7 +19,7 @@ public interface PlacemarkDescriptor {
 
     Image getCursorImage();
 
-    ProductNodeGroup<Pin> getPlacemarkGroup(Product product);
+    PlacemarkGroup getPlacemarkGroup(Product product);
 
     PlacemarkSymbol createDefaultSymbol();
 

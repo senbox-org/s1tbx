@@ -7,7 +7,6 @@ import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.TiePointGrid;
@@ -48,8 +47,8 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         return placemarkList.toArray(new Pin[placemarkList.size()]);
     }
 
-    public Pin getPlacemarkAt(int i) {
-        return placemarkList.get(i);
+    public Pin getPlacemarkAt(int modelRow) {
+        return placemarkList.get(modelRow);
     }
 
     public PlacemarkDescriptor getPlacemarkDescriptor() {
@@ -330,9 +329,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         }
 
         private void fireTableDataChanged(ProductNodeEvent event) {
-            if (event.getSourceNode() instanceof Pin &&
-                !ProductNode.PROPERTY_NAME_SELECTED.equals(
-                        event.getPropertyName())) {
+            if (event.getSourceNode() instanceof Pin) {
                 Pin placemark = (Pin) event.getSourceNode();
                 if (placemarkList.contains(placemark)) {
                     AbstractPlacemarkTableModel.this.fireTableDataChanged();

@@ -41,12 +41,6 @@ public abstract class ProductNode {
     public final static String PROPERTY_NAME_OWNER = "owner";
 
     /**
-     * @deprecated Since BEAM 4.6. Don't use anymore. Selection state is subject to UI.
-     */
-    @Deprecated
-    public final static String PROPERTY_NAME_SELECTED = "selected";
-
-    /**
      * @deprecated Since BEAM 4.7, not used anymore
      */
     @Deprecated
@@ -55,7 +49,6 @@ public abstract class ProductNode {
     private transient Product product;
     private transient ProductNode owner;
     private transient boolean modified;
-    private transient boolean selected;
     private String name;
     private String description;
 
@@ -431,31 +424,6 @@ public abstract class ProductNode {
 
     /////////////////////////////////////////////////////////////////////////
     // Deprecated API
-
-    /**
-     * No API - don't use.
-     *
-     * @return true or false
-     * @deprecated Since BEAM 4.6. Don't use anymore. Selection state is subject to UI.
-     */
-    @Deprecated
-    public boolean isSelected() {
-        return selected;
-    }
-
-    /**
-     * No API - don't use.
-     *
-     * @param selected true or false
-     * @deprecated Since BEAM 4.6. Don't use anymore. Selection state is subject to UI.
-     */
-    @Deprecated
-    public void setSelected(boolean selected) {
-        if (this.selected != selected) {
-            this.selected = selected;
-            fireProductNodeChanged(PROPERTY_NAME_SELECTED);
-        }
-    }
 
     /**
      * Utility method which adds the given node tho the supplied node list.

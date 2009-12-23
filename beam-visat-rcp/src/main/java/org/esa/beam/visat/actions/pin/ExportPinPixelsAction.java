@@ -32,7 +32,6 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import java.awt.Dialog;
@@ -45,7 +44,6 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.text.MessageFormat;
 
 /**
  * This action exports pins and thier surrounding pixels.
@@ -100,15 +98,13 @@ public class ExportPinPixelsAction extends ExecCommand {
     private void exportPinPixels() {
         product = getSelectedProduct();
 
-        ensureThatAPinIsSelected(product);
-        final Pin selectedPin = product.getPinGroup().getSelectedNode();
         VisatApp visatApp = VisatApp.getApp();
         if (dialog == null) {
             dialog = new ExportPinPixelsDialog(visatApp, product);
         }
 
         // shows a dialog which lets the user specify the region he wants to export.
-        final int dialogAnswer = dialog.show(selectedPin.getLabel(), product);
+        final int dialogAnswer = dialog.show(product);
 
         // return if user pressed the Cancel-button
         if (ModalDialog.ID_OK != dialogAnswer) {
@@ -142,15 +138,6 @@ public class ExportPinPixelsAction extends ExecCommand {
 
         // Start separate worker thread.
         swingWorker.execute();
-    }
-
-    /**
-     * Ensures that a pin is selected in the given product.
-     */
-    private static void ensureThatAPinIsSelected(final Product product) {
-        if (product.getPinGroup().getSelectedNode() == null) {
-            product.getPinGroup().get(0).setSelected(true);
-        }
     }
 
     /**
@@ -193,9 +180,9 @@ public class ExportPinPixelsAction extends ExecCommand {
 
         final String numPixelsText;
         if (numPixels == 1) {
-            numPixelsText = "One pixel will be exported.\n"; /* I18N */
+            numPixelsText = "One pin pixel will be exported.\n"; /* I18N */
         } else {
-            numPixelsText = numPixels + " pixels will be exported.\n"; /* I18N */
+            numPixelsText = numPixels + " pin pixels will be exported.\n"; /* I18N */
         }
         result = SelectExportMethodDialog.run(VisatApp.getApp().getMainFrame(),
                                               getWindowTitle(),
@@ -228,8 +215,8 @@ public class ExportPinPixelsAction extends ExecCommand {
     private HashMap assignControllParameters() {
 
         final Pin[] exportPins;
-        if (dialog.isExportSelectedPinOnly()) {
-            exportPins = new Pin[]{product.getPinGroup().getSelectedNode()};
+        if (dialog.isExportSelectedPinsOnly()) {
+            exportPins = VisatApp.getApp().getSelectedProductSceneView().getSelectedPins();
         } else {
             ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
             exportPins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
@@ -269,7 +256,7 @@ public class ExportPinPixelsAction extends ExecCommand {
         // When the swing worker's start() method is called, a new separate thread is started.
         // The swing worker's construct() method is executed in that thread, so that VISAT can keep
         // on handling user events.
-        return (SwingWorker) new SwingWorker() {
+        return new SwingWorker() {
 
             /**
              * Compute the value to be returned by the <code>get</code> method. This method is

@@ -34,6 +34,8 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
@@ -49,6 +51,7 @@ import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.SystemUtils;
+import org.opengis.feature.simple.SimpleFeature;
 
 import javax.swing.AbstractButton;
 import javax.swing.JMenuItem;
@@ -78,6 +81,9 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Vector;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Arrays;
 
 /**
  * The class <code>ProductSceneView</code> is a high-level image display component for color index/RGB images created
@@ -174,8 +180,7 @@ public class ProductSceneView extends BasicView
 
     private AdjustableViewScrollPane scrollPane;
     private UndoContext undoContext;
-    private ProductSceneViewFigureEditor figureEditor;
-    //private SimpleFeatureFigureFactory2 figureFactory;
+    private VectorDataFigureEditor figureEditor;
 
     public ProductSceneView(ProductSceneImage sceneImage) {
         Assert.notNull(sceneImage, "sceneImage");
@@ -211,7 +216,7 @@ public class ProductSceneView extends BasicView
             }
         });
 
-        figureEditor = new ProductSceneViewFigureEditor(this);
+        figureEditor = new VectorDataFigureEditor(this);
 
         this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN,
                                                                              false);
@@ -388,9 +393,9 @@ public class ProductSceneView extends BasicView
         JPopupMenu popupMenu = new JPopupMenu();
         addCopyPixelInfoToClipboardMenuItem(popupMenu);
         getCommandUIFactory().addContextDependentMenuItems("image", popupMenu);
-        Product product = getProduct();
         CommandUIFactory commandUIFactory = getCommandUIFactory();
-        if (product.getPinGroup().getSelectedNode() != null) {
+        Pin[] selectedPins = getSelectedPins();
+        if (selectedPins.length > 0) {
             if (commandUIFactory != null) {
                 commandUIFactory.addContextDependentMenuItems("pin", popupMenu);
             }
@@ -716,6 +721,11 @@ public class ProductSceneView extends BasicView
         }
     }
 
+    /**
+     * @param vectorDataNode The vector data node, whose layer shall be selected.
+     * @return The layer, or {@code null}.
+     * @since BEAM 4.7
+     */
     public VectorDataLayer selectVectorDataLayer(VectorDataNode vectorDataNode) {
         LayerFilter layerFilter = new VectorDataLayerFilter(vectorDataNode);
         VectorDataLayer layer = (VectorDataLayer)LayerUtils.getChildLayer(getRootLayer(),
@@ -725,6 +735,161 @@ public class ProductSceneView extends BasicView
             setSelectedLayer(layer);
         }
         return layer;
+    }
+
+    /**
+     * @param pin The pins to test.
+     * @return {@code true}, if the pin is selected.
+     * @since BEAM 4.7
+     */
+    public boolean isPinSelected(Pin pin) {
+        return isPlacemarkSelected(getProduct().getPinGroup(), pin);
+    }
+
+    /**
+     * @param gcp The ground control point to test.
+     * @return {@code true}, if the ground control point is selected.
+     * @since BEAM 4.7
+     */
+    public boolean isGcpSelected(Pin gcp) {
+        return isPlacemarkSelected(getProduct().getGcpGroup(), gcp);
+    }
+
+    /**
+     * @return The (first) selected pin.
+     * @since BEAM 4.7
+     */
+    public Pin getSelectedPin() {
+        return getSelectedPlacemark(getProduct().getPinGroup());
+    }
+
+    /**
+     * @return The selected pins.
+     * @since BEAM 4.7
+     */
+    public Pin[] getSelectedPins() {
+        return getSelectedPlacemarks(getProduct().getPinGroup());
+    }
+
+    /**
+     * @return The selected ground control points.
+     * @since BEAM 4.7
+     */
+    public Pin[] getSelectedGcps() {
+        return getSelectedPlacemarks(getProduct().getGcpGroup());
+    }
+
+    /**
+     * @param pins The selected pins.
+     * @since BEAM 4.7
+     */
+    public void selectPins(Pin[] pins) {
+        selectPlacemarks(getProduct().getPinGroup(), pins);
+    }
+
+    /**
+     * @param gpcs The selected ground control points.
+     * @since BEAM 4.7
+     */
+    public void selectGcps(Pin[] gpcs) {
+        selectPlacemarks(getProduct().getGcpGroup(), gpcs);
+    }
+
+    /**
+     * @return The (first) selected feature figure.
+     * @since BEAM 4.7
+     */
+    public SimpleFeatureFigure getSelectedFeatureFigure() {
+        Figure[] figures = figureEditor.getFigureSelection().getFigures();
+        for (Figure figure : figures) {
+            if (figure instanceof SimpleFeatureFigure) {
+                return (SimpleFeatureFigure) figure;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return The selected feature figures.
+     * @since BEAM 4.7
+     */
+    public SimpleFeatureFigure[] getSelectedFeatureFigures() {
+        Figure[] figures = figureEditor.getFigureSelection().getFigures();
+        ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<SimpleFeatureFigure>(figures.length);
+        for (Figure figure : figures) {
+            if (figure instanceof SimpleFeatureFigure) {
+                SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
+                selectedFigures.add(featureFigure);
+            }
+        }
+        return selectedFigures.toArray(new SimpleFeatureFigure[selectedFigures.size()]);
+    }
+
+    private boolean selectPlacemarks(PlacemarkGroup placemarkGroup, Pin[] placemarks) {
+        VectorDataLayer layer = selectVectorDataLayer(placemarkGroup.getVectorDataNode());
+        if (layer != null) {
+            FigureCollection figureCollection = layer.getFigureCollection();
+            Figure[] figures = figureCollection.getFigures();
+            ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<SimpleFeatureFigure>(figures.length);
+            HashSet<Pin> placemarkSet = new HashSet<Pin>(Arrays.asList(placemarks));
+            for (Figure figure : figures) {
+                if (figure instanceof SimpleFeatureFigure) {
+                    SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
+                    Pin pin = placemarkGroup.getPlacemark(featureFigure.getSimpleFeature());
+                    if (placemarkSet.contains(pin)) {
+                        selectedFigures.add(featureFigure);
+                    }
+                }
+            }
+            figureEditor.getFigureSelection().removeAllFigures();
+            figureEditor.getFigureSelection().addFigures(selectedFigures.toArray(new Figure[selectedFigures.size()]));
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isPlacemarkSelected(PlacemarkGroup placemarkGroup, Pin placemark) {
+        Figure[] figures = figureEditor.getFigureSelection().getFigures();
+        for (Figure figure : figures) {
+            if (figure instanceof SimpleFeatureFigure) {
+                SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
+                Pin pin = placemarkGroup.getPlacemark(featureFigure.getSimpleFeature());
+                if (pin == placemark) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private Pin getSelectedPlacemark(PlacemarkGroup placemarkGroup) {
+
+        Figure[] figures = figureEditor.getFigureSelection().getFigures();
+        for (Figure figure : figures) {
+            if (figure instanceof SimpleFeatureFigure) {
+                SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
+                Pin placemark = placemarkGroup.getPlacemark(featureFigure.getSimpleFeature());
+                if (placemark != null) {
+                    return placemark;
+                }
+            }
+        }
+        return null;
+    }
+
+    private Pin[] getSelectedPlacemarks(PlacemarkGroup placemarkGroup) {
+        Figure[] figures = figureEditor.getFigureSelection().getFigures();
+        ArrayList<Pin> selectedPlacemarks = new ArrayList<Pin>(figures.length);
+        for (Figure figure : figures) {
+            if (figure instanceof SimpleFeatureFigure) {
+                SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
+                Pin pin = placemarkGroup.getPlacemark(featureFigure.getSimpleFeature());
+                if (pin != null) {
+                    selectedPlacemarks.add(pin);
+                }
+            }
+        }
+        return selectedPlacemarks.toArray(new Pin[selectedPlacemarks.size()]);
     }
 
     private void maybeUpdateFigureEditor() {
@@ -871,7 +1036,7 @@ public class ProductSceneView extends BasicView
 
     public int getFirstImageLayerIndex() {
         return sceneImage.getFirstImageLayerIndex();
-    }// todo - same code in org.esa.beam.visat.ProductsToolView (nf)
+    }
 
 
     /**

@@ -16,6 +16,7 @@
  */
 package org.esa.beam.visat.actions.pin;
 
+import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
@@ -23,6 +24,7 @@ import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
@@ -57,12 +59,11 @@ class ExportPinPixelsDialog extends ModalDialog {
     private Parameter paramExpression;
     private Parameter paramUseExpression;
     private JRadioButton buttonExportAllPins;
-    private JRadioButton buttonExportSelectedPin;
+    private JRadioButton buttonExportSelectedPins;
     private JRadioButton buttonUseExpressionAsFilter;
     private JRadioButton buttonUseExpressionAsMarker;
 
     private JButton editExpressionButton;
-    private JTextField pinLabelTextField;
 
     /**
      * Initialises a new instance of this class.
@@ -88,8 +89,8 @@ class ExportPinPixelsDialog extends ModalDialog {
     /**
      * <code>true</code> if the user has selected "Export selected pin".
      */
-    boolean isExportSelectedPinOnly() {
-        return buttonExportSelectedPin.isSelected();
+    boolean isExportSelectedPinsOnly() {
+        return buttonExportSelectedPins.isSelected();
     }
 
     /**
@@ -178,27 +179,18 @@ class ExportPinPixelsDialog extends ModalDialog {
         int line = 0;
         final GridBagConstraints gbc = new GridBagConstraints();
 
-        gbc.gridy = ++line;
-        GridBagUtils.addToPanel(pinPane, new JLabel("Selected pin: "), gbc,
-                                "weightx=1, fill=HORIZONTAL, gridwidth=3, anchor=NORTHWEST");
-        gbc.gridy = ++line;
-        pinLabelTextField = new JTextField("");
-        pinLabelTextField.setEditable(false);
-        GridBagUtils.addToPanel(pinPane, pinLabelTextField, gbc,
-                                "fill=HORIZONTAL, gridwidth=3, anchor=NORTHWEST");
-
-        buttonExportAllPins = new JRadioButton("Export all pins"); /* I18N */
+        buttonExportAllPins = new JRadioButton("Export all pin(s)"); /* I18N */
         buttonExportAllPins.setSelected(true);
-        buttonExportSelectedPin = new JRadioButton("Export selected pin"); /* I18N */
+        buttonExportSelectedPins = new JRadioButton("Export selected pin(s)"); /* I18N */
 
         final ButtonGroup pinsGroup = new ButtonGroup();
         pinsGroup.add(buttonExportAllPins);
-        pinsGroup.add(buttonExportSelectedPin);
+        pinsGroup.add(buttonExportSelectedPins);
 
         gbc.gridy = ++line;
         GridBagUtils.addToPanel(pinPane, buttonExportAllPins, gbc,
                                 "weighty=0, weightx=0, fill=NONE, gridwidth=1, anchor=WEST");
-        GridBagUtils.addToPanel(pinPane, buttonExportSelectedPin, gbc,
+        GridBagUtils.addToPanel(pinPane, buttonExportSelectedPins, gbc,
                                 "weighty=0, weightx=0, fill=NONE, gridwidth=1, anchor=WEST");
 
         return pinPane;
@@ -294,14 +286,20 @@ class ExportPinPixelsDialog extends ModalDialog {
      *
      * @param pinLabel the label of the selected pin
      * @param product  the selected product
-     *
      * @return the int value associated with the button the user has pressed. See org.esa.beam.framework.ui.ModalDialog
      */
-    public int show(final String pinLabel, final Product product) {
-        pinLabelTextField.setText(pinLabel);
-        boolean onlyOnePin = (this.product.getPinGroup().getNodeCount() == 1);
-        buttonExportSelectedPin.setSelected(onlyOnePin);
-        buttonExportAllPins.setEnabled(!onlyOnePin);
+    public int show(final Product product) {
+        ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
+        int numSelectedPins = 0;
+        int numPinsTotal = this.product.getPinGroup().getNodeCount();
+        if (sceneView != null) {
+            Pin[] selectedPins = sceneView.getSelectedPins();
+            numSelectedPins = selectedPins.length;
+        }
+        buttonExportSelectedPins.setEnabled(numSelectedPins > 0);
+        buttonExportAllPins.setEnabled(numSelectedPins != numPinsTotal);
+        buttonExportSelectedPins.setSelected(numSelectedPins > 0);
+        buttonExportAllPins.setSelected(numSelectedPins == 0);
         this.product = product;
         return super.show();
     }
@@ -318,7 +316,6 @@ class ExportPinPixelsDialog extends ModalDialog {
      * Defines an array with all possible region sizes (used as pulldown menu).
      *
      * @param maxRegionSize the maximum height/width for the quadratic region around the pin
-     *
      * @return the array with the possible options
      */
     private String[] defineRegionSelection(final int maxRegionSize) {

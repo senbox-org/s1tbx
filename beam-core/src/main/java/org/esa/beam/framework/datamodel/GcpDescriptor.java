@@ -42,7 +42,7 @@ public class GcpDescriptor implements PlacemarkDescriptor {
     }
 
     @Override
-    public ProductNodeGroup<Pin> getPlacemarkGroup(Product product) {
+    public PlacemarkGroup getPlacemarkGroup(Product product) {
         return product.getGcpGroup();
     }
 
