@@ -112,6 +112,8 @@ Figures:
 * Select-tool shall auto-select layer containg a clicked figure
   ==> PRE, NF, OPEN
 
+* Reanimate RangeFinder tool (and MagicStick?)
+  ==> FINAL, ?, OPEN
 * Deprecate or even completely remove ald Figure + Tool classes
   ==> FINAL, ?, OPEN
 * Still can't rotate figures.
@@ -134,7 +136,7 @@ Figures:
 
 * Figure changes are not propagated to other views (layers)
   ==> PRE, NF, CLOSED
-* Circular figures are not round on lat/lon projected products (see TODO in code)
+* Circular figures are not round on lat/lon projected products 
   ==> PRE, NF, CLOSED
 * Show shape layer action: shall set/clear visibility flag of selected geometry layer,
   if other layer type selected, select first geometry layer and set/clear visibility flag. 
@@ -161,8 +163,16 @@ Figures:
       2.b If layer exists, select it, otherwise create new layer, and select --> ok
   ==> PRE, NF/MP, CLOSED
 
+Product tree:
+=============
+* Don't display empty groups
+  ==> FINAL, ?, OPEN
+
 Layers:
 =======
+
+* Do not allow renaming of vector data node and mask layers:  
+  ==> PRE, ?, OPEN
 
 * We once decided that we wanted to introduce static factory methods for each(!) layer type
   following the JAI-Descriptor concept. Nothing done so far.

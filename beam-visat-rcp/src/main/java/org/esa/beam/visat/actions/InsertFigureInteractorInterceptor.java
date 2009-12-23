@@ -5,6 +5,7 @@ import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.AbstractInteractorInterceptor;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -23,11 +24,11 @@ import java.awt.event.InputEvent;
 import java.util.List;
 
 
-public class InsertFigureInteractorInterceptor extends AbstractInteractorListener {
+public class InsertFigureInteractorInterceptor extends AbstractInteractorInterceptor {
     private static final String KEY_VECTOR_DATA_INITIAL_NAME = "geometry.initialName";
 
     @Override
-    public boolean canStartInteraction(Interactor interactor, InputEvent inputEvent) {
+    public boolean interactionAboutToStart(Interactor interactor, InputEvent inputEvent) {
         ProductSceneView productSceneView = getProductSceneView(inputEvent);
         if (productSceneView == null) {
             return false;

@@ -1445,6 +1445,7 @@
             <id>selectTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.SelectionInteractor</interactor>
+            <interactorListener>org.esa.beam.visat.actions.SelectionInteractorInterceptor</interactorListener>
             <parent>tools</parent>
             <text>Select</text>
             <shortDescr>Selection Tool</shortDescr>
