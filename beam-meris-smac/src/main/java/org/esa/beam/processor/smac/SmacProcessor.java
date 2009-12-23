@@ -609,16 +609,19 @@ public class SmacProcessor extends Processor {
 
         for (Band inBand : _inputBandList) {
             String newBandName;
+            String bandUnit;
             if (bConvertMerisName) {
                 newBandName = convertMerisBandName(inBand);
+                bandUnit = "dl";
             } else {
                 newBandName = inBand.getName();
+                bandUnit = inBand.getUnit();
             }
             Band outBand = new Band(newBandName,
                                     inBand.getGeophysicalDataType(),
                                     inBand.getSceneRasterWidth(),
                                     inBand.getSceneRasterHeight());
-            outBand.setUnit(inBand.getUnit());
+            outBand.setUnit(bandUnit);
             ProductUtils.copySpectralBandProperties(inBand, outBand);
             outBand.setDescription(description + inBand.getName());
             _outputProduct.addBand(outBand);
