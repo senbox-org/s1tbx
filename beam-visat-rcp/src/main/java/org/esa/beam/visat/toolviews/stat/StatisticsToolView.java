@@ -206,7 +206,7 @@ public class StatisticsToolView extends AbstractToolView {
 
     private void selectionChanged(Product product, RasterDataNode node) {
         this.product = product;
-        final PagePanel[] panels = pagePanels;
+        final PagePanel[] panels = StatisticsToolView.this.pagePanels;
         for (PagePanel panel : panels) {
             panel.selectionChanged(product, node);
         }
@@ -215,20 +215,25 @@ public class StatisticsToolView extends AbstractToolView {
 
     private class PagePanelPTL extends ProductTreeListenerAdapter {
         @Override
+        public void productAdded(Product product) {
+        }
+
+        @Override
         public void productRemoved(Product product) {
-//            selectionChanged(null, null);
+            selectionChanged(null, null);
         }
 
         @Override
         public void productNodeSelected(ProductNode productNode, int clickCount) {
-            if(VisatApp.getApp().getSelectedProductSceneView() == null) {
-                selectionChanged(productNode.getProduct(),
-                                 productNode instanceof  RasterDataNode ? (RasterDataNode) productNode : null);
-            }
+            selectionChanged(productNode.getProduct(),
+                             productNode instanceof  RasterDataNode ? (RasterDataNode) productNode : null);
         }
     }
 
     private class PagePanelIFL extends InternalFrameAdapter {
+
+        public PagePanelIFL() {
+        }
 
         @Override
         public void internalFrameActivated(InternalFrameEvent e) {
