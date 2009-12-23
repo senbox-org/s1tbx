@@ -32,9 +32,8 @@ public class JtsGeometryConverterTest {
         final ConverterRegistry registry = ConverterRegistry.getInstance();
         final Converter<Geometry> geomConverter = registry.getConverter(Geometry.class);
         assertNotNull(geomConverter);
-        assertSame(converter, geomConverter);
-
     }
+
     @Test
     public void testType() {
         assertEquals(Geometry.class, converter.getValueType());
