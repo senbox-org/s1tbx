@@ -1,3 +1,13 @@
+Help:
+=====
+
+* Help-ID and text missing for CreateVectorDataNodeAction (see TODO in code)
+* Help missing for new reprojection
+* Help missing for mask / ROI management
+* Help missing for geometries
+* Help missing for geometry file format (csv)
+
+
 Reprojection:
 =============
 * GeoTIFF wont work with GeoTools CRS
