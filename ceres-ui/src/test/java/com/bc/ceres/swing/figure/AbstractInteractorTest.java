@@ -67,18 +67,18 @@ public class AbstractInteractorTest extends TestCase {
         assertEquals("c;", listener.trace); // ==> cancel() NOT called
     }
 
-    private static class MyInteractorListener extends AbstractInteractorListener {
+    private static class MyInteractorListener extends AbstractInteractorInterceptor {
 
         String trace = "";
 
         @Override
-        public boolean canActivateInteractor(Interactor interactor) {
+        public boolean interactorAboutToActivate(Interactor interactor) {
             trace += "a?;";
             return true;
         }
 
         @Override
-        public boolean canStartInteraction(Interactor interactor, InputEvent inputEvent) {
+        public boolean interactionAboutToStart(Interactor interactor, InputEvent inputEvent) {
             trace += "s?;";
             return true;
         }

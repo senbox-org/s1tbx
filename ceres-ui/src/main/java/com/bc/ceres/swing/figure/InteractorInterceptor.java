@@ -14,7 +14,7 @@ import java.awt.event.InputEvent;
  */
 public interface InteractorInterceptor {
 
-    boolean canActivateInteractor(Interactor interactor);
+    boolean interactorAboutToActivate(Interactor interactor);
 
-    boolean canStartInteraction(Interactor interactor, InputEvent event);
+    boolean interactionAboutToStart(Interactor interactor, InputEvent event);
 }

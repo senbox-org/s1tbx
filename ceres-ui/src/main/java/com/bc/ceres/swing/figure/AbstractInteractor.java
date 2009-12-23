@@ -233,7 +233,7 @@ public abstract class AbstractInteractor implements Interactor {
         for (InteractorListener listener : getListeners()) {
             if (listener instanceof InteractorInterceptor) {
                 final InteractorInterceptor interactorInterceptor = (InteractorInterceptor) listener;
-                if (!interactorInterceptor.canActivateInteractor(this)) {
+                if (!interactorInterceptor.interactorAboutToActivate(this)) {
                     return false;
                 }
             }
@@ -245,7 +245,7 @@ public abstract class AbstractInteractor implements Interactor {
         for (InteractorListener listener : getListeners()) {
             if (listener instanceof InteractorInterceptor) {
                 final InteractorInterceptor interactorInterceptor = (InteractorInterceptor) listener;
-                if (!interactorInterceptor.canStartInteraction(this, inputEvent)) {
+                if (!interactorInterceptor.interactionAboutToStart(this, inputEvent)) {
                     return false;
                 }
             }
