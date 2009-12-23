@@ -11,13 +11,12 @@ import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-public class PinGroupTest {
+public class PlacemarkGroupTest {
 
     private SimpleFeatureBuilder pinBuilder;
-    private PinGroup pinGroup;
+    private PlacemarkGroup placemarkGroup;
     private FeatureCollection<SimpleFeatureType, SimpleFeature> pinFeatureCollection;
 
     @Before()
@@ -26,59 +25,59 @@ public class PinGroupTest {
         VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Pin.getPinFeatureType());
         product.getVectorDataGroup().add(pinVectorDataNode);
         pinBuilder = new SimpleFeatureBuilder(Pin.getPinFeatureType());
-        pinGroup = new PinGroup(product, "pinGroup", pinVectorDataNode);
+        placemarkGroup = new PlacemarkGroup(product, "pinGroup", pinVectorDataNode);
         pinFeatureCollection = pinVectorDataNode.getFeatureCollection();
     }
 
     @Test
     public void testManipulatingPinGroup() {
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
 
-        pinGroup.add(createPin("p1", new PixelPos(3, 1), new GeoPos(12, 34)));
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        placemarkGroup.add(createPin("p1", new PixelPos(3, 1), new GeoPos(12, 34)));
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
         final Pin pin2 = createPin("p2", new PixelPos(5, 4), new GeoPos(16, 48));
-        pinGroup.add(pin2);
-        assertAreEqual(pinGroup, pinFeatureCollection);
-        pinGroup.add(createPin("p3", new PixelPos(6, 2), new GeoPos(-45, 80)));
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        placemarkGroup.add(pin2);
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
+        placemarkGroup.add(createPin("p3", new PixelPos(6, 2), new GeoPos(-45, 80)));
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
 
-        pinGroup.remove(pin2);
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        placemarkGroup.remove(pin2);
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
 
-        pinGroup.add(1, createPin("p4", new PixelPos(6, 3), new GeoPos(-60, 47)));
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        placemarkGroup.add(1, createPin("p4", new PixelPos(6, 3), new GeoPos(-60, 47)));
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
     }
 
     @Test
     public void testManipulatingFeatureCollection() {
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
 
         pinFeatureCollection.add(createPinFeature());
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
         final SimpleFeature simpleFeature = createPinFeature();
         pinFeatureCollection.add(simpleFeature);
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
         pinFeatureCollection.add(createPinFeature());
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
 
         pinFeatureCollection.remove(simpleFeature);
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
 
         pinFeatureCollection.add(createPinFeature());
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
     }
 
     @Test
     public void testChangingFeature() {
-        pinGroup.add(createPin("p1", new PixelPos(3, 1), new GeoPos(12, 34)));
-        pinGroup.add(createPin("p2", new PixelPos(5, 4), new GeoPos(16, 48)));
-        pinGroup.add(createPin("p3", new PixelPos(6, 2), new GeoPos(-45, 80)));
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        placemarkGroup.add(createPin("p1", new PixelPos(3, 1), new GeoPos(12, 34)));
+        placemarkGroup.add(createPin("p2", new PixelPos(5, 4), new GeoPos(16, 48)));
+        placemarkGroup.add(createPin("p3", new PixelPos(6, 2), new GeoPos(-45, 80)));
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
         final CoordinateArraySequence coordinates = new CoordinateArraySequence(
                 new Coordinate[]{new Coordinate(-30, 70)});
-        final SimpleFeature changedFeature = pinGroup.get(2).getFeature();
+        final SimpleFeature changedFeature = placemarkGroup.get(2).getFeature();
         changedFeature.setDefaultGeometry(new Point(coordinates, new GeometryFactory()));
-        assertAreEqual(pinGroup, pinFeatureCollection);
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
 
         final SimpleFeature[] features = pinFeatureCollection.toArray(new SimpleFeature[pinFeatureCollection.size()]);
         assertEquals(changedFeature.getDefaultGeometry(), features[2].getDefaultGeometry());
@@ -88,7 +87,7 @@ public class PinGroupTest {
         return pinBuilder.buildFeature(String.valueOf(System.currentTimeMillis()));
     }
 
-    private static void assertAreEqual(PinGroup group, FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
+    private static void assertAreEqual(PlacemarkGroup group, FeatureCollection<SimpleFeatureType, SimpleFeature> collection) {
         final SimpleFeature[] features = collection.toArray(new SimpleFeature[collection.size()]);
         assertEquals(group.getNodeCount(), features.length);
         for (int i = 0; i < group.getNodeCount(); i++) {

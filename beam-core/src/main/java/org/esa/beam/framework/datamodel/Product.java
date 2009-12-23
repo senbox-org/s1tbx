@@ -268,8 +268,8 @@ public class Product extends ProductNode {
         this.vectorDataGroup.add(pinVectorDataNode);
         final VectorDataNode gcpVectorDataNode = new VectorDataNode("ground_control_points", Pin.getGcpFeatureType());
         this.vectorDataGroup.add(gcpVectorDataNode);
-        this.pinGroup = new PinGroup(this, "pinGroup", pinVectorDataNode);
-        this.gcpGroup = new PinGroup(this, "gcpGroup", gcpVectorDataNode);
+        this.pinGroup = new PlacemarkGroup(this, "pinGroup", pinVectorDataNode);
+        this.gcpGroup = new PlacemarkGroup(this, "gcpGroup", gcpVectorDataNode);
 
         setModified(false);
 

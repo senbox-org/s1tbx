@@ -5,18 +5,26 @@ import org.opengis.feature.simple.SimpleFeature;
 import java.util.Iterator;
 import java.util.WeakHashMap;
 
-class PinGroup extends ProductNodeGroup<Pin> {
+class PlacemarkGroup extends ProductNodeGroup<Pin> {
 
     private final VectorDataNode vectorDataNode;
     private final WeakHashMap<SimpleFeature, Pin> pinMap;
     private final ProductNodeListener listener;
 
-    PinGroup(Product product, String name, VectorDataNode vectorDataNode) {
+    PlacemarkGroup(Product product, String name, VectorDataNode vectorDataNode) {
         super(product, name, true);
         this.vectorDataNode = vectorDataNode;
         this.pinMap = new WeakHashMap<SimpleFeature, Pin>();
         listener = new VectorDataNodeListener();
         getProduct().addProductNodeListener(listener);
+    }
+
+    public VectorDataNode getVectorDataNode() {
+        return vectorDataNode;
+    }
+
+    public final Pin getPlacemark(SimpleFeature feature) {
+        return pinMap.get(feature);
     }
 
     @Override
