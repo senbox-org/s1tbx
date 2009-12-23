@@ -120,6 +120,9 @@ Figures:
 ========
 * Select-tool shall auto-select layer containg a clicked figure
   ==> PRE, NF, OPEN
+* Insert-line-tool creates a black line initially behind all other features (!?!?).
+  Color should be white (same as polyline).
+  ==> PRE, NF, OPEN
 
 * Reanimate RangeFinder tool (and MagicStick?)
   ==> FINAL, ?, OPEN
