@@ -446,7 +446,7 @@ public class ReprojectionOp extends Operator {
         for (Pin placemark : placemarks) {
             final Pin pin1 = new Pin(placemark.getName(), placemark.getLabel(),
                                      placemark.getDescription(), null, placemark.getGeoPos(),
-                                     symbol);
+                                     symbol, targetPlacemarkGroup.getProduct().getGeoCoding());
             targetPlacemarkGroup.add(pin1);
         }
     }

@@ -129,9 +129,6 @@ public class Pin extends ProductNode {
         if (pixelPos == null && geoPos == null) {
             throw new IllegalArgumentException("pixelPos == null && geoPos == null");
         }
-        if (pixelPos == null && geoCoding == null || !geoCoding.canGetPixelPos()) {
-            throw new IllegalArgumentException("pixelPos == null && geoCoding == null || !geoCoding.canGetPixelPos()");
-        }
 
         feature = createFeature(name, label, pixelPos, geoPos, symbol, geoCoding);
     }
@@ -585,8 +582,11 @@ public class Pin extends ProductNode {
         final GeometryFactory geometryFactory = new GeometryFactory();
         final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
         PixelPos imagePos = pixelPos;
-        if (imagePos == null) {
+        if (imagePos == null && geoCoding != null && geoCoding.canGetPixelPos()) {
             imagePos = geoCoding.getPixelPos(geoPos, imagePos);
+        }
+        if(imagePos == null) {
+            imagePos = new PixelPos(-1,-1);
         }
         final Point geometry = geometryFactory.createPoint(toCoordinate(i2m.transform(imagePos, null)));
         final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(featureType, name, geometry, null);
