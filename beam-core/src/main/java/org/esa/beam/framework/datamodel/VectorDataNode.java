@@ -39,7 +39,7 @@ public class VectorDataNode extends ProductNode {
 
 
     private final SimpleFeatureType featureType;
-    private final FeatureCollection featureCollection;
+    private final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
     private final CollectionListener featureCollectionListener;
     private String defaultCSS;
 
@@ -138,7 +138,7 @@ public class VectorDataNode extends ProductNode {
     /**
      * @return The feature collection.
      */
-    public FeatureCollection getFeatureCollection() {
+    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection() {
         return featureCollection;
     }
 
