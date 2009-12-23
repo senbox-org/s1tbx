@@ -19,7 +19,7 @@ abstract class TextPagePanel extends PagePanel {
 
     private JTextArea textArea;
 
-    public TextPagePanel(final ToolView parentDialog, final String defaultText, String helpId) {
+    protected TextPagePanel(final ToolView parentDialog, final String defaultText, String helpId) {
         super(parentDialog, helpId);
         textArea.setText(defaultText);
     }
@@ -57,6 +57,7 @@ abstract class TextPagePanel extends PagePanel {
     protected void handlePopupCreated(final JPopupMenu popupMenu) {
         final JMenuItem menuItem = new JMenuItem("Select All");     /*I18N*/
         menuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 textArea.selectAll();
                 textArea.requestFocus();

@@ -1,7 +1,6 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.swing.TableLayout;
-
 import org.esa.beam.framework.datamodel.TransectProfileData;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
@@ -32,16 +31,14 @@ import java.io.IOException;
 /**
  * The profile plot pane within the statistcs window.
  *
- * @author Marco Peters
  */
 class ProfilePlotPanel extends PagePanel {
 
     private static final String CHART_TITLE = "Profile Plot";
-    private static final String TITLE_PREFIX = CHART_TITLE; /*I18N*/
+    private static final String TITLE_PREFIX = CHART_TITLE;
     private static final String NO_DATA_MESSAGE = "No profile plot computed yet. " +
-                                                  "It will be computed if a shape is added to the image view.\n" +
-                                                  "TIP: To zoom within the chart draw a rectangle\n" +
-                                                  "with the mouse or use the context menu.";  /*I18N*/
+                                                  "It will be computed if a geometry is selected within the image view.\n" +
+                                                  ZOOM_TIP_MESSAGE;  
 
     private static final int VAR1 = 0;
     private static final int VAR2 = 1;

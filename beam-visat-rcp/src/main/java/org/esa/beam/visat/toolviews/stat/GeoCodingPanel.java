@@ -25,7 +25,6 @@ import java.awt.Rectangle;
 /**
  * A pane within the statistcs window which displays geo-coding information.
  *
- * @author Marco Peters
  */
 class GeoCodingPanel extends TextPagePanel {
 
@@ -33,7 +32,7 @@ class GeoCodingPanel extends TextPagePanel {
     private static final String _TITLE_PREFIX = "Geo-Coding";   /*I18N*/
     private GeoCoding _geoCoding;
 
-    public GeoCodingPanel(final ToolView parentDialog, String helpID) {
+    GeoCodingPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, _DEFAULT_GEOCODING_TEXT, helpID);
     }
 

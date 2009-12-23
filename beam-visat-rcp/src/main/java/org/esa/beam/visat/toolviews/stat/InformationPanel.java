@@ -1,8 +1,13 @@
 package org.esa.beam.visat.toolviews.stat;
 
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.datamodel.AbstractBand;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
 
@@ -10,14 +15,13 @@ import org.esa.beam.util.StringUtils;
 /**
  * The information pane within the statistcs window.
  *
- * @author Marco Peters
  */
 class InformationPanel extends TextPagePanel {
 
     private static final String _DEFAULT_INFORMATION_TEXT = "No information available."; /*I18N*/
     private static final String _TITLE_PREFIX = "Information";  /*I18N*/
 
-    public InformationPanel(final ToolView parentDialog, String helpID) {
+    InformationPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, _DEFAULT_INFORMATION_TEXT, helpID);
     }
 

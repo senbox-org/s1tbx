@@ -1,8 +1,11 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.swing.TableLayout;
-
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -10,11 +13,19 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.data.Range;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -27,6 +38,8 @@ import java.io.IOException;
  * @author Marco Peters
  */
 abstract class PagePanel extends JPanel implements ProductNodeListener {
+    protected static final String ZOOM_TIP_MESSAGE = "TIP: To zoom within the chart, draw a rectangle\n" +
+                                                     "with the mouse or use the context menu.";
 
     private Product product;
     private boolean productChanged;
@@ -169,7 +182,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     protected JMenuItem createCopyDataToClipboardMenuItem() {
         final JMenuItem menuItem = new JMenuItem("Copy Data to Clipboard"); /*I18N*/
         menuItem.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 if (checkDataToClipboardCopy()) {
                     copyTextDataToClipboard();
@@ -212,6 +225,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         zoomAllButton.setToolTipText("Zoom all.");
         zoomAllButton.setName("zoomAllButton.");
         zoomAllButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 chartPanel.restoreAutoBounds();
             }
@@ -223,6 +237,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         propertiesButton.setToolTipText("Edit properties.");
         propertiesButton.setName("propertiesButton.");
         propertiesButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 chartPanel.doEditChartProperties();
             }
@@ -234,6 +249,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         saveButton.setToolTipText("Save chart as image.");
         saveButton.setName("saveButton.");
         saveButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     chartPanel.doSaveAs();
@@ -251,6 +267,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         printButton.setToolTipText("Print chart.");
         printButton.setName("printButton.");
         printButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 chartPanel.createChartPrintJob();
             }
@@ -261,15 +278,6 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         buttonPane.add(saveButton);
         buttonPane.add(printButton);
         return buttonPane;
-    }
-
-    private static boolean isAxisOutOfRange(ChartPanel chartPanel, ValueAxis axis) {
-        final Range currentRange = axis.getRange();
-        final Range defaultRange = chartPanel.getChart().getXYPlot().getDataRange(axis);
-        final double outFactor = chartPanel.getZoomOutFactor();
-        final Range nextRange = Range.scale(currentRange, outFactor);
-        return nextRange.getLowerBound() < defaultRange.getLowerBound() ||
-                nextRange.getUpperBound() > defaultRange.getUpperBound();
     }
 
     class PopupHandler extends MouseAdapter {
@@ -307,6 +315,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
             setRaster(raster);
             setProduct(product);
             SwingUtilities.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     updateUI();
                 }
@@ -322,6 +331,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
      *
      * @param event the product node which the listener to be notified
      */
+    @Override
     public void nodeAdded(ProductNodeEvent event) {
     }
 
@@ -330,6 +340,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
      *
      * @param event the product node which the listener to be notified
      */
+    @Override
     public void nodeChanged(ProductNodeEvent event) {
     }
 
@@ -338,6 +349,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
      *
      * @param event the product node which the listener to be notified
      */
+    @Override
     public void nodeDataChanged(ProductNodeEvent event) {
     }
 
@@ -346,6 +358,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
      *
      * @param event the product node which the listener to be notified
      */
+    @Override
     public void nodeRemoved(ProductNodeEvent event) {
     }
 

@@ -49,13 +49,11 @@ import java.util.concurrent.ExecutionException;
 /**
  * The scatter plot pane within the statistcs window.
  *
- * @author Marco Peters
  */
 class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.ComputeMask {
 
     private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.\n" +
-                                                  "TIP: To zoom within the chart draw a rectangle\n" +
-                                                  "with the mouse or use the context menu.";  /*I18N*/
+                                                  ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Scatter Plot";
     private static final String TITLE_PREFIX = CHART_TITLE;
 

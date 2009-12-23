@@ -17,17 +17,16 @@ import java.io.IOException;
 /**
  * A pane within the statistcs window which displays a co-oordinate list as a text table.
  *
- * @author Marco Peters
  */
 class CoordListPanel extends TextPagePanel {
 
     private static final String _TITLE_PREFIX = "Co-ordinate List";     /*I18N*/
     private static final String _DEFAULT_COORDLIST_TEXT = "Co-ordinate list not available.\n" +
-            "No shape (line, polyline or polygon) contained in the image view.";  /*I18N*/
+            "No geometry (line, polyline or polygon) selected in the image view.";  /*I18N*/
 
 
 
-    public CoordListPanel(final ToolView parentDialog, String helpID) {
+    CoordListPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, _DEFAULT_COORDLIST_TEXT, helpID);
     }
 
@@ -46,7 +45,7 @@ class CoordListPanel extends TextPagePanel {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getParent(),
                                           "Failed to compute profile plot.\n" +
-                                                  "An I/O error occured:" + e.getMessage(),
+                                                  "An I/O error occurred:" + e.getMessage(),
                                           "I/O error",
                                           JOptionPane.ERROR_MESSAGE);       /*I18N*/
         } finally {
@@ -70,7 +69,7 @@ class CoordListPanel extends TextPagePanel {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getParent(),
                                           "Failed to compute profile plot.\n" +
-                                                  "An I/O error occured:" + e.getMessage(),
+                                                  "An I/O error occurred:" + e.getMessage(),
                                           "I/O error",
                                           JOptionPane.ERROR_MESSAGE);   /*I18N*/
             return _DEFAULT_COORDLIST_TEXT;

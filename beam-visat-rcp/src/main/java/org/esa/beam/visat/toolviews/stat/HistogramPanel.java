@@ -3,7 +3,6 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
@@ -39,23 +38,19 @@ import java.awt.image.RenderedImage;
 /**
  * A pane within the statistcs window which displays a histogram.
  *
- * @author Marco Peters
- * @version $Revision$ $Date$
  */
 class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeMask {
 
     private static final String NO_DATA_MESSAGE = "No histogram computed yet.\n" +
-                                                  "TIP: To zoom within the chart draw a rectangle\n" +
-                                                  "with the mouse or use the context menu.";  /*I18N*/
+                                                  ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Histogram";
-    private static final String TITLE_PREFIX = CHART_TITLE;    /*I18N*/
+    private static final String TITLE_PREFIX = CHART_TITLE;
 
 
     private Parameter numBinsParam;
     private Parameter autoMinMaxEnabledParam;
     private Parameter histoMinParam;
     private Parameter histoMaxParam;
-    private ChartPanel histogramDisplay;
     private boolean histogramComputing;
     private SingleRoiComputePanel computePanel;
     private XIntervalSeriesCollection dataset;
@@ -64,17 +59,13 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
     private Stx stx;
 
 
-    public HistogramPanel(final ToolView parentDialog, String helpID) {
+    HistogramPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, helpID);
     }
 
     @Override
     protected String getTitlePrefix() {
         return TITLE_PREFIX;
-    }
-
-    public JFreeChart getChart() {
-        return chart;
     }
 
     @Override
@@ -148,6 +139,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
 
         paramGroup.addParamChangeListener(new ParamChangeListener() {
 
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 updateUIState();
             }
@@ -171,7 +163,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         renderer.setDrawBarOutline(false);
         renderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
 
-        histogramDisplay = createChartPanel(chart);
+        ChartPanel histogramDisplay = createChartPanel(chart);
 
         computePanel = new SingleRoiComputePanel(this, getRaster());
         final TableLayout rightPanelLayout = new TableLayout(1);
@@ -305,7 +297,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
                 } catch (Exception e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentComponent(),
-                                                  "Failed to compute histogram.\nAn internal error occured:\n" + e.getMessage(),
+                                                  "Failed to compute histogram.\nAn internal error occurred:\n" + e.getMessage(),
                                                   CHART_TITLE,
                                                   JOptionPane.ERROR_MESSAGE);
                 }
