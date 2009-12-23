@@ -146,8 +146,8 @@ public class Product extends ProductNode {
     private final ProductNodeGroup<FlagCoding> flagCodingGroup;
     private final ProductNodeGroup<IndexCoding> indexCodingGroup;
     private final ProductNodeGroup<Mask> maskGroup;
-    private final ProductNodeGroup<Pin> pinGroup;
-    private final ProductNodeGroup<Pin> gcpGroup;
+    private final PlacemarkGroup pinGroup;
+    private final PlacemarkGroup gcpGroup;
 
     /**
      * The internal reference number of this product
@@ -1096,7 +1096,7 @@ public class Product extends ProductNode {
      *
      * @return the GCP group.
      */
-    public ProductNodeGroup<Pin> getGcpGroup() {
+    public PlacemarkGroup getGcpGroup() {
         return gcpGroup;
     }
 
@@ -1108,7 +1108,7 @@ public class Product extends ProductNode {
      *
      * @return the pin group.
      */
-    public ProductNodeGroup<Pin> getPinGroup() {
+    public PlacemarkGroup getPinGroup() {
         return pinGroup;
     }
 
