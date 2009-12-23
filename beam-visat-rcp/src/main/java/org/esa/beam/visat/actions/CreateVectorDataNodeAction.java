@@ -32,6 +32,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.visat.VisatActivator;
 import org.esa.beam.visat.VisatApp;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -46,8 +47,9 @@ import java.text.MessageFormat;
  * @author Norman Fomferra
  * @since BEAM 4.7
  */
-public class NewVectorDataNodeAction extends ExecCommand {
+public class CreateVectorDataNodeAction extends ExecCommand {
     private static final String DIALOG_TITLE = "New Geometry Container";
+    private static final String KEY_VECTOR_DATA_INITIAL_NAME = "geometry.initialName";
 
 
     // todo - add help (nf)
@@ -81,6 +83,12 @@ public class NewVectorDataNodeAction extends ExecCommand {
         }
     }
 
+    public static VectorDataNode createDefaultVectorDataNode(Product product) {
+        return createDefaultVectorDataNode(product,
+                                           getDefaultVectorDataNodeName(),
+                                           "Default geometry container (automatically created)");
+    }
+
     public static VectorDataNode createDefaultVectorDataNode(Product product, String name, String description) {
         CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(product.getGeoCoding());
         SimpleFeatureType type = PlainFeatureFactory.createDefaultFeatureType(modelCrs);
@@ -97,6 +105,10 @@ public class NewVectorDataNodeAction extends ExecCommand {
             setAsRoi(mask, roiMaskGroup);
         }
         return vectorDataNode;
+    }
+
+    public static String getDefaultVectorDataNodeName() {
+        return VisatActivator.getInstance().getModuleContext().getRuntimeConfig().getContextProperty(KEY_VECTOR_DATA_INITIAL_NAME, "geometry");
     }
 
     private static void setAsRoi(Mask mask, ProductNodeGroup<Mask> roiMaskGroup) {
@@ -160,7 +172,7 @@ public class NewVectorDataNodeAction extends ExecCommand {
 
     // todo - add validators (nf)
     static class DialogData {
-        String name = "geometry_" + (++numItems);
+        String name = getDefaultVectorDataNodeName() + "_" + (++numItems);
         String description = "";
     }
 

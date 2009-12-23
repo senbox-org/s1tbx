@@ -25,6 +25,7 @@ import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.actions.CreateVectorDataNodeAction;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -168,14 +169,14 @@ class MaskFormActions {
 
     private static class NewVectorDataNodeAction extends MaskAction {
 
-        private org.esa.beam.visat.actions.NewVectorDataNodeAction action;
+        private CreateVectorDataNodeAction action;
 
         private NewVectorDataNodeAction(MaskForm maskForm) {
             super(maskForm,
                   "NewVectorDataNode24.gif",
                   "newGeometry",
                   "Creates a new mask based on a new geometry container (lines and polygons))");
-            action = new org.esa.beam.visat.actions.NewVectorDataNodeAction();
+            action = new CreateVectorDataNodeAction();
         }
 
         @Override
