@@ -266,6 +266,10 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
         super.dispose();
     }
 
+    /**
+     * @deprecated Since BEAM 4.6. Don't use anymore. Selection state is subject to UI.
+     */
+    @Deprecated
     public void setSelectedNode(final int index) {
         final ProductNode[] nodes = toArray();
         for (int i = 0; i < nodes.length; i++) {
@@ -273,6 +277,11 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
         }
     }
 
+
+    /**
+     * @deprecated Since BEAM 4.6. Don't use anymore. Selection state is subject to UI.
+     */
+    @Deprecated
     public void setSelectedNode(final String name) {
         if (name == null) {
             return;
@@ -283,6 +292,10 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
         }
     }
 
+    /**
+     * @deprecated Since BEAM 4.6. Don't use anymore. Selection state is subject to UI.
+     */
+    @Deprecated
     public T getSelectedNode() {
         final ProductNode[] nodes = toArray();
         for (final ProductNode node : nodes) {
@@ -293,6 +306,10 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
         return null;
     }
 
+    /**
+     * @deprecated Since BEAM 4.6. Don't use anymore. Selection state is subject to UI.
+     */
+    @Deprecated
     public Collection<T> getSelectedNodes() {
         final Collection<T> selectedNodes = new ArrayList<T>(16);
         final ProductNode[] nodes = toArray();
