@@ -36,6 +36,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.text.MessageFormat;
 
@@ -433,6 +434,22 @@ public class Pin extends ProductNode {
     public void updatePixelPos(GeoCoding geoCoding) {
         if (getGeoPos() != null && geoCoding != null && geoCoding.canGetPixelPos()) {
             setPixelPos(geoCoding.getPixelPos(getGeoPos(), null));
+        }
+    }
+
+    public void updatePixelPos() {
+        final Point point = (Point) feature.getDefaultGeometry();
+        if (point != null) {
+            if (getProduct() != null) {
+                final AffineTransform i2m = ImageManager.getImageToModelTransform(getProduct().getGeoCoding());
+                final PixelPos pixelPos = new PixelPos((float) point.getX(), (float) point.getY());
+                try {
+                    i2m.inverseTransform(pixelPos, pixelPos);
+                } catch (NoninvertibleTransformException e) {
+                    // ignore
+                }
+                setPixelPos(pixelPos);
+            }
         }
     }
 

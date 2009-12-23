@@ -1,26 +1,22 @@
 package org.esa.beam.framework.datamodel;
 
 import org.opengis.feature.simple.SimpleFeature;
-import org.geotools.feature.CollectionListener;
-import org.geotools.feature.CollectionEvent;
 
-import java.util.WeakHashMap;
 import java.util.Iterator;
+import java.util.WeakHashMap;
 
 class PinGroup extends ProductNodeGroup<Pin> {
 
     private final VectorDataNode vectorDataNode;
     private final WeakHashMap<SimpleFeature, Pin> pinMap;
+    private final ProductNodeListener listener;
 
     PinGroup(Product product, String name, VectorDataNode vectorDataNode) {
         super(product, name, true);
         this.vectorDataNode = vectorDataNode;
         this.pinMap = new WeakHashMap<SimpleFeature, Pin>();
-        vectorDataNode.getFeatureCollection().addListener(new VectorDataFeatureCollectionListener());
-    }
-
-    Pin getPin(SimpleFeature feature) {
-        return pinMap.get(feature);
+        listener = new VectorDataNodeListener();
+        getProduct().addProductNodeListener(listener);
     }
 
     @Override
@@ -49,6 +45,9 @@ class PinGroup extends ProductNodeGroup<Pin> {
 
     @Override
     public void dispose() {
+        if (getProduct() != null) {
+            getProduct().removeProductNodeListener(listener);
+        }
         pinMap.clear();
         super.dispose();
     }
@@ -89,34 +88,38 @@ class PinGroup extends ProductNodeGroup<Pin> {
         }
     }
 
-    private class VectorDataFeatureCollectionListener implements CollectionListener {
+    private class VectorDataNodeListener extends ProductNodeListenerAdapter {
 
         @Override
-        public void collectionChanged(CollectionEvent tce) {
-            if (tce.getEventType() == CollectionEvent.FEATURES_ADDED) {
-                final SimpleFeature[] features = tce.getFeatures();
-                for (SimpleFeature feature : features) {
-                    final Pin pin = getPin(feature);
-                    if (pin == null) {
-                        // Only call add() if we don't have the pin already
-                        _add(new Pin(feature));
-                    }
-                }
-            } else if (tce.getEventType() == CollectionEvent.FEATURES_REMOVED) {
-                final SimpleFeature[] features = tce.getFeatures();
-                for (SimpleFeature feature : features) {
-                    final Pin pin = getPin(feature);
-                    if (pin != null) {
-                        // Only call remove() if we still have the pin
-                        _remove(pin);
-                    }
-                }
-            } else if (tce.getEventType() == CollectionEvent.FEATURES_CHANGED) {
-                final SimpleFeature[] features = tce.getFeatures();
-                for (SimpleFeature feature : features) {
-                    final Pin pin = getPin(feature);
-                    if (pin != null) {
-                        pin.fireProductNodeChanged(Pin.PROPERTY_NAME_FEATURE, feature, feature);
+        public void nodeChanged(ProductNodeEvent event) {
+            if (event.getSource() == vectorDataNode) {
+                if (event.getPropertyName().equals(VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION)) {
+                    final SimpleFeature[] oldFeatures = (SimpleFeature[]) event.getOldValue();
+                    final SimpleFeature[] newFeatures = (SimpleFeature[]) event.getNewValue();
+
+                    if (oldFeatures == null) { // features added?
+                        for (SimpleFeature feature : newFeatures) {
+                            final Pin pin = pinMap.get(feature);
+                            if (pin == null) {
+                                // Only call add() if we don't have the pin already
+                                _add(new Pin(feature));
+                            }
+                        }
+                    } else if (newFeatures == null) { // features removed?
+                        for (SimpleFeature feature : oldFeatures) {
+                            final Pin pin = pinMap.get(feature);
+                            if (pin != null) {
+                                // Only call add() if we don't have the pin already
+                                _remove(pin);
+                            }
+                        }
+                    } else { // features changed
+                        for (SimpleFeature feature : newFeatures) {
+                            final Pin pin = pinMap.get(feature);
+                            if (pin != null) {
+                                pin.updatePixelPos();
+                            }
+                        }
                     }
                 }
             }
