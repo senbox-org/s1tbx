@@ -110,11 +110,8 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
     @Override
     protected boolean addFigureImpl(int index, Figure figure) {
         if (figure.isSelectable()) {
-            boolean added = super.addFigureImpl(index, figure);
-            if (added) {
-                figure.setSelected(true);
-            }
-            return added;
+            figure.setSelected(true);
+            return super.addFigureImpl(index, figure);
         }
         return false;
     }
@@ -122,11 +119,10 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
     @Override
     protected Figure[] addFiguresImpl(Figure[] figures) {
         figures = filterSelectableFigures(figures);
-        Figure[] addedFigures = super.addFiguresImpl(figures);
-        for (Figure figure : addedFigures) {
+        for (Figure figure : figures) {
             figure.setSelected(true);
         }
-        return addedFigures;
+        return super.addFiguresImpl(figures);
     }
 
     @Override

@@ -125,7 +125,6 @@ public abstract class AbstractFigure implements Figure {
         if (!contains(figure)) {
             boolean added = addFigureImpl(index, figure);
             if (added) {
-                fireFigureChanged();
                 fireFiguresAdded(figure);
             }
             return added;
@@ -137,7 +136,6 @@ public abstract class AbstractFigure implements Figure {
     public synchronized Figure[] addFigures(Figure... figures) {
         Figure[] added = addFiguresImpl(figures);
         if (added.length > 0) {
-            fireFigureChanged();
             fireFiguresAdded(added);
         }
         return added;
@@ -147,7 +145,6 @@ public abstract class AbstractFigure implements Figure {
     public synchronized boolean removeFigure(Figure figure) {
         boolean removed = removeFigureImpl(figure);
         if (removed) {
-            fireFigureChanged();
             fireFiguresRemoved(figure);
         }
         return removed;
@@ -157,7 +154,6 @@ public abstract class AbstractFigure implements Figure {
     public Figure[] removeFigures(Figure... figures) {
         if (getFigureCount() > 0 && figures.length > 0) {
             Figure[] removed = removeFiguresImpl(figures);
-            fireFigureChanged();
             fireFiguresRemoved(removed);
             return removed;
         }
@@ -169,7 +165,6 @@ public abstract class AbstractFigure implements Figure {
     public Figure[] removeAllFigures() {
         if (getFigureCount() > 0) {
             Figure[] figures = removeFiguresImpl();
-            fireFigureChanged();
             fireFiguresRemoved(figures);
             return figures;
         }
@@ -358,18 +353,21 @@ public abstract class AbstractFigure implements Figure {
     }
 
     protected void fireFiguresAdded(Figure... figures) {
-        FigureChangeEvent event = new FigureChangeEvent(this, FigureChangeEvent.FIGURES_ADDED, figures);
-        fireFigureChanged(event);
+        fireFigureChanged(new FigureChangeEvent(this,
+                                                FigureChangeEvent.FIGURES_ADDED,
+                                                figures));
     }
 
     protected void fireFiguresRemoved(Figure... figures) {
-        FigureChangeEvent event = new FigureChangeEvent(this, FigureChangeEvent.FIGURES_REMOVED, figures);
-        fireFigureChanged(event);
+        fireFigureChanged(new FigureChangeEvent(this,
+                                                FigureChangeEvent.FIGURES_REMOVED,
+                                                figures));
     }
 
     protected void fireFigureChanged() {
-        FigureChangeEvent event = new FigureChangeEvent(this, FigureChangeEvent.FIGURE_CHANGED, null);
-        fireFigureChanged(event);
+        fireFigureChanged(new FigureChangeEvent(this,
+                                                FigureChangeEvent.FIGURE_CHANGED,
+                                                null));
     }
 
     protected void fireFigureChanged(FigureChangeEvent event) {
