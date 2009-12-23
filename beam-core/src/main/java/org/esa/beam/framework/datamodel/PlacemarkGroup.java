@@ -8,13 +8,13 @@ import java.util.WeakHashMap;
 public class PlacemarkGroup extends ProductNodeGroup<Pin> {
 
     private final VectorDataNode vectorDataNode;
-    private final WeakHashMap<SimpleFeature, Pin> pinMap;
+    private final WeakHashMap<SimpleFeature, Pin> placemarkMap;
     private final ProductNodeListener listener;
 
     PlacemarkGroup(Product product, String name, VectorDataNode vectorDataNode) {
         super(product, name, true);
         this.vectorDataNode = vectorDataNode;
-        this.pinMap = new WeakHashMap<SimpleFeature, Pin>();
+        this.placemarkMap = new WeakHashMap<SimpleFeature, Pin>();
         listener = new VectorDataNodeListener();
         getProduct().addProductNodeListener(listener);
     }
@@ -24,7 +24,7 @@ public class PlacemarkGroup extends ProductNodeGroup<Pin> {
     }
 
     public final Pin getPlacemark(SimpleFeature feature) {
-        return pinMap.get(feature);
+        return placemarkMap.get(feature);
     }
 
     @Override
@@ -56,27 +56,27 @@ public class PlacemarkGroup extends ProductNodeGroup<Pin> {
         if (getProduct() != null) {
             getProduct().removeProductNodeListener(listener);
         }
-        pinMap.clear();
+        placemarkMap.clear();
         super.dispose();
     }
 
     private boolean _add(Pin pin) {
         final boolean added = super.add(pin);
         if (added) {
-            pinMap.put(pin.getFeature(), pin);
+            placemarkMap.put(pin.getFeature(), pin);
         }
         return added;
     }
 
     private void _add(int index, Pin pin) {
         super.add(index, pin);
-        pinMap.put(pin.getFeature(), pin);
+        placemarkMap.put(pin.getFeature(), pin);
     }
 
     private boolean _remove(Pin pin) {
         final boolean removed = super.remove(pin);
         if (removed) {
-            pinMap.remove(pin.getFeature());
+            placemarkMap.remove(pin.getFeature());
         }
         return removed;
     }
@@ -107,7 +107,7 @@ public class PlacemarkGroup extends ProductNodeGroup<Pin> {
 
                     if (oldFeatures == null) { // features added?
                         for (SimpleFeature feature : newFeatures) {
-                            final Pin pin = pinMap.get(feature);
+                            final Pin pin = placemarkMap.get(feature);
                             if (pin == null) {
                                 // Only call add() if we don't have the pin already
                                 _add(new Pin(feature));
@@ -115,7 +115,7 @@ public class PlacemarkGroup extends ProductNodeGroup<Pin> {
                         }
                     } else if (newFeatures == null) { // features removed?
                         for (SimpleFeature feature : oldFeatures) {
-                            final Pin pin = pinMap.get(feature);
+                            final Pin pin = placemarkMap.get(feature);
                             if (pin != null) {
                                 // Only call add() if we don't have the pin already
                                 _remove(pin);
@@ -123,7 +123,7 @@ public class PlacemarkGroup extends ProductNodeGroup<Pin> {
                         }
                     } else { // features changed
                         for (SimpleFeature feature : newFeatures) {
-                            final Pin pin = pinMap.get(feature);
+                            final Pin pin = placemarkMap.get(feature);
                             if (pin != null) {
                                 pin.updatePixelPos();
                             }
