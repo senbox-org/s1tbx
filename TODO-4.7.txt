@@ -44,7 +44,6 @@ Masks:
   the selected band in the product tree view
   ==> PRE, MP, CLOSED
 * New geometry masks shall always be assigned as ROI by default
-  Layer Manager
   ==> PRE, MP, CLOSED
 * Check if Masks are valid on import
   ==> PRE, RQ, CLOSED
