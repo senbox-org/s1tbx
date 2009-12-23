@@ -22,9 +22,9 @@ public class PlacemarkGroupTest {
     @Before()
     public void setup() {
         Product product = new Product("PinGroup Test", "TestType", 10, 10);
-        VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Pin.getPinFeatureType());
+        VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Pin.getFeatureType());
         product.getVectorDataGroup().add(pinVectorDataNode);
-        pinBuilder = new SimpleFeatureBuilder(Pin.getPinFeatureType());
+        pinBuilder = new SimpleFeatureBuilder(Pin.getFeatureType());
         placemarkGroup = new PlacemarkGroup(product, "pinGroup", pinVectorDataNode);
         pinFeatureCollection = pinVectorDataNode.getFeatureCollection();
     }

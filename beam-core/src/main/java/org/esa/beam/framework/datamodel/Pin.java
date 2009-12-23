@@ -56,12 +56,13 @@ import java.text.MessageFormat;
  */
 public class Pin extends ProductNode {
 
+    public static final String PLACEMARK_FEATURE_TYPE_NAME = "Placemark";
+
     public static final String PROPERTY_NAME_LABEL = "label";
     public static final String PROPERTY_NAME_PIXELPOS = "pixelPos";
     public static final String PROPERTY_NAME_GEOPOS = "geoPos";
     public static final String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
     public static final String PROPERTY_NAME_GEOMETRY = "geometry";
-    public static final String PROPERTY_NAME_FEATURE = "feature";
 
     private final SimpleFeature feature;
 
@@ -72,19 +73,8 @@ public class Pin extends ProductNode {
      *
      * @since BEAM 4.7
      */
-    public static SimpleFeatureType getPinFeatureType() {
-        return Holder.PIN_FEATURE_TYPE;
-    }
-
-    /**
-     * Returns the type of features underlying all pins.
-     *
-     * @return the type of features underlying all pins.
-     *
-     * @since BEAM 4.7
-     */
-    public static SimpleFeatureType getGcpFeatureType() {
-        return Holder.GCP_FEATURE_TYPE;
+    public static SimpleFeatureType getFeatureType() {
+        return Holder.PLACEMARK_FEATURE_TYPE;
     }
 
     /**
@@ -570,7 +560,7 @@ public class Pin extends ProductNode {
 
     private static SimpleFeature createFeature(String name, String label, PixelPos pixelPos, GeoPos geoPos,
                                                PlacemarkSymbol symbol, GeoCoding geoCoding) {
-        final SimpleFeatureType featureType = getPinFeatureType();
+        final SimpleFeatureType featureType = getFeatureType();
         final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
 
         if (label == null) {
@@ -595,7 +585,6 @@ public class Pin extends ProductNode {
 
     private static class Holder {
 
-        private static final SimpleFeatureType PIN_FEATURE_TYPE = createFeatureType(Product.PIN_FEATURE_TYPE_NAME);
-        private static final SimpleFeatureType GCP_FEATURE_TYPE = createFeatureType(Product.GCP_FEATURE_TYPE_NAME);
+        private static final SimpleFeatureType PLACEMARK_FEATURE_TYPE = createFeatureType(PLACEMARK_FEATURE_TYPE_NAME);
     }
 }

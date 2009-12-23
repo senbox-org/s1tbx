@@ -46,7 +46,6 @@ import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
@@ -85,8 +84,6 @@ public class Product extends ProductNode {
     public static final String PROPERTY_NAME_POINTING = "pointing";
     public static final String PROPERTY_NAME_PRODUCT_TYPE = "productType";
 
-    public static final String PIN_FEATURE_TYPE_NAME = "Pin";
-    public static final String GCP_FEATURE_TYPE_NAME = "GCP";
     public static final String GEOMETRY_FEATURE_TYPE_NAME = PlainFeatureFactory.DEFAULT_TYPE_NAME;
 
     /**
@@ -264,9 +261,9 @@ public class Product extends ProductNode {
         this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
-        final VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Pin.getPinFeatureType());
+        final VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Pin.getFeatureType());
         this.vectorDataGroup.add(pinVectorDataNode);
-        final VectorDataNode gcpVectorDataNode = new VectorDataNode("ground_control_points", Pin.getGcpFeatureType());
+        final VectorDataNode gcpVectorDataNode = new VectorDataNode("ground_control_points", Pin.getFeatureType());
         this.vectorDataGroup.add(gcpVectorDataNode);
         this.pinGroup = new PlacemarkGroup(this, "pinGroup", pinVectorDataNode);
         this.gcpGroup = new PlacemarkGroup(this, "gcpGroup", gcpVectorDataNode);
@@ -1041,9 +1038,7 @@ public class Product extends ProductNode {
     }
 
     public boolean isInternalNode(VectorDataNode vectorDataNode) {
-        final SimpleFeatureType simpleFeatureType = vectorDataNode.getFeatureType();
-        final String typeName = simpleFeatureType.getTypeName();
-        return PIN_FEATURE_TYPE_NAME.equals(typeName) || GCP_FEATURE_TYPE_NAME.equals(typeName);
+        return vectorDataNode.getFeatureType() == Pin.getFeatureType();
     }
 
     //////////////////////////////////////////////////////////////////////////

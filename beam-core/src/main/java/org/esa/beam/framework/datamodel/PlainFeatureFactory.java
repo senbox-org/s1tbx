@@ -27,7 +27,9 @@ public class PlainFeatureFactory {
                                                            Class<? extends Geometry> geometryType,
                                                            CoordinateReferenceSystem crs) {
         SimpleFeatureTypeBuilder sftb = new SimpleFeatureTypeBuilder();
-        sftb.setCRS(crs);
+        if (crs == null) {
+            sftb.setCRS(crs);
+        }
         sftb.setName(typeName);
         sftb.add(ATTRIB_NAME_GEOMETRY, geometryType);
         sftb.add(ATTRIB_NAME_STYLE_CSS, String.class);

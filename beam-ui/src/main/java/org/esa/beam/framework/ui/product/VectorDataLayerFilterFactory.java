@@ -9,14 +9,6 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
  * Filter out layers of type {@link VectorDataLayer}.
  */
 public class VectorDataLayerFilterFactory {
-    public static LayerFilter createPinFilter() {
-        return new TypeNameFilter(Product.PIN_FEATURE_TYPE_NAME);
-    }
-
-    public static LayerFilter createGcpFilter() {
-        return new TypeNameFilter(Product.GCP_FEATURE_TYPE_NAME);
-    }
-
     public static LayerFilter createGeometryFilter() {
         return new TypeNameFilter(Product.GEOMETRY_FEATURE_TYPE_NAME);
     }

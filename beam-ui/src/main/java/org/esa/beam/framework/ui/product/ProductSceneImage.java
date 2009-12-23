@@ -205,15 +205,17 @@ public class ProductSceneImage implements ProductLayerContext {
     }
 
     Layer getGcpLayer(boolean create) {
+        final VectorDataNode vectorDataNode = getProduct().getGcpGroup().getVectorDataNode();
         return LayerUtils.getChildLayer(getVectorDataCollectionLayer(create),
                                         LayerUtils.SEARCH_DEEP,
-                                        VectorDataLayerFilterFactory.createGcpFilter());
+                                        VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode));
     }
 
     Layer getPinLayer(boolean create) {
+        final VectorDataNode vectorDataNode = getProduct().getPinGroup().getVectorDataNode();
         return LayerUtils.getChildLayer(getVectorDataCollectionLayer(create),
                                         LayerUtils.SEARCH_DEEP,
-                                        VectorDataLayerFilterFactory.createPinFilter());
+                                        VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode));
     }
 
     private RasterDataNode getRaster() {
