@@ -12,6 +12,12 @@ import org.opengis.feature.simple.SimpleFeature;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.Shape;
+import java.awt.Stroke;
+import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -112,6 +118,46 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
             } else {
                 drawCross(rendering, scale);
             }
+        }
+        final Object labelAttribute = simpleFeature.getAttribute("label");
+        if (labelAttribute instanceof String) {
+            drawLabel(rendering, (String) labelAttribute);
+        }
+    }
+
+    private void drawLabel(Rendering rendering, String label) {
+        final Graphics2D graphics = rendering.getGraphics();
+        final Font oldFont = graphics.getFont();
+        final Stroke oldStroke = graphics.getStroke();
+        final Paint oldPaint = graphics.getPaint();
+
+        try {
+            Font font = new Font("Helvetica", Font.BOLD, 14);
+            graphics.setFont(font);
+            GlyphVector glyphVector = font.createGlyphVector(graphics.getFontRenderContext(), label);
+            Rectangle2D logicalBounds = glyphVector.getLogicalBounds();
+            float tx = (float) (logicalBounds.getX() - 0.5 * logicalBounds.getWidth());
+            float ty = (float) (1.0 + logicalBounds.getHeight());
+            Shape outline = glyphVector.getOutline(tx, ty);
+
+            int[] alphas = new int[]{64, 128, 192, 255};
+            for (int i = 0; i < alphas.length; i++) {
+                BasicStroke selectionStroke = new BasicStroke((alphas.length - i));
+                Color selectionColor = new Color(Color.BLACK.getRed(),
+                                                 Color.BLACK.getGreen(),
+                                                 Color.BLACK.getBlue(),
+                                                 alphas[i]);
+                graphics.setStroke(selectionStroke);
+                graphics.setPaint(selectionColor);
+                graphics.draw(outline);
+            }
+
+            graphics.setPaint(Color.WHITE);
+            graphics.fill(outline);
+        } finally {
+            graphics.setPaint(oldPaint);
+            graphics.setStroke(oldStroke);
+            graphics.setFont(oldFont);
         }
     }
 
