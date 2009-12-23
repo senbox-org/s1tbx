@@ -32,7 +32,8 @@ public class DefaultLayerEditorDescriptorTest extends TestCase {
         assertTrue(extension instanceof GraticuleLayerEditor);
     }
 
-    class GraticuleLayerEditor implements LayerEditor {
+    public static class GraticuleLayerEditor implements LayerEditor {
+
         @Override
         public JComponent createControl(AppContext appContext, Layer layer) {
             return null;
