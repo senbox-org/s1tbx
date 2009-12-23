@@ -586,7 +586,8 @@ public class Pin extends ProductNode {
             imagePos = geoCoding.getPixelPos(geoPos, imagePos);
         }
         if(imagePos == null) {
-            imagePos = new PixelPos(-1,-1);
+            imagePos = new PixelPos();
+            imagePos.setInvalid();
         }
         final Point geometry = geometryFactory.createPoint(toCoordinate(i2m.transform(imagePos, null)));
         final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(featureType, name, geometry, null);
