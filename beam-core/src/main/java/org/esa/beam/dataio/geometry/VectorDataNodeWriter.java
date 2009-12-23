@@ -2,6 +2,7 @@ package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.Converter;
 import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.util.converters.JavaTypeConverter;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;

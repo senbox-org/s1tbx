@@ -5,6 +5,7 @@ import com.bc.ceres.binding.Converter;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.io.CsvReader;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.converters.JavaTypeConverter;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;

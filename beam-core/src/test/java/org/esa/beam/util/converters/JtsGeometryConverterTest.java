@@ -1,4 +1,4 @@
-package org.esa.beam.dataio.geometry;
+package org.esa.beam.util.converters;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
@@ -15,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import org.esa.beam.util.converters.JtsGeometryConverter;
 
 public class JtsGeometryConverterTest {
 

@@ -3,6 +3,7 @@ package org.esa.beam.dataio.geometry;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.esa.beam.util.converters.JtsGeometryConverter;
 
 import java.io.IOException;
 

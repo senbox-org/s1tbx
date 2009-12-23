@@ -16,7 +16,6 @@
  */
 package org.esa.beam;
 
-import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.runtime.Activator;
@@ -27,8 +26,6 @@ import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ModuleContext;
 import com.bc.ceres.core.runtime.ModuleRuntime;
 import com.bc.ceres.core.runtime.ModuleState;
-import com.vividsolutions.jts.geom.Geometry;
-import org.esa.beam.dataio.geometry.JtsGeometryConverter;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RGBImageProfileManager;
 import org.esa.beam.util.SystemUtils;
@@ -54,7 +51,7 @@ public class BeamCoreActivator implements Activator {
         return moduleContext != null;
     }
 
-    public static <T> void loadServices(ServiceRegistry<T> registry)  {
+    public static <T> void loadServices(ServiceRegistry<T> registry) {
         Iterable<T> iterable = SystemUtils.loadServices(registry.getServiceType());
         for (T service : iterable) {
             registry.addService(service);
