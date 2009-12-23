@@ -27,11 +27,11 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.XmlWriter;
-import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.jdom.Element;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -39,6 +39,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.text.MessageFormat;
+import java.util.List;
 
 // todo - rename to Placemark (se - 20090126) 
 
@@ -62,7 +63,6 @@ public class Pin extends ProductNode {
     public static final String PROPERTY_NAME_PIXELPOS = "pixelPos";
     public static final String PROPERTY_NAME_GEOPOS = "geoPos";
     public static final String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
-    public static final String PROPERTY_NAME_GEOMETRY = "geometry";
 
     private final SimpleFeature feature;
 
@@ -129,6 +129,10 @@ public class Pin extends ProductNode {
         if (pixelPos == null && geoPos == null) {
             throw new IllegalArgumentException("pixelPos == null && geoPos == null");
         }
+        if (pixelPos == null && geoCoding == null || !geoCoding.canGetPixelPos()) {
+            throw new IllegalArgumentException("pixelPos == null && geoCoding == null || !geoCoding.canGetPixelPos()");
+        }
+
         feature = createFeature(name, label, pixelPos, geoPos, symbol, geoCoding);
     }
 
@@ -547,13 +551,16 @@ public class Pin extends ProductNode {
     private static SimpleFeatureType createFeatureType(String name) {
         final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
 
+        final SimpleFeatureType superType = PlainFeatureFactory.createPlainFeatureType(name, Point.class, null);
+        final List<AttributeDescriptor> list = superType.getAttributeDescriptors();
+        for (AttributeDescriptor descriptor : list) {
+            builder.add(descriptor);
+        }
         builder.setName(name);
         builder.add(Pin.PROPERTY_NAME_LABEL, String.class);
         builder.add(Pin.PROPERTY_NAME_PIXELPOS, Point.class);
-        builder.add(Pin.PROPERTY_NAME_GEOMETRY, Point.class);
         builder.add(Pin.PROPERTY_NAME_GEOPOS, Point.class);
         builder.add("symbol", PlacemarkSymbol.class);
-        builder.setDefaultGeometry(Pin.PROPERTY_NAME_GEOMETRY);
 
         return builder.buildFeatureType();
     }
@@ -561,26 +568,29 @@ public class Pin extends ProductNode {
     private static SimpleFeature createFeature(String name, String label, PixelPos pixelPos, GeoPos geoPos,
                                                PlacemarkSymbol symbol, GeoCoding geoCoding) {
         final SimpleFeatureType featureType = getFeatureType();
-        final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
-
-        if (label == null) {
-            builder.set(Pin.PROPERTY_NAME_LABEL, "");
-        } else {
-            builder.set(Pin.PROPERTY_NAME_LABEL, label);
-        }
-        final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
         final GeometryFactory geometryFactory = new GeometryFactory();
+        final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
+        PixelPos imagePos = pixelPos;
+        if (imagePos == null) {
+            imagePos = geoCoding.getPixelPos(geoPos, imagePos);
+        }
+        final Point geometry = geometryFactory.createPoint(toCoordinate(i2m.transform(imagePos, null)));
+        final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(featureType, name, geometry, null);
+
         if (pixelPos != null) {
-            builder.set(Pin.PROPERTY_NAME_PIXELPOS, geometryFactory.createPoint(toCoordinate(pixelPos)));
-            final Point point = geometryFactory.createPoint(toCoordinate(i2m.transform(pixelPos, null)));
-            builder.set(Pin.PROPERTY_NAME_GEOMETRY, point);
+            feature.setAttribute(Pin.PROPERTY_NAME_PIXELPOS, geometryFactory.createPoint(toCoordinate(pixelPos)));
         }
         if (geoPos != null) {
-            builder.set(Pin.PROPERTY_NAME_GEOPOS, geometryFactory.createPoint(toCoordinate(geoPos)));
+            feature.setAttribute(Pin.PROPERTY_NAME_GEOPOS, geometryFactory.createPoint(toCoordinate(geoPos)));
         }
-        builder.set("symbol", symbol);
+        if (label == null) {
+            feature.setAttribute(Pin.PROPERTY_NAME_LABEL, "");
+        } else {
+            feature.setAttribute(Pin.PROPERTY_NAME_LABEL, label);
+        }
+        feature.setAttribute("symbol", symbol);
 
-        return builder.buildFeature(name);
+        return feature;
     }
 
     private static class Holder {
