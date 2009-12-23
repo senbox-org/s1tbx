@@ -207,34 +207,13 @@ public class ProductSceneImage implements ProductLayerContext {
     Layer getGcpLayer(boolean create) {
         return LayerUtils.getChildLayer(getVectorDataCollectionLayer(create),
                                         LayerUtils.SEARCH_DEEP,
-                                        new FeatureTypeNameLayerFilter(Product.GCP_FEATURE_TYPE_NAME)
-        );
+                                        VectorDataLayerFilterFactory.createGcpFilter());
     }
 
     Layer getPinLayer(boolean create) {
         return LayerUtils.getChildLayer(getVectorDataCollectionLayer(create),
                                         LayerUtils.SEARCH_DEEP,
-                                        new FeatureTypeNameLayerFilter(Product.PIN_FEATURE_TYPE_NAME)
-        );
-    }
-
-    private static class FeatureTypeNameLayerFilter implements LayerFilter {
-
-        private String featureTypeName;
-
-        private FeatureTypeNameLayerFilter(String featureTypeName) {
-            this.featureTypeName = featureTypeName;
-        }
-
-        @Override
-        public boolean accept(Layer layer) {
-            if (layer instanceof VectorDataLayer) {
-                final VectorDataLayer vectorLayer = (VectorDataLayer) layer;
-                final String typeName = vectorLayer.getVectorDataNode().getFeatureType().getTypeName();
-                return featureTypeName.equals(typeName);
-            }
-            return false;
-        }
+                                        VectorDataLayerFilterFactory.createPinFilter());
     }
 
     private RasterDataNode getRaster() {
