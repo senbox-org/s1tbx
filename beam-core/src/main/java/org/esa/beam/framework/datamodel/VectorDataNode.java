@@ -40,7 +40,7 @@ public class VectorDataNode extends ProductNode {
 
 
     private final SimpleFeatureType featureType;
-    private final ChangeEmittingFeatureCollection featureCollection;
+    private final FeatureCollection featureCollection;
     private final CollectionListener featureCollectionListener;
     private String defaultCSS;
 
@@ -65,7 +65,7 @@ public class VectorDataNode extends ProductNode {
     public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
         super(name, "");
         this.featureType = featureCollection.getSchema();
-        this.featureCollection = new ChangeEmittingFeatureCollection(featureCollection);
+        this.featureCollection = featureCollection;
         this.featureCollectionListener = new CollectionListener() {
             @Override
             public void collectionChanged(CollectionEvent tce) {
@@ -114,7 +114,7 @@ public class VectorDataNode extends ProductNode {
     /**
      * @return The feature collection.
      */
-    public ChangeEmittingFeatureCollection getFeatureCollection() {
+    public FeatureCollection getFeatureCollection() {
         return featureCollection;
     }
 

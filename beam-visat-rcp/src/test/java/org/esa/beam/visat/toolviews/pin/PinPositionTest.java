@@ -59,8 +59,6 @@ public class PinPositionTest {
     @Test
     public void movePinByGeometry() {
         pin.getFeature().setDefaultGeometry(newPoint(4.0, 2.0));
-        final VectorDataNode vectorDataNode = pin.getProduct().getVectorDataGroup().get("pins");
-        vectorDataNode.getFeatureCollection().fireFeaturesChanged(pin.getFeature());
 
         final Point point = (Point) pin.getFeature().getDefaultGeometry();
         assertEquals(4.0, point.getX(), 0.0);
