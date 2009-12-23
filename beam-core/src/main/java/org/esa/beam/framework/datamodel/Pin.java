@@ -203,7 +203,7 @@ public class Pin extends ProductNode {
     }
 
     public void setPixelPos(PixelPos pixelPos) {
-        setPixelCoordinate(pixelPos);
+        setPixelCoordinate(pixelPos, true);
     }
 
     /**
@@ -442,8 +442,19 @@ public class Pin extends ProductNode {
                 } catch (NoninvertibleTransformException e) {
                     // ignore
                 }
-                setPixelPos(pixelPos);
+                setPixelCoordinate(pixelPos, false);
             }
+        }
+    }
+
+    public void updateGeometry(PixelPos pixelPos) {
+        if (getProduct() != null) {
+            final AffineTransform i2m = ImageManager.getImageToModelTransform(getProduct().getGeoCoding());
+            i2m.transform(pixelPos, pixelPos);
+
+            final Point point = (Point) feature.getDefaultGeometry();
+            point.getCoordinate().setCoordinate(toCoordinate(pixelPos));
+            point.geometryChanged();
         }
     }
 
@@ -480,7 +491,7 @@ public class Pin extends ProductNode {
         return null;
     }
 
-    private void setPixelCoordinate(PixelPos pixelPos) {
+    private void setPixelCoordinate(PixelPos pixelPos, boolean updateGeometry) {
         final Coordinate newCoordinate = toCoordinate(pixelPos);
         final Coordinate oldCoordinate = getPixelCoordinate();
         if (!ObjectUtils.equalObjects(oldCoordinate, newCoordinate)) {
@@ -491,6 +502,9 @@ public class Pin extends ProductNode {
                 final Point point = (Point) feature.getAttribute(PROPERTY_NAME_PIXELPOS);
                 point.getCoordinate().setCoordinate(newCoordinate);
                 point.geometryChanged();
+            }
+            if (updateGeometry) {
+                updateGeometry(pixelPos);
             }
             fireProductNodeChanged(PROPERTY_NAME_PIXELPOS);
         }
