@@ -64,7 +64,7 @@ public class Pin extends ProductNode {
     public static final String PROPERTY_NAME_GEOPOS = "geoPos";
     public static final String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
 
-    private final SimpleFeature feature;
+    private SimpleFeature feature;
 
     /**
      * Returns the type of features underlying all pins.
@@ -129,6 +129,10 @@ public class Pin extends ProductNode {
         if (pixelPos == null && geoPos == null) {
             throw new IllegalArgumentException("pixelPos == null && geoPos == null");
         }
+        // todo: rq/?? - we need to ensure that the pixel position can be calculated, though many tests fail then
+        // if (pixelPos == null && geoCoding == null || !geoCoding.canGetPixelPos()) {
+        //     throw new IllegalArgumentException("pixelPos == null && geoCoding == null || !geoCoding.canGetPixelPos()");
+        // }
 
         feature = createFeature(name, label, pixelPos, geoPos, symbol, geoCoding);
     }
@@ -145,7 +149,7 @@ public class Pin extends ProductNode {
      *
      * @since BEAM 4.7
      */
-    public SimpleFeature getFeature() {
+    public final SimpleFeature getFeature() {
         return feature;
     }
 
@@ -155,7 +159,13 @@ public class Pin extends ProductNode {
      * @param label the label, if {@code null} an empty label is set.
      */
     public void setLabel(String label) {
-        setFeatureLabel(label);
+        if (label == null) {
+            label = "";
+        }
+        if (!label.equals(feature.getAttribute(PROPERTY_NAME_LABEL))) {
+            feature.setAttribute(PROPERTY_NAME_LABEL, label);
+            fireProductNodeChanged(PROPERTY_NAME_LABEL);
+        }
     }
 
     /**
@@ -164,7 +174,7 @@ public class Pin extends ProductNode {
      * @return the label, cannot be {@code null}.
      */
     public String getLabel() {
-        return getFeatureLabel();
+        return (String) feature.getAttribute(PROPERTY_NAME_LABEL);
     }
 
     /**
@@ -191,12 +201,15 @@ public class Pin extends ProductNode {
     }
 
     public PlacemarkSymbol getSymbol() {
-        return getFeatureSymbol();
+        return (PlacemarkSymbol) feature.getAttribute("symbol");
     }
 
     public void setSymbol(final PlacemarkSymbol symbol) {
         Guardian.assertNotNull("symbol", symbol);
-        setFeatureSymbol(symbol);
+        if (getSymbol() != symbol) {
+            feature.setAttribute("symbol", symbol);
+            fireProductNodeChanged(PROPERTY_NAME_PINSYMBOL);
+        }
     }
 
     public void setPixelPos(PixelPos pixelPos) {
@@ -270,11 +283,11 @@ public class Pin extends ProductNode {
             writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_PIXEL_X, pixelPos.x);
             writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_PIXEL_Y, pixelPos.y);
         }
-        final Color fillColor = (Color) getFeatureSymbol().getFillPaint();
+        final Color fillColor = (Color) getSymbol().getFillPaint();
         if (fillColor != null) {
             writeColor(DimapProductConstants.TAG_PLACEMARK_FILL_COLOR, indent, fillColor, writer);
         }
-        final Color outlineColor = getFeatureSymbol().getOutlineColor();
+        final Color outlineColor = getSymbol().getOutlineColor();
         if (outlineColor != null) {
             writeColor(DimapProductConstants.TAG_PLACEMARK_OUTLINE_COLOR, indent, outlineColor, writer);
         }
@@ -401,10 +414,15 @@ public class Pin extends ProductNode {
      */
     @Override
     public void dispose() {
-        final PlacemarkSymbol symbol = getFeatureSymbol();
-        if (symbol != null) {
-            symbol.dispose();
-            setFeatureSymbol(null);
+        if (feature != null) {
+            final PlacemarkSymbol symbol = getSymbol();
+            if (symbol != null) {
+                symbol.dispose();
+            }
+            for (final AttributeDescriptor attributeDescriptor : feature.getFeatureType().getAttributeDescriptors()) {
+                feature.setAttribute(attributeDescriptor.getLocalName(), null);
+            }
+            feature = null;
         }
         super.dispose();
     }
@@ -444,7 +462,7 @@ public class Pin extends ProductNode {
         }
     }
 
-    public void updateGeometry(PixelPos pixelPos) {
+    private void updateGeometry(PixelPos pixelPos) {
         if (getProduct() != null) {
             final AffineTransform i2m = ImageManager.getImageToModelTransform(getProduct().getGeoCoding());
             i2m.transform(pixelPos, pixelPos);
@@ -452,31 +470,6 @@ public class Pin extends ProductNode {
             final Point point = (Point) feature.getDefaultGeometry();
             point.getCoordinate().setCoordinate(toCoordinate(pixelPos));
             point.geometryChanged();
-        }
-    }
-
-    private String getFeatureLabel() {
-        return (String) feature.getAttribute(PROPERTY_NAME_LABEL);
-    }
-
-    private void setFeatureLabel(String label) {
-        if (label == null) {
-            label = "";
-        }
-        if (!label.equals(getFeatureLabel())) {
-            feature.setAttribute(PROPERTY_NAME_LABEL, label);
-            fireProductNodeChanged(PROPERTY_NAME_LABEL);
-        }
-    }
-
-    private PlacemarkSymbol getFeatureSymbol() {
-        return (PlacemarkSymbol) feature.getAttribute("symbol");
-    }
-
-    private void setFeatureSymbol(PlacemarkSymbol symbol) {
-        if (getFeatureSymbol() != symbol) {
-            feature.setAttribute("symbol", symbol);
-            fireProductNodeChanged(PROPERTY_NAME_PINSYMBOL);
         }
     }
 
@@ -531,34 +524,6 @@ public class Pin extends ProductNode {
         }
     }
 
-    private static Coordinate toCoordinate(GeoPos geoPos) {
-        if (geoPos != null) {
-            return new Coordinate(geoPos.getLon(), geoPos.getLat());
-        }
-        return null;
-    }
-
-    private static Coordinate toCoordinate(Point2D pixelPos) {
-        if (pixelPos != null) {
-            return new Coordinate(pixelPos.getX(), pixelPos.getY());
-        }
-        return null;
-    }
-
-    private static GeoPos toGeoPos(Coordinate coordinate) {
-        if (coordinate != null) {
-            return new GeoPos((float) coordinate.y, (float) coordinate.x);
-        }
-        return null;
-    }
-
-    private static PixelPos toPixelPos(Coordinate coordinate) {
-        if (coordinate != null) {
-            return new PixelPos((float) coordinate.x, (float) coordinate.y);
-        }
-        return null;
-    }
-
     private static SimpleFeatureType createFeatureType(String name) {
         final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
 
@@ -606,6 +571,34 @@ public class Pin extends ProductNode {
         feature.setAttribute("symbol", symbol);
 
         return feature;
+    }
+
+    private static Coordinate toCoordinate(GeoPos geoPos) {
+        if (geoPos != null) {
+            return new Coordinate(geoPos.getLon(), geoPos.getLat());
+        }
+        return null;
+    }
+
+    private static Coordinate toCoordinate(Point2D pixelPos) {
+        if (pixelPos != null) {
+            return new Coordinate(pixelPos.getX(), pixelPos.getY());
+        }
+        return null;
+    }
+
+    private static GeoPos toGeoPos(Coordinate coordinate) {
+        if (coordinate != null) {
+            return new GeoPos((float) coordinate.y, (float) coordinate.x);
+        }
+        return null;
+    }
+
+    private static PixelPos toPixelPos(Coordinate coordinate) {
+        if (coordinate != null) {
+            return new PixelPos((float) coordinate.x, (float) coordinate.y);
+        }
+        return null;
     }
 
     private static class Holder {
