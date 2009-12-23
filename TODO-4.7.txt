@@ -73,6 +73,8 @@ VectorDataNode:
 * Pins/GCP are different from other geometries, harmonize!
   ==> PRE, RQ/NF, ONGOING
 
+* Vector data node I/O shall encode/decode delimiter characters occuring in text converted from objects.
+  ==> FINAL, ?, OPEN
 * Pin & GCP Vector Data Nodes shall not be visible as long as there are no pins / GCPs
   added to the product
   ==> FINAL, ?, OPEN
@@ -107,6 +109,8 @@ VectorDataNode:
 
 Figures:
 ========
+* Select-tool shall auto-select layer containg a clicked figure
+  ==> PRE, NF, OPEN
 
 * Deprecate or even completely remove ald Figure + Tool classes
   ==> FINAL, ?, OPEN
