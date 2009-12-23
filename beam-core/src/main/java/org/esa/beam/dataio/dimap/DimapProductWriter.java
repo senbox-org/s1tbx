@@ -17,8 +17,8 @@
 package org.esa.beam.dataio.dimap;
 
 import com.bc.ceres.core.ProgressMonitor;
-
-import org.esa.beam.dataio.propertystore.PropertyDataStore;
+import org.esa.beam.dataio.geometry.VectorDataNodeIO;
+import org.esa.beam.dataio.geometry.VectorDataNodeWriter;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -37,11 +37,6 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
-import org.geotools.data.DataStore;
-import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureStore;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -124,7 +119,6 @@ public class DimapProductWriter extends AbstractProductWriter {
      * product file without an previous call to the saveProductNodes to this product writer.
      *
      * @param outputFile the dimap header file location.
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public void initDirs(final File outputFile) throws IOException {
@@ -358,8 +352,8 @@ public class DimapProductWriter extends AbstractProductWriter {
 
     private static long getImageFileSize(RasterDataNode band) {
         return (long) ProductData.getElemSize(band.getDataType()) *
-               (long) band.getRasterWidth() *
-               (long) band.getRasterHeight();
+                (long) band.getRasterWidth() *
+                (long) band.getRasterHeight();
     }
 
     private File getEnviHeaderFile(Band band) {
@@ -486,7 +480,7 @@ public class DimapProductWriter extends AbstractProductWriter {
             }
         }
     }
-    
+
     private void writeVectorData() {
         Product product = getSourceProduct();
         ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
@@ -516,25 +510,13 @@ public class DimapProductWriter extends AbstractProductWriter {
             }
         }
     }
-    
+
     private void writeVectorData(File vectorDataDir, VectorDataNode vectorDataNode) {
-        DefaultTransaction transaction = null;
         try {
-            String name = vectorDataNode.getName();
-            DataStore dataStore = new PropertyDataStore(vectorDataDir, name);
-            SimpleFeatureType simpleFeatureType = vectorDataNode.getFeatureType();
-            dataStore.createSchema(simpleFeatureType);
-            FeatureStore<SimpleFeatureType, SimpleFeature> featureSource = 
-                (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore.getFeatureSource(name);
-            transaction = new DefaultTransaction("");
-            featureSource.setTransaction(transaction);
-            featureSource.addFeatures(vectorDataNode.getFeatureCollection());
-            transaction.commit();
+            VectorDataNodeWriter vectorDataNodeWriter = new VectorDataNodeWriter();
+            vectorDataNodeWriter.write(vectorDataNode, new File(vectorDataDir, vectorDataNode.getName() + VectorDataNodeIO.FILENAME_EXTENSION));
         } catch (IOException e) {
             BeamLogManager.getSystemLogger().throwing("DimapProductWriter", "writeVectorData", e);
-        } finally {
-            if (transaction != null)
-                transaction.close();
         }
     }
 }

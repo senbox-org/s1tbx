@@ -18,8 +18,8 @@ package org.esa.beam.dataio.dimap;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-
-import org.esa.beam.dataio.propertystore.PropertyDataStore;
+import org.esa.beam.dataio.geometry.VectorDataNodeIO;
+import org.esa.beam.dataio.geometry.VectorDataNodeReader;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -32,35 +32,25 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
-import org.geotools.data.DataStore;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.crs.ForceCoordinateSystemFeatureResults;
-import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.SchemaException;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.Hashtable;
-import java.util.Map;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * The <code>DimapProductReader</code> class is an implementation of the <code>ProductReader</code> interface
@@ -283,7 +273,6 @@ public class DimapProductReader extends AbstractProductReader {
      * @param destWidth     the width of region to be read given in the band's raster co-ordinates
      * @param destHeight    the height of region to be read given in the band's raster co-ordinates
      * @param pm            a monitor to inform the user about progress
-     *
      * @throws java.io.IOException if  an I/O error occurs
      * @see #getSubsetDef
      */
@@ -310,11 +299,11 @@ public class DimapProductReader extends AbstractProductReader {
         // For each scan in the data source
         try {
             synchronized (inputStream) {
-            for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
-                if (pm.isCanceled()) {
-                    break;
-                }
-                final int sourcePosY = sourceY * sourceRasterWidth;
+                for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
+                    if (pm.isCanceled()) {
+                        break;
+                    }
+                    final int sourcePosY = sourceY * sourceRasterWidth;
                     if (sourceStepX == 1) {
                         destBuffer.readFrom(destPos, destWidth, inputStream, sourcePosY + sourceMinX);
                         destPos += destWidth;
@@ -374,34 +363,23 @@ public class DimapProductReader extends AbstractProductReader {
         }
         return null;
     }
-    
+
     private void readVectorData() {
         File dataDir = new File(inputDir, FileUtils.getFilenameWithoutExtension(inputFile) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION);
         File vectorDataDir = new File(dataDir, "vector_data");
         if (vectorDataDir.exists()) {
-            File[] vectorFiles = vectorDataDir.listFiles();
-            for (File vectorFile : vectorFiles) {
-                String propertiesSuffix = ".properties";
-                String name = vectorFile.getName();
-                if (name.endsWith(propertiesSuffix)) {
-                    name = name.substring(0, name.length() - propertiesSuffix.length());
+            File[] vectorFiles = vectorDataDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(VectorDataNodeIO.FILENAME_EXTENSION);
                 }
-                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
+            });
+            for (File vectorFile : vectorFiles) {
                 try {
-                    DataStore dataStore = new PropertyDataStore(vectorDataDir, name);
-                    featureSource = dataStore.getFeatureSource(name);
-                    FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
-                    CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(product.getGeoCoding());
-                    if (modelCrs != null) {
-                        featureCollection = new ForceCoordinateSystemFeatureResults(featureCollection, modelCrs);
-                    }
-                    // Must create a new FeatureCollection because the one we get is read-only
-                    DefaultFeatureCollection defaultFeatureCollection = new DefaultFeatureCollection(featureCollection);
-                    VectorDataNode vectorDataNode = new VectorDataNode(name, defaultFeatureCollection);
+                    VectorDataNodeReader nodeReader = new VectorDataNodeReader();
+                    VectorDataNode vectorDataNode = nodeReader.read(vectorFile);
                     product.getVectorDataGroup().add(vectorDataNode);
                 } catch (IOException e) {
-                    BeamLogManager.getSystemLogger().throwing("DimapProductReader", "readVectorData", e);
-                } catch (SchemaException e) {
                     BeamLogManager.getSystemLogger().throwing("DimapProductReader", "readVectorData", e);
                 }
             }

@@ -10,7 +10,7 @@ import java.io.IOException;
 public class VectorDataNodeIO {
     public static final char DELIMITER_CHAR = '\t';
     public static final String NULL_TEXT = "[null]";
-    public static final String FILE_EXTENSION = ".csv";
+    public static final String FILENAME_EXTENSION = ".csv";
 
     static {
         JtsGeometryConverter.registerConverter();
