@@ -9,7 +9,6 @@ import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +58,7 @@ public class PinPositionTest {
     @Test
     public void movePinByGeometry() {
         pin.getFeature().setDefaultGeometry(newPoint(4.0, 2.0));
-
+        pin.getProduct().getVectorDataGroup().get("pins").fireFeaturesChanged(pin.getFeature());
         final Point point = (Point) pin.getFeature().getDefaultGeometry();
         assertEquals(4.0, point.getX(), 0.0);
         assertEquals(2.0, point.getY(), 0.0);

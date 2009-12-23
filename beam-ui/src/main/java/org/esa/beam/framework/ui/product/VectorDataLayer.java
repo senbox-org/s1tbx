@@ -167,14 +167,12 @@ public class VectorDataLayer extends Layer {
     private class FigureChangeHandler implements FigureChangeListener {
         @Override
         public void figureChanged(FigureChangeEvent event) {
-            // System.out.println("VectorDataLayer$FigureChangeHandler.figureChanged: event = " + event);
             final Figure sourceFigure = event.getSourceFigure();
             if (sourceFigure instanceof SimpleFeatureFigure) {
                 SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) sourceFigure;
-                final SimpleFeature[] features = {featureFigure.getSimpleFeature()};
                 try {
                     reactingAgainstFigureChange = true;
-                    VectorDataLayer.this.vectorDataNode.fireFeatureCollectionChanged(features, features);
+                    VectorDataLayer.this.vectorDataNode.fireFeaturesChanged(featureFigure.getSimpleFeature());
                     // todo - compute changed modelRegion instead of passing null (nf)
                     fireLayerDataChanged(null);
                 } finally {

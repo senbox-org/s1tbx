@@ -77,8 +77,7 @@ public class ProductSceneViewFigureEditor extends DefaultFigureEditor {
         if (currentVectorDataNode != null) {
             if (figure instanceof SimpleFeatureFigure) {
                 SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
-                SimpleFeature[] features = {featureFigure.getSimpleFeature()};
-                currentVectorDataNode.fireFeatureCollectionChanged(features, features);
+                currentVectorDataNode.fireFeaturesChanged(featureFigure.getSimpleFeature());
             }
         } else {
             // warn

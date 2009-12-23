@@ -22,7 +22,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 public class VectorDataNode extends ProductNode {
 
     public static final String PROPERTY_NAME_FEATURE_COLLECTION = "featureCollection";
-    public static final String PROPERTY_NAME_FEATURE = "feature";
 
     private static final String DEFAULT_STYLE_FORMAT = "fill:%s; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0";
     private static final String[] FILL_COLORS = {
@@ -49,6 +48,7 @@ public class VectorDataNode extends ProductNode {
      *
      * @param name        The node name.
      * @param featureType The feature type.
+     *
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     public VectorDataNode(String name, SimpleFeatureType featureType) {
@@ -60,6 +60,7 @@ public class VectorDataNode extends ProductNode {
      *
      * @param name              The node name.
      * @param featureCollection A feature collection.
+     *
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
@@ -70,11 +71,11 @@ public class VectorDataNode extends ProductNode {
             @Override
             public void collectionChanged(CollectionEvent tce) {
                 if (tce.getEventType() == CollectionEvent.FEATURES_ADDED) {
-                    fireFeatureCollectionChanged(null, tce.getFeatures());
+                    fireFeaturesAdded(tce.getFeatures());
                 } else if (tce.getEventType() == CollectionEvent.FEATURES_REMOVED) {
-                    fireFeatureCollectionChanged(tce.getFeatures(), null);
+                    fireFeaturesRemoved(tce.getFeatures());
                 } else if (tce.getEventType() == CollectionEvent.FEATURES_CHANGED) {
-                    fireFeatureCollectionChanged(tce.getFeatures(), tce.getFeatures());
+                    fireFeaturesChanged(tce.getFeatures());
                 }
             }
         };
@@ -83,25 +84,48 @@ public class VectorDataNode extends ProductNode {
     }
 
     /**
-     * Informs clients which have registered a {@link ProductNodeListener}
-     * with the {@link Product} containing this {@link VectorDataNode}, that one or more underlying
-     * OpenGIS {@code SimpleFeature}s have changed.
+     * Informs clients which have registered a {@link ProductNodeListener} with the {@link Product}
+     * containing this {@link VectorDataNode}, that one or more OpenGIS {@code SimpleFeature}s have
+     * been added to the underlying {@code FeatureCollection}.
      * <p/>
-     * The method fires a product node property change event. The property name is always
-     * {@link #PROPERTY_NAME_FEATURE_COLLECTION}. The following conventions apply for
-     * the {@code oldValue} and {@code newValue} fields of the fired
-     * {@link ProductNodeEvent}:
-     * <ol>
-     * <li>Features added: {@code oldValue} is {@code null}, {@code newValue} is the array containing all added features.</li>
-     * <li>Features removed: {@code oldValue} is the array containing all removed features, {@code newValue} is {@code null}.</li>
-     * <li>Features changed: {@code oldValue} is same as {@code newValue} which is the array containing all changed features.</li>
-     * </ol>
+     * The method fires a product node property change event, where the {@code propertyName}
+     * is {@link #PROPERTY_NAME_FEATURE_COLLECTION}, the {@code oldValue} is {@code null}, and
+     * the {@code newValue} is the array of features added.
      *
-     * @param oldFeatures The {@code oldValue} of the node event to be fired.
-     * @param newFeatures The {@code newValue} of the node event to be fired.
+     * @param features The feature(s) added.
      */
-    public void fireFeatureCollectionChanged(SimpleFeature[] oldFeatures, SimpleFeature[] newFeatures) {
-        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, oldFeatures, newFeatures);
+    public void fireFeaturesAdded(SimpleFeature... features) {
+        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, null, features);
+    }
+
+    /**
+     * Informs clients which have registered a {@link ProductNodeListener} with the {@link Product}
+     * containing this {@link VectorDataNode}, that one or more OpenGIS {@code SimpleFeature}s have
+     * been removed from the underlying {@code FeatureCollection}.
+     * <p/>
+     * The method fires a product node property change event, where the {@code propertyName}
+     * is {@link #PROPERTY_NAME_FEATURE_COLLECTION}, the {@code oldValue} is the array of features
+     * removed, and the {@code newValue} is {@code null}.
+     *
+     * @param features The feature(s) removed.
+     */
+    public void fireFeaturesRemoved(SimpleFeature... features) {
+        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, features, null);
+    }
+
+    /**
+     * Informs clients which have registered a {@link ProductNodeListener} with the {@link Product}
+     * containing this {@link VectorDataNode}, that one or more OpenGIS {@code SimpleFeature}s from
+     * from the underlying {@code FeatureCollection} have been changed.
+     * <p/>
+     * The method fires a product node property change event, where the {@code propertyName}
+     * is {@link #PROPERTY_NAME_FEATURE_COLLECTION}, and both {@code oldValue} and {@code newValue}
+     * are the same array of features changed.
+     *
+     * @param features The feature(s) changed.
+     */
+    public void fireFeaturesChanged(SimpleFeature... features) {
+        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, features, features);
     }
 
     /**
