@@ -47,11 +47,11 @@ public class FigureChangeEvent extends EventObject {
     /**
      * Figures have been added to a (source-) figure.
      */
-    public final static Type FIGURES_ADDED = Type.FIGURE_CHANGED;
+    public final static Type FIGURES_ADDED = Type.FIGURES_ADDED;
     /**
      * Figures have been removed from a (source-) figure.
      */
-    public final static Type FIGURES_REMOVED = Type.FIGURE_CHANGED;
+    public final static Type FIGURES_REMOVED = Type.FIGURES_REMOVED;
     /**
      * A (source-) figure has changed.
      */
