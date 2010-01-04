@@ -77,9 +77,6 @@ VectorDataNode:
 * Create subset from Product with Pins, GCPs -> GCPs outside of subset bounds are preserved, pins are not
   What to do?
   ==> PRE, ?, OPEN
-* Create subset from Product with Geometries -> If not all geometries of a VectorDataNode are within the bounds
-  of the subset the VectorDataNode will be empty in subset
-  ==> PRE, ?, OPEN
 * "Profile plot" and "Coordinate List", are not updated when figure selection changes
   ==> PRE, ?, OPEN
 
