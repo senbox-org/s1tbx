@@ -31,10 +31,6 @@ Reprojection:
 
 Masks:
 ======
-
-* Update Statistics & Mask tool window title for selected band
-  ==> PRE, MP, OPEN
-
 * Old bitmask overlay window: Only list "real" bitmasks. What is real?
   E.g. Flag-related masks, masks set my reader, masks initially in the product,...
   It is only used for bitmask overlay, no mask management.
@@ -49,6 +45,9 @@ Masks:
   if any.
   ==> FINAL, ?, OPEN
 
+
+* Update Statistics & Mask tool window title for selected band
+  ==> PRE, MP, CLOSED
 * Mask visibility control is often not in sync. between Mask/ROI manager &
   Layer Manager (confusion was caused by not updated title)
   ==> PRE, MP, CLOSED
