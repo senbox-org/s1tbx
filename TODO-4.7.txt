@@ -32,6 +32,9 @@ Reprojection:
 Masks:
 ======
 
+* Update Statistics & Mask tool window title for selected band
+  ==> PRE, MP, OPEN
+
 * Old bitmask overlay window: Only list "real" bitmasks. What is real?
   E.g. Flag-related masks, masks set my reader, masks initially in the product,...
   It is only used for bitmask overlay, no mask management.
@@ -117,7 +120,7 @@ VectorDataNode:
 
 Figures:
 ========
-* Select-tool shall auto-select layer containg a clicked figure
+* Select-tool shall auto-select layer containing a clicked figure
   ==> PRE, NF, OPEN
 
 * Reanimate RangeFinder tool (and MagicStick?)
@@ -237,6 +240,8 @@ Envisat Reprocessing 3:
 
 Other BEAM/VISAT/API Stuff:
 ===========================
+* Rename 'Pin' into 'Placemark'
+* Define common feature type for 'pin', 'GCP', 'geometry'.
 * Geocoding transfer in GPF ops (Sabine)
 * Auto-insert BlueMarble (if WSG-84 lat/lon) and Country shapes
 * dispose() method on MultiLevelImage shall not null its product node,
