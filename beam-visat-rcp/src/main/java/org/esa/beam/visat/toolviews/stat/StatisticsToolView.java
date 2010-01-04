@@ -210,10 +210,8 @@ public class StatisticsToolView extends AbstractToolView {
     private class PagePanelPTL extends ProductTreeListenerAdapter {
         @Override
         public void productNodeSelected(ProductNode productNode, int clickCount) {
-            if(VisatApp.getApp().getSelectedProductSceneView() == null) {
-                selectionChanged(productNode.getProduct(),
-                                 productNode instanceof  RasterDataNode ? (RasterDataNode) productNode : null);
-            }
+            selectionChanged(productNode.getProduct(),
+                             productNode instanceof  RasterDataNode ? (RasterDataNode) productNode : null);
         }
     }
 
