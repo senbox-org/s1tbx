@@ -16,7 +16,6 @@
  */
 package org.esa.beam.visat.toolviews.mask;
 
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -28,7 +27,6 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractButton;
@@ -153,7 +151,6 @@ public abstract class MaskToolView extends AbstractToolView {
         // mask manager with the information of the currently activated
         // product scene view.
         VisatApp.getApp().addInternalFrameListener(new MaskIFL());
-        VisatApp.getApp().addProductTreeListener(new MaskPTL());
 
         maskForm.updateState();
 
@@ -186,19 +183,4 @@ public abstract class MaskToolView extends AbstractToolView {
         }
     }
 
-    private class MaskPTL extends ProductTreeListenerAdapter {
-        @Override
-        public void productSelected(Product product, int clickCount) {
-//            if (sceneView == null && maskForm.getProduct() != product) {
-            maskForm.reconfigureMaskTable(product, null);
-            updateTitle();
-//            }
-        }
-
-        @Override
-        public void bandSelected(Band band, int clickCount) {
-            maskForm.reconfigureMaskTable(band.getProduct(), band);
-            updateTitle();
-        }
-    }
 }
