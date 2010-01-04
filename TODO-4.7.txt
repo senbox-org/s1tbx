@@ -47,7 +47,7 @@ Masks:
   ==> FINAL, ?, OPEN
 
 * Mask visibility control is often not in sync. between Mask/ROI manager &
-  Layer Manager (now listening only on scene view changes)
+  Layer Manager (confusion was caused by not updated title)
   ==> PRE, MP, CLOSED
 * Statistics window should use the most active product scene view, if not exists,
   the selected band in the product tree view
