@@ -77,6 +77,8 @@ VectorDataNode:
 * Create subset from Product with Pins, GCPs -> GCPs outside of subset bounds are preserved, pins are not
   What to do?
   ==> PRE, ?, OPEN
+* Polygon containing a hole is not copied to subset 
+  ==> PRE, ?, OPEN
 * "Profile plot" and "Coordinate List", are not updated when figure selection changes
   ==> PRE, ?, OPEN
 
