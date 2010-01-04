@@ -206,16 +206,26 @@ public class ProductSceneImage implements ProductLayerContext {
 
     Layer getGcpLayer(boolean create) {
         final VectorDataNode vectorDataNode = getProduct().getGcpGroup().getVectorDataNode();
-        return LayerUtils.getChildLayer(getVectorDataCollectionLayer(create),
-                                        LayerUtils.SEARCH_DEEP,
-                                        VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode));
+        final Layer vectorDataCollectionLayer = getVectorDataCollectionLayer(create);
+        if (vectorDataCollectionLayer != null) {
+            return LayerUtils.getChildLayer(vectorDataCollectionLayer,
+                                            LayerUtils.SEARCH_DEEP,
+                                            VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode));
+        } else {
+            return null;
+        }
     }
 
     Layer getPinLayer(boolean create) {
         final VectorDataNode vectorDataNode = getProduct().getPinGroup().getVectorDataNode();
-        return LayerUtils.getChildLayer(getVectorDataCollectionLayer(create),
-                                        LayerUtils.SEARCH_DEEP,
-                                        VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode));
+        final Layer vectorDataCollectionLayer = getVectorDataCollectionLayer(create);
+        if (vectorDataCollectionLayer != null) {
+            return LayerUtils.getChildLayer(vectorDataCollectionLayer,
+                                            LayerUtils.SEARCH_DEEP,
+                                            VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode));
+        }else {
+            return null;
+        }
     }
 
     private RasterDataNode getRaster() {
