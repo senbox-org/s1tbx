@@ -264,6 +264,547 @@ Other BEAM/VISAT/API Stuff:
 GUI Tests results
 #################################################################
 
+RGB image view
+
+it is not possible to make visible PINs, GCPs, Geometries on RGB image views
+
+---------------------------------------------------------------------
+open image view
+create some gcps
+make subset from view
+->
+subset product contains GCPs out of subset product boundary
+---------------------------------------------------------------------
+geometry contains holes (Löcher)
+make subset from view
+->
+geometry in the subset product will be empty
+---------------------------------------------------------------------
+PIN, GCP Manager. Updating problems:
+
+open dimap produkt, containing PINs/GCPs
+open PIN/GCP Manager
+Select PIN/GCP in the table
+->
+delete, edit und export buttons are disabled
+---------------------------------------------------------------------
+import Pin usins PIN Manager
+->
+Pin will be set wrong (outside of the product boundary)
+---------------------------------------------------------------------
+Profile plot and Coordinate list will be updated not correctly
+---------------------------------------------------------------------
+
+Layer manager -> Add ESRI Shapefiles: contry (contain a part of Russia)
+
+Exception occurred during event dispatching:
+java.lang.NullPointerException
+        at org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileAssistantPage2$StyleListCellRenderer.getListCellRendererComponent(Sha
+pefileAssistantPage2.java:157)
+        at com.sun.java.swing.plaf.windows.WindowsComboBoxUI.paintCurrentValue(Unknown Source)
+        at javax.swing.plaf.basic.BasicComboBoxUI.paint(Unknown Source)
+        at com.sun.java.swing.plaf.windows.WindowsComboBoxUI.paint(Unknown Source)
+        at javax.swing.plaf.ComponentUI.update(Unknown Source)
+        at javax.swing.JComponent.paintComponent(Unknown Source)
+        at javax.swing.JComponent.paint(Unknown Source)
+        at javax.swing.JComponent.paintChildren(Unknown Source)
+        at javax.swing.JComponent.paint(Unknown Source)
+        at javax.swing.JComponent.paintChildren(Unknown Source)
+        at javax.swing.JComponent.paint(Unknown Source)
+        at javax.swing.JComponent.paintChildren(Unknown Source)
+        at javax.swing.JComponent.paint(Unknown Source)
+        at javax.swing.JComponent.paintToOffscreen(Unknown Source)
+        at javax.swing.RepaintManager$PaintManager.paintDoubleBuffered(Unknown Source)
+        at javax.swing.RepaintManager$PaintManager.paint(Unknown Source)
+        at javax.swing.RepaintManager.paint(Unknown Source)
+        at javax.swing.JComponent._paintImmediately(Unknown Source)
+        at javax.swing.JComponent.paintImmediately(Unknown Source)
+        at javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
+        at javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
+        at javax.swing.RepaintManager.seqPaintDirtyRegions(Unknown Source)
+        at javax.swing.SystemEventQueueUtilities$ComponentWorkRequest.run(Unknown Source)
+        at java.awt.event.InvocationEvent.dispatch(Unknown Source)
+        at java.awt.EventQueue.dispatchEvent(Unknown Source)
+        at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+        at java.awt.Dialog$1.run(Unknown Source)
+        at java.awt.Dialog$3.run(Unknown Source)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at java.awt.Dialog.show(Unknown Source)
+        at java.awt.Component.show(Unknown Source)
+        at java.awt.Component.setVisible(Unknown Source)
+        at java.awt.Window.setVisible(Unknown Source)
+        at java.awt.Dialog.setVisible(Unknown Source)
+        at org.esa.beam.framework.ui.assistant.AssistantPane.show(AssistantPane.java:161)
+        at org.esa.beam.visat.toolviews.layermanager.LayerManagerForm$AddLayerActionListener.actionPerformed(LayerManagerForm.java:375)
+        at javax.swing.AbstractButton.fireActionPerformed(Unknown Source)
+
+-------------------------------------------------------------------------------------
+
+import Spatial subset from PRISM data
+
+VOL-ALPSMF019892665-O1B2R_UF
+
+Exception occurred during event dispatching:
+
+java.lang.IllegalStateException: org.opengis.referencing.operation.OperationNotFoundException: Bursa wolf parameters required.
+	at org.esa.beam.util.FeatureCollectionClipper.getTransform(FeatureCollectionClipper.java:125)
+	at org.esa.beam.util.ProductUtils.copyVectorData(ProductUtils.java:1433)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProduct(ProductSubsetBuilder.java:339)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.readProductNodesImpl(ProductSubsetBuilder.java:95)
+	at org.esa.beam.framework.dataio.AbstractProductReader.readProductNodes(AbstractProductReader.java:159)
+	at org.esa.beam.framework.dataio.AbstractProductBuilder.readProductNodes(AbstractProductBuilder.java:72)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProductSubset(ProductSubsetBuilder.java:70)
+	at org.esa.beam.framework.ui.NewProductDialog.onOK(NewProductDialog.java:168)
+	at org.esa.beam.framework.ui.AbstractDialog$3.actionPerformed(AbstractDialog.java:423)
+	at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
+	at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)
+	at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:387)
+	at javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:242)
+	at javax.swing.plaf.basic.BasicButtonListener.mouseReleased(BasicButtonListener.java:236)
+	at java.awt.Component.processMouseEvent(Component.java:6263)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4238)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:178)
+	at java.awt.Dialog$1.run(Dialog.java:1045)
+	at java.awt.Dialog$3.run(Dialog.java:1097)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.awt.Dialog.show(Dialog.java:1095)
+	at java.awt.Component.show(Component.java:1563)
+	at java.awt.Component.setVisible(Component.java:1515)
+	at java.awt.Window.setVisible(Window.java:841)
+	at java.awt.Dialog.setVisible(Dialog.java:985)
+	at org.esa.beam.framework.ui.AbstractDialog.show(AbstractDialog.java:218)
+	at org.esa.beam.framework.ui.NewProductDialog.show(NewProductDialog.java:115)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser.openProductSubsetDialog(ProductImportAction.java:444)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser.openProductSubsetDialog(ProductImportAction.java:423)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser.access$100(ProductImportAction.java:304)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser$1.actionPerformed(ProductImportAction.java:343)
+	at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
+	at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)
+	at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:387)
+	at javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:242)
+	at javax.swing.plaf.basic.BasicButtonListener.mouseReleased(BasicButtonListener.java:236)
+	at java.awt.Component.processMouseEvent(Component.java:6263)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4238)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:178)
+	at java.awt.Dialog$1.run(Dialog.java:1045)
+	at java.awt.Dialog$3.run(Dialog.java:1097)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.awt.Dialog.show(Dialog.java:1095)
+	at javax.swing.JFileChooser.showDialog(JFileChooser.java:723)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser.showDialog(ProductImportAction.java:329)
+	at javax.swing.JFileChooser.showOpenDialog(JFileChooser.java:626)
+	at org.esa.beam.visat.actions.ProductImportAction.promptForFile(ProductImportAction.java:234)
+	at org.esa.beam.visat.actions.ProductImportAction.importProduct(ProductImportAction.java:174)
+	at org.esa.beam.visat.actions.ProductImportAction.actionPerformed(ProductImportAction.java:79)
+	at org.esa.beam.framework.ui.command.ExecCommand.fireActionPerformed(ExecCommand.java:119)
+	at org.esa.beam.framework.ui.command.SelectableCommand$1.actionPerformed(SelectableCommand.java:150)
+	at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
+	at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)
+	at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:387)
+	at javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:242)
+	at javax.swing.AbstractButton.doClick(AbstractButton.java:357)
+	at com.jidesoft.plaf.vsnet.VsnetMenuItemUI.doClick(Unknown Source)
+	at com.jidesoft.plaf.vsnet.VsnetMenuItemUI$MouseInputHandler.mouseReleased(Unknown Source)
+	at java.awt.AWTEventMulticaster.mouseReleased(AWTEventMulticaster.java:272)
+	at java.awt.Component.processMouseEvent(Component.java:6263)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4238)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:174)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:169)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
+Caused by: org.opengis.referencing.operation.OperationNotFoundException: Bursa wolf parameters required.
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperationStep(DefaultCoordinateOperationFactory.java:1072)
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperationStep(DefaultCoordinateOperationFactory.java:1136)
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperationStep(DefaultCoordinateOperationFactory.java:881)
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperationStep(DefaultCoordinateOperationFactory.java:965)
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperation(DefaultCoordinateOperationFactory.java:243)
+	at org.geotools.referencing.operation.BufferedCoordinateOperationFactory.createOperation(BufferedCoordinateOperationFactory.java:254)
+	at org.geotools.referencing.CRS.findMathTransform(CRS.java:1026)
+	at org.geotools.referencing.CRS.findMathTransform(CRS.java:994)
+	at org.esa.beam.util.FeatureCollectionClipper.getTransform(FeatureCollectionClipper.java:120)
+	... 106 more
+----------------------------------------------------------------------------
+Product Grabber
+open dir containing PRISM data
+
+VOL-ALPSMF019892665-O1B2R_UF
+
+java.lang.IllegalStateException: org.opengis.referencing.operation.OperationNotFoundException: Bursa wolf parameters required.
+	at org.esa.beam.util.FeatureCollectionClipper.getTransform(FeatureCollectionClipper.java:125)
+	at org.esa.beam.util.ProductUtils.copyVectorData(ProductUtils.java:1433)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProduct(ProductSubsetBuilder.java:339)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.readProductNodesImpl(ProductSubsetBuilder.java:95)
+	at org.esa.beam.framework.dataio.AbstractProductReader.readProductNodes(AbstractProductReader.java:159)
+	at org.esa.beam.framework.dataio.AbstractProductBuilder.readProductNodes(AbstractProductBuilder.java:72)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProductSubset(ProductSubsetBuilder.java:70)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProductSubset(ProductSubsetBuilder.java:64)
+	at org.esa.beam.framework.datamodel.Product.createSubset(Product.java:1583)
+	at org.esa.beam.visat.actions.pgrab.model.dataprovider.QuicklookProvider.createQuickLook(QuicklookProvider.java:110)
+	at org.esa.beam.visat.actions.pgrab.model.dataprovider.QuicklookProvider.createData(QuicklookProvider.java:65)
+	at org.esa.beam.visat.actions.pgrab.model.RepositoryManager$UpdateProcess.doInBackground(RepositoryManager.java:315)
+	at org.esa.beam.visat.actions.pgrab.model.RepositoryManager$UpdateProcess.doInBackground(RepositoryManager.java:224)
+	at javax.swing.SwingWorker$1.call(SwingWorker.java:278)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at javax.swing.SwingWorker.run(SwingWorker.java:317)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:619)
+Caused by: org.opengis.referencing.operation.OperationNotFoundException: Bursa wolf parameters required.
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperationStep(DefaultCoordinateOperationFactory.java:1072)
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperationStep(DefaultCoordinateOperationFactory.java:1136)
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperationStep(DefaultCoordinateOperationFactory.java:881)
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperationStep(DefaultCoordinateOperationFactory.java:965)
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperation(DefaultCoordinateOperationFactory.java:243)
+	at org.geotools.referencing.operation.BufferedCoordinateOperationFactory.createOperation(BufferedCoordinateOperationFactory.java:254)
+	at org.geotools.referencing.CRS.findMathTransform(CRS.java:1026)
+	at org.geotools.referencing.CRS.findMathTransform(CRS.java:994)
+	at org.esa.beam.util.FeatureCollectionClipper.getTransform(FeatureCollectionClipper.java:120)
+	... 19 more
+
+----------------------------------------------------------------------------
+Import band subset
+
+OBPG NASA Product S2000195102745.L2_MLAC.x.hdf
+
+beam-debug: JAI Error: Problem occurs when computing a tile by the owner.
+beam-debug: An exception occured:
+java.lang.NullPointerException
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.readBandRasterDataImpl(ProductSubsetBuilder.java:134)
+	at org.esa.beam.framework.dataio.AbstractProductReader.readBandRasterData(AbstractProductReader.java:240)
+	at org.esa.beam.jai.BandOpImage.computeProductData(BandOpImage.java:37)
+	at org.esa.beam.jai.RasterDataNodeOpImage.computeRect(RasterDataNodeOpImage.java:57)
+	at javax.media.jai.SourcelessOpImage.computeTile(SourcelessOpImage.java:137)
+	at com.sun.media.jai.util.SunTileScheduler.scheduleTile(SunTileScheduler.java:904)
+	at javax.media.jai.OpImage.getTile(OpImage.java:1129)
+	at com.bc.ceres.glevel.MultiLevelImage.getTile(MultiLevelImage.java:38)
+	at com.sun.media.jai.opimage.CropOpImage.getTile(CropOpImage.java:122)
+	at javax.media.jai.PlanarImage.cobbleFloat(PlanarImage.java:3254)
+	at javax.media.jai.PlanarImage.getData(PlanarImage.java:2181)
+	at javax.media.jai.RenderedOp.getData(RenderedOp.java:2276)
+	at com.bc.ceres.glevel.MultiLevelImage.getData(MultiLevelImage.java:48)
+	at org.esa.beam.framework.datamodel.Band.readRasterData(Band.java:336)
+	at org.esa.beam.framework.datamodel.AbstractBand.readSubRegionRasterData(AbstractBand.java:776)
+	at org.esa.beam.framework.datamodel.AbstractBand.readPixels(AbstractBand.java:235)
+	at org.esa.beam.framework.datamodel.PixelGeoCoding$PixelGrid.create(PixelGeoCoding.java:803)
+	at org.esa.beam.framework.datamodel.PixelGeoCoding$PixelGrid.access$000(PixelGeoCoding.java:772)
+	at org.esa.beam.framework.datamodel.PixelGeoCoding.initData(PixelGeoCoding.java:144)
+	at org.esa.beam.framework.datamodel.PixelGeoCoding.initialize(PixelGeoCoding.java:441)
+	at org.esa.beam.framework.datamodel.PixelGeoCoding.getGeoPos(PixelGeoCoding.java:460)
+	at org.esa.beam.framework.datamodel.Product.isCompatibleProduct(Product.java:1179)
+	at org.esa.beam.util.ProductUtils.copyVectorData(ProductUtils.java:1408)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProduct(ProductSubsetBuilder.java:339)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.readProductNodesImpl(ProductSubsetBuilder.java:95)
+	at org.esa.beam.framework.dataio.AbstractProductReader.readProductNodes(AbstractProductReader.java:159)
+	at org.esa.beam.framework.dataio.AbstractProductBuilder.readProductNodes(AbstractProductBuilder.java:72)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProductSubset(ProductSubsetBuilder.java:70)
+	at org.esa.beam.framework.ui.NewProductDialog.onOK(NewProductDialog.java:168)
+	at org.esa.beam.framework.ui.AbstractDialog$3.actionPerformed(AbstractDialog.java:423)
+	at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
+	at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)
+	at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:387)
+	at javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:242)
+	at javax.swing.plaf.basic.BasicButtonListener.mouseReleased(BasicButtonListener.java:236)
+	at java.awt.Component.processMouseEvent(Component.java:6263)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4238)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:178)
+	at java.awt.Dialog$1.run(Dialog.java:1045)
+	at java.awt.Dialog$3.run(Dialog.java:1097)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.awt.Dialog.show(Dialog.java:1095)
+	at java.awt.Component.show(Component.java:1563)
+	at java.awt.Component.setVisible(Component.java:1515)
+	at java.awt.Window.setVisible(Window.java:841)
+	at java.awt.Dialog.setVisible(Dialog.java:985)
+	at org.esa.beam.framework.ui.AbstractDialog.show(AbstractDialog.java:218)
+	at org.esa.beam.framework.ui.NewProductDialog.show(NewProductDialog.java:115)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser.openProductSubsetDialog(ProductImportAction.java:444)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser.openProductSubsetDialog(ProductImportAction.java:423)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser.access$100(ProductImportAction.java:304)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser$1.actionPerformed(ProductImportAction.java:343)
+	at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
+	at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)
+	at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:387)
+	at javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:242)
+	at javax.swing.plaf.basic.BasicButtonListener.mouseReleased(BasicButtonListener.java:236)
+	at java.awt.Component.processMouseEvent(Component.java:6263)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4238)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:178)
+	at java.awt.Dialog$1.run(Dialog.java:1045)
+	at java.awt.Dialog$3.run(Dialog.java:1097)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.awt.Dialog.show(Dialog.java:1095)
+	at javax.swing.JFileChooser.showDialog(JFileChooser.java:723)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser.showDialog(ProductImportAction.java:329)
+	at javax.swing.JFileChooser.showOpenDialog(JFileChooser.java:626)
+	at org.esa.beam.visat.actions.ProductImportAction.promptForFile(ProductImportAction.java:234)
+	at org.esa.beam.visat.actions.ProductImportAction.importProduct(ProductImportAction.java:174)
+	at org.esa.beam.visat.actions.ProductImportAction.actionPerformed(ProductImportAction.java:79)
+	at org.esa.beam.framework.ui.command.ExecCommand.fireActionPerformed(ExecCommand.java:119)
+	at org.esa.beam.framework.ui.command.SelectableCommand$1.actionPerformed(SelectableCommand.java:150)
+	at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
+	at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)
+	at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:387)
+	at javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:242)
+	at javax.swing.AbstractButton.doClick(AbstractButton.java:357)
+	at com.jidesoft.plaf.vsnet.VsnetMenuItemUI.doClick(Unknown Source)
+	at com.jidesoft.plaf.vsnet.VsnetMenuItemUI$MouseInputHandler.mouseReleased(Unknown Source)
+	at java.awt.AWTEventMulticaster.mouseReleased(AWTEventMulticaster.java:272)
+	at java.awt.Component.processMouseEvent(Component.java:6263)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4238)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:174)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:169)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
+Exception occurred during event dispatching:
+java.lang.NullPointerException
+	at com.sun.media.jai.util.SunCachedTile.<init>(SunCachedTile.java:80)
+	at com.sun.media.jai.util.SunTileCache.add(SunTileCache.java:257)
+	at javax.media.jai.OpImage.addTileToCache(OpImage.java:1087)
+	at javax.media.jai.OpImage.getTile(OpImage.java:1142)
+	at com.bc.ceres.glevel.MultiLevelImage.getTile(MultiLevelImage.java:38)
+	at com.sun.media.jai.opimage.CropOpImage.getTile(CropOpImage.java:122)
+	at javax.media.jai.PlanarImage.cobbleFloat(PlanarImage.java:3254)
+	at javax.media.jai.PlanarImage.getData(PlanarImage.java:2181)
+	at javax.media.jai.RenderedOp.getData(RenderedOp.java:2276)
+	at com.bc.ceres.glevel.MultiLevelImage.getData(MultiLevelImage.java:48)
+	at org.esa.beam.framework.datamodel.Band.readRasterData(Band.java:336)
+	at org.esa.beam.framework.datamodel.AbstractBand.readSubRegionRasterData(AbstractBand.java:776)
+	at org.esa.beam.framework.datamodel.AbstractBand.readPixels(AbstractBand.java:235)
+	at org.esa.beam.framework.datamodel.PixelGeoCoding$PixelGrid.create(PixelGeoCoding.java:803)
+	at org.esa.beam.framework.datamodel.PixelGeoCoding$PixelGrid.access$000(PixelGeoCoding.java:772)
+	at org.esa.beam.framework.datamodel.PixelGeoCoding.initData(PixelGeoCoding.java:144)
+	at org.esa.beam.framework.datamodel.PixelGeoCoding.initialize(PixelGeoCoding.java:441)
+	at org.esa.beam.framework.datamodel.PixelGeoCoding.getGeoPos(PixelGeoCoding.java:460)
+	at org.esa.beam.framework.datamodel.Product.isCompatibleProduct(Product.java:1179)
+	at org.esa.beam.util.ProductUtils.copyVectorData(ProductUtils.java:1408)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProduct(ProductSubsetBuilder.java:339)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.readProductNodesImpl(ProductSubsetBuilder.java:95)
+	at org.esa.beam.framework.dataio.AbstractProductReader.readProductNodes(AbstractProductReader.java:159)
+	at org.esa.beam.framework.dataio.AbstractProductBuilder.readProductNodes(AbstractProductBuilder.java:72)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProductSubset(ProductSubsetBuilder.java:70)
+	at org.esa.beam.framework.ui.NewProductDialog.onOK(NewProductDialog.java:168)
+	at org.esa.beam.framework.ui.AbstractDialog$3.actionPerformed(AbstractDialog.java:423)
+	at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
+	at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)
+	at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:387)
+	at javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:242)
+	at javax.swing.plaf.basic.BasicButtonListener.mouseReleased(BasicButtonListener.java:236)
+	at java.awt.Component.processMouseEvent(Component.java:6263)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4238)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:178)
+	at java.awt.Dialog$1.run(Dialog.java:1045)
+	at java.awt.Dialog$3.run(Dialog.java:1097)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.awt.Dialog.show(Dialog.java:1095)
+	at java.awt.Component.show(Component.java:1563)
+	at java.awt.Component.setVisible(Component.java:1515)
+	at java.awt.Window.setVisible(Window.java:841)
+	at java.awt.Dialog.setVisible(Dialog.java:985)
+	at org.esa.beam.framework.ui.AbstractDialog.show(AbstractDialog.java:218)
+	at org.esa.beam.framework.ui.NewProductDialog.show(NewProductDialog.java:115)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser.openProductSubsetDialog(ProductImportAction.java:444)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser.openProductSubsetDialog(ProductImportAction.java:423)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser.access$100(ProductImportAction.java:304)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser$1.actionPerformed(ProductImportAction.java:343)
+	at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
+	at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)
+	at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:387)
+	at javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:242)
+	at javax.swing.plaf.basic.BasicButtonListener.mouseReleased(BasicButtonListener.java:236)
+	at java.awt.Component.processMouseEvent(Component.java:6263)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4238)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:178)
+	at java.awt.Dialog$1.run(Dialog.java:1045)
+	at java.awt.Dialog$3.run(Dialog.java:1097)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.awt.Dialog.show(Dialog.java:1095)
+	at javax.swing.JFileChooser.showDialog(JFileChooser.java:723)
+	at org.esa.beam.visat.actions.ProductImportAction$ProductFileChooser.showDialog(ProductImportAction.java:329)
+	at javax.swing.JFileChooser.showOpenDialog(JFileChooser.java:626)
+	at org.esa.beam.visat.actions.ProductImportAction.promptForFile(ProductImportAction.java:234)
+	at org.esa.beam.visat.actions.ProductImportAction.importProduct(ProductImportAction.java:174)
+	at org.esa.beam.visat.actions.ProductImportAction.actionPerformed(ProductImportAction.java:79)
+	at org.esa.beam.framework.ui.command.ExecCommand.fireActionPerformed(ExecCommand.java:119)
+	at org.esa.beam.framework.ui.command.SelectableCommand$1.actionPerformed(SelectableCommand.java:150)
+	at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
+	at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)
+	at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:387)
+	at javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:242)
+	at javax.swing.AbstractButton.doClick(AbstractButton.java:357)
+	at com.jidesoft.plaf.vsnet.VsnetMenuItemUI.doClick(Unknown Source)
+	at com.jidesoft.plaf.vsnet.VsnetMenuItemUI$MouseInputHandler.mouseReleased(Unknown Source)
+	at java.awt.AWTEventMulticaster.mouseReleased(AWTEventMulticaster.java:272)
+	at java.awt.Component.processMouseEvent(Component.java:6263)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4238)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:174)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:169)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
+-------------------------------------------------------------------------------------
+right-mouse click on the +/- (button ?) in the product tree
+
+Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
+	at org.esa.beam.framework.ui.PopupMenuHandler.rearrangeMenuItems(PopupMenuHandler.java:135)
+	at org.esa.beam.framework.ui.PopupMenuHandler.showPopupMenu(PopupMenuHandler.java:130)
+	at org.esa.beam.framework.ui.PopupMenuHandler.maybeShowPopupMenu(PopupMenuHandler.java:116)
+	at org.esa.beam.framework.ui.PopupMenuHandler.mouseReleased(PopupMenuHandler.java:78)
+	at java.awt.AWTEventMulticaster.mouseReleased(AWTEventMulticaster.java:273)
+	at java.awt.AWTEventMulticaster.mouseReleased(AWTEventMulticaster.java:272)
+	at java.awt.AWTEventMulticaster.mouseReleased(AWTEventMulticaster.java:272)
+	at java.awt.Component.processMouseEvent(Component.java:6263)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4238)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:174)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:169)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
+setActiveComponent: null
+
+----------------------------------------------------------------
+
+
 new mosaic processor
 ====================
 
@@ -308,290 +849,11 @@ org.esa.beam.framework.gpf.OperatorException: Product has no metadata element na
         at com.bc.ceres.swing.selection.support.ComboBoxSelectionContext.access$100(ComboBoxSelectionContext.java:15)
         at com.bc.ceres.swing.selection.support.ComboBoxSelectionContext$ComboBoxSelectionHandler.itemStateChanged(ComboBoxSelectionContext.java:56)
 
-b) deselect: check out 'Update target product' --> Mosaic GUI will not be changed to the "not Update modus"
-    (to get the "not Update modus" you shall select and deselect 'Update target product' checkbox over againe)
-    
-Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: The product name '' is not valid.
-Names must not start with a dot and must not
-contain any of the following characters: \/:*?"<>|
-        at com.bc.ceres.binding.PropertyContainer.setValue(PropertyContainer.java:248)
-        at org.esa.beam.framework.gpf.ui.TargetProductSelectorModel.setValueContainerValue(TargetProductSelectorModel.java:148)
-        at org.esa.beam.framework.gpf.ui.TargetProductSelectorModel.setProductName(TargetProductSelectorModel.java:124)
-        at org.esa.beam.gpf.common.mosaic.ui.MosaicIOPanel$TargetProductSelectorUpdater.propertyChange(MosaicIOPanel.java:387)
-        at java.beans.PropertyChangeSupport.firePropertyChange(Unknown Source)
-        at java.beans.PropertyChangeSupport.firePropertyChange(Unknown Source)
-        at java.beans.PropertyChangeSupport.firePropertyChange(Unknown Source)
-        at com.bc.ceres.binding.Property.setValue(Property.java:152)
-        at com.bc.ceres.binding.PropertyContainer.setValue(PropertyContainer.java:246)
-        at org.esa.beam.gpf.common.mosaic.ui.MosaicIOPanel$2.selectionChanged(MosaicIOPanel.java:113)
-        at com.bc.ceres.swing.selection.support.SelectionChangeSupport.fireSelectionChange(SelectionChangeSupport.java:56)
-        at com.bc.ceres.swing.selection.support.SelectionChangeSupport.fireSelectionChange(SelectionChangeSupport.java:51)
-        at com.bc.ceres.swing.selection.AbstractSelectionContext.fireSelectionChange(AbstractSelectionContext.java:81)
-        at com.bc.ceres.swing.selection.support.ComboBoxSelectionContext.access$100(ComboBoxSelectionContext.java:15)
-        at com.bc.ceres.swing.selection.support.ComboBoxSelectionContext$ComboBoxSelectionHandler.itemStateChanged(ComboBoxSelectionContext.java:56)
 ------------------------------------------------------------------------------------------------------------------------------
 
 - missing CRS information
 ------------------------------------------------------------------------------------------------------------------------------
 
-masks, vectors, layers
-=======================
-
-it is not possible to delete a geometry vector. OK? 
-------------------------------------------------------------------------
-
-it is not possible to use geom. as ROI in projection
-
-project data
-open band
-draw figge
-select geometry as roi in mask manager -->
-roi is empty
---------------------------------------------------------------------------------------------------------------------
-
-select pin:
-
-select pin on the view --> is not selected in PIN Manager and is not selected for Spectrum and Pixel Info
-select PIN in PIN Manager --> on the image view will be PIN- Layer selected.
-change pixel Pos. (coord.) in PIN Manager --> PIN- Layer will be moved but not the PIN
-
-------------------------------------------------------------------------------
-
-- change transparency in Mask Manager ->  no effect
-------------------------------------------------------------------------
-
-- range mask disregards No-Data and valid pixel expression
-------------------------------------------------------------------------
-
-- roi is lost by save session; save - close - open session --> roi will not be preselected  ?
-------------------------------------------------------------------------
-
-- layers are lost by save session; save - close - open session --> layers will not be preselected and visible ?
-------------------------------------------------------------------------
-
-- saved figgers are black; create figger, save - close - open session --> figger is black
-------------------------------------------------------------------------
-
-- pin/gcps are unvisible in the UTM projection
-create some pins/gcps
-utm proj.
-open proj. image view -->
-no pins on the image visible,
-however one pin and one gcp are visible in the bottom far away from the image
-open pin manager --> all pins are present
-
--------------------------------------------------------------------------
-
-Layer Manager contains Bitmasks node if an MERIS lev. 2 product will be opened
-which was projected with previous BEAM version
----------------------------------------------------------------------------
-
-draw polygon
-
-quick double-click does not close polygon drawing
-
-Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: Number of points must be 0 or >3
-	at com.vividsolutions.jts.geom.LinearRing.validateConstruction(LinearRing.java:98)
-	at com.vividsolutions.jts.geom.LinearRing.<init>(LinearRing.java:90)
-	at com.vividsolutions.jts.geom.GeometryFactory.createLinearRing(GeometryFactory.java:338)
-	at com.vividsolutions.jts.geom.GeometryFactory.createLinearRing(GeometryFactory.java:328)
-	at org.esa.beam.util.AwtGeomToJtsGeomConverter.createLinearRingList(AwtGeomToJtsGeomConverter.java:66)
-	at org.esa.beam.util.AwtGeomToJtsGeomConverter.createPolygon(AwtGeomToJtsGeomConverter.java:41)
-	at org.esa.beam.framework.ui.product.SimpleFeatureShapeFigure.setShape(SimpleFeatureShapeFigure.java:53)
-	at com.bc.ceres.swing.figure.interactions.InsertMultiPointFigureInteractor.mouseClicked(InsertMultiPointFigureInteractor.java:65)
-	at com.bc.ceres.swing.figure.InteractionDispatcher.mouseClicked(InteractionDispatcher.java:39)
-	at java.awt.AWTEventMulticaster.mouseClicked(AWTEventMulticaster.java:252)
-	at java.awt.AWTEventMulticaster.mouseClicked(AWTEventMulticaster.java:252)
-	at java.awt.Component.processMouseEvent(Component.java:6266)
-	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
-	at java.awt.Component.processEvent(Component.java:6028)
-	at java.awt.Container.processEvent(Container.java:2041)
-	at java.awt.Component.dispatchEventImpl(Component.java:4630)
-	at java.awt.Container.dispatchEventImpl(Container.java:2099)
-	at java.awt.Component.dispatchEvent(Component.java:4460)
-	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
-	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4247)
-	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
-	at java.awt.Container.dispatchEventImpl(Container.java:2085)
-	at java.awt.Window.dispatchEventImpl(Window.java:2475)
-	at java.awt.Component.dispatchEvent(Component.java:4460)
-	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
-	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
-	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
-	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:174)
-	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:169)
-	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
-	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
-
-
-
-Porduct modified
-==================
-
-open product - open band --> product will be modified
-
-
-not reproducible (NullPointer)Exception
-===============
-
-collocate 2 prod., not save
-open band (slave)
-draw figger
-
-beam-debug: An exception occured:
-java.lang.RuntimeException: java.io.FileNotFoundException: C:\Projects\Testing\testdata\out\coll.data\radiance_2_M.img (Das System kann die angegebene
- Datei nicht finden)
-        at org.esa.beam.jai.RasterDataNodeOpImage.computeRect(RasterDataNodeOpImage.java:59)
-        at javax.media.jai.SourcelessOpImage.computeTile(SourcelessOpImage.java:137)
-        at com.sun.media.jai.util.SunTileScheduler.scheduleTile(SunTileScheduler.java:904)
-        at javax.media.jai.OpImage.getTile(OpImage.java:1129)
-        at org.esa.beam.visat.toolviews.spectrum.SpectrumGraph.getSample(SpectrumGraph.java:133)
-        at org.esa.beam.visat.toolviews.spectrum.SpectrumGraph.readValues(SpectrumGraph.java:123)
-        at org.esa.beam.visat.toolviews.spectrum.SpectraDiagram.updateSpectra(SpectraDiagram.java:94)
-        at org.esa.beam.visat.toolviews.spectrum.SpectrumToolView.recreateSpectraDiagram(SpectrumToolView.java:493)
-        at org.esa.beam.visat.toolviews.spectrum.SpectrumToolView.access$200(SpectrumToolView.java:66)
-        at org.esa.beam.visat.toolviews.spectrum.SpectrumToolView$ProductNodeHandler.nodeAdded(SpectrumToolView.java:613)
-        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1424)
-        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1411)
-        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1406)
-        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1394)
-        at org.esa.beam.framework.datamodel.Product.fireNodeAdded(Product.java:1384)
-        at org.esa.beam.framework.datamodel.ProductNodeGroup.notifyAdded(ProductNodeGroup.java:325)
-        at org.esa.beam.framework.datamodel.ProductNodeGroup.add(ProductNodeGroup.java:170)
-        at org.esa.beam.framework.datamodel.Product$1.add(Product.java:231)
-        at org.esa.beam.framework.datamodel.Product$1.add(Product.java:226)
-        at org.esa.beam.visat.actions.CreateVectorDataNodeAction.createVectorDataNode(NewVectorDataNodeAction.java:98)
-        at org.esa.beam.visat.actions.InsertFigureInteractorInterceptor.newVectorDataLayer(InsertFigureInteractorHandler.java:94)
-        at org.esa.beam.visat.actions.InsertFigureInteractorInterceptor.canStartInteraction(InsertFigureInteractorHandler.java:70)
-        at com.bc.ceres.swing.figure.AbstractInteractor.canStartInteraction(AbstractInteractor.java:248)
-        at com.bc.ceres.swing.figure.AbstractInteractor.startInteraction(AbstractInteractor.java:198)
-        at com.bc.ceres.swing.figure.interactions.InsertMultiPointFigureInteractor.mouseReleased(InsertMultiPointFigureInteractor.java:88)
-        at com.bc.ceres.swing.figure.InteractionDispatcher.mouseReleased(InteractionDispatcher.java:80)
-        at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
-        at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
-        at java.awt.Component.processMouseEvent(Unknown Source)
-        at javax.swing.JComponent.processMouseEvent(Unknown Source)
-        at java.awt.Component.processEvent(Unknown Source)
-        at java.awt.Container.processEvent(Unknown Source)
-        at java.awt.Component.dispatchEventImpl(Unknown Source)
-        at java.awt.Container.dispatchEventImpl(Unknown Source)
-        at java.awt.Component.dispatchEvent(Unknown Source)
-        at java.awt.LightweightDispatcher.retargetMouseEvent(Unknown Source)
-        at java.awt.LightweightDispatcher.processMouseEvent(Unknown Source)
-        at java.awt.LightweightDispatcher.dispatchEvent(Unknown Source)
-        at java.awt.Container.dispatchEventImpl(Unknown Source)
-        at java.awt.Window.dispatchEventImpl(Unknown Source)
-        at java.awt.Component.dispatchEvent(Unknown Source)
-        at java.awt.EventQueue.dispatchEvent(Unknown Source)
-        at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
-        at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
-        at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
-        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
-        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
-        at java.awt.EventDispatchThread.run(Unknown Source)
-Caused by: java.io.FileNotFoundException: C:\Projects\Testing\testdata\out\coll.data\radiance_2_M.img (Das System kann die angegebene Datei nicht find
-en)
-        at java.io.RandomAccessFile.open(Native Method)
-        at java.io.RandomAccessFile.<init>(Unknown Source)
-        at javax.imageio.stream.FileImageInputStream.<init>(Unknown Source)
-        at org.esa.beam.dataio.dimap.DimapProductReader.getOrCreateImageInputStream(DimapProductReader.java:362)
-        at org.esa.beam.dataio.dimap.DimapProductReader.readBandRasterDataImpl(DimapProductReader.java:305)
-        at org.esa.beam.framework.dataio.AbstractProductReader.readBandRasterData(AbstractProductReader.java:240)
-        at org.esa.beam.jai.BandOpImage.computeProductData(BandOpImage.java:37)
-        at org.esa.beam.jai.RasterDataNodeOpImage.computeRect(RasterDataNodeOpImage.java:57)
-        ... 47 more
-Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
-        at com.sun.media.jai.util.SunCachedTile.<init>(SunCachedTile.java:80)
-        at com.sun.media.jai.util.SunTileCache.add(SunTileCache.java:257)
-        at javax.media.jai.OpImage.addTileToCache(OpImage.java:1087)
-        at javax.media.jai.OpImage.getTile(OpImage.java:1142)
-        at org.esa.beam.visat.toolviews.spectrum.SpectrumGraph.getSample(SpectrumGraph.java:133)
-        at org.esa.beam.visat.toolviews.spectrum.SpectrumGraph.readValues(SpectrumGraph.java:123)
-        at org.esa.beam.visat.toolviews.spectrum.SpectraDiagram.updateSpectra(SpectraDiagram.java:94)
-        at org.esa.beam.visat.toolviews.spectrum.SpectrumToolView.recreateSpectraDiagram(SpectrumToolView.java:493)
-        at org.esa.beam.visat.toolviews.spectrum.SpectrumToolView.access$200(SpectrumToolView.java:66)
-        at org.esa.beam.visat.toolviews.spectrum.SpectrumToolView$ProductNodeHandler.nodeAdded(SpectrumToolView.java:613)
-        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1424)
-        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1411)
-        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1406)
-        at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1394)
-        at org.esa.beam.framework.datamodel.Product.fireNodeAdded(Product.java:1384)
-        at org.esa.beam.framework.datamodel.ProductNodeGroup.notifyAdded(ProductNodeGroup.java:325)
-        at org.esa.beam.framework.datamodel.ProductNodeGroup.add(ProductNodeGroup.java:170)
-        at org.esa.beam.framework.datamodel.Product$1.add(Product.java:231)
-        at org.esa.beam.framework.datamodel.Product$1.add(Product.java:226)
-        at org.esa.beam.visat.actions.CreateVectorDataNodeAction.createVectorDataNode(NewVectorDataNodeAction.java:98)
-        at org.esa.beam.visat.actions.InsertFigureInteractorInterceptor.newVectorDataLayer(InsertFigureInteractorHandler.java:94)
-        at org.esa.beam.visat.actions.InsertFigureInteractorInterceptor.canStartInteraction(InsertFigureInteractorHandler.java:70)
-        at com.bc.ceres.swing.figure.AbstractInteractor.canStartInteraction(AbstractInteractor.java:248)
-        at com.bc.ceres.swing.figure.AbstractInteractor.startInteraction(AbstractInteractor.java:198)
-        at com.bc.ceres.swing.figure.interactions.InsertMultiPointFigureInteractor.mouseReleased(InsertMultiPointFigureInteractor.java:88)
-        at com.bc.ceres.swing.figure.InteractionDispatcher.mouseReleased(InteractionDispatcher.java:80)
-        at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
-        at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
-        at java.awt.Component.processMouseEvent(Unknown Source)
-
-
-----------------------------------------------------------------------------------------------
-
-different manipulations with Pin GCP
- 
-Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
-   at javax.swing.BufferStrategyPaintManager.flushAccumulatedRegion(Unknown Source)
-   at javax.swing.BufferStrategyPaintManager.endPaint(Unknown Source)
-   at javax.swing.RepaintManager.endPaint(Unknown Source)
-   at javax.swing.JComponent.paint(Unknown Source)
-   at java.awt.GraphicsCallback$PaintCallback.run(Unknown Source)
-   at sun.awt.SunGraphicsCallback.runOneComponent(Unknown Source)
-   at sun.awt.SunGraphicsCallback.runComponents(Unknown Source)
-   at java.awt.Container.paint(Unknown Source)
-   at javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
-   at javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
-   at javax.swing.RepaintManager.seqPaintDirtyRegions(Unknown Source)
-   at javax.swing.SystemEventQueueUtilities$ComponentWorkRequest.run(Unknown Source)
-   at java.awt.event.InvocationEvent.dispatch(Unknown Source)
-   at java.awt.EventQueue.dispatchEvent(Unknown Source)
-   at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
-   at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
-   at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
-   at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
-   at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
-   at java.awt.EventDispatchThread.run(Unknown Source)
-
-------------------------------------------------------------------
-
-WARNING: tileComputed: tile == null!
-beam-debug: JAI Error: Problem occurs when computing a tile by the owner.
-beam-debug: An exception occured:
-java.lang.NullPointerException
-        at org.esa.beam.framework.dataop.barithm.BandArithmetic.registerTiePointGridSymbols(BandArithmetic.java:478)
-        at org.esa.beam.framework.dataop.barithm.BandArithmetic.registerProductSymbols(BandArithmetic.java:468)
-        at org.esa.beam.framework.dataop.barithm.BandArithmetic.createDefaultNamespace(BandArithmetic.java:188)
-        at org.esa.beam.framework.dataop.barithm.BandArithmetic.createDefaultNamespace(BandArithmetic.java:160)
-        at org.esa.beam.jai.VirtualBandOpImage.parseExpression(VirtualBandOpImage.java:237)
-        at org.esa.beam.jai.VirtualBandOpImage.computeRect(VirtualBandOpImage.java:202)
-        at javax.media.jai.SourcelessOpImage.computeTile(SourcelessOpImage.java:137)
-        at com.sun.media.jai.util.SunTileScheduler.scheduleTile(SunTileScheduler.java:904)
-        at javax.media.jai.OpImage.getTile(OpImage.java:1129)
-        at javax.media.jai.PointOpImage.computeTile(PointOpImage.java:911)
-        at com.sun.media.jai.util.SunTileScheduler.scheduleTile(SunTileScheduler.java:904)
-        at javax.media.jai.OpImage.getTile(OpImage.java:1129)
-        at javax.media.jai.RenderedOp.getTile(RenderedOp.java:2257)
-        at com.sun.media.jai.util.RequestJob.compute(SunTileScheduler.java:247)
-        at com.sun.media.jai.util.WorkerThread.run(SunTileScheduler.java:468)
-beam-debug: JAI Error: Problem occurs when computing a tile by the owner.
-beam-debug: An exception occured:
-java.lang.NullPointerException
-        at com.sun.media.jai.util.SunCachedTile.<init>(SunCachedTile.java:80)
-        at com.sun.media.jai.util.SunTileCache.add(SunTileCache.java:257)
-        at javax.media.jai.OpImage.addTileToCache(OpImage.java:1087)
-        at javax.media.jai.OpImage.getTile(OpImage.java:1142)
-        at javax.media.jai.PointOpImage.computeTile(PointOpImage.java:911)
-        at com.sun.media.jai.util.SunTileScheduler.scheduleTile(SunTileScheduler.java:904)
-        at javax.media.jai.OpImage.getTile(OpImage.java:1129)
-        at javax.media.jai.RenderedOp.getTile(RenderedOp.java:2257)
-        at com.sun.media.jai.util.RequestJob.compute(SunTileScheduler.java:247)
-        at com.sun.media.jai.util.WorkerThread.run(SunTileScheduler.java:468)
 
 
 
