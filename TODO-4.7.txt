@@ -261,11 +261,185 @@ Other BEAM/VISAT/API Stuff:
   - abstract ProductNode.handleNodeDataChanged(node, oldName, newName)
 
 
+################################################################
+ HELP review
+################################################################
+
+ Genelal
+#########
+ Overview
+ ********
+ 1) Supported Product Formats table.
+
+ The following data product formats are missing:
+ - NASA Ocean Color (OBPG) Products (*.hdf,*.L2_LAC,*.L2_MLAC)
+ - netCDF
+ - geoTIFF ??
+
+ 2) Supported Platforms
+
+ -  BEAM 4 (BEAM 4.7 ?)
+ - "The BEAM software has been successfully tested under MS Windows™ XP® as well as under Linux and Solaris®; operating systems. BEAM will be available for Mac OS X as soon as Apple supports the J2SE 6 platform"
+    MS Windows 7, MS Windows VISTA ?
+ ------------------------------------------------------------
+ Definitions
+ ***********
+ 1) Definition of Terms:
+
+ Geometry is missing
+ ------------------------------------------------------------
+ Related Links
+ *************
+ 1) Data Formats
+
+missing link to geoTIFF format (?)
+ ------------------------------------------------------------
+ BEAM-DIMAP Format
+ *****************
+ 1) add depiction of the vector_data directory (?)
+ ------------------------------------------------------------
+ The 'pconvert' Tool
+ *******************
+ 1) "Please take a look at the closely related command-line tool mapproj ."
+ tool mapproj does not exists
+ ------------------------------------------------------------
+ VISAT
+########
+ Introduction
+ ************
+- old image
+  ------------------------------------------------------------
+  Tools
+ *******
+ Import and Export Tools
+ **************************
+ 1) 'Import Shape' is empty
+
+ 2) Export Color Palette
+ How?
+ ------------------------------------------------------------
+ Imaging Tools
+ **************
+ 1) Image View
+ - Context Menu -> old image and Entries
+ - RGB Image Support -> Note:
+    "...in the Contrast Stretch / Color Palette window."
+    Contrast Stretch ??
+
+ 2) Layer Manager
+ - 3 old images
+ - Layer Editors does not work like help description
+
+ 3) The Navigation Window
+ - old images
+ - another icon 'Syncronize compatible products'
+ - new icon 'Syncronize cursor position'
+
+ 4) Color manipulation
+ - old images of the Editor for images. Missing " Rough statistics!" and "i" (show extra information) icon
+ - missing description of the " Rough statistics!"
+ - missing description of the "show extra information" icon.
+
+ 5) Bitmask Overlay Window
+ OLD
+
+ 6) Bitmask Editor
+ is not any more "Bitmask" Editor or ??
+ ------------------------------------------------------------
+ Analysis Tools
+ **************
+ 1) The VISAT World Map
+ - old image
+ - old description:  'zoomlevels (1x - 32x)' does not exist
+ - two new icons: zoom and zoom all
+
+ 2)  GCP Management
+ - missing explanation of the belonging GCPs to Geometries
+ - a new alternative of the GCP selection and deleting
+
+ 3)  PIN Management
+ - missing explanation of the belonging PINs to Geometries
+ - a new alternative of the PIN selection and deleting
+
+ 4) Band ROI Definition ( Shapes and ROIs)
+ is OLD
+
+ 5) Band Statistics
+ - old image
+ - old description
+
+ 6) Band Histogram
+ - old image
+ - old description
+
+ 7) Band Scatter Plot
+ - old image
+ - old description
+
+ 8) Band Transect Profile plot
+ maybe add description of the Figger selection ?
+
+ 9) Band Transect Co-ordinate list
+ maybe add description of the Figger selection ?
+
+ 10) Compute ROI-Mask Area
+ maybe add how one of the ROI can be selected ?
+ ------------------------------------------------------------
+ Product Generation Tools
+ *************************
+ 1) Arithmetic Expression Editor
+ - old image
+ - add show masks checkbox to Data Sources list
+
+ 2) Map Projection Dialog
+ - old image
+ - old description
+
+ 3) Orthorectification Dialog
+ - old image
+ - old description
+
+ 4) Pixel Geo-Coding
+ missing description of the "beam.envisat.amorgos.usePixelGeoCoding = true" option in the beam.config file
+
+ 5) Module Manager
+ - old image
+ ------------------------------------------------------------
+ Reference
+ **********
+ 1) product Browser
+ - old image
+ - Geometries node description
+
+ 2) Preferences Dialog
+ - old image
+ - description of the Pin Overlay, GCP Overlay, Shape Figure Overlay and ROI Overlay shall be replaced by Mask Layer Overlay
+
+ 3) Main Toolbar
+ - old icons:
+     Show ROI Overlay
+     Show Schape Overlay
+     Bitmask Overlay
+     ROI Definition
+     Delete Shape
+     Shape To ROI
+     ROI To Shape
+ - wrong image
+     Layers Tool Bar
+     Tools Tool Bar
+     Views Tool Bar
+ - add new icons
+  
 
 #################################################################
 GUI Tests results
 #################################################################
 
+new WGS84 could not be exported as KML
+-------------------------------------------------------------------
+
+The VISAT World Map: missing Help button
+-------------------------------------------------------------------
 RGB image view
 
 it is not possible to make visible PINs, GCPs, Geometries on RGB image views
