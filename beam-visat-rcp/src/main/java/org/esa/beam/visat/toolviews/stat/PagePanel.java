@@ -326,6 +326,9 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     void handleLayerContentChanged() {
     }
 
+    void handleViewSelectionChanged() {
+    }
+
     /**
      * Notified when a node was added.
      *

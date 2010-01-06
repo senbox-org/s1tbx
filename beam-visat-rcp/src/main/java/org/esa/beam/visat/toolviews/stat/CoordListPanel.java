@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 
 /**
- * A pane within the statistcs window which displays a co-oordinate list as a text table.
+ * A pane within the statistics window which displays a co-oordinate list as a text table.
  *
  */
 class CoordListPanel extends TextPagePanel {
@@ -34,8 +34,6 @@ class CoordListPanel extends TextPagePanel {
     protected String getTitlePrefix() {
         return _TITLE_PREFIX;
     }
-
-
 
     @Override
     protected void ensureValidData() {
@@ -83,4 +81,8 @@ class CoordListPanel extends TextPagePanel {
         updateContent();
     }
 
+    @Override
+    public void handleViewSelectionChanged() {
+        updateContent();
+    }
 }

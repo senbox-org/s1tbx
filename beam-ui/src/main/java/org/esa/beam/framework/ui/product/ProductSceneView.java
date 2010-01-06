@@ -19,13 +19,15 @@ import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorAware;
+import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.ShapeFigure;
-import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -34,8 +36,6 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.PixelInfoFactory;
 import org.esa.beam.framework.ui.PixelPositionListener;
@@ -51,7 +51,6 @@ import org.esa.beam.glevel.MaskImageMultiLevelSource;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.SystemUtils;
-import org.opengis.feature.simple.SimpleFeature;
 
 import javax.swing.AbstractButton;
 import javax.swing.JMenuItem;
@@ -80,10 +79,10 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
-import java.util.Vector;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Vector;
 
 /**
  * The class <code>ProductSceneView</code> is a high-level image display component for color index/RGB images created
@@ -611,14 +610,27 @@ public class ProductSceneView extends BasicView
     // todo - replace by getCurrentGeometry() (nf)
     public ShapeFigure getCurrentShapeFigure() {
         FigureSelection figureSelection = getFigureEditor().getFigureSelection();
-        if (figureSelection .getFigureCount() > 0) {
+        if (figureSelection.getFigureCount() > 0) {
             Figure figure = figureSelection.getFigure(0);
             if (figure instanceof ShapeFigure) {
                 return (ShapeFigure) figure;
             }
         } else {
-            Layer layer = getSelectedLayer();
-            if (layer instanceof VectorDataLayer) {
+            Layer layer = null;
+            final Layer selLayer = getSelectedLayer();
+            if (selLayer instanceof VectorDataLayer) {
+                final VectorDataLayer vectorLayer = (VectorDataLayer) selLayer;
+                final String typeName = vectorLayer.getVectorDataNode().getFeatureType().getTypeName();
+                if (Product.GEOMETRY_FEATURE_TYPE_NAME.equals(typeName)) {
+                    layer = vectorLayer;
+                }
+            }
+
+            if (layer == null) {
+                layer = LayerUtils.getChildLayer(getRootLayer(), LayerUtils.SearchMode.DEEP,
+                                                 VectorDataLayerFilterFactory.createGeometryFilter());
+            }
+            if (layer != null) {
                 final VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
                 if (vectorDataLayer.getFigureCollection().getFigureCount() > 0) {
                     Figure figure = vectorDataLayer.getFigureCollection().getFigure(0);
@@ -723,14 +735,16 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param vectorDataNode The vector data node, whose layer shall be selected.
+     *
      * @return The layer, or {@code null}.
+     *
      * @since BEAM 4.7
      */
     public VectorDataLayer selectVectorDataLayer(VectorDataNode vectorDataNode) {
         LayerFilter layerFilter = new VectorDataLayerFilter(vectorDataNode);
-        VectorDataLayer layer = (VectorDataLayer)LayerUtils.getChildLayer(getRootLayer(),
-                                                                          LayerUtils.SEARCH_DEEP,
-                                                                          layerFilter);
+        VectorDataLayer layer = (VectorDataLayer) LayerUtils.getChildLayer(getRootLayer(),
+                                                                           LayerUtils.SEARCH_DEEP,
+                                                                           layerFilter);
         if (layer != null) {
             setSelectedLayer(layer);
         }
@@ -739,7 +753,9 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param pin The pins to test.
+     *
      * @return {@code true}, if the pin is selected.
+     *
      * @since BEAM 4.7
      */
     public boolean isPinSelected(Pin pin) {
@@ -748,7 +764,9 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param gcp The ground control point to test.
+     *
      * @return {@code true}, if the ground control point is selected.
+     *
      * @since BEAM 4.7
      */
     public boolean isGcpSelected(Pin gcp) {
@@ -757,6 +775,7 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The (first) selected pin.
+     *
      * @since BEAM 4.7
      */
     public Pin getSelectedPin() {
@@ -765,6 +784,7 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The selected pins.
+     *
      * @since BEAM 4.7
      */
     public Pin[] getSelectedPins() {
@@ -773,6 +793,7 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The selected ground control points.
+     *
      * @since BEAM 4.7
      */
     public Pin[] getSelectedGcps() {
@@ -781,6 +802,7 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param pins The selected pins.
+     *
      * @since BEAM 4.7
      */
     public void selectPins(Pin[] pins) {
@@ -789,6 +811,7 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param gpcs The selected ground control points.
+     *
      * @since BEAM 4.7
      */
     public void selectGcps(Pin[] gpcs) {
@@ -797,6 +820,7 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The (first) selected feature figure.
+     *
      * @since BEAM 4.7
      */
     public SimpleFeatureFigure getSelectedFeatureFigure() {
@@ -811,6 +835,7 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The selected feature figures.
+     *
      * @since BEAM 4.7
      */
     public SimpleFeatureFigure[] getSelectedFeatureFigures() {
@@ -1473,6 +1498,7 @@ public class ProductSceneView extends BasicView
     }
 
     private static class VectorDataLayerFilter implements LayerFilter {
+
         private final VectorDataNode vectorDataNode;
 
         public VectorDataLayerFilter(VectorDataNode vectorDataNode) {
@@ -1480,7 +1506,7 @@ public class ProductSceneView extends BasicView
         }
 
         @Override
-            public boolean accept(Layer layer) {
+        public boolean accept(Layer layer) {
             return layer instanceof VectorDataLayer && ((VectorDataLayer) layer).getVectorDataNode() == vectorDataNode;
         }
     }

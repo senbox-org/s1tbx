@@ -124,6 +124,7 @@ class ProfilePlotPanel extends PagePanel {
         initParameters(VAR2);
         paramGroup.addParamChangeListener(new ParamChangeListener() {
 
+            @Override
             public void parameterValueChanged(ParamChangeEvent event) {
                 if(event.getParameter().equals(markSegmentsParam)) {
                    updateDataSet();
@@ -137,9 +138,8 @@ class ProfilePlotPanel extends PagePanel {
 
         final String paramPrefix = "var" + varIndex + ".";
         final String axis = (varIndex == VAR1) ? "X-Axis" : "Y-Axis";
-        Object paramValue;
 
-        paramValue = !(varIndex == VAR1) ? new Float(0.0f) : new Integer(0);
+        Object paramValue = varIndex == VAR1 ? Integer.valueOf(0) : new Float(0.0f);
         minParams[varIndex] = new Parameter(paramPrefix + "min", paramValue);
         minParams[varIndex].getProperties().setLabel("Min:");
         minParams[varIndex].getProperties().setDescription("Minimum display value for " + axis);    /*I18N*/
@@ -149,7 +149,7 @@ class ProfilePlotPanel extends PagePanel {
         }
         paramGroup.addParameter(minParams[varIndex]);
 
-        paramValue = !(varIndex == VAR1) ? new Float(100.0f) : new Integer(100);
+        paramValue = varIndex == VAR1 ? Integer.valueOf(100) : new Float(100.0f);
         maxParams[varIndex] = new Parameter(paramPrefix + "max", paramValue);
         maxParams[varIndex].getProperties().setLabel("Max:");
         maxParams[varIndex].getProperties().setDescription("Maximum display value for " + axis);    /*I18N*/
@@ -192,6 +192,7 @@ class ProfilePlotPanel extends PagePanel {
         profilePlotDisplay.setReshowDelay(200);
         profilePlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
         final AxisChangeListener axisListener = new AxisChangeListener() {
+            @Override
             public void axisChanged(AxisChangeEvent event) {
                 adjustAxisParameter();
             }
@@ -320,6 +321,11 @@ class ProfilePlotPanel extends PagePanel {
 
     @Override
     public void handleLayerContentChanged() {
+        updateContent();
+    }
+
+    @Override
+    public void handleViewSelectionChanged() {
         updateContent();
     }
 }

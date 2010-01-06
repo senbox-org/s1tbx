@@ -2,6 +2,8 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import com.bc.ceres.swing.selection.SelectionChangeListener;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -14,6 +16,7 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.JComponent;
+import javax.swing.JInternalFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -59,11 +62,13 @@ public class StatisticsToolView extends AbstractToolView {
     private final PagePanelPTL pagePanelPTL;
     private final PagePanelIFL pagePanelIFL;
     private final PagePanelLL pagePanelLL;
+    private SelectionChangeListener pagePanelSCL;
 
     public StatisticsToolView() {
         pagePanelPTL = new PagePanelPTL();
         pagePanelIFL = new PagePanelIFL();
         pagePanelLL = new PagePanelLL();
+        pagePanelSCL = new PagePanelSCL();
     }
 
     public void show(final int tabIndex) {
@@ -125,6 +130,15 @@ public class StatisticsToolView extends AbstractToolView {
         productTree.addProductTreeListener(pagePanelPTL);
         transferProductNodeListener(product, null);
         VisatApp.getApp().addInternalFrameListener(pagePanelIFL);
+        final JInternalFrame[] internalFrames = VisatApp.getApp().getAllInternalFrames();
+        for (JInternalFrame internalFrame : internalFrames) {
+            final Container contentPane = internalFrame.getContentPane();
+            if (contentPane instanceof ProductSceneView) {
+                final ProductSceneView view = (ProductSceneView) contentPane;
+                view.getRootLayer().addListener(pagePanelLL);
+                view.getFigureEditor().addSelectionChangeListener(pagePanelSCL);
+            }
+        }
         updateCurrentSelection();
         transferProductNodeListener(null, product);
         updateUI();
@@ -162,6 +176,15 @@ public class StatisticsToolView extends AbstractToolView {
         productTree.removeProductTreeListener(pagePanelPTL);
         transferProductNodeListener(product, null);
         VisatApp.getApp().removeInternalFrameListener(pagePanelIFL);
+        final JInternalFrame[] internalFrames = VisatApp.getApp().getAllInternalFrames();
+        for (JInternalFrame internalFrame : internalFrames) {
+            final Container contentPane = internalFrame.getContentPane();
+            if (contentPane instanceof ProductSceneView) {
+                final ProductSceneView view = (ProductSceneView) contentPane;
+                view.getRootLayer().removeListener(pagePanelLL);
+                view.getFigureEditor().removeSelectionChangeListener(pagePanelSCL);
+            }
+        }
 
     }
 
@@ -223,6 +246,7 @@ public class StatisticsToolView extends AbstractToolView {
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
                 view.getRootLayer().addListener(pagePanelLL);
+                view.getFigureEditor().addSelectionChangeListener(pagePanelSCL);
                 selectionChanged(view.getRaster().getProduct(), view.getRaster());
             }
         }
@@ -233,6 +257,7 @@ public class StatisticsToolView extends AbstractToolView {
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
                 view.getRootLayer().removeListener(pagePanelLL);
+                view.getFigureEditor().removeSelectionChangeListener(pagePanelSCL);
                 selectionChanged(view.getRaster().getProduct(), null);
             }
         }
@@ -245,8 +270,28 @@ public class StatisticsToolView extends AbstractToolView {
             final PagePanel[] panels = StatisticsToolView.this.pagePanels;
             for (PagePanel panel : panels) {
                 panel.handleLayerContentChanged();
-
             }
+        }
+    }
+
+    private class PagePanelSCL implements SelectionChangeListener {
+
+        @Override
+        public void selectionChanged(SelectionChangeEvent event) {
+            final PagePanel[] panels = StatisticsToolView.this.pagePanels;
+            for (PagePanel panel : panels) {
+                panel.handleLayerContentChanged();
+            }
+
+        }
+
+        @Override
+        public void selectionContextChanged(SelectionChangeEvent event) {
+            final PagePanel[] panels = StatisticsToolView.this.pagePanels;
+            for (PagePanel panel : panels) {
+                panel.handleLayerContentChanged();
+            }
+
         }
     }
 }

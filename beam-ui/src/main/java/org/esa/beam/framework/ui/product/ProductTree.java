@@ -153,11 +153,18 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         }
     }
 
+    public void expand(Object toExpand) {
+        final TreePath path = getTreePath(toExpand);
+        if (path != null) {
+            makeVisible(path);
+        }
+    }
+
     /**
      * Notifies this product tree, that a product scene view has opened.
      *
      * @param view The view.
-     * @deprecated since BEAM 4.7, use {@link #registerOpenedProductNodes(org.esa.beam.framework.datamodel.ProductNode[])} instead
+     * @deprecated since BEAM 4.7, use {@link #registerOpenedProductNodes(org.esa.beam.framework.datamodel.ProductNode...)} instead
      */
     @Deprecated
     public void sceneViewOpened(ProductSceneView view) {
@@ -168,7 +175,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      * Notifies this product tree, that a product scene view has closed.
      *
      * @param view The view.
-     * @deprecated since BEAM 4.7, use {@link #deregisterOpenedProductNodes(org.esa.beam.framework.datamodel.ProductNode[])} instead
+     * @deprecated since BEAM 4.7, use {@link #deregisterOpenedProductNodes(org.esa.beam.framework.datamodel.ProductNode...)} instead
      */
     @Deprecated
     public void sceneViewClosed(ProductSceneView view) {
@@ -180,7 +187,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      * Opened product nodes may be diffently displayed.
      *
      * @param nodes The products nodes which are in process.
-     * @see #registerActiveProductNodes(org.esa.beam.framework.datamodel.ProductNode[])
+     * @see #registerActiveProductNodes(org.esa.beam.framework.datamodel.ProductNode...)
      */
     public void registerOpenedProductNodes(ProductNode... nodes) {
         for (ProductNode node : nodes) {
@@ -198,7 +205,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      * Opened product nodes may be diffently displayed.
      *
      * @param nodes The products nodes which are in process.
-     * @see #deregisterActiveProductNodes(org.esa.beam.framework.datamodel.ProductNode[])
+     * @see #deregisterActiveProductNodes(org.esa.beam.framework.datamodel.ProductNode...) 
      */
     public void deregisterOpenedProductNodes(ProductNode... nodes) {
         boolean changed = false;
@@ -276,11 +283,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         DefaultMutableTreeNode productTreeNode = createProductTreeNode(product);
         rootNode.add(productTreeNode);
         getTreeModel().nodesWereInserted(rootNode, new int[]{rootNode.getIndex(productTreeNode)});
-//        final TreePath lastLeafPath = new TreePath(productTreeNode.getLastLeaf().getPath());
-//        makeVisible(lastLeafPath);
         final TreePath productTreeNodePath = new TreePath(productTreeNode.getPath());
         expandPath(productTreeNodePath);
-//        makeVisible(productTreeNodePath);
         scrollPathToVisible(productTreeNodePath);
         invalidate();
         doLayout();
@@ -342,6 +346,12 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         this.commandUIFactory = commandUIFactory;
     }
 
+    /**
+     * This method does not have any effect.
+     * @param exceptionHandler is ignored
+     *
+     *@deprecated since BEAM 4.7, no replacement
+     */
     @Deprecated
     public void setExceptionHandler(ExceptionHandler exceptionHandler) {
     }
@@ -534,7 +544,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         // Uncomment for debugging masks:
         // ImageIcon maskIcon;
 
-        public PTCellRenderer() {
+        private PTCellRenderer() {
             productIcon = UIUtils.loadImageIcon("icons/RsProduct16.gif");
             metadataIcon = UIUtils.loadImageIcon("icons/RsMetaData16.gif");
             bandVisibleIcon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
@@ -593,7 +603,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 }
 
                 String text = productNode.getName();
-                final StringBuffer toolTipBuffer = new StringBuffer(32);
+                final StringBuilder toolTipBuffer = new StringBuilder(32);
 
                 final String prefix = productNode.getProductRefString();
                 if (prefix != null) {

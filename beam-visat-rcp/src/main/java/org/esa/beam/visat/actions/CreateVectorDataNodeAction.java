@@ -21,6 +21,9 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerFilter;
+import com.bc.ceres.glayer.support.LayerUtils;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PlainFeatureFactory;
 import org.esa.beam.framework.datamodel.Product;
@@ -31,6 +34,7 @@ import org.esa.beam.framework.ui.PropertyPane;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.VectorDataLayerFilterFactory;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.visat.VisatActivator;
 import org.esa.beam.visat.VisatApp;
@@ -54,7 +58,7 @@ public class CreateVectorDataNodeAction extends ExecCommand {
 
     // todo - add help (nf)
     private static final String HELP_ID = "";
-    static int numItems = 0;
+    private static int numItems = 0;
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -98,8 +102,16 @@ public class CreateVectorDataNodeAction extends ExecCommand {
 
         final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
         if (sceneView != null) {
-            VisatApp.getApp().setSelectedProductNode(vectorDataNode);
+            VisatApp.getApp().getProductTree().expand(vectorDataNode);
             sceneView.selectVectorDataLayer(vectorDataNode);
+
+            final LayerFilter nodeFilter = VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode);
+            Layer vectorDataLayer = LayerUtils.getChildLayer(sceneView.getRootLayer(),
+                                                             LayerUtils.SEARCH_DEEP,
+                                                             nodeFilter);
+            if (vectorDataLayer != null) {
+                vectorDataLayer.setVisible(true);
+            }
             final Mask mask = product.getMaskGroup().get(vectorDataNode.getName());
             final ProductNodeGroup<Mask> roiMaskGroup = sceneView.getRaster().getRoiMaskGroup();
             setAsRoi(mask, roiMaskGroup);
@@ -133,7 +145,7 @@ public class CreateVectorDataNodeAction extends ExecCommand {
     private static class NameValidator implements Validator {
         private final Product product;
 
-        public NameValidator(Product product) {
+        private NameValidator(Product product) {
             this.product = product;
         }
 
@@ -151,7 +163,7 @@ public class CreateVectorDataNodeAction extends ExecCommand {
     private static class MyModalDialog extends ModalDialog {
         private final PropertyPane propertyPane;
 
-        public MyModalDialog(PropertyPane propertyPane) {
+        private MyModalDialog(PropertyPane propertyPane) {
             super(VisatApp.getApp().getMainFrame(),
                   DIALOG_TITLE,
                   ModalDialog.ID_OK_CANCEL_HELP,
@@ -171,9 +183,9 @@ public class CreateVectorDataNodeAction extends ExecCommand {
     }
 
     // todo - add validators (nf)
-    static class DialogData {
-        String name = getDefaultVectorDataNodeName() + "_" + (++numItems);
-        String description = "";
+    private static class DialogData {
+        private String name = getDefaultVectorDataNodeName() + "_" + (++numItems);
+        private String description = "";
     }
 
 

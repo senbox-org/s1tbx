@@ -81,8 +81,6 @@ VectorDataNode:
   ==> PRE, ?, OPEN
 * Polygon containing a hole is not copied to subset 
   ==> PRE, ?, OPEN
-* "Profile plot" and "Coordinate List", are not updated when figure selection changes
-  ==> PRE, MP, ONGOING
 
 * Vector data node I/O shall encode/decode delimiter characters occurring in text converted from objects.
   ==> FINAL, ?, OPEN
@@ -94,6 +92,8 @@ VectorDataNode:
 * Export vector data node to shapefile
   ==> FINAL, ?, OPEN
 
+* "Profile plot" and "Coordinate List", are not updated when figure selection changes
+  ==> PRE, MP, CLOSED
 * When saving VectorDataNodes to disk (DIMAP), schema name is lost. ==> Drawing tools don't work anymore,
   because the search for schema name 'Geometry'.
   ==> PRE, NF, CLOSED (writing own CSV format)
