@@ -82,7 +82,7 @@ VectorDataNode:
 * Polygon containing a hole is not copied to subset 
   ==> PRE, ?, OPEN
 * "Profile plot" and "Coordinate List", are not updated when figure selection changes
-  ==> PRE, ?, OPEN
+  ==> PRE, MP, ONGOING
 
 * Vector data node I/O shall encode/decode delimiter characters occurring in text converted from objects.
   ==> FINAL, ?, OPEN
