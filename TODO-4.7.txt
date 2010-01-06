@@ -652,7 +652,7 @@ import Pin usins PIN Manager
 ->
 Pin will be set wrong (outside of the product boundary)
 ---------------------------------------------------------------------
-Profile plot and Coordinate list will be updated not correctly
+DONE: Profile plot and Coordinate list will be updated not correctly
 ---------------------------------------------------------------------
 
 Layer manager -> Add ESRI Shapefiles: contry (contain a part of Russia)
@@ -1130,7 +1130,7 @@ java.lang.NullPointerException
 	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
 	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
 -------------------------------------------------------------------------------------
-right-mouse click on the +/- (button ?) in the product tree
+DONE: right-mouse click on the +/- (button ?) in the product tree
 
 Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
 	at org.esa.beam.framework.ui.PopupMenuHandler.rearrangeMenuItems(PopupMenuHandler.java:135)
