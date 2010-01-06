@@ -313,10 +313,15 @@ missing link to geoTIFF format (?)
  *******
  Import and Export Tools
  **************************
- 1) 'Import Shape' is empty
+ 1) 'Import Shape' is empty (no link to old 'Import Transect Data' )
+   shall the page 'Import Transect Data ' be updated considering the new geometries ?
 
  2) Export Color Palette
  How?
+
+3) missing 'Export Product Metadata'
+
+4) missing 'Export PIN Pixels'
  ------------------------------------------------------------
  Imaging Tools
  **************
@@ -429,7 +434,183 @@ missing link to geoTIFF format (?)
      Tools Tool Bar
      Views Tool Bar
  - add new icons
-  
+
+  4) File menu
+   - menu item name difference in Help and BEAM4.7:
+   
+  	Help				        BEAM4.7
+
+   Save Session As			Save Session As...
+   Save Product As			Save Product As...
+
+     a) Import
+  	- missing 'Import geoTIFF Product' item
+
+  	- menu item name difference in Help and BEAM4.7:
+
+  	Help				            BEAM4.7
+   Transect Data...			        Import Shape
+   ENVISAT Product...  			    Import ENVISAT (MERIS,AATSR,ASAR) Product...
+   NetCDF Product...		    	Import NetCDF File...
+   GETASSE30 DEM Tile...    		Import GETASSE30 DEM Tile...
+   NASA Ocean Color Product...	    Import NASA Ocean Color (MODIS,OCTS,CZCS,SeaWiFS) Product...
+   MODIS Product...		    	    Import MODIS (MOD,MXD,MYD) Product...
+   ATSR Product...		    	    Import ATSR Product...
+   BEAM-DIMAP Product...	    	Import BEAM-DIMAP Product...
+   NOAA-AVHRR/3 Product...  		Import NOAA-AVHRR/3 Level-1b Product...
+   ERS1/2 Product...    			Import ERS1/2 (ATSR, SAR)Product...
+   LANDSAT TM Product...		    Import LANDSAT 5 TM (FAST) Product...
+   MERIS Binned Level-3 Product...	Import MERIS Binned Level-3 Product...
+   AVNIR-2 Product...		    	Import AVNIR-2 Product...
+   Prism Product...		        	Import PRISM Product...
+   CHRIS Product...			        Import CHRIS/Proba Product...
+
+     b) Export
+
+  	- there is no 'ROI Overlay ' item in BEAM 4.7 (????)
+  	- missing 'Export Transect Pixels'
+  	- missing 'Export PIN Pixels'
+
+  	- menu item name difference in Help and BEAM4.7:
+
+  	Help			        	BEAM4.7
+
+   Export ROI Pixels			ROI Masks Pixel...
+   Color Palette...			    Color Palette as Image
+   Displayed Metadata			Export product Metadata...
+   Color Legend				    Export Color Legend as Image
+   Export View as Image			Export View as Image...
+   HDF5 Product (Subset)		Export HDF5 Product...
+   BEAM-DIMAP Product (Subset)	Export BEAM-DIMAP Product...
+   GeoTIFF Product			    Export GeoTIFF Product...
+   Geo-Coding as ENVI GCP File	Export Geo-Coding as ENVI GCP File...
+
+
+  5) Edit Menu
+   - add to Help new Items:
+  	Undo
+  	Redo
+  	Cut
+  	Copy
+  	Paste
+  	Select All
+   - add icon to 'Delete'
+
+   - delete from Help:
+  	Delete Shape
+  	Delete Pin
+  	Shape To ROI  
+  	ROI To Shape
+
+  6) View Menu
+   - add to Help new Items:
+  	Show Geometry Overlay
+   - delete from Help:
+  	Show ROI Overlay
+  	Show Shape Overlay
+
+   - menu item name difference in Help and BEAM4.7:
+
+  	Help			        	BEAM4.7
+
+    Show Pins				Show Pins Overlay
+    Open RGB Image View		Open RGB Image View...
+
+   - missing in Help:
+  	Show GCPs Overlay
+  	Open Metadata View  
+
+  7) View Menu --> Tool Windows
+
+   - the World map image is old
+   - missing in the List of important Tool Windows
+  	Layer Editor
+  	Tile Cashe
+  	Script
+  	Mask Overlayes (????)
+   - delete from the List of important Tool Windows
+  	The Bitmask Overlay Window
+
+   - menu item name difference in Help and BEAM4.7:
+
+  	Help	        		    	BEAM4.7
+
+    The Product Browser		    	Products
+    The Pixel Info View		    	Pixel Info
+    The Pin Manager		           	Pin Manager
+    The GCP Manager		        	GCP Manager
+    The Colour Manipulation Window	Colour Manipulation
+    The World Map			    	World Map
+    The Spectrum Window		    	Spectrum
+    The Layer Manager		    	Layer Manager
+    The Navigation Window			Navigation
+    The ROI Manager			        Mask/ROI Manager
+    The Statistics Window			Statistics
+
+   - missing link to Layer Manager page
+
+  8) Analysis Menu
+
+  - Help: Compute Roi Area...--> BEAM4.7: Compute Roi-Mask Area
+
+  9) Tools Menu
+
+   - add to Help:
+  	Create Geometry Container
+  	Orthorectification(New ?)
+  	Reprojection
+  	Mosaic (NEW ??)
+  	
+   - delete from Help:
+  	Map Projection
+  	Orthorectification
+  	Level 3 Mosaic Processor
+  	
+   - menu item name difference in Help and BEAM4.7:
+
+  	Help			            	BEAM4.7
+
+  Band Arithmetics				    Band Arithmetic...
+  Data Flip					        Data Flip...
+  Attach Pixel Geo-Coding			Attach Pixel Geo-Coding...
+  Detach Pixel Geo-Coding			Detach Pixel Geo-Coding...
+  Create Subset from View			Create Subset from View...
+  Create Elevation Band				Create Elevation Band...
+  Create ASAR NRCS Bands			Create NRCS Bands(ASAR)...
+  Create Filtered Band				Create Filtered Band...
+
+  SMAC Processor					SMAC Processor(MERIS/(A)ATSR)...
+  Smile Correction Processor		Smile Correction Processor(MERIS)...
+  Cloud Probility Processor			 Cloud Probility Processor(MERIS)...
+  Radiance-To-Reflectance Conversion Processor	Radiance-To-Reflectance Processor(MERIS)...
+  SST Processor					    SST Processor((A)ATSR)...
+  FLH/MCI Processor				    FLH/MCI Processor...
+  Level 3 Binning Processor			Level-3 Binning
+  NDVI Processor					NDVI Processor(MERIS)...
+  Collocation					    Collocation...
+  Image Analysis -->
+  	Spectral Unmixing		        Spectral Unmixing...
+  	EM Cluster Analysis			    EM Cluster Analysis...
+  	EM Cluster Analysis			    K-Means Cluster Analysis...
+
+  10) Window Menu
+
+   - old images
+
+   - menu item name difference in Help and BEAM4.7:
+
+  	Help				        BEAM4.7
+
+  The BEAM project.... 			BEAM Home Page
+  Access to Data Products... 	Access to Data Products
+  About...				        About VISAT
+-------------------------------------------------------------------   
+
+
+
+
+
+
 
 #################################################################
 GUI Tests results
