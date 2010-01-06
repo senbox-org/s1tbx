@@ -612,7 +612,9 @@ Processors
 
 2) mapproj Tool - old
 
-
+3) Cloud Probability- Processor Description
+ missing images
+ 
 #################################################################
 GUI Tests results
 #################################################################
