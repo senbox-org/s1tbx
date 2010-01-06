@@ -127,8 +127,10 @@ public class PopupMenuHandler implements MouseListener, KeyListener {
         if (popupMenu == null) {
             popupMenu = _popupMenuFactory.createPopupMenu(event);
         }
-        rearrangeMenuItems(popupMenu);
-        UIUtils.showPopup(popupMenu, event);
+        if (popupMenu != null) {
+            rearrangeMenuItems(popupMenu);
+            UIUtils.showPopup(popupMenu, event);
+        }
     }
 
     private void rearrangeMenuItems(JPopupMenu popupMenu) {
