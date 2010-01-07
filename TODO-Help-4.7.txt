@@ -116,7 +116,15 @@ missing link to geoTIFF format (?)
  1) Image View
  - Context Menu -> old screenshot and Entries
    ==> PRE, OF, OPEN
-    
+
+   visat/ProductSceneView.html/Context Menu
+   -> export pixel values of a ROI-Mask to clipboard or file   (OK?)
+   -> add 'Export Pin pixels' entriy
+   -> add 'Export Colour Palette'  entriy and
+   TODO change in the contextmenu  "Export Colour Palette as Image..." to Export Colour Palette file(?)
+   -> add 'Show Geometry Overlay' entriy
+   ==> PRE, MP, OPEN
+       
  - RGB Image Support -> Note:
     "...in the Contrast Stretch / Color Palette window."
     Contrast Stretch ??
