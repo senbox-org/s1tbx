@@ -22,9 +22,7 @@ import com.bc.ceres.swing.actions.CopyAction;
 import com.bc.ceres.swing.actions.CutAction;
 import com.bc.ceres.swing.actions.DeleteAction;
 import com.bc.ceres.swing.actions.PasteAction;
-import com.bc.ceres.swing.actions.RedoAction;
 import com.bc.ceres.swing.actions.SelectAllAction;
-import com.bc.ceres.swing.actions.UndoAction;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorAware;
 import com.bc.ceres.swing.figure.Interactor;
@@ -32,8 +30,6 @@ import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import com.bc.ceres.swing.selection.SelectionManager;
 import com.bc.ceres.swing.selection.support.DefaultSelectionManager;
-import com.bc.ceres.swing.undo.UndoContext;
-import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import com.bc.swing.desktop.TabbedDesktopPane;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.CommandMenuBar;
@@ -2176,19 +2172,21 @@ public class VisatApp extends BasicApp implements AppContext {
         return menuBar;
     }
 
-
-    private UndoAction undoAction;
-    private RedoAction redoAction;
-    private UndoContext undoContext;
+// TODO: Not included in BEAM 4.7
+// enable source code when undo/redo shall be supported
+//    private UndoAction undoAction;
+//    private RedoAction redoAction;
+//    private UndoContext undoContext;
 
     @Override
     protected void insertCommandMenuItems() {
         super.insertCommandMenuItems();
 
-        undoContext = new DefaultUndoContext(this);
-
         JMenu menu = findMenu("edit");
 
+/*      // TODO: Not included in BEAM 4.7
+        // enable source code when undo/redo shall be supported
+        undoContext = new DefaultUndoContext(this);
         undoAction = new UndoAction(undoContext) {
             @Override
             public void execute() {
@@ -2203,6 +2201,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 undoAction.updateState();
             }
         };
+*/
 
         SelectionManager selectionManager = getApplicationPage().getSelectionManager();
         Action cutAction = new CutAction(selectionManager);
@@ -2211,17 +2210,19 @@ public class VisatApp extends BasicApp implements AppContext {
         Action selectAllAction = new SelectAllAction(selectionManager);
         Action deleteAction = new DeleteAction(selectionManager);
 
-        menu.insert(undoAction, 0);
-        menu.insert(redoAction, 1);
-        menu.insertSeparator(2);
-        menu.insert(cutAction, 3);
-        menu.insert(copyAction, 4);
-        menu.insert(pasteAction, 5);
+// TODO: Not included in BEAM 4.7
+// enable source code when undo/redo shall be supported
+//        menu.insert(undoAction, 0);
+//        menu.insert(redoAction, 1);
+        menu.insertSeparator(0);
+        menu.insert(cutAction, 1);
+        menu.insert(copyAction, 2);
+        menu.insert(pasteAction, 3);
+        menu.insertSeparator(4);
+        menu.insert(selectAllAction, 5);
         menu.insertSeparator(6);
-        menu.insert(selectAllAction, 7);
+        menu.insert(deleteAction, 7);
         menu.insertSeparator(8);
-        menu.insert(deleteAction, 9);
-        menu.insertSeparator(10);
     }
 
 
