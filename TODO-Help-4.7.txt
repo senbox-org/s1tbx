@@ -353,20 +353,19 @@ remove
    - delete from Help:
   	Show ROI Overlay
   	Show Shape Overlay
-    ==> PRE, OF, OPEN
+    ==> PRE, OF, CLOSE
 
    - menu item name difference in Help and BEAM4.7:
 
   	Help			        	BEAM4.7
 
     Show Pins				Show Pins Overlay
-    Open RGB Image View		Open RGB Image View...
-    ==> PRE, OF, OPEN
+    ==> PRE, OF, CLOSE
 
    - missing in Help:
   	Show GCPs Overlay
   	Open Metadata View  
-    ==> FINAL, MP, OPEN
+    ==> FINAL, MP, CLOSE (OF)
 
   7) View Menu --> Tool Windows
 
