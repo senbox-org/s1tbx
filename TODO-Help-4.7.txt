@@ -26,8 +26,8 @@ CLOSED (6) Carefully check occurrences of term "ROI" in all UIs
 
  2) Supported Platforms
 
- -  BEAM 4 --> BEAM  (Overview: "These help pages refer to BEAM version 4.7...")
-    ==> PRE, MP, OPEN
+ -  BEAM 4 --> BEAM
+    ==> PRE, MP, CLOSED   Version is mentioned in the title of this page.
 
  - "The BEAM software has been successfully tested under MS Windows™ XP®, Vista, 7 Mac OS X, as well as under Linux and Solaris®; operating systems.
      ==> PRE, OF, CLOSED
