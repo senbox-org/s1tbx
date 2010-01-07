@@ -108,10 +108,8 @@
 <a name="layer"/><h4>Layers Tool Bar &nbsp;
     <a href="#shownodata">
         <img src="images/icons/NoDataOverlay24.gif" border="0"></a>
-    <a href="#showroi">
-        <img src="images/icons/ROIOverlay24.gif" alt="Show ROI Overlay" border="0"></a>
     <a href="#showshape">
-        <img src="images/icons/ShapeOverlay24.gif" alt="Show Schape Overlay" border="0"></a>
+        <img src="images/icons/ShapeOverlay24.gif" alt="Show Geometry Overlay" border="0"></a>
     <a href="#showgraticule">
         <img src="images/icons/GraticuleOverlay24.gif" alt="Show Graticule Overlay" border="0"></a>
     <a href="#showpins">
@@ -127,21 +125,13 @@
     The No-Data overlay properties can be modified in the <a href="PreferencesDialog.html">preferences dialog</a>.
 </p>
 
-<h5><a name="showroi"></a><img src="images/icons/ROIOverlay24.gif"> &nbsp;&nbsp;
-    Show ROI Overlay</h5>
-
-<p>
-    Toggles the overlay of a ROI over the band <a href="ProductSceneView.html">image view</a>.
-    See also <a href="ShapeAndROIHandling.html">Shapes and ROI handling</a>.
-    The ROI overlay properties can be modified in the <a href="PreferencesDialog.html">preferences dialog</a>.
-</p>
 <h5><a name="showshape"></a><img src="images/icons/ShapeOverlay24.gif"> &nbsp;&nbsp;
-    Show Schape Overlay</h5>
+    Show Geometry Overlay</h5>
 
 <p>
-    Toggles the overlay of a Shape over the band <a href="ProductSceneView.html">image view</a>.
+    Toggles the overlay of a Geometry over the band <a href="ProductSceneView.html">image view</a>.
     See also <a href="ShapeAndROIHandling.html">Shapes and ROI handling</a>.
-    The Shape overlay properties can be modified in the <a href="PreferencesDialog.html">preferences dialog</a>.
+    The Geometry overlay properties can be modified in the <a href="PreferencesDialog.html">preferences dialog</a>.
 </p>
 <h5><a name="showgraticule"></a><img src="images/icons/GraticuleOverlay24.gif"> &nbsp;&nbsp;
     Show Graticule Overlay</h5>
@@ -223,10 +213,6 @@
         <img src="images/icons/Navigation24.gif" alt="Navigation Window" border="0"></a>
     <a href="#contrastpalette">
         <img src="images/icons/ContrastStretch24.gif" alt="Contrast/Palette Window" border="0"></a>
-    <a href="#bitmaskoverlay">
-        <img src="images/icons/BitmaskOverlay24.png" alt="Bitmask Overlay Window" border="0"></a>
-    <a href="#roidefinition">
-        <img src="images/icons/ROIDefinition24.gif" alt="ROI Definition Window" border="0"></a>
     <a href="#pixelinfo">
         <img src="images/icons/PixelInfo24.gif" alt="Pixel Information Window" border="0"></a>
 </h4>
@@ -290,22 +276,6 @@
     Opens or brings in front the <a href="ColorManipulationWindow.html">Colour Manipulation Window</a>
     used to manipulate the colurs of the currently selected image view.
 </p>
-<h5><a name="bitmaskoverlay"></a><img src="images/icons/BitmaskOverlay24.png"> &nbsp;&nbsp;
-    Bitmask Overlay</h5>
-
-<p>
-    Opens or brings in front a tool-window which lets you <a href="BitmaskOverlayWindow.html">overlay
-    one or more bitmasks</a> over the current image.
-</p>
-<h5><a name="roidefinition"></a><img src="images/icons/ROIDefinition24.gif"> &nbsp;&nbsp;
-    ROI Definition</h5>
-
-<p>
-    Opens or brings in front a tool-window which lets you define a
-    <a href="ShapeAndROIHandling.html#roidefinitiondialog">ROI (Region Of Interest)</a> from a geometric shape or
-    other criteria.
-</p>
-
 <h5><a name="pixelinfo"></a><img src="images/icons/PixelInfo24.gif"> &nbsp;&nbsp;
     Pixel Information</h5>
 
@@ -335,12 +305,6 @@
         <img src="images/icons/DrawPolylineTool24.gif" alt="Draw ROI Polyline" border="0"></a>
     <a href="#drawpolygontool">
         <img src="images/icons/DrawPolygonTool24.gif" alt="Draw ROI Polygon" border="0"></a>
-    <a href="#deleteShape">
-        <img src="images/icons/DeleteShapeTool24.gif" alt="Clear Current Shape" border="0"></a>
-    <a href="#shapeToRoi">
-        <img src="images/icons/ShapeToROI24.gif" alt="Assign Shape as ROI" border="0"></a>
-    <a href="#roiToShape">
-        <img src="images/icons/ROIToShape24.gif" alt="Extract Shape from ROI" border="0"></a>
 </h4>
 <h5><a name="selecttool"></a><img src="images/icons/SelectTool24.gif"> &nbsp;&nbsp;
     Selection Tool</h5>
@@ -423,31 +387,6 @@
     The handling of the polygon tool is somewhat similar to the polyline tool; except that double-clicking will
     close the shape (a line from the end point of the last line will be drawn to the start point of the first line).
     In effect, the shape defines a closed area.
-</p>
-<h5><a name="deleteShape"></a><img src="images/icons/DeleteShapeTool24.gif"> &nbsp;&nbsp;
-    Delete Shape</h5>
-
-<p>
-    Deletes a geometric shape in the current <a href="ProductSceneView.html">image view</a>.
-    The command is enabled only if a transect data (geometric shape figure) was
-    <a href="ImportTransectData.html">imported</a> or
-    <a href="ShapeAndROIHandling.html#drawingtools">drawn</a> in the current
-    <a href="ProductSceneView.html">image view</a>.
-</p>
-<h5><a name="shapeToRoi"></a><img src="images/icons/ShapeToROI24.gif">&nbsp;&nbsp;
-    Shape To ROI</h5>
-
-<p>
-    Converts a geometric shape in the current <a href="ProductSceneView.html">image view</a>
-    to a region of interest (<a href="ShapeAndROIHandling.html">ROI</a>). After a shape has become a ROI,
-    a <a href="StatisticsDialog.html">statistical analysis</a> can be performed on it.
-    The command is enabled only if a shape is available (see above).
-</p>
-<h5><a name="roiToShape"></a><img src="images/icons/ROIToShape24.gif"> &nbsp;&nbsp;
-    ROI To Shape</h5>
-
-<p>
-    Converts a ROI shape defined in the selected band to a geometric shape in the current view.
 </p>
 <br>
 <hr>

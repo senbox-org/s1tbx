@@ -5,7 +5,7 @@
 The following prerequisites need to be addressed before help files are updated and screenshots taken:
 CLOSED (1) Take out old bitmask dialog, old projection, etc
 CLOSED (2) "Import Shape" action --> "Import Geometry"
-CLOSED (3) "Export ROI-Mask Pixels" -->  "Export Mask Pixels"
+TODO (3) "Export ROI-Mask Pixels" -->  "Export Mask Pixels"
 TODO (4) Comment out Edit/Undo Edit/Redo menu items
 TODO (5) "Compute ROI-Mask Area" -->  "Compute Mask Area"
 TODO (6) Carefully check occurrences of term "ROI" in all UIs
@@ -254,14 +254,16 @@ remove
      Delete Shape
      Shape To ROI
      ROI To Shape
- - wrong screenshot
-     Layers Tool Bar
-     Tools Tool Bar
-     Views Tool Bar
 
-    ==> PRE, OF, OPEN
+    ==> PRE, OF, CLOSE
 
- - add new icons
+    Toolbars.html/Show Geometry Overlay --> change link 'Shapes and ROI handling'
+     ==> PRE, MP, OPEN
+     
+ - add new icons:
+    Show GCPs
+    Mask Manager
+    
     ==> PRE, MP, OPEN
      
   4) File menu
