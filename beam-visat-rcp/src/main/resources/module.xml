@@ -337,21 +337,6 @@
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
--->
-        <toolView>
-            <id>org.esa.beam.visat.toolviews.mask.MaskManagerToolView</id>
-            <class>org.esa.beam.visat.toolviews.mask.MaskManagerToolView</class>
-            <title>Mask / ROI Manager</title>
-            <mnemonic>M</mnemonic>
-            <accelerator>ctrl alt M</accelerator>
-            <description>Manage binary data masks and ROIs.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/MaskManager16.png</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/MaskManager24.png</largeIcon>
-            <helpId>showMaskManagerWnd</helpId>
-            <initState>HIDDEN</initState>
-            <initSide>SOUTH</initSide>
-            <initIndex>0</initIndex>
-        </toolView>
 
         <toolView>
             <id>org.esa.beam.visat.toolviews.mask.MaskViewerToolView</id>
@@ -363,6 +348,22 @@
             <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.png</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.png</largeIcon>
             <helpId>showMaskOverlayWnd</helpId>
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+        
+-->
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.mask.MaskManagerToolView</id>
+            <class>org.esa.beam.visat.toolviews.mask.MaskManagerToolView</class>
+            <title>Mask / ROI Manager</title>
+            <mnemonic>M</mnemonic>
+            <accelerator>ctrl alt M</accelerator>
+            <description>Manage binary data masks and ROIs.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/MaskManager16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/MaskManager24.png</largeIcon>
+            <helpId>showMaskManagerWnd</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>

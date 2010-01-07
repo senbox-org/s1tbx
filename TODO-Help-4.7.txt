@@ -3,7 +3,7 @@
 ################################################################
 
 The following prerequisites need to be addressed before help files are updated and screenshots taken:
-TODO (1) Take out old bitmask dialog, old projection, etc
+CLOSED (1) Take out old bitmask dialog, old projection, etc
 TODO (2) "Import Shape" action --> "Import Geometry"
 TODO (3) "Export ROI-Mask Pixels" -->  "Export Mask Pixels"
 TODO (4) Comment out Edit/Undo Edit/Redo menu items
