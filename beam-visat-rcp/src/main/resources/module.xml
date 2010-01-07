@@ -770,15 +770,15 @@
 
         <action>
             <parent>export</parent>
-            <id>exportROIPixels</id>
-            <class>org.esa.beam.visat.actions.ExportROIPixelsAction</class>
-            <text>Export ROI-Mask Pixels...</text>
+            <id>exportMaskPixels</id>
+            <class>org.esa.beam.visat.actions.ExportMaskPixelsAction</class>
+            <text>Export Mask Pixels...</text>
             <mnemonic>R</mnemonic>
-            <shortDescr>Export the pixels of a ROI-Mask.</shortDescr>
-            <description>Export the pixels of a ROI_mask as tab-separated text.</description>
+            <shortDescr>Export the pixels of a Mask.</shortDescr>
+            <description>Export the pixels of a mask as tab-separated text.</description>
             <accelerator>shift control P</accelerator>
             <context>image</context>
-            <helpId>exportROIPixels</helpId>
+            <helpId>exportMaskPixels</helpId>
         </action>
 
         <action>
@@ -790,7 +790,7 @@
             <shortDescr>Export transect pixels.</shortDescr>
             <description>Export transect pixels as tab-separated text.</description>
             <context>image</context>
-            <helpId>exportEnviGcpFile</helpId>
+            <helpId>exportTransectPixels</helpId>
         </action>
 
         <action>

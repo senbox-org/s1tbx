@@ -21,6 +21,10 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -31,15 +35,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+public class ExportMaskPixelsAction extends ExecCommand {
 
-public class ExportROIPixelsAction extends ExecCommand {
-
-    private final static String DLG_TITLE = "Export ROI-Mask Pixels";
-    private static final String ERR_MSG_BASE = "ROI-Mask pixels cannot be exported:\n";
+    private static final String DLG_TITLE = "Export Mask Pixels";
+    private static final String ERR_MSG_BASE = "Mask pixels cannot be exported:\n";
 
     /**
      * Invoked when a command action is performed.
@@ -48,7 +47,7 @@ public class ExportROIPixelsAction extends ExecCommand {
      */
     @Override
     public void actionPerformed(CommandEvent event) {
-        exportROIPixels();
+        exportMaskPixels();
     }
 
     /**
@@ -65,13 +64,13 @@ public class ExportROIPixelsAction extends ExecCommand {
         setEnabled(enabled);
     }
     /////////////////////////////////////////////////////////////////////////
-    // Private implementations for the "Export ROI Pixels" command
+    // Private implementations for the "Export Mask Pixels" command
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Performs the actual "Export ROI Pixels" command.
+     * Performs the actual "Export Mask Pixels" command.
      */
-    private void exportROIPixels() {
+    private void exportMaskPixels() {
 
         if (!hasSelectedRasterMasks()) {
             VisatApp.getApp().showErrorDialog(DLG_TITLE,
@@ -100,7 +99,7 @@ public class ExportROIPixelsAction extends ExecCommand {
             JPanel panel = new JPanel();
             BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.X_AXIS);
             panel.setLayout(boxLayout);
-            panel.add(new JLabel("Select ROI-Mask: "));
+            panel.add(new JLabel("Select Mask: "));
             JComboBox maskCombo = new JComboBox(maskNames);
             panel.add(maskCombo);
             ModalDialog modalDialog = new ModalDialog(VisatApp.getApp().getApplicationWindow(), DLG_TITLE, panel, 
@@ -113,22 +112,22 @@ public class ExportROIPixelsAction extends ExecCommand {
         }
         Mask mask = raster.getProduct().getMaskGroup().get(maskName);
         
-        final RenderedImage roiMaskImage = mask.getSourceImage();
-        if (roiMaskImage == null) {
-            VisatApp.getApp().showErrorDialog(DLG_TITLE, ERR_MSG_BASE + "No ROI-Mask image available.");
+        final RenderedImage maskImage = mask.getSourceImage();
+        if (maskImage == null) {
+            VisatApp.getApp().showErrorDialog(DLG_TITLE, ERR_MSG_BASE + "No Mask image available.");
             return;
         }
-        // Compute total number of ROI pixels
-        final long numROIPixels = getNumROIPixels(raster, roiMaskImage);
-        
-        final String questionText = "How do you want to export the pixel values?\n"; /*I18N*/
+        // Compute total number of Mask pixels
+        final long numMaskPixels = getNumMaskPixels(raster, maskImage);
+
         String numPixelsText;
-        if (numROIPixels == 1) {
-            numPixelsText = "One ROI-Mask pixel will be exported.\n"; /*I18N*/
+        if (numMaskPixels == 1) {
+            numPixelsText = "One Mask pixel will be exported.\n";
         } else {
-            numPixelsText = numROIPixels + " ROI-Mask pixels will be exported.\n"; /*I18N*/
+            numPixelsText = numMaskPixels + " Mask pixels will be exported.\n";
         }
         // Get export method from user
+        final String questionText = "How do you want to export the pixel values?\n";
         final int method = SelectExportMethodDialog.run(VisatApp.getApp().getMainFrame(), getWindowTitle(),
                                                         questionText + numPixelsText, getHelpId());
         final PrintWriter out;
@@ -164,10 +163,9 @@ public class ExportROIPixelsAction extends ExecCommand {
 
             @Override
             protected Exception doInBackground(ProgressMonitor pm) throws Exception {
-                boolean success;
                 Exception returnValue = null;
                 try {
-                    success = exportROIPixels(out, raster.getProduct(), roiMaskImage, pm);
+                    boolean success = exportMaskPixels(out, raster.getProduct(), maskImage, pm);
                     if (success && clipboardText != null) {
                         SystemUtils.copyToClipboard(clipboardText.toString());
                         clipboardText.setLength(0);
@@ -208,7 +206,7 @@ public class ExportROIPixelsAction extends ExecCommand {
         // show wait-cursor
         UIUtils.setRootFrameWaitCursor(VisatApp.getApp().getMainFrame());
         // show message in status bar
-        VisatApp.getApp().setStatusBarMessage("Exporting ROI pixels..."); /*I18N*/
+        VisatApp.getApp().setStatusBarMessage("Exporting Mask pixels..."); /*I18N*/
 
         // Start separate worker thread.
         swingWorker.execute();
@@ -217,14 +215,14 @@ public class ExportROIPixelsAction extends ExecCommand {
     private static String createDefaultFileName(final RasterDataNode raster, String maskName) {
         String productName = FileUtils.getFilenameWithoutExtension(raster.getProduct().getName());
         String rasterName = raster.getName();
-        return productName + "_" + rasterName + "_" + maskName + "_ROI.txt";
+        return productName + "_" + rasterName + "_" + maskName + "_Mask.txt";
     }
 
     private static String getWindowTitle() {
         return VisatApp.getApp().getAppName() + " - " + DLG_TITLE;
     }
 
-    /**
+    /*
      * Opens a modal file chooser dialog that prompts the user to select the output file name.
      *
      * @param visatApp the VISAT application
@@ -236,30 +234,30 @@ public class ExportROIPixelsAction extends ExecCommand {
                                            null,
                                            ".txt",
                                            defaultFileName,
-                                           "exportROIPixels.lastDir");
+                                           "exportMaskPixels.lastDir");
     }
 
-    /**
-     * Writes all pixel values of the given product within the given ROI to the specified out.
+    /*
+     * Writes all pixel values of the given product within the given Mask to the specified out.
      *
      * @param out      the data output writer
      * @param product  the product providing the pixel values
-     * @param roiImage the mask image for the ROI
+     * @param maskImage the mask image for the Mask
      * @return <code>true</code> for success, <code>false</code> if export has been terminated (by user)
      */
-    private static boolean exportROIPixels(final PrintWriter out,
+    private static boolean exportMaskPixels(final PrintWriter out,
                                            final Product product,
-                                           final RenderedImage roiImage, ProgressMonitor pm) throws IOException {
+                                           final RenderedImage maskImage, ProgressMonitor pm) throws IOException {
 
         final Band[] bands = product.getBands();
         final TiePointGrid[] tiePointGrids = product.getTiePointGrids();
         final GeoCoding geoCoding = product.getGeoCoding();
         
-        final int minTileX = roiImage.getMinTileX();
-        final int minTileY = roiImage.getMinTileY();
+        final int minTileX = maskImage.getMinTileX();
+        final int minTileY = maskImage.getMinTileY();
         
-        final int numXTiles = roiImage.getNumXTiles();
-        final int numYTiles = roiImage.getNumYTiles();
+        final int numXTiles = maskImage.getNumXTiles();
+        final int numYTiles = maskImage.getNumYTiles();
         
         final int w = product.getSceneRasterWidth();
         final int h = product.getSceneRasterHeight();
@@ -275,16 +273,16 @@ public class ExportROIPixelsAction extends ExecCommand {
                     if (pm.isCanceled()) {
                         return false;
                     }
-                    final Rectangle tileRectangle = new Rectangle(roiImage.getTileGridXOffset() + tileX * roiImage.getTileWidth(),
-                                                                  roiImage.getTileGridYOffset() + tileY * roiImage.getTileHeight(),
-                                                                  roiImage.getTileWidth(), roiImage.getTileHeight());
+                    final Rectangle tileRectangle = new Rectangle(maskImage.getTileGridXOffset() + tileX * maskImage.getTileWidth(),
+                                                                  maskImage.getTileGridYOffset() + tileY * maskImage.getTileHeight(),
+                                                                  maskImage.getTileWidth(), maskImage.getTileHeight());
 
                     final Rectangle r = imageRect.intersection(tileRectangle);
                     if (!r.isEmpty()) {
-                        Raster roiTile = roiImage.getTile(tileX, tileY);
+                        Raster maskTile = maskImage.getTile(tileX, tileY);
                         for (int y = r.y; y < r.y + r.height; y++) {
                             for (int x = r.x; x < r.x + r.width; x++) {
-                                if (roiTile.getSample(x, y, 0) != 0) {
+                                if (maskTile.getSample(x, y, 0) != 0) {
                                     writeDataLine(out, geoCoding, bands, tiePointGrids, x, y);
                                 }
                             }
@@ -300,7 +298,7 @@ public class ExportROIPixelsAction extends ExecCommand {
         return true;
     }
 
-    /**
+    /*
      * Writes the header line of the dataset to be exported.
      *
      * @param out           the data output writer
@@ -331,7 +329,7 @@ public class ExportROIPixelsAction extends ExecCommand {
         out.print("\n");
     }
 
-    /**
+    /*
      * Writes a data line of the dataset to be exported for the given pixel position.
      *
      * @param out           the data output writer
@@ -347,8 +345,6 @@ public class ExportROIPixelsAction extends ExecCommand {
                                       TiePointGrid[] tiePointGrids, int x,
                                       int y) throws IOException {
         final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
-        final int[] intPixel = new int[1];
-        final float[] floatPixel = new float[1];
 
         out.print(String.valueOf(pixelPos.x));
         out.print("\t");
@@ -360,6 +356,8 @@ public class ExportROIPixelsAction extends ExecCommand {
             out.print("\t");
             out.print(String.valueOf(geoPos.lat));
         }
+        final int[] intPixel = new int[1];
+        final float[] floatPixel = new float[1];
         for (final Band band : bands) {
             out.print("\t");
             if (band.isFloatingPointType()) {
@@ -379,45 +377,45 @@ public class ExportROIPixelsAction extends ExecCommand {
     }
 
 
-    /**
-     * Computes the total number of pixels within the specified ROI.
+    /*
+     * Computes the total number of pixels within the specified Mask.
      *
      * @param raster   the raster data node
-     * @param roiMaskImage the rendered image masking out the ROI
-     * @return the total number of pixels in the ROI
+     * @param maskImage the rendered image masking out the Mask
+     * @return the total number of pixels in the Mask
      */
-    private static long getNumROIPixels(final RasterDataNode raster, final RenderedImage roiMaskImage) {
-        final int minTileX = roiMaskImage.getMinTileX();
-        final int minTileY = roiMaskImage.getMinTileY();
+    private static long getNumMaskPixels(final RasterDataNode raster, final RenderedImage maskImage) {
+        final int minTileX = maskImage.getMinTileX();
+        final int minTileY = maskImage.getMinTileY();
 
-        final int numXTiles = roiMaskImage.getNumXTiles();
-        final int numYTiles = roiMaskImage.getNumYTiles();
+        final int numXTiles = maskImage.getNumXTiles();
+        final int numYTiles = maskImage.getNumYTiles();
 
         final int w = raster.getSceneRasterWidth();
         final int h = raster.getSceneRasterHeight();
         final Rectangle imageRect = new Rectangle(0, 0, w, h);
 
-        long numROIPixels = 0;
+        long numMaskPixels = 0;
         for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
             for (int tileY = minTileY; tileY < minTileY + numYTiles; ++tileY) {
-                final Rectangle tileRectangle = new Rectangle(roiMaskImage.getTileGridXOffset() + tileX * roiMaskImage.getTileWidth(),
-                                                              roiMaskImage.getTileGridYOffset() + tileY * roiMaskImage.getTileHeight(),
-                                                              roiMaskImage.getTileWidth(), roiMaskImage.getTileHeight());
+                final Rectangle tileRectangle = new Rectangle(maskImage.getTileGridXOffset() + tileX * maskImage.getTileWidth(),
+                                                              maskImage.getTileGridYOffset() + tileY * maskImage.getTileHeight(),
+                                                              maskImage.getTileWidth(), maskImage.getTileHeight());
 
                 final Rectangle r = imageRect.intersection(tileRectangle);
                 if (!r.isEmpty()) {
-                    Raster roiTile = roiMaskImage.getTile(tileX, tileY);
+                    Raster maskTile = maskImage.getTile(tileX, tileY);
                     for (int y = r.y; y < r.y + r.height; y++) {
                         for (int x = r.x; x < r.x + r.width; x++) {
-                            if (roiTile.getSample(x, y, 0) != 0) {
-                                numROIPixels++;
+                            if (maskTile.getSample(x, y, 0) != 0) {
+                                numMaskPixels++;
                             }
                         }
                     }
                 }
             }
         }
-        return numROIPixels;
+        return numMaskPixels;
     }
 
     /**
