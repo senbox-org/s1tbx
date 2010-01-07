@@ -367,13 +367,22 @@ remove
     ==> FINAL, MP, CLOSE (OF)
 
   7) View Menu --> Tool Windows
+    ToolWindowsGrouping.jpg
+    ToolWindowsAutoHide.jpg
+    ToolWindowsContextMenu.jpg
+        screenshots are old
+    ==> PRE, OF, CLOSE
+ 
+    todo update description for Docking, Floating and Grouping in ToolWindows.html
+
+        ==> PRE (?), MP, OPEN
 
    - the World map screenshot is old
-    ==> PRE, MP, OPEN
+    ==> PRE, MP, CLSE (OF)
 
    - delete from the List of important Tool Windows
   	The Bitmask Overlay Window
-    ==> PRE, OF, OPEN
+    ==> PRE, OF, CLOSE
 
    - menu item name difference in Help and BEAM4.7:
 
@@ -391,10 +400,10 @@ remove
     The ROI Manager			        Mask/ROI Manager
     The Statistics Window			Statistics
 
-    ==> PRE, OF, OPEN
+    ==> PRE, OF, CLOSE
 
 
-   - missing link to Layer Manager page
+   - missing link to Layer Manager and  Mask/ROI Manager pages
 
     ==> PRE, MP, OPEN
 
