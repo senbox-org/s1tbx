@@ -146,7 +146,7 @@ missing link to geoTIFF format (?)
 
  4) Color manipulation
  - old screenshot of the UI. Missing " Rough statistics!" and "i" (show extra information) icon
-   ==> PRE, OF, OPEN
+   ==> PRE, OF, CLOSE
  - missing description of the " Rough statistics!"
    ==> FINAL, ?, OPEN
  - missing description of the "show extra information" icon.
@@ -278,7 +278,7 @@ remove
 
      a) Import
   	- missing 'Import geoTIFF Product' item
-    ==> PRE, OF, OPEN
+    ==> PRE, MP, OPEN
 
   	- menu item name difference in Help and BEAM4.7:
 
