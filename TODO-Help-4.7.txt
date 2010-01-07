@@ -21,9 +21,8 @@ CLOSED (6) Carefully check occurrences of term "ROI" in all UIs
 
  The following data product formats are missing:
  - NASA Ocean Color (OBPG) Products (*.hdf,*.L2_LAC,*.L2_MLAC)
- - netCDF
- - geoTIFF ?? (TODO - write that GeoTIFF is not workking in 4.7 PRE)
-   ==> PRE, MP, OPEN
+ - geoTIFF ?? (TODO - write that GeoTIFF is not working in 4.7 PRE)
+   ==> PRE, MP, CLOSED
 
  2) Supported Platforms
 
@@ -31,10 +30,10 @@ CLOSED (6) Carefully check occurrences of term "ROI" in all UIs
     ==> PRE, MP, OPEN
 
  - "The BEAM software has been successfully tested under MS Windows™ XP®, Vista, 7 Mac OS X, as well as under Linux and Solaris®; operating systems.
-     ==> PRE, OF, CLOSE
+     ==> PRE, OF, CLOSED
 
 
- 3) Supported Platforms
+ 3) New Page
  - What's new in BEAM 4.7:
     o World map
     o Navigation sync. prod / cursor
@@ -61,7 +60,7 @@ CLOSED (6) Carefully check occurrences of term "ROI" in all UIs
  1) Data Formats
 
 missing link to geoTIFF format (?)
-  ==> PRE, MP, OPEN
+  ==> PRE, MP, CLOSED
 
  ------------------------------------------------------------
  BEAM-DIMAP Format
