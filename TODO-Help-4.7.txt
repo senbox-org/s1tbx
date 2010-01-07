@@ -138,7 +138,7 @@ missing link to geoTIFF format (?)
 
  3) The Navigation Window
  - old screenshot
-   ==> PRE, OF, OPEN
+   ==> PRE, OF, CLOSE
  - another icon 'Syncronize compatible products'
    ==> PRE, MP, OPEN
  - new icon 'Syncronize cursor position'
