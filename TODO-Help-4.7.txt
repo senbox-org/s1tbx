@@ -113,7 +113,7 @@ missing link to geoTIFF format
  **************
  1) Image View
  - Context Menu -> old screenshot and Entries
-   ==> PRE, OF, OPEN
+   ==> PRE, NP, OPEN
 
    visat/ProductSceneView.html/Context Menu
    -> export pixel values of a ROI-Mask to clipboard or file   (OK?)
@@ -430,6 +430,10 @@ remove
 
     ==> PRE, MP, OPEN
 
+    links to processor's pages do not work
+    
+    ==> PRE(?), MP, OPEN
+
    - menu item name difference in Help and BEAM4.7:
 
   	Help			            	BEAM4.7
@@ -457,7 +461,7 @@ remove
   	EM Cluster Analysis			    EM Cluster Analysis...
   	EM Cluster Analysis			    K-Means Cluster Analysis...
 
-    ==> PRE, OF, OPEN
+    ==> PRE, OF, CLOSE
 
   10) Window Menu
 
@@ -471,6 +475,30 @@ remove
   Access to Data Products... 	Access to Data Products
   About...				        About VISAT
 
-    ==> PRE, OF, OPEN
+    ==> PRE, OF, CLOSE
+
+    not updated screenshots:
+
+    ComputeRoiArea.jpg
+    ExportROIPixels.jpg
+    MapProjection.jpg - old
+    NavigationWindowFullOrbit.jpg - is not in usages
+    Orthorectification_ex001.jpg
+    OrthorectificationDialog.jpg  - old
+    PopupMenuImageView.png (change "Export Colour Palette as Image..." to Export Colour Palette as File(?))
+    RoiDefinitionWindow.jpg - old
+    Toolbar.jpg - old
+    VisatFrame.jpg - old
+    WindowsCascaded.jpg - old ((toolbar, title)
+    WindowsEven.jpg- old
+    WindowsHorizontal.jpg - old
+    WindowsVertical.jpg - old
+    WorldMap.jpg - old 
+
+    Mosaic new
+
+    geometry icons
+    
+     ==> PRE(?), MP, OPEN
 
 -------------------------------------------------------------------   
