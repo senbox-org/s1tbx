@@ -45,7 +45,7 @@
             <shortDescr>Import a Landsat TM data product or product subset.</shortDescr>
             <description>Import a Landsat TM data product or product subset.</description>
             <helpId>importLandsatTMProduct</helpId>
-            <placeAfter>importShape</placeAfter>
+            <placeAfter>importGeometry</placeAfter>
         </action>
     </extension>
 

@@ -671,14 +671,14 @@
         <!--####################-->
 
         <action>
-            <id>importShape</id>
-            <class>org.esa.beam.visat.actions.ImportShapeAction</class>
+            <id>importGeometry</id>
+            <class>org.esa.beam.visat.actions.ImportGeometryAction</class>
             <parent>import</parent>
-            <text>Import Shape...</text>
+            <text>Import Geometry...</text>
             <mnemonic>S</mnemonic>
-            <shortDescr>Import shape from plain text or ESRI shapefile.</shortDescr>
-            <description>Import shape from plain text or ESRI shapefile.</description>
-            <helpId>importShape</helpId>
+            <shortDescr>Import geometry from plain text or ESRI shapefile.</shortDescr>
+            <description>Import geometry from plain text or ESRI shapefile.</description>
+            <helpId>importGeometry</helpId>
             <separatorAfter>true</separatorAfter>
         </action>
 
@@ -692,7 +692,7 @@
             <shortDescr>Import a BEAM-DIMAP data product or product subset.</shortDescr>
             <description>Import a BEAM-DIMAP data product or product subset.</description>
             <helpId>importDimapProduct</helpId>
-            <placeAfter>importShape</placeAfter>
+            <placeAfter>importGeometry</placeAfter>
         </action>
 
         <!--####################-->

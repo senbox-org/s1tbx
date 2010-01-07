@@ -3,7 +3,6 @@ package org.esa.beam.visat.actions;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -32,6 +31,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
+import javax.swing.JFileChooser;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileReader;
@@ -40,14 +40,12 @@ import java.io.LineNumberReader;
 import java.io.StreamTokenizer;
 import java.util.ArrayList;
 
-import javax.swing.JFileChooser;
-
-public class ImportShapeAction extends ExecCommand {
-    private static final String DLG_TITLE = "Import Shape";
+public class ImportGeometryAction extends ExecCommand {
+    private static final String DLG_TITLE = "Import Geometry";
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        importShape(VisatApp.getApp());
+        importGeometry(VisatApp.getApp());
         VisatApp.getApp().updateState();
     }
 
@@ -57,7 +55,7 @@ public class ImportShapeAction extends ExecCommand {
         setEnabled(product != null);
     }
 
-    private void importShape(final VisatApp visatApp) {
+    private void importGeometry(final VisatApp visatApp) {
         final PropertyMap propertyMap = visatApp.getPreferences();
         final BeamFileChooser fileChooser = new BeamFileChooser();
         HelpSys.enableHelpKey(fileChooser, getHelpId());
@@ -77,12 +75,12 @@ public class ImportShapeAction extends ExecCommand {
             final File file = fileChooser.getSelectedFile();
             if (file != null) {
                 setIODir(propertyMap, file.getAbsoluteFile().getParentFile());
-                loadShape(visatApp, file);
+                loadGeometry(visatApp, file);
             }
         }
     }
 
-    private static void loadShape(final VisatApp visatApp, final File file) {
+    private static void loadGeometry(final VisatApp visatApp, final File file) {
         final Product product = VisatApp.getApp().getSelectedProduct();
         if (product == null) {
             return;
@@ -90,22 +88,22 @@ public class ImportShapeAction extends ExecCommand {
 
         final GeoCoding geoCoding = product.getGeoCoding();
         if (isShapefile(file) && (geoCoding == null || !geoCoding.canGetPixelPos())) {
-            visatApp.showErrorDialog(DLG_TITLE, "Failed to import shape.\n"
+            visatApp.showErrorDialog(DLG_TITLE, "Failed to import geometry.\n"
                     + "Current geo-coding cannot convert from geographic to pixel coordinates."); /* I18N */
             return;
         }
 
         VectorDataNode vectorDataNode;
         try {
-            vectorDataNode = readShape(file, product);
+            vectorDataNode = readGeometry(file, product);
         } catch (Exception e) {
-            visatApp.showErrorDialog(DLG_TITLE, "Failed to import shape.\n" + "An I/O Error occured:\n"
+            visatApp.showErrorDialog(DLG_TITLE, "Failed to import geometry.\n" + "An I/O Error occured:\n"
                     + e.getMessage()); /* I18N */
             return;
         }
 
-        if (vectorDataNode.getFeatureCollection().size() == 0) {
-            visatApp.showErrorDialog(DLG_TITLE, "The shape was loaded successfully,\n"
+        if (vectorDataNode.getFeatureCollection().isEmpty()) {
+            visatApp.showErrorDialog(DLG_TITLE, "The geometry was loaded successfully,\n"
                     + "but no part is located within the scene boundaries."); /* I18N */
             return;
         }
@@ -113,11 +111,11 @@ public class ImportShapeAction extends ExecCommand {
         vectorDataGroup.add(vectorDataNode);
     }
     
-    private static String findUniqueVectorDataNodeName(String sugestedName, ProductNodeGroup<VectorDataNode> vectorDataGroup) {
-        String name = sugestedName;
+    private static String findUniqueVectorDataNodeName(String suggestedName, ProductNodeGroup<VectorDataNode> vectorDataGroup) {
+        String name = suggestedName;
         int index = 1;
         while (vectorDataGroup.contains(name)) {
-            name = sugestedName + "_" + index;
+            name = suggestedName + "_" + index;
             index++;
         }
         return name;
@@ -127,22 +125,22 @@ public class ImportShapeAction extends ExecCommand {
         return file.getName().toLowerCase().endsWith(".shp");
     }
 
-    private static VectorDataNode readShape(File file, Product product) throws IOException {
+    private static VectorDataNode readGeometry(File file, Product product) throws IOException {
         if (isShapefile(file)) {
-            return readShapeFromShapefile(file, product);
+            return readGeometryFromShapefile(file, product);
         } else {
-            return readShapeFromTextFile(file, product);
+            return readGeometryFromTextFile(file, product);
         }
     }
 
-    private static VectorDataNode readShapeFromShapefile(File file, Product product) throws IOException {
+    private static VectorDataNode readGeometryFromShapefile(File file, Product product) throws IOException {
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = ShapefileUtils.loadShapefile(file, product);
         ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
         String name = findUniqueVectorDataNodeName(featureCollection.getSchema().getName().getLocalPart(), vectorDataGroup);
         return new VectorDataNode(name, featureCollection);
     }
 
-    private static VectorDataNode readShapeFromTextFile(final File file, Product product) throws IOException {
+    private static VectorDataNode readGeometryFromTextFile(final File file, Product product) throws IOException {
         final FileReader fileReader = new FileReader(file);
         final LineNumberReader reader = new LineNumberReader(fileReader);
         final ArrayList<PixelPos> pixelPositions = new ArrayList<PixelPos>(256);
@@ -251,7 +249,7 @@ public class ImportShapeAction extends ExecCommand {
         }
 
         Geometry geometry = null;
-        if (pixelPositions.size() > 0) {
+        if (!pixelPositions.isEmpty()) {
             GeometryFactory geometryFactory = new GeometryFactory();
             ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
             PixelPos pixelPos0 = pixelPositions.get(0);
@@ -275,13 +273,12 @@ public class ImportShapeAction extends ExecCommand {
         }
         CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(geoCoding);
         AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(geoCoding);
-        GeometryCoordinateSequenceTransformer transformer;
-        transformer = new GeometryCoordinateSequenceTransformer();
+        GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
         transformer.setMathTransform(new AffineTransform2D(imageToModelTransform));
         transformer.setCoordinateReferenceSystem(modelCrs);
         try {
             geometry = transformer.transform(geometry);
-        } catch (TransformException e) {
+        } catch (TransformException ignored) {
             return null;
         }
  

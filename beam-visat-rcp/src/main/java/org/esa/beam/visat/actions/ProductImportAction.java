@@ -140,7 +140,7 @@ public class ProductImportAction extends ExecCommand {
 
         String placeAfter = getPlaceAfter();
         if (placeAfter == null) {
-            setPlaceAfter("importTransectData");
+            setPlaceAfter("importGeometry");
         }
     }
 

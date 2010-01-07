@@ -21,7 +21,7 @@
         <tocitem text="Introduction" target="visat"/>
         <tocitem text="Tools">
             <tocitem text="Import and Export Tools">
-                <tocitem text="Import Shape" target="importShape"/>
+                <tocitem text="Import Geometry" target="importGeometry"/>
                 <tocitem text="Import ENVISAT Data Product" target="importEnvisatProduct"/>
                 <tocitem text="Import ERS1/2 Data Product" target="importErsProduct"/>
                 <tocitem text="Import ATSR Data Product" target="importAtsrProduct"/>
