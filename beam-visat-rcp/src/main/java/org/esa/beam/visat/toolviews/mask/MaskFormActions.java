@@ -213,7 +213,7 @@ class MaskFormActions {
 
         private NewComplementAction(MaskForm maskForm) {
             super(maskForm, "Complement24.png", "complementButton",
-                  "Creates the complement of the union of the selected masks");
+                  "Creates the complement (of the union) of the selected mask(s)");
         }
 
         @Override
