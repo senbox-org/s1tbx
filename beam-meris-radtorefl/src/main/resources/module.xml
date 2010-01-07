@@ -50,7 +50,7 @@
             <mnemonic>R</mnemonic>
             <parent>tools</parent>
             <helpID>radtoreflScientificTool</helpID>
-            <placeAfter>sstScientificTool</placeAfter>
+            <placeAfter>cloudScientificTool</placeAfter>
         </action>
     </extension>
 

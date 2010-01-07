@@ -49,7 +49,7 @@
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Level-3 Binning</text>
             <mnemonic>3</mnemonic>
-            <placeAfter>MosaicProcessorPlugIn</placeAfter>
+            <placeAfter>collocation</placeAfter>
         </action>
         <action>
             <id>binningScientificTool</id>

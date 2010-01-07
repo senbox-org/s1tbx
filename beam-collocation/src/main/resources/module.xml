@@ -42,7 +42,7 @@
             <class>org.esa.beam.collocation.visat.CollocationAction</class>
             <parent>tools</parent>
             <text>Collocation...</text>
-            <placeAfter>orthorectification</placeAfter>
+            <placeAfter>mosaicAction</placeAfter>
         </action>
     </extension>
 

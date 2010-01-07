@@ -35,20 +35,44 @@
     
     <extension point="beam-ui:actions">
         <action>
-            <id>reprojAction</id>
+            <id>reprojectionAction</id>
             <class>org.esa.beam.gpf.common.reproject.ui.ReprojectionAction</class>
-            <text>Reprojection (NEW)...</text>
+            <parent>tools</parent>
+            <placeAfter>flipping</placeAfter>
+            <placeBefore>orthorectifyAction</placeBefore>
+            <text>Reprojection...</text>
+            <shortDescr>Apply a reprojection.</shortDescr>
+            <helpId>reprojectionAction</helpId>
         </action>
         <action>
             <id>orthorectifyAction</id>
             <class>org.esa.beam.gpf.common.reproject.ui.OrthorectifyAction</class>
-            <text>Orthorectification (NEW)...</text>
+            <parent>tools</parent>
+            <placeAfter>reprojectionAction</placeAfter>
+            <placeBefore>mosaicAction</placeBefore>
+            <text>Orthorectification...</text>
+            <shortDescr>Apply an orthorectification.</shortDescr>
+            <helpId>orthorectifyAction</helpId>
         </action>
         <action>
             <id>mosaicAction</id>
             <class>org.esa.beam.gpf.common.mosaic.ui.MosaicAction</class>
-            <text>Mosaic (NEW)...</text>
+            <parent>tools</parent>
+            <placeAfter>orthorectifyAction</placeAfter>
+            <text>Mosaic...</text>
+            <shortDescr>Create a mosaic of multiple products.</shortDescr>
+            <helpId>mosaicAction</helpId>
         </action>
     </extension>
+
+
+    <!-- TODO
+        <extension point="beam-ui:helpSets">
+            <helpSet>
+                <parent>beam-help</parent>
+                <path>doc/help/gpf-common.hs</path>
+            </helpSet>
+        </extension>
+    -->
 
 </module>

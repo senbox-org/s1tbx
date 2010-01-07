@@ -50,8 +50,8 @@
             <shortDescr>Invoke the BEAM MERIS Cloud Probability Processor.</shortDescr>
             <mnemonic>C</mnemonic>
             <parent>tools</parent>
-            <helpID>flhMciScientificTool</helpID>
-            <placeAfter>createFilteredBand</placeAfter>
+            <helpID>cloudScientificTool</helpID>
+            <placeAfter>flhMciScientificTool</placeAfter>
         </action>
     </extension>
 

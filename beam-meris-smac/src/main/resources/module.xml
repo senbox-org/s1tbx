@@ -56,7 +56,7 @@
             <mnemonic>M</mnemonic>
             <parent>tools</parent>
             <helpID>smacScientificTool</helpID>
-            <placeAfter>smileScientificToolPlugIn</placeAfter>
+            <placeAfter>NDVIProcessorPlugIn</placeAfter>
         </action>
     </extension>
 

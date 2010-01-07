@@ -50,7 +50,7 @@
             <mnemonic>N</mnemonic>
             <parent>tools</parent>
             <helpID>NDVIProcessorPlugIn</helpID>
-            <placeAfter>Binning</placeAfter>
+            <placeAfter>smileScientificToolPlugIn</placeAfter>
         </action>
     </extension>
 

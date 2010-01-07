@@ -51,6 +51,7 @@
 
     <categories>Application,Processor,Geometry,Level-3,MERIS,AVHRR,ATSR,Envisat,ERS,ASAR,VISAT</categories>
 
+<!--
     <extension point="beam-ui:actions">
         <action>
             <id>MosaicProcessorPlugIn</id>
@@ -64,13 +65,16 @@
             <placeAfter>flhMciScientificTool</placeAfter>
         </action>
     </extension>
+-->
 
 
+<!--
     <extension point="beam-ui:helpSets">
         <helpSet>
             <parent>beam-help</parent>
             <path>doc/help/mosaic.hs</path>
         </helpSet>
     </extension>
+-->
 
 </module>

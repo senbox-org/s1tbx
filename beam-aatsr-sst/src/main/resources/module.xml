@@ -50,7 +50,7 @@
             <mnemonic>S</mnemonic>
             <parent>tools</parent>
             <helpID>sstScientificTool</helpID>
-            <placeAfter>createFilteredBand</placeAfter>
+            <placeAfter>smacScientificTool</placeAfter>
         </action>
     </extension>
 

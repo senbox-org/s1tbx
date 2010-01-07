@@ -51,7 +51,7 @@
             <mnemonic>F</mnemonic>
             <parent>tools</parent>
             <helpID>flhMciScientificTool</helpID>
-            <placeAfter>sstScientificTool</placeAfter>
+            <placeAfter>imageAnalysis</placeAfter>
         </action>
     </extension>
 

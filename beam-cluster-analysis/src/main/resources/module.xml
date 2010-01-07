@@ -41,6 +41,7 @@
             <text>Image Analysis</text>
             <mnemonic>A</mnemonic>
             <shortDescr>Image analysis tools.</shortDescr>
+            <placeAfter>Binning</placeAfter>
         </action>
         <action>
             <id>emClusterAnalysis</id>
