@@ -1,0 +1,451 @@
+################################################################
+ HELP review
+################################################################
+
+The following prerequisites need to be addressed before help files are updated and screenshots taken:
+TODO (1) Take out old bitmask dialog, old projection, etc
+TODO (2) "Import Shape" action --> "Import Geometry"
+TODO (3) "Export ROI-Mask Pixels" -->  "Export Mask Pixels"
+TODO (4) Comment out Edit/Undo Edit/Redo menu items
+TODO (5) "Compute ROI-Mask Area" -->  "Compute Mask Area"
+TODO (6) Carefully check occurrences of term "ROI" in all UIs
+
+
+
+
+ Genelal
+#########
+ Overview
+ ********
+ 1) Supported Product Formats table.
+
+ The following data product formats are missing:
+ - NASA Ocean Color (OBPG) Products (*.hdf,*.L2_LAC,*.L2_MLAC)
+ - netCDF
+ - geoTIFF ?? (TODO - write that GeoTIFF is not workking in 4.7 PRE)
+   ==> PRE, MP, OPEN
+
+ 2) Supported Platforms
+
+ -  BEAM 4 --> BEAM  (Overview: "These help pages refer to BEAM version 4.7...")
+ - "The BEAM software has been successfully tested under MS Windows™ XP®, Vista, 7 Mac OS X, as well as under Linux and Solaris®; operating systems.
+  ==> PRE, OF, OPEN
+
+
+ 3) Supported Platforms
+ - What's new in BEAM 4.7:
+    o World map
+    o Navigation sync. prod / cursor
+    o Repro, Mosa, Mask, Geom
+    o Statistics
+    o GPF + gpt description
+    o Help general revision
+
+   ==> PRE, MP, OPEN
+
+ ------------------------------------------------------------
+ Definitions
+ ***********
+ 1) Definition of Terms:
+
+ Geometry is missing
+ more: "Mask", "ROI"
+ Sync with Wiki page
+  ==> PRE, MP, OPEN
+
+ ------------------------------------------------------------
+ Related Links
+ *************
+ 1) Data Formats
+
+missing link to geoTIFF format (?)
+  ==> PRE, MP, OPEN
+
+ ------------------------------------------------------------
+ BEAM-DIMAP Format
+ *****************
+ 1) add depiction of the vector_data directory (? --> yes)
+ 2) describe "vector_data" in terms of "all geometry containers"
+   ==> PRE, MP, OPEN
+
+ ------------------------------------------------------------
+ The 'pconvert' Tool
+ *******************
+ 1) "Please take a look at the closely related command-line tool mapproj ."
+ tool mapproj does not exists --> delete or refer to "other command line tools", e.g gpt, "old" processors
+  ==> PRE, MP, OPEN
+
+ ------------------------------------------------------------
+ VISAT
+########
+
+--> New Hierarchy
+ +-- VISAT
+     +-- Intro
+     +-- Data Import / Export
+     +-- Visualisation
+     +-- Analysis
+     +-- Processing
+     +-- Reference
+ +-- Data Processors
+     +-- pconvert
+     +-- ...
+   ==> PRE, MP, OPEN
+
+ Introduction
+ ************
+- old screenshot
+  ------------------------------------------------------------
+  Tools / Import and Export Tools
+ **************************
+ 1) 'Import Shape' is empty (no link to old 'Import Transect Data' )
+   shall the page 'Import Transect Data ' be updated considering the new geometries ?
+   ==> PRE, MP, OPEN, see TODO (2)
+
+3) missing 'Export Product Metadata'
+   ==> FINAL, ?, OPEN
+
+4) missing 'Export PIN Pixels'
+   ==> FINAL, ?, OPEN
+
+ ------------------------------------------------------------
+ Imaging Tools
+ **************
+ 1) Image View
+ - Context Menu -> old screenshot and Entries
+ - RGB Image Support -> Note:
+    "...in the Contrast Stretch / Color Palette window."
+    Contrast Stretch ??
+   ==> PRE, OF, OPEN
+
+ 2) Layer Manager
+ - 3 old screenshot
+   ==> PRE, OF, OPEN
+ - Layer Editor does not work as described in help
+   ==> PRE, MP, OPEN
+
+ 3) The Navigation Window
+ - old screenshot
+   ==> PRE, OF, OPEN
+ - another icon 'Syncronize compatible products'
+   ==> PRE, MP, OPEN
+ - new icon 'Syncronize cursor position'
+   ==> PRE, MP, OPEN
+
+ 4) Color manipulation
+ - old screenshot of the UI. Missing " Rough statistics!" and "i" (show extra information) icon
+   ==> PRE, OF, OPEN
+ - missing description of the " Rough statistics!"
+   ==> FINAL, ?, OPEN
+ - missing description of the "show extra information" icon.
+   ==> FINAL, ?, OPEN
+
+ 5) Bitmask Overlay Window
+ remove
+    ==> PRE, MP, OPEN
+
+
+ 6) Bitmask Editor
+ is not any more "Bitmask" Editor
+    ==> PRE, MP, OPEN
+
+ ------------------------------------------------------------
+ Analysis Tools
+ **************
+ 1) The VISAT World Map
+ - old screenshot
+ - old description:  'zoomlevels (1x - 32x)' does not exist
+ - two new icons: zoom and zoom all
+   ==> PRE, MP, OPEN
+
+ 2)  GCP Management
+ - missing explanation of the belonging GCPs to Geometries
+ - a new alternative of the GCP selection and deleting
+   ==> PRE, MP, OPEN
+
+ 3)  PIN Management
+ - missing explanation of the belonging PINs to Geometries
+ - a new alternative of the PIN selection and deleting
+   ==> PRE, MP, OPEN
+
+ 4) Band ROI Definition ( Shapes and ROIs)
+ is OLD
+   ==> PRE, MP, OPEN
+
+ 5) Band Statistics
+ - old image
+ - old description
+   ==> PRE, MP, OPEN
+
+ 6) Band Histogram
+ - old image
+ - old description
+   ==> PRE, MP, OPEN
+
+ 7) Band Scatter Plot
+ - old image
+ - old description
+   ==> PRE, MP, OPEN
+
+ 8) Band Transect Profile plot
+ maybe add description of the figure selection ?
+   ==> PRE, MP, OPEN
+
+ 9) Band Transect Co-ordinate list
+ maybe add description of the figure selection ?
+   ==> PRE, MP, OPEN
+
+ 10) Compute ROI-Mask Area
+ maybe add how one of the ROI can be selected ?
+   ==> PRE, MP, OPEN
+ ------------------------------------------------------------
+ Product Generation Tools
+ *************************
+ 1) Arithmetic Expression Editor
+ - old screenshot
+ - add show masks checkbox to Data Sources list
+   ==> PRE, MP, OPEN
+
+ 2) Map Projection Dialog
+ - old image
+ - old description
+remove
+   ==> PRE, MP, OPEN
+
+ 3) Orthorectification Dialog
+ - old image
+ - old description
+ remove
+    ==> PRE, MP, OPEN
+
+
+ 4) Pixel Geo-Coding
+   missing description of the "beam.envisat.amorgos.usePixelGeoCoding = true" option in the beam.config file
+   describe in ENVISAT file reader, link to it
+    ==> FINAL, MP, OPEN
+
+ 5) Module Manager
+ - old screenshot
+    ==> FINAL, MP, OPEN
+
+ ------------------------------------------------------------
+ Reference
+ **********
+ 1) product Browser
+ - old screenshot
+ - Geometries node description
+    ==> PRE, MP, OPEN
+
+ 2) Preferences Dialog
+ - old screenshot
+ - description of the Pin Overlay, GCP Overlay, Shape Figure Overlay and ROI Overlay shall be replaced by Mask Layer Overlay
+    ==> PRE, MP, OPEN
+
+ 3) Main Toolbar
+ - old icons:
+     Show ROI Overlay
+     Show Shape Overlay
+     Bitmask Overlay
+     ROI Definition
+     Delete Shape
+     Shape To ROI
+     ROI To Shape
+ - wrong screenshot
+     Layers Tool Bar
+     Tools Tool Bar
+     Views Tool Bar
+ - add new icons
+
+    ==> PRE, OF, OPEN
+
+  4) File menu
+
+     a) Import
+  	- missing 'Import geoTIFF Product' item
+    ==> PRE, OF, OPEN
+
+  	- menu item name difference in Help and BEAM4.7:
+
+  	Help				            BEAM4.7
+   Transect Data...			        Import Shape
+   ENVISAT Product...  			    Import ENVISAT (MERIS,AATSR,ASAR) Product...
+   NetCDF Product...		    	Import NetCDF File...
+   GETASSE30 DEM Tile...    		Import GETASSE30 DEM Tile...
+   NASA Ocean Color Product...	    Import NASA Ocean Color (MODIS,OCTS,CZCS,SeaWiFS) Product...
+   MODIS Product...		    	    Import MODIS (MOD,MXD,MYD) Product...
+   ATSR Product...		    	    Import ATSR Product...
+   BEAM-DIMAP Product...	    	Import BEAM-DIMAP Product...
+   NOAA-AVHRR/3 Product...  		Import NOAA-AVHRR/3 Level-1b Product...
+   ERS1/2 Product...    			Import ERS1/2 (ATSR, SAR)Product...
+   LANDSAT TM Product...		    Import LANDSAT 5 TM (FAST) Product...
+   MERIS Binned Level-3 Product...	Import MERIS Binned Level-3 Product...
+   AVNIR-2 Product...		    	Import AVNIR-2 Product...
+   Prism Product...		        	Import PRISM Product...
+   CHRIS Product...			        Import CHRIS/Proba Product...
+
+    ==> PRE, OF, OPEN
+
+     b) Export
+
+  	- there is no 'ROI Overlay ' item in BEAM 4.7 (????)
+  	delete
+    ==> FINAL, MP, OPEN
+
+  	- missing 'Export Transect Pixels'
+  	- missing 'Export PIN Pixels'
+    ==> FINAL, OF, OPEN
+
+  	- menu item name difference in Help and BEAM4.7:
+
+  	Help			        	BEAM4.7
+
+   Export ROI Pixels			ROI Masks Pixel...
+   Color Palette...			    Color Palette as Image
+   Displayed Metadata			Export product Metadata...
+   Color Legend				    Export Color Legend as Image
+   Export View as Image			Export View as Image...
+   HDF5 Product (Subset)		Export HDF5 Product...
+   BEAM-DIMAP Product (Subset)	Export BEAM-DIMAP Product...
+   GeoTIFF Product			    Export GeoTIFF Product...
+   Geo-Coding as ENVI GCP File	Export Geo-Coding as ENVI GCP File...
+
+    ==> PRE, OF, OPEN
+
+  5) Edit Menu
+   - add to Help new Items:
+  	Cut
+  	Copy
+  	Paste
+  	Select All
+   - add icon to 'Delete'
+
+    ==> PRE, NF, OPEN - describe usage in chapter "Geometry"
+
+   - delete from Help:
+  	Delete Shape
+  	Delete Pin
+  	Shape To ROI  
+  	ROI To Shape
+
+    ==> PRE, OF, OPEN
+
+  6) View Menu
+   - add to Help new Items:
+  	Show Geometry Overlay
+   - delete from Help:
+  	Show ROI Overlay
+  	Show Shape Overlay
+    ==> PRE, OF, OPEN
+
+   - menu item name difference in Help and BEAM4.7:
+
+  	Help			        	BEAM4.7
+
+    Show Pins				Show Pins Overlay
+    Open RGB Image View		Open RGB Image View...
+    ==> PRE, OF, OPEN
+
+   - missing in Help:
+  	Show GCPs Overlay
+  	Open Metadata View  
+    ==> FINAL, MP, OPEN
+
+  7) View Menu --> Tool Windows
+
+   - the World map screenshot is old
+    ==> PRE, MP, OPEN
+
+   - delete from the List of important Tool Windows
+  	The Bitmask Overlay Window
+    ==> PRE, OF, OPEN
+
+   - menu item name difference in Help and BEAM4.7:
+
+  	Help	        		    	BEAM4.7
+
+    The Product Browser		    	Products
+    The Pixel Info View		    	Pixel Info
+    The Pin Manager		           	Pin Manager
+    The GCP Manager		        	GCP Manager
+    The Colour Manipulation Window	Colour Manipulation
+    The World Map			    	World Map
+    The Spectrum Window		    	Spectrum
+    The Layer Manager		    	Layer Manager
+    The Navigation Window			Navigation
+    The ROI Manager			        Mask/ROI Manager
+    The Statistics Window			Statistics
+
+    ==> PRE, OF, OPEN
+
+
+   - missing link to Layer Manager page
+
+    ==> PRE, MP, OPEN
+
+  8) Analysis Menu
+
+  - Help: Compute Roi Area...--> BEAM4.7: Compute Roi-Mask Area
+
+    ==> PRE, MP, OPEN
+
+  9) Tools Menu
+
+   - add to Help:
+  	Create Geometry Container
+  	Orthorectification(New ?)
+  	Reprojection
+  	Mosaic (NEW ??)
+
+     ==> PRE, MP, OPEN
+
+   - delete from Help:
+  	Map Projection
+  	Orthorectification
+  	Level 3 Mosaic Processor
+
+    ==> PRE, MP, OPEN
+
+   - menu item name difference in Help and BEAM4.7:
+
+  	Help			            	BEAM4.7
+
+  Band Arithmetics				    Band Arithmetic...
+  Data Flip					        Data Flip...
+  Attach Pixel Geo-Coding			Attach Pixel Geo-Coding...
+  Detach Pixel Geo-Coding			Detach Pixel Geo-Coding...
+  Create Subset from View			Create Subset from View...
+  Create Elevation Band				Create Elevation Band...
+  Create ASAR NRCS Bands			Create NRCS Bands(ASAR)...
+  Create Filtered Band				Create Filtered Band...
+
+  SMAC Processor					SMAC Processor(MERIS/(A)ATSR)...
+  Smile Correction Processor		Smile Correction Processor(MERIS)...
+  Cloud Probility Processor			 Cloud Probility Processor(MERIS)...
+  Radiance-To-Reflectance Conversion Processor	Radiance-To-Reflectance Processor(MERIS)...
+  SST Processor					    SST Processor((A)ATSR)...
+  FLH/MCI Processor				    FLH/MCI Processor...
+  Level 3 Binning Processor			Level-3 Binning
+  NDVI Processor					NDVI Processor(MERIS)...
+  Collocation					    Collocation...
+  Image Analysis -->
+  	Spectral Unmixing		        Spectral Unmixing...
+  	EM Cluster Analysis			    EM Cluster Analysis...
+  	EM Cluster Analysis			    K-Means Cluster Analysis...
+
+    ==> PRE, OF, OPEN
+
+  10) Window Menu
+
+   - old images
+
+   - menu item name difference in Help and BEAM4.7:
+
+  	Help				        BEAM4.7
+
+  The BEAM project.... 			BEAM Home Page
+  Access to Data Products... 	Access to Data Products
+  About...				        About VISAT
+
+    ==> PRE, OF, OPEN
+
+-------------------------------------------------------------------   
