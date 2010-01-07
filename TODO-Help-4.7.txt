@@ -28,8 +28,10 @@ TODO (6) Carefully check occurrences of term "ROI" in all UIs
  2) Supported Platforms
 
  -  BEAM 4 --> BEAM  (Overview: "These help pages refer to BEAM version 4.7...")
+    ==> PRE, MP, OPEN
+
  - "The BEAM software has been successfully tested under MS Windows™ XP®, Vista, 7 Mac OS X, as well as under Linux and Solaris®; operating systems.
-  ==> PRE, OF, OPEN
+     ==> PRE, OF, CLOSE
 
 
  3) Supported Platforms
@@ -113,10 +115,12 @@ missing link to geoTIFF format (?)
  **************
  1) Image View
  - Context Menu -> old screenshot and Entries
+   ==> PRE, OF, OPEN
+    
  - RGB Image Support -> Note:
     "...in the Contrast Stretch / Color Palette window."
     Contrast Stretch ??
-   ==> PRE, OF, OPEN
+   ==> PRE, OF, CLOSE
 
  2) Layer Manager
  - 3 old screenshot
@@ -254,10 +258,12 @@ remove
      Layers Tool Bar
      Tools Tool Bar
      Views Tool Bar
- - add new icons
 
     ==> PRE, OF, OPEN
 
+ - add new icons
+    ==> PRE, MP, OPEN
+     
   4) File menu
 
      a) Import
