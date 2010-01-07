@@ -1,7 +1,6 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
@@ -174,7 +173,7 @@ public class ExportTransectPixelsAction extends ExecCommand {
         // show wait-cursor
         UIUtils.setRootFrameWaitCursor(VisatApp.getApp().getMainFrame());
         // show message in status bar
-        VisatApp.getApp().setStatusBarMessage("Exporting ROI pixels..."); /*I18N*/
+        VisatApp.getApp().setStatusBarMessage("Exporting transect pixels..."); /*I18N*/
 
         // Start separate worker thread.
         swingWorker.execute();
