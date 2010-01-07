@@ -42,7 +42,7 @@ CLOSED (6) Carefully check occurrences of term "ROI" in all UIs
     o GPF + gpt description
     o Help general revision
 
-   ==> PRE, MP, OPEN
+   ==> PRE, MP, OPEN  (page is already created)
 
  ------------------------------------------------------------
  Definitions
@@ -51,15 +51,14 @@ CLOSED (6) Carefully check occurrences of term "ROI" in all UIs
 
  Geometry is missing
  more: "Mask", "ROI"
- Sync with Wiki page
-  ==> PRE, MP, OPEN
+  ==> PRE, MP, CLOSED
 
  ------------------------------------------------------------
  Related Links
  *************
  1) Data Formats
 
-missing link to geoTIFF format (?)
+missing link to geoTIFF format
   ==> PRE, MP, CLOSED
 
  ------------------------------------------------------------
@@ -127,17 +126,17 @@ missing link to geoTIFF format (?)
  - RGB Image Support -> Note:
     "...in the Contrast Stretch / Color Palette window."
     Contrast Stretch ??
-   ==> PRE, OF, CLOSE
+   ==> PRE, OF, CLOSED
 
  2) Layer Manager
  - 3 old screenshot
-   ==> PRE, OF, CLOSE
+   ==> PRE, OF, CLOSED
  - Layer Editor does not work as described in help
    ==> PRE, MP, OPEN
 
  3) The Navigation Window
  - old screenshot
-   ==> PRE, OF, CLOSE
+   ==> PRE, OF, CLOSED
  - another icon 'Syncronize compatible products'
    ==> PRE, MP, OPEN
  - new icon 'Syncronize cursor position'
@@ -262,7 +261,7 @@ remove
      Shape To ROI
      ROI To Shape
 
-    ==> PRE, OF, CLOSE
+    ==> PRE, OF, CLOSED
 
     Toolbars.html/Show Geometry Overlay --> change link 'Shapes and ROI handling'
      ==> PRE, MP, OPEN
@@ -276,7 +275,7 @@ remove
   4) File menu
 
      a) Import
-  	- missing 'Import geoTIFF Product' item
+  	- missing 'Import GeoTIFF Product' item
     ==> PRE, MP, OPEN
 
   	- menu item name difference in Help and BEAM4.7:
@@ -298,13 +297,13 @@ remove
    Prism Product...		        	Import PRISM Product...
    CHRIS Product...			        Import CHRIS/Proba Product...
 
-    ==> PRE, OF, CLOSE
+    ==> PRE, OF, CLOSED
 
      b) Export
 
   	- there is no 'ROI Overlay ' item in BEAM 4.7 (????)
   	delete
-    ==> FINAL, MP, CLOSE (OF)
+    ==> FINAL, MP, CLOSED (OF)
 
   	- missing 'Export Transect Pixels'
   	- missing 'Export PIN Pixels'
@@ -324,7 +323,7 @@ remove
    GeoTIFF Product			    Export GeoTIFF Product...
    Geo-Coding as ENVI GCP File	Export Geo-Coding as ENVI GCP File...
 
-    ==> PRE, OF, CLOSE
+    ==> PRE, OF, CLOSED
 
        TODO change  menu item "Export Colour Palette as Image..." to Export Colour Palette as File(?)
 
@@ -345,7 +344,7 @@ remove
   	Shape To ROI  
   	ROI To Shape
 
-    ==> PRE, OF, CLOSE
+    ==> PRE, OF, CLOSED
 
   6) View Menu
    - add to Help new Items:
