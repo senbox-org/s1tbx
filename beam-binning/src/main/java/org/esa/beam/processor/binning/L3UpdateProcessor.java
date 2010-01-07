@@ -227,7 +227,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
                 ProductRef prodRef = inputProductRefs.elementAt(i);
 
                 // get the product according - can return "null" if the product is not valid.
-                // When this happens, the approipriate error message is already logged by the
+                // When this happens, the appropriate error message is already logged by the
                 // 'loadValidatedProduct' method.
                 Product product = loadValidatedProduct(prodRef);
                 if (product != null) {
