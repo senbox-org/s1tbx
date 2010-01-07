@@ -1,5 +1,5 @@
 /*
- * $Id: ComputeRoiAreaAction.java,v 1.1 2007/04/19 10:16:12 marcop Exp $
+ * $Id: ComputeMaskAreaAction.java,v 1.1 2007/04/19 10:16:12 marcop Exp $
  *
  * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
  *
@@ -55,13 +55,13 @@ import java.util.concurrent.ExecutionException;
  * @author Marco Peters
  * @version $Revision$ $Date$
  */
-public class ComputeRoiAreaAction extends ExecCommand {
+public class ComputeMaskAreaAction extends ExecCommand {
 
-    private static final String DIALOG_TITLE = "Compute ROI-Mask area"; /*I18N*/
+    private static final String DIALOG_TITLE = "Compute Mask area"; /*I18N*/
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        computeROIArea();
+        computeMaskArea();
     }
 
     @Override
@@ -80,8 +80,8 @@ public class ComputeRoiAreaAction extends ExecCommand {
         setEnabled(enabled);
     }
 
-    private void computeROIArea() {
-        final String errMsgBase = "Failed to compute ROI-Mask area:\n";
+    private void computeMaskArea() {
+        final String errMsgBase = "Failed to compute Mask area:\n";
 
         // Get selected VISAT view showing a product's band
         final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
@@ -107,7 +107,7 @@ public class ComputeRoiAreaAction extends ExecCommand {
             JPanel panel = new JPanel();
             BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.X_AXIS);
             panel.setLayout(boxLayout);
-            panel.add(new JLabel("Select ROI-Mask: "));
+            panel.add(new JLabel("Select Mask: "));
             JComboBox maskCombo = new JComboBox(maskNames);
             panel.add(maskCombo);
             ModalDialog modalDialog = new ModalDialog(VisatApp.getApp().getApplicationWindow(), DIALOG_TITLE, panel, 
@@ -122,26 +122,26 @@ public class ComputeRoiAreaAction extends ExecCommand {
         
         RenderedImage maskImage = mask.getSourceImage();
         if (maskImage == null) {
-            VisatApp.getApp().showErrorDialog(DIALOG_TITLE, errMsgBase + "No ROI-Mask image available.");
+            VisatApp.getApp().showErrorDialog(DIALOG_TITLE, errMsgBase + "No Mask image available.");
             return;
         }
             
-        final SwingWorker<RoiAreaStatistics, Object> swingWorker = new RoiAreaSwingWorker(raster, maskImage, errMsgBase);
+        final SwingWorker<MaskAreaStatistics, Object> swingWorker = new MaskAreaSwingWorker(raster, maskImage, errMsgBase);
         swingWorker.execute();
     }
 
 
-    private static class RoiAreaStatistics {
+    private static class MaskAreaStatistics {
 
         private double earthRadius;
-        private double roiArea;
+        private double maskArea;
         private double pixelAreaMin;
         private double pixelAreaMax;
         private int numPixels;
 
-        private RoiAreaStatistics(double earthRadius) {
+        private MaskAreaStatistics(double earthRadius) {
             this.earthRadius = earthRadius;
-            roiArea = 0.0;
+            maskArea = 0.0;
             pixelAreaMax = Double.NEGATIVE_INFINITY;
             pixelAreaMin  = Double.POSITIVE_INFINITY;
             numPixels = 0;
@@ -151,12 +151,12 @@ public class ComputeRoiAreaAction extends ExecCommand {
             return earthRadius;
         }
 
-        public double getRoiArea() {
-            return roiArea;
+        public double getMaskArea() {
+            return maskArea;
         }
 
-        public void setRoiArea(double roiArea) {
-            this.roiArea = roiArea;
+        public void setMaskArea(double maskArea) {
+            this.maskArea = maskArea;
         }
 
         public double getPixelAreaMin() {
@@ -184,26 +184,26 @@ public class ComputeRoiAreaAction extends ExecCommand {
         }
     }
 
-    private class RoiAreaSwingWorker extends SwingWorker<RoiAreaStatistics, Object> {
+    private class MaskAreaSwingWorker extends SwingWorker<MaskAreaStatistics, Object> {
 
         private final RasterDataNode raster;
         private final RenderedImage maskImage;
         private final String errMsgBase;
 
-        private RoiAreaSwingWorker(RasterDataNode raster, RenderedImage maskImage, String errMsgBase) {
+        private MaskAreaSwingWorker(RasterDataNode raster, RenderedImage maskImage, String errMsgBase) {
             this.raster = raster;
             this.maskImage = maskImage;
             this.errMsgBase = errMsgBase;
         }
 
         @Override
-            protected RoiAreaStatistics doInBackground() throws Exception {
-            ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), "Computing ROI-Mask area",
+            protected MaskAreaStatistics doInBackground() throws Exception {
+            ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), "Computing Mask area",
                                                            Dialog.ModalityType.APPLICATION_MODAL);
-            return computeRoiAreaStatistics(pm);
+            return computeMaskAreaStatistics(pm);
         }
 
-        private RoiAreaStatistics computeRoiAreaStatistics(ProgressMonitor pm) {
+        private MaskAreaStatistics computeMaskAreaStatistics(ProgressMonitor pm) {
             
             final int minTileX = maskImage.getMinTileX();
             final int minTileY = maskImage.getMinTileY();
@@ -222,10 +222,10 @@ public class ComputeRoiAreaAction extends ExecCommand {
                 geoPoints[i] = new GeoPos();
             }
 
-            RoiAreaStatistics areaStatistics = new RoiAreaStatistics(RsMathUtils.MEAN_EARTH_RADIUS / 1000.0);
+            MaskAreaStatistics areaStatistics = new MaskAreaStatistics(RsMathUtils.MEAN_EARTH_RADIUS / 1000.0);
             GeoCoding geoCoding = raster.getGeoCoding();
 
-            pm.beginTask("Computing ROI-Mask area...", numXTiles * numYTiles);
+            pm.beginTask("Computing Mask area...", numXTiles * numYTiles);
             try {
                 for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
                     for (int tileY = minTileY; tileY < minTileY + numYTiles; ++tileY) {
@@ -239,10 +239,10 @@ public class ComputeRoiAreaAction extends ExecCommand {
                         
                         final Rectangle r = imageRect.intersection(tileRectangle);
                         if (!r.isEmpty()) {
-                            Raster roiTile = maskImage.getTile(tileX, tileY);
+                            Raster maskTile = maskImage.getTile(tileX, tileY);
                             for (int y = r.y; y < r.y + r.height; y++) {
                                 for (int x = r.x; x < r.x + r.width; x++) {
-                                    if (roiTile.getSample(x, y, 0) != 0) {
+                                    if (maskTile.getSample(x, y, 0) != 0) {
                                         // 0: pixel center point
                                         pixelPoints[0].setLocation(x + 0.5f, y + 0.5f);
                                         // 1 --> 2 : parallel (geogr. hor. line) crossing pixel center point
@@ -263,7 +263,7 @@ public class ComputeRoiAreaAction extends ExecCommand {
                                         double pixelArea = a * b;
                                         areaStatistics.setPixelAreaMin(Math.min(areaStatistics.getPixelAreaMin(), pixelArea));
                                         areaStatistics.setPixelAreaMax(Math.max(areaStatistics.getPixelAreaMax(), pixelArea));
-                                        areaStatistics.setRoiArea(areaStatistics.getRoiArea() + a * b);
+                                        areaStatistics.setMaskArea(areaStatistics.getMaskArea() + a * b);
                                         areaStatistics.setNumPixels(areaStatistics.getNumPixels() + 1);
                                     }
                                 }
@@ -282,9 +282,9 @@ public class ComputeRoiAreaAction extends ExecCommand {
         @Override
             public void done() {
             try {
-                final RoiAreaStatistics areaStatistics = get();
+                final MaskAreaStatistics areaStatistics = get();
                 if (areaStatistics.getNumPixels() == 0) {
-                    final String message = MessageFormat.format("{0}ROI-Mask is empty.", errMsgBase);
+                    final String message = MessageFormat.format("{0}Mask is empty.", errMsgBase);
                     VisatApp.getApp().showErrorDialog(DIALOG_TITLE, message);
                 } else {
                     showResults(areaStatistics);
@@ -300,10 +300,10 @@ public class ComputeRoiAreaAction extends ExecCommand {
             }
         }
 
-        private void showResults(RoiAreaStatistics areaStatistics) {
+        private void showResults(MaskAreaStatistics areaStatistics) {
             final double roundFactor = 10000.0;
-            final double roiAreaR = MathUtils.round(areaStatistics.getRoiArea(), roundFactor);
-            final double meanPixelAreaR = MathUtils.round(areaStatistics.getRoiArea() / areaStatistics.getNumPixels(), roundFactor);
+            final double maskAreaR = MathUtils.round(areaStatistics.getMaskArea(), roundFactor);
+            final double meanPixelAreaR = MathUtils.round(areaStatistics.getMaskArea() / areaStatistics.getNumPixels(), roundFactor);
             final double pixelAreaMinR = MathUtils.round(areaStatistics.getPixelAreaMin(), roundFactor);
             final double pixelAreaMaxR = MathUtils.round(areaStatistics.getPixelAreaMax(), roundFactor);
 
@@ -316,8 +316,8 @@ public class ComputeRoiAreaAction extends ExecCommand {
             gbc.weightx = 0;
 
             gbc.insets.top = 2;
-            addField(content, gbc, "Number of ROI pixels:", String.format("%15d",areaStatistics.getNumPixels()), "");
-            addField(content, gbc, "ROI area:", String.format("%15.3f", roiAreaR), "km^2");
+            addField(content, gbc, "Number of Mask pixels:", String.format("%15d",areaStatistics.getNumPixels()), "");
+            addField(content, gbc, "Mask area:", String.format("%15.3f", maskAreaR), "km^2");
             addField(content, gbc, "Mean pixel area:", String.format("%15.3f", meanPixelAreaR), "km^2");
             addField(content, gbc, "Minimum pixel area:", String.format("%15.3f", pixelAreaMinR), "km^2");
             addField(content, gbc, "Maximum pixel area:", String.format("%15.3f", pixelAreaMaxR), "km^2");

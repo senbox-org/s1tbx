@@ -7,7 +7,7 @@ CLOSED (1) Take out old bitmask dialog, old projection, etc
 CLOSED (2) "Import Shape" action --> "Import Geometry"
 CLOSED (3) "Export ROI-Mask Pixels" -->  "Export Mask Pixels"
 CLOSED (4) Comment out Edit/Undo Edit/Redo menu items
-TODO (5) "Compute ROI-Mask Area" -->  "Compute Mask Area"
+CLOSED (5) "Compute ROI-Mask Area" -->  "Compute Mask Area"
 TODO (6) Carefully check occurrences of term "ROI" in all UIs
 
 

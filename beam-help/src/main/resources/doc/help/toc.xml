@@ -75,7 +75,7 @@
                 <tocitem text="Band Scatter Plot" target="scatterplotDialog"/>
                 <tocitem text="Band Transect Profile Plot" target="profilePlotDialog"/>
                 <tocitem text="Band Transect Co-ordinate List" target="coordinateListDialog"/>
-                <tocitem text="Compute ROI Area" target="computeRoiArea"/>
+                <tocitem text="Compute Mask Area" target="computeMaskArea"/>
             </tocitem>
 
             <tocitem text="Product Generation Tools">

@@ -860,11 +860,11 @@
 
         <action>
             <parent>data</parent>
-            <id>computeRoiArea</id>
-            <class>org.esa.beam.visat.actions.ComputeRoiAreaAction</class>
-            <text>Compute ROI-Mask Area...</text>
+            <id>computeMaskArea</id>
+            <class>org.esa.beam.visat.actions.ComputeMaskAreaAction</class>
+            <text>Compute Mask Area...</text>
             <mnemonic>A</mnemonic>
-            <helpId>computeRoiArea</helpId>
+            <helpId>computeMaskArea</helpId>
         </action>
 
         <action>
@@ -968,7 +968,7 @@
             <id>showToolViews</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <separatorBefore>true</separatorBefore>
-            <placeAfter>computeRoiArea</placeAfter>
+            <placeAfter>computeMaskArea</placeAfter>
             <placeBefore>toolBars</placeBefore>
             <text>Tool Windows</text>
         </action>
