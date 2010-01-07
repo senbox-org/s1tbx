@@ -132,7 +132,7 @@ missing link to geoTIFF format (?)
 
  2) Layer Manager
  - 3 old screenshot
-   ==> PRE, OF, OPEN
+   ==> PRE, OF, CLOSE
  - Layer Editor does not work as described in help
    ==> PRE, MP, OPEN
 
