@@ -3,7 +3,7 @@ package org.esa.beam.dataio.chris.internal;
 import junit.framework.TestCase;
 import org.esa.beam.dataio.chris.Flags;
 
-import java.awt.*;
+import java.awt.Rectangle;
 
 /**
  * Tests for class {@link DropoutCorrection}.
@@ -36,9 +36,9 @@ public class DropoutCorrectionTest extends TestCase {
         data[1][4] = 0;
         mask[1][4] = 1;
 
-        final Rectangle roi = new Rectangle(0, 0, 3, 3);
+        final Rectangle region = new Rectangle(0, 0, 3, 3);
         dropoutCorrection.compute(new int[][]{data[1], data[0], data[2]},
-                                  new short[][]{mask[1], mask[0], mask[2]}, 3, 3, roi);
+                                  new short[][]{mask[1], mask[0], mask[2]}, 3, 3, region);
 
         assertEquals(Flags.DROPOUT.getMask(), data[1][4]);
         assertEquals(Flags.DROPOUT_CORRECTED.getMask(), mask[1][4]);
@@ -47,7 +47,7 @@ public class DropoutCorrectionTest extends TestCase {
         mask[0][0] = 1;
 
         dropoutCorrection.compute(new int[][]{data[0], data[1]},
-                                  new short[][]{mask[0], mask[1]}, 3, 3, roi);
+                                  new short[][]{mask[0], mask[1]}, 3, 3, region);
 
         assertEquals(Flags.DROPOUT.getMask(), data[0][0]);
         assertEquals(Flags.DROPOUT_CORRECTED.getMask(), mask[0][0]);
@@ -56,7 +56,7 @@ public class DropoutCorrectionTest extends TestCase {
         mask[2][8] = 1;
 
         dropoutCorrection.compute(new int[][]{data[2], data[1]},
-                                  new short[][]{mask[2], mask[1]}, 3, 3, roi);
+                                  new short[][]{mask[2], mask[1]}, 3, 3, region);
 
         assertEquals(Flags.DROPOUT.getMask(), data[2][8]);
         assertEquals(Flags.DROPOUT_CORRECTED.getMask(), mask[2][8]);
