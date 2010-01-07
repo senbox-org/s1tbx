@@ -120,7 +120,7 @@ missing link to geoTIFF format (?)
    -> export pixel values of a ROI-Mask to clipboard or file   (OK?)
    -> add 'Export Pin pixels' entriy
    -> add 'Export Colour Palette'  entriy and
-   TODO change in the contextmenu  "Export Colour Palette as Image..." to Export Colour Palette file(?)
+   TODO change in the contextmenu  "Export Colour Palette as Image..." to Export Colour Palette as File(?)
    -> add 'Show Geometry Overlay' entriy
    ==> PRE, MP, OPEN
        
@@ -282,7 +282,7 @@ remove
   	- menu item name difference in Help and BEAM4.7:
 
   	Help				            BEAM4.7
-   Transect Data...			        Import Shape
+   Transect Data...			        Import Geometry..  
    ENVISAT Product...  			    Import ENVISAT (MERIS,AATSR,ASAR) Product...
    NetCDF Product...		    	Import NetCDF File...
    GETASSE30 DEM Tile...    		Import GETASSE30 DEM Tile...
@@ -298,33 +298,36 @@ remove
    Prism Product...		        	Import PRISM Product...
    CHRIS Product...			        Import CHRIS/Proba Product...
 
-    ==> PRE, OF, OPEN
+    ==> PRE, OF, CLOSE
 
      b) Export
 
   	- there is no 'ROI Overlay ' item in BEAM 4.7 (????)
   	delete
-    ==> FINAL, MP, OPEN
+    ==> FINAL, MP, CLOSE (OF)
 
   	- missing 'Export Transect Pixels'
   	- missing 'Export PIN Pixels'
-    ==> FINAL, OF, OPEN
+    ==> FINAL, MP, OPEN
 
   	- menu item name difference in Help and BEAM4.7:
 
   	Help			        	BEAM4.7
 
-   Export ROI Pixels			ROI Masks Pixel...
-   Color Palette...			    Color Palette as Image
+  Export ROI Pixels			ROI Masks Pixel...
+   Color Palette...			    Colour Palette as File
    Displayed Metadata			Export product Metadata...
-   Color Legend				    Export Color Legend as Image
+   Color Legend				    Export Colour Legend as Image
    Export View as Image			Export View as Image...
    HDF5 Product (Subset)		Export HDF5 Product...
    BEAM-DIMAP Product (Subset)	Export BEAM-DIMAP Product...
    GeoTIFF Product			    Export GeoTIFF Product...
    Geo-Coding as ENVI GCP File	Export Geo-Coding as ENVI GCP File...
 
-    ==> PRE, OF, OPEN
+    ==> PRE, OF, CLOSE
+
+       TODO change  menu item "Export Colour Palette as Image..." to Export Colour Palette as File(?)
+
 
   5) Edit Menu
    - add to Help new Items:
