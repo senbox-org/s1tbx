@@ -409,9 +409,9 @@ remove
 
   8) Analysis Menu
 
-  - Help: Compute Roi Area...--> BEAM4.7: Compute Roi-Mask Area
+  - Help: Compute Roi Area...--> BEAM4.7: Compute ROI-Mask Area
 
-    ==> PRE, MP, OPEN
+    ==> PRE, RQ, CLOSED
 
   9) Tools Menu
 
