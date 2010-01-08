@@ -100,13 +100,32 @@ public class ProductSceneView extends BasicView
 
     public static final String BASE_IMAGE_LAYER_ID = "org.esa.beam.layers.baseImage";
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
-    public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
     public static final String VECTOR_DATA_LAYER_ID = VectorDataCollectionLayer.ID;
     public static final String MASKS_LAYER_ID = MaskCollectionLayer.ID;
-    public static final String ROI_LAYER_ID = "org.esa.beam.layers.roi";
     public static final String GRATICULE_LAYER_ID = "org.esa.beam.layers.graticule";
+    /**
+     * @deprecated since BEAM 4.7
+     */
+    public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
+    /**
+     * @deprecated since BEAM 4.7
+     */
+    @Deprecated
+    public static final String ROI_LAYER_ID = "org.esa.beam.layers.roi";
+    /**
+     * @deprecated since BEAM 4.7
+     */
+    @Deprecated
     public static final String GCP_LAYER_ID = "org.esa.beam.layers.gcp";
+    /**
+     * @deprecated since BEAM 4.7
+     */
+    @Deprecated
     public static final String PIN_LAYER_ID = "org.esa.beam.layers.pin";
+    /**
+     * @deprecated since BEAM 4.7
+     */
+    @Deprecated
     public static final String FIGURE_LAYER_ID = "org.esa.beam.layers.figure";
 
     /**
@@ -206,6 +225,7 @@ public class ProductSceneView extends BasicView
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(
                 PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
         this.layerCanvas.setNavControlShown(navControlShown);
+        this.layerCanvas.setAntialiasing(sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_GRAPHICS_ANTIALIASING, true));
         this.layerCanvas.setPreferredSize(new Dimension(400, 400));
         this.layerCanvas.addOverlay(new LayerCanvas.Overlay() {
             @Override
@@ -673,6 +693,7 @@ public class ProductSceneView extends BasicView
      */
     public void setLayerProperties(PropertyMap configuration) {
         setScrollBarsShown(configuration.getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN, false));
+        layerCanvas.setAntialiasing(configuration.getPropertyBool(PROPERTY_KEY_GRAPHICS_ANTIALIASING, true));
         layerCanvas.setNavControlShown(configuration.getPropertyBool(PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true));
         layerCanvas.setBackground(
                 configuration.getPropertyColor("image.background.color", DEFAULT_IMAGE_BACKGROUND_COLOR));

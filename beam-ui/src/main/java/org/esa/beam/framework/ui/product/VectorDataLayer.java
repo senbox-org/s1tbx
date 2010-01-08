@@ -130,19 +130,7 @@ public class VectorDataLayer extends Layer {
 
     @Override
     protected void renderLayer(Rendering rendering) {
-        final Graphics2D g2d = rendering.getGraphics();
-        final Object antiAliasing = g2d.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-        final Object textAntiAliasing = g2d.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
-
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-        try {
-            figureCollection.draw(rendering);
-        } finally {
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, antiAliasing);
-            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, textAntiAliasing);
-        }
+        figureCollection.draw(rendering);
     }
 
     private class VectorDataChangeHandler extends ProductNodeListenerAdapter {
