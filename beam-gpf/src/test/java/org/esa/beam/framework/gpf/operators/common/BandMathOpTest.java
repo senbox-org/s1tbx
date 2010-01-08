@@ -34,7 +34,7 @@ import java.util.Map;
  * @author marcoz
  * @version $Revision$ $Date$
  */
-public class BandArithmeticOpTest extends TestCase {
+public class BandMathOpTest extends TestCase {
 
     private OperatorSpi spi;
 
