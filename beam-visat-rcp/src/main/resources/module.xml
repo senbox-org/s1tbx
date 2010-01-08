@@ -760,10 +760,10 @@
             <parent>export</parent>
             <id>exportColorPalette</id>
             <class>org.esa.beam.visat.actions.ExportColorPaletteAction</class>
-            <text>Export Colour Palette as Image...</text>
+            <text>Export Colour Palette...</text>
             <mnemonic>a</mnemonic>
-            <shortDescr>Export the colour palette as an image.</shortDescr>
-            <description>Export the colour palette of the current view as an image.</description>
+            <shortDescr>Export the colour palette to plain text.</shortDescr>
+            <description>Export the colour palette of the current view to a plain text file.</description>
             <context>image</context>
             <helpId>exportColorPalette</helpId>
         </action>
