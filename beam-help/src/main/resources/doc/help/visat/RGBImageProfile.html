@@ -9,9 +9,11 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            RGB-Image Profile</td>
-        
-    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border="0"></a></td>
+            RGB-Image Profile
+        </td>
+
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border="0"></a></td>
     </tr>
 </table>
 
@@ -28,11 +30,13 @@
 <h4>Profile</h4> Selects on of the actual stored RGB-Profiles to use for creation of the new image view.
 <ul>
     <li>Use the <img src="images/icons/Open24.gif" alt="Open" border="0"> to open a stored
-        <a href="#profileFile">RGB-Profile file</a>.</li>
+        <a href="#profileFile">RGB-Profile file</a>.
+    </li>
     <li>Use the <img src="images/icons/Save24.gif" alt="Save" border="0"> to save the currently displayed RGB-Profile.
     </li>
     <li>Use the <img src="images/icons/Remove24.gif" alt="Remove" border="0"> to delete the currently displayed
-        RGB-Profile.</li>
+        RGB-Profile.
+    </li>
 </ul>
 <h4>RGB Channels</h4>
 
@@ -60,41 +64,41 @@ Normally one entry is written in one line, but you can use the '\' character to 
 also belongs to the value. Empty lines and lines beginning with the '#' character are ignored.<br>
 The possible entries for an RGB-Profile are listed in the following table:
 <p>
-    <table align="center">
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-        <tr>
-            <td>name</td>
-            <td>String</td>
-            <td>The name of the RGB-Profile, if given it is displayed instead of the file name.</td>
-        </tr>
-        <tr>
-            <td>internal</td>
-            <td>Boolean</td>
-            <td>The default value is <i>false</i>, if given and set to <i>true</i> it indicates that this RGB-Profile
-                can not be
-                deleted from the user interface (but does not prevent from overwriting the file).</td>
-        </tr>
-        <tr>
-            <td>red or r</td>
-            <td>String</td>
-            <td>The arithmetic expression used to create the red channel. This entry is mandatory.</td>
-        </tr>
-        <tr>
-            <td>green or g</td>
-            <td>String</td>
-            <td>The arithmetic expression used to create the green channel. This entry is mandatory.</td>
-        </tr>
-        <tr>
-            <td>blue or b</td>
-            <td>String</td>
-            <td>The arithmetic expression used to create the blue channel. This entry is mandatory.</td>
-        </tr>
-    </table>
-</p>
+<table align="center">
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>name</td>
+        <td>String</td>
+        <td>The name of the RGB-Profile, if given it is displayed instead of the file name.</td>
+    </tr>
+    <tr>
+        <td>internal</td>
+        <td>Boolean</td>
+        <td>The default value is <i>false</i>, if given and set to <i>true</i> it indicates that this RGB-Profile
+            can not be
+            deleted from the user interface (but does not prevent from overwriting the file).
+        </td>
+    </tr>
+    <tr>
+        <td>red or r</td>
+        <td>String</td>
+        <td>The band math expression used to create the red channel. This entry is mandatory.</td>
+    </tr>
+    <tr>
+        <td>green or g</td>
+        <td>String</td>
+        <td>The band math expression used to create the green channel. This entry is mandatory.</td>
+    </tr>
+    <tr>
+        <td>blue or b</td>
+        <td>String</td>
+        <td>The band math expression used to create the blue channel. This entry is mandatory.</td>
+    </tr>
+</table>
 
 <p><b>Example:</b> The following profile yields good RGB images from MERIS Level-1b data products. The
     linear-combinations
@@ -121,7 +125,6 @@ The possible entries for an RGB-Profile are listed in the following table:
         0.47 * radiance_3 + \
         0.16 * radiance_4)
     </pre>
-</p>
 
 
 <hr>
