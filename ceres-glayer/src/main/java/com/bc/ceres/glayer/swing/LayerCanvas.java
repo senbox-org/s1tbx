@@ -31,9 +31,7 @@ import com.bc.ceres.grender.support.DefaultViewport;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -63,6 +61,8 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     private final ModelChangeHandler modelChangeHandler;
 
+    private boolean antialiasing;
+
     private boolean debug = false;
     private LayerFilter layerFilter;
 
@@ -89,6 +89,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
         this.overlays = new ArrayList<Overlay>(4);
         this.initiallyZoomingAll = true;
         this.zoomedAll = false;
+        this.antialiasing = true;
         setNavControlShown(false);
         if (!model.getViewport().getViewBounds().isEmpty()) {
             setBounds(model.getViewport().getViewBounds());
@@ -168,6 +169,27 @@ public class LayerCanvas extends JPanel implements AdjustableView {
      */
     public boolean isNavControlShown() {
         return navControlShown;
+    }
+
+    /**
+     * Checks if anti-aliased vector graphics are enabled.
+     * @return true, if enabled.
+     */
+    public boolean isAntialiasing() {
+        return antialiasing;
+    }
+
+    /**
+     * Enables / disables anti-aliased vector graphics.
+     * @param antialiasing true, if enabled.
+     */
+    public void setAntialiasing(boolean antialiasing) {
+        boolean oldValue = this.antialiasing;
+        if (oldValue != antialiasing) {
+            this.antialiasing = antialiasing;
+            firePropertyChange("antialiasing", oldValue, antialiasing);
+            repaint();
+        }
     }
 
     /**
@@ -331,23 +353,39 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     @Override
     protected void paintComponent(Graphics g) {
-
         long t0 = debug ? System.nanoTime() : 0L;
-
-        super.paintComponent(g);
 
         if (initiallyZoomingAll && !zoomedAll && maxVisibleModelBounds != null && !maxVisibleModelBounds.isEmpty()) {
             zoomedAll = true;
             zoomAll();
         }
 
-        canvasRendering.setGraphics2D((Graphics2D) g);
-        getLayer().render(canvasRendering, layerFilter);
+        final Graphics2D g2d = (Graphics2D) g;
+        final Object antiAliasing = g2d.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+        final Object textAntiAliasing = g2d.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
 
-        if (!isPaintingForPrint()) {
-            for (Overlay overlay : overlays) {
-                overlay.paintOverlay(this, canvasRendering);
+        if (antialiasing) {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        } else {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+        }
+
+        try {
+            super.paintComponent(g);
+
+            canvasRendering.setGraphics2D((Graphics2D) g);
+            getLayer().render(canvasRendering, layerFilter);
+
+            if (!isPaintingForPrint()) {
+                for (Overlay overlay : overlays) {
+                    overlay.paintOverlay(this, canvasRendering);
+                }
             }
+        } finally {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, antiAliasing);
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, textAntiAliasing);
         }
 
         if (debug) {
