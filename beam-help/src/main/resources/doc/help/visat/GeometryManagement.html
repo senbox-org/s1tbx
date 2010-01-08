@@ -1,0 +1,191 @@
+<html>
+<head>
+    <title>VISAT Help - Geometry Management</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Geometry Management
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border="0"></a></td>
+    </tr>
+</table>
+
+<h2>The Geometry Concept</h2>
+
+<p>
+    In BEAM version 4.7, <i>geometries</i> have been introduced. In opposite to the bands and tie-point
+    grids contained in satellite data products - which are all kinds of <i>raster data</i> - a geometry refers to
+    <i>vector data</i>. Thus a geometry can be a point, line or polygon. In former BEAM releases, vector data has
+    been supported in terms of shape figures, which where only attached to an image view. Since version 4.7, geometries
+    are part of the a product's data model, and stored (restored) to (from)
+    <a href="../general/BeamDimapFormat.html">BEAM-DIMAP</a> product files. A product can comprise a number of named
+    <i>geometry containers</i>. Each container may comprise
+    virtually any number of geometries.
+</p>
+
+<p>
+    Geometries are closely related to new <i>Mask Concept</i> also introduced in BEAM 4.7. Once a new geometry container
+    has been added to the data product, an associated mask is created by rendering the geometry onto the product's
+    intrinsic raster data grid. The associated mask will always have the same name as the geometry container which
+    created it.
+    Also, the newly created mask is marked as possible region of interest (ROI) for the selected band by default.
+    Once the geometry is created (e.g. simpyl by drawing it, see below), its associated mask can be used as ROI
+    pixels in the various analysis tools, such as the <a href="StatisticsDialog.html">Statistics</a>,
+    <a href="HistogramDialog.html">Histogram</a>, and <a href="ScatterplotDialog.html">Scatter Plot</a> tool windows.
+</p>
+
+<h2>Working with Geometries</h2>
+
+<h3>Creating a new geometry</h3>
+
+<p>
+    Once you have opened an image view, new geometries are created by using the various drawing tools provided by
+    VISAT through the <b>Interactions Toolbar</b>:
+</p>
+
+<table style="border-width:0;">
+    <tr>
+        <td><img src="images/icons/DrawLineTool24.gif" alt="Line"></td>
+        <td>Line</td>
+        <td>Press left mouse button for the start point, drag line to end point and release left mouse button.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/DrawPolylineTool24.gif" alt="Polyline"></td>
+        <td>Polyline</td>
+        <td>Single-click (press and release) left mouse button for the start point, move line segment and click to add a
+            vertex point, move to end point and double-click to finalize the polyline.
+        </td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/DrawRectangleTool24.gif" alt="Rectangle"></td>
+        <td>Rectangle</td>
+        <td>Press left mouse button for the start point, drag line to end point and release left mouse button.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/DrawEllipseTool24.gif" alt="Ellipse"></td>
+        <td>Ellipse</td>
+        <td>Similar to rectangle; Press left mouse button for the start point, drag line to end point and release left
+            mouse button.
+        </td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/DrawPolygonTool24.gif" alt="Polygon"></td>
+        <td>Polygon</td>
+        <td>Similar to polyline; Single-click (press and release) left mouse button for the start point, move
+            line segment and click to add a vertex point, move to end point and double-click to close the polygon.
+        </td>
+    </tr>
+</table>
+
+<p></p>
+
+<table style="border-width:0;">
+    <tr>
+        <td>
+            New geometries are always added to the geometry container selected in <b>Geometries</b> node of the
+            <a href="">Products View</a> tool window as shown in the screenshot the right.
+            If there isn't a single geometry container yet, BEAM will create a default container named <b>geometry</b>.
+            (You can customize this default behaviour in the BEAM configuration file <code>${BEAM_HOME}/config/beam.config</code>.)
+        </td>
+        <td>
+            TODO
+            <img src="images/icons/DrawRectangleTool24.gif" alt="Draw Rectangle">
+        </td>
+    </tr>
+</table>
+
+
+<h3>Creating a new geometry container</h3>
+
+<p>
+    Use the menu item <b>Tools / Create Geometry Container</b> or the corresponding tool button from the
+    <b>Interaction Toolbar</b> to create a new geometry container.
+</p>
+
+<table style="border-width:0">
+    <tr>
+        <td><img src="images/icons/NewVectorDataNode24.gif" alt="Container"></td>
+        <td>Container</td>
+        <td>Opens a dialog for creating a new geometry container. You will be prompted to enter a unique name for the
+            new container.
+        </td>
+    </tr>
+</table>
+
+
+<h3>Editing geometries</h3>
+
+<p>
+    Geometries may be edited in a number of ways once they have been selected. Note that editing or deleting a geometry
+    will automatically affect the mask associated with the geometry's container.
+    Use the <b>Select</b> tool to select geometries which shall be edited:
+</p>
+
+<table style="border-width:0">
+    <tr>
+        <td><img src="images/icons/SelectTool24.gif" alt="Select"></td>
+        <td>Select</td>
+        <td>Select a single geometry by clicking it. Select one or more geometries by dragging a selection
+            rectangle around them. Hold down the <b>control</b> key while selecting in order to add or remove
+            geometries from the current selection set.
+        </td>
+    </tr>
+</table>
+
+<p>
+    <b>Move:</b> Selected shapes can be moved to another location simply by dragging them with the mouse.
+</p>
+
+<p>
+    <b>Move vertex:</b> If single selected geometries are clicked once again, the selection mode changes depending on
+    the
+    geometry type. The first mode lets you move the vertexes of lineal and polygonal geometries by dragging the
+    appearing
+    vertex handles.
+</p>
+
+<p>
+    <b>Scale:</b> The next selection mode (click again) lets you scale the size of a geometry by dragging the
+    appearing size handles.
+</p>
+
+<p>
+    <b>Cut, Copy, Paste:</b> Use these commands from the <b>Edit</b> menu or use the keys <b>Control X</b>,
+    <b>Control C</b>, <b>Control V</b> to cut or copy geometries into the operating system's clipboard and
+    to paste them into the same or another view.
+</p>
+
+<p>
+    <b>Delete:</b> Use the command from the <b>Edit</b> menu or use the <b>Delete</b> key.
+</p>
+
+
+<h3>Importing geometry data</h3>
+
+<p>
+    You can use the <a href="ImportTransectData.html">Import Geometry</a> command to import geometries from
+    <i>plain text files</i> or from <i>ESRI Shapefiles</i>.
+</p>
+
+<p>
+    <b>Plain text (*.txt):</b> Imports a single geometry (polyline or polygon) from a plain text file
+    having the format described in the chapter for <a href="ImportTransectData.html">Import Geometry</a>.
+</p>
+
+<p>
+    <b>ESRI Shapefile (*.shp)</b>: Multiple geometries can be imported from a Shapefile.
+    The geometry coordinates used in the Shapefile will be converted to the coordinates reference system used by the
+    current data product. Note that BEAM does only offer limited support regarding the various style settings which
+    may be attached to a specific Shapefile. It allso currently ignore all the attribute data that usually
+    comes with a Shapefile. This may change in later BEAM versions.
+</p>
+
+<hr>
+</body>
+</html>
