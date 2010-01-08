@@ -77,8 +77,8 @@
             </tocitem>
 
             <tocitem text="Product Generation Tools">
-                <tocitem text="Band Arithmetic" target="bandArithmetic"/>
-                <tocitem text="Arithmetic Expression Editor" target="expressionEditor"/>
+                <tocitem text="Band Math" target="bandArithmetic"/>
+                <tocitem text="Math Expression Editor" target="expressionEditor"/>
                 <tocitem text="Data Flip" target="dataFlip"/>
                 <tocitem text="Reprojection" target="reprojectionAction">
                     <tocitem text="Reprojection Dialog" target="reprojectionAction"/>

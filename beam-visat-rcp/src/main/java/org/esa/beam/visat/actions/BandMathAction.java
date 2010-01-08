@@ -14,7 +14,7 @@ import org.esa.beam.visat.dialogs.BandArithmetikDialog;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  */
-public class BandArithmeticAction extends ExecCommand {
+public class BandMathAction extends ExecCommand {
 
     @Override
     public void actionPerformed(final CommandEvent event) {

@@ -17,7 +17,7 @@ public class MosaicAction extends AbstractVisatAction {
     @Override
     public void actionPerformed(CommandEvent event) {
         if (dialog == null) {
-            dialog = new MosaicDialog("Mosaic", "mosaic", getAppContext());
+            dialog = new MosaicDialog("Mosaic", event.getCommand().getHelpId(), getAppContext());
         }
         dialog.show();
     }

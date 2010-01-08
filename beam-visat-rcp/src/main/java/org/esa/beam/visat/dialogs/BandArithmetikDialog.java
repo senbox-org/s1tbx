@@ -16,11 +16,11 @@
  */
 package org.esa.beam.visat.dialogs;
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.PropertyEditor;
@@ -98,7 +98,7 @@ public class BandArithmetikDialog extends ModalDialog {
 
     public BandArithmetikDialog(final VisatApp visatApp, Product currentProduct, ProductNodeList<Product> productsList,
                                 String helpId) {
-        super(visatApp.getMainFrame(), "Band Arithmetic", ID_OK_CANCEL_HELP, helpId); /* I18N */
+        super(visatApp.getMainFrame(), "Band Math", ID_OK_CANCEL_HELP, helpId); /* I18N */
         Guardian.assertNotNull("currentProduct", currentProduct);
         Guardian.assertNotNull("productsList", productsList);
         Guardian.assertGreaterThan("productsList must be not empty", productsList.size(), 0);
@@ -290,7 +290,7 @@ public class BandArithmetikDialog extends ModalDialog {
 
         descriptor = container.getDescriptor(PROPERTY_NAME_EXPRESSION);
         descriptor.setDisplayName("Expression");
-        descriptor.setDescription("Arithmetic expression");
+        descriptor.setDescription("Math expression");
         descriptor.setNotEmpty(true);
 
         descriptor = container.getDescriptor(PROPERTY_NAME_SAVE_EXPRESSION_ONLY);
@@ -370,7 +370,7 @@ public class BandArithmetikDialog extends ModalDialog {
                                                                                               targetProduct,
                                                                                               visatApp.getPreferences());
                 pep.setCode(getExpression());
-                int status = pep.showModalDialog(getJDialog(), "Arithmetic Expression Editor");
+                int status = pep.showModalDialog(getJDialog(), "Math Expression Editor");
                 if (status == ModalDialog.ID_OK) {
                     bindingContext.getBinding(PROPERTY_NAME_EXPRESSION).setPropertyValue(pep.getCode());
                 }

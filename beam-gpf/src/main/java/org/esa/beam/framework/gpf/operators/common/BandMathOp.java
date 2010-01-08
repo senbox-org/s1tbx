@@ -17,7 +17,11 @@
 package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.*;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Symbol;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.SymbolFactory;
 import org.esa.beam.framework.datamodel.Band;
@@ -42,8 +46,8 @@ import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
-@OperatorMetadata(alias = "BandArithmetic")
-public class BandArithmeticOp extends Operator {
+@OperatorMetadata(alias = "BandMath")
+public class BandMathOp extends Operator {
 
     public static class BandDescriptor {
         public String name;
@@ -77,17 +81,17 @@ public class BandArithmeticOp extends Operator {
     private Map<Band, RasterDataSymbol[]> symbolMap;
     private Map<Band, Term> termMap;
 
-    public static BandArithmeticOp createBooleanExpressionBand(String expression, Product sourceProduct) {
+    public static BandMathOp createBooleanExpressionBand(String expression, Product sourceProduct) {
         BandDescriptor[] bandDescriptors = new BandDescriptor[1];
         bandDescriptors[0] = new BandDescriptor();
         bandDescriptors[0].name = "band1";
         bandDescriptors[0].expression = expression;
         bandDescriptors[0].type = ProductData.TYPESTRING_INT8;
 
-        BandArithmeticOp bandArithmeticOp = new BandArithmeticOp();
-        bandArithmeticOp.targetBandDescriptors = bandDescriptors;
-        bandArithmeticOp.sourceProducts = new Product[]{sourceProduct};
-        return bandArithmeticOp;
+        BandMathOp bandMathOp = new BandMathOp();
+        bandMathOp.targetBandDescriptors = bandDescriptors;
+        bandMathOp.sourceProducts = new Product[]{sourceProduct};
+        return bandMathOp;
     }
 
     @Override
@@ -98,8 +102,8 @@ public class BandArithmeticOp extends Operator {
 
         int width = sourceProducts[0].getSceneRasterWidth();
         int height = sourceProducts[0].getSceneRasterHeight();
-        targetProduct = new Product(sourceProducts[0].getName() + "_BandArithmetic",
-                                    "BandArithmetic", width, height);
+        targetProduct = new Product(sourceProducts[0].getName() + "BandMath",
+                                    "BandMath", width, height);
 
         WritableNamespace namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0, new ProductPrefixProvider() {
             public String getPrefix(Product product) {
@@ -214,7 +218,7 @@ public class BandArithmeticOp extends Operator {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(BandArithmeticOp.class);
+            super(BandMathOp.class);
         }
     }
 }

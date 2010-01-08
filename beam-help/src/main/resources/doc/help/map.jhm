@@ -83,7 +83,7 @@
     <mapID target="createFilteredBand" url="visat/CreateFilteredBand.html"/>
     <mapID target="expressionEditor" url="visat/ExpressionEditor.html"/>
     <mapID target="rgbImageProfile" url="visat/RGBImageProfile.html"/>
-    <mapID target="bandArithmetic" url="visat/BandArithmetics.html"/>
+    <mapID target="bandArithmetic" url="visat/BandMath.html"/>
 
 
     <mapID target="reprojectionAction" url="visat/Reprojection.html"/>

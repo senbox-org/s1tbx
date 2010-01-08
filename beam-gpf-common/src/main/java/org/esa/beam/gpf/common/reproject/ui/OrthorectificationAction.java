@@ -17,7 +17,7 @@ public class OrthorectificationAction extends AbstractVisatAction {
     @Override
     public void actionPerformed(CommandEvent event) {
         if (dialog == null) {
-            dialog = new ReprojectionDialog(true, "Orthorectification", "orthorectificationAction", getAppContext());
+            dialog = new ReprojectionDialog(true, "Orthorectification", event.getCommand().getHelpId(), getAppContext());
         }
         dialog.show();
     }

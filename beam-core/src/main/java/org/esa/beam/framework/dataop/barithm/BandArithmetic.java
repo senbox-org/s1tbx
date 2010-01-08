@@ -264,7 +264,7 @@ public class BandArithmetic {
                     targetRasterData.setElemDoubleAt(pixelIndex, pixelValue);
                 }
             }
-        }, "Performing band arithmetic...");
+        }, "Performing band math...");
         return numInvalidPixels[0];
     }
 

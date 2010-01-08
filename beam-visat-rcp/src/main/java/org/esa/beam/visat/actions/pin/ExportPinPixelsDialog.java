@@ -31,10 +31,8 @@ import org.esa.beam.visat.VisatApp;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JTextField;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -141,7 +139,7 @@ class ExportPinPixelsDialog extends ModalDialog {
 
         paramExpression = new Parameter("arithmeticExpr", "");
         paramExpression.getProperties().setLabel("Expression"); /* I18N */
-        paramExpression.getProperties().setDescription("Arithmetic expression"); /* I18N */
+        paramExpression.getProperties().setDescription("Math expression"); /* I18N */
         paramExpression.getProperties().setNumRows(3);
         paramExpression.setUIEnabled(false);
 
@@ -216,7 +214,7 @@ class ExportPinPixelsDialog extends ModalDialog {
         final JPanel expressionPane = GridBagUtils.createPanel();
         int line = 0;
         final GridBagConstraints gbc = new GridBagConstraints();
-        expressionPane.setBorder(BorderFactory.createTitledBorder("Arithmetic Expression"));
+        expressionPane.setBorder(BorderFactory.createTitledBorder("Math Expression"));
 
         gbc.gridy = ++line;
         GridBagUtils.addToPanel(expressionPane, paramUseExpression.getEditor().getComponent(), gbc,
@@ -346,12 +344,13 @@ class ExportPinPixelsDialog extends ModalDialog {
     private ActionListener createEditExpressionButtonListener() {
         return new ActionListener() {
 
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 final Product[] products = {product};
                 ProductExpressionPane pep = ProductExpressionPane.createBooleanExpressionPane(products, product,
                                                                                               visatApp.getPreferences());
                 pep.setCode(paramExpression.getValueAsText());
-                final int status = pep.showModalDialog(getJDialog(), "Arithmetic Expression Editor"); /* I18N */
+                final int status = pep.showModalDialog(getJDialog(), "Math Expression Editor"); /* I18N */
                 if (status == ModalDialog.ID_OK) {
                     paramExpression.setValue(pep.getCode(), null);
                     Debug.trace("BandArithmetikDialog: expression is: " + pep.getCode()); /* I18N */
@@ -367,6 +366,7 @@ class ExportPinPixelsDialog extends ModalDialog {
     private ParamChangeListener createParamChangeListener() {
         return new ParamChangeListener() {
 
+            @Override
             public void parameterValueChanged(final ParamChangeEvent event) {
                 updateUIState();
             }

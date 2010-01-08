@@ -40,7 +40,7 @@ public class BandArithmeticOpTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        spi = new BandArithmeticOp.Spi();
+        spi = new BandMathOp.Spi();
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
     }
 
@@ -51,11 +51,11 @@ public class BandArithmeticOpTest extends TestCase {
 
     public void testSimpelstCase() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
+        BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
-        Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct);
+        Product targetProduct = GPF.createProduct("BandMath", parameters, sourceProduct);
 
         assertNotNull(targetProduct);
         Band band = targetProduct.getBand("aBandName");
@@ -73,10 +73,10 @@ public class BandArithmeticOpTest extends TestCase {
     public void testSimpelstCaseWithFactoryMethod() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
         
-        BandArithmeticOp bandArithmeticOp = BandArithmeticOp.createBooleanExpressionBand("band1 > 0", sourceProduct);
-        assertNotNull(bandArithmeticOp);
+        BandMathOp bandMathOp = BandMathOp.createBooleanExpressionBand("band1 > 0", sourceProduct);
+        assertNotNull(bandMathOp);
 
-        Product targetProduct = bandArithmeticOp.getTargetProduct();
+        Product targetProduct = bandMathOp.getTargetProduct();
         assertNotNull(targetProduct);
         
         Band band = targetProduct.getBandAt(0);
@@ -92,11 +92,11 @@ public class BandArithmeticOpTest extends TestCase {
 
     public void testScaledInputBand() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
+        BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "band3", ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
-        Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct);
+        Product targetProduct = GPF.createProduct("BandMath", parameters, sourceProduct);
 
         assertNotNull(targetProduct);
         Band band = targetProduct.getBand("aBandName");
@@ -114,11 +114,11 @@ public class BandArithmeticOpTest extends TestCase {
     public void testTwoSourceBandsOneTargetBand() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
+        BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "band1 + band2", ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
 
-        Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct);
+        Product targetProduct = GPF.createProduct("BandMath", parameters, sourceProduct);
         Band band = targetProduct.getBand("aBandName");
 
         float[] actualValues = new float[16];
@@ -131,12 +131,12 @@ public class BandArithmeticOpTest extends TestCase {
     public void testTwoSourceBandsTwoTargetBands() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[2];
+        BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[2];
         bandDescriptors[0] = createBandDescription("b1", "band1 + band2 < 3.0", ProductData.TYPESTRING_INT8);
         bandDescriptors[1] = createBandDescription("b2", "band1 + band2 + 2.5", ProductData.TYPESTRING_INT32);
         parameters.put("targetBands", bandDescriptors);
 
-        Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct);
+        Product targetProduct = GPF.createProduct("BandMath", parameters, sourceProduct);
         Band b1 = targetProduct.getBand("b1");
 
         b1.readRasterDataFully(ProgressMonitor.NULL);
@@ -160,11 +160,11 @@ public class BandArithmeticOpTest extends TestCase {
         Product sourceProduct1 = createTestProduct(4, 4);
         Product sourceProduct2 = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
+        BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "$sourceProduct.0.band1 + $sourceProduct.1.band2", ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
 
-        Product targetProduct = GPF.createProduct("BandArithmetic", parameters, new Product[]{sourceProduct1, sourceProduct2});
+        Product targetProduct = GPF.createProduct("BandMath", parameters, new Product[]{sourceProduct1, sourceProduct2});
         Band band = targetProduct.getBand("aBandName");
 
         float[] actualValues = new float[16];
@@ -174,8 +174,8 @@ public class BandArithmeticOpTest extends TestCase {
         assertTrue(Arrays.equals(expectedValues, actualValues));
     }
 
-    private BandArithmeticOp.BandDescriptor createBandDescription(String bandName, String expression, String type) {
-        BandArithmeticOp.BandDescriptor bandDescriptor = new BandArithmeticOp.BandDescriptor();
+    private BandMathOp.BandDescriptor createBandDescription(String bandName, String expression, String type) {
+        BandMathOp.BandDescriptor bandDescriptor = new BandMathOp.BandDescriptor();
         bandDescriptor.name = bandName;
         bandDescriptor.description = "aDescription";
         bandDescriptor.expression = expression;

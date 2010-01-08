@@ -837,7 +837,6 @@
         </action>
 
 
-
         <!--####################-->
         <!-- Data Menu          -->
         <!--####################-->
@@ -1173,9 +1172,9 @@
         <action>
             <id>bandArithmetic</id>
             <parent>tools</parent>
-            <class>org.esa.beam.visat.actions.BandArithmeticAction</class>
-            <text>Create Band from Expression...</text>
-            <shortDescr>Create a band using a arithmetic expression</shortDescr>
+            <class>org.esa.beam.visat.actions.BandMathAction</class>
+            <text>Create Band from Math Expression...</text>
+            <shortDescr>Create a band using a mathematical expression</shortDescr>
             <context>image,band,tiePointGrid</context>
             <smallIcon>icons/BAritmethic16.gif</smallIcon>
             <largeIcon>icons/BAritmethic24.gif</largeIcon>
@@ -1183,27 +1182,6 @@
             <helpId>bandArithmetic</helpId>
         </action>
 
-<!--
-        <action>
-            <id>projection</id>
-            <class>org.esa.beam.visat.actions.ProjectionAction</class>
-            <parent>tools</parent>
-            <placeAfter>bandArithmetic</placeAfter>
-            <text>Map Projection...</text>
-            <shortDescr>Apply Map Projection</shortDescr>
-            <helpId>projectionDialog</helpId>
-        </action>
-
-        <action>
-            <id>orthorectification</id>
-            <class>org.esa.beam.visat.actions.OrthorectificationAction</class>
-            <parent>tools</parent>
-            <placeAfter>projection</placeAfter>
-            <text>Orthorectification...</text>
-            <shortDescr>Apply Orthorectification</shortDescr>
-            <helpId>orthorectification</helpId>
-        </action>
--->
 
         <action>
             <id>createElevationBand</id>
@@ -1217,19 +1195,6 @@
             <placeBefore>createAsarNrcsBands</placeBefore>
             <placeAfter>bandArithmetic</placeAfter>
         </action>
-<!--
-        <action>
-            <id>createXYDisplacementBandsAction</id>
-            <class>org.esa.beam.visat.actions.CreateXYDisplacementBandsAction</class>
-            <text>Create X,Y Displacement Bands...</text>
-            <description>Creates X,Y displacement bands for a selected product</description>
-            <context>createXYDisplacementBandsAction</context>
-            <helpId>createXYDisplacementBandsAction</helpId>
-            <parent>tools</parent>
-            <placeAfter>createElevationBand</placeAfter>
-            <separatorAfter>false</separatorAfter>
-        </action>
--->
         <action>
             <id>createAsarNrcsBands</id>
             <class>org.esa.beam.visat.actions.CreateAsarNrcsBandsAction</class>
@@ -1303,7 +1268,8 @@
             <class>org.esa.beam.visat.actions.CreateSubsetFromViewAction</class>
             <text>Spatial Subset from View...</text>
             <shortDescr>Creates a product subset from the selected view</shortDescr>
-            <description>Creates a product subset from the selected view by preselecting the subset area from view</description>
+            <description>Creates a product subset from the selected view by preselecting the subset area from view
+            </description>
             <context>image</context>
             <helpId>subsetFromView</helpId>
             <parent>tools</parent>
@@ -1465,23 +1431,6 @@
             <helpId>panTool</helpId>
         </action>
 
-<!--
-        <action>
-            <id>rangeFinder</id>
-            <class>org.esa.beam.visat.actions.rangefinder.RangeFinderToolAction</class>
-            <tool>org.esa.beam.visat.actions.rangefinder.RangeFinderTool</tool>
-            <parent>tools</parent>
-            <placeAfter>selectTool</placeAfter>
-            <text>Range Finder</text>
-            <shortDescr>Range finder tool</shortDescr>
-            <description>Determine the distance between two points</description>
-            <largeIcon>icons/RangeFinder24.gif</largeIcon>
-            <selected>false</selected>
-            <context>image</context>
-            <helpId>rangeFinder</helpId>
-        </action>
--->
-
         <action>
             <id>pinTool</id>
             <class>org.esa.beam.visat.actions.PlacemarkToolAction</class>
@@ -1620,21 +1569,65 @@
             <shortDescr>Reset to initial layout.</shortDescr>
         </action>
 
-        <!--
-                <action>
-                    <id>magicStickTool</id>
-                    <class>org.esa.beam.visat.actions.ToolAction</class>
-                    <tool>org.esa.beam.visat.actions.magic.MagicStickTool</tool>
-                    <parent>tools</parent>
-                    <placeAfter>selectTool</placeAfter>
-                    <text>Magic Stick</text>
-                    <shortDescr>Creates a ROI using a magic stick</shortDescr>
-                    <largeIcon>icons/MagicStickTool24.gif</largeIcon>
-                    <selected>false</selected>
-                    <context>image</context>
-                    <helpId>magicStickTool</helpId>
-                </action>
-        -->
+<!--
+        <action>
+            <id>projection</id>
+            <class>org.esa.beam.visat.actions.ProjectionAction</class>
+            <parent>tools</parent>
+            <placeAfter>bandArithmetic</placeAfter>
+            <text>Map Projection...</text>
+            <shortDescr>Apply Map Projection</shortDescr>
+            <helpId>projectionDialog</helpId>
+        </action>
+
+        <action>
+            <id>orthorectification</id>
+            <class>org.esa.beam.visat.actions.OrthorectificationAction</class>
+            <parent>tools</parent>
+            <placeAfter>projection</placeAfter>
+            <text>Orthorectification...</text>
+            <shortDescr>Apply Orthorectification</shortDescr>
+            <helpId>orthorectification</helpId>
+        </action>
+        <action>
+            <id>createXYDisplacementBandsAction</id>
+            <class>org.esa.beam.visat.actions.CreateXYDisplacementBandsAction</class>
+            <text>Create X,Y Displacement Bands...</text>
+            <description>Creates X,Y displacement bands for a selected product</description>
+            <context>createXYDisplacementBandsAction</context>
+            <helpId>createXYDisplacementBandsAction</helpId>
+            <parent>tools</parent>
+            <placeAfter>createElevationBand</placeAfter>
+            <separatorAfter>false</separatorAfter>
+        </action>
+        <action>
+            <id>rangeFinder</id>
+            <class>org.esa.beam.visat.actions.rangefinder.RangeFinderToolAction</class>
+            <tool>org.esa.beam.visat.actions.rangefinder.RangeFinderTool</tool>
+            <parent>tools</parent>
+            <placeAfter>selectTool</placeAfter>
+            <text>Range Finder</text>
+            <shortDescr>Range finder tool</shortDescr>
+            <description>Determine the distance between two points</description>
+            <largeIcon>icons/RangeFinder24.gif</largeIcon>
+            <selected>false</selected>
+            <context>image</context>
+            <helpId>rangeFinder</helpId>
+        </action>
+        <action>
+            <id>magicStickTool</id>
+            <class>org.esa.beam.visat.actions.ToolAction</class>
+            <tool>org.esa.beam.visat.actions.magic.MagicStickTool</tool>
+            <parent>tools</parent>
+            <placeAfter>selectTool</placeAfter>
+            <text>Magic Stick</text>
+            <shortDescr>Creates a ROI using a magic stick</shortDescr>
+            <largeIcon>icons/MagicStickTool24.gif</largeIcon>
+            <selected>false</selected>
+            <context>image</context>
+            <helpId>magicStickTool</helpId>
+        </action>
+-->
 
     </extension>
 
