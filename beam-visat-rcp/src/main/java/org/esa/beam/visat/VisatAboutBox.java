@@ -45,7 +45,7 @@ public class VisatAboutBox extends ModalDialog {
 
     public VisatAboutBox() {
         this(new JButton[]{
-                new JButton(),
+//                new JButton(),
                 new JButton(),
         });
     }
@@ -53,16 +53,17 @@ public class VisatAboutBox extends ModalDialog {
     private VisatAboutBox(JButton[] others) {
         super(VisatApp.getApp().getMainFrame(), String.format("About %s", VisatApp.getApp().getAppName()),
               ModalDialog.ID_OK, others, null);    /*I18N*/
-
-        JButton creditsButton = others[0];
-        creditsButton.setText("Credits...");  /*I18N*/
-        creditsButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showCreditsDialog();
-            }
-        });
-
-        JButton systemButton = others[1];
+// TODO - the credits info is not up to date, so I commented it out. We shall put this info on the BEAM home page ASAP! (nf)
+//        JButton creditsButton = others[0];
+//        creditsButton.setText("Credits...");  /*I18N*/
+//        creditsButton.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                showCreditsDialog();
+//            }
+//        });
+//
+//        JButton systemButton = others[1];
+         JButton systemButton = others[0];
         systemButton.setText("System Info...");  /*I18N*/
         systemButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -157,17 +158,20 @@ public class VisatAboutBox extends ModalDialog {
                 "<br>&nbsp;&nbsp;<b>Tom Lancester</b> from InfoTerra for the implementation of the flux conserving binning," +
                 "<br>&nbsp;&nbsp;<b>Rene Preusker</b> from FU Berlin for the neural nets used in the MERIS cloud detection," +
                 "<br>&nbsp;&nbsp;<b>Peter Regner</b> from ESRIN for his enthusiasm in 'his' project," +
-                "<br>&nbsp;&nbsp;<b>Serge Riazanoff</b> from VisioTerra for the development of orthorectification algorithm," +
+                "<br>&nbsp;&nbsp;<b>Serge Riazanoff</b> from VisioTerra for the development of the orthorectification algorithm," +
                 "<br>&nbsp;&nbsp;<b>Mike Rast</b> from ESTEC for promoting BEAM and training users," +
                 "<br>&nbsp;&nbsp;<b>Helmut Schiller</b> from GKSS for his advice on tricky mathematical problems," +
                 "<br>&nbsp;&nbsp;and all the other people who helped us making this software (better)." +
                 "<br><hr>" +
                 "<br>The BEAM developers would also like to say thank you to" +
                 "<br>&nbsp;&nbsp;<b>Sun</b> for the beautiful programming language they have invented," +
-                "<br>&nbsp;&nbsp;<b>IntelliJ</b> for the best IDE in the world," +
-                "<br>&nbsp;&nbsp;<b>Eclipse.org</b> for the second best IDE in the world," +
-                "<br>&nbsp;&nbsp;<b>JIDE Software</b> for a great docking framework," +
-                "<br>&nbsp;&nbsp;<b>Atlassian</b> for JIRA and Confluence," +
+                "<br>&nbsp;&nbsp;<b>JetBrains</b> for IntelliJ IDEA, the best Java IDE in the world," +
+                "<br>&nbsp;&nbsp;<b>Eclipse.org</b> for the second best Java IDE in the world," +
+                "<br>&nbsp;&nbsp;<b>JIDE Software</b> for providing to us an open source licenses for their docking framework," +
+                "<br>&nbsp;&nbsp;<b>Atlassian</b> for providing to us open source licenses of JIRA and Confluence," +
+                "<br>&nbsp;&nbsp;<b>LifeRay</b> for their great portlet server and CMS," +
+                "<br>&nbsp;&nbsp;the <b>GeoTools</b> team for developer support and their great geo-referencing API," +
+                "<br>&nbsp;&nbsp;the <b>JFreeChart</b> open source project," +
                 "<br>&nbsp;&nbsp;all companies and organisations supporting the open-source idea." +
                 "<br><hr>" +
                 "<br>The BEAM team at Brockmann Consult is:" +
