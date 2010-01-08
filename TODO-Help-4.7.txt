@@ -197,7 +197,7 @@ remove
  1) product Browser
  - old screenshot
  - Geometries node description
-    ==> PRE, MP, OPEN
+    ==> PRE, RQ, CLOSED
 
  2) Preferences Dialog
  - old screenshot
