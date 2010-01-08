@@ -79,17 +79,20 @@
             <tocitem text="Product Generation Tools">
                 <tocitem text="Band Arithmetic" target="bandArithmetic"/>
                 <tocitem text="Arithmetic Expression Editor" target="expressionEditor"/>
-                <tocitem text="Map Projection" target="mapProjection">
-                    <tocitem text="Map Projection Dialog" target="mapProjection"/>
+                <tocitem text="Data Flip" target="dataFlip"/>
+                <tocitem text="Reprojection" target="reprojectionAction">
+                    <tocitem text="Reprojection Dialog" target="reprojectionAction"/>
                     <tocitem text="Resampling Methods" target="resamplingMethods"/>
                 </tocitem>
-                <tocitem text="Orthorectification" target="orthorectificationDialog">
-                    <tocitem text="Orthorectification Dialog" target="orthorectificationDialog"/>
-                    <tocitem text="Orthorectification Algorithm" target="orthorectification"/>
+                <tocitem text="Orthorectification" target="orthorectificationAction">
+                    <tocitem text="Orthorectification Dialog" target="orthorectificationAction"/>
+                    <tocitem text="Orthorectification Algorithm" target="orthorectificationAlgo"/>
                     <tocitem text="GETASSE30 Elevation Model" target="demGETASSE30"/>
                     <tocitem text="Create Elevation Band" target="createElevationBand"/>
                 </tocitem>
-                <tocitem text="Data Flip" target="dataFlip"/>
+                <tocitem text="Mosaic" target="mosaicAction">
+                </tocitem>
+
                 <tocitem text="Attach Pixel-based Geo-Coding" target="pixelGeoCodingSetup"/>
                 <tocitem text="Create Elevation Band" target="createElevationBand"/>
                 <tocitem text="Create ASAR NRCS Bands" target="createAsarNrcsBands"/>

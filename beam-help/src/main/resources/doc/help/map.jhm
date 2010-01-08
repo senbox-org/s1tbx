@@ -84,10 +84,13 @@
     <mapID target="expressionEditor" url="visat/ExpressionEditor.html"/>
     <mapID target="rgbImageProfile" url="visat/RGBImageProfile.html"/>
     <mapID target="bandArithmetic" url="visat/BandArithmetics.html"/>
-    <mapID target="mapProjection" url="visat/MapProjection.html"/>
-    <mapID target="projectionDialog" url="visat/MapProjection.html"/>
-    <mapID target="orthorectificationDialog" url="visat/OrthorectificationDialog.html"/>
-    <mapID target="orthorectification" url="visat/Orthorectification.html"/>
+
+
+    <mapID target="reprojectionAction" url="visat/Reprojection.html"/>
+    <mapID target="orthorectificationAction" url="visat/Orthorectification.html"/>
+    <mapID target="orthorectificationAlgo" url="visat/OrthorectificationAlgo.html"/>
+    <mapID target="mosaicAction" url="visat/Mosaic.html"/>
+
     <mapID target="demGETASSE30" url="visat/GETASSE30ElevationModel.html"/>
     <mapID target="createElevationBand" url="visat/CreateElevationBand.html"/>
     <mapID target="createAsarNrcsBands" url="visat/CreateAsarNrcsBands.html"/>

@@ -378,7 +378,7 @@ class ReprojectionForm extends JTabbedPane {
         context.bind(Model.REPROJ_TIEPOINTS, includeTPcheck);
         outputSettingsPanel.add(includeTPcheck);
 
-        outputParamButton = new JButton("Output Parameter...");
+        outputParamButton = new JButton("Output Parameters...");
         outputParamButton.setEnabled(!reprojectionModel.preserveResolution);
         outputParamButton.addActionListener(new OutputParamActionListener());
         outputSettingsPanel.add(outputParamButton);
