@@ -65,8 +65,6 @@
     <mapID target="showLayerManagerWnd" url="visat/LayerManagerWindow.html"/>
     <mapID target="showNavigationWnd" url="visat/NavigationWindow.html"/>
     <mapID target="showColorManipulationWnd" url="visat/ColorManipulationWindow.html"/>
-    <mapID target="showBitmaskOverlayWnd" url="visat/BitmaskOverlayWindow.html"/>
-    <mapID target="showROIDefWnd" url="visat/MaskROIManagement.html"/>
     <mapID target="showSpectrumWnd" url="visat/SpectrumWindow.html"/>
     <mapID target="showWorldMapWnd" url="visat/WorldMap.html"/>
     <mapID target="showGcpManagerWnd" url="visat/GcpManagement.html"/>
@@ -83,7 +81,6 @@
     <mapID target="coordinateListDialog" url="visat/CoordinateListDialog.html"/>
     <mapID target="computeMaskArea" url="visat/ComputeMaskArea.html"/>
     <mapID target="createFilteredBand" url="visat/CreateFilteredBand.html"/>
-    <mapID target="bitmaskEditor" url="visat/BitmaskEditor.html"/>
     <mapID target="expressionEditor" url="visat/ExpressionEditor.html"/>
     <mapID target="rgbImageProfile" url="visat/RGBImageProfile.html"/>
     <mapID target="bandArithmetic" url="visat/BandArithmetics.html"/>

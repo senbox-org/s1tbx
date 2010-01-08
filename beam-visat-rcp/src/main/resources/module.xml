@@ -324,21 +324,6 @@
         </toolView>
 <!--
         <toolView>
-            <id>org.esa.beam.visat.toolviews.bitmask.BitmaskOverlayToolView</id>
-            <class>org.esa.beam.visat.toolviews.bitmask.BitmaskOverlayToolView</class>
-            <title>Bitmask Overlay</title>
-            <mnemonic>B</mnemonic>
-            <accelerator>ctrl alt B</accelerator>
-            <description>Overlay bitmasks on top of an image view.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.png</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.png</largeIcon>
-            <helpId>showBitmaskOverlayWnd</helpId>
-            <initState>HIDDEN</initState>
-            <initSide>SOUTH</initSide>
-            <initIndex>0</initIndex>
-        </toolView>
-
-        <toolView>
             <id>org.esa.beam.visat.toolviews.mask.MaskViewerToolView</id>
             <class>org.esa.beam.visat.toolviews.mask.MaskViewerToolView</class>
             <title>Mask Overlays</title>
@@ -352,7 +337,6 @@
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
-        
 -->
         <toolView>
             <id>org.esa.beam.visat.toolviews.mask.MaskManagerToolView</id>
