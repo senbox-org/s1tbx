@@ -188,7 +188,7 @@ remove
     ==> FINAL, MP, OPEN
 
  5) Module Manager
- - old screenshot
+ - Windows 7 screenshot
     ==> FINAL, MP, OPEN
 
  ------------------------------------------------------------
