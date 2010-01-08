@@ -32,33 +32,33 @@
     </dependency>
 
     <categories>System,Application,Processing</categories>
-    
+
     <extension point="beam-ui:actions">
         <action>
             <id>reprojectionAction</id>
             <class>org.esa.beam.gpf.common.reproject.ui.ReprojectionAction</class>
             <parent>tools</parent>
             <placeAfter>flipping</placeAfter>
-            <placeBefore>orthorectifyAction</placeBefore>
+            <placeBefore>orthorectificationAction</placeBefore>
             <text>Reprojection...</text>
             <shortDescr>Apply a reprojection.</shortDescr>
             <helpId>reprojectionAction</helpId>
         </action>
         <action>
-            <id>orthorectifyAction</id>
-            <class>org.esa.beam.gpf.common.reproject.ui.OrthorectifyAction</class>
+            <id>orthorectificationAction</id>
+            <class>org.esa.beam.gpf.common.reproject.ui.OrthorectificationAction</class>
             <parent>tools</parent>
             <placeAfter>reprojectionAction</placeAfter>
             <placeBefore>mosaicAction</placeBefore>
             <text>Orthorectification...</text>
             <shortDescr>Apply an orthorectification.</shortDescr>
-            <helpId>orthorectifyAction</helpId>
+            <helpId>orthorectificationAction</helpId>
         </action>
         <action>
             <id>mosaicAction</id>
             <class>org.esa.beam.gpf.common.mosaic.ui.MosaicAction</class>
             <parent>tools</parent>
-            <placeAfter>orthorectifyAction</placeAfter>
+            <placeAfter>orthorectificationAction</placeAfter>
             <text>Mosaic...</text>
             <shortDescr>Create a mosaic of multiple products.</shortDescr>
             <helpId>mosaicAction</helpId>
@@ -66,13 +66,11 @@
     </extension>
 
 
-    <!-- TODO
-        <extension point="beam-ui:helpSets">
-            <helpSet>
-                <parent>beam-help</parent>
-                <path>doc/help/gpf-common.hs</path>
-            </helpSet>
-        </extension>
-    -->
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/gpf-common.hs</path>
+        </helpSet>
+    </extension>
 
 </module>

@@ -10,14 +10,14 @@ import org.esa.beam.visat.actions.AbstractVisatAction;
  * @author Ralf Quast
  * @version $Revision: 2535 $ $Date: 2008-07-09 14:10:01 +0200 (Mi, 09 Jul 2008) $
  */
-public class OrthorectifyAction extends AbstractVisatAction {
+public class OrthorectificationAction extends AbstractVisatAction {
 
     private ModelessDialog dialog;
 
     @Override
     public void actionPerformed(CommandEvent event) {
         if (dialog == null) {
-            dialog = new ReprojectionDialog(true, "Orthorectify", "orthorectify", getAppContext());
+            dialog = new ReprojectionDialog(true, "Orthorectification", "orthorectificationAction", getAppContext());
         }
         dialog.show();
     }
