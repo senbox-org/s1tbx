@@ -220,7 +220,7 @@ remove
 
      a) Import
   	- missing 'Import GeoTIFF Product' item
-    ==> PRE, MP, OPEN
+    ==> PRE, RQ, CLOSED (it was not missing)
 
 
      b) Export
