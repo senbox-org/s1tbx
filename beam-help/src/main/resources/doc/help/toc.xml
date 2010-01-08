@@ -80,6 +80,7 @@
                 <tocitem text="Band Math" target="bandArithmetic"/>
                 <tocitem text="Math Expression Editor" target="expressionEditor"/>
                 <tocitem text="Data Flip" target="dataFlip"/>
+
                 <tocitem text="Reprojection" target="reprojectionAction">
                     <tocitem text="Reprojection Dialog" target="reprojectionAction"/>
                     <tocitem text="Resampling Methods" target="resamplingMethods"/>
@@ -91,6 +92,8 @@
                     <tocitem text="Create Elevation Band" target="createElevationBand"/>
                 </tocitem>
                 <tocitem text="Mosaic" target="mosaicAction">
+                    <tocitem text="Mosaic Dialog" target="mosaicAction"/>
+                    <tocitem text="Mosaic Algorithm Description" target="mosaicAlgorithmSpec"/>
                 </tocitem>
 
                 <tocitem text="Attach Pixel-based Geo-Coding" target="pixelGeoCodingSetup"/>
