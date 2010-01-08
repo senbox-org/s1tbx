@@ -126,7 +126,7 @@ public class VisatAboutBox extends ModalDialog {
                                "<br><b>{2}</b>" +
                                "<br>" +
                                "<br>This software is based on the BEAM toolbox." +
-                               "<br>(c) Copyright 2002-2008 by Brockmann Consult and contributors." +
+                               "<br>(c) Copyright 2002-2010 by Brockmann Consult and contributors." +
                                "<br>Visit http://www.brockmann-consult.de/beam/" +
                                "<br>BEAM is developed under contract to ESA (ESRIN)." +
                                "<br>Visit http://envisat.esa.int/services/" +
