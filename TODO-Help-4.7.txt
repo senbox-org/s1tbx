@@ -158,9 +158,9 @@
  maybe add description of the figure selection ?
    ==> PRE, MP, OPEN
 
- 10) Compute ROI-Mask Area
+ 10) Compute Mask Area
  maybe add how one of the ROI can be selected ?
-   ==> PRE, MP, OPEN
+   ==> PRE, RQ, CLOSED
  ------------------------------------------------------------
  Product Generation Tools
  *************************
