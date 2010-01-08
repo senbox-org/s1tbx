@@ -17,6 +17,7 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -57,7 +58,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class ComputeMaskAreaAction extends ExecCommand {
 
-    private static final String DIALOG_TITLE = "Compute Mask area"; /*I18N*/
+    private static final String DIALOG_TITLE = "Compute Mask Area"; /*I18N*/
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -93,13 +94,8 @@ public class ComputeMaskAreaAction extends ExecCommand {
         // Get the current raster data node (band or tie-point grid)
         final RasterDataNode raster = view.getRaster();
         assert raster != null;
-        
-        String[] maskNames;
-        if (raster.getRoiMaskGroup().getNodeCount() > 0) {
-            maskNames = raster.getRoiMaskGroup().getNodeNames();
-        } else {
-            maskNames = raster.getProduct().getMaskGroup().getNodeNames();
-        }
+
+        final String[] maskNames = raster.getProduct().getMaskGroup().getNodeNames();
         String maskName;
         if (maskNames.length == 1) {
             maskName = maskNames[0];
@@ -110,7 +106,7 @@ public class ComputeMaskAreaAction extends ExecCommand {
             panel.add(new JLabel("Select Mask: "));
             JComboBox maskCombo = new JComboBox(maskNames);
             panel.add(maskCombo);
-            ModalDialog modalDialog = new ModalDialog(VisatApp.getApp().getApplicationWindow(), DIALOG_TITLE, panel, 
+            ModalDialog modalDialog = new ModalDialog(VisatApp.getApp().getApplicationWindow(), DIALOG_TITLE, panel,
                                                       ModalDialog.ID_OK_CANCEL | ModalDialog.ID_HELP, getHelpId());
             if (modalDialog.show() == AbstractDialog.ID_OK) {
                 maskName = (String) maskCombo.getSelectedItem();
@@ -118,15 +114,15 @@ public class ComputeMaskAreaAction extends ExecCommand {
                 return;
             }
         }
-        Mask mask = raster.getProduct().getMaskGroup().get(maskName);
-        
+        final Mask mask = raster.getProduct().getMaskGroup().get(maskName);
+
         RenderedImage maskImage = mask.getSourceImage();
         if (maskImage == null) {
             VisatApp.getApp().showErrorDialog(DIALOG_TITLE, errMsgBase + "No Mask image available.");
             return;
         }
-            
-        final SwingWorker<MaskAreaStatistics, Object> swingWorker = new MaskAreaSwingWorker(raster, maskImage, errMsgBase);
+
+        final SwingWorker<MaskAreaStatistics, Object> swingWorker = new MaskAreaSwingWorker(mask, errMsgBase);
         swingWorker.execute();
     }
 
@@ -143,7 +139,7 @@ public class ComputeMaskAreaAction extends ExecCommand {
             this.earthRadius = earthRadius;
             maskArea = 0.0;
             pixelAreaMax = Double.NEGATIVE_INFINITY;
-            pixelAreaMin  = Double.POSITIVE_INFINITY;
+            pixelAreaMin = Double.POSITIVE_INFINITY;
             numPixels = 0;
         }
 
@@ -186,33 +182,32 @@ public class ComputeMaskAreaAction extends ExecCommand {
 
     private class MaskAreaSwingWorker extends SwingWorker<MaskAreaStatistics, Object> {
 
-        private final RasterDataNode raster;
-        private final RenderedImage maskImage;
+        private final RasterDataNode mask;
         private final String errMsgBase;
 
-        private MaskAreaSwingWorker(RasterDataNode raster, RenderedImage maskImage, String errMsgBase) {
-            this.raster = raster;
-            this.maskImage = maskImage;
+        private MaskAreaSwingWorker(RasterDataNode mask, String errMsgBase) {
+            this.mask = mask;
             this.errMsgBase = errMsgBase;
         }
 
         @Override
-            protected MaskAreaStatistics doInBackground() throws Exception {
+        protected MaskAreaStatistics doInBackground() throws Exception {
             ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), "Computing Mask area",
                                                            Dialog.ModalityType.APPLICATION_MODAL);
             return computeMaskAreaStatistics(pm);
         }
 
         private MaskAreaStatistics computeMaskAreaStatistics(ProgressMonitor pm) {
-            
+            final MultiLevelImage maskImage = mask.getSourceImage();
+
             final int minTileX = maskImage.getMinTileX();
             final int minTileY = maskImage.getMinTileY();
 
             final int numXTiles = maskImage.getNumXTiles();
             final int numYTiles = maskImage.getNumYTiles();
-            
-            final int w = raster.getSceneRasterWidth();
-            final int h = raster.getSceneRasterHeight();
+
+            final int w = mask.getSceneRasterWidth();
+            final int h = mask.getSceneRasterHeight();
             final Rectangle imageRect = new Rectangle(0, 0, w, h);
 
             final PixelPos[] pixelPoints = new PixelPos[5];
@@ -223,7 +218,7 @@ public class ComputeMaskAreaAction extends ExecCommand {
             }
 
             MaskAreaStatistics areaStatistics = new MaskAreaStatistics(RsMathUtils.MEAN_EARTH_RADIUS / 1000.0);
-            GeoCoding geoCoding = raster.getGeoCoding();
+            GeoCoding geoCoding = mask.getGeoCoding();
 
             pm.beginTask("Computing Mask area...", numXTiles * numYTiles);
             try {
@@ -236,7 +231,7 @@ public class ComputeMaskAreaAction extends ExecCommand {
                                 maskImage.getTileGridXOffset() + tileX * maskImage.getTileWidth(),
                                 maskImage.getTileGridYOffset() + tileY * maskImage.getTileHeight(),
                                 maskImage.getTileWidth(), maskImage.getTileHeight());
-                        
+
                         final Rectangle r = imageRect.intersection(tileRectangle);
                         if (!r.isEmpty()) {
                             Raster maskTile = maskImage.getTile(tileX, tileY);
@@ -257,12 +252,15 @@ public class ComputeMaskAreaAction extends ExecCommand {
                                         }
                                         float deltaLon = Math.abs(geoPoints[2].getLon() - geoPoints[1].getLon());
                                         float deltaLat = Math.abs(geoPoints[4].getLat() - geoPoints[3].getLat());
-                                        double r2 = areaStatistics.getEarthRadius() * Math.cos(geoPoints[0].getLat() * MathUtils.DTOR);
+                                        double r2 = areaStatistics.getEarthRadius() * Math.cos(
+                                                geoPoints[0].getLat() * MathUtils.DTOR);
                                         double a = r2 * deltaLon * MathUtils.DTOR;
                                         double b = areaStatistics.getEarthRadius() * deltaLat * MathUtils.DTOR;
                                         double pixelArea = a * b;
-                                        areaStatistics.setPixelAreaMin(Math.min(areaStatistics.getPixelAreaMin(), pixelArea));
-                                        areaStatistics.setPixelAreaMax(Math.max(areaStatistics.getPixelAreaMax(), pixelArea));
+                                        areaStatistics.setPixelAreaMin(
+                                                Math.min(areaStatistics.getPixelAreaMin(), pixelArea));
+                                        areaStatistics.setPixelAreaMax(
+                                                Math.max(areaStatistics.getPixelAreaMax(), pixelArea));
                                         areaStatistics.setMaskArea(areaStatistics.getMaskArea() + a * b);
                                         areaStatistics.setNumPixels(areaStatistics.getNumPixels() + 1);
                                     }
@@ -280,7 +278,7 @@ public class ComputeMaskAreaAction extends ExecCommand {
 
 
         @Override
-            public void done() {
+        public void done() {
             try {
                 final MaskAreaStatistics areaStatistics = get();
                 if (areaStatistics.getNumPixels() == 0) {
@@ -303,7 +301,8 @@ public class ComputeMaskAreaAction extends ExecCommand {
         private void showResults(MaskAreaStatistics areaStatistics) {
             final double roundFactor = 10000.0;
             final double maskAreaR = MathUtils.round(areaStatistics.getMaskArea(), roundFactor);
-            final double meanPixelAreaR = MathUtils.round(areaStatistics.getMaskArea() / areaStatistics.getNumPixels(), roundFactor);
+            final double meanPixelAreaR = MathUtils.round(areaStatistics.getMaskArea() / areaStatistics.getNumPixels(),
+                                                          roundFactor);
             final double pixelAreaMinR = MathUtils.round(areaStatistics.getPixelAreaMin(), roundFactor);
             final double pixelAreaMaxR = MathUtils.round(areaStatistics.getPixelAreaMax(), roundFactor);
 
@@ -316,7 +315,7 @@ public class ComputeMaskAreaAction extends ExecCommand {
             gbc.weightx = 0;
 
             gbc.insets.top = 2;
-            addField(content, gbc, "Number of Mask pixels:", String.format("%15d",areaStatistics.getNumPixels()), "");
+            addField(content, gbc, "Number of Mask pixels:", String.format("%15d", areaStatistics.getNumPixels()), "");
             addField(content, gbc, "Mask area:", String.format("%15.3f", maskAreaR), "km^2");
             addField(content, gbc, "Mean pixel area:", String.format("%15.3f", meanPixelAreaR), "km^2");
             addField(content, gbc, "Minimum pixel area:", String.format("%15.3f", pixelAreaMinR), "km^2");
@@ -324,16 +323,16 @@ public class ComputeMaskAreaAction extends ExecCommand {
             gbc.insets.top = 8;
             addField(content, gbc, "Mean earth radius:", String.format("%15.3f", areaStatistics.getEarthRadius()), "km");
             final ModalDialog dialog = new ModalDialog(VisatApp.getApp().getMainFrame(),
-                                                       DIALOG_TITLE,
+                                                       DIALOG_TITLE + " - " + mask.getDisplayName(),
                                                        content,
                                                        ModalDialog.ID_OK | ModalDialog.ID_HELP,
                                                        getHelpId());
             dialog.show();
-
         }
+
         private void addField(final JPanel content, final GridBagConstraints gbc,
-                                     final String text, final String value,
-                                     final String unit) {
+                              final String text, final String value,
+                              final String unit) {
             content.add(new JLabel(text), gbc);
             gbc.weightx = 1;
             content.add(createTextField(value), gbc);
