@@ -8,14 +8,15 @@ package org.esa.beam.util;
 
 import junit.framework.TestCase;
 
+import java.io.File;
 import java.io.IOException;
 
 public class VersionCheckerTest extends TestCase {
 
-    private static final boolean PERFORM_REMOTE_TEST = true;
 
     public void testLocalVersion() throws IOException {
         VersionChecker vc = new VersionChecker();
+        assertNotNull(vc.getRemoteVersionUrlString());
         assertNotNull(vc.getLocalVersionFile());
         if (vc.getLocalVersionFile().exists()) {
             final String localVersion = vc.getLocalVersion();
@@ -26,15 +27,11 @@ public class VersionCheckerTest extends TestCase {
     }
 
     public void testRemoteVersion() throws IOException {
-        VersionChecker vc = new VersionChecker();
+        VersionChecker vc = new VersionChecker(new File("./VERSION.txt"),
+                                               getClass().getResource("version.txt").toExternalForm());
         assertNotNull(vc.getRemoteVersionUrlString());
-        if (!PERFORM_REMOTE_TEST) {
-            fail("testCurrentRemoteVersionString NOT PERFORMED: " +
-                    "Enable this test, as soon as an internet connection is available again!");
-        }
-        final String remoteVersion = vc.getRemoteVersion();
-        assertNotNull(remoteVersion);
-        assertTrue(remoteVersion.startsWith("VERSION "));
+        assertNotNull(vc.getLocalVersionFile());
+        assertEquals("VERSION 4.9.12", vc.getRemoteVersion());
     }
 
     public void testCompare() {

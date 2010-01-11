@@ -15,32 +15,36 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class VersionChecker  {
+public class VersionChecker {
 
-    private String _remoteVersionUrlString;
-    private File _localVersionFile;
+    private String remoteVersionUrlString;
+    private File localVersionFile;
     private static final String VERSION_PREFIX = "VERSION ";
 
+    // todo - use application.properties with version ID set by Maven (resource Filter!)
     public VersionChecker() {
-        // todo - use application.properties with version ID set by Maven (resource Filter!)
-        _remoteVersionUrlString = SystemUtils.BEAM_HOME_PAGE + "software/version.txt";
-        _localVersionFile = new File(SystemUtils.getBeamHomeDir(), "VERSION.txt");
+        this(new File(SystemUtils.getBeamHomeDir(), "VERSION.txt"), SystemUtils.BEAM_HOME_PAGE + "software/version.txt");
+    }
+
+    public VersionChecker(File localVersionFile, String remoteVersionUrlString) {
+        this.localVersionFile = localVersionFile;
+        this.remoteVersionUrlString = remoteVersionUrlString;
     }
 
     public String getRemoteVersionUrlString() {
-        return _remoteVersionUrlString;
+        return remoteVersionUrlString;
     }
 
     public void setRemoteVersionUrlString(String remoteVersionUrlString) {
-        _remoteVersionUrlString = remoteVersionUrlString;
+        this.remoteVersionUrlString = remoteVersionUrlString;
     }
 
     public File getLocalVersionFile() {
-        return _localVersionFile;
+        return localVersionFile;
     }
 
     public void setLocalVersionFile(File localVersionFile) {
-        _localVersionFile = localVersionFile;
+        this.localVersionFile = localVersionFile;
     }
 
     public int compareVersions() throws IOException {
