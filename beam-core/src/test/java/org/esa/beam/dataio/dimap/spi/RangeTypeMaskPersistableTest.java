@@ -1,21 +1,22 @@
 package org.esa.beam.dataio.dimap.spi;
 
 import com.bc.ceres.binding.PropertyContainer;
-import static org.esa.beam.dataio.dimap.DimapProductConstants.*;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class RangeTypePersistableTest {
+import static org.esa.beam.dataio.dimap.DimapProductConstants.*;
+import static org.junit.Assert.*;
+
+public class RangeTypeMaskPersistableTest {
 
 
     /*
@@ -41,8 +42,8 @@ public class RangeTypePersistableTest {
         config.setValue(Mask.RangeType.PROPERTY_NAME_MAXIMUM, 0.76);
         config.setValue(Mask.RangeType.PROPERTY_NAME_RASTER, "reflectance_13");
 
-        final RangeTypePersistable persistable = new RangeTypePersistable();
-        final Element element = persistable.createXmlFromObject(mask);
+        final RangeTypeMaskPersistable maskPersistable = new RangeTypeMaskPersistable();
+        final Element element = maskPersistable.createXmlFromObject(mask);
         assertNotNull(element);
         assertEquals(TAG_MASK, element.getName());
         assertEquals(Mask.RangeType.TYPE_NAME, getAttributeString(element, ATTRIB_TYPE));
@@ -73,7 +74,7 @@ public class RangeTypePersistableTest {
 
     @Test
     public void createMaskFromXml() throws IOException, JDOMException {
-        final DimapPersistable persistable = new RangeTypePersistable();
+        final DimapPersistable persistable = new RangeTypeMaskPersistable();
         final InputStream resourceStream = getClass().getResourceAsStream("RangeMask.xml");
         final Document document = new SAXBuilder().build(resourceStream);
         final Product product = new Product("P", "T", 10, 10);

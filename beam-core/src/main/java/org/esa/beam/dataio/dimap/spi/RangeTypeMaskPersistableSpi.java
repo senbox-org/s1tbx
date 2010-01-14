@@ -9,7 +9,7 @@ import org.jdom.Element;
  * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
-public class RangeTypePersistableSpi implements DimapPersistableSpi{
+public class RangeTypeMaskPersistableSpi implements DimapPersistableSpi{
 
     @Override
     public boolean canDecode(Element element) {
@@ -30,6 +30,6 @@ public class RangeTypePersistableSpi implements DimapPersistableSpi{
 
     @Override
     public DimapPersistable createPersistable() {
-        return new RangeTypePersistable();
+        return new RangeTypeMaskPersistable();
     }
 }

@@ -1,12 +1,13 @@
 package org.esa.beam.dataio.dimap.spi;
 
 import com.bc.ceres.binding.PropertyContainer;
-import static org.esa.beam.dataio.dimap.DimapProductConstants.*;
 import org.esa.beam.framework.datamodel.Mask;
-import static org.esa.beam.framework.datamodel.Mask.RangeType.*;
 import org.jdom.Element;
 
-public class RangeTypePersistable extends MaskPersistable {
+import static org.esa.beam.dataio.dimap.DimapProductConstants.*;
+import static org.esa.beam.framework.datamodel.Mask.RangeType.*;
+
+public class RangeTypeMaskPersistable extends MaskPersistable {
 
     @Override
     protected Mask.ImageType createImageType() {

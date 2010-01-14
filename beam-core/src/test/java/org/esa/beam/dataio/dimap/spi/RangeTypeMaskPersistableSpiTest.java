@@ -8,7 +8,6 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.junit.After;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,17 +15,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import static org.junit.Assert.*;
+
 /**
  * @author Marco Peters
  * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
-public class RangeTypePersistableSpiTest {
-    private RangeTypePersistableSpi _persistableSpi;
+public class RangeTypeMaskPersistableSpiTest {
+    private RangeTypeMaskPersistableSpi _persistableSpi;
 
     @Before
     public void setUp() {
-        _persistableSpi = new RangeTypePersistableSpi();
+        _persistableSpi = new RangeTypeMaskPersistableSpi();
     }
 
     @After

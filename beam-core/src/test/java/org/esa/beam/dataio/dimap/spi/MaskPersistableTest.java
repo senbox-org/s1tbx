@@ -1,19 +1,20 @@
 package org.esa.beam.dataio.dimap.spi;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import static org.esa.beam.dataio.dimap.DimapProductConstants.*;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
+
+import static org.esa.beam.dataio.dimap.DimapProductConstants.*;
+import static org.junit.Assert.*;
 
 public class MaskPersistableTest {
 
@@ -25,8 +26,8 @@ public class MaskPersistableTest {
         mask.setImageColor(new Color(0, 255, 0, 128));
         mask.setImageTransparency(0.78);
 
-        final RangeTypePersistable persistable = new RangeTypePersistable();
-        final Element element = persistable.createXmlFromObject(mask);
+        final RangeTypeMaskPersistable maskPersistable = new RangeTypeMaskPersistable();
+        final Element element = maskPersistable.createXmlFromObject(mask);
         assertNotNull(element);
         assertEquals(TAG_MASK, element.getName());
         assertEquals(Mask.RangeType.TYPE_NAME, getAttributeString(element, ATTRIB_TYPE));
