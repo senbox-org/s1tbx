@@ -1,10 +1,23 @@
 package org.esa.beam.dataio.ceos.avnir2;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.ceos.CeosHelper;
 import org.esa.beam.dataio.ceos.IllegalCeosFormatException;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FXYGeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.dataop.maptransf.MapTransformFactory;
+import org.esa.beam.framework.dataop.maptransf.StereographicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.UTM;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
@@ -16,7 +29,13 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * This class represents a product directory of an Avnir-2 product.
@@ -274,12 +293,6 @@ class Avnir2ProductDirectory {
         band.setScalingFactor(scalingFactor);
         band.setScalingOffset(scalingOffset);
         band.setNoDataValueUsed(false);
-        final int[] histogramBins = _trailerFile.getHistogramBinsForBand(bandIndex);
-        final float scaledMinSample = (float) (getMinSampleValue(histogramBins) * scalingFactor + scalingOffset);
-        final float scaledMaxSample = (float) (getMaxSampleValue(histogramBins) * scalingFactor + scalingOffset);
-        band.setStx(new Stx(scaledMinSample, scaledMaxSample, Double.NaN, Double.NaN, true, histogramBins, 0));
-        final ImageInfo imageInfo = band.createDefaultImageInfo(null, ProgressMonitor.NULL);
-        band.setImageInfo(imageInfo);
         band.setDescription("Radiance band " + avnir2ImageFile.getBandIndex());
 
         return band;
@@ -329,16 +342,6 @@ class Avnir2ProductDirectory {
         }
 
         parent.addElement(summaryMetadata);
-    }
-
-    private int getMinSampleValue(final int[] histogram) {
-        // search for first non zero value
-        for (int i = 0; i < histogram.length; i++) {
-            if (histogram[i] != 0) {
-                return i;
-            }
-        }
-        return 0;
     }
 
     private int getMaxSampleValue(final int[] histogram) {
