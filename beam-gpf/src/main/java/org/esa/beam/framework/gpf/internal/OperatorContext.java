@@ -51,6 +51,8 @@ import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -325,6 +327,10 @@ public class OperatorContext {
                                         ProgressMonitor.class
                                 });
     }
+    
+    private boolean operatorMustComputeTileStack() {
+        return isComputeTileStackMethodUsable() && !isComputeTileMethodUsable();
+    }
 
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
         while (true) {
@@ -500,12 +506,22 @@ public class OperatorContext {
         if (targetProduct.getPreferredTileSize() == null) {
             targetProduct.setPreferredTileSize(getPreferredTileSize());
         }
-
         final Band[] targetBands = targetProduct.getBands();
+        Object[][] lock = null;
+        if (operatorMustComputeTileStack()) {
+            Dimension tileSize = targetProduct.getPreferredTileSize();
+            int width = targetProduct.getSceneRasterWidth();
+            int height = targetProduct.getSceneRasterHeight();
+            lock = OperatorImageTileStack.createLocks(width, height, tileSize);
+        }
         targetImageMap = new HashMap<Band, OperatorImage>(targetBands.length * 2);
         for (final Band targetBand : targetBands) {
-
-            final OperatorImage image = new OperatorImage(targetBand, this);
+            final OperatorImage image;
+            if (operatorMustComputeTileStack()) {
+                image = new OperatorImageTileStack(targetBand, this, lock);
+            } else {
+                image = new OperatorImage(targetBand, this);
+            }
             targetImageMap.put(targetBand, image);
 
             // Note: It is legal not to set the newly created operator image
