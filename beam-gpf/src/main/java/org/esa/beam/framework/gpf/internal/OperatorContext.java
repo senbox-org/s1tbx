@@ -507,18 +507,18 @@ public class OperatorContext {
             targetProduct.setPreferredTileSize(getPreferredTileSize());
         }
         final Band[] targetBands = targetProduct.getBands();
-        Object[][] lock = null;
+        Object[][] locks = null;
         if (operatorMustComputeTileStack()) {
             Dimension tileSize = targetProduct.getPreferredTileSize();
             int width = targetProduct.getSceneRasterWidth();
             int height = targetProduct.getSceneRasterHeight();
-            lock = OperatorImageTileStack.createLocks(width, height, tileSize);
+            locks = OperatorImageTileStack.createLocks(width, height, tileSize);
         }
         targetImageMap = new HashMap<Band, OperatorImage>(targetBands.length * 2);
         for (final Band targetBand : targetBands) {
             final OperatorImage image;
             if (operatorMustComputeTileStack()) {
-                image = new OperatorImageTileStack(targetBand, this, lock);
+                image = new OperatorImageTileStack(targetBand, this, locks);
             } else {
                 image = new OperatorImage(targetBand, this);
             }
