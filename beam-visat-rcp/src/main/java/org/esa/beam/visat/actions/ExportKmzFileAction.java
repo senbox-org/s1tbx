@@ -4,6 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ImageLegend;
@@ -21,10 +22,12 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
@@ -36,7 +39,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.text.MessageFormat;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -62,17 +64,23 @@ public class ExportKmzFileAction extends ExecCommand {
     public void actionPerformed(CommandEvent event) {
         ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
         final GeoCoding geoCoding = view.getProduct().getGeoCoding();
+        boolean isGeographic = false;
         if (geoCoding instanceof MapGeoCoding) {
             MapGeoCoding mapGeoCoding = (MapGeoCoding) geoCoding;
             MapTransformDescriptor transformDescriptor = mapGeoCoding.getMapInfo()
                     .getMapProjection().getMapTransform().getDescriptor();
             String typeID = transformDescriptor.getTypeID();
             if (typeID.equals(IdentityTransformDescriptor.TYPE_ID)) {
-                exportImage(view);
+                isGeographic = true;
             }
-        } else {
-            String message = MessageFormat.format("Product must be in ''{0}'' projection.",
-                                                  IdentityTransformDescriptor.NAME);
+        } else if(geoCoding instanceof CrsGeoCoding){
+            isGeographic = CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
+        }
+
+        if(isGeographic) {
+            exportImage(view);
+        }else {
+            String message = "Product must be in ''Geographic Lat/Lon'' projection.";
             VisatApp.getApp().showInfoDialog(message, null);
         }
     }

@@ -14,8 +14,8 @@ Reprojection:
 * GeoTIFF wont work with GeoTools CRS
   ==> PRE, MP/MZ, OPEN
 
-* KML export does not work anymore. Does not consider new CrsGeoCoding.
-  ==> FINAL, MZ, OPEN
+* KML export is not displayed correctly in Google Earth.
+  ==> FINAL, ?, OPEN
 * Shapes are wrongly clipped on import, which results in problems when reprojecting.
   For now they are skipped while reprojecting. Fix import issue.
   ==> FINAL, MZ/?, OPEN
@@ -32,6 +32,8 @@ Reprojection:
 * If figures/geometries existed in source product, layer boundaries are wrong
   after reprojection
   ==> PRE, MZ, CLOSED
+* KML export does not work anymore. Does not consider new CrsGeoCoding.
+  ==> FINAL, MP, CLOSED
 
 
 Masks:
