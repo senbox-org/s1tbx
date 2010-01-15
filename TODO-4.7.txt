@@ -199,10 +199,6 @@ Product tree:
 
 Layers:
 =======
-
-* Do not allow renaming of vector data node and mask layers:  
-  ==> PRE, ?, OPEN
-
 * We once decided that we wanted to introduce static factory methods for each(!) layer type
   following the JAI-Descriptor concept. Nothing done so far.
   ==> FINAL, ?, OPEN
@@ -211,6 +207,9 @@ Layers:
 * Don't use class names e.g. in Session I/O.
   ==> FINAL, ?, OPEN
 
+
+* Do not allow renaming of vector data node and mask layers:  
+  ==> PRE, MZ, CLOSED
 * Remove old Pin/GCP/Figure/Bitmask/ROI Layers usage, deprecate classes
   ==> PRE, MP, CLOSED
 * When a vector data layer detects new incoming features the style is always the default style:

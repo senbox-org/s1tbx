@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.swing.TreeCellExtender;
 import com.jidesoft.swing.CheckBoxTree;
@@ -14,7 +15,10 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.layer.LayerSourceAssistantPane;
 import org.esa.beam.framework.ui.layer.LayerSourceDescriptor;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.VectorDataLayer;
+import org.esa.beam.framework.ui.product.VectorDataLayerType;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
 
 import javax.swing.AbstractButton;
@@ -223,6 +227,14 @@ class LayerManagerForm extends AbstractLayerForm {
         }
         return false;
     }
+    
+    private static boolean isLayerNameEditable(Layer layer) {
+        if (layer instanceof VectorDataLayer || 
+                layer.getConfiguration().isPropertyDefined(MaskLayerType.PROPERTY_NAME_MASK)) {
+            return false;
+        }
+        return true;   
+    }
 
     private static Layer getLayer(TreePath path) {
         if (path == null) {
@@ -279,9 +291,18 @@ class LayerManagerForm extends AbstractLayerForm {
         }
     }
 
-    private CheckBoxTree createCheckBoxTree(LayerTreeModel layerTreeModel) {
+    private CheckBoxTree createCheckBoxTree(LayerTreeModel treeModel) {
 
-        final CheckBoxTree checkBoxTree = new CheckBoxTree(layerTreeModel);
+        final CheckBoxTree checkBoxTree = new CheckBoxTree(treeModel) {
+            @Override
+            public boolean isPathEditable(TreePath path) {
+                Layer layer = getLayer(path);
+                if (layer != null) {
+                    return isLayerNameEditable(layer);
+                }
+                return false;
+            }  
+        };
         checkBoxTree.setRootVisible(false);
         checkBoxTree.setShowsRootHandles(true);
         checkBoxTree.setDigIn(false);
