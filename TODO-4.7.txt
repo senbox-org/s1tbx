@@ -96,6 +96,8 @@ VectorDataNode:
   ==> FINAL, ?, OPEN
 * Import of Geometry does not work when no CRS is defined for shapefile and coordinates are not on WGS84
   ==> FINAL, ?, OPEN
+* Pin & GCP Vector Data Nodes are deletable but user created geometries not. Should be the other way around.
+  ==> FINAL, ?, OPEN
 
 * "Profile plot" and "Coordinate List", are not updated when figure selection changes
   ==> PRE, MP, CLOSED
