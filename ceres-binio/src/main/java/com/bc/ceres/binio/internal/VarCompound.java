@@ -73,9 +73,7 @@ final class VarCompound extends AbstractCompound {
                 memberInstance.resolveSize();
             }
             size += memberInstance.getSize();
-        }
-        if (maxResolvedIndex < index) {
-            maxResolvedIndex = index;
+            maxResolvedIndex = i;
         }
     }
 

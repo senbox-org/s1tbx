@@ -49,10 +49,8 @@ final class FixSequenceOfVarCollections extends AbstractSequenceOfCollections {
 
         ensureElementOffsetsCreated();
 
-        final int startIndex = maxResolvedElementIndex + 1;
-
         CollectionInstance elementInstance = null;
-        for (int i = startIndex; i <= index; i++) {
+        for (int i = maxResolvedElementIndex + 1; i <= index; i++) {
             if (i == lastAccessedElementIndex) {
                 elementInstance = lastAccessedElementInstance;
             } else {
@@ -62,13 +60,12 @@ final class FixSequenceOfVarCollections extends AbstractSequenceOfCollections {
                 elementInstance.resolveSize();
             }
             elementOffsets[i + 1] = elementOffsets[i] + elementInstance.getSize();
+            maxResolvedElementIndex = i;
+            maxResolvedElementInstance = elementInstance;
         }
         if (index == getElementCount() - 1) {
             size = elementOffsets[getElementCount()] - elementOffsets[0];
         }
-
-        maxResolvedElementIndex = index;
-        maxResolvedElementInstance = elementInstance;
     }
 
     private void ensureElementOffsetsCreated() {
