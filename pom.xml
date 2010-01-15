@@ -162,6 +162,18 @@
         <module>blue-marble-worldmap</module>
 
     </modules>
+    
+    <properties>
+        <!--
+           In version 3.0 of Maven the sourceEncoding property will be embedded in the
+           build tag. For now the convention is to that it as property.
+           TODO: Move the sourceEncoding property to the build tag if version 3.0 is released
+           -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <ceres.version>0.10-SNAPSHOT</ceres.version>
+        <geotools.version>2.6.1</geotools.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -171,43 +183,43 @@
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-launcher</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>${ceres.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-core</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>${ceres.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-binding</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>${ceres.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-ui</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>${ceres.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-binio</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>${ceres.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-glayer</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>${ceres.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-jai</artifactId>
-                <version>0.10-SNAPSHOT</version>
+                <version>${ceres.version}</version>
             </dependency>
 
             <!-- BEAM System Level Modules ############################################# -->
@@ -268,42 +280,37 @@
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-api</artifactId>
-                <version>2.6.0</version>
+                <version>${geotools.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-referencing</artifactId>
-                <version>2.6.0</version>
+                <version>${geotools.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-main</artifactId>
-                <version>2.6.0</version>
+                <version>${geotools.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-epsg-hsql</artifactId>
-                <version>2.6.0</version>
+                <version>${geotools.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-wms</artifactId>
-                <version>2.6.0</version>
+                <version>${geotools.version}</version>
             </dependency>
             <dependency>
               <groupId>org.geotools</groupId>
               <artifactId>gt-shapefile</artifactId>
-              <version>2.6.0</version>
+              <version>${geotools.version}</version>
             </dependency>
             <dependency>
               <groupId>org.geotools</groupId>
               <artifactId>gt-render</artifactId>
-              <version>2.6.0</version>
-            </dependency>
-            <dependency>
-              <groupId>org.geotools</groupId>
-              <artifactId>gt-property</artifactId>
-              <version>2.6.0</version>
+              <version>${geotools.version}</version>
             </dependency>
 
             <!-- JAI Libraries ############################################# -->
@@ -445,15 +452,6 @@
             <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
-
-    <!--
-       In version 3.0 of Maven the sourceEncoding property will be embedded in the
-       build tag. For now the convention is to that it as property.
-       TODO: Move the sourceEncoding property to the build tag if version 3.0 is released
-       -->
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 
 
     <build>

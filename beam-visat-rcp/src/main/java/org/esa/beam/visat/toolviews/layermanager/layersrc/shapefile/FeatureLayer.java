@@ -10,8 +10,8 @@ import org.geotools.map.DefaultMapContext;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.renderer.lite.LabelCache;
-import org.geotools.renderer.lite.LabelCacheDefault;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.Fill;
 import org.geotools.styling.PolygonSymbolizer;
@@ -133,7 +133,7 @@ public class FeatureLayer extends Layer {
         if (hints.containsKey(StreamingRenderer.LABEL_CACHE_KEY)) {
             labelCache = (LabelCache) hints.get(StreamingRenderer.LABEL_CACHE_KEY);
         } else {
-            labelCache = new LabelCacheDefault();
+            labelCache = new LabelCacheImpl();
             hints.put(StreamingRenderer.LABEL_CACHE_KEY, labelCache);
         }
         renderer.setRendererHints(hints);
