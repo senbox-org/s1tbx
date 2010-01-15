@@ -24,7 +24,6 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -33,7 +32,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -43,15 +41,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class ExportKmzFileAction extends ExecCommand {
-
-    final BeamFileFilter kmzFileFilter;
-
-    public static final String EXPORT_KML_CMD_ID = "exportKmzFile";
-
-    private static final String[] KMZ_FORMAT_DESCRIPTION = {"KMZ", "kmz",
-            "KMZ - Google Earth File Format"};
-
+    private static final String OVERLAY_KML = "overlay.kml";
+    private static final String OVERLAY_PNG = "overlay.png";
+    private static final String IMAGE_TYPE = "PNG";
+    private static final String LEGEND_PNG = "legend.png";
+    private static final String[] KMZ_FORMAT_DESCRIPTION = {"KMZ", "kmz","KMZ - Google Earth File Format"};
     private static final String IMAGE_EXPORT_DIR_PREFERENCES_KEY = "user.image.export.dir";
+
+    private final BeamFileFilter kmzFileFilter;
 
     public ExportKmzFileAction() {
         final String formatName = KMZ_FORMAT_DESCRIPTION[0];
@@ -135,7 +132,7 @@ public class ExportKmzFileAction extends ExecCommand {
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        if (file == null || file.getName().equals("")) {
+        if (file == null || file.getName().isEmpty()) {
             return;
         }
 
@@ -246,7 +243,7 @@ public class ExportKmzFileAction extends ExecCommand {
         return "(" + unit + ")";
     }
 
-    private class SaveKMLSwingWorker extends ProgressMonitorSwingWorker {
+    private static class SaveKMLSwingWorker extends ProgressMonitorSwingWorker {
 
         private final VisatApp visatApp;
         private final ProductSceneView view;
@@ -262,40 +259,36 @@ public class ExportKmzFileAction extends ExecCommand {
         @Override
         protected Object doInBackground(ProgressMonitor pm) throws Exception {
             try {
-                final String message = "Saving image as " + file.getPath() + "...";
+                final String message = String.format("Saving image as %s...", file.getPath());
                 pm.beginTask(message, view.isRGB() ? 4 : 3);
                 visatApp.setStatusBarMessage(message);
                 visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                final Rectangle bounds = view.getLayerCanvas().getViewport().getViewBounds();
-                // TODO: let user specifiy dimension (rq-20090529)
-                final Dimension dimension = new Dimension(MathUtils.floorInt(bounds.getWidth()),
-                                                          MathUtils.floorInt(bounds.getHeight()));
+                final Dimension dimension = new Dimension(view.getProduct().getSceneRasterWidth(),
+                                                          view.getProduct().getSceneRasterHeight());
                 RenderedImage image = ExportImageAction.createImage(view, true, dimension, true);
                 pm.worked(1);
-                String imageType = "PNG";
-                String imageName = "overlay.png";
                 ZipOutputStream outStream = new ZipOutputStream(new FileOutputStream(file));
                 try {
-                    outStream.putNextEntry(new ZipEntry("overlay.kml"));
-                    final String kmlContent = formatKML(view, imageName);
+                    outStream.putNextEntry(new ZipEntry(OVERLAY_KML));
+                    final String kmlContent = formatKML(view, OVERLAY_PNG);
                     outStream.write(kmlContent.getBytes());
                     pm.worked(1);
 
-                    outStream.putNextEntry(new ZipEntry(imageName));
-                    ImageEncoder encoder = ImageCodec.createImageEncoder(imageType, outStream, null);
+                    outStream.putNextEntry(new ZipEntry(OVERLAY_PNG));
+                    ImageEncoder encoder = ImageCodec.createImageEncoder(IMAGE_TYPE, outStream, null);
                     encoder.encode(image);
                     pm.worked(1);
 
                     if (!view.isRGB()) {
-                        outStream.putNextEntry(new ZipEntry("legend.png"));
-                        encoder = ImageCodec.createImageEncoder("PNG", outStream, null);
+                        outStream.putNextEntry(new ZipEntry(LEGEND_PNG));
+                        encoder = ImageCodec.createImageEncoder(IMAGE_TYPE, outStream, null);
                         encoder.encode(createImageLegend(view.getRaster()));
                         pm.worked(1);
                     }
                 } finally {
                     outStream.close();
                 }
-            } catch (OutOfMemoryError e) {
+            } catch (OutOfMemoryError ignored) {
                 visatApp.showOutOfMemoryErrorDialog("The image could not be exported."); /*I18N*/
             } catch (Throwable e) {
                 visatApp.handleUnknownException(e);
