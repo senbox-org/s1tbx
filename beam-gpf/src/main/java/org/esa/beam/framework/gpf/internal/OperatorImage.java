@@ -15,7 +15,7 @@ import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.SourcelessOpImage;
 
-public class OperatorImage extends SourcelessOpImage {
+class OperatorImage extends SourcelessOpImage {
 
     private static final String DISABLE_TILE_CACHING_PROPERTY = "beam.gpf.disableOperatorTileCaching";
 

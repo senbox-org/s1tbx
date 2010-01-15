@@ -5,10 +5,11 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
-import org.esa.beam.framework.gpf.internal.OperatorImage;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 
 import java.lang.reflect.Field;
+
+import javax.media.jai.PlanarImage;
 
 /**
  * Default implementation for {@link org.esa.beam.framework.gpf.internal.OperatorContext}.
@@ -62,7 +63,7 @@ class NodeContext {
         return targetProduct;
     }
 
-    OperatorImage getTargetImage(Band band) {
+    PlanarImage getTargetImage(Band band) {
         return operatorContext.getTargetImage(band);
     }
 

@@ -8,7 +8,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
-import org.esa.beam.framework.gpf.internal.OperatorImage;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -211,7 +210,7 @@ public class GraphProcessor {
                                 // tiles of all other OperatorImage computed stack-wise.
                                 //
                                 for (Band band : targetProduct.getBands()) {
-                                    OperatorImage image = nodeContext.getTargetImage(band);
+                                    PlanarImage image = nodeContext.getTargetImage(band);
                                     if (image != null) {
                                         forceTileComputation(image, tileX, tileY, semaphore, tileScheduler, listeners);
                                         break;
@@ -221,7 +220,7 @@ public class GraphProcessor {
                                 // (2) Pull tile from source images of other regular bands.
                                 //
                                 for (Band band : targetProduct.getBands()) {
-                                    OperatorImage image = nodeContext.getTargetImage(band);
+                                    PlanarImage image = nodeContext.getTargetImage(band);
                                     if (image == null) {
                                         if (OperatorContext.isRegularBand(band) && band.isSourceImageSet()) {
                                             forceTileComputation(band.getSourceImage(), tileX, tileY, semaphore, tileScheduler, listeners);
@@ -233,7 +232,7 @@ public class GraphProcessor {
                                 // Simply pull tile from source images of regular bands.
                                 //
                                 for (Band band : targetProduct.getBands()) {
-                                    OperatorImage image = nodeContext.getTargetImage(band);
+                                    PlanarImage image = nodeContext.getTargetImage(band);
                                     if (image != null) {
                                         forceTileComputation(image, tileX, tileY, semaphore, tileScheduler, listeners);
                                     } else if (OperatorContext.isRegularBand(band) && band.isSourceImageSet()) {
