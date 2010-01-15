@@ -262,7 +262,7 @@ public class ProductsToolView extends AbstractToolView {
         private boolean isDeletableVectorData(Object selectedObject) {
             if (selectedObject instanceof VectorDataNode) {
                 final VectorDataNode vectorDataNode = (VectorDataNode) selectedObject;
-                return vectorDataNode.getProduct().isInternalNode(vectorDataNode);
+                return !vectorDataNode.getProduct().isInternalNode(vectorDataNode);
             }
             return false;
         }
