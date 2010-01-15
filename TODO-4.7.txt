@@ -97,7 +97,7 @@ VectorDataNode:
 * Export vector data node to shapefile
   ==> FINAL, ?, OPEN
 * Import of Geometry does not work when no CRS is defined for shapefile and coordinates are not on WGS84
-  ==> FINAL, ?, OPEN
+  ==> FINAL, ?, OPEN (see issue in Reprojection)
 
 * "Profile plot" and "Coordinate List", are not updated when figure selection changes
   ==> PRE, MP, CLOSED
