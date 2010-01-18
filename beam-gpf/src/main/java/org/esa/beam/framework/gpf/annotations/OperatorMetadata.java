@@ -1,6 +1,11 @@
 package org.esa.beam.framework.gpf.annotations;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Provides metadata for an operator. This annotation is valid for
@@ -42,7 +47,7 @@ public @interface OperatorMetadata {
 
 
     /**
-     * @return If {@code true}, this operator is considered for internal use onlyand thus
+     * @return If {@code true}, this operator is considered for internal use only and thus
      *         may not be exposed in user interfaces.
      */
     boolean internal() default false;
