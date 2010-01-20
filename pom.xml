@@ -145,7 +145,7 @@
         <module>beam-atsr-reader</module>
         <module>beam-alos-reader</module>
         <module>beam-netcdf-reader</module>
-        <module>beam-netcdf4-reader</module>
+        <!--<module>beam-netcdf4-reader</module>-->
         <module>beam-merisl3-reader</module>
         <module>beam-getasse30-reader</module>
         <module>beam-envisat-reader</module>
@@ -310,6 +310,11 @@
             <dependency>
               <groupId>org.geotools</groupId>
               <artifactId>gt-render</artifactId>
+              <version>${geotools.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.geotools</groupId>
+              <artifactId>gt-geotiff</artifactId>
               <version>${geotools.version}</version>
             </dependency>
 
