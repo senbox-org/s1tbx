@@ -2690,6 +2690,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @see #createCalendar
          * @see #createDateFormat
+         * @return a formated UTC date/time string
          */
         public String format() {
             final Calendar calendar = createCalendar();

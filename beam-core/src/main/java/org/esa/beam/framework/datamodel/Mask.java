@@ -370,10 +370,12 @@ public class Mask extends Band {
      */
     public static class VectorDataType extends ImageType {
 
+        public static final String TYPE_NAME = "Geometry";
+
         public static final String PROPERTY_NAME_VECTOR_DATA = "vectorData";
 
         public VectorDataType() {
-            super("Geometry");
+            super(TYPE_NAME);
         }
 
         /**

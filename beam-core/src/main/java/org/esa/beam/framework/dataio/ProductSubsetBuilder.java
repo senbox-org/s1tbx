@@ -622,7 +622,12 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                                       Arrays.copyOf(sourceStx.getHistogramBins(), sourceStx.getHistogramBins().length),
                                       sourceStx.getResolutionLevel());
         targetRaster.setStx(targetStx);
-        final ImageInfo imageInfo = targetRaster.createDefaultImageInfo(null, ProgressMonitor.NULL);
+        final ImageInfo imageInfo;
+        if (sourceRaster.getImageInfo() != null) {
+            imageInfo = sourceRaster.getImageInfo().createDeepCopy();
+        } else {
+            imageInfo = targetRaster.createDefaultImageInfo(null, ProgressMonitor.NULL);
+        }
         targetRaster.setImageInfo(imageInfo);
     }
 

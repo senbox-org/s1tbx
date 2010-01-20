@@ -745,7 +745,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     }
 
     private RenderedImage getSourceImage(ProductSubsetDef subsetDef, Band band) {
-        RenderedImage image = band.createSourceImage();
+        RenderedImage image = band.getSourceImage();
         if (subsetDef != null) {
             final Rectangle region = subsetDef.getRegion();
             if (region != null) {
