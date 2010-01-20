@@ -75,6 +75,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,6 +106,24 @@ public class ImageManager {
             multiLevelSource.reset();
         }
         maskImageMap.clear();
+    }
+
+    /**
+     * Removes all mask images for a given product from the internal cache.
+     * <p/>
+     * TODO - this is temporary API only.
+     *
+     * @param product the given product.
+     */
+    public synchronized void clearMaskImages(Product product) {
+        final Iterator<MaskKey> iterator = maskImageMap.keySet().iterator();
+
+        while (iterator.hasNext()) {
+            final MaskKey key = iterator.next();
+            if (key.product.get() == product) {
+                iterator.remove();
+            }
+        }
     }
 
     public static MultiLevelModel getMultiLevelModel(RasterDataNode rasterDataNode) {
@@ -1009,6 +1028,7 @@ public class ImageManager {
     }
 
     // Initialization on demand holder idiom
+
     private static class Holder {
 
         private static final ImageManager instance = new ImageManager();
