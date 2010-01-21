@@ -97,6 +97,7 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized void writeBandRasterData(final Band sourceBand,
                                     final int sourceOffsetX,
                                     final int sourceOffsetY,
@@ -119,6 +120,7 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
     /**
      * Deletes the physically representation of the given product from the hard disk.
      */
+    @Override
     public void deleteOutput() {
         if (outputFile != null && outputFile.isFile()) {
             outputFile.delete();
@@ -130,6 +132,7 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
      *
      * @throws java.io.IOException on failure
      */
+    @Override
     public void flush() throws IOException {
         if (outputStream != null) {
             outputStream.flush();
@@ -141,6 +144,7 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
      *
      * @throws java.io.IOException on failure
      */
+    @Override
     public void close() throws IOException {
         if (bandWriter != null) {
             bandWriter.dispose();
