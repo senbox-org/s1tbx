@@ -46,15 +46,19 @@ public class CoordinateReferenceSystems {
                     final CRSAuthorityFactory factory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
                     if (utmProjection.isNorth()) {
                         if (Datum.WGS_72.equals(datum)) {
-                            result = factory.createProjectedCRS("EPSG:" + (32200 + zone));
+                            final int WGS72_UTM_zone_N_BASE = 32200;
+                            result = factory.createProjectedCRS("EPSG:" + (WGS72_UTM_zone_N_BASE + zone));
                         } else if (Datum.WGS_84.equals(datum)) {
-                            result = factory.createProjectedCRS("EPSG:" + (32600 + zone));
+                            final int WGS84_UTM_zone_N_BASE = 32600;
+                            result = factory.createProjectedCRS("EPSG:" + (WGS84_UTM_zone_N_BASE + zone));
                         }
                     } else {
                         if (Datum.WGS_72.equals(datum)) {
-                            result = factory.createProjectedCRS("EPSG:" + (32300 + zone));
+                            final int WGS72_UTM_zone_S_BASE = 32300;
+                            result = factory.createProjectedCRS("EPSG:" + (WGS72_UTM_zone_S_BASE + zone));
                         } else if (Datum.WGS_84.equals(datum)) {
-                            result = factory.createProjectedCRS("EPSG:" + (32700 + zone));
+                            final int WGS84_UTM_zone_S_BASE = 32700;
+                            result = factory.createProjectedCRS("EPSG:" + (WGS84_UTM_zone_S_BASE + zone));
                         }
                     }
                 }
