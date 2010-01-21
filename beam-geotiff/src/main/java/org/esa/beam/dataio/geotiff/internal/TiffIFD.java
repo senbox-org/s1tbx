@@ -3,7 +3,11 @@ package org.esa.beam.dataio.geotiff.internal;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.dimap.DimapHeaderWriter;
 import org.esa.beam.dataio.geotiff.Utils;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
@@ -194,11 +198,11 @@ public class TiffIFD {
         for (ColorPaletteDef.Point point : paletteDef.getPoints()) {
             final Color color = point.getColor();
             final int red = (int) (color.getRed() * factor);
-            final int greeen = (int) (color.getGreen() * factor);
+            final int green = (int) (color.getGreen() * factor);
             final int blue = (int) (color.getBlue() * factor);
             int mapIndex = (int) Math.floor(point.getSample());
             redColor[mapIndex] = new TiffShort(red);
-            greenColor[mapIndex] = new TiffShort(greeen);
+            greenColor[mapIndex] = new TiffShort(green);
             blueColor[mapIndex] = new TiffShort(blue);
         }
         final TiffShort[] colorMap = new TiffShort[TIFF_COLORMAP_SIZE * 3];
@@ -391,8 +395,7 @@ public class TiffIFD {
 
     private long getByteCount(TiffValue[] bitsPerSample, int i) {
         long bytesPerSample = ((TiffShort) bitsPerSample[i]).getValue() / 8;
-        long byteCount = getWidth() * getHeight() * bytesPerSample;
-        return byteCount;
+        return getWidth() * getHeight() * bytesPerSample;
     }
 
     private TiffShort[] calculateBitsPerSample(final Product product) {
