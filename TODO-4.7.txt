@@ -42,8 +42,6 @@ Masks:
   ==> FINAL, ?, OPEN
 * Mask manager shall test for dependencies before deleting
   ==> FINAL, NF, OPEN
-* Old "zoom to ROI" missing
-  ==> FINAL, ?, OPEN
 * We need a special mask type masking out no-data pixels. If no-data value
   is set, it shall be used in its raw form by the mask image (OpImage).
   If valid-expression is set, it shall be AND-ed with the no-data mask,
@@ -51,6 +49,8 @@ Masks:
   ==> FINAL, ?, OPEN
 
 
+* Old "zoom to ROI" missing
+  ==> FINAL, MZ, CLOSED
 * Update Statistics & Mask tool window title for selected band
   ==> PRE, MP, CLOSED
 * Mask visibility control is often not in sync. between Mask/ROI manager &

@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.mask;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.grender.Viewport;
 import com.bc.jexp.impl.Tokenizer;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
@@ -10,6 +11,7 @@ import org.esa.beam.dataio.dimap.spi.DimapPersistence;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.Mask.BandMathType;
 import org.esa.beam.framework.datamodel.Mask.ImageType;
 import org.esa.beam.framework.datamodel.Product;
@@ -19,6 +21,7 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileChooser;
@@ -26,11 +29,15 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.CreateVectorDataNodeAction;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -41,8 +48,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -74,6 +87,7 @@ class MaskFormActions {
                 new CopyAction(maskForm), new EditAction(maskForm),
                 new RemoveAction(maskForm),new TransferAction(maskForm),
                 new ImportAction(maskToolView, maskForm), new ExportAction(maskToolView, maskForm),
+                new ZoomToVectorMaskAction(maskToolView, maskForm), new NullAction(maskForm),
         };
     }
 
@@ -839,6 +853,103 @@ class MaskFormActions {
                 foundName = name + "_" + index;
             }
             return foundName;
+        }
+    }
+    
+    private static class ZoomToVectorMaskAction extends MaskAction {
+
+        private final AbstractToolView toolView;
+
+        private ZoomToVectorMaskAction(AbstractToolView toolView, MaskForm maskForm) {
+            super(maskForm, "icons/ZoomTo24.gif", "zoomToButton",
+                  "Zooms to the selected mask.");
+            this.toolView = toolView;
+        }
+
+        @Override
+        void updateState() {
+            setEnabled(getMaskForm().getSelectedRowCount() == 1 &&
+                       VisatApp.getApp().getSelectedProductSceneView() != null);
+            
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Mask mask = getMaskForm().getSelectedMask();
+            ImageType imageType = mask.getImageType();
+            ProductSceneView productSceneView = VisatApp.getApp().getSelectedProductSceneView();
+            if (productSceneView != null) {
+                Rectangle2D modelBounds;
+                if (imageType instanceof Mask.VectorDataType) {
+                    modelBounds = handleVectorMask(mask);
+                } else {
+                    modelBounds = handleImageMask(mask, productSceneView.getBaseImageLayer().getImageToModelTransform());
+                }
+                if (modelBounds != null) {
+                    Viewport viewport = productSceneView.getViewport();
+                    final AffineTransform m2vTransform = viewport.getModelToViewTransform();
+                    final AffineTransform v2mTransform = viewport.getViewToModelTransform();
+                    final Rectangle2D viewBounds = m2vTransform.createTransformedShape(modelBounds).getBounds2D();
+                    viewBounds.setFrameFromDiagonal(viewBounds.getMinX() - 10, viewBounds.getMinY() - 10,
+                                                    viewBounds.getMaxX() + 10, viewBounds.getMaxY() + 10);
+                    final Shape transformedModelBounds = v2mTransform.createTransformedShape(viewBounds);
+                    viewport.zoom(transformedModelBounds.getBounds2D());
+                } else {
+                    JOptionPane.showMessageDialog(toolView.getPaneWindow(),
+                                                  "The selected mask is empty.",
+                                                  "Zoom to Mask",
+                                                  JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        }
+
+
+        private static Rectangle2D handleVectorMask(Mask mask) {
+            VectorDataNode vectorData = Mask.VectorDataType.getVectorData(mask);
+            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorData.getFeatureCollection();
+            if (featureCollection.isEmpty()) {
+                return null;
+            }
+            ReferencedEnvelope envelope = featureCollection.getBounds();
+            Rectangle2D modelBounds = new Rectangle2D.Double(envelope.getMinX(), envelope.getMinY(),
+                                                 envelope.getWidth(), envelope.getHeight());
+            return modelBounds;
+        }
+        
+        private Rectangle2D handleImageMask(Mask mask, AffineTransform i2m) {
+            RenderedImage image = mask.getSourceImage().getImage(0);
+            final int minTileX = image.getMinTileX();
+            final int minTileY = image.getMinTileY();
+            final int numXTiles = image.getNumXTiles();
+            final int numYTiles = image.getNumYTiles();
+            final int width = image.getWidth();
+            final int height = image.getHeight();
+            int minX = width;
+            int maxX = 0;
+            int minY = height;
+            int maxY = 0;
+            
+            for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
+                for (int tileY = minTileY; tileY < minTileY + numYTiles; ++tileY) {
+                    final Raster data = image.getTile(tileX, tileY);
+                    for (int x = data.getMinX(); x < data.getMinX() + data.getWidth(); x++) {
+                        for (int y = data.getMinY(); y < data.getMinY() + data.getHeight(); y++) {
+                            if (data.getSample(x, y, 0) != 0) {
+                                minX = Math.min(x, minX);
+                                maxX = Math.max(x, maxX);
+                                minY = Math.min(y, minY);
+                                maxY = Math.max(y, maxY);
+                            }
+                        }
+                    }
+                }
+            }
+            Rectangle rect = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
+            if (rect.isEmpty()) {
+                return null;
+            } else {
+                return i2m.createTransformedShape(rect).getBounds2D();
+            }
         }
     }
 }
