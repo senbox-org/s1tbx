@@ -8,13 +8,29 @@ import com.bc.ceres.binio.Type;
 import java.io.IOException;
 import java.math.BigInteger;
 
+/**
+ * Utility class.
+ */
 public class NumberUtils {
 
+    // note: using BigInteger.valueOf(long) to create this mask does not work
     static final BigInteger ULONG_MASK = new BigInteger(Long.toHexString(0xffffffffffffffffL), 16);
 
+    /**
+     * Returns the numeric value of a compound member, which is of a {@link SimpleType}.
+     *
+     * @param compoundData the compound.
+     * @param memberIndex  the index of the compound member of interest.
+     *
+     * @return the numeric value of the compound member of interest, or {@code null} if the
+     *         compound member is not of a {@link SimpleType}.
+     *
+     * @throws IOException if an I/O error occurred.
+     */
     public static Number getNumericMember(CompoundData compoundData, int memberIndex) throws IOException {
-        Type memberType = compoundData.getType().getMemberType(memberIndex);
-        Number number;
+        final Type memberType = compoundData.getType().getMemberType(memberIndex);
+        final Number number;
+
         if (memberType == SimpleType.DOUBLE) {
             number = compoundData.getDouble(memberIndex);
         } else if (memberType == SimpleType.FLOAT) {
@@ -32,12 +48,23 @@ public class NumberUtils {
         } else {
             number = null;
         }
+
         return number;
     }
 
+    /**
+     * Returns the numeric type of a compound member, which is of a {@link SimpleType}.
+     *
+     * @param compoundData the compound.
+     * @param memberIndex  the index of the compound member of interest.
+     *
+     * @return the numeric type of the compound member of interest, or {@code null} if the
+     *         compound member is not of a {@link SimpleType}.
+     */
     public static Class<? extends Number> getNumericMemberType(CompoundType compoundData, int memberIndex) {
-        Type memberType = compoundData.getMemberType(memberIndex);
-        Class<? extends Number> numberClass;
+        final Type memberType = compoundData.getMemberType(memberIndex);
+        final Class<? extends Number> numberClass;
+
         if (memberType == SimpleType.DOUBLE) {
             numberClass = Double.class;
         } else if (memberType == SimpleType.FLOAT) {
@@ -55,6 +82,7 @@ public class NumberUtils {
         } else {
             numberClass = null;
         }
+
         return numberClass;
     }
 
