@@ -22,7 +22,6 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.TiePointGridOpImage;
@@ -798,6 +797,7 @@ public class TiePointGrid extends RasterDataNode {
                                               this.getSubSamplingY(),
                                               destTiePoints,
                                               this.getDiscontinuity());
+        clone.setUnit(getUnit());
         clone.setDescription(getDescription());
         return clone;
 
