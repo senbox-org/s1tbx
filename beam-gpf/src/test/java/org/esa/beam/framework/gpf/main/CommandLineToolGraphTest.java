@@ -1,6 +1,8 @@
 package org.esa.beam.framework.gpf.main;
 
 import com.bc.ceres.binding.dom.DomElement;
+import com.sun.media.jai.util.SunTileScheduler;
+
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -14,15 +16,29 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.media.jai.JAI;
+import javax.media.jai.TileScheduler;
+
 public class CommandLineToolGraphTest extends TestCase {
     private GraphCommandLineContext context;
     private CommandLineTool clTool;
+    private TileScheduler jaiTileScheduler;
 
 
     @Override
     protected void setUp() throws Exception {
         context = new GraphCommandLineContext();
         clTool = new CommandLineTool(context);
+        JAI jai = JAI.getDefaultInstance();
+        jaiTileScheduler = jai.getTileScheduler();
+        SunTileScheduler tileScheduler = new SunTileScheduler();
+        tileScheduler.setParallelism(Runtime.getRuntime().availableProcessors());
+        jai.setTileScheduler(tileScheduler);
+    }
+    
+    @Override
+    protected void tearDown() throws Exception {
+        JAI.getDefaultInstance().setTileScheduler(jaiTileScheduler);
     }
 
     public void testGraphUsageMessage() throws Exception {

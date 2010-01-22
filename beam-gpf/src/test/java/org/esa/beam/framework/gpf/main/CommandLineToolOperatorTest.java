@@ -1,5 +1,7 @@
 package org.esa.beam.framework.gpf.main;
 
+import com.sun.media.jai.util.SunTileScheduler;
+
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -13,12 +15,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.media.jai.JAI;
+import javax.media.jai.TileScheduler;
+
 public class CommandLineToolOperatorTest extends TestCase {
     private OpCommandLineContext context;
     private CommandLineTool clTool;
     private static final TestOps.Op3.Spi OP3_SPI = new TestOps.Op3.Spi();
     private static final TestOps.Op4.Spi OP4_SPI = new TestOps.Op4.Spi();
     private static final TestOps.Op5.Spi OP5_SPI = new TestOps.Op5.Spi();
+    private TileScheduler jaiTileScheduler;
 
     @Override
     protected void setUp() throws Exception {
@@ -27,12 +33,18 @@ public class CommandLineToolOperatorTest extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP3_SPI);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP4_SPI);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP5_SPI);
+        JAI jai = JAI.getDefaultInstance();
+        jaiTileScheduler = jai.getTileScheduler();
+        SunTileScheduler tileScheduler = new SunTileScheduler();
+        tileScheduler.setParallelism(Runtime.getRuntime().availableProcessors());
+        jai.setTileScheduler(tileScheduler);
     }
 
     @Override
     protected void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP3_SPI);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP5_SPI);
+        JAI.getDefaultInstance().setTileScheduler(jaiTileScheduler);
     }
 
     public void testPrintUsage() throws Exception {

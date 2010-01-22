@@ -135,9 +135,6 @@ public class OperatorExecutorTest extends TestCase {
         }
     }
 
-    private TileScheduler defaultTileScheduler;
-    private RecordingTileScheduler recordingTileScheduler;
-
     private class TestOP extends Operator {
         
         @SourceProduct
@@ -159,6 +156,9 @@ public class OperatorExecutorTest extends TestCase {
         }
         
     }
+    
+    private TileScheduler defaultTileScheduler;
+    private RecordingTileScheduler recordingTileScheduler;
     
     @Override
     protected void setUp() throws Exception {
