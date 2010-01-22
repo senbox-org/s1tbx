@@ -148,6 +148,7 @@ public class VerbousTileCache implements TileCache {
     }
 
     private void println(String x) {
-        System.out.println(x);
+        // Uncomment for testing
+        //System.out.println(x);
     }
 }
