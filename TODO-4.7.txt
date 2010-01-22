@@ -229,7 +229,7 @@ GPF Processors:
   ==> FINAL, ?, OPEN
 * Need minimal developer guide  
   ==> FINAL, ?, OPEN
-* Enable/Harmonise geo-coding transfer in all GPF ops
+* Enable/Harmonise geo-coding transfer in all GPF ops  (see BEAM-1047 and BEAM-1050)
   ==> FINAL, SE?, OPEN
 * Important issues with the band's source image:
   - dispose() method on MultiLevelImage shall not null its product node,
