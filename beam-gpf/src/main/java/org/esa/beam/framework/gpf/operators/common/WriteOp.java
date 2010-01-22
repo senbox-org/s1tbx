@@ -6,11 +6,8 @@ import org.esa.beam.dataio.dimap.DimapProductWriter;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -61,8 +58,6 @@ public class WriteOp extends Operator {
     private ProductWriter productWriter;
     private List<Band> writableBands;
     private boolean productFileWritten;
-    private boolean headerChanged;
-    private ProductNodeChangeListener headerChangeDetector;
     private Dimension tileSize;
     private int tileCountX;
 
@@ -98,8 +93,6 @@ public class WriteOp extends Operator {
                 writableBands.add(band);
             }
         }
-        headerChanged = false;
-        headerChangeDetector = new ProductNodeChangeListener();
 
         tileSize = ImageManager.getPreferredTileSize(targetProduct);
         targetProduct.setPreferredTileSize(tileSize);
@@ -116,10 +109,6 @@ public class WriteOp extends Operator {
                 if (!productFileWritten) {
                     productWriter.writeProductNodes(targetProduct, file);
                     productFileWritten = true;
-                    // rewrite of product header is only supported for DIMAP
-                    if (productWriter instanceof DimapProductWriter) {
-                        targetProduct.addProductNodeListener(headerChangeDetector);
-                    }
                 }
             }
             final Rectangle rect = targetTile.getRectangle();
@@ -214,10 +203,9 @@ public class WriteOp extends Operator {
             done = isDone();
         }
         if (done) {
-            targetProduct.removeProductNodeListener(headerChangeDetector);
-            headerChangeDetector = null;
             // If we get here all tiles are written
-            if (headerChanged) {   // ask if we have to update the header
+            if (productWriter instanceof DimapProductWriter) {
+                // if we can update the header (only DIMAP) rewrite it!
                 getLogger().info("Product header changed. Overwriting " + file);
                 synchronized (productWriter) {
                     productWriter.writeProductNodes(targetProduct, file);
@@ -261,9 +249,6 @@ public class WriteOp extends Operator {
         writableBands.clear();
         todoLists.clear();
         writeCache.clear();
-        if (headerChangeDetector != null && targetProduct != null) {
-            targetProduct.removeProductNodeListener(headerChangeDetector);
-        }
     }
 
     public static class Spi extends OperatorSpi {
@@ -344,26 +329,6 @@ public class WriteOp extends Operator {
         }
 
 
-    }
-
-    private class ProductNodeChangeListener extends ProductNodeListenerAdapter {
-
-        @Override
-        public void nodeChanged(ProductNodeEvent event) {
-            if (!DataNode.PROPERTY_NAME_DATA.equalsIgnoreCase(event.getPropertyName())) {
-                headerChanged = true;
-            }
-        }
-
-        @Override
-        public void nodeAdded(ProductNodeEvent event) {
-            headerChanged = true;
-        }
-
-        @Override
-        public void nodeRemoved(ProductNodeEvent event) {
-            headerChanged = true;
-        }
     }
 }
     

@@ -17,6 +17,7 @@
 package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.sun.media.jai.util.SunTileScheduler;
 
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -44,6 +45,9 @@ import org.esa.beam.util.SystemUtils;
 import java.io.File;
 import java.io.StringReader;
 
+import javax.media.jai.JAI;
+import javax.media.jai.TileScheduler;
+
 import junit.framework.TestCase;
 
 /**
@@ -57,6 +61,8 @@ public class WriteOpTest extends TestCase {
     private MockFillerOp.Spi fillOpSpi = new MockFillerOp.Spi();
     private WriteOp.Spi writeSpi = new WriteOp.Spi();
     private File outputFile;
+    private int parallelism;
+    private TileScheduler jaiTileScheduler;
 
     @Override
     protected void setUp() throws Exception {
@@ -65,6 +71,11 @@ public class WriteOpTest extends TestCase {
         outputFile = GlobalTestConfig.getBeamTestDataOutputFile("DIMAP/writtenProduct.dim");
         outputFile.getParentFile().mkdirs();
         outputFile.createNewFile();
+        JAI jai = JAI.getDefaultInstance();
+        jaiTileScheduler = jai.getTileScheduler();
+        SunTileScheduler tileScheduler = new SunTileScheduler();
+        tileScheduler.setParallelism(Runtime.getRuntime().availableProcessors());
+        jai.setTileScheduler(tileScheduler);
     }
 
     @Override
@@ -73,6 +84,7 @@ public class WriteOpTest extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(writeSpi);
         File parentFile = outputFile.getParentFile();
         SystemUtils.deleteFileTree(parentFile);
+        JAI.getDefaultInstance().setTileScheduler(jaiTileScheduler);
     }
 
     public void testWrite() throws Exception {
@@ -107,7 +119,8 @@ public class WriteOpTest extends TestCase {
         Product productOnDisk = ProductIO.readProduct(outputFile, null);
         assertNotNull(productOnDisk);
         final ProductNodeGroup<Pin> pinProductNodeGroup = productOnDisk.getPinGroup();
-        assertEquals(4, pinProductNodeGroup.getNodeCount());     // one for each tile, we have 4 tiles
+
+        assertEquals(40, pinProductNodeGroup.getNodeCount());     // one for each tile, we have 4 tiles
         assertEquals("writtenProduct", productOnDisk.getName());
         assertEquals(1, productOnDisk.getNumBands());
         Band band1 = productOnDisk.getBandAt(0);
@@ -126,8 +139,8 @@ public class WriteOpTest extends TestCase {
 
         @Override
         public void initialize() {
-            targetProduct = new Product("Op1Name", "Op1Type", RASTER_SIZE, RASTER_SIZE);
-            targetProduct.addBand(new Band("Op1A", ProductData.TYPE_INT8, RASTER_SIZE, RASTER_SIZE));
+            targetProduct = new Product("Op1Name", "Op1Type", RASTER_SIZE, 10*RASTER_SIZE);
+            targetProduct.addBand("Op1A", ProductData.TYPE_INT8);
             targetProduct.setPreferredTileSize(2, 2);
         }
 
@@ -142,10 +155,11 @@ public class WriteOpTest extends TestCase {
             final int minX = targetTile.getMinX();
             final int minY = targetTile.getMinY();
             final PlacemarkSymbol symbol = PinDescriptor.INSTANCE.createDefaultSymbol();
-            band.getProduct().getPinGroup().add(new Pin(band.getName() + minX + "," + minY,
+            Pin pin = new Pin(band.getName() + minX + "," + minY,
                                                         "label", "descr",
                                                         new PixelPos(minX, minY), null,
-                                                        symbol));
+                                                        symbol, null);
+            band.getProduct().getPinGroup().add(pin);
         }
 
         public static class Spi extends OperatorSpi {
