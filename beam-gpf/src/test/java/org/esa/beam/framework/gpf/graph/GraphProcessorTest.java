@@ -16,11 +16,13 @@ public class GraphProcessorTest extends TestCase {
     private OperatorSpi spi1;
     private OperatorSpi spi2;
     private OperatorSpi spi3;
-    private static TileCache jaiTileCache = JAI.getDefaultInstance().getTileCache();
-    private static TileCache testTileCache = new VerbousTileCache(jaiTileCache);
+    private TileCache jaiTileCache;
+    private TileCache testTileCache;
 
     @Override
     protected void setUp() throws Exception {
+        jaiTileCache = JAI.getDefaultInstance().getTileCache();
+        testTileCache = new VerbousTileCache(jaiTileCache);
         JAI.getDefaultInstance().setTileCache(testTileCache);
         testTileCache.flush();
 
