@@ -1534,7 +1534,21 @@
             <context>image</context>
             <helpId>drawPolygonTool</helpId>
         </action>
-
+       <action>
+            <id>rangeFinder</id>
+            <class>org.esa.beam.visat.actions.ToolAction</class>
+            <interactor>org.esa.beam.visat.actions.rangefinder.RangeFinderInteractor</interactor>
+            <parent>tools</parent>
+            <placeAfter>selectTool</placeAfter>
+            <text>Range Finder</text>
+            <shortDescr>Range finder tool</shortDescr>
+            <description>Determine the distance between two points</description>
+            <largeIcon>icons/RangeFinder24.gif</largeIcon>
+            <selected>false</selected>
+            <context>image</context>
+            <helpId>rangeFinder</helpId>
+        </action>
+        
         <action>
             <id>layout</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
@@ -1599,20 +1613,6 @@
             <parent>tools</parent>
             <placeAfter>createElevationBand</placeAfter>
             <separatorAfter>false</separatorAfter>
-        </action>
-        <action>
-            <id>rangeFinder</id>
-            <class>org.esa.beam.visat.actions.rangefinder.RangeFinderToolAction</class>
-            <tool>org.esa.beam.visat.actions.rangefinder.RangeFinderTool</tool>
-            <parent>tools</parent>
-            <placeAfter>selectTool</placeAfter>
-            <text>Range Finder</text>
-            <shortDescr>Range finder tool</shortDescr>
-            <description>Determine the distance between two points</description>
-            <largeIcon>icons/RangeFinder24.gif</largeIcon>
-            <selected>false</selected>
-            <context>image</context>
-            <helpId>rangeFinder</helpId>
         </action>
         <action>
             <id>magicStickTool</id>

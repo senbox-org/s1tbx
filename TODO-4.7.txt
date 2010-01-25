@@ -138,8 +138,8 @@ Figures:
 * Select-tool shall auto-select layer containing a clicked figure
   ==> PRE, NF, OPEN
 
-* Reanimate RangeFinder tool (and MagicStick?)
-  ==> FINAL, ?, OPEN
+* Reanimate MagicStick?
+  ==> ???, ?, OPEN
 * Deprecate or even completely remove ald Figure + Tool classes
   ==> FINAL, ?, OPEN
 * Still can't rotate figures.
@@ -160,6 +160,8 @@ Figures:
 * Allow for geometric operations on geometries: add/sub/intersection (JTS!)
   ==> FINAL, ?, OPEN
 
+* Reanimate RangeFinder tool
+  ==> FINAL, MZ, CLOSED
 * Figure changes are not propagated to other views (layers)
   ==> PRE, NF, CLOSED
 * Circular figures are not round on lat/lon projected products 

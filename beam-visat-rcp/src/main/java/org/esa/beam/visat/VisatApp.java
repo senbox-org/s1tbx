@@ -1966,8 +1966,7 @@ public class VisatApp extends BasicApp implements AppContext {
         addCommandsToToolBar(toolBar, new String[]{
                 // These IDs are defined in the module.xml
                 "selectTool",
-// todo - reactivate range-finder (nf)
-//                "rangeFinder",
+                "rangeFinder",
                 "zoomTool",
                 "pannerTool",
                 "pinTool",

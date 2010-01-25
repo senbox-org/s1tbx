@@ -1,5 +1,9 @@
 package org.esa.beam.visat.actions.rangefinder;
 
+import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.swing.figure.ViewportInteractor;
+
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -7,8 +11,6 @@ import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.tool.AbstractTool;
-import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
@@ -23,6 +25,7 @@ import javax.swing.SwingUtilities;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,136 +33,126 @@ import java.util.List;
  * A tool representing the range finder.
  *
  * @author Sabine Embacher
+ * @author Marco Zuehlke
  */
-public class RangeFinderTool extends AbstractTool {
+public class RangeFinderInteractor extends ViewportInteractor {
 
     public static final String TITLE = "Range Finder Tool";
 
-    private final List<Point> _pointList;
-    private final Point _currPoint;
-    private Cursor _cursor;
-    private ImageIcon cursorIcon;
+    private final List<Point> pointList;
+    private final Point currPoint;
+    private final Cursor cursor;
+    
+    private RangeFinderOverlay overlay;
 
-    public RangeFinderTool() {
-        this.cursorIcon = UIUtils.loadImageIcon("cursors/RangeFinder.gif");
-        _pointList = new ArrayList<Point>();
-        _currPoint = new Point();
-        _cursor = createRangeFinderCursor();
+    public RangeFinderInteractor() {
+        pointList = new ArrayList<Point>();
+        currPoint = new Point();
+        ImageIcon cursorIcon = UIUtils.loadImageIcon("cursors/RangeFinder.gif");
+        cursor = createRangeFinderCursor(cursorIcon);
     }
 
     @Override
     public Cursor getCursor() {
-        return _cursor;
+        return cursor;
+    }
+    
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        handleDragAndMove(e);
     }
 
     @Override
-    public void draw(Graphics2D g2d) {
-        if (_pointList.size() == 0) {
+    public void mouseMoved(MouseEvent e) {
+        handleDragAndMove(e);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        ProductSceneView view = getProductSceneView(e);
+        if (view == null) {
             return;
         }
+        if (overlay != null && view != overlay.view) {
+            removeOverlay();
+        }
+        if (overlay == null) {
+            createOverlay(view);
+        }
+        pointList.add(e.getPoint());
+        currPoint.setLocation(e.getPoint());
+        overlay.repaint();
+        
+        if (e.getClickCount() > 1 && pointList.size() > 0) {
+            showDetailsDialog(view);
+            pointList.clear();
+            removeOverlay();
+        }
+    }
 
-        final Stroke strokeOld = g2d.getStroke();
-        g2d.setStroke(new BasicStroke(0.1f));
-        final Color colorOld = g2d.getColor();
-        g2d.setColor(Color.red);
-        g2d.translate(0.5, 0.5);
+    private void handleDragAndMove(MouseEvent e) {
+        if (pointList.size() > 0 && overlay != null) {
+            currPoint.setLocation(e.getPoint());
+            overlay.repaint();
+        }
+    }
+    
+    private void createOverlay(ProductSceneView view) {
+        overlay = new RangeFinderOverlay(view);
+        view.getLayerCanvas().addOverlay(overlay);
+    }
+    
+    private void removeOverlay() {
+        overlay.view.getLayerCanvas().removeOverlay(overlay);
+        overlay = null;
+    }
+    
+    private ProductSceneView getProductSceneView(MouseEvent event) {
+        if (event.getComponent() instanceof ProductSceneView) {
+            return (ProductSceneView) event.getComponent();
+        }
+        if (event.getComponent().getParent() instanceof ProductSceneView) {
+            return (ProductSceneView) event.getComponent().getParent();
+        }
+        return null;
+    }
+    
+    private void showDetailsDialog(ProductSceneView view) {
+        GeoCoding geoCoding = view.getProduct().getGeoCoding();
 
-        final int r = 3;
-        final int r2 = r * 2;
+        float distance = 0;
+        float distanceError = 0;
 
-        Point p1 = null;
-        Point p2 = null;
-        for (int i = 0; i < _pointList.size(); i++) {
-            p1 = _pointList.get(i);
+        final DistanceData[] distanceDatas = new DistanceData[pointList.size() - 1];
+        for (int i = 0; i < distanceDatas.length; i++) {
+            final Point p1 = pointList.get(i);
+            final Point p2 = pointList.get(i + 1);
 
-            g2d.drawOval(p1.x - r, p1.y - r, r2, r2);
-            g2d.drawLine(p1.x, p1.y - r2, p1.x, p1.y - r);
-            g2d.drawLine(p1.x, p1.y + r2, p1.x, p1.y + r);
-            g2d.drawLine(p1.x - r2, p1.y, p1.x - r, p1.y);
-            g2d.drawLine(p1.x + r2, p1.y, p1.x + r, p1.y);
+            final DistanceData distanceData = new DistanceData(geoCoding, p1, p2);
+            distance += distanceData.distance;
+            distanceError += distanceData.distanceError;
+            distanceDatas[i] = distanceData;
+        }
 
-            if (p2 != null) {
-                g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+
+        final JButton detailsButton = new JButton("Details...");
+        detailsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                final Window parentWindow = SwingUtilities.getWindowAncestor(detailsButton);
+                createDetailsDialog(parentWindow, distanceDatas).show();
             }
+        });
 
-            p2 = p1;
-        }
+        final JPanel buttonPane = new JPanel(new BorderLayout());
+        buttonPane.add(detailsButton, BorderLayout.EAST);
 
-        p2 = _currPoint;
-        g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+        final JPanel messagePane = new JPanel(new BorderLayout(0, 6));
+        messagePane.add(new JLabel("Distance: " + distance + " +/- " + distanceError + " km"));
+        messagePane.add(buttonPane, BorderLayout.SOUTH);
 
-        g2d.translate(-0.5, -0.5);
-        g2d.setStroke(strokeOld);
-        g2d.setColor(colorOld);
-    }
-
-    @Override
-    public void mouseDragged(ToolInputEvent e) {
-        super.mouseDragged(e);
-        handleDragAndMove(e);
-    }
-
-    @Override
-    public void mouseMoved(ToolInputEvent e) {
-        super.mouseMoved(e);
-        handleDragAndMove(e);
-    }
-
-    @Override
-    public void mouseClicked(ToolInputEvent e) {
-        super.mouseClicked(e);
-        _pointList.add(e.getPixelPos());
-        _currPoint.setLocation(e.getPixelPos());
-        repaint();
-        if (e.getMouseEvent().getClickCount() > 1 && _pointList.size() > 0) {
-            ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
-            GeoCoding geoCoding = view.getProduct().getGeoCoding();
-
-            float distance = 0;
-            float distanceError = 0;
-
-            final DistanceData[] distanceDatas = new DistanceData[_pointList.size() - 1];
-            for (int i = 0; i < distanceDatas.length; i++) {
-                final Point p1 = _pointList.get(i);
-                final Point p2 = _pointList.get(i + 1);
-
-                final DistanceData distanceData = new DistanceData(geoCoding, p1, p2);
-                distance += distanceData.distance;
-                distanceError += distanceData.distanceError;
-                distanceDatas[i] = distanceData;
-            }
-
-
-            final JButton detailsButton = new JButton("Details...");
-            detailsButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    final Window parentWindow = SwingUtilities.getWindowAncestor(detailsButton);
-                    ModalDialog detailsDialog = org.esa.beam.visat.actions.rangefinder.RangeFinderTool.createDetailsDialog(
-                                parentWindow, distanceDatas);
-                    detailsDialog.show();
-                }
-            });
-
-            final JPanel buttonPane = new JPanel(new BorderLayout());
-            buttonPane.add(detailsButton, BorderLayout.EAST);
-
-            final JPanel messagePane = new JPanel(new BorderLayout(0, 6));
-            messagePane.add(new JLabel("Distance: " + distance + " +/- " + distanceError + " km"));
-            messagePane.add(buttonPane, BorderLayout.SOUTH);
-
-            JOptionPane.showMessageDialog(VisatApp.getApp().getMainFrame(), messagePane,
-                                          org.esa.beam.visat.actions.rangefinder.RangeFinderTool.TITLE,
-                                          JOptionPane.INFORMATION_MESSAGE);
-            finish();
-            _pointList.clear();
-        }
-    }
-
-    private void handleDragAndMove(ToolInputEvent e) {
-        if (_pointList.size() > 0) {
-            _currPoint.setLocation(e.getPixelPos());
-            repaint();
-        }
+        JOptionPane.showMessageDialog(VisatApp.getApp().getMainFrame(), messagePane,
+                                      TITLE,
+                                      JOptionPane.INFORMATION_MESSAGE);
     }
 
     private static ModalDialog createDetailsDialog(final Window parentWindow, final DistanceData[] dds) {
@@ -196,19 +189,15 @@ public class RangeFinderTool extends AbstractTool {
         content.setPreferredSize(new Dimension(300, 150));
 
         final ModalDialog detailsWindow = new ModalDialog(parentWindow,
-                                                          org.esa.beam.visat.actions.rangefinder.RangeFinderTool.TITLE + " - Details",
+                                                          org.esa.beam.visat.actions.rangefinder.RangeFinderInteractor.TITLE + " - Details",
                                                           /*I18N*/
                                                           ModalDialog.ID_OK,
                                                           null);
         detailsWindow.setContent(content);
         return detailsWindow;
     }
-
-    private void repaint() {
-        getDrawingEditor().repaintTool();
-    }
-
-    private Cursor createRangeFinderCursor() {
+    
+    private static Cursor createRangeFinderCursor(ImageIcon cursorIcon) {
         Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
         final String cursorName = "rangeFinder";
 
@@ -219,6 +208,60 @@ public class RangeFinderTool extends AbstractTool {
                                   (7 * bestCursorSize.height) / cursorIcon.getIconHeight());
 
         return defaultToolkit.createCustomCursor(cursorIcon.getImage(), hotSpot, cursorName);
+    }
+    
+    private class RangeFinderOverlay implements LayerCanvas.Overlay {
+
+        private final ProductSceneView view;
+
+        RangeFinderOverlay(ProductSceneView view) {
+            this.view = view;
+        }
+        
+        void repaint() {
+            view.getLayerCanvas().repaint();
+        }
+
+        @Override
+        public void paintOverlay(LayerCanvas canvas, Rendering rendering) {
+            if (pointList.size() == 0) {
+                return;
+            }
+            Graphics2D g2d = rendering.getGraphics();
+            final Stroke strokeOld = g2d.getStroke();
+            g2d.setStroke(new BasicStroke(0.1f));
+            final Color colorOld = g2d.getColor();
+            g2d.setColor(Color.red);
+            g2d.translate(0.5, 0.5);
+
+            final int r = 3;
+            final int r2 = r * 2;
+
+            Point p1 = null;
+            Point p2 = null;
+            for (int i = 0; i < pointList.size(); i++) {
+                p1 = pointList.get(i);
+
+                g2d.drawOval(p1.x - r, p1.y - r, r2, r2);
+                g2d.drawLine(p1.x, p1.y - r2, p1.x, p1.y - r);
+                g2d.drawLine(p1.x, p1.y + r2, p1.x, p1.y + r);
+                g2d.drawLine(p1.x - r2, p1.y, p1.x - r, p1.y);
+                g2d.drawLine(p1.x + r2, p1.y, p1.x + r, p1.y);
+
+                if (p2 != null) {
+                    g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+                }
+
+                p2 = p1;
+            }
+
+            p2 = currPoint;
+            g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+
+            g2d.translate(-0.5, -0.5);
+            g2d.setStroke(strokeOld);
+            g2d.setColor(colorOld);
+        }
     }
 
     private static class DistanceData {
