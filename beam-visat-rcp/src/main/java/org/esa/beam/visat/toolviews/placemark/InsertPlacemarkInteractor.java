@@ -17,7 +17,7 @@ import java.awt.event.MouseEvent;
 public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
 
     private final PlacemarkDescriptor placemarkDescriptor;
-    private Cursor cursor;
+    private final Cursor cursor;
     private boolean started;
 
     protected InsertPlacemarkInteractor(PlacemarkDescriptor placemarkDescriptor) {
