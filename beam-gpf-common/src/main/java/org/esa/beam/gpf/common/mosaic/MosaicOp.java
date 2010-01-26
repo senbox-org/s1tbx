@@ -62,7 +62,7 @@ import java.util.Map;
                   authors = "Marco Peters, Ralf Quast, Marco Zühlke",
                   copyright = "(c) 2009 by Brockmann Consult",
                   description = "Creates a mosaic out of a set of source products.",
-                  internal = true)
+                  internal = false)
 @SuppressWarnings({"PackageVisibleField"})
 public class MosaicOp extends Operator {
 
