@@ -230,10 +230,10 @@ public class TiffIFD {
         if (geoTIFFMetadata == null) {
             return;
         }
-        // for debug purpose
-//        final PrintWriter writer = new PrintWriter(System.out);
-//        geoTIFFMetadata.dump(writer);
-//        writer.close();
+
+//  for debug purpose
+//        geoTIFFMetadata.dump();
+        
         final int numEntries = geoTIFFMetadata.getNumGeoKeyEntries();
         final TiffShort[] directoryTagValues = new TiffShort[numEntries * 4];
         final ArrayList<TiffDouble> doubleValues = new ArrayList<TiffDouble>();
@@ -254,7 +254,7 @@ public class TiffIFD {
             if (data[1] == TiffTag.GeoAsciiParamsTag.getValue()) {
                 int sizeInBytes = 0;
                 for (String asciiValue : asciiValues) {
-                    sizeInBytes = asciiValue.length() + 1;
+                    sizeInBytes += asciiValue.length() + 1;
                 }
                 directoryTagValues[i * 4 + 3] = new TiffShort(sizeInBytes);
                 asciiValues.add(geoTIFFMetadata.getGeoAsciiParam(data[0]));

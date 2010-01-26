@@ -6,7 +6,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.TopologyException;
-
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -117,7 +116,7 @@ public class FeatureCollectionClipper {
     public static GeometryCoordinateSequenceTransformer getTransform(CoordinateReferenceSystem sourceCrs, CoordinateReferenceSystem targetCrs) {
         GeometryCoordinateSequenceTransformer transformer;
         try {
-            MathTransform transform = CRS.findMathTransform(sourceCrs, targetCrs);
+            MathTransform transform = CRS.findMathTransform(sourceCrs, targetCrs, true);
             transformer = new GeometryCoordinateSequenceTransformer();
             transformer.setMathTransform(transform);
             transformer.setCoordinateReferenceSystem(targetCrs);

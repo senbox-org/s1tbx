@@ -61,7 +61,6 @@ public class GeoTIFFMetadata {
 
     private double[] _modelTransformation;
 
-    private int _numGeoKeyEntries;
     private SortedMap<Integer, KeyEntry> _geoKeyEntries;
 
     private int _numGeoDoubleParams;
@@ -187,7 +186,7 @@ public class GeoTIFFMetadata {
     }
 
     public int getNumGeoKeyEntries() {
-        return _numGeoKeyEntries;
+        return _geoKeyEntries.size();
     }
 
     public KeyEntry getGeoKeyEntryAt(int index) {
@@ -296,10 +295,8 @@ public class GeoTIFFMetadata {
         if (!isTiffUShort(offset)) {
             throw new IllegalArgumentException("offset is not a TIFF USHORT");
         }
-        final int numKeyEntries = _numGeoKeyEntries;
         _geoKeyEntries.put(keyID, new KeyEntry(keyID, tag, count, offset));
-        getGeoKeyEntryAt(0).data[3] = numKeyEntries;
-        _numGeoKeyEntries++;
+        getGeoKeyEntryAt(0).data[3] = _geoKeyEntries.size() - 1; // exclusive the basic GeoKeyDirectoryTag
     }
 
     public void assignTo(Element element) {
@@ -326,7 +323,13 @@ public class GeoTIFFMetadata {
     }
 
     public void dump() {
-        dump(new PrintWriter(System.out));
+        final PrintWriter writer = new PrintWriter(System.out);
+        try {
+            dump(writer);
+            writer.flush();
+        } finally {
+            writer.close();
+        }
     }
 
     public void dump(PrintWriter out) {
@@ -334,7 +337,7 @@ public class GeoTIFFMetadata {
 
         out.println();
         out.println(getGeoKeyDirectoryTag().getName() + " = { // " + getGeoKeyDirectoryTag().getNumber());
-        for (int i = 0; i < _numGeoKeyEntries; i++) {
+        for (int i = 0; i < getNumGeoKeyEntries(); i++) {
             out.print(indent);
             out.print("{");
             out.print(toAlignedString(getGeoKeyEntryAt(i).data[0], 6));
@@ -345,7 +348,7 @@ public class GeoTIFFMetadata {
             out.print(",");
             out.print(toAlignedString(getGeoKeyEntryAt(i).data[3], 6));
             out.print("}");
-            out.print(i < _numGeoKeyEntries - 1 ? "," : " ");
+            out.print(i < getNumGeoKeyEntries() - 1 ? "," : " ");
             out.print(" // ");
             out.print(toAlignedString(i, 2));
             out.println();
@@ -527,7 +530,7 @@ public class GeoTIFFMetadata {
         Element field = createFieldElement(getGeoKeyDirectoryTag());
         Element data = new Element(IIO_TIFF_SHORTS_ELEMENT_NAME);
         field.addContent(data);
-        for (int i = 0; i < _numGeoKeyEntries; i++) {
+        for (int i = 0; i < getNumGeoKeyEntries(); i++) {
             final int[] values = getGeoKeyEntryAt(i).data;
             for (int value : values) {
                 Element keyEntry = createShortElement(value);

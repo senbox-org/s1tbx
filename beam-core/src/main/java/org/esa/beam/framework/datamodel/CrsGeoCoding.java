@@ -4,6 +4,7 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
 import org.esa.beam.util.Debug;
+import org.geotools.factory.Hints;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -44,8 +45,9 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         setMapCRS(mapCRS);
         org.opengis.referencing.datum.Ellipsoid gtEllipsoid = CRS.getEllipsoid(mapCRS);
         String ellipsoidName = gtEllipsoid.getName().getCode();
-        Ellipsoid ellipsoid = new Ellipsoid(ellipsoidName, gtEllipsoid.getSemiMajorAxis(),
-                                            gtEllipsoid.getSemiMinorAxis());
+        Ellipsoid ellipsoid = new Ellipsoid(ellipsoidName,
+                                            gtEllipsoid.getSemiMinorAxis(),
+                                            gtEllipsoid.getSemiMajorAxis());
         org.opengis.referencing.datum.Datum gtDatum = CRSUtilities.getDatum(mapCRS);
         String datumName = gtDatum.getName().getCode();
         this.datum = new Datum(datumName, ellipsoid, 0, 0, 0);
@@ -63,14 +65,15 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         
         setImageCRS(createImageCRS(mapCRS, i2m.inverse()));
 
-        MathTransform map2Geo = CRS.findMathTransform(mapCRS, getGeoCRS());
+        MathTransform map2Geo = CRS.findMathTransform(mapCRS, getGeoCRS(), true);
+        Hints hints = new Hints(Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE);
 
-        final CoordinateOperationFactory factory = ReferencingFactoryFinder.getCoordinateOperationFactory(null);
+        final CoordinateOperationFactory factory = ReferencingFactoryFinder.getCoordinateOperationFactory(hints);
         final MathTransformFactory mtFactory;
         if (factory instanceof AbstractCoordinateOperationFactory) {
             mtFactory = ((AbstractCoordinateOperationFactory) factory).getMathTransformFactory();
         } else {
-            mtFactory = ReferencingFactoryFinder.getMathTransformFactory(null);
+            mtFactory = ReferencingFactoryFinder.getMathTransformFactory(hints);
         }
         imageToGeo = mtFactory.createConcatenatedTransform(i2m, map2Geo);
         geoToImage = imageToGeo.inverse();

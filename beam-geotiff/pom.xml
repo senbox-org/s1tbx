@@ -49,6 +49,10 @@
             <groupId>com.sun.media</groupId>
             <artifactId>jai-imageio</artifactId>
         </dependency>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-geotiff</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

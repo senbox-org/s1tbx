@@ -16,7 +16,6 @@
  */
 package org.esa.beam.util;
 
-import Jama.Matrix;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
@@ -28,7 +27,6 @@ import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.TopologyException;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
@@ -38,7 +36,6 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -57,20 +54,12 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
-import org.esa.beam.framework.dataop.maptransf.AlbersEqualAreaConicDescriptor;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
-import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.framework.dataop.maptransf.StereographicDescriptor;
-import org.esa.beam.framework.dataop.maptransf.TransverseMercatorDescriptor;
-import org.esa.beam.framework.dataop.maptransf.UTM;
 import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.geotiff.EPSGCodes;
-import org.esa.beam.util.geotiff.GeoTIFFCodes;
+import org.esa.beam.util.geotiff.GeoCoding2GeoTIFFMetadata;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.IndexValidator;
@@ -84,6 +73,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
+import javax.media.jai.PlanarImage;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -109,8 +99,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.media.jai.PlanarImage;
 
 /**
  * This class provides many static factory methods to be used in conjunction with data products.
@@ -175,9 +163,9 @@ public class ProductUtils {
      * The given array <code>rasters</code> containing one or three raster data nodes. If three rasters are given
      * RGB image is created, if only one raster is provided a gray scale image created.
      *
-     * @param rasters an array of one or three raster nodes.
+     * @param rasters   an array of one or three raster nodes.
      * @param imageInfo the image info provides the information how to create the image
-     * @param pm      a monitor to inform the user about progress
+     * @param pm        a monitor to inform the user about progress
      *
      * @return the created image
      *
@@ -2037,219 +2025,7 @@ public class ProductUtils {
     }
 
     public static GeoTIFFMetadata createGeoTIFFMetadata(GeoCoding geoCoding, int width, int height) {
-        GeoTIFFMetadata metadata = null;
-        if (geoCoding instanceof MapGeoCoding) {
-            final MapGeoCoding mapGeoCoding = (MapGeoCoding) geoCoding;
-            final MapInfo mapInfo = mapGeoCoding.getMapInfo();
-            final MapProjection mapProjection = mapInfo.getMapProjection();
-            final MapTransform mapTransform = mapProjection.getMapTransform();
-            final Datum datum = mapInfo.getDatum();
-
-            metadata = new GeoTIFFMetadata();
-            if (MathUtils.equalValues(mapInfo.getOrientation(), 0.0f)) {
-                metadata.setModelPixelScale(mapInfo.getPixelSizeX(), mapInfo.getPixelSizeY());
-                metadata.setModelTiePoint(mapInfo.getPixelX(), mapInfo.getPixelY(),
-                                          mapInfo.getEasting(), mapInfo.getNorthing());
-            } else {
-                double theta = Math.toRadians(mapInfo.getOrientation());
-                Matrix m1 = new Matrix(new double[][]{
-                        {1, 0, -mapInfo.getPixelX()},
-                        {0, 1, -mapInfo.getPixelY()},
-                        {0, 0, 1},
-                });
-                Matrix m2 = new Matrix(new double[][]{
-                        {Math.cos(theta), Math.sin(theta), 0},
-                        {-Math.sin(theta), Math.cos(theta), 0},
-                        {0, 0, 1},
-                }).times(m1);
-                Matrix m3 = new Matrix(new double[][]{
-                        {mapInfo.getPixelSizeX(), 0, 0},
-                        {0, -mapInfo.getPixelSizeY(), 0},
-                        {0, 0, 1},
-                }).times(m2);
-                Matrix m4 = new Matrix(new double[][]{
-                        {1, 0, mapInfo.getEasting()},
-                        {0, 1, mapInfo.getNorthing()},
-                        {0, 0, 1},
-                }).times(m3);
-                double[][] m = m4.getArray();
-                metadata.setModelTransformation(new double[]{
-                        m[0][0], m[0][1], 0.0, m[0][2],
-                        m[1][0], m[1][1], 0.0, m[1][2],
-                        0.0, 0.0, 0.0, 0.0,
-                        0.0, 0.0, 0.0, 1.0
-                });
-            }
-
-            metadata.addGeoShortParam(GeoTIFFCodes.GTRasterTypeGeoKey, GeoTIFFCodes.RasterPixelIsArea);
-            metadata.addGeoAscii(GeoTIFFCodes.GTCitationGeoKey, "org.esa.beam.util.geotiff.GeoTIFF");
-            if (Datum.WGS_84.equals(datum)) {
-                metadata.addGeoShortParam(GeoTIFFCodes.GeographicTypeGeoKey, EPSGCodes.GCS_WGS_84);
-            } else if (Datum.WGS_72.equals(datum)) {
-                metadata.addGeoShortParam(GeoTIFFCodes.GeographicTypeGeoKey, EPSGCodes.GCS_WGS_72);
-            } else {
-                metadata.addGeoShortParam(GeoTIFFCodes.GeographicTypeGeoKey, EPSGCodes.GCS_WGS_84);
-            }
-            metadata.addGeoAscii(GeoTIFFCodes.PCSCitationGeoKey, mapProjection.getName() + " with " + datum.getName());
-            final String mapUnit = mapProjection.getMapUnit();
-            if ("meter".equalsIgnoreCase(mapUnit)) {
-                metadata.addGeoShortParam(GeoTIFFCodes.ProjLinearUnitsGeoKey, EPSGCodes.Linear_Meter);
-            } else if ("foot".equalsIgnoreCase(mapUnit)) {
-                metadata.addGeoShortParam(GeoTIFFCodes.ProjLinearUnitsGeoKey, EPSGCodes.Linear_Foot);
-            } else if ("degree".equalsIgnoreCase(mapUnit)) {
-                metadata.addGeoShortParam(GeoTIFFCodes.GeogAngularUnitsGeoKey, EPSGCodes.Angular_Degree);
-            } else if ("radian".equalsIgnoreCase(mapUnit)) {
-                metadata.addGeoShortParam(GeoTIFFCodes.GeogAngularUnitsGeoKey, EPSGCodes.Angular_Radian);
-            }
-
-            if (TransverseMercatorDescriptor.NAME.equals(mapTransform.getDescriptor().getName())) {
-                metadata.addGeoShortParam(GeoTIFFCodes.GTModelTypeGeoKey, GeoTIFFCodes.ModelTypeProjected);
-
-                final double[] parameterValues = mapTransform.getParameterValues();
-
-                int utmEPSGCode = findMatchingUtmEpsgCode(parameterValues);
-                if (utmEPSGCode != -1) {
-                    metadata.addGeoShortParam(GeoTIFFCodes.ProjectedCSTypeGeoKey, utmEPSGCode);
-                } else {
-                    metadata.addGeoShortParam(GeoTIFFCodes.ProjectedCSTypeGeoKey, GeoTIFFCodes.GTUserDefinedGeoKey);
-                    metadata.addGeoShortParam(GeoTIFFCodes.ProjectionGeoKey, GeoTIFFCodes.GTUserDefinedGeoKey);
-                    metadata.addGeoShortParam(GeoTIFFCodes.ProjCoordTransGeoKey, GeoTIFFCodes.CT_TransverseMercator);
-
-                    metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMajorAxisGeoKey, parameterValues[0]); // semi_major
-                    metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMinorAxisGeoKey, parameterValues[1]);  // semi_minor
-                    metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLatGeoKey,
-                                               parameterValues[2]); // latitude_of_origin (not used)
-                    metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLongGeoKey,
-                                               parameterValues[3]);   // central_meridian
-                    metadata.addGeoDoubleParam(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey,
-                                               parameterValues[4]);  // scale_factor
-                    metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseEastingGeoKey,
-                                               parameterValues[5]);  // false_easting
-                    metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseNorthingGeoKey,
-                                               parameterValues[6]);  // false_northing
-                }
-            } else if (StereographicDescriptor.NAME.equals(mapTransform.getDescriptor().getName())) {
-                metadata.addGeoShortParam(GeoTIFFCodes.GTModelTypeGeoKey, GeoTIFFCodes.ModelTypeProjected);
-
-                metadata.addGeoShortParam(GeoTIFFCodes.ProjectedCSTypeGeoKey, GeoTIFFCodes.GTUserDefinedGeoKey);
-                metadata.addGeoShortParam(GeoTIFFCodes.ProjectionGeoKey, GeoTIFFCodes.GTUserDefinedGeoKey);
-                metadata.addGeoShortParam(GeoTIFFCodes.ProjCoordTransGeoKey, GeoTIFFCodes.CT_Stereographic);
-
-                final double[] parameterValues = mapTransform.getParameterValues();
-                metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMajorAxisGeoKey, parameterValues[0]); // semi_major
-                metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMinorAxisGeoKey, parameterValues[1]);  // semi_minor
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLatGeoKey, parameterValues[2]); // latitude_of_origin
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLongGeoKey, parameterValues[3]);   // central_meridian
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey,
-                                           parameterValues[4]);  // scale_factor
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseEastingGeoKey, parameterValues[5]);  // false_easting
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseNorthingGeoKey, parameterValues[6]);  // false_northing
-            } else if (LambertConformalConicDescriptor.NAME.equals(mapTransform.getDescriptor().getName())) {
-                metadata.addGeoShortParam(GeoTIFFCodes.GTModelTypeGeoKey, GeoTIFFCodes.ModelTypeProjected);
-
-                metadata.addGeoShortParam(GeoTIFFCodes.ProjectedCSTypeGeoKey, GeoTIFFCodes.GTUserDefinedGeoKey);
-                metadata.addGeoShortParam(GeoTIFFCodes.ProjectionGeoKey, GeoTIFFCodes.GTUserDefinedGeoKey);
-                metadata.addGeoShortParam(GeoTIFFCodes.ProjCoordTransGeoKey, GeoTIFFCodes.CT_LambertConfConic);
-
-                final double[] parameterValues = mapTransform.getParameterValues();
-                metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMajorAxisGeoKey, parameterValues[0]); // semi_major
-                metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMinorAxisGeoKey, parameterValues[1]);  // semi_minor
-
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjStdParallel1GeoKey,
-                                           parameterValues[4]);  // latitude_of_intersection_1
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjStdParallel2GeoKey,
-                                           parameterValues[5]);  // latitude_of_intersection_2
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLongGeoKey,
-                                           parameterValues[3]);   // central_meridian
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseOriginLongGeoKey,
-                                           parameterValues[3]);   // central_meridian
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseOriginLatGeoKey,
-                                           parameterValues[2]);   // central_meridian
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseOriginEastingGeoKey, 0);
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseOriginNorthingGeoKey, 0);
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey,
-                                           parameterValues[6]);  // scale_factor
-            } else if (AlbersEqualAreaConicDescriptor.NAME.equals(mapTransform.getDescriptor().getName())) {
-                metadata.addGeoShortParam(GeoTIFFCodes.GTModelTypeGeoKey, GeoTIFFCodes.ModelTypeProjected);
-
-                metadata.addGeoShortParam(GeoTIFFCodes.ProjectedCSTypeGeoKey, GeoTIFFCodes.GTUserDefinedGeoKey);
-                metadata.addGeoShortParam(GeoTIFFCodes.ProjectionGeoKey, GeoTIFFCodes.GTUserDefinedGeoKey);
-                metadata.addGeoShortParam(GeoTIFFCodes.ProjCoordTransGeoKey, GeoTIFFCodes.CT_AlbersEqualArea);
-
-                final double[] parameterValues = mapTransform.getParameterValues();
-
-                metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMajorAxisGeoKey, parameterValues[0]); // semi_major
-                metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMinorAxisGeoKey, parameterValues[1]);  // semi_minor
-
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLatGeoKey,
-                                           parameterValues[2]); // latitude_of_origin
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLongGeoKey,
-                                           parameterValues[3]);   // central_meridian
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLatGeoKey, parameterValues[2]); // latitude_of_origin
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjCenterLongGeoKey, parameterValues[3]);   // central_meridian
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjStdParallel1GeoKey,
-                                           parameterValues[4]);  // latitude_of_intersection_1
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjStdParallel2GeoKey,
-                                           parameterValues[5]);  // latitude_of_intersection_2
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey,
-                                           parameterValues[6]);  // scale_factor
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseEastingGeoKey, parameterValues[7]);  // false_easting
-                metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseNorthingGeoKey, parameterValues[8]);  // false_northing
-            } else if (IdentityTransformDescriptor.NAME.equals(mapTransform.getDescriptor().getName())) {
-                metadata.addGeoShortParam(GeoTIFFCodes.GTModelTypeGeoKey, GeoTIFFCodes.ModelTypeGeographic);
-            } else {
-                metadata = null;
-            }
-        }
-
-        if (metadata == null && geoCoding != null) {
-            metadata = new GeoTIFFMetadata();
-            metadata.addGeoShortParam(GeoTIFFCodes.GTModelTypeGeoKey, GeoTIFFCodes.ModelTypeGeographic);
-            metadata.addGeoShortParam(GeoTIFFCodes.GTRasterTypeGeoKey, GeoTIFFCodes.RasterPixelIsArea);
-            metadata.addGeoShortParam(GeoTIFFCodes.GeographicTypeGeoKey, EPSGCodes.GCS_WGS_84);
-            final int numTotMax = 128;
-            int numHor = (int) Math.sqrt(numTotMax * ((double) width / (double) height));
-            if (numHor < 2) {
-                numHor = 2;
-            }
-            int numVer = numTotMax / numHor;
-            if (numVer < 2) {
-                numVer = 2;
-            }
-            final GeoPos geoPos = new GeoPos();
-            final PixelPos pixelPos = new PixelPos();
-            for (int y = 0; y < numVer; y++) {
-                for (int x = 0; x < numHor; x++) {
-                    pixelPos.setLocation(((width - 1) * (double) x / (numHor - 1.0f)) + 0.5,
-                                         ((height - 1) * (double) y / (numVer - 1.0f)) + 0.5);
-                    geoCoding.getGeoPos(pixelPos, geoPos);
-                    metadata.addModelTiePoint(pixelPos.x, pixelPos.y, geoPos.lon, geoPos.lat);
-                }
-            }
-
-            GeoPos geoPos1 = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
-            GeoPos geoPos2 = geoCoding.getGeoPos(new PixelPos(1.5f, 1.5f), null);
-            final float scaleX = Math.abs(geoPos2.lon - geoPos1.lon);
-            final float scaleY = Math.abs(geoPos2.lat - geoPos1.lat);
-            metadata.setModelPixelScale(scaleX, scaleY);
-        }
-        return metadata;
-    }
-
-    private static int findMatchingUtmEpsgCode(double[] parameterValues) {
-        int utmEPSGCode = -1;
-        double[] utmParameterValues;
-        for (int zoneIndex = 0; zoneIndex < UTM.MAX_UTM_ZONE; zoneIndex++) {
-            utmParameterValues = UTM.getProjectionParams(zoneIndex, false);
-            if (ArrayUtils.equalArrays(utmParameterValues, parameterValues, 1.0e-6)) {
-                utmEPSGCode = EPSGCodes.PCS_WGS84_UTM_zone_1N + zoneIndex;
-            }
-            utmParameterValues = UTM.getProjectionParams(zoneIndex, true);
-            if (ArrayUtils.equalArrays(utmParameterValues, parameterValues, 1.0e-6)) {
-                utmEPSGCode = EPSGCodes.PCS_WGS84_UTM_zone_1S + zoneIndex;
-            }
-        }
-        return utmEPSGCode;
+        return GeoCoding2GeoTIFFMetadata.createGeoTIFFMetadata(geoCoding, width, height);
     }
 
     public static GeneralPath areaToPath(Area negativeArea, double deltaX) {

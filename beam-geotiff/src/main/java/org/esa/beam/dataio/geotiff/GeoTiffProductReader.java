@@ -31,13 +31,13 @@ import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FilterBand;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
@@ -47,26 +47,18 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.dataop.maptransf.AlbersEqualAreaConicDescriptor;
 import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
-import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
-import org.esa.beam.framework.dataop.maptransf.StereographicDescriptor;
-import org.esa.beam.framework.dataop.maptransf.TransverseMercatorDescriptor;
-import org.esa.beam.framework.dataop.maptransf.UTM;
-import org.esa.beam.framework.dataop.maptransf.UTMProjection;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.geotiff.EPSGCodes;
 import org.esa.beam.util.geotiff.GeoTIFFCodes;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
+import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffIIOMetadataDecoder;
+import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffMetadata2CRSAdapter;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
@@ -102,14 +94,14 @@ public class GeoTiffProductReader extends AbstractProductReader {
     private ImageInputStream inputStream;
     private Map<Band, Integer> bandMap;
 
-    private TIFFImageReader imageReader = null;
+    private TIFFImageReader imageReader;
 
     public GeoTiffProductReader(ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
     }
 
     @Override
-    protected Product readProductNodesImpl() throws IOException {
+    protected synchronized Product readProductNodesImpl() throws IOException {
         final File inputFile = Utils.getFile(getInput());
         inputStream = ImageIO.createImageInputStream(inputFile);
 
@@ -131,7 +123,8 @@ public class GeoTiffProductReader extends AbstractProductReader {
             readParam.setSourceSubsampling(sourceStepX, sourceStepY,
                                            sourceOffsetX % sourceStepX,
                                            sourceOffsetY % sourceStepY);
-            TIFFRenderedImage subsampledImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(0, readParam);
+            TIFFRenderedImage subsampledImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE,
+                                                                                                    readParam);
             pm.worked(1);
 
             final Raster data = subsampledImage.getData(new Rectangle(destOffsetX, destOffsetY,
@@ -193,7 +186,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
                     is = new ByteArrayInputStream(s.getBytes());
                     final Document document = new DOMBuilder().build(builder.parse(is));
                     product = DimapProductHelpers.createProduct(document);
-                    removeGeocodingAndTiePointGrids(product);
+                    removeGeoCodingAndTiePointGrids(product);
                     initBandsMap(product);
                 } catch (ParserConfigurationException ignore) {
                     // ignore if it can not be read
@@ -211,8 +204,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
             final String productName;
             if (tiffInfo.containsField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION)) {
                 final TIFFField field1 = tiffInfo.getField(BaselineTIFFTagSet.TAG_IMAGE_DESCRIPTION);
-                final String s = field1.getAsString(0);
-                productName = s.substring(0, s.length() - 1);
+                productName = field1.getAsString(0);
             } else {
                 productName = FileUtils.getFilenameWithoutExtension(inputFile);
             }
@@ -225,7 +217,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
 
         if (tiffInfo.isGeotiff()) {
-            applyGeoCoding(tiffInfo, product);
+            applyGeoCoding(tiffInfo, imageMetadata, product);
         }
 
         TiffTagToMetadataConverter.addTiffTagsToMetadata(imageMetadata, tiffInfo, product.getMetadataRoot());
@@ -243,10 +235,13 @@ public class GeoTiffProductReader extends AbstractProductReader {
      *
      * @param product   the Product
      * @param inputFile the source tiff file
-     * @throws IOException
+     *
+     * @throws IOException in case of an IO error
      */
+    @SuppressWarnings({"UnusedDeclaration"})
     protected void initMetadata(final Product product, final File inputFile) throws IOException {
-
+        // don't remove
+        // implemented by NEST
     }
 
     private void initBandsMap(Product product) {
@@ -259,7 +254,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
     }
 
-    private static void removeGeocodingAndTiePointGrids(Product product) {
+    private static void removeGeoCodingAndTiePointGrids(Product product) {
         product.setGeoCoding(null);
         final TiePointGrid[] pointGrids = product.getTiePointGrids();
         for (TiePointGrid pointGrid : pointGrids) {
@@ -268,7 +263,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
     }
 
     private void addBandsToProduct(TiffFileInfo tiffInfo, Product product) throws
-            IOException {
+                                                                           IOException {
         final ImageReadParam readParam = imageReader.getDefaultReadParam();
         TIFFRenderedImage baseImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE, readParam);
         SampleModel sampleModel = baseImage.getSampleModel();
@@ -321,307 +316,40 @@ public class GeoTiffProductReader extends AbstractProductReader {
         return new ImageInfo(new ColorPaletteDef(points, points.length));
     }
 
-    private static void applyGeoCoding(TiffFileInfo info, Product product) {
-        final Map<Integer, GeoKeyEntry> keyEntries = info.getGeoKeyEntries();
-        if (keyEntries.containsKey(GeoTIFFCodes.GTModelTypeGeoKey)) {
-            final int valueModelType = keyEntries.get(GeoTIFFCodes.GTModelTypeGeoKey).getIntValue();
-            if (valueModelType == GeoTIFFCodes.ModelTypeProjected) {
-                applyProjectedGeocoding(info, product);
-            } else if (valueModelType == GeoTIFFCodes.ModelTypeGeographic) {
-                applyGeographicGeocoding(info, product);
-            }
-        }
-    }
-
-    private static void applyProjectedGeocoding(TiffFileInfo info, Product product) {
-        final Map<Integer, GeoKeyEntry> keyEntries = info.getGeoKeyEntries();
-        final Datum datum = getDatum(keyEntries);
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjectedCSTypeGeoKey)) {
-            final int pcsCode = keyEntries.get(GeoTIFFCodes.ProjectedCSTypeGeoKey).getIntValue();
-            MapProjection projection = null;
-            MapInfo mapInfo = null;
-            if (isUTM_PCSCode(pcsCode)) {
-                mapInfo = createMapInfoPCS(pcsCode, info);
-                if (mapInfo != null) {
-                    projection = mapInfo.getMapProjection();
-                    mapInfo.setSceneWidth(product.getSceneRasterWidth());
-                    mapInfo.setSceneHeight(product.getSceneRasterHeight());
-                }
-            } else if (isUserdefinedPCSCode(pcsCode)) {
-                if (isProjectionUserDefined(keyEntries)) {
-                    if (isProjectionTransverseMercator(keyEntries)) {
-                        projection = getProjectionTransverseMercator(keyEntries);
-                        mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, datum);
-                    } else if (isProjectionLambertConfConic(keyEntries)) {
-                        projection = getProjectionLambertConfConic(keyEntries);
-                        mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, datum);
-                    } else if (isProjectionStereographic(keyEntries)) {
-                        projection = getProjectionStereographic(keyEntries);
-                        mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, datum);
-                    } else if (isProjectionAlbersEqualArea(keyEntries)) {
-                        projection = getProjectionAlbersEqualAreaConic(keyEntries);
-                        mapInfo = new MapInfo(projection, 0, 0, 0, 0, 1, 1, datum);
-                    } else {
-                        projection = null;
-                    }
-                } else {
-                    projection = null;
-                }
-            } else {
-                projection = null;
-            }
-            if (projection != null) {
-                if (info.containsField(GeoTIFFTagSet.TAG_MODEL_TRANSFORMATION)) {
-                    applyTransform(mapInfo, info);
-                } else {
-                    final TIFFField scaleField = info.getField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE);
-                    final TIFFField modelTiePointField = info.getField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT);
-
-                    if (scaleField != null) {
-                        mapInfo.setPixelSizeX(scaleField.getAsFloat(0));
-                        mapInfo.setPixelSizeY(scaleField.getAsFloat(1));
-                    }
-                    if (modelTiePointField != null) {
-                        mapInfo.setPixelX(modelTiePointField.getAsFloat(0));
-                        mapInfo.setPixelY(modelTiePointField.getAsFloat(1));
-                        mapInfo.setEasting(modelTiePointField.getAsFloat(3));
-                        mapInfo.setNorthing(modelTiePointField.getAsFloat(4));
-                    }
-                }
-                mapInfo.setSceneWidth(product.getSceneRasterWidth());
-                mapInfo.setSceneHeight(product.getSceneRasterHeight());
-                product.setGeoCoding(new MapGeoCoding(mapInfo));
-            }
-        }
-    }
-
-    private static boolean isProjectionUserDefined(Map<Integer, GeoKeyEntry> keyEntries) {
-        return keyEntries.containsKey(GeoTIFFCodes.ProjectionGeoKey) &&
-                keyEntries.get(GeoTIFFCodes.ProjectionGeoKey).getIntValue() == GeoTIFFCodes.GTUserDefinedGeoKey;
-    }
-
-    private static boolean isProjectionTransverseMercator(Map<Integer, GeoKeyEntry> keyEntries) {
-        return containsProjCoordTrans(keyEntries) &&
-                keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_TransverseMercator;
-    }
-
-    private static boolean isProjectionLambertConfConic(Map<Integer, GeoKeyEntry> keyEntries) {
-        return containsProjCoordTrans(keyEntries) &&
-                keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_LambertConfConic;
-    }
-
-    private static boolean isProjectionStereographic(Map<Integer, GeoKeyEntry> keyEntries) {
-        return containsProjCoordTrans(keyEntries) &&
-                (keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_PolarStereographic ||
-                        keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_Stereographic);
-    }
-
-    private static boolean isProjectionAlbersEqualArea(Map<Integer, GeoKeyEntry> keyEntries) {
-        return containsProjCoordTrans(keyEntries) &&
-                keyEntries.get(GeoTIFFCodes.ProjCoordTransGeoKey).getIntValue() == GeoTIFFCodes.CT_AlbersEqualArea;
-    }
-
-    private static boolean containsProjCoordTrans(Map<Integer, GeoKeyEntry> keyEntries) {
-        return keyEntries.containsKey(GeoTIFFCodes.ProjCoordTransGeoKey);
-    }
-
-    private static boolean isUserdefinedPCSCode(int pcsCode) {
-        return pcsCode == GeoTIFFCodes.GTUserDefinedGeoKey;
-    }
-
-    private static void applyTransform(MapInfo mapInfo, TiffFileInfo info) {
-        final TIFFField transformationField = info.getField(GeoTIFFTagSet.TAG_MODEL_TRANSFORMATION);
-        final double[] transformValues = TiffFileInfo.getDoubleValues(transformationField);
-
-        final double m00 = transformValues[0];
-        final double m01 = transformValues[1];
-        final double m02 = transformValues[3];
-        final double m10 = transformValues[4];
-        final double m11 = transformValues[5];
-        final double m12 = transformValues[7];
-
-        final AffineTransform transform = new AffineTransform(m00, m10, m01, m11, m02, m12);
-
-        mapInfo.setPixelSizeX((float) transform.getScaleX());
-        mapInfo.setPixelSizeY((float) -transform.getScaleY());
-        mapInfo.setEasting((float) transform.getTranslateX());
-        mapInfo.setNorthing((float) transform.getTranslateY());
-
-        // shearing not supported by MapInfo
-        // todo: extend by using an affine transformation or add property shear
-        // mapInfo.setShearX((float) transform.getShearX());
-        // mapInfo.setShearY((float) transform.getShearY());
-
-        final double a = transform.getScaleX();
-        final double c = transform.getShearY();
-        final double aPow = a * a;
-        final double cPow = c * c;
-        final float orientation = (float) Math.toDegrees(Math.acos(a / Math.sqrt(aPow + cPow)));
-        mapInfo.setOrientation(orientation);
-    }
-
-    private static MapProjection getProjectionTransverseMercator(Map<Integer, GeoKeyEntry> keyEntries) {
-        final MapTransformDescriptor descriptor = MapProjectionRegistry.getDescriptor(
-                TransverseMercatorDescriptor.TYPE_ID);
-        final double[] values = descriptor.getParameterDefaultValues();
-
-        if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMajorAxisGeoKey)) {
-            values[0] = keyEntries.get(GeoTIFFCodes.GeogSemiMajorAxisGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMinorAxisGeoKey)) {
-            values[1] = keyEntries.get(GeoTIFFCodes.GeogSemiMinorAxisGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
-            values[2] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLatGeoKey).getDblValue()[0];
-        } else if (keyEntries.containsKey(GeoTIFFCodes.ProjCenterLatGeoKey)) {
-            values[2] = keyEntries.get(GeoTIFFCodes.ProjCenterLatGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLongGeoKey)) {
-            values[3] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLongGeoKey).getDblValue()[0];
-        } else if (keyEntries.containsKey(GeoTIFFCodes.ProjCenterLongGeoKey)) {
-            values[3] = keyEntries.get(GeoTIFFCodes.ProjCenterLongGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey)) {
-            values[4] = keyEntries.get(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjFalseEastingGeoKey)) {
-            values[5] = keyEntries.get(GeoTIFFCodes.ProjFalseEastingGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjFalseNorthingGeoKey)) {
-            values[6] = keyEntries.get(GeoTIFFCodes.ProjFalseNorthingGeoKey).getDblValue()[0];
-        }
-        final MapTransform transform = descriptor.createTransform(values);
-        return new MapProjection(descriptor.getTypeID(), transform);
-    }
-
-    private static MapProjection getProjectionLambertConfConic(Map<Integer, GeoKeyEntry> keyEntries) {
-        final MapTransformDescriptor descriptor = MapProjectionRegistry.getDescriptor(
-                LambertConformalConicDescriptor.TYPE_ID);
-        final double[] values = descriptor.getParameterDefaultValues();
-
-        if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMajorAxisGeoKey)) {
-            values[0] = keyEntries.get(GeoTIFFCodes.GeogSemiMajorAxisGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMinorAxisGeoKey)) {
-            values[1] = keyEntries.get(GeoTIFFCodes.GeogSemiMinorAxisGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjFalseOriginLatGeoKey)) {
-            values[2] = keyEntries.get(GeoTIFFCodes.ProjFalseOriginLatGeoKey).getDblValue()[0];
-        } else if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
-            values[2] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLatGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjFalseOriginLongGeoKey)) {
-            values[3] = keyEntries.get(GeoTIFFCodes.ProjFalseOriginLongGeoKey).getDblValue()[0];
-        } else if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLongGeoKey)) {
-            values[3] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLongGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjStdParallel1GeoKey)) {
-            values[4] = keyEntries.get(GeoTIFFCodes.ProjStdParallel1GeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjStdParallel2GeoKey)) {
-            values[5] = keyEntries.get(GeoTIFFCodes.ProjStdParallel2GeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey)) {
-            values[6] = keyEntries.get(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey).getDblValue()[0];
-        }
-        final MapTransform transform = descriptor.createTransform(values);
-        return new MapProjection(descriptor.getTypeID(), transform);
-    }
-
-    private static MapProjection getProjectionStereographic(Map<Integer, GeoKeyEntry> keyEntries) {
-        final MapTransformDescriptor descriptor = MapProjectionRegistry.getDescriptor(
-                StereographicDescriptor.TYPE_ID);
-        final double[] values = descriptor.getParameterDefaultValues();
-
-        if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMajorAxisGeoKey)) {
-            values[0] = keyEntries.get(GeoTIFFCodes.GeogSemiMajorAxisGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMinorAxisGeoKey)) {
-            values[1] = keyEntries.get(GeoTIFFCodes.GeogSemiMinorAxisGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjCenterLatGeoKey)) {
-            values[2] = keyEntries.get(GeoTIFFCodes.ProjCenterLatGeoKey).getDblValue()[0];
-        } else if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
-            values[2] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLatGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjCenterLongGeoKey)) {
-            values[3] = keyEntries.get(GeoTIFFCodes.ProjCenterLongGeoKey).getDblValue()[0];
-        } else if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLongGeoKey)) {
-            values[3] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLongGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey)) {
-            values[4] = keyEntries.get(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjFalseEastingGeoKey)) {
-            values[5] = keyEntries.get(GeoTIFFCodes.ProjFalseEastingGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjFalseNorthingGeoKey)) {
-            values[6] = keyEntries.get(GeoTIFFCodes.ProjFalseNorthingGeoKey).getDblValue()[0];
-        }
-        final MapTransform transform = descriptor.createTransform(values);
-        return new MapProjection(descriptor.getTypeID(), transform);
-    }
-
-    private static MapProjection getProjectionAlbersEqualAreaConic(Map<Integer, GeoKeyEntry> keyEntries) {
-        final MapTransformDescriptor descriptor = MapProjectionRegistry.getDescriptor(
-                AlbersEqualAreaConicDescriptor.TYPE_ID);
-        final double[] values = descriptor.getParameterDefaultValues();
-
-        if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMajorAxisGeoKey)) {
-            values[0] = keyEntries.get(GeoTIFFCodes.GeogSemiMajorAxisGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.GeogSemiMinorAxisGeoKey)) {
-            values[1] = keyEntries.get(GeoTIFFCodes.GeogSemiMinorAxisGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLatGeoKey)) {
-            values[2] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLatGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjNatOriginLongGeoKey)) {
-            values[3] = keyEntries.get(GeoTIFFCodes.ProjNatOriginLongGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjStdParallel1GeoKey)) {
-            values[4] = keyEntries.get(GeoTIFFCodes.ProjStdParallel1GeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjStdParallel2GeoKey)) {
-            values[5] = keyEntries.get(GeoTIFFCodes.ProjStdParallel2GeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey)) {
-            values[6] = keyEntries.get(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjFalseEastingGeoKey)) {
-            values[7] = keyEntries.get(GeoTIFFCodes.ProjFalseEastingGeoKey).getDblValue()[0];
-        }
-        if (keyEntries.containsKey(GeoTIFFCodes.ProjFalseNorthingGeoKey)) {
-            values[8] = keyEntries.get(GeoTIFFCodes.ProjFalseNorthingGeoKey).getDblValue()[0];
-        }
-        final MapTransform transform = descriptor.createTransform(values);
-        return new MapProjection(descriptor.getTypeID(), transform);
-    }
-
-    private static void applyGeographicGeocoding(TiffFileInfo info, Product product) {
-
-        if (info.containsField(GeoTIFFTagSet.TAG_MODEL_TRANSFORMATION)) {
-            applyIdentityGeoCoding(info, product);
-        } else if (info.containsField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT)) {
+    private static void applyGeoCoding(TiffFileInfo info, TIFFImageMetadata metadata, Product product) {
+        if (info.containsField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT)) {
 
             final double[] tiePoints = info.getField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT).getAsDoubles();
-            final int numTiePoints = tiePoints.length / 6;
 
-            if (numTiePoints == 1) {
-                applyLatLonProjection(info, tiePoints, product);
-            } else {
-                if (isAbleToUseForTiePointGeocoding(tiePoints)) {
-                    applyTiePointGeocoding(info, tiePoints, product);
-                } else {
-                    applyGcpGeoCoding(info, tiePoints, product);
-                }
+            if (canCreateTiePointGeoCoding(tiePoints)) {
+                applyTiePointGeoCoding(info, tiePoints, product);
+            } else if(canCreateGcpGeoCoding(tiePoints)){
+                applyGcpGeoCoding(info, tiePoints, product);
             }
         }
+
+        if (product.getGeoCoding() == null) {
+            try {
+                applyGeoCodingFromGeoTiff(metadata, product);
+            } catch (Exception ignored) {
+            }
+        }
+
     }
 
-    private static void applyTiePointGeocoding(TiffFileInfo info, double[] tiePoints, Product product) {
-        final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
-        final Datum datum = getDatum(geoKeyEntries);
+    private static void applyGeoCodingFromGeoTiff(TIFFImageMetadata metadata, Product product) throws Exception {
+        final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(),
+                                                    product.getSceneRasterHeight());
+        final GeoTiffIIOMetadataDecoder metadataDecoder = new GeoTiffIIOMetadataDecoder(metadata);
+        final GeoTiffMetadata2CRSAdapter geoTiff2CRSAdapter = new GeoTiffMetadata2CRSAdapter(null);
+        final MathTransform toModel = geoTiff2CRSAdapter.getRasterToModel(metadataDecoder, false);
+        final CoordinateReferenceSystem crs = geoTiff2CRSAdapter.createCoordinateSystem(metadataDecoder);
+        final CrsGeoCoding geoCoding = new CrsGeoCoding(crs, imageBounds, (AffineTransform) toModel);
+        product.setGeoCoding(geoCoding);
+    }
+
+
+    private static void applyTiePointGeoCoding(TiffFileInfo info, double[] tiePoints, Product product) {
         final SortedSet<Double> xSet = new TreeSet<Double>();
         final SortedSet<Double> ySet = new TreeSet<Double>();
         for (int i = 0; i < tiePoints.length; i += 6) {
@@ -670,10 +398,30 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
+        final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
+        final Datum datum = getDatum(geoKeyEntries);
         product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, datum));
     }
 
-    private static boolean isAbleToUseForTiePointGeocoding(final double[] tiePoints) {
+    private static boolean canCreateGcpGeoCoding(final double[] tiePoints) {
+        int numTiePoints = tiePoints.length / 6;
+
+        final GcpGeoCoding.Method method;
+        if (numTiePoints >= GcpGeoCoding.Method.POLYNOMIAL3.getTermCountP()) {
+            return true;
+        } else if (numTiePoints >= GcpGeoCoding.Method.POLYNOMIAL2.getTermCountP()) {
+            return true;
+        } else if (numTiePoints >= GcpGeoCoding.Method.POLYNOMIAL1.getTermCountP()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private static boolean canCreateTiePointGeoCoding(final double[] tiePoints) {
+        if ((tiePoints.length / 6) <= 1) {
+            return false;
+        }
         for (double tiePoint : tiePoints) {
             if (Double.isNaN(tiePoint)) {
                 return false;
@@ -706,45 +454,23 @@ public class GeoTiffProductReader extends AbstractProductReader {
         return true;
     }
 
-    private static void applyLatLonProjection(final TiffFileInfo info,
-                                              final double[] tiePoints,
-                                              final Product product) {
-        final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
-        final Datum datum = getDatum(geoKeyEntries);
-        final TIFFField modelPixelScaleField = info.getField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE);
-        final float pixelSizeX;
-        final float pixelSizeY;
-        if (modelPixelScaleField != null) {
-            final double[] doubles = TiffFileInfo.getDoubleValues(modelPixelScaleField);
-            pixelSizeX = (float) doubles[0];
-            pixelSizeY = (float) doubles[1];
-        } else {
-            pixelSizeX = 1;
-            pixelSizeY = 1;
-        }
-        final float pixelX = (float) tiePoints[0];
-        final float pixelY = (float) tiePoints[1];
-        final float easting = (float) tiePoints[3];
-        final float northing = (float) tiePoints[4];
-        final MapProjection projection = MapProjectionRegistry.getProjection(IdentityTransformDescriptor.NAME);
-        final MapInfo mapInfo = new MapInfo(
-                projection,
-                pixelX, pixelY, easting, northing, pixelSizeX, pixelSizeY, datum
-
-        );
-        mapInfo.setSceneWidth(product.getSceneRasterWidth());
-        mapInfo.setSceneHeight(product.getSceneRasterHeight());
-        product.setGeoCoding(new MapGeoCoding(mapInfo));
-
-    }
-
     private static void applyGcpGeoCoding(final TiffFileInfo info,
                                           final double[] tiePoints,
                                           final Product product) {
-        final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
-        final Datum datum = getDatum(geoKeyEntries);
 
         int numTiePoints = tiePoints.length / 6;
+
+        final GcpGeoCoding.Method method;
+        if (numTiePoints >= GcpGeoCoding.Method.POLYNOMIAL3.getTermCountP()) {
+            method = GcpGeoCoding.Method.POLYNOMIAL3;
+        } else if (numTiePoints >= GcpGeoCoding.Method.POLYNOMIAL2.getTermCountP()) {
+            method = GcpGeoCoding.Method.POLYNOMIAL2;
+        } else if (numTiePoints >= GcpGeoCoding.Method.POLYNOMIAL1.getTermCountP()) {
+            method = GcpGeoCoding.Method.POLYNOMIAL1;
+        } else {
+            return; // not able to apply GCP geo coding; not enough tie points
+        }
+
         final int width = product.getSceneRasterWidth();
         final int height = product.getSceneRasterHeight();
 
@@ -771,18 +497,9 @@ public class GeoTiffProductReader extends AbstractProductReader {
             gcpGroup.add(gcp);
         }
 
-        final GcpGeoCoding.Method method;
-        if (gcpGroup.getNodeCount() >= GcpGeoCoding.Method.POLYNOMIAL3.getTermCountP()) {
-            method = GcpGeoCoding.Method.POLYNOMIAL3;
-        } else if (gcpGroup.getNodeCount() >= GcpGeoCoding.Method.POLYNOMIAL2.getTermCountP()) {
-            method = GcpGeoCoding.Method.POLYNOMIAL2;
-        } else if (gcpGroup.getNodeCount() >= GcpGeoCoding.Method.POLYNOMIAL1.getTermCountP()) {
-            method = GcpGeoCoding.Method.POLYNOMIAL1;
-        } else {
-            return; // not able to apply GCP geo coding; not enough tie points
-        }
-
         final Pin[] gcps = gcpGroup.toArray(new Pin[gcpGroup.getNodeCount()]);
+        final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
+        final Datum datum = getDatum(geoKeyEntries);
         product.setGeoCoding(new GcpGeoCoding(method, gcps, width, height, datum));
     }
 
@@ -804,87 +521,4 @@ public class GeoTiffProductReader extends AbstractProductReader {
         return datum;
     }
 
-    private static void applyIdentityGeoCoding(TiffFileInfo info, Product product) {
-
-        if (info.containsField(GeoTIFFTagSet.TAG_MODEL_TRANSFORMATION)) {
-            final MapProjection projection = MapProjectionRegistry.getProjection(
-                    IdentityTransformDescriptor.NAME);
-
-            final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
-            float pixelOffset = 0.5f;
-            if (geoKeyEntries.containsKey(GeoTIFFCodes.GTRasterTypeGeoKey)) {
-                final int value = geoKeyEntries.get(GeoTIFFCodes.GTRasterTypeGeoKey).getIntValue();
-                if (value == GeoTIFFCodes.RasterPixelIsPoint) {
-                    pixelOffset = 0.0f;
-                }
-            }
-
-            final MapInfo mapInfo = new MapInfo(
-                    projection,
-                    pixelOffset, pixelOffset,
-                    0, 0,
-                    1, 1,
-                    Datum.WGS_84);
-
-            mapInfo.setSceneWidth(product.getSceneRasterWidth());
-            mapInfo.setSceneHeight(product.getSceneRasterHeight());
-
-            applyTransform(mapInfo, info);
-
-            product.setGeoCoding(new MapGeoCoding(mapInfo));
-        }
-    }
-
-    private static MapInfo createMapInfoPCS(int pcsCode, TiffFileInfo tiffInfo) {
-        final boolean isUtmNord = isUTM_Nord_PCSCode(pcsCode);
-        final boolean isUtmSouth = isUTM_South_PCSCode(pcsCode);
-        final boolean isUtm = isUTM_PCSCode(pcsCode);
-        if (isUtm) {
-            final int zoneIdx;
-            if (isUtmNord) {
-                zoneIdx = pcsCode - EPSGCodes.PCS_WGS84_UTM_zone_1N;
-            } else {
-                zoneIdx = pcsCode - EPSGCodes.PCS_WGS84_UTM_zone_1S;
-            }
-            final UTMProjection projection = UTM.createProjection(zoneIdx, isUtmSouth);
-            float pixelX = 0.5f;
-            float pixelY = 0.5f;
-            float easting = (float) projection.getMapTransform().getParameterValues()[5];
-            float northing = (float) projection.getMapTransform().getParameterValues()[6];
-            if (tiffInfo.containsField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT)) {
-                final TIFFField modelTiePoint = tiffInfo.getField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT);
-                pixelX = modelTiePoint.getAsFloat(0);
-                pixelY = modelTiePoint.getAsFloat(1);
-                easting = modelTiePoint.getAsFloat(3);
-                northing = modelTiePoint.getAsFloat(4);
-            }
-
-            float pixelSizeX = 1.0f;
-            float pixelSizeY = 1.0f;
-            if (tiffInfo.containsField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE)) {
-                final TIFFField modelPixelScale = tiffInfo.getField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE);
-                pixelSizeX = modelPixelScale.getAsFloat(0);
-                pixelSizeY = modelPixelScale.getAsFloat(1);
-            }
-
-            return new MapInfo(projection,
-                               pixelX, pixelY,
-                               easting, northing,
-                               pixelSizeX, pixelSizeY,
-                               Datum.WGS_84);
-        }
-        return null;
-    }
-
-    private static boolean isUTM_PCSCode(int pcsCode) {
-        return isUTM_Nord_PCSCode(pcsCode) || isUTM_South_PCSCode(pcsCode);
-    }
-
-    private static boolean isUTM_South_PCSCode(int pcsCode) {
-        return pcsCode >= EPSGCodes.PCS_WGS84_UTM_zone_1S && pcsCode <= EPSGCodes.PCS_WGS84_UTM_zone_60S;
-    }
-
-    private static boolean isUTM_Nord_PCSCode(int pcsCode) {
-        return pcsCode >= EPSGCodes.PCS_WGS84_UTM_zone_1N && pcsCode <= EPSGCodes.PCS_WGS84_UTM_zone_60N;
-    }
 }

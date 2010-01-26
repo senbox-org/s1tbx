@@ -94,11 +94,12 @@ public class ReprojectionOp extends Operator {
     @Parameter(description = "A file which contains the target Coordinate Reference System in WKT format.")
     private File wktFile;
 
-    @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
+    @Parameter(alias="crs",
+               description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
                              "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
                              "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
                              "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
-    private String crs;
+    private String crsString;
 
     @Parameter(alias = "resampling",
                label = "Resampling Method",
@@ -406,6 +407,7 @@ public class ReprojectionOp extends Operator {
                                                                  targetModelCrs,
                                                                  i2mTarget);
                 Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
+                hints.put(Hints.LENIENT_DATUM_SHIFT, Boolean.TRUE);
 
                 Dimension tileSize = ImageManager.getPreferredTileSize(targetProduct);
                 try {
@@ -460,28 +462,37 @@ public class ReprojectionOp extends Operator {
 
     private CoordinateReferenceSystem createTargetCRS() throws OperatorException {
         try {
+            CoordinateReferenceSystem crs = null;
             if (wktFile != null) {
-                return CRS.parseWKT(FileUtils.readText(wktFile));
+                crs = CRS.parseWKT(FileUtils.readText(wktFile));
             }
-            if (crs != null) {
+            if (crs == null && crsString != null) {
                 try {
-                    return CRS.parseWKT(crs);
-                } catch (FactoryException e) {
+                    crs = CRS.parseWKT(crsString);
+                } catch (FactoryException ignored) {
                     // prefix with EPSG, if there are only numbers
-                    if (crs.matches("[0-9]*")) {
-                        crs = "EPSG:" + crs;
+                    if (crsString.matches("[0-9]*")) {
+                        crsString = "EPSG:" + crsString;
                     }
                     // append center coordinates for AUTO code
-                    if (crs.matches("AUTO:[0-9]*")) {
+                    if (crsString.matches("AUTO:[0-9]*")) {
                         final GeoPos centerGeoPos = ProductUtils.getCenterGeoPos(sourceProduct);
-                        crs = String.format("%s,%s,%s", crs, centerGeoPos.lon, centerGeoPos.lat);
+                        crsString = String.format("%s,%s,%s", crsString, centerGeoPos.lon, centerGeoPos.lat);
                     }
                     // force longitude==x-axis and latitude==y-axis
-                    return CRS.decode(crs, true);
+                    crs = CRS.decode(crsString, true);
                 }
             }
             if (collocationProduct != null && collocationProduct.getGeoCoding() != null) {
-                return collocationProduct.getGeoCoding().getMapCRS();
+                crs = collocationProduct.getGeoCoding().getMapCRS();
+            }
+            // try to find an EPSG code
+            if (crs != null) {
+                final Integer epsgCode = CRS.lookupEpsgCode(crs, true);
+                if (epsgCode != null) {
+                    return CRS.decode("EPSG:" + epsgCode, true);
+                }
+                return crs;
             }
         } catch (FactoryException e) {
             throw new OperatorException(String.format("Target CRS could not be created: %s", e.getMessage()), e);
@@ -496,7 +507,7 @@ public class ReprojectionOp extends Operator {
         final String msgPattern = "Invalid target CRS specification.\nSpecify {0} one of the " +
                                   "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
 
-        if (wktFile == null && crs == null && collocationProduct == null) {
+        if (wktFile == null && crsString == null && collocationProduct == null) {
             throw new OperatorException(MessageFormat.format(msgPattern, "at least"));
         }
 
@@ -505,7 +516,7 @@ public class ReprojectionOp extends Operator {
         if (wktFile != null) {
             crsDefined = true;
         }
-        if (crs != null) {
+        if (crsString != null) {
             if (crsDefined) {
                 throw new OperatorException(exceptionMsg);
             }
