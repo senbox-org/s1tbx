@@ -2,19 +2,21 @@ package org.esa.beam.framework.datamodel;
 
 import org.opengis.feature.simple.SimpleFeature;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.WeakHashMap;
+import java.util.Map;
 
 public class PlacemarkGroup extends ProductNodeGroup<Pin> {
 
     private final VectorDataNode vectorDataNode;
-    private final WeakHashMap<SimpleFeature, Pin> placemarkMap;
+    private final Map<SimpleFeature, Pin> placemarkMap;
     private final ProductNodeListener listener;
 
     PlacemarkGroup(Product product, String name, VectorDataNode vectorDataNode) {
         super(product, name, true);
         this.vectorDataNode = vectorDataNode;
-        this.placemarkMap = new WeakHashMap<SimpleFeature, Pin>();
+        this.placemarkMap = Collections.synchronizedMap(new HashMap<SimpleFeature, Pin>());
         listener = new VectorDataNodeListener();
         getProduct().addProductNodeListener(listener);
     }
