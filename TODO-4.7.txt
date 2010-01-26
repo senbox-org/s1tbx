@@ -12,7 +12,7 @@ Help:
 Reprojection:
 =============
 * GeoTIFF wont work with GeoTools CRS
-  ==> FINAL, MP, DONE
+  ==> FINAL, MP, CLOSED
 
 * Shapes are wrongly clipped on import, which results in problems when reprojecting.
   For now they are skipped while reprojecting. Fix import issue.
