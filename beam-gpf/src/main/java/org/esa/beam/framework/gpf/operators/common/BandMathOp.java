@@ -17,6 +17,7 @@
 package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
 import com.bc.jexp.Symbol;
@@ -78,8 +79,7 @@ public class BandMathOp extends Operator {
     @Parameter(alias = "variables", itemAlias = "variable")
     private Variable[] variables;
 
-    private Map<Band, RasterDataSymbol[]> symbolMap;
-    private Map<Band, Term> termMap;
+    private Map<Band, BandDescriptor> descriptorMap;
 
     public static BandMathOp createBooleanExpressionBand(String expression, Product sourceProduct) {
         BandDescriptor[] bandDescriptors = new BandDescriptor[1];
@@ -102,31 +102,17 @@ public class BandMathOp extends Operator {
 
         int width = sourceProducts[0].getSceneRasterWidth();
         int height = sourceProducts[0].getSceneRasterHeight();
-        targetProduct = new Product(sourceProducts[0].getName() + "BandMath",
-                                    "BandMath", width, height);
-
-        WritableNamespace namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0, new ProductPrefixProvider() {
-            public String getPrefix(Product product) {
-                String idForSourceProduct = getSourceProductId(product);
-                return "$" + idForSourceProduct + ".";
-            }
-        });
-        if (variables != null) {
-            for (Variable variable : variables) {
-                if (ProductData.isFloatingPointType(ProductData.getType(variable.type))) {
-                    Symbol symbol = SymbolFactory.createConstant(variable.name, Double.parseDouble(variable.value));
-                    namespace.registerSymbol(symbol);
-                } else if (ProductData.isIntType(ProductData.getType(variable.type))) {
-                    Symbol symbol = SymbolFactory.createConstant(variable.name, Long.parseLong(variable.value));
-                    namespace.registerSymbol(symbol);
-                } else if ("boolean".equals(variable.type)) {
-                    Symbol symbol = SymbolFactory.createConstant(variable.name, Boolean.parseBoolean(variable.value));
-                    namespace.registerSymbol(symbol);
-                }
+        for (Product product : sourceProducts) {
+            if (product.getSceneRasterWidth() != width ||
+                    product.getSceneRasterHeight() != height) {
+                throw new OperatorException("Products used in band maths have have the same width and height.");
             }
         }
-        symbolMap = new HashMap<Band, RasterDataSymbol[]>(targetBandDescriptors.length);
-        termMap = new HashMap<Band, Term>(targetBandDescriptors.length);
+        targetProduct = new Product(sourceProducts[0].getName() + "BandMath", "BandMath", width, height);
+
+        descriptorMap = new HashMap<Band, BandDescriptor>(targetBandDescriptors.length);
+        Namespace namespace = createNamespace();
+        Parser verificationParser = new ParserImpl(namespace, true);
         for (BandDescriptor bandDescriptor : targetBandDescriptors) {
             Band band = targetProduct.addBand(bandDescriptor.name, ProductData.getType(bandDescriptor.type));
             if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.description)) {
@@ -153,18 +139,12 @@ public class BandMathOp extends Operator {
             if (bandDescriptor.spectralBandwidth != null) {
                 band.setSpectralBandwidth(bandDescriptor.spectralBandwidth);
             }
-
-            final Term term;
+            descriptorMap.put(band, bandDescriptor);
             try {
-                Parser parser = new ParserImpl(namespace, false);
-                term = parser.parse(bandDescriptor.expression);
+                Term testTerm = verificationParser.parse(bandDescriptor.expression);
             } catch (ParseException e) {
                 throw new OperatorException("Could not parse expression: " + bandDescriptor.expression, e);
             }
-            RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-
-            symbolMap.put(band, refRasterDataSymbols);
-            termMap.put(band, term);
         }
 
         if (sourceProducts.length == 1) {
@@ -175,8 +155,8 @@ public class BandMathOp extends Operator {
     @Override
     public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         Rectangle rect = targetTile.getRectangle();
-        RasterDataSymbol[] refRasterDataSymbols = symbolMap.get(band);
-        Term term = termMap.get(band);
+        Term term = createTerm(descriptorMap.get(band).expression);
+        RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
 
         for (RasterDataSymbol symbol : refRasterDataSymbols) {
             Tile tile = getSourceTile(symbol.getRaster(), rect, pm);
@@ -214,6 +194,42 @@ public class BandMathOp extends Operator {
         } finally {
             pm.done();
         }
+    }
+    
+    private Namespace createNamespace() {
+        WritableNamespace namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0, new ProductPrefixProvider() {
+            public String getPrefix(Product product) {
+                String idForSourceProduct = getSourceProductId(product);
+                return "$" + idForSourceProduct + ".";
+            }
+        });
+        if (variables != null) {
+            for (Variable variable : variables) {
+                if (ProductData.isFloatingPointType(ProductData.getType(variable.type))) {
+                    Symbol symbol = SymbolFactory.createConstant(variable.name, Double.parseDouble(variable.value));
+                    namespace.registerSymbol(symbol);
+                } else if (ProductData.isIntType(ProductData.getType(variable.type))) {
+                    Symbol symbol = SymbolFactory.createConstant(variable.name, Long.parseLong(variable.value));
+                    namespace.registerSymbol(symbol);
+                } else if ("boolean".equals(variable.type)) {
+                    Symbol symbol = SymbolFactory.createConstant(variable.name, Boolean.parseBoolean(variable.value));
+                    namespace.registerSymbol(symbol);
+                }
+            }
+        }
+        return namespace;
+    }
+    
+    private Term createTerm(String expression) {
+        Namespace namespace = createNamespace();
+        final Term term;
+        try {
+            Parser parser = new ParserImpl(namespace, false);
+            term = parser.parse(expression);
+        } catch (ParseException e) {
+            throw new OperatorException("Could not parse expression: " + expression, e);
+        }
+        return term;
     }
 
     public static class Spi extends OperatorSpi {

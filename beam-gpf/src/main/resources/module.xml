@@ -15,6 +15,7 @@
     <changelog>
         <![CDATA[
         <p>From 4.6 to 4.7:<br/>
+         	[BEAM-1061] Corruption of band layer generated from command line using Band Maths Tool in BEAM 4.7 RC1<br/>
          	[BEAM-1004] X and Y variables always zero in band arithmetic<br/>
         </p>         	
         <p>From 4.2 to 4.6:<br/>
