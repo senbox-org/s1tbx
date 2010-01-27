@@ -22,6 +22,7 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.TiePointGridOpImage;
@@ -916,5 +917,81 @@ public class TiePointGrid extends RasterDataNode {
             throw new IllegalArgumentException("unsupported discontinuity mode");
         }
         return discontinuity;
+    }
+
+    public static TiePointGrid createSubset(TiePointGrid sourceTiePointGrid, ProductSubsetDef subsetDef) {
+        final int srcTPGRasterWidth = sourceTiePointGrid.getRasterWidth();
+        final int srcTPGRasterHeight = sourceTiePointGrid.getRasterHeight();
+        final float srcTPGSubSamplingX = sourceTiePointGrid.getSubSamplingX();
+        final float srcTPGSubSamplingY = sourceTiePointGrid.getSubSamplingY();
+        int subsetOffsetX = 0;
+        int subsetOffsetY = 0;
+        int subsetStepX = 1;
+        int subsetStepY = 1;
+        final int srcSceneRasterWidth = sourceTiePointGrid.getSceneRasterWidth();
+        final int srcSceneRasterHeight = sourceTiePointGrid.getSceneRasterHeight();
+        int subsetWidth = srcSceneRasterWidth;
+        int subsetHeight = srcSceneRasterHeight;
+        if (subsetDef != null) {
+            subsetStepX = subsetDef.getSubSamplingX();
+            subsetStepY = subsetDef.getSubSamplingY();
+            if (subsetDef.getRegion() != null) {
+                subsetOffsetX = subsetDef.getRegion().x;
+                subsetOffsetY = subsetDef.getRegion().y;
+                subsetWidth = subsetDef.getRegion().width;
+                subsetHeight = subsetDef.getRegion().height;
+            }
+        }
+
+        final float newTPGSubSamplingX = srcTPGSubSamplingX / subsetStepX;
+        final float newTPGSubSamplingY = srcTPGSubSamplingY / subsetStepY;
+        final float pixelCenter = 0.5f;
+        final float newTPGOffsetX = (sourceTiePointGrid.getOffsetX() - pixelCenter - subsetOffsetX) / subsetStepX + pixelCenter;
+        final float newTPGOffsetY = (sourceTiePointGrid.getOffsetY() - pixelCenter - subsetOffsetY) / subsetStepY + pixelCenter;
+        final float newOffsetX = newTPGOffsetX % newTPGSubSamplingX;
+        final float newOffsetY = newTPGOffsetY % newTPGSubSamplingY;
+        final float diffX = newOffsetX - newTPGOffsetX;
+        final float diffY = newOffsetY - newTPGOffsetY;
+        final int dataOffsetX;
+        if (diffX < 0.0f) {
+            dataOffsetX = 0;
+        } else {
+            dataOffsetX = Math.round(diffX / newTPGSubSamplingX);
+        }
+        final int dataOffsetY;
+        if (diffY < 0.0f) {
+            dataOffsetY = 0;
+        } else {
+            dataOffsetY = Math.round(diffY / newTPGSubSamplingY);
+        }
+
+        int newTPGWidth = (int) Math.ceil(subsetWidth / srcTPGSubSamplingX) + 2;
+        if (dataOffsetX + newTPGWidth > srcTPGRasterWidth) {
+            newTPGWidth = srcTPGRasterWidth - dataOffsetX;
+        }
+        int newTPGHeight = (int) Math.ceil(subsetHeight / srcTPGSubSamplingY) + 2;
+        if (dataOffsetY + newTPGHeight > srcTPGRasterHeight) {
+            newTPGHeight = srcTPGRasterHeight - dataOffsetY;
+        }
+
+        final float[] oldTiePoints = sourceTiePointGrid.getTiePoints();
+        final float[] tiePoints = new float[newTPGWidth * newTPGHeight];
+        for (int y = 0; y < newTPGHeight; y++) {
+            final int srcPos = srcTPGRasterWidth * (dataOffsetY + y) + dataOffsetX;
+            System.arraycopy(oldTiePoints, srcPos, tiePoints, y * newTPGWidth, newTPGWidth);
+        }
+
+        final TiePointGrid tiePointGrid = new TiePointGrid(sourceTiePointGrid.getName(),
+                                                           newTPGWidth,
+                                                           newTPGHeight,
+                                                           newOffsetX,
+                                                           newOffsetY,
+                                                           newTPGSubSamplingX,
+                                                           newTPGSubSamplingY,
+                                                           tiePoints,
+                                                           sourceTiePointGrid.getDiscontinuity());
+        tiePointGrid.setUnit(sourceTiePointGrid.getUnit());
+        tiePointGrid.setDescription(sourceTiePointGrid.getDescription());
+        return tiePointGrid;
     }
 }

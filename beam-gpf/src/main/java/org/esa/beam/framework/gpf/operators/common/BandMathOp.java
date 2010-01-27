@@ -47,10 +47,13 @@ import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
-@OperatorMetadata(alias = "BandMath")
+@OperatorMetadata(alias = "BandMath", version = "1.0",
+                  description = "Create a product with one or more bands using mathematical expressions.\n" +
+                                "This operator can only be invoked with a Graph XML file.")
 public class BandMathOp extends Operator {
 
     public static class BandDescriptor {
+
         public String name;
         public String expression;
         public String description;
@@ -63,6 +66,7 @@ public class BandMathOp extends Operator {
     }
 
     public static class Variable {
+
         public String name;
         public String type;
         public String value;
@@ -74,9 +78,11 @@ public class BandMathOp extends Operator {
     @SourceProducts
     private Product[] sourceProducts;
 
-    @Parameter(alias = "targetBands", itemAlias = "targetBand")
+    @Parameter(alias = "targetBands", itemAlias = "targetBand",
+               description = "List of descriptors defining the target bands.")
     private BandDescriptor[] targetBandDescriptors;
-    @Parameter(alias = "variables", itemAlias = "variable")
+    @Parameter(alias = "variables", itemAlias = "variable",
+               description = "List of variables which can be used within the expressions.")
     private Variable[] variables;
 
     private Map<Band, BandDescriptor> descriptorMap;
@@ -104,8 +110,8 @@ public class BandMathOp extends Operator {
         int height = sourceProducts[0].getSceneRasterHeight();
         for (Product product : sourceProducts) {
             if (product.getSceneRasterWidth() != width ||
-                    product.getSceneRasterHeight() != height) {
-                throw new OperatorException("Products used in band maths have have the same width and height.");
+                product.getSceneRasterHeight() != height) {
+                throw new OperatorException("Products must have the same raster dimension.");
             }
         }
         targetProduct = new Product(sourceProducts[0].getName() + "BandMath", "BandMath", width, height);
@@ -114,42 +120,11 @@ public class BandMathOp extends Operator {
         Namespace namespace = createNamespace();
         Parser verificationParser = new ParserImpl(namespace, true);
         for (BandDescriptor bandDescriptor : targetBandDescriptors) {
-            Band band = targetProduct.addBand(bandDescriptor.name, ProductData.getType(bandDescriptor.type));
-            if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.description)) {
-                band.setDescription(bandDescriptor.description);
-            }
-            if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.validExpression)) {
-                band.setValidPixelExpression(bandDescriptor.validExpression);
-            }
-            if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.noDataValue)) {
-                try {
-                    double parseDouble = Double.parseDouble(bandDescriptor.noDataValue);
-                    band.setNoDataValue(parseDouble);
-                    band.setNoDataValueUsed(true);
-                } catch (NumberFormatException e) {
-                    throw new OperatorException("Bad value for NoDataValue given: " + bandDescriptor.noDataValue, e);
-                }
-            }
-            if (bandDescriptor.spectralBandIndex != null) {
-                band.setSpectralBandIndex(bandDescriptor.spectralBandIndex);
-            }
-            if (bandDescriptor.spectralWavelength != null) {
-                band.setSpectralWavelength(bandDescriptor.spectralWavelength);
-            }
-            if (bandDescriptor.spectralBandwidth != null) {
-                band.setSpectralBandwidth(bandDescriptor.spectralBandwidth);
-            }
-            descriptorMap.put(band, bandDescriptor);
-            try {
-                Term testTerm = verificationParser.parse(bandDescriptor.expression);
-            } catch (ParseException e) {
-                throw new OperatorException("Could not parse expression: " + bandDescriptor.expression, e);
-            }
+            createBand(bandDescriptor, verificationParser);
         }
 
-        if (sourceProducts.length == 1) {
-            ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
-        }
+        ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
+        ProductUtils.copyGeoCoding(sourceProducts[0], targetProduct);
     }
 
     @Override
@@ -161,7 +136,8 @@ public class BandMathOp extends Operator {
         for (RasterDataSymbol symbol : refRasterDataSymbols) {
             Tile tile = getSourceTile(symbol.getRaster(), rect, pm);
             if (tile.getRasterDataNode().isScalingApplied()) {
-                ProductData dataBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32, tile.getWidth() * tile.getHeight());
+                ProductData dataBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32,
+                                                                    tile.getWidth() * tile.getHeight());
                 int dataBufferIndex = 0;
                 for (int y = rect.y; y < rect.y + rect.height; y++) {
                     for (int x = rect.x; x < rect.x + rect.width; x++) {
@@ -177,9 +153,9 @@ public class BandMathOp extends Operator {
         }
 
         final RasterDataEvalEnv env = new RasterDataEvalEnv(rect.x, rect.y, rect.width, rect.height);
-        int pixelIndex = 0;
         pm.beginTask("Evaluating expression", rect.height);
         try {
+            int pixelIndex = 0;
             for (int y = rect.y; y < rect.y + rect.height; y++) {
                 if (pm.isCanceled()) {
                     break;
@@ -195,14 +171,51 @@ public class BandMathOp extends Operator {
             pm.done();
         }
     }
-    
-    private Namespace createNamespace() {
-        WritableNamespace namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0, new ProductPrefixProvider() {
-            public String getPrefix(Product product) {
-                String idForSourceProduct = getSourceProductId(product);
-                return "$" + idForSourceProduct + ".";
+
+    private void createBand(BandDescriptor bandDescriptor, Parser verificationParser) {
+        if(StringUtils.isNullOrEmpty(bandDescriptor.name)) {
+             throw new OperatorException("Missing band name.");
+        }
+        if(StringUtils.isNullOrEmpty(bandDescriptor.type)) {
+             throw new OperatorException(String.format("Missing data type for band %s.", bandDescriptor.name));
+        }
+
+        Band band = targetProduct.addBand(bandDescriptor.name, ProductData.getType(bandDescriptor.type.toLowerCase()));
+        if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.description)) {
+            band.setDescription(bandDescriptor.description);
+        }
+        if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.validExpression)) {
+            band.setValidPixelExpression(bandDescriptor.validExpression);
+        }
+        if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.noDataValue)) {
+            try {
+                double parseDouble = Double.parseDouble(bandDescriptor.noDataValue);
+                band.setNoDataValue(parseDouble);
+                band.setNoDataValueUsed(true);
+            } catch (NumberFormatException e) {
+                throw new OperatorException("Bad value for NoDataValue given: " + bandDescriptor.noDataValue, e);
             }
-        });
+        }
+        if (bandDescriptor.spectralBandIndex != null) {
+            band.setSpectralBandIndex(bandDescriptor.spectralBandIndex);
+        }
+        if (bandDescriptor.spectralWavelength != null) {
+            band.setSpectralWavelength(bandDescriptor.spectralWavelength);
+        }
+        if (bandDescriptor.spectralBandwidth != null) {
+            band.setSpectralBandwidth(bandDescriptor.spectralBandwidth);
+        }
+        descriptorMap.put(band, bandDescriptor);
+        try {
+            Term testTerm = verificationParser.parse(bandDescriptor.expression);
+        } catch (ParseException e) {
+            throw new OperatorException("Could not parse expression: " + bandDescriptor.expression, e);
+        }
+    }
+
+    private Namespace createNamespace() {
+        WritableNamespace namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0,
+                                                                            new SourceProductPrefixProvider());
         if (variables != null) {
             for (Variable variable : variables) {
                 if (ProductData.isFloatingPointType(ProductData.getType(variable.type))) {
@@ -219,7 +232,7 @@ public class BandMathOp extends Operator {
         }
         return namespace;
     }
-    
+
     private Term createTerm(String expression) {
         Namespace namespace = createNamespace();
         final Term term;
@@ -233,8 +246,17 @@ public class BandMathOp extends Operator {
     }
 
     public static class Spi extends OperatorSpi {
+
         public Spi() {
             super(BandMathOp.class);
+        }
+    }
+
+    private class SourceProductPrefixProvider implements ProductPrefixProvider {
+
+        @Override
+        public String getPrefix(Product product) {
+            return "$" + getSourceProductId(product) + ".";
         }
     }
 }

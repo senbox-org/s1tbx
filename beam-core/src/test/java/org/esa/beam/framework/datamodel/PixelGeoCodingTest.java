@@ -19,6 +19,7 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 
 import java.io.IOException;
@@ -138,7 +139,7 @@ public class PixelGeoCodingTest extends TestCase {
         assertEquals(gp, newGeoCoding.getGeoPos(new PixelPos(PW - 0.5f, PH - 0.5f), null).toString());
     }
 
-    public void testThatPixelPosEstimatorIsAlsoTransferred() throws IOException {
+    public void testTransferGeoCoding() throws IOException {
         Product sourceProduct = createProduct();
         PixelGeoCoding newGeoCoding = new PixelGeoCoding(sourceProduct.getBand("latBand"),
                                                          sourceProduct.getBand("lonBand"), null, 5,
@@ -152,6 +153,44 @@ public class PixelGeoCodingTest extends TestCase {
 
         PixelGeoCoding targetGC = (PixelGeoCoding) targetProduct.getGeoCoding();
         assertNotNull(targetGC.getPixelPosEstimator());
+    }
+
+    public void testTransferGeoCoding_WithSpatialSubset() throws IOException {
+        Product sourceProduct = createProduct();
+        PixelGeoCoding newGeoCoding = new PixelGeoCoding(sourceProduct.getBand("latBand"),
+                                                         sourceProduct.getBand("lonBand"), "flagomat.valid", 5,
+                                                         ProgressMonitor.NULL);
+        sourceProduct.setGeoCoding(newGeoCoding);
+
+        final ProductSubsetDef def = new ProductSubsetDef();
+        final int subsetWidth = sourceProduct.getSceneRasterWidth() - 3;
+        final int subsetHeight = sourceProduct.getSceneRasterHeight() - 3;
+        def.setRegion(2, 2, subsetWidth, subsetHeight);
+        def.setSubSampling(1, 2);
+        Product targetProduct = sourceProduct.createSubset(def, "target", "");
+        targetProduct.setGeoCoding(null);   // remove geo-coding of target product
+        targetProduct.removeTiePointGrid(targetProduct.getTiePointGrid("latGrid"));
+        targetProduct.removeTiePointGrid(targetProduct.getTiePointGrid("lonGrid"));
+        targetProduct.removeBand(targetProduct.getBand("latBand"));
+        targetProduct.removeBand(targetProduct.getBand("lonBand"));
+        targetProduct.removeBand(targetProduct.getBand("flagomat"));
+        targetProduct.getFlagCodingGroup().removeAll();
+
+        sourceProduct.transferGeoCodingTo(targetProduct, def);
+        assertTrue(targetProduct.containsBand("latBand"));
+        assertTrue(targetProduct.containsBand("lonBand"));
+        assertTrue(targetProduct.containsBand("flagomat"));
+        assertTrue(targetProduct.containsTiePointGrid("latGrid"));
+        assertTrue(targetProduct.containsTiePointGrid("lonGrid"));
+        assertTrue(targetProduct.getFlagCodingGroup().contains("flags"));
+
+        PixelGeoCoding targetGC = (PixelGeoCoding) targetProduct.getGeoCoding();
+        assertNotNull(targetGC.getPixelPosEstimator());
+
+        final GeoPos sourceGeoPos = sourceProduct.getGeoCoding().getGeoPos(new PixelPos(4.5f, 8.5f), null);
+        final GeoPos targetGeoPos = targetProduct.getGeoCoding().getGeoPos(new PixelPos(4.5f, 3.5f), null);
+        assertEquals(sourceGeoPos.getLat(), targetGeoPos.getLat(), 1.0e-1);
+        assertEquals(sourceGeoPos.getLon(), targetGeoPos.getLon(), 1.0e-1);
     }
 
     private Product createProduct() {
@@ -168,6 +207,14 @@ public class PixelGeoCodingTest extends TestCase {
 
         latBand.setRasterData(ProductData.createInstance(createBandData(latGrid)));
         lonBand.setRasterData(ProductData.createInstance(createBandData(lonGrid)));
+        final FlagCoding flagCoding = new FlagCoding("flags");
+        flagCoding.addFlag("valid", 0, "valid pixel");
+
+        product.getFlagCodingGroup().add(flagCoding);
+
+        Band flagomatBand = product.addBand("flagomat", ProductData.TYPE_UINT8);
+        flagomatBand.setRasterData(ProductData.createInstance(ProductData.TYPE_UINT8, PW * PH));
+        flagomatBand.setSampleCoding(flagCoding);
 
         product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
 

@@ -232,14 +232,15 @@ GPF Processors:
   ==> FINAL, ?, OPEN
 * Need minimal developer guide  
   ==> FINAL, ?, OPEN
-* Enable/Harmonise geo-coding transfer in all GPF ops  (see BEAM-1047 and BEAM-1050)
-  ==> FINAL, SE?, OPEN
 * Important issues with the band's source image:
   - dispose() method on MultiLevelImage shall not null its product node,
     use WeakReference instead.
   - Don't dispose source MultiLevelImage, if the RasterDataNode is not the
     owner, e.g. flag RasterDataNode.isSourceImageOwner()
   ==> FINAL, ?, OPEN
+
+* Enable/Harmonise geo-coding transfer in all GPF ops  (see BEAM-1047 and BEAM-1050)
+  ==> FINAL, MP, DONE
 
 
 SMOS-Box:

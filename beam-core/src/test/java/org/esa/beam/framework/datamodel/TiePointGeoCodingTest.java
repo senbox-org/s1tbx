@@ -1,12 +1,24 @@
 package org.esa.beam.framework.datamodel;
 
 import junit.framework.TestCase;
+import org.esa.beam.framework.dataio.ProductSubsetBuilder;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Debug;
 
 import java.awt.geom.AffineTransform;
+import java.io.IOException;
 
-public class TiePointGeoCodingTest2 extends TestCase {
+public class TiePointGeoCodingTest extends TestCase {
+    private static final int S = 4;
+    private static final int GW = 3;
+    private static final int GH = 5;
+    private static final int PW = (GW - 1) * S + 1;
+    private static final int PH = (GH - 1) * S + 1;
+    private static final float LAT_1 = 53.0f;
+    private static final float LAT_2 = 50.0f;
+    private static final float LON_1 = 10.0f;
+    private static final float LON_2 = 15.0f;
 
     // high error expected due to approximation
     public static final float PP_ERROR = 1e-3f;
@@ -98,6 +110,95 @@ public class TiePointGeoCodingTest2 extends TestCase {
         assertEquals(+180, ts.gp[TestSet.UC].lon, 1.e-5f);
         assertEquals(-170, ts.gp[TestSet.UR].lon, 1.e-5f);
     }
+
+    public void testTransferGeoCoding() {
+        final Scene srcScene = SceneFactory.createScene(createProduct());
+        final Scene destScene = SceneFactory.createScene(new Product("test2", "test2", PW, PH));
+
+        final boolean transferred = srcScene.transferGeoCodingTo(destScene, null);
+        assertTrue(transferred);
+        final GeoCoding destGeoCoding = destScene.getGeoCoding();
+        assertNotNull(destGeoCoding);
+        assertTrue(destGeoCoding instanceof TiePointGeoCoding);
+
+        final PixelPos pixelPos = new PixelPos(PW/2.0f, PH/2.0f);
+        final GeoPos srcGeoPos = srcScene.getGeoCoding().getGeoPos(pixelPos, null);
+        final GeoPos destGeoPos = destScene.getGeoCoding().getGeoPos(pixelPos, null);
+        assertEquals(srcGeoPos, destGeoPos);
+    }
+
+    public void testTransferGeoCoding_WithSpatialSubset() throws IOException {
+        final Scene srcScene = SceneFactory.createScene(createProduct());
+        final ProductSubsetDef subsetDef = new ProductSubsetDef();
+        subsetDef.setRegion(2, 2, PW - 4, PH - 4);
+        subsetDef.setSubSampling(1,2);
+        final Product destProduct = ProductSubsetBuilder.createProductSubset(new Product("test2", "test2", PW, PH),
+                                                                        subsetDef, "test2", "");
+        final Scene destScene = SceneFactory.createScene(destProduct);
+
+        final boolean transferred = srcScene.transferGeoCodingTo(destScene, subsetDef);
+        assertTrue(transferred);
+        final GeoCoding destGeoCoding = destScene.getGeoCoding();
+        assertTrue(destGeoCoding instanceof TiePointGeoCoding);
+
+        final GeoPos srcGeoPos = srcScene.getGeoCoding().getGeoPos(new PixelPos(4.5f, 6.5f), null);
+        final PixelPos destPixelPos = destScene.getGeoCoding().getPixelPos(srcGeoPos, null);
+        assertEquals(2.5, destPixelPos.getX(), 1.0e-1);
+        assertEquals(1.5, destPixelPos.getY(), 1.0e-1);
+    }
+
+    private Product createProduct() {
+        Product product = new Product("test", "test", PW, PH);
+
+        TiePointGrid latGrid = new TiePointGrid("latGrid", GW, GH, 0.5f, 0.5f, S, S, createLatGridData());
+        TiePointGrid lonGrid = new TiePointGrid("lonGrid", GW, GH, 0.5f, 0.5f, S, S, createLonGridData());
+
+        product.addTiePointGrid(latGrid);
+        product.addTiePointGrid(lonGrid);
+
+        Band latBand = product.addBand("latBand", ProductData.TYPE_FLOAT32);
+        Band lonBand = product.addBand("lonBand", ProductData.TYPE_FLOAT32);
+
+        latBand.setRasterData(ProductData.createInstance(createBandData(latGrid)));
+        lonBand.setRasterData(ProductData.createInstance(createBandData(lonGrid)));
+
+        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+
+        return product;
+    }
+
+    private float[] createLatGridData() {
+        return createGridData(LAT_1, LAT_2);
+    }
+
+    private float[] createLonGridData() {
+        return createGridData(LON_1, LON_2);
+    }
+
+    private static float[] createBandData(TiePointGrid grid) {
+        float[] floats = new float[PW * PH];
+        for (int y = 0; y < PH; y++) {
+            for (int x = 0; x < PW; x++) {
+                floats[y * PW + x] = grid.getPixelFloat(x, y);
+            }
+        }
+        return floats;
+    }
+
+    private static float[] createGridData(float lon0, float lon1) {
+        float[] floats = new float[GW * GH];
+
+        for (int j = 0; j < GH; j++) {
+            for (int i = 0; i < GW; i++) {
+                float x = i / (GW - 1f);
+                float y = j / (GH - 1f);
+                floats[j * GW + i] = lon0 + (lon1 - lon0) * x * x + 0.1f * (lon1 - lon0) * y * y;
+            }
+        }
+
+        return floats;
+    }
+
 
     private TestSet createMerisRRTestSet(double rotationAngle,
                                          double lonOffset,
@@ -351,4 +452,5 @@ public class TiePointGeoCodingTest2 extends TestCase {
             return transformGeoPositions(geoPositions);
         }
     }
+
 }

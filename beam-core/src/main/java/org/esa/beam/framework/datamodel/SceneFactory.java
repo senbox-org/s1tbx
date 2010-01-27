@@ -3,7 +3,6 @@ package org.esa.beam.framework.datamodel;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
 /**
@@ -44,11 +43,11 @@ public final class SceneFactory {
         final String[] rasterNames = StringUtils.addArrays(sourceScene.getProduct().getBandNames(),
                                                            sourceScene.getProduct().getTiePointGridNames());
         int numTransferred = 0;
-        for (int i = 0; i < rasterNames.length; i++) {
-            final RasterDataNode sourceRaster = sourceScene.getProduct().getRasterDataNode(rasterNames[i]);
+        for (String rasterName : rasterNames) {
+            final RasterDataNode sourceRaster = sourceScene.getProduct().getRasterDataNode(rasterName);
             if (sourceRaster != null) {
                 final Scene sourceRasterScene = SceneFactory.createScene(sourceRaster);
-                final RasterDataNode targetRaster = targetScene.getProduct().getRasterDataNode(rasterNames[i]);
+                final RasterDataNode targetRaster = targetScene.getProduct().getRasterDataNode(rasterName);
                 if (targetRaster != null) {
                     final Scene targetRasterScene = SceneFactory.createScene(targetRaster);
                     if (transferGeoCoding(sourceRasterScene, targetRasterScene, subsetDef)) {

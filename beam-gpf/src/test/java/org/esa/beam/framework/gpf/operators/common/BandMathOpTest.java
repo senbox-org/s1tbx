@@ -19,11 +19,16 @@ package org.esa.beam.framework.gpf.operators.common;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.geotools.referencing.CRS;
 
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,16 +74,31 @@ public class BandMathOpTest extends TestCase {
         Arrays.fill(expectedValues, 1.0f);
         assertTrue(Arrays.equals(expectedValues, floatValues));
     }
-    
+
+    public void testGeoCodingIsCopied() throws Exception {
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[1];
+        bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_UINT8);
+        parameters.put("targetBands", bandDescriptors);
+        Product sourceProduct = createTestProduct(4, 4);
+        final GeoCoding geoCoding = new CrsGeoCoding(CRS.decode("EPSG:32632"), new Rectangle(4, 4),
+                                                     new AffineTransform());
+        sourceProduct.setGeoCoding(geoCoding);
+        Product targetProduct = GPF.createProduct("BandMath", parameters, sourceProduct);
+
+        assertNotNull(targetProduct);
+        assertNotNull(targetProduct.getGeoCoding());
+    }
+
     public void testSimpelstCaseWithFactoryMethod() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
-        
+
         BandMathOp bandMathOp = BandMathOp.createBooleanExpressionBand("band1 > 0", sourceProduct);
         assertNotNull(bandMathOp);
 
         Product targetProduct = bandMathOp.getTargetProduct();
         assertNotNull(targetProduct);
-        
+
         Band band = targetProduct.getBandAt(0);
         assertNotNull(band);
         assertEquals(ProductData.TYPE_INT8, band.getDataType());
@@ -161,10 +181,12 @@ public class BandMathOpTest extends TestCase {
         Product sourceProduct2 = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[1];
-        bandDescriptors[0] = createBandDescription("aBandName", "$sourceProduct.0.band1 + $sourceProduct.1.band2", ProductData.TYPESTRING_FLOAT32);
+        bandDescriptors[0] = createBandDescription("aBandName", "$sourceProduct.0.band1 + $sourceProduct.1.band2",
+                                                   ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
 
-        Product targetProduct = GPF.createProduct("BandMath", parameters, new Product[]{sourceProduct1, sourceProduct2});
+        Product targetProduct = GPF.createProduct("BandMath", parameters,
+                                                  new Product[]{sourceProduct1, sourceProduct2});
         Band band = targetProduct.getBand("aBandName");
 
         float[] actualValues = new float[16];

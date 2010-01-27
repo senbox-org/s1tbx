@@ -10,24 +10,22 @@ import Jama.LUDecomposition;
 import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
-import static org.esa.beam.util.ProductUtils.copyBand;
 import org.esa.beam.util.math.IndexValidator;
 
-import javax.media.jai.operator.ScaleDescriptor;
-import javax.media.jai.operator.CropDescriptor;
-import javax.media.jai.OperationDescriptorImpl;
-import javax.media.jai.RenderedOp;
 import javax.media.jai.Interpolation;
-import javax.media.jai.InterpolationNearest;
-import java.io.IOException;
-import java.awt.image.RenderedImage;
+import javax.media.jai.operator.CropDescriptor;
+import javax.media.jai.operator.ScaleDescriptor;
 import java.awt.Rectangle;
+import java.awt.image.RenderedImage;
+import java.io.IOException;
 
 
 /**
@@ -96,7 +94,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         }
         if (latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2) {
             throw new IllegalArgumentException(
-                        "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
+                    "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
         if (searchRadius <= 0) {
             throw new IllegalArgumentException("searchRadius <= 0");
@@ -570,7 +568,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                 System.out.print("  ");
             }
             System.out.println(
-                        depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
+                    depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
         }
         return pixelFound;
     }
@@ -623,6 +621,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param a2 the second angle in degrees (-180 <= a2 <= 180)
      * @return the difference between 0 and 180 degrees
      */
+
     private static float lonDiff(float a1, float a2) {
         float d = a1 - a2;
         if (d < 0.0f) {
@@ -635,6 +634,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     }
 
     // todo - (nf) do not delete this method, it could be used later, if we want to determine x,y fractions
+
     private static boolean getPixelPos(final float lat, final float lon,
                                        final float[] lata, final float[] lona,
                                        final int[] xa, final int[] ya,
@@ -723,25 +723,84 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     @Override
     public boolean transferGeoCoding(final Scene srcScene, final Scene destScene, final ProductSubsetDef subsetDef) {
         final Band srcLatBand = getLatBand();
-        final Band srcLonBand = getLonBand();
-        Band latBand = destScene.getProduct().getBand(srcLatBand.getName());
+        final Product destProduct = destScene.getProduct();
+        Band latBand = destProduct.getBand(srcLatBand.getName());
         if (latBand == null) {
-            latBand = copyBand(srcLatBand.getName(), srcScene.getProduct(), destScene.getProduct());
-            latBand.setSourceImage(getSourceImage(subsetDef, srcLatBand));
+            latBand = createSubset(srcLatBand, destScene, subsetDef);
+            destProduct.addBand(latBand);
         }
-        Band lonBand = destScene.getProduct().getBand(srcLonBand.getName());
+        final Band srcLonBand = getLonBand();
+        Band lonBand = destProduct.getBand(srcLonBand.getName());
         if (lonBand == null) {
-            lonBand = copyBand(srcLonBand.getName(), srcScene.getProduct(), destScene.getProduct());
-            lonBand.setSourceImage(getSourceImage(subsetDef, lonBand));
+            lonBand = createSubset(srcLonBand, destScene, subsetDef);
+            destProduct.addBand(lonBand);
         }
         if (_pixelPosEstimator instanceof AbstractGeoCoding) {
             AbstractGeoCoding origGeoCoding = (AbstractGeoCoding) _pixelPosEstimator;
             origGeoCoding.transferGeoCoding(srcScene, destScene, subsetDef);
         }
+        String validMaskExpression = getValidMask();
+        try {
+            if (validMaskExpression != null) {
+                copyReferencedRasters(validMaskExpression, srcScene, destScene, subsetDef);
+            }
+        } catch (ParseException ignored) {
+            validMaskExpression = null;
+        }
         destScene.setGeoCoding(new PixelGeoCoding(latBand, lonBand,
-                                                  getValidMask(),
+                                                  validMaskExpression,
                                                   getSearchRadius()));
         return true;
+    }
+
+    private void copyReferencedRasters(String validMaskExpression, Scene srcScene, Scene destScene,
+                                       ProductSubsetDef subsetDef) throws ParseException {
+        Product destProduct = destScene.getProduct();
+        final RasterDataNode[] dataNodes = BandArithmetic.getRefRasters(validMaskExpression,
+                                                                        srcScene.getProduct());
+        for (RasterDataNode dataNode : dataNodes) {
+            if (!destProduct.containsRasterDataNode(dataNode.getName())) {
+                if (dataNode instanceof TiePointGrid) {
+                    TiePointGrid tpg = TiePointGrid.createSubset((TiePointGrid) dataNode, subsetDef);
+                    destProduct.addTiePointGrid(tpg);
+                }
+                if (dataNode instanceof Band) {
+                    final Band srcBand = (Band) dataNode;
+                    Band band = createSubset(srcBand, destScene, subsetDef);
+                    destProduct.addBand(band);
+                    setFlagCoding(band, srcBand.getFlagCoding());
+                }
+            }
+        }
+    }
+
+    private static void setFlagCoding(Band band, FlagCoding flagCoding) {
+        if (flagCoding != null) {
+            String flagCodingName = flagCoding.getName();
+            final Product product = band.getProduct();
+            if (!product.getFlagCodingGroup().contains(flagCodingName)) {
+                addFlagCoding(product, flagCoding);
+            }
+            band.setSampleCoding(product.getFlagCodingGroup().get(flagCodingName));
+        }
+    }
+
+    private static void addFlagCoding(Product product, FlagCoding flagCoding) {
+        final FlagCoding targetFlagCoding = new FlagCoding(flagCoding.getName());
+
+        targetFlagCoding.setDescription(flagCoding.getDescription());
+        ProductUtils.copyMetadata(flagCoding, targetFlagCoding);
+        product.getFlagCodingGroup().add(targetFlagCoding);
+    }
+
+    private Band createSubset(Band srcBand, Scene destScene, ProductSubsetDef subsetDef) {
+        Band band = new Band(srcBand.getName(),
+                             srcBand.getDataType(),
+                             destScene.getRasterWidth(),
+                             destScene.getRasterHeight());
+        ProductUtils.copyRasterDataNodeProperties(srcBand, band);
+        band.setSourceImage(getSourceImage(subsetDef, srcBand));
+        return band;
     }
 
     private RenderedImage getSourceImage(ProductSubsetDef subsetDef, Band band) {
@@ -749,20 +808,20 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         if (subsetDef != null) {
             final Rectangle region = subsetDef.getRegion();
             if (region != null) {
-                final float x = region.x;
-                final float y = region.y;
-                final float width = region.width;
-                final float height = region.height;
+                float x = region.x;
+                float y = region.y;
+                float width = region.width;
+                float height = region.height;
                 image = CropDescriptor.create(image, x, y, width, height, null);
             }
             final int subSamplingX = subsetDef.getSubSamplingX();
             final int subSamplingY = subsetDef.getSubSamplingY();
             if (subSamplingX != 1 || subSamplingY != 1) {
-                final float scaleX = 1f / subSamplingX;
-                final float scaleY = 1f / subSamplingY;
-                final float transX = 0f;
-                final float transY = 0f;
-                final Interpolation interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+                float scaleX = 1.0f / subSamplingX;
+                float scaleY = 1.0f / subSamplingY;
+                float transX = 0.0f;
+                float transY = 0.0f;
+                Interpolation interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
                 image = ScaleDescriptor.create(image, scaleX, scaleY, transX, transY, interpolation, null);
             }
         }
