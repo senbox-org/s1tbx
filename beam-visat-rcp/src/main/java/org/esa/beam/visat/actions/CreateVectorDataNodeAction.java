@@ -62,13 +62,13 @@ public class CreateVectorDataNodeAction extends ExecCommand {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        Product product = VisatApp.getApp().getSelectedProduct();
-        if (product != null) {
-            run(product);
+        if (VisatApp.getApp().getSelectedProduct() != null) {
+            run();
         }
     }
 
-    public VectorDataNode run(Product product) {
+    public VectorDataNode run() {
+        Product product = VisatApp.getApp().getSelectedProduct();
         DialogData dialogData = new DialogData(product.getVectorDataGroup());
         PropertySet propertySet = PropertyContainer.createObjectBacked(dialogData);
         propertySet.getDescriptor("name").setNotNull(true);
