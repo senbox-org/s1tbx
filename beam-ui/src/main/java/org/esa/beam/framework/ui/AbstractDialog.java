@@ -197,7 +197,7 @@ public abstract class AbstractDialog {
     }
 
     /**
-     * Gest the button for the given identifier.
+     * Gets the button for the given identifier.
      * @param buttonID The button identifier.
      * @return The button, or {@code null}.
      */
