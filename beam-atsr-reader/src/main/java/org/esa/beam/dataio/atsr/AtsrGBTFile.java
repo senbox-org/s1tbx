@@ -118,10 +118,9 @@ public class AtsrGBTFile extends AtsrFile {
      * Creates the nadir view thermal bands and adds them to the bands vector.
      */
     private void createNadirThermalBands() {
-        Band band = null;
 
-        band = new Band(AtsrGBTConstants.NADIR_1200_BT_NAME, ProductData.TYPE_FLOAT32,
-                        AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
+        Band band = new Band(AtsrGBTConstants.NADIR_1200_BT_NAME, ProductData.TYPE_FLOAT32,
+                             AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
         band.setUnit(AtsrGBTConstants.BRIGHTNESS_TEMPERATURE_UNIT);
         band.setDescription(AtsrGBTConstants.NADIR_1200_BT_DESCRIPTION);
         band.setSpectralWavelength(AtsrConstants.BAND_12_WAVELENGTH);
@@ -149,10 +148,9 @@ public class AtsrGBTFile extends AtsrFile {
      * Creates the forward view thermal bands and adds them to the bands vector.
      */
     private void createForwardThermalBands() {
-        Band band = null;
 
-        band = new Band(AtsrGBTConstants.FORWARD_1200_BT_NAME, ProductData.TYPE_FLOAT32,
-                        AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
+        Band band = new Band(AtsrGBTConstants.FORWARD_1200_BT_NAME, ProductData.TYPE_FLOAT32,
+                             AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
         band.setUnit(AtsrGBTConstants.BRIGHTNESS_TEMPERATURE_UNIT);
         band.setDescription(AtsrGBTConstants.FORWARD_1200_BT_DESCRIPTION);
         band.setSpectralWavelength(AtsrConstants.BAND_12_WAVELENGTH);
@@ -180,10 +178,9 @@ public class AtsrGBTFile extends AtsrFile {
      * Creates the nadir view visible bands and adds them to the bands vector.
      */
     private void createNadirVisibleBands() {
-        Band band = null;
 
-        band = new Band(AtsrGBTConstants.NADIR_870_REF_NAME, ProductData.TYPE_FLOAT32,
-                        AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
+        Band band = new Band(AtsrGBTConstants.NADIR_870_REF_NAME, ProductData.TYPE_FLOAT32,
+                             AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
         band.setUnit(AtsrGBTConstants.REFLECTANCE_UNIT);
         band.setDescription(AtsrGBTConstants.NADIR_870_REF_DESCRIPTION);
         band.setSpectralWavelength(AtsrConstants.BAND_87_WAVELENGTH);
@@ -211,10 +208,9 @@ public class AtsrGBTFile extends AtsrFile {
      * Creates the forward view visible bands and adds them to the bands vector.
      */
     private void createForwardVisibleBands() {
-        Band band = null;
 
-        band = new Band(AtsrGBTConstants.FORWARD_870_REF_NAME, ProductData.TYPE_FLOAT32,
-                        AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
+        Band band = new Band(AtsrGBTConstants.FORWARD_870_REF_NAME, ProductData.TYPE_FLOAT32,
+                             AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
         band.setUnit(AtsrGBTConstants.REFLECTANCE_UNIT);
         band.setDescription(AtsrGBTConstants.FORWARD_870_REF_DESCRIPTION);
         band.setSpectralWavelength(AtsrConstants.BAND_87_WAVELENGTH);
@@ -242,10 +238,9 @@ public class AtsrGBTFile extends AtsrFile {
      * Creates the nadir view 1600 nm band
      */
     private void createNadir1600Band() {
-        Band band = null;
 
-        band = new Band(AtsrGBTConstants.NADIR_1600_REF_NAME, ProductData.TYPE_FLOAT32,
-                        AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
+        Band band = new Band(AtsrGBTConstants.NADIR_1600_REF_NAME, ProductData.TYPE_FLOAT32,
+                             AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
         band.setUnit(AtsrGBTConstants.REFLECTANCE_UNIT);
         band.setDescription(AtsrGBTConstants.NADIR_1600_REF_DESCRIPTION);
         band.setSpectralWavelength(AtsrConstants.BAND_16_WAVELENGTH);
@@ -257,10 +252,9 @@ public class AtsrGBTFile extends AtsrFile {
      * Creates the forward view 1600 nm band
      */
     private void createForward1600Band() {
-        Band band = null;
 
-        band = new Band(AtsrGBTConstants.FORWARD_1600_REF_NAME, ProductData.TYPE_FLOAT32,
-                        AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
+        Band band = new Band(AtsrGBTConstants.FORWARD_1600_REF_NAME, ProductData.TYPE_FLOAT32,
+                             AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
         band.setUnit(AtsrGBTConstants.REFLECTANCE_UNIT);
         band.setDescription(AtsrGBTConstants.FORWARD_1600_REF_DESCRIPTION);
         band.setSpectralWavelength(AtsrConstants.BAND_16_WAVELENGTH);
@@ -272,10 +266,9 @@ public class AtsrGBTFile extends AtsrFile {
      * Creates the nadir view coordinate offset bands and adds them to the bands vector.
      */
     private void createNadirOffsetBands() {
-        Band band = null;
 
-        band = new Band(AtsrGBTConstants.NADIR_X_OFFS_NAME, ProductData.TYPE_FLOAT32,
-                        AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
+        Band band = new Band(AtsrGBTConstants.NADIR_X_OFFS_NAME, ProductData.TYPE_FLOAT32,
+                             AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
         band.setUnit(AtsrGBTConstants.COORDINATE_OFFSET_UNIT);
         band.setDescription(AtsrGBTConstants.NADIR_X_OFFS_DESCRIPTION);
         addBand(band);
@@ -291,10 +284,9 @@ public class AtsrGBTFile extends AtsrFile {
      * Creates the forward view coordinate offset bands and adds them to the bands vector.
      */
     private void createForwardOffsetBands() {
-        Band band = null;
 
-        band = new Band(AtsrGBTConstants.FORWARD_X_OFFS_NAME, ProductData.TYPE_FLOAT32,
-                        AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
+        Band band = new Band(AtsrGBTConstants.FORWARD_X_OFFS_NAME, ProductData.TYPE_FLOAT32,
+                             AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
         band.setUnit(AtsrGBTConstants.COORDINATE_OFFSET_UNIT);
         band.setDescription(AtsrGBTConstants.FORWARD_X_OFFS_DESCRIPTION);
         addBand(band);
@@ -395,21 +387,20 @@ public class AtsrGBTFile extends AtsrFile {
      */
     private void createFlagBands() {
         if (getHeader().areFlagsPresent()) {
-            Band band = null;
 
             createFlagCodings();
 
-            band = new Band(AtsrConstants.NADIR_FLAGS_NAME, ProductData.TYPE_INT16,
-                            AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
+            Band band = new Band(AtsrConstants.NADIR_FLAGS_NAME, ProductData.TYPE_INT16,
+                                 AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
             band.setDescription(AtsrConstants.NADIR_FLAGS_DESCRIPTION);
-            band.setFlagCoding(_flagCodingNadir);
+            band.setSampleCoding(_flagCodingNadir);
             addBand(band);
 
             if (!getHeader().isNadirOnly()) {
                 band = new Band(AtsrConstants.FORWARD_FLAGS_NAME, ProductData.TYPE_INT16,
                                 AtsrConstants.ATSR_SCENE_RASTER_WIDTH, AtsrConstants.ATSR_SCENE_RASTER_HEIGHT);
                 band.setDescription(AtsrConstants.FORWARD_FLAGS_DESCRIPTION);
-                band.setFlagCoding(_flagCodingForward);
+                band.setSampleCoding(_flagCodingForward);
                 addBand(band);
             }
         }
