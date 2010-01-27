@@ -25,8 +25,8 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 
 import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
@@ -53,15 +53,12 @@ public class ScriptAction extends AbstractVisatAction {
     @Override
     public void actionPerformed(CommandEvent event) {
         if (scriptManager == null) {
-            scriptManager = new ScriptManager(new PrintWriter(new OutputStreamWriter(System.out), true),
-                                              module.getClassLoader());
+            scriptManager = new ScriptManager(module.getClassLoader(), new PrintWriter(new OutputStreamWriter(System.out), true)
+            );
         }
 
         Object eventSource = event.getSource();
-        Component component = null;
-        if (eventSource instanceof Component) {
-            component = (Component) eventSource;
-        }
+        final Component component = eventSource instanceof Component ? (Component) eventSource : null;
 
         ScriptEngine scriptEngine = getScriptEngine();
         if (scriptEngine == null) {
@@ -69,7 +66,8 @@ public class ScriptAction extends AbstractVisatAction {
                                           getText(), JOptionPane.ERROR_MESSAGE);
             return;
         }
-        scriptManager.setScriptEngine(scriptEngine);
+
+        scriptManager.setEngine(scriptEngine);
 
         if (src != null) {
             try {
@@ -77,25 +75,16 @@ public class ScriptAction extends AbstractVisatAction {
                 if (resource == null) {
                     resource = new File(src).toURI().toURL();
                 }
-                scriptManager.evalScript(resource);
+                scriptManager.evalScript(resource, new MyObserver(component));
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(component, "I/O error:\n" + e.getMessage(),
-                                              getText(), JOptionPane.ERROR_MESSAGE);
-
-            } catch (ScriptException e) {
-                JOptionPane.showMessageDialog(component, "Script error:\n" + e.getMessage(),
+                JOptionPane.showMessageDialog(component, "Error:\n" + e.getMessage(),
                                               getText(), JOptionPane.ERROR_MESSAGE);
 
             }
         }
 
         if (code != null) {
-            try {
-                scriptManager.evalScriptCode(code);
-            } catch (ScriptException e) {
-                JOptionPane.showMessageDialog(component, "Script error:\n" + e.getMessage(),
-                                              getText(), JOptionPane.ERROR_MESSAGE);
-            }
+            scriptManager.evalScriptCode(code, new MyObserver(component));
         }
     }
 
@@ -131,15 +120,45 @@ public class ScriptAction extends AbstractVisatAction {
     private ScriptEngine getScriptEngine() {
         ScriptEngine scriptEngine = null;
         if (type != null) {
-            scriptEngine = scriptManager.getScriptEngineManager().getEngineByMimeType(type);
+            scriptEngine = scriptManager.getEngineByMimeType(type);
         }
         if (scriptEngine == null && src != null) {
             int i = src.lastIndexOf(".");
             if (i > 0) {
                 String ext = src.substring(i + 1);
-                scriptEngine = scriptManager.getScriptEngineManager().getEngineByExtension(ext);
+                scriptEngine = scriptManager.getEngineByExtension(ext);
             }
         }
         return scriptEngine;
+    }
+
+    private class MyObserver implements ScriptManager.Observer {
+        private final Component component;
+
+        public MyObserver(Component component) {
+            this.component = component;
+        }
+
+        @Override
+        public void onSuccess(Object value) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    JOptionPane.showMessageDialog(component, "Success.");
+                }
+            });
+        }
+
+        @Override
+        public void onFailure(final Throwable throwable) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    JOptionPane.showMessageDialog(component, "Error:\n" + throwable.getMessage(),
+                                                  getText(), JOptionPane.ERROR_MESSAGE);
+                    throwable.printStackTrace(System.out);
+                }
+            });
+        }
     }
 }

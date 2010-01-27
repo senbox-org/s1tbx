@@ -1,6 +1,5 @@
 package org.esa.beam.scripting.visat;
 
-import com.bc.ceres.core.Assert;
 import org.esa.beam.scripting.visat.actions.HelpAction;
 import org.esa.beam.scripting.visat.actions.NewAction;
 import org.esa.beam.scripting.visat.actions.OpenAction;
@@ -8,11 +7,9 @@ import org.esa.beam.scripting.visat.actions.RunAction;
 import org.esa.beam.scripting.visat.actions.SaveAction;
 import org.esa.beam.scripting.visat.actions.SaveAsAction;
 import org.esa.beam.scripting.visat.actions.StopAction;
-import org.esa.beam.visat.VisatApp;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -22,7 +19,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.text.BadLocationException;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -31,7 +27,6 @@ import java.awt.Font;
 import java.awt.Window;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.concurrent.CancellationException;
 
 public class ScriptConsoleForm {
 
@@ -43,8 +38,8 @@ public class ScriptConsoleForm {
     private Action stopAction;
     private JPanel contentPanel;
 
-    private SwingWorker<Object, Object> worker;
     private ScriptManager scriptManager;
+    private PrintWriter output;
 
     public ScriptConsoleForm(Window window) {
         this.window = window;
@@ -102,13 +97,8 @@ public class ScriptConsoleForm {
         contentPanel.add(toolBar, BorderLayout.NORTH);
         contentPanel.add(documentPanel, BorderLayout.CENTER);
 
-        ClassLoader cl = getClass().getClassLoader();
-        ClassLoader cl0 = Thread.currentThread().getContextClassLoader() ;
-        Thread.currentThread().setContextClassLoader(cl);
-        scriptManager = new ScriptManager(new PrintWriter(new ScriptOutput(), true),
-                                          cl,
-                                          new ScriptEngineManager(cl));
-        //Thread.currentThread().setContextClassLoader(cl0);
+        output = new PrintWriter(new ScriptOutput(), true);
+        scriptManager = new ScriptManager(getClass().getClassLoader(), output);
     }
 
     public Window getWindow() {
@@ -124,8 +114,8 @@ public class ScriptConsoleForm {
     }
 
     public void runScript() {
-        
-        if (scriptManager.getScriptEngine() == null) {
+
+        if (scriptManager.getEngine() == null) {
             showErrorMessage("No script language selected.");
             return;
         }
@@ -135,48 +125,39 @@ public class ScriptConsoleForm {
             return;
         }
 
-        Assert.state(worker == null, "worker == null");
-
-        outputTextArea.setText("");
+        outputTextArea.setText(null);
 
         enableRun(false);
-
-        worker = new SwingWorker<Object, Object>() {
+        scriptManager.evalScriptCode(text, new ScriptManager.Observer() {
             @Override
-            protected Object doInBackground() throws Exception {
-                return scriptManager.evalScriptCode(text);
-            }
-
-            @Override
-            protected void done() {
-
-                worker = null;
-                enableRun(true);
-                PrintWriter output = scriptManager.getOutput();
-                try {
-                    Object result = get();
-                    if (result != null) {
-                        output.println(result.toString());
-                    }
-                } catch (InterruptedException e) {
-                    output.println("Script evaluation interrupted.");
-                } catch (CancellationException e) {
-                    output.println("Script evaluation canceled.");
-                } catch (Throwable t) {
-                    t.printStackTrace(new PrintWriter(output));
-                    output.println();
+            public void onSuccess(Object value) {
+                if (value != null) {
+                    output.println(String.valueOf(value));
                 }
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        enableRun(true);
+                    }
+                });
             }
-        };
 
-        worker.execute();
+            @Override
+            public void onFailure(Throwable throwable) {
+                output.println("Error: " + throwable.getMessage());
+                throwable.printStackTrace(output);
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        enableRun(true);
+                    }
+                });
+            }
+        });
     }
 
     public void stopScript() {
-        if (worker != null) {
-            worker.cancel(true);
-            worker = null;
-        }
+        // todo?
     }
 
     public void showErrorMessage(String message) {
@@ -185,11 +166,12 @@ public class ScriptConsoleForm {
                                       JOptionPane.ERROR_MESSAGE);
     }
 
-    public void newScript(ScriptEngine scriptEngine) {
-        inputTextArea.setText("");
-        outputTextArea.setText("");
+    public void newScript(ScriptEngineFactory scriptEngineFactory) {
+        inputTextArea.setText(null);
+        outputTextArea.setText(null);
 
-        scriptManager.setScriptEngine(scriptEngine);
+        ScriptEngine factory = scriptManager.getEngineByFactory(scriptEngineFactory);
+        scriptManager.setEngine(factory);
 
         inputTextArea.setEnabled(true);
         enableRun(true);
@@ -229,14 +211,14 @@ public class ScriptConsoleForm {
         /////////////////////////////////////////////////////////////////////
         // private
 
-        private void print0(final String s) {
+        private void print0(final String str) {
             if (SwingUtilities.isEventDispatchThread()) {
-                print1(s);
+                print1(str);
             } else {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        print1(s);
+                        print1(str);
                     }
                 });
             }
@@ -244,7 +226,7 @@ public class ScriptConsoleForm {
 
         private void print1(String text) {
             try {
-                final int offset = outputTextArea.getDocument().getEndPosition().getOffset();
+                int offset = outputTextArea.getDocument().getEndPosition().getOffset();
                 outputTextArea.getDocument().insertString(offset, text, null);
             } catch (BadLocationException e) {
                 // ignore

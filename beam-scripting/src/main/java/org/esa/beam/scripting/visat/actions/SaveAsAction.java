@@ -16,7 +16,7 @@ public class SaveAsAction extends ScriptConsoleAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        JFileChooser fs = OpenAction.createFileChooser(getScriptManager().getAvailableScriptEngineFactories());
+        JFileChooser fs = OpenAction.createFileChooser(getScriptManager().getEngineFactories());
         int i = fs.showSaveDialog(getScriptConsoleForm().getWindow());
         if (i == JFileChooser.APPROVE_OPTION) {
             // todo

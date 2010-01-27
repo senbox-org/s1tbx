@@ -6,3 +6,4 @@ importPackage(org.esa.beam.framework.gpf.operators.meris);
 importPackage(org.esa.beam.visat);
 
 visat = VisatApp.getApp();
+retval = "OK."

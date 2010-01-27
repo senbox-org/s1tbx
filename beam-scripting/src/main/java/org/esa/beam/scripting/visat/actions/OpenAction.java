@@ -3,7 +3,6 @@ package org.esa.beam.scripting.visat.actions;
 import org.esa.beam.scripting.visat.ScriptConsoleForm;
 
 import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
@@ -20,7 +19,7 @@ public class OpenAction extends ScriptConsoleAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        JFileChooser fs = OpenAction.createFileChooser(getScriptManager().getAvailableScriptEngineFactories());
+        JFileChooser fs = OpenAction.createFileChooser(getScriptManager().getEngineFactories());
         int i = fs.showOpenDialog(getScriptConsoleForm().getWindow());
         if (i == JFileChooser.APPROVE_OPTION) {
             // todo 
