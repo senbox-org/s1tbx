@@ -1,5 +1,8 @@
 package org.esa.beam.visat.actions;
 
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerFilter;
+import com.bc.ceres.glayer.support.LayerUtils;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -13,6 +16,8 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.VectorDataLayerFilterFactory;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.PropertyMap;
@@ -109,6 +114,16 @@ public class ImportGeometryAction extends ExecCommand {
         }
         ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
         vectorDataGroup.add(vectorDataNode);
+        final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
+        if (sceneView != null) {
+            final LayerFilter nodeFilter = VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode);
+            Layer vectorDataLayer = LayerUtils.getChildLayer(sceneView.getRootLayer(),
+                                                             LayerUtils.SEARCH_DEEP,
+                                                             nodeFilter);
+            if (vectorDataLayer != null) {
+                vectorDataLayer.setVisible(true);
+            }
+        }
     }
     
     private static String findUniqueVectorDataNodeName(String suggestedName, ProductNodeGroup<VectorDataNode> vectorDataGroup) {

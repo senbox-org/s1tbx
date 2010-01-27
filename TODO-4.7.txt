@@ -401,7 +401,7 @@ No geometry (line, polyline or polygon) selected in the image view."
 - "Profile plot" and "Coordinate List" are not updated correctly when draw a figure in reproj. product
 
 ---------------------------------------------------------------------
-? check:
+? check: (DONE, MZ, 2010-01-27)
 Layer manager -> Add ESRI Shapefiles: contry (contain a part of Russia)
 
 Exception occurred during event dispatching:
