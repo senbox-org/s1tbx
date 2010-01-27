@@ -94,12 +94,11 @@ public class ReprojectionOp extends Operator {
     @Parameter(description = "A file which contains the target Coordinate Reference System in WKT format.")
     private File wktFile;
 
-    @Parameter(alias="crs",
-               description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
+    @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
                              "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
                              "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
                              "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
-    private String crsString;
+    private String crs;
 
     @Parameter(alias = "resampling",
                label = "Resampling Method",
@@ -462,37 +461,28 @@ public class ReprojectionOp extends Operator {
 
     private CoordinateReferenceSystem createTargetCRS() throws OperatorException {
         try {
-            CoordinateReferenceSystem crs = null;
             if (wktFile != null) {
-                crs = CRS.parseWKT(FileUtils.readText(wktFile));
+                return CRS.parseWKT(FileUtils.readText(wktFile));
             }
-            if (crs == null && crsString != null) {
+            if (crs != null) {
                 try {
-                    crs = CRS.parseWKT(crsString);
+                    return CRS.parseWKT(crs);
                 } catch (FactoryException ignored) {
                     // prefix with EPSG, if there are only numbers
-                    if (crsString.matches("[0-9]*")) {
-                        crsString = "EPSG:" + crsString;
+                    if (crs.matches("[0-9]*")) {
+                        crs = "EPSG:" + crs;
                     }
                     // append center coordinates for AUTO code
-                    if (crsString.matches("AUTO:[0-9]*")) {
+                    if (crs.matches("AUTO:[0-9]*")) {
                         final GeoPos centerGeoPos = ProductUtils.getCenterGeoPos(sourceProduct);
-                        crsString = String.format("%s,%s,%s", crsString, centerGeoPos.lon, centerGeoPos.lat);
+                        crs = String.format("%s,%s,%s", crs, centerGeoPos.lon, centerGeoPos.lat);
                     }
                     // force longitude==x-axis and latitude==y-axis
-                    crs = CRS.decode(crsString, true);
+                    return CRS.decode(crs, true);
                 }
             }
             if (collocationProduct != null && collocationProduct.getGeoCoding() != null) {
-                crs = collocationProduct.getGeoCoding().getMapCRS();
-            }
-            // try to find an EPSG code
-            if (crs != null) {
-                final Integer epsgCode = CRS.lookupEpsgCode(crs, true);
-                if (epsgCode != null) {
-                    return CRS.decode("EPSG:" + epsgCode, true);
-                }
-                return crs;
+                return collocationProduct.getGeoCoding().getMapCRS();
             }
         } catch (FactoryException e) {
             throw new OperatorException(String.format("Target CRS could not be created: %s", e.getMessage()), e);
@@ -507,7 +497,7 @@ public class ReprojectionOp extends Operator {
         final String msgPattern = "Invalid target CRS specification.\nSpecify {0} one of the " +
                                   "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
 
-        if (wktFile == null && crsString == null && collocationProduct == null) {
+        if (wktFile == null && crs == null && collocationProduct == null) {
             throw new OperatorException(MessageFormat.format(msgPattern, "at least"));
         }
 
@@ -516,7 +506,7 @@ public class ReprojectionOp extends Operator {
         if (wktFile != null) {
             crsDefined = true;
         }
-        if (crsString != null) {
+        if (crs != null) {
             if (crsDefined) {
                 throw new OperatorException(exceptionMsg);
             }
