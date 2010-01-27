@@ -317,7 +317,7 @@ a) colour:
    create geometry-2 in the reprojection
    --> it will be blue, just like the geometry-1
 
-b) name:
+b) name: (DONE, MZ, 2010-01-27)
    open DIM product containing geometry_1
    create new geometry --> default name for new geometry will be  "geometry_1"
    -->
@@ -352,6 +352,7 @@ geometry will be deselected as roi by reprojection:
 
 create geometry --> will be roi automatically
 reprojectin --> geometry will be no more roi
+(CAN_NOT_REPRODUCE, MZ, 2010-01-27)
 -------------------------------------------------------------------
 pixel info view disrerads selected PIN:
 

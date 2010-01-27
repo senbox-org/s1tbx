@@ -58,16 +58,18 @@ public class CreateVectorDataNodeAction extends ExecCommand {
 
     // todo - add help (nf)
     private static final String HELP_ID = "";
-    private static int numItems = 0;
+    private static int numItems = 1;
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        run();
+        Product product = VisatApp.getApp().getSelectedProduct();
+        if (product != null) {
+            run(product);
+        }
     }
 
-    public VectorDataNode run() {
-        final Product product = VisatApp.getApp().getSelectedProduct();
-        DialogData dialogData = new DialogData();
+    public VectorDataNode run(Product product) {
+        DialogData dialogData = new DialogData(product.getVectorDataGroup());
         PropertySet propertySet = PropertyContainer.createObjectBacked(dialogData);
         propertySet.getDescriptor("name").setNotNull(true);
         propertySet.getDescriptor("name").setNotEmpty(true);
@@ -182,10 +184,18 @@ public class CreateVectorDataNodeAction extends ExecCommand {
         }
     }
 
-    // todo - add validators (nf)
     private static class DialogData {
-        private String name = getDefaultVectorDataNodeName() + "_" + (++numItems);
-        private String description = "";
+        private String name;
+        private String description;
+        
+        private DialogData(ProductNodeGroup<VectorDataNode> vectorGroup) {
+            String defaultPrefix = getDefaultVectorDataNodeName() + "_";
+            name = defaultPrefix + (numItems++);
+            while(vectorGroup.contains(name)) {
+                name = defaultPrefix + (numItems++);    
+            }
+            description = "";
+        }
     }
 
 
