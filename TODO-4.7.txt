@@ -354,6 +354,7 @@ create geometry --> will be roi automatically
 reprojectin --> geometry will be no more roi
 (CAN_NOT_REPRODUCE, MZ, 2010-01-27)
 -------------------------------------------------------------------
+
 pixel info view disrerads selected PIN:
 
 create some PINs
@@ -366,10 +367,39 @@ Pixel Info view will not be updated
 -------------------------------------------------------------------
 RGB image view
 ==============
-a) it is not possible to make visible PINs, GCPs (CLOSED, MZ, 2010-01-27)
-b) geometry (CLOSED, MZ, 2010-01-27)
----------------------------------------------------------------------
-? check:
+a) it is not possible to make visible PINs, GCPs
+b) geometry duplicates by every click: (CLOSED, MZ, 2010-01-27)
+   open RGB image view
+   click on one of the drawing tools
+   click on the RGB image view
+   -->
+   geometry appears in the product tree, Mask  and Layer Manager
+   click on the RGB image view
+   -->
+   double geometry appears in the product tree, Mask  and Layer Manager
+   click on the RGB image view
+   -->
+   triple geometry appears in the product tree, Mask  and Layer Manager
+   ....
+--------------------------------------------------------------------
+
+Spectrum window will not be updated when you create some PINs and than open Spectrum window:
+
+open image view
+create some PINs
+open Spectrum
+-->
+   'Show spectra for selected (all) pins' are disabled
+
+(note:
+1) if you click one of enabled buttons
+   --> 'Show spectra for selected (all) pins' will be enabled
+2) if you foremost open Spectrum window and than create some PINs
+   --> 'Show spectra for selected (all) pins' will be enabled)
+
+--------------------------------------------------------------------
+
+?is it OK? :
 open image view
 create some gcps
 make subset from view
@@ -400,53 +430,6 @@ create 2 geometries geometry_1 and geometry_2
 select geometry_1 --> "Co-ordinate list not available.
 No geometry (line, polyline or polygon) selected in the image view."
 - "Profile plot" and "Coordinate List" are not updated correctly when draw a figure in reproj. product
-
----------------------------------------------------------------------
-? check: (CLOSED, MZ, 2010-01-27)
-Layer manager -> Add ESRI Shapefiles: contry (contain a part of Russia)
-
-Exception occurred during event dispatching:
-java.lang.NullPointerException
-        at org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileAssistantPage2$StyleListCellRenderer.getListCellRendererComponent(Sha
-pefileAssistantPage2.java:157)
-        at com.sun.java.swing.plaf.windows.WindowsComboBoxUI.paintCurrentValue(Unknown Source)
-        at javax.swing.plaf.basic.BasicComboBoxUI.paint(Unknown Source)
-        at com.sun.java.swing.plaf.windows.WindowsComboBoxUI.paint(Unknown Source)
-        at javax.swing.plaf.ComponentUI.update(Unknown Source)
-        at javax.swing.JComponent.paintComponent(Unknown Source)
-        at javax.swing.JComponent.paint(Unknown Source)
-        at javax.swing.JComponent.paintChildren(Unknown Source)
-        at javax.swing.JComponent.paint(Unknown Source)
-        at javax.swing.JComponent.paintChildren(Unknown Source)
-        at javax.swing.JComponent.paint(Unknown Source)
-        at javax.swing.JComponent.paintChildren(Unknown Source)
-        at javax.swing.JComponent.paint(Unknown Source)
-        at javax.swing.JComponent.paintToOffscreen(Unknown Source)
-        at javax.swing.RepaintManager$PaintManager.paintDoubleBuffered(Unknown Source)
-        at javax.swing.RepaintManager$PaintManager.paint(Unknown Source)
-        at javax.swing.RepaintManager.paint(Unknown Source)
-        at javax.swing.JComponent._paintImmediately(Unknown Source)
-        at javax.swing.JComponent.paintImmediately(Unknown Source)
-        at javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
-        at javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
-        at javax.swing.RepaintManager.seqPaintDirtyRegions(Unknown Source)
-        at javax.swing.SystemEventQueueUtilities$ComponentWorkRequest.run(Unknown Source)
-        at java.awt.event.InvocationEvent.dispatch(Unknown Source)
-        at java.awt.EventQueue.dispatchEvent(Unknown Source)
-        at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
-        at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
-        at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
-        at java.awt.Dialog$1.run(Unknown Source)
-        at java.awt.Dialog$3.run(Unknown Source)
-        at java.security.AccessController.doPrivileged(Native Method)
-        at java.awt.Dialog.show(Unknown Source)
-        at java.awt.Component.show(Unknown Source)
-        at java.awt.Component.setVisible(Unknown Source)
-        at java.awt.Window.setVisible(Unknown Source)
-        at java.awt.Dialog.setVisible(Unknown Source)
-        at org.esa.beam.framework.ui.assistant.AssistantPane.show(AssistantPane.java:161)
-        at org.esa.beam.visat.toolviews.layermanager.LayerManagerForm$AddLayerActionListener.actionPerformed(LayerManagerForm.java:375)
-        at javax.swing.AbstractButton.fireActionPerformed(Unknown Source)
 
 -------------------------------------------------------------------------------------
 
@@ -556,6 +539,15 @@ Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
 	at org.esa.beam.framework.ui.command.ExecCommand.fireActionPerformed(ExecCommand.java:119)
 	at org.esa.beam.framework.ui.command.SelectableCommand$1.actionPerformed(SelectableCommand.java:150)
 	.......................
+-------------------------------------------------------------------------------------
+
+deadlock while opening an image view:
+   open image view
+   create pin(s)
+   on the 'Pixel Info' select 'Snap to selected PIN'
+   open an other image again and again
+   --> VISAT freezes. Any Exception will not be shot.
+
 -------------------------------------------------------------------------------------
 
 The VISAT World Map: missing Help button
