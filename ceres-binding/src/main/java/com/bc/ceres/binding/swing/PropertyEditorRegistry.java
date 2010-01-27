@@ -66,7 +66,7 @@ public class PropertyEditorRegistry {
      *
      * @return the value editor or {@code null} if no editor exist for the given class name.
      */
-    public PropertyEditor getValueEditor(String className) {
+    public PropertyEditor getPropertyEditor(String className) {
         return registry.getService(className);
     }
 
@@ -81,7 +81,7 @@ public class PropertyEditorRegistry {
      *
      * @return the editor that can edit values described by the value descriptor
      */
-    public PropertyEditor findValueEditor(PropertyDescriptor propertyDescriptor) {
+    public PropertyEditor findPropertyEditor(PropertyDescriptor propertyDescriptor) {
         Assert.notNull(propertyDescriptor, "propertyDescriptor");
         PropertyEditor propertyEditor = (PropertyEditor) propertyDescriptor.getAttribute("propertyEditor");
         if (propertyEditor != null) {

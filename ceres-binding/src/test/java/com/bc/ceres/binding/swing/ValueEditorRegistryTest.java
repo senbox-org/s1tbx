@@ -34,19 +34,19 @@ public class ValueEditorRegistryTest extends TestCase {
     }
 
     public void testGetValueEditor_notExistant() throws Exception {
-        PropertyEditor propertyEditor = editorRegistry.getValueEditor("foo");
+        PropertyEditor propertyEditor = editorRegistry.getPropertyEditor("foo");
         assertNull(propertyEditor);
     }
 
     public void testGetValueEditor_TextField() throws Exception {
-        PropertyEditor propertyEditor = editorRegistry.getValueEditor(TextFieldEditor.class.getName());
+        PropertyEditor propertyEditor = editorRegistry.getPropertyEditor(TextFieldEditor.class.getName());
         assertNotNull(propertyEditor);
         assertSame(TextFieldEditor.class, propertyEditor.getClass());
     }
 
     public void testFindValueEditor_Null() throws Exception {
         try {
-            editorRegistry.findValueEditor(null);
+            editorRegistry.findPropertyEditor(null);
             fail();
         } catch (RuntimeException ignored) {
         }
@@ -54,7 +54,7 @@ public class ValueEditorRegistryTest extends TestCase {
 
     public void testFindValueEditor_UnknownEditor() throws Exception {
         PropertyDescriptor descriptor = new PropertyDescriptor("test", TestCase.class);
-        PropertyEditor propertyEditor = editorRegistry.findValueEditor(descriptor);
+        PropertyEditor propertyEditor = editorRegistry.findPropertyEditor(descriptor);
         assertNotNull(propertyEditor);
         assertSame(TextFieldEditor.class, propertyEditor.getClass());
     }
@@ -63,14 +63,14 @@ public class ValueEditorRegistryTest extends TestCase {
         PropertyDescriptor descriptor = new PropertyDescriptor("test", Double.class);
         CheckBoxEditor checkBoxEditor = new CheckBoxEditor();
         descriptor.setAttribute("propertyEditor", checkBoxEditor);
-        PropertyEditor propertyEditor = editorRegistry.findValueEditor(descriptor);
+        PropertyEditor propertyEditor = editorRegistry.findPropertyEditor(descriptor);
         assertNotNull(propertyEditor);
         assertSame(checkBoxEditor, propertyEditor);
     }
 
     public void testFindValueEditor_MatchingEditor() throws Exception {
         PropertyDescriptor descriptor = new PropertyDescriptor("test", Double.class);
-        PropertyEditor propertyEditor = editorRegistry.findValueEditor(descriptor);
+        PropertyEditor propertyEditor = editorRegistry.findPropertyEditor(descriptor);
         assertNotNull(propertyEditor);
         assertSame(NumericEditor.class, propertyEditor.getClass());
     }
