@@ -400,7 +400,7 @@ public class TiePointGrid extends RasterDataNode {
             }
             final float sinAngle = _sinGrid.getPixelFloat(x, y);
             final float cosAngle = _cosGrid.getPixelFloat(x, y);
-            final float v = MathUtils.RTOD_F * (float) Math.atan2(sinAngle, cosAngle);
+            final float v = (float) (MathUtils.RTOD * Math.atan2(sinAngle, cosAngle));
             if (_discontinuity == DISCONT_AT_360 && v < 0.0) {
                 return 360.0F + v;  // = 180 + (180 - abs(v))
             }

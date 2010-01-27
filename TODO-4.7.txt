@@ -14,9 +14,6 @@ Reprojection:
 * GeoTIFF wont work with GeoTools CRS
   ==> FINAL, MP, CLOSED
 
-* Shapes are wrongly clipped on import, which results in problems when reprojecting.
-  For now they are skipped while reprojecting. Fix import issue.
-  ==> FINAL, MZ/?, OPEN
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
   Remove usage, deprecate and/or remove classes.
   ==> FINAL, ?, OPEN
@@ -25,6 +22,9 @@ Reprojection:
 * Need file and help menu items as in "old" processors
   ==> FINAL, ?, OPEN
 
+* Shapes are wrongly clipped on import, which results in problems when reprojecting.
+  For now they are skipped while reprojecting. Fix import issue.
+  ==> FINAL, MZ, CLOSED
 * After reprojection, geometries are transformed, but geometry masks have no pixels
   ==> PRE, MZ, CLOSED
 * If figures/geometries existed in source product, layer boundaries are wrong
