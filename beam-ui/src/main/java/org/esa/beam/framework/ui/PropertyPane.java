@@ -52,7 +52,7 @@ public class PropertyPane {
         final PropertyEditorRegistry registry = PropertyEditorRegistry.getInstance();
         for (Property model : models) {
             PropertyDescriptor descriptor = model.getDescriptor();
-            PropertyEditor propertyEditor = registry.findValueEditor(descriptor);
+            PropertyEditor propertyEditor = registry.findPropertyEditor(descriptor);
             JComponent[] components = propertyEditor.createComponents(descriptor, bindingContext);
             if (components.length == 2) {
                 layout.setCellWeightX(rowIndex, 0, 0.0);

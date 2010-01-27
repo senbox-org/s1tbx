@@ -251,7 +251,7 @@ public class BandArithmetikDialog extends ModalDialog {
 
     private JComponent[] createComponents(String propertyName, Class<? extends PropertyEditor> editorClass) {
         PropertyDescriptor descriptor = bindingContext.getPropertySet().getDescriptor(propertyName);
-        PropertyEditor editor = PropertyEditorRegistry.getInstance().getValueEditor(editorClass.getName());
+        PropertyEditor editor = PropertyEditorRegistry.getInstance().getPropertyEditor(editorClass.getName());
         return editor.createComponents(descriptor, bindingContext);
     }
 

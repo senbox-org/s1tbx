@@ -85,7 +85,7 @@ public class GraticuleLayerEditor extends AbstractLayerConfigurationEditor {
         vd6.setValueRange(new ValueRange(0, 1));
         vd6.setDisplayName("Line transparency");
         vd6.setDefaultConverter();
-        vd6.setAttribute("valueEditor", propertyEditorRegistry.getValueEditor(RangeEditor.class.getName()));
+        vd6.setAttribute("valueEditor", propertyEditorRegistry.getPropertyEditor(RangeEditor.class.getName()));
         addPropertyDescriptor(vd6);
 
         PropertyDescriptor vd7 = new PropertyDescriptor(GraticuleLayerType.PROPERTY_NAME_TEXT_ENABLED, Boolean.class);
@@ -111,7 +111,7 @@ public class GraticuleLayerEditor extends AbstractLayerConfigurationEditor {
         vd10.setValueRange(new ValueRange(0, 1));
         vd10.setDisplayName("Text background transparency");
         vd10.setDefaultConverter();
-        vd10.setAttribute("valueEditor", propertyEditorRegistry.getValueEditor(RangeEditor.class.getName()));
+        vd10.setAttribute("valueEditor", propertyEditorRegistry.getPropertyEditor(RangeEditor.class.getName()));
         addPropertyDescriptor(vd10);
 
         boolean resAuto = (Boolean) bindingContext.getPropertySet().getValue(
