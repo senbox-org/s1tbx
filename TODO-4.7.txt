@@ -107,10 +107,10 @@ VectorDataNode:
 * Synchronization of VectorDataNode simple features and pins/GCPs: Pins/GCPs auto-added due to new simple point
   features do not fire property change events when moved
   ==> PRE, RQ/NF, CLOSED
-* Pins/GCP are different from other geometries, harmonize!
+* Pins/GCP are different from other geometries, harmonize! (? OF)
   ==> PRE, RQ/NF, CLOSED
 * "Transect plot" and "Export transect pixels", etc don't work anymore. Should work again for selected figure shape.
-  ==> PRE, NF, CLOSED (although profile plot isn't updated if the shape changes)
+  ==> PRE, NF, CLOSED (although profile plot isn't updated if the shape changes) (? OF: does not work correctly, e.g. in reproj.prod.)
 * Figures are not updated on geometry change
   ==> PRE, NF, CLOSED
 * Need action to delete existing VectorDataNode.
@@ -119,6 +119,7 @@ VectorDataNode:
   align CRS of feature collections in vector data nodes!!! Use FeatureCollectionClipper
   in ShapefileLayer code. Pins/GCPs need special treatment!
   ==> PRE, MZ, CLOSED
+  (? OF: it does not work when prod. will be saved/exported, than opened in VISAT and reproj. )
 * Import shape/shapefile must create or insert into vector data node
   Check if GeoTools shapefile DataStore is already used.
   ==> PRE, MZ/*, CLOSED
@@ -309,42 +310,13 @@ SM_OPER_AUX_VTEC_R
 VISAT GUI Tests results
 #################################################################
 
-VISAT does not know about existing geometries (name, colour)
+VISAT does not know about existing colour of geometries
 
 a) colour:
    create geometry-1 -> e.g. it is blue
    reproject product
    create geometry-2 in the reprojection
    --> it will be blue, just like the geometry-1
-
-b) name: (CLOSED, MZ, 2010-01-27)
-   open DIM product containing geometry_1
-   create new geometry --> default name for new geometry will be  "geometry_1"
-   -->
-   geometry_1 duplicates by every click
-
-   delete geometry_1
-   -->
-   Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
-	at org.esa.beam.framework.ui.product.VectorDataLayer.disposeLayer(VectorDataLayer.java:80)
-	at com.bc.ceres.glayer.Layer.dispose(Layer.java:408)
-	at org.esa.beam.framework.ui.product.VectorDataCollectionLayer.updateChildren(VectorDataCollectionLayer.java:89)
-	at org.esa.beam.framework.ui.product.VectorDataCollectionLayer$PNL.nodeRemoved(VectorDataCollectionLayer.java:119)
-	at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1423)
-	at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1407)
-	at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1402)
-	at org.esa.beam.framework.datamodel.Product.fireEvent(Product.java:1390)
-	at org.esa.beam.framework.datamodel.Product.fireNodeRemoved(Product.java:1384)
-	at org.esa.beam.framework.datamodel.ProductNodeGroup.notifyRemoved(ProductNodeGroup.java:298)
-	at org.esa.beam.framework.datamodel.ProductNodeGroup.remove(ProductNodeGroup.java:198)
-	at org.esa.beam.framework.datamodel.Product$1.remove(Product.java:237)
-	at org.esa.beam.framework.datamodel.Product$1.remove(Product.java:219)
-	at org.esa.beam.visat.ProductsToolView$ProductTreeSelectionContext.deleteVectorData(ProductsToolView.java:291)
-	at org.esa.beam.visat.ProductsToolView$ProductTreeSelectionContext.deleteSelection(ProductsToolView.java:281)
-	at com.bc.ceres.swing.actions.DeleteAction.execute(DeleteAction.java:28)
-	at com.bc.ceres.swing.actions.AbstractSystemAction.actionPerformed(AbstractSystemAction.java:49)
-	at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
-	at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)........
 
 -------------------------------------------------------------------
 
@@ -365,23 +337,6 @@ select one Pin, than other ...
 Pixel Info view will not be updated
 
 -------------------------------------------------------------------
-RGB image view
-==============
-a) it is not possible to make visible PINs, GCPs
-b) geometry duplicates by every click: (CLOSED, MZ, 2010-01-27)
-   open RGB image view
-   click on one of the drawing tools
-   click on the RGB image view
-   -->
-   geometry appears in the product tree, Mask  and Layer Manager
-   click on the RGB image view
-   -->
-   double geometry appears in the product tree, Mask  and Layer Manager
-   click on the RGB image view
-   -->
-   triple geometry appears in the product tree, Mask  and Layer Manager
-   ....
---------------------------------------------------------------------
 
 Spectrum window will not be updated when you create some PINs and than open Spectrum window:
 
