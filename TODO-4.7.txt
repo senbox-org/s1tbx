@@ -317,7 +317,7 @@ a) colour:
    create geometry-2 in the reprojection
    --> it will be blue, just like the geometry-1
 
-b) name: (DONE, MZ, 2010-01-27)
+b) name: (CLOSED, MZ, 2010-01-27)
    open DIM product containing geometry_1
    create new geometry --> default name for new geometry will be  "geometry_1"
    -->
@@ -366,8 +366,8 @@ Pixel Info view will not be updated
 -------------------------------------------------------------------
 RGB image view
 ==============
-a) it is not possible to make visible PINs, GCPs (DONE, MZ, 2010-01-27)
-b) geometry (DONE, MZ, 2010-01-27)
+a) it is not possible to make visible PINs, GCPs (CLOSED, MZ, 2010-01-27)
+b) geometry (CLOSED, MZ, 2010-01-27)
 ---------------------------------------------------------------------
 ? check:
 open image view
@@ -402,7 +402,7 @@ No geometry (line, polyline or polygon) selected in the image view."
 - "Profile plot" and "Coordinate List" are not updated correctly when draw a figure in reproj. product
 
 ---------------------------------------------------------------------
-? check: (DONE, MZ, 2010-01-27)
+? check: (CLOSED, MZ, 2010-01-27)
 Layer manager -> Add ESRI Shapefiles: contry (contain a part of Russia)
 
 Exception occurred during event dispatching:
@@ -592,7 +592,7 @@ PROJCS["UTM Zone 32 / World Geodetic System 1984",
   PARAMETER["false_easting", 500000.0],
   PARAMETER["false_northing", 0.0],
 -----------------------------------------------------------------------------
-
+(IS_ALREADY_FIXED, mz, 2010-01-27)
 - select/deselect 'Update target product' checkBox causes IllegalArgumentException
 
 a) select: open product in VISAT - open mosaic - check in 'Update target product' --> the name of target product will be change to open in VISAT data automatically -->
