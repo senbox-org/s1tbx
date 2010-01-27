@@ -106,9 +106,6 @@ public class ShowImageViewRGBAction extends ExecCommand {
                 visatApp.clearStatusBarMessage();
 
                 ProductSceneView productSceneView = new ProductSceneView(productSceneImage);
-                productSceneView.setNoDataOverlayEnabled(false);
-                productSceneView.setGraticuleOverlayEnabled(false);
-                productSceneView.setPinOverlayEnabled(false);
                 productSceneView.setLayerProperties(visatApp.getPreferences());
                 openInternalFrame(productSceneView);
             }
@@ -159,6 +156,8 @@ public class ShowImageViewRGBAction extends ExecCommand {
                                                       rgbBands[2].band,
                                                       visatApp.getPreferences(),
                                                       SubProgressMonitor.create(pm, 1));
+            productSceneImage.initVectorDataCollectionLayer();
+            productSceneImage.initMaskCollectionLayer();
         } catch (Exception e) {
             errorOccured = true;
             throw e;

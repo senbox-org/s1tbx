@@ -365,8 +365,8 @@ Pixel Info view will not be updated
 -------------------------------------------------------------------
 RGB image view
 ==============
-a) it is not possible to make visible PINs, GCPs
-b) geometry
+a) it is not possible to make visible PINs, GCPs (DONE, MZ, 2010-01-27)
+b) geometry (DONE, MZ, 2010-01-27)
 ---------------------------------------------------------------------
 ? check:
 open image view
