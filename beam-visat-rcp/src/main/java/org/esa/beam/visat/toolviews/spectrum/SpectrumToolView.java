@@ -54,6 +54,8 @@ import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,6 +75,7 @@ public class SpectrumToolView extends AbstractToolView {
     private Map<Product, CursorSpectrumPPL> cursorSpectrumPPLMap;
     private final HashMap<Product, SpectraDiagram> productToDiagramMap;
     private final ProductNodeListenerAdapter productNodeHandler;
+    private final PinSelectionChangeListener pinSelectionChangeListener;
     private DiagramCanvas diagramCanvas;
     private AbstractButton filterButton;
     private boolean tipShown;
@@ -90,6 +93,7 @@ public class SpectrumToolView extends AbstractToolView {
 
     public SpectrumToolView() {
         productNodeHandler = new ProductNodeHandler();
+        pinSelectionChangeListener = new PinSelectionChangeListener();
         productToDiagramMap = new HashMap<Product, SpectraDiagram>(4);
         cursorSpectrumPPLMap = new HashMap<Product, CursorSpectrumPPL>(4);
     }
@@ -105,7 +109,11 @@ public class SpectrumToolView extends AbstractToolView {
         ProductSceneView oldView = currentView;
         currentView = view;
         if (oldView != currentView) {
+            if (oldView != null) {
+                oldView.removePropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN, pinSelectionChangeListener);
+            }
             if (currentView != null) {
+                currentView.addPropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN, pinSelectionChangeListener);
                 setCurrentProduct(currentView.getProduct());
             }
             updateUIState();
@@ -632,6 +640,15 @@ public class SpectrumToolView extends AbstractToolView {
         private boolean isActive() {
             return isVisible() && getCurrentProduct() != null;
         }
+    }
+    
+    private class PinSelectionChangeListener implements PropertyChangeListener {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            recreateSpectraDiagram();
+        }
+        
     }
 
 }

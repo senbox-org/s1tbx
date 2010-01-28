@@ -22,6 +22,9 @@ import com.bc.ceres.swing.figure.FigureEditorAware;
 import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.ShapeFigure;
+import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
+import com.bc.ceres.swing.selection.Selection;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
@@ -155,10 +158,15 @@ public class ProductSceneView extends BasicView
     public static final String PROPERTY_NAME_IMAGE_INFO = "imageInfo";
 
     /**
-     * Name of property of image info
+     * Name of property of selected layer
      */
     public static final String PROPERTY_NAME_SELECTED_LAYER = "selectedLayer";
-
+    
+    /**
+     * Name of property of selected pin
+     */
+    public static final String PROPERTY_NAME_SELECTED_PIN = "selectedPin";
+    
     public static final Color DEFAULT_IMAGE_BACKGROUND_COLOR = new Color(51, 51, 51);
     public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
 
@@ -236,6 +244,7 @@ public class ProductSceneView extends BasicView
         });
 
         figureEditor = new VectorDataFigureEditor(this);
+        figureEditor.addSelectionChangeListener(new PinSelectionChangeListener());
 
         this.scrollBarsShown = sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_IMAGE_SCROLL_BARS_SHOWN,
                                                                              false);
@@ -1529,6 +1538,33 @@ public class ProductSceneView extends BasicView
         @Override
         public boolean accept(Layer layer) {
             return layer instanceof VectorDataLayer && ((VectorDataLayer) layer).getVectorDataNode() == vectorDataNode;
+        }
+    }
+    
+    private class PinSelectionChangeListener extends  AbstractSelectionChangeListener {
+        
+        private boolean firedNoPinSelected = false;
+
+        @Override
+        public void selectionChanged(SelectionChangeEvent event) {
+            Selection selection = event.getSelection();
+            if (selection.isEmpty()) {
+                if (!firedNoPinSelected) {
+                    firePropertyChange(PROPERTY_NAME_SELECTED_PIN, null, null);
+                    firedNoPinSelected = true;
+                }
+            } else {
+                Object selectedValue = selection.getSelectedValue();
+                if (selectedValue instanceof SimpleFeatureFigure) {
+                    SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) selectedValue;
+                    PlacemarkGroup pinGroup = getProduct().getPinGroup();
+                    Pin pin = pinGroup.getPlacemark(featureFigure.getSimpleFeature());
+                    if (pin != null) {
+                        firePropertyChange(PROPERTY_NAME_SELECTED_PIN, null, pin);
+                        firedNoPinSelected = false;
+                    }
+                }
+            }
         }
     }
 

@@ -50,7 +50,8 @@ public class PixelInfoToolView extends AbstractToolView {
 
     private PixelInfoView pixelInfoView;
     private JCheckBox pinCheckbox;
-    private PinSelectionChangedListener pinSelectionChangedListener;
+    private PinChangedListener pinChangedListener;
+    private PropertyChangeListener pinSelectionChangeListener;
     private ProductSceneView currentView;
     private HashMap<ProductSceneView, PixelInfoPPL> pixelPosListeners;
 
@@ -58,6 +59,7 @@ public class PixelInfoToolView extends AbstractToolView {
     public JComponent createControl() {
         final VisatApp visatApp = VisatApp.getApp();
 
+        pinSelectionChangeListener = new PinSelectionChangeListener();
         pixelInfoView = new PixelInfoView(visatApp);
         final DisplayFilter bandDisplayValidator = new DisplayFilter(visatApp);
         pixelInfoView.setPreferredSize(new Dimension(320, 480));
@@ -96,7 +98,7 @@ public class PixelInfoToolView extends AbstractToolView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (pinCheckbox.isSelected()) {
-                    currentView = visatApp.getSelectedProductSceneView();
+//                    currentView = visatApp.getSelectedProductSceneView();
                     setToSelectedPin(currentView);
                 }
             }
@@ -190,12 +192,16 @@ public class PixelInfoToolView extends AbstractToolView {
     private void initView(ProductSceneView productSceneView) {
         productSceneView.addPixelPositionListener(registerPPL(productSceneView));
         final Product product = productSceneView.getProduct();
-        product.addProductNodeListener(getOrCreatePinSelectionChangedListener());
+        product.addProductNodeListener(getOrCreatePinChangedListener());
         if (isSnapToPin()) {
             setToSelectedPin(productSceneView);
         }
         if (productSceneView == VisatApp.getApp().getSelectedProductSceneView()) {
+            if (currentView != null) {
+                currentView.removePropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN, pinSelectionChangeListener);
+            }
             currentView = productSceneView;
+            currentView.addPropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN, pinSelectionChangeListener);
         }
     }
 
@@ -230,11 +236,11 @@ public class PixelInfoToolView extends AbstractToolView {
         validator.setShowOnlyLoadedOrDisplayedBands(showOnlyLoadedOrDisplayedBands);
     }
 
-    private PinSelectionChangedListener getOrCreatePinSelectionChangedListener() {
-        if (pinSelectionChangedListener == null) {
-            pinSelectionChangedListener = new PinSelectionChangedListener();
+    private PinChangedListener getOrCreatePinChangedListener() {
+        if (pinChangedListener == null) {
+            pinChangedListener = new PinChangedListener();
         }
-        return pinSelectionChangedListener;
+        return pinChangedListener;
     }
 
     private boolean isSnapToPin() {
@@ -285,9 +291,13 @@ public class PixelInfoToolView extends AbstractToolView {
         public void internalFrameActivated(InternalFrameEvent e) {
             Container content = getContent(e);
             if (content instanceof ProductSceneView) {
+                if (currentView != null) {
+                    currentView.removePropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN, pinSelectionChangeListener);
+                }
                 currentView = (ProductSceneView) content;
+                currentView.addPropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN, pinSelectionChangeListener);
                 final Product product = currentView.getProduct();
-                product.addProductNodeListener(getOrCreatePinSelectionChangedListener());
+                product.addProductNodeListener(getOrCreatePinChangedListener());
                 if (isSnapToPin()) {
                     setToSelectedPin(currentView);
                 }
@@ -299,23 +309,24 @@ public class PixelInfoToolView extends AbstractToolView {
             final Container content = getContent(e);
             if (content instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) content;
+                view.removePropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN, pinSelectionChangeListener);
                 view.removePixelPositionListener(unregisterPPL(view));
-                removePinSelectionChangedListener(e);
+                removePinChangedListener(e);
             }
             pixelInfoView.clearProductNodeRefs();
         }
 
         @Override
         public void internalFrameDeactivated(InternalFrameEvent e) {
-            removePinSelectionChangedListener(e);
+            removePinChangedListener(e);
         }
 
-        private void removePinSelectionChangedListener(InternalFrameEvent e) {
+        private void removePinChangedListener(InternalFrameEvent e) {
             final Container content = getContent(e);
             if (content instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) content;
                 final Product product = view.getProduct();
-                product.removeProductNodeListener(getOrCreatePinSelectionChangedListener());
+                product.removeProductNodeListener(getOrCreatePinChangedListener());
                 if (isSnapToPin()) {
                     pixelInfoView.updatePixelValues(view, -1, -1, 0, false);
                 }
@@ -355,7 +366,7 @@ public class PixelInfoToolView extends AbstractToolView {
         }
     }
 
-    private class PinSelectionChangedListener implements ProductNodeListener {
+    private class PinChangedListener implements ProductNodeListener {
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
@@ -403,6 +414,15 @@ public class PixelInfoToolView extends AbstractToolView {
         private boolean isActive() {
             return isSnapToPin();
         }
+    }
+    
+    private class PinSelectionChangeListener implements PropertyChangeListener {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            setToSelectedPin(currentView);
+        }
+        
     }
 
     private static class DisplayFilter extends PixelInfoView.DisplayFilter {

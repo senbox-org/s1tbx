@@ -68,6 +68,7 @@ Placemarks (PIN/GCP)
   select one Pin, than other ...
   -->
   Pixel Info view will not be updated
+    ==> FINAL, MZ, CLOSED
 * (OF) deadlock while opening an image view if 'Snap to selected PIN' on the 'Pixel Info' is selected
    create pin(s)
    on the 'Pixel Info' select 'Snap to selected PIN'
