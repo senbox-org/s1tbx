@@ -107,7 +107,7 @@ public class ReprojectionOp extends Operator {
                defaultValue = "Nearest")
     private String resamplingName;
 
-    @Parameter(description = "Wether tie-point grids should be included in the output product.",
+    @Parameter(description = "Whether tie-point grids should be included in the output product.",
                defaultValue = "true")
     private boolean includeTiePointGrids;
 
