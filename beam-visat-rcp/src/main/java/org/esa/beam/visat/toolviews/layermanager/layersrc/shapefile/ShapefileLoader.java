@@ -23,7 +23,6 @@ import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.SLD;
-import org.geotools.styling.SLDParser;
 import org.geotools.styling.Style;
 import org.geotools.styling.Symbolizer;
 import org.opengis.feature.simple.SimpleFeature;
@@ -34,7 +33,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Color;
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author Marco Peters
@@ -114,13 +112,10 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
         return styles;
     }
 
-    public static Style[] createStyle(File file, FeatureType schema) {
-        File sld = toSLDFile(file);
-        if (sld.exists()) {
-            final Style[] styles = createFromSLD(sld);
-            if (styles.length > 0) {
-                return styles;
-            }
+    private static Style[] createStyle(File shapeFile, FeatureType schema) {
+        final Style[] styles = ShapefileUtils.loadSLD(shapeFile);
+        if (styles != null) {
+            return styles;
         }
         Class<?> type = schema.getGeometryDescriptor().getType().getBinding();
         if (type.isAssignableFrom(Polygon.class)
@@ -132,30 +127,6 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
         } else {
             return new Style[]{createPointStyle()};
         }
-    }// Figure out the URL for the "sld" file
-
-    private static File toSLDFile(File file) {
-        String filename = file.getAbsolutePath();
-        if (filename.endsWith(".shp") || filename.endsWith(".dbf")
-            || filename.endsWith(".shx")) {
-            filename = filename.substring(0, filename.length() - 4);
-            filename += ".sld";
-        } else if (filename.endsWith(".SHP") || filename.endsWith(".DBF")
-                   || filename.endsWith(".SHX")) {
-            filename = filename.substring(0, filename.length() - 4);
-            filename += ".SLD";
-        }
-        return new File(filename);
-    }
-
-    private static Style[] createFromSLD(File sld) {
-        try {
-            SLDParser stylereader = new SLDParser(styleFactory, sld.toURI().toURL());
-            return stylereader.readXML();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new Style[0];
     }
 
     private static Style createPointStyle() {

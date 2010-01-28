@@ -10,7 +10,10 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.styling.SLDParser;
+import org.geotools.styling.Style;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -25,6 +28,8 @@ import java.util.Map;
  * Unstable API. Use at own risk.
  */
 public class ShapefileUtils {
+    
+    private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
 
     /**
      * Loads a shapefile into a feature collection. The shapefile is clipped to the geometry of the given raster.
@@ -96,5 +101,41 @@ public class ShapefileUtils {
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
         featureSource = shapefileStore.getFeatureSource(typeName);
         return featureSource;
+    }
+    
+    /**
+     * Figure out the URL for the "sld" file
+     */
+    private static File getSLDFile(File shapeFile) {
+        String filename = shapeFile.getAbsolutePath();
+        if (filename.endsWith(".shp") || filename.endsWith(".dbf")
+            || filename.endsWith(".shx")) {
+            filename = filename.substring(0, filename.length() - 4);
+            filename += ".sld";
+        } else if (filename.endsWith(".SHP") || filename.endsWith(".DBF")
+                   || filename.endsWith(".SHX")) {
+            filename = filename.substring(0, filename.length() - 4);
+            filename += ".SLD";
+        }
+        return new File(filename);
+    }
+    
+    public static Style[] loadSLD(File shapeFile) {
+        File sld = ShapefileUtils.getSLDFile(shapeFile);
+        if (sld.exists()) {
+            return createFromSLD(sld);
+        } else {
+            return new Style[0];
+        }
+    }
+    
+    private static Style[] createFromSLD(File sld) {
+        try {
+            SLDParser stylereader = new SLDParser(styleFactory, sld.toURI().toURL());
+            return stylereader.readXML();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new Style[0];
     }
 }
