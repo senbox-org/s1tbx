@@ -33,11 +33,11 @@
     </dependency>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>beam-ui</module>
         <optional>true</optional>
     </dependency>
 
-    <extension point="beam-visat-rcp:layerSources">
+    <extension point="beam-ui:layerSources">
         <layerSource>
             <id>blue-marble-source</id>
             <name>NASA Blue Marble</name>
