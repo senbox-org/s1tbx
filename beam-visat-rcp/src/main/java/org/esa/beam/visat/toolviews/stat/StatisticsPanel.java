@@ -3,10 +3,9 @@ package org.esa.beam.visat.toolviews.stat;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-
 import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
 
@@ -206,12 +205,33 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
         sb.append(unit);
         sb.append("\n");
 
+        sb.append("Median:  \t");
+        sb.append(getMedian(stat));
+        sb.append("\t ");
+        sb.append(unit);
+        sb.append("\n");
+
         sb.append("Std-Dev:  \t");
         sb.append(getStandardDeviation(stat));
         sb.append("\t ");
         sb.append(unit);
         sb.append("\n");
+
+        sb.append("Coefficient of variation:  \t");
+        sb.append(getCoefficientOfVariation(stat));
+        sb.append("\t ");
+        sb.append("");
+        sb.append("\n");
+
         return sb.toString();
+    }
+
+    private double getCoefficientOfVariation(Stx stat) {
+        return getStandardDeviation(stat) / getMean(stat);
+    }
+
+    private double getMedian(Stx stat) {
+        return getRaster().scale(stat.getMedian());
     }
 
     private double getMin(Stx stat) {
@@ -227,7 +247,7 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
     }
 
     /*
-     * Use error-propagation to compute stddev for log10-scaled bands. (Ask Ralf for details)
+     * Use error-propagation to compute stddev for log10-scaled bands. (Ask Ralf for maths details.)
      */
     private double getStandardDeviation(Stx stat) {
         if (getRaster().isLog10Scaled()) {

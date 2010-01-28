@@ -48,7 +48,8 @@
         [BEAM-1002] Editing bitmask overlays is not possible using the nimbus or gtk look & feel<br/>
         [BEAM-1001] SelectedProduct can be null in BandArithmetic<br/>
         [BEAM-1000] Spelling error in band arithmetic<br/>
-        [BEAM-991] Yaxis of scatterplot does not show the right values<br/>
+        [BEAM-991] Y-axis of scatterplot does not show the right values<br/>
+        [BEAM-809] Add 'median' and 'coefficient of variation' to statistics<br/>
         [BEAM-456] ROI includes also no-data pixels if "Include pixel by conditions" is selected<br/>
         </p>
         <p>Changes in 4.6:<br/>
