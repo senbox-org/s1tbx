@@ -75,7 +75,7 @@ public class ScriptAction extends AbstractVisatAction {
                 if (resource == null) {
                     resource = new File(src).toURI().toURL();
                 }
-                scriptManager.evalScript(resource, new MyObserver(component));
+                scriptManager.execute(resource, new MyObserver(component));
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(component, "Error:\n" + e.getMessage(),
                                               getText(), JOptionPane.ERROR_MESSAGE);
@@ -84,7 +84,7 @@ public class ScriptAction extends AbstractVisatAction {
         }
 
         if (code != null) {
-            scriptManager.evalScriptCode(code, new MyObserver(component));
+            scriptManager.execute(code, new MyObserver(component));
         }
     }
 

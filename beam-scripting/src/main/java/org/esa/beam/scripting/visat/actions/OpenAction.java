@@ -9,11 +9,12 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 public class OpenAction extends ScriptConsoleAction {
+    public static final String ID = "scriptConsole.open";
 
-    public OpenAction(ScriptConsoleForm scriptConsoleForm ) {
+    public OpenAction(ScriptConsoleForm scriptConsoleForm) {
         super(scriptConsoleForm,
               "Open...",
-              "scriptConsole.open",
+              ID,
               "/org/esa/beam/scripting/visat/icons/document-open-16.png");
     }
 
@@ -22,8 +23,7 @@ public class OpenAction extends ScriptConsoleAction {
         JFileChooser fs = OpenAction.createFileChooser(getScriptManager().getEngineFactories());
         int i = fs.showOpenDialog(getScriptConsoleForm().getWindow());
         if (i == JFileChooser.APPROVE_OPTION) {
-            // todo 
-            getScriptConsoleForm().showErrorMessage("Not implemented.");
+            getScriptConsoleForm().openScript(fs.getSelectedFile());
         }
     }
 
@@ -31,10 +31,24 @@ public class OpenAction extends ScriptConsoleAction {
         JFileChooser fs = new JFileChooser();
         fs.setAcceptAllFileFilterUsed(false);
         for (ScriptEngineFactory scriptEngineFactory : scriptEngineFactories) {
-            final List<String> stringList = scriptEngineFactory.getExtensions();
-            final String[] strings = stringList.toArray(new String[0]);
-            fs.addChoosableFileFilter(new FileNameExtensionFilter(String.format("%s files", scriptEngineFactory.getLanguageName()), strings));
+            FileNameExtensionFilter filter = createFileFilter(scriptEngineFactory);
+            fs.addChoosableFileFilter(filter);
         }
         return fs;
+    }
+
+    public static JFileChooser createFileChooser(ScriptEngineFactory scriptEngineFactory) {
+        JFileChooser fs = new JFileChooser();
+        fs.setAcceptAllFileFilterUsed(false);
+        FileNameExtensionFilter filter = createFileFilter(scriptEngineFactory);
+        fs.addChoosableFileFilter(filter);
+        return fs;
+    }
+
+    public static FileNameExtensionFilter createFileFilter(ScriptEngineFactory scriptEngineFactory) {
+        List<String> extensionList = scriptEngineFactory.getExtensions();
+        String[] extensions = extensionList.toArray(new String[extensionList.size()]);
+        String description = String.format("%s files", scriptEngineFactory.getLanguageName());
+        return new FileNameExtensionFilter(description, extensions);
     }
 }

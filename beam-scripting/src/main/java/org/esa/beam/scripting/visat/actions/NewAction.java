@@ -18,11 +18,12 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 public class NewAction extends ScriptConsoleAction {
+    public static final String ID = "scriptConsole.new";
 
     public NewAction(ScriptConsoleForm scriptConsoleForm) {
         super(scriptConsoleForm,
               "New",
-              "scriptConsole.new",
+              ID,
               "/org/esa/beam/scripting/visat/icons/document-new-16.png");
     }
 

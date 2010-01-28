@@ -20,11 +20,12 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public class HelpAction extends ScriptConsoleAction {
+    public static final String ID = "scriptConsole.help";
 
     public HelpAction(ScriptConsoleForm scriptConsoleForm) {
         super(scriptConsoleForm,
               "Help",
-              "scriptConsole.help",
+              ID,
               "/org/esa/beam/scripting/visat/icons/help-browser-16.png");
     }
 

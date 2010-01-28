@@ -94,28 +94,28 @@ public class ScriptManager {
         });
     }
 
-    public void evalScriptCode(final String code, final Observer observer) {
+    public void execute(final String code, final Observer observer) {
 
         executorService.submit(new Runnable() {
             @Override
             public void run() {
-                evalScriptCode0(code, observer);
+                execute0(code, observer);
             }
         });
     }
 
 
-    public void evalScript(final URL url, final Observer observer) {
+    public void execute(final URL url, final Observer observer) {
 
         executorService.submit(new Runnable() {
             @Override
             public void run() {
-                evalScript0(url, observer);
+                execute0(url, observer);
             }
         });
     }
 
-    private void evalScriptCode0(String code, Observer observer) {
+    private void execute0(String code, Observer observer) {
         checkEngineSet();
         Object object;
         try {
@@ -127,7 +127,7 @@ public class ScriptManager {
         observer.onSuccess(object); // Throwables thrown in here shall not be catched!
     }
 
-    private void evalScript0(URL url, Observer observer) {
+    private void execute0(URL url, Observer observer) {
         checkEngineSet();
         Reader reader = null;
         Object object;
@@ -172,7 +172,7 @@ public class ScriptManager {
         final URL url = findInitScript();
         if (url != null) {
             output.println(MessageFormat.format("Loading initialisation script ''{0}''...", url));
-            evalScript0(url, new Observer() {
+            execute0(url, new Observer() {
                 @Override
                 public void onSuccess(Object value) {
                 }
