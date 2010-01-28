@@ -105,7 +105,11 @@ GPF Processors:
 * Done, enable/harmonise geo-coding transfer in all GPF ops  (see BEAM-1047 and BEAM-1050)
   Changelog needs update.
   ==> FINAL, MP, OPEN
-
+* Clean up GPF packages:
+  - split into beam-gpf and beam-gpf-meris
+  - move N1Patcher to ICOL
+  - move common MERIS stuff from ICOL & Co. into beam-gpf-meris
+  ==> FINAL, ?, OPEN
 
 SMOS-Box:
 =========
