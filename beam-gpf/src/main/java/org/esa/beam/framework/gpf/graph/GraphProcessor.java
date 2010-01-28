@@ -182,7 +182,7 @@ public class GraphProcessor {
         final TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
         final int parallelism = tileScheduler.getParallelism();
         final Semaphore semaphore = new Semaphore(parallelism , true);
-        final TileComputationListener tcl = new GraphTileComputationListener(semaphore);
+        final TileComputationListener tcl = new GraphTileComputationListener(semaphore, parallelism);
         final TileComputationListener[] listeners = new TileComputationListener[] { tcl };
 
         try {
@@ -387,9 +387,11 @@ public class GraphProcessor {
     private static class GraphTileComputationListener implements TileComputationListener {
 
         private final Semaphore semaphore;
+        private final int parallelism;
 
-        GraphTileComputationListener(Semaphore semaphore) {
+        GraphTileComputationListener(Semaphore semaphore, int parallelism) {
             this.semaphore = semaphore;
+            this.parallelism = parallelism;
         }
 
         @Override
@@ -402,14 +404,14 @@ public class GraphProcessor {
         @Override
         public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                   int tileY) {
-            semaphore.release();
+            semaphore.release(parallelism);
             throw new OperatorException("Operation cancelled.");
         }
 
         @Override
         public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                            int tileY, Throwable situation) {
-            semaphore.release();
+            semaphore.release(parallelism);
             throw new OperatorException("Operation failed.", situation);
         }
     } 
