@@ -52,7 +52,7 @@ VectorDataNode:
   open product containing (e.g.) blue geometry-1
   create geometry-2
   --> it will be blue, just like the geometry-1
-  create new figger on the geometry-1
+  create new figure on the geometry-1
    --> it will not be blue
 
 Placemarks (PIN/GCP)
@@ -62,7 +62,7 @@ Placemarks (PIN/GCP)
   Placemarks will be set wrong (outside of the product boundary)
 * (OF) delete, edit und export buttons are disabled in PIN/GCP Manager
   if Placemarks have been set using PIN/GCP placing tool
-* (OF) pixel info view disrerads selected PIN:
+* (OF) pixel info view disregards selected PIN:
   create some PINs
   select 'Snap to selected PIN' in 'Pixel Info'
   select one Pin, than other ...
