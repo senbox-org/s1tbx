@@ -117,6 +117,9 @@ Product tree:
 
 Layers:
 =======
+* Graticule layer does not recognize preference changes (reported by Sean Bailey)
+  Maybe this also affects other layer types ?
+  ==> FINAL, ?, OPEN
 * We once decided that we wanted to introduce static factory methods for each(!) layer type
   following the JAI-Descriptor concept. Nothing done so far.
   ==> FINAL, ?, OPEN
@@ -194,6 +197,11 @@ Envisat Reprocessing 3:
 
 Other BEAM/VISAT/API Stuff:
 ===========================
+* When loading our OBPG Level-2 data products pixel times are not
+  displayed and the No-Data Overlay doesn't work for missing data (e.g.
+  after reprojecting L2 chlor_a, the missing pixels in the resulting map
+  are not detected as missing)  (reported by Sean Bailey)
+  ==> FINAL, ?, OPEN
 * Rename 'Pin' into 'Placemark'
   ==> FINAL, NF, OPEN
 * Auto-insert BlueMarble (if WSG-84 lat/lon) and Country shapes
