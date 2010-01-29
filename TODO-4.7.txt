@@ -9,9 +9,9 @@ Masks:
 ======
 
 * Mask manager shall test for dependencies before deleting
-  ==> FINAL, ?, OPEN
-* (OF) ROI selection will be lost by save in dim, peproj. Is it OK?  
-  ==> FINAL, ?, OPEN
+  ==> FINAL, MZ, OPEN (ongoing)
+* (OF) ROI selection will be lost by save in dim, reproj. Is it OK?  
+  ==> FINAL, ?, OPEN (can not reproduce, MZ)
 
 * We need a special mask type masking out no-data pixels. If no-data value
   is set, it shall be used in its raw form by the mask image (OpImage).
