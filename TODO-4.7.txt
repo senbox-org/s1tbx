@@ -65,6 +65,7 @@ Placemarks (PIN/GCP)
 * (OF) import/create/update using Manager
   -->
   Placemarks will be set wrong (outside of the product boundary)
+  ==> FINAL, MP, OPEN (ongoing)
 * (OF) deadlock while opening an image view if 'Snap to selected PIN' on the 'Pixel Info' is selected
    create pin(s)
    on the 'Pixel Info' select 'Snap to selected PIN'
