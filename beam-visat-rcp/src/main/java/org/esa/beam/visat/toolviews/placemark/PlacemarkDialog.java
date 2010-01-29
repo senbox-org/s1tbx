@@ -71,13 +71,6 @@ public class PlacemarkDialog extends ModalDialog {
     private boolean simultaneousEditingAllowed;
 
 
-    /**
-     * @deprecated in 4.1, use {@link #PlacemarkDialog(Window,Product,PlacemarkDescriptor,boolean)} instead
-     */
-    public PlacemarkDialog(final Window parent, final Product product) {
-        this(parent, product, PinDescriptor.INSTANCE, false);
-    }
-
     public PlacemarkDialog(final Window parent, final Product product, final PlacemarkDescriptor placemarkDescriptor,
                      boolean simultaneousEditingAllowed) {
         super(parent, "New " + placemarkDescriptor.getRoleLabel(), ModalDialog.ID_OK_CANCEL, null); /*I18N*/
