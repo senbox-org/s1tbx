@@ -475,15 +475,26 @@ public class PlacemarkDialog extends ModalDialog {
         return firstChar + string.substring(1);
     }
 
+    /**
+     * Shows a dialog to edit the properties of an placemark.
+     * If the placemark does not belong to a product it will be added after editing.
+     *
+     * @param parent the parent window fo the dialog
+     * @param product the product where the placemark is already contained or where it will be added
+     * @param placemark the placemark to edit
+     * @param placemarkDescriptor the descriptor of the placemark
+     * @return <code>true</code> if editing was successful, otherwise <code>false</code>.
+     */
     public static boolean showEditPlacemarkDialog(Window parent, Product product, Pin placemark,
                                             PlacemarkDescriptor placemarkDescriptor) {
         final PlacemarkDialog dialog = new PlacemarkDialog(parent, product, placemarkDescriptor,
                                                   placemarkDescriptor instanceof PinDescriptor);
-        String titelPrefix = placemark.getProduct() == null ? "New" : "Edit"; /*I18N*/
+        boolean belongsToProduct = placemark.getProduct() != null;
+        String titlePrefix = belongsToProduct ? "Edit" : "New"; 
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
 
-        dialog.getJDialog().setTitle(titelPrefix + " " + roleLabel);
-        dialog.getJDialog().setName(titelPrefix + "_" + roleLabel);
+        dialog.getJDialog().setTitle(titlePrefix + " " + roleLabel);
+        dialog.getJDialog().setName(titlePrefix + "_" + roleLabel);
         dialog.setName(placemark.getName());
         dialog.setLabel(placemark.getLabel());
         dialog.setDescription(placemark.getDescription() != null ? placemark.getDescription() : "");
@@ -492,6 +503,10 @@ public class PlacemarkDialog extends ModalDialog {
         dialog.setPlacemarkSymbol(placemark.getSymbol());
         boolean ok = (dialog.show() == ID_OK);
         if (ok) {
+            if (!belongsToProduct) {
+                // must add to product, otherwise setting the pixel position wil fail
+                placemarkDescriptor.getPlacemarkGroup(product).add(placemark);
+            }
             placemark.setName(dialog.getName());
             placemark.setLabel(dialog.getLabel());
             placemark.setDescription(dialog.getDescription());

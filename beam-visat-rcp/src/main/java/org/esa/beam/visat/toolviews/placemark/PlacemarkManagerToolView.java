@@ -317,10 +317,10 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     }
 
     protected void addCellEditor(TableColumnModel columnModel) {
-        columnModel.getColumn(0).setCellEditor(new PinXCellEditor(placemarkDescriptor));
-        columnModel.getColumn(1).setCellEditor(new PinYCellEditor(placemarkDescriptor));
-        columnModel.getColumn(2).setCellEditor(new PinLonCellEditor(placemarkDescriptor));
-        columnModel.getColumn(3).setCellEditor(new PinLatCellEditor(placemarkDescriptor));
+        columnModel.getColumn(0).setCellEditor(new PinXCellEditor());
+        columnModel.getColumn(1).setCellEditor(new PinYCellEditor());
+        columnModel.getColumn(2).setCellEditor(new PinLonCellEditor());
+        columnModel.getColumn(3).setCellEditor(new PinLatCellEditor());
     }
 
     private ProductSceneView getSceneView() {
@@ -374,7 +374,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                                    product.getGeoCoding());
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, newPlacemark, placemarkDescriptor)) {
             makePinNameUnique(newPlacemark);
-            getPlacemarkGroup().add(newPlacemark);
             updateUIState();
         }
     }
@@ -392,7 +391,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                                    activePlacemark.getProduct().getGeoCoding());
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, newPlacemark, placemarkDescriptor)) {
             makePinNameUnique(newPlacemark);
-            getPlacemarkGroup().add(newPlacemark);
             updateUIState();
         }
     }
@@ -718,14 +716,14 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                         writePlacemarkDataTableText(writer);
                         writer.close();
                     }
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                     showErrorDialog(
                             "I/O Error.\n   Failed to export " + placemarkDescriptor.getRoleLabel() + "s.");    /*I18N*/
                 } finally {
                     if (writer != null) {
                         try {
                             writer.close();
-                        } catch (IOException e) {
+                        } catch (IOException ignored) {
                             // ignore
                         }
                     }
@@ -761,7 +759,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     final Writer writer = new FileWriter(file);
                     writePlacemarkDataTableText(writer);
                     writer.close();
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                     showErrorDialog("I/O Error.\nFailed to export " + roleLabel + " data table."); /*I18N*/
                 }
             }
@@ -890,14 +888,14 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     float lon;
                     try {
                         lon = Float.parseFloat(strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LON]]);
-                    } catch (NumberFormatException e) {
+                    } catch (NumberFormatException ignored) {
                         throw new IOException("Invalid placemark file format:\n" +
                                 "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
                     }
                     float lat;
                     try {
                         lat = Float.parseFloat(strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LAT]]);
-                    } catch (NumberFormatException e) {
+                    } catch (NumberFormatException ignored) {
                         throw new IOException("Invalid placemark file format:\n" +
                                 "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
                     }
@@ -910,7 +908,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                         label = strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LABEL]];
                     }
                     GeoCoding geoCoding = null;
-                    if(product != null) {
+                    if (product != null) {
                         geoCoding = product.getGeoCoding();
                     }
                     Pin placemark = new Pin(name, label, "", null, new GeoPos(lat, lon),
@@ -947,9 +945,12 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             for (Object child : children) {
                 final Element element = (Element) child;
                 try {
-                    placemarks.add(Pin.createPlacemark(element, placemarkDescriptor.createDefaultSymbol()));
-                } catch (IllegalArgumentException e) {
-                    // todo - ?
+                    GeoCoding geoCoding = null;
+                    if (product != null) {
+                        geoCoding = product.getGeoCoding();
+                    }
+                    placemarks.add(Pin.createPlacemark(element, placemarkDescriptor.createDefaultSymbol(), geoCoding));
+                } catch (IllegalArgumentException ignored) {
                 }
             }
             return placemarks.toArray(new Pin[placemarks.size()]);
@@ -1228,18 +1229,12 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private abstract class PinCellEditor extends DefaultCellEditor {
 
-        private PlacemarkDescriptor placemarkDescriptor;
         private Border defaultBorder;
 
-        public PinCellEditor(PlacemarkDescriptor placemarkDescriptor) {
+        public PinCellEditor() {
             super(new JTextField());
             JTextField textField = (JTextField) getComponent();
             defaultBorder = textField.getBorder();
-            this.placemarkDescriptor = placemarkDescriptor;
-        }
-
-        public PlacemarkDescriptor getPlacemarkDescriptor() {
-            return placemarkDescriptor;
         }
 
         @Override
@@ -1257,7 +1252,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             float value;
             try {
                 value = Float.parseFloat(textField.getText());
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
                 ((JComponent) getComponent()).setBorder(new LineBorder(Color.red));
                 return false;
             }
@@ -1285,7 +1280,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             JTextField textField = (JTextField) getComponent();
             try {
                 return Float.parseFloat(textField.getText());
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
                 return Float.NaN;
             }
         }
@@ -1293,8 +1288,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private class PinXCellEditor extends PinCellEditor {
 
-        public PinXCellEditor(PlacemarkDescriptor placemarkDescriptor) {
-            super(placemarkDescriptor);
+        public PinXCellEditor() {
+            super();
         }
 
         @Override
@@ -1307,8 +1302,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private class PinYCellEditor extends PinCellEditor {
 
-        public PinYCellEditor(PlacemarkDescriptor placemarkDescriptor) {
-            super(placemarkDescriptor);
+        public PinYCellEditor() {
+            super();
         }
 
         @Override
@@ -1321,8 +1316,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private class PinLatCellEditor extends PinCellEditor {
 
-        public PinLatCellEditor(PlacemarkDescriptor placemarkDescriptor) {
-            super(placemarkDescriptor);
+        public PinLatCellEditor() {
+            super();
         }
 
         @Override
@@ -1346,8 +1341,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private class PinLonCellEditor extends PinCellEditor {
 
-        public PinLonCellEditor(PlacemarkDescriptor placemarkDescriptor) {
-            super(placemarkDescriptor);
+        public PinLonCellEditor() {
+            super();
         }
 
         @Override
@@ -1436,8 +1431,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             Layer layer = getSceneView().getSelectedLayer();
             if (layer instanceof VectorDataLayer) {
                 VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
-                if (vectorDataLayer.getVectorDataNode() == getProduct().getPinGroup().getVectorDataNode()
-                      || vectorDataLayer.getVectorDataNode() == getProduct().getGcpGroup().getVectorDataNode()) {
+                if (vectorDataLayer.getVectorDataNode() == getProduct().getPinGroup().getVectorDataNode() ||
+                        vectorDataLayer.getVectorDataNode() == getProduct().getGcpGroup().getVectorDataNode()) {
                     System.out.println("PlacemarkManagerToolView$ViewSelectionChangeHandler.selectionChanged: event = " + event);
                     updateUIState();
                 }
