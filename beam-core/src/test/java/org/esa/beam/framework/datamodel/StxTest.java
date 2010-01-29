@@ -3,32 +3,37 @@ package org.esa.beam.framework.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class StxTest {
 
 
     @Test
     public void testGetMedian() throws Exception {
-        final RasterDataNode raster = createTestRaster(100, 120);
-        final Stx stx = Stx.create(raster, 0, ProgressMonitor.NULL);
+        RasterDataNode raster = createTestRaster(100, 120);
+        Stx stx = Stx.create(raster, 0, ProgressMonitor.NULL);
         assertEquals(5999.5, stx.getMedian(), 1.0e-6);
     }
 
     @Test
     public void testGetMedian_withGapsInHistogram() throws Exception {
-        final RasterDataNode raster = createTestRaster(10, 12);
-        final Stx stx = Stx.create(raster, 0, ProgressMonitor.NULL);
+        RasterDataNode raster = createTestRaster(10, 12);
+        Stx stx = Stx.create(raster, 0, ProgressMonitor.NULL);
         assertEquals(59.5, stx.getMedian(), 1.0e-6);
     }
 
     @Test
     public void testGetMedian_NoDataValue() throws Exception {
-        final RasterDataNode raster = createTestRaster(100, 120);
-        raster.setNoDataValue(7000.0);
+        RasterDataNode raster = createTestRaster(100, 120);
         raster.setNoDataValueUsed(true);
-        final Stx stx = Stx.create(raster, raster.getValidMaskImage(), ProgressMonitor.NULL);
-        assertEquals(5999.5, stx.getMedian(), 1.0e-6);
+        
+        raster.setNoDataValue(7000.0);
+        Stx stx = Stx.create(raster, raster.getValidMaskImage(), ProgressMonitor.NULL);
+        assertEquals(5999, stx.getMedian(), 1.0e-2);
+
+        raster.setNoDataValue(1000.0);
+        stx = Stx.create(raster, raster.getValidMaskImage(), ProgressMonitor.NULL);
+        assertEquals(6000, stx.getMedian(), 1.0e-2);
     }
 
     private RasterDataNode createTestRaster(int sceneWidth, int sceneHeight) {

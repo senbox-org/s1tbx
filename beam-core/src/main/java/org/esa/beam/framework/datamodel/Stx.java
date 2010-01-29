@@ -5,7 +5,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.jai.NoDataRaster;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.Histogram;
 import javax.media.jai.PixelAccessor;
@@ -165,7 +164,7 @@ public class Stx {
 
     private static double computeMedian(Histogram histogram, long sampleCount) {
         boolean isEven = sampleCount % 2 == 0;
-        long halfSampleCount = MathUtils.ceilLong(sampleCount / 2.0);
+        double halfSampleCount = sampleCount / 2.0;
         final int bandIndex = 0;
         int[] bins = histogram.getBins(bandIndex);
         long currentSampleCount = 0;
