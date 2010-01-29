@@ -65,8 +65,8 @@ Placemarks (PIN/GCP)
 * (OF) deadlock while opening an image view if 'Snap to selected PIN' on the 'Pixel Info' is selected
    create pin(s)
    on the 'Pixel Info' select 'Snap to selected PIN'
-   open an other image again and again
-   --> VISAT freezes. Any Exception will not be shot.
+   open an other image
+   -->  again and again VISAT freezes. No Exception shown.
  
  
 * (OF) import/create/update using Manager
