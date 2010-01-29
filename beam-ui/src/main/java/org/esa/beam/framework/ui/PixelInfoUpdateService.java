@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * @version $Revision$ $Date$
  * @since BEAM 4.5.2
  */
-class PixelInfoUpdateService implements Runnable {
+class PixelInfoUpdateService {
 
     private final PixelInfoViewModelUpdater modelUpdater;
     private final ScheduledExecutorService scheduledExecutorService;
@@ -36,11 +36,13 @@ class PixelInfoUpdateService implements Runnable {
     private PixelInfoState state;
     private boolean needUpdate;
     private int numUnchangedStates;
+    private Runnable updaterRunnable;
 
     PixelInfoUpdateService(PixelInfoViewModelUpdater modelUpdater) {
         this.modelUpdater = modelUpdater;
         this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         state = PixelInfoState.INVALID;
+        updaterRunnable = new UpdaterRunnable();
     }
 
     synchronized void updateState(ProductSceneView view, int pixelX, int pixelY, int level, boolean pixelPosValid) {
@@ -66,7 +68,7 @@ class PixelInfoUpdateService implements Runnable {
 
     private void assertTimerStarted() {
         if (updaterFuture == null) {
-            updaterFuture = scheduledExecutorService.scheduleWithFixedDelay(this, 100, 100, TimeUnit.MILLISECONDS);
+            updaterFuture = scheduledExecutorService.scheduleWithFixedDelay(updaterRunnable, 100, 100, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -78,25 +80,26 @@ class PixelInfoUpdateService implements Runnable {
         clearState();
     }
 
-    public synchronized void run() {
-        if (state == PixelInfoState.INVALID) {
-            return;
-        }
-        if (needUpdate) {
-            numUnchangedStates = 0;
-            needUpdate = false;
-            try {
-                modelUpdater.update(state);
-            } catch (Throwable t) {
-                // TODO Auto-generated catch block
-                t.printStackTrace();
+    private class UpdaterRunnable implements Runnable {
+        @Override
+        public void run() {
+            if (state == PixelInfoState.INVALID) {
+                return;
             }
-        } else {
-            numUnchangedStates++;
-            if (numUnchangedStates > 100) {
-                stopTimer();
+            if (needUpdate) {
+                numUnchangedStates = 0;
+                needUpdate = false;
+                try {
+                    modelUpdater.update(state);
+                } catch (Throwable ignored) {
+
+                }
+            } else {
+                numUnchangedStates++;
+                if (numUnchangedStates > 100) {
+                    stopTimer();
+                }
             }
         }
     }
-
 }
