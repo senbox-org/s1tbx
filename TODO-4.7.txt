@@ -62,6 +62,7 @@ Placemarks (PIN/GCP)
   Placemarks will be set wrong (outside of the product boundary)
 * (OF) delete, edit und export buttons are disabled in PIN/GCP Manager
   if Placemarks have been set using PIN/GCP placing tool
+  ==> FINAL, MP, OPEN (ONGOING)  
 * (OF) pixel info view disregards selected PIN:
   create some PINs
   select 'Snap to selected PIN' in 'Pixel Info'
