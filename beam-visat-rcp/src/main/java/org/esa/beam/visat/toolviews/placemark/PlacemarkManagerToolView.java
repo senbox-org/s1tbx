@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.placemark;
 
-import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.jidesoft.grid.SortableTable;
@@ -82,7 +82,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -389,7 +388,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                                    activePlacemark.getDescription(),
                                    activePlacemark.getPixelPos(),
                                    activePlacemark.getGeoPos(),
-                                   createPinSymbolCopy(activePlacemark.getSymbol()));
+                                   createPinSymbolCopy(activePlacemark.getSymbol()),
+                                   activePlacemark.getProduct().getGeoCoding());
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, newPlacemark, placemarkDescriptor)) {
             makePinNameUnique(newPlacemark);
             getPlacemarkGroup().add(newPlacemark);
@@ -909,8 +909,12 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     if (columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LABEL] >= 0 && strings.length > columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LABEL]) {
                         label = strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LABEL]];
                     }
+                    GeoCoding geoCoding = null;
+                    if(product != null) {
+                        geoCoding = product.getGeoCoding();
+                    }
                     Pin placemark = new Pin(name, label, "", null, new GeoPos(lat, lon),
-                                            placemarkDescriptor.createDefaultSymbol());
+                                            placemarkDescriptor.createDefaultSymbol(), geoCoding);
                     if (desc != null) {
                         placemark.setDescription(desc);
                     }
@@ -993,14 +997,14 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     }
 
     private void showErrorDialog(String message) {
-        JOptionPane.showMessageDialog(getContentPane(),
+        JOptionPane.showMessageDialog(getPaneControl(),
                                       message,
                                       getDescriptor().getTitle() + " - Error",
                                       JOptionPane.ERROR_MESSAGE);
     }
 
     private void showWarningDialog(String message) {
-        JOptionPane.showMessageDialog(getContentPane(),
+        JOptionPane.showMessageDialog(getPaneControl(),
                                       message,
                                       getDescriptor().getTitle() + " - Warning",
                                       JOptionPane.WARNING_MESSAGE);
@@ -1153,17 +1157,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    /**
-     * @param parent  the parent window
-     * @param product the product thew given pin belongs to
-     * @param pin     the pin to edit
-     * @return true, if pin has changed
-     * @deprecated in 4.1, {@link PlacemarkDialog#showEditPlacemarkDialog(Window,Product, org.esa.beam.framework.datamodel.Pin ,PlacemarkDescriptor)} instead
-     */
-    @Deprecated
-    public static boolean showEditPinDialog(Window parent, Product product, Pin pin) {
-        return PlacemarkDialog.showEditPlacemarkDialog(parent, product, pin, PinDescriptor.INSTANCE);
-    }
 
     /**
      * Returns the geographical position which is equivalent to the given pixel position. Returns <code>null</code> if
