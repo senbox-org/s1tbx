@@ -98,7 +98,6 @@ public class PixelInfoToolView extends AbstractToolView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (pinCheckbox.isSelected()) {
-//                    currentView = visatApp.getSelectedProductSceneView();
                     setToSelectedPin(currentView);
                 }
             }
