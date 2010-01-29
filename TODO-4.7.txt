@@ -62,9 +62,6 @@ Placemarks (PIN/GCP)
 * (OF) import/create/update using Manager
   -->
   Placemarks will be set wrong (outside of the product boundary)
-* (OF) delete, edit und export buttons are disabled in PIN/GCP Manager
-  if Placemarks have been set using PIN/GCP placing tool
-  ==> FINAL, MP, OPEN (ONGOING)  
 * (OF) deadlock while opening an image view if 'Snap to selected PIN' on the 'Pixel Info' is selected
    create pin(s)
    on the 'Pixel Info' select 'Snap to selected PIN'

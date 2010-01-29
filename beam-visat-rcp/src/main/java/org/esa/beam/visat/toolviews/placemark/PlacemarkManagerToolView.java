@@ -1420,6 +1420,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     sceneView.selectGcps(placemarkArray);
                 }
             } finally {
+                updateUIState();
                 synchronizingPlacemarkSelectedState = false;
             }
 
@@ -1438,7 +1439,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 if (vectorDataLayer.getVectorDataNode() == getProduct().getPinGroup().getVectorDataNode()
                       || vectorDataLayer.getVectorDataNode() == getProduct().getGcpGroup().getVectorDataNode()) {
                     System.out.println("PlacemarkManagerToolView$ViewSelectionChangeHandler.selectionChanged: event = " + event);
-                    updatePlacemarkTableSelectionFromView();
+                    updateUIState();
                 }
             }
         }
