@@ -10,6 +10,8 @@ Masks:
 
 * Mask manager shall test for dependencies before deleting
   ==> FINAL, ?, OPEN
+* Export mask pixels does not treat invalid data correctly (no regression!)
+  ==> FINAL, ?, OPEN
 
 
 * We need a special mask type masking out no-data pixels. If no-data value
@@ -63,6 +65,14 @@ Placemarks (PIN/GCP)
 * (OF) delete, edit und export buttons are disabled in PIN/GCP Manager
   if Placemarks have been set using PIN/GCP placing tool
   ==> FINAL, MP, OPEN (ONGOING)  
+* (OF) deadlock while opening an image view if 'Snap to selected PIN' on the 'Pixel Info' is selected
+   create pin(s)
+   on the 'Pixel Info' select 'Snap to selected PIN'
+   open an other image again and again
+   --> VISAT freezes. Any Exception will not be shot.
+* Export Pin pixel writes 'No-data' instead of 'NaN'
+  ==> FINAL, MZ, OPEN (ONGOING)  
+  
 * (OF) pixel info view disregards selected PIN:
   create some PINs
   select 'Snap to selected PIN' in 'Pixel Info'
@@ -70,12 +80,7 @@ Placemarks (PIN/GCP)
   -->
   Pixel Info view will not be updated
     ==> FINAL, MZ, CLOSED
-* (OF) deadlock while opening an image view if 'Snap to selected PIN' on the 'Pixel Info' is selected
-   create pin(s)
-   on the 'Pixel Info' select 'Snap to selected PIN'
-   open an other image again and again
-   --> VISAT freezes. Any Exception will not be shot.
-
+    
 Figures:
 ========
 * Select-tool shall auto-select layer containing a clicked figure
