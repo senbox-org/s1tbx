@@ -34,6 +34,7 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.PointingFactory;
 import org.esa.beam.framework.datamodel.PointingFactoryRegistry;
 import org.esa.beam.framework.datamodel.Product;
@@ -856,7 +857,7 @@ public class DimapProductHelpers {
             }
             for (Object pinElement : pinElements) {
                 final Element pinElem = (Element) pinElement;
-                final Pin pin = Pin.createPin(pinElem);
+                final Pin pin = Pin.createPlacemark(pinElem, PlacemarkSymbol.createDefaultPinSymbol());
                 if (pin != null) {
                     pin.updatePixelPos(product.getGeoCoding());
                     product.getPinGroup().add(pin);
@@ -874,7 +875,7 @@ public class DimapProductHelpers {
             }
             for (Object gcpElement : gcpElements) {
                 final Element gcpElem = (Element) gcpElement;
-                final Pin gcp = Pin.createGcp(gcpElem);
+                final Pin gcp = Pin.createPlacemark(gcpElem, PlacemarkSymbol.createDefaultGcpSymbol());
                 if (gcp != null) {
                     product.getGcpGroup().add(gcp);
                 }
@@ -1399,7 +1400,7 @@ public class DimapProductHelpers {
             }
         }
 
-        @Deprecated
+        // needed for backward compatibility
         private void addBitmaskDefinitions(Product product) {
             final Element bitmaskDefs = getRootElement().getChild(DimapProductConstants.TAG_BITMASK_DEFINITIONS);
             List bitmaskDefList;
