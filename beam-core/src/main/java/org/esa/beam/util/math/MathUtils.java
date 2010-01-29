@@ -183,24 +183,28 @@ public class MathUtils {
     }
 
     /**
-     * First calls <code>Math.round</code> with <code>x</code> and then crops the resulting value to the range
+     * First calls <code>Math.round</code> with <code>value</code> and then crops the resulting value to the range
      * <code>min</code> to <code>max</code>.
+     * @param value the value to round and crop
+     * @param min the minimum value of the crop range
+     * @param max the maximum value of the crop range
+     * 
+     * @return the rounded and cropped value
      */
-    public static long roundAndCrop(final double x, final long min, final long max) {
-        final long rx = Math.round(x);
+    public static long roundAndCrop(final double value, final long min, final long max) {
+        final long rx = Math.round(value);
         return crop(rx, min, max);
-//        return (rx < min) ? min : (rx > max) ? max : rx;
     }
 
     /**
-     * Returns <code>(int) Math.floor(x)</code>.
+     * Returns <code>(int) Math.floor(value)</code>.
      *
-     * @param x the <code>double</code> value to be converted
+     * @param value the <code>double</code> value to be converted
      *
-     * @return the integer value corresponding to the floor of <code>x</code>
+     * @return the integer value corresponding to the floor of <code>value</code>
      */
-    public static int floorInt(final double x) {
-        return (int) Math.floor(x);
+    public static int floorInt(final double value) {
+        return (int) Math.floor(value);
     }
 
     /**
