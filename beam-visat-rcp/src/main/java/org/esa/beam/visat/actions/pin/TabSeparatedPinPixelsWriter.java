@@ -219,12 +219,16 @@ class TabSeparatedPinPixelsWriter {
         }
         for (int i = 0; i < bands.length; i++) {
             final Band band = bands[i];
-            if (band.isFloatingPointType()) {
-                band.readPixels(pixel.x, pixel.y, 1, 1, floatPixel, ProgressMonitor.NULL);
-                out.print(floatPixel[0]);
+            if (band.isPixelValid(pixel.x, pixel.y)) {
+                if (band.isFloatingPointType()) {
+                    band.readPixels(pixel.x, pixel.y, 1, 1, floatPixel, ProgressMonitor.NULL);
+                    out.print(floatPixel[0]);
+                } else {
+                    band.readPixels(pixel.x, pixel.y, 1, 1, intPixel, ProgressMonitor.NULL);
+                    out.print(intPixel[0]);
+                }
             } else {
-                band.readPixels(pixel.x, pixel.y, 1, 1, intPixel, ProgressMonitor.NULL);
-                out.print(intPixel[0]);
+                out.print("NaN");
             }
             if (i < bands.length - 1) {
                 out.print("\t");

@@ -10,9 +10,8 @@ Masks:
 
 * Mask manager shall test for dependencies before deleting
   ==> FINAL, ?, OPEN
-* Export mask pixels does not treat invalid data correctly (no regression!)
+* (OF) ROI selection will be lost by save in dim, peproj. Is it OK?  
   ==> FINAL, ?, OPEN
-
 
 * We need a special mask type masking out no-data pixels. If no-data value
   is set, it shall be used in its raw form by the mask image (OpImage).
@@ -24,7 +23,11 @@ Masks:
   operate on such mask types. The raster data of the new mask type will need to
   be stored to disk.
   ==> FINAL (v4.8), ?, OPEN
-* (OF) ROI selection will be lost by save in dim, peproj. Is it OK?
+
+
+* Export mask pixels does not treat invalid data correctly (no regression!)
+  ==> FINAL, MZ, CLOSED
+
 
 VectorDataNode:
 ===============
@@ -67,9 +70,13 @@ Placemarks (PIN/GCP)
    on the 'Pixel Info' select 'Snap to selected PIN'
    open an other image again and again
    --> VISAT freezes. Any Exception will not be shot.
+ 
+ 
+* (OF) delete, edit und export buttons are disabled in PIN/GCP Manager
+  if Placemarks have been set using PIN/GCP placing tool
+  ==> FINAL, MP, CLOSED   
 * Export Pin pixel writes 'No-data' instead of 'NaN'
-  ==> FINAL, MZ, OPEN (ONGOING)  
-  
+  ==> FINAL, MZ, CLOSED 
 * (OF) pixel info view disregards selected PIN:
   create some PINs
   select 'Snap to selected PIN' in 'Pixel Info'

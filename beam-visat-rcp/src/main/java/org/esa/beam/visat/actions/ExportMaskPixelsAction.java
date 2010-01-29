@@ -360,12 +360,16 @@ public class ExportMaskPixelsAction extends ExecCommand {
         final float[] floatPixel = new float[1];
         for (final Band band : bands) {
             out.print("\t");
-            if (band.isFloatingPointType()) {
-                band.readPixels(x, y, 1, 1, floatPixel, ProgressMonitor.NULL);
-                out.print(floatPixel[0]);
+            if (band.isPixelValid(x, y)) {
+                if (band.isFloatingPointType()) {
+                    band.readPixels(x, y, 1, 1, floatPixel, ProgressMonitor.NULL);
+                    out.print(floatPixel[0]);
+                } else {
+                    band.readPixels(x, y, 1, 1, intPixel, ProgressMonitor.NULL);
+                    out.print(intPixel[0]);
+                }
             } else {
-                band.readPixels(x, y, 1, 1, intPixel, ProgressMonitor.NULL);
-                out.print(intPixel[0]);
+                out.print("NaN");
             }
         }
         for (final TiePointGrid grid : tiePointGrids) {

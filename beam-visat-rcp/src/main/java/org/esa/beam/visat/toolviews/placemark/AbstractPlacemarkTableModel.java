@@ -200,7 +200,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                             return "I/O-error";
                         }
                     } else {
-                        return "No-data";
+                        return "NaN";
                     }
                 }
                 index -= getNumSelectedBands();
