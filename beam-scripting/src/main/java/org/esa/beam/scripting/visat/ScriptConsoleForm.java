@@ -211,7 +211,6 @@ public class ScriptConsoleForm {
                 showErrorMessage(MessageFormat.format("Unknown script type ''{0}''.", fileName));
                 return;
             }
-            scriptManager.setEngine(scriptEngine);
 
             StringBuilder sb = new StringBuilder();
             try {
@@ -225,13 +224,14 @@ public class ScriptConsoleForm {
                 } finally {
                     reader.close();
                 }
-                setFile(file);
             } catch (IOException e) {
                 showErrorMessage(MessageFormat.format("I/O error:\n{0}", e.getMessage()));
                 return;
             }
 
             inputTextArea.setText(sb.toString());
+            scriptManager.setEngine(scriptEngine);
+            setFile(file);
         } finally {
             enableRun(true);
         }
