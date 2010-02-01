@@ -69,9 +69,8 @@ class ExportPinPixelsDialog extends ModalDialog {
      * @param visatApp a reference to the VISAT application instance
      * @param product  the product providing the pixel values
      */
-    ExportPinPixelsDialog(final VisatApp visatApp, final Product product) {
+    ExportPinPixelsDialog(final VisatApp visatApp) {
         super(visatApp.getMainFrame(), "Export Pin Pixels", ModalDialog.ID_OK_CANCEL, null);
-        this.product = product;
         this.visatApp = visatApp;
         initParameter();
         createUI();
@@ -282,15 +281,15 @@ class ExportPinPixelsDialog extends ModalDialog {
     /**
      * Shows the ExportPinPixels dialog window.
      *
-     * @param pinLabel the label of the selected pin
-     * @param product  the selected product
+     * @param selectedProduct  the selected product
+     * 
      * @return the int value associated with the button the user has pressed. See org.esa.beam.framework.ui.ModalDialog
      */
-    public int show(final Product product) {
-        ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
+    public int show(final Product selectedProduct) {
         int numSelectedPins = 0;
         int numPinsTotal = this.product.getPinGroup().getNodeCount();
-        if (sceneView != null) {
+        ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
+        if (sceneView != null && sceneView.getProduct() == selectedProduct) {
             Pin[] selectedPins = sceneView.getSelectedPins();
             numSelectedPins = selectedPins.length;
         }
@@ -298,7 +297,7 @@ class ExportPinPixelsDialog extends ModalDialog {
         buttonExportAllPins.setEnabled(numSelectedPins != numPinsTotal);
         buttonExportSelectedPins.setSelected(numSelectedPins > 0);
         buttonExportAllPins.setSelected(numSelectedPins == 0);
-        this.product = product;
+        this.product = selectedProduct;
         return super.show();
     }
 

@@ -21,13 +21,15 @@ import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.SelectExportMethodDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
@@ -44,6 +46,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This action exports pins and their surrounding pixels.
@@ -53,35 +56,82 @@ import java.util.concurrent.ExecutionException;
  */
 public class ExportPinPixelsAction extends ExecCommand {
 
+    private class PTL extends ProductTreeListenerAdapter{
+
+        @Override
+        public void productRemoved(final Product product) {
+            if (selectedProduct == product) {
+                selectedProduct.removeProductNodeListener(pnl);
+                selectedProduct = null;
+            }
+        }
+    }
+    
+    private class PNL implements ProductNodeListener {
+
+        @Override
+        public void nodeAdded(ProductNodeEvent event) {
+            checkEnabledState();
+        }
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            checkEnabledState();
+        }
+
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+            checkEnabledState();
+        }
+
+        @Override
+        public void nodeRemoved(ProductNodeEvent event) {
+            checkEnabledState();
+        }
+    }
+    
+
     private static final String ERR_MSG_BASE = "Pin pixels cannot be exported:\n";
     private static final String COMMAND_NAME = "Export Pin Pixels";
 
     private ExportPinPixelsDialog dialog;
+    private Product selectedProduct;
+    private AtomicBoolean initialized = new AtomicBoolean();
+    private ProductNodeListener pnl;
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void actionPerformed(final CommandEvent event) {
         exportPinPixels(getSelectedProduct());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void updateState(final CommandEvent event) {
-        boolean enabled = false;
+        if (initialized.compareAndSet(false, true)) {
+            pnl = new PNL();
+            VisatApp.getApp().getProductTree().addProductTreeListener(new PTL());
+        }
+        
         final Product product = getSelectedProduct();
-        if (product != null) {
-            enabled = product.getPinGroup().getNodeCount() > 0;
+        if (selectedProduct != product) {
+            if (selectedProduct != null) {
+                selectedProduct.removeProductNodeListener(pnl);
+            }
+            selectedProduct = product;
+            if (selectedProduct != null) {
+                selectedProduct.addProductNodeListener(pnl);
+            }
+        }
+        checkEnabledState();
+    }
+    
+    private void checkEnabledState() {
+        boolean enabled = false;
+        if (selectedProduct != null) {
+            enabled = selectedProduct.getPinGroup().getNodeCount() > 0;
         }
         setEnabled(enabled);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void updateComponentTreeUI() {
         if (dialog != null) {
@@ -97,7 +147,7 @@ public class ExportPinPixelsAction extends ExecCommand {
     private void exportPinPixels(Product product) {
         VisatApp visatApp = VisatApp.getApp();
         if (dialog == null) {
-            dialog = new ExportPinPixelsDialog(visatApp, product);
+            dialog = new ExportPinPixelsDialog(visatApp);
         }
 
         // shows a dialog which lets the user specify the region he wants to export.
@@ -309,11 +359,7 @@ public class ExportPinPixelsAction extends ExecCommand {
      * Returns the product the user has selected in beam. Can be <code>null</code>.
      */
     private static Product getSelectedProduct() {
-        final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
-        if (view != null) {
-            return view.getProduct();
-        }
-        return null;
+        return VisatApp.getApp().getSelectedProduct();
     }
 
     /**
