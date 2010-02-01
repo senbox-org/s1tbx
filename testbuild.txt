@@ -1,6 +1,80 @@
 #################################################################
 VISAT GUI Tests results
 #################################################################
+1)
+NullPointerException uccures when select PIn in the PIN Manager:
+open prod.
+reproj.
+cerate some PINs
+spatial subset from view
+open PIN Manger
+--> PINs will be placed outside of the product boundary
+select PIN
+
+Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
+	at org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView.setToSelectedPin(PixelInfoToolView.java:256)
+	at org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView.access$900(PixelInfoToolView.java:47)
+	at org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView$PinSelectionChangeListener.propertyChange(PixelInfoToolView.java:422)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:339)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:347)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:276)
+	at java.awt.Component.firePropertyChange(Component.java:8128)
+	at org.esa.beam.framework.ui.product.ProductSceneView.access$900(ProductSceneView.java:100)
+	at org.esa.beam.framework.ui.product.ProductSceneView$PinSelectionChangeListener.selectionChanged(ProductSceneView.java:1563)
+	at com.bc.ceres.swing.selection.support.SelectionChangeSupport.fireSelectionChange(SelectionChangeSupport.java:56)
+	at com.bc.ceres.swing.selection.support.SelectionChangeSupport.fireSelectionChange(SelectionChangeSupport.java:51)
+	at com.bc.ceres.swing.figure.support.DefaultFigureEditor$FigureSelectionMulticaster.figureChanged(DefaultFigureEditor.java:323)
+	at com.bc.ceres.swing.figure.AbstractFigure.fireFigureChanged(AbstractFigure.java:375)
+	at com.bc.ceres.swing.figure.AbstractFigure.fireFiguresAdded(AbstractFigure.java:356)
+	at com.bc.ceres.swing.figure.AbstractFigure.addFigures(AbstractFigure.java:139)
+	at org.esa.beam.framework.ui.product.ProductSceneView.selectPlacemarks(ProductSceneView.java:900)
+	at org.esa.beam.framework.ui.product.ProductSceneView.selectPins(ProductSceneView.java:839)
+	at org.esa.beam.visat.toolviews.placemark.PlacemarkManagerToolView$PlacemarkTableSelectionHandler.valueChanged(PlacemarkManagerToolView.java:1413)
+	at javax.swing.DefaultListSelectionModel.fireValueChanged(DefaultListSelectionModel.java:167)
+	at javax.swing.DefaultListSelectionModel.fireValueChanged(DefaultListSelectionModel.java:137)
+	at javax.swing.DefaultListSelectionModel.setValueIsAdjusting(DefaultListSelectionModel.java:668)
+	at javax.swing.plaf.basic.BasicTableUI$Handler.setValueIsAdjusting(BasicTableUI.java:929)
+	at javax.swing.plaf.basic.BasicTableUI$Handler.mouseReleased(BasicTableUI.java:1140)
+	at com.jidesoft.swing.DelegateMouseInputListener.mouseReleased(Unknown Source)
+	at java.awt.AWTEventMulticaster.mouseReleased(AWTEventMulticaster.java:272)
+	at java.awt.AWTEventMulticaster.mouseReleased(AWTEventMulticaster.java:272)
+	at java.awt.AWTEventMulticaster.mouseReleased(AWTEventMulticaster.java:272)
+	at java.awt.Component.processMouseEvent(Component.java:6263)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at com.jidesoft.docking.b.a(Unknown Source)
+	at com.jidesoft.docking.DefaultDockingManager.handleEvent(Unknown Source)
+	at com.jidesoft.docking.DefaultDockingManager$46.eventDispatched(Unknown Source)
+	at java.awt.Toolkit$SelectiveAWTEventListener.eventDispatched(Toolkit.java:2353)
+	at java.awt.Toolkit$ToolkitEventMulticaster.eventDispatched(Toolkit.java:2245)
+	at java.awt.Toolkit$ToolkitEventMulticaster.eventDispatched(Toolkit.java:2244)
+	at java.awt.Toolkit$ToolkitEventMulticaster.eventDispatched(Toolkit.java:2244)
+	at java.awt.Toolkit.notifyAWTEventListeners(Toolkit.java:2203)
+	at java.awt.Component.dispatchEventImpl(Component.java:4528)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.KeyboardFocusManager.redispatchEvent(KeyboardFocusManager.java:1848)
+	at java.awt.DefaultKeyboardFocusManager.typeAheadAssertions(DefaultKeyboardFocusManager.java:880)
+	at java.awt.DefaultKeyboardFocusManager.dispatchEvent(DefaultKeyboardFocusManager.java:511)
+	at java.awt.Component.dispatchEventImpl(Component.java:4502)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.SequencedEvent.dispatch(SequencedEvent.java:101)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:597)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:174)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:169)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
+---------------------------------------------------------------------------------
+
 import Spatial subset from PRISM data (PSM_O1B2R)
 VOL-ALPSMF019892665-O1B2R_UF
 

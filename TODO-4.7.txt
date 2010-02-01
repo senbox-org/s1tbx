@@ -26,7 +26,7 @@ Masks:
 
 
 * Export mask pixels does not treat invalid data correctly (no regression!)
-  ==> FINAL, MZ, CLOSED
+  ==> FINAL, MZ, CLOSED (ok, OF)
 
 
 VectorDataNode:
@@ -62,25 +62,33 @@ VectorDataNode:
 
 Placemarks (PIN/GCP)
 ====================
+* (OF) Entry 'Export PIN Pixels..' in the Context Menu (right-click the mouse over the image view)
+  and File Menu--Export--Export PIN Pixels..
+  are disabled when Pin node in the product tree is not selected:
+       create some PINs -->  'Export PIN Pixels..' stays disabled
+* (OF) Icons 'Show Pins' and 'Show GCPs' in the main toolbar are always disabled
+* (OF) All PINs will be placed outside of the product boundary
+  when you make spatial subset from view of the reproj.prod.
+  (for reproducing and details see Bug 1 in the testbuild.txt)
 * (OF) deadlock while opening an image view if 'Snap to selected PIN' on the 'Pixel Info' is selected
    create pin(s) on the 'Pixel Info' select 'Snap to selected PIN'
    open an other image --> again and again VISAT freezes. No Exception shown.
-   ==> FINAL, MP, CLOSED
+   ==> FINAL, MP, CLOSED (ok, OF)
 * (OF) import/create/update using Manager
   --> Placemarks will be set wrong (outside of the product boundary)
-  ==> FINAL, MP, CLOSED
+  ==> FINAL, MP, CLOSED (ok, OF)
 * (OF) delete, edit und export buttons are disabled in PIN/GCP Manager
   if Placemarks have been set using PIN/GCP placing tool
-  ==> FINAL, MP, CLOSED   
+  ==> FINAL, MP, CLOSED (ok, OF)
 * Export Pin pixel writes 'No-data' instead of 'NaN'
-  ==> FINAL, MZ, CLOSED 
+  ==> FINAL, MZ, CLOSED (ok, OF)
 * (OF) pixel info view disregards selected PIN:
   create some PINs
   select 'Snap to selected PIN' in 'Pixel Info'
   select one Pin, than other ...
   -->
   Pixel Info view will not be updated
-    ==> FINAL, MZ, CLOSED
+    ==> FINAL, MZ, CLOSED (ok, OF)
     
 Figures:
 ========
