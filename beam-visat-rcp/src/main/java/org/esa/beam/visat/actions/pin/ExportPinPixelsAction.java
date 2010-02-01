@@ -46,7 +46,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * This action exports pins and thier surrounding pixels.
+ * This action exports pins and their surrounding pixels.
  *
  * @author Marco Peters
  * @version $Revision$ $Date$
@@ -57,15 +57,13 @@ public class ExportPinPixelsAction extends ExecCommand {
     private static final String COMMAND_NAME = "Export Pin Pixels";
 
     private ExportPinPixelsDialog dialog;
-    private Product product;
-
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void actionPerformed(final CommandEvent event) {
-        exportPinPixels();
+        exportPinPixels(getSelectedProduct());
     }
 
     /**
@@ -94,10 +92,9 @@ public class ExportPinPixelsAction extends ExecCommand {
 
     /**
      * Performs the "Export Pin Pixels" command.
+     * @param product 
      */
-    private void exportPinPixels() {
-        product = getSelectedProduct();
-
+    private void exportPinPixels(Product product) {
         VisatApp visatApp = VisatApp.getApp();
         if (dialog == null) {
             dialog = new ExportPinPixelsDialog(visatApp, product);
@@ -111,7 +108,7 @@ public class ExportPinPixelsAction extends ExecCommand {
             return;
         }
 
-        final HashMap pinPixels = assignControllParameters();
+        final Map<Pin, Object[]> pinPixels = assignControllParameters(product);
         if (getNumPixelsToExport(pinPixels) == 0) {
             visatApp.showErrorDialog("There are no pixels to export."); /* I18N */
             return;
@@ -143,7 +140,7 @@ public class ExportPinPixelsAction extends ExecCommand {
     /**
      * Gets a target Writer for the export data.
      */
-    private Writer getOutputWriter(final HashMap pinPixels, final Product product) {
+    private Writer getOutputWriter(final Map<Pin, Object[]> pinPixels, final Product product) {
         // Get export method from user
         final int method = getExportMethod(getNumPixelsToExport(pinPixels));
         VisatApp visatApp = VisatApp.getApp();
@@ -211,8 +208,9 @@ public class ExportPinPixelsAction extends ExecCommand {
     /**
      * Creates the export Data. Can be <code>null</code> if an error occures while reading the
      * product data or user input.
+     * @param product 
      */
-    private HashMap assignControllParameters() {
+    private Map<Pin, Object[]> assignControllParameters(Product product) {
 
         final Pin[] exportPins;
         if (dialog.isExportSelectedPinsOnly()) {
@@ -231,10 +229,8 @@ public class ExportPinPixelsAction extends ExecCommand {
             useExpressionAsFilter = dialog.isUseExpressionAsFilter();
         }
 
-        HashMap exportData = null;
-
         try {
-            exportData = generateOutputData(regionSize, expression, exportPins, useExpressionAsFilter);
+            return generateOutputData(regionSize, expression, exportPins, useExpressionAsFilter, product);
         } catch (IOException e) {
             VisatApp.getApp().showErrorDialog("An I/O error occured:\n" + e.getMessage()); /* I18N */
             return null;
@@ -243,11 +239,9 @@ public class ExportPinPixelsAction extends ExecCommand {
                     "Please check the expression you have entered.\nIt is not valid."); /* I18N */
             return null;
         }
-
-        return exportData;
     }
 
-    private SwingWorker createWorkerInstance(final HashMap regions, final TabSeparatedPinPixelsWriter regionWriter,
+    private SwingWorker createWorkerInstance(final Map<Pin, Object[]> regions, final TabSeparatedPinPixelsWriter regionWriter,
                                              final Writer out, final ProgressMonitor pm) {
         // Create a progress monitor and adds them to the progress controller pool in order to show
         // export progress
@@ -331,15 +325,16 @@ public class ExportPinPixelsAction extends ExecCommand {
      * @param expression            an arithmetic expression for classifying pixel relevance
      * @param pins                  the pins defining the center of the pixels regions
      * @param useExpressionAsFilter toggle between filter pixels or mark relevance in an additional column
+     * @param product               the product that contains these pins
      *
-     * @return a hashmap providing the pixel coordinates
+     * @return a map providing the pixel coordinates
      *
      * @throws java.io.IOException
      * @throws com.bc.jexp.ParseException
      */
-    private HashMap generateOutputData(final int size, final String expression, final Pin[] pins,
-                                       final boolean useExpressionAsFilter) throws IOException, ParseException {
-        HashMap<Pin, Object[]> outputData = new HashMap<Pin, Object[]>();
+    private Map<Pin, Object[]> generateOutputData(final int size, final String expression, final Pin[] pins,
+                                       final boolean useExpressionAsFilter, final Product product) throws IOException, ParseException {
+        Map<Pin, Object[]> outputData = new HashMap<Pin, Object[]>();
         for (int i = 0; i < pins.length; i++) {
             Point actualPin = new Point((int) pins[i].getPixelPos().x, (int) pins[i].getPixelPos().y);
             PinPixelsGenerator pinPixels = new PinPixelsGenerator(product);
@@ -363,18 +358,14 @@ public class ExportPinPixelsAction extends ExecCommand {
      *
      * @return the number of pixels stored in the hashMap
      */
-    private static int getNumPixelsToExport(final HashMap pinPixels) {
+    private static int getNumPixelsToExport(final Map<Pin, Object[]> pinPixels) {
         int numPixels = 0;
-        for (Object o : pinPixels.entrySet()) {
-            Map.Entry entry = (Map.Entry) o;
-            Object pixelDataObject = entry.getValue();
-            if (pixelDataObject != null && pixelDataObject instanceof Point[]) {
-                Point[] pixels = (Point[]) entry.getValue();
-                if (pixels != null) {
-                    numPixels += pixels.length;
-                }
-            } else if (pixelDataObject != null) {
-                Object[] pixelData = (Object[]) entry.getValue();
+        for (Map.Entry<Pin, Object[]> entry: pinPixels.entrySet()) {
+            Object[] pixelData = entry.getValue();
+            if (pixelData != null && pixelData instanceof Point[]) {
+                Point[] pixels = (Point[]) pixelData;
+                numPixels += pixels.length;
+            } else if (pixelData != null) {
                 Point[] pixels = (Point[]) pixelData[0];
                 if (pixels != null) {
                     numPixels += pixels.length;
