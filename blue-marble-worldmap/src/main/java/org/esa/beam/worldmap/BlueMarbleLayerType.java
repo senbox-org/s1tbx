@@ -75,7 +75,7 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
         }
         final MultiLevelSource multiLevelSource;
         try {
-            multiLevelSource = TiledFileMultiLevelSource.create(new File(dirPath), false);
+            multiLevelSource = TiledFileMultiLevelSource.create(new File(dirPath));
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
