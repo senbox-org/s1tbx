@@ -1,6 +1,5 @@
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.ShapeFigure;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -10,8 +9,6 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JInternalFrame;
-import java.awt.Container;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.io.IOException;
@@ -56,7 +53,7 @@ public class StatisticsUtils {
     public static class TransectProfile {
 
         public static TransectProfileData getTransectProfileData(final RasterDataNode raster) throws IOException {
-            final Shape transectShape = getTransectShape(raster);
+            final Shape transectShape = getTransectShape();
             if (transectShape == null) {
                 return null;
             } else {
@@ -64,17 +61,13 @@ public class StatisticsUtils {
             }
         }
 
-        private static Shape getTransectShape(final RasterDataNode raster) {
+        private static Shape getTransectShape() {
             final VisatApp app = VisatApp.getApp();
-            final JInternalFrame internalFrame = app.findInternalFrame(raster);
-            if (internalFrame != null) {
-                final Container contentPane = internalFrame.getContentPane();
-                if (contentPane instanceof ProductSceneView) {
-                    final ProductSceneView sceneView = (ProductSceneView) contentPane;
-                    final ShapeFigure currentShapeFigure = sceneView.getCurrentShapeFigure();
-                    if (currentShapeFigure != null) {
-                        return currentShapeFigure.getShape();
-                    }
+            final ProductSceneView sceneView = app.getSelectedProductSceneView();
+            if (sceneView != null) {
+                final ShapeFigure currentShapeFigure = sceneView.getCurrentShapeFigure();
+                if (currentShapeFigure != null) {
+                    return currentShapeFigure.getShape();
                 }
             }
             return null;
