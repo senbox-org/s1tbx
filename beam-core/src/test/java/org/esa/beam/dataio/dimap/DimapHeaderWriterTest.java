@@ -312,16 +312,16 @@ public class DimapHeaderWriterTest extends TestCase {
     }
 
     private void addPinsToProduct() {
-        final Pin pin1 = new Pin("pin1", "pin1", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol());
+        final Pin pin1 = new Pin("pin1", "pin1", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
         ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
         pinGroup.add(pin1);
 
-        final Pin pin2 = new Pin("pin2", "pin2", "", null, new GeoPos(4, 8), PlacemarkSymbol.createDefaultPinSymbol());
+        final Pin pin2 = new Pin("pin2", "pin2", "", null, new GeoPos(4, 8), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
         pin2.setDescription("desc2");
         pinGroup.add(pin2);
 
         final Pin pin3 = new Pin("pin3", "pin3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                 PlacemarkSymbol.createDefaultPinSymbol());
+                                 PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
         pinGroup.add(pin3);
     }
 
@@ -371,16 +371,16 @@ public class DimapHeaderWriterTest extends TestCase {
     }
 
     private void addGcpsToProduct() {
-        final Pin pin1 = new Pin("gcp1", "gcp1", "", null, new GeoPos(), PlacemarkSymbol.createDefaultGcpSymbol());
+        final Pin pin1 = new Pin("gcp1", "gcp1", "", null, new GeoPos(), PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
         ProductNodeGroup<Pin> pinGroup = product.getGcpGroup();
         pinGroup.add(pin1);
 
-        final Pin pin2 = new Pin("gcp2", "gcp2", "", null, new GeoPos(4, 8), PlacemarkSymbol.createDefaultGcpSymbol());
+        final Pin pin2 = new Pin("gcp2", "gcp2", "", null, new GeoPos(4, 8), PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
         pin2.setDescription("desc2");
         pinGroup.add(pin2);
 
         final Pin pin3 = new Pin("gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                 PlacemarkSymbol.createDefaultGcpSymbol());
+                                 PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
         pinGroup.add(pin3);
     }
 

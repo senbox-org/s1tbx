@@ -727,6 +727,43 @@ public class DimapProductHelpers {
         }
         return null;
     }
+    
+    static void addPins(Document dom, Product product) {
+        Element pinGroup = dom.getRootElement().getChild(DimapProductConstants.TAG_PIN_GROUP);
+        List pinElements;
+        if (pinGroup != null) {
+            pinElements = pinGroup.getChildren(DimapProductConstants.TAG_PLACEMARK);
+        } else {
+            // get pins of old DIMAP files prior version 2.3
+            pinElements = dom.getRootElement().getChildren(DimapProductConstants.TAG_PIN);
+        }
+        for (Object pinElement : pinElements) {
+            final Element pinElem = (Element) pinElement;
+            final Pin pin = Pin.createPlacemark(pinElem, PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+            if (pin != null) {
+                pin.updatePixelPos(product.getGeoCoding());
+                product.getPinGroup().add(pin);
+            }
+        }
+    }
+
+    static void addGcps(Document dom, Product product) {
+        Element gcpGroupElement = dom.getRootElement().getChild(DimapProductConstants.TAG_GCP_GROUP);
+        List gcpElements;
+        if (gcpGroupElement != null) {
+            gcpElements = gcpGroupElement.getChildren(DimapProductConstants.TAG_PLACEMARK);
+        } else {
+            gcpElements = Collections.EMPTY_LIST;
+        }
+        for (Object gcpElement : gcpElements) {
+            final Element gcpElem = (Element) gcpElement;
+            final Pin gcp = Pin.createPlacemark(gcpElem, PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
+            if (gcp != null) {
+                product.getGcpGroup().add(gcp);
+            }
+        }
+    }
+
 
     /**
      * Creates a {@link FileFilter} for BEAM-DIMAP files.
@@ -833,8 +870,6 @@ public class DimapProductHelpers {
             addTiePointGrids(product);
             addDisplayInfosToBandsAndTiePointGrids(product);
             addAnnotationDataset(product);
-            addPins(product);
-            addGcps(product);
             addPointingFactory(product);
             return product;
         }
@@ -844,42 +879,6 @@ public class DimapProductHelpers {
             PointingFactory pointingFactory = registry.getPointingFactory(product.getProductType());
             product.setPointingFactory(pointingFactory);
 
-        }
-
-        private void addPins(Product product) {
-            Element pinGroup = getRootElement().getChild(DimapProductConstants.TAG_PIN_GROUP);
-            List pinElements;
-            if (pinGroup != null) {
-                pinElements = pinGroup.getChildren(DimapProductConstants.TAG_PLACEMARK);
-            } else {
-                // get pins of old DIMAP files prior version 2.3
-                pinElements = getRootElement().getChildren(DimapProductConstants.TAG_PIN);
-            }
-            for (Object pinElement : pinElements) {
-                final Element pinElem = (Element) pinElement;
-                final Pin pin = Pin.createPlacemark(pinElem, PlacemarkSymbol.createDefaultPinSymbol());
-                if (pin != null) {
-                    pin.updatePixelPos(product.getGeoCoding());
-                    product.getPinGroup().add(pin);
-                }
-            }
-        }
-
-        private void addGcps(Product product) {
-            Element gcpGroupElement = getRootElement().getChild(DimapProductConstants.TAG_GCP_GROUP);
-            List gcpElements;
-            if (gcpGroupElement != null) {
-                gcpElements = gcpGroupElement.getChildren(DimapProductConstants.TAG_PLACEMARK);
-            } else {
-                gcpElements = Collections.EMPTY_LIST;
-            }
-            for (Object gcpElement : gcpElements) {
-                final Element gcpElem = (Element) gcpElement;
-                final Pin gcp = Pin.createPlacemark(gcpElem, PlacemarkSymbol.createDefaultGcpSymbol());
-                if (gcp != null) {
-                    product.getGcpGroup().add(gcp);
-                }
-            }
         }
 
         private void addAnnotationDataset(Product product) {

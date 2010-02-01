@@ -36,12 +36,12 @@ public class ProductSubsetBuilderTest extends TestCase {
 
     public void testCopyPlacemarkGroupsOnlyForRegionSubset() throws IOException {
         final PlacemarkSymbol defaultPinSymbol = PlacemarkSymbol.createDefaultPinSymbol();
-        final Pin pin1 = new Pin("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol);
-        final Pin pin2 = new Pin("P2", "", "", new PixelPos(3.5f, 3.5f), null, defaultPinSymbol);
-        final Pin pin3 = new Pin("P3", "", "", new PixelPos(9.5f, 9.5f), null, defaultPinSymbol);
-        final Pin gcp1 = new Pin("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol);
-        final Pin gcp2 = new Pin("G2", "", "", new PixelPos(4.5f, 4.5f), null, defaultPinSymbol);
-        final Pin gcp3 = new Pin("G3", "", "", new PixelPos(10.5f, 10.5f), null, defaultPinSymbol);
+        final Pin pin1 = new Pin("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final Pin pin2 = new Pin("P2", "", "", new PixelPos(3.5f, 3.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final Pin pin3 = new Pin("P3", "", "", new PixelPos(9.5f, 9.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final Pin gcp1 = new Pin("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final Pin gcp2 = new Pin("G2", "", "", new PixelPos(4.5f, 4.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final Pin gcp3 = new Pin("G3", "", "", new PixelPos(10.5f, 10.5f), null, defaultPinSymbol, product.getGeoCoding());
 
         product.getPinGroup().add(pin1);
         product.getPinGroup().add(pin2);
@@ -65,12 +65,12 @@ public class ProductSubsetBuilderTest extends TestCase {
 
     public void testCopyPlacemarkGroupsOnlyForNullSubset() throws IOException {
         final PlacemarkSymbol defaultPinSymbol = PlacemarkSymbol.createDefaultPinSymbol();
-        final Pin pin1 = new Pin("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol);
-        final Pin pin2 = new Pin("P2", "", "", new PixelPos(3.5f, 3.5f), null, defaultPinSymbol);
-        final Pin pin3 = new Pin("P3", "", "", new PixelPos(9.5f, 9.5f), null, defaultPinSymbol);
-        final Pin gcp1 = new Pin("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol);
-        final Pin gcp2 = new Pin("G2", "", "", new PixelPos(4.5f, 4.5f), null, defaultPinSymbol);
-        final Pin gcp3 = new Pin("G3", "", "", new PixelPos(10.5f, 10.5f), null, defaultPinSymbol);
+        final Pin pin1 = new Pin("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final Pin pin2 = new Pin("P2", "", "", new PixelPos(3.5f, 3.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final Pin pin3 = new Pin("P3", "", "", new PixelPos(9.5f, 9.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final Pin gcp1 = new Pin("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final Pin gcp2 = new Pin("G2", "", "", new PixelPos(4.5f, 4.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final Pin gcp3 = new Pin("G3", "", "", new PixelPos(10.5f, 10.5f), null, defaultPinSymbol, product.getGeoCoding());
 
         product.getPinGroup().add(pin1);
         product.getPinGroup().add(pin2);

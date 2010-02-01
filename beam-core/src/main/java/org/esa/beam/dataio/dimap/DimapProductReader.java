@@ -142,6 +142,8 @@ public class DimapProductReader extends AbstractProductReader {
         bindBandsToFiles(dom);
         if (product == null) {
             initGeoCodings(dom);
+            DimapProductHelpers.addPins(dom, this.product);
+            DimapProductHelpers.addGcps(dom, this.product);
             readVectorData();
         }
         this.product.setProductReader(this);

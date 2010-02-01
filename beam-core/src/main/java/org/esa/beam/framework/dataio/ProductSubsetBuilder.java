@@ -391,7 +391,8 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                                                  placemark.getDescription(),
                                                  new PixelPos(x, y),
                                                  placemark.getGeoPos(),
-                                                 symbol));
+                                                 symbol,
+                                                 targetPlacemarkGroup.getProduct().getGeoCoding()));
             }
         }
     }

@@ -67,8 +67,8 @@ public class ProductProjectionBuilderTest extends TestCase {
 
     public void testCopyPlacemarkGroups() throws IOException {
         final PlacemarkSymbol defaultPinSymbol = PlacemarkSymbol.createDefaultPinSymbol();
-        final Pin pin = new Pin("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol);
-        final Pin gcp = new Pin("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol);
+        final Pin pin = new Pin("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final Pin gcp = new Pin("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol, product.getGeoCoding());
 
         product.getPinGroup().add(pin);
         product.getGcpGroup().add(gcp);

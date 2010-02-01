@@ -493,7 +493,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
             final String name = gcpDescriptor.getRoleName() + "_" + i;
             final String label = gcpDescriptor.getRoleLabel() + "_" + i;
-            final Pin gcp = new Pin(name, label, "", pixelPos, geoPos, symbol);
+            final Pin gcp = new Pin(name, label, "", pixelPos, geoPos, symbol, product.getGeoCoding());
             gcpGroup.add(gcp);
         }
 

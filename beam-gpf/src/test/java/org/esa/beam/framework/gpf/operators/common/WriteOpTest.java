@@ -158,8 +158,8 @@ public class WriteOpTest extends TestCase {
             Pin pin = new Pin(band.getName() + minX + "," + minY,
                                                         "label", "descr",
                                                         new PixelPos(minX, minY), null,
-                                                        symbol, null);
-            band.getProduct().getPinGroup().add(pin);
+                                                        symbol, targetProduct.getGeoCoding());
+            targetProduct.getPinGroup().add(pin);
         }
 
         public static class Spi extends OperatorSpi {

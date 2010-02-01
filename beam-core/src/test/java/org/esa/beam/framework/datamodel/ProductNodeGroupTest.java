@@ -19,9 +19,9 @@ public class ProductNodeGroupTest extends TestCase {
 
         assertEquals(0, pinGroup.getNodeCount());
 
-        Pin pin1 = new Pin("p1", "l1", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
-        Pin pin2 = new Pin("p2", "l2", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
-        Pin pin3 = new Pin("p3", "l3", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
+        Pin pin1 = new Pin("p1", "l1", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol(), null);
+        Pin pin2 = new Pin("p2", "l2", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol(), null);
+        Pin pin3 = new Pin("p3", "l3", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol(), null);
         pinGroup.add(pin1);
         pinGroup.add(pin2);
         pinGroup.add(pin3);
@@ -73,7 +73,7 @@ public class ProductNodeGroupTest extends TestCase {
         final Product p = new Product("p", "t", 10, 10);
         final ProductNodeGroup<Pin> pinGroup = p.getPinGroup();
 
-        final Pin pin = new Pin("p1", "l1", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol());
+        final Pin pin = new Pin("p1", "l1", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol(), null);
         pinGroup.add(pin);
 
         final PNL listener = new PNL();

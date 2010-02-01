@@ -119,6 +119,17 @@ public class Pin extends ProductNode {
         this(name, label, description, pixelPos, geoPos, symbol, null);
     }
 
+    /**
+     * Creates a new pin.
+     *
+     * @param name        the pin's name.
+     * @param label       the pin's label.
+     * @param description the pin's description
+     * @param pixelPos    the pin's pixel position
+     * @param geoPos      the pin's geo-position.
+     * @param symbol      the pin's symbol.
+     * @param geoCoding   the pin's geo-coding.
+     */
     public Pin(String name, String label, String description, PixelPos pixelPos, GeoPos geoPos,
                PlacemarkSymbol symbol, GeoCoding geoCoding) {
         super(name, description);
@@ -304,11 +315,11 @@ public class Pin extends ProductNode {
      * @return the GCP created.
      * @throws NullPointerException     if element is null
      * @throws IllegalArgumentException if element is invalid
-     * @deprecated since BEAM 4.7, use {@link #createPlacemark(org.jdom.Element, PlacemarkSymbol)} instead
+     * @deprecated since BEAM 4.7, use {@link #createPlacemark(Element, PlacemarkSymbol, GeoCoding)} instead
      */
     @Deprecated
     public static Pin createGcp(Element element) {
-        return createPlacemark(element, PlacemarkSymbol.createDefaultGcpSymbol());
+        return createPlacemark(element, PlacemarkSymbol.createDefaultGcpSymbol(), null);
     }
 
     /**
@@ -318,11 +329,11 @@ public class Pin extends ProductNode {
      * @return the pin created.
      * @throws NullPointerException     if element is null
      * @throws IllegalArgumentException if element is invalid
-     * @deprecated since BEAM 4.7, use {@link #createPlacemark(org.jdom.Element, PlacemarkSymbol)} instead
+     * @deprecated since BEAM 4.7, use {@link #createPlacemark(org.jdom.Element, PlacemarkSymbol, GeoCoding)} instead
      */
     @Deprecated
     public static Pin createPin(Element element) {
-        return createPlacemark(element, PlacemarkSymbol.createDefaultPinSymbol());
+        return createPlacemark(element, PlacemarkSymbol.createDefaultPinSymbol(), null);
     }
 
     /**
@@ -333,7 +344,9 @@ public class Pin extends ProductNode {
      * @return the pin created.
      * @throws NullPointerException     if element is null
      * @throws IllegalArgumentException if element is invalid
+     * @deprecated since BEAM 4.7, use {@link #createPlacemark(Element, PlacemarkSymbol, GeoCoding)} instead
      */
+    @Deprecated
     public static Pin createPlacemark(Element element, PlacemarkSymbol symbol) {
         return createPlacemark(element, symbol, null);
     }
