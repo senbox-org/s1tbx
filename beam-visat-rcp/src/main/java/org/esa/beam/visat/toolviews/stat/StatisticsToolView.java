@@ -2,16 +2,20 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
+import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTree;
 import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
+import org.esa.beam.framework.ui.product.VectorDataLayer;
+import org.esa.beam.framework.ui.product.VectorDataLayerFilterFactory;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
@@ -91,8 +95,10 @@ public class StatisticsToolView extends AbstractToolView {
         final ScatterPlotPanel scatterPlotPanel = new ScatterPlotPanel(this, helpIDs[4]);
         final ProfilePlotPanel profilePlotPanel = new ProfilePlotPanel(this, helpIDs[5]);
         final CoordListPanel coordListPanel = new CoordListPanel(this, helpIDs[6]);
-        pagePanels = new PagePanel[]{informationPanel, codingPanel, statisticsPanel,
-                histogramPanel, scatterPlotPanel, profilePlotPanel, coordListPanel};
+        pagePanels = new PagePanel[]{
+                informationPanel, codingPanel, statisticsPanel,
+                histogramPanel, scatterPlotPanel, profilePlotPanel, coordListPanel
+        };
         tabbedPane.add("Information", informationPanel); /*I18N*/
         tabbedPane.add("Geo-Coding", codingPanel);/*I18N*/
         tabbedPane.add("Statistics", statisticsPanel); /*I18N*/
@@ -135,13 +141,22 @@ public class StatisticsToolView extends AbstractToolView {
             final Container contentPane = internalFrame.getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
-                view.getRootLayer().addListener(pagePanelLL);
-                view.getFigureEditor().addSelectionChangeListener(pagePanelSCL);
+                addViewListener(view);
             }
         }
         updateCurrentSelection();
         transferProductNodeListener(null, product);
         updateUI();
+    }
+
+    private void addViewListener(ProductSceneView view) {
+        view.getRootLayer().addListener(pagePanelLL);
+        view.getFigureEditor().addSelectionChangeListener(pagePanelSCL);
+    }
+    
+    private void removeViewListener(ProductSceneView view) {
+        view.getRootLayer().removeListener(pagePanelLL);
+        view.getFigureEditor().removeSelectionChangeListener(pagePanelSCL);
     }
 
     private void updateUI() {
@@ -181,8 +196,7 @@ public class StatisticsToolView extends AbstractToolView {
             final Container contentPane = internalFrame.getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
-                view.getRootLayer().removeListener(pagePanelLL);
-                view.getFigureEditor().removeSelectionChangeListener(pagePanelSCL);
+                removeViewListener(view);
             }
         }
 
@@ -221,20 +235,33 @@ public class StatisticsToolView extends AbstractToolView {
         }
     }
 
-    private void selectionChanged(Product product, RasterDataNode node) {
+    private void selectionChanged(Product product, RasterDataNode raster, VectorDataNode vectorDataNode) {
         this.product = product;
         final PagePanel[] panels = pagePanels;
         for (PagePanel panel : panels) {
-            panel.selectionChanged(product, node);
+            panel.selectionChanged(product, raster, vectorDataNode);
         }
     }
 
 
     private class PagePanelPTL extends ProductTreeListenerAdapter {
+
         @Override
         public void productNodeSelected(ProductNode productNode, int clickCount) {
-            selectionChanged(productNode.getProduct(),
-                             productNode instanceof  RasterDataNode ? (RasterDataNode) productNode : null);
+            RasterDataNode raster = null;
+            if(productNode instanceof RasterDataNode) {
+                raster = (RasterDataNode) productNode;
+            }
+            VectorDataNode vector = null;
+            if(productNode instanceof VectorDataNode) {
+                vector = (VectorDataNode) productNode;
+                final ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
+                if(sceneView != null) {
+                    raster = sceneView.getRaster();
+                }
+            }
+            Product product = productNode.getProduct();
+            selectionChanged(product, raster, vector);
         }
     }
 
@@ -245,10 +272,22 @@ public class StatisticsToolView extends AbstractToolView {
             final Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
-                view.getRootLayer().addListener(pagePanelLL);
-                view.getFigureEditor().addSelectionChangeListener(pagePanelSCL);
-                selectionChanged(view.getRaster().getProduct(), view.getRaster());
+                addViewListener(view);
+                VectorDataNode vectorDataNode = getVectorDataNode(view);
+                selectionChanged(view.getRaster().getProduct(), view.getRaster(), vectorDataNode);
             }
+        }
+
+        private VectorDataNode getVectorDataNode(ProductSceneView view) {
+            final Layer rootLayer = view.getRootLayer();
+            final Layer layer = LayerUtils.getChildLayer(rootLayer, LayerUtils.SearchMode.DEEP,
+                                                         VectorDataLayerFilterFactory.createGeometryFilter());
+            VectorDataNode vectorDataNode = null;
+            if (layer instanceof VectorDataLayer) {
+                VectorDataLayer vdl = (VectorDataLayer) layer;
+                vectorDataNode = vdl.getVectorDataNode();
+            }
+            return vectorDataNode;
         }
 
         @Override
@@ -256,15 +295,15 @@ public class StatisticsToolView extends AbstractToolView {
             final Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
-                view.getRootLayer().removeListener(pagePanelLL);
-                view.getFigureEditor().removeSelectionChangeListener(pagePanelSCL);
-                selectionChanged(view.getRaster().getProduct(), null);
+                removeViewListener(view);
+                selectionChanged(null, null, null);
             }
         }
 
     }
 
     private class PagePanelLL extends AbstractLayerListener {
+
         @Override
         public void handleLayerDataChanged(Layer layer, Rectangle2D modelRegion) {
             final PagePanel[] panels = StatisticsToolView.this.pagePanels;

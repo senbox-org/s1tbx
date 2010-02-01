@@ -6,6 +6,7 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
@@ -38,6 +39,7 @@ import java.io.IOException;
  * @author Marco Peters
  */
 abstract class PagePanel extends JPanel implements ProductNodeListener {
+
     protected static final String ZOOM_TIP_MESSAGE = "TIP: To zoom within the chart, draw a rectangle\n" +
                                                      "with the mouse or use the context menu.";
 
@@ -45,6 +47,8 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     private boolean productChanged;
     private RasterDataNode raster;
     private boolean rasterChanged;
+    private VectorDataNode vectorData;
+    private boolean vectorDataChanged;
 
     private final ToolView parentDialog;
     private final String helpId;
@@ -70,11 +74,14 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
 
     void updateCurrentSelection() {
         final ProductNode selectedNode = VisatApp.getApp().getSelectedProductNode();
-        if (selectedNode instanceof Product) {
-            setProduct((Product) selectedNode);
-        } else if (selectedNode instanceof RasterDataNode) {
-            setRaster((RasterDataNode) selectedNode);
+        if(selectedNode != null) {
             setProduct(selectedNode.getProduct());
+        }
+
+        if (selectedNode instanceof RasterDataNode) {
+            setRaster((RasterDataNode) selectedNode);
+        } else if (selectedNode instanceof VectorDataNode) {
+            setVectorDataNode((VectorDataNode) selectedNode);
         }
     }
 
@@ -118,12 +125,27 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         }
     }
 
+    public VectorDataNode getVectorDataNode() {
+        return vectorData;
+    }
+
+    protected void setVectorDataNode(VectorDataNode vectorDataNode) {
+        if (this.vectorData != vectorDataNode) {
+            this.vectorData = vectorDataNode;
+            vectorDataChanged = true;
+        }
+    }
+
     protected boolean isRasterChanged() {
         return rasterChanged;
     }
 
     protected boolean isProductChanged() {
         return productChanged;
+    }
+
+    protected boolean isVectorDataNodeChanged() {
+        return vectorDataChanged;
     }
 
     public ToolView getParentDialog() {
@@ -310,17 +332,22 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         }
     }
 
-    void selectionChanged(Product product, RasterDataNode raster) {
-        if (raster != getRaster() || product != getProduct()) {
+    void selectionChanged(Product product, RasterDataNode raster, VectorDataNode vectorDataNode) {
+        if (raster != getRaster() || product != getProduct() || vectorDataNode != getVectorDataNode()) {
             setRaster(raster);
             setProduct(product);
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    updateUI();
-                }
-            });
+            setVectorDataNode(vectorDataNode);
+            invokeUpdateUI();
         }
+    }
+
+    void invokeUpdateUI() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                updateUI();
+            }
+        });
     }
 
     void handleLayerContentChanged() {

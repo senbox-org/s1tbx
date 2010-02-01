@@ -73,6 +73,11 @@ class ProfilePlotPanel extends PagePanel {
     }
 
     @Override
+    protected boolean mustUpdateContent() {
+        return super.mustUpdateContent() || isVectorDataNodeChanged();
+    }
+
+    @Override
     protected void updateContent() {
         if (!isInitialized) {
             return;
@@ -82,7 +87,7 @@ class ProfilePlotPanel extends PagePanel {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getParent(),
                                           "Failed to compute profile plot.\n" +
-                                          "An I/O error occured:" + e.getMessage(),
+                                          "An I/O error occurred:" + e.getMessage(),
                                           "I/O error",
                                           JOptionPane.ERROR_MESSAGE);   /*I18N*/
             return;
@@ -105,7 +110,7 @@ class ProfilePlotPanel extends PagePanel {
             } else {
                 final XYSeries[] xySerieses = new XYSeries[profileData.getNumShapeVertices() - 1];
                 for (int i = 0; i < xySerieses.length; i++) {
-                    final XYSeries series = new XYSeries("Sample Values Segment " + i);
+                    final XYSeries series = new XYSeries(String.format("Sample Values Segment %d", i));
                     for (int x = profileData.getShapeVertexIndexes()[i]; x <= profileData.getShapeVertexIndexes()[i + 1]; x++) {
                         series.add(x, sampleValues[x]);
                     }

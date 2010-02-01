@@ -43,7 +43,7 @@ class CoordListPanel extends TextPagePanel {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getParent(),
                                           "Failed to compute profile plot.\n" +
-                                                  "An I/O error occurred:" + e.getMessage(),
+                                          "An I/O error occurred:" + e.getMessage(),
                                           "I/O error",
                                           JOptionPane.ERROR_MESSAGE);       /*I18N*/
         } finally {
@@ -85,4 +85,10 @@ class CoordListPanel extends TextPagePanel {
     public void handleViewSelectionChanged() {
         updateContent();
     }
+
+    @Override
+    protected boolean mustUpdateContent() {
+        return super.mustUpdateContent() || isVectorDataNodeChanged();
+    }
+    
 }
