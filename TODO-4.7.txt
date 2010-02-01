@@ -66,10 +66,12 @@ Placemarks (PIN/GCP)
   and File Menu--Export--Export PIN Pixels..
   are disabled when Pin node in the product tree is not selected:
        create some PINs -->  'Export PIN Pixels..' stays disabled
-* (OF) Icons 'Show Pins' and 'Show GCPs' in the main toolbar are always disabled
 * (OF) All PINs will be placed outside of the product boundary
   when you make spatial subset from view of the reproj.prod.
   (for reproducing and details see Bug 1 in the testbuild.txt)
+  
+* (OF) Icons 'Show Pins' and 'Show GCPs' in the main toolbar are always disabled
+  ==> FINAL, MZ, CLOSED
   
 * (OF) deadlock while opening an image view if 'Snap to selected PIN' on the 'Pixel Info' is selected
    create pin(s) on the 'Pixel Info' select 'Snap to selected PIN'

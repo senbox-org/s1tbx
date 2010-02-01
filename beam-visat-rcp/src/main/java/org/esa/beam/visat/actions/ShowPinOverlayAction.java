@@ -16,6 +16,7 @@ public class ShowPinOverlayAction extends AbstractShowOverlayAction {
 
     @Override
     protected void updateEnableState(ProductSceneView view) {
+        setEnabled(view.getProduct().getPinGroup().getNodeCount() > 0);
     }
 
     @Override

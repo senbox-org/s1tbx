@@ -16,6 +16,7 @@ public class ShowGcpOverlayAction extends AbstractShowOverlayAction {
 
     @Override
     protected void updateEnableState(ProductSceneView view) {
+        setEnabled(view.getProduct().getGcpGroup().getNodeCount() > 0);
     }
 
     @Override
