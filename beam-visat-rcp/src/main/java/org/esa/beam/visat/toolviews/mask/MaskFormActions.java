@@ -29,6 +29,7 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.CreateVectorDataNodeAction;
+import org.esa.beam.visat.internal.RasterDataNodeDeleter;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.jdom.Document;
@@ -396,11 +397,8 @@ class MaskFormActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // todo - ask user
             Mask[] selectedMasks = getMaskForm().getSelectedMasks();
-            for (Mask selectedMask : selectedMasks) {
-                getMaskForm().removeMask(selectedMask);
-            }
+            RasterDataNodeDeleter.deleteRasterDataNodes(selectedMasks);
         }
 
         @Override

@@ -25,6 +25,7 @@ import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.framework.ui.product.VectorDataLayer;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
+import org.esa.beam.visat.internal.RasterDataNodeDeleter;
 
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
@@ -276,154 +277,15 @@ public class ProductsToolView extends AbstractToolView {
         public void deleteSelection() {
             Object selectedObject = getSelectedObject();
             if (isDeletableRasterData(selectedObject)) {
-                deleteRasterData((RasterDataNode) selectedObject);
+                RasterDataNodeDeleter.deleteRasterDataNode((RasterDataNode) selectedObject);
             } else if (isDeletableVectorData(selectedObject)) {
-                deleteVectorData((VectorDataNode) selectedObject);
+                RasterDataNodeDeleter.deleteVectorDataNode((VectorDataNode) selectedObject);
             }
         }
-
-        private void deleteVectorData(VectorDataNode vectorDataNode) {
-            String message = MessageFormat.format("Do you really want to delete the geometry ''{0}''?\nThis action cannot be undone.\n\n", vectorDataNode.getName());
-            int status = VisatApp.getApp().showQuestionDialog("Delete Geometry",
-                                                              message, null);
-            if (status == JOptionPane.YES_OPTION) {
-                Product product = vectorDataNode.getProduct();
-                product.getVectorDataGroup().remove(vectorDataNode);
-            }
-        }
-
-        private void deleteRasterData(RasterDataNode raster) {
-            String[] virtualBands = getReferencedVirtualBands(raster);
-            String[] validMaskNodes = getReferencedValidMasks(raster);
-            String[] masks = getReferencedMasks(raster);
-
-            String message = MessageFormat.format("Do you really want to delete the raster data ''{0}''?\nThis action cannot be undone.\n\n", raster.getName());
-            if (virtualBands.length > 0
-                    || validMaskNodes.length > 0
-                    || masks.length > 0) {
-                message += "The raster to be deleted is referenced by\n"; /*I18N*/
-            }
-            String indent = "    ";
-            if (virtualBands.length > 0) {
-                message += "the expression of virtual band(s):\n"; /*I18N*/
-                for (String virtualBand : virtualBands) {
-                    message += indent + virtualBand + "\n";
-                }
-            }
-            if (validMaskNodes.length > 0) {
-                message += "the valid-mask expression of band(s) or tie-point grid(s)\n"; /*I18N*/
-                for (String validMaskNode : validMaskNodes) {
-                    message += indent + validMaskNode + "\n";
-                }
-            }
-            if (masks.length > 0) {
-                message += "the mask(s):\n"; /*I18N*/
-                for (String mask : masks) {
-                    message += indent + mask + "\n";
-                }
-            }
-
-            final int status = VisatApp.getApp().showQuestionDialog("Delete Raster Data",
-                                                                    message, null);
-            if (status == JOptionPane.YES_OPTION) {
-                final JInternalFrame[] internalFrames = VisatApp.getApp().findInternalFrames(raster);
-                for (final JInternalFrame internalFrame : internalFrames) {
-                    try {
-                        internalFrame.setClosed(true);
-                    } catch (PropertyVetoException e) {
-                        Debug.trace(e);
-                    }
-                }
-                if (raster.hasRasterData()) {
-                    raster.unloadRasterData();
-                }
-                final Product product = raster.getProduct();
-                if (raster instanceof Mask) {
-                    product.getMaskGroup().remove((Mask) raster);
-                } else if (raster instanceof Band) {
-                    product.removeBand((Band) raster);
-                } else if (raster instanceof TiePointGrid) {
-                    product.removeTiePointGrid((TiePointGrid) raster);
-                }
-            }
-        }
-
+        
         private Object getSelectedObject() {
             TreePath treePath = (TreePath) getSelection().getSelectedValue();
             return ((DefaultMutableTreeNode) treePath.getLastPathComponent()).getUserObject();
-        }
-
-        private static String[] getReferencedValidMasks(final RasterDataNode node) {
-            final Product product = node.getProduct();
-            final List<String> namesList = new ArrayList<String>();
-            if (product != null) {
-                for (int i = 0; i < product.getNumBands(); i++) {
-                    final Band band = product.getBandAt(i);
-                    if (band != node) {
-                        if (isNodeReferencedByExpression(node, band.getValidPixelExpression())) {
-                            namesList.add(band.getName());
-                        }
-                    }
-                }
-                for (int i = 0; i < product.getNumTiePointGrids(); i++) {
-                    final TiePointGrid tiePointGrid = product.getTiePointGridAt(i);
-                    if (tiePointGrid != node) {
-                        if (isNodeReferencedByExpression(node, tiePointGrid.getValidPixelExpression())) {
-                            namesList.add(tiePointGrid.getName());
-                        }
-                    }
-                }
-            }
-            return namesList.toArray(new String[namesList.size()]);
-        }
-
-        private static String[] getReferencedMasks(final RasterDataNode node) {
-            final Product product = node.getProduct();
-            final List<String> namesList = new ArrayList<String>();
-            if (product != null) {
-                final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
-                final Mask[] masks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
-                for (final Mask mask : masks) {
-                    final String expression;
-                    if (mask.getImageType() instanceof Mask.BandMathType) {
-                        expression = Mask.BandMathType.getExpression(mask);
-                    } else if (mask.getImageType() instanceof Mask.RangeType) {
-                        expression = Mask.RangeType.getRasterName(mask);
-                    } else {
-                        expression = null;
-                    }
-                    if (isNodeReferencedByExpression(node, expression)) {
-                        namesList.add(mask.getName());
-                    }
-                }
-            }
-            return namesList.toArray(new String[namesList.size()]);
-        }
-
-        private static String[] getReferencedVirtualBands(final RasterDataNode node) {
-            final Product product = node.getProduct();
-            final List<String> namesList = new ArrayList<String>();
-            if (product != null) {
-                for (int i = 0; i < product.getNumBands(); i++) {
-                    final Band band = product.getBandAt(i);
-                    if (band instanceof VirtualBand) {
-                        final VirtualBand virtualBand = (VirtualBand) band;
-                        if (isNodeReferencedByExpression(node, virtualBand.getExpression())) {
-                            namesList.add(virtualBand.getName());
-                        }
-                    }
-                }
-            }
-            return namesList.toArray(new String[namesList.size()]);
-        }
-
-        @SuppressWarnings({"SimplifiableIfStatement"})
-        private static boolean isNodeReferencedByExpression(RasterDataNode node, String expression) {
-            if (expression == null || expression.trim().isEmpty()) {
-                return false;
-            }
-
-            return expression.matches(".*\\b" + node.getName() + "\\b.*");
         }
     }
 
