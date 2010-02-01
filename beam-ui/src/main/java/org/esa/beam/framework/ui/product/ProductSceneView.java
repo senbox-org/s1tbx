@@ -109,6 +109,7 @@ public class ProductSceneView extends BasicView
     /**
      * @deprecated since BEAM 4.7
      */
+    @Deprecated
     public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
     /**
      * @deprecated since BEAM 4.7
