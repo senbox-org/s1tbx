@@ -1,6 +1,5 @@
 package org.esa.beam.scripting.visat;
 
-import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.scripting.visat.actions.HelpAction;
 import org.esa.beam.scripting.visat.actions.NewAction;
 import org.esa.beam.scripting.visat.actions.OpenAction;
@@ -25,7 +24,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Window;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -213,8 +211,9 @@ public class ScriptConsoleForm {
                 showErrorMessage(MessageFormat.format("Unknown script type ''{0}''.", fileName));
                 return;
             }
+            scriptManager.setEngine(scriptEngine);
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             try {
                 LineNumberReader reader = new LineNumberReader(new FileReader(file));
                 try {
@@ -233,7 +232,6 @@ public class ScriptConsoleForm {
             }
 
             inputTextArea.setText(sb.toString());
-            scriptManager.setEngine(scriptEngine);
         } finally {
             enableRun(true);
         }
