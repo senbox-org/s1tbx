@@ -25,19 +25,17 @@ public class ScriptManager {
     private final PrintWriter output;
     private ScriptEngineManager scriptEngineManager;
     private ScriptEngine engine;
+    /*
+     * executorService has two roles:
+     * (1) provide a single thread for all script engine calls
+     * (2) create a thread with a dedicated context class loader
+     */
     private ExecutorService executorService;
 
     public ScriptManager(ClassLoader classLoader, PrintWriter output) {
         this.classLoader = classLoader;
         this.output = output;
-        executorService = Executors.newSingleThreadExecutor(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread thread = new Thread(r, "ScriptRunner");
-                thread.setContextClassLoader(ScriptManager.this.classLoader);
-                return thread;
-            }
-        });
+        executorService = createExecutorService();
         executorService.submit(new Runnable() {
             @Override
             public void run() {
@@ -56,6 +54,9 @@ public class ScriptManager {
     }
 
     public void setEngine(final ScriptEngine engine) {
+        if (this.engine != null && this.engine.getFactory() == engine.getFactory()) {
+            return;
+        }
 
         executorService.submit(new Runnable() {
             @Override
@@ -215,6 +216,22 @@ public class ScriptManager {
         if (engine == null) {
             throw new IllegalStateException("engine == null");
         }
+    }
+
+    public void reset() {
+        executorService.shutdownNow();
+        executorService = createExecutorService();
+    }
+
+    private ExecutorService createExecutorService() {
+        return Executors.newSingleThreadExecutor(new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread thread = new Thread(r, "ScriptRunner");
+                thread.setContextClassLoader(ScriptManager.this.classLoader);
+                return thread;
+            }
+        });
     }
 
     public static interface Observer {

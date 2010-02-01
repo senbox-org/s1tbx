@@ -5,9 +5,10 @@ import org.esa.beam.scripting.visat.ScriptConsoleForm;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileWriter;
+import java.text.MessageFormat;
 import java.util.List;
 
 public class SaveAsAction extends ScriptConsoleAction {
@@ -25,26 +26,57 @@ public class SaveAsAction extends ScriptConsoleAction {
         ScriptEngine scriptEngine = getScriptManager().getEngine();
         ScriptEngineFactory engineFactory = scriptEngine.getFactory();
         List<String> extensions = engineFactory.getExtensions();
-        JFileChooser fs = OpenAction.createFileChooser(engineFactory);
-        int i = fs.showSaveDialog(getScriptConsoleForm().getWindow());
-        if (i == JFileChooser.APPROVE_OPTION) {
-            File file = fs.getSelectedFile();
-            if (extensions.size()>0) {
-                String name = file.getName();
-                int extPos = name.lastIndexOf('.');
-                String ext = "";
-                if (extPos <=0) {
-                    ext=name.substring(extPos+1);
-                }
-                if (!ext.equals(extensions.get(0))) {
-                    file = new File(file.getParent(), name + "."+extensions.get(0));
+        JFileChooser fileChooser = OpenAction.createFileChooser(engineFactory);
+        while (true) {
+            int i = fileChooser.showSaveDialog(getScriptConsoleForm().getContentPanel());
+            if (i != JFileChooser.APPROVE_OPTION || fileChooser.getSelectedFile() == null) {
+                return;
+            }
+
+            File file = fileChooser.getSelectedFile();
+            if (extensions.size() > 0) {
+                file = ensureFileNameWithExtension(file, extensions);
+            }
+            if (!file.exists()) {
+                getScriptConsoleForm().saveScriptAs(file);
+                return;
+            } else {
+                String msg = MessageFormat.format("File ''{0}'' already exists.\n" +
+                        "Do you want to overwrite it?", file.getName());
+                int ret = JOptionPane.showConfirmDialog(getScriptConsoleForm().getContentPanel(),
+                                                        msg,
+                                                        "Save Script",
+                                                        JOptionPane.YES_NO_CANCEL_OPTION);
+                if (ret == JOptionPane.YES_OPTION) {
+                    getScriptConsoleForm().saveScriptAs(file);
+                    return;
+                } else if (ret == JOptionPane.CANCEL_OPTION) {
+                    return;
                 }
             }
-            if (file.exists()) {
-                // todo
-            }
-            getScriptConsoleForm().saveScriptAs(file);
         }
+    }
+
+    private File ensureFileNameWithExtension(File file, List<String> extensions) {
+        String name = file.getName();
+        int extPos = name.lastIndexOf('.');
+        String ext = "";
+        if (extPos > 0) {
+            ext = name.substring(extPos + 1);
+        }
+        boolean extFound = false;
+        for (String s : extensions) {
+            if (ext.equals(s)) {
+                extFound = true;
+                break;
+            }
+
+        }
+        if (!extFound) {
+            String defaultExt = extensions.get(0);
+            file = new File(file.getParent(), name + "." + defaultExt);
+        }
+        return file;
     }
 
 }

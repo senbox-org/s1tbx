@@ -21,7 +21,7 @@ public class OpenAction extends ScriptConsoleAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         JFileChooser fs = OpenAction.createFileChooser(getScriptManager().getEngineFactories());
-        int i = fs.showOpenDialog(getScriptConsoleForm().getWindow());
+        int i = fs.showOpenDialog(getScriptConsoleForm().getContentPanel());
         if (i == JFileChooser.APPROVE_OPTION) {
             getScriptConsoleForm().openScript(fs.getSelectedFile());
         }

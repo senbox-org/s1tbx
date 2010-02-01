@@ -73,7 +73,7 @@ public class NewAction extends ScriptConsoleAction {
         contentPanel.add(titlePanel, BorderLayout.NORTH);
         contentPanel.add(new JScrollPane(list), BorderLayout.CENTER);
 
-        final int i = JOptionPane.showOptionDialog(getScriptConsoleForm().getWindow(),
+        final int i = JOptionPane.showOptionDialog(getScriptConsoleForm().getContentPanel(),
                                                    contentPanel,
                                                    "Select Scripting Language",
                                                    JOptionPane.OK_CANCEL_OPTION,
