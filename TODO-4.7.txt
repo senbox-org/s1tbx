@@ -4,13 +4,6 @@ Reprojection:
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
   Remove usage, deprecate and/or remove classes.
   ==> FINAL, ?, OPEN
-* (OF) IllegalStateException "Parameter "X_Scale" is missing" occures when select Krovak transformation. -->
-   --> 1) Transformation Parameters dialog will not be updated when you select an other transformation
-          e.g. select UTM -- open Transformation Parameter dialog
-          -->  Title = Krovak Parameters
-       2) Output information will not be updated
-  (see for details bug 2 in the testbuild.txt)
-  ==> FINAL, MP, CLOSED
 
 Masks:
 ======
@@ -26,12 +19,8 @@ Masks:
   be stored to disk.
   ==> FINAL (v4.8), ?, OPEN
 
-
-* Mask manager shall test for dependencies before deleting
-  ==> FINAL, MZ, CLOSED
 * (OF) ROI selection will be lost by save in dim, reproj. Is it OK?
   ==> FINAL, MZ, CLOSED (can not reproduce)
-
 
 
 VectorDataNode:
@@ -63,22 +52,30 @@ VectorDataNode:
   in ShapefileLayer code. Pins/GCPs need special treatment!
   Done (MZ), but this does not work when prod. will be saved/exported, than opened in VISAT and reproj. (OF)
   ==> FINAL, MZ, OPEN (REOPEN by OF) CLOSEd by MZ, OF please check !!!
+  (REOPEN by OF: save/export as DIM prod. containing pins and geometries.-reopen in VISAT)
 * "Profile plot" and "Coordinate List", are not updated when figure selection changes
   ==> FINAL, MP, CLOSED (OF: when draw a figure in reproj. product)
 
+* (OF) IllegalArgumentException whike creating spatial subset from reproj. dim product:
+         open reproj. prod (dim) containing pins and geometries
+         create spatial subset from view / new product
+          --> IllegalArgumentException. subset will not be created.
+         (see for details bug 4 in the testbuil.txt)
+Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: Points of LinearRing do not form a closed linestring
+	at com.vividsolutions.jts.geom.LinearRing.validateConstruction(LinearRing.java:105)
+	at com.vividsolutions.jts.geom.LinearRing.<init>(LinearRing.java:100)
+	........................................
+
 Placemarks (PIN/GCP)
 ====================
-* (OF) All PINs will be placed outside of the product boundary
-  when you make spatial subset from view of the reproj.prod.
-  (for reproducing and details see Bug 1 in the testbuild.txt)
-  ==> FINAL, MZ, CLOSED  
+ 
 * (OF) Entry 'Export PIN Pixels..' in the Context Menu (right-click the mouse over the image view)
   and File Menu--Export--Export PIN Pixels..
   are disabled when Pin node in the product tree is not selected:
        create some PINs -->  'Export PIN Pixels..' stays disabled
   ==> FINAL, MZ, CLOSED
-* (OF) Icons 'Show Pins' and 'Show GCPs' in the main toolbar are always disabled
-  ==> FINAL, MZ, CLOSED
+  (REOPEN OF:  NullPointerException occures by select 'Export PIN Pixels..' in the Context Menu.
+               see bug 5 in the textbuild.txt)
 
 Figures:
 ========
@@ -166,24 +163,13 @@ SMOS-Box:
   ==> FINAL, RQ, OPEN
 * (OF) Pin table with band values is not updated when snapshot ID is changed
   ==> FINAL, RQ, OPEN
-  VISAT-Warning: " The following problen(s) occured:
-  Illegal element 'imageToModelTransform'
-  However the session will be opened
-  ==> FINAL, RQ, OPEN
-  
+
 * Create add on installer
   ==> FINAL, RQ, CLOSED
 * Support missing 2 aux products
   ==> FINAL, RQ, CLOSED
 * (OF) no reader for  SM_OPER_AUX_VTEC_R
   ==> FINAL, RQ, CLOSED (not a requirement)
-* (OF) PIN selection  does not work:
-   select 'Snap to selected PIN' in SMOS L1C Chart
-                                    SMOS L1C Flag-Matrix
-                                    SMOS L1C Table
-   --> no data wil be displayed
-  ==> FINAL, RQ, CLOSED
-
 
 GlobToolbox
 ===========
