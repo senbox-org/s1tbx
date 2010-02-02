@@ -76,6 +76,7 @@ Placemarks (PIN/GCP)
   ==> FINAL, MZ, CLOSED
   (REOPEN OF:  NullPointerException occures by select 'Export PIN Pixels..' in the Context Menu.
                see bug 5 in the textbuild.txt)
+ RECLOSED :-)               
 
 Figures:
 ========

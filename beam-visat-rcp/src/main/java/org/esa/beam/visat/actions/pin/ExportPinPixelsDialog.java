@@ -287,7 +287,7 @@ class ExportPinPixelsDialog extends ModalDialog {
      */
     public int show(final Product selectedProduct) {
         int numSelectedPins = 0;
-        int numPinsTotal = this.product.getPinGroup().getNodeCount();
+        int numPinsTotal = selectedProduct.getPinGroup().getNodeCount();
         ProductSceneView sceneView = VisatApp.getApp().getSelectedProductSceneView();
         if (sceneView != null && sceneView.getProduct() == selectedProduct) {
             Pin[] selectedPins = sceneView.getSelectedPins();
