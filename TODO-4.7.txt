@@ -10,6 +10,7 @@ Reprojection:
           -->  Title = Krovak Parameters
        2) Output information will not be updated
   (see for details bug 2 in the testbuild.txt)
+  ==> FINAL, MP, CLOSED
 
 Masks:
 ======
