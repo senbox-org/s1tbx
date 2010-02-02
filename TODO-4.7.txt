@@ -38,7 +38,7 @@ VectorDataNode:
   added to the product
   ==> FINAL, ?, OPEN
 * Use SLD from shapefile for styling figures
-  ==> FINAL, MZ, OPEN (ongoing)
+  ==> FINAL, MZ, OPEN
 * Export vector data node to shapefile
   ==> FINAL, ?, OPEN (may exist: look into shapefile editor demo)
 * Import of Geometry does not work when shapefile has no CRS and shapefile coordinates are not in WGS84.
@@ -118,7 +118,9 @@ Layers:
 
 GPF Processors:
 ===============
-
+* Verify that Operator that terminate by throwing an exception and handled correctly. For all cases:
+  [tile, tileStack] [gtp, graph, Visat]. Original problem reported by Luis Veci.
+  ==> FINAL, MZ, OPEN  
 * Need file and help menu items as in "old" processors
   ==> FINAL, ?, OPEN
 * Need minimal developer guide  
@@ -161,6 +163,7 @@ SMOS-Box:
   Illegal element 'imageToModelTransform'
   However the session will be opened
   ==> FINAL, RQ, OPEN
+  
 * Create add on installer
   ==> FINAL, RQ, CLOSED
 * Support missing 2 aux products
