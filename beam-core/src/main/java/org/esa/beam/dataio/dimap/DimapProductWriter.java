@@ -492,16 +492,15 @@ public class DimapProductWriter extends AbstractProductWriter {
                 break;
             }
         }
-        if (hasVectorData) {
-            File vectorDataDir = new File(_dataOutputDir, "vector_data");
-            if (vectorDataDir.exists()) {
-                File[] files = vectorDataDir.listFiles();
-                for (File file : files) {
-                    file.delete();
-                }
-            } else {
-                vectorDataDir.mkdirs();
+        File vectorDataDir = new File(_dataOutputDir, "vector_data");
+        if (vectorDataDir.exists()) {
+            File[] files = vectorDataDir.listFiles();
+            for (File file : files) {
+                file.delete();
             }
+        } 
+        if (hasVectorData) {
+            vectorDataDir.mkdirs();
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
                 VectorDataNode vectorDataNode = vectorDataGroup.get(i);
                 if (!product.isInternalNode(vectorDataNode)) {
