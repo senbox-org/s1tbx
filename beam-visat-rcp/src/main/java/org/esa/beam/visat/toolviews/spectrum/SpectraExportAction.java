@@ -18,6 +18,7 @@ class SpectraExportAction extends AbstractAction {
         this.spectrumToolView = spectrumToolView;
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         exportSpectra();
     }
@@ -38,7 +39,7 @@ class SpectraExportAction extends AbstractAction {
             }
         }
         DiagramGraph[] pinGraphs = pinGraphList.toArray(new DiagramGraph[0]);
-        DiagramGraphIO.writeGraphs(spectrumToolView.getContentPane(),
+        DiagramGraphIO.writeGraphs(spectrumToolView.getPaneControl(),
                                    "Export Pin Spectra",
                                    new BeamFileFilter[] {DiagramGraphIO.SPECTRA_CSV_FILE_FILTER},
                                    VisatApp.getApp().getPreferences(), pinGraphs);

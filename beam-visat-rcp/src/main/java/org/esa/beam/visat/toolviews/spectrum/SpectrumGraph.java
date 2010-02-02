@@ -14,7 +14,6 @@ import javax.media.jai.PlanarImage;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -104,15 +103,14 @@ class SpectrumGraph extends AbstractDiagramGraph {
         Range.computeRangeFloat(energies, IndexValidator.TRUE, energyRange, ProgressMonitor.NULL);
     }
 
-    public void readValues(int pixelX, int pixelY, int level) throws IOException {
+    public void readValues(int pixelX, int pixelY, int level) {
         Debug.assertNotNull(bands);
         for (int i = 0; i < bands.length; i++) {
             final Band band = bands[i];
             if (placemark != null) {
                 // position of placemark is given in image (L0) coordinates
                 // we have to transform them to the current level
-                final ImageManager imageManager = ImageManager.getInstance();
-                final MultiLevelModel multiLevelModel = imageManager.getMultiLevelModel(band);
+                final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(band);
                 final AffineTransform i2mTransform = multiLevelModel.getImageToModelTransform(0);
                 final AffineTransform m2iTransform = multiLevelModel.getModelToImageTransform(level);
                 final Point2D modelPixel = i2mTransform.transform(placemark.getPixelPos(), null);

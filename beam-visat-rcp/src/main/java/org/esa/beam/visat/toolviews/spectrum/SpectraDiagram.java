@@ -11,12 +11,12 @@ import org.esa.beam.framework.ui.diagram.DiagramGraph;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Paint;
-import java.io.IOException;
 
 
 class SpectraDiagram extends Diagram {
     private Product product;
     private Band[] bands;
+    private boolean userSelection;
 
     public SpectraDiagram(Product product) {
         this.product = product;
@@ -27,6 +27,10 @@ class SpectraDiagram extends Diagram {
 
     public Band[] getBands() {
         return bands;
+    }
+    
+    public boolean isUserSelection() {
+        return userSelection;
     }
 
     public SpectrumGraph getCursorSpectrumGraph() {
@@ -76,9 +80,10 @@ class SpectraDiagram extends Diagram {
             removeGraph(cursorSpectrumGraph);
         }
     }
-
-    public void setBands(Band[] bands) {
+    
+    public void setBands(Band[] bands, boolean userSelection) {
         this.bands = bands;
+        this.userSelection = userSelection;
         for (DiagramGraph graph : getGraphs()) {
             ((SpectrumGraph) graph).setBands(bands);
         }
@@ -90,11 +95,7 @@ class SpectraDiagram extends Diagram {
     public void updateSpectra(int pixelX, int pixelY, int level) {
         DiagramGraph[] graphs = getGraphs();
         for (DiagramGraph graph : graphs) {
-            try {
-                ((SpectrumGraph) graph).readValues(pixelX, pixelY, level);
-            } catch (IOException e) {
-                // ignore
-            }
+            ((SpectrumGraph) graph).readValues(pixelX, pixelY, level);
         }
         adjustAxes(false);
         invalidate();

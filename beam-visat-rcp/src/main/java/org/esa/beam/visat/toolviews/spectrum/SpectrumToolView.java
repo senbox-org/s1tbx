@@ -66,20 +66,17 @@ import java.util.Map;
 public class SpectrumToolView extends AbstractToolView {
 
     public static final String ID = SpectrumToolView.class.getName();
+    
     private static final String SUPPRESS_MESSAGE_KEY = "plugin.spectrum.tip";
-
     private static final String MSG_NO_SPECTRAL_BANDS = "No spectral bands.";   /*I18N*/
 
-    private ProductSceneView currentView;
-    private Product currentProduct;
-    private Map<Product, CursorSpectrumPPL> cursorSpectrumPPLMap;
-    private final HashMap<Product, SpectraDiagram> productToDiagramMap;
+    private final Map<Product, SpectraDiagram> productToDiagramMap;
     private final ProductNodeListenerAdapter productNodeHandler;
     private final PinSelectionChangeListener pinSelectionChangeListener;
+    private final CursorSpectrumPPL ppl;
+    
     private DiagramCanvas diagramCanvas;
     private AbstractButton filterButton;
-    private boolean tipShown;
-    private String originalDescriptorTitle;
     private AbstractButton showSpectrumForCursorButton;
     private AbstractButton showSpectraForSelectedPinsButton;
     private AbstractButton showSpectraForAllPinsButton;
@@ -87,6 +84,11 @@ public class SpectrumToolView extends AbstractToolView {
 // todo - not yet implemented for 4.1 but planned for 4.2 (mp - 31.10.2007)
 //    private AbstractButton showAveragePinSpectrumButton;
     //    private AbstractButton showGraphPointsButton;
+
+    private String originalDescriptorTitle;
+    private boolean tipShown;
+    private ProductSceneView currentView;
+    private Product currentProduct;
     private int pixelX;
     private int pixelY;
     private int level;
@@ -95,14 +97,14 @@ public class SpectrumToolView extends AbstractToolView {
         productNodeHandler = new ProductNodeHandler();
         pinSelectionChangeListener = new PinSelectionChangeListener();
         productToDiagramMap = new HashMap<Product, SpectraDiagram>(4);
-        cursorSpectrumPPLMap = new HashMap<Product, CursorSpectrumPPL>(4);
+        ppl = new CursorSpectrumPPL();
     }
 
-    public ProductSceneView getCurrentView() {
+    private ProductSceneView getCurrentView() {
         return currentView;
     }
 
-    public void setCurrentView(ProductSceneView view) {
+    private void setCurrentView(ProductSceneView view) {
         if (originalDescriptorTitle != null) {
             originalDescriptorTitle = getDescriptor().getTitle();
         }
@@ -120,11 +122,11 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    public Product getCurrentProduct() {
+    private Product getCurrentProduct() {
         return currentProduct;
     }
 
-    public void setCurrentProduct(Product product) {
+    private void setCurrentProduct(Product product) {
         Product oldProduct = currentProduct;
         currentProduct = product;
         if (currentProduct != oldProduct) {
@@ -183,7 +185,7 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    public void updateSpectra(int pixelX, int pixelY, int level) {
+    private void updateSpectra(int pixelX, int pixelY, int level) {
         maybeShowTip();
         diagramCanvas.setMessageText(null);
         this.pixelX = pixelX;
@@ -387,13 +389,11 @@ public class SpectrumToolView extends AbstractToolView {
 
             public void productRemoved(ProductManager.Event event) {
                 final Product product = event.getProduct();
-                cursorSpectrumPPLMap.remove(product);
                 if (getCurrentProduct() == product) {
                     setSpectraDiagram(null);
                     setCurrentView(null);
                     setCurrentProduct(null);
                 }
-
             }
         });
 
@@ -418,12 +418,14 @@ public class SpectrumToolView extends AbstractToolView {
                                                   getDescriptor().getHelpId(),
                                                   allBandNames, selectedBands);
         if (bandChooser.show() == ModalDialog.ID_OK) {
-            getSpectraDiagram().setBands(bandChooser.getSelectedBands());
+            Band[] userSelectedBands = bandChooser.getSelectedBands();
+            boolean userSelection = (userSelectedBands.length != allBandNames.length);
+            getSpectraDiagram().setBands(userSelectedBands, userSelection);
         }
         updateUIState();
     }
 
-    public SpectraDiagram getSpectraDiagram() {
+    SpectraDiagram getSpectraDiagram() {
         Debug.assertNotNull(currentProduct);
         return productToDiagramMap.get(currentProduct);
     }
@@ -442,19 +444,6 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    private CursorSpectrumPPL getOrCreateCursorSpectrumPPL(Product product) {
-        CursorSpectrumPPL ppl = getCursorSpectrumPPL(product);
-        if (ppl == null) {
-            ppl = new CursorSpectrumPPL(product);
-            cursorSpectrumPPLMap.put(product, ppl);
-        }
-        return ppl;
-    }
-
-    private CursorSpectrumPPL getCursorSpectrumPPL(Product product) {
-        return cursorSpectrumPPLMap.get(product);
-    }
-
     private boolean isShowingCursorSpectrum() {
         return showSpectrumForCursorButton.isSelected();
     }
@@ -466,7 +455,6 @@ public class SpectrumToolView extends AbstractToolView {
     private boolean isShowingSpectraForAllPins() {
         return showSpectraForAllPinsButton.isSelected();
     }
-
 
     private void recreateSpectraDiagram() {
         SpectraDiagram spectraDiagram = new SpectraDiagram(getCurrentProduct());
@@ -488,10 +476,10 @@ public class SpectrumToolView extends AbstractToolView {
             spectraDiagram.addCursorSpectrumGraph();
         }
 
-        if (getSpectraDiagram() != null && getSelectedSpectralBands() != null) {
-            spectraDiagram.setBands(getSelectedSpectralBands());
+        if (getSpectraDiagram() != null && getSelectedSpectralBands() != null && getSpectraDiagram().isUserSelection()) {
+            spectraDiagram.setBands(getSelectedSpectralBands(), true);
         } else {
-            spectraDiagram.setBands(getAvailableSpectralBands());
+            spectraDiagram.setBands(getAvailableSpectralBands(), false);
         }
         spectraDiagram.updateSpectra(pixelX, pixelY, level);
         setSpectraDiagram(spectraDiagram);
@@ -503,14 +491,12 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     private void handleViewActivated(final ProductSceneView view) {
-        final Product product = view.getProduct();
-        view.addPixelPositionListener(getOrCreateCursorSpectrumPPL(product));
+        view.addPixelPositionListener(ppl);
         setCurrentView(view);
     }
 
     private void handleViewDeactivated(final ProductSceneView view) {
-        final Product product = view.getProduct();
-        view.removePixelPositionListener(getCursorSpectrumPPL(product));
+        view.removePixelPositionListener(ppl);
         setCurrentView(null);
     }
 
@@ -541,16 +527,6 @@ public class SpectrumToolView extends AbstractToolView {
 
     private class CursorSpectrumPPL implements PixelPositionListener {
 
-        private final Product _product;
-
-        public CursorSpectrumPPL(Product product) {
-            _product = product;
-        }
-
-        public Product getProduct() {
-            return _product;
-        }
-
         public void pixelPosChanged(ImageLayer imageLayer,
                                     int pixelX,
                                     int pixelY,
@@ -558,11 +534,9 @@ public class SpectrumToolView extends AbstractToolView {
                                     boolean pixelPosValid,
                                     MouseEvent e) {
             diagramCanvas.setMessageText(null);
-            if (isActive()) {
-                if (pixelPosValid) {
-                    getSpectraDiagram().addCursorSpectrumGraph();
-                    updateSpectra(pixelX, pixelY, currentLevel);
-                }
+            if (pixelPosValid && isActive()) {
+                getSpectraDiagram().addCursorSpectrumGraph();
+                updateSpectra(pixelX, pixelY, currentLevel);
             }
             if (e.isShiftDown()) {
                 getSpectraDiagram().adjustAxes(true);
