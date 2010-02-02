@@ -18,7 +18,9 @@ package org.esa.beam.util;
 
 import com.bc.ceres.core.runtime.RuntimeContext;
 import org.esa.beam.util.logging.BeamLogManager;
+import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
+import javax.media.jai.JAI;
 import javax.swing.UIManager;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -89,6 +91,7 @@ public class SystemUtils {
     private static final String _H4_CLASS_NAME = "ncsa.hdf.hdflib.HDFLibrary";
     private static final String FILE_PROTOCOLL_PREFIX = "file:";
     private static final String JAR_PROTOCOL_PREFIX = "jar:";
+    private static final String EPSG_DATABASE_DIR_NAME = "epsg-database";
 
     /**
      * Gets the current user's name, or the string <code>"unknown"</code> if the the user's name cannot be determined.
@@ -517,6 +520,15 @@ public class SystemUtils {
             BeamLogManager.getSystemLogger().warning(MessageFormat.format("{0}: HDF-5 library not available: {1}: {2}", callerClass, error.getClass(), error.getMessage()));
             return null;
         }
+    }
+    
+    /**
+     * Initialize third party libraries of BEAM
+      */
+    public static void initThirdPartyLibraries() {
+        JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
+        File epsgDir = new File(SystemUtils.getApplicationDataDir(true), EPSG_DATABASE_DIR_NAME);
+        System.setProperty(HsqlEpsgDatabase.DIRECTORY_KEY, epsgDir.getAbsolutePath());
     }
 
     /**

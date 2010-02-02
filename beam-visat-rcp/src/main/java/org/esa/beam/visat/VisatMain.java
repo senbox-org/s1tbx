@@ -26,6 +26,7 @@ import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.actions.session.OpenSessionAction;
 import org.esa.beam.BeamUiActivator;
 
@@ -115,8 +116,8 @@ public class VisatMain implements RuntimeRunnable {
                 }
             });
         }
-        JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
-
+        SystemUtils.initThirdPartyLibraries();
+        
         final VisatApp app = createApplication(applicationDescriptor);
         app.startUp(progressMonitor);
         openSession(app, sessionFile);
