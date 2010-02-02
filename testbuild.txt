@@ -1,7 +1,7 @@
 #################################################################
 VISAT GUI Tests results
 #################################################################
-1)
+bug 1)
 NullPointerException uccures when select PIn in the PIN Manager:
 open prod.
 reproj.
@@ -75,6 +75,94 @@ Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
 	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
 ---------------------------------------------------------------------------------
 
+bug 2) IllegalStateException "Parameter "X_Scale" is missing" occures when select Krovak transformation.
+    --> a) Transformation Parameters dialog will not be updated when you select an other transformation
+          e.g. select UTM -- open Transformation Parameter dialog
+          -->  Title = Krovak Parameters
+        b) Output information will not be updated
+
+Exception in thread "AWT-EventQueue-0" java.lang.IllegalStateException: Parameter "X_Scale" is missing.
+	at org.geotools.parameter.Parameter.doubleValue(Parameter.java:390)
+	at org.geotools.parameter.Parameter.doubleValue(Parameter.java:369)
+	at org.geotools.referencing.operation.MathTransformProvider.doubleValue(MathTransformProvider.java:510)
+	at org.geotools.referencing.operation.projection.MapProjection$AbstractProvider.doubleValue(MapProjection.java:1564)
+	at org.geotools.referencing.operation.projection.MapProjection.doubleValue(MapProjection.java:369)
+	at org.geotools.referencing.operation.projection.Krovak.<init>(Krovak.java:188)
+	at org.geotools.referencing.operation.projection.Krovak$Provider.createMathTransform(Krovak.java:545)
+	at org.geotools.referencing.operation.DefaultMathTransformFactory.createParameterizedTransform(DefaultMathTransformFactory.java:462)
+	at org.geotools.referencing.operation.DefaultMathTransformFactory.createBaseToDerived(DefaultMathTransformFactory.java:351)
+	at org.geotools.referencing.factory.ReferencingObjectFactory.createProjectedCRS(ReferencingObjectFactory.java:1019)
+	at org.esa.beam.gpf.common.reproject.ui.projdef.OperationMethodCrsProvider.getCRS(OperationMethodCrsProvider.java:73)
+	at org.esa.beam.gpf.common.reproject.ui.projdef.CustomCrsPanel.getCRS(CustomCrsPanel.java:114)
+	at org.esa.beam.gpf.common.reproject.ui.CustomCrsForm.getCRS(CustomCrsForm.java:35)
+	at org.esa.beam.gpf.common.reproject.ui.CrsSelectionPanel.getCrs(CrsSelectionPanel.java:70)
+	at org.esa.beam.gpf.common.reproject.ui.ReprojectionForm.updateCRS(ReprojectionForm.java:211)
+	at org.esa.beam.gpf.common.reproject.ui.ReprojectionForm.access$800(ReprojectionForm.java:49)
+	at org.esa.beam.gpf.common.reproject.ui.ReprojectionForm$2.propertyChange(ReprojectionForm.java:200)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:339)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:347)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:276)
+	at java.awt.Component.firePropertyChange(Component.java:8128)
+	at org.esa.beam.gpf.common.reproject.ui.CrsSelectionPanel.fireCrsChanged(CrsSelectionPanel.java:194)
+	at org.esa.beam.gpf.common.reproject.ui.CrsSelectionPanel.access$400(CrsSelectionPanel.java:28)
+	at org.esa.beam.gpf.common.reproject.ui.CrsSelectionPanel$CrsChangeListener.propertyChange(CrsSelectionPanel.java:189)
+	at org.esa.beam.gpf.common.reproject.ui.CrsForm.fireCrsChanged(CrsForm.java:48)
+	at org.esa.beam.gpf.common.reproject.ui.CustomCrsForm$1.propertyChange(CustomCrsForm.java:28)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:339)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:347)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:276)
+	at java.awt.Component.firePropertyChange(Component.java:8128)
+	at org.esa.beam.gpf.common.reproject.ui.projdef.CustomCrsPanel.updateModel(CustomCrsPanel.java:189)
+	at org.esa.beam.gpf.common.reproject.ui.projdef.CustomCrsPanel.access$1200(CustomCrsPanel.java:62)
+	at org.esa.beam.gpf.common.reproject.ui.projdef.CustomCrsPanel$UpdateListener.propertyChange(CustomCrsPanel.java:205)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:339)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:276)
+	at com.bc.ceres.binding.Property.setValue(Property.java:152)
+	at com.bc.ceres.binding.PropertyContainer.setValue(PropertyContainer.java:246)
+	at org.esa.beam.gpf.common.reproject.ui.projdef.CustomCrsPanel.updateModel(CustomCrsPanel.java:178)
+	at org.esa.beam.gpf.common.reproject.ui.projdef.CustomCrsPanel.access$1200(CustomCrsPanel.java:62)
+	at org.esa.beam.gpf.common.reproject.ui.projdef.CustomCrsPanel$UpdateListener.propertyChange(CustomCrsPanel.java:205)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:339)
+	at java.beans.PropertyChangeSupport.firePropertyChange(PropertyChangeSupport.java:276)
+	at com.bc.ceres.binding.Property.setValue(Property.java:152)
+	at com.bc.ceres.binding.PropertyContainer.setValue(PropertyContainer.java:246)
+	at com.bc.ceres.binding.swing.internal.BindingImpl.setPropertyValue(BindingImpl.java:99)
+	at com.bc.ceres.binding.swing.internal.ComboBoxAdapter.adjustProperty(ComboBoxAdapter.java:96)
+	at com.bc.ceres.binding.swing.internal.ComboBoxAdapter.actionPerformed(ComboBoxAdapter.java:35)
+	at javax.swing.JComboBox.fireActionEvent(JComboBox.java:1240)
+	at javax.swing.JComboBox.setSelectedItem(JComboBox.java:567)
+	at javax.swing.JComboBox.setSelectedIndex(JComboBox.java:603)
+	at javax.swing.plaf.basic.BasicComboPopup$Handler.mouseReleased(BasicComboPopup.java:816)
+	at java.awt.AWTEventMulticaster.mouseReleased(AWTEventMulticaster.java:273)
+	at java.awt.Component.processMouseEvent(Component.java:6263)
+	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
+	at javax.swing.plaf.basic.BasicComboPopup$1.processMouseEvent(BasicComboPopup.java:480)
+	at java.awt.Component.processEvent(Component.java:6028)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4238)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:174)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:169)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
+------------------------------------------------------------------------------------------
+
+bug 3)
+      create Math band named new_band_1
+      change band properties  for new_band_1: virtual band expression = new_band_1
+      --> endless loop --> VISAT must be killed
+
+-------------------------------------------------------------------------------------------
 import Spatial subset from PRISM data (PSM_O1B2R)
 VOL-ALPSMF019892665-O1B2R_UF
 

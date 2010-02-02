@@ -4,6 +4,12 @@ Reprojection:
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
   Remove usage, deprecate and/or remove classes.
   ==> FINAL, ?, OPEN
+* (OF) IllegalStateException "Parameter "X_Scale" is missing" occures when select Krovak transformation. -->
+   --> 1) Transformation Parameters dialog will not be updated when you select an other transformation
+          e.g. select UTM -- open Transformation Parameter dialog
+          -->  Title = Krovak Parameters
+       2) Output information will not be updated
+  (see for details bug 2 in the testbuild.txt)
 
 Masks:
 ======
