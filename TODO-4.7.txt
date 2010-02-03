@@ -32,7 +32,7 @@ VectorDataNode:
 * Use SLD from shapefile for styling figures
   ==> FINAL, MZ, OPEN
 * Export vector data node to shapefile
-  ==> FINAL, ?, OPEN (may exist: look into shapefile editor demo)
+  ==> FINAL, MP, ONGOING (may exist: look into shapefile editor demo)
 * Import of Geometry does not work when shapefile has no CRS and shapefile coordinates are not in WGS84.
   Explain in help, that this is intended. (better option would be to prompt the user to enter a CRS).
   ==> FINAL, ?, OPEN (see issue in Reprojection)
