@@ -49,7 +49,6 @@ public class VectorDataNodeIOTest {
 
     @Test
     public void testEncodingDelimiter() {
-        System.out.println(stringWriter.toString());
         String[] linesOut = stringWriter.toString().split("\n");
         assertEquals(4, linesOut.length);
         assertTrue(linesOut[1].endsWith("with\\tTab"));
