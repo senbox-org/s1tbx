@@ -147,6 +147,7 @@ public class DimapProductReader extends AbstractProductReader {
             DimapProductHelpers.addPins(dom, this.product);
             DimapProductHelpers.addGcps(dom, this.product);
             readVectorData();
+            DimapProductHelpers.addMaskUsages(dom, this.product);
         }
         this.product.setProductReader(this);
         this.product.setFileLocation(inputFile);

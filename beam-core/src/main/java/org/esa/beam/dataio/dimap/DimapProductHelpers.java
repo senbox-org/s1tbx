@@ -763,6 +763,73 @@ public class DimapProductHelpers {
             }
         }
     }
+    
+    static void addMaskUsages(Document dom, Product product) {
+        final List<Element> imageDisplayElems = dom.getRootElement().getChildren(DimapProductConstants.TAG_IMAGE_DISPLAY);
+        for (Element child : imageDisplayElems) {
+            addMaskUsage(dom.getRootElement(), child, product);
+        }
+    }
+  
+    private static void addMaskUsage(Element rootElement, Element imageDisplayElem, Product product) {
+        final List<Element> maskUsages = imageDisplayElem.getChildren(DimapProductConstants.TAG_MASK_USAGE);
+
+        for (final Element usageElem : maskUsages) {
+            final Element overlayNamesElem = usageElem.getChild(DimapProductConstants.TAG_OVERLAY);
+            String[] overlayNames = null;
+            if (overlayNamesElem != null) {
+                final String overlayNamesCSV = overlayNamesElem.getAttributeValue(DimapProductConstants.ATTRIB_NAMES);
+                if (overlayNamesCSV != null && overlayNamesCSV.length() != 0) {
+                    overlayNames = StringUtils.csvToArray(overlayNamesCSV);
+                }
+            }
+            final Element roiNamesElem = usageElem.getChild(DimapProductConstants.TAG_ROI);
+            String[] roiNames = null;
+            if (roiNamesElem != null) {
+                final String roiNamesCSV = roiNamesElem.getAttributeValue(DimapProductConstants.ATTRIB_NAMES);
+                if (roiNamesCSV != null && roiNamesCSV.length() != 0) {
+                    roiNames = StringUtils.csvToArray(roiNamesCSV);
+                }
+            }
+            
+            final Element bandIndexElem = usageElem.getChild(DimapProductConstants.TAG_BAND_INDEX);
+            if (bandIndexElem != null) {
+                final String bandName = getBandName(rootElement, bandIndexElem.getTextTrim());
+                if (bandName != null) {
+                    final Band band = product.getBand(bandName);
+                    if (band != null) {
+                        ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+                        addMasksToGroup(maskGroup, band.getOverlayMaskGroup(), overlayNames);
+                        addMasksToGroup(maskGroup, band.getRoiMaskGroup(), roiNames);
+                    }
+                }
+            }
+            final Element tpgIndexElem = usageElem.getChild(DimapProductConstants.TAG_TIE_POINT_GRID_INDEX);
+            if (tpgIndexElem != null) {
+                final String tpgName = getTiePointGridName(rootElement, tpgIndexElem.getTextTrim());
+                if (tpgName != null) {
+                    final TiePointGrid tiePointGrid = product.getTiePointGrid(tpgName);
+                    if (tiePointGrid != null) {
+                        ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+                        addMasksToGroup(maskGroup, tiePointGrid.getOverlayMaskGroup(), overlayNames);
+                        addMasksToGroup(maskGroup, tiePointGrid.getRoiMaskGroup(), roiNames);
+                    }
+                }
+            }
+        }
+    }
+    
+    private static void addMasksToGroup(ProductNodeGroup<Mask> maskGroup, ProductNodeGroup<Mask> usageMaskGroup, String[] maskNames) {
+        if (maskNames == null) {
+            return;
+        }
+        for (String name : maskNames) {
+            Mask mask = maskGroup.get(name);
+            if (mask != null) {
+                usageMaskGroup.add(mask);
+            }
+        }
+    }
 
 
     /**
@@ -1014,7 +1081,6 @@ public class DimapProductHelpers {
                 addBandStatistics(imageDisplayElem, product);
                 addBitmaskOverlays(imageDisplayElem, product);
                 addRoiDefinitions(imageDisplayElem, product);
-                addMaskUsages(imageDisplayElem, product);
             }
         }
 
@@ -1069,67 +1135,6 @@ public class DimapProductHelpers {
             }
         }
         
-        private void addMaskUsages(Element imageDisplayElem, Product product) {
-            final List<Element> maskUsages = imageDisplayElem.getChildren(DimapProductConstants.TAG_MASK_USAGE);
-
-            for (final Element usageElem : maskUsages) {
-                final Element overlayNamesElem = usageElem.getChild(DimapProductConstants.TAG_OVERLAY);
-                String[] overlayNames = null;
-                if (overlayNamesElem != null) {
-                    final String overlayNamesCSV = overlayNamesElem.getAttributeValue(DimapProductConstants.ATTRIB_NAMES);
-                    if (overlayNamesCSV != null && overlayNamesCSV.length() != 0) {
-                        overlayNames = StringUtils.csvToArray(overlayNamesCSV);
-                    }
-                }
-                final Element roiNamesElem = usageElem.getChild(DimapProductConstants.TAG_ROI);
-                String[] roiNames = null;
-                if (roiNamesElem != null) {
-                    final String roiNamesCSV = roiNamesElem.getAttributeValue(DimapProductConstants.ATTRIB_NAMES);
-                    if (roiNamesCSV != null && roiNamesCSV.length() != 0) {
-                        roiNames = StringUtils.csvToArray(roiNamesCSV);
-                    }
-                }
-                
-                final Element bandIndexElem = usageElem.getChild(DimapProductConstants.TAG_BAND_INDEX);
-                if (bandIndexElem != null) {
-                    final String bandName = getBandName(getRootElement(), bandIndexElem.getTextTrim());
-                    if (bandName != null) {
-                        final Band band = product.getBand(bandName);
-                        if (band != null) {
-                            ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
-                            addMasksToGroup(maskGroup, band.getOverlayMaskGroup(), overlayNames);
-                            addMasksToGroup(maskGroup, band.getRoiMaskGroup(), roiNames);
-                        }
-                    }
-                }
-                final Element tpgIndexElem = usageElem.getChild(DimapProductConstants.TAG_TIE_POINT_GRID_INDEX);
-                if (tpgIndexElem != null) {
-                    final String tpgName = getTiePointGridName(getRootElement(), tpgIndexElem.getTextTrim());
-                    if (tpgName != null) {
-                        final TiePointGrid tiePointGrid = product.getTiePointGrid(tpgName);
-                        if (tiePointGrid != null) {
-                            ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
-                            addMasksToGroup(maskGroup, tiePointGrid.getOverlayMaskGroup(), overlayNames);
-                            addMasksToGroup(maskGroup, tiePointGrid.getRoiMaskGroup(), roiNames);
-                        }
-                    }
-                }
-            }
-        }
-        
-        private void addMasksToGroup(ProductNodeGroup<Mask> maskGroup, ProductNodeGroup<Mask> usageMaskGroup, String[] maskNames) {
-            if (maskNames == null) {
-                return;
-            }
-            for (String name : maskNames) {
-                Mask mask = maskGroup.get(name);
-                if (mask != null) {
-                    usageMaskGroup.add(mask);
-                }
-            }
-        }
-
-
         private void setBitmaskOverlayInfo(RasterDataNode rasterDataNode, String[] bitmaskNames) {
             final BitmaskOverlayInfo overlayInfo = new BitmaskOverlayInfo();
             if (rasterDataNode.getBitmaskOverlayInfo() != null) {
