@@ -19,10 +19,6 @@ Masks:
   be stored to disk.
   ==> FINAL (v4.8), ?, OPEN
 
-* (OF) ROI selection will be lost by save in dim, reproj. Is it OK?
-  ==> FINAL, MZ, CLOSED (can not reproduce)
-
-
 VectorDataNode:
 ===============
 * Create subset from Product with Pins, GCPs -> GCPs outside of subset bounds are preserved, pins are not
@@ -46,7 +42,16 @@ VectorDataNode:
   --> it will be blue, just like the geometry-1
   create new figure on the geometry-1
    --> it will not be blue
-   ==> FINAL, ?, OPEN
+
+* When reprojecting (subsetting?) products, we must also transform geometry and
+  align CRS of feature collections in vector data nodes!!! Use FeatureCollectionClipper
+  in ShapefileLayer code. Pins/GCPs need special treatment!
+  Done (MZ), but this does not work when prod. will be saved/exported, than opened in VISAT and reproj. (OF)
+  ==> FINAL, MZ, OPEN (REOPEN by OF) CLOSEd by MZ, OF please check !!!
+  (REOPEN by OF: save/export as DIM prod. containing pins and geometries.-reopen in VISAT)
+* "Profile plot" and "Coordinate List", are not updated when figure selection changes
+  ==> FINAL, MP, CLOSED (REOPEN by OF: when draw a figure in reproj. product)
+
 * (OF) IllegalArgumentException whike creating spatial subset from reproj. dim product:
          open reproj. prod (dim) containing pins and geometries
          create spatial subset from view / new product
@@ -57,30 +62,6 @@ Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: Point
 	at com.vividsolutions.jts.geom.LinearRing.<init>(LinearRing.java:100)
 	........................................
 	==> FINAL, ?, OPEN
-	
-	
-* When reprojecting (subsetting?) products, we must also transform geometry and
-  align CRS of feature collections in vector data nodes!!! Use FeatureCollectionClipper
-  in ShapefileLayer code. Pins/GCPs need special treatment!
-  Done (MZ), but this does not work when prod. will be saved/exported, than opened in VISAT and reproj. (OF)
-  ==> FINAL, MZ, OPEN (REOPEN by OF) CLOSEd by MZ, OF please check !!!
-  (REOPEN by OF: save/export as DIM prod. containing pins and geometries.-reopen in VISAT)
-  ==> FINAL, MZ, CLOSED <<<<<<<<<<<<<<<<<<<<
-  
-* "Profile plot" and "Coordinate List", are not updated when figure selection changes
-  ==> FINAL, MP, CLOSED (OF: when draw a figure in reproj. product)
-
-Placemarks (PIN/GCP)
-====================
- 
-* (OF) Entry 'Export PIN Pixels..' in the Context Menu (right-click the mouse over the image view)
-  and File Menu--Export--Export PIN Pixels..
-  are disabled when Pin node in the product tree is not selected:
-       create some PINs -->  'Export PIN Pixels..' stays disabled
-  ==> FINAL, MZ, CLOSED
-  (REOPEN OF:  NullPointerException occures by select 'Export PIN Pixels..' in the Context Menu.
-               see bug 5 in the textbuild.txt)
-  ==> FINAL, MZ, CLOSED <<<<<<<<<<<<<<<<<<<<            
 
 Figures:
 ========
@@ -168,13 +149,6 @@ SMOS-Box:
   ==> FINAL, RQ, OPEN
 * (OF) Pin table with band values is not updated when snapshot ID is changed
   ==> FINAL, RQ, OPEN
-
-* Create add on installer
-  ==> FINAL, RQ, CLOSED
-* Support missing 2 aux products
-  ==> FINAL, RQ, CLOSED
-* (OF) no reader for  SM_OPER_AUX_VTEC_R
-  ==> FINAL, RQ, CLOSED (not a requirement)
 
 GlobToolbox
 ===========
