@@ -85,7 +85,7 @@ public class SpectrumToolView extends AbstractToolView {
 //    private AbstractButton showAveragePinSpectrumButton;
     //    private AbstractButton showGraphPointsButton;
 
-    private String originalDescriptorTitle;
+    private String titleBase;
     private boolean tipShown;
     private ProductSceneView currentView;
     private Product currentProduct;
@@ -105,9 +105,6 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     private void setCurrentView(ProductSceneView view) {
-        if (originalDescriptorTitle != null) {
-            originalDescriptorTitle = getDescriptor().getTitle();
-        }
         ProductSceneView oldView = currentView;
         currentView = view;
         if (oldView != currentView) {
@@ -158,9 +155,9 @@ public class SpectrumToolView extends AbstractToolView {
 
     private void updateTitle() {
         if (currentProduct != null) {
-            setTitle(getDescriptor().getTitle() + " - " + currentView.getProduct().getProductRefString());
+            setTitle(titleBase + " - " + currentView.getProduct().getProductRefString());
         } else {
-            setTitle(getDescriptor().getTitle());
+            setTitle(titleBase);
         }
     }
 
@@ -231,10 +228,12 @@ public class SpectrumToolView extends AbstractToolView {
 
     @Override
     public JComponent createControl() {
+        titleBase = getDescriptor().getTitle();
         filterButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Filter24.gif"), false);
         filterButton.setName("filterButton");
         filterButton.setEnabled(false);
         filterButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 selectSpectralBands();
             }
@@ -243,6 +242,7 @@ public class SpectrumToolView extends AbstractToolView {
         showSpectrumForCursorButton = ToolButtonFactory.createButton(
                 UIUtils.loadImageIcon("icons/CursorSpectrum24.gif"), true);
         showSpectrumForCursorButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 recreateSpectraDiagram();
             }
@@ -254,6 +254,7 @@ public class SpectrumToolView extends AbstractToolView {
         showSpectraForSelectedPinsButton = ToolButtonFactory.createButton(
                 UIUtils.loadImageIcon("icons/SelectedPinSpectra24.gif"), true);
         showSpectraForSelectedPinsButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (isShowingSpectraForAllPins()) {
                     showSpectraForAllPinsButton.setSelected(false);
@@ -267,6 +268,7 @@ public class SpectrumToolView extends AbstractToolView {
         showSpectraForAllPinsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/PinSpectra24.gif"),
                                                                      true);
         showSpectraForAllPinsButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (isShowingSpectraForSelectedPins()) {
                     showSpectraForSelectedPinsButton.setSelected(false);
@@ -291,6 +293,7 @@ public class SpectrumToolView extends AbstractToolView {
 
         showGridButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/SpectrumGrid24.gif"), true);
         showGridButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (diagramCanvas.getDiagram() != null) {
                     diagramCanvas.getDiagram().setDrawGrid(showGridButton.isSelected());
@@ -383,10 +386,12 @@ public class SpectrumToolView extends AbstractToolView {
         VisatApp.getApp().addInternalFrameListener(new SpectrumIFL());
 
         VisatApp.getApp().getProductManager().addListener(new ProductManager.Listener() {
+            @Override
             public void productAdded(ProductManager.Event event) {
                 // ignored
             }
 
+            @Override
             public void productRemoved(ProductManager.Event event) {
                 final Product product = event.getProduct();
                 if (getCurrentProduct() == product) {
@@ -527,6 +532,7 @@ public class SpectrumToolView extends AbstractToolView {
 
     private class CursorSpectrumPPL implements PixelPositionListener {
 
+        @Override
         public void pixelPosChanged(ImageLayer imageLayer,
                                     int pixelX,
                                     int pixelY,
@@ -543,6 +549,7 @@ public class SpectrumToolView extends AbstractToolView {
             }
         }
 
+        @Override
         public void pixelPosNotAvailable() {
 
             if (isActive()) {
