@@ -24,6 +24,7 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
@@ -188,15 +189,20 @@ public abstract class MaskToolView extends AbstractToolView {
 
     private class MaskPTL extends ProductTreeListenerAdapter {
         @Override
-        public void productSelected(Product product, int clickCount) {
-            maskForm.reconfigureMaskTable(product, null);
-            setSceneView(null);
-        }
-
-        @Override
-        public void bandSelected(Band band, int clickCount) {
-            maskForm.reconfigureMaskTable(band.getProduct(), band);
-            setSceneView(null);
+        public void productNodeSelected(ProductNode productNode, int clickCount) {
+            Product product = productNode.getProduct();
+            ProductSceneView view = null;
+            if (productNode instanceof Band || productNode instanceof TiePointGrid) {
+                RasterDataNode rdn = (RasterDataNode) productNode;
+                maskForm.reconfigureMaskTable(product, rdn);
+                ProductSceneView selectedView = VisatApp.getApp().getSelectedProductSceneView();
+                if (selectedView != null && selectedView.getRaster() == rdn) {
+                    view = selectedView;
+                }
+            } else {
+                maskForm.reconfigureMaskTable(product, null);
+            }
+            setSceneView(view);
         }
     }
 }
