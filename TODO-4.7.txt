@@ -29,7 +29,7 @@ VectorDataNode:
   Explain in help, that this is intended.
   ==> FINAL, ?, OPEN
 * Vector data node I/O shall encode/decode delimiter characters occurring in text converted from objects.
-  ==> FINAL, MP, ONGOING
+  ==> FINAL, MP/MZ, ONGOING
 * Pin & GCP Vector Data Nodes shall not be visible as long as there are no pins / GCPs
   added to the product
   ==> FINAL, ?, OPEN
@@ -46,16 +46,7 @@ VectorDataNode:
   --> it will be blue, just like the geometry-1
   create new figure on the geometry-1
    --> it will not be blue
-
-* When reprojecting (subsetting?) products, we must also transform geometry and
-  align CRS of feature collections in vector data nodes!!! Use FeatureCollectionClipper
-  in ShapefileLayer code. Pins/GCPs need special treatment!
-  Done (MZ), but this does not work when prod. will be saved/exported, than opened in VISAT and reproj. (OF)
-  ==> FINAL, MZ, OPEN (REOPEN by OF) CLOSEd by MZ, OF please check !!!
-  (REOPEN by OF: save/export as DIM prod. containing pins and geometries.-reopen in VISAT)
-* "Profile plot" and "Coordinate List", are not updated when figure selection changes
-  ==> FINAL, MP, CLOSED (OF: when draw a figure in reproj. product)
-
+   ==> FINAL, ?, OPEN
 * (OF) IllegalArgumentException whike creating spatial subset from reproj. dim product:
          open reproj. prod (dim) containing pins and geometries
          create spatial subset from view / new product
@@ -65,6 +56,19 @@ Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: Point
 	at com.vividsolutions.jts.geom.LinearRing.validateConstruction(LinearRing.java:105)
 	at com.vividsolutions.jts.geom.LinearRing.<init>(LinearRing.java:100)
 	........................................
+	==> FINAL, ?, OPEN
+	
+	
+* When reprojecting (subsetting?) products, we must also transform geometry and
+  align CRS of feature collections in vector data nodes!!! Use FeatureCollectionClipper
+  in ShapefileLayer code. Pins/GCPs need special treatment!
+  Done (MZ), but this does not work when prod. will be saved/exported, than opened in VISAT and reproj. (OF)
+  ==> FINAL, MZ, OPEN (REOPEN by OF) CLOSEd by MZ, OF please check !!!
+  (REOPEN by OF: save/export as DIM prod. containing pins and geometries.-reopen in VISAT)
+  ==> FINAL, MZ, CLOSED <<<<<<<<<<<<<<<<<<<<
+  
+* "Profile plot" and "Coordinate List", are not updated when figure selection changes
+  ==> FINAL, MP, CLOSED (OF: when draw a figure in reproj. product)
 
 Placemarks (PIN/GCP)
 ====================
@@ -76,7 +80,7 @@ Placemarks (PIN/GCP)
   ==> FINAL, MZ, CLOSED
   (REOPEN OF:  NullPointerException occures by select 'Export PIN Pixels..' in the Context Menu.
                see bug 5 in the textbuild.txt)
- RECLOSED :-)               
+  ==> FINAL, MZ, CLOSED <<<<<<<<<<<<<<<<<<<<            
 
 Figures:
 ========

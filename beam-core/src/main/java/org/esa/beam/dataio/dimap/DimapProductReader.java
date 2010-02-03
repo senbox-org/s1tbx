@@ -32,11 +32,13 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -376,9 +378,10 @@ public class DimapProductReader extends AbstractProductReader {
                     return name.endsWith(VectorDataNodeIO.FILENAME_EXTENSION);
                 }
             });
+            CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(product.getGeoCoding());
             for (File vectorFile : vectorFiles) {
                 try {
-                    VectorDataNodeReader nodeReader = new VectorDataNodeReader();
+                    VectorDataNodeReader nodeReader = new VectorDataNodeReader(modelCrs);
                     VectorDataNode vectorDataNode = nodeReader.read(vectorFile);
                     product.getVectorDataGroup().add(vectorDataNode);
                 } catch (IOException e) {

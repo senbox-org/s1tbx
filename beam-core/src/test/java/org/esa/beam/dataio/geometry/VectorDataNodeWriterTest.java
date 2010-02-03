@@ -21,7 +21,7 @@ public class VectorDataNodeWriterTest extends TestCase {
 
     private void testContents(String contents) throws IOException {
         StringReader reader = new StringReader(contents);
-        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader();
+        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader(null);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
 
         StringWriter writer = new StringWriter();

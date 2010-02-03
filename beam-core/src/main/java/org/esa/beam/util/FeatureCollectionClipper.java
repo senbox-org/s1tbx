@@ -39,7 +39,7 @@ public class FeatureCollectionClipper {
 
 
         SimpleFeatureType sourceSchema = sourceCollection.getSchema();
-        CoordinateReferenceSystem sourceCrs = sourceSchema.getGeometryDescriptor().getCoordinateReferenceSystem();
+        CoordinateReferenceSystem sourceCrs = sourceSchema.getCoordinateReferenceSystem();
         if (sourceCrs == null) {
             sourceCrs = DefaultGeographicCRS.WGS84;
         }

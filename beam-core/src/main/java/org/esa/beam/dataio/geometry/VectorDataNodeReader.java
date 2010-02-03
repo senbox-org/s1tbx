@@ -2,6 +2,7 @@ package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
+
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.io.CsvReader;
 import org.esa.beam.util.io.FileUtils;
@@ -12,6 +13,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.File;
 import java.io.FileReader;
@@ -19,6 +21,12 @@ import java.io.IOException;
 import java.io.Reader;
 
 public class VectorDataNodeReader {
+
+    private final CoordinateReferenceSystem modelCrs;
+
+    public VectorDataNodeReader(CoordinateReferenceSystem modelCrs) {
+        this.modelCrs = modelCrs;
+    }
 
     public VectorDataNode read(File file) throws IOException {
         FileReader reader = new FileReader(file);
@@ -84,6 +92,7 @@ public class VectorDataNodeReader {
 
     private SimpleFeatureType createFeatureType(String[] tokens) throws IOException {
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+        builder.setCRS(modelCrs);
         JavaTypeConverter jtc = new JavaTypeConverter();
         for (int i = 0; i < tokens.length; i++) {
             if (i == 0) {

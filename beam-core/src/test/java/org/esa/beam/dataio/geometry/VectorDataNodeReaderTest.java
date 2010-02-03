@@ -6,10 +6,12 @@ import com.vividsolutions.jts.geom.Point;
 import junit.framework.TestCase;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -29,11 +31,12 @@ public class VectorDataNodeReaderTest extends TestCase {
     public void testContents1() throws IOException {
         StringReader reader = new StringReader(CONTENTS_1);
 
-        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader();
+        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader(null);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
         assertNotNull(simpleFeatureType);
+        assertNull(simpleFeatureType.getCoordinateReferenceSystem());
         assertEquals("FT1", simpleFeatureType.getTypeName());
         assertEquals(4, simpleFeatureType.getAttributeCount());
 
@@ -88,7 +91,7 @@ public class VectorDataNodeReaderTest extends TestCase {
     public void testContents2() throws IOException {
         StringReader reader = new StringReader(CONTENTS_2);
 
-        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader();
+        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader(null);
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
         SimpleFeatureType simpleFeatureType = fc.getSchema();
 
@@ -109,7 +112,19 @@ public class VectorDataNodeReaderTest extends TestCase {
 
         assertEquals("weight", ad2.getType().getName().getLocalPart());
         assertEquals(Float.class, ad2.getType().getBinding());
+    }
+    
+    public void testCRS() throws Exception {
+        StringReader reader = new StringReader(CONTENTS_2);
 
+        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader(DefaultGeographicCRS.WGS84);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> fc = vectorDataNodeReader.readFeatures(reader);
+        SimpleFeatureType simpleFeatureType = fc.getSchema();
+
+        assertNotNull(simpleFeatureType);
+        CoordinateReferenceSystem crs = simpleFeatureType.getCoordinateReferenceSystem();
+        assertNotNull(crs);
+        assertSame(DefaultGeographicCRS.WGS84, crs);
     }
 
     public void testFailures() {
@@ -161,7 +176,7 @@ public class VectorDataNodeReaderTest extends TestCase {
     }
 
     private void expectException(String contents) throws IOException {
-        new VectorDataNodeReader().readFeatures(new StringReader(contents));
+        new VectorDataNodeReader(null).readFeatures(new StringReader(contents));
         fail("IOException expected");
     }
 }
