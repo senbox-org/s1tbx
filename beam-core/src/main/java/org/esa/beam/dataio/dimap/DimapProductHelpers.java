@@ -1074,24 +1074,21 @@ public class DimapProductHelpers {
 
             for (final Element usageElem : maskUsages) {
                 final Element overlayNamesElem = usageElem.getChild(DimapProductConstants.TAG_OVERLAY);
-                if (overlayNamesElem == null) {
-                    continue;
+                String[] overlayNames = null;
+                if (overlayNamesElem != null) {
+                    final String overlayNamesCSV = overlayNamesElem.getAttributeValue(DimapProductConstants.ATTRIB_NAMES);
+                    if (overlayNamesCSV != null && overlayNamesCSV.length() != 0) {
+                        overlayNames = StringUtils.csvToArray(overlayNamesCSV);
+                    }
                 }
-                final String overlayNamesCSV = overlayNamesElem.getAttributeValue(DimapProductConstants.ATTRIB_NAMES);
-                if (overlayNamesCSV == null || overlayNamesCSV.length() == 0) {
-                    continue;
-                }
-                final String[] overlayNames = StringUtils.csvToArray(overlayNamesCSV);
-                
                 final Element roiNamesElem = usageElem.getChild(DimapProductConstants.TAG_ROI);
-                if (roiNamesElem == null) {
-                    continue;
+                String[] roiNames = null;
+                if (roiNamesElem != null) {
+                    final String roiNamesCSV = roiNamesElem.getAttributeValue(DimapProductConstants.ATTRIB_NAMES);
+                    if (roiNamesCSV != null && roiNamesCSV.length() != 0) {
+                        roiNames = StringUtils.csvToArray(roiNamesCSV);
+                    }
                 }
-                final String roiNamesCSV = roiNamesElem.getAttributeValue(DimapProductConstants.ATTRIB_NAMES);
-                if (roiNamesCSV == null || roiNamesCSV.length() == 0) {
-                    continue;
-                }
-                final String[] roiNames = StringUtils.csvToArray(roiNamesCSV);
                 
                 final Element bandIndexElem = usageElem.getChild(DimapProductConstants.TAG_BAND_INDEX);
                 if (bandIndexElem != null) {
@@ -1121,6 +1118,9 @@ public class DimapProductHelpers {
         }
         
         private void addMasksToGroup(ProductNodeGroup<Mask> maskGroup, ProductNodeGroup<Mask> usageMaskGroup, String[] maskNames) {
+            if (maskNames == null) {
+                return;
+            }
             for (String name : maskNames) {
                 Mask mask = maskGroup.get(name);
                 if (mask != null) {
