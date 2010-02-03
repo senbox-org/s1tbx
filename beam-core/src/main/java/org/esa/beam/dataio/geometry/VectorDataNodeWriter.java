@@ -54,6 +54,7 @@ public class VectorDataNodeWriter {
                 if (value != null) {
                     Converter converter = converters[i];
                     text = converter.format(value);
+                    text = VectorDataNodeIO.encodeTabString(text);
                 }
                 writer.write(VectorDataNodeIO.DELIMITER_CHAR);
                 writer.write(text);

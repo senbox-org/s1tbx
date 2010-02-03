@@ -25,7 +25,7 @@ VectorDataNode:
   Explain in help, that this is intended.
   ==> FINAL, ?, OPEN
 * Vector data node I/O shall encode/decode delimiter characters occurring in text converted from objects.
-  ==> FINAL, MP/MZ, ONGOING
+  ==> FINAL, MP/MZ, CLOSED
 * Pin & GCP Vector Data Nodes shall not be visible as long as there are no pins / GCPs
   added to the product
   ==> FINAL, ?, OPEN

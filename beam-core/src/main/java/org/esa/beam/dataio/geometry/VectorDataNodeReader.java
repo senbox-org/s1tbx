@@ -65,6 +65,7 @@ public class VectorDataNodeReader {
                 if (i == 0) {
                     fid = token;
                 } else {
+                    token = VectorDataNodeIO.decodeTabString(token);
                     try {
                         Object value = null;
                         if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
