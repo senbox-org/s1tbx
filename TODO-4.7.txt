@@ -165,6 +165,7 @@ CHRIS-GeoCorrection
 Envisat Reprocessing 3:
 =======================
 * Format update
+  Note: [BEAM-1070]
   ==> FINAL (v4.7.x), *, OPEN
 
 Other BEAM/VISAT/API Stuff:
