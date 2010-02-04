@@ -206,7 +206,6 @@ public class WriteOp extends Operator {
             // If we get here all tiles are written
             if (productWriter instanceof DimapProductWriter) {
                 // if we can update the header (only DIMAP) rewrite it!
-                getLogger().info("Product header changed. Overwriting " + file);
                 synchronized (productWriter) {
                     productWriter.writeProductNodes(targetProduct, file);
                 }
