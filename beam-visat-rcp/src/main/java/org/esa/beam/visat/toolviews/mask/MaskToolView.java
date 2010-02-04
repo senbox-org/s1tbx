@@ -189,20 +189,21 @@ public abstract class MaskToolView extends AbstractToolView {
 
     private class MaskPTL extends ProductTreeListenerAdapter {
         @Override
-        public void productNodeSelected(ProductNode productNode, int clickCount) {
-            Product product = productNode.getProduct();
-            ProductSceneView view = null;
-            if (productNode instanceof Band || productNode instanceof TiePointGrid) {
-                RasterDataNode rdn = (RasterDataNode) productNode;
-                maskForm.reconfigureMaskTable(product, rdn);
-                ProductSceneView selectedView = VisatApp.getApp().getSelectedProductSceneView();
-                if (selectedView != null && selectedView.getRaster() == rdn) {
-                    view = selectedView;
-                }
-            } else {
-                maskForm.reconfigureMaskTable(product, null);
-            }
-            setSceneView(view);
+        public void productSelected(Product product, int clickCount) {
+            maskForm.reconfigureMaskTable(product, null);
+            setSceneView(null);
+        }
+
+        @Override
+        public void bandSelected(Band band, int clickCount) {
+            maskForm.reconfigureMaskTable(band.getProduct(), band);
+            setSceneView(null);
+        }
+        
+        @Override
+        public void tiePointGridSelected(TiePointGrid tiePointGrid, int clickCount) {
+            maskForm.reconfigureMaskTable(tiePointGrid.getProduct(), tiePointGrid);
+            setSceneView(null);
         }
     }
 }
