@@ -110,12 +110,10 @@ public class ImageManager {
 
     /**
      * Removes all mask images for a given product from the internal cache.
-     * <p/>
-     * TODO - this is temporary API only.
      *
      * @param product the given product.
      */
-    public synchronized void clearMaskImages(Product product) {
+    public void removeMaskImages(Product product) {
         final Iterator<MaskKey> iterator = maskImageMap.keySet().iterator();
 
         while (iterator.hasNext()) {
