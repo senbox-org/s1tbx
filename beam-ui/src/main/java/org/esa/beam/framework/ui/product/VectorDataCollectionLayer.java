@@ -15,6 +15,7 @@ import static org.esa.beam.framework.ui.product.VectorDataLayerType.PROPERTY_NAM
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,19 +36,19 @@ public class VectorDataCollectionLayer extends CollectionLayer {
         pnl = new PNL();
 
         setId(ID);
-        getProduct().addProductNodeListener(pnl);
+        vectorDataGroup.getProduct().addProductNodeListener(pnl);
     }
 
     @Override
     public void disposeLayer() {
-        if (reference.get() != null) {
-            getProduct().removeProductNodeListener(pnl);
-            reference.clear();
+        ProductNodeGroup<VectorDataNode> productNodeGroup = reference.get();
+        if (productNodeGroup != null) {
+            Product product = productNodeGroup.getProduct();
+            if (product != null) {
+                product.removeProductNodeListener(pnl);
+            }
         }
-    }
-
-    private Product getProduct() {
-        return reference.get().getProduct();
+        reference.clear();
     }
 
     private Layer createLayer(final VectorDataNode vectorDataNode) {
@@ -68,24 +69,29 @@ public class VectorDataCollectionLayer extends CollectionLayer {
 
     synchronized void updateChildren() {
         final ProductNodeGroup<VectorDataNode> vectorDataGroup = reference.get();
+        if (vectorDataGroup == null) {
+            return;
+        }
         final Map<VectorDataNode, Layer> children = new HashMap<VectorDataNode, Layer>();
-        for (final Layer child : getChildren()) {
+        List<Layer> childLayers = getChildren();
+        for (final Layer child : childLayers) {
             final String name = (String) child.getConfiguration().getValue(PROPERTY_NAME_VECTOR_DATA);
             final VectorDataNode vectorDataNode = vectorDataGroup.get(name);
             children.put(vectorDataNode, child);
         }
         final Set<Layer> orphans = new HashSet<Layer>(children.values());
-        for (final VectorDataNode vectorDataNode : vectorDataGroup.toArray(new VectorDataNode[vectorDataGroup.getNodeCount()])) {
+        VectorDataNode[] vectorDataNodes = vectorDataGroup.toArray(new VectorDataNode[vectorDataGroup.getNodeCount()]);
+        for (final VectorDataNode vectorDataNode : vectorDataNodes) {
             final Layer child = children.get(vectorDataNode);
             if (child == null) {
                 final Layer layer = createLayer(vectorDataNode);
-                getChildren().add(layer);
+                childLayers.add(layer);
             } else {
                 orphans.remove(child);
             }
         }
         for (final Layer orphan : orphans) {
-            getChildren().remove(orphan);
+            childLayers.remove(orphan);
             orphan.dispose();
         }
     }

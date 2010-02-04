@@ -68,7 +68,7 @@ VectorDataNode:
 	==> FINAL, ?, OPEN
 * (OF) NullPointerException occures while close session after deleting geometry
        (see for details bug 11 and 10)
-    ==> FINAL, ?, OPEN
+    ==> FINAL, MZ, CLOSED
 
 * "Profile plot" and "Coordinate List", are not updated when figure selection changes
   ==> FINAL, MP, CLOSED (OF: when draw a figure in reproj. product)

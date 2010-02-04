@@ -58,12 +58,18 @@ class VectorDataMultiLevelImage extends DefaultMultiLevelImage implements Produc
         super(multiLevelSource);
 
         this.vectorDataReference = new WeakReference<VectorDataNode>(vectorDataNode);
-        this.vectorDataReference.get().getProduct().addProductNodeListener(this);
+        vectorDataNode.getProduct().addProductNodeListener(this);
     }
 
     @Override
     public void dispose() {
-        vectorDataReference.get().getProduct().removeProductNodeListener(this);
+        VectorDataNode vectorDataNode = vectorDataReference.get();
+        if (vectorDataNode != null) {
+            Product product = vectorDataNode.getProduct();
+            if (product != null) {
+                product.removeProductNodeListener(this);
+            }
+        }
         vectorDataReference.clear();
         super.dispose();
     }
