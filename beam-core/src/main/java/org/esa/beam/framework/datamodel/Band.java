@@ -282,7 +282,7 @@ public class Band extends AbstractBand {
 
     @Override
     protected RenderedImage createSourceImage() {
-        final MultiLevelModel model = ImageManager.getInstance().getMultiLevelModel(this);
+        final MultiLevelModel model = ImageManager.getMultiLevelModel(this);
 
         if (hasRasterData()) {
             // This code is for backward compatibility only
