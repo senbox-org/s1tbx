@@ -650,9 +650,11 @@ public class ProductSceneView extends BasicView
             final Layer selLayer = getSelectedLayer();
             if (selLayer instanceof VectorDataLayer) {
                 final VectorDataLayer vectorLayer = (VectorDataLayer) selLayer;
-                final String typeName = vectorLayer.getVectorDataNode().getFeatureType().getTypeName();
-                if (Product.GEOMETRY_FEATURE_TYPE_NAME.equals(typeName)) {
-                    layer = vectorLayer;
+                if (vectorLayer.getVectorDataNode() != null) {
+                    final String typeName = vectorLayer.getVectorDataNode().getFeatureType().getTypeName();
+                    if (Product.GEOMETRY_FEATURE_TYPE_NAME.equals(typeName)) {
+                        layer = vectorLayer;
+                    }
                 }
             }
 
