@@ -91,59 +91,6 @@ bug 3)
 
 -------------------------------------------------------------------------------------------
 
-bug 4) open reproj. prod (dim) containing pins and geometries
-       create spatial subset from view / new product
-       --> IllegalArgumentException. sabset will not be created.
-
-Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: Points of LinearRing do not form a closed linestring
-	at com.vividsolutions.jts.geom.LinearRing.validateConstruction(LinearRing.java:105)
-	at com.vividsolutions.jts.geom.LinearRing.<init>(LinearRing.java:100)
-	at com.vividsolutions.jts.geom.GeometryFactory.createLinearRing(GeometryFactory.java:339)
-	at org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer.transformLineString(GeometryCoordinateSequenceTransformer.java:155)
-	at org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer.transformPolygon(GeometryCoordinateSequenceTransformer.java:193)
-	at org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer.transform(GeometryCoordinateSequenceTransformer.java:108)
-	at org.esa.beam.util.FeatureCollectionClipper.doOperation(FeatureCollectionClipper.java:96)
-	at org.esa.beam.util.ProductUtils.copyVectorData(ProductUtils.java:1434)
-	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProduct(ProductSubsetBuilder.java:339)
-	at org.esa.beam.framework.dataio.ProductSubsetBuilder.readProductNodesImpl(ProductSubsetBuilder.java:95)
-	at org.esa.beam.framework.dataio.AbstractProductReader.readProductNodes(AbstractProductReader.java:159)
-	at org.esa.beam.framework.dataio.AbstractProductBuilder.readProductNodes(AbstractProductBuilder.java:72)
-	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProductSubset(ProductSubsetBuilder.java:70)
-	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProductSubset(ProductSubsetBuilder.java:64)
-	at org.esa.beam.framework.datamodel.Product.createSubset(Product.java:1583)
-	at org.esa.beam.visat.actions.CreateSubsetFromViewAction.actionPerformed(CreateSubsetFromViewAction.java:54)
-	at org.esa.beam.framework.ui.command.ExecCommand.fireActionPerformed(ExecCommand.java:119)
-	at org.esa.beam.framework.ui.command.SelectableCommand$1.actionPerformed(SelectableCommand.java:150)
-	at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
-	at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)
-	at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:387)
-	at javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:242)
-	at javax.swing.AbstractButton.doClick(AbstractButton.java:357)
-	at com.jidesoft.plaf.vsnet.VsnetMenuItemUI.doClick(Unknown Source)
-	at com.jidesoft.plaf.vsnet.VsnetMenuItemUI$MouseInputHandler.mouseReleased(Unknown Source)
-	at java.awt.AWTEventMulticaster.mouseReleased(AWTEventMulticaster.java:272)
-	at java.awt.Component.processMouseEvent(Component.java:6263)
-	at javax.swing.JComponent.processMouseEvent(JComponent.java:3267)
-	at java.awt.Component.processEvent(Component.java:6028)
-	at java.awt.Container.processEvent(Container.java:2041)
-	at java.awt.Component.dispatchEventImpl(Component.java:4630)
-	at java.awt.Container.dispatchEventImpl(Container.java:2099)
-	at java.awt.Component.dispatchEvent(Component.java:4460)
-	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
-	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4238)
-	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
-	at java.awt.Container.dispatchEventImpl(Container.java:2085)
-	at java.awt.Window.dispatchEventImpl(Window.java:2475)
-	at java.awt.Component.dispatchEvent(Component.java:4460)
-	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
-	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
-	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
-	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:174)
-	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:169)
-	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
-	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
-------------------------------------------------------------------------------------------------------------------
-
 bug 7)  NullPointerException while compute histogramm for mask
 delete geometry from product tree , which is used for different mask
 try to compute histogramm:
@@ -343,6 +290,7 @@ beam-debug: BasicApp: updating application state...
 	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
 ------------------------------------------------------------------------------------------------------------
 
+ -----------------------------------------------------------------------------------------------------------
 import Spatial subset from PRISM data (PSM_O1B2R)
 VOL-ALPSMF019892665-O1B2R_UF
 
