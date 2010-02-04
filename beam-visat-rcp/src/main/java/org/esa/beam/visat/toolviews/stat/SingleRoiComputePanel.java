@@ -87,19 +87,19 @@ class SingleRoiComputePanel extends JPanel {
         setRaster(raster);
     }
 
-    void setRaster(final RasterDataNode raster) {
-        if (this.raster != raster) {
-            this.raster = raster;
-            if (raster == null) {
+    void setRaster(final RasterDataNode newRaster) {
+        if (this.raster != newRaster) {
+            this.raster = newRaster;
+            if (newRaster == null) {
                 if (product != null) {
                     product.removeProductNodeListener(productNodeListener);
                 }
                 product = null;
-            } else if (product != raster.getProduct()) {
+            } else if (product != newRaster.getProduct()) {
                 if (product != null) {
                     product.removeProductNodeListener(productNodeListener);
                 }
-                product = raster.getProduct();
+                product = newRaster.getProduct();
                 if (product != null) {
                     product.addProductNodeListener(productNodeListener);
                 }

@@ -134,19 +134,19 @@ class MultipleRoiComputePanel extends JPanel {
         setRaster(rasterDataNode);
     }
 
-    void setRaster(final RasterDataNode raster) {
-        if (this.raster != raster) {
-            this.raster = raster;
-            if (raster == null) {
+    void setRaster(final RasterDataNode newRaster) {
+        if (this.raster != newRaster) {
+            this.raster = newRaster;
+            if (newRaster == null) {
                 if (product != null) {
                     product.removeProductNodeListener(productNodeListener);
                 }
                 product = null;
-            } else if (product != raster.getProduct()) {
+            } else if (product != newRaster.getProduct()) {
                 if (product != null) {
                     product.removeProductNodeListener(productNodeListener);
                 }
-                product = raster.getProduct();
+                product = newRaster.getProduct();
                 if (product != null) {
                     product.addProductNodeListener(productNodeListener);
                 }
@@ -179,13 +179,13 @@ class MultipleRoiComputePanel extends JPanel {
         boolean useRoi = useRoiCheckBox.isSelected() && useRoiCheckBox.isEnabled();
         int numRoiMasks = maskNameComboBox.getModel().getSize();
         boolean hasMultipleRois = numRoiMasks > 1;
-        boolean useSingleRoi = singleButton.isSelected();
         
         singleButton.setEnabled(hasMultipleRois && useRoi);
         iterateButton.setEnabled(hasMultipleRois && useRoi);
         if (hasMultipleRois && useRoi && !singleButton.isSelected() && !iterateButton.isSelected()) {
             singleButton.setSelected(true);
         }
+        boolean useSingleRoi = singleButton.isSelected();
         maskNameComboBox.setEnabled(hasMultipleRois && useRoi && useSingleRoi);
     }
     
