@@ -47,21 +47,32 @@ VectorDataNode:
   create new figure on the geometry-1
    --> it will not be blue
 
+* When reprojecting (subsetting?) products, we must also transform geometry and
+  align CRS of feature collections in vector data nodes!!! Use FeatureCollectionClipper
+  in ShapefileLayer code. Pins/GCPs need special treatment!
+  Done (MZ), but this does not work when prod. will be saved/exported, than opened in VISAT and reproj. (OF)
+  ==> FINAL, MZ, OPEN (REOPEN by OF) CLOSEd by MZ, OF please check !!!
+  (REOPEN by OF: save/export as DIM prod. containing pins and geometries.-reopen in VISAT)
 * "Profile plot" and "Coordinate List", are not updated when figure selection changes
   ==> FINAL, MP, CLOSED (REOPEN by OF: when draw a figure in reproj. product)
 
-* (OF) IllegalArgumentException while creating spatial subset from reproj. dim product:
+* (OF) IllegalArgumentException whike creating spatial subset from reproj. dim product:
          open reproj. prod (dim) containing pins and geometries
          create spatial subset from view / new product
           --> IllegalArgumentException. subset will not be created.
          (see for details bug 4 in the testbuil.txt)
-Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: Points of LinearRing do not form a closed linestring
-	at com.vividsolutions.jts.geom.LinearRing.validateConstruction(LinearRing.java:105)
-	at com.vividsolutions.jts.geom.LinearRing.<init>(LinearRing.java:100)
-	........................................
+    Exception in thread "AWT-EventQueue-0" java.lang.IllegalArgumentException: Points of LinearRing do not form a closed linestring
+        at com.vividsolutions.jts.geom.LinearRing.validateConstruction(LinearRing.java:105)
+        at com.vividsolutions.jts.geom.LinearRing.<init>(LinearRing.java:100)
+        ........................................
 	==> FINAL, ?, OPEN
 * (OF) NullPointerException occures while close session after deleting geometry
        (see for details bug 11 and 10)
+    ==> FINAL, ?, OPEN
+
+* "Profile plot" and "Coordinate List", are not updated when figure selection changes
+  ==> FINAL, MP, CLOSED (OF: when draw a figure in reproj. product)
+
 
 Figures:
 ========

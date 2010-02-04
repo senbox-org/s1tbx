@@ -1,16 +1,20 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.swing.figure.ShapeFigure;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TransectProfileData;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 
@@ -55,7 +59,7 @@ public class StatisticsUtils {
 
         public static TransectProfileData getTransectProfileData(final RasterDataNode raster) throws IOException {
             Shape transectShape = null;
-            if(raster != null) {
+            if (raster != null) {
                 transectShape = getTransectShape(raster.getProduct());
             }
             if (transectShape == null) {
@@ -72,11 +76,23 @@ public class StatisticsUtils {
                 if (sceneView.getProduct() == product) {
                     final ShapeFigure currentShapeFigure = sceneView.getCurrentShapeFigure();
                     if (currentShapeFigure != null) {
-                        return currentShapeFigure.getShape();
+                        Shape shape = currentShapeFigure.getShape();
+                        // shape is in model coordinates
+                        return convertToImageCoordinates(shape, product.getGeoCoding());
                     }
                 }
             }
             return null;
+        }
+
+        private static Shape convertToImageCoordinates(Shape shape, GeoCoding geoCoding) {
+            AffineTransform m2iTransform;
+            try {
+                m2iTransform = ImageManager.getImageToModelTransform(geoCoding).createInverse();
+            } catch (NoninvertibleTransformException ignored) {
+                m2iTransform = new AffineTransform();
+            }
+            return m2iTransform.createTransformedShape(shape);
         }
 
         public static String createTransectProfileText(final RasterDataNode raster) throws IOException {
