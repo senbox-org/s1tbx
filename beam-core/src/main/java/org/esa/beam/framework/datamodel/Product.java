@@ -241,6 +241,15 @@ public class Product extends ProductNode {
                         if (mask.getImageType() instanceof Mask.VectorDataType) {
                             if (Mask.VectorDataType.getVectorData(mask) == vectorDataNode) {
                                 getMaskGroup().remove(mask);
+                                for (Band band : getBands()) {
+                                    deleteMaskFromGroup(band.getRoiMaskGroup(), mask);
+                                    deleteMaskFromGroup(band.getOverlayMaskGroup(), mask);
+                                }
+                                TiePointGrid[] tiePointGrids = getTiePointGrids();
+                                for (TiePointGrid tiePointGrid : tiePointGrids) {
+                                    deleteMaskFromGroup(tiePointGrid.getRoiMaskGroup(), mask);
+                                    deleteMaskFromGroup(tiePointGrid.getOverlayMaskGroup(), mask);
+                                }
                                 break;
                             }
                         }
@@ -256,6 +265,12 @@ public class Product extends ProductNode {
                                            new Mask.VectorDataType());
                 Mask.VectorDataType.setVectorData(mask, vectorDataNode);
                 return mask;
+            }
+            
+            private void deleteMaskFromGroup(ProductNodeGroup<Mask> group, Mask mask) {
+                if (group.contains(mask)) {
+                    group.remove(mask);
+                }
             }
         };
         this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
