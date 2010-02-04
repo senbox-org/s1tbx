@@ -4,7 +4,8 @@ Reprojection:
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
   Remove usage, deprecate and/or remove classes.
   ==> FINAL, ?, OPEN
-* (OF) VISAT is very slowly by handling reproj. data (saved in dim and reopend)
+* (OF) VISAT is sometimes very slow handling reproj. data (saved in dim and reopend).
+  Workflow is unknown to reproduce. Sometimes it happens, sometimes not.
   (+ see bug 8 )
   
 Masks:
