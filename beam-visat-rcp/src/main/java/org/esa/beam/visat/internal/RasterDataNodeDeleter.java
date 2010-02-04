@@ -21,6 +21,7 @@ import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
@@ -52,11 +53,30 @@ public class RasterDataNodeDeleter {
     private static final String INDENT = "    ";
     
     public static void deleteVectorDataNode(VectorDataNode vectorDataNode) {
-        String message = MessageFormat.format("Do you really want to delete the geometry ''{0}''?\nThis action cannot be undone.\n\n", vectorDataNode.getName());
-        int status = VisatApp.getApp().showQuestionDialog("Delete Geometry",
-                                                          message, null);
+        Assert.notNull(vectorDataNode);
+        Product product = vectorDataNode.getProduct();
+        ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+        Mask vectorMask = null;
+        for (int i = 0; i < maskGroup.getNodeCount(); i++) {
+            Mask mask = maskGroup.get(i);
+            if (mask.getImageType() instanceof Mask.VectorDataType && 
+                    Mask.VectorDataType.getVectorData(mask) == vectorDataNode) {
+                    vectorMask = mask;
+                    break;
+            }
+        }
+        String message;
+        if (vectorMask != null) {
+            List<RasterDataNode> virtualBands = getReferencedVirtualBands(vectorMask);
+            List<RasterDataNode> validMaskNodes = getReferencedValidMasks(vectorMask);
+            List<RasterDataNode> masks = getReferencedMasks(vectorMask);
+            VectorDataNode[] nodes = new VectorDataNode[] {vectorDataNode};
+            message = formatPromptMessage("Geometry", nodes, virtualBands, validMaskNodes, masks);
+        } else {
+            message = MessageFormat.format("Do you really want to delete the geometry ''{0}''?\nThis action cannot be undone.\n\n", vectorDataNode.getName());
+        }
+        int status = VisatApp.getApp().showQuestionDialog("Delete Geometry", message, null);
         if (status == JOptionPane.YES_OPTION) {
-            Product product = vectorDataNode.getProduct();
             product.getVectorDataGroup().remove(vectorDataNode);
         }
     }
@@ -80,7 +100,8 @@ public class RasterDataNodeDeleter {
             validMaskNodesSet.remove(raster);
             masksSet.remove(raster);
         }
-        String message = formatPromptMessage(rasterNodes, virtualBandsSet, validMaskNodesSet, masksSet);
+        String typeName = getTypeName(rasterNodes);
+        String message = formatPromptMessage(typeName, rasterNodes, virtualBandsSet, validMaskNodesSet, masksSet);
         deleteRasterDataNodesImpl(rasterNodes, message);
     }
     
@@ -91,7 +112,8 @@ public class RasterDataNodeDeleter {
         List<RasterDataNode> masks = getReferencedMasks(raster);
         
         RasterDataNode[] rasters = new RasterDataNode[] {raster};
-        String message = formatPromptMessage(rasters, virtualBands, validMaskNodes, masks);
+        String typeName = getTypeName(rasters);
+        String message = formatPromptMessage(typeName, rasters, virtualBands, validMaskNodes, masks);
         deleteRasterDataNodesImpl(rasters, message);
     }
 
@@ -134,22 +156,22 @@ public class RasterDataNodeDeleter {
         }
     }
     
-    private static String formatPromptMessage(RasterDataNode[] rasters, 
+    private static String formatPromptMessage(String description, ProductNode[] nodes, 
                                               Collection<RasterDataNode> virtualBands, Collection<RasterDataNode> validMaskNodes,
                                               Collection<RasterDataNode> masks) {
-        String description = getDescription(rasters);
+        
         
         String name;
         StringBuilder message = new StringBuilder();
-        if ((rasters.length>1)) {
+        if ((nodes.length>1)) {
             message.append(MessageFormat.format("Do you really want to delete the following {0}:\n", description));
-            for (RasterDataNode raster : rasters) {
+            for (ProductNode node : nodes) {
                 message.append(INDENT);
-                message.append(raster.getName());
+                message.append(node.getName());
                 message.append("\n");
             }
         } else {
-            name = rasters[0].getName();
+            name = nodes[0].getName();
             message.append(MessageFormat.format("Do you really want to delete the {0} ''{1}''?\n", description, name));
         }
         message.append("This action cannot be undone.\n\n");
@@ -157,7 +179,7 @@ public class RasterDataNodeDeleter {
         if (!virtualBands.isEmpty()
                 || !validMaskNodes.isEmpty()
                 || !masks.isEmpty()) {
-            if ((rasters.length>1)) {
+            if ((nodes.length>1)) {
                 message.append(MessageFormat.format("The {0} to be deleted are referenced by\n", description));
             } else {
                 message.append(MessageFormat.format("The {0} to be deleted is referenced by\n", description));
@@ -190,7 +212,7 @@ public class RasterDataNodeDeleter {
         return message.toString();
     }
     
-    private static String getDescription(RasterDataNode[] rasters) {
+    private static String getTypeName(RasterDataNode[] rasters) {
         String description = "";
         if (rasters[0] instanceof Mask) {
             description = "mask";
