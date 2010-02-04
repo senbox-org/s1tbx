@@ -792,6 +792,18 @@
 
         <action>
             <parent>export</parent>
+            <id>exportGeometry</id>
+            <class>org.esa.beam.visat.actions.ExportGeometryAction</class>
+            <text>Export Geometry as Shapefile...</text>
+            <mnemonic>M</mnemonic>
+            <shortDescr>Exports the currently selected geometry.</shortDescr>
+            <description>Exports the currently selected geometry as ESRI Shapefile.</description>
+            <context>vectorDataNode, image</context>
+            <helpId>exportGeometry</helpId>
+        </action>
+
+        <action>
+            <parent>export</parent>
             <id>exportEnviGcpFile</id>
             <class>org.esa.beam.visat.actions.ExportEnviGcpFileAction</class>
             <text>Export Geo-Coding as ENVI GCP File...</text>

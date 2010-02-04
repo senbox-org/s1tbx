@@ -11,12 +11,10 @@ import org.esa.beam.framework.ui.product.SimpleFeatureFigure;
 import org.esa.beam.framework.ui.product.SimpleFeatureFigureFactory;
 import org.esa.beam.framework.ui.product.SimpleFeaturePointFigure;
 import org.esa.beam.framework.ui.product.SimpleFeatureShapeFigure;
+import org.esa.beam.visat.actions.ExportGeometryAction;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
-import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureSource;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
@@ -25,17 +23,16 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.awt.Color;
-import java.awt.BasicStroke;
 
 public class FeatureFigureEditorApp extends FigureEditorApp {
 
@@ -110,37 +107,11 @@ public class FeatureFigureEditorApp extends FigureEditorApp {
             }
             featureList.add(simpleFeature);
         }
-
         Set<Map.Entry<Class<?>, List<SimpleFeature>>> entries = featureListMap.entrySet();
         for (Map.Entry<Class<?>, List<SimpleFeature>> entry : entries) {
             Class<?> geomType = entry.getKey();
-            String geomName = geomType.getSimpleName();
-            String basename = file.getName();
-            if (basename.endsWith(".shp")) {
-                basename = basename.substring(0, basename.length() - 4);
-            }
-            File file1 = new File(file.getParentFile(), basename + "_" + geomName + ".shp");
-            System.out.println("file1 = " + file1);
-
-            ShapefileDataStoreFactory factory = new ShapefileDataStoreFactory();
-            Map map = Collections.singletonMap("url", file1.toURI().toURL());
-            DataStore dataStore = factory.createNewDataStore(map);
             List<SimpleFeature> features = entry.getValue();
-            SimpleFeature simpleFeature = features.get(0);
-            String typeName = "FT_" + geomName;
-            SimpleFeatureType simpleFeatureType = createSimpleFeatureType(typeName, geomType, simpleFeature.getType());
-            dataStore.createSchema(simpleFeatureType);
-            FeatureStore<SimpleFeatureType, SimpleFeature> featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore.getFeatureSource(typeName);
-            DefaultTransaction transaction = new DefaultTransaction("X");
-            featureStore.setTransaction(transaction);
-            featureStore.addFeatures(DataUtilities.collection(features));
-            try {
-                transaction.commit();
-            } catch (IOException e) {
-                transaction.rollback();
-            }
-            transaction.close();
-
+            ExportGeometryAction.writeEsriShapefile(geomType, features,file);
         }
     }
 

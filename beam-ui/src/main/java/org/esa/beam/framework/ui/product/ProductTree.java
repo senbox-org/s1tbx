@@ -764,6 +764,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 // TODO:
 //            menuItem = new JMenuItem("Open Attribute Editor...");
 //            popup.add(menuItem);
+        } else if(context instanceof VectorDataNode) {
+            if (commandUIFactory != null) {
+                commandUIFactory.addContextDependentMenuItems("vectorDataNode", popup);
+            }
         }
 
         return popup;
