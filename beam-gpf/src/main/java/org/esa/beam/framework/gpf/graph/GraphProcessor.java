@@ -29,6 +29,7 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.TileComputationListener;
 import javax.media.jai.TileRequest;
 import javax.media.jai.TileScheduler;
+import javax.media.jai.util.ImagingListener;
 
 /**
  * The <code>GraphProcessor</code> is responsible for executing processing
@@ -43,6 +44,7 @@ public class GraphProcessor {
 
     private List<GraphProcessingObserver> observerList;
     private Logger logger;
+    private volatile OperatorException error = null;
 
 
     /**
@@ -179,6 +181,9 @@ public class GraphProcessor {
             numPmTicks += dimension.width * dimension.height * tileDimMap.get(dimension).size();
         }
         
+        ImagingListener imagingListener = JAI.getDefaultInstance().getImagingListener();
+        JAI.getDefaultInstance().setImagingListener(new GPFImagingListener());
+        
         final TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
         final int parallelism = tileScheduler.getParallelism();
         final Semaphore semaphore = new Semaphore(parallelism , true);
@@ -212,7 +217,7 @@ public class GraphProcessor {
                                 for (Band band : targetProduct.getBands()) {
                                     PlanarImage image = nodeContext.getTargetImage(band);
                                     if (image != null) {
-                                        forceTileComputation(image, tileX, tileY, semaphore, tileScheduler, listeners);
+                                        forceTileComputation(image, tileX, tileY, semaphore, tileScheduler, listeners, parallelism);
                                         break;
                                     }
                                 }
@@ -223,7 +228,7 @@ public class GraphProcessor {
                                     PlanarImage image = nodeContext.getTargetImage(band);
                                     if (image == null) {
                                         if (OperatorContext.isRegularBand(band) && band.isSourceImageSet()) {
-                                            forceTileComputation(band.getSourceImage(), tileX, tileY, semaphore, tileScheduler, listeners);
+                                            forceTileComputation(band.getSourceImage(), tileX, tileY, semaphore, tileScheduler, listeners, parallelism);
                                         }
                                     }
                                 }
@@ -234,9 +239,9 @@ public class GraphProcessor {
                                 for (Band band : targetProduct.getBands()) {
                                     PlanarImage image = nodeContext.getTargetImage(band);
                                     if (image != null) {
-                                        forceTileComputation(image, tileX, tileY, semaphore, tileScheduler, listeners);
+                                        forceTileComputation(image, tileX, tileY, semaphore, tileScheduler, listeners, parallelism);
                                     } else if (OperatorContext.isRegularBand(band) && band.isSourceImageSet()) {
-                                        forceTileComputation(band.getSourceImage(), tileX, tileY, semaphore, tileScheduler, listeners);
+                                        forceTileComputation(band.getSourceImage(), tileX, tileY, semaphore, tileScheduler, listeners, parallelism);
                                     }
                                 }
                             }
@@ -248,8 +253,13 @@ public class GraphProcessor {
                 }
             }
             acquirePermits(semaphore, parallelism);
+            if (error != null) {
+                throw error;
+            }
         } finally {
+            semaphore.release(parallelism);
             pm.done();
+            JAI.getDefaultInstance().setImagingListener(imagingListener);
             fireProcessingStopped(graphContext);
         }
     }
@@ -273,14 +283,18 @@ public class GraphProcessor {
         return tileSizeMap;
     }
 
-    private static void forceTileComputation(PlanarImage image, int tileX, int tileY, Semaphore semaphore,
-                                             TileScheduler tileScheduler, TileComputationListener[] listeners) {
+    private void forceTileComputation(PlanarImage image, int tileX, int tileY, Semaphore semaphore,
+                                             TileScheduler tileScheduler, TileComputationListener[] listeners, int parallelism) {
         /////////////////////////////////////////////////////////////////////
         //
         // GPF pull-processing is triggered here!!!
         //
         Point[] points = new Point[] {new Point(tileX, tileY)};
         acquirePermits(semaphore, 1);
+        if (error != null) {
+            semaphore.release(parallelism);
+            throw error;
+        }
         tileScheduler.scheduleTiles(image, points, listeners);
         
         //
@@ -384,7 +398,7 @@ public class GraphProcessor {
         }
     }
 
-    private static class GraphTileComputationListener implements TileComputationListener {
+    private class GraphTileComputationListener implements TileComputationListener {
 
         private final Semaphore semaphore;
         private final int parallelism;
@@ -404,16 +418,32 @@ public class GraphProcessor {
         @Override
         public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                   int tileY) {
+            if (error == null) {
+                error = new OperatorException("Operation cancelled.");
+            }
             semaphore.release(parallelism);
-            throw new OperatorException("Operation cancelled.");
         }
 
         @Override
         public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,
                                            int tileY, Throwable situation) {
+            if (error == null) {
+                error = new OperatorException("Operation failed.", situation);
+            }
             semaphore.release(parallelism);
-            throw new OperatorException("Operation failed.", situation);
         }
-    } 
+    }
+    
+    private class GPFImagingListener implements ImagingListener {
+
+        @Override
+        public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable)
+                                                                                                         throws RuntimeException {
+            if (error == null) {
+                error = new OperatorException(thrown);
+            }
+            return false;
+        }
+    }
 
 }
