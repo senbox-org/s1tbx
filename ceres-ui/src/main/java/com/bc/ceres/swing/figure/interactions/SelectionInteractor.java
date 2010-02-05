@@ -50,10 +50,12 @@ public class SelectionInteractor extends FigureEditorInteractor {
 
     @Override
     public void mousePressed(MouseEvent event) {
-        referencePoint = event.getPoint();
-        canceled = false;
-        tool = selectPointTool;
-        figureMemento = null;
+        if(startInteraction(event)){
+            referencePoint = event.getPoint();
+            canceled = false;
+            tool = selectPointTool;
+            figureMemento = null;
+        }
     }
 
     @Override
@@ -78,6 +80,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
     @Override
     public void mouseReleased(MouseEvent event) {
         if (!canceled) {
+            stopInteraction(event);
             tool.end(event);
             setCursor(event);
         }

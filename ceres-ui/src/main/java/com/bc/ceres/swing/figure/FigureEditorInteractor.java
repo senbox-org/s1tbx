@@ -10,7 +10,7 @@ public abstract class FigureEditorInteractor extends ViewportInteractor {
     protected FigureEditorInteractor() {
     }
 
-    protected FigureEditor getFigureEditor(InputEvent inputEvent) {
+    public FigureEditor getFigureEditor(InputEvent inputEvent) {
         return getFigureEditor(inputEvent.getComponent());
     }
 
