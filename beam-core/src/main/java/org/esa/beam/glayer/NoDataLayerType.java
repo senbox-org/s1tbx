@@ -30,12 +30,11 @@ public class NoDataLayerType extends ImageLayer.Type {
         final Color color = (Color) configuration.getValue(PROPERTY_NAME_COLOR);
         Assert.notNull(color, PROPERTY_NAME_COLOR);
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
-        final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
-                ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
 
         MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         if (multiLevelSource == null) {
             if (raster.getValidMaskExpression() != null) {
+                final AffineTransform i2mTransform = raster.getSourceImage().getModel().getImageToModelTransform(0);
                 multiLevelSource = MaskImageMultiLevelSource.create(raster.getProduct(), color,
                                                                     raster.getValidMaskExpression(), true,
                                                                     i2mTransform);

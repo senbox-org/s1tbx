@@ -38,8 +38,7 @@ public class RgbImageLayerType extends ImageLayer.Type {
             rgbExpressions[2] = (String) configuration.getValue(PROPERTY_NAME_EXPRESSION_B);
             final RasterDataNode[] rasters = getRgbBands(product, rgbExpressions);
 
-            final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
-                    ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
+            final AffineTransform i2mTransform = rasters[0].getSourceImage().getModel().getImageToModelTransform(0);
             multiLevelSource = BandImageMultiLevelSource.create(rasters, i2mTransform,
                                                                 ProgressMonitor.NULL);
         }
@@ -104,8 +103,6 @@ public class RgbImageLayerType extends ImageLayer.Type {
         if (multiLevelSource == null) {
             multiLevelSource = BandImageMultiLevelSource.create(rasters, ProgressMonitor.NULL);
         }
-        configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
-                               multiLevelSource.getModel().getImageToModelTransform(0));
         configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);

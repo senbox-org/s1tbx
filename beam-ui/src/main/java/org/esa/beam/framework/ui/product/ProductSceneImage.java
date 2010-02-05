@@ -323,7 +323,6 @@ public class ProductSceneImage implements ProductLayerContext {
         final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
         configTemplate.setValue(NoDataLayerType.PROPERTY_NAME_COLOR, color);
         configTemplate.setValue(NoDataLayerType.PROPERTY_NAME_RASTER, getRaster());
-        configTemplate.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
         return noDatatype.createLayer(this, configTemplate);
     }
 

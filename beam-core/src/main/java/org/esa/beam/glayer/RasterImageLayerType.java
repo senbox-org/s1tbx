@@ -22,8 +22,7 @@ public class RasterImageLayerType extends ImageLayer.Type {
                 ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         if (multiLevelSource == null) {
             final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
-            final AffineTransform i2mTransform = (AffineTransform) configuration.getValue(
-                    ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
+            final AffineTransform i2mTransform = raster.getSourceImage().getModel().getImageToModelTransform(0);
             multiLevelSource = BandImageMultiLevelSource.create(raster, i2mTransform, ProgressMonitor.NULL);
             configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         }
@@ -47,8 +46,6 @@ public class RasterImageLayerType extends ImageLayer.Type {
         if (multiLevelSource == null) {
             multiLevelSource = BandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);
         }
-        configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM,
-                               multiLevelSource.getModel().getImageToModelTransform(0));
         configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         return createLayer(null, configuration);
     }

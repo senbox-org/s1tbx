@@ -115,23 +115,23 @@ GPF Processors:
 
 SMOS-Box:
 =========
-* Speed up statistics for virtual bands (Stokes etc.)
-  ==> FINAL, RQ, OPEN
 * We need the RasterDataNode.areaOfInterest:Geometry new property for boosting
   statistics computation and possibly also display. This property is optional but
   some product readers may set it, e.g. SMOS reader. Tile bounds can easily be
   tested for intersection with areaOfInterest and possibly ignored.
-  Also very important for SMOS-Box 2.0.1
+  Also very important for SMOS-Box 2.1
   ==> FINAL, *, OPEN
-* (OF) Warning "Illegal element 'imageToModelTransform'" by open session
+* Warning "Illegal element 'imageToModelTransform'" by open session
   open session
   -->
-  VISAT-Warning: " The following problen(s) occured:
+  VISAT-Warning: " The following problem(s) occured:
   Illegal element 'imageToModelTransform'
   However the session will be opened
-  ==> FINAL, RQ, OPEN
-* (OF) Pin table with band values is not updated when snapshot ID is changed
-  ==> FINAL, RQ, OPEN
+  ==> FINAL, RQ, CLOSED (needs to be tested by OF)
+* Pin table with band values is not updated when snapshot ID is changed
+  ==> FINAL, RQ, CLOSED (needs to be tested by OF)
+* Speed up statistics for Stokes bands
+  ==> FINAL, RQ, CLOSED (duplicated)
 
 GlobToolbox
 ===========

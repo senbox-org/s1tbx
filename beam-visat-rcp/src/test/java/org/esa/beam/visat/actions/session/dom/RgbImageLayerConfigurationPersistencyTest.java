@@ -29,7 +29,6 @@ public class RgbImageLayerConfigurationPersistencyTest extends AbstractLayerConf
         configuration.setValue("expressionR", "a + b");
         configuration.setValue("expressionG", "b + c");
         configuration.setValue("expressionB", "a - c");
-        configuration.setValue("imageToModelTransform", new AffineTransform());
         return layerType.createLayer(null, configuration);
     }
 }

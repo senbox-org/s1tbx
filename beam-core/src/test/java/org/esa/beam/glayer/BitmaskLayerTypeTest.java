@@ -30,7 +30,6 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
         assertNotNull(template);
         ensurePropertyIsDeclaredButNotDefined(template, "bitmaskDef", BitmaskDef.class);
         ensurePropertyIsDeclaredButNotDefined(template, "product", Product.class);
-        ensurePropertyIsDeclaredButNotDefined(template, "imageToModelTransform", AffineTransform.class);
 
         ensurePropertyIsDefined(template, "borderShown", Boolean.class);
         ensurePropertyIsDefined(template, "borderWidth", Double.class);
@@ -47,7 +46,6 @@ public class BitmaskLayerTypeTest extends LayerTypeTest {
 
         final PropertySet config = getLayerType().createLayerConfig(null);
         config.setValue("product", product);
-        config.setValue("imageToModelTransform", new AffineTransform());
         config.setValue("bitmaskDef", bitmaskDef);
 
         final Layer layer = getLayerType().createLayer(null, config);

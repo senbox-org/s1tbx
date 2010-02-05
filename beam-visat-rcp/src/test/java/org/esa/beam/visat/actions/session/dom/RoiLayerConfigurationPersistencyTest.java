@@ -46,7 +46,6 @@ public class RoiLayerConfigurationPersistencyTest extends AbstractLayerConfigura
         configuration.setValue("raster", raster);
         configuration.setValue("color", new Color(17, 11, 67));
         configuration.setValue("transparency", 0.5);
-        configuration.setValue("imageToModelTransform", new AffineTransform());
         return layerType.createLayer(null, configuration);
     }
 }

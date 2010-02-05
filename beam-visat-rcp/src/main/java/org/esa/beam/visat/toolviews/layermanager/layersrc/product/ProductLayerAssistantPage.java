@@ -96,7 +96,6 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, rasterDataNode);
         final GeoCoding geoCoding = rasterDataNode.getGeoCoding();
         AffineTransform i2mTransform = ImageManager.getImageToModelTransform(geoCoding);
-        configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);

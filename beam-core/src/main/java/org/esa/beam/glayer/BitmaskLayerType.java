@@ -30,7 +30,6 @@ public class BitmaskLayerType extends ImageLayer.Type {
         final PropertySet configuration = type.createLayerConfig(null);
         configuration.setValue(BitmaskLayerType.PROPERTY_NAME_BITMASK_DEF, bitmaskDef);
         configuration.setValue(BitmaskLayerType.PROPERTY_NAME_PRODUCT, raster.getProduct());
-        configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
         final Layer layer = type.createLayer(null, configuration);
         final BitmaskOverlayInfo overlayInfo = raster.getBitmaskOverlayInfo();
         layer.setVisible(overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDef));
@@ -78,7 +77,6 @@ public class BitmaskLayerType extends ImageLayer.Type {
         final PropertySet configuration = createLayerConfig(null);
         configuration.setValue(PROPERTY_NAME_BITMASK_DEF, bitmaskDef);
         configuration.setValue(PROPERTY_NAME_PRODUCT, product);
-        configuration.setValue(ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2m);
         return createLayer(null, configuration);
     }
 

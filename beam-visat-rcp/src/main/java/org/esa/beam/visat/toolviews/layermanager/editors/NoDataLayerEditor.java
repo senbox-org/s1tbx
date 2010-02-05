@@ -46,8 +46,7 @@ public class NoDataLayerEditor extends AbstractLayerConfigurationEditor {
                 final Color newColor = (Color) evt.getNewValue();
                 final RasterDataNode raster = (RasterDataNode) configuration.getValue(
                         NoDataLayerType.PROPERTY_NAME_RASTER);
-                final AffineTransform transform = (AffineTransform) configuration.getValue(
-                        ImageLayer.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
+                final AffineTransform transform = raster.getSourceImage().getModel().getImageToModelTransform(0);
                 MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(raster.getProduct(),
                                                                                      newColor,
                                                                                      raster.getValidMaskExpression(),

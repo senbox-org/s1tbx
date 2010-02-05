@@ -41,7 +41,6 @@ public class BitmaskLayerConfigurationPersistencyTest extends AbstractLayerConfi
         assertNotNull(originalConfiguration);
 
         originalConfiguration.setValue("bitmaskDef", bitmaskDef);
-        originalConfiguration.setValue("imageToModelTransform", new AffineTransform());
         originalConfiguration.setValue("product", bitmaskDef.getProduct());
 
         return layerType.createLayer(null, originalConfiguration);

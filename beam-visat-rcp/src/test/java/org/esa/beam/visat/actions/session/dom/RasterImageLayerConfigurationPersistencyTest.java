@@ -20,7 +20,6 @@ public class RasterImageLayerConfigurationPersistencyTest extends AbstractLayerC
         final PropertySet configuration = layerType.createLayerConfig(null);
         final Band raster = getProductManager().getProduct(0).getBandAt(0);
         configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, raster);
-        configuration.setValue("imageToModelTransform", new AffineTransform());
         return layerType.createLayer(null, configuration);
     }
 }
