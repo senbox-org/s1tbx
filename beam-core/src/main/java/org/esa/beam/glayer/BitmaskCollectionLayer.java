@@ -160,6 +160,11 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
 
         public static final String PROPERTY_NAME_RASTER = "raster";
+        /**
+         * @deprecated since BEAM 4.7, no replacement; kept for compatibility of sessions
+         */
+        @Deprecated
+        private static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
 
         @Override
         public Layer createLayer(LayerContext ctx, PropertySet configuration) {
@@ -172,8 +177,13 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         public PropertySet createLayerConfig(LayerContext ctx) {
             final PropertySet prototype = super.createLayerConfig(ctx);
 
-            prototype.addProperty(Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class));
-            prototype.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
+            final Property rasterProperty = Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class);
+            rasterProperty.getDescriptor().setNotNull(true);
+            prototype.addProperty(rasterProperty);
+
+            final Property i2mProperty = Property.create(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class);
+            i2mProperty.getDescriptor().setTransient(true);
+            prototype.addProperty(i2mProperty);
 
             return prototype;
 
