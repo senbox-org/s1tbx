@@ -50,8 +50,6 @@ Figures:
 ========
 * Select-tool shall auto-select layer containing a clicked figure
   ==> FINAL, NF, OPEN
-* Deprecate or even completely remove ald Figure + Tool classes
-  ==> FINAL, MP, ONGOING
 * Still can't rotate figures.
   ==> FINAL, NF, OPEN
 * Number of created vertex handles should be dependent on current viewport
@@ -69,6 +67,9 @@ Figures:
   ==> FINAL, ?, OPEN
 * Allow for geometric operations on geometries: add/sub/intersection (JTS!)
   ==> FINAL, ?, OPEN
+
+* Deprecate or even completely remove ald Figure + Tool classes
+  ==> FINAL, MP, CLOSED
 
 Product tree:
 =============

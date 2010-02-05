@@ -24,7 +24,9 @@ import java.util.EventObject;
  *
  * @author Norman Fomferra
  * @version $Revision$  $Date$
+* @deprecated since BEAM 4.7, no replacement
  */
+@Deprecated
 public class FigureChangeEvent extends EventObject {
 
     private static final Rectangle _EMPTY_RECT = new Rectangle(0, 0, 0, 0);

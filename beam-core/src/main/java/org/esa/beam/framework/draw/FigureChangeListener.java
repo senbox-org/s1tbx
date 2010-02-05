@@ -23,7 +23,9 @@ import java.util.EventListener;
  *
  * @author Norman Fomferra
  * @version $Revision$  $Date$
+ * @deprecated since BEAM 4.7, no replacement
  */
+@Deprecated
 public interface FigureChangeListener extends EventListener {
 
     /**

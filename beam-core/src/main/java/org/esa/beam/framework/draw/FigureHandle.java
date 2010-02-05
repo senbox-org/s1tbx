@@ -25,7 +25,9 @@ import java.awt.geom.Rectangle2D;
  *
  * @author Norman Fomferra
  * @version $Revision$  $Date$
+ * @deprecated since BEAM 4.7, no replacement
  */
+@Deprecated
 public interface FigureHandle extends Drawable {
 
     public static final int HANDLESIZE = 8;

@@ -16,9 +16,9 @@
  */
 package org.esa.beam.framework.ui.tool;
 
-import java.awt.Cursor;
-
 import org.esa.beam.framework.draw.Drawable;
+
+import java.awt.Cursor;
 
 /**
  * A tool is used to let a user operate on a, usually graphical, view.
@@ -30,7 +30,9 @@ import org.esa.beam.framework.draw.Drawable;
  *
  * @author Norman Fomferra
  * @version $Revision$  $Date$
+ * @deprecated since BEAM 4.7, no replacement
  */
+@Deprecated
 public interface Tool {
 
     /**

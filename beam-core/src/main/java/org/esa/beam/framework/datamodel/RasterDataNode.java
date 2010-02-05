@@ -64,25 +64,25 @@ import java.util.LinkedList;
  */
 public abstract class RasterDataNode extends DataNode implements Scaling {
 
-    public final static String PROPERTY_NAME_IMAGE_INFO = "imageInfo";
-    public final static String PROPERTY_NAME_BITMASK_OVERLAY_INFO = "bitmaskOverlayInfo";
-    public final static String PROPERTY_NAME_LOG_10_SCALED = "log10Scaled";
-    public final static String PROPERTY_NAME_ROI_DEFINITION = "roiDefinition";
-    public final static String PROPERTY_NAME_SCALING_FACTOR = "scalingFactor";
-    public final static String PROPERTY_NAME_SCALING_OFFSET = "scalingOffset";
-    public final static String PROPERTY_NAME_SAMPLE_RANGE = "sampleRange";
-    public final static String PROPERTY_NAME_SAMPLE_FREQUENCIES = "sampleFrequencies";
-    public final static String PROPERTY_NAME_NO_DATA_VALUE = "noDataValue";
-    public final static String PROPERTY_NAME_NO_DATA_VALUE_USED = "noDataValueUsed";
-    public final static String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
-    public final static String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
-    public final static String PROPERTY_NAME_STX = "stx";
+    public static final String PROPERTY_NAME_IMAGE_INFO = "imageInfo";
+    public static final String PROPERTY_NAME_BITMASK_OVERLAY_INFO = "bitmaskOverlayInfo";
+    public static final String PROPERTY_NAME_LOG_10_SCALED = "log10Scaled";
+    public static final String PROPERTY_NAME_ROI_DEFINITION = "roiDefinition";
+    public static final String PROPERTY_NAME_SCALING_FACTOR = "scalingFactor";
+    public static final String PROPERTY_NAME_SCALING_OFFSET = "scalingOffset";
+    public static final String PROPERTY_NAME_SAMPLE_RANGE = "sampleRange";
+    public static final String PROPERTY_NAME_SAMPLE_FREQUENCIES = "sampleFrequencies";
+    public static final String PROPERTY_NAME_NO_DATA_VALUE = "noDataValue";
+    public static final String PROPERTY_NAME_NO_DATA_VALUE_USED = "noDataValueUsed";
+    public static final String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
+    public static final String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
+    public static final String PROPERTY_NAME_STX = "stx";
 
     /**
      * Text returned by the <code>{@link #getPixelString}</code> method if no data is available at the given pixel
      * position.
      */
-    public final static String NO_DATA_TEXT = "NaN"; /*I18N*/
+    public static final String NO_DATA_TEXT = "NaN"; /*I18N*/
     /**
      * Text returned by the <code>{@link #getPixelString}</code> method if no data is available at the given pixel
      * position.
@@ -2175,12 +2175,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
     }
 
-    final static class DelegatingValidator implements IndexValidator {
+    static final class DelegatingValidator implements IndexValidator {
 
         private final IndexValidator validator1;
         private final IndexValidator validator2;
 
-        public DelegatingValidator(IndexValidator validator1, IndexValidator validator2) {
+        DelegatingValidator(IndexValidator validator1, IndexValidator validator2) {
             this.validator1 = validator1;
             this.validator2 = validator2;
         }
@@ -2192,29 +2192,29 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
     }
 
-    final static class ValidMaskValidator implements IndexValidator {
+    static final class ValidMaskValidator implements IndexValidator {
 
         private final int pixelOffset;
         private final BitRaster validMask;
 
-        public ValidMaskValidator(int rasterWidth, int lineOffset, BitRaster validMask) {
+        ValidMaskValidator(int rasterWidth, int lineOffset, BitRaster validMask) {
             this.pixelOffset = rasterWidth * lineOffset;
             this.validMask = validMask;
         }
 
         @Override
-        public final boolean validateIndex(final int pixelIndex) {
+        public boolean validateIndex(final int pixelIndex) {
             return validMask.isSet(pixelOffset + pixelIndex);
         }
     }
 
-    final static class RoiValidator implements IndexValidator {
+    static final class RoiValidator implements IndexValidator {
 
         private final int rasterWidth;
         private final int lineOffset;
         private final ROI roi;
 
-        public RoiValidator(int rasterWidth, int lineOffset, ROI roi) {
+        RoiValidator(int rasterWidth, int lineOffset, ROI roi) {
             this.rasterWidth = rasterWidth;
             this.lineOffset = lineOffset;
             this.roi = roi;
@@ -2256,7 +2256,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @return {@code true} if a ROI is usable for this raster data node.
      *
-     * @Deprecated since BEAM 4.7, use {@link #getRoiMaskGroup()}
+     * @deprecated since BEAM 4.7, use {@link #getRoiMaskGroup()}
      */
     @Deprecated
     public boolean isROIUsable() {
@@ -2266,7 +2266,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @return the ROI definition
      *
-     * @Deprecated since BEAM 4.7, use {@link #getRoiMaskGroup()}
+     * @deprecated since BEAM 4.7, use {@link #getRoiMaskGroup()}
      */
     @Deprecated
     public ROIDefinition getROIDefinition() {
@@ -2278,7 +2278,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param roiDefinition the ROI definition
      *
-     * @Deprecated since BEAM 4.7, use {@link #getRoiMaskGroup()}
+     * @deprecated since BEAM 4.7, use {@link #getRoiMaskGroup()}
      */
     @Deprecated
     public void setROIDefinition(ROIDefinition roiDefinition) {

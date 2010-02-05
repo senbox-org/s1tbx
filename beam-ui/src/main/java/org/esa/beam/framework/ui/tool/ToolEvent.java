@@ -23,7 +23,9 @@ import java.util.EventObject;
  *
  * @author Norman Fomferra
  * @version $Revision$  $Date$
+ * @deprecated since BEAM 4.7, no replacement
  */
+@Deprecated
 public class ToolEvent extends EventObject {
 
     private static final long serialVersionUID = -1684715655211544971L;

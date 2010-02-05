@@ -21,7 +21,10 @@ import java.util.Map;
 
 /**
  * A shape figure that represents a one-dimensional line.
+ *
+ * @deprecated since BEAM 4.7, no replacement
  */
+@Deprecated
 public class LineFigure extends ShapeFigure {
 
     public LineFigure(Shape shape, Map<String, Object> attributes) {

@@ -16,21 +16,22 @@
  */
 package org.esa.beam.framework.ui.tool;
 
+import org.esa.beam.framework.draw.Drawable;
+
+import javax.swing.event.EventListenerList;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-
-import javax.swing.event.EventListenerList;
-
-import org.esa.beam.framework.draw.Drawable;
 
 /**
  * An abstract implementation of the tool interface.
  *
  * @author Norman Fomferra
  * @version $Revision$  $Date$
+ * @deprecated since BEAM 4.7, no replacement
  */
+@Deprecated
 public abstract class AbstractTool implements Tool, Drawable {
 
     private boolean _active;

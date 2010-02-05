@@ -37,7 +37,9 @@ import java.util.Map;
  *
  * @author Norman Fomferra
  * @version $Revision$  $Date$
+* @deprecated since BEAM 4.7, no replacement
  */
+@Deprecated
 public class ShapeFigure extends AbstractFigure {
 
     private final Shape shape;

@@ -21,7 +21,9 @@ import java.util.Map;
 
 /**
  * A shape figure that represents a two-dimensional area.
+ * @deprecated since BEAM 4.7, no replacement
  */
+@Deprecated
 public class AreaFigure extends ShapeFigure {
 
     public AreaFigure(Shape shape, Map<String, Object> attributes) {

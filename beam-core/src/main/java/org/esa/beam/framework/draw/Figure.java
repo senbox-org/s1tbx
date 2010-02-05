@@ -37,7 +37,9 @@ import java.util.Map;
  * @version $Revision$  $Date$
  * @see FigureHandle
  * @see AbstractFigure
+ * @deprecated since BEAM 4.7, no replacement
  */
+@Deprecated
 public interface Figure extends Drawable, Cloneable, Serializable {
 
     /**
