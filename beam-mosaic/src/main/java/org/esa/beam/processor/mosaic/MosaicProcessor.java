@@ -402,8 +402,9 @@ public class MosaicProcessor extends Processor {
                         flagCodingOut.addFlag(flagName, flagMask, flag.getDescription());
                     }
                 }
-                // todo - (nf) remove call to ProductUtils.copyBitmaskDefs
-                ProductUtils.copyBitmaskDefs(inpProduct, outputProduct);
+                ProductUtils.copyMasks(inpProduct, outputProduct);
+                ProductUtils.copyOverlayMasks(inpProduct, outputProduct);
+                
                 ProductUtils.copyBandsForGeomTransform(inpProduct, outputProduct, PROJECTION_DEFAULT_NO_DATA_VALUE,
                                                        null);
                 // todo - (nf) add call to ProductUtils.copyBitmaskDefinitions

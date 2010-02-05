@@ -14,13 +14,12 @@ package com.bc.beam.processor.ndvi;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -61,7 +60,7 @@ public class NdviProcessor extends Processor {
     public static final String HELP_ID = "NDVIProcessorPlugIn";
     public static final String HELPSET_PATH = "com/bc/beam/processor/ndvi/help/NdviProcessor.hs";
 
-    public final static String DEFAULT_OUTPUT_FORMAT = DimapProductConstants.DIMAP_FORMAT_NAME;
+    public static final String DEFAULT_OUTPUT_FORMAT = DimapProductConstants.DIMAP_FORMAT_NAME;
     private static final String DEFAULT_LOG_PREFIX = "ndvi";
     public static final String DEFAULT_OUTPUT_PRODUCT_NAME = "MER_NDVI2P.dim";
 
@@ -312,23 +311,23 @@ public class NdviProcessor extends Processor {
         //
         _ndviFlagsOutputBand = new Band(NDVI_FLAGS_BAND_NAME, ProductData.TYPE_UINT8, sceneWidth, sceneHeight);
         _ndviFlagsOutputBand.setDescription("NDVI specific flags");
-        _ndviFlagsOutputBand.setFlagCoding(ndviFlagCoding);
+        _ndviFlagsOutputBand.setSampleCoding(ndviFlagCoding);
         _outputProduct.addBand(_ndviFlagsOutputBand);
 
         // Copy predefined bitmask definitions
-        ProductUtils.copyBitmaskDefs(_inputProduct, _outputProduct);
-        _outputProduct.addBitmaskDef(new BitmaskDef(NDVI_ARITHMETIC_FLAG_NAME.toLowerCase(),
-                                                    "An arithmetic exception occured.",
-                                                    NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME,
-                                                    Color.red.brighter(), 0.7f));
-        _outputProduct.addBitmaskDef(new BitmaskDef(NDVI_LOW_FLAG_NAME.toLowerCase(),
-                                                    "NDVI value is too low.",
-                                                    NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME,
-                                                    Color.red, 0.7f));
-        _outputProduct.addBitmaskDef(new BitmaskDef(NDVI_HIGH_FLAG_NAME.toLowerCase(),
-                                                    "NDVI value is too high.",
-                                                    NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME,
-                                                    Color.red.darker(), 0.7f));
+        ProductUtils.copyMasks(_inputProduct, _outputProduct);
+        ProductUtils.copyOverlayMasks(_inputProduct, _outputProduct);
+
+        final Mask arithMask = createMask(NDVI_ARITHMETIC_FLAG_NAME, "An arithmetic exception occured.", Color.red.brighter(),
+                                     NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME, sceneWidth, sceneHeight);
+        _outputProduct.getMaskGroup().add(arithMask);
+        final Mask lowMask = createMask(NDVI_LOW_FLAG_NAME, "NDVI value is too low.", Color.red,
+                                     NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME, sceneWidth, sceneHeight);
+        _outputProduct.getMaskGroup().add(lowMask);
+        final Mask highMask = createMask(NDVI_HIGH_FLAG_NAME, "NDVI value is too high.", Color.red.darker(),
+                                     NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME, sceneWidth, sceneHeight);
+        _outputProduct.getMaskGroup().add(highMask);
+
 
         // retrieve the default disk writer from the ProductIO package
         // this is the BEAM_DIMAP format, the toolbox native file format
@@ -342,6 +341,16 @@ public class NdviProcessor extends Processor {
         copyBandData(getBandNamesToCopy(), _inputProduct, _outputProduct, pm);
         
         _logger.info("Output product successfully created");
+    }
+
+    private Mask createMask(String maskName, String description, Color color, String expression,
+                            int sceneWidth, int sceneHeight) {
+        final Mask mask = new Mask(maskName.toLowerCase(), sceneWidth, sceneHeight, new Mask.BandMathType());
+        mask.setDescription(description);
+        mask.setImageColor(color);
+        mask.setImageTransparency(0.7f);
+        Mask.BandMathType.setExpression(mask, expression);
+        return mask;
     }
 
     private int getSceneHeight() {

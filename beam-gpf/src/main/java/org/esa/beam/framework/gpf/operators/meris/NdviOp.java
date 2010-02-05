@@ -1,7 +1,12 @@
 package org.esa.beam.framework.gpf.operators.meris;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -76,20 +81,31 @@ public class NdviOp extends Operator {
         Band ndviFlagsOutputBand = new Band(NDVI_FLAGS_BAND_NAME, ProductData.TYPE_INT32,
                                             sceneWidth, sceneHeight);
         ndviFlagsOutputBand.setDescription("NDVI specific flags");
-        ndviFlagsOutputBand.setFlagCoding(ndviFlagCoding);
+        ndviFlagsOutputBand.setSampleCoding(ndviFlagCoding);
         targetProduct.addBand(ndviFlagsOutputBand);
 
-        // Copy predefined bitmask definitions
-        ProductUtils.copyBitmaskDefs(inputProduct, targetProduct);
-        targetProduct.addBitmaskDef(new BitmaskDef(NDVI_ARITHMETIC_FLAG_NAME.toLowerCase(),
-                                                   "An arithmetic exception occured.", NDVI_FLAGS_BAND_NAME + "."
-                + NDVI_ARITHMETIC_FLAG_NAME, Color.red.brighter(), 0.7f));
-        targetProduct.addBitmaskDef(new BitmaskDef(NDVI_LOW_FLAG_NAME.toLowerCase(),
-                                                   "NDVI value is too low.", NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME,
-                                                   Color.red, 0.7f));
-        targetProduct.addBitmaskDef(new BitmaskDef(NDVI_HIGH_FLAG_NAME.toLowerCase(),
-                                                   "NDVI value is too high.", NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME,
-                                                   Color.red.darker(), 0.7f));
+        ProductUtils.copyMasks(inputProduct, targetProduct);
+        ProductUtils.copyOverlayMasks(inputProduct, targetProduct);
+
+        final Mask arithMask = createMask(NDVI_ARITHMETIC_FLAG_NAME, "An arithmetic exception occured.", Color.red.brighter(),
+                                     NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME, sceneWidth, sceneHeight);
+        targetProduct.getMaskGroup().add(arithMask);
+        final Mask lowMask = createMask(NDVI_LOW_FLAG_NAME, "NDVI value is too low.", Color.red,
+                                     NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME, sceneWidth, sceneHeight);
+        targetProduct.getMaskGroup().add(lowMask);
+        final Mask highMask = createMask(NDVI_HIGH_FLAG_NAME, "NDVI value is too high.", Color.red.darker(),
+                                     NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME, sceneWidth, sceneHeight);
+        targetProduct.getMaskGroup().add(highMask);
+    }
+
+    private Mask createMask(String maskName, String description, Color color, String expression,
+                            int sceneWidth, int sceneHeight) {
+        final Mask mask = new Mask(maskName.toLowerCase(), sceneWidth, sceneHeight, new Mask.BandMathType());
+        mask.setDescription(description);
+        mask.setImageColor(color);
+        mask.setImageTransparency(0.7f);
+        Mask.BandMathType.setExpression(mask, expression);
+        return mask;
     }
 
     @Override
@@ -121,7 +137,7 @@ public class NdviOp extends Operator {
                     ndviFlagsValue = 0;
                     if (Float.isNaN(ndviValue) || Float.isInfinite(ndviValue)) {
                         ndviFlagsValue |= NDVI_ARITHMETIC_FLAG_VALUE;
-                        ndviValue = 0f;
+                        ndviValue = 0.0f;
                     }
                     if (ndviValue < 0.0f) {
                         ndviFlagsValue |= NDVI_LOW_FLAG_VALUE;

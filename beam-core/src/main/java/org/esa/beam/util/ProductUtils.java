@@ -1223,7 +1223,9 @@ public class ProductUtils {
             FlagCoding coding;
 
             copyFlagCodings(sourceProduct, targetProduct);
-            copyBitmaskDefs(sourceProduct, targetProduct);
+            ProductUtils.copyMasks(sourceProduct, targetProduct);
+            ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
+
 
 // loop over bands and check if they have a flags coding attached
             for (int i = 0; i < sourceProduct.getNumBands(); i++) {
