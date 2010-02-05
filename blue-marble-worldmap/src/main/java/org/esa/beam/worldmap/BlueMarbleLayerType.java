@@ -46,11 +46,11 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
                 }
             }
         }
-//        for (final Property model : super.createLayerConfig(ctx).getProperties()) {
-//            if (configuration.getProperty(model.getDescriptor().getName()) == null) {
-//                configuration.addProperty(model);
-//            }
-//        }
+        for (final Property model : super.createLayerConfig(ctx).getProperties()) {
+            if (configuration.getProperty(model.getDescriptor().getName()) == null) {
+                configuration.addProperty(model);
+            }
+        }
         configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
 
         final ImageLayer layer = new ImageLayer(this, multiLevelSource, configuration);
