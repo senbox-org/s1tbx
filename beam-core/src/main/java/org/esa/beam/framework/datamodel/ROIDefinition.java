@@ -25,11 +25,11 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-// @todo 1 nf/nf make this class a ProductNode?
-
 /**
  * This class contains information about the ROI associated with the a raster dataset.
+ * @deprecated since BEAM 4.7, use {@link Mask} instead
  */
+@Deprecated
 public class ROIDefinition implements Cloneable {
 
     private boolean _shapeEnabled;
