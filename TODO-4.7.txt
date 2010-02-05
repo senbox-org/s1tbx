@@ -79,7 +79,7 @@ Layers:
 =======
 * Graticule layer does not recognize preference changes (reported by Sean Bailey)
   Maybe this also affects other layer types ?
-  ==> FINAL, ?, OPEN
+  ==> FINAL, MP, ONGOING
 * We once decided that we wanted to introduce static factory methods for each(!) layer type
   following the JAI-Descriptor concept. Nothing done so far.
   ==> FINAL, ?, OPEN
