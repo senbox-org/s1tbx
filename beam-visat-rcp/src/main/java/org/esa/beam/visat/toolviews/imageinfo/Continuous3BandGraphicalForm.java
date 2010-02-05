@@ -11,6 +11,7 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.ui.ImageInfoEditorModel;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
@@ -153,7 +154,10 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
 
     @Override
     public void handleFormHidden(ProductSceneView productSceneView) {
-        imageInfoEditor.getModel().removeChangeListener(applyEnablerCL);
+        ImageInfoEditorModel model = imageInfoEditor.getModel();
+        if (model != null) {
+            model.removeChangeListener(applyEnablerCL);
+        }
         imageInfoEditor.setModel(null);
         channelSourcesList.clear();
         Arrays.fill(models, null);
