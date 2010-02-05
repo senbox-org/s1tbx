@@ -36,6 +36,8 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.config.ConfigDialog;
 import org.esa.beam.framework.ui.config.DefaultConfigPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.glayer.GraticuleLayerType;
+import org.esa.beam.glayer.NoDataLayerType;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.actions.ShowModuleManagerAction;
@@ -884,57 +886,57 @@ public class VisatPreferencesDialog extends ConfigDialog {
                 }
             };
 
-            param = new Parameter("graticule.res.auto", Boolean.TRUE);
+            param = new Parameter(GraticuleLayerType.PROPERTY_NAME_RES_AUTO, Boolean.TRUE);
             param.addParamChangeListener(paramChangeListener);
             param.getProperties().setLabel("Compute latitude and longitude steps"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.res.pixels", 128);
+            param = new Parameter(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS, 128);
             param.getProperties().setLabel("Average grid size in pixels"); /*I18N*/
             param.getProperties().setMinValue(16);
             param.getProperties().setMaxValue(512);
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.res.lat", 1.0);
+            param = new Parameter(GraticuleLayerType.PROPERTY_NAME_RES_LAT, 1.0);
             param.getProperties().setLabel("Latitude step (dec. degree)"); /*I18N*/
             param.getProperties().setMinValue(0.01);
             param.getProperties().setMaxValue(90.0);
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.res.lon", 1.0);
+            param = new Parameter(GraticuleLayerType.PROPERTY_NAME_RES_LON, 1.0);
             param.getProperties().setLabel("Longitude step (dec. degree)"); /*I18N*/
             param.getProperties().setMinValue(0.01);
             param.getProperties().setMaxValue(180.0);
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.line.color", new Color(204, 204, 255));
+            param = new Parameter(GraticuleLayerType.PROPERTY_NAME_LINE_COLOR, new Color(204, 204, 255));
             param.getProperties().setLabel("Line colour"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.line.width", 0.5);
+            param = new Parameter(GraticuleLayerType.PROPERTY_NAME_LINE_WIDTH, 0.5);
             param.getProperties().setLabel("Line width"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.line.transparency", 0.0);
+            param = new Parameter(GraticuleLayerType.PROPERTY_NAME_LINE_TRANSPARENCY, 0.0);
             param.getProperties().setLabel("Line transparency"); /*I18N*/
             param.getProperties().setMinValue(0.0);
             param.getProperties().setMaxValue(1.0);
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.text.enabled", Boolean.TRUE);
+            param = new Parameter(GraticuleLayerType.PROPERTY_NAME_TEXT_ENABLED, Boolean.TRUE);
             param.addParamChangeListener(paramChangeListener);
             param.getProperties().setLabel("Show text labels"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.text.fg.color", Color.white);
+            param = new Parameter(GraticuleLayerType.PROPERTY_NAME_TEXT_FG_COLOR, Color.white);
             param.getProperties().setLabel("Text foreground colour"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.text.bg.color", Color.black);
+            param = new Parameter(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_COLOR, Color.black);
             param.getProperties().setLabel("Text background colour"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.text.bg.transparency", 0.7);
+            param = new Parameter(GraticuleLayerType.PROPERTY_NAME_TEXT_BG_TRANSPARENCY, 0.7);
             param.getProperties().setLabel("Text background transparency"); /*I18N*/
             param.getProperties().setMinValue(0.0);
             param.getProperties().setMaxValue(1.0);
@@ -1383,7 +1385,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
-            param = new Parameter("noDataOverlay.color", Color.ORANGE);
+            param = new Parameter("noDataOverlay.color", NoDataLayerType.DEFAULT_COLOR);
             param.getProperties().setLabel("No-data overlay colour"); /*I18N*/
             configParams.addParameter(param);
 

@@ -714,6 +714,10 @@ public class ProductSceneView extends BasicView
         if (imageLayer != null) {
             ProductSceneImage.setBaseImageLayerStyle(configuration, imageLayer);
         }
+        final Layer noDataLayer = getNoDataLayer(false);
+        if (noDataLayer != null) {
+            ProductSceneImage.setNoDataLayerStyle(configuration, noDataLayer);
+        }
         final Layer collectionLayer = getVectorDataCollectionLayer(false);
         if (collectionLayer != null) {
             ProductSceneImage.setFigureLayerStyle(configuration, collectionLayer);

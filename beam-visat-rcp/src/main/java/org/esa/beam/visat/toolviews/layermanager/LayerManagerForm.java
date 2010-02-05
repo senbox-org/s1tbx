@@ -2,7 +2,6 @@ package org.esa.beam.visat.toolviews.layermanager;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
-import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.swing.TreeCellExtender;
 import com.jidesoft.swing.CheckBoxTree;
@@ -16,7 +15,6 @@ import org.esa.beam.framework.ui.layer.LayerSourceAssistantPane;
 import org.esa.beam.framework.ui.layer.LayerSourceDescriptor;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.VectorDataLayer;
-import org.esa.beam.framework.ui.product.VectorDataLayerType;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
@@ -37,6 +35,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
@@ -64,10 +63,12 @@ class LayerManagerForm extends AbstractLayerForm {
     private MoveLayerRightAction moveLayerRightAction;
     private OpenLayerEditorAction openLayerEditorAction;
     private ZoomToLayerAction zoomToLayerAction;
+    private LayerManagerForm.TransparencyChangeListener transparencyChangeListener;
 
     LayerManagerForm(AppContext appContext, String helpId) {
         super(appContext);
         this.view = appContext.getSelectedProductSceneView();
+        transparencyChangeListener = new TransparencyChangeListener();
         initUI(helpId);
     }
 
@@ -312,36 +313,24 @@ class LayerManagerForm extends AbstractLayerForm {
         checkBoxTree.setDropMode(DropMode.ON_OR_INSERT);
         checkBoxTree.setTransferHandler(new LayerTreeTransferHandler(view, checkBoxTree));
 
-        checkBoxTree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent event) {
-                Layer selectedLayer;
-                final TreePath path = checkBoxTree.getSelectionPath();
-                if (path != null) {
-                    selectedLayer = getLayer(event.getPath());
-                } else {
-                    selectedLayer = null;
-                }
-                getAppContext().getSelectedProductSceneView().setSelectedLayer(selectedLayer);
-            }
-        });
+        checkBoxTree.getSelectionModel().addTreeSelectionListener(new LayerSelectionListener());
 
         final CheckBoxTreeSelectionModel checkBoxSelectionModel = checkBoxTree.getCheckBoxTreeSelectionModel();
-        checkBoxSelectionModel.addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent event) {
-                if (!adjusting) {
-                    Layer layer = getLayer(event.getPath());
-                    layer.setVisible(checkBoxSelectionModel.isPathSelected(event.getPath()));
-                }
-            }
-        });
+        checkBoxSelectionModel.addTreeSelectionListener(new CheckBoxTreeSelectionListener());
 
         final DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) checkBoxTree.getActualCellRenderer();
         renderer.setLeafIcon(null);
         renderer.setClosedIcon(null);
         renderer.setOpenIcon(null);
         return checkBoxTree;
+    }
+
+    private void installTransparencyChangeListener(Layer selectedLayer) {
+        selectedLayer.addListener(transparencyChangeListener);
+    }
+
+    private void removeTransparencyChangeListener(Layer selectedLayer) {
+        selectedLayer.removeListener(transparencyChangeListener);
     }
 
     public static AbstractButton createToolButton(final String iconPath) {
@@ -414,6 +403,45 @@ class LayerManagerForm extends AbstractLayerForm {
             }
             return label;
 
+        }
+    }
+
+    private class TransparencyChangeListener extends AbstractLayerListener {
+
+        @Override
+        public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
+            if("transparency".equals(event.getPropertyName())) {
+                updateLayerStyleUI(layer);
+            }
+
+        }
+    }
+
+    private class LayerSelectionListener implements TreeSelectionListener {
+
+        private Layer selectedLayer;
+
+        @Override
+        public void valueChanged(TreeSelectionEvent event) {
+            if (selectedLayer != null) {
+                removeTransparencyChangeListener(selectedLayer);
+            }
+            selectedLayer = getLayer(event.getPath());
+            if (selectedLayer != null) {
+                installTransparencyChangeListener(selectedLayer);
+            }
+            getAppContext().getSelectedProductSceneView().setSelectedLayer(selectedLayer);
+        }
+    }
+
+    private class CheckBoxTreeSelectionListener implements TreeSelectionListener {
+
+        @Override
+        public void valueChanged(TreeSelectionEvent event) {
+            if (!adjusting) {
+                Layer layer = getLayer(event.getPath());
+                layer.setVisible(((TreeSelectionModel) event.getSource()).isPathSelected(event.getPath()));
+            }
         }
     }
 }

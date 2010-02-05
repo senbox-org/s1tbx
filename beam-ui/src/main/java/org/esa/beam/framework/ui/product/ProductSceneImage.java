@@ -157,7 +157,7 @@ public class ProductSceneImage implements ProductLayerContext {
     Layer getNoDataLayer(boolean create) {
         Layer layer = getLayer(ProductSceneView.NO_DATA_LAYER_ID);
         if (layer == null && create) {
-            layer = createNoDataLayer(getImageToModelTransform());
+            layer = createNoDataLayer();
             addLayer(getFirstImageLayerIndex(), layer);
         }
         return layer;
@@ -316,14 +316,17 @@ public class ProductSceneImage implements ProductLayerContext {
         layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, borderColor);
     }
 
-    private Layer createNoDataLayer(AffineTransform imageToModelTransform) {
+    private Layer createNoDataLayer() {
         final LayerType noDatatype = LayerTypeRegistry.getLayerType(NoDataLayerType.class);
         final PropertySet configTemplate = noDatatype.createLayerConfig(null);
 
         final Color color = configuration.getPropertyColor("noDataOverlay.color", Color.ORANGE);
         configTemplate.setValue(NoDataLayerType.PROPERTY_NAME_COLOR, color);
         configTemplate.setValue(NoDataLayerType.PROPERTY_NAME_RASTER, getRaster());
-        return noDatatype.createLayer(this, configTemplate);
+        final Layer layer = noDatatype.createLayer(this, configTemplate);
+        final double transparency = configuration.getPropertyDouble("noDataOverlay.transparency", 0.3);
+        layer.setTransparency(transparency);
+        return layer;
     }
 
     @Deprecated
@@ -396,6 +399,15 @@ public class ProductSceneImage implements ProductLayerContext {
 
         */
         return (VectorDataLayer) figureType.createLayer(this, template);
+    }
+
+    static void setNoDataLayerStyle(PropertyMap configuration, Layer layer) {
+        final PropertySet layerConfiguration = layer.getConfiguration();
+        final Color color = configuration.getPropertyColor("noDataOverlay.color", NoDataLayerType.DEFAULT_COLOR);
+        layerConfiguration.setValue(NoDataLayerType.PROPERTY_NAME_COLOR, color);
+
+        final double transparency = configuration.getPropertyDouble("noDataOverlay.transparency", 0.3);
+        layer.setTransparency(transparency);
     }
 
     static void setFigureLayerStyle(PropertyMap configuration, Layer layer) {

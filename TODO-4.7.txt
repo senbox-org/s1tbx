@@ -77,17 +77,13 @@ Product tree:
 
 Layers:
 =======
-* Graticule layer does not recognize preference changes (reported by Sean Bailey)
-  Maybe this also affects other layer types ?
-  ==> FINAL, MP, ONGOING
-* We once decided that we wanted to introduce static factory methods for each(!) layer type
-  following the JAI-Descriptor concept. Nothing done so far.
-  ==> FINAL, ?, OPEN
-* Deprecate and/or remove old Layer class code
-  ==> FINAL, ?, OPEN
 * Don't use class names e.g. in Session I/O.
   ==> FINAL, ?, OPEN
 
+
+* Graticule layer does not recognize preference changes (reported by Sean Bailey)
+  Also No-data layer is affected.
+  ==> FINAL, MP, CLOSED
 
 GPF Processors:
 ===============
