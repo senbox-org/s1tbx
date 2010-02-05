@@ -30,8 +30,6 @@ VectorDataNode:
 * Pin & GCP Vector Data Nodes shall not be visible as long as there are no pins / GCPs
   added to the product
   ==> FINAL, ?, OPEN
-* Use SLD from shapefile for styling figures
-  ==> FINAL, MZ, OPEN
 * Import of Geometry does not work when shapefile has no CRS and shapefile coordinates are not in WGS84.
   Explain in help, that this is intended. (better option would be to prompt the user to enter a CRS).
   ==> FINAL, ?, OPEN (see issue in Reprojection)
@@ -43,6 +41,8 @@ VectorDataNode:
    --> it will not be blue
 
    
+* Use SLD from shapefile for styling figures
+  ==> FINAL, MZ, CLOSED
 * (OF) Export transect Pixel for reproj.
    ==> FINAL, MP, CLOSED
 

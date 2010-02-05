@@ -31,6 +31,7 @@ import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.geotools.styling.Style;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -104,6 +105,7 @@ public class ImportGeometryAction extends ExecCommand {
         } catch (Exception e) {
             visatApp.showErrorDialog(DLG_TITLE, "Failed to import geometry.\n" + "An I/O Error occured:\n"
                     + e.getMessage()); /* I18N */
+            Debug.trace(e);
             return;
         }
 
@@ -150,9 +152,19 @@ public class ImportGeometryAction extends ExecCommand {
 
     private static VectorDataNode readGeometryFromShapefile(File file, Product product) throws IOException {
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = ShapefileUtils.loadShapefile(file, product);
+        Style[] styles = ShapefileUtils.loadSLD(file);
         ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
         String name = findUniqueVectorDataNodeName(featureCollection.getSchema().getName().getLocalPart(), vectorDataGroup);
-        return new VectorDataNode(name, featureCollection);
+        if (styles.length > 0) {
+            SimpleFeatureType featureType = ShapefileUtils.createStyledFeatureType(featureCollection.getSchema());
+            VectorDataNode vectorDataNode = new VectorDataNode(name, featureType);
+            FeatureCollection<SimpleFeatureType, SimpleFeature> styledCollection = vectorDataNode.getFeatureCollection();
+            String defaultCSS = vectorDataNode.getDefaultCSS();
+            ShapefileUtils.applyStyle(styles[0], defaultCSS, featureCollection, styledCollection);
+            return vectorDataNode;
+        } else {
+            return new VectorDataNode(name, featureCollection);
+        }
     }
 
     private static VectorDataNode readGeometryFromTextFile(final File file, Product product) throws IOException {
