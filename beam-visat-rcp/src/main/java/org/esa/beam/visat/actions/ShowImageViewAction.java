@@ -105,19 +105,14 @@ public class ShowImageViewAction extends ExecCommand {
                 UIUtils.setRootFrameDefaultCursor(visatApp.getMainFrame());
                 visatApp.clearStatusBarMessage();
 
-                final ProductSceneImage productSceneImage;
                 try {
-                    productSceneImage = get();
+                    ProductSceneView view = new ProductSceneView(get());
+                    openInternalFrame(view);
                 } catch (OutOfMemoryError ignored) {
                     visatApp.showOutOfMemoryErrorDialog("The image view could not be created.");
-                    return;
                 } catch (Exception e) {
                     visatApp.handleUnknownException(e);
-                    return;
                 }
-
-                ProductSceneView view = new ProductSceneView(productSceneImage);
-                openInternalFrame(view);
             }
         };
         visatApp.getExecutorService().submit(worker);
