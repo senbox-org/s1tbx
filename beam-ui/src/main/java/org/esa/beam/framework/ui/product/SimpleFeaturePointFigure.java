@@ -92,7 +92,9 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
         final Object symbolAttribute = simpleFeature.getAttribute("symbol");
         if (symbolAttribute instanceof ShapeFigure) {
             final Rectangle2D bounds = ((ShapeFigure) symbolAttribute).getBounds();
-            return bounds.contains(dx, -dy);
+            AffineTransform scaleInstance = AffineTransform.getScaleInstance(m2v.getScaleX(), m2v.getScaleY());
+            Point2D point2D = scaleInstance.transform(new Point2D.Double(dx, -dy), null);
+            return bounds.contains(point2D);
         } else {
             return dx * dx + dy * dy < radius * radius;
         }
