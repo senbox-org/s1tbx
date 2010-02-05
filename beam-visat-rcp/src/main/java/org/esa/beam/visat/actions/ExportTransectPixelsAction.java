@@ -15,12 +15,16 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.SwingWorker;
 import java.awt.Dialog;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -78,7 +82,8 @@ public class ExportTransectPixelsAction extends ExecCommand {
 
         final TransectProfileData transectProfileData;
         try {
-            transectProfileData = TransectProfileData.create(raster, transect.getShape());
+            Shape shape = convertToImageCoordinates(transect.getShape(), raster.getGeoCoding());
+            transectProfileData = TransectProfileData.create(raster, shape);
         } catch (IOException e) {
             VisatApp.getApp().showErrorDialog(DLG_TITLE,
                                               ERR_MSG_BASE + "An I/O error occured:\n" + e.getMessage());   /*I18N*/
@@ -177,6 +182,16 @@ public class ExportTransectPixelsAction extends ExecCommand {
 
         // Start separate worker thread.
         swingWorker.execute();
+    }
+
+    private static Shape convertToImageCoordinates(Shape shape, GeoCoding geoCoding) {
+        AffineTransform m2iTransform;
+        try {
+            m2iTransform = ImageManager.getImageToModelTransform(geoCoding).createInverse();
+        } catch (NoninvertibleTransformException ignored) {
+            m2iTransform = new AffineTransform();
+        }
+        return m2iTransform.createTransformedShape(shape);
     }
 
     private static String createDefaultFileName(final RasterDataNode raster) {

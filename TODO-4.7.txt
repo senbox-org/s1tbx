@@ -41,8 +41,10 @@ VectorDataNode:
   --> it will be blue, just like the geometry-1
   create new figure on the geometry-1
    --> it will not be blue
+
+   
 * (OF) Export transect Pixel for reproj.
-   ==> FINAL, MP, ONGOING
+   ==> FINAL, MP, CLOSED
 
 Figures:
 ========
