@@ -44,8 +44,6 @@ public class ImageLayer extends Layer {
     public static final String PROPERTY_NAME_BORDER_SHOWN = "borderShown";
     public static final String PROPERTY_NAME_BORDER_WIDTH = "borderWidth";
     public static final String PROPERTY_NAME_BORDER_COLOR = "borderColor";
-    // tdod - remove
-    public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
 
     public static final boolean DEFAULT_BORDER_SHOWN = false;
     public static final double DEFAULT_BORDER_WIDTH = 1.0;
@@ -264,8 +262,6 @@ public class ImageLayer extends Layer {
 
     private static PropertySet initConfiguration(PropertySet configuration, MultiLevelSource multiLevelSource) {
         configuration.setValue(PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
-        final AffineTransform imageToModelTransform = multiLevelSource.getModel().getImageToModelTransform(0);
-        configuration.setValue(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransform);
         return configuration;
     }
 
@@ -288,20 +284,12 @@ public class ImageLayer extends Layer {
             final PropertyContainer template = new PropertyContainer();
 
             addMultiLevelSourceModel(template);
-            addImageToModelTransformModel(template);
 
             template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, Boolean.class, ImageLayer.DEFAULT_BORDER_SHOWN, true));
             template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_COLOR, Color.class, ImageLayer.DEFAULT_BORDER_COLOR, true));
             template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, Double.class, ImageLayer.DEFAULT_BORDER_WIDTH, true));
 
             return template;
-        }
-
-        private static Property addImageToModelTransformModel(PropertyContainer configuration) {
-            if (configuration.getProperty(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM) == null) {
-                configuration.addProperty(Property.create(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
-            }
-            return configuration.getProperty(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
         }
 
         private static Property addMultiLevelSourceModel(PropertyContainer configuration) {
