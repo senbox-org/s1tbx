@@ -25,6 +25,7 @@ import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.SLD;
 import org.geotools.styling.SLDParser;
+import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
 import org.geotools.styling.Symbolizer;
 import org.opengis.feature.simple.SimpleFeature;
@@ -238,19 +239,21 @@ public class ShapefileUtils {
         for (Symbolizer symbolizer : symbolizers) {
             if (symbolizer instanceof LineSymbolizer) {
                 LineSymbolizer lineSymbolizer = (LineSymbolizer) symbolizer;
-                System.out.println("lineSymbolizer = " + lineSymbolizer);
-                
+                Stroke stroke = lineSymbolizer.getStroke();
+                Color strokeColor = SLD.color(stroke);
+                int width = SLD.width(stroke);
+                FigureStyle figureStyle = DefaultFigureStyle.createLineStyle(strokeColor, new BasicStroke(width));
+                String cssStyle = figureStyle.toCssString();
+                return createStyledFeature(sft, feature, cssStyle);
             } else if (symbolizer instanceof PolygonSymbolizer) {
                 PolygonSymbolizer polygonSymbolizer = (PolygonSymbolizer) symbolizer;
                 Color fillColor = SLD.color(polygonSymbolizer.getFill());
-                Color strokeColor = SLD.color(polygonSymbolizer.getStroke());
-                int width = SLD.width(polygonSymbolizer.getStroke());
+                Stroke stroke = polygonSymbolizer.getStroke();
+                Color strokeColor = SLD.color(stroke);
+                int width = SLD.width(stroke);
                 FigureStyle figureStyle = DefaultFigureStyle.createPolygonStyle(fillColor, strokeColor, new BasicStroke(width));
                 String cssStyle = figureStyle.toCssString();
                 return createStyledFeature(sft, feature, cssStyle);
-            } else if (symbolizer instanceof PointSymbolizer) {
-                PointSymbolizer pointSymbolizer = (PointSymbolizer) symbolizer;
-                System.out.println("pointSymbolizer = " + pointSymbolizer);
             }
         }
         return null;
