@@ -60,11 +60,6 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
         return layer;
     }
 
-    @Override
-    public PropertySet createLayerConfig(LayerContext ctx) {
-        return new PropertyContainer();
-    }
-
     private static MultiLevelSource createMultiLevelSource() {
         String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
         if (dirPath == null || dirPath.isEmpty()) {
