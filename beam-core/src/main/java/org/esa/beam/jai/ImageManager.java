@@ -108,22 +108,6 @@ public class ImageManager {
         maskImageMap.clear();
     }
 
-    /**
-     * Removes all mask images for a given product from the internal cache.
-     *
-     * @param product the given product.
-     */
-    public void removeMaskImages(Product product) {
-        final Iterator<MaskKey> iterator = maskImageMap.keySet().iterator();
-
-        while (iterator.hasNext()) {
-            final MaskKey key = iterator.next();
-            if (key.product.get() == product) {
-                iterator.remove();
-            }
-        }
-    }
-
     public static MultiLevelModel getMultiLevelModel(RasterDataNode rasterDataNode) {
         if (rasterDataNode.isSourceImageSet()) {
             return rasterDataNode.getSourceImage().getModel();
