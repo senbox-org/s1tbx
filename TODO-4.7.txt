@@ -48,8 +48,6 @@ VectorDataNode:
 
 Figures:
 ========
-* Select-tool shall auto-select layer containing a clicked figure
-  ==> FINAL, NF, OPEN
 * Still can't rotate figures.
   ==> FINAL, NF, OPEN
 * Number of created vertex handles should be dependent on current viewport
@@ -59,7 +57,7 @@ Figures:
 * Still cannot draw true circles/squares and also adjust lines and points on grid.
   ==> FINAL, ?, OPEN
 * Layer style editor doesn't work anymore
-  ==> FINAL, MP, OPEN
+  ==> FINAL, ?, OPEN
 * New edit menu:
   - Test Cut/Copy/Paste!
   - What about Undo/Redo?!? (should work!)
@@ -68,6 +66,8 @@ Figures:
 * Allow for geometric operations on geometries: add/sub/intersection (JTS!)
   ==> FINAL, ?, OPEN
 
+* Select-tool shall auto-select layer containing a clicked figure
+  ==> FINAL, MP, CLOSED
 * Deprecate or even completely remove ald Figure + Tool classes
   ==> FINAL, MP, CLOSED
 
