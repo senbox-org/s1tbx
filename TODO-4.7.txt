@@ -88,9 +88,6 @@ Layers:
 
 GPF Processors:
 ===============
-* Verify that Operator that terminate by throwing an exception and handled correctly. For all cases:
-  [tile, tileStack] [gtp, graph, Visat]. Original problem reported by Luis Veci.
-  ==> FINAL, MZ, OPEN  
 * Need file and help menu items as in "old" processors
   ==> FINAL, ?, OPEN
 * Need minimal developer guide  
@@ -109,6 +106,10 @@ GPF Processors:
   - move N1Patcher to ICOL
   - move common MERIS stuff from ICOL & Co. into beam-gpf-meris
   ==> FINAL, ?, OPEN
+
+* Verify that Operator that terminate by throwing an exception and handled correctly. For all cases:
+  [tile, tileStack] [gtp, graph, Visat]. Original problem reported by Luis Veci.
+  ==> FINAL, MZ, CLOSED  
 
 SMOS-Box:
 =========
