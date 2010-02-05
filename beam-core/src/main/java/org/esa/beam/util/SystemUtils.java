@@ -526,6 +526,7 @@ public class SystemUtils {
      * Initialize third party libraries of BEAM
       */
     public static void initThirdPartyLibraries() {
+        System.setProperty("com.sun.media.jai.disableMediaLib", "true"); 
         JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
         File epsgDir = new File(SystemUtils.getApplicationDataDir(true), EPSG_DATABASE_DIR_NAME);
         System.setProperty(HsqlEpsgDatabase.DIRECTORY_KEY, epsgDir.getAbsolutePath());
