@@ -48,7 +48,6 @@ public class GraticuleLayer extends Layer {
     private static final GraticuleLayerType LAYER_TYPE = LayerTypeRegistry.getLayerType(GraticuleLayerType.class);
 
     private RasterDataNode raster;
-    private final AffineTransform i2mTransform;
 
     private ProductNodeHandler productNodeHandler;
     private Graticule graticule;
@@ -61,8 +60,6 @@ public class GraticuleLayer extends Layer {
         super(type, configuration);
         setName("Graticule Layer");
         this.raster = raster;
-        
-        this.i2mTransform = (AffineTransform) getConfiguration().getValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM);
 
         productNodeHandler = new ProductNodeHandler();
         raster.getProduct().addProductNodeListener(productNodeHandler);
@@ -73,8 +70,6 @@ public class GraticuleLayer extends Layer {
 
     private static PropertySet initConfiguration(PropertySet configurationTemplate, RasterDataNode raster) {
         configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_RASTER, raster);
-        configurationTemplate.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM,
-                                       raster.getSourceImage().getModel().getImageToModelTransform(0));
         return configurationTemplate;
     }
 
@@ -84,10 +79,6 @@ public class GraticuleLayer extends Layer {
 
     RasterDataNode getRaster() {
         return raster;
-    }
-
-    AffineTransform getI2mTransform() {
-        return i2mTransform;
     }
 
     @Override
@@ -107,7 +98,7 @@ public class GraticuleLayer extends Layer {
                 final AffineTransform transform = new AffineTransform();
                 transform.concatenate(transformSave);
                 transform.concatenate(vp.getModelToViewTransform());
-                transform.concatenate(i2mTransform);
+                transform.concatenate(raster.getSourceImage().getModel().getImageToModelTransform(0));
                 g2d.setTransform(transform);
                 final GeneralPath[] linePaths = graticule.getLinePaths();
                 if (linePaths != null) {
@@ -206,9 +197,9 @@ public class GraticuleLayer extends Layer {
     protected void fireLayerPropertyChanged(PropertyChangeEvent event) {
         String propertyName = event.getPropertyName();
         if (propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_AUTO) ||
-                propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_LAT) ||
-                propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_LON) ||
-                propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS)) {
+            propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_LAT) ||
+            propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_LON) ||
+            propertyName.equals(GraticuleLayerType.PROPERTY_NAME_RES_PIXELS)) {
             graticule = null;
         }
         if (getConfiguration().getProperty(propertyName) != null) {

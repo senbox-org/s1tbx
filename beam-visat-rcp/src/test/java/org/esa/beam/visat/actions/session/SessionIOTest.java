@@ -70,11 +70,11 @@ public class SessionIOTest extends TestCase {
         final Session.LayerRef graticuleLayerRef = session.getViewRef(3).getLayerRef(1);
         assertEquals("Graticule", graticuleLayerRef.name);
         assertNotNull(graticuleLayerRef.configuration);
-        assertEquals(14, graticuleLayerRef.configuration.getChildCount());
+        assertEquals(13, graticuleLayerRef.configuration.getChildCount());
         final Session.LayerRef bitmaskCollectionLayerRef = session.getViewRef(3).getLayerRef(2);
         assertEquals("Bitmask Collection", bitmaskCollectionLayerRef.name);
         assertNotNull(bitmaskCollectionLayerRef.configuration);
-        assertEquals(2, bitmaskCollectionLayerRef.configuration.getChildCount());
+        assertEquals(1, bitmaskCollectionLayerRef.configuration.getChildCount());
     }
 
     private void testProductRef(Session.ProductRef productRef, int expectedId, String expectedRelFile) {

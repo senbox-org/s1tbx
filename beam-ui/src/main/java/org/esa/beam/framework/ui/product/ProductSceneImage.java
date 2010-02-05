@@ -331,7 +331,6 @@ public class ProductSceneImage implements ProductLayerContext {
         final LayerType bitmaskCollectionType = LayerTypeRegistry.getLayerType(BitmaskCollectionLayer.Type.class);
         final PropertySet layerConfig = bitmaskCollectionType.createLayerConfig(null);
         layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_RASTER, getRaster());
-        layerConfig.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, i2mTransform);
         final Layer bitmaskCollectionLayer = bitmaskCollectionType.createLayer(this, layerConfig);
         final BitmaskDef[] bitmaskDefs = getRaster().getProduct().getBitmaskDefs();
         for (final BitmaskDef bitmaskDef : bitmaskDefs) {
@@ -432,7 +431,6 @@ public class ProductSceneImage implements ProductLayerContext {
         final LayerType layerType = LayerTypeRegistry.getLayerType(GraticuleLayerType.class);
         final PropertySet template = layerType.createLayerConfig(null);
         template.setValue(GraticuleLayerType.PROPERTY_NAME_RASTER, getRaster());
-        template.setValue(GraticuleLayerType.PROPERTY_NAME_TRANSFORM, i2mTransform);
         final GraticuleLayer graticuleLayer = (GraticuleLayer) layerType.createLayer(null, template);
         graticuleLayer.setId(ProductSceneView.GRATICULE_LAYER_ID);
         graticuleLayer.setVisible(false);

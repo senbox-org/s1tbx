@@ -16,7 +16,6 @@ import java.awt.geom.AffineTransform;
 public class GraticuleLayerType extends LayerType {
 
     public static final String PROPERTY_NAME_RASTER = "raster";
-    public static final String PROPERTY_NAME_TRANSFORM = "imageToModelTransform";
     public static final String PROPERTY_NAME_RES_AUTO = "resAuto";
     public static final String PROPERTY_NAME_RES_PIXELS = "resPixels";
     public static final String PROPERTY_NAME_RES_LAT = "resLat";
@@ -60,9 +59,6 @@ public class GraticuleLayerType extends LayerType {
         final Property rasterModel = Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class);
         rasterModel.getDescriptor().setNotNull(true);
         vc.addProperty(rasterModel);
-
-        final Property transformModel = Property.create(PROPERTY_NAME_TRANSFORM, AffineTransform.class, new AffineTransform(), true);
-        vc.addProperty(transformModel);
 
         final Property resAutoModel = Property.create(PROPERTY_NAME_RES_AUTO, Boolean.class, DEFAULT_RES_AUTO, true);
         vc.addProperty(resAutoModel);

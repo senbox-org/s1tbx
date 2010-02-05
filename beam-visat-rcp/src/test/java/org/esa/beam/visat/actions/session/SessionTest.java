@@ -272,7 +272,6 @@ public class SessionTest extends TestCase {
         final BitmaskCollectionLayer.Type type = LayerTypeRegistry.getLayerType(BitmaskCollectionLayer.Type.class);
         final PropertySet template = type.createLayerConfig(sceneViewD);
         template.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_RASTER, bandD);
-        template.setValue(BitmaskCollectionLayer.Type.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, new AffineTransform());
         BitmaskCollectionLayer bitmaskCollectionLayer = new BitmaskCollectionLayer(type, template);
         bitmaskCollectionLayer.setName("Bitmask Collection");
         bitmaskCollectionLayer.setVisible(true);

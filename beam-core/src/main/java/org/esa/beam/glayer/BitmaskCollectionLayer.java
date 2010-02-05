@@ -41,14 +41,12 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
 
     private final ProductNodeListener bitmaskDefListener;
-    private final AffineTransform i2mTransform;
 
     private RasterDataNode rasterDataNode;
 
     public BitmaskCollectionLayer(Type layerType, PropertySet configuration) {
         super(layerType, configuration, "Bitmasks");
         this.rasterDataNode = (RasterDataNode) configuration.getValue(Type.PROPERTY_NAME_RASTER);
-        this.i2mTransform = (AffineTransform) configuration.getValue(Type.PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
         bitmaskDefListener = new BitmaskDefListener(this);
         getProduct().addProductNodeListener(bitmaskDefListener);
     }
@@ -71,7 +69,7 @@ public class BitmaskCollectionLayer extends CollectionLayer {
     }
 
     private Layer createBitmaskLayer(final BitmaskDef bitmaskDef) {
-        return BitmaskLayerType.createBitmaskLayer(getRaster(), bitmaskDef, i2mTransform);
+        return BitmaskLayerType.createBitmaskLayer(getRaster(), bitmaskDef, null);
     }
 
     public static class BitmaskDefListener implements ProductNodeListener {
@@ -162,7 +160,6 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
 
         public static final String PROPERTY_NAME_RASTER = "raster";
-        public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
 
         @Override
         public Layer createLayer(LayerContext ctx, PropertySet configuration) {
@@ -177,9 +174,6 @@ public class BitmaskCollectionLayer extends CollectionLayer {
 
             prototype.addProperty(Property.create(PROPERTY_NAME_RASTER, RasterDataNode.class));
             prototype.getDescriptor(PROPERTY_NAME_RASTER).setNotNull(true);
-
-            prototype.addProperty(Property.create(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class));
-            prototype.getDescriptor(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM).setNotNull(true);
 
             return prototype;
 
