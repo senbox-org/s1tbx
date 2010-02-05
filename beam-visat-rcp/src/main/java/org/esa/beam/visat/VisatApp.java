@@ -2278,7 +2278,12 @@ public class VisatApp extends BasicApp implements AppContext {
         } else {
             frame.setSize(640, 480);
         }
-        desktopPane.addFrame(frame);
+        try {
+            desktopPane.addFrame(frame);
+        } catch (RuntimeException e) {
+            frame.dispose();
+            throw e;
+        }
         try {
             // try to resize frame so that it completely fits into desktopPane
             frame.setMaximum(true);
