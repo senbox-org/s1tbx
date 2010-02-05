@@ -49,6 +49,12 @@ public class ImageLayer extends Layer {
     public static final double DEFAULT_BORDER_WIDTH = 1.0;
     public static final Color DEFAULT_BORDER_COLOR = new Color(204, 204, 255);
 
+    /**
+     * @deprecated since BEAM 4.7, no replacement; kept for compatibility of sessions
+     */
+    @Deprecated
+    private static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
+
     private MultiLevelSource multiLevelSource;
 
     private MultiLevelRenderer multiLevelRenderer;
@@ -284,6 +290,7 @@ public class ImageLayer extends Layer {
             final PropertyContainer template = new PropertyContainer();
 
             addMultiLevelSourceModel(template);
+            addImageToModelTransformModel(template);
 
             template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, Boolean.class, ImageLayer.DEFAULT_BORDER_SHOWN, true));
             template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_COLOR, Color.class, ImageLayer.DEFAULT_BORDER_COLOR, true));
@@ -291,6 +298,17 @@ public class ImageLayer extends Layer {
 
             return template;
         }
+
+        private static Property addImageToModelTransformModel(PropertyContainer configuration) {
+            Property property = configuration.getProperty(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
+            if (property == null) {
+                 property = Property.create(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class);
+                configuration.addProperty(property);
+            }
+            property.getDescriptor().setTransient(true);
+            return property;
+         }
+
 
         private static Property addMultiLevelSourceModel(PropertyContainer configuration) {
             if (configuration.getProperty(PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {
