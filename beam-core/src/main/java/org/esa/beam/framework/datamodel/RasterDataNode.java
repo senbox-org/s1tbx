@@ -674,7 +674,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
 
-    protected void resetValidMask() {
+    /**
+     * Resets the valid mask of this raster.
+     * The mask will be lazily regenerated when requested the next time.
+     */
+    public void resetValidMask() {
         validMaskROI = null;
         validMaskImage = null;
         stx = null;
