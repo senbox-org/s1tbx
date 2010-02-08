@@ -24,28 +24,25 @@ import java.beans.PropertyChangeListener;
 public class PredefinedCrsForm extends CrsForm {
 
     private CrsInfo selectedCrsInfo;
-    private JPanel crsSelectionPanel;
 
-    protected PredefinedCrsForm(AppContext appContext) {
+    public PredefinedCrsForm(AppContext appContext) {
         super(appContext);
     }
 
     @Override
-    public CoordinateReferenceSystem getCRS(GeoPos referencePos) throws FactoryException {
-            if (selectedCrsInfo != null) {
-                return selectedCrsInfo.getCrs(referencePos);
-            }else {
-                return null;
-            }
+    protected String getLabelText() {
+        return "Predefined CRS";
     }
 
     @Override
-    public JComponent getCrsUI() {
-        if(crsSelectionPanel == null) {
-            crsSelectionPanel = createCrsSelectionPanel();
+    public CoordinateReferenceSystem getCRS(GeoPos referencePos) throws FactoryException {
+        if (selectedCrsInfo != null) {
+            return selectedCrsInfo.getCrs(referencePos);
+        } else {
+            return null;
         }
-        return crsSelectionPanel;
     }
+
 
     @Override
     public void prepareShow() {
@@ -55,7 +52,8 @@ public class PredefinedCrsForm extends CrsForm {
     public void prepareHide() {
     }
 
-    private JPanel createCrsSelectionPanel() {
+    @Override
+    protected JComponent createCrsComponent() {
         final TableLayout tableLayout = new TableLayout(2);
         final JPanel panel = new JPanel(tableLayout);
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);

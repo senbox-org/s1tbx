@@ -43,17 +43,17 @@ class ReprojectionDialog extends SingleTargetProductDialog {
             return false;
         }
 
-        String externamDemName = form.getExternamDemName();
-        if (externamDemName != null) {
+        String externalDemName = form.getExternalDemName();
+        if (externalDemName != null) {
             final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
-            final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(externamDemName);
+            final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(externalDemName);
             if (demDescriptor == null) {
-                showErrorDialog("The DEM '" + externamDemName + "' is not supported.");
+                showErrorDialog("The DEM '" + externalDemName + "' is not supported.");
                 close();
                 return false;
             }
             if (demDescriptor.isInstallingDem()) {
-                showErrorDialog("The DEM '" + externamDemName + "' is currently being installed.");
+                showErrorDialog("The DEM '" + externalDemName + "' is currently being installed.");
                 close();
                 return false;
             }

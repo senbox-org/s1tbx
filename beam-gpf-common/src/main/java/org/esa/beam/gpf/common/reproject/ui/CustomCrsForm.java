@@ -17,27 +17,35 @@ import java.beans.PropertyChangeListener;
  */
 public class CustomCrsForm extends CrsForm {
 
-    private CustomCrsPanel customCrsPanel;
-
-    protected CustomCrsForm(AppContext appContext) {
+    public CustomCrsForm(AppContext appContext) {
         super(appContext);
-        customCrsPanel = new CustomCrsPanel(appContext.getApplicationWindow());
-        customCrsPanel.addPropertyChangeListener("crs", new PropertyChangeListener() {
+    }
+
+    @Override
+    protected String getLabelText() {
+        return "Custom CRS";
+    }
+
+    @Override
+    boolean wrapAfterButton() {
+        return true;
+    }
+
+    @Override
+    public CoordinateReferenceSystem getCRS(GeoPos referencePos) throws FactoryException {
+        return ((CustomCrsPanel)getCrsUI()).getCRS(referencePos);
+    }
+
+    @Override
+    protected JComponent createCrsComponent() {
+        final CustomCrsPanel panel = new CustomCrsPanel(getAppContext().getApplicationWindow());
+        panel.addPropertyChangeListener("crs", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 fireCrsChanged();
             }
         });
-    }
-
-    @Override
-    public CoordinateReferenceSystem getCRS(GeoPos referencePos) throws FactoryException {
-        return customCrsPanel.getCRS(referencePos);
-    }
-
-    @Override
-    public JComponent getCrsUI() {
-        return customCrsPanel;
+        return panel;
     }
 
     @Override

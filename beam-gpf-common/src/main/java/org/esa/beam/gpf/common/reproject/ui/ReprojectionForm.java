@@ -65,6 +65,7 @@ class ReprojectionForm extends JTabbedPane {
     private JButton outputParamButton;
     private InfoForm infoForm;
     private CoordinateReferenceSystem crs;
+    private CollocationCrsForm collocationCrsUI;
 
 
     ReprojectionForm(TargetProductSelector targetProductSelector, boolean orthorectify, AppContext appContext) {
@@ -87,7 +88,7 @@ class ReprojectionForm extends JTabbedPane {
         parameterMap.put("resamplingName", reprojectionModel.resamplingMethod);
         parameterMap.put("includeTiePointGrids", reprojectionModel.reprojTiePoints);
         parameterMap.put("noDataValue", reprojectionModel.noDataValue);
-        if (!crsSelectionPanel.isCollocate()) {
+        if (!collocationCrsUI.getRadioButton().isSelected()) {
             parameterMap.put("crs", getSelectedCrs().toWKT());
         }
         if (orthoMode) {
@@ -117,8 +118,8 @@ class ReprojectionForm extends JTabbedPane {
     Map<String, Product> getProductMap() {
         final Map<String, Product> productMap = new HashMap<String, Product>(5);
         productMap.put("source", getSourceProduct());
-        if (crsSelectionPanel.isCollocate()) {
-            productMap.put("collocateWith", crsSelectionPanel.getCollocationProduct());
+        if (collocationCrsUI.getRadioButton().isSelected()) {
+            productMap.put("collocateWith", collocationCrsUI.getCollocationProduct());
         }
         return productMap;
     }
@@ -141,7 +142,7 @@ class ReprojectionForm extends JTabbedPane {
         crsSelectionPanel.prepareHide();
     }
 
-    String getExternamDemName() {
+    String getExternalDemName() {
         if (orthoMode && demSelector.isUsingExternalDem()) {
             return demSelector.getDemName();
         }
@@ -175,8 +176,11 @@ class ReprojectionForm extends JTabbedPane {
         layout.setTableAnchor(TableLayout.Anchor.WEST);
         layout.setTableWeightX(1.0);
         parameterPanel.setLayout(layout);
-
-        crsSelectionPanel = new CrsSelectionPanel(appContext);
+        CrsForm customCrsUI = new CustomCrsForm(appContext);
+        CrsForm predefinedCrsUI = new PredefinedCrsForm(appContext);
+        collocationCrsUI = new CollocationCrsForm(appContext);
+        CrsForm[] crsForms = new CrsForm[]{customCrsUI, predefinedCrsUI, collocationCrsUI};
+        crsSelectionPanel = new CrsSelectionPanel(crsForms);
         sourceProductSelector.addSelectionChangeListener(new AbstractSelectionChangeListener() {
             @Override
             public void selectionChanged(SelectionChangeEvent event) {
@@ -363,7 +367,7 @@ class ReprojectionForm extends JTabbedPane {
 
         final JCheckBox preserveResolutionCheckBox = new JCheckBox("Preserve resolution");
         context.bind(Model.PRESERVE_RESOLUTION, preserveResolutionCheckBox);
-        crsSelectionPanel.addPropertyChangeListener("collocate", new PropertyChangeListener() {
+        collocationCrsUI.getCrsUI().addPropertyChangeListener("collocate", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final boolean collocate = (Boolean) evt.getNewValue();

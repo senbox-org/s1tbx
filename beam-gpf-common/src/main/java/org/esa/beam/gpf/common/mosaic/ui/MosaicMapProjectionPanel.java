@@ -11,7 +11,10 @@ import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.WorldMapPane;
 import org.esa.beam.framework.ui.WorldMapPaneDataModel;
+import org.esa.beam.gpf.common.reproject.ui.CrsForm;
 import org.esa.beam.gpf.common.reproject.ui.CrsSelectionPanel;
+import org.esa.beam.gpf.common.reproject.ui.CustomCrsForm;
+import org.esa.beam.gpf.common.reproject.ui.PredefinedCrsForm;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -103,7 +106,9 @@ class MosaicMapProjectionPanel extends JPanel {
         layout.setRowWeightY(2, 1.0);
         layout.setTablePadding(3, 3);
         setLayout(layout);
-        crsSelectionPanel = new CrsSelectionPanel(appContext, false);
+        CrsForm customCrsUI = new CustomCrsForm(appContext);
+        CrsForm predefinedCrsUI = new PredefinedCrsForm(appContext);
+        crsSelectionPanel = new CrsSelectionPanel(customCrsUI, predefinedCrsUI);
         crsSelectionPanel.addPropertyChangeListener("crs", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -282,10 +287,6 @@ class MosaicMapProjectionPanel extends JPanel {
         layout.setCellWeightX(1, 1, 1.0);
         panel.add(demComboBox);
         return panel;
-    }
-
-    public void setReferenceProduct(Product product) {
-        crsSelectionPanel.setReferenceProduct(product);
     }
 
     private void setMapBoundary(WorldMapPaneDataModel worldMapModel) {

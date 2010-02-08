@@ -7,6 +7,7 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JComponent;
+import javax.swing.JRadioButton;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -21,19 +22,48 @@ public abstract class CrsForm {
     private AppContext appContext;
     private Product referenceProduct;
     private ArrayList<PropertyChangeListener> changeListeners;
+    private JComponent crsComponent;
+    private JRadioButton radioButton;
+
 
     protected CrsForm(AppContext appContext) {
         this.appContext = appContext;
         changeListeners = new ArrayList<PropertyChangeListener>();
     }
 
+    protected abstract String getLabelText();
+
+    boolean wrapAfterButton() {
+        return false;
+    }
+
+    final JRadioButton getRadioButton(){
+        if(radioButton == null) {
+            radioButton = createRadioButton();
+        }
+        return radioButton;
+    }
+
+    protected JRadioButton createRadioButton() {
+        return new JRadioButton(getLabelText());
+    }
+
+
     public abstract CoordinateReferenceSystem getCRS(GeoPos referencePos) throws FactoryException;
 
-    public abstract JComponent getCrsUI();
+    public final JComponent getCrsUI() {
+        if(crsComponent == null) {
+            crsComponent = createCrsComponent();
+        }
+        return crsComponent;
+    }
+
+    protected abstract JComponent createCrsComponent();
 
     public void setReferenceProduct(Product product) {
         referenceProduct = product;
     }
+
 
     protected Product getReferenceProduct() {
         return referenceProduct;

@@ -14,8 +14,11 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.GeneralPath;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -28,11 +31,15 @@ import java.beans.PropertyChangeListener;
 public class CollocationCrsForm extends CrsForm {
 
     private SourceProductSelector collocateProductSelector;
-    private JPanel collocationPanel;
 
 
     public CollocationCrsForm(AppContext appContext) {
         super(appContext);
+    }
+
+    @Override
+    protected String getLabelText() {
+        return "Use CRS of";
     }
 
     @Override
@@ -42,15 +49,20 @@ public class CollocationCrsForm extends CrsForm {
             return collocationProduct.getGeoCoding().getMapCRS();
         }
         return null;
-
     }
 
     @Override
-    public JComponent getCrsUI() {
-        if (collocationPanel == null) {
-            collocationPanel = createCrsUI();
-        }
-        return collocationPanel;
+    protected JRadioButton createRadioButton() {
+        final JRadioButton button = super.createRadioButton();
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final boolean collocate = button.isSelected();
+                getCrsUI().firePropertyChange("collocate", !collocate, collocate);
+            }
+        });
+        return button;
+
     }
 
     @Override
@@ -63,7 +75,8 @@ public class CollocationCrsForm extends CrsForm {
         collocateProductSelector.releaseProducts();
     }
 
-    private JPanel createCrsUI() {
+    @Override
+    protected JComponent createCrsComponent() {
         collocateProductSelector = new SourceProductSelector(getAppContext(), "Product:");
         collocateProductSelector.setProductFilter(new CollocateProductFilter());
         collocateProductSelector.addSelectionChangeListener(new AbstractSelectionChangeListener() {
@@ -81,6 +94,8 @@ public class CollocationCrsForm extends CrsForm {
             public void propertyChange(PropertyChangeEvent evt) {
                 collocateProductSelector.getProductNameComboBox().setEnabled(panel.isEnabled());
                 collocateProductSelector.getProductFileChooserButton().setEnabled(panel.isEnabled());
+                final boolean collocate = getRadioButton().isSelected();
+                getCrsUI().firePropertyChange("collocate", !collocate, collocate);
             }
         });
         return panel;
