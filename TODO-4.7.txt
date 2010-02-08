@@ -43,8 +43,7 @@ VectorDataNode:
    
 * Use SLD from shapefile for styling figures
   ==> FINAL, MZ, CLOSED
-* (OF) Export transect Pixel for reproj.
-   ==> FINAL, MP, CLOSED
+  REOPEN(OF)peprojction does not use it.
 
 Figures:
 ========
@@ -84,7 +83,8 @@ Layers:
 
 * Graticule layer does not recognize preference changes (reported by Sean Bailey)
   Also No-data layer is affected.
-  ==> FINAL, MP, CLOSED
+  ==> FINAL, MP, CLOSED (OF:  Graticule layer will be update in the image view immediately, but  No-data not.
+  For No-data update you must close and reopen image view. Is it OK?)
 
 GPF Processors:
 ===============
@@ -119,15 +119,9 @@ SMOS-Box:
   tested for intersection with areaOfInterest and possibly ignored.
   Also very important for SMOS-Box 2.1
   ==> FINAL, *, OPEN
-* Warning "Illegal element 'imageToModelTransform'" by open session
-  open session
-  -->
-  VISAT-Warning: " The following problem(s) occured:
-  Illegal element 'imageToModelTransform'
-  However the session will be opened
-  ==> FINAL, RQ, CLOSED (needs to be tested by OF)
 * Pin table with band values is not updated when snapshot ID is changed
   ==> FINAL, RQ, CLOSED (needs to be tested by OF)
+  (OF: the values in the Pin table are not always match values in the Pixel Info)
 * Speed up statistics for Stokes bands
   ==> FINAL, RQ, CLOSED (duplicated)
 
