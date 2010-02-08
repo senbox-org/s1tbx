@@ -579,6 +579,9 @@ public class VisatApp extends BasicApp implements AppContext {
         return applicationPage;
     }
 
+    /**
+     * @deprecated since BEAM 4.7 use {@link #getApplicationPage()} instead.
+     */
     @Deprecated
     public final ApplicationPage getPage() {
         return applicationPage;
