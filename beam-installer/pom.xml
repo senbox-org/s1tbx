@@ -33,6 +33,13 @@
 
         <plugins>
             <plugin>
+               <artifactId>maven-deploy-plugin</artifactId>
+               <configuration>
+                 <skip>true</skip>
+              </configuration>
+            </plugin>
+            
+            <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-template-plugin</artifactId>
                 <version>1.2-SNAPSHOT</version>
