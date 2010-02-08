@@ -119,9 +119,11 @@ SMOS-Box:
   tested for intersection with areaOfInterest and possibly ignored.
   Also very important for SMOS-Box 2.1
   ==> FINAL, *, OPEN
+  
 * Pin table with band values is not updated when snapshot ID is changed
   ==> FINAL, RQ, CLOSED (needs to be tested by OF)
   (OF: the values in the Pin table are not always match values in the Pixel Info)
+  (MZ: fixed)
 * Speed up statistics for Stokes bands
   ==> FINAL, RQ, CLOSED (duplicated)
 
