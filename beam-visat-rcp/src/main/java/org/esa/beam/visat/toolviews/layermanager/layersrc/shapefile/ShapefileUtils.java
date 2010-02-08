@@ -3,7 +3,6 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.vividsolutions.jts.geom.Geometry;
-
 import org.esa.beam.framework.datamodel.PlainFeatureFactory;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -20,7 +19,6 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.LineSymbolizer;
-import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.SLD;
@@ -105,9 +103,8 @@ public class ShapefileUtils {
                                                                                               CoordinateReferenceSystem targetCrs,
                                                                                               Geometry clipGeometry
     ) throws IOException {
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(url);
-        featureCollection = featureSource.getFeatures();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
         featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, null, targetCrs);
         return featureCollection;
     }
@@ -118,9 +115,7 @@ public class ShapefileUtils {
         map.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
         DataStore shapefileStore = DataStoreFinder.getDataStore(map);
         String typeName = shapefileStore.getTypeNames()[0]; // Shape files do only have one type name
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource;
-        featureSource = shapefileStore.getFeatureSource(typeName);
-        return featureSource;
+        return shapefileStore.getFeatureSource(typeName);
     }
     
     /**
