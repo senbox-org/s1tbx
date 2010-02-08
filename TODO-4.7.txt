@@ -98,9 +98,7 @@ GPF Processors:
   - Don't dispose source MultiLevelImage, if the RasterDataNode is not the
     owner, e.g. flag RasterDataNode.isSourceImageOwner()
   ==> FINAL, ?, OPEN
-* Done, enable/harmonise geo-coding transfer in all GPF ops  (see BEAM-1047 and BEAM-1050)
-  Changelog needs update.
-  ==> FINAL, MP, OPEN
+
 * Clean up GPF packages:
   - split into beam-gpf and beam-gpf-meris
   - move N1Patcher to ICOL
@@ -109,7 +107,9 @@ GPF Processors:
 
 * Verify that Operator that terminate by throwing an exception and handled correctly. For all cases:
   [tile, tileStack] [gtp, graph, Visat]. Original problem reported by Luis Veci.
-  ==> FINAL, MZ, CLOSED  
+  ==> FINAL, MZ, CLOSED
+* Done, enable/harmonise geo-coding transfer in all GPF ops  (see BEAM-1047 and BEAM-1050)  
+  ==> FINAL, MP, CLOSED
 
 SMOS-Box:
 =========
