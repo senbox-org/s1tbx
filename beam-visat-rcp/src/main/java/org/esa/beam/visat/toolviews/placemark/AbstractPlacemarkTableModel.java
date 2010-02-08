@@ -327,6 +327,28 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         public void nodeChanged(ProductNodeEvent event) {
             fireTableDataChanged(event);
         }
+        
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+            if (event.getSourceNode() instanceof Band) {
+                Band sourceBand = (Band) event.getSourceNode();
+                for (Band band : selectedBands) {
+                    if (band == sourceBand) {
+                        AbstractPlacemarkTableModel.this.fireTableDataChanged();
+                        return;
+                    }
+                }
+            }
+            if (event.getSourceNode() instanceof TiePointGrid) {
+                TiePointGrid sourceTPG = (TiePointGrid) event.getSourceNode();
+                for (TiePointGrid tpg : selectedGrids) {
+                    if (tpg == sourceTPG) {
+                        AbstractPlacemarkTableModel.this.fireTableDataChanged();
+                        return;
+                    }
+                }
+            }
+        }
 
         private void fireTableDataChanged(ProductNodeEvent event) {
             if (event.getSourceNode() instanceof Pin) {
