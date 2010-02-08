@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.gpf.common.reproject.ui;
+package org.esa.beam.framework.ui.crs;
 
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.TableLayout.Anchor;

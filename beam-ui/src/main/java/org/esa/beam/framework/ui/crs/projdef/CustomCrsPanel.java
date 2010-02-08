@@ -1,4 +1,4 @@
-package org.esa.beam.gpf.common.reproject.ui.projdef;
+package org.esa.beam.framework.ui.crs.projdef;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyAccessor;

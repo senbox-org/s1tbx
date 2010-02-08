@@ -1,8 +1,8 @@
-package org.esa.beam.gpf.common.reproject.ui;
+package org.esa.beam.framework.ui.crs;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.gpf.common.reproject.ui.projdef.CustomCrsPanel;
+import org.esa.beam.framework.ui.crs.projdef.CustomCrsPanel;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 

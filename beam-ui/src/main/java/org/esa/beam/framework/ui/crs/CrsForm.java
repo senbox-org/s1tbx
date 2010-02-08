@@ -1,4 +1,4 @@
-package org.esa.beam.gpf.common.reproject.ui;
+package org.esa.beam.framework.ui.crs;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
@@ -37,7 +37,7 @@ public abstract class CrsForm {
         return false;
     }
 
-    final JRadioButton getRadioButton(){
+    public final JRadioButton getRadioButton(){
         if(radioButton == null) {
             radioButton = createRadioButton();
         }

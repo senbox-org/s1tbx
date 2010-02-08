@@ -9,6 +9,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.crs.CrsForm;
 import org.esa.beam.util.ProductUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 

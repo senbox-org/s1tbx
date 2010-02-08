@@ -1,4 +1,4 @@
-package org.esa.beam.gpf.common.reproject.ui.projdef;
+package org.esa.beam.framework.ui.crs.projdef;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.geotools.parameter.ParameterGroup;

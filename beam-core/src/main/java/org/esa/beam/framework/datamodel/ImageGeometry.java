@@ -14,11 +14,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.gpf.common.reproject;
+package org.esa.beam.framework.datamodel;
 
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -51,7 +48,7 @@ public class ImageGeometry {
     private ImageGeometry() {
     }
     
-    ImageGeometry(Rectangle bounds, CoordinateReferenceSystem mapCrs, AffineTransform image2map) {
+    public ImageGeometry(Rectangle bounds, CoordinateReferenceSystem mapCrs, AffineTransform image2map) {
         this.i2m = image2map;
         this.width = bounds.width;
         this.height = bounds.height;
@@ -79,7 +76,7 @@ public class ImageGeometry {
         return mapCrs;
     }
     
-    void changeYAxisDirection() {
+    public void changeYAxisDirection() {
         pixelSizeY = -pixelSizeY;
     }
     
@@ -181,7 +178,7 @@ public class ImageGeometry {
             return new Rectangle2D.Double(targetEnvelope.getMinX(), targetEnvelope.getMinY(),
                                           targetEnvelope.getWidth(), targetEnvelope.getHeight());
         } catch (Exception e) {
-            throw new OperatorException(e);
+            throw new IllegalStateException(e);
         }
     }
 }

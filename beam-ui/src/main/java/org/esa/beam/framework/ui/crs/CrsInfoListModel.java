@@ -1,4 +1,4 @@
-package org.esa.beam.gpf.common.reproject.ui;
+package org.esa.beam.framework.ui.crs;
 
 import javax.swing.AbstractListModel;
 import java.util.ArrayList;

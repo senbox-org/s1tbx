@@ -14,13 +14,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.gpf.common.reproject.ui;
+package org.esa.beam.framework.ui.crs;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValueSet;
+import org.esa.beam.framework.datamodel.ImageGeometry;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.gpf.common.reproject.ImageGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Rectangle;
@@ -32,7 +32,7 @@ import java.beans.PropertyChangeListener;
  * @author Marco Zuehlke
  * @since BEAM 4.7
  */
-class OutputGeometryFormModel {
+public class OutputGeometryFormModel {
 
     private class ChangeListener implements PropertyChangeListener {
         @Override
@@ -76,7 +76,7 @@ class OutputGeometryFormModel {
     private transient PropertyContainer propertyContainer;
     private transient ImageGeometry imageGeometry;
 
-    OutputGeometryFormModel(Product sourceProduct, CoordinateReferenceSystem targetCrs) {
+    public OutputGeometryFormModel(Product sourceProduct, CoordinateReferenceSystem targetCrs) {
         this.sourceProduct = sourceProduct;
         this.targetCrs = targetCrs;
         imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs,
@@ -89,7 +89,7 @@ class OutputGeometryFormModel {
         propertyContainer.addPropertyChangeListener(new ChangeListener());
     }
     
-    PropertyContainer getPropertyContainer() {
+    public PropertyContainer getPropertyContainer() {
         return propertyContainer;
     }
 }

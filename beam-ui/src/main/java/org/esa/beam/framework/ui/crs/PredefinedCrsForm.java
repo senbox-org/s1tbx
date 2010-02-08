@@ -1,4 +1,4 @@
-package org.esa.beam.gpf.common.reproject.ui;
+package org.esa.beam.framework.ui.crs;
 
 import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.GeoPos;

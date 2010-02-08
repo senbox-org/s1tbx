@@ -15,6 +15,7 @@
 package org.esa.beam.gpf.common.reproject;
 
 
+import org.esa.beam.framework.datamodel.ImageGeometry;
 import org.geotools.factory.Hints;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;

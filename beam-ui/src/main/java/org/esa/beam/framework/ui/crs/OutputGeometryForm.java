@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.gpf.common.reproject.ui;
+package org.esa.beam.framework.ui.crs;
 
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.swing.BindingContext;
@@ -41,11 +41,11 @@ import java.awt.GridBagConstraints;
  * @author Marco Zuehlke
  * @since BEAM 4.7
  */
-class OutputGeometryForm extends JPanel {
+public class OutputGeometryForm extends JPanel {
     
     private final BindingContext context;
 
-    OutputGeometryForm(OutputGeometryFormModel model) {
+    public OutputGeometryForm(OutputGeometryFormModel model) {
         context = new BindingContext(model.getPropertyContainer());
         createUI();
     }
