@@ -269,7 +269,7 @@ public class OperatorExecutor {
         @Override
         public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable)
                                                                                                          throws RuntimeException {
-            if (error == null) {
+            if (error == null && !thrown.getClass().getSimpleName().equals("MediaLibLoadException")) {
                 error = new OperatorException(thrown);
             }
             return false;
