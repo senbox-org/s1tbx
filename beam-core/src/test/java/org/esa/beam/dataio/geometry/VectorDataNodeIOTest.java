@@ -3,6 +3,8 @@ package org.esa.beam.dataio.geometry;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
+
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -24,7 +26,10 @@ import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.GeometryType;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -136,5 +141,35 @@ public class VectorDataNodeIOTest {
         assertEquals("with\t2\ttabs", VectorDataNodeIO.decodeTabString("with\\t2\\ttabs"));
         assertEquals("with \\d other char", VectorDataNodeIO.encodeTabString("with \\d other char"));
         assertEquals("with \\\\d other char", VectorDataNodeIO.encodeTabString("with \\\\d other char"));
+    }
+    
+    @Test
+    public void testProperties() throws Exception {
+        VectorDataNode vectorDataNode = new VectorDataNode("aName", VectorDataNodeIOTest.createFeatureType());
+        vectorDataNode.setDescription("a simple description");
+        vectorDataNode.setDefaultCSS("a not valid CSS for I/O test only");
+        StringWriter writer = new StringWriter();
+        VectorDataNodeWriter vectorDataNodeWriter = new VectorDataNodeWriter();
+        File tempFile = File.createTempFile("VectorDataNodeWriterTest_testProperties", "csv");
+        tempFile.deleteOnExit();
+        vectorDataNodeWriter.write(vectorDataNode, tempFile);
+        
+        FileReader fileReader = new FileReader(tempFile);
+        LineNumberReader lineNumberReader = new LineNumberReader(fileReader);
+        
+        String firstLine = lineNumberReader.readLine();
+        assertNotNull(firstLine);
+        assertEquals("#description=a simple description", firstLine);
+        
+        String secondLine = lineNumberReader.readLine();
+        assertNotNull(secondLine);
+        assertEquals("#defaultCSS=a not valid CSS for I/O test only", secondLine);
+        
+        VectorDataNodeReader vectorDataNodeReader = new VectorDataNodeReader(null);
+        VectorDataNode vectorDataNode2 = vectorDataNodeReader.read(tempFile);
+        
+        assertNotNull(vectorDataNode2);
+        assertEquals(vectorDataNode.getDescription(), vectorDataNode2.getDescription());
+        assertEquals(vectorDataNode.getDefaultCSS(), vectorDataNode2.getDefaultCSS());
     }
 }

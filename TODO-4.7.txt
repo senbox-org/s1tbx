@@ -33,18 +33,19 @@ VectorDataNode:
 * Import of Geometry does not work when shapefile has no CRS and shapefile coordinates are not in WGS84.
   Explain in help, that this is intended. (better option would be to prompt the user to enter a CRS).
   ==> FINAL, MP, ONGOING (see issue in Reprojection)
+  
 * (OF) VISAT does not know about existing colour of geometries
   open product containing (e.g.) blue geometry-1
   create geometry-2
   --> it will be blue, just like the geometry-1
   create new figure on the geometry-1
    --> it will not be blue
-
-   
+  ==> FINAL, MZ, CLOSED 
 * Use SLD from shapefile for styling figures
   ==> FINAL, MZ, CLOSED
   REOPEN(OF)peprojction does not use it.
-
+  ==> FINAL, MZ, CLOSED
+  
 Figures:
 ========
 * Still can't rotate figures.

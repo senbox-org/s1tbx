@@ -3,7 +3,9 @@ package org.esa.beam.dataio.geometry;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.CsvReader;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.converters.JavaTypeConverter;
@@ -18,7 +20,10 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 
 public class VectorDataNodeReader {
 
@@ -29,17 +34,50 @@ public class VectorDataNodeReader {
     }
 
     public VectorDataNode read(File file) throws IOException {
-        FileReader reader = new FileReader(file);
+        FileReader headerReader = new FileReader(file);
+        FileReader featureReader = new FileReader(file);
         try {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures(reader);
-            return new VectorDataNode(FileUtils.getFilenameWithoutExtension(file), featureCollection);
+            Map<String, String> properties = readNodeProperties(headerReader);
+            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures(featureReader);
+            VectorDataNode vectorDataNode = new VectorDataNode(FileUtils.getFilenameWithoutExtension(file), featureCollection);
+            if (properties.containsKey(ProductNode.PROPERTY_NAME_DESCRIPTION)) {
+                vectorDataNode.setDescription(properties.get(ProductNode.PROPERTY_NAME_DESCRIPTION));
+            }
+            if (properties.containsKey(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS)) {
+                vectorDataNode.setDefaultCSS(properties.get(VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS));
+            }
+            return vectorDataNode;
         } finally {
-            reader.close();
+            headerReader.close();
+            featureReader.close();
         }
     }
 
+    private Map<String, String> readNodeProperties(FileReader reader) throws IOException {
+        LineNumberReader lineNumberReader = new LineNumberReader(reader);
+        Map<String, String> properiesMap = new HashMap<String, String>();
+        String line = lineNumberReader.readLine();
+        while(line != null) {
+            if (line.startsWith("#")) {
+                line = line.substring(1);
+                int index = line.indexOf('=');
+                if (index != -1) {
+                    String name = line.substring(0, index).trim();
+                    String value = line.substring(index + 1).trim();
+                    if (StringUtils.isNotNullAndNotEmpty(name) &&
+                            StringUtils.isNotNullAndNotEmpty(value)) {
+                        properiesMap.put(name, value);
+                    }
+                }
+            }
+            line = lineNumberReader.readLine();
+        }
+        lineNumberReader.close();
+        return properiesMap;
+    }
+
     public FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures(Reader reader) throws IOException {
-        CsvReader csvReader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR});
+        CsvReader csvReader = new CsvReader(reader, new char[]{VectorDataNodeIO.DELIMITER_CHAR}, true, "#");
         SimpleFeatureType type = readFeatureType(csvReader);
         return readFeatures(csvReader, type);
     }

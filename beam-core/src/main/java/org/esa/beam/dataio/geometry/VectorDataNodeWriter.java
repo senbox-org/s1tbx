@@ -1,7 +1,10 @@
 package org.esa.beam.dataio.geometry;
 
 import com.bc.ceres.binding.Converter;
+
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.converters.JavaTypeConverter;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
@@ -22,6 +25,7 @@ public class VectorDataNodeWriter {
     public void write(VectorDataNode vectorDataNode, File file) throws IOException {
         FileWriter writer = new FileWriter(file);
         try {
+            writeNodePropertise(vectorDataNode, writer);
             writeFeatures(vectorDataNode.getFeatureCollection(), writer);
         } finally {
             writer.close();
@@ -32,6 +36,17 @@ public class VectorDataNodeWriter {
         SimpleFeatureType simpleFeatureType = featureCollection.getSchema();
         writeFeatureType(simpleFeatureType, writer);
         writeFeatures0(featureCollection, writer);
+    }
+
+    private void writeNodePropertise(VectorDataNode vectorDataNode, Writer writer) throws IOException {
+        String description = vectorDataNode.getDescription();
+        if (StringUtils.isNotNullAndNotEmpty(description)) {
+            writer.write("#" + ProductNode.PROPERTY_NAME_DESCRIPTION + "=" + description+"\n");
+        }
+        String defaultCSS = vectorDataNode.getDefaultCSS();
+        if (StringUtils.isNotNullAndNotEmpty(defaultCSS)) {
+            writer.write("#" + VectorDataNodeIO.PROPERTY_NAME_DEFAULT_CSS + "=" + defaultCSS+"\n");
+        }
     }
 
     private void writeFeatures0(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, Writer writer) throws IOException {
