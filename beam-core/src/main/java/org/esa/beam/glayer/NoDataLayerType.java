@@ -36,12 +36,12 @@ public class NoDataLayerType extends ImageLayer.Type {
     public String getName() {
         return TYPE_NAME;
     }
-    
+
     @Override
     public String[] getAliases() {
         return ALIASES;
     }
-    
+
     @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final Color color = (Color) configuration.getValue(PROPERTY_NAME_COLOR);
@@ -51,14 +51,7 @@ public class NoDataLayerType extends ImageLayer.Type {
         MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(
                 ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         if (multiLevelSource == null) {
-            if (raster.getValidMaskExpression() != null) {
-                final AffineTransform i2mTransform = raster.getSourceImage().getModel().getImageToModelTransform(0);
-                multiLevelSource = MaskImageMultiLevelSource.create(raster.getProduct(), color,
-                                                                    raster.getValidMaskExpression(), true,
-                                                                    i2mTransform);
-            } else {
-                multiLevelSource = MultiLevelSource.NULL;
-            }
+            multiLevelSource = createMultiLevelSource(color, raster);
             configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         }
 
@@ -66,8 +59,8 @@ public class NoDataLayerType extends ImageLayer.Type {
         noDataLayer.addListener(new AbstractLayerListener() {
             @Override
             public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
-                if(event.getPropertyName().equals(PROPERTY_NAME_COLOR)) {
-                  noDataLayer.regenerate();
+                if (event.getPropertyName().equals(PROPERTY_NAME_COLOR)) {
+                    renewMultiLevelSource(noDataLayer, (Color) event.getNewValue());
                 }
             }
         });
@@ -88,6 +81,29 @@ public class NoDataLayerType extends ImageLayer.Type {
 
         return prototype;
 
+    }
+
+    public static void renewMultiLevelSource(ImageLayer layer, Color newColor) {
+        final PropertySet configuration = layer.getConfiguration();
+        final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
+        final MultiLevelSource source = createMultiLevelSource(newColor, raster);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, source);
+        layer.setMultiLevelSource(source);
+    }
+
+    private static MultiLevelSource createMultiLevelSource(Color newColor, RasterDataNode raster) {
+        MultiLevelSource source;
+        if (raster.getValidMaskExpression() != null) {
+            final AffineTransform transform = raster.getSourceImage().getModel().getImageToModelTransform(0);
+            source = MaskImageMultiLevelSource.create(raster.getProduct(),
+                                                      newColor,
+                                                      raster.getValidMaskExpression(),
+                                                      true,
+                                                      transform);
+        } else {
+            source = MultiLevelSource.NULL;
+        }
+        return source;
     }
 }
 
