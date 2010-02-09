@@ -79,7 +79,7 @@ Product tree:
 Layers:
 =======
 * Don't use class names e.g. in Session I/O.
-  ==> FINAL, ?, OPEN
+  ==> FINAL, MZ, ONGOING
 
 
 * Graticule layer does not recognize preference changes (reported by Sean Bailey)
