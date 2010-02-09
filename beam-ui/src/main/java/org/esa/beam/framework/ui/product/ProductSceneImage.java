@@ -199,7 +199,7 @@ public class ProductSceneImage implements ProductLayerContext {
         GraticuleLayer layer = (GraticuleLayer) getLayer(ProductSceneView.GRATICULE_LAYER_ID);
         if (layer == null && create) {
             layer = createGraticuleLayer(getImageToModelTransform());
-            addLayer(getFirstImageLayerIndex(), layer);
+            addLayer(0, layer);
         }
         return layer;
     }
