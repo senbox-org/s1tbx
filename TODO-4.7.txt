@@ -31,22 +31,10 @@ VectorDataNode:
   added to the product
   ==> FINAL, ?, OPEN
 
-
 * Import of Geometry does not work when shapefile has no CRS and shapefile coordinates are not in WGS84.
   the user is asked to enter a CRS.
   ==> FINAL, MP, CLOSED
-* (OF) VISAT does not know about existing colour of geometries
-  open product containing (e.g.) blue geometry-1
-  create geometry-2
-  --> it will be blue, just like the geometry-1
-  create new figure on the geometry-1
-   --> it will not be blue
-  ==> FINAL, MZ, CLOSED 
-* Use SLD from shapefile for styling figures
-  ==> FINAL, MZ, CLOSED
-  REOPEN(OF)peprojction does not use it.
-  ==> FINAL, MZ, CLOSED
-  
+
 Figures:
 ========
 * Still can't rotate figures.
@@ -66,11 +54,6 @@ Figures:
   ==> FINAL, ?, OPEN
 * Allow for geometric operations on geometries: add/sub/intersection (JTS!)
   ==> FINAL, ?, OPEN
-
-* Select-tool shall auto-select layer containing a clicked figure
-  ==> FINAL, MP, CLOSED
-* Deprecate or even completely remove ald Figure + Tool classes
-  ==> FINAL, MP, CLOSED
 
 Product tree:
 =============
