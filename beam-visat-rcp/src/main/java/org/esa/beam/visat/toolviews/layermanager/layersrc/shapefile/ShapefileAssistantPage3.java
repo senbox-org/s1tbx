@@ -30,7 +30,7 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 
-class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
+class ShapefileAssistantPage3 extends AbstractLayerSourceAssistantPage {
 
     private JComboBox styleList;
     private JPanel mapPanel;
@@ -38,9 +38,9 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
     private boolean shapeFileLoaded;
     private JLabel infoLabel;
     private JLabel mapLabel;
-    private ShapefileAssistantPage2.ResizeAdapter resizeAdapter;
+    private ShapefileAssistantPage3.ResizeAdapter resizeAdapter;
 
-    ShapefileAssistantPage2() {
+    ShapefileAssistantPage3() {
         super("Layer Preview");
         shapeFileLoaded = false;
     }

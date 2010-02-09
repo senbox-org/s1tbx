@@ -122,7 +122,7 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
                         context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION_CRS, featureCrs);
                     }
                 }
-                return new ShapefileAssistantPage2();
+                return new ShapefileAssistantPage3();
             } catch (Exception e) {
                 e.printStackTrace();
                 context.showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());

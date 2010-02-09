@@ -59,7 +59,7 @@ class ShapefileAssistantPage1_5 extends AbstractLayerSourceAssistantPage {
             final GeoPos referencePos = ProductUtils.getCenterGeoPos(product);
             final CoordinateReferenceSystem crs = crsSelectionPanel.getCrs(referencePos);
             context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION_CRS, crs);
-            return new ShapefileAssistantPage2();
+            return new ShapefileAssistantPage3();
         } catch (FactoryException e) {
             e.printStackTrace();
             context.showErrorDialog("Could not create CRS:\n" + e.getMessage());
