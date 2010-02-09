@@ -87,7 +87,7 @@ public class FeatureCollectionClipperTest extends TestCase {
         assertTrue(expectedEnvelope.boundsEquals2D(marcoSource.getBounds(Query.ALL), 1.0e-6));
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> normanSource = FeatureCollectionClipper.doOperation(
-                marcoSource.getFeatures(), clipGeometry, null, null);
+                marcoSource.getFeatures(), null, clipGeometry, DefaultGeographicCRS.WGS84, null, DefaultGeographicCRS.WGS84);
 
         assertNotNull(normanSource);
         assertEquals(marcoSource.getFeatures().getID(), normanSource.getID());

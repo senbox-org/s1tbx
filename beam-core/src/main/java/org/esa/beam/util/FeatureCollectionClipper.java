@@ -31,78 +31,112 @@ public class FeatureCollectionClipper {
     private FeatureCollectionClipper() {
     }
 
+    /**
+     * Clips the given {@code sourceCollection} against the {@code clipGeometry} and reprojects the clipped features
+     * to the targetCrs.
+     *
+     * @param sourceCollection the feature collection to be clipped and reprojected. If it does not
+     *                         have an associated CRS, {@link DefaultGeographicCRS#WGS84 WGS_84} is assumed.
+     * @param clipGeometry     the geometry used for clipping. Assumed to be in
+     *                         {@link DefaultGeographicCRS#WGS84 WGS_84} coordinates.
+     * @param targetID         the ID of the resulting {@link FeatureCollection}. If {@code null} the ID of
+     *                         the sourceCollection is used.
+     * @param targetCrs        the CRS the {@link FeatureCollection} is reprojected to. If {@code null} no reprojection
+     *                         is applied.
+     *
+     * @return the clipped and possibly reprojectd {@link FeatureCollection}
+     */
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> doOperation(
             FeatureCollection<SimpleFeatureType, SimpleFeature> sourceCollection,
             Geometry clipGeometry,
             String targetID,
             CoordinateReferenceSystem targetCrs) {
 
+        return doOperation(sourceCollection, DefaultGeographicCRS.WGS84,
+                           clipGeometry, DefaultGeographicCRS.WGS84,
+                           targetID, targetCrs);
+    }
+
+    /**
+     * Clips the given {@code sourceCollection} against the {@code clipGeometry} and reprojects the clipped features
+     * to the targetCrs.
+     *
+     * @param sourceCollection the feature collection to be clipped and reprojected. If it does not
+     *                         have an associated CRS, the one specified by {@code defaultSourceCrs} is used.
+     * @param defaultSourceCrs if {@code sourceCollection} does not have an associated CRS, this one is used.
+     * @param clipGeometry     the geometry used for clipping
+     * @param clipCrs          the CRS of the {@code clipGeometry}
+     * @param targetID         the ID of the resulting {@link FeatureCollection}. If {@code null} the ID of
+     *                         the sourceCollection is used.
+     * @param targetCrs        the CRS the {@link FeatureCollection} is reprojected to. If {@code null} no reprojection
+     *                         is applied.
+     *
+     * @return the clipped and possibly reprojectd {@link FeatureCollection}
+     *
+     * @throws IllegalStateException if the {@code sourceCollection} has no associated CRS and {@code defaultSourceCrs}
+     *                               is {@code null}
+     */
+    public static FeatureCollection<SimpleFeatureType, SimpleFeature> doOperation(
+            FeatureCollection<SimpleFeatureType, SimpleFeature> sourceCollection,
+            CoordinateReferenceSystem defaultSourceCrs,
+            Geometry clipGeometry, CoordinateReferenceSystem clipCrs,
+            String targetID, CoordinateReferenceSystem targetCrs) {
 
         SimpleFeatureType sourceSchema = sourceCollection.getSchema();
         CoordinateReferenceSystem sourceCrs = sourceSchema.getCoordinateReferenceSystem();
+        if (targetID == null || targetID.isEmpty()) {
+            targetID = sourceCollection.getID();
+        }
         if (sourceCrs == null) {
-            sourceCrs = DefaultGeographicCRS.WGS84;
+            sourceCrs = defaultSourceCrs;
+        }
+        if (sourceCrs == null) {
+            throw new IllegalStateException("'sourceCollection' has no CRS defined and 'defaultSourceCrs' is null");
         }
         if (targetCrs == null) {
             targetCrs = sourceCrs;
         }
-        if (targetID == null || targetID.isEmpty()) {
-            targetID = sourceCollection.getID();
+
+
+        try {
+            GeometryCoordinateSequenceTransformer clip2SourceTransformer = getTransform(clipCrs, sourceCrs);
+            clipGeometry = clip2SourceTransformer.transform(clipGeometry);
+        } catch (TransformException e) {
+            throw new IllegalStateException(e);
         }
 
-        final Class<?> geometryBinding = sourceSchema.getGeometryDescriptor().getType().getBinding();
-        final GeometryFactory geometryFactory = new GeometryFactory();
-
-        GeometryCoordinateSequenceTransformer transformer;
+        GeometryCoordinateSequenceTransformer source2TargetTransformer;
         SimpleFeatureType targetSchema;
         if (sourceCrs == targetCrs || sourceCrs.equals(targetCrs)) {
             targetSchema = sourceSchema;
-            transformer = null;
+            source2TargetTransformer = null;
         } else {
             try {
                 targetSchema = FeatureTypes.transform(sourceSchema, targetCrs);
-                transformer = getTransform(sourceCrs, targetCrs);
+                source2TargetTransformer = getTransform(sourceCrs, targetCrs);
             } catch (SchemaException e) {
                 throw new IllegalStateException(e);
             }
         }
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> targetCollection = new DefaultFeatureCollection(targetID, targetSchema);
+        DefaultFeatureCollection targetCollection = new DefaultFeatureCollection(targetID, targetSchema);
+
         Iterator<SimpleFeature> iterator = sourceCollection.iterator();
         try {
             while (iterator.hasNext()) {
                 SimpleFeature sourceFeature = iterator.next();
-                Geometry sourceGeometry = (Geometry) sourceFeature.getDefaultGeometry();
 
                 Geometry targetGeometry;
                 try {
-                    targetGeometry = sourceGeometry.intersection(clipGeometry);
-                } catch (TopologyException e) {
+                    Geometry sourceGeometry = (Geometry) sourceFeature.getDefaultGeometry();
+                    targetGeometry = getClippedGeometry(sourceGeometry, clipGeometry);
+                } catch (TopologyException ignored) {
                     continue;
                 }
-                
+
                 if (!targetGeometry.isEmpty()) {
-
-                    if (MultiPolygon.class.isAssignableFrom(geometryBinding)) {
-                        if (targetGeometry instanceof Polygon) {
-                            targetGeometry = geometryFactory.createMultiPolygon(
-                                    new Polygon[]{(Polygon) targetGeometry});
-                        }
-                    }
-
-                    SimpleFeature targetFeature;
-                    if (transformer != null) {
-                        try {
-                            targetGeometry = transformer.transform(targetGeometry);
-                        } catch (TransformException ignored) {
-                            continue;
-                        }
-                        targetFeature = SimpleFeatureBuilder.retype(sourceFeature, targetSchema);
-                    } else {
-                        targetFeature = SimpleFeatureBuilder.copy(sourceFeature);
-                    }
-
-                    targetFeature.setDefaultGeometry(targetGeometry);
+                    SimpleFeature targetFeature = createTargetFeature(targetGeometry, targetSchema,
+                                                                      sourceFeature, source2TargetTransformer);
                     targetCollection.add(targetFeature);
                 }
             }
@@ -112,8 +146,39 @@ public class FeatureCollectionClipper {
 
         return targetCollection;
     }
-    
-    public static GeometryCoordinateSequenceTransformer getTransform(CoordinateReferenceSystem sourceCrs, CoordinateReferenceSystem targetCrs) {
+
+    private static SimpleFeature createTargetFeature(Geometry targetGeometry, SimpleFeatureType targetSchema,
+                                                     SimpleFeature sourceFeature,
+                                                     GeometryCoordinateSequenceTransformer source2TargetTransformer) {
+        SimpleFeature targetFeature;
+        if (source2TargetTransformer != null) {
+            try {
+                targetGeometry = source2TargetTransformer.transform(targetGeometry);
+            } catch (TransformException ignored) {
+//                            continue;
+            }
+            targetFeature = SimpleFeatureBuilder.retype(sourceFeature, targetSchema);
+        } else {
+            targetFeature = SimpleFeatureBuilder.copy(sourceFeature);
+        }
+
+        targetFeature.setDefaultGeometry(targetGeometry);
+        return targetFeature;
+    }
+
+    private static Geometry getClippedGeometry(Geometry sourceGeometry, Geometry clipGeometry) {
+        Geometry targetGeometry = sourceGeometry.intersection(clipGeometry);
+        if (targetGeometry instanceof Polygon) {
+            final GeometryFactory geometryFactory = new GeometryFactory();
+            if (MultiPolygon.class.isAssignableFrom(sourceGeometry.getClass())) {
+                targetGeometry = geometryFactory.createMultiPolygon(new Polygon[]{(Polygon) targetGeometry});
+            }
+        }
+        return targetGeometry;
+    }
+
+    public static GeometryCoordinateSequenceTransformer getTransform(CoordinateReferenceSystem sourceCrs,
+                                                                     CoordinateReferenceSystem targetCrs) {
         GeometryCoordinateSequenceTransformer transformer;
         try {
             MathTransform transform = CRS.findMathTransform(sourceCrs, targetCrs, true);
@@ -125,7 +190,7 @@ public class FeatureCollectionClipper {
         }
         return transformer;
     }
-    
+
     public static Geometry createGeoBoundaryPolygon(Product product) {
         GeometryFactory gf = new GeometryFactory();
         GeoPos[] geoPositions = ProductUtils.createGeoBoundary(product, 100);

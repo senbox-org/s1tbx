@@ -66,12 +66,10 @@ import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.TransformException;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Color;
@@ -1411,29 +1409,24 @@ public class ProductUtils {
         } else {
             Geometry sourceGeometryWGS84 = FeatureCollectionClipper.createGeoBoundaryPolygon(sourceProduct);
             Geometry targetGeometryWGS84 = FeatureCollectionClipper.createGeoBoundaryPolygon(targetProduct);
-            Geometry productIntersectionGeom;
+            Geometry clipGeometry;
             try {
-                productIntersectionGeom = sourceGeometryWGS84.intersection(targetGeometryWGS84);
+                clipGeometry = sourceGeometryWGS84.intersection(targetGeometryWGS84);
             } catch (TopologyException e) {
                 return;
             }
         
             CoordinateReferenceSystem srcModelCrs = ImageManager.getModelCrs(sourceProduct.getGeoCoding());
             CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
-            GeometryCoordinateSequenceTransformer srcTransform = FeatureCollectionClipper.getTransform(DefaultGeographicCRS.WGS84, srcModelCrs);
-            Geometry clipGeometry;
-            try {
-                clipGeometry = srcTransform.transform(productIntersectionGeom);
-            } catch (TransformException e) {
-                return;
-            }
-        
+
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
                 VectorDataNode vectorDataNode = vectorDataGroup.get(i);
                 String name = vectorDataNode.getName();
                 if (!sourceProduct.isInternalNode(vectorDataNode)) {
                     FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
-                    featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, null, targetModelCrs);
+                    featureCollection = FeatureCollectionClipper.doOperation(featureCollection, srcModelCrs,
+                                                                             clipGeometry, DefaultGeographicCRS.WGS84,
+                                                                             null, targetModelCrs);
                     VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
                     targetVDN.setDefaultCSS(vectorDataNode.getDefaultCSS());
                     targetVDN.setDescription(vectorDataNode.getDescription());

@@ -16,9 +16,9 @@
  */
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
+import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.beam.framework.ui.layer.LayerSource;
 import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
-import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 
 /**
  * A layer source for ESRI shape files.
@@ -33,12 +33,13 @@ public class ShapefileLayerSource implements LayerSource {
 
     static final String PROPERTY_NAME_FILE_PATH = "fileName";
     static final String PROPERTY_NAME_FEATURE_COLLECTION = "featureCollection";
+    static final String PROPERTY_NAME_FEATURE_COLLECTION_CRS = "featureCollectionCrs";
     static final String PROPERTY_NAME_STYLES = "styles";
     static final String PROPERTY_NAME_SELECTED_STYLE = "selectedStyle";
 
     @Override
     public boolean isApplicable(LayerSourcePageContext pageContext) {
-        return true;
+        return pageContext.getAppContext().getSelectedProduct().getGeoCoding() == null;
     }
 
     @Override

@@ -11,8 +11,8 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.FeatureCollectionClipper;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
@@ -33,6 +33,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Marco Peters
@@ -61,17 +62,14 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
         try {
             pm.beginTask("Reading shapes", ProgressMonitor.UNKNOWN);
             final ProductSceneView sceneView = context.getAppContext().getSelectedProductSceneView();
-            CoordinateReferenceSystem targetCrs = (CoordinateReferenceSystem) context.getLayerContext().getCoordinateReferenceSystem();
             final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(sceneView.getProduct());
 
             File file = new File((String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH));
-            Object featureCollectionValue = context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION);
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
-            if (featureCollectionValue == null) {
-                featureCollection = ShapefileUtils.createFeatureCollection(file.toURI().toURL(), targetCrs, clipGeometry);
-            } else {
-                featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) featureCollectionValue;
-            }
+            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = getFeatureCollection(file);
+            CoordinateReferenceSystem featureCrs  = (CoordinateReferenceSystem) context.getPropertyValue(
+                    ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION_CRS);
+
+
 
             Style[] styles = getStyles(file, featureCollection);
             Style selectedStyle = getSelectedStyle(styles);
@@ -79,9 +77,9 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
             final LayerType type = LayerTypeRegistry.getLayerType(FeatureLayerType.class.getName());
             final PropertySet configuration = type.createLayerConfig(sceneView);
             configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL, file.toURI().toURL());
-            configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CRS, targetCrs);
-            configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, clipGeometry);
             configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION, featureCollection);
+            configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CRS, featureCrs);
+            configuration.setValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, clipGeometry);
             configuration.setValue(FeatureLayerType.PROPERTY_NAME_SLD_STYLE, selectedStyle);
             Layer featureLayer = type.createLayer(sceneView, configuration);
             featureLayer.setName(file.getName());
@@ -92,9 +90,19 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
         }
     }
 
+    private FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection(File file) throws IOException {
+        Object featureCollectionValue = context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+        if (featureCollectionValue == null) {
+            featureCollection = ShapefileUtils.getFeatureSource(file.toURI().toURL()).getFeatures();
+        } else {
+            featureCollection = (FeatureCollection<SimpleFeatureType, SimpleFeature>) featureCollectionValue;
+        }
+        return featureCollection;
+    }
+
     private Style getSelectedStyle(Style[] styles) {
-        Style selectedStyle;
-        selectedStyle = (Style) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_SELECTED_STYLE);
+        Style selectedStyle = (Style) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_SELECTED_STYLE);
         if (selectedStyle == null) {
             selectedStyle = styles[0];
             context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_SELECTED_STYLE, styles[0]);
@@ -103,9 +111,8 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
     }
 
     private Style[] getStyles(File file, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
-        Style[] styles;
-        styles = (Style[]) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_STYLES);
-        if (styles == null) {
+        Style[] styles = (Style[]) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_STYLES);
+        if (styles == null || styles.length == 0) {
             styles = createStyle(file, featureCollection.getSchema());
             context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_STYLES, styles);
         }
@@ -114,7 +121,7 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
 
     private static Style[] createStyle(File shapeFile, FeatureType schema) {
         final Style[] styles = ShapefileUtils.loadSLD(shapeFile);
-        if (styles != null) {
+        if (styles != null && styles.length > 0) {
             return styles;
         }
         Class<?> type = schema.getGeometryDescriptor().getType().getBinding();

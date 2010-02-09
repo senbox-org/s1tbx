@@ -2,10 +2,14 @@ package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
 import org.esa.beam.framework.ui.FileHistory;
 import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
-import org.esa.beam.util.PropertyMap;
 import org.esa.beam.framework.ui.layer.LayerSourcePageContext;
+import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.FilePathListCellRenderer;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
+import org.geotools.data.FeatureSource;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -19,6 +23,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.URL;
 
 class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
 
@@ -104,10 +109,18 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
                 final String oldPath = (String) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH);
                 if (!path.equals(oldPath)) {
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FILE_PATH, path);
+                    final URL fileUrl = new File(path).toURI().toURL();
+                    final FeatureSource<SimpleFeatureType,SimpleFeature> featureSource = ShapefileUtils.getFeatureSource(fileUrl);
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION, featureSource.getFeatures());
                     // clear other properties they are not valid anymore
-                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION, null);
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_SELECTED_STYLE, null);
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_STYLES, null);
+                    final CoordinateReferenceSystem featureCrs = featureSource.getSchema().getCoordinateReferenceSystem();
+                    if(featureCrs == null) {
+                        return new ShapefileAssistantPage1_5();
+                    }else {
+                        context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION_CRS, featureCrs);
+                    }
                 }
                 return new ShapefileAssistantPage2();
             } catch (Exception e) {

@@ -17,6 +17,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
@@ -46,7 +47,7 @@ import java.util.Map;
  * Unstable API. Use at own risk.
  */
 public class ShapefileUtils {
-    
+
     private static final org.geotools.styling.StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory(null);
 
     /**
@@ -58,42 +59,51 @@ public class ShapefileUtils {
      * @return The shapefile as a feature collection clipped to the geometry of the raster.
      *
      * @throws IOException if the shapefile could not be read.
+     * @deprecated since BEAM 4.7, no replacement
      */
+    @Deprecated
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadShapefile(File file,
-                                                                                    RasterDataNode targetRaster) throws IOException {
+                                                                                    RasterDataNode targetRaster) throws
+                                                                                                                 IOException {
         return loadShapefile(file.toURI().toURL(), targetRaster);
     }
 
     /**
      * Loads a shapefile into a feature collection. The shapefile is clipped to the geometry of the given product.
      *
-     * @param file         The shapefile.
-     * @param product      A geocoded product.
+     * @param file    The shapefile.
+     * @param product A geocoded product.
      *
      * @return The shapefile as a feature collection clipped to the geometry of the product.
      *
      * @throws IOException if the shapefile could not be read.
+     * @deprecated since BEAM 4.7, no replacement
      */
+    @Deprecated
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadShapefile(File file,
-                                                                                    Product product) throws IOException {
+                                                                                    Product product) throws
+                                                                                                     IOException {
         final URL url = file.toURI().toURL();
         final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(product.getGeoCoding());
         final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(product);
         return createFeatureCollection(url, targetCrs, clipGeometry);
     }
-    
+
     /**
      * Loads a shapefile into a feature collection. The shapefile is clipped to the geometry of the given raster.
      *
-     * @param url      The URL of the shapefile.
+     * @param url          The URL of the shapefile.
      * @param targetRaster A geocoded raster.
      *
      * @return The shapefile as a feature collection clipped to the geometry of the raster.
      *
      * @throws IOException if the shapefile could not be read.
+     * @deprecated since BEAM 4.7, no replacement
      */
+    @Deprecated
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadShapefile(URL url,
-                                                                                    RasterDataNode targetRaster) throws IOException {
+                                                                                    RasterDataNode targetRaster) throws
+                                                                                                                 IOException {
         final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(targetRaster.getGeoCoding());
         final Geometry clipGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(targetRaster.getProduct());
         return createFeatureCollection(url, targetCrs, clipGeometry);
@@ -101,11 +111,13 @@ public class ShapefileUtils {
 
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> createFeatureCollection(URL url,
                                                                                               CoordinateReferenceSystem targetCrs,
-                                                                                              Geometry clipGeometry
-    ) throws IOException {
+                                                                                              Geometry clipGeometry) throws
+                                                                                                                     IOException {
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(url);
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
-        featureCollection = FeatureCollectionClipper.doOperation(featureCollection, clipGeometry, null, targetCrs);
+        featureCollection = FeatureCollectionClipper.doOperation(featureCollection, DefaultGeographicCRS.WGS84,
+                                                                 clipGeometry, DefaultGeographicCRS.WGS84,
+                                                                 null, targetCrs);
         return featureCollection;
     }
 
@@ -117,10 +129,11 @@ public class ShapefileUtils {
         String typeName = shapefileStore.getTypeNames()[0]; // Shape files do only have one type name
         return shapefileStore.getFeatureSource(typeName);
     }
-    
-    /**
-     * Figure out the URL for the "sld" file
-     */
+
+    /*
+    * Figure out the URL for the "sld" file
+    */
+
     private static File getSLDFile(File shapeFile) {
         String filename = shapeFile.getAbsolutePath();
         if (filename.endsWith(".shp") || filename.endsWith(".dbf")
@@ -134,7 +147,7 @@ public class ShapefileUtils {
         }
         return new File(filename);
     }
-    
+
     public static Style[] loadSLD(File shapeFile) {
         File sld = ShapefileUtils.getSLDFile(shapeFile);
         if (sld.exists()) {
@@ -143,7 +156,7 @@ public class ShapefileUtils {
             return new Style[0];
         }
     }
-    
+
     private static Style[] createFromSLD(File sld) {
         try {
             SLDParser stylereader = new SLDParser(styleFactory, sld.toURI().toURL());
@@ -153,29 +166,29 @@ public class ShapefileUtils {
         }
         return new Style[0];
     }
-    
+
     /**
      * Converts the styling information in the style into CSS styles for all given features in the collection.
-     * 
-     * @param style The style.
-     * @param defaultCss The CSS default value.
+     *
+     * @param style             The style.
+     * @param defaultCss        The CSS default value.
      * @param featureCollection The collection that should be styled.
-     * @param styledCollection the collection that will contain the styled features.
+     * @param styledCollection  the collection that will contain the styled features.
      */
     public static void applyStyle(Style style, String defaultCss,
-                                   FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, 
-                                   FeatureCollection<SimpleFeatureType, SimpleFeature> styledCollection) {
-        
+                                  FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection,
+                                  FeatureCollection<SimpleFeatureType, SimpleFeature> styledCollection) {
+
         List<FeatureTypeStyle> featureTypeStyles = style.featureTypeStyles();
         SimpleFeatureType featureType = featureCollection.getSchema();
         SimpleFeatureType styledFeatureType = styledCollection.getSchema();
-        
+
         List<SimpleFeature> featuresToStyle = new ArrayList<SimpleFeature>(featureCollection.size());
         Iterator<SimpleFeature> iterator = featureCollection.iterator();
         while (iterator.hasNext()) {
             featuresToStyle.add(iterator.next());
         }
-        
+
         for (FeatureTypeStyle fts : featureTypeStyles) {
             if (isFeatureTypeStyleActive(featureType, fts)) {
                 List<Rule> ruleList = new ArrayList<Rule>();
@@ -190,7 +203,8 @@ public class ShapefileUtils {
                 Iterator<SimpleFeature> featureIterator = featuresToStyle.iterator();
                 while (featureIterator.hasNext()) {
                     SimpleFeature simpleFeature = featureIterator.next();
-                    SimpleFeature styledFeature = processRules(simpleFeature, styledFeatureType, ruleList, elseRuleList);
+                    SimpleFeature styledFeature = processRules(simpleFeature, styledFeatureType, ruleList,
+                                                               elseRuleList);
                     if (styledFeature != null) {
                         styledCollection.add(styledFeature);
                         featureIterator.remove();
@@ -199,11 +213,12 @@ public class ShapefileUtils {
             }
         }
         for (SimpleFeature simpleFeature : featuresToStyle) {
-            styledCollection.add(createStyledFeature(styledFeatureType, simpleFeature, defaultCss ));
+            styledCollection.add(createStyledFeature(styledFeatureType, simpleFeature, defaultCss));
         }
     }
-    
-    private static SimpleFeature processRules(SimpleFeature sf, SimpleFeatureType styledSFT, List<Rule> ruleList, List<Rule> elseRuleList) {
+
+    private static SimpleFeature processRules(SimpleFeature sf, SimpleFeatureType styledSFT, List<Rule> ruleList,
+                                              List<Rule> elseRuleList) {
         Filter filter;
         boolean doElse = true;
         Symbolizer[] symbolizers;
@@ -229,8 +244,9 @@ public class ShapefileUtils {
         }
         return null;
     }
-    
-    private static SimpleFeature processSymbolizers(SimpleFeatureType sft, SimpleFeature feature, Symbolizer[] symbolizers) {
+
+    private static SimpleFeature processSymbolizers(SimpleFeatureType sft, SimpleFeature feature,
+                                                    Symbolizer[] symbolizers) {
         for (Symbolizer symbolizer : symbolizers) {
             if (symbolizer instanceof LineSymbolizer) {
                 LineSymbolizer lineSymbolizer = (LineSymbolizer) symbolizer;
@@ -246,7 +262,8 @@ public class ShapefileUtils {
                 Stroke stroke = polygonSymbolizer.getStroke();
                 Color strokeColor = SLD.color(stroke);
                 int width = SLD.width(stroke);
-                FigureStyle figureStyle = DefaultFigureStyle.createPolygonStyle(fillColor, strokeColor, new BasicStroke(width));
+                FigureStyle figureStyle = DefaultFigureStyle.createPolygonStyle(fillColor, strokeColor,
+                                                                                new BasicStroke(width));
                 String cssStyle = figureStyle.toCssString();
                 return createStyledFeature(sft, feature, cssStyle);
             }
@@ -256,17 +273,17 @@ public class ShapefileUtils {
 
     private static boolean isFeatureTypeStyleActive(SimpleFeatureType ftype, FeatureTypeStyle fts) {
         return ((ftype.getTypeName() != null)
-                && (ftype.getTypeName().equalsIgnoreCase(fts.getFeatureTypeName()) || 
-                        FeatureTypes.isDecendedFrom(ftype, null, fts.getFeatureTypeName())));
+                && (ftype.getTypeName().equalsIgnoreCase(fts.getFeatureTypeName()) ||
+                    FeatureTypes.isDecendedFrom(ftype, null, fts.getFeatureTypeName())));
     }
-    
+
     public static SimpleFeatureType createStyledFeatureType(SimpleFeatureType type) {
         SimpleFeatureTypeBuilder sftb = new SimpleFeatureTypeBuilder();
         sftb.init(type);
         sftb.add(PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS, String.class);
         return sftb.buildFeatureType();
     }
-    
+
     private static SimpleFeature createStyledFeature(SimpleFeatureType type, SimpleFeature feature, String styleCSS) {
         SimpleFeatureBuilder sfb = new SimpleFeatureBuilder(type);
         sfb.init(feature);

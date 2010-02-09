@@ -17,9 +17,12 @@ import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import org.esa.beam.util.FeatureCollectionClipper;
+import org.geotools.data.FeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.SLDParser;
 import org.geotools.styling.SLDTransformer;
 import org.geotools.styling.Style;
@@ -68,24 +71,28 @@ public class FeatureLayerType extends LayerType {
 
     @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
-        if (configuration.getValue(PROPERTY_NAME_FEATURE_COLLECTION_CRS) == null && ctx != null) {
-            configuration.setValue(PROPERTY_NAME_FEATURE_COLLECTION_CRS, ctx.getCoordinateReferenceSystem());
+        CoordinateReferenceSystem targetCrs = null;
+        if (ctx != null) {
+            targetCrs = (CoordinateReferenceSystem) ctx.getCoordinateReferenceSystem();
         }
         FeatureCollection<SimpleFeatureType, SimpleFeature> fc;
-        fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.getValue(
-                FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION);
+        fc = (FeatureCollection<SimpleFeatureType, SimpleFeature>) configuration.getValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION);
         if (fc == null) {
-            final URL url = (URL) configuration.getValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL);
-            final CoordinateReferenceSystem targetCrs = (CoordinateReferenceSystem) configuration.getValue(
-                    FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CRS);
-            final Geometry clipGeometry = (Geometry) configuration.getValue(
-                    FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY);
             try {
-                fc = ShapefileUtils.createFeatureCollection(url, targetCrs, clipGeometry);
+                final URL url = (URL) configuration.getValue(FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_URL);
+                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = ShapefileUtils.getFeatureSource(url);
+                fc = featureSource.getFeatures();
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
             }
         }
+        final CoordinateReferenceSystem featureCrs = (CoordinateReferenceSystem) configuration.getValue(
+                FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CRS);
+        final Geometry clipGeometry = (Geometry) configuration.getValue(
+                FeatureLayerType.PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY);
+        fc = FeatureCollectionClipper.doOperation(fc, featureCrs,
+                                                  clipGeometry, DefaultGeographicCRS.WGS84,
+                                                  null, targetCrs);
         return new FeatureLayer(this, fc, configuration);
     }
 
@@ -97,7 +104,6 @@ public class FeatureLayerType extends LayerType {
 
         configuration.addProperty(Property.create(PROPERTY_NAME_FEATURE_COLLECTION, FeatureCollection.class));
         configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION).setTransient(true);
-        //configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION).setNotNull(true);
 
         configuration.addProperty(Property.create(PROPERTY_NAME_SLD_STYLE, Style.class));
         configuration.getDescriptor(PROPERTY_NAME_SLD_STYLE).setDomConverter(new StyleDomConverter());
@@ -106,13 +112,13 @@ public class FeatureLayerType extends LayerType {
         // Optional Parameters
 
         configuration.addProperty(Property.create(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY, Geometry.class));
-        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY).setDomConverter(new GeometryDomConverter());
+        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY).setDomConverter(
+                new GeometryDomConverter());
 
         configuration.addProperty(Property.create(PROPERTY_NAME_FEATURE_COLLECTION_URL, URL.class));
 
         configuration.addProperty(Property.create(PROPERTY_NAME_FEATURE_COLLECTION_CRS, CoordinateReferenceSystem.class));
         configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setDomConverter(new CRSDomConverter());
-        configuration.getDescriptor(PROPERTY_NAME_FEATURE_COLLECTION_CRS).setTransient(true);
 
         return configuration;
     }
@@ -126,7 +132,7 @@ public class FeatureLayerType extends LayerType {
 
         @Override
         public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                ValidationException {
+                                                                                       ValidationException {
             final DomElement child = parentElement.getChild(0);
             SLDParser s = new SLDParser(CommonFactoryFinder.getStyleFactory(null), new StringReader(child.toXml()));
             final Style[] styles = s.readXML();
@@ -158,7 +164,7 @@ public class FeatureLayerType extends LayerType {
 
         @Override
         public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                ValidationException {
+                                                                                       ValidationException {
             try {
                 value = CRS.parseWKT(parentElement.getValue());
             } catch (FactoryException e) {
@@ -184,7 +190,7 @@ public class FeatureLayerType extends LayerType {
 
         @Override
         public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                ValidationException {
+                                                                                       ValidationException {
             com.vividsolutions.jts.geom.GeometryFactory gf = new com.vividsolutions.jts.geom.GeometryFactory();
             final DefaultDomConverter domConverter = new DefaultDomConverter(Coordinate.class);
             final DomElement[] children = parentElement.getChildren("coordinate");

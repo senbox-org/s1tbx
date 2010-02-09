@@ -116,7 +116,7 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         shapeFileLoaded = false;
         context.updateState();
 
-        worker = new ShapeFilePreviewLoader(getContext());
+        worker = new ShapeFilePreviewLoader(context);
         worker.execute();
     }
 
