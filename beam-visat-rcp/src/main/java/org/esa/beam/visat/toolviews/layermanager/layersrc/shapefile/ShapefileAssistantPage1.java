@@ -117,7 +117,7 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_STYLES, null);
                     final CoordinateReferenceSystem featureCrs = featureSource.getSchema().getCoordinateReferenceSystem();
                     if(featureCrs == null) {
-                        return new ShapefileAssistantPage1_5();
+                        return new ShapefileAssistantPage2();
                     }else {
                         context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION_CRS, featureCrs);
                     }

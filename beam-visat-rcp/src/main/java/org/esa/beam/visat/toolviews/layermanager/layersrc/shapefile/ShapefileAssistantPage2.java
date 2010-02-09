@@ -15,12 +15,12 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Component;
 
-class ShapefileAssistantPage1_5 extends AbstractLayerSourceAssistantPage {
+class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
 
     private CrsSelectionPanel crsSelectionPanel;
 
 
-    ShapefileAssistantPage1_5() {
+    ShapefileAssistantPage2() {
         super("Define CRS");
     }
 
