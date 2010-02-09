@@ -13,7 +13,29 @@ import com.bc.ceres.core.ExtensibleObject;
  */
 public abstract class LayerType extends ExtensibleObject {
 
+    private static final String[] ALIASES = new String[0];
+
     protected LayerType() {
+    }
+    
+    /**
+     * Return the name of this layer type. This name will used for storing layer of this
+     * type in session.
+     * 
+     * @return The name of this layer type.
+     */
+    public String getName() {
+        return getClass().getName();
+    }
+    
+    /**
+     * Return aliases under which this layer type is also know. the intention is to allow changing
+     * the type name and be backwards compatible in regards to old sessions.
+     * 
+     * @return The aliases of this layer type.
+     */
+    public String[] getAliases() {
+        return ALIASES;
     }
 
     /**

@@ -36,7 +36,20 @@ public class CollectionLayer extends Layer {
     }
 
     public static class Type extends LayerType {
+        
+        private static final String TYPE_NAME = "CollectionLayerType";
+        private static final String[] ALIASES = {"com.bc.ceres.glayer.CollectionLayer$Type"};
 
+        @Override
+        public String getName() {
+            return TYPE_NAME;
+        }
+        
+        @Override
+        public String[] getAliases() {
+            return ALIASES;
+        }
+        
         @Override
         public boolean isValidFor(LayerContext ctx) {
             return true;

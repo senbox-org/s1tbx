@@ -22,4 +22,9 @@ public class LayerTypeRegistryTest extends TestCase {
         LayerType imageLayerType = LayerTypeRegistry.getLayerType(ImageLayer.Type.class.getName());
         assertTrue(imageLayerType instanceof ImageLayer.Type);
     }
+    
+    public void testAliases() {
+        LayerType imageLayerType = LayerTypeRegistry.getLayerType("ImageLayerType");
+        assertTrue(imageLayerType instanceof ImageLayer.Type);
+    }
 }

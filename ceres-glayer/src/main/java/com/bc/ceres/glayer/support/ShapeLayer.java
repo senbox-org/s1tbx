@@ -107,6 +107,19 @@ public class ShapeLayer extends Layer {
         public static final String PROPERTY_SHAPE_LIST = "shapes";
         public static final String PROPTERY_SHAPE_TO_MODEL_TRANSFORM = "shapeToModelTransform";
 
+        private static final String TYPE_NAME = "ShapeLayerType";
+        private static final String[] ALIASES = {"com.bc.ceres.glayer.support.ShapeLayer$Type"};
+
+        @Override
+        public String getName() {
+            return TYPE_NAME;
+        }
+        
+        @Override
+        public String[] getAliases() {
+            return ALIASES;
+        }
+        
         @Override
         public boolean isValidFor(LayerContext ctx) {
             return true;

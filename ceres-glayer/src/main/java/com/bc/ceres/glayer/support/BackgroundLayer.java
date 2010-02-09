@@ -56,8 +56,19 @@ public class BackgroundLayer extends Layer {
 
     public static class Type extends LayerType {
 
+        private static final String TYPE_NAME = "BackgroundLayerType";
+        private static final String[] ALIASES = {"com.bc.ceres.glayer.support.BackgroundLayer$Type"};
         private static final String COLOR = "color";
 
+        @Override
+        public String getName() {
+            return TYPE_NAME;
+        }
+        
+        @Override
+        public String[] getAliases() {
+            return ALIASES;
+        }
 
         @Override
         public boolean isValidFor(LayerContext ctx) {
