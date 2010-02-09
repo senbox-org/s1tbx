@@ -29,6 +29,19 @@ public class NoDataLayerType extends ImageLayer.Type {
     public static final String PROPERTY_NAME_RASTER = "raster";
     public static final Color DEFAULT_COLOR = Color.ORANGE;
 
+    private static final String TYPE_NAME = "NoDataLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.glayer.NoDataLayerType"};
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
+    
     @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final Color color = (Color) configuration.getValue(PROPERTY_NAME_COLOR);

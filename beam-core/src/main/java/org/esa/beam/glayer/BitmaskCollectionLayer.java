@@ -166,6 +166,19 @@ public class BitmaskCollectionLayer extends CollectionLayer {
         @Deprecated
         private static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
 
+        private static final String TYPE_NAME = "BitmaskCollectionLayerType";
+        private static final String[] ALIASES = {"org.esa.beam.glayer.BitmaskCollectionLayer$Type"};
+
+        @Override
+        public String getName() {
+            return TYPE_NAME;
+        }
+        
+        @Override
+        public String[] getAliases() {
+            return ALIASES;
+        }
+        
         @Override
         public Layer createLayer(LayerContext ctx, PropertySet configuration) {
             final BitmaskCollectionLayer bitmaskCollectionLayer = new BitmaskCollectionLayer(this, configuration);

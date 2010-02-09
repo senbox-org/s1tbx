@@ -44,6 +44,19 @@ public class WmsLayerType extends ImageLayer.Type {
     public static final String PROPERTY_NAME_STYLE_NAME = "styleName";
     public static final String PROPERTY_NAME_IMAGE_SIZE = "imageSize";
 
+    private static final String TYPE_NAME = "WmsLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerType"};
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
+    
     @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final WebMapServer mapServer;

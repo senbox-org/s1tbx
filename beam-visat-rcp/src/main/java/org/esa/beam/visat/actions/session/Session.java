@@ -546,7 +546,7 @@ public class Session {
         final LayerRef[] children;
 
         public LayerRef(Layer layer, int zOrder, DomElement configuration, LayerRef[] children) {
-            this.layerTypeName = layer.getLayerType().getClass().getName();
+            this.layerTypeName = layer.getLayerType().getName();
             this.id = layer.getId();
             this.name = layer.getName();
             this.visible = layer.isVisible();

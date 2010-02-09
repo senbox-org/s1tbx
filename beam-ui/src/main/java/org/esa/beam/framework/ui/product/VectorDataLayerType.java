@@ -21,6 +21,10 @@ public class VectorDataLayerType extends LayerType {
 
     public static final String PROPERTY_NAME_VECTOR_DATA = "vectorData";
     public static final String VECTOR_DATA_LAYER_ID_PREFIX = "org.esa.beam.layers.vectorData";
+
+    private static final String TYPE_NAME = "VectorDataLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.framework.ui.product.VectorDataLayerType"};
+    
     private static int id;
 
     public static Layer createLayer(VectorDataNode vectorDataNode) {
@@ -29,6 +33,16 @@ public class VectorDataLayerType extends LayerType {
         configuration.setValue(PROPERTY_NAME_VECTOR_DATA, vectorDataNode.getName());
 
         return layerType.createLayer(vectorDataNode, configuration);
+    }
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
     }
 
     @Override

@@ -25,6 +25,19 @@ public class FigureLayerType extends LayerType {
 
     public static final String FIGURE_LAYER_ID = "org.esa.beam.layers.figure";
 
+    private static final String TYPE_NAME = "FigureLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.glayer.FigureLayerType"};
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
+    
     @Override
     public boolean isValidFor(LayerContext ctx) {
         return true;

@@ -29,7 +29,19 @@ public class PlacemarkLayerType extends LayerType {
     public static final String PROPERTY_PLACEMARK_DESCRIPTOR = "placemarkDescriptor";
     public static final String PROPERTY_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
 
+    private static final String TYPE_NAME = "PlacemarkLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.glayer.PlacemarkLayerType"};
 
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
+    
     @Override
     public boolean isValidFor(LayerContext ctx) {
         return true;

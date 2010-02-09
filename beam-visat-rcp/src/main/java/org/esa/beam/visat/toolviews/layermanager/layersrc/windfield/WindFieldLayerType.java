@@ -19,6 +19,9 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
  */
 public class WindFieldLayerType extends LayerType {
 
+    private static final String TYPE_NAME = "WindFieldLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.visat.toolviews.layermanager.layersrc.windfield.WindFieldLayerType"};
+    
     public static WindFieldLayer createLayer(RasterDataNode windu, RasterDataNode windv) {
         LayerType type = LayerTypeRegistry.getLayerType(WindFieldLayerType.class);
         final PropertySet template = type.createLayerConfig(null);
@@ -27,6 +30,15 @@ public class WindFieldLayerType extends LayerType {
         return new WindFieldLayer(type, windu, windv, template);
     }
 
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
 
     @Override
     public boolean isValidFor(LayerContext ctx) {

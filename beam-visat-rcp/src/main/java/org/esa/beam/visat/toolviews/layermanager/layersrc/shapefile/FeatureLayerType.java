@@ -48,6 +48,19 @@ public class FeatureLayerType extends LayerType {
     public static final String PROPERTY_NAME_FEATURE_COLLECTION_CRS = "featureCollectionTargetCrs";
     public static final String PROPERTY_NAME_FEATURE_COLLECTION_CLIP_GEOMETRY = "featureCollectionClipGeometry";
 
+    private static final String TYPE_NAME = "FeatureLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayerType"};
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
+    
     @Override
     public boolean isValidFor(LayerContext ctx) {
         return true;

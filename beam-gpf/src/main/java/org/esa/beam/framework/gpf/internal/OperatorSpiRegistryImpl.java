@@ -36,8 +36,8 @@ import java.util.Set;
  */
 public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
 
-    private ServiceRegistry<OperatorSpi> serviceRegistry;
-    private Map<String, String> aliases;
+    private final ServiceRegistry<OperatorSpi> serviceRegistry;
+    private final Map<String, String> aliases;
 
     /**
      * The provate singleton constructor.

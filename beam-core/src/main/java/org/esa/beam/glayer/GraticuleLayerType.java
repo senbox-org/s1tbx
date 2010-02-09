@@ -53,13 +53,25 @@ public class GraticuleLayerType extends LayerType {
     private static final String ALIAS_NAME_TEXT_FG_COLOR = "textFgColor";
     private static final String ALIAS_NAME_TEXT_BG_COLOR = "textBgColor";
     private static final String ALIAS_NAME_TEXT_BG_TRANSPARENCY = "textBgTransparency";
-
+    private static final String TYPE_NAME = "GraticuleLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.glayer.GraticuleLayerType"};
     /**
      * @deprecated since BEAM 4.7, no replacement; kept for compatibility of sessions
      */
     @Deprecated
     private static final String PROPERTY_NAME_TRANSFORM = "imageToModelTransform";
 
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
+    
     @Override
     public boolean isValidFor(LayerContext ctx) {
         return true;

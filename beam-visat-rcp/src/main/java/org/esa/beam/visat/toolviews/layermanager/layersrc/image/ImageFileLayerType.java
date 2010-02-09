@@ -22,6 +22,19 @@ public class ImageFileLayerType extends ImageLayer.Type {
     static final String PROPERTY_NAME_IMAGE_FILE = "filePath";
     static final String PROPERTY_NAME_WORLD_TRANSFORM = "worldTransform";
 
+    private static final String TYPE_NAME = "ImageFileLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileLayerType"};
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
+    
     @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final File file = (File) configuration.getValue(PROPERTY_NAME_IMAGE_FILE);

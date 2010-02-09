@@ -11,6 +11,19 @@ import org.esa.beam.glayer.ProductLayerContext;
 
 public class VectorDataCollectionLayerType extends CollectionLayer.Type {
 
+    private static final String TYPE_NAME = "VectorDataCollectionLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.framework.ui.product.VectorDataCollectionLayerType"};
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
+    
     @Override
     public boolean isValidFor(LayerContext ctx) {
         return ctx instanceof ProductLayerContext;

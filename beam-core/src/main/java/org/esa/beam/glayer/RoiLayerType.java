@@ -22,6 +22,19 @@ public class RoiLayerType extends ImageLayer.Type {
     public static final String PROPERTY_NAME_TRANSPARENCY = ImageType.PROPERTY_NAME_TRANSPARENCY;
     public static final String PROPERTY_NAME_RASTER = "raster";
 
+    private static final String TYPE_NAME = "RoiLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.glayer.RoiLayerType"};
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
+    
     /**
      * Converts a RoiLayer into a MaskLayer, for backward compatibility.
      */

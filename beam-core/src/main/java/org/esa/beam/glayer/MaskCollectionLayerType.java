@@ -12,6 +12,19 @@ public class MaskCollectionLayerType extends CollectionLayer.Type {
 
     public static final String PROPERTY_NAME_RASTER = "raster";
 
+    private static final String TYPE_NAME = "MaskCollectionLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.glayer.MaskCollectionLayerType"};
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
+    
     @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);

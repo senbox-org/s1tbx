@@ -16,6 +16,19 @@ public class RasterImageLayerType extends ImageLayer.Type {
 
     public static final String PROPERTY_NAME_RASTER = "raster";
 
+    private static final String TYPE_NAME = "RasterImageLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.glayer.RasterImageLayerType"};
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
+    
     @Override
     public ImageLayer createLayer(LayerContext ctx, PropertySet configuration) {
         MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(

@@ -71,6 +71,13 @@ public class DefaultLayerSourceDescriptorTest {
 
     private static class SimpleTestLayerType extends LayerType {
 
+        private static final String TYPE_NAME = "SimpleTestLayerType";
+
+        @Override
+        public String getName() {
+            return TYPE_NAME;
+        }
+        
         @Override
         public boolean isValidFor(LayerContext ctx) {
             return true;

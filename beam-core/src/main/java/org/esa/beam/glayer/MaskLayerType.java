@@ -28,6 +28,9 @@ public class MaskLayerType extends ImageLayer.Type {
 
     public static final String PROPERTY_NAME_MASK = "mask";
 
+    private static final String TYPE_NAME = "MaskLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.glayer.MaskLayerType"};
+
     public static Layer createLayer(RasterDataNode raster, Mask mask) {
         final MaskLayerType type = LayerTypeRegistry.getLayerType(MaskLayerType.class);
         final PropertySet configuration = type.createLayerConfig(null);
@@ -39,6 +42,16 @@ public class MaskLayerType extends ImageLayer.Type {
         return layer;
     }
 
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
+    
     @Override
     public Layer createLayer(LayerContext ctx, PropertySet configuration) {
         MultiLevelSource multiLevelSource = (MultiLevelSource) configuration.getValue(

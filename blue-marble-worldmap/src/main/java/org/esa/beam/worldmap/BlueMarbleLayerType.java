@@ -1,7 +1,6 @@
 package org.esa.beam.worldmap;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
@@ -24,9 +23,21 @@ import java.net.URL;
 public class BlueMarbleLayerType extends ImageLayer.Type {
 
     private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.worldImageDir";
-    private volatile MultiLevelSource multiLevelSource;
     private static final String WORLD_MAP_LAYER_NAME = "World Map (NASA Blue Marble)";
+    private static final String TYPE_NAME = "BlueMarbleLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.worldmap.BlueMarbleLayerType"};
 
+    private volatile MultiLevelSource multiLevelSource;
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
+    }
 
     @Override
     public boolean isValidFor(LayerContext ctx) {

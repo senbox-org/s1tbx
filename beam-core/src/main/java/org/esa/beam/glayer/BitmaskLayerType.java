@@ -23,6 +23,9 @@ public class BitmaskLayerType extends ImageLayer.Type {
 
     public static final String PROPERTY_NAME_BITMASK_DEF = "bitmaskDef";
     public static final String PROPERTY_NAME_PRODUCT = "product";
+    
+    private static final String TYPE_NAME = "BitmaskLayerType";
+    private static final String[] ALIASES = {"org.esa.beam.glayer.BitmaskLayerType"};
 
     public static Layer createBitmaskLayer(RasterDataNode raster, final BitmaskDef bitmaskDef,
                                            AffineTransform i2mTransform) {
@@ -34,6 +37,16 @@ public class BitmaskLayerType extends ImageLayer.Type {
         final BitmaskOverlayInfo overlayInfo = raster.getBitmaskOverlayInfo();
         layer.setVisible(overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDef));
         return layer;
+    }
+
+    @Override
+    public String getName() {
+        return TYPE_NAME;
+    }
+    
+    @Override
+    public String[] getAliases() {
+        return ALIASES;
     }
 
     @Override
