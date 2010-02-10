@@ -798,7 +798,7 @@
             <mnemonic>M</mnemonic>
             <shortDescr>Exports the currently selected geometry.</shortDescr>
             <description>Exports the currently selected geometry as ESRI Shapefile.</description>
-            <context>vectorDataNode, image</context>
+            <context>vectorDataNode</context>
             <helpId>exportGeometry</helpId>
         </action>
 
