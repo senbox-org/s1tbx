@@ -68,8 +68,10 @@ Layers:
   ==> FINAL, MZ, CLOSED
 * Graticule layer does not recognize preference changes (reported by Sean Bailey)
   Also No-data layer is affected.
-  ==> FINAL, MP, CLOSED (OF:  Graticule layer will be update in the image view immediately, but  No-data not.
+  ==> FINAL, MP, CLOSED
+  (OF:  Graticule layer will be update in the image view immediately, but  No-data not.
   For No-data update you must close and reopen image view. Is it OK?)
+  (MP: fixed)
 
 GPF Processors:
 ===============
