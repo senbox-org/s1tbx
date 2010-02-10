@@ -21,6 +21,7 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
+import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.jai.BandOpImage;
@@ -344,8 +345,16 @@ public class Band extends AbstractBand {
     }
 
     private boolean isProductReaderDirectlyUsable() {
-        return getProductReader() != null
-                && isSourceImageSet() && getSourceImage().getImage(0) instanceof BandOpImage;
+        final ProductReader productReader = getProductReader();
+        if(productReader != null) {
+            if(isSourceImageSet() && getSourceImage().getImage(0) instanceof BandOpImage) {
+                final BandOpImage bandOpImage = (BandOpImage) getSourceImage().getImage(0);
+                if(bandOpImage.getBand().getProductReader() == productReader) {
+                    return true;
+                }
+            }
+        }
+        return  false;
     }
 
     /**
