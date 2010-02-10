@@ -9,7 +9,7 @@ public class ProductNodeGroupTest extends TestCase {
 
         assertEquals(false, p.isModified());
 
-        ProductNodeGroup<Pin> pinGroup = p.getPinGroup();
+        ProductNodeGroup<Placemark> pinGroup = p.getPinGroup();
         PNL listener = new PNL();
         p.addProductNodeListener(listener);
 
@@ -19,12 +19,12 @@ public class ProductNodeGroupTest extends TestCase {
 
         assertEquals(0, pinGroup.getNodeCount());
 
-        Pin pin1 = new Pin("p1", "l1", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol(), null);
-        Pin pin2 = new Pin("p2", "l2", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol(), null);
-        Pin pin3 = new Pin("p3", "l3", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol(), null);
-        pinGroup.add(pin1);
-        pinGroup.add(pin2);
-        pinGroup.add(pin3);
+        Placemark placemark1 = new Placemark("p1", "l1", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol(), null);
+        Placemark placemark2 = new Placemark("p2", "l2", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol(), null);
+        Placemark placemark3 = new Placemark("p3", "l3", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol(), null);
+        pinGroup.add(placemark1);
+        pinGroup.add(placemark2);
+        pinGroup.add(placemark3);
         assertEquals(true, p.isModified());
         assertEquals(3, pinGroup.getNodeCount());
         assertEquals("+p1;+p2;+p3;", listener.trace);
@@ -34,13 +34,13 @@ public class ProductNodeGroupTest extends TestCase {
         assertEquals(false, p.isModified());
         assertEquals("", listener.trace);
 
-        assertSame(pin1, pinGroup.get(0));
-        assertSame(pin2, pinGroup.get(1));
-        assertSame(pin3, pinGroup.get(2));
+        assertSame(placemark1, pinGroup.get(0));
+        assertSame(placemark2, pinGroup.get(1));
+        assertSame(placemark3, pinGroup.get(2));
 
-        pinGroup.remove(pin1);
-        pinGroup.remove(pin2);
-        pinGroup.remove(pin3);
+        pinGroup.remove(placemark1);
+        pinGroup.remove(placemark2);
+        pinGroup.remove(placemark3);
         assertEquals(0, pinGroup.getNodeCount());
         assertEquals("-p1;-p2;-p3;", listener.trace);
         listener.trace = "";
@@ -71,15 +71,15 @@ public class ProductNodeGroupTest extends TestCase {
 
     public void testNodeChangeIsObservable() {
         final Product p = new Product("p", "t", 10, 10);
-        final ProductNodeGroup<Pin> pinGroup = p.getPinGroup();
+        final ProductNodeGroup<Placemark> pinGroup = p.getPinGroup();
 
-        final Pin pin = new Pin("p1", "l1", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol(), null);
-        pinGroup.add(pin);
+        final Placemark placemark = new Placemark("p1", "l1", "", new PixelPos(0, 0), null, PlacemarkSymbol.createDefaultPinSymbol(), null);
+        pinGroup.add(placemark);
 
         final PNL listener = new PNL();
         p.addProductNodeListener(listener);
 
-        pin.setLabel("new label");
+        placemark.setLabel("new label");
         assertEquals(true, p.isModified());
         assertEquals("c:p1.label;", listener.trace);
     }
@@ -116,7 +116,7 @@ public class ProductNodeGroupTest extends TestCase {
         @Override
         public void nodeChanged(ProductNodeEvent event) {
             if (event.getSource() instanceof Band
-                || event.getSource() instanceof Pin) {
+                || event.getSource() instanceof Placemark) {
                 trace += "c:" + event.getSourceNode().getName() + "." + event.getPropertyName() + ";";
             }
         }
@@ -124,7 +124,7 @@ public class ProductNodeGroupTest extends TestCase {
         @Override
         public void nodeDataChanged(ProductNodeEvent event) {
             if (event.getSource() instanceof Band
-                || event.getSource() instanceof Pin) {
+                || event.getSource() instanceof Placemark) {
                 trace += "dc:" + event.getSourceNode().getName() + ";";
             }
         }
@@ -132,7 +132,7 @@ public class ProductNodeGroupTest extends TestCase {
         @Override
         public void nodeAdded(ProductNodeEvent event) {
             if (event.getSource() instanceof Band
-                || event.getSource() instanceof Pin) {
+                || event.getSource() instanceof Placemark) {
                 trace += "+" + event.getSourceNode().getName() + ";";
             }
         }
@@ -140,7 +140,7 @@ public class ProductNodeGroupTest extends TestCase {
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
             if (event.getSource() instanceof Band
-                || event.getSource() instanceof Pin) {
+                || event.getSource() instanceof Placemark) {
                 trace += "-" + event.getSourceNode().getName() + ";";
             }
         }

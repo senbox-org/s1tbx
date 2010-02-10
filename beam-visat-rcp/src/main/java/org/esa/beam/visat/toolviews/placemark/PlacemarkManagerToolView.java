@@ -9,7 +9,7 @@ import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
@@ -350,8 +350,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         return selectedProductSceneView;
     }
 
-    private Pin getPinAt(final int selectedRow) {
-        Pin placemark = null;
+    private Placemark getPlacemarkAt(final int selectedRow) {
+        Placemark placemark = null;
         if (product != null) {
             if (selectedRow > -1 && selectedRow < getPlacemarkGroup().getNodeCount()) {
                 placemark = getPlacemarkGroup().get(selectedRow);
@@ -366,23 +366,23 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     void newPin() {
         Guardian.assertNotNull("product", product);
         String[] uniquePinNameAndLabel = PlacemarkNameFactory.createUniqueNameAndLabel(placemarkDescriptor, product);
-        Pin newPlacemark = new Pin(uniquePinNameAndLabel[0],
+        Placemark newPlacemark = new Placemark(uniquePinNameAndLabel[0],
                                    uniquePinNameAndLabel[1],
                                    "",
                                    new PixelPos(0, 0), null,
                                    placemarkDescriptor.createDefaultSymbol(),
                                    product.getGeoCoding());
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, newPlacemark, placemarkDescriptor)) {
-            makePinNameUnique(newPlacemark);
+            makePlacemarkNameUnique(newPlacemark);
             updateUIState();
         }
     }
 
     void copyActivePlacemark() {
         Guardian.assertNotNull("product", product);
-        Pin activePlacemark = getSelectedPlacemarkFromTable();
+        Placemark activePlacemark = getSelectedPlacemarkFromTable();
         Guardian.assertNotNull("activePlacemark", activePlacemark);
-        Pin newPlacemark = new Pin("copy_of_" + activePlacemark.getName(),
+        Placemark newPlacemark = new Placemark("copy_of_" + activePlacemark.getName(),
                                    activePlacemark.getLabel(),
                                    activePlacemark.getDescription(),
                                    activePlacemark.getPixelPos(),
@@ -390,7 +390,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                                    createPinSymbolCopy(activePlacemark.getSymbol()),
                                    activePlacemark.getProduct().getGeoCoding());
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, newPlacemark, placemarkDescriptor)) {
-            makePinNameUnique(newPlacemark);
+            makePlacemarkNameUnique(newPlacemark);
             updateUIState();
         }
     }
@@ -422,30 +422,30 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         return placemarkSymbol;
     }
 
-    private ProductNodeGroup<Pin> getPlacemarkGroup() {
+    private ProductNodeGroup<Placemark> getPlacemarkGroup() {
         return placemarkDescriptor.getPlacemarkGroup(product);
     }
 
     void editActivePin() {
         Guardian.assertNotNull("product", product);
-        Pin activePlacemark = getSelectedPlacemarkFromTable();
+        Placemark activePlacemark = getSelectedPlacemarkFromTable();
         Guardian.assertNotNull("activePlacemark", activePlacemark);
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, activePlacemark,
                                                     placemarkDescriptor)) {
-            makePinNameUnique(activePlacemark);
+            makePlacemarkNameUnique(activePlacemark);
             updateUIState();
         }
     }
 
     void removeSelectedPins() {
-        final Pin[] placemarks = getSelectedNodesFromTable();
+        final Placemark[] placemarks = getSelectedNodesFromTable();
         int i = JOptionPane.showConfirmDialog(getPaneWindow(),
                                               MessageFormat.format("Do you really want to remove {0} selected{1}(s)?\nThis action can not be undone.", placemarks.length, placemarkDescriptor.getRoleLabel()),
                                               MessageFormat.format("{0} - Remove {1}s", getDescriptor().getTitle(), placemarkDescriptor.getRoleLabel()),
                                               JOptionPane.OK_CANCEL_OPTION);
         if (i == JOptionPane.OK_OPTION) {
             int selectedRow = placemarkTable.getSelectedRow();
-            for (Pin placemark : placemarks) {
+            for (Placemark placemark : placemarks) {
                 getPlacemarkGroup().remove(placemark);
             }
             if (selectedRow >= getPlacemarkGroup().getNodeCount()) {
@@ -463,7 +463,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         return rowIndexes != null ? rowIndexes.length : 0;
     }
 
-    private Pin getSelectedPlacemarkFromTable() {
+    private Placemark getSelectedPlacemarkFromTable() {
         int rowIndex = placemarkTable.getSelectedRow();
         if (rowIndex >= 0) {
             return placemarkTableModel.getPlacemarkAt(placemarkTable.getActualRowAt(rowIndex));
@@ -471,23 +471,23 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         return null;
     }
 
-    private Pin[] getSelectedNodesFromTable() {
+    private Placemark[] getSelectedNodesFromTable() {
         int[] rowIndexes = placemarkTable.getSelectedRows();
         if (rowIndexes != null) {
-            Pin[] pins = new Pin[rowIndexes.length];
+            Placemark[] pins = new Placemark[rowIndexes.length];
             for (int i = 0; i < rowIndexes.length; i++) {
                 int rowIndex = placemarkTable.getActualRowAt(rowIndexes[i]);
                 pins[i] = placemarkTableModel.getPlacemarkAt(rowIndex);
             }
             return pins;
         } else {
-            return new Pin[0];
+            return new Placemark[0];
         }
     }
 
     void zoomToActivePin() {
         Guardian.assertNotNull("product", product);
-        Pin activePlacemark = getSelectedPlacemarkFromTable();
+        Placemark activePlacemark = getSelectedPlacemarkFromTable();
         Guardian.assertNotNull("activePlacemark", activePlacemark);
         final ProductSceneView view = getSceneView();
         final PixelPos imagePos = activePlacemark.getPixelPos();  // in image coordinates on Level 0, can be null
@@ -503,7 +503,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     // }} Actions
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void makePinNameUnique(Pin newPlacemark) {
+    private void makePlacemarkNameUnique(Placemark newPlacemark) {
         if (makePlacemarkNameUnique0(newPlacemark)) {
             String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
             showWarningDialog(roleLabel + " has been renamed to '" + newPlacemark.getName() + "',\n" +
@@ -542,10 +542,10 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             try {
                 synchronizingPlacemarkSelectedState = true;
                 if (product != null) {
-                    Pin[] placemarks = placemarkTableModel.getPlacemarks();
+                    Placemark[] placemarks = placemarkTableModel.getPlacemarks();
                     for (int i = 0; i < placemarks.length; i++) {
                         if (i < placemarkTable.getRowCount()) {
-                            Pin placemark = placemarks[i];
+                            Placemark placemark = placemarks[i];
                             int sortedRowAt = placemarkTable.getSortedRowAt(i);
                             boolean selected = isPlacemarkSelectedInView(placemark);
                             if (selected != placemarkTable.isRowSelected(sortedRowAt)) {
@@ -568,7 +568,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     }
 
     void importPlacemarks(boolean allPlacemarks) {
-        Pin[] placemarks;
+        Placemark[] placemarks;
         try {
             placemarks = loadPlacemarksFromFile();
         } catch (IOException e) {
@@ -582,7 +582,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         int numPinsOutOfBounds = 0;
         int numPinsRenamed = 0;
         int numInvalids = 0;
-        for (Pin placemark : placemarks) {
+        for (Placemark placemark : placemarks) {
             if (makePlacemarkNameUnique0(placemark)) {
                 numPinsRenamed++;
             }
@@ -636,7 +636,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private boolean isPlacemarkSelectedInView(Pin placemark) {
+    private boolean isPlacemarkSelectedInView(Placemark placemark) {
         boolean selected = false;
         if (getSceneView() != null) {
             if (getPlacemarkDescriptor() instanceof PinDescriptor) {
@@ -648,7 +648,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         return selected;
     }
 
-    private boolean makePlacemarkNameUnique0(Pin placemark) {
+    private boolean makePlacemarkNameUnique0(Placemark placemark) {
         if (getPlacemarkGroup().get(placemark.getName()) == placemark) {
             return false;
         }
@@ -665,7 +665,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         return false;
     }
 
-    private Pin[] loadPlacemarksFromFile() throws IOException {
+    private Placemark[] loadPlacemarksFromFile() throws IOException {
         final BeamFileChooser fileChooser = new BeamFileChooser();
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
         fileChooser.setDialogTitle("Import " + roleLabel + "s"); /*I18N*/
@@ -674,7 +674,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         fileChooser.setFileFilter(getPlacemarkFileFilter());
         fileChooser.setCurrentDirectory(getIODir());
         int result = fileChooser.showOpenDialog(getPaneWindow());
-        Pin[] placemarks = new Pin[0];
+        Placemark[] placemarks = new Placemark[0];
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             if (file != null) {
@@ -793,7 +793,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         for (int sortedRow = 0; sortedRow < placemarkTable.getRowCount(); ++sortedRow) {
             if (placemarkTable.getSelectionModel().isSelectedIndex(sortedRow)) {
                 final int modelRow = placemarkTable.getActualRowAt(sortedRow);
-                final Pin placemark = placemarkTableModel.getPlacemarkAt(modelRow);
+                final Placemark placemark = placemarkTableModel.getPlacemarkAt(modelRow);
 
                 pw.print(placemark.getName() + "\t");
                 for (int col = 0; col < columnCountMin; col++) {
@@ -818,7 +818,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         XmlWriter writer = new XmlWriter(outputFile);
         final String[] tags = XmlWriter.createTags(0, "Placemarks");
         writer.println(tags[0]);
-        for (Pin placemark : getSelectedNodesFromTable()) {
+        for (Placemark placemark : getSelectedNodesFromTable()) {
             if (placemark != null) {
                 placemark.writeXML(writer, 1);
             }
@@ -827,7 +827,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         writer.close();
     }
 
-    private Pin[] readPlacemarksFromFile(File inputFile) throws IOException {
+    private Placemark[] readPlacemarksFromFile(File inputFile) throws IOException {
         assert inputFile != null;
         final DataInputStream dataInputStream = new DataInputStream(new FileInputStream(inputFile));
         byte[] magicBytes;
@@ -844,11 +844,11 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private Pin[] readPlacemarksFromFlatFile(File inputFile) throws IOException {
+    private Placemark[] readPlacemarksFromFlatFile(File inputFile) throws IOException {
         assert inputFile != null;
         int[] columnIndexes = null;
         int biggestIndex = 0;
-        ArrayList<Pin> placemarks = new ArrayList<Pin>();
+        ArrayList<Placemark> placemarks = new ArrayList<Placemark>();
 
         final RandomAccessFile file = new RandomAccessFile(inputFile, "r");
         int row = 0;
@@ -911,7 +911,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     if (product != null) {
                         geoCoding = product.getGeoCoding();
                     }
-                    Pin placemark = new Pin(name, label, "", null, new GeoPos(lat, lon),
+                    Placemark placemark = new Placemark(name, label, "", null, new GeoPos(lat, lon),
                                             placemarkDescriptor.createDefaultSymbol(), geoCoding);
                     if (desc != null) {
                         placemark.setDescription(desc);
@@ -925,10 +925,10 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
         file.close();
 
-        return placemarks.toArray(new Pin[placemarks.size()]);
+        return placemarks.toArray(new Placemark[placemarks.size()]);
     }
 
-    private Pin[] readPlacemarksFromXMLFile(File inputFile) throws IOException {
+    private Placemark[] readPlacemarksFromXMLFile(File inputFile) throws IOException {
         assert inputFile != null;
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -941,7 +941,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 // support for old pin XML format (.pnx)
                 children = rootElement.getChildren(DimapProductConstants.TAG_PIN);
             }
-            final ArrayList<Pin> placemarks = new ArrayList<Pin>(children.size());
+            final ArrayList<Placemark> placemarks = new ArrayList<Placemark>(children.size());
             for (Object child : children) {
                 final Element element = (Element) child;
                 try {
@@ -949,11 +949,11 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     if (product != null) {
                         geoCoding = product.getGeoCoding();
                     }
-                    placemarks.add(Pin.createPlacemark(element, placemarkDescriptor.createDefaultSymbol(), geoCoding));
+                    placemarks.add(Placemark.createPlacemark(element, placemarkDescriptor.createDefaultSymbol(), geoCoding));
                 } catch (IllegalArgumentException ignored) {
                 }
             }
-            return placemarks.toArray(new Pin[placemarks.size()]);
+            return placemarks.toArray(new Placemark[placemarks.size()]);
         } catch (FactoryConfigurationError error) {
             throw new IOException(error.toString());
         } catch (ParserConfigurationException e) {
@@ -1016,7 +1016,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         @Override
         public void nodeChanged(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product) && sourceNode instanceof Pin) {
+            if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product) && sourceNode instanceof Placemark) {
                 updateUIState();
             }
         }
@@ -1024,7 +1024,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         @Override
         public void nodeDataChanged(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product) && sourceNode instanceof Pin) {
+            if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product) && sourceNode instanceof Placemark) {
                 updateUIState();
             }
         }
@@ -1032,8 +1032,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         @Override
         public void nodeAdded(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product) && sourceNode instanceof Pin) {
-                placemarkTableModel.addPlacemark((Pin) sourceNode);
+            if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product) && sourceNode instanceof Placemark) {
+                placemarkTableModel.addPlacemark((Placemark) sourceNode);
                 updateUIState();
             }
         }
@@ -1041,8 +1041,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product) && sourceNode instanceof Pin) {
-                placemarkTableModel.removePlacemark((Pin) sourceNode);
+            if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(product) && sourceNode instanceof Placemark) {
+                placemarkTableModel.removePlacemark((Placemark) sourceNode);
                 updateUIState();
             }
         }
@@ -1068,7 +1068,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             if (rowIndex != _rowIndex) {
                 _rowIndex = rowIndex;
                 if (_rowIndex >= 0 && _rowIndex < placemarkTable.getRowCount()) {
-                    GeoPos geoPos = getPinAt(placemarkTable.getActualRowAt(_rowIndex)).getGeoPos();
+                    GeoPos geoPos = getPlacemarkAt(placemarkTable.getActualRowAt(_rowIndex)).getGeoPos();
                     if (geoPos != null) {
                         placemarkTable.setToolTipText(geoPos.getLonString() + " / " + geoPos.getLatString());
                     }
@@ -1294,7 +1294,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         @Override
         protected boolean validateValue(Product product, float value) {
-            Pin currentPlacemark = getSelectedPlacemarkFromTable();
+            Placemark currentPlacemark = getSelectedPlacemarkFromTable();
             PixelPos pixelPos = currentPlacemark.getPixelPos();
             return product.containsPixel(value, pixelPos.y);
         }
@@ -1308,7 +1308,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         @Override
         protected boolean validateValue(Product product, float value) {
-            Pin currentPlacemark = getSelectedPlacemarkFromTable();
+            Placemark currentPlacemark = getSelectedPlacemarkFromTable();
             PixelPos pixelPos = currentPlacemark.getPixelPos();
             return product.containsPixel(pixelPos.x, value);
         }
@@ -1330,7 +1330,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 return true;
             }
 
-            Pin currentPlacemark = getSelectedPlacemarkFromTable();
+            Placemark currentPlacemark = getSelectedPlacemarkFromTable();
             GeoPos geoPos = new GeoPos(lat, currentPlacemark.getGeoPos().getLon());
             PixelPos pixelPos = new PixelPos(currentPlacemark.getPixelPos().x, currentPlacemark.getPixelPos().y);
             pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(), geoPos, pixelPos);
@@ -1354,7 +1354,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             if (geoCoding == null || !geoCoding.canGetGeoPos() || !geoCoding.canGetPixelPos()) {
                 return true;
             }
-            Pin currentPlacemark = getSelectedPlacemarkFromTable();
+            Placemark currentPlacemark = getSelectedPlacemarkFromTable();
             GeoPos geoPos = new GeoPos(currentPlacemark.getGeoPos().getLat(), lon);
             PixelPos pixelPos = new PixelPos(currentPlacemark.getPixelPos().x, currentPlacemark.getPixelPos().y);
             pixelPos = placemarkDescriptor.updatePixelPos(geoCoding, geoPos, pixelPos);
@@ -1398,17 +1398,17 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
             try {
                 synchronizingPlacemarkSelectedState = true;
-                Pin[] placemarks = placemarkTableModel.getPlacemarks();
-                ArrayList<Pin> selectedPlacemarks = new ArrayList<Pin>();
+                Placemark[] placemarks = placemarkTableModel.getPlacemarks();
+                ArrayList<Placemark> selectedPlacemarks = new ArrayList<Placemark>();
                 for (int i = 0; i < placemarks.length; i++) {
-                    Pin placemark = placemarks[i];
+                    Placemark placemark = placemarks[i];
                     int sortedIndex = placemarkTable.getSortedRowAt(i);
                     boolean selected = placemarkTable.isRowSelected(sortedIndex);
                     if (selected) {
                         selectedPlacemarks.add(placemark);
                     }
                 }
-                Pin[] placemarkArray = selectedPlacemarks.toArray(new Pin[selectedPlacemarks.size()]);
+                Placemark[] placemarkArray = selectedPlacemarks.toArray(new Placemark[selectedPlacemarks.size()]);
                 if (getPlacemarkDescriptor() instanceof PinDescriptor) {
                     sceneView.selectPins(placemarkArray);
                 } else {

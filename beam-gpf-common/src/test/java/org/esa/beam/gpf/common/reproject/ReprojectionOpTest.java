@@ -2,7 +2,7 @@ package org.esa.beam.gpf.common.reproject;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
@@ -156,8 +156,8 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
     @Test
     public void testCopyPlacemarkGroups() throws IOException {
         final PlacemarkSymbol defaultPinSymbol = PlacemarkSymbol.createDefaultPinSymbol();
-        final Pin pin = new Pin("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol, sourceProduct.getGeoCoding());
-        final Pin gcp = new Pin("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol, sourceProduct.getGeoCoding());
+        final Placemark pin = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol, sourceProduct.getGeoCoding());
+        final Placemark gcp = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol, sourceProduct.getGeoCoding());
 
         sourceProduct.getPinGroup().add(pin);
         sourceProduct.getGcpGroup().add(gcp);
@@ -167,8 +167,8 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
         assertEquals(1, targetPoduct.getPinGroup().getNodeCount());
         assertEquals(1, targetPoduct.getGcpGroup().getNodeCount());
-        final Pin pin2 = targetPoduct.getPinGroup().get(0);
-        final Pin gcp2 = targetPoduct.getGcpGroup().get(0);
+        final Placemark pin2 = targetPoduct.getPinGroup().get(0);
+        final Placemark gcp2 = targetPoduct.getGcpGroup().get(0);
 
         assertEquals("P1", pin2.getName());
         assertEquals("G1", gcp2.getName());

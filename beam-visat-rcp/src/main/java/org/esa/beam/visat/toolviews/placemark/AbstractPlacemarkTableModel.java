@@ -3,7 +3,7 @@ package org.esa.beam.visat.toolviews.placemark;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
@@ -27,7 +27,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     private TiePointGrid[] selectedGrids;
 
     private final PlacemarkListener placemarkListener;
-    private final ArrayList<Pin> placemarkList;
+    private final ArrayList<Placemark> placemarkList;
 
     public AbstractPlacemarkTableModel(PlacemarkDescriptor placemarkDescriptor, Product product, Band[] selectedBands,
                                        TiePointGrid[] selectedGrids) {
@@ -35,7 +35,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         this.product = product;
         initSelectedBands(selectedBands);
         initSelectedGrids(selectedGrids);
-        placemarkList = new ArrayList<Pin>(10);
+        placemarkList = new ArrayList<Placemark>(10);
         placemarkListener = new PlacemarkListener();
         if (product != null) {
             product.addProductNodeListener(placemarkListener);
@@ -43,11 +43,11 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         initPlacemarkList(product);
     }
 
-    public Pin[] getPlacemarks() {
-        return placemarkList.toArray(new Pin[placemarkList.size()]);
+    public Placemark[] getPlacemarks() {
+        return placemarkList.toArray(new Placemark[placemarkList.size()]);
     }
 
-    public Pin getPlacemarkAt(int modelRow) {
+    public Placemark getPlacemarkAt(int modelRow) {
         return placemarkList.get(modelRow);
     }
 
@@ -96,7 +96,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         fireTableStructureChanged();
     }
 
-    public boolean addPlacemark(Pin placemark) {
+    public boolean addPlacemark(Placemark placemark) {
         if (getProduct() != null && placemarkList.add(placemark)) {
             fireTableDataChanged();
             return true;
@@ -104,7 +104,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         return false;
     }
 
-    public boolean removePlacemark(Pin placemark) {
+    public boolean removePlacemark(Placemark placemark) {
         if (getProduct() != null && placemarkList.remove(placemark)) {
             fireTableDataChanged();
             return true;
@@ -173,7 +173,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
             if (columnIndex < getStandardColumnNames().length) {
                 return getStandardColumnValueAt(rowIndex, columnIndex);
             } else {
-                final Pin placemark = placemarkList.get(rowIndex);
+                final Placemark placemark = placemarkList.get(rowIndex);
                 int index = columnIndex - getStandardColumnNames().length;
                 PixelPos pixelPos = placemark.getPixelPos();
                 if (pixelPos == null) {
@@ -226,7 +226,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
             return;
         }
         if (columnIndex < getStandardColumnNames().length) {
-            Pin placemark = placemarkList.get(rowIndex);
+            Placemark placemark = placemarkList.get(rowIndex);
             if (columnIndex == 0) {
                 if (value instanceof Float) {
                     float pixelY;
@@ -312,7 +312,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     private void initPlacemarkList(Product product) {
         if (product != null) {
-            Pin[] placemarks = placemarkDescriptor.getPlacemarkGroup(product).toArray(new Pin[0]);
+            Placemark[] placemarks = placemarkDescriptor.getPlacemarkGroup(product).toArray(new Placemark[0]);
             placemarkList.addAll(Arrays.asList(placemarks));
         }
     }
@@ -351,8 +351,8 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         }
 
         private void fireTableDataChanged(ProductNodeEvent event) {
-            if (event.getSourceNode() instanceof Pin) {
-                Pin placemark = (Pin) event.getSourceNode();
+            if (event.getSourceNode() instanceof Placemark) {
+                Placemark placemark = (Placemark) event.getSourceNode();
                 if (placemarkList.contains(placemark)) {
                     AbstractPlacemarkTableModel.this.fireTableDataChanged();
                 }

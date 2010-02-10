@@ -39,7 +39,7 @@ public class PlacemarkSymbolDialog extends ModalDialog {
     private JButton _symbolButton;
 
     public PlacemarkSymbolDialog(Window parent) {
-        super(parent, "Pin symbol", ModalDialog.ID_OK_CANCEL, null);/*I18N*/
+        super(parent, "Placemark symbol", ModalDialog.ID_OK_CANCEL, null);/*I18N*/
         createParameter();
         creatUI();
     }

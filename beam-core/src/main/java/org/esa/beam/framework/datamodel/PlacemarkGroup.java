@@ -7,16 +7,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class PlacemarkGroup extends ProductNodeGroup<Pin> {
+public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
 
     private final VectorDataNode vectorDataNode;
-    private final Map<SimpleFeature, Pin> placemarkMap;
+    private final Map<SimpleFeature, Placemark> placemarkMap;
     private final ProductNodeListener listener;
 
     PlacemarkGroup(Product product, String name, VectorDataNode vectorDataNode) {
         super(product, name, true);
         this.vectorDataNode = vectorDataNode;
-        this.placemarkMap = Collections.synchronizedMap(new HashMap<SimpleFeature, Pin>());
+        this.placemarkMap = Collections.synchronizedMap(new HashMap<SimpleFeature, Placemark>());
         listener = new VectorDataNodeListener();
         getProduct().addProductNodeListener(listener);
     }
@@ -25,30 +25,30 @@ public class PlacemarkGroup extends ProductNodeGroup<Pin> {
         return vectorDataNode;
     }
 
-    public final Pin getPlacemark(SimpleFeature feature) {
+    public final Placemark getPlacemark(SimpleFeature feature) {
         return placemarkMap.get(feature);
     }
 
     @Override
-    public boolean add(Pin pin) {
-        final boolean added = _add(pin);
+    public boolean add(Placemark placemark) {
+        final boolean added = _add(placemark);
         if (added) {
-            addToVectorData(pin);
+            addToVectorData(placemark);
         }
         return added;
     }
 
     @Override
-    public void add(int index, Pin pin) {
-        _add(index, pin);
-        addToVectorData(pin);
+    public void add(int index, Placemark placemark) {
+        _add(index, placemark);
+        addToVectorData(placemark);
     }
 
     @Override
-    public boolean remove(Pin pin) {
-        final boolean removed = _remove(pin);
+    public boolean remove(Placemark placemark) {
+        final boolean removed = _remove(placemark);
         if (removed) {
-            removeFromVectorData(pin);
+            removeFromVectorData(placemark);
         }
         return removed;
     }
@@ -62,36 +62,36 @@ public class PlacemarkGroup extends ProductNodeGroup<Pin> {
         super.dispose();
     }
 
-    private boolean _add(Pin pin) {
-        final boolean added = super.add(pin);
+    private boolean _add(Placemark placemark) {
+        final boolean added = super.add(placemark);
         if (added) {
-            placemarkMap.put(pin.getFeature(), pin);
+            placemarkMap.put(placemark.getFeature(), placemark);
         }
         return added;
     }
 
-    private void _add(int index, Pin pin) {
-        super.add(index, pin);
-        placemarkMap.put(pin.getFeature(), pin);
+    private void _add(int index, Placemark placemark) {
+        super.add(index, placemark);
+        placemarkMap.put(placemark.getFeature(), placemark);
     }
 
-    private boolean _remove(Pin pin) {
-        final boolean removed = super.remove(pin);
+    private boolean _remove(Placemark placemark) {
+        final boolean removed = super.remove(placemark);
         if (removed) {
-            placemarkMap.remove(pin.getFeature());
+            placemarkMap.remove(placemark.getFeature());
         }
         return removed;
     }
 
-    private void addToVectorData(final Pin pin) {
-        vectorDataNode.getFeatureCollection().add(pin.getFeature());
+    private void addToVectorData(final Placemark placemark) {
+        vectorDataNode.getFeatureCollection().add(placemark.getFeature());
     }
 
-    private void removeFromVectorData(Pin pin) {
+    private void removeFromVectorData(Placemark placemark) {
         final Iterator<SimpleFeature> iterator = vectorDataNode.getFeatureCollection().iterator();
         while (iterator.hasNext()) {
             final SimpleFeature feature = iterator.next();
-            if (feature == pin.getFeature()) {
+            if (feature == placemark.getFeature()) {
                 iterator.remove();
                 break;
             }
@@ -109,25 +109,25 @@ public class PlacemarkGroup extends ProductNodeGroup<Pin> {
 
                     if (oldFeatures == null) { // features added?
                         for (SimpleFeature feature : newFeatures) {
-                            final Pin pin = placemarkMap.get(feature);
-                            if (pin == null) {
+                            final Placemark placemark = placemarkMap.get(feature);
+                            if (placemark == null) {
                                 // Only call add() if we don't have the pin already
-                                _add(new Pin(feature));
+                                _add(new Placemark(feature));
                             }
                         }
                     } else if (newFeatures == null) { // features removed?
                         for (SimpleFeature feature : oldFeatures) {
-                            final Pin pin = placemarkMap.get(feature);
-                            if (pin != null) {
+                            final Placemark placemark = placemarkMap.get(feature);
+                            if (placemark != null) {
                                 // Only call add() if we don't have the pin already
-                                _remove(pin);
+                                _remove(placemark);
                             }
                         }
                     } else { // features changed
                         for (SimpleFeature feature : newFeatures) {
-                            final Pin pin = placemarkMap.get(feature);
-                            if (pin != null) {
-                                pin.updatePixelPos();
+                            final Placemark placemark = placemarkMap.get(feature);
+                            if (placemark != null) {
+                                placemark.updatePixelPos();
                             }
                         }
                     }

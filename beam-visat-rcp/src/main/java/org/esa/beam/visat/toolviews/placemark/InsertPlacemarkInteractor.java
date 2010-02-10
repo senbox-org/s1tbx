@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.placemark;
 
 import com.bc.ceres.swing.figure.FigureEditorInteractor;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
@@ -64,7 +64,7 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
         final String label = uniqueNameAndLabel[1];
         final PixelPos pixelPos = new PixelPos(view.getCurrentPixelX() + 0.5f,
                                                view.getCurrentPixelY() + 0.5f);
-        final Pin newPlacemark = new Pin(name, label, "", pixelPos, null, placemarkDescriptor.createDefaultSymbol(),
+        final Placemark newPlacemark = new Placemark(name, label, "", pixelPos, null, placemarkDescriptor.createDefaultSymbol(),
                                          product.getGeoCoding());
 
         getPlacemarkGroup(product).add(newPlacemark);

@@ -27,7 +27,7 @@ import org.esa.beam.framework.datamodel.GeneralFilterBand;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Kernel;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
@@ -312,17 +312,17 @@ public class DimapHeaderWriterTest extends TestCase {
     }
 
     private void addPinsToProduct() {
-        final Pin pin1 = new Pin("pin1", "pin1", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
-        ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
-        pinGroup.add(pin1);
+        final Placemark placemark1 = new Placemark("pin1", "pin1", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+        ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
+        pinGroup.add(placemark1);
 
-        final Pin pin2 = new Pin("pin2", "pin2", "", null, new GeoPos(4, 8), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
-        pin2.setDescription("desc2");
-        pinGroup.add(pin2);
+        final Placemark placemark2 = new Placemark("pin2", "pin2", "", null, new GeoPos(4, 8), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+        placemark2.setDescription("desc2");
+        pinGroup.add(placemark2);
 
-        final Pin pin3 = new Pin("pin3", "pin3", "", null, new GeoPos(-23.1234f, -80.543f),
+        final Placemark placemark3 = new Placemark("pin3", "pin3", "", null, new GeoPos(-23.1234f, -80.543f),
                                  PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
-        pinGroup.add(pin3);
+        pinGroup.add(placemark3);
     }
 
     private String getExpectedForWritePins() {
@@ -371,17 +371,17 @@ public class DimapHeaderWriterTest extends TestCase {
     }
 
     private void addGcpsToProduct() {
-        final Pin pin1 = new Pin("gcp1", "gcp1", "", null, new GeoPos(), PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
-        ProductNodeGroup<Pin> pinGroup = product.getGcpGroup();
-        pinGroup.add(pin1);
+        final Placemark placemark1 = new Placemark("gcp1", "gcp1", "", null, new GeoPos(), PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
+        ProductNodeGroup<Placemark> pinGroup = product.getGcpGroup();
+        pinGroup.add(placemark1);
 
-        final Pin pin2 = new Pin("gcp2", "gcp2", "", null, new GeoPos(4, 8), PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
-        pin2.setDescription("desc2");
-        pinGroup.add(pin2);
+        final Placemark placemark2 = new Placemark("gcp2", "gcp2", "", null, new GeoPos(4, 8), PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
+        placemark2.setDescription("desc2");
+        pinGroup.add(placemark2);
 
-        final Pin pin3 = new Pin("gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f),
+        final Placemark placemark3 = new Placemark("gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f),
                                  PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
-        pinGroup.add(pin3);
+        pinGroup.add(placemark3);
     }
 
     private String getExpectedForWriteGcps() {

@@ -4,7 +4,7 @@ import com.bc.ceres.swing.TableLayout;
 
 import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -204,8 +204,8 @@ class GcpGeoCodingForm extends JPanel {
 
     private void attachGeoCoding(final Product product) {
         final GcpGeoCoding.Method method = (GcpGeoCoding.Method) methodComboBox.getSelectedItem();
-        final ProductNodeGroup<Pin> gcpGroup = product.getGcpGroup();
-        final Pin[] gcps = gcpGroup.toArray(new Pin[0]);
+        final ProductNodeGroup<Placemark> gcpGroup = product.getGcpGroup();
+        final Placemark[] gcps = gcpGroup.toArray(new Placemark[0]);
         final GeoCoding geoCoding = product.getGeoCoding();
         final Datum datum;
         if (geoCoding == null) {
@@ -312,7 +312,7 @@ class GcpGeoCodingForm extends JPanel {
                 if(currentProduct.getGcpGroup().getNodeCount() < gcpGeoCoding.getMethod().getTermCountP()){
                     detachGeoCoding(currentProduct);
                 }else {
-                    Pin[] gcps = currentProduct.getGcpGroup().toArray(new Pin[0]);
+                    Placemark[] gcps = currentProduct.getGcpGroup().toArray(new Placemark[0]);
                     GcpGeoCoding newGcpGeoCoding = new GcpGeoCoding(gcpGeoCoding.getMethod(), gcps,
                                                                     currentProduct.getSceneRasterWidth(),
                                                                     currentProduct.getSceneRasterHeight(),

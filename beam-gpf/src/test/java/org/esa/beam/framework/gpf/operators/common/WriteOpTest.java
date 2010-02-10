@@ -22,7 +22,7 @@ import com.sun.media.jai.util.SunTileScheduler;
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
@@ -118,9 +118,9 @@ public class WriteOpTest extends TestCase {
 
         Product productOnDisk = ProductIO.readProduct(outputFile, null);
         assertNotNull(productOnDisk);
-        final ProductNodeGroup<Pin> pinProductNodeGroup = productOnDisk.getPinGroup();
+        final ProductNodeGroup<Placemark> placemarkProductNodeGroup = productOnDisk.getPinGroup();
 
-        assertEquals(40, pinProductNodeGroup.getNodeCount());     // one for each tile, we have 4 tiles
+        assertEquals(40, placemarkProductNodeGroup.getNodeCount());     // one for each tile, we have 4 tiles
         assertEquals("writtenProduct", productOnDisk.getName());
         assertEquals(1, productOnDisk.getNumBands());
         Band band1 = productOnDisk.getBandAt(0);
@@ -155,11 +155,11 @@ public class WriteOpTest extends TestCase {
             final int minX = targetTile.getMinX();
             final int minY = targetTile.getMinY();
             final PlacemarkSymbol symbol = PinDescriptor.INSTANCE.createDefaultSymbol();
-            Pin pin = new Pin(band.getName() + minX + "," + minY,
+            Placemark placemark = new Placemark(band.getName() + minX + "," + minY,
                                                         "label", "descr",
                                                         new PixelPos(minX, minY), null,
                                                         symbol, targetProduct.getGeoCoding());
-            targetProduct.getPinGroup().add(pin);
+            targetProduct.getPinGroup().add(placemark);
         }
 
         public static class Spi extends OperatorSpi {

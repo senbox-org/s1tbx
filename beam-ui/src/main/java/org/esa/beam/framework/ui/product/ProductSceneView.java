@@ -29,7 +29,7 @@ import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -423,7 +423,7 @@ public class ProductSceneView extends BasicView
         addCopyPixelInfoToClipboardMenuItem(popupMenu);
         getCommandUIFactory().addContextDependentMenuItems("image", popupMenu);
         CommandUIFactory commandUIFactory = getCommandUIFactory();
-        Pin[] selectedPins = getSelectedPins();
+        Placemark[] selectedPins = getSelectedPins();
         if (selectedPins.length > 0) {
             if (commandUIFactory != null) {
                 commandUIFactory.addContextDependentMenuItems("pin", popupMenu);
@@ -795,7 +795,7 @@ public class ProductSceneView extends BasicView
      *
      * @since BEAM 4.7
      */
-    public boolean isPinSelected(Pin pin) {
+    public boolean isPinSelected(Placemark pin) {
         return isPlacemarkSelected(getProduct().getPinGroup(), pin);
     }
 
@@ -806,7 +806,7 @@ public class ProductSceneView extends BasicView
      *
      * @since BEAM 4.7
      */
-    public boolean isGcpSelected(Pin gcp) {
+    public boolean isGcpSelected(Placemark gcp) {
         return isPlacemarkSelected(getProduct().getGcpGroup(), gcp);
     }
 
@@ -815,7 +815,7 @@ public class ProductSceneView extends BasicView
      *
      * @since BEAM 4.7
      */
-    public Pin getSelectedPin() {
+    public Placemark getSelectedPin() {
         return getSelectedPlacemark(getProduct().getPinGroup());
     }
 
@@ -824,7 +824,7 @@ public class ProductSceneView extends BasicView
      *
      * @since BEAM 4.7
      */
-    public Pin[] getSelectedPins() {
+    public Placemark[] getSelectedPins() {
         return getSelectedPlacemarks(getProduct().getPinGroup());
     }
 
@@ -833,7 +833,7 @@ public class ProductSceneView extends BasicView
      *
      * @since BEAM 4.7
      */
-    public Pin[] getSelectedGcps() {
+    public Placemark[] getSelectedGcps() {
         return getSelectedPlacemarks(getProduct().getGcpGroup());
     }
 
@@ -842,7 +842,7 @@ public class ProductSceneView extends BasicView
      *
      * @since BEAM 4.7
      */
-    public void selectPins(Pin[] pins) {
+    public void selectPins(Placemark[] pins) {
         selectPlacemarks(getProduct().getPinGroup(), pins);
     }
 
@@ -851,7 +851,7 @@ public class ProductSceneView extends BasicView
      *
      * @since BEAM 4.7
      */
-    public void selectGcps(Pin[] gpcs) {
+    public void selectGcps(Placemark[] gpcs) {
         selectPlacemarks(getProduct().getGcpGroup(), gpcs);
     }
 
@@ -887,18 +887,18 @@ public class ProductSceneView extends BasicView
         return selectedFigures.toArray(new SimpleFeatureFigure[selectedFigures.size()]);
     }
 
-    private boolean selectPlacemarks(PlacemarkGroup placemarkGroup, Pin[] placemarks) {
+    private boolean selectPlacemarks(PlacemarkGroup placemarkGroup, Placemark[] placemarks) {
         VectorDataLayer layer = selectVectorDataLayer(placemarkGroup.getVectorDataNode());
         if (layer != null) {
             FigureCollection figureCollection = layer.getFigureCollection();
             Figure[] figures = figureCollection.getFigures();
             ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<SimpleFeatureFigure>(figures.length);
-            HashSet<Pin> placemarkSet = new HashSet<Pin>(Arrays.asList(placemarks));
+            HashSet<Placemark> placemarkSet = new HashSet<Placemark>(Arrays.asList(placemarks));
             for (Figure figure : figures) {
                 if (figure instanceof SimpleFeatureFigure) {
                     SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
-                    Pin pin = placemarkGroup.getPlacemark(featureFigure.getSimpleFeature());
-                    if (placemarkSet.contains(pin)) {
+                    Placemark placemark = placemarkGroup.getPlacemark(featureFigure.getSimpleFeature());
+                    if (placemarkSet.contains(placemark)) {
                         selectedFigures.add(featureFigure);
                     }
                 }
@@ -910,12 +910,12 @@ public class ProductSceneView extends BasicView
         return false;
     }
 
-    private boolean isPlacemarkSelected(PlacemarkGroup placemarkGroup, Pin placemark) {
+    private boolean isPlacemarkSelected(PlacemarkGroup placemarkGroup, Placemark placemark) {
         Figure[] figures = figureEditor.getFigureSelection().getFigures();
         for (Figure figure : figures) {
             if (figure instanceof SimpleFeatureFigure) {
                 SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
-                Pin pin = placemarkGroup.getPlacemark(featureFigure.getSimpleFeature());
+                Placemark pin = placemarkGroup.getPlacemark(featureFigure.getSimpleFeature());
                 if (pin == placemark) {
                     return true;
                 }
@@ -924,13 +924,13 @@ public class ProductSceneView extends BasicView
         return false;
     }
 
-    private Pin getSelectedPlacemark(PlacemarkGroup placemarkGroup) {
+    private Placemark getSelectedPlacemark(PlacemarkGroup placemarkGroup) {
 
         Figure[] figures = figureEditor.getFigureSelection().getFigures();
         for (Figure figure : figures) {
             if (figure instanceof SimpleFeatureFigure) {
                 SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
-                Pin placemark = placemarkGroup.getPlacemark(featureFigure.getSimpleFeature());
+                Placemark placemark = placemarkGroup.getPlacemark(featureFigure.getSimpleFeature());
                 if (placemark != null) {
                     return placemark;
                 }
@@ -939,19 +939,19 @@ public class ProductSceneView extends BasicView
         return null;
     }
 
-    private Pin[] getSelectedPlacemarks(PlacemarkGroup placemarkGroup) {
+    private Placemark[] getSelectedPlacemarks(PlacemarkGroup placemarkGroup) {
         Figure[] figures = figureEditor.getFigureSelection().getFigures();
-        ArrayList<Pin> selectedPlacemarks = new ArrayList<Pin>(figures.length);
+        ArrayList<Placemark> selectedPlacemarks = new ArrayList<Placemark>(figures.length);
         for (Figure figure : figures) {
             if (figure instanceof SimpleFeatureFigure) {
                 SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
-                Pin pin = placemarkGroup.getPlacemark(featureFigure.getSimpleFeature());
-                if (pin != null) {
-                    selectedPlacemarks.add(pin);
+                Placemark placemark = placemarkGroup.getPlacemark(featureFigure.getSimpleFeature());
+                if (placemark != null) {
+                    selectedPlacemarks.add(placemark);
                 }
             }
         }
-        return selectedPlacemarks.toArray(new Pin[selectedPlacemarks.size()]);
+        return selectedPlacemarks.toArray(new Placemark[selectedPlacemarks.size()]);
     }
 
     private void maybeUpdateFigureEditor() {
@@ -1565,7 +1565,7 @@ public class ProductSceneView extends BasicView
                 if (selectedValue instanceof SimpleFeatureFigure) {
                     SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) selectedValue;
                     PlacemarkGroup pinGroup = getProduct().getPinGroup();
-                    Pin pin = pinGroup.getPlacemark(featureFigure.getSimpleFeature());
+                    Placemark pin = pinGroup.getPlacemark(featureFigure.getSimpleFeature());
                     if (pin != null) {
                         firePropertyChange(PROPERTY_NAME_SELECTED_PIN, null, pin);
                         firedNoPinSelected = false;

@@ -276,9 +276,9 @@ public class Product extends ProductNode {
         this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
-        final VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Pin.getFeatureType());
+        final VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Placemark.getFeatureType());
         this.vectorDataGroup.add(pinVectorDataNode);
-        final VectorDataNode gcpVectorDataNode = new VectorDataNode("ground_control_points", Pin.getFeatureType());
+        final VectorDataNode gcpVectorDataNode = new VectorDataNode("ground_control_points", Placemark.getFeatureType());
         this.vectorDataGroup.add(gcpVectorDataNode);
         this.pinGroup = new PlacemarkGroup(this, "pinGroup", pinVectorDataNode);
         this.gcpGroup = new PlacemarkGroup(this, "gcpGroup", gcpVectorDataNode);
@@ -298,9 +298,9 @@ public class Product extends ProductNode {
     }
 
     private void handleGeoCodingChange() {
-        final ProductNodeGroup<Pin> pinGroup = getPinGroup();
+        final ProductNodeGroup<Placemark> pinGroup = getPinGroup();
         for (int i = 0; i < pinGroup.getNodeCount(); i++) {
-            final Pin pin = pinGroup.get(i);
+            final Placemark pin = pinGroup.get(i);
             final PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
             final GeoPos geoPos = pin.getGeoPos();
             final PixelPos pixelPos = pin.getPixelPos();
@@ -1053,7 +1053,7 @@ public class Product extends ProductNode {
     }
 
     public boolean isInternalNode(VectorDataNode vectorDataNode) {
-        return vectorDataNode.getFeatureType() == Pin.getFeatureType();
+        return vectorDataNode.getFeatureType() == Placemark.getFeatureType();
     }
 
     //////////////////////////////////////////////////////////////////////////

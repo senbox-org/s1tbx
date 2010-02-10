@@ -22,9 +22,9 @@ public class PlacemarkGroupTest {
     @Before()
     public void setup() {
         Product product = new Product("PinGroup Test", "TestType", 10, 10);
-        VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Pin.getFeatureType());
+        VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Placemark.getFeatureType());
         product.getVectorDataGroup().add(pinVectorDataNode);
-        pinBuilder = new SimpleFeatureBuilder(Pin.getFeatureType());
+        pinBuilder = new SimpleFeatureBuilder(Placemark.getFeatureType());
         placemarkGroup = new PlacemarkGroup(product, "pinGroup", pinVectorDataNode);
         pinFeatureCollection = pinVectorDataNode.getFeatureCollection();
     }
@@ -33,18 +33,18 @@ public class PlacemarkGroupTest {
     public void testManipulatingPinGroup() {
         assertAreEqual(placemarkGroup, pinFeatureCollection);
 
-        placemarkGroup.add(createPin("p1", new PixelPos(3, 1), new GeoPos(12, 34)));
+        placemarkGroup.add(createPlacemark("p1", new PixelPos(3, 1), new GeoPos(12, 34)));
         assertAreEqual(placemarkGroup, pinFeatureCollection);
-        final Pin pin2 = createPin("p2", new PixelPos(5, 4), new GeoPos(16, 48));
-        placemarkGroup.add(pin2);
+        final Placemark placemark2 = createPlacemark("p2", new PixelPos(5, 4), new GeoPos(16, 48));
+        placemarkGroup.add(placemark2);
         assertAreEqual(placemarkGroup, pinFeatureCollection);
-        placemarkGroup.add(createPin("p3", new PixelPos(6, 2), new GeoPos(-45, 80)));
-        assertAreEqual(placemarkGroup, pinFeatureCollection);
-
-        placemarkGroup.remove(pin2);
+        placemarkGroup.add(createPlacemark("p3", new PixelPos(6, 2), new GeoPos(-45, 80)));
         assertAreEqual(placemarkGroup, pinFeatureCollection);
 
-        placemarkGroup.add(1, createPin("p4", new PixelPos(6, 3), new GeoPos(-60, 47)));
+        placemarkGroup.remove(placemark2);
+        assertAreEqual(placemarkGroup, pinFeatureCollection);
+
+        placemarkGroup.add(1, createPlacemark("p4", new PixelPos(6, 3), new GeoPos(-60, 47)));
         assertAreEqual(placemarkGroup, pinFeatureCollection);
     }
 
@@ -69,9 +69,9 @@ public class PlacemarkGroupTest {
 
     @Test
     public void testChangingFeature() {
-        placemarkGroup.add(createPin("p1", new PixelPos(3, 1), new GeoPos(12, 34)));
-        placemarkGroup.add(createPin("p2", new PixelPos(5, 4), new GeoPos(16, 48)));
-        placemarkGroup.add(createPin("p3", new PixelPos(6, 2), new GeoPos(-45, 80)));
+        placemarkGroup.add(createPlacemark("p1", new PixelPos(3, 1), new GeoPos(12, 34)));
+        placemarkGroup.add(createPlacemark("p2", new PixelPos(5, 4), new GeoPos(16, 48)));
+        placemarkGroup.add(createPlacemark("p3", new PixelPos(6, 2), new GeoPos(-45, 80)));
         assertAreEqual(placemarkGroup, pinFeatureCollection);
         final CoordinateArraySequence coordinates = new CoordinateArraySequence(
                 new Coordinate[]{new Coordinate(-30, 70)});
@@ -98,7 +98,7 @@ public class PlacemarkGroupTest {
         }
     }
 
-    private Pin createPin(String name, PixelPos pixelPos, GeoPos geoPos) {
-        return new Pin(name, "", "", pixelPos, geoPos, PinDescriptor.INSTANCE.createDefaultSymbol(), null);
+    private Placemark createPlacemark(String name, PixelPos pixelPos, GeoPos geoPos) {
+        return new Placemark(name, "", "", pixelPos, geoPos, PinDescriptor.INSTANCE.createDefaultSymbol(), null);
     }
 }

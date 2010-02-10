@@ -19,7 +19,7 @@ package org.esa.beam.visat.toolviews.spectrum;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -465,14 +465,14 @@ public class SpectrumToolView extends AbstractToolView {
         SpectraDiagram spectraDiagram = new SpectraDiagram(getCurrentProduct());
 
         if (isShowingSpectraForSelectedPins()) {
-            Pin[] pins = getCurrentView().getSelectedPins();
-            for (Pin pin : pins) {
+            Placemark[] pins = getCurrentView().getSelectedPins();
+            for (Placemark pin : pins) {
                 spectraDiagram.addSpectrumGraph(pin);
             }
         } else if (isShowingSpectraForAllPins()) {
-            ProductNodeGroup<Pin> pinGroup = getCurrentProduct().getPinGroup();
-            Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
-            for (Pin pin : pins) {
+            ProductNodeGroup<Placemark> pinGroup = getCurrentProduct().getPinGroup();
+            Placemark[] pins = pinGroup.toArray(new Placemark[pinGroup.getNodeCount()]);
+            for (Placemark pin : pins) {
                 spectraDiagram.addSpectrumGraph(pin);
             }
         }
@@ -580,7 +580,7 @@ public class SpectrumToolView extends AbstractToolView {
                         || propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
                     recreateSpectraDiagram();
                 }
-            } else if (event.getSourceNode() instanceof Pin) {
+            } else if (event.getSourceNode() instanceof Placemark) {
                 if (isShowingPinSpectra()) {
                     recreateSpectraDiagram();
                 }
@@ -595,7 +595,7 @@ public class SpectrumToolView extends AbstractToolView {
             }
             if (event.getSourceNode() instanceof Band) {
                 recreateSpectraDiagram();
-            } else if (event.getSourceNode() instanceof Pin) {
+            } else if (event.getSourceNode() instanceof Placemark) {
                 if (isShowingPinSpectra()) {
                     recreateSpectraDiagram();
                 }
@@ -610,7 +610,7 @@ public class SpectrumToolView extends AbstractToolView {
             }
             if (event.getSourceNode() instanceof Band) {
                 recreateSpectraDiagram();
-            } else if (event.getSourceNode() instanceof Pin) {
+            } else if (event.getSourceNode() instanceof Placemark) {
                 if (isShowingPinSpectra()) {
                     recreateSpectraDiagram();
                 }

@@ -6,7 +6,7 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
@@ -78,7 +78,7 @@ public class PlacemarkLayer extends Layer {
 
     @Override
     protected Rectangle2D getLayerModelBounds() {
-        final ProductNodeGroup<Pin> placemarkGroup = getPlacemarkGroup();
+        final ProductNodeGroup<Placemark> placemarkGroup = getPlacemarkGroup();
         if (placemarkGroup.getNodeCount() == 0) {
             return null;
         }
@@ -87,8 +87,8 @@ public class PlacemarkLayer extends Layer {
         double x1 = Double.MIN_VALUE;
         double y1 = Double.MIN_VALUE;
         for (int i = 0; i < placemarkGroup.getNodeCount(); i++) {
-            final Pin pin = placemarkGroup.get(i);
-            final PixelPos pixelPos = pin.getPixelPos();
+            final Placemark placemark = placemarkGroup.get(i);
+            final PixelPos pixelPos = placemark.getPixelPos();
             x0 = Math.min(x0, pixelPos.getX());
             y0 = Math.min(y0, pixelPos.getY());
             x1 = Math.max(x1, pixelPos.getX());
@@ -107,7 +107,7 @@ public class PlacemarkLayer extends Layer {
         }
     }
 
-    protected ProductNodeGroup<Pin> getPlacemarkGroup() {
+    protected ProductNodeGroup<Placemark> getPlacemarkGroup() {
         return placemarkDescriptor.getPlacemarkGroup(getProduct());
     }
 
@@ -141,9 +141,9 @@ public class PlacemarkLayer extends Layer {
             transform.concatenate(imageToModelTransform);
             g2d.setTransform(transform);
 
-            ProductNodeGroup<Pin> pinGroup = getPlacemarkGroup();
-            Pin[] placemarks = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
-            for (final Pin placemark : placemarks) {
+            ProductNodeGroup<Placemark> placemarkGroup = getPlacemarkGroup();
+            Placemark[] placemarks = placemarkGroup.toArray(new Placemark[placemarkGroup.getNodeCount()]);
+            for (final Placemark placemark : placemarks) {
                 final PixelPos pixelPos = placemark.getPixelPos();
                 if (pixelPos != null) {
                     g2d.translate(pixelPos.getX(), pixelPos.getY());
@@ -151,7 +151,7 @@ public class PlacemarkLayer extends Layer {
                     g2d.scale(1 / scale, 1 / scale);
                     g2d.rotate(viewport.getOrientation());
 
-                    if (pinGroup.getSelectedNodes().contains(placemark)) {
+                    if (placemarkGroup.getSelectedNodes().contains(placemark)) {
                         placemark.getSymbol().drawSelected(g2d);
                     } else {
                         placemark.getSymbol().draw(g2d);
@@ -173,7 +173,7 @@ public class PlacemarkLayer extends Layer {
         }
     }
 
-    private void drawTextLabel(Graphics2D g2d, Pin placemark) {
+    private void drawTextLabel(Graphics2D g2d, Placemark placemark) {
 
         final String label = placemark.getLabel();
 
@@ -234,23 +234,23 @@ public class PlacemarkLayer extends Layer {
     }
 
     public void setOutlineColor(Color color) {
-        final Pin[] placemarks = getPlacemarks();
+        final Placemark[] placemarks = getPlacemarks();
 
         if (placemarks != null) {
-            for (Pin pin : placemarks) {
-                pin.getSymbol().setOutlineColor(color);
+            for (Placemark placemark : placemarks) {
+                placemark.getSymbol().setOutlineColor(color);
             }
             fireLayerDataChanged(getLayerModelBounds());
         }
     }
 
     public Color getOutlineColor() {
-        Pin[] placemarks = getPlacemarks();
+        Placemark[] placemarks = getPlacemarks();
         Color color = null;
         if (placemarks != null) {
             color = placemarks[0].getSymbol().getOutlineColor();
             for (int i = 1; i < placemarks.length; i++) {
-                Pin placemark = placemarks[i];
+                Placemark placemark = placemarks[i];
                 if (color != null && !color.equals(placemark.getSymbol().getOutlineColor())) {
                     return null;
                 }
@@ -260,22 +260,22 @@ public class PlacemarkLayer extends Layer {
     }
 
     public void setFillColor(Color color) {
-        final Pin[] placemarks = getPlacemarks();
+        final Placemark[] placemarks = getPlacemarks();
         if (placemarks != null) {
-            for (Pin pin : placemarks) {
-                pin.getSymbol().setFillPaint(color);
+            for (Placemark placemark : placemarks) {
+                placemark.getSymbol().setFillPaint(color);
             }
             fireLayerDataChanged(getLayerModelBounds());
         }
     }
 
     public Color getFillColor() {
-        Pin[] placemarks = getPlacemarks();
+        Placemark[] placemarks = getPlacemarks();
         Color color = null;
         if (placemarks != null) {
             color = (Color) placemarks[0].getSymbol().getFillPaint();
             for (int i = 1; i < placemarks.length; i++) {
-                Pin placemark = placemarks[i];
+                Placemark placemark = placemarks[i];
                 if (color != null && !color.equals(placemark.getSymbol().getFillPaint())) {
                     return null;
                 }
@@ -284,15 +284,15 @@ public class PlacemarkLayer extends Layer {
         return color;
     }
 
-    private Pin[] getPlacemarks() {
-        final ProductNodeGroup<Pin> placemarkGroup = placemarkDescriptor.getPlacemarkGroup(product);
-        Collection<Pin> pinCollection = placemarkGroup.getSelectedNodes();
+    private Placemark[] getPlacemarks() {
+        final ProductNodeGroup<Placemark> placemarkGroup = placemarkDescriptor.getPlacemarkGroup(product);
+        Collection<Placemark> placemarkCollection = placemarkGroup.getSelectedNodes();
 
-        Pin[] placemarks;
-        if (pinCollection.isEmpty()) {
-            placemarks = placemarkGroup.toArray(new Pin[placemarkGroup.getNodeCount()]);
+        Placemark[] placemarks;
+        if (placemarkCollection.isEmpty()) {
+            placemarks = placemarkGroup.toArray(new Placemark[placemarkGroup.getNodeCount()]);
         } else {
-            placemarks = pinCollection.toArray(new Pin[pinCollection.size()]);
+            placemarks = placemarkCollection.toArray(new Placemark[placemarkCollection.size()]);
         }
         if (placemarks.length >= 1) {
             return placemarks;
@@ -319,7 +319,7 @@ public class PlacemarkLayer extends Layer {
         }
 
         private void maybeFireLayerDataChanged(ProductNodeEvent event) {
-            if (event.getSourceNode() instanceof Pin) {
+            if (event.getSourceNode() instanceof Placemark) {
                 fireLayerDataChanged(getLayerModelBounds());
             }
         }

@@ -5,7 +5,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
@@ -32,7 +32,7 @@ public class GcpTableModel extends AbstractPlacemarkTableModel {
     @Override
     protected Object getStandardColumnValueAt(int rowIndex, int columnIndex) {
         Assert.notNull(getProduct());
-        final Pin placemark = getPlacemarkDescriptor().getPlacemarkGroup(getProduct()).get(rowIndex);
+        final Placemark placemark = getPlacemarkDescriptor().getPlacemarkGroup(getProduct()).get(rowIndex);
 
         float x = Float.NaN;
         float y = Float.NaN;

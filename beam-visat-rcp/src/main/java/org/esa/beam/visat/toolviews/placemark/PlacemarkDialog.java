@@ -18,7 +18,7 @@ package org.esa.beam.visat.toolviews.placemark;
 
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
@@ -485,7 +485,7 @@ public class PlacemarkDialog extends ModalDialog {
      * @param placemarkDescriptor the descriptor of the placemark
      * @return <code>true</code> if editing was successful, otherwise <code>false</code>.
      */
-    public static boolean showEditPlacemarkDialog(Window parent, Product product, Pin placemark,
+    public static boolean showEditPlacemarkDialog(Window parent, Product product, Placemark placemark,
                                             PlacemarkDescriptor placemarkDescriptor) {
         final PlacemarkDialog dialog = new PlacemarkDialog(parent, product, placemarkDescriptor,
                                                   placemarkDescriptor instanceof PinDescriptor);

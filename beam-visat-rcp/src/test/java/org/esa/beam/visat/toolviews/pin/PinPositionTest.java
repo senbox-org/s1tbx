@@ -5,7 +5,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 public class PinPositionTest {
 
-    private Pin pin;
+    private Placemark placemark;
 
     @Before
     public void setup() throws TransformException, FactoryException {
@@ -34,66 +34,66 @@ public class PinPositionTest {
         product.setGeoCoding(geoCoding);
 
         final PlacemarkSymbol placemarkSymbol = PlacemarkSymbol.createDefaultPinSymbol();
-        pin = new Pin("P1", "L", "", new PixelPos(1.0f, 1.0f), null, placemarkSymbol, product.getGeoCoding());
-        product.getPinGroup().add(pin);
+        placemark = new Placemark("P1", "L", "", new PixelPos(1.0f, 1.0f), null, placemarkSymbol, product.getGeoCoding());
+        product.getPinGroup().add(placemark);
     }
 
     @Test
     public void initialState() {
-        final double x = pin.getPixelPos().getX();
-        final double y = pin.getPixelPos().getY();
+        final double x = placemark.getPixelPos().getX();
+        final double y = placemark.getPixelPos().getY();
         assertEquals(1.0, x, 0.0);
         assertEquals(1.0, y, 0.0);
 
-        final Point point = (Point) pin.getFeature().getDefaultGeometry();
+        final Point point = (Point) placemark.getFeature().getDefaultGeometry();
         assertEquals(2.0, point.getX(), 0.0);
         assertEquals(2.0, point.getY(), 0.0);
 
-        final double lon = pin.getGeoPos().getLon();
-        final double lat = pin.getGeoPos().getLat();
+        final double lon = placemark.getGeoPos().getLon();
+        final double lat = placemark.getGeoPos().getLat();
         assertEquals(2.0, lon, 0.0);
         assertEquals(2.0, lat, 0.0);
     }
 
     @Test
     public void movePinByGeometry() {
-        pin.getFeature().setDefaultGeometry(newPoint(4.0, 2.0));
-        pin.getProduct().getVectorDataGroup().get("pins").fireFeaturesChanged(pin.getFeature());
+        placemark.getFeature().setDefaultGeometry(newPoint(4.0, 2.0));
+        placemark.getProduct().getVectorDataGroup().get("pins").fireFeaturesChanged(placemark.getFeature());
 
-        final Point point = (Point) pin.getFeature().getDefaultGeometry();
+        final Point point = (Point) placemark.getFeature().getDefaultGeometry();
         assertEquals(4.0, point.getX(), 0.0);
         assertEquals(2.0, point.getY(), 0.0);
 
         // todo: rq/?? - make asserts successful
-        final double x = pin.getPixelPos().getX();
-        final double y = pin.getPixelPos().getY();
+        final double x = placemark.getPixelPos().getX();
+        final double y = placemark.getPixelPos().getY();
         assertEquals(2.0, x, 0.0);
         assertEquals(1.0, y, 0.0);
 
         // todo: rq/?? - make asserts successful
-        final double lon = pin.getGeoPos().getLon();
-        final double lat = pin.getGeoPos().getLat();
+        final double lon = placemark.getGeoPos().getLon();
+        final double lat = placemark.getGeoPos().getLat();
         assertEquals(4.0, lon, 0.0);
         assertEquals(2.0, lat, 0.0);
     }
 
     @Test
     public void movePinByPixelPosition() {
-        pin.setPixelPos(new PixelPos(2.0f, 1.0f));
+        placemark.setPixelPos(new PixelPos(2.0f, 1.0f));
 
-        final double x = pin.getPixelPos().getX();
-        final double y = pin.getPixelPos().getY();
+        final double x = placemark.getPixelPos().getX();
+        final double y = placemark.getPixelPos().getY();
         assertEquals(2.0, x, 0.0);
         assertEquals(1.0, y, 0.0);
 
         // todo: rq/?? - make asserts successful
-        final Point point = (Point) pin.getFeature().getDefaultGeometry();
+        final Point point = (Point) placemark.getFeature().getDefaultGeometry();
         assertEquals(4.0, point.getX(), 0.0);
         assertEquals(2.0, point.getY(), 0.0);
 
         // todo: rq/?? - make asserts successful
-        final double lon = pin.getGeoPos().getLon();
-        final double lat = pin.getGeoPos().getLat();
+        final double lon = placemark.getGeoPos().getLon();
+        final double lat = placemark.getGeoPos().getLat();
         assertEquals(4.0, lon, 0.0);
         assertEquals(2.0, lat, 0.0);
     }

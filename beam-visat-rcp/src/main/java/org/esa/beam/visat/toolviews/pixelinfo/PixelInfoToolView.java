@@ -3,7 +3,7 @@ package org.esa.beam.visat.toolviews.pixelinfo;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.swing.dock.DockablePane;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -248,7 +248,7 @@ public class PixelInfoToolView extends AbstractToolView {
 
     private void setToSelectedPin(ProductSceneView sceneView) {
         if (sceneView != null) {
-            final Pin pin = sceneView.getSelectedPin();
+            final Placemark pin = sceneView.getSelectedPin();
             if (pin == null) {
                 pixelInfoView.updatePixelValues(sceneView, -1, -1, 0, false);
             } else {
@@ -370,7 +370,7 @@ public class PixelInfoToolView extends AbstractToolView {
         @Override
         public void nodeChanged(ProductNodeEvent event) {
             if (isActive()) {
-                if (Pin.PROPERTY_NAME_PIXELPOS.equals(event.getPropertyName())) {
+                if (Placemark.PROPERTY_NAME_PIXELPOS.equals(event.getPropertyName())) {
                     updatePin(event);
                 }
             }
@@ -399,7 +399,7 @@ public class PixelInfoToolView extends AbstractToolView {
 
         private void updatePin(ProductNodeEvent event) {
             ProductNode sourceNode = event.getSourceNode();
-            Pin pin = currentView.getSelectedPin();
+            Placemark pin = currentView.getSelectedPin();
             if (sourceNode == pin) {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override

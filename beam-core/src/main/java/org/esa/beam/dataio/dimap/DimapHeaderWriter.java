@@ -31,7 +31,7 @@ import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -115,25 +115,25 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writePins(int indent) {
-        ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
-        final Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
+        ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
+        final Placemark[] pins = pinGroup.toArray(new Placemark[pinGroup.getNodeCount()]);
         final String[] pinGroupTags = createTags(indent, DimapProductConstants.TAG_PIN_GROUP);
         if (pins.length > 0) {
             println(pinGroupTags[0]);
-            for (final Pin pin : pins) {
-                pin.writeXML(this, indent + 1);
+            for (final Placemark placemark : pins) {
+                placemark.writeXML(this, indent + 1);
             }
             println(pinGroupTags[1]);
         }
     }
 
     protected void writeGcps(int indent) {
-        ProductNodeGroup<Pin> gcpGroup = product.getGcpGroup();
-        final Pin[] gcps = gcpGroup.toArray(new Pin[gcpGroup.getNodeCount()]);
+        ProductNodeGroup<Placemark> gcpGroup = product.getGcpGroup();
+        final Placemark[] gcps = gcpGroup.toArray(new Placemark[gcpGroup.getNodeCount()]);
         final String[] gcpGroupTags = createTags(indent, DimapProductConstants.TAG_GCP_GROUP);
         if (gcps.length > 0) {
             println(gcpGroupTags[0]);
-            for (final Pin gcp : gcps) {
+            for (final Placemark gcp : gcps) {
                 gcp.writeXML(this, indent + 1);
             }
             println(gcpGroupTags[1]);

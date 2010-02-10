@@ -5,7 +5,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
@@ -27,8 +27,8 @@ public class PlacemarkLayerConfigurationPersistencyTest extends AbstractLayerCon
     @Before
     public void setup() {
         product = createTestProduct("Test", "Test");
-        final Pin pin = createPin("Pin");
-        product.getPinGroup().add(pin);
+        final Placemark placemark = createPlacemark("Pin");
+        product.getPinGroup().add(placemark);
 
         getProductManager().addProduct(product);
     }
@@ -47,7 +47,7 @@ public class PlacemarkLayerConfigurationPersistencyTest extends AbstractLayerCon
         return layerType.createLayer(null, configuration);
     }
 
-    private Pin createPin(String name) {
-        return new Pin(name, "", "", new PixelPos(), new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+    private Placemark createPlacemark(String name) {
+        return new Placemark(name, "", "", new PixelPos(), new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
     }
 }

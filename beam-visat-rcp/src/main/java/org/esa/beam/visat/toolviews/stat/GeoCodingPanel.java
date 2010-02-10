@@ -7,7 +7,7 @@ import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
@@ -171,7 +171,7 @@ class GeoCodingPanel extends TextPagePanel {
         sb.append("\nThe ").append(nodeType).append(" uses a geo-coding which is based on ground control points (GCPs).\n");
         sb.append("\n");
 
-        ProductNodeGroup<Pin> gcpGroup = getProduct().getGcpGroup();
+        ProductNodeGroup<Placemark> gcpGroup = getProduct().getGcpGroup();
         String formatString = "%1$-18s \t%2$s\n";
         sb.append(String.format(formatString, "Number Of GCPs:", String.valueOf(gcpGroup.getNodeCount())));
         sb.append(String.format(formatString, "Function:", String.valueOf(gcpGeoCoding.getMethod())));
@@ -181,12 +181,12 @@ class GeoCodingPanel extends TextPagePanel {
         sb.append("\n");
 
         sb.append("Table of used GCPs:\n");
-        Pin[] gcps = gcpGroup.toArray(new Pin[0]);
+        Placemark[] gcps = gcpGroup.toArray(new Placemark[0]);
         formatString = "%1$-10s \t%2$-15s \t%3$-10s \t%4$-10s \t%5$-18s \t%6$-18s\n";
         sb.append(String.format(formatString,
                                 "Number", "Label", "X", "Y", "Latitude", "Longitude"));
         for (int i = 0; i < gcps.length; i++) {
-            Pin gcp = gcps[i];
+            Placemark gcp = gcps[i];
             PixelPos pixelPos = gcp.getPixelPos();
             GeoPos geoPos = gcp.getGeoPos();
             sb.append(String.format(formatString,

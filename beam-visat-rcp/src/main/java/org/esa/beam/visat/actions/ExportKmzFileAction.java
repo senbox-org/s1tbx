@@ -9,7 +9,7 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ImageLegend;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -164,11 +164,11 @@ public class ExportKmzFileAction extends ExecCommand {
         }
 
         String pinKml = "";
-        ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
-        Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
-        for (Pin pin : pins) {
-            GeoPos geoPos = pin.getGeoPos();
-            if (geoPos != null && product.containsPixel(pin.getPixelPos())) {
+        ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
+        Placemark[] pins = pinGroup.toArray(new Placemark[pinGroup.getNodeCount()]);
+        for (Placemark placemark : pins) {
+            GeoPos geoPos = placemark.getGeoPos();
+            if (geoPos != null && product.containsPixel(placemark.getPixelPos())) {
                 pinKml += String.format(
                         "<Placemark>\n"
                                 + "  <name>%s</name>\n"
@@ -176,7 +176,7 @@ public class ExportKmzFileAction extends ExecCommand {
                                 + "    <coordinates>%f,%f,0</coordinates>\n"
                                 + "  </Point>\n"
                                 + "</Placemark>\n",
-                        pin.getLabel(),
+                        placemark.getLabel(),
                         geoPos.lon,
                         geoPos.lat);
             }

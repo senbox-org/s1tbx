@@ -7,7 +7,7 @@ import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
@@ -53,27 +53,27 @@ public class PlacemarkLayerTest extends TestCase {
         placemarkLayer2.addListener(layerListener);
         assertEquals("", layerListener.trace);
 
-        product.getPinGroup().add(createPin("P1"));
+        product.getPinGroup().add(createPlacemark("P1"));
         assertEquals("L1;L2;", layerListener.trace);
 
-        product.getPinGroup().add(createPin("P2"));
+        product.getPinGroup().add(createPlacemark("P2"));
         assertEquals("L1;L2;L1;L2;", layerListener.trace);
 
         placemarkLayer1.dispose();
         layerListener.trace = "";
 
-        product.getPinGroup().add(createPin("P3"));
+        product.getPinGroup().add(createPlacemark("P3"));
         assertEquals("L2;", layerListener.trace);
 
         placemarkLayer2.dispose();
         layerListener.trace = "";
 
-        product.getPinGroup().add(createPin("P4"));
+        product.getPinGroup().add(createPlacemark("P4"));
         assertEquals("", layerListener.trace);
     }
 
-    private Pin createPin(String s) {
-        return new Pin(s, "L", "D", new PixelPos(), new GeoPos(), new PlacemarkSymbol("S", new Rectangle(0, 0, 1, 1)), null);
+    private Placemark createPlacemark(String s) {
+        return new Placemark(s, "L", "D", new PixelPos(), new GeoPos(), new PlacemarkSymbol("S", new Rectangle(0, 0, 1, 1)), null);
     }
 
     private static class MyLayerListener extends AbstractLayerListener {
