@@ -46,9 +46,9 @@ Figures:
 * Still can not add/remove geometry vertices
   ==> FINAL, NF, OPEN
 * Still cannot draw true circles/squares and also adjust lines and points on grid.
-  ==> FINAL, ?, OPEN
+  ==> FINAL (v4.8), ?, OPEN
 * Layer style editor doesn't work anymore. Support only our style. Not SLD.
-  ==> FINAL, ?, OPEN
+  ==> FINAL, MP, Ongoing
 * New edit menu:
   - Test Cut/Copy/Paste!
   - What about Undo/Redo?!? (should work!)
