@@ -403,7 +403,21 @@ class MaskFormActions {
 
         @Override
         void updateState() {
-            setEnabled(getMaskForm().isInManagementMode() && getMaskForm().getSelectedRowCount() > 0);
+            boolean isEnabled = getMaskForm().isInManagementMode() && getMaskForm().getSelectedRowCount() > 0;
+            if (isEnabled) {
+                Product product = getMaskForm().getProduct();
+                Mask[] selectedMasks = getMaskForm().getSelectedMasks();
+                for (Mask mask : selectedMasks) {
+                    if (mask.getImageType() instanceof Mask.VectorDataType) {
+                        VectorDataNode vectorDataNode = Mask.VectorDataType.getVectorData(mask);
+                        if (product.isInternalNode(vectorDataNode)) {
+                            isEnabled = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            setEnabled(isEnabled);
         }
     }
 

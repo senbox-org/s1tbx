@@ -11,10 +11,6 @@ Masks:
 * Transfer Mask Dialog:
   Explain "descr" and "pixel" in dialog and help. Use an example.
   ==> FINAL , MP, OPEN
-* ROI/Mask Manager: Deleting a "geometry mask" should either be
-  forbidden or the associated geometry shall be deleted as well.
-  (Decision: go the easy way; disallow deletion of "geometry mask")
-  ==> FINAL , MZ, OPEN
 
 * We need a special mask type masking out no-data pixels. If no-data value
   is set, it shall be used in its raw form by the mask image (OpImage).
@@ -26,6 +22,10 @@ Masks:
   operate on such mask types. The raster data of the new mask type will need to
   be stored to disk.
   ==> FINAL (v4.8), ?, OPEN
+
+* ROI/Mask Manager: When deleting a "geometry mask" the associated geometry shall be deleted as well.
+  Forbid deletion of "pin" and "placemark" masks!
+  ==> FINAL , MZ, CLOSED
      
 VectorDataNode:
 ===============
