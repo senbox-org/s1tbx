@@ -39,7 +39,7 @@ public class ShapefileLayerSource implements LayerSource {
 
     @Override
     public boolean isApplicable(LayerSourcePageContext pageContext) {
-        return pageContext.getAppContext().getSelectedProduct().getGeoCoding() == null;
+        return pageContext.getAppContext().getSelectedProduct().getGeoCoding() != null;
     }
 
     @Override

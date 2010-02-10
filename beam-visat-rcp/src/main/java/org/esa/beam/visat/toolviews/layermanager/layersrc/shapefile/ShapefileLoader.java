@@ -23,8 +23,8 @@ import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.SLD;
+import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
-import org.geotools.styling.Symbolizer;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
@@ -141,12 +141,12 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
         symbolizer.getGraphic().setSize(filterFactory.literal(1));
 
         Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[]{symbolizer});
+        rule.symbolizers().add(symbolizer);
         FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
+        fts.rules().add(rule);
 
         Style style = styleFactory.createStyle();
-        style.addFeatureTypeStyle(fts);
+        style.featureTypeStyles().add(fts);
         return style;
     }
 
@@ -157,12 +157,12 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
         symbolizer.getStroke().setColor(filterFactory.literal(Color.BLUE));
 
         Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[]{symbolizer});
+        rule.symbolizers().add(symbolizer);
         FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
+        fts.rules().add(rule);
 
         Style style = styleFactory.createStyle();
-        style.addFeatureTypeStyle(fts);
+        style.featureTypeStyles().add(fts);
         return style;
     }
 
@@ -172,14 +172,17 @@ class ShapefileLoader extends ProgressMonitorSwingWorker<Layer, Object> {
                 filterFactory.literal("#FFAA00"),
                 filterFactory.literal(0.5)
         );
+        final Stroke stroke = styleFactory.createStroke(filterFactory.literal(Color.BLACK),
+                                                        filterFactory.literal(1));
         symbolizer.setFill(fill);
+        symbolizer.setStroke(stroke);
         Rule rule = styleFactory.createRule();
-        rule.setSymbolizers(new Symbolizer[]{symbolizer});
+        rule.symbolizers().add(symbolizer);
         FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
+        fts.rules().add(rule);
 
         Style style = styleFactory.createStyle();
-        style.addFeatureTypeStyle(fts);
+        style.featureTypeStyles().add(fts);
         return style;
     }
 }

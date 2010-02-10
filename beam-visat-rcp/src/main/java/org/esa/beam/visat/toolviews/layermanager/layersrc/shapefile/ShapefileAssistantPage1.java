@@ -7,6 +7,7 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.FilePathListCellRenderer;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.HistoryComboBoxModel;
 import org.geotools.data.FeatureSource;
+import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -115,14 +116,16 @@ class ShapefileAssistantPage1 extends AbstractLayerSourceAssistantPage {
                     // clear other properties they are not valid anymore
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_SELECTED_STYLE, null);
                     context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_STYLES, null);
-                    final CoordinateReferenceSystem featureCrs = featureSource.getSchema().getCoordinateReferenceSystem();
-                    if(featureCrs == null) {
-                        return new ShapefileAssistantPage2();
-                    }else {
-                        context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION_CRS, featureCrs);
-                    }
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION_CRS, null);
                 }
-                return new ShapefileAssistantPage3();
+                FeatureCollection fc = (FeatureCollection) context.getPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION);
+                final CoordinateReferenceSystem featureCrs = fc.getSchema().getCoordinateReferenceSystem();
+                if(featureCrs == null) {
+                    return new ShapefileAssistantPage2();
+                }else {
+                    context.setPropertyValue(ShapefileLayerSource.PROPERTY_NAME_FEATURE_COLLECTION_CRS, featureCrs);
+                    return new ShapefileAssistantPage3();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 context.showErrorDialog("Failed to load ESRI shapefile:\n" + e.getMessage());

@@ -228,7 +228,7 @@ public class ImportGeometryAction extends ExecCommand {
         final JLabel label = new JLabel();
         label.setText("<html><b>" +
                       "The ESRI Shapefile you want to import does not define a CRS.<br/>" +
-                      "Please specify the CRS in which the coordinates are defined..</b>");
+                      "Please specify the CRS in which the coordinates are defined.</b>");
         
         contentPanel.add(label);
         contentPanel.add(crsSelectionPanel);

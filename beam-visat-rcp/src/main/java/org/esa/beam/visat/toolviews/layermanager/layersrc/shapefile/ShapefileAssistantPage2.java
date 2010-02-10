@@ -1,5 +1,6 @@
 package org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile;
 
+import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
@@ -13,6 +14,8 @@ import org.esa.beam.util.ProductUtils;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.Component;
 
 class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
@@ -31,8 +34,18 @@ class ShapefileAssistantPage2 extends AbstractLayerSourceAssistantPage {
         final CustomCrsForm customCrsForm = new CustomCrsForm(appContext);
         final PredefinedCrsForm predefinedCrsForm = new PredefinedCrsForm(appContext);
 
+
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTablePadding(4, 4);
+        tableLayout.setTableWeightX(1.0);
+        tableLayout.setTableWeightY(1.0);
+        tableLayout.setTableFill(TableLayout.Fill.BOTH);
+        final JPanel pageComponent = new JPanel(tableLayout);
+        final JLabel label = new JLabel("<html><b>No CRS found for ESRI Shapefile. Please specify.</b>");
         crsSelectionPanel = new CrsSelectionPanel(productCrsForm, customCrsForm, predefinedCrsForm);
-        return crsSelectionPanel;
+        pageComponent.add(label);
+        pageComponent.add(crsSelectionPanel);
+        return pageComponent;
     }
 
 
