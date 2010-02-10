@@ -32,7 +32,7 @@ public class ReadOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         try {
-            targetProduct = ProductIO.readProduct(file, null);
+            targetProduct = ProductIO.readProduct(file);
             if (targetProduct == null) {
                 throw new OperatorException("No product reader found for file " + file);
             }

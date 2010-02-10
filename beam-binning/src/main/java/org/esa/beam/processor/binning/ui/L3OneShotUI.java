@@ -494,7 +494,7 @@ public class L3OneShotUI extends L3UI {
                                     "Please choose at least one input product.", null);
             return null;
         } else {
-            exampleProduct = ProductIO.readProduct(firstListProductFile, null);
+            exampleProduct = ProductIO.readProduct(firstListProductFile);
             return exampleProduct;
         }
     }

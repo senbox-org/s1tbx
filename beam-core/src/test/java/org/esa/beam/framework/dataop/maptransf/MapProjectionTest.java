@@ -50,7 +50,7 @@ public class MapProjectionTest extends TestCase {
     public void testOutputRasterSize() {
         Product product = null;
         try {
-            product = ProductIO.readProduct(MERIS_TEST_FILE, null);
+            product = ProductIO.readProduct(MERIS_TEST_FILE);
         } catch (IOException e) {
             throw new TestNotExecutableException(e);
         }

@@ -32,7 +32,7 @@ public class GcpExportMain {
             writer = new FileWriter(args[0]);
 
             // open product and extract the geocoding
-            Product product = ProductIO.readProduct(args[1], null);
+            Product product = ProductIO.readProduct(args[1]);
             GeoCoding geoCoding = product.getGeoCoding();
 
 

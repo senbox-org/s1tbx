@@ -228,7 +228,7 @@ public class OpenSessionAction extends ExecCommand {
 
                 if (newFile[0] != null) {
                     try {
-                        return ProductIO.readProduct(newFile[0], null);
+                        return ProductIO.readProduct(newFile[0]);
                     } catch (IOException e) {
                     }
                 }

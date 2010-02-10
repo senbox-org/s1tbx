@@ -473,7 +473,7 @@ public class PConvertMain {
             Product product = null;
             try {
                 log("reading file " + inputFile.getPath());
-                product = ProductIO.readProduct(inputFile, null);
+                product = ProductIO.readProduct(inputFile);
             } catch (IOException e) {
                 error("I/O error while reading input product: " + e.getMessage());
                 Debug.trace(e);

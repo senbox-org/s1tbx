@@ -37,7 +37,7 @@ public class StxPerfomanceCheck {
     }
 
     private static void performeBandTest(String filePath) throws IOException {
-        Product product = ProductIO.readProduct(filePath, null);
+        Product product = ProductIO.readProduct(filePath);
         Band band0 = product.getBandAt(0);
         double[] times = computeStx(band0);
         

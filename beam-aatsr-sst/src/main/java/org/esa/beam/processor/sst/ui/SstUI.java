@@ -55,8 +55,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -440,7 +438,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
             if (file.exists() && file.isFile()) {
                 Product inProduct = null;
                 try {
-                    inProduct = ProductIO.readProduct(prodRef.getFile(), null);
+                    inProduct = ProductIO.readProduct(prodRef.getFile());
                     if (inProduct != null) {
                         scanForFlags(inProduct);
                     }
@@ -727,11 +725,9 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
      * Updates all components according to a change in the input product parameter
      */
     private void handleUpdateInputProduct() {
-        URL inputURL;
         try {
-            inputURL = ((File) _paramGroup.getParameter(
-                    DefaultRequestElementFactory.INPUT_PRODUCT_PARAM_NAME).getValue()).toURI().toURL();
-            Product inProduct = ProductIO.readProduct(inputURL, null);
+            File file = (File) _paramGroup.getParameter(DefaultRequestElementFactory.INPUT_PRODUCT_PARAM_NAME).getValue();
+            Product inProduct = ProductIO.readProduct(file);
             if (inProduct != null) {
                 scanForFlags(inProduct);
                 final Parameter dualViewParam = _paramGroup.getParameter(SstConstants.DUAL_VIEW_BITMASK_PARAM_NAME);
@@ -741,9 +737,6 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
                 nadirViewParam.getProperties().setPropertyValue(BooleanExpressionEditor.PROPERTY_KEY_SELECTED_PRODUCT,
                                                                 inProduct);
             }
-        } catch (MalformedURLException e) {
-            _logger.severe("Unable to resolve URL for input product");
-            Debug.trace(e);
         } catch (IOException e) {
             _logger.severe("Unable to open input product!");
             Debug.trace(e);

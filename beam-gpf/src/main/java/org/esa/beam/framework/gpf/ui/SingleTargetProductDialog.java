@@ -291,7 +291,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                                      model.getFormatName(), SubProgressMonitor.create(pm, 95));
                 saveTime = System.currentTimeMillis() - t0;
                 if (model.isOpenInAppSelected()) {
-                    product = ProductIO.readProduct(model.getProductFile(), null);
+                    product = ProductIO.readProduct(model.getProductFile());
                     if (product == null) {
                         product = targetProduct; // todo - check - this cannot be ok!!! (nf)
                     }

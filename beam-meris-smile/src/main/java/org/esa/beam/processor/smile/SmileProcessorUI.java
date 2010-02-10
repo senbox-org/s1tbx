@@ -359,7 +359,7 @@ public class SmileProcessorUI extends AbstractProcessorUI {
         }
         String msg = null;
         try {
-            Product product = ProductIO.readProduct(file, null);
+            Product product = ProductIO.readProduct(file);
             if (product != null) {
                 final String diName = EnvisatConstants.MERIS_DETECTOR_INDEX_DS_NAME;
                 if (product.getBand(diName) == null) {

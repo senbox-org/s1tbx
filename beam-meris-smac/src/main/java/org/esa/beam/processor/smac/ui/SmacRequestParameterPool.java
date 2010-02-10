@@ -477,7 +477,7 @@ public class SmacRequestParameterPool {
         }
 
         try {
-            inProduct = ProductIO.readProduct(inFile, null);
+            inProduct = ProductIO.readProduct(inFile);
         } catch (IOException e) {
             throw new ProcessorException(e.getMessage());
         } catch (DDDBException e) {
@@ -527,7 +527,7 @@ public class SmacRequestParameterPool {
 
             Product inProduct = null;
             try {
-                inProduct = ProductIO.readProduct(file, null);
+                inProduct = ProductIO.readProduct(file);
                 if (inProduct != null) {
                     stRet = inProduct.getProductType();
                 }

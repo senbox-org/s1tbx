@@ -41,7 +41,7 @@ public class ProductIOTest extends TestCase {
 
     public void testReadProductArgsChecking() {
         try {
-            ProductIO.readProduct((File) null, null);
+            ProductIO.readProduct((File) null);
             fail();
         } catch (IOException expected) {
             fail();
@@ -49,7 +49,7 @@ public class ProductIOTest extends TestCase {
         }
 
         try {
-            ProductIO.readProduct("rallala", null);
+            ProductIO.readProduct("rallala");
             fail();
         } catch (IOException expected) {
         }

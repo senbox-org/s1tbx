@@ -33,7 +33,7 @@ public class GeoCodingEx {
 
     public static void main(String[] args) {
         try {
-            Product product = ProductIO.readProduct("C:/Projects/BEAM/data/MER_RR__1P_A.N1", null);
+            Product product = ProductIO.readProduct("C:/Projects/BEAM/data/MER_RR__1P_A.N1");
             GeoCoding geoCoding = product.getGeoCoding();
             int width = product.getSceneRasterWidth();
             int height = product.getSceneRasterHeight();

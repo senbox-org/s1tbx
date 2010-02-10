@@ -1280,7 +1280,7 @@ public class MosaicProcessor extends Processor {
     private void loadOutputProduct() throws ProcessorException {
         final String outputProductPath = _outputProductRef.getFilePath();
         try {
-            final Product product = ProductIO.readProduct(outputProductPath, null);
+            final Product product = ProductIO.readProduct(outputProductPath);
             if (product == null) {
                 throw new ProcessorException("Unable to read the output product '" + outputProductPath + "'.");
             }

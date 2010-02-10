@@ -454,7 +454,7 @@ public abstract class Processor {
             throw new IOException(message);
         }
 
-        final Product inputProduct = ProductIO.readProduct(prodFile, null);
+        final Product inputProduct = ProductIO.readProduct(prodFile);
         if (inputProduct == null) {
             final String message = "Cannot open input product '" + prodRef.getFilePath() + "'";
             _logger.severe(message);

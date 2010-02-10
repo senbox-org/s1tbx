@@ -333,7 +333,7 @@ public class CloudProcessorUI extends AbstractProcessorUI {
         String msg = null;
         Product product = null;
         try {
-            product = ProductIO.readProduct(file, null);
+            product = ProductIO.readProduct(file);
             if (product != null) {
                 final String productType = product.getProductType();
                 final boolean isValidType = EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(productType).matches();

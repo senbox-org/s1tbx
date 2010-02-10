@@ -133,7 +133,7 @@ public abstract class AbstractExpressionEditor extends TextFieldXEditor {
     }
 
     Product openProduct(final String path) throws IOException {
-        return ProductIO.readProduct(path, null);
+        return ProductIO.readProduct(path);
     }
 
     protected abstract ProductExpressionPane createProductExpressionPane(Product[] sourceProducts,

@@ -311,7 +311,7 @@ public class ProcessorAction extends ExecCommand {
                 }
 
                 try {
-                    Product product = ProductIO.readProduct(productFile, null);
+                    Product product = ProductIO.readProduct(productFile);
                     if (product != null) {
                         VisatApp.getApp().addProduct(product);
                     } else {

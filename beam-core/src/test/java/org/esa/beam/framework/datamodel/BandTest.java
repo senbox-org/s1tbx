@@ -548,7 +548,7 @@ public class BandTest extends AbstractRasterDataNodeTest {
                                false,
                                ProgressMonitor.NULL);
 
-        product = ProductIO.readProduct(file, null);
+        product = ProductIO.readProduct(file);
 
         final DimapProductWriter dimapProductWriter = new DimapProductWriter(new DimapProductWriterPlugIn());
         assertNull(product.getProductWriter());

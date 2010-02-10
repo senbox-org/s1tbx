@@ -273,7 +273,7 @@ public class Session {
                     final Product product;
                     File productFile = new File(rootURI.resolve(productRef.uri));
                     if (productFile.exists()) {
-                        product = ProductIO.readProduct(productFile, null);
+                        product = ProductIO.readProduct(productFile);
                     } else {
                         product = problemSolver.solveProductNotFound(productRef.refNo, productFile);
                         if (product == null) {

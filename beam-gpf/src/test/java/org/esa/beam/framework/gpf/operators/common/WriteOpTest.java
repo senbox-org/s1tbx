@@ -116,7 +116,7 @@ public class WriteOpTest extends TestCase {
         Product[] outputProducts = graphContext.getOutputProducts();
         outputProducts[0].dispose();
 
-        Product productOnDisk = ProductIO.readProduct(outputFile, null);
+        Product productOnDisk = ProductIO.readProduct(outputFile);
         assertNotNull(productOnDisk);
         final ProductNodeGroup<Placemark> placemarkProductNodeGroup = productOnDisk.getPinGroup();
 

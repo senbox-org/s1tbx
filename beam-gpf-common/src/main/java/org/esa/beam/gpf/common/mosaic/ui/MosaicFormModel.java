@@ -104,7 +104,7 @@ class MosaicFormModel {
             final File file = files[i];
             Product product = sourceProductMap.get(file);
             if (product == null) {
-                product = ProductIO.readProduct(file, null);
+                product = ProductIO.readProduct(file);
                 sourceProductMap.put(file, product);
                 if (Boolean.TRUE.equals(getPropertyValue(PROPERTY_SHOW_SOURCE_PRODUCTS))) {
                     worldMapModel.addProduct(product);

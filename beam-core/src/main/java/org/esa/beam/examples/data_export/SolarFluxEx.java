@@ -31,7 +31,7 @@ public class SolarFluxEx {
 
     public static void main(String[] args) {
         try {
-            Product product = ProductIO.readProduct("C:/Projects/BEAM/data/MER_RR__1P_A.N1", null);
+            Product product = ProductIO.readProduct("C:/Projects/BEAM/data/MER_RR__1P_A.N1");
             float[] solarFlux = getSolarFlux(product);
             for (int i = 0; i < solarFlux.length; i++) {
                 System.out.println("solarFlux[" + i + "] = " + solarFlux[i]);

@@ -205,7 +205,7 @@ public class L3InitUI extends L3UI {
             final File selectedFile = beamFileChooser.getSelectedFile();
             final File inputDir = selectedFile.getParentFile();
             setUserInputDir(inputDir);
-            exampleProduct = ProductIO.readProduct(selectedFile, null);
+            exampleProduct = ProductIO.readProduct(selectedFile);
             return exampleProduct;
         }
         return null;

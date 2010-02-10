@@ -411,7 +411,7 @@ public class IOParameterPage extends ParameterPage {
         if (file.exists()) {
             Product product = null;
             try {
-                product = ProductIO.readProduct(file, null);
+                product = ProductIO.readProduct(file);
                 if (product != null) {
                     if (validator != null) {
                         final boolean valid = validator.validate(product);

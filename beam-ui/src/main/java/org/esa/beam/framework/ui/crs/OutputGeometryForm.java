@@ -158,7 +158,7 @@ public class OutputGeometryForm extends JPanel {
         final JFrame jFrame = new JFrame("Output parameter Definition Form");
         Container contentPane = jFrame.getContentPane();
         
-        Product sourceProduct = ProductIO.readProduct("C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\MER_RR__1PPBCM20090804__Kinneret_FUB.dim", null);
+        Product sourceProduct = ProductIO.readProduct("C:\\Dokumente und Einstellungen\\Marco Peters\\Eigene Dateien\\EOData\\MER_RR__1PPBCM20090804__Kinneret_FUB.dim");
         CoordinateReferenceSystem targetCrs = CRS.decode("EPSG:32632");
         OutputGeometryFormModel model = new OutputGeometryFormModel(sourceProduct, targetCrs);
         OutputGeometryForm form = new OutputGeometryForm(model);

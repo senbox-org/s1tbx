@@ -43,7 +43,6 @@ import org.esa.beam.processor.flh_mci.FlhMciRequestElementFactory;
 import org.esa.beam.util.BeamConstants;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.io.FileUtils;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -56,8 +55,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Vector;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -409,8 +406,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
             final File file = (File) _paramGroup.getParameter(
                     DefaultRequestElementFactory.INPUT_PRODUCT_PARAM_NAME).getValue();
             if (file.canRead()) {
-                URL inputURL = FileUtils.getFileAsUrl(file);
-                Product inProduct = ProductIO.readProduct(inputURL, null);
+                Product inProduct = ProductIO.readProduct(file);
                 if (inProduct == null) {
                     throw new ProcessorException("unable to read input product");
                 }
@@ -424,8 +420,6 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
                 scanForFlags(inProduct);
                 setPresetBox(_inputProductType);
             }
-        } catch (MalformedURLException e) {
-            Debug.trace(e);
         } catch (IOException e) {
             Debug.trace(e);
         }
@@ -524,7 +518,7 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
             Product inProduct = null;
             try {
                 if (file.canRead()) {
-                    inProduct = ProductIO.readProduct(prodRef.getFile(), null);
+                    inProduct = ProductIO.readProduct(prodRef.getFile());
                     scanForBandNames(inProduct);
                     scanForFlags(inProduct);
                 }

@@ -127,7 +127,7 @@ public class TiePointGridWriterMain {
             throws IOException {
 
         // Read the product (note that only 'nodes' are read, not the entire data!)
-        Product product = ProductIO.readProduct(inputPath, null);
+        Product product = ProductIO.readProduct(inputPath);
         // Get the scene width
         int w = product.getSceneRasterWidth();
         // Get the scene height

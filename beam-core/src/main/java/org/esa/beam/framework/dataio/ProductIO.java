@@ -38,7 +38,7 @@ import java.util.Iterator;
  * <p/>
  * <p> For example, a product can be read in using a single method call:
  * <pre>
- *      Product product =  ProductIO.readProduct("test.prd", null);
+ *      Product product =  ProductIO.readProduct("test.prd");
  * </pre>
  * and written out in a similar way:
  * <pre>
@@ -65,9 +65,9 @@ public class ProductIO {
      */
     public static ProductReader getProductReader(String formatName) {
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
-        Iterator it = registry.getReaderPlugIns(formatName);
+        Iterator<ProductReaderPlugIn> it = registry.getReaderPlugIns(formatName);
         if (it.hasNext()) {
-            ProductReaderPlugIn plugIn = (ProductReaderPlugIn) it.next();
+            ProductReaderPlugIn plugIn = it.next();
             return plugIn.createReaderInstance();
         }
         return null;
@@ -82,9 +82,9 @@ public class ProductIO {
      */
     public static String[] getProducWritertExtensions(String formatName) {
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
-        Iterator it = registry.getWriterPlugIns(formatName);
+        Iterator<ProductWriterPlugIn> it = registry.getWriterPlugIns(formatName);
         if (it.hasNext()) {
-            ProductWriterPlugIn plugIn = (ProductWriterPlugIn) it.next();
+            ProductWriterPlugIn plugIn = it.next();
             return plugIn.getDefaultFileExtensions();
         }
         return null;
@@ -99,9 +99,9 @@ public class ProductIO {
      */
     public static ProductWriter getProductWriter(String formatName) {
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
-        Iterator it = registry.getWriterPlugIns(formatName);
+        Iterator<ProductWriterPlugIn> it = registry.getWriterPlugIns(formatName);
         if (it.hasNext()) {
-            ProductWriterPlugIn plugIn = (ProductWriterPlugIn) it.next();
+            ProductWriterPlugIn plugIn = it.next();
             return plugIn.createWriterInstance();
         }
         return null;
@@ -133,8 +133,8 @@ public class ProductIO {
      *         if no appropriate reader was found for the given product file
      *
      * @throws IOException if an I/O error occurs
-     * @see #readProduct(String, ProductSubsetDef)
-     * @see #readProduct(URL, ProductSubsetDef)
+     * @see #readProduct(String)
+     * @see #readProduct(File)
      * @since 4.0
      */
     public static Product readProduct(File file, ProductSubsetDef subsetDef, String[] formatNames) throws IOException {
@@ -147,11 +147,11 @@ public class ProductIO {
         final ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
 
         for (String formatName : formatNames) {
-            final Iterator it = registry.getReaderPlugIns(formatName);
+            final Iterator<ProductReaderPlugIn> it = registry.getReaderPlugIns(formatName);
 
             ProductReaderPlugIn selectedPlugIn = null;
             while (it.hasNext()) {
-                ProductReaderPlugIn plugIn = (ProductReaderPlugIn) it.next();
+                ProductReaderPlugIn plugIn = it.next();
                 DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
                 if (decodeQualification == DecodeQualification.INTENDED) {
                     selectedPlugIn = plugIn;
@@ -168,7 +168,7 @@ public class ProductIO {
             }
         }
 
-        return readProduct(file, subsetDef);
+        return readProductImpl(file, subsetDef);
     }
 
     /**
@@ -178,9 +178,49 @@ public class ProductIO {
      * <p>The method does not automatically read band data, thus
      * {@link org.esa.beam.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
      * for all bands in the product returned by this method.</p>
-     * <p> The given subset info can be used to specify spatial and spectral portions of the original proudct. If the
-     * subset is omitted, the complete product is read in.
      *
+     * @param filePath  the data product file path
+     *
+     * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
+     *         appropriate reader was found for the given product file
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #readProduct(File)
+     */
+    public static Product readProduct(String filePath) throws IOException {
+        return readProductImpl(new File(filePath), null);
+    }
+
+    /**
+     * Reads the data product specified by the given file.
+     * <p>The product returned will be associated with the reader appropriate for the given
+     * file format (see also {@link org.esa.beam.framework.datamodel.Product#getProductReader() Product.productReader}).</p>
+     * <p>The method does not automatically read band data, thus
+     * {@link org.esa.beam.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
+     * for all bands in the product returned by this method.</p>
+     *
+     * @param file      the data product file
+     *
+     * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
+     *         appropriate reader was found for the given product file
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #readProduct(String)
+     */
+    public static Product readProduct(File file) throws IOException {
+        return readProductImpl(file, null);
+    }    
+    
+    /**
+     * Reads the data product specified by the given file path.
+     * <p>The product returned will be associated with the reader appropriate for the given
+     * file format (see also {@link org.esa.beam.framework.datamodel.Product#getProductReader() Product.productReader}).</p>
+     * <p>The method does not automatically read band data, thus
+     * {@link org.esa.beam.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
+     * for all bands in the product returned by this method.</p>
+     * <p> The given subset info can be used to specify spatial and spectral portions of the original proudct. If the
+     * subset is omitted, the complete product is read in.</p>
+     *      
      * @param filePath  the data product file path
      * @param subsetDef the optional spectral and spatial subset, can be <code>null</code> in order to accept all data
      *                  in the original data product.
@@ -189,11 +229,14 @@ public class ProductIO {
      *         appropriate reader was found for the given product file
      *
      * @throws IOException if an I/O error occurs
-     * @see #readProduct(File, ProductSubsetDef)
-     * @see #readProduct(URL, ProductSubsetDef)
+     * @see #readProduct(File)
+     * @see #readProduct(String)
+     * 
+     * @deprecated since BEAM 4.7, use {@link #readProduct(String)} instead. (Because most readers don't support reading of subsets)
      */
+    @Deprecated
     public static Product readProduct(String filePath, ProductSubsetDef subsetDef) throws IOException {
-        return readProduct(new File(filePath), subsetDef);
+        return readProductImpl(new File(filePath), subsetDef);
     }
 
     /**
@@ -214,46 +257,14 @@ public class ProductIO {
      *         appropriate reader was found for the given product file
      *
      * @throws IOException if an I/O error occurs
-     * @see #readProduct(String, ProductSubsetDef)
-     * @see #readProduct(URL, ProductSubsetDef)
+     * @see #readProduct(String)
+     * @see #readProduct(File)
+     * 
+     * @deprecated since BEAM 4.7, use {@link #readProduct(File)} instead. (Because most readers don't support reading of subsets)
      */
+    @Deprecated
     public static Product readProduct(File file, ProductSubsetDef subsetDef) throws IOException {
-        Guardian.assertNotNull("file", file);
-        if (!file.exists()) {
-            throw new FileNotFoundException("File not found: " + file.getPath());
-        }
-        final ProductReader productReader = getProductReaderForFile(file);
-        if (productReader != null) {
-            return productReader.readProductNodes(file, subsetDef);
-        }
-        return null;
-    }
-
-    /**
-     * Returns a product reader instance for the given file if any registered product reader can decode the given file.
-     *
-     * @param file the file to decode.
-     *
-     * @return a product reader for the given file or <code>null</code> if the file cannot be decoded.
-     */
-    public static ProductReader getProductReaderForFile(File file) {
-        ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
-        Iterator it = registry.getAllReaderPlugIns();
-        ProductReaderPlugIn selectedPlugIn = null;
-        while (it.hasNext()) {
-            ProductReaderPlugIn plugIn = (ProductReaderPlugIn) it.next();
-            DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
-            if (decodeQualification == DecodeQualification.INTENDED) {
-                selectedPlugIn = plugIn;
-                break;
-            } else if (decodeQualification == DecodeQualification.SUITABLE) {
-                selectedPlugIn = plugIn;
-            }
-        }
-        if (selectedPlugIn != null) {
-            return selectedPlugIn.createReaderInstance();
-        }
-        return null;
+        return readProductImpl(file, subsetDef);
     }
 
     /**
@@ -277,18 +288,60 @@ public class ProductIO {
      *         appropriate reader was found for the given product file
      *
      * @throws IOException if an I/O error occurs
-     * @see #readProduct(String, ProductSubsetDef)
-     * @see #readProduct(File, ProductSubsetDef)
+     * @see #readProduct(String)
+     * @see #readProduct(File)
+     * 
+     * @deprecated since BEAM 4.7, use {@link #readProduct(File)} instead.
      */
+    @Deprecated
     public static Product readProduct(URL url, ProductSubsetDef subsetDef) throws IOException {
         Debug.trace("WARNING: general URLs are currently not supported by the ProductIO.readProductNodes method");
         try {
-            return readProduct(new File(url.toURI()), subsetDef);
+            return readProductImpl(new File(url.toURI()), subsetDef);
         } catch (URISyntaxException e) {
             IOException ioe = new IOException("URL not valid [" + url + "]");
             ioe.initCause(e);
             throw ioe;
         }
+    }
+    
+    private static Product readProductImpl(File file, ProductSubsetDef subsetDef) throws IOException {
+        Guardian.assertNotNull("file", file);
+        if (!file.exists()) {
+            throw new FileNotFoundException("File not found: " + file.getPath());
+        }
+        final ProductReader productReader = getProductReaderForFile(file);
+        if (productReader != null) {
+            return productReader.readProductNodes(file, subsetDef);
+        }
+        return null;        
+    }
+    
+    /**
+     * Returns a product reader instance for the given file if any registered product reader can decode the given file.
+     *
+     * @param file the file to decode.
+     *
+     * @return a product reader for the given file or <code>null</code> if the file cannot be decoded.
+     */
+    public static ProductReader getProductReaderForFile(File file) {
+        ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
+        Iterator<ProductReaderPlugIn> it = registry.getAllReaderPlugIns();
+        ProductReaderPlugIn selectedPlugIn = null;
+        while (it.hasNext()) {
+            ProductReaderPlugIn plugIn = it.next();
+            DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
+            if (decodeQualification == DecodeQualification.INTENDED) {
+                selectedPlugIn = plugIn;
+                break;
+            } else if (decodeQualification == DecodeQualification.SUITABLE) {
+                selectedPlugIn = plugIn;
+            }
+        }
+        if (selectedPlugIn != null) {
+            return selectedPlugIn.createReaderInstance();
+        }
+        return null;
     }
 
     /**

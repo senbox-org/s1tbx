@@ -25,7 +25,7 @@ class DefaultCommandLineContext implements CommandLineContext {
     @Override
     public Product readProduct(String productFilepath) throws IOException {
         Product product;
-        product = ProductIO.readProduct(productFilepath, null);
+        product = ProductIO.readProduct(productFilepath);
         return product;
     }
 

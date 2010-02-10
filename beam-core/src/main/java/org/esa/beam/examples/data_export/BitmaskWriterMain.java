@@ -103,7 +103,7 @@ public class BitmaskWriterMain {
                    ParseException {
 
         // Read the product (note that only 'nodes' are read, not the entire data!)
-        Product product = ProductIO.readProduct(inputPath, null);
+        Product product = ProductIO.readProduct(inputPath);
 
         // Parse the given bit-mask expression string to a term which can efficiently
         // be evaluated by the framework

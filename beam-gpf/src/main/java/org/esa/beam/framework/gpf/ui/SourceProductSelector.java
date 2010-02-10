@@ -285,7 +285,7 @@ public class SourceProductSelector {
 
                 Product product = null;
                 try {
-                    product = ProductIO.readProduct(file, null);
+                    product = ProductIO.readProduct(file);
                     if (product == null) {
                         throw new IOException(MessageFormat.format("File ''{0}'' could not be read.", file.getPath()));
                     }

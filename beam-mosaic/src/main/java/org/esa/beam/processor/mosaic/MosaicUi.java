@@ -2029,7 +2029,7 @@ public class MosaicUi extends AbstractProcessorUI {
         Product product = null;
         try {
             if (productFile != null) {
-                product = ProductIO.readProduct(productFile, null);
+                product = ProductIO.readProduct(productFile);
             }
         } catch (IOException ignored) {
             final String message = String.format("Unable to open file '%s'", productFile.getPath());

@@ -103,7 +103,7 @@ public class ProductGrabberAction extends ExecCommand {
                     continue;
                 }
                 try {
-                    final Product product = ProductIO.readProduct(productFile, null);
+                    final Product product = ProductIO.readProduct(productFile);
 
                     final ProductManager productManager = visatApp.getProductManager();
                     productManager.addProduct(product);

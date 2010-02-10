@@ -186,7 +186,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
      */
     protected Product loadValidatedProduct(ProductRef ref) throws ProcessorException {
         try {
-            Product prod = ProductIO.readProduct(ref.getFile(), null);
+            Product prod = ProductIO.readProduct(ref.getFile());
             if (prod == null) {
                throw new ProcessorException("Unknown type of product.");
             } else if (!productContainsBands(prod)) {

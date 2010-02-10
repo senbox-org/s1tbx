@@ -159,7 +159,7 @@ public class VisatMain implements RuntimeRunnable {
         final File productFile = new File(productFilepath);
         final Product product;
         try {
-            product = ProductIO.readProduct(productFile, null);
+            product = ProductIO.readProduct(productFile);
             if (product == null) {
                 final MessageFormat mf = new MessageFormat("No reader found for data product\n''{0}''."); /*I18N*/
                 final Object[] args = new Object[]{productFile.getPath()};

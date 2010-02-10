@@ -47,7 +47,7 @@ public class RepositoryEntry {
     }
 
     public void openProduct() throws IOException {
-        _product = ProductIO.readProduct(_productFile, null);
+        _product = ProductIO.readProduct(_productFile);
     }
 
     public void closeProduct() {
