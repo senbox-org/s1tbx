@@ -2,8 +2,9 @@ package org.esa.beam.gpf.common.mosaic.ui;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
-import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
+
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;

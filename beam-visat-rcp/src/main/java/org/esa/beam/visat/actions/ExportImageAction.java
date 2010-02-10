@@ -21,11 +21,12 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.converters.IntegerConverter;
-import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
+import com.bc.ceres.swing.binding.BindingContext;
+
 import org.esa.beam.framework.ui.PropertyPane;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;

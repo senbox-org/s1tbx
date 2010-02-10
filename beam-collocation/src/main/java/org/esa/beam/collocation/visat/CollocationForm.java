@@ -10,8 +10,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
 
 /**
  * Form for geographic collocation dialog.

@@ -1,8 +1,9 @@
 package org.esa.beam.visat.toolviews.mask;
 
 import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
+
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.StringUtils;
 

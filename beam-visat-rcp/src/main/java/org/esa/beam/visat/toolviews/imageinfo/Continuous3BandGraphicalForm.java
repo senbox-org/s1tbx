@@ -4,7 +4,8 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
-import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.swing.binding.BindingContext;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;

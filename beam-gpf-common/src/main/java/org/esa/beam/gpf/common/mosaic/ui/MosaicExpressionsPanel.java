@@ -1,7 +1,8 @@
 package org.esa.beam.gpf.common.mosaic.ui;
 
-import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;

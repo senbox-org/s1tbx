@@ -1,7 +1,8 @@
 package org.esa.beam.gpf.common.mosaic.ui;
 
 import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.swing.binding.BindingContext;
+
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.gpf.common.mosaic.MosaicOp;
 import static org.junit.Assert.assertEquals;

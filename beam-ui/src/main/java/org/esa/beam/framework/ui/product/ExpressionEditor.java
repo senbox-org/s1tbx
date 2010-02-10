@@ -17,11 +17,12 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.swing.Binding;
-import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.swing.ComponentAdapter;
-import com.bc.ceres.binding.swing.PropertyEditor;
-import com.bc.ceres.binding.swing.internal.TextComponentAdapter;
+import com.bc.ceres.swing.binding.Binding;
+import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.ComponentAdapter;
+import com.bc.ceres.swing.binding.PropertyEditor;
+import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
+
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.PropertyMap;

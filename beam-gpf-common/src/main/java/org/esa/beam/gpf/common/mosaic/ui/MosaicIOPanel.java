@@ -1,8 +1,8 @@
 package org.esa.beam.gpf.common.mosaic.ui;
 
 import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.dataio.ProductIO;

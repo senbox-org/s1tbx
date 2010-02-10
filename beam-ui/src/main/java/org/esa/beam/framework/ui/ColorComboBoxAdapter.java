@@ -1,6 +1,6 @@
 package org.esa.beam.framework.ui;
 
-import com.bc.ceres.binding.swing.ComponentAdapter;
+import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.jidesoft.combobox.ColorComboBox;
 
 import org.esa.beam.framework.datamodel.ImageInfo;

@@ -4,9 +4,10 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
-import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.swing.BindingProblemListener;
-import com.bc.ceres.binding.swing.BindingProblem;
+import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.BindingProblem;
+import com.bc.ceres.swing.binding.BindingProblemListener;
+
 import junit.framework.TestCase;
 
 import javax.swing.JCheckBox;

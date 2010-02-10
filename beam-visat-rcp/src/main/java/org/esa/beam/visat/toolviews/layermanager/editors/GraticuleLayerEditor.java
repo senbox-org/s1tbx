@@ -18,9 +18,10 @@ package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValueRange;
-import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.swing.PropertyEditorRegistry;
-import com.bc.ceres.binding.swing.internal.RangeEditor;
+import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.PropertyEditorRegistry;
+import com.bc.ceres.swing.binding.internal.RangeEditor;
+
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.layer.AbstractLayerConfigurationEditor;
 import org.esa.beam.glayer.GraticuleLayerType;

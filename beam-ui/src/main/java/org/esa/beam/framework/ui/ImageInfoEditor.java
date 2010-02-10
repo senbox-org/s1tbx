@@ -19,7 +19,7 @@ package org.esa.beam.framework.ui;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValueRange;
-import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.swing.binding.BindingContext;
 import com.jidesoft.combobox.ColorChooserPanel;
 import com.jidesoft.popup.JidePopup;
 import com.jidesoft.swing.JidePopupMenu;

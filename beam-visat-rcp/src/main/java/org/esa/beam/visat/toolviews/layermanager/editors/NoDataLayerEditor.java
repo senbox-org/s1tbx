@@ -1,8 +1,9 @@
 package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.swing.binding.BindingContext;
+
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.layer.AbstractLayerConfigurationEditor;
 import org.esa.beam.glayer.NoDataLayerType;

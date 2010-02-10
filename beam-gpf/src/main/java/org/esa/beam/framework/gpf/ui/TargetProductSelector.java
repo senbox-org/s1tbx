@@ -1,7 +1,7 @@
 package org.esa.beam.framework.gpf.ui;
 
-import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
 
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.util.io.FileChooserFactory;

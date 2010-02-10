@@ -1,6 +1,6 @@
 package org.esa.beam.gpf.common.mosaic.ui;
 
-import com.bc.ceres.binding.swing.ComponentAdapter;
+import com.bc.ceres.swing.binding.ComponentAdapter;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;

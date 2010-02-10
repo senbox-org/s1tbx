@@ -3,10 +3,10 @@ package org.esa.beam.framework.ui;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertySet;
-import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.swing.PropertyEditor;
-import com.bc.ceres.binding.swing.PropertyEditorRegistry;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.PropertyEditor;
+import com.bc.ceres.swing.binding.PropertyEditorRegistry;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 
 /**
  * A utility class used to create a {@link JPanel} containing default Swing components and their corresponding bindings for the
- * {@link com.bc.ceres.binding.PropertyContainer} given by the {@link com.bc.ceres.binding.swing.BindingContext}.
+ * {@link com.bc.ceres.binding.PropertyContainer} given by the {@link com.bc.ceres.swing.binding.BindingContext}.
  * <p/>
  * <p>If the {@code displayName} property of the binding's {@link com.bc.ceres.binding.PropertySet PropertySet}
  * is set, it will be used as label, otherwise a label is derived from the {@code name} property.</p>

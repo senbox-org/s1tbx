@@ -17,8 +17,8 @@
 package org.esa.beam.framework.ui;
 
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.swing.PropertyEditor;
+import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.PropertyEditor;
 import com.jidesoft.combobox.ColorComboBox;
 
 import java.awt.Color;
