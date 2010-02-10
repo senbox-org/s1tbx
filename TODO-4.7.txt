@@ -4,13 +4,14 @@ Reprojection:
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
   Remove usage, deprecate and/or remove classes.
   ==> FINAL, ?, OPEN
-* (OF) VISAT is sometimes very slow handling reproj. data (saved in dim and reopend).
-  Workflow is unknown to reproduce. Sometimes it happens, sometimes not.
-  (+ see bug 8 )
+
   
 Masks:
 ======
-
+* ROI/Mask Manager: Deleting a "geometry mask" should either be
+  forbidden or the associated geometry shall be deleted as well.
+  (Decision: go the easy way; disallow deletion of "geometry mask")
+  ==> FINAL , ?, OPEN
 * We need a special mask type masking out no-data pixels. If no-data value
   is set, it shall be used in its raw form by the mask image (OpImage).
   If valid-expression is set, it shall be AND-ed with the no-data mask,
@@ -27,9 +28,6 @@ VectorDataNode:
 * Create subset from Product with Pins, GCPs -> GCPs outside of subset bounds are preserved, pins are not
   Explain in help, that this is intended.
   ==> FINAL, ?, OPEN
-* Pin & GCP Vector Data Nodes shall not be visible as long as there are no pins / GCPs
-  added to the product
-  ==> FINAL, ?, OPEN
 
 * Import of Geometry does not work when shapefile has no CRS and shapefile coordinates are not in WGS84.
   the user is asked to enter a CRS.
@@ -38,26 +36,26 @@ VectorDataNode:
 Figures:
 ========
 * Still can't rotate figures.
-  ==> FINAL, NF, OPEN
+  ==> FINAL (v4.8), NF, OPEN
 * Number of created vertex handles should be dependent on current viewport
-  ==> FINAL, NF, OPEN
+  ==> FINAL (v4.8), NF, OPEN
 * Still can not add/remove geometry vertices
   ==> FINAL, NF, OPEN
 * Still cannot draw true circles/squares and also adjust lines and points on grid.
   ==> FINAL, ?, OPEN
-* Layer style editor doesn't work anymore
+* Layer style editor doesn't work anymore. Support only our style. Not SLD.
   ==> FINAL, ?, OPEN
 * New edit menu:
   - Test Cut/Copy/Paste!
   - What about Undo/Redo?!? (should work!)
   - After Paste: select inserted figures and displace a few (view) pixels
-  ==> FINAL, ?, OPEN
+  ==> FINAL (v4.8), ?, OPEN
 * Allow for geometric operations on geometries: add/sub/intersection (JTS!)
-  ==> FINAL, ?, OPEN
+  ==> FINAL (v4.8), ?, OPEN
 
 Product tree:
 =============
-* Don't display empty groups
+* Don't display empty groups. With special attention to Pin & GCP Vector Data Nodes.
   ==> FINAL, ?, OPEN
 
 Layers:
@@ -72,15 +70,15 @@ Layers:
 GPF Processors:
 ===============
 * Need file and help menu items as in "old" processors
-  ==> FINAL, ?, OPEN
+  ==> FINAL (v4.8), ?, OPEN
 * Need minimal developer guide  
-  ==> FINAL, ?, OPEN
+  ==> FINAL (v4.8), ?, OPEN
 * Important issues with the band's source image:
   - dispose() method on MultiLevelImage shall not null its product node,
     use WeakReference instead.
   - Don't dispose source MultiLevelImage, if the RasterDataNode is not the
     owner, e.g. flag RasterDataNode.isSourceImageOwner()
-  ==> FINAL, ?, OPEN
+  ==> FINAL (v4.8), ?, OPEN
 
 * Clean up GPF packages:
   - split into beam-gpf and beam-gpf-meris
@@ -159,7 +157,7 @@ h3. Product Data Model Changes
 ** Added new methods to Product class
 **# ProductNodeGroup<VectorData> getVectorDataGroup()
 **# ProductNodeGroup<Mask> getMaskGroup()
-** Deprecated a lot of old methods deling with {{BitRaster}} and bitmasks in general
+** Deprecated a lot of old methods dealing with {{BitRaster}} and bitmasks in general
 ** Change events for the following "properties" are not fired anymore: modified, owner 
 * Added new methods to ProductVisitor interface:
 *# void visit(Mask mask)
