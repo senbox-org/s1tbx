@@ -42,7 +42,7 @@ public class FeatureCollectionClipperTest extends TestCase {
                                                   false, false, null, null, null);
 
         GeometryDescriptor gd1 = new GeometryDescriptorImpl(gt1,
-                                                            new NameImpl("GEOMETRY"),
+                                                            new NameImpl("geometry"),
                                                             0, 1,
                                                             false,
                                                             null);
