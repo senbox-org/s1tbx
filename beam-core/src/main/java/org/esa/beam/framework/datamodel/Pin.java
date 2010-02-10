@@ -41,8 +41,6 @@ import java.awt.geom.Point2D;
 import java.text.MessageFormat;
 import java.util.List;
 
-// todo - rename to Placemark (se - 20090126) 
-
 /**
  * This class represents a pin.
  * <p/>
@@ -74,32 +72,6 @@ public class Pin extends ProductNode {
      */
     public static SimpleFeatureType getFeatureType() {
         return Holder.PLACEMARK_FEATURE_TYPE;
-    }
-
-    /**
-     * Creates a new pin.
-     *
-     * @param name     the pin's name.
-     * @param label    the pin's label.
-     * @param pixelPos the pin's pixel position.
-     * @deprecated since 4.1, use {@link Pin#Pin(String, String, String, PixelPos, GeoPos, PlacemarkSymbol)}
-     */
-    @Deprecated
-    public Pin(String name, String label, PixelPos pixelPos) {
-        this(name, label, "", pixelPos, null, PlacemarkSymbol.createDefaultPinSymbol());
-    }
-
-    /**
-     * Creates a new pin.
-     *
-     * @param name   the pin's name.
-     * @param label  the pin's label.
-     * @param geoPos the pin's geo-position.
-     * @deprecated since 4.1, use {@link Pin#Pin(String, String, String, PixelPos, GeoPos, PlacemarkSymbol)}
-     */
-    @Deprecated
-    public Pin(String name, String label, GeoPos geoPos) {
-        this(name, label, "", null, geoPos, PlacemarkSymbol.createDefaultPinSymbol());
     }
 
     /**
