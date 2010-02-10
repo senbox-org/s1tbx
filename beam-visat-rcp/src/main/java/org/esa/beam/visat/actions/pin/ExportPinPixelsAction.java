@@ -309,7 +309,7 @@ public class ExportPinPixelsAction extends ExecCommand {
             @Override
             protected Object doInBackground() throws Exception {
                 try {
-                    final boolean success = regionWriter.writePinPixels(dialog.getRegionSize(), dialog
+                    final boolean success = regionWriter.writePlacemarkPixels(dialog.getRegionSize(), dialog
                             .getExpression(), regions, pm);
                     if (success) {
                         maybeCopyToClipboard(out);
