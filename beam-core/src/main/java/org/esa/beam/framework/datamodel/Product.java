@@ -461,6 +461,22 @@ public class Product extends ProductNode {
     public ProductWriter getProductWriter() {
         return writer;
     }
+    
+    /**
+     * <p>Writes the header of a data product.<p/>
+     *
+     * @param output  an object representing a valid output for this writer, might be a <code>ImageOutputStream</code>
+     *                or a <code>File</code> or other <code>Object</code> to use for future decoding.
+     *
+     * @throws IllegalArgumentException if <code>output</code> is <code>null</code> or it's type is none of the
+     *                                  supported output types.
+     * @throws IOException              if an I/O error occurs
+     */
+    public void writeHeader(Object output) throws IOException {
+        Guardian.assertNotNull("output", output);
+        Guardian.assertNotNull("writer", writer);
+        writer.writeProductNodes(this, output);
+    }
 
     /**
      * Closes and clears this product's reader (if any).
