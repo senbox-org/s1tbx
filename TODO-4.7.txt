@@ -138,11 +138,6 @@ Other BEAM/VISAT/API Stuff:
 ===========================
 * Generic GPF action
   ==> FINAL, MZ, OPEN
-* ProductIO: update Tutorial
-** ProductIO.readProduct(..., PruductSubsetDef def) remove SubsetDef
-** Product.setWriter(Writer)
-** Product.writeHeader()
-  ==> FINAL (after public release), MZ, OPEN  
 * When loading our OBPG Level-2 data products pixel times are not
   displayed and the No-Data Overlay doesn't work for missing data (e.g.
   after reprojecting L2 chlor_a, the missing pixels in the resulting map
@@ -154,9 +149,15 @@ Other BEAM/VISAT/API Stuff:
   - abstract ProductNode.handleRename(node, oldName, newName)
   - abstract ProductNode.handleNodeDataChanged(node, oldName, newName)
   ==> FINAL, *, OPEN
-* Move PropertyPane and dependency to TableLayout into Ceres
-  ==> FINAL, *, OPEN
 
+* ProductIO: update Tutorial
+** ProductIO.readProduct(..., PruductSubsetDef def) remove SubsetDef
+** Product.setWriter(Writer)
+** Product.writeHeader()
+  ==> FINAL (after public release), MZ, OPEN  
+  
+* Move PropertyPane and dependency to TableLayout into Ceres
+  ==> FINAL, MZ, CLOSED
 * ProductIO changes;
 ** ProductIO.readProduct(..., PruductSubsetDef def) remove SubsetDef
 ** Product.setWriter(Writer)
@@ -206,6 +207,7 @@ h3. Ceres Binding API Changes
 * ValueEditor --> PropertyEditor
 * ValueEditorRegistry --> PropertyEditorRegistry
 * ValueEditorsPane --> PropertyPane
+* Moved swing.binding packages between modules: ceres-binding:com.bc.ceres.binding.swing --> ceres-ui:com.bc.ceres.swing.binding
 
 
 h3. Ceres Layer API Changes
