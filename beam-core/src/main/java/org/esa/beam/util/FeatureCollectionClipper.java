@@ -93,6 +93,11 @@ public class FeatureCollectionClipper {
         if (sourceCrs == null) {
             throw new IllegalStateException("'sourceCollection' has no CRS defined and 'defaultSourceCrs' is null");
         }
+        try {
+            sourceSchema = FeatureTypes.transform(sourceSchema, sourceCrs);
+        } catch (SchemaException e) {
+            throw new IllegalStateException(e);
+        }
         if (targetCrs == null) {
             targetCrs = sourceCrs;
         }
@@ -107,16 +112,12 @@ public class FeatureCollectionClipper {
 
         GeometryCoordinateSequenceTransformer source2TargetTransformer;
         SimpleFeatureType targetSchema;
-        if (sourceCrs == targetCrs || sourceCrs.equals(targetCrs)) {
-            targetSchema = sourceSchema;
-            source2TargetTransformer = null;
-        } else {
-            try {
-                targetSchema = FeatureTypes.transform(sourceSchema, targetCrs);
-                source2TargetTransformer = getTransform(sourceCrs, targetCrs);
-            } catch (SchemaException e) {
-                throw new IllegalStateException(e);
-            }
+    
+        try {
+            targetSchema = FeatureTypes.transform(sourceSchema, targetCrs);
+            source2TargetTransformer = getTransform(sourceCrs, targetCrs);
+        } catch (SchemaException e) {
+            throw new IllegalStateException(e);
         }
 
         DefaultFeatureCollection targetCollection = new DefaultFeatureCollection(targetID, targetSchema);
