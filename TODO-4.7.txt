@@ -14,7 +14,7 @@ Masks:
 * ROI/Mask Manager: Deleting a "geometry mask" should either be
   forbidden or the associated geometry shall be deleted as well.
   (Decision: go the easy way; disallow deletion of "geometry mask")
-  ==> FINAL , ?, OPEN
+  ==> FINAL , MZ, OPEN
 
 * We need a special mask type masking out no-data pixels. If no-data value
   is set, it shall be used in its raw form by the mask image (OpImage).
