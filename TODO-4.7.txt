@@ -100,6 +100,8 @@ GPF Processors:
 
 SMOS-Box:
 =========
+* Export GridCellExporter still uses "product.getPinGroup().getSelectedNodes()"
+  ==> FINAL, *, OPEN
 * We need the RasterDataNode.areaOfInterest:Geometry new property for boosting
   statistics computation and possibly also display. This property is optional but
   some product readers may set it, e.g. SMOS reader. Tile bounds can easily be
