@@ -7,6 +7,7 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 import org.geotools.data.DataStore;
@@ -66,6 +67,7 @@ public class ExportGeometryAction extends ExecCommand {
     /////////////////////////////////////////////////////////////////////////
     // Private implementations for the "Export Mask Pixels" command
     /////////////////////////////////////////////////////////////////////////
+
     private boolean hasSelectedVectorDataNode() {
         final VisatApp app = VisatApp.getApp();
         final ProductNode productNode = app.getSelectedProductNode();
@@ -81,7 +83,7 @@ public class ExportGeometryAction extends ExecCommand {
         final VisatApp app = VisatApp.getApp();
         final ProductNode productNode = app.getSelectedProductNode();
         final VectorDataNode vectorDataNode = (VectorDataNode) productNode;
-        if(vectorDataNode.getFeatureCollection().isEmpty()) {
+        if (vectorDataNode.getFeatureCollection().isEmpty()) {
             app.showInfoDialog(DLG_TITLE, "The selected geometry is empty. Nothing to export.", null);
             return;
         }
@@ -105,6 +107,7 @@ public class ExportGeometryAction extends ExecCommand {
      * @param visatApp the VISAT application
      * @return the selected file, <code>null</code> means "Cancel"
      */
+
     private static File promptForFile(final VisatApp visatApp, String defaultFileName) {
         return visatApp.showFileSaveDialog(DLG_TITLE,
                                            false,
@@ -114,16 +117,17 @@ public class ExportGeometryAction extends ExecCommand {
                                            "exportVectorDataNode.lastDir");
     }
 
-    private static void exportVectorDataNode(VectorDataNode vectorNode, File file, ProgressMonitor pm) throws IOException {
+    private static void exportVectorDataNode(VectorDataNode vectorNode, File file, ProgressMonitor pm) throws
+                                                                                                       IOException {
 
 
         Map<Class<?>, List<SimpleFeature>> featureListMap = createGeometryToFeaturesListMap(vectorNode);
-        if(featureListMap.size() > 1) {
+        if (featureListMap.size() > 1) {
             final String msg = "The selected geometry contains different types of shapes.\n" +
                                "Each type of shape will be exported as a separate shapefile.";
-            VisatApp.getApp().showInfoDialog(DLG_TITLE, msg, ExportGeometryAction.class.getName()+".exportInfo");
+            VisatApp.getApp().showInfoDialog(DLG_TITLE, msg, ExportGeometryAction.class.getName() + ".exportInfo");
         }
-        
+
         Set<Map.Entry<Class<?>, List<SimpleFeature>>> entries = featureListMap.entrySet();
         pm.beginTask("Writing ESRI Shapefiles...", featureListMap.size());
         try {
@@ -153,10 +157,12 @@ public class ExportGeometryAction extends ExecCommand {
 
         String typeName = simpleFeatureType.getName().getLocalPart();
         dataStore.createSchema(simpleFeatureType);
-        FeatureStore<SimpleFeatureType, SimpleFeature> featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore.getFeatureSource(typeName);
+        FeatureStore<SimpleFeatureType, SimpleFeature> featureStore = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore.getFeatureSource(
+                typeName);
         DefaultTransaction transaction = new DefaultTransaction("X");
         featureStore.setTransaction(transaction);
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = DataUtilities.collection(features);
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = DataUtilities.collection(
+                features);
         featureStore.addFeatures(featureCollection);
         try {
             transaction.commit();
@@ -169,18 +175,18 @@ public class ExportGeometryAction extends ExecCommand {
     }
 
     private static Map<Class<?>, List<SimpleFeature>> createGeometryToFeaturesListMap(VectorDataNode vectorNode) {
-        FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection = vectorNode.getFeatureCollection();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorNode.getFeatureCollection();
         CoordinateReferenceSystem crs = vectorNode.getFeatureType().getCoordinateReferenceSystem();
-        if(crs == null) {   // for pins and GCPs crs is null --> assume image crs
+        if (crs == null) {   // for pins and GCPs crs is null --> assume image crs
             crs = vectorNode.getProduct().getGeoCoding().getImageCRS();
         }
-        CoordinateReferenceSystem mapCRS = vectorNode.getProduct().getGeoCoding().getMapCRS();
-        if(!CRS.equalsIgnoreMetadata(crs,mapCRS)) { // we have to reproject the features
-            featureCollection = new ReprojectingFeatureCollection(featureCollection, crs, mapCRS);
+        final CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(vectorNode.getProduct().getGeoCoding());
+        if (!CRS.equalsIgnoreMetadata(crs, modelCrs)) { // we have to reproject the features
+            featureCollection = new ReprojectingFeatureCollection(featureCollection, crs, modelCrs);
         }
         Map<Class<?>, List<SimpleFeature>> featureListMap = new HashMap<Class<?>, List<SimpleFeature>>();
         final FeatureIterator<SimpleFeature> featureIterator = featureCollection.features();
-        while(featureIterator.hasNext()) {
+        while (featureIterator.hasNext()) {
             SimpleFeature feature = featureIterator.next();
             Object defaultGeometry = feature.getDefaultGeometry();
             Class<?> geometryType = defaultGeometry.getClass();
@@ -200,7 +206,7 @@ public class ExportGeometryAction extends ExecCommand {
         sftb.setCRS(original.getCoordinateReferenceSystem());
         sftb.setDefaultGeometry(original.getGeometryDescriptor().getLocalName());
         sftb.add(original.getGeometryDescriptor().getLocalName(), geometryType);
-        sftb.setName("FT_" +geometryType.getSimpleName());
+        sftb.setName("FT_" + geometryType.getSimpleName());
         return sftb.buildFeatureType();
     }
 
@@ -220,7 +226,7 @@ public class ExportGeometryAction extends ExecCommand {
         @Override
         protected Exception doInBackground(ProgressMonitor pm) throws Exception {
             try {
-                exportVectorDataNode(vectorDataNode, file,pm);
+                exportVectorDataNode(vectorDataNode, file, pm);
             } catch (IOException e) {
                 return e;
             }
@@ -242,10 +248,10 @@ public class ExportGeometryAction extends ExecCommand {
                 exception = e;
             } catch (ExecutionException e) {
                 exception = e;
-            }finally {
-                if(exception != null) {
-                   exception.printStackTrace();
-                   app.showErrorDialog(DLG_TITLE, "Can not export geometry.\n" + exception.getMessage());
+            } finally {
+                if (exception != null) {
+                    exception.printStackTrace();
+                    app.showErrorDialog(DLG_TITLE, "Can not export geometry.\n" + exception.getMessage());
                 }
             }
         }
