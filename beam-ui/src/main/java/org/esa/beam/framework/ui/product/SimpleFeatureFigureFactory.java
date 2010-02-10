@@ -1,11 +1,9 @@
 package org.esa.beam.framework.ui.product;
 
-import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.PointFigure;
 import com.bc.ceres.swing.figure.ShapeFigure;
-import com.bc.ceres.swing.figure.FigureChangeListener;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -17,8 +15,6 @@ import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 
@@ -92,14 +88,4 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
                                                       geometry,
                                                       style != null ? style.toCssString() : "");
     }
-
-    @Deprecated
-    public static DefaultFigureStyle createDefaultFigureStyle() {
-        DefaultFigureStyle figureStyle = new DefaultFigureStyle();
-        figureStyle.setStrokeColor(Color.BLACK);
-        figureStyle.setFillColor(Color.WHITE);
-        figureStyle.setStroke(new BasicStroke(1.0f));
-        return figureStyle;
-    }
-
 }
