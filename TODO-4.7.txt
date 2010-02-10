@@ -138,11 +138,16 @@ Other BEAM/VISAT/API Stuff:
 ===========================
 * Generic GPF action
   ==> FINAL, MZ, OPEN
-* ProductIO changes; also update Tutorial
-** ProductIO.readProduct(..., PruductSubsetDef def) remove SubsetDef
+* ProductIO changes;
+** ProductIO.readProduct(..., PruductSubsetDef def) remove SubsetDef (CLOSED)
 ** Product.setWriter(Writer)
 ** Product.writeHeader()
   ==> FINAL, MZ, OPEN
+* ProductIO: update Tutorial
+** ProductIO.readProduct(..., PruductSubsetDef def) remove SubsetDef
+** Product.setWriter(Writer)
+** Product.writeHeader()
+  ==> FINAL, MZ, OPEN  
 * When loading our OBPG Level-2 data products pixel times are not
   displayed and the No-Data Overlay doesn't work for missing data (e.g.
   after reprojecting L2 chlor_a, the missing pixels in the resulting map
