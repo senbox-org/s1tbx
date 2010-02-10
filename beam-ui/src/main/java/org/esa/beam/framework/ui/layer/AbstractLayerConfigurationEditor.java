@@ -9,9 +9,9 @@ import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.PropertyPane;
 
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.PropertyPane;
 
 import javax.swing.JComponent;
 import java.beans.PropertyChangeEvent;
