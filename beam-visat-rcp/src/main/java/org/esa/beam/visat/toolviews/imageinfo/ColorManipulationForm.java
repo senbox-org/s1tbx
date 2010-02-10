@@ -113,6 +113,7 @@ class ColorManipulationForm {
     private ImageInfo imageInfo; // our model!
     private MoreOptionsPane moreOptionsPane;
     private SceneViewImageInfoChangeListener sceneViewChangeListener;
+    private final String titlePrefix;
 
     public ColorManipulationForm(ColorManipulationToolView colorManipulationToolView) {
         this.toolView = colorManipulationToolView;
@@ -120,6 +121,7 @@ class ColorManipulationForm {
         preferences = visatApp.getPreferences();
         productNodeListener = new ColorManipulationPNL();
         sceneViewChangeListener = new SceneViewImageInfoChangeListener();
+        titlePrefix = getToolViewDescriptor().getTitle();
     }
 
     public ProductSceneView getProductSceneView() {
@@ -250,8 +252,7 @@ class ColorManipulationForm {
         if (productSceneView != null) {
             titlePostfix = " - " + productSceneView.getSceneName();
         }
-        // todo - this doesn't work at all!!!
-        toolView.setTitle(getToolViewDescriptor().getTitle() + titlePostfix);
+        toolView.setTitle( titlePrefix + titlePostfix);
     }
 
     private void updateToolButtons() {
