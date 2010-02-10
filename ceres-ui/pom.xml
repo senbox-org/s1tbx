@@ -22,6 +22,10 @@
 		</dependency>
         <dependency>
             <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-binding</artifactId>
+        </dependency>		
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-glayer</artifactId>
         </dependency>
     </dependencies>

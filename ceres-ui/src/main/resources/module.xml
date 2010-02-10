@@ -39,5 +39,7 @@
     <extension point="ceres-core:applications">
         <application id="UpdateUIMain" class="com.bc.ceres.swing.update.ModuleManagerMain"/>
     </extension>
-
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>com.bc.ceres.swing.binding.PropertyEditor</serviceProvider>
+    </extension>
 </module>

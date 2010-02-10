@@ -28,9 +28,5 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
 
-    <categories>Binding,UI</categories>
-
-    <extension point="ceres-core:serviceProviders">
-        <serviceProvider>com.bc.ceres.binding.swing.PropertyEditor</serviceProvider>
-    </extension>
+    <categories>Binding</categories>
 </module>
