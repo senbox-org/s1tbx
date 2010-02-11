@@ -9,7 +9,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class OperatorClassDescriptor {
@@ -80,9 +80,9 @@ public class OperatorClassDescriptor {
     }
 
     private void processAnnotations() {
-        sourceProductDescriptors = new HashMap<Field, SourceProduct>();
-        parameterDescriptors = new HashMap<Field, Parameter>();
-        propertyDescriptors = new HashMap<Field, TargetProperty>();
+        sourceProductDescriptors = new LinkedHashMap<Field, SourceProduct>();
+        parameterDescriptors = new LinkedHashMap<Field, Parameter>();
+        propertyDescriptors = new LinkedHashMap<Field, TargetProperty>();
         processAnnotationsRec(operatorClass);
     }
 
