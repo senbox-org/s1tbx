@@ -66,15 +66,15 @@ public class CommandLineToolOperatorTest extends TestCase {
     public void testPrintOp4Usage() throws Exception {
         assertTrue(context.output.length() == 0);
         clTool.run(new String[]{"Op4", "-h"});
+        //System.out.println("\n" + context.output + "\n");
         assertTrue(context.output.startsWith(
                 "Usage:\n" +
                 "  gpt Op4 [options] \n" +
         		"\n" +
         		"Computed Properties:\n" +
-        		"String[] names\n" +
-        		"double PI         The ratio of any circle's circumference to its diameter"));
+        		"double PI         The ratio of any circle's circumference to its diameter\n" +
+        		"String[] names"));
 
-//        System.out.println("\n" + context.output + "\n");
     }
 
     public void testOperatorSingleSource() throws Exception {
