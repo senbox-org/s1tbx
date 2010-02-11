@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-chris-reader</symbolicName>
-    <version>1.5</version>
+    <version>1.6</version>
     <name>CHRIS/Proba Product Reader</name>
 
     <description>Enables BEAM to read CHRIS/Proba HDF4 data products.</description>
@@ -57,7 +57,7 @@
         <module>beam-core</module>
     </dependency>
     <dependency>
-        <module>lib-hdf</module>
+        <module>lib-netcdf</module>
     </dependency>
     <dependency>
         <module>beam-visat</module>

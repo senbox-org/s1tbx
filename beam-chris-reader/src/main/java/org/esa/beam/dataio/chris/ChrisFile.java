@@ -1,16 +1,21 @@
 package org.esa.beam.dataio.chris;
 
-import ncsa.hdf.hdflib.HDFConstants;
-import ncsa.hdf.hdflib.HDFException;
-import ncsa.hdf.hdflib.HDFLibrary;
 import org.esa.beam.util.io.CsvReader;
+
+import ucar.ma2.Array;
+import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.Section;
+import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Structure;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +25,9 @@ import java.util.TreeMap;
 class ChrisFile {
 
     private File file;
-    private int fileId = HDFConstants.FAIL;
-    private int sdId = HDFConstants.FAIL;
-    private Sds rciImageSds;
-    private Sds maskSds;
+    private NetcdfFile ncFile = null;
+    private Variable rciImageSds;
+    private Variable maskSds;
     private Map<String, String> globalAttributes;
     private Map<Integer, Float> gainInfoMap;
     private float[][] modeInfo;
@@ -44,26 +48,24 @@ class ChrisFile {
     }
 
     public void open() throws IOException {
-        if (fileId != HDFConstants.FAIL) {
+        if (ncFile != null) {
             throw new IllegalStateException("already open");
         }
 
         try {
-            fileId = HDF4Lib.Hopen(file.getPath(), HDFConstants.DFACC_RDONLY);
-            sdId = HDF4Lib.SDstart(file.getPath(), HDFConstants.DFACC_RDONLY);
-            HDF4Lib.Vstart(fileId);
-            globalAttributes = readGlobalAttributes(sdId);
-            rciImageSds = openRciSds(sdId);
-            maskSds = openMaskSds(sdId);
-            modeInfo = readModeInfo(fileId);
-            gainInfoMap = readGainInfo(fileId);
-        } catch (HDFException e) {
+            ncFile = NetcdfFile.open(file.getAbsolutePath());
+            globalAttributes = readGlobalAttributes(ncFile);
+            rciImageSds = getRciSds(ncFile);
+            maskSds = getMaskSds(ncFile);
+            modeInfo = readModeInfo(ncFile);
+            gainInfoMap = readGainInfo(ncFile);
+        } catch (Exception e) {
             try {
                 close();
             } catch (IOException ignored) {
                 // ignore
             }
-            final IOException ioe = new IOException(MessageFormat.format("Failed to open CHRIS file ''{0}''", file));
+            final IOException ioe = new IOException(MessageFormat.format("Failed to open CHRIS file ''{0}'':\n{1}", file, e.getMessage()));
             ioe.initCause(e);
 
             throw ioe;
@@ -76,23 +78,15 @@ class ChrisFile {
     }
 
     public void close() throws IOException {
-        if (fileId == HDFConstants.FAIL) {
+        if (ncFile == null) {
             return;
         }
         try {
             if (globalAttributes != null) {
                 globalAttributes.clear();
             }
-            if (rciImageSds != null) {
-                HDF4Lib.SDendaccess(rciImageSds.sdsId);
-            }
-            if (maskSds != null) {
-                HDF4Lib.SDendaccess(maskSds.sdsId);
-            }
-            HDF4Lib.SDend(this.sdId);
-            HDF4Lib.Vend(this.fileId);
-            HDF4Lib.Hclose(this.fileId);
-        } catch (HDFException e) {
+            ncFile.close();
+        } catch (IOException e) {
             final IOException ioe = new IOException(MessageFormat.format("Failed to close CHRIS file ''{0}''", file));
             ioe.initCause(e);
             throw ioe;
@@ -100,8 +94,7 @@ class ChrisFile {
             rciImageSds = null;
             maskSds = null;
             modeInfo = null;
-            sdId = HDFConstants.FAIL;
-            fileId = HDFConstants.FAIL;
+            ncFile = null;
         }
     }
 
@@ -118,7 +111,7 @@ class ChrisFile {
     }
 
     public int getSpectralBandCount() {
-        return rciImageSds.dimSizes[0];
+        return rciImageSds.getDimension(0).getLength();
     }
 
     public float getCutOnWavelength(int bandIndex) {
@@ -181,14 +174,17 @@ class ChrisFile {
             final int[] stride = new int[]{1, stepY, stepX};
             final int[] count = new int[]{1, height, width};
 
-            HDF4Lib.SDreaddata(rciImageSds.sdsId, start, stride, count, data);
+            Section section = new Section(start, count, stride);
+            Array array = rciImageSds.read(section);
+            final Object storage = array.getStorage();
+            System.arraycopy(storage, 0, data, 0, data.length);
             if (flipped) {
                 flipImage(data, width);
             }
-        } catch (HDFException e) {
+        } catch (InvalidRangeException e) {
             final IOException ioe = new IOException(
                     MessageFormat.format("Failed to read data from band #{0} of ''{1}''", bandIndex + 1,
-                                         rciImageSds.name));
+                                         rciImageSds.getName()));
             ioe.initCause(e);
             throw ioe;
         }
@@ -213,13 +209,16 @@ class ChrisFile {
             final int[] stride = new int[]{1, stepY, stepX};
             final int[] count = new int[]{1, height, width};
 
-            HDF4Lib.SDreaddata(maskSds.sdsId, start, stride, count, mask);
+            Section section = new Section(start, count, stride);
+            Array array = maskSds.read(section);
+            final Object storage = array.getStorage();
+            System.arraycopy(storage, 0, mask, 0, mask.length);
             if (flipped) {
                 flipImage(mask, width);
             }
-        } catch (HDFException e) {
+        } catch (InvalidRangeException e) {
             final IOException ioe = new IOException(
-                    "Failed to read data from band #" + (bandIndex + 1) + " of '" + maskSds.name + "'");
+                    "Failed to read data from band #" + (bandIndex + 1) + " of '" + maskSds.getName() + "'");
             ioe.initCause(e);
             throw ioe;
         }
@@ -274,159 +273,102 @@ class ChrisFile {
         }
     }
 
-    private static float[][] readModeInfo(int fileId) throws HDFException {
-        int refNo = HDF4Lib.VSfind(fileId, ChrisConstants.VS_NAME_MODE_INFO);
-        if (refNo == 0) {
-            return new float[0][];
-        }
-        int vdataId = HDF4Lib.VSattach(fileId, refNo, "r");
-        try {
-            int[] numRecordsBuffer = new int[1];
-            HDF4Lib.VSQuerycount(vdataId, numRecordsBuffer);
-            int numRecords = numRecordsBuffer[0];
-
-            float[][] modeInfo = new float[numRecords][7];
-            HDF4Lib.VSsetfields(vdataId, ChrisConstants.VS_NAME_MODE_FIELDS);
-            for (int i = 0; i < numRecords; i++) {
-                HDF4Lib.VSseek(vdataId, i);
-                HDF4Lib.VSread(vdataId, modeInfo[i]);
-            }
-
-            return modeInfo;
-        } finally {
-            HDFLibrary.VSdetach(vdataId);
-        }
-    }
-
-    private static Map<Integer, Float> readGainInfo(int fileId) throws HDFException {
-        final int refNo = HDF4Lib.VSfind(fileId, ChrisConstants.VS_NAME_GAIN_INFO);
-        if (refNo == 0) {
-            return new HashMap<Integer, Float>();
-        }
-
-        final int vdataId = HDF4Lib.VSattach(fileId, refNo, "r");
-        try {
-            final int[] recordCountBuffer = new int[1];
-            HDF4Lib.VSQuerycount(vdataId, recordCountBuffer);
-            final int recordCount = recordCountBuffer[0];
-
-            final Map<Integer, Float> gainInfoMap = new HashMap<Integer, Float>(recordCount);
-            final float[] record = new float[2];
-
-            HDF4Lib.VSsetfields(vdataId, ChrisConstants.VS_NAME_GAIN_FIELDS);
-            for (int i = 0; i < recordCount; i++) {
-                HDF4Lib.VSseek(vdataId, i);
-                HDF4Lib.VSread(vdataId, record);
-                gainInfoMap.put((int) record[0], record[1]);
-            }
-
-            return gainInfoMap;
-        } finally {
-            HDFLibrary.VSdetach(vdataId);
-        }
-    }
-
-    private static Map<String, String> readGlobalAttributes(int sdId) throws IOException {
-        try {
-            final int[] fileInfo = new int[16];
-            HDF4Lib.SDfileinfo(sdId, fileInfo);
-            Map<String, String> globalAttributes = new TreeMap<String, String>();
-            int numAttributes = fileInfo[1];
-            for (int i = 0; i < numAttributes; i++) {
-                try {
-                    collectAttribute(sdId, i, globalAttributes);
-                } catch (HDFException e) {
-                    // todo - collect warning here
+    private static float[][] readModeInfo(NetcdfFile ncFile) throws IOException {
+        Variable modeInfoVar = ncFile.findTopVariable(ChrisConstants.VS_NAME_MODE_INFO);
+        if (modeInfoVar instanceof Structure) {
+            Structure modeInfoStruct = (Structure) modeInfoVar;
+            int numRecords = modeInfoStruct.getDimension(0).getLength();
+            String[] fieldNames = ChrisConstants.VS_NAME_MODE_FIELDS;
+            Variable[] fieldVariables = new Variable[fieldNames.length];
+            for (int i = 0; i < fieldVariables.length; i++) {
+                fieldVariables[i] = modeInfoStruct.findVariable(fieldNames[i]);
+                if (fieldVariables[i] == null) {
+                    throw new IOException("Failed to read 'Mode Info' Structure.");
                 }
             }
+            float[][] modeInfo = new float[numRecords][fieldNames.length];
+            for (int i = 0; i < fieldNames.length; i++) {
+                Array array = fieldVariables[i].read();
+                for (int j = 0; j < numRecords; j++) {
+                    modeInfo[j][i] = array.getFloat(j);
+                }
+            }
+            return modeInfo;
+        }
+        throw new IOException("Failed to read 'Mode Info' Structure.");
+    }
+
+    private static Map<Integer, Float> readGainInfo(NetcdfFile ncFile) throws IOException {
+        Variable gainInfoVar = ncFile.findTopVariable(ChrisConstants.VS_NAME_GAIN_INFO);
+        if (gainInfoVar instanceof Structure) {
+            Structure gainInfoStruct = (Structure) gainInfoVar;
+            int recordCount = gainInfoStruct.getDimension(0).getLength();
+            Variable gainSetting = gainInfoStruct.findVariable(ChrisConstants.VS_NAME_GAIN_SETTING);
+            Variable gainValue = gainInfoStruct.findVariable(ChrisConstants.VS_NAME_GAIN_VALUE);
+            if (gainSetting != null && gainValue != null && recordCount > 0) {
+                final Map<Integer, Float> gainInfoMap = new HashMap<Integer, Float>(recordCount);
+                Array settingsArray = gainSetting.read();
+                Array valuesArray = gainValue.read();
+                for (int i = 0; i < recordCount; i++) {
+                    gainInfoMap.put(settingsArray.getInt(i), valuesArray.getFloat(i));
+                }
+                return gainInfoMap;
+            }
+        }
+        throw new IOException("Failed to read 'Gain Info' Structure.");
+    }
+
+    private static Map<String, String> readGlobalAttributes(NetcdfFile ncFile) {
+            List<Attribute> globalNcAttributes = ncFile.getGlobalAttributes();
+            Map<String, String> globalAttributes = new TreeMap<String, String>();
+            for (Attribute attribute : globalNcAttributes) {
+                globalAttributes.put(attribute.getName().trim(), attribute.getStringValue().trim());
+            }
             return globalAttributes;
-        } catch (HDFException e) {
-            final IOException ioe = new IOException("Failed to access HDF global attributes");
-            ioe.initCause(e);
-            throw ioe;
-        }
     }
 
-    private static void collectAttribute(int sdId, int index, Map<String, String> globalAttributes) throws
-                                                                                                    HDFException {
-        final String[] nameBuffer = new String[]{createEmptyString(256)};
-        final int[] attributeInfo = new int[16];
-        HDF4Lib.SDattrinfo(sdId, index, nameBuffer, attributeInfo);
-
-        final String name = nameBuffer[0];
-        int numberType = attributeInfo[0];
-        int arrayLength = attributeInfo[1];
-
-        if (numberType == HDFConstants.DFNT_CHAR || numberType == HDFConstants.DFNT_UCHAR8) {
-            byte[] data = new byte[arrayLength];
-            HDF4Lib.SDreadattr(sdId, index, data);
-            globalAttributes.put(name.trim(), new String(data).trim());
-        }
-    }
-
-    private static String createEmptyString(int n) {
-        char[] a = new char[n];
-        Arrays.fill(a, ' ');
-        return new String(a);
-    }
-
-    private static Sds openSds(int sdId, String sdsName, boolean require) throws IOException {
+    private static Variable getVariable(NetcdfFile ncFile, String sdsName, boolean require) throws IOException {
         try {
-            int sdsIdx = HDF4Lib.SDnametoindex(sdId, sdsName);
-            if (sdsIdx == HDFConstants.FAIL) {
+            Variable variable = ncFile.findTopVariable(sdsName);
+            if (variable == null) {
                 if (require) {
-                    throw new IOException(MessageFormat.format("Missing HDF dataset ''{0}''", sdsName));
+                    throw new IOException(MessageFormat.format("Missing dataset ''{0}''", sdsName));
                 } else {
                     return null;
                 }
             }
-
-            int sdsId = HDF4Lib.SDselect(sdId, sdsIdx);
-
-            String[] nameBuffer = new String[]{createEmptyString(256)};
-            int[] dimSizes = new int[16];
-            int[] sdsInfo = new int[16];
-            HDF4Lib.SDgetinfo(sdsId, nameBuffer, dimSizes, sdsInfo);
-
-            int numDims = sdsInfo[0];
-            int dataType = sdsInfo[1];
-            int[] dimSizesCopy = new int[numDims];
-            System.arraycopy(dimSizes, 0, dimSizesCopy, 0, numDims);
-
-            return new Sds(sdsName, sdsId, dataType, dimSizesCopy);
-        } catch (HDFException e) {
+            return variable;
+        } catch (IOException e) {
             final IOException ioe = new IOException(
-                    MessageFormat.format("Failed to access HDF dataset ''{0}''", sdsName));
+                    MessageFormat.format("Failed to access dataset ''{0}''", sdsName));
             ioe.initCause(e);
             throw ioe;
         }
     }
 
-    private static Sds openRciSds(int sdId) throws IOException {
-        final Sds sds = openSds(sdId, ChrisConstants.SDS_NAME_RCI_IMAGE, true);
+    private static Variable getRciSds(NetcdfFile ncFile) throws IOException {
+        final Variable sds = getVariable(ncFile, ChrisConstants.SDS_NAME_RCI_IMAGE, true);
 
-        if (sds.dimSizes.length != 3) {
+        if (sds.getDimensions().size() != 3) {
             throw new IOException("Wrong number of dimensions, expected 3");
         }
-        if (sds.dataType != HDFConstants.DFNT_INT32) {
+        if (sds.getDataType() != DataType.INT) {
             throw new IOException("Wrong data type, 32-bit integer expected");
         }
-
         return sds;
     }
 
-    private static Sds openMaskSds(int sdId) throws IOException {
-        final Sds sds = openSds(sdId, ChrisConstants.SDS_NAME_MASK, false);
+    private static Variable getMaskSds(NetcdfFile ncFile) throws IOException {
+        final Variable sds = getVariable(ncFile, ChrisConstants.SDS_NAME_MASK, false);
 
         if (sds != null) {
-            if (sds.dimSizes.length != 3) {
+            if (sds.getDimensions().size() != 3) {
                 throw new IOException("Wrong number of dimensions, expected 3");
             }
-            if (sds.dataType != HDFConstants.DFNT_INT16) {
+            if (sds.getDataType() != DataType.SHORT) {
                 throw new IOException("Wrong data type, 16-bit integer expected");
             }
         }
-
         return sds;
     }
 
@@ -466,7 +408,7 @@ class ChrisFile {
 
     private void determineSceneRasterHeight() {
         final int mphNumLines = getGlobalAttribute(ChrisConstants.ATTR_NAME_NUMBER_OF_GROUND_LINES, Integer.MAX_VALUE);
-        final int sdsNumLines = rciImageSds.dimSizes[1];
+        final int sdsNumLines = rciImageSds.getDimension(1).getLength();
 
         sceneRasterHeight = Math.min(mphNumLines, sdsNumLines);
 
@@ -479,7 +421,7 @@ class ChrisFile {
         if (!(scanLineLayoutMap == null || mode == null || scanLineLayoutMap.get(mode) == null)) {
             scanLineLayout = scanLineLayoutMap.get(mode);
         } else {
-            scanLineLayout = new ScanLineLayout(0, rciImageSds.dimSizes[2], 0);
+            scanLineLayout = new ScanLineLayout(0, rciImageSds.getDimension(2).getLength(), 0);
         }
 
         globalAttributes.put(ChrisConstants.ATTR_NAME_NUMBER_OF_SAMPLES,
@@ -514,22 +456,4 @@ class ChrisFile {
             }
         }
     }
-
-
-    private static class Sds {
-
-        final String name;
-        final int sdsId;
-        final int dataType;
-        final int[] dimSizes;
-
-        public Sds(String name, int sdsId, int dataType, int[] dimSizes) {
-            this.name = name;
-            this.sdsId = sdsId;
-            this.dataType = dataType;
-            this.dimSizes = dimSizes;
-        }
-
-    }
-
 }

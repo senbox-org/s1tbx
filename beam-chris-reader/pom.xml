@@ -14,7 +14,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-chris-reader</artifactId>
     <name>BEAM CHRIS/Proba Product Reader</name>
-    <version>1.5</version>
+    <version>1.6-SNAPSHOT</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>
@@ -23,8 +23,8 @@
             <artifactId>beam-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>ncsa.hdf</groupId>
-            <artifactId>lib-hdf</artifactId>
+            <groupId>ucar.netcdf</groupId>
+            <artifactId>lib-netcdf</artifactId>
         </dependency>
     </dependencies>
 

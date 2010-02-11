@@ -12,49 +12,27 @@
  */
 package org.esa.beam.dataio.chris;
 
-import ncsa.hdf.hdflib.HDFConstants;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.util.logging.BeamLogManager;
-import org.esa.beam.util.SystemUtils;
+
+import ucar.ma2.DataType;
+import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
 
 import java.io.File;
+import java.util.List;
 import java.util.Locale;
 
 public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
-
-    // This is here just to keep the property name
-    // private static final String HDF4_PROPERTY_KEY = "ncsa.hdf.hdflib.HDFLibrary.hdflib";
-
-    private static boolean hdfLibraryAvailable;
-
-    static {
-        hdfLibraryAvailable = SystemUtils.loadHdf4Lib(ChrisProductReaderPlugIn.class) != null;
-    }
-
-    /**
-     * Returns whether or not the HDF library is available.
-     *
-     * @return {@code true} if the HDF library is available, {@code false}
-     *         otherwise.
-     */
-    public static boolean isHDFLibraryAvailable() {
-        return hdfLibraryAvailable;
-    }
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      */
     public DecodeQualification getDecodeQualification(Object input) {
-        if (!isHDFLibraryAvailable()) {
-            return DecodeQualification.UNABLE;
-        }
-
         final File file;
-
         if (input instanceof String) {
             file = new File((String) input);
         } else if (input instanceof File) {
@@ -65,19 +43,27 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
 
         // @todo 2 rq/rq write test for this logic!
         if (file.isFile() && file.getPath().toLowerCase().endsWith(ChrisConstants.DEFAULT_FILE_EXTENSION)) {
-            int sdId = -1;
+            NetcdfFile ncFile = null;
             try {
-                sdId = HDF4Lib.SDstart(file.getPath(), HDFConstants.DFACC_RDONLY);
-
-                if (isSensorTypeAttributeCorrect(sdId)) {
+                ncFile = NetcdfFile.open(file.getAbsolutePath());
+                
+                System.out.println(ncFile.toString());
+                System.out.println();
+                if (isSensorTypeAttributeCorrect(ncFile)) {
+                    List<Attribute> globalNcAttributes = ncFile.getGlobalAttributes();
+                    for (Attribute attribute : globalNcAttributes) {
+                        System.out.println(attribute.getName() + " " + attribute.getDataType());
+                    }
+                    System.out.println();
                     return DecodeQualification.INTENDED;
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
+                e.printStackTrace();
                 // nothing to do, return value is already false
             } finally {
-                if (sdId != -1) {
+                if (ncFile != null) {
                     try {
-                        HDF4Lib.SDend(sdId);
+                        ncFile.close();
                     } catch (Exception ignore) {
                         // nothing to do, return value is already false
                     }
@@ -98,10 +84,6 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
      * @return an array containing valid input types, never <code>null</code>
      */
     public Class[] getInputTypes() {
-        if (!isHDFLibraryAvailable()) {
-            return new Class[0];
-        }
-
         return new Class[]{String.class, File.class};
     }
 
@@ -111,10 +93,6 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
      * @return a new reader instance, never <code>null</code>
      */
     public ProductReader createReaderInstance() {
-        if (!isHDFLibraryAvailable()) {
-            return null;
-        }
-
         return new ChrisProductReader(this);
     }
 
@@ -136,10 +114,6 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        if (!isHDFLibraryAvailable()) {
-            return new String[0];
-        }
-
         return new String[]{ChrisConstants.DEFAULT_FILE_EXTENSION};
     }
 
@@ -163,30 +137,13 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
     public String[] getFormatNames() {
-        if (!isHDFLibraryAvailable()) {
-            return new String[0];
-        }
-
         return new String[]{ChrisConstants.FORMAT_NAME};
     }
 
-
-    private static boolean isSensorTypeAttributeCorrect(int sdId) throws Exception {
-         final String[] nameBuffer = new String[]{""};
-         final int[] attributeInfo = new int[16];
-         HDF4Lib.SDattrinfo(sdId, 0, nameBuffer, attributeInfo);
-
-         final String name = nameBuffer[0];
-         final int numberType = attributeInfo[0];
-         final int arrayLength = attributeInfo[1];
-         final byte[] data = new byte[arrayLength];
-
-         if ("Sensor Type".equalsIgnoreCase(name) && numberType == HDFConstants.DFNT_CHAR) {
-             HDF4Lib.SDreadattr(sdId, 0, data);
-             return "CHRIS".equalsIgnoreCase(new String(data));
-         }
-
-         return false;
+    private static boolean isSensorTypeAttributeCorrect(NetcdfFile ncFile) throws Exception {
+        Attribute attribute = ncFile.findGlobalAttributeIgnoreCase("Sensor Type");
+        return (attribute != null && 
+                attribute.getDataType() == DataType.STRING &&
+                attribute.getStringValue().equalsIgnoreCase("CHRIS"));
      }
-
 }

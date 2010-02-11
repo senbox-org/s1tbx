@@ -58,8 +58,9 @@ public class ChrisConstants {
     static final String SDS_NAME_MASK = "Saturation/Reset Mask";
 
     static final String VS_NAME_GAIN_INFO = "Gain Information";
-    static final String VS_NAME_GAIN_FIELDS = "Gain Setting,Gain Value";
+    static final String VS_NAME_GAIN_SETTING = "Gain Setting";
+    static final String VS_NAME_GAIN_VALUE = "Gain Value";
     static final String VS_NAME_MODE_INFO = "Mode Information";
-    static final String VS_NAME_MODE_FIELDS = "WlLow,WlHigh,WlMid,BWidth,Gain,Low Row,High Row";
+    static final String[] VS_NAME_MODE_FIELDS = {"WlLow","WlHigh","WlMid","BWidth","Gain","Low Row","High Row"};
 
 }
