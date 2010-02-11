@@ -49,7 +49,7 @@
             <shortDescr>Invoke the NDVI Proessor Plugin.</shortDescr>
             <mnemonic>N</mnemonic>
             <parent>tools</parent>
-            <helpID>NDVIProcessorPlugIn</helpID>
+            <helpId>NDVIProcessorPlugIn</helpId>
             <placeAfter>smileScientificToolPlugIn</placeAfter>
         </action>
     </extension>

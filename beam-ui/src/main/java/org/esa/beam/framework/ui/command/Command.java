@@ -364,7 +364,7 @@ public abstract class Command implements ConfigurableExtension {
             setProperty(ACTION_KEY_CONTEXT, resStrings);
         }
 
-        resString = getResourceString(resourceBundle, "helpID");
+        resString = getResourceString(resourceBundle, "helpId");
         if (resString != null) {
             setProperty(HELP_ID_KEY, resString);
         }

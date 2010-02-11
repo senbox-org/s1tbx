@@ -53,7 +53,7 @@
             <shortDescr>Invoke the MERIS Smile Correction Processor.</shortDescr>
             <mnemonic>M</mnemonic>
             <parent>tools</parent>
-            <helpID>smileScientificToolPlugIn</helpID>
+            <helpId>smileScientificToolPlugIn</helpId>
             <placeAfter>radtoreflScientificTool</placeAfter>
         </action>
     </extension>

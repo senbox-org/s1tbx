@@ -61,7 +61,7 @@
             <shortDescr>Invoke the Mosaic Processor.</shortDescr>
             <mnemonic>c</mnemonic>
             <parent>tools</parent>
-            <helpID>mosaicScientificTool</helpID>
+            <helpId>mosaicScientificTool</helpId>
             <placeAfter>flhMciScientificTool</placeAfter>
         </action>
     </extension>

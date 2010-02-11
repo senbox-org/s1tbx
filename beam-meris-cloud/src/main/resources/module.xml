@@ -50,7 +50,7 @@
             <shortDescr>Invoke the BEAM MERIS Cloud Probability Processor.</shortDescr>
             <mnemonic>C</mnemonic>
             <parent>tools</parent>
-            <helpID>cloudScientificTool</helpID>
+            <helpId>cloudScientificTool</helpId>
             <placeAfter>flhMciScientificTool</placeAfter>
         </action>
     </extension>

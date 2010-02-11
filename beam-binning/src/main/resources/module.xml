@@ -59,7 +59,7 @@
             <shortDescr>Invoke the Level-3 Processor.</shortDescr>
             <mnemonic>B</mnemonic>
             <parent>Binning</parent>
-            <helpID>binningScientificTool</helpID>
+            <helpId>binningScientificTool</helpId>
         </action>
         <action>
             <id>binningInitializeTool</id>
@@ -69,7 +69,7 @@
             <shortDescr>Invoke the BEAM L3 Initialize Processor.</shortDescr>
             <mnemonic>I</mnemonic>
             <parent>Binning</parent>
-            <helpID>binningInitializeTool</helpID>
+            <helpId>binningInitializeTool</helpId>
             <placeAfter>binningScientificTool</placeAfter>
         </action>
         <action>
@@ -80,7 +80,7 @@
             <shortDescr>Invoke the BEAM L3 Initialize Processor.</shortDescr>
             <mnemonic>U</mnemonic>
             <parent>Binning</parent>
-            <helpID>binningUpdateTool</helpID>
+            <helpId>binningUpdateTool</helpId>
             <placeAfter>binningInitializeTool</placeAfter>
         </action>
         <action>
@@ -91,7 +91,7 @@
             <shortDescr>Invoke the BEAM L3 Final Processor.</shortDescr>
             <mnemonic>F</mnemonic>
             <parent>Binning</parent>
-            <helpID>binningFinalTool</helpID>
+            <helpId>binningFinalTool</helpId>
             <placeAfter>binningUpdateTool</placeAfter>
         </action>
     </extension>

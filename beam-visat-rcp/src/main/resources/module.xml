@@ -494,7 +494,7 @@
             <accelerator>shift control O</accelerator>
             <shortDescr>Open a BEAM session.</shortDescr>
             <longDescr>Open a BEAM session.</longDescr>
-            <helpID>openSession</helpID>
+            <helpId>openSession</helpId>
         </action>
 
         <action>
@@ -508,7 +508,7 @@
             <longDescr>Re-open a data product.</longDescr>
             <smallIcon>icons/History16.gif</smallIcon>
             <largeIcon>icons/History24.gif</largeIcon>
-            <helpID>reopen</helpID>
+            <helpId>reopen</helpId>
         </action>
 
         <action>
@@ -522,7 +522,7 @@
             <longDescr>Opens the product grabber dialog to preview and open products.</longDescr>
             <smallIcon>icons/RsProduct16.gif</smallIcon>
             <largeIcon>icons/RsProduct24.gif</largeIcon>
-            <helpID>productGrabber</helpID>
+            <helpId>productGrabber</helpId>
         </action>
 
         <action>
@@ -549,7 +549,7 @@
             <accelerator>shift control W</accelerator>
             <shortDescr>Close the current BEAM session.</shortDescr>
             <longDescr>Close the current BEAM session.</longDescr>
-            <helpID>closeSession</helpID>
+            <helpId>closeSession</helpId>
         </action>
 
         <action>
@@ -592,7 +592,7 @@
             <accelerator>shift control S</accelerator>
             <shortDescr>Save the current BEAM session.</shortDescr>
             <longDescr>Save the current BEAM session.</longDescr>
-            <helpID>saveSession</helpID>
+            <helpId>saveSession</helpId>
         </action>
 
         <action>
@@ -604,7 +604,7 @@
             <separatorAfter>true</separatorAfter>
             <shortDescr>Save the current BEAM session using a different name.</shortDescr>
             <longDescr>Save the current BEAM session using a different name.</longDescr>
-            <helpID>saveSessionAs</helpID>
+            <helpId>saveSessionAs</helpId>
         </action>
 
         <action>

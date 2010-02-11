@@ -55,7 +55,7 @@
             <shortDescr>Invoke the MERIS/(A)ATSR SMAC Processor.</shortDescr>
             <mnemonic>M</mnemonic>
             <parent>tools</parent>
-            <helpID>smacScientificTool</helpID>
+            <helpId>smacScientificTool</helpId>
             <placeAfter>NDVIProcessorPlugIn</placeAfter>
         </action>
     </extension>

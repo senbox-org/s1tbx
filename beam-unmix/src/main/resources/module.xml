@@ -38,7 +38,7 @@
         <action>
             <class>org.esa.beam.unmixing.visat.SpectralUnmixingAction</class>
             <id>spectralUnmixing</id>
-            <helpID>spectralUnmixing</helpID>
+            <helpId>spectralUnmixing</helpId>
             <parent>imageAnalysis</parent>
             <text>Spectral Unmixing...</text>
             <mnemonic>U</mnemonic>

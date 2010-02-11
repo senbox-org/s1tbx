@@ -50,7 +50,7 @@
             <shortDescr>Invoke the FLH/MCI processor.</shortDescr>
             <mnemonic>F</mnemonic>
             <parent>tools</parent>
-            <helpID>flhMciScientificTool</helpID>
+            <helpId>flhMciScientificTool</helpId>
             <placeAfter>imageAnalysis</placeAfter>
         </action>
     </extension>

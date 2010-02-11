@@ -38,7 +38,7 @@
     <extension point="beam-ui:actions">
         <action>
             <id>collocation</id>
-            <helpID>collocation</helpID>
+            <helpId>collocation</helpId>
             <class>org.esa.beam.collocation.visat.CollocationAction</class>
             <parent>tools</parent>
             <text>Collocation...</text>
