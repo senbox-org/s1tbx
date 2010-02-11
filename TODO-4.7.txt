@@ -219,3 +219,7 @@ h3. Ceres Layer API Changes
 
 h3. Ceres Core API Changes
 * Renamed class ServiceRegistryFactory to ServiceRegistryManager
+
+h2. Operator changes
+
+* Renamed source product alias in WriteOp from "input" to "source" for consistency.

@@ -99,7 +99,7 @@ public class WriteOpTest extends TestCase {
                 + "  <node id=\"node2\">\n"
                 + "    <operator>Write</operator>\n"
                 + "    <sources>\n"
-                + "      <input refid=\"node1\"/>\n"
+                + "      <source refid=\"node1\"/>\n"
                 + "    </sources>\n"
                 + "    <parameters>\n"
                 + "       <file>" + outputFile.getAbsolutePath() + "</file>\n"

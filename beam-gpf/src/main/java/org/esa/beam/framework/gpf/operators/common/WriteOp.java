@@ -37,7 +37,7 @@ public class WriteOp extends Operator {
 
     @TargetProduct
     private Product targetProduct;
-    @SourceProduct(alias = "input")
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
 
     @Parameter(description = "The output file to which the data product is written.")
