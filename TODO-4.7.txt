@@ -3,7 +3,7 @@ Reprojection:
 
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
   Remove usage, deprecate and/or remove classes. Prefer deprecation.
-  ==> FINAL, MZ, OPEN
+  ==> FINAL, MZ, ONGOING
 
   
 Masks:
@@ -39,6 +39,9 @@ VectorDataNode:
 
 Figures:
 ========
+* Layer style editor doesn't work anymore. Support only our style. Not SLD.
+  ==> FINAL, MP, Ongoing
+
 * Still can't rotate figures.
   ==> FINAL (v4.8), NF, OPEN
 * Number of created vertex handles should be dependent on current viewport
@@ -47,8 +50,6 @@ Figures:
   ==> FINAL, NF, OPEN
 * Still cannot draw true circles/squares and also adjust lines and points on grid.
   ==> FINAL (v4.8), ?, OPEN
-* Layer style editor doesn't work anymore. Support only our style. Not SLD.
-  ==> FINAL, MP, Ongoing
 * New edit menu:
   - Test Cut/Copy/Paste!
   - What about Undo/Redo?!? (should work!)
@@ -75,6 +76,12 @@ Layers:
 
 GPF Processors:
 ===============
+* Clean up GPF packages:
+  - split into beam-gpf and beam-gpf-meris
+  - move N1Patcher to ICOL
+  - move common MERIS stuff from ICOL & Co. into beam-gpf-meris
+  ==> FINAL, ?, OPEN
+
 * Need file and help menu items as in "old" processors
   ==> FINAL (v4.8), ?, OPEN
 * Need minimal developer guide  
@@ -85,12 +92,6 @@ GPF Processors:
   - Don't dispose source MultiLevelImage, if the RasterDataNode is not the
     owner, e.g. flag RasterDataNode.isSourceImageOwner()
   ==> FINAL (v4.8), ?, OPEN
-
-* Clean up GPF packages:
-  - split into beam-gpf and beam-gpf-meris
-  - move N1Patcher to ICOL
-  - move common MERIS stuff from ICOL & Co. into beam-gpf-meris
-  ==> FINAL, ?, OPEN
 
 * Verify that Operator that terminate by throwing an exception and handled correctly. For all cases:
   [tile, tileStack] [gtp, graph, Visat]. Original problem reported by Luis Veci.
@@ -143,18 +144,19 @@ Other BEAM/VISAT/API Stuff:
   after reprojecting L2 chlor_a, the missing pixels in the resulting map
   are not detected as missing)  (reported by Sean Bailey)
   ==> FINAL, ?, OPEN
-* Auto-insert BlueMarble (if WSG-84 lat/lon) and Country shapes
-  ==> FINAL, *, OPEN
-* Avoid adding too much node listeners to a product:
-  - abstract ProductNode.handleRename(node, oldName, newName)
-  - abstract ProductNode.handleNodeDataChanged(node, oldName, newName)
-  ==> FINAL, *, OPEN
-
+  
 * ProductIO: update Tutorial
 ** ProductIO.readProduct(..., PruductSubsetDef def) remove SubsetDef
 ** Product.setWriter(Writer)
 ** Product.writeHeader()
   ==> FINAL (after public release), MZ, OPEN  
+
+* Auto-insert BlueMarble (if WSG-84 lat/lon) and Country shapes
+  ==> FINAL (really?), *, OPEN
+* Avoid adding too much node listeners to a product:
+  - abstract ProductNode.handleRename(node, oldName, newName)
+  - abstract ProductNode.handleNodeDataChanged(node, oldName, newName)
+  ==> FINAL (really?), *, OPEN
   
 * Move PropertyPane and dependency to TableLayout into Ceres
   ==> FINAL, MZ, CLOSED
