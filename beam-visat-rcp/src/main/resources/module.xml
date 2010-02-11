@@ -175,11 +175,7 @@
         <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.GraticuleLayerEditor</editor>
             <layerType>org.esa.beam.glayer.GraticuleLayerType</layerType>
-        </layerEditor>
-        <layerEditor>
-            <editor>org.esa.beam.framework.ui.product.VectorDataLayerEditor</editor>
-            <layerType>org.esa.beam.framework.ui.product.VectorDataLayer</layerType>
-        </layerEditor>
+        </layerEditor>       
     </extension>
 
     <extension point="beam-ui:layerSources">
