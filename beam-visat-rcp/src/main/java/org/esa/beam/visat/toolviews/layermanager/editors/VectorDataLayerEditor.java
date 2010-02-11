@@ -2,7 +2,6 @@ package org.esa.beam.visat.toolviews.layermanager.editors;
 
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
-import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.figure.AbstractShapeFigure;
@@ -36,11 +35,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
 
-    private static final String FILL_COLOR_NAME = FigureStyle.FILL_COLOR.getName();
-    private static final String FILL_OPACITY_NAME = FigureStyle.FILL_OPACITY.getName();
-    private static final String STROKE_COLOR_NAME = FigureStyle.STROKE_COLOR.getName();
-    private static final String STROKE_WIDTH_NAME = FigureStyle.STROKE_WIDTH.getName();
-    private static final String STROKE_OPACITY_NAME = FigureStyle.STROKE_OPACITY.getName();
+    private static final String FILL_COLOR_NAME = DefaultFigureStyle.FILL_COLOR.getName();
+    private static final String FILL_OPACITY_NAME = DefaultFigureStyle.FILL_OPACITY.getName();
+    private static final String STROKE_COLOR_NAME = DefaultFigureStyle.STROKE_COLOR.getName();
+    private static final String STROKE_WIDTH_NAME = DefaultFigureStyle.STROKE_WIDTH.getName();
+    private static final String STROKE_OPACITY_NAME = DefaultFigureStyle.STROKE_OPACITY.getName();
 
     private final SelectionChangeHandler selectionChangeHandler;
 
@@ -80,19 +79,17 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
     @Override
     protected void initializeBinding(AppContext appContext, BindingContext bindingContext) {
         final AbstractShapeFigure[] shapeFigures = getFigures();
-        final PropertyDescriptor fillColor = new PropertyDescriptor(FigureStyle.FILL_COLOR.getDescriptor());
+        final PropertyDescriptor fillColor = new PropertyDescriptor(DefaultFigureStyle.FILL_COLOR);
         fillColor.setDefaultValue(getStyleProperty(FILL_COLOR_NAME, shapeFigures));
-        final PropertyDescriptor fillOpacity = new PropertyDescriptor(FigureStyle.FILL_OPACITY.getDescriptor());
-        fillOpacity.setValueRange(new ValueRange(0.0, 1.0));
+        final PropertyDescriptor fillOpacity = new PropertyDescriptor(DefaultFigureStyle.FILL_OPACITY);
         fillOpacity.setDefaultValue(getStyleProperty(FILL_OPACITY_NAME, shapeFigures));
 
-        final PropertyDescriptor strokeColor = new PropertyDescriptor(FigureStyle.STROKE_COLOR.getDescriptor());
+        final PropertyDescriptor strokeColor = new PropertyDescriptor(DefaultFigureStyle.STROKE_COLOR);
         strokeColor.setDefaultValue(getStyleProperty(STROKE_COLOR_NAME, shapeFigures));
-        final PropertyDescriptor strokeWidth = new PropertyDescriptor(FigureStyle.STROKE_WIDTH.getDescriptor());
+        final PropertyDescriptor strokeWidth = new PropertyDescriptor(DefaultFigureStyle.STROKE_WIDTH);
         strokeWidth.setDefaultValue(getStyleProperty(STROKE_WIDTH_NAME, shapeFigures));
-        final PropertyDescriptor strokeOpacity = new PropertyDescriptor(FigureStyle.STROKE_OPACITY.getDescriptor());
+        final PropertyDescriptor strokeOpacity = new PropertyDescriptor(DefaultFigureStyle.STROKE_OPACITY);
         strokeOpacity.setDefaultValue(getStyleProperty(STROKE_OPACITY_NAME, shapeFigures));
-        strokeOpacity.setValueRange(new ValueRange(0.0, 1.0));
 
         addPropertyDescriptor(fillColor);
         addPropertyDescriptor(fillOpacity);
