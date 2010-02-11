@@ -73,7 +73,7 @@ public class PropertyEditorRegistry {
     /**
      * Finds a matching {@link PropertyEditor} for the given {@link com.bc.ceres.binding.PropertyDescriptor}.
      * <p/>
-     * At first , if set, the property {@code "valueEditor"} of the value descriptor
+     * At first , if set, the property {@code "propertyEditor"} of the property descriptor
      * is used. Afterwards all registered {@link PropertyEditor}s are tested,
      * whether the can provide an editor. As a fallback a {@link TextFieldEditor} is returned.
      *
