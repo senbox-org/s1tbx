@@ -136,41 +136,42 @@ public class ProductIO {
      * @see #readProduct(String)
      * @see #readProduct(File)
      * @since 4.0
+     * @deprecated since BEAM 4.7, use {@link #readProduct(File, String[])} instead. (Because most readers don't support reading of subsets)
      */
+    @Deprecated
     public static Product readProduct(File file, ProductSubsetDef subsetDef, String[] formatNames) throws IOException {
-        Guardian.assertNotNull("file", file);
-
-        if (!file.exists()) {
-            throw new FileNotFoundException("File not found: " + file.getPath());
-        }
-
-        final ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
-
-        for (String formatName : formatNames) {
-            final Iterator<ProductReaderPlugIn> it = registry.getReaderPlugIns(formatName);
-
-            ProductReaderPlugIn selectedPlugIn = null;
-            while (it.hasNext()) {
-                ProductReaderPlugIn plugIn = it.next();
-                DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
-                if (decodeQualification == DecodeQualification.INTENDED) {
-                    selectedPlugIn = plugIn;
-                    break;
-                } else if (decodeQualification == DecodeQualification.SUITABLE) {
-                    selectedPlugIn = plugIn;
-                }
-            }
-            if (selectedPlugIn != null) {
-                ProductReader productReader = selectedPlugIn.createReaderInstance();
-                if (productReader != null) {
-                    return productReader.readProductNodes(file, subsetDef);
-                }
-            }
-        }
-
-        return readProductImpl(file, subsetDef);
+        return readProductImpl(file, subsetDef, formatNames);
     }
 
+    /**
+     * Reads the data product specified by the given file.
+     * <p>The returned product will be associated with a reader capable of decoding the file (also
+     * see {@link org.esa.beam.framework.datamodel.Product#getProductReader() Product.productReader}).
+     * If more than one appropriate reader exists in the registry, the returned product will be
+     * associated with the reader which is the most preferred according to the product format names
+     * supplied as last argument. If no reader capable of decoding the file is capable of handling
+     * any of these product formats, the returned product will be associated with the first reader
+     * found in the registry which is capable of decoding the file.</p>
+     * <p/>
+     * <p>The method does not automatically load band raster data, so
+     * {@link org.esa.beam.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
+     * for all bands in the product returned by this method.</p>
+     *
+     * @param file        the data product file
+     * @param formatNames a list of product format names defining the preference, if more than one reader
+     *                    found in the registry is capable of decoding the file.
+     *
+     * @return a data model as an in-memory representation of the given product file or <code>null</code>,
+     *         if no appropriate reader was found for the given product file
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #readProduct(String)
+     * @see #readProduct(File)
+     * @since 4.7
+     */
+    public static Product readProduct(File file, String[] formatNames) throws IOException {
+        return readProductImpl(file, null, formatNames);
+    }
     /**
      * Reads the data product specified by the given file path.
      * <p>The product returned will be associated with the reader appropriate for the given
@@ -316,7 +317,42 @@ public class ProductIO {
         }
         return null;        
     }
-    
+
+    private static Product readProductImpl(File file, ProductSubsetDef subsetDef, String[] formatNames) throws
+                                                                                                        IOException {
+        Guardian.assertNotNull("file", file);
+
+        if (!file.exists()) {
+            throw new FileNotFoundException("File not found: " + file.getPath());
+        }
+
+        final ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
+
+        for (String formatName : formatNames) {
+            final Iterator<ProductReaderPlugIn> it = registry.getReaderPlugIns(formatName);
+
+            ProductReaderPlugIn selectedPlugIn = null;
+            while (it.hasNext()) {
+                ProductReaderPlugIn plugIn = it.next();
+                DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
+                if (decodeQualification == DecodeQualification.INTENDED) {
+                    selectedPlugIn = plugIn;
+                    break;
+                } else if (decodeQualification == DecodeQualification.SUITABLE) {
+                    selectedPlugIn = plugIn;
+                }
+            }
+            if (selectedPlugIn != null) {
+                ProductReader productReader = selectedPlugIn.createReaderInstance();
+                if (productReader != null) {
+                    return productReader.readProductNodes(file, subsetDef);
+                }
+            }
+        }
+
+        return readProductImpl(file, subsetDef);
+    }
+
     /**
      * Returns a product reader instance for the given file if any registered product reader can decode the given file.
      *
