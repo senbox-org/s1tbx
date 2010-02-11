@@ -39,9 +39,6 @@ VectorDataNode:
 
 Figures:
 ========
-* Layer style editor doesn't work anymore. Support only our style. Not SLD.
-  ==> FINAL, MP, Ongoing
-
 * Still can't rotate figures.
   ==> FINAL (v4.8), NF, OPEN
 * Number of created vertex handles should be dependent on current viewport
@@ -57,6 +54,9 @@ Figures:
   ==> FINAL (v4.8), ?, OPEN
 * Allow for geometric operations on geometries: add/sub/intersection (JTS!)
   ==> FINAL (v4.8), ?, OPEN
+
+* Layer style editor doesn't work anymore. Support only our style. Not SLD.
+  ==> FINAL, MP, CLOSED
 
 Product tree:
 =============

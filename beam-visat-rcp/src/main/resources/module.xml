@@ -157,6 +157,10 @@
 
     <extension point="beam-ui:layerEditors">
         <layerEditor>
+            <editor>org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditor</editor>
+            <layerType>org.esa.beam.framework.ui.product.VectorDataLayerType</layerType>
+        </layerEditor>
+        <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.ImageLayerEditor</editor>
             <layerType>com.bc.ceres.glayer.support.ImageLayer$Type</layerType>
         </layerEditor>
