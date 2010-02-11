@@ -28,7 +28,10 @@ import java.awt.geom.AffineTransform;
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  * @version $Revision$ $Date$
+ * 
+ * @deprecated since BEAM 4.7, use geotools and {@link org.esa.beam.framework.datamodel.CrsGeoCoding} instead.
  */
+@Deprecated
 public class MapInfo implements Cloneable {
 
     public static final double DEFAULT_NO_DATA_VALUE = 9999;

@@ -15,7 +15,10 @@ import java.awt.geom.Point2D;
  * @author Ralf Quast
  * @version 1.0
  * @link http://remotesensing.org/proj/
+ * 
+ * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.Stereographic.Provider} instead.
  */
+@Deprecated
 public class StereographicDescriptor implements MapTransformDescriptor {
 
     public static final String TYPE_ID = "Stereographic";
@@ -221,7 +224,10 @@ public class StereographicDescriptor implements MapTransformDescriptor {
      * @author Ralf Quast
      * @version 1.0
      * @link http://remotesensing.org/proj/
+     * 
+     * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.MapProjection} instead.
      */
+    @Deprecated
     public class ST extends CartographicMapTransform {
 
         // Numerical constants used by map transformations

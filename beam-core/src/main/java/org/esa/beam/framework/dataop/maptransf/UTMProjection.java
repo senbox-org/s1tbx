@@ -8,7 +8,10 @@ package org.esa.beam.framework.dataop.maptransf;
 
 /**
  * This class represents the UTM map projection.
+ * 
+ * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.TransverseMercator} instead.
  */
+@Deprecated
 public class UTMProjection extends MapProjection {
 
     private final int _zoneIndex;

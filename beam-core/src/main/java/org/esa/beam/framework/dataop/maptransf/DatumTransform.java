@@ -7,7 +7,10 @@ import org.esa.beam.framework.datamodel.GeoPos;
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
+ * 
+ * @deprecated since BEAM 4.7, no replacement.
  */
+@Deprecated
 public class DatumTransform {
 
     /**

@@ -20,7 +20,10 @@ package org.esa.beam.framework.dataop.maptransf;
 /**
  * Represents a geodetic datum. Geodetic datums define the size and shape of the earth and the origin and orientation of
  * the coordinate systems used to map the earth.
+ * 
+ * @deprecated since BEAM 4.7, use {@link org.opengis.referencing.datum.GeodeticDatum} instead.
  */
+@Deprecated
 public class Datum implements Cloneable {
 
     /**

@@ -8,7 +8,10 @@ package org.esa.beam.framework.dataop.maptransf;
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
+ *
+ * @deprecated since BEAM 4.7, no replacement.
  */
+@Deprecated
 public class ISEAG {
 
     /**

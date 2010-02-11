@@ -27,7 +27,10 @@ import java.util.Set;
 
 /**
  * A registry for map projection instances.
+ * 
+ * @deprecated since BEAM 4.7, use geotools and {@link org.esa.beam.framework.datamodel.CrsGeoCoding} instead.
  */
+@Deprecated
 public class MapProjectionRegistry {
 
     private static final ServiceRegistry<MapTransformDescriptor> descriptors;

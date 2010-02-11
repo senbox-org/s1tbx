@@ -21,6 +21,10 @@ import org.esa.beam.framework.param.Parameter;
 
 import java.awt.geom.Point2D;
 
+/*** 
+ * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.AlbersEqualArea.Provider} instead.
+ */
+@Deprecated
 public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
 
     /**
@@ -212,7 +216,10 @@ public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
         return new AEAC(parameterValues);
     }
 
-
+    /** 
+     * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.MapProjection} instead.
+     */
+    @Deprecated
     public class AEAC extends CartographicMapTransform {
 
         private static final double eps10 = 1e-10;

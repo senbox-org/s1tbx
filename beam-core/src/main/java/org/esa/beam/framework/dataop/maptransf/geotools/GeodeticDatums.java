@@ -9,6 +9,10 @@ import org.opengis.referencing.datum.GeodeticDatum;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @deprecated since BEAM 4.7, no replacement.
+ */
+@Deprecated
 public class GeodeticDatums {
 
     // EPSG::6655

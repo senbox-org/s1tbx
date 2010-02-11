@@ -22,7 +22,10 @@ import java.awt.geom.Point2D;
 
 /**
  * Provides a parameterized, mathematical algorithm for a map transformation.
+ * 
+ * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.MapProjection} instead.
  */
+@Deprecated
 public interface MapTransform {
 
     /**

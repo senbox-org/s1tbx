@@ -27,7 +27,10 @@ import org.esa.beam.util.Guardian;
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
+ * 
+ * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.MathTransformProvider} instead.
  */
+@Deprecated
 public class IntegerizedSinusoidalDescriptor implements MapTransformDescriptor {
 
     public static final String TYPE_ID = "ISEAG";

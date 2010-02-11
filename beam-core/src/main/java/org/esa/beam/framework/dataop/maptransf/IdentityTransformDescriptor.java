@@ -26,7 +26,10 @@ import org.esa.beam.framework.param.Parameter;
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
+ * 
+ * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.PlateCarree.Provider} instead.
  */
+@Deprecated
 public class IdentityTransformDescriptor implements MapTransformDescriptor {
 
     public static final String TYPE_ID = "Identity";

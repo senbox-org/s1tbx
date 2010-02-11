@@ -5,6 +5,10 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.datum.DatumAuthorityFactory;
 import org.opengis.referencing.datum.Ellipsoid;
 
+/**
+ * @deprecated since BEAM 4.7, no replacement.
+ */
+@Deprecated
 public class Ellipsoids {
 
     // EPSG::7004

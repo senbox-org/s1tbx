@@ -21,8 +21,11 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import java.awt.geom.Point2D;
 
 /**
- * An abstract base class for cartograohic map-transformations.
+ * An abstract base class for cartographic map-transformations.
+ * 
+ * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.MapProjection} instead.
  */
+@Deprecated
 public abstract class CartographicMapTransform implements MapTransform {
 
     /**

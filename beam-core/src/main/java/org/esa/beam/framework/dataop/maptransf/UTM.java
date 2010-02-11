@@ -10,7 +10,10 @@ import org.esa.beam.framework.datamodel.GeoPos;
 
 /**
  * The <code>UTM</code> class provides useful, static methods for dealing with the UTM map-projection.
+ * 
+ * @deprecated since BEAM 4.7, use geotools instead.
  */
+@Deprecated
 public class UTM {
 
     /**

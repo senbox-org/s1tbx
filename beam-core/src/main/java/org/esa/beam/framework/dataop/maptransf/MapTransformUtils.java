@@ -20,7 +20,11 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.math.MathUtils;
 
 //@todo 1 se/** - add (more) class documentation
-
+/**
+ * 
+ * @deprecated since BEAM 4.7, use geotools instead.
+ */
+@Deprecated
 public class MapTransformUtils {
 
     private static double _c00 = 1.0;

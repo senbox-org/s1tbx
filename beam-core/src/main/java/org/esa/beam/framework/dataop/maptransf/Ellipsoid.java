@@ -18,7 +18,10 @@ package org.esa.beam.framework.dataop.maptransf;
 
 /**
  * Represents an ellipsoid used to approximate the earth's surface.
+ * 
+ * @deprecated since BEAM 4.7, use {@link org.opengis.referencing.datum.Ellipsoid} instead.
  */
+@Deprecated
 public class Ellipsoid {
 
     /**

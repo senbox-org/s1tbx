@@ -28,7 +28,10 @@ import java.awt.geom.Point2D;
  *
  * @author Tom Block
  * @version $Revision$ $Date$
+ * 
+ * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.TransverseMercator.Provider} instead.
  */
+@Deprecated
 public class TransverseMercatorDescriptor implements MapTransformDescriptor {
 
     public static final String TYPE_ID = "Transverse_Mercator";
@@ -192,7 +195,10 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
 
     /**
      * Implements the transverse mercator map-transformation.
+     * 
+     * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.MapProjection} instead.
      */
+    @Deprecated
     public class TMT extends CartographicMapTransform {
 
         private static final double _epsilon = 1.0e-10;

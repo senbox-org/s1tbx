@@ -15,6 +15,10 @@ import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 
+/**
+ * @deprecated since BEAM 4.7, replaced by GPF operator 'Reproject'
+ */
+@Deprecated
 public class DefaultMapTransformUI implements MapTransformUI {
 
     private MapTransform _transform;

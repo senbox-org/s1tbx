@@ -17,6 +17,10 @@ import org.opengis.referencing.operation.MathTransformFactory;
 
 import java.awt.geom.AffineTransform;
 
+/**
+ * @deprecated since BEAM 4.7, use {@link org.esa.beam.framework.datamodel.CrsGeoCoding} instead.
+ */
+@Deprecated
 public class CoordinateReferenceSystems {
 
     private static final GeographicCRS ITRF97 = new DefaultGeographicCRS(GeodeticDatums.ITRF97,

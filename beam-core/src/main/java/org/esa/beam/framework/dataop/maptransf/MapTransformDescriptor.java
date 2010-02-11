@@ -20,7 +20,10 @@ import org.esa.beam.framework.param.Parameter;
 
 /**
  * A descriptor for map transformation types.
+ * 
+ * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.MathTransformProvider} instead.
  */
+@Deprecated
 public interface MapTransformDescriptor {
 
     /**

@@ -41,7 +41,10 @@ import org.esa.beam.framework.param.Parameter;
  * provides this implementation of the map-transformation algorithm.
  *
  * @see #createTransform(double[])
+ * 
+ * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.MathTransformProvider} instead.
  */
+@Deprecated
 public class ExampleProjectionPlugIn implements MapTransformDescriptor {
 
     /**

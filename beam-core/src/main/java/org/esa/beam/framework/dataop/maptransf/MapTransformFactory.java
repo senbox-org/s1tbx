@@ -20,7 +20,10 @@ import org.esa.beam.util.Guardian;
 
 /**
  * A factory for map transformation instances.
+ * 
+ * @deprecated since BEAM 4.7, use geotools instead.
  */
+@Deprecated
 public class MapTransformFactory {
 
     /**

@@ -24,7 +24,10 @@ import org.esa.beam.util.ObjectUtils;
 /**
  * A map projection is a mathematical model for the transformation of locations from a three-dimensional earth surface
  * to a two-dimensional map representation.
+ * 
+ * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.MapProjection} instead.
  */
+@Deprecated
 public class MapProjection implements Cloneable {
 
     private String _name;
