@@ -342,7 +342,7 @@ class MosaicExpressionsPanel extends JPanel {
                         existingBands.add(product.getBand(name.trim()));
                     }
                     final BandChooser bandChooser = new BandChooser(appContext.getApplicationWindow(), "Band Chooser",
-                                                                    "",
+                                                                    null,
                                                                     allBands, /*I18N*/
                                                                     existingBands.toArray(
                                                                             new Band[existingBands.size()]));
