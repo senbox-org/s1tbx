@@ -47,7 +47,7 @@ public class PasteAction extends AbstractSelectionAction implements FlavorListen
 
     @Override
     public void flavorsChanged(FlavorEvent e) {
-        System.out.println(getClass().getSimpleName() + ".flavorsChanged: e = " + e);
+        //System.out.println(getClass().getSimpleName() + ".flavorsChanged: e = " + e);
         updateState();
     }
 
