@@ -75,10 +75,14 @@ public abstract class Operator {
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link Product} annotated with the
      * {@link org.esa.beam.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
-     * by calling {@link #setTargetProduct} method.</p>
+     * by calling {@link #setTargetProduct} method.
+     * </p>
      * <p>The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of tile data
-     * should be placed here.</p>
+     * should be placed here.
+     * </p>
+     * <p>This method shall never be called directly.
+     * </p>
      *
      * @throws OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
@@ -88,6 +92,8 @@ public abstract class Operator {
     /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
+     * <p>This method shall never be called directly.
+     * </p>
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
@@ -101,6 +107,8 @@ public abstract class Operator {
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
+     * <p>This method shall never be called directly.
+     * </p>
      *
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
@@ -133,7 +141,7 @@ public abstract class Operator {
     }
 
     /**
-     * @return The operator's identifier as determined by the framework.
+     * @return The operator's runtime identifier assigned by the framework.
      */
     public final String getId() {
         return context.getId();
@@ -273,8 +281,10 @@ public abstract class Operator {
 
     /**
      * Gets the value for the parameter with the given name.
+     *
      * @param name The parameter name.
      * @return The parameter value, which may be {@code null}.
+     * @since BEAM 4.7
      */
     public Object getParameter(String name) {
         return context.getParameter(name);
@@ -282,8 +292,10 @@ public abstract class Operator {
 
     /**
      * Sets the value for the parameter with the given name.
-     * @param name The parameter name.
+     *
+     * @param name  The parameter name.
      * @param value The parameter value, which may be {@code null}.
+     * @since BEAM 4.7
      */
     public void setParameter(String name, Object value) {
         context.setParameter(name, value);
