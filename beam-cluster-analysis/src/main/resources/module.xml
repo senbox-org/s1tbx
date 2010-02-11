@@ -45,19 +45,25 @@
         </action>
         <action>
             <id>emClusterAnalysis</id>
-            <helpID>emClusterAnalysis</helpID>
-            <class>org.esa.beam.cluster.visat.EMClusterAnalysisAction</class>
+            <helpId>clusterAnalysisEM</helpId>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
             <parent>imageAnalysis</parent>
             <text>EM Cluster Analysis...</text>
             <mnemonic>C</mnemonic>
+            <operatorName>EMClusterAnalysis</operatorName>
+            <dialogTitle>K-Means Cluster Analysis</dialogTitle>
+            <nameSuffix>_em</nameSuffix>
         </action>
         <action>
             <id>kmeansClusterAnalysis</id>
-            <helpID>kmeansClusterAnalysis</helpID>
-            <class>org.esa.beam.cluster.visat.KMeansClusterAnalysisAction</class>
+            <helpId>clusterAnalysisKMeans</helpId>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
             <parent>imageAnalysis</parent>
             <text>K-Means Cluster Analysis...</text>
             <mnemonic>C</mnemonic>
+            <operatorName>KMeansClusterAnalysis</operatorName>
+            <dialogTitle>K-Means Cluster Analysis</dialogTitle>
+            <nameSuffix>_kmeans</nameSuffix>
         </action>
     </extension>
 

@@ -137,8 +137,6 @@ Envisat Reprocessing 3:
 
 Other BEAM/VISAT/API Stuff:
 ===========================
-* Generic GPF action
-  ==> FINAL, MZ, OPEN
 * When loading our OBPG Level-2 data products pixel times are not
   displayed and the No-Data Overlay doesn't work for missing data (e.g.
   after reprojecting L2 chlor_a, the missing pixels in the resulting map
@@ -157,7 +155,9 @@ Other BEAM/VISAT/API Stuff:
   - abstract ProductNode.handleRename(node, oldName, newName)
   - abstract ProductNode.handleNodeDataChanged(node, oldName, newName)
   ==> FINAL (really?), *, OPEN
-  
+
+* Generic GPF action
+  ==> FINAL, MZ, CLOSED  
 * Move PropertyPane and dependency to TableLayout into Ceres
   ==> FINAL, MZ, CLOSED
 * ProductIO changes;
