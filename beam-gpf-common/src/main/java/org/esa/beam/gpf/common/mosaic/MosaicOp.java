@@ -25,7 +25,7 @@ import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.jai.JAIUtils;
 import org.geotools.factory.Hints;
-import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.geometry.Envelope;
@@ -362,11 +362,15 @@ public class MosaicOp extends Operator {
             }
             Rectangle2D.Double rect = new Rectangle2D.Double();
             rect.setFrameFromDiagonal(westBound, northBound, eastBound, southBound);
-            Envelope envelope = CRS.transform(new Envelope2D(DefaultGeographicCRS.WGS84, rect), targetCRS);
+            GeneralEnvelope generalEnvelope = new GeneralEnvelope(rect);
+            generalEnvelope.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
+            Envelope envelope = CRS.transform(generalEnvelope, targetCRS);
             int width = (int) (envelope.getSpan(0) / pixelSizeX);
             int height = (int) (envelope.getSpan(1) / pixelSizeY);
             final AffineTransform mapTransform = new AffineTransform();
-            mapTransform.translate(westBound, northBound);
+            double easting = envelope.getMinimum(0);
+            double northing = envelope.getMaximum(1);
+            mapTransform.translate(easting, northing);
             mapTransform.scale(pixelSizeX, -pixelSizeY);
             mapTransform.translate(-0.5, -0.5);
             CrsGeoCoding geoCoding = new CrsGeoCoding(targetCRS, new Rectangle(0, 0, width, height),
