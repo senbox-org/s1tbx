@@ -272,6 +272,24 @@ public abstract class Operator {
     }
 
     /**
+     * Gets the value for the parameter with the given name.
+     * @param name The parameter name.
+     * @return The parameter value, which may be {@code null}.
+     */
+    public Object getParameter(String name) {
+        return context.getParameter(name);
+    }
+
+    /**
+     * Sets the value for the parameter with the given name.
+     * @param name The parameter name.
+     * @param value The parameter value, which may be {@code null}.
+     */
+    public void setParameter(String name, Object value) {
+        context.setParameter(name, value);
+    }
+
+    /**
      * Gets a {@link Tile} for a given band and rectangle.
      *
      * @param rasterDataNode the raster data node of a data product,
