@@ -101,13 +101,13 @@ SMOS-Box:
 =========
 * Export GridCellExporter still uses "product.getPinGroup().getSelectedNodes()" and ROIDefinition.
   ==> FINAL, *, OPEN
+  
 * We need the RasterDataNode.areaOfInterest:Geometry new property for boosting
   statistics computation and possibly also display. This property is optional but
   some product readers may set it, e.g. SMOS reader. Tile bounds can easily be
   tested for intersection with areaOfInterest and possibly ignored.
   Also very important for SMOS-Box 2.1
-  ==> FINAL, *, OPEN
-  
+  ==> FINAL, RQ, CLOSED
 * Pin table with band values is not updated when snapshot ID is changed
   ==> FINAL, RQ, CLOSED (needs to be tested by OF)
   (OF: the values in the Pin table are not always match values in the Pixel Info)
