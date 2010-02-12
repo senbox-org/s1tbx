@@ -71,14 +71,9 @@ public class MaskFormTest extends TestCase {
         c.setSourceImage(new BufferedImage(256, 256, BufferedImage.TYPE_BYTE_GRAY));
         for (int i = 0; i < colors.length; i++) {
             String expression = "B > " + (i / (colors.length - 1.0));
-            Mask mask = new Mask("M_" + (product.getMaskGroup().getNodeCount() + 1),
-                                 product.getSceneRasterWidth(),
-                                 product.getSceneRasterHeight(),
-                                 Mask.BandMathType.INSTANCE);
-            mask.getImageConfig().setValue("color", colors[i]);
-            mask.getImageConfig().setValue("transparency", 1.0 - 1.0 / (1 + (i % 4)));
-            mask.getImageConfig().setValue("expression", expression);
-            mask.setDescription(expression);
+            String name = "M_" + (product.getMaskGroup().getNodeCount() + 1);
+            Mask mask = Mask.BandMathType.create(name, expression, product.getSceneRasterWidth(), product.getSceneRasterHeight(), 
+                                                 expression, colors[i], 1.0 - 1.0 / (1 + (i % 4)));
             product.getMaskGroup().add(mask);
         }
 

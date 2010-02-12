@@ -28,11 +28,8 @@ public class BandMathMaskPersistableTest {
     */
     @Test
     public void testXmlCreation() {
-        Mask mask = new Mask("Bibo", 10, 10, Mask.BandMathType.INSTANCE);
-        mask.setImageColor(new Color(17, 11, 67));
-        mask.setImageTransparency(0.7);
-        mask.setDescription("A big yellow bird is in the pixel.");
-        mask.getImageConfig().setValue(Mask.BandMathType.PROPERTY_NAME_EXPRESSION, "false");
+        Mask mask = Mask.BandMathType.create("Bibo", "A big yellow bird is in the pixel.", 10, 10,
+                                             "false", new Color(17, 11, 67), 0.7);
 
         final DimapPersistable persistable = new BandMathMaskPersistable();
 

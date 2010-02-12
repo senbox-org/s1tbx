@@ -507,12 +507,8 @@ public class ROIDefinition implements Cloneable {
             final String maskName = node.getName() + "_roi";
             final int w = node.getSceneRasterWidth();
             final int h = node.getSceneRasterHeight();
-            final Mask mask = new Mask(maskName, w, h, Mask.BandMathType.INSTANCE);
-
-            mask.setImageColor(Color.RED);
-            mask.setImageTransparency(0.5);
-            Mask.BandMathType.setExpression(mask, expression);
-            return mask;
+            
+            return Mask.BandMathType.create(maskName, null, w, h, expression, Color.RED, 0.5);
         } else {
             return null;
         }

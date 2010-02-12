@@ -87,25 +87,18 @@ public class NdviOp extends Operator {
         ProductUtils.copyMasks(inputProduct, targetProduct);
         ProductUtils.copyOverlayMasks(inputProduct, targetProduct);
 
-        final Mask arithMask = createMask(NDVI_ARITHMETIC_FLAG_NAME, "An arithmetic exception occured.", Color.red.brighter(),
-                                     NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME, sceneWidth, sceneHeight);
+        final Mask arithMask = Mask.BandMathType.create(NDVI_ARITHMETIC_FLAG_NAME, "An arithmetic exception occured.", 
+                                                        sceneWidth, sceneHeight, 
+                                                        (NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME), Color.red.brighter(), 0.7);
         targetProduct.getMaskGroup().add(arithMask);
-        final Mask lowMask = createMask(NDVI_LOW_FLAG_NAME, "NDVI value is too low.", Color.red,
-                                     NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME, sceneWidth, sceneHeight);
+        final Mask lowMask = Mask.BandMathType.create(NDVI_LOW_FLAG_NAME, "NDVI value is too low.", 
+                                                      sceneWidth, sceneHeight, 
+                                                      (NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME), Color.red, 0.7);
         targetProduct.getMaskGroup().add(lowMask);
-        final Mask highMask = createMask(NDVI_HIGH_FLAG_NAME, "NDVI value is too high.", Color.red.darker(),
-                                     NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME, sceneWidth, sceneHeight);
+        final Mask highMask = Mask.BandMathType.create(NDVI_HIGH_FLAG_NAME, "NDVI value is too high.", 
+                                                       sceneWidth, sceneHeight, 
+                                                       (NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME), Color.red.darker(), 0.7);
         targetProduct.getMaskGroup().add(highMask);
-    }
-
-    private Mask createMask(String maskName, String description, Color color, String expression,
-                            int sceneWidth, int sceneHeight) {
-        final Mask mask = new Mask(maskName.toLowerCase(), sceneWidth, sceneHeight, Mask.BandMathType.INSTANCE);
-        mask.setDescription(description);
-        mask.setImageColor(color);
-        mask.setImageTransparency(0.7f);
-        Mask.BandMathType.setExpression(mask, expression);
-        return mask;
     }
 
     @Override

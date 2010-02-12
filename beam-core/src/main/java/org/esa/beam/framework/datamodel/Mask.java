@@ -291,10 +291,8 @@ public class Mask extends Band {
                 final String maskName = getAvailableMaskName(originalMaskName, product.getMaskGroup());
                 final int w = product.getSceneRasterWidth();
                 final int h = product.getSceneRasterHeight();
-                final Mask newMask = new Mask(maskName, w, h, this);
-                newMask.setDescription(mask.getDescription());
-                setImageStyle(newMask.getImageConfig(), mask.getImageColor(), mask.getImageTransparency());
-                setExpression(newMask, expression);
+                Mask newMask = create(maskName, mask.getDescription(), w, h, 
+                                      expression, mask.getImageColor(), mask.getImageTransparency());
                 product.getMaskGroup().add(newMask);
 
                 return newMask;
@@ -364,6 +362,18 @@ public class Mask extends Band {
 
         public static String getExpression(Mask mask) {
             return (String) mask.getImageConfig().getValue(PROPERTY_NAME_EXPRESSION);
+        }
+        
+        public static Mask create(String name, String description, int width, int height,
+                                  String expression, Color color, double transparency) {
+            final Mask mask = new Mask(name, width, height, Mask.BandMathType.INSTANCE);
+            if (description != null) {
+                mask.setDescription(description);
+            }
+            mask.setImageColor(color);
+            mask.setImageTransparency(transparency);
+            BandMathType.setExpression(mask, expression);
+            return mask;
         }
     }
 

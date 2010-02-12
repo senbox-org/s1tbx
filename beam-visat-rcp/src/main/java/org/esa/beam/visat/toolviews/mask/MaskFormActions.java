@@ -838,11 +838,9 @@ class MaskFormActions {
             Band band = targetProduct.addBand(bandName, dataType);
             int width = targetProduct.getSceneRasterWidth();
             int height = targetProduct.getSceneRasterHeight();
-            Mask targetMask = new Mask(maskName, width, height, Mask.BandMathType.INSTANCE);
-            BandMathType.setExpression(targetMask, bandName);
-            targetMask.setDescription(mask.getDescription() + " (from " + mask.getProduct().getDisplayName() + ")");
-            targetMask.setImageColor(mask.getImageColor());
-            targetMask.setImageTransparency(mask.getImageTransparency());
+            String description = mask.getDescription() + " (from " + mask.getProduct().getDisplayName() + ")";
+            Mask targetMask = Mask.BandMathType.create(maskName, description, width, height, 
+                                                       bandName, mask.getImageColor(), mask.getImageTransparency());
             targetProduct.getMaskGroup().add(targetMask);
             return band;
         }
