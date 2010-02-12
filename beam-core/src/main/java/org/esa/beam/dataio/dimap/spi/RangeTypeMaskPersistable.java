@@ -11,7 +11,7 @@ public class RangeTypeMaskPersistable extends MaskPersistable {
 
     @Override
     protected Mask.ImageType createImageType() {
-        return new Mask.RangeType();
+        return Mask.RangeType.INSTANCE;
     }
 
     @Override

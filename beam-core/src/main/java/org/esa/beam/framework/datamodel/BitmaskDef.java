@@ -280,7 +280,7 @@ public class BitmaskDef extends ProductNode {
     }
     
     public Mask createMask(int width, int height) {
-        final Mask mask = new Mask(getName(), width, height, new Mask.BandMathType());
+        final Mask mask = new Mask(getName(), width, height, Mask.BandMathType.INSTANCE);
         mask.setDescription(getDescription());
         mask.setImageColor(getColor());
         mask.setImageTransparency(getTransparency());

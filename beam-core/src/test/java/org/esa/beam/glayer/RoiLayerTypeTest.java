@@ -56,7 +56,7 @@ public class RoiLayerTypeTest extends LayerTypeTest {
         final Product product = new Product("N", "T", 10, 10);
         final Band raster = new VirtualBand("A", ProductData.TYPE_INT32, 10, 10, "42");
         product.addBand(raster);
-        final Mask mask = new Mask("A_roi", 10, 10, new Mask.BandMathType());
+        final Mask mask = new Mask("A_roi", 10, 10, Mask.BandMathType.INSTANCE);
         Mask.BandMathType.setExpression(mask, "A == 42");
         product.getMaskGroup().add(mask);
 

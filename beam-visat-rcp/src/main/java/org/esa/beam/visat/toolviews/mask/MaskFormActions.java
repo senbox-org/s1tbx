@@ -274,9 +274,7 @@ class MaskFormActions {
 
             final RangeEditorDialog rangeEditorDialog = new RangeEditorDialog(getWindow(e), model);
             if (rangeEditorDialog.show() == AbstractDialog.ID_OK) {
-                Mask.RangeType type = new Mask.RangeType();
-
-                final Mask mask = createNewMask(type);
+                final Mask mask = createNewMask(Mask.RangeType.INSTANCE);
                 final String externalName = Tokenizer.createExternalName(model.getRasterName());
                 mask.setDescription(model.getMinValue() + " <= " + externalName + " <= " + model.getMaxValue());
 
@@ -408,7 +406,7 @@ class MaskFormActions {
                 Product product = getMaskForm().getProduct();
                 Mask[] selectedMasks = getMaskForm().getSelectedMasks();
                 for (Mask mask : selectedMasks) {
-                    if (mask.getImageType() instanceof Mask.VectorDataType) {
+                    if (mask.getImageType() == Mask.VectorDataType.INSTANCE) {
                         VectorDataNode vectorDataNode = Mask.VectorDataType.getVectorData(mask);
                         if (product.isInternalNode(vectorDataNode)) {
                             isEnabled = false;
@@ -626,7 +624,7 @@ class MaskFormActions {
             Mask selectedMask = getMaskForm().getSelectedMask();
             PropertyContainer selectedMaskConfig = selectedMask.getImageConfig();
             Mask.ImageType type = selectedMask.getImageType();
-            if (type instanceof Mask.BandMathType) {
+            if (type == Mask.BandMathType.INSTANCE) {
                 Product product = getMaskForm().getProduct();
                 ProductExpressionPane expressionPane = ProductExpressionPane.createBooleanExpressionPane(
                         new Product[]{product}, product, null);
@@ -637,7 +635,7 @@ class MaskFormActions {
                     selectedMaskConfig.setValue("expression", code);
                     selectedMask.setDescription(code);
                 }
-            } else if (type instanceof Mask.RangeType) {
+            } else if (type == Mask.RangeType.INSTANCE) {
                 final Product product = getMaskForm().getProduct();
                 final String[] rasterNames = StringUtils.addArrays(product.getBandNames(),
                                                                    product.getTiePointGridNames());
@@ -655,7 +653,7 @@ class MaskFormActions {
                     selectedMaskConfig.setValue(Mask.RangeType.PROPERTY_NAME_MAXIMUM, model.getMaxValue());
                     selectedMaskConfig.setValue(Mask.RangeType.PROPERTY_NAME_RASTER, model.getRasterName());
                 }
-            } else if (type instanceof Mask.VectorDataType) {
+            } else if (type == Mask.VectorDataType.INSTANCE) {
                 JOptionPane.showMessageDialog(window,
                                               "Use the VISAT geometry tools to add new points, lines or polygons.\n" +
                                               "You can then use the select tool to select and modify the shape\n" +
@@ -741,7 +739,7 @@ class MaskFormActions {
 
 
         void addBandMathMask(String code) {
-            final Mask mask = createNewMask(new Mask.BandMathType());
+            final Mask mask = createNewMask(Mask.BandMathType.INSTANCE);
             final PropertyContainer imageConfig = mask.getImageConfig();
             final String propertyNameExpression = BandMathType.PROPERTY_NAME_EXPRESSION;
             imageConfig.setValue(propertyNameExpression, code);
@@ -840,7 +838,7 @@ class MaskFormActions {
             Band band = targetProduct.addBand(bandName, dataType);
             int width = targetProduct.getSceneRasterWidth();
             int height = targetProduct.getSceneRasterHeight();
-            Mask targetMask = new Mask(maskName, width, height, new Mask.BandMathType());
+            Mask targetMask = new Mask(maskName, width, height, Mask.BandMathType.INSTANCE);
             BandMathType.setExpression(targetMask, bandName);
             targetMask.setDescription(mask.getDescription() + " (from " + mask.getProduct().getDisplayName() + ")");
             targetMask.setImageColor(mask.getImageColor());
@@ -892,7 +890,7 @@ class MaskFormActions {
             ProductSceneView productSceneView = VisatApp.getApp().getSelectedProductSceneView();
             if (productSceneView != null) {
                 Rectangle2D modelBounds;
-                if (imageType instanceof Mask.VectorDataType) {
+                if (imageType == Mask.VectorDataType.INSTANCE) {
                     modelBounds = handleVectorMask(mask);
                 } else {
                     modelBounds = handleImageMask(mask, productSceneView.getBaseImageLayer().getImageToModelTransform());

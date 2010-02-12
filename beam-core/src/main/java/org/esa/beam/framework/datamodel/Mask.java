@@ -216,8 +216,10 @@ public class Mask extends Band {
 
         public static final String TYPE_NAME = "Math";
         public static final String PROPERTY_NAME_EXPRESSION = "expression";
+        
+        public static final BandMathType INSTANCE =  new BandMathType();
 
-        public BandMathType() {
+        private BandMathType() {
             super(TYPE_NAME);
         }
 
@@ -371,10 +373,11 @@ public class Mask extends Band {
     public static class VectorDataType extends ImageType {
 
         public static final String TYPE_NAME = "Geometry";
-
         public static final String PROPERTY_NAME_VECTOR_DATA = "vectorData";
 
-        public VectorDataType() {
+        public static final VectorDataType INSTANCE =  new VectorDataType();
+
+        private VectorDataType() {
             super(TYPE_NAME);
         }
 
@@ -424,8 +427,10 @@ public class Mask extends Band {
         public static final String PROPERTY_NAME_MINIMUM = "minimum";
         public static final String PROPERTY_NAME_MAXIMUM = "maximum";
         public static final String PROPERTY_NAME_RASTER = "rasterName";
+        
+        public static final RangeType INSTANCE =  new RangeType();
 
-        public RangeType() {
+        private RangeType() {
             super(TYPE_NAME);
         }
 

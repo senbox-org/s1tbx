@@ -28,7 +28,7 @@ public class RoiLayerConfigurationPersistencyTest extends AbstractLayerConfigura
     public void setup() {
         product = createTestProduct("Test", "Test");
         raster = addVirtualBand(product, "virtualBand", ProductData.TYPE_INT32, "17");
-        Mask mask = new Mask(raster.getName() + "_roi", product.getSceneRasterWidth(), product.getSceneRasterHeight(), new Mask.BandMathType());
+        Mask mask = new Mask(raster.getName() + "_roi", product.getSceneRasterWidth(), product.getSceneRasterHeight(), Mask.BandMathType.INSTANCE);
         product.getMaskGroup().add(mask);
         Mask.BandMathType.setExpression(mask, "virtualBand == 17");
 

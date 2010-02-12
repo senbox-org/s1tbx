@@ -238,20 +238,19 @@ public class Product extends ProductNode {
                 if (removed) {
                     final Mask[] masks = getMaskGroup().toArray(new Mask[getMaskGroup().getNodeCount()]);
                     for (final Mask mask : masks) {
-                        if (mask.getImageType() instanceof Mask.VectorDataType) {
-                            if (Mask.VectorDataType.getVectorData(mask) == vectorDataNode) {
-                                getMaskGroup().remove(mask);
-                                for (Band band : getBands()) {
-                                    deleteMaskFromGroup(band.getRoiMaskGroup(), mask);
-                                    deleteMaskFromGroup(band.getOverlayMaskGroup(), mask);
-                                }
-                                TiePointGrid[] tiePointGrids = getTiePointGrids();
-                                for (TiePointGrid tiePointGrid : tiePointGrids) {
-                                    deleteMaskFromGroup(tiePointGrid.getRoiMaskGroup(), mask);
-                                    deleteMaskFromGroup(tiePointGrid.getOverlayMaskGroup(), mask);
-                                }
-                                break;
+                        if (mask.getImageType()  == Mask.VectorDataType.INSTANCE &&
+                                Mask.VectorDataType.getVectorData(mask) == vectorDataNode) {
+                            getMaskGroup().remove(mask);
+                            for (Band band : getBands()) {
+                                deleteMaskFromGroup(band.getRoiMaskGroup(), mask);
+                                deleteMaskFromGroup(band.getOverlayMaskGroup(), mask);
                             }
+                            TiePointGrid[] tiePointGrids = getTiePointGrids();
+                            for (TiePointGrid tiePointGrid : tiePointGrids) {
+                                deleteMaskFromGroup(tiePointGrid.getRoiMaskGroup(), mask);
+                                deleteMaskFromGroup(tiePointGrid.getOverlayMaskGroup(), mask);
+                            }
+                            break;
                         }
                     }
                 }
@@ -262,7 +261,7 @@ public class Product extends ProductNode {
                 final Mask mask = new Mask(vectorDataNode.getName(),
                                            getSceneRasterWidth(),
                                            getSceneRasterHeight(),
-                                           new Mask.VectorDataType());
+                                           Mask.VectorDataType.INSTANCE);
                 Mask.VectorDataType.setVectorData(mask, vectorDataNode);
                 return mask;
             }

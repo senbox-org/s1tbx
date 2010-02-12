@@ -41,7 +41,7 @@ public class MaskTest {
     public void testRenameBand() {
         Product product = new Product("t", "d", 1, 1);
         Band band = product.addBand("b", ProductData.TYPE_INT8);
-        Mask mask = new Mask("m", 1, 1, new Mask.BandMathType());
+        Mask mask = new Mask("m", 1, 1, Mask.BandMathType.INSTANCE);
         Mask.BandMathType.setExpression(mask, "b == 2");
         product.getMaskGroup().add(mask);
         

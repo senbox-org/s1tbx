@@ -14,7 +14,7 @@ class BandMathMaskPersistable extends MaskPersistable {
 
     @Override
     protected Mask.BandMathType createImageType() {
-        return new Mask.BandMathType();
+        return Mask.BandMathType.INSTANCE;
     }
 
     @Override

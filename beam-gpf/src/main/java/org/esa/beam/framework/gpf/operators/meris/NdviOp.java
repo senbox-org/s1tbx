@@ -100,7 +100,7 @@ public class NdviOp extends Operator {
 
     private Mask createMask(String maskName, String description, Color color, String expression,
                             int sceneWidth, int sceneHeight) {
-        final Mask mask = new Mask(maskName.toLowerCase(), sceneWidth, sceneHeight, new Mask.BandMathType());
+        final Mask mask = new Mask(maskName.toLowerCase(), sceneWidth, sceneHeight, Mask.BandMathType.INSTANCE);
         mask.setDescription(description);
         mask.setImageColor(color);
         mask.setImageTransparency(0.7f);

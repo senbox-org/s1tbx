@@ -32,8 +32,7 @@ public class RangeTypeMaskPersistableTest {
     */
     @Test
     public void createXmlFromObject() {
-        final Mask.RangeType rangeType = new Mask.RangeType();
-        final Mask mask = new Mask("myRange", 10, 10, rangeType);
+        final Mask mask = new Mask("myRange", 10, 10, Mask.RangeType.INSTANCE);
         mask.setDescription("Carefully defined range");
         mask.setImageColor(new Color(0, 255, 0, 128));
         mask.setImageTransparency(0.78);

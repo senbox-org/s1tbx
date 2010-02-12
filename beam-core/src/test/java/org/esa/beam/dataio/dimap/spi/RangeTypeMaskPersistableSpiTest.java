@@ -53,7 +53,7 @@ public class RangeTypeMaskPersistableSpiTest {
 
     @Test
     public void testCanPersist() {
-        final Mask mask = new Mask("b", 2, 2, new Mask.RangeType());
+        final Mask mask = new Mask("b", 2, 2, Mask.RangeType.INSTANCE);
 
         assertTrue(_persistableSpi.canPersist(mask));
 

@@ -21,7 +21,7 @@ public class BandMathMaskPersistableSpi implements DimapPersistableSpi {
     public boolean canPersist(Object object) {
         if (object instanceof Mask) {
             Mask mask = (Mask) object;
-            if(mask.getImageType() instanceof Mask.BandMathType) {
+            if(mask.getImageType() == Mask.BandMathType.INSTANCE) {
                 return true;
             }
         }

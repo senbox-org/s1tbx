@@ -60,7 +60,7 @@ public class RasterDataNodeDeleter {
         Mask vectorMask = null;
         for (int i = 0; i < maskGroup.getNodeCount(); i++) {
             Mask mask = maskGroup.get(i);
-            if (mask.getImageType() instanceof Mask.VectorDataType && 
+            if (mask.getImageType() == Mask.VectorDataType.INSTANCE && 
                     Mask.VectorDataType.getVectorData(mask) == vectorDataNode) {
                     vectorMask = mask;
                     break;
@@ -149,7 +149,7 @@ public class RasterDataNodeDeleter {
                         deleteMaskFromGroup(tiePointGrid.getOverlayMaskGroup(), mask);
                     }
                     ImageType imageType = mask.getImageType();
-                    if (imageType instanceof Mask.VectorDataType) {
+                    if (imageType  == Mask.VectorDataType.INSTANCE) {
                         VectorDataNode vectorDataNode = Mask.VectorDataType.getVectorData(mask);
                         product.getVectorDataGroup().remove(vectorDataNode);
                     }
@@ -271,9 +271,9 @@ public class RasterDataNodeDeleter {
             final Mask[] masks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
             for (final Mask mask : masks) {
                 final String expression;
-                if (mask.getImageType() instanceof Mask.BandMathType) {
+                if (mask.getImageType() == Mask.BandMathType.INSTANCE) {
                     expression = Mask.BandMathType.getExpression(mask);
-                } else if (mask.getImageType() instanceof Mask.RangeType) {
+                } else if (mask.getImageType() == Mask.RangeType.INSTANCE) {
                     expression = Mask.RangeType.getRasterName(mask);
                 } else {
                     expression = null;

@@ -20,7 +20,7 @@ public class BandMathMaskPersistableSpiTest {
 
     @Test
     public void canPersistIntendedMaskType() {
-        final Mask mask = new Mask("M", 10, 10, new Mask.BandMathType());
+        final Mask mask = new Mask("M", 10, 10, Mask.BandMathType.INSTANCE);
         assertTrue(persistableSpi.canPersist(mask));
         assertTrue(DimapPersistence.getPersistable(mask) instanceof BandMathMaskPersistable);
     }

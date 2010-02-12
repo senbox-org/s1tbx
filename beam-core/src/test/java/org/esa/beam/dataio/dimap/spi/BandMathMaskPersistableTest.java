@@ -28,7 +28,7 @@ public class BandMathMaskPersistableTest {
     */
     @Test
     public void testXmlCreation() {
-        Mask mask = new Mask("Bibo", 10, 10, new Mask.BandMathType());
+        Mask mask = new Mask("Bibo", 10, 10, Mask.BandMathType.INSTANCE);
         mask.setImageColor(new Color(17, 11, 67));
         mask.setImageTransparency(0.7);
         mask.setDescription("A big yellow bird is in the pixel.");
