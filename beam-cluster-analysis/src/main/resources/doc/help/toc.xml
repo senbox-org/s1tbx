@@ -3,12 +3,9 @@
         "http://java.sun.com/products/javahelp/toc_2_0.dtd">
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
-
     <tocitem text="Data Processors">
-        <tocitem text="Cluster Analysis Tools" target="clusterAnalysis">
-            <tocitem text="K-Means Cluster Analysis" target="clusterAnalysisKMeans"/>
-            <tocitem text="Expectation Maximization (EM) Cluster Analysis" target="clusterAnalysisEM"/>
-        </tocitem>
+        <!-- TODO - As needed, adapt text and target attributes. The value of target must point to an entry in file map.jhm -->
+        <tocitem text="$artifactId Processors" target="$artifactId" />
+        <!-- TODO - As needed, place more tocitem-elements here, you can also add nested tocitem-elements -->
     </tocitem>
-    
 </toc>

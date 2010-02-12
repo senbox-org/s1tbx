@@ -1,0 +1,1 @@
+Place any images you need for your help files in this directory.

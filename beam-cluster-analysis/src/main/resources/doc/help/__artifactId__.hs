@@ -4,7 +4,8 @@
         "http://java.sun.com/products/javahelp/helpset_2_0.dtd">
 
 <helpset version="2.0">
-    <title>Cluster Analysis Tools Help</title>
+    <!-- TODO As needed, adapt value for title. -->
+    <title>$artifactId Processors</title>
     <maps>
         <homeID>top</homeID>
         <mapref location="map.jhm"/>

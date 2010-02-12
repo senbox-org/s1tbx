@@ -4,9 +4,7 @@
         "http://java.sun.com/products/javahelp/map_2_0.dtd">
 
 <map version="2.0">
-
-    <mapID target="clusterAnalysis" url="clusteranalysis/ClusterAnalysis.html"/>
-    <mapID target="clusterAnalysisKMeans" url="clusteranalysis/KMeans.html"/>
-    <mapID target="clusterAnalysisEM" url="clusteranalysis/EM.html"/>
-
+    <!-- TODO - As needed, adapt target and url attributes. The value of url must point to an HTML page. -->
+    <mapID target="$artifactId" url="$artifactId/$artifactId.html"/>
+    <!-- TODO - As needed, place more mapID-elements here -->
 </map>
