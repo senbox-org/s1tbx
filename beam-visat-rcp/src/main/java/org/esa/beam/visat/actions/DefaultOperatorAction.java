@@ -16,7 +16,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
  * <p>Optionally the dialog title can be set via the {@code dialogTitle} property and
  * the ID of the help page can be given using the {@code helpId} property. If not given the
  * name of the operator will be used instead. Also optional the 
- * file name suffix for the target product can be given via the {@code nameSuffix} property.</p>
+ * file name suffix for the target product can be given via the {@code targetProductNameSuffix} property.</p>
  *
  * @author Norman Fomferra
  * @author Marco Zuehlke
@@ -27,7 +27,7 @@ public class DefaultOperatorAction extends AbstractVisatAction {
     private ModelessDialog dialog;
     private String operatorName;
     private String dialogTitle;
-    private String nameSuffix;
+    private String targetProductNameSuffix;
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -44,15 +44,15 @@ public class DefaultOperatorAction extends AbstractVisatAction {
             throw new CoreException("Missing DefaultOperatorAction property 'operatorName'.");
         }
         dialogTitle = getValue(config, "dialogTitle", operatorName);
-        nameSuffix = getConfigString(config, "nameSuffix");
+        targetProductNameSuffix = getConfigString(config, "targetProductNameSuffix");
         super.configure(config);
     }
 
     protected ModelessDialog createOperatorDialog() {
         DefaultSingleTargetProductDialog productDialog = new DefaultSingleTargetProductDialog(operatorName, getAppContext(),
                                                     dialogTitle, getHelpId());
-        if (nameSuffix != null) {
-            productDialog.setTargetProductNameSuffix(nameSuffix);
+        if (targetProductNameSuffix != null) {
+            productDialog.setTargetProductNameSuffix(targetProductNameSuffix);
         }
         return productDialog;
     }

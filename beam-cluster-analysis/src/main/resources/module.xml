@@ -52,7 +52,7 @@
             <mnemonic>C</mnemonic>
             <operatorName>EMClusterAnalysis</operatorName>
             <dialogTitle>K-Means Cluster Analysis</dialogTitle>
-            <nameSuffix>_em</nameSuffix>
+            <targetProductNameSuffix>_em</targetProductNameSuffix>
         </action>
         <action>
             <id>kmeansClusterAnalysis</id>
@@ -63,7 +63,7 @@
             <mnemonic>C</mnemonic>
             <operatorName>KMeansClusterAnalysis</operatorName>
             <dialogTitle>K-Means Cluster Analysis</dialogTitle>
-            <nameSuffix>_kmeans</nameSuffix>
+            <targetProductNameSuffix>_kmeans</targetProductNameSuffix>
         </action>
     </extension>
 
