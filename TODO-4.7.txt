@@ -62,7 +62,7 @@ Figures:
 Product tree:
 =============
 * Don't display empty groups. With special attention to Pin & GCP Vector Data Nodes.
-  ==> FINAL, ?, OPEN
+  ==> FINAL, MP, ONGOING
 
 Layers:
 =======
