@@ -4,7 +4,8 @@
     <version>4.7</version>
     <name>BEAM Scripting Interface</name>
 
-    <description></description>
+    <description>Provides a simple console for scripting BEAM using JavaScript (default)
+        or other Java-enabled interpreter languages (add-on).</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
@@ -34,14 +35,14 @@
         <toolView>
             <id>org.esa.beam.scripting.visat.ScriptConsoleToolView</id>
             <class>org.esa.beam.scripting.visat.ScriptConsoleToolView</class>
-            <title>Scripting Console</title>
-            <tabTitle>Script</tabTitle>
+            <title>Script Console</title>
+            <tabTitle>Script Console</tabTitle>
+            <description>Execute BEAM scripts using JavaScript (default) or other scripting languages (add-on).</description>
             <mnemonic>S</mnemonic>
             <accelerator>ctrl alt S</accelerator>
             <smallIcon>/org/esa/beam/scripting/visat/icons/utilities-terminal-16.png</smallIcon>
             <largeIcon>/org/esa/beam/scripting/visat/icons/utilities-terminal-22.png</largeIcon>
             <!--<helpId>TODO</helpId>-->
-            <description>Scripting Console.</description>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
