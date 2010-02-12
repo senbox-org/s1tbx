@@ -1397,7 +1397,7 @@ public class ProductUtils {
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
                 VectorDataNode vectorDataNode = vectorDataGroup.get(i);
                 String name = vectorDataNode.getName();
-                if (!sourceProduct.isInternalNode(vectorDataNode)) {
+                if (!vectorDataNode.isInternalNode()) {
                     FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
                     featureCollection = new DefaultFeatureCollection(featureCollection);
                     VectorDataNode targetVDN = new VectorDataNode(name, featureCollection);
@@ -1422,7 +1422,7 @@ public class ProductUtils {
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
                 VectorDataNode vectorDataNode = vectorDataGroup.get(i);
                 String name = vectorDataNode.getName();
-                if (!sourceProduct.isInternalNode(vectorDataNode)) {
+                if (!vectorDataNode.isInternalNode()) {
                     FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
                     featureCollection = FeatureCollectionClipper.doOperation(featureCollection, srcModelCrs,
                                                                              clipGeometry, DefaultGeographicCRS.WGS84,
