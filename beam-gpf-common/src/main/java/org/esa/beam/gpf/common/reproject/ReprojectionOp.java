@@ -564,21 +564,21 @@ public class ReprojectionOp extends Operator {
     }
 
     private ImageGeometry createImageGeometry(CoordinateReferenceSystem targetCrs) {
+        ImageGeometry imageGeometry;
         if (collocationProduct != null) {
-            return ImageGeometry.createCollocationTargetGeometry(collocationProduct);
-
+            imageGeometry = ImageGeometry.createCollocationTargetGeometry(sourceProduct, collocationProduct);
         } else {
-            ImageGeometry imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs,
-                                                                             pixelSizeX, pixelSizeY,
-                                                                             width, height, orientation,
-                                                                             easting, northing,
-                                                                             referencePixelX, referencePixelY);
+            imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs,
+                                                               pixelSizeX, pixelSizeY,
+                                                               width, height, orientation,
+                                                               easting, northing,
+                                                               referencePixelX, referencePixelY);
             final AxisDirection targetAxisDirection = targetCrs.getCoordinateSystem().getAxis(1).getDirection();
             // When collocating the Y-Axis is DISPLAY_DOWN, then pixelSizeY must not negated
             if (!AxisDirection.DISPLAY_DOWN.equals(targetAxisDirection)) {
                 imageGeometry.changeYAxisDirection();
             }
-            return imageGeometry;
         }
+        return imageGeometry;
     }
 }

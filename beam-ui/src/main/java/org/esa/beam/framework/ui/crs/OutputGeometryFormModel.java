@@ -74,21 +74,29 @@ public class OutputGeometryFormModel {
     private int referencePixelLocation = 1;
     
     private transient PropertyContainer propertyContainer;
-    private transient ImageGeometry imageGeometry;
 
+    public OutputGeometryFormModel(Product sourceProduct, Product collocationProduct) {
+       this(sourceProduct, ImageGeometry.createCollocationTargetGeometry(sourceProduct, collocationProduct));
+    }
+    
     public OutputGeometryFormModel(Product sourceProduct, CoordinateReferenceSystem targetCrs) {
+        this(sourceProduct, ImageGeometry.createTargetGeometry(sourceProduct, targetCrs,
+                                                               null, null, null, null,
+                                                               null, null, null, null, null));
+    }
+    
+    private OutputGeometryFormModel(Product sourceProduct, ImageGeometry imageGeometry) {
         this.sourceProduct = sourceProduct;
-        this.targetCrs = targetCrs;
-        imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs,
-                                                           null, null, null, null, null, null, null, null, null);
+        this.targetCrs = imageGeometry.getMapCrs();
+
         propertyContainer =  PropertyContainer.createObjectBacked(imageGeometry);
         PropertyContainer thisVC = PropertyContainer.createObjectBacked(this);
         propertyContainer.addProperties(thisVC.getProperties());
         PropertyDescriptor descriptor = propertyContainer.getDescriptor("referencePixelLocation");
         descriptor.setValueSet(new ValueSet(new Integer[] {0, 1, 2}));
         propertyContainer.addPropertyChangeListener(new ChangeListener());
+
     }
-    
     public PropertyContainer getPropertyContainer() {
         return propertyContainer;
     }

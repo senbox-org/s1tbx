@@ -246,8 +246,17 @@ class ReprojectionForm extends JTabbedPane {
         } else {
             Product sourceProduct = getSourceProduct();
             if (sourceProduct != null && crs != null) {
-                ImageGeometry iGeometry = ImageGeometry.createTargetGeometry(sourceProduct, crs, 
-                                                                                 null, null, null, null, null, null, null, null, null);
+                ImageGeometry iGeometry;
+                final Product collocationProduct = collocationCrsUI.getCollocationProduct();
+                if(collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
+                    iGeometry = ImageGeometry.createCollocationTargetGeometry(sourceProduct, collocationProduct);
+                }else {
+                    iGeometry = ImageGeometry.createTargetGeometry(sourceProduct, crs,
+                                                                   null, null, null, null,
+                                                                   null, null, null, null,
+                                                                   null);
+
+                }
                 Rectangle imageRect = iGeometry.getImageRect();
                 infoForm.setWidth(imageRect.width);
                 infoForm.setHeight(imageRect.height);
@@ -466,7 +475,12 @@ class ReprojectionForm extends JTabbedPane {
                     return;
                 }
                 if (formModel == null) {
-                    formModel = new OutputGeometryFormModel(sourceProduct, crs);
+                    final Product collocationProduct = collocationCrsUI.getCollocationProduct();
+                    if(collocationCrsUI.getRadioButton().isSelected() && collocationProduct != null) {
+                        formModel = new OutputGeometryFormModel(sourceProduct, collocationProduct);
+                    }else {
+                        formModel = new OutputGeometryFormModel(sourceProduct, crs);
+                    }
                 }
                 final OutputGeometryForm form = new OutputGeometryForm(formModel);
                 final ModalDialog modalDialog = new ModalDialog(appContext.getApplicationWindow(),

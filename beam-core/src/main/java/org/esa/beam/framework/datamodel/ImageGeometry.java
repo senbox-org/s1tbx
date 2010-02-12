@@ -32,6 +32,7 @@ import java.awt.geom.Rectangle2D;
  * @since BEAM 4.7
  */
 public class ImageGeometry {
+
     private double referencePixelX;
     private double referencePixelY;
     private double easting;
@@ -39,7 +40,7 @@ public class ImageGeometry {
     private double orientation;
     private double pixelSizeX;
     private double pixelSizeY;
-    
+
     private AffineTransform i2m;
     private int width;
     private int height;
@@ -47,14 +48,14 @@ public class ImageGeometry {
 
     private ImageGeometry() {
     }
-    
+
     public ImageGeometry(Rectangle bounds, CoordinateReferenceSystem mapCrs, AffineTransform image2map) {
         this.i2m = image2map;
         this.width = bounds.width;
         this.height = bounds.height;
         this.mapCrs = mapCrs;
     }
-    
+
     public AffineTransform getImage2MapTransform() {
         if (i2m != null) {
             return i2m;
@@ -67,29 +68,31 @@ public class ImageGeometry {
             return i2m;
         }
     }
-    
+
     public Rectangle getImageRect() {
         return new Rectangle(width, height);
     }
-    
+
     public CoordinateReferenceSystem getMapCrs() {
         return mapCrs;
     }
-    
+
     public void changeYAxisDirection() {
         pixelSizeY = -pixelSizeY;
     }
-    
 
-    public static Point2D calculateEastingNorthing(Product sourceProduct, CoordinateReferenceSystem targetCrs, double referencePixelX, double referencePixelY, 
-                                                  double pixelSizeX, double pixelSizeY) {
+
+    public static Point2D calculateEastingNorthing(Product sourceProduct, CoordinateReferenceSystem targetCrs,
+                                                   double referencePixelX, double referencePixelY,
+                                                   double pixelSizeX, double pixelSizeY) {
         Rectangle2D mapBoundary = createMapBoundary(sourceProduct, targetCrs);
         double easting = mapBoundary.getX() + referencePixelX * pixelSizeX;
         double northing = (mapBoundary.getY() + mapBoundary.getHeight()) - referencePixelY * pixelSizeY;
         return new Point2D.Double(easting, northing);
     }
-    
-    public static Rectangle calculateProductSize(Product sourceProduct, CoordinateReferenceSystem targetCrs, double pixelSizeX, double pixelSizeY) {
+
+    public static Rectangle calculateProductSize(Product sourceProduct, CoordinateReferenceSystem targetCrs,
+                                                 double pixelSizeX, double pixelSizeY) {
         Rectangle2D mapBoundary = createMapBoundary(sourceProduct, targetCrs);
         double mapW = mapBoundary.getWidth();
         double mapH = mapBoundary.getHeight();
@@ -97,11 +100,12 @@ public class ImageGeometry {
         int height = 1 + (int) Math.floor(mapH / pixelSizeY);
         return new Rectangle(width, height);
     }
-    
+
     public static ImageGeometry createTargetGeometry(Product sourceProduct, CoordinateReferenceSystem targetCrs,
-                                              Double pixelSizeX, Double pixelSizeY, Integer width, Integer height,
-                                              Double orientation, Double easting, Double northing,
-                                              Double referencePixelX, Double referencePixelY) {
+                                                     Double pixelSizeX, Double pixelSizeY, Integer width,
+                                                     Integer height,
+                                                     Double orientation, Double easting, Double northing,
+                                                     Double referencePixelX, Double referencePixelY) {
         Rectangle2D mapBoundary = createMapBoundary(sourceProduct, targetCrs);
         ImageGeometry ig = new ImageGeometry();
         ig.mapCrs = targetCrs;
@@ -117,8 +121,8 @@ public class ImageGeometry {
             if (MathUtils.equalValues(pixelSize, 0.0f)) {
                 pixelSize = 1.0f;
             }
-            ig.pixelSizeX = (double)pixelSize;
-            ig.pixelSizeY = (double)pixelSize;
+            ig.pixelSizeX = (double) pixelSize;
+            ig.pixelSizeY = (double) pixelSize;
         } else {
             ig.pixelSizeX = pixelSizeX;
             ig.pixelSizeY = pixelSizeY;
@@ -141,7 +145,7 @@ public class ImageGeometry {
             ig.referencePixelX = referencePixelX;
             ig.referencePixelY = referencePixelY;
         }
-        if(easting == null || northing == null){
+        if (easting == null || northing == null) {
             ig.easting = mapBoundary.getX() + ig.referencePixelX * ig.pixelSizeX;
             ig.northing = (mapBoundary.getY() + mapBoundary.getHeight()) - ig.referencePixelY * ig.pixelSizeY;
         } else {
@@ -151,15 +155,25 @@ public class ImageGeometry {
         return ig;
     }
 
-    public static ImageGeometry createCollocationTargetGeometry(Product collocationProduct) {
+    public static ImageGeometry createCollocationTargetGeometry(Product targetProduct, Product collocationProduct) {
         GeoCoding geoCoding = collocationProduct.getGeoCoding();
-        
-        ImageGeometry imageGeometry = new ImageGeometry();
-        imageGeometry.mapCrs = ImageManager.getModelCrs(geoCoding);
-        imageGeometry.i2m = ImageManager.getImageToModelTransform(geoCoding);
-        imageGeometry.width = collocationProduct.getSceneRasterWidth();
-        imageGeometry.height = collocationProduct.getSceneRasterHeight();
-        return imageGeometry;
+        final AffineTransform modelTransform = ImageManager.getImageToModelTransform(geoCoding);
+        final double pixelSizeX = modelTransform.getScaleX();
+        final double pixelSizeY = modelTransform.getScaleY();
+        final int width = collocationProduct.getSceneRasterWidth();
+        final int height = collocationProduct.getSceneRasterHeight();
+        final double easting = modelTransform.getTranslateX();
+        final double northing = modelTransform.getTranslateY();
+        final double referencePixelY = 0.0;
+        final double referencePixelX = 0.0;
+        return ImageGeometry.createTargetGeometry(targetProduct,
+                                                  ImageManager.getModelCrs(geoCoding),
+                                                  pixelSizeX, pixelSizeY,
+                                                  width, height,
+                                                  null,
+                                                  easting, northing,
+                                                  referencePixelX, referencePixelY);
+
     }
 
 
