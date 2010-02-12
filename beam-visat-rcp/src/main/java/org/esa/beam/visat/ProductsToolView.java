@@ -7,16 +7,13 @@ import com.bc.ceres.swing.selection.SelectionContext;
 import com.bc.ceres.swing.selection.support.TreeSelectionContext;
 import com.jidesoft.swing.JideScrollPane;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -29,7 +26,6 @@ import org.esa.beam.visat.internal.RasterDataNodeDeleter;
 
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -40,9 +36,6 @@ import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The tool window which displays the tree of open products.
@@ -262,8 +255,7 @@ public class ProductsToolView extends AbstractToolView {
 
         private boolean isDeletableVectorData(Object selectedObject) {
             if (selectedObject instanceof VectorDataNode) {
-                final VectorDataNode vectorDataNode = (VectorDataNode) selectedObject;
-                return !vectorDataNode.getProduct().isInternalNode(vectorDataNode);
+                return !((VectorDataNode) selectedObject).isInternalNode();
             }
             return false;
         }

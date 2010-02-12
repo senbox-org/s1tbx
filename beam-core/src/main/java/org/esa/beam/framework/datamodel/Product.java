@@ -1067,10 +1067,6 @@ public class Product extends ProductNode {
         return vectorDataGroup;
     }
 
-    public boolean isInternalNode(VectorDataNode vectorDataNode) {
-        return vectorDataNode.getFeatureType() == Placemark.getFeatureType();
-    }
-
     //////////////////////////////////////////////////////////////////////////
     // Sample-coding support
 

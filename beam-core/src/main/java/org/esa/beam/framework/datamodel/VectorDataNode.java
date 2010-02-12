@@ -176,4 +176,9 @@ public class VectorDataNode extends ProductNode {
         featureCollection.removeListener(featureCollectionListener);
         super.dispose();
     }
+
+    public boolean isInternalNode() {
+        return getFeatureType() == Placemark.getFeatureType();
+    }
 }
+

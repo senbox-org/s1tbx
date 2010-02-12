@@ -11,11 +11,11 @@ import org.esa.beam.dataio.dimap.spi.DimapPersistence;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.Mask.BandMathType;
 import org.esa.beam.framework.datamodel.Mask.ImageType;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.ui.AbstractDialog;
@@ -403,12 +403,11 @@ class MaskFormActions {
         void updateState() {
             boolean isEnabled = getMaskForm().isInManagementMode() && getMaskForm().getSelectedRowCount() > 0;
             if (isEnabled) {
-                Product product = getMaskForm().getProduct();
                 Mask[] selectedMasks = getMaskForm().getSelectedMasks();
                 for (Mask mask : selectedMasks) {
                     if (mask.getImageType() == Mask.VectorDataType.INSTANCE) {
                         VectorDataNode vectorDataNode = Mask.VectorDataType.getVectorData(mask);
-                        if (product.isInternalNode(vectorDataNode)) {
+                        if (vectorDataNode.isInternalNode()) {
                             isEnabled = false;
                             break;
                         }
