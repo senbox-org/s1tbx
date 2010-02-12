@@ -39,12 +39,13 @@ VectorDataNode:
 
 Figures:
 ========
+* Still can not add/remove geometry vertices
+  ==> FINAL, NF, OPEN
+
 * Still can't rotate figures.
   ==> FINAL (v4.8), NF, OPEN
 * Number of created vertex handles should be dependent on current viewport
   ==> FINAL (v4.8), NF, OPEN
-* Still can not add/remove geometry vertices
-  ==> FINAL, NF, OPEN
 * Still cannot draw true circles/squares and also adjust lines and points on grid.
   ==> FINAL (v4.8), ?, OPEN
 * New edit menu:
