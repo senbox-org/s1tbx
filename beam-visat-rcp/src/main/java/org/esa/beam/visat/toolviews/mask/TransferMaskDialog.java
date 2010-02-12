@@ -17,21 +17,11 @@
 package org.esa.beam.visat.toolviews.mask;
 
 import com.bc.ceres.swing.TableLayout;
-
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.ProductUtils;
-
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.geom.GeneralPath;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -43,6 +33,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Window;
+import java.awt.geom.GeneralPath;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Marco Zuehlke
@@ -138,9 +136,9 @@ class TransferMaskDialog extends ModalDialog {
         helpPane.setPreferredSize(new Dimension(400, 120));
         helpPane.setText("<html><body>Copying the <b>definition</b> of a mask means the mathematical expression " +
         		"is evaluated in the target product. This is only possible,  " +
-        		"if the band that are used in this expression are present in the target product as well.<br/> " +
-        		"Copying the <b>pixel</b> means the data of the mask is transfered to the target product. " +
-        		"This is only possible when both product overlap spatial.</body></html>");
+        		"if the bands which are used in this expression are present in the target product.<br/> " +
+        		"Copying the <b>pixel</b> means the data of the mask is transferred to the target product. " +
+        		"This is only possible when both product overlap spatially.</body></html>");
         JScrollPane helpPanelScrollPane = new JScrollPane(helpPane);
         helpPanelScrollPane.setBorder(BorderFactory.createTitledBorder("Description"));
         return helpPanelScrollPane;
