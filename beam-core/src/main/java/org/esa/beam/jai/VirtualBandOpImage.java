@@ -1,6 +1,7 @@
 package org.esa.beam.jai;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.jai.NoDataRaster;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
@@ -15,11 +16,14 @@ import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.util.ImageUtils;
 
 import javax.media.jai.PlanarImage;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -37,6 +41,9 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
     private final boolean mask;
     private final Product[] products;
     private final int defaultProductIndex;
+    private final Map<Point, Term> termMap = new ConcurrentHashMap<Point, Term>();
+
+    private volatile NoDataRaster noDataRaster;
 
     public static VirtualBandOpImage createMask(RasterDataNode raster,
                                                 ResolutionLevel level) {
@@ -192,42 +199,72 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
 
     @Override
     public synchronized void dispose() {
+        termMap.clear();
         for (int i = 0; i < products.length; i++) {
             products[i] = null;
         }
     }
 
     @Override
-    protected void computeRect(PlanarImage[] planarImages, WritableRaster writableRaster, Rectangle destRect) {
+    public Raster computeTile(int tileX, int tileY) {
         final Term term = parseExpression();
-        addSourceToRasterDataSymbols(writableRaster.getBounds(), term);
+        if (addDataToRasterDataSymbols(getTileRect(tileX, tileY), term)) {
+            termMap.put(new Point(tileX, tileY), term);
+            return super.computeTile(tileX, tileY);
+        } else {
+            if (noDataRaster == null) {
+                synchronized (this) {
+                    if (noDataRaster == null) {
+                        noDataRaster = createNoDataRaster(fillValue == null ? 0.0 : fillValue.doubleValue());
+                    }
+                }
+            }
+            return noDataRaster.createTranslatedChild(tileXToX(tileX), tileYToY(tileY));
+        }
+    }
 
+    @Override
+    protected void computeRect(PlanarImage[] planarImages, WritableRaster writableRaster, Rectangle destRect) {
+        final Term term = termMap.remove(getTileIndices(destRect)[0]);
         final ProductData productData = ProductData.createInstance(dataType,
                                                                    ImageUtils.getPrimitiveArray(
                                                                            writableRaster.getDataBuffer()));
-        final int rasterSize = writableRaster.getDataBuffer().getSize();
-        final RasterDataEvalEnv env = new RasterDataEvalEnv(destRect.x, destRect.y, destRect.width, destRect.height);
+        final int x = destRect.x - writableRaster.getMinX();
+        final int y = destRect.y - writableRaster.getMinY();
+        final int w = writableRaster.getWidth();
+
+        final int colCount = destRect.width;
+        final int rowCount = destRect.height;
+        final int pixelCount = colCount * rowCount;
+        final RasterDataEvalEnv env = new RasterDataEvalEnv(destRect.x, destRect.y, colCount, rowCount);
+
         if (mask) {
-            for (int i = 0; i < rasterSize; i++) {
-                env.setElemIndex(i);
-                productData.setElemUIntAt(i, term.evalB(env) ? TRUE : FALSE);
+            for (int i = 0, k = w * y; i < pixelCount; i += colCount, k += w) {
+                for (int j = 0, l = x; j < colCount; j++, l++) {
+                    env.setElemIndex(i + j);
+                    productData.setElemUIntAt(k + l, term.evalB(env) ? TRUE : FALSE);
+                }
             }
         } else {
             if (fillValue != null) {
                 final double fv = fillValue.doubleValue();
-                for (int i = 0; i < rasterSize; i++) {
-                    env.setElemIndex(i);
-                    final double v = term.evalD(env);
-                    if (!Double.isNaN(v) && !Double.isInfinite(v)) {
-                        productData.setElemDoubleAt(i, v);
-                    } else {
-                        productData.setElemDoubleAt(i, fv);
+                for (int i = 0, k = w * y; i < pixelCount; i += colCount, k += w) {
+                    for (int j = 0, l = x; j < colCount; j++, l++) {
+                        env.setElemIndex(i + j);
+                        final double v = term.evalD(env);
+                        if (!Double.isNaN(v) && !Double.isInfinite(v)) {
+                            productData.setElemDoubleAt(k + l, v);
+                        } else {
+                            productData.setElemDoubleAt(k + l, fv);
+                        }
                     }
                 }
             } else {
-                for (int i = 0; i < rasterSize; i++) {
-                    env.setElemIndex(i);
-                    productData.setElemDoubleAt(i, term.evalD(env));
+                for (int i = 0, k = w * y; i < pixelCount; i += colCount, k += w) {
+                    for (int j = 0, l = x; j < colCount; j++, l++) {
+                        env.setElemIndex(i + j);
+                        productData.setElemDoubleAt(k + l, term.evalD(env));
+                    }
                 }
             }
         }
@@ -245,31 +282,31 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         return term;
     }
 
-    private void addSourceToRasterDataSymbols(Rectangle destRect, final Term term) {
-        RasterDataSymbol[] rasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-        for (RasterDataSymbol rasterDataSymbol : rasterDataSymbols) {
-            RasterDataNode sourceRDN = rasterDataSymbol.getRaster();
-            RenderedImage sourceImage;
-            int productDataType;
-            if (rasterDataSymbol.getSource() == RasterDataSymbol.GEOPHYSICAL) {
-                sourceImage = ImageManager.getInstance().getGeophysicalImage(sourceRDN, getLevel());
-                productDataType = sourceRDN.getGeophysicalDataType();
+    private boolean addDataToRasterDataSymbols(Rectangle destRect, Term term) {
+        for (final RasterDataSymbol symbol : BandArithmetic.getRefRasterDataSymbols(term)) {
+            final RenderedImage sourceImage;
+            final int dataType;
+            final RasterDataNode rasterDataNode = symbol.getRaster();
+            if (symbol.getSource() == RasterDataSymbol.GEOPHYSICAL) {
+                sourceImage = ImageManager.getInstance().getGeophysicalImage(rasterDataNode, getLevel());
+                dataType = rasterDataNode.getGeophysicalDataType();
             } else {
-                sourceImage = ImageManager.getInstance().getSourceImage(sourceRDN, getLevel());
-                productDataType = sourceRDN.getDataType();
+                sourceImage = ImageManager.getInstance().getSourceImage(rasterDataNode, getLevel());
+                dataType = rasterDataNode.getDataType();
             }
-            Raster sourceRaster = sourceImage.getData(destRect);
+            final Raster sourceRaster = sourceImage.getData(destRect);
+            if (sourceRaster instanceof NoDataRaster) {
+                return false;
+            }
             DataBuffer dataBuffer = sourceRaster.getDataBuffer();
             if (dataBuffer.getSize() != destRect.width * destRect.height) {
-                WritableRaster wr =
-                    sourceRaster.createCompatibleWritableRaster(destRect);
-                sourceImage.copyData(wr);
-                dataBuffer = wr.getDataBuffer();
+                final WritableRaster writableRaster = sourceRaster.createCompatibleWritableRaster(destRect);
+                sourceImage.copyData(writableRaster);
+                dataBuffer = writableRaster.getDataBuffer();
             }
-            Object sourceArray = ImageUtils.getPrimitiveArray(dataBuffer);
-            ProductData productData = ProductData.createInstance(productDataType, sourceArray);
-            rasterDataSymbol.setData(productData);
+            symbol.setData(ProductData.createInstance(dataType, ImageUtils.getPrimitiveArray(dataBuffer)));
         }
+        return true;
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -305,6 +342,4 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                                        ResolutionLevel level) {
         return createMask(expression, products, 0, level);
     }
-
-
 }
