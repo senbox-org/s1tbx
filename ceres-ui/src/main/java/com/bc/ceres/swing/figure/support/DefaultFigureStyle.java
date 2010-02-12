@@ -3,7 +3,9 @@ package com.bc.ceres.swing.figure.support;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.swing.figure.FigureStyle;
 
@@ -23,8 +25,16 @@ import java.util.TreeMap;
 import static java.lang.Math.*;
 
 public class DefaultFigureStyle extends PropertyContainer implements FigureStyle {
+    //
+    //  The following property descriptors are SVG/CSS standards (see http://www.w3.org/TR/SVG/styling.html)
+    //
+    public static final PropertyDescriptor FILL_COLOR = createFillColorDescriptor();
+    public static final PropertyDescriptor FILL_OPACITY = createFillOpacityDescriptor();
+    public static final PropertyDescriptor STROKE_COLOR = createStrokeColorDescriptor();
+    public static final PropertyDescriptor STROKE_OPACITY = createStrokeOpacityDescriptor();
+    public static final PropertyDescriptor STROKE_WIDTH = createStrokeWidthDescriptor();
 
-    private final static DefaultFigureStyle PROTOTYPE;
+    private static final DefaultFigureStyle PROTOTYPE;
 
     private String name;
     private Map<String, Object> values;
@@ -102,7 +112,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         }
         Property property = PROTOTYPE.getProperty(name);
         if (property != null) {
-            defineProperty(property, value);
+            defineProperty(property.getDescriptor(), value);
         } else {
             // be tolerant, do nothing!
             // todo - really do nothing or log warning, exception?  (nf)
@@ -281,11 +291,11 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
                             Converter<?> converter = property.getDescriptor().getConverter();
                             if (converter != null) {
                                 Object value = converter.parse(textValue);
-                                defineProperty(property, value);
+                                defineProperty(property.getDescriptor(), value);
                             }
                         }
                     }
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                     // be tolerant, do nothing!
                     // todo - really do nothing or log warning, exception?  (nf)
                 }
@@ -341,21 +351,22 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
     }
 
     private static double getOpacity(Color strokeColor) {
-        return Math.round(100.0/255.0 * strokeColor.getAlpha())/100.0;
+        return Math.round(100.0 / 255.0 * strokeColor.getAlpha()) / 100.0;
     }
 
     // Only called once by prototype singleton
+
     private void initPrototypeProperties() {
-        Field[] declaredFields = FigureStyle.class.getDeclaredFields();
+        Field[] declaredFields = DefaultFigureStyle.class.getDeclaredFields();
         for (Field declaredField : declaredFields) {
-            if (declaredField.getType() == Property.class) {
+            if (declaredField.getType() == PropertyDescriptor.class) {
                 try {
-                    Property prototypeProperty = (Property) declaredField.get(null);
-                    prototypeProperty.getDescriptor().setDefaultConverter();
-                    if (Color.class.isAssignableFrom(prototypeProperty.getType())) {
-                        prototypeProperty.getDescriptor().setConverter(new CssColorConverter());
+                    PropertyDescriptor propertyDescriptor = (PropertyDescriptor) declaredField.get(null);
+                    propertyDescriptor.setDefaultConverter();
+                    if (Color.class.isAssignableFrom(propertyDescriptor.getType())) {
+                        propertyDescriptor.setConverter(new CssColorConverter());
                     }
-                    defineProperty(prototypeProperty, prototypeProperty.getValue());
+                    defineProperty(propertyDescriptor, propertyDescriptor.getDefaultValue());
                 } catch (IllegalAccessException e) {
                     throw new IllegalStateException(e);
                 }
@@ -368,9 +379,9 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
         }
     }
 
-    private void defineProperty(Property prototypeProperty, Object value) {
-        MapEntryAccessor accessor = new MapEntryAccessor(values, prototypeProperty.getName());
-        Property property = new Property(prototypeProperty.getDescriptor(), accessor);
+    private void defineProperty(PropertyDescriptor propertyDescriptor, Object value) {
+        MapEntryAccessor accessor = new MapEntryAccessor(values, propertyDescriptor.getName());
+        Property property = new Property(propertyDescriptor, accessor);
         addProperty(property);
         setValue(property.getName(), value);
     }
@@ -414,4 +425,42 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
             }
         }
     }
+
+    private static PropertyDescriptor createFillColorDescriptor() {
+        PropertyDescriptor descriptor = new PropertyDescriptor("fill", Color.class);
+        descriptor.setDefaultValue(Color.BLACK);
+        descriptor.setNotNull(false);
+        return descriptor;
+    }
+
+    private static PropertyDescriptor createFillOpacityDescriptor() {
+        PropertyDescriptor descriptor = new PropertyDescriptor("fill-opacity", Double.class);
+        descriptor.setDefaultValue(1.0);
+        descriptor.setValueRange(new ValueRange(0.0, 1.0));
+        descriptor.setNotNull(false);
+        return descriptor;
+    }
+
+    private static PropertyDescriptor createStrokeColorDescriptor() {
+        PropertyDescriptor descriptor = new PropertyDescriptor("stroke", Color.class);
+        descriptor.setDefaultValue(null);
+        descriptor.setNotNull(false);
+        return descriptor;
+    }
+
+    private static PropertyDescriptor createStrokeOpacityDescriptor() {
+        PropertyDescriptor descriptor = new PropertyDescriptor("stroke-opacity", Double.class);
+        descriptor.setDefaultValue(1.0);
+        descriptor.setValueRange(new ValueRange(0.0, 1.0));
+        descriptor.setNotNull(false);
+        return descriptor;
+    }
+
+    private static PropertyDescriptor createStrokeWidthDescriptor() {
+        PropertyDescriptor descriptor = new PropertyDescriptor("stroke-width", Double.class);
+        descriptor.setDefaultValue(0.0);
+        descriptor.setNotNull(false);
+        return descriptor;
+    }
+
 }
