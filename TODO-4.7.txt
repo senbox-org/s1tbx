@@ -1,17 +1,11 @@
 Reprojection:
 =============
-
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
   Remove usage, deprecate and/or remove classes. Prefer deprecation.
   ==> FINAL, MZ, CLOSED (deprecated)
-
   
 Masks:
 ======
-* Transfer Mask Dialog:
-  Explain "descr" and "pixel" in dialog and help. Use an example.
-  ==> FINAL , MP, OPEN
-
 * We need a special mask type masking out no-data pixels. If no-data value
   is set, it shall be used in its raw form by the mask image (OpImage).
   If valid-expression is set, it shall be AND-ed with the no-data mask,
@@ -23,6 +17,9 @@ Masks:
   be stored to disk.
   ==> FINAL (v4.8), ?, OPEN
 
+* Transfer Mask Dialog:
+  Explain "descr" and "pixel" in dialog and help. Use an example.
+  ==> FINAL , MZ, CLOSED
 * ROI/Mask Manager: When deleting a "geometry mask" the associated geometry shall be deleted as well.
   Forbid deletion of "pin" and "placemark" masks!
   ==> FINAL , MZ, CLOSED
@@ -102,7 +99,7 @@ GPF Processors:
 
 SMOS-Box:
 =========
-* Export GridCellExporter still uses "product.getPinGroup().getSelectedNodes()"
+* Export GridCellExporter still uses "product.getPinGroup().getSelectedNodes()" and ROIDefinition.
   ==> FINAL, *, OPEN
 * We need the RasterDataNode.areaOfInterest:Geometry new property for boosting
   statistics computation and possibly also display. This property is optional but

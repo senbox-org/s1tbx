@@ -774,10 +774,11 @@ class MaskFormActions {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            Window window = getWindow(e);
             final Product sourcProduct = getMaskForm().getProduct();
             Mask[] selectedMasks = getMaskForm().getSelectedMasks();
             Product[] allProducts = VisatApp.getApp().getProductManager().getProducts();
-            final CopyMaskDialog dialog = new CopyMaskDialog(sourcProduct, allProducts, selectedMasks);
+            final TransferMaskDialog dialog = new TransferMaskDialog(window, sourcProduct, allProducts, selectedMasks);
             if (dialog.show() == AbstractDialog.ID_OK) {
                 Product[] maskPixelTargetProducts = dialog.getMaskPixelTargets();
                 copyMaskPixel(selectedMasks, sourcProduct, maskPixelTargetProducts);
