@@ -3,6 +3,8 @@ Reprojection:
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
   Remove usage, deprecate and/or remove classes. Prefer deprecation.
   ==> FINAL, MZ, CLOSED (deprecated)
+
+* Band Math --> Band Maths
   
 Masks:
 ======
