@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>VISAT Help - Import Transect Data</title>
+    <title>VISAT Help - Import Geometry</title>
     <link rel="stylesheet" href="../style.css">
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
@@ -9,23 +9,56 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Import Transect Data</td>
-        
-    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
+            Import Geometry
+        </td>
+
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a></td>
     </tr>
 </table>
 
-<h3>Import Transect Data (Geometric Shape)</h3>
+<h2>Import Geometry</h2>
 
 <p>
-    This command is used to import transect data and to convert it into a geometric shape defined either in
+    You can either import <a href="#importTransect">transect data</a> or an ESRI Shapefile.
+</p>
+
+<h3>Import ESRI Shapefile</h3>
+
+<p>When importing an ESRI Shapefile and no associated <b>*.prj</b> is found, you will be asked to
+    define the Coordinate Reference System (CRS) on which is coordinates of the shapefile are defined.
+</p>
+
+<p align="center"><img src="images/ImportGeometryDefineCRS.png">
+</p>
+
+<p>
+    You can choose between three options to define the CRS:
+<ul>
+    <li><b>Use target CRS</b><br/>
+        This options can be chosen if the shapefile is defined on the same CRS as the product you want
+        to import the shapefile. The transformation used by the projection can be selected. Also the geodetic
+        datum and transformation parameters can be set, if possible for the selected transformation.
+    </li>
+    <li><b>Custom CRS</b><br/>
+        Here you can freely define the CRS of the shapefile.
+    </li>
+    <li><b>Predefined CRS</b><br/>
+        By clicking on the <b>Select...</b> button a new <a href="SelectCrsDialog.html">dialog</a> is shown
+        where a predefined CRS can be selected.
+    </li>
+</ul>
+
+<h3 id="importTransect">Import Transect Data (Geometric Shape)</h3>
+
+<p>
+    If transect data is imported it is converted into a geometric shape defined either in
     pixel or geodetic (WGS-84) co-ordinates from a text file.
 </p>
 
 <p>
     Transect data files are text files and have the default extension <code>.txt</code>. Each line in the file
-    corresponds
-    to a single vertex point of the geometric shape. Co-ordinates are stored in columns separated
+    corresponds to a single vertex point of the geometric shape. Co-ordinates are stored in columns separated
     by whitespace characters (space or tabulator). All co-ordinates refer to a pixel's upper left
     corner. A file can have a header line in order to specify column names.
 </p>
@@ -41,11 +74,26 @@
 
 <blockquote>
     <table border="0" width="auto">
-        <tr><td>column 1:</td> <td><i>mandatory X co-ordinate given in pixels</i></td></tr>
-        <tr><td>column 2:</td> <td><i>mandatory Y co-ordinate given in pixels</i></td></tr>
-        <tr><td>column 3:</td> <td><i>optional latitude in decimal degree</i></td></tr>
-        <tr><td>column 4:</td> <td><i>optional longitude in decimal degree</i></td></tr>
-        <tr><td>column 4 + <i>i</i>:</td> <td><i>optional additional data</i></td></tr>
+        <tr>
+            <td>column 1:</td>
+            <td><i>mandatory X co-ordinate given in pixels</i></td>
+        </tr>
+        <tr>
+            <td>column 2:</td>
+            <td><i>mandatory Y co-ordinate given in pixels</i></td>
+        </tr>
+        <tr>
+            <td>column 3:</td>
+            <td><i>optional latitude in decimal degree</i></td>
+        </tr>
+        <tr>
+            <td>column 4:</td>
+            <td><i>optional longitude in decimal degree</i></td>
+        </tr>
+        <tr>
+            <td>column 4 + <i>i</i>:</td>
+            <td><i>optional additional data</i></td>
+        </tr>
     </table>
 </blockquote>
 
@@ -81,14 +129,29 @@
 
 <blockquote>
     <table border="0">
-        <tr><td><code>x</code>, <code>pixel_x</code> or <code>pixel-x</code>:</td> <td><i>X co-ordinate given in
-            pixels</i></td></tr>
-        <tr><td><code>y</code>, <code>pixel_y</code> or <code>pixel-y</code>:</td> <td><i>Y co-ordinate given in
-            pixels</i></td></tr>
-        <tr><td><code>lat</code> or <code>latitude</code>:</td> <td><i>latitude in decimal degree</i></td></tr>
-        <tr><td><code>lon</code>, <code>long</code> or <code>longitude</code>:</td> <td><i>latitude in decimal
-            degree</i></td></tr>
-        <tr><td>other names:</td> <td><i>ignored</i></td></tr>
+        <tr>
+            <td><code>x</code>, <code>pixel_x</code> or <code>pixel-x</code>:</td>
+            <td><i>X co-ordinate given in
+                pixels</i></td>
+        </tr>
+        <tr>
+            <td><code>y</code>, <code>pixel_y</code> or <code>pixel-y</code>:</td>
+            <td><i>Y co-ordinate given in
+                pixels</i></td>
+        </tr>
+        <tr>
+            <td><code>lat</code> or <code>latitude</code>:</td>
+            <td><i>latitude in decimal degree</i></td>
+        </tr>
+        <tr>
+            <td><code>lon</code>, <code>long</code> or <code>longitude</code>:</td>
+            <td><i>latitude in decimal
+                degree</i></td>
+        </tr>
+        <tr>
+            <td>other names:</td>
+            <td><i>ignored</i></td>
+        </tr>
     </table>
 </blockquote>
 
