@@ -17,10 +17,6 @@
     </tr>
 </table>
 
-<p class="note">
-   <b>IMPORTANT NOTE:</b> This help page refers to an outdated user interface. It will be updated for the final BEAM 4.7 release.
-</p>
-
 <h3>Overview</h3>
 
 <p>If you are opening an image view of a data product's band or tie-point grid, VISAT either loads image settings
@@ -76,6 +72,10 @@
 
 <p>Changes in the colour manipulation window will be become effective only if
     the <b>Apply</b> button is pressed.
+</p>
+
+<p>If the <font color="red">Rough statistics!</font> is shown, the statistical information is computed on a
+    sub-sampled level. You can click on it, in order to compute the accurate statistical data.
 </p>
 
 
@@ -151,20 +151,20 @@
 
 <h3>Common Functions</h3>
 
-<h4><a name="nodata"/>No-Data Colour</h4>
+<h4><a name="nodata">No-Data Colour</a></h4>
 
 <p>In the <b>More Options</b> panel of all editors you can adjust the <b>No-Data Colour</b>. This colour which
     will be used for no-data pixels in the source band(s). If you select <b>None</b>, no-data sample will be
     transparent in the image.</p>
 
-<h4><a name="histomatch"/>Histogram Matching</h4>
+<h4><a name="histomatch">Histogram Matching</a></h4>
 
 <p>It is sometimes desirable to transform an image so that it's histogram matches that of a
     specified functional form. It is possible to apply an equalized or normalized
     histogram matching to images which can often improve image quality.
 </p>
 
-<h4><a name="multiassign"/>Multiple Assignment of the current Settings</h4>
+<h4><a name="multiassign">Multiple Assignment of the current Settings</a></h4>
 
 <p>
     A click on the <img src="images/icons/MultiAssign24.gif"> icon opens a dialog where you can select
@@ -192,7 +192,7 @@
     import/export file choosers in the colour manipulation window dialog use this folder by default.
 </p>
 
-<h4><a name="autoadjust"/>Slider Auto-Adjustment</h4>
+<h4><a name="autoadjust">Slider Auto-Adjustment</a></h4>
 
 <p>
     A click on the <img src="images/icons/Auto95Percent24.gif">
@@ -209,7 +209,7 @@
     icon distributes the inner sliders evenly between the first and the last slider.
 </p>
 
-<h4><a name="zommingintohisto"/>Zooming into the histogram</h4>
+<h4><a name="zommingintohisto">Zooming into the histogram</a></h4>
 
 <p>
     Click on the <img src="images/icons/ZoomIn24V.gif">
@@ -219,7 +219,7 @@
     zoom into the histogram horizontally.
 </p>
 
-<h4><a name="zommingoutofhisto"/>Zooming out of the histogram</h4>
+<h4><a name="zommingoutofhisto">Zooming out of the histogram</a></h4>
 
 <p> Click on the <img src="images/icons/ZoomOut24V.gif">
     icon to zoom out vertically or on the
@@ -232,7 +232,13 @@
 <p>The reset icon <img src="images/icons/Undo24.gif"> is used to revert the windo to contain default values.
 </p>
 
-<h4><a name="contexthelp"/>Context help</h4>
+<h4>Extra information</h4>
+
+<p>The information icon <img src="images/icons/Information24.gif"> is used to toggle the visibility of the extra
+    information area.
+</p>
+
+<h4><a name="contexthelp">Context help</a></h4>
 
 <p> The help icon <img src="images/icons/Help24.gif"> opens the BEAM Help for the current context.
 </p>

@@ -98,9 +98,9 @@
  4) Color manipulation
 
  - missing description of the " Rough statistics!"
-   ==> FINAL, ?, OPEN
+   ==> FINAL, MP, CLOSED
  - missing description of the "show extra information" icon.
-   ==> FINAL, ?, OPEN
+   ==> FINAL, MP, CLOSED
 
  5) Bitmask Overlay Window
  remove
