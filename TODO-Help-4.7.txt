@@ -66,7 +66,7 @@
    ==> FINAL, MP, CLOSED
 
 4) missing 'Export PIN Pixels'
-   ==> FINAL, ?, OPEN
+   ==> FINAL, ?, CLOSED
 
  ------------------------------------------------------------
  Imaging Tools
