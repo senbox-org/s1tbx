@@ -21,7 +21,7 @@ MAXAERITER; Maximum iterations of NIR algorithm
 MODGLINT;   Moderate sun glint
 CHLWARN;    Chlorophyll out of range
 ATMWARN;    Epsilon out of range
-DARKPIXEL;  Dark pixel (Lt – Lt < 0) for any band
+DARKPIXEL;  Dark pixel (Lt ï¿½ Lt < 0) for any band
 SEAICE;     Sea ice in pixel (based on climatology)
 NAVFAIL;    Navigation failure condition indicated in nav flags
 FILTER;     Insufficient valid neighbouring pixels for epsilon filtering
