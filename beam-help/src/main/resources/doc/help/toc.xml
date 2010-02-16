@@ -40,6 +40,7 @@
 
                 <tocitem text="Export BEAM-DIMAP Data Product" target="exportDimapProduct"/>
                 <tocitem text="Export HDF-5 Data Product" target="exportHdf5Product"/>
+                <tocitem text="Export Product Metadata" target="exportProductMetadata"/>
                 <tocitem text="Export ENVI GCP File" target="exportEnviGcpFile"/>
                 <tocitem text="Export Displayed Image" target="exportImageFile"/>
                 <tocitem text="Export KML" target="exportKml"/>

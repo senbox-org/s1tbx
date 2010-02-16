@@ -63,7 +63,7 @@
    ==> PRE, MP, CLOSED,
 
 3) missing 'Export Product Metadata'
-   ==> FINAL, ?, OPEN
+   ==> FINAL, MP, CLOSED
 
 4) missing 'Export PIN Pixels'
    ==> FINAL, ?, OPEN
@@ -104,7 +104,7 @@
 
  5) Bitmask Overlay Window
  remove
-    ==> PRE, MP, OPEN
+    ==> PRE, MP, CLOSED
 
 
  6) Bitmask Editor
@@ -232,7 +232,7 @@ remove
   	Select All
    - add icon to 'Delete'
 
-    ==> PRE, NF, OPEN - describe usage in chapter "Geometry"
+    ==> PRE, NF, CLOSED - describe usage in chapter "Geometry"
 
 
   6) View Menu
@@ -296,6 +296,6 @@ remove
 
     geometry icons
 
-     ==> PRE(?), MP, OPEN
+     ==> PRE(?), MP, CLOSED
 
 -------------------------------------------------------------------   
