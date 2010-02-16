@@ -178,7 +178,7 @@ remove
  4) Pixel Geo-Coding
    missing description of the "beam.envisat.amorgos.usePixelGeoCoding = true" option in the beam.config file
    describe in ENVISAT file reader, link to it
-    ==> FINAL, MP, OPEN
+    ==> FINAL, MP, CLOSED
 
  5) Module Manager
  - Windows 7 screenshot
