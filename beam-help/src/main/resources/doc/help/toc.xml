@@ -45,6 +45,7 @@
                 <tocitem text="Export KML" target="exportKml"/>
                 <tocitem text="Export Mask Pixels" target="exportMaskPixels"/>
                 <tocitem text="Export Transect Pixels" target="exportTransectPixels"/>
+                <tocitem text="Export Geometry as Shapefile" target="exportShapefile"/>
                 <tocitem text="Export Colour Legend" target="exportLegendImageFile"/>
                 <tocitem text="Export Colour Palette" target="exportColorPalette"/>
 
