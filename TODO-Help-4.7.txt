@@ -236,16 +236,9 @@ remove
 
 
   6) View Menu
-
-
-    todo update description for Docking, Floating and Grouping in ToolWindows.html
-
-        ==> PRE (?), MP, OPEN
-
-
-   - missing link to Layer Manager and  Mask/ROI Manager pages
-
-    ==> PRE, MP, OPEN
+       - ToolWindows.html must be updated.
+       - missing link to Layer Manager and  Mask/ROI Manager pages
+        ==> PRE (?), MP, CLOSED
 
   8) Analysis Menu
 
@@ -272,7 +265,7 @@ remove
 
     links to processor's pages do not work
 
-    ==> PRE(?), MP, OPEN
+    ==> -, MP, OPEN (stays open)
 
 
   10) Window Menu
