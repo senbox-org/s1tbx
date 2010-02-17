@@ -1,18 +1,16 @@
 package org.esa.beam.framework.gpf.operators.common;
 
-import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 @OperatorMetadata(alias = "PassThrough",
-                  description = "Sets target product to source product.")
+                  description = "Sets target product to source product.",
+                  internal = true)
 public class PassThroughOp extends Operator {
     @SourceProduct
     private Product sourceProduct;
