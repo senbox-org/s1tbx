@@ -91,8 +91,9 @@ public class OperatorHandlerHtml implements OperatorHandler {
         }
 
         writer.println("<h2>Sources</h2>");
-        SourceProductDesc[] sourceProducts = operatorDesc.getSourceProducts();
-        if (sourceProducts.length > 0) {
+        SourceProductDesc[] sourceProducts = operatorDesc.getSourceProductList();
+        SourceProductsDesc sourceProductsField = operatorDesc.getSourceProducts();
+        if (sourceProducts.length > 0 || sourceProductsField != null) {
             writer.println("<table>");
             writer.println("<tr>");
             writer.println("  <th>Name</th>");
@@ -102,6 +103,12 @@ public class OperatorHandlerHtml implements OperatorHandler {
                 writer.println("<tr>");
                 writer.println("  <td><code>" + sourceProduct.getName() + "</code></td>");
                 writer.println("  <td>" + getFullDescription(sourceProduct) + "</td>");
+                writer.println("</tr>");
+            }
+            if(sourceProductsField != null) {
+                writer.println("<tr>");
+                writer.println("  <td><code>" + sourceProductsField.getName() + "</code></td>");
+                writer.println("  <td>" + getFullDescription(sourceProductsField) + "</td>");
                 writer.println("</tr>");
             }
             writer.println("</table>");

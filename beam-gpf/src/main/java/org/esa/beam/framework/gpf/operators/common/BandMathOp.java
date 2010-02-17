@@ -53,7 +53,7 @@ import java.util.Map;
 public class BandMathOp extends Operator {
 
     public static class BandDescriptor {
-
+        
         public String name;
         public String expression;
         public String description;
@@ -75,7 +75,7 @@ public class BandMathOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @SourceProducts
+    @SourceProducts(description = "Any number of source products.")
     private Product[] sourceProducts;
 
     @Parameter(alias = "targetBands", itemAlias = "targetBand",

@@ -2,22 +2,22 @@ package org.esa.beam.framework.gpf.doclet;
 
 import com.sun.javadoc.FieldDoc;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
 
 import java.lang.reflect.Field;
 
-public class SourceProductDesc extends FieldDesc{
-    private final SourceProduct annotation;
+public class SourceProductsDesc extends FieldDesc{
+    private final SourceProducts annotation;
 
-    SourceProductDesc(Field field, FieldDoc fieldDoc, SourceProduct annotation) {
+    SourceProductsDesc(Field field, FieldDoc fieldDoc, SourceProducts annotation) {
         super(field, fieldDoc);
         this.annotation = annotation;
     }
 
-    public SourceProduct getAnnotation() {
+    public SourceProducts getAnnotation() {
         return annotation;
     }
 
-    @Override
     public String getShortDescription() {
         return annotation.description();
     }
