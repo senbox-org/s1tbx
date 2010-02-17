@@ -22,4 +22,8 @@ public class ParameterDesc extends FieldDesc{
     public String getShortDescription() {
         return annotation.description();
     }
+
+    public String getDefaultValue() {
+        return annotation.defaultValue();
+    }
 }
