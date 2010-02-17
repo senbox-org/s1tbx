@@ -1,2 +1,5 @@
 *.iml
 .idea/
+config/
+modules/
+target/
