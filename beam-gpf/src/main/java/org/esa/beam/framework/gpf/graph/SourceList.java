@@ -72,11 +72,14 @@ public class SourceList {
                 String name = hierarchicalStreamReader.getNodeName();
                 if ("sourceProducts".equals(name)) {
                     final String sourceNodeIdsString = hierarchicalStreamReader.getValue().trim();
-                    final String[] sourceNodeIds = StringUtils.csvToArray(sourceNodeIdsString);
-                    for (int i = 0; i < sourceNodeIds.length; i++) {
-                        String sourceNodeId = sourceNodeIds[i];
-                        sourceList.addSource(new NodeSource(String.format("%s%d", name, i), sourceNodeId));
+                    if(StringUtils.isNotNullAndNotEmpty(sourceNodeIdsString)) {
+                        final String[] sourceNodeIds = StringUtils.csvToArray(sourceNodeIdsString);
+                        for (int i = 0; i < sourceNodeIds.length; i++) {
+                            String sourceNodeId = sourceNodeIds[i];
+                            sourceList.addSource(new NodeSource(String.format("%s%d", name, i), sourceNodeId));
+                        }
                     }
+
                 } else {
                     String refid = hierarchicalStreamReader.getAttribute("refid");
                     if (refid == null) {
