@@ -93,6 +93,8 @@ public class OperatorDoclet extends Doclet {
                         if (!annotation.internal()) {
                             OperatorDesc operatorDesc = new OperatorDesc(type, classDoc, annotation);
                             operatorHandler.processOperator(operatorDesc);
+                        }else{
+                            System.err.println("Warning: Skipping " + classDoc.typeName() + " because it is internal.");
                         }
                     } else {
                         System.err.println("Warning: Skipping " + classDoc.typeName() + " because it has no metadata.");
