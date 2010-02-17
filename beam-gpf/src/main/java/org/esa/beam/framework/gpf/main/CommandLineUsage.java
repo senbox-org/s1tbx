@@ -230,9 +230,13 @@ class CommandLineUsage {
 
         if (operatorClassDescriptor.getOperatorMetadata() != null && !operatorClassDescriptor.getOperatorMetadata().description().isEmpty()) {
             usageText.append("\nDescription:\n");
-            usageText.append("  ");
-            usageText.append(operatorClassDescriptor.getOperatorMetadata().description());
-            usageText.append("\n");
+            final String description = operatorClassDescriptor.getOperatorMetadata().description();
+            final String[] lines = description.split("\n");
+            for (String line : lines) {
+                usageText.append("  ");
+                usageText.append(line);
+                usageText.append("\n");
+            }
         }
         if (!propertyDocElementList.isEmpty()) {
             usageText.append("\nComputed Properties:\n");
