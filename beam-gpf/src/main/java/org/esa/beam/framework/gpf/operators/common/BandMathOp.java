@@ -47,7 +47,25 @@ import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
-@OperatorMetadata(alias = "BandMath", version = "1.0",
+/**
+ * This band maths operator can be used to create a product with multiple bands based on mathematical expression.
+ * <br/>
+ * <p>
+ * All products specified as source must have the same width and height, otherwise the operator will fail.
+ *
+ * <p>
+ * The geo-coding information and metadata for the target product is taken from the first source product.
+ * <p>
+ * To reference a band of one of the source products within an expression use the following syntax:<br/>
+ * <code>sourceProducts<b>#</b>.bandName</code><br/>
+ * Where <b>#</b> means the index of the source product. The index is zero based.<br/>
+ * The bands of the first source product (<code>sourceProducts<b>0</b></code>) can be referenced without this
+ * product identifier.
+ * 
+ */
+@OperatorMetadata(alias = "BandMath",
+                  version = "1.0",
+                  copyright = "(c) 2010 by Brockmann Consult",
                   description = "Create a product with one or more bands using mathematical expressions.\n" +
                                 "This operator can only be invoked with a Graph XML file.")
 public class BandMathOp extends Operator {
