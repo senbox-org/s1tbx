@@ -28,7 +28,7 @@ VectorDataNode:
 ===============
 * Create subset from Product with Pins, GCPs -> GCPs outside of subset bounds are preserved, pins are not
   Explain in help, that this is intended.
-  ==> FINAL, ?, OPEN
+  ==> FINAL, MP, CLOSED
 
 * Import of Geometry does not work when shapefile has no CRS and shapefile coordinates are not in WGS84.
   the user is asked to enter a CRS.
