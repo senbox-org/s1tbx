@@ -58,6 +58,7 @@ public class OperatorDoclet extends Doclet {
 //                "-classpath", "./beam-gpf/target/classes"
                 "org.esa.beam.framework.gpf.operators.common",
                 "org.esa.beam.gpf.common.reproject",
+                "org.esa.beam.gpf.common.mosaic",
                 "org.esa.beam.framework.gpf.operators.meris",
         });
     }
@@ -89,8 +90,10 @@ public class OperatorDoclet extends Doclet {
                     Class<? extends Operator> type = (Class<? extends Operator>) Class.forName(classDoc.qualifiedTypeName());
                     OperatorMetadata annotation = type.getAnnotation(OperatorMetadata.class);
                     if (annotation != null) {
-                        OperatorDesc operatorDesc = new OperatorDesc(type, classDoc, annotation);
-                        operatorHandler.processOperator(operatorDesc);
+                        if (!annotation.internal()) {
+                            OperatorDesc operatorDesc = new OperatorDesc(type, classDoc, annotation);
+                            operatorHandler.processOperator(operatorDesc);
+                        }
                     } else {
                         System.err.println("Warning: Skipping " + classDoc.typeName() + " because it has no metadata.");
                     }
