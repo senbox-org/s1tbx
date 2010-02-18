@@ -9,7 +9,7 @@ Band Math --> Band Maths
   - BandMathOp --> BandMathsOp
   - BandMathMaskPersistable --> BandMathsMaskPersistable
   - Mask.BandMathType --> Mask.BandMathsType
-  ==> FINAL , MP, OPEN
+  ==> FINAL , MP, CLOSED
 
 Reprojection:
 =============
