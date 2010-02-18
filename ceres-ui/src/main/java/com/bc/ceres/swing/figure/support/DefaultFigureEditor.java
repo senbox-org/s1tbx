@@ -65,11 +65,12 @@ public class DefaultFigureEditor implements FigureEditor {
 
         this.viewport = viewport;
 
+        this.interactor = NullInteractor.INSTANCE;
+
         InteractionDispatcher interactionDispatcher = new InteractionDispatcher(this);
         interactionDispatcher.registerListeners(this.editorComponent);
 
         this.undoContext = undoContext != null ? undoContext : new DefaultUndoContext(this);
-        this.interactor = NullInteractor.INSTANCE;
         this.figureCollection = figureCollection;
         this.figureSelection = new DefaultFigureSelection();
         this.figureSelection.addChangeListener(new FigureSelectionMulticaster());
@@ -243,7 +244,13 @@ public class DefaultFigureEditor implements FigureEditor {
     @Override
     public void setInteractor(Interactor interactor) {
         if (this.interactor != interactor) {
+            if (interactor != null) {
+                interactor.deactivate();
+            }
             this.interactor = interactor;
+            if (this.interactor != null) {
+                this.interactor.activate();
+            }
             getEditorComponent().setCursor(interactor.getCursor());
         }
     }

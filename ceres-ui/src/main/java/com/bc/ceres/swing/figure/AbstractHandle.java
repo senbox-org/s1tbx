@@ -69,6 +69,10 @@ public abstract class AbstractHandle extends AbstractFigure implements Handle {
         return normalStyle;
     }
 
+    public FigureStyle getSelectedStyle() {
+        return selectedStyle;
+    }
+
     @Override
     public Shape getShape() {
         return shape;

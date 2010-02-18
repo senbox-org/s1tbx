@@ -12,16 +12,17 @@ import java.awt.datatransfer.Transferable;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DefaultFigureSelection extends DefaultFigureCollection implements FigureSelection {
 
-    private Handle[] handles;
+    private List<Handle> handles;
     private Handle selectedHandle;
     private int selectionStage;
 
     public DefaultFigureSelection() {
         this.selectionStage = 0;
-        this.handles = NO_HANDLES;
     }
 
     @Override
@@ -43,7 +44,10 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
 
     @Override
     public Handle[] getHandles() {
-        return handles.clone();
+        if (handles != null) {
+            return handles.toArray(new Handle[handles.size()]);
+        }
+        return NO_HANDLES;
     }
 
     @Override
@@ -60,6 +64,12 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
             this.selectedHandle = handle;
             if (this.selectedHandle != null) {
                 this.selectedHandle.setSelected(true);
+                if (handles == null) {
+                    handles = new ArrayList<Handle>();
+                }
+                if (!handles.contains(handle)) {
+                    handles.add(this.selectedHandle);
+                }
             }
             fireFigureChanged();
         }
@@ -165,7 +175,7 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
     @Override
     public FigureSelection clone() {
         final DefaultFigureSelection figureSelection = (DefaultFigureSelection) super.clone();
-        figureSelection.handles = NO_HANDLES;
+        figureSelection.handles = null;
         figureSelection.selectedHandle = null;
         figureSelection.selectionStage = 0;
         return figureSelection;
@@ -235,15 +245,17 @@ public class DefaultFigureSelection extends DefaultFigureCollection implements F
     private void updateHandles() {
         disposeHandles();
         if (this.selectionStage != 0) {
-            handles = createHandles(this.selectionStage);
+            handles = new ArrayList<Handle>(Arrays.asList(createHandles(this.selectionStage)));
         }
     }
 
     private void disposeHandles() {
-        for (Handle handle : handles) {
-            handle.dispose();
+        if (handles != null) {
+            for (Handle handle : handles) {
+                handle.dispose();
+            }
         }
-        handles = NO_HANDLES;
+        handles = null;
         selectedHandle = null;
     }
 

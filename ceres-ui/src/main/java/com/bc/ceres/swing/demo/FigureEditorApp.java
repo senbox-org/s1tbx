@@ -357,7 +357,11 @@ public abstract class FigureEditorApp {
         selectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                figureEditorPanel.getFigureEditor().setInteractor(interactor);
+                boolean b = selectButton.isSelected();
+                System.out.println("b = " + b);
+                if (b) {
+                    figureEditorPanel.getFigureEditor().setInteractor(interactor);
+                }
             }
         });
         interactor.addListener(new AbstractInteractorListener() {

@@ -277,9 +277,9 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
             if (type == PathIterator.SEG_MOVETO) {
                 path.moveTo(seg[0], seg[1]);
             } else if (type == PathIterator.SEG_LINETO) {
-                if(seg[0] == changedSeg[0] && seg[1] == changedSeg[1]){
+                if (seg[0] == changedSeg[0] && seg[1] == changedSeg[1]) {
                     path.lineTo(newSeg[0], newSeg[1]);
-                }else {
+                } else {
                     path.lineTo(seg[0], seg[1]);
                 }
             } else if (type == PathIterator.SEG_QUADTO) {
@@ -288,6 +288,86 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
                 path.curveTo(seg[0], seg[1], seg[2], seg[3], seg[4], seg[5]);
             } else if (type == PathIterator.SEG_CLOSE) {
                 path.closePath();
+            }
+            pathIterator.next();
+            i++;
+        }
+        setShape(path);
+    }
+
+    @Override
+    public void addSegment(int index, double[] segment) {
+        final Path2D.Double path = new Path2D.Double();
+        final PathIterator pathIterator = getShape().getPathIterator(null);
+        final double[] seg = new double[6];
+        int i = 0;
+        boolean moveToSeen = false;
+        while (!pathIterator.isDone()) {
+            final int type = pathIterator.currentSegment(seg);
+            if (i == index) {
+                if (i == 0) {
+                    path.moveTo(segment[0], segment[1]);
+                    moveToSeen = true;
+                } else {
+                    path.lineTo(segment[0], segment[1]);
+                }
+            }
+            if (type == PathIterator.SEG_MOVETO) {
+                if (moveToSeen) {
+                    path.lineTo(seg[0], seg[1]);
+                } else {
+                    path.moveTo(seg[0], seg[1]);
+                }
+                moveToSeen = true;
+            } else if (type == PathIterator.SEG_LINETO) {
+                path.lineTo(seg[0], seg[1]);
+            } else if (type == PathIterator.SEG_QUADTO) {
+                path.quadTo(seg[0], seg[1], seg[2], seg[3]);
+            } else if (type == PathIterator.SEG_CUBICTO) {
+                path.curveTo(seg[0], seg[1], seg[2], seg[3], seg[4], seg[5]);
+            } else if (type == PathIterator.SEG_CLOSE) {
+                path.closePath();
+            }
+            pathIterator.next();
+            i++;
+        }
+        setShape(path);
+    }
+
+    @Override
+    public void removeSegment(int index) {
+        final Path2D.Double path = new Path2D.Double();
+        final PathIterator pathIterator = getShape().getPathIterator(null);
+        final double[] seg = new double[6];
+        int i = 0;
+        boolean moveToSeen = false;
+        while (!pathIterator.isDone()) {
+            final int type = pathIterator.currentSegment(seg);
+            if (i != index) {
+                if (type == PathIterator.SEG_MOVETO) {
+                    moveToSeen = true;
+                    path.moveTo(seg[0], seg[1]);
+                } else if (type == PathIterator.SEG_LINETO) {
+                    if (moveToSeen) {
+                        path.lineTo(seg[0], seg[1]);
+                    } else {
+                        path.moveTo(seg[0], seg[1]);
+                    }
+                } else if (type == PathIterator.SEG_QUADTO) {
+                    if (moveToSeen) {
+                        path.quadTo(seg[0], seg[1], seg[2], seg[3]);
+                    } else {
+                        path.moveTo(seg[0], seg[1]);
+                    }
+                } else if (type == PathIterator.SEG_CUBICTO) {
+                    if (moveToSeen) {
+                        path.curveTo(seg[0], seg[1], seg[2], seg[3], seg[4], seg[5]);
+                    } else {
+                        path.moveTo(seg[0], seg[1]);
+                    }
+                } else if (type == PathIterator.SEG_CLOSE) {
+                    path.closePath();
+                }
             }
             pathIterator.next();
             i++;

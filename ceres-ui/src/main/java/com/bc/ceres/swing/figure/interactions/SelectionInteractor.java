@@ -5,6 +5,7 @@ import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.Handle;
+import com.bc.ceres.swing.figure.support.VertexHandle;
 
 import java.awt.Cursor;
 import java.awt.Point;
@@ -50,7 +51,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
 
     @Override
     public void mousePressed(MouseEvent event) {
-        if(startInteraction(event)){
+        if (startInteraction(event)) {
             referencePoint = event.getPoint();
             canceled = false;
             tool = selectPointTool;
@@ -127,11 +128,11 @@ public class SelectionInteractor extends FigureEditorInteractor {
 
     private boolean isMouseOverSelection(MouseEvent event) {
         return getFigureEditor(event).getFigureSelection().isCloseTo(toModelPoint(event),
-                                                                    getModelToViewTransform(event));
+                                                                     getModelToViewTransform(event));
     }
 
     private Figure findFigure(MouseEvent event) {
-        return getFigureEditor(event).getFigureCollection().getFigure(toModelPoint(event), 
+        return getFigureEditor(event).getFigureCollection().getFigure(toModelPoint(event),
                                                                       getModelToViewTransform(event));
     }
 
@@ -204,6 +205,9 @@ public class SelectionInteractor extends FigureEditorInteractor {
         @Override
         public void start(MouseEvent event) {
             figureMemento = getFigureEditor(event).getFigureSelection().createMemento();
+            if (event.isControlDown()) {
+                maybeAddSegment(event);
+            }
         }
 
         @Override
@@ -214,10 +218,64 @@ public class SelectionInteractor extends FigureEditorInteractor {
 
         @Override
         public void end(MouseEvent event) {
-            // Handles may have been moved, selection no longer required
+            if (event.isControlDown()) {
+               maybeRemoveSegment(event);
+            }
+            // Handle selection no longer required
             FigureEditor figureEditor = getFigureEditor(event);
             figureEditor.getFigureSelection().setSelectedHandle(null);
             figureEditor.changeFigure(figureEditor.getFigureSelection(), figureMemento, "Change figure shape");
+         }
+
+        private void maybeAddSegment(MouseEvent event) {
+            FigureSelection figureSelection = getFigureEditor(event).getFigureSelection();
+            Handle selectedHandle = figureSelection.getSelectedHandle();
+            if (selectedHandle instanceof VertexHandle) {
+                VertexHandle selectedVertexHandle = (VertexHandle) selectedHandle;
+                int segmentIndex = selectedVertexHandle.getSegmentIndex();
+                Figure figure = figureSelection.getFigure(0);
+                double[] segment = figure.getSegment(segmentIndex);
+                // Need to add some offsets, otherwise (AWT) shapes won't accept new segment
+                segment[0] += 0.1;
+                segment[1] += 0.1;
+                figure.addSegment(segmentIndex, segment);
+                VertexHandle newVertexHandle = new VertexHandle(figure, segmentIndex,
+                                                                selectedVertexHandle.getNormalStyle(),
+                                                                selectedVertexHandle.getSelectedStyle());
+                figureSelection.setSelectedHandle(newVertexHandle);
+                for (Handle handle : figureSelection.getHandles()) {
+                    if (handle instanceof VertexHandle) {
+                        VertexHandle vertexHandle = (VertexHandle) handle;
+                        if (vertexHandle != newVertexHandle
+                                && vertexHandle.getSegmentIndex() >= segmentIndex) {
+                            vertexHandle.setSegmentIndex(vertexHandle.getSegmentIndex() + 1);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void maybeRemoveSegment(MouseEvent event) {
+            FigureSelection figureSelection = getFigureEditor(event).getFigureSelection();
+            Handle selectedHandle = figureSelection.getSelectedHandle();
+            if (selectedHandle instanceof VertexHandle) {
+                VertexHandle selectedVertexHandle = (VertexHandle) selectedHandle;
+                AffineTransform m2v = getModelToViewTransform(event);
+                Point2D p1 = m2v.transform(selectedVertexHandle.getLocation(), null);
+                int segmentIndex = selectedVertexHandle.getSegmentIndex();
+                Figure figure = figureSelection.getFigure(0);
+                for (Handle handle : figureSelection.getHandles()) {
+                    if (handle instanceof VertexHandle) {
+                        VertexHandle vertexHandle = (VertexHandle) handle;
+                        Point2D p2 = m2v.transform(vertexHandle.getLocation(), null);
+                        if ((vertexHandle.getSegmentIndex() == segmentIndex - 1
+                                || vertexHandle.getSegmentIndex() == segmentIndex + 1)
+                                && vertexHandle.getShape().contains(new Point2D.Double(p1.getX()-p2.getX(), p1.getY()-p2.getY()))) {
+                            figure.removeSegment(segmentIndex);
+                        }
+                    }
+                }
+            }
         }
     }
 

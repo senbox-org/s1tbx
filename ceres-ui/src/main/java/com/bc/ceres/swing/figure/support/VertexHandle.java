@@ -11,7 +11,7 @@ import java.awt.geom.Ellipse2D;
 
 
 public class VertexHandle extends AbstractHandle {
-    private final int segmentIndex;
+    private int segmentIndex;
 
     public VertexHandle(Figure figure,
                         int vertexIndex,
@@ -21,6 +21,14 @@ public class VertexHandle extends AbstractHandle {
         this.segmentIndex = vertexIndex;
         updateLocation();
         setShape(createHandleShape());
+    }
+
+    public int getSegmentIndex() {
+        return segmentIndex;
+    }
+
+    public void setSegmentIndex(int segmentIndex) {
+        this.segmentIndex = segmentIndex;
     }
 
     @Override
