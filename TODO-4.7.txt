@@ -1,3 +1,16 @@
+VISAT
+=====
+
+Align changelog of beam-visat-rcp and beam-visat
+  ==> FINAL , MP, OPEN
+
+
+Band Math --> Band Maths
+  - BandMathOp --> BandMathsOp
+  - BandMathMaskPersistable --> BandMathsMaskPersistable
+  - Mask.BandMathType --> Mask.BandMathsType
+  ==> FINAL , MP, OPEN
+
 Reprojection:
 =============
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
@@ -57,6 +70,8 @@ Figures:
 
 Product tree:
 =============
+* Still can not add/remove geometry vertices
+  ==> FINAL, NF, CLOSED
 * Don't display empty groups. With special attention to Pin & GCP Vector Data Nodes.
   ==> FINAL, MP, CLOSED
 

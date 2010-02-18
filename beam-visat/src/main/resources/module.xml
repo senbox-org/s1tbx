@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.7:<br/>
+          [BEAM-1072] Access raw counts of bands in band maths expressions<br/>
           [BEAM-?] Introduce new geometry management<br/>
           [BEAM-?] Introduce new mask and ROI management<br/>
           [BEAM-?] Revise statistics to use multiple named ROIs<br/>

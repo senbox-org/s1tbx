@@ -61,7 +61,8 @@
                 <tocitem text="Navigation Window" target="showNavigationWnd"/>
                 <tocitem text="Colour Manipulation" target="showColorManipulationWnd"/>
                 <tocitem text="RGB-Image Profile" target="rgbImageProfile"/>
-                <tocitem text="No Data Overlay" target="noDataOverlay"/>
+                <tocitem text="No-Data Overlay" target="noDataOverlay"/>
+                <tocitem text="Geometry Management" target="geometryManagement"/>
             </tocitem>
 
             <tocitem text="Analysis Tools">
@@ -80,8 +81,8 @@
             </tocitem>
 
             <tocitem text="Product Generation Tools">
-                <tocitem text="Band Math" target="bandArithmetic"/>
-                <tocitem text="Math Expression Editor" target="expressionEditor"/>
+                <tocitem text="Band Maths" target="bandArithmetic"/>
+                <tocitem text="Band Maths Expression Editor" target="expressionEditor"/>
                 <tocitem text="Data Flip" target="dataFlip"/>
 
                 <tocitem text="Reprojection" target="reprojectionAction">

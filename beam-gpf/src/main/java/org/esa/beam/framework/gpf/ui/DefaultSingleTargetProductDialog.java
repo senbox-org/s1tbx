@@ -38,7 +38,7 @@ import java.util.Map;
  * WARNING: This class belongs to a preliminary API and may change in future releases.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
+ * @version $Revision: 8343 $ $Date: 2010-02-10 18:31:57 +0100 (Mi, 10 Feb 2010) $
  */
 public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog {
 

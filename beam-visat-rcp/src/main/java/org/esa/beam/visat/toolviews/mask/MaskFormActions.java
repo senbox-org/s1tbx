@@ -80,7 +80,7 @@ class MaskFormActions {
 
     MaskFormActions(AbstractToolView maskToolView, MaskForm maskForm) {
         maskActions = new MaskAction[]{
-                new NewBandMathAction(maskForm), new NewRangeAction(maskForm),
+                new NewBandMathsAction(maskForm), new NewRangeAction(maskForm),
                 new NewVectorDataNodeAction(maskForm), new NullAction(maskForm),
                 new NewUnionAction(maskForm), new NewIntersectionAction(maskForm),
                 new NewDifferenceAction(maskForm), new NewInvDifferenceAction(maskForm),
@@ -106,7 +106,7 @@ class MaskFormActions {
     }
 
     public MaskAction getNewBandMathAction() {
-        return getMaskAction(NewBandMathAction.class);
+        return getMaskAction(NewBandMathsAction.class);
     }
 
     public MaskAction getNewRangeAction() {
@@ -153,10 +153,10 @@ class MaskFormActions {
         return getMaskAction(NullAction.class);
     }
 
-    private static class NewBandMathAction extends BandMathAction {
+    private static class NewBandMathsAction extends BandMathsAction {
 
-        private NewBandMathAction(MaskForm maskForm) {
-            super(maskForm, "BandMath24.png", "bandMathButton", "Creates a new mask based on a logical expression");
+        private NewBandMathsAction(MaskForm maskForm) {
+            super(maskForm, "BandMath24.png", "bandMathButton", "Creates a new mask based on a logical band maths expression");
         }
 
         @Override
@@ -166,7 +166,7 @@ class MaskFormActions {
                     new Product[]{product}, product, null);
             expressionPane.setEmptyExpressionAllowed(false);
             expressionPane.setCode("");
-            if (expressionPane.showModalDialog(null, "New Logical Expression") == AbstractDialog.ID_OK) {
+            if (expressionPane.showModalDialog(null, "New Logical Band Maths Expression") == AbstractDialog.ID_OK) {
                 final String code = expressionPane.getCode();
                 if (!code.isEmpty()) {
                     return code;
@@ -206,7 +206,7 @@ class MaskFormActions {
         }
     }
 
-    private static class NewIntersectionAction extends BandMathAction {
+    private static class NewIntersectionAction extends BandMathsAction {
 
         private NewIntersectionAction(MaskForm maskForm) {
             super(maskForm, "Intersection24.png", "intersectionButton",
@@ -224,7 +224,7 @@ class MaskFormActions {
         }
     }
 
-    private static class NewComplementAction extends BandMathAction {
+    private static class NewComplementAction extends BandMathsAction {
 
         private NewComplementAction(MaskForm maskForm) {
             super(maskForm, "Complement24.png", "complementButton",
@@ -296,7 +296,7 @@ class MaskFormActions {
 
     }
 
-    private static class NewDifferenceAction extends BandMathAction {
+    private static class NewDifferenceAction extends BandMathsAction {
 
         private NewDifferenceAction(MaskForm maskForm) {
             super(maskForm, "Difference24.png", "differenceButton",
@@ -323,7 +323,7 @@ class MaskFormActions {
 
     }
 
-    private static class NewInvDifferenceAction extends BandMathAction {
+    private static class NewInvDifferenceAction extends BandMathsAction {
 
         private NewInvDifferenceAction(MaskForm maskForm) {
             super(maskForm, "InvDifference24.png", "invDifferenceButton",
@@ -353,7 +353,7 @@ class MaskFormActions {
 
     }
 
-    private static class NewUnionAction extends BandMathAction {
+    private static class NewUnionAction extends BandMathsAction {
 
         private NewUnionAction(MaskForm maskForm) {
             super(maskForm, "Union24.png", "unionButton",
@@ -629,7 +629,7 @@ class MaskFormActions {
                         new Product[]{product}, product, null);
                 expressionPane.setEmptyExpressionAllowed(false);
                 expressionPane.setCode((String) selectedMaskConfig.getValue("expression"));
-                if (expressionPane.showModalDialog(window, "Edit Band-Math Mask") == AbstractDialog.ID_OK) {
+                if (expressionPane.showModalDialog(window, "Edit Band Maths Mask") == AbstractDialog.ID_OK) {
                     String code = expressionPane.getCode();
                     selectedMaskConfig.setValue("expression", code);
                     selectedMask.setDescription(code);
@@ -698,9 +698,9 @@ class MaskFormActions {
         }
     }
 
-    private abstract static class BandMathAction extends MaskAction {
+    private abstract static class BandMathsAction extends MaskAction {
 
-        BandMathAction(MaskForm maskForm, String iconPath, String buttonName, String description) {
+        BandMathsAction(MaskForm maskForm, String iconPath, String buttonName, String description) {
             super(maskForm, iconPath, buttonName, description);
         }
 
