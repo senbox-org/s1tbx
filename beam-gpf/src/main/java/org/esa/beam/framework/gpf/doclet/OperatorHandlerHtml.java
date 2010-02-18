@@ -129,7 +129,7 @@ public class OperatorHandlerHtml implements OperatorHandler {
             for (ParameterDesc parameterDesc : parameterDescs) {
                 writer.println("<tr>");
                 writer.println("  <td><code>" + parameterDesc.getName() + "</code></td>");
-                writer.println("  <td><code>" + parameterDesc.getField().getType().getSimpleName() + "</code></td>");
+                writer.println("  <td><code>" + parameterDesc.getType().getSimpleName() + "</code></td>");
                 writer.println("  <td>" + getFullDescription(parameterDesc) + "</td>");
                 writer.println("  <td>" + parameterDesc.getDefaultValue() + "</td>");
                 writer.println("</tr>");
