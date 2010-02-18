@@ -67,7 +67,7 @@ import org.esa.beam.util.StringUtils;
  * The <code>UIUtils</code> class provides methods frequently used in connection with graphical user interfaces.
  *
  * @author Norman Fomferra
- * @version $Revision$  $Date$
+ * @version $Revision: 8407 $  $Date: 2010-02-14 12:58:02 +0100 (So, 14 Feb 2010) $
  */
 public class UIUtils {
 
@@ -289,7 +289,6 @@ public class UIUtils {
         if (frame != null) {
             oldCursor = frame.getCursor();
             if (newCursor != null) {
-                Debug.trace("cursor change from " + oldCursor + " to " + newCursor);
                 frame.setCursor(newCursor);
             } else {
                 frame.setCursor(Cursor.getDefaultCursor());

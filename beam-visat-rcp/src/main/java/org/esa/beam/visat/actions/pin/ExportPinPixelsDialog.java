@@ -138,12 +138,12 @@ class ExportPinPixelsDialog extends ModalDialog {
 
         paramExpression = new Parameter("arithmeticExpr", "");
         paramExpression.getProperties().setLabel("Expression"); /* I18N */
-        paramExpression.getProperties().setDescription("Math expression"); /* I18N */
+        paramExpression.getProperties().setDescription("Band maths expression"); /* I18N */
         paramExpression.getProperties().setNumRows(3);
         paramExpression.setUIEnabled(false);
 
         paramUseExpression = new Parameter(_PARAM_NAME_USE_ARTIHMETIC_EXPRESSION, false);
-        paramUseExpression.getProperties().setLabel("Use expression"); /* I18N */
+        paramUseExpression.getProperties().setLabel("Use band maths expression"); /* I18N */
         paramUseExpression.addParamChangeListener(paramChangeListener);
     }
 
@@ -213,7 +213,7 @@ class ExportPinPixelsDialog extends ModalDialog {
         final JPanel expressionPane = GridBagUtils.createPanel();
         int line = 0;
         final GridBagConstraints gbc = new GridBagConstraints();
-        expressionPane.setBorder(BorderFactory.createTitledBorder("Math Expression"));
+        expressionPane.setBorder(BorderFactory.createTitledBorder("Band Maths Expression"));
 
         gbc.gridy = ++line;
         GridBagUtils.addToPanel(expressionPane, paramUseExpression.getEditor().getComponent(), gbc,
@@ -349,10 +349,10 @@ class ExportPinPixelsDialog extends ModalDialog {
                 ProductExpressionPane pep = ProductExpressionPane.createBooleanExpressionPane(products, product,
                                                                                               visatApp.getPreferences());
                 pep.setCode(paramExpression.getValueAsText());
-                final int status = pep.showModalDialog(getJDialog(), "Math Expression Editor"); /* I18N */
+                final int status = pep.showModalDialog(getJDialog(), "Band Maths Expression Editor"); /* I18N */
                 if (status == ModalDialog.ID_OK) {
                     paramExpression.setValue(pep.getCode(), null);
-                    Debug.trace("BandArithmetikDialog: expression is: " + pep.getCode()); /* I18N */
+                    Debug.trace("BandMathsDialog: expression is: " + pep.getCode()); /* I18N */
                 }
                 pep.dispose();
             }

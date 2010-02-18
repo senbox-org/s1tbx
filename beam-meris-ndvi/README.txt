@@ -36,10 +36,10 @@ The NDVI algorithms exploit the strength and the vitality of the
 vegetation on the earth's surface.
 
 The spectral signatur of wholesome vegetation shows an abrupt rise of
-the reflection level at 0,7 ï¿½m, whereas land without vegetation,
+the reflection level at 0,7 µm, whereas land without vegetation,
 according to the type of surface, has a continuous linear course.
 So much more active the chlorophyll of the plants, so much bigger is
-the boost of the reflection level at the near infrared (0,78 - 1 ï¿½m).
+the boost of the reflection level at the near infrared (0,78 - 1 µm).
 In addition to the discrimination of vegetation between other surface,
 it allows to detect the vitality of the vegetation.
 

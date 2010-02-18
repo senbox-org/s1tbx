@@ -27,13 +27,13 @@ import java.text.ParseException;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision$ $Date$
+ * @version $Revision: 6651 $ $Date: 2009-10-27 12:59:39 +0100 (Di, 27 Okt 2009) $
  */
 public class MetadataElement extends ProductNode {
 
-    private ProductNodeGroup<MetadataAttribute> _attributes;
+    private ProductNodeGroup<MetadataElement> elements;
 
-    private ProductNodeGroup<MetadataElement> _elements;
+    private ProductNodeGroup<MetadataAttribute> attributes;
 
     //////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -50,6 +50,13 @@ public class MetadataElement extends ProductNode {
     //////////////////////////////////////////////////////////////////////////
     // Element support ('Composite' pattern support)
 
+    /**
+     * Gets the group of child elements. The method returns null, if this element has no children.
+     * @return The child element group, may be null.
+     */
+    public ProductNodeGroup<MetadataElement> getElementGroup() {
+        return elements != null ? elements : null;
+    }
 
     public MetadataElement getParentElement() {
         return getParentElement(this);
@@ -64,10 +71,10 @@ public class MetadataElement extends ProductNode {
         if (element == null) {
             return;
         }
-        if (_elements == null) {
-            _elements = new ProductNodeGroup<MetadataElement>(this, "elements", true);
+        if (elements == null) {
+            elements = new ProductNodeGroup<MetadataElement>(this, "elements", true);
         }
-        _elements.add(element);
+        elements.add(element);
     }
 
     /**
@@ -80,10 +87,10 @@ public class MetadataElement extends ProductNode {
         if (element == null) {
             return;
         }
-        if (_elements == null) {
-            _elements = new ProductNodeGroup<MetadataElement>(this, "elements", true);
+        if (elements == null) {
+            elements = new ProductNodeGroup<MetadataElement>(this, "elements", true);
         }
-        _elements.add(index, element);
+        elements.add(index, element);
     }
 
     /**
@@ -93,17 +100,17 @@ public class MetadataElement extends ProductNode {
      * @return true, if so
      */
     public boolean removeElement(MetadataElement element) {
-        return element != null && _elements != null && _elements.remove(element);
+        return element != null && elements != null && elements.remove(element);
     }
 
     /**
      * @return the number of elements contained in this element.
      */
     public int getNumElements() {
-        if (_elements == null) {
+        if (elements == null) {
             return 0;
         }
-        return _elements.getNodeCount();
+        return elements.getNodeCount();
     }
 
     /**
@@ -114,10 +121,10 @@ public class MetadataElement extends ProductNode {
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public MetadataElement getElementAt(int index) {
-        if (_elements == null) {
+        if (elements == null) {
             throw new IndexOutOfBoundsException();
         }
-        return _elements.get(index);
+        return elements.get(index);
     }
 
     /**
@@ -127,10 +134,10 @@ public class MetadataElement extends ProductNode {
      *         groups a zero-length-array is returned.
      */
     public String[] getElementNames() {
-        if (_elements == null) {
+        if (elements == null) {
             return new String[0];
         }
-        return _elements.getNodeNames();
+        return elements.getNodeNames();
     }
 
     /**
@@ -140,10 +147,10 @@ public class MetadataElement extends ProductNode {
      *         returned.
      */
     public MetadataElement[] getElements() {
-        if (_elements == null) {
+        if (elements == null) {
             return new MetadataElement[0];
         }
-        return _elements.toArray(new MetadataElement[0]);
+        return elements.toArray(new MetadataElement[0]);
     }
 
     /**
@@ -155,10 +162,10 @@ public class MetadataElement extends ProductNode {
      */
     public MetadataElement getElement(String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        if (_elements == null) {
+        if (elements == null) {
             return null;
         }
-        return _elements.get(name);
+        return elements.get(name);
     }
 
     /**
@@ -170,8 +177,19 @@ public class MetadataElement extends ProductNode {
      */
     public boolean containsElement(String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return _elements != null && _elements.contains(name);
+        return elements != null && elements.contains(name);
     }
+
+    /**
+     * Gets the index of the given element.
+     * @param element  The element .
+     * @return The element's index, or -1.
+     * @since BEAM 4.7
+     */
+    public int getElementIndex(MetadataElement element) {
+        return elements.indexOf(element);
+    }
+
 
     //////////////////////////////////////////////////////////////////////////
     // Attribute list support
@@ -185,10 +203,10 @@ public class MetadataElement extends ProductNode {
         if (attribute == null) {
             return;
         }
-        if (_attributes == null) {
-            _attributes = new ProductNodeGroup<MetadataAttribute>(this, "attributes", true);
+        if (attributes == null) {
+            attributes = new ProductNodeGroup<MetadataAttribute>(this, "attributes", true);
         }
-        _attributes.add(attribute);
+        attributes.add(attribute);
     }
 
     /**
@@ -199,7 +217,7 @@ public class MetadataElement extends ProductNode {
      * @return <code>true</code> if it was removed
      */
     public boolean removeAttribute(MetadataAttribute attribute) {
-        return attribute != null && _attributes != null && _attributes.remove(attribute);
+        return attribute != null && attributes != null && attributes.remove(attribute);
     }
 
 
@@ -209,10 +227,10 @@ public class MetadataElement extends ProductNode {
      * @return the number of attributes
      */
     public int getNumAttributes() {
-        if (_attributes == null) {
+        if (attributes == null) {
             return 0;
         }
-        return _attributes.getNodeCount();
+        return attributes.getNodeCount();
     }
 
     /**
@@ -223,10 +241,10 @@ public class MetadataElement extends ProductNode {
      * @throws IndexOutOfBoundsException
      */
     public MetadataAttribute getAttributeAt(int index) {
-        if (_attributes == null) {
+        if (attributes == null) {
             throw new IndexOutOfBoundsException();
         }
-        return _attributes.get(index);
+        return attributes.get(index);
     }
 
     /**
@@ -235,10 +253,10 @@ public class MetadataElement extends ProductNode {
      * @return the attribute name array, never <code>null</code>
      */
     public String[] getAttributeNames() {
-        if (_attributes == null) {
+        if (attributes == null) {
             return new String[0];
         }
-        return _attributes.getNodeNames();
+        return attributes.getNodeNames();
     }
 
     /**
@@ -248,10 +266,10 @@ public class MetadataElement extends ProductNode {
      *         is returned.
      */
     public MetadataAttribute[] getAttributes() {
-        if (_attributes == null) {
+        if (attributes == null) {
             return new MetadataAttribute[0];
         }
-        return _attributes.toArray(new MetadataAttribute[_attributes.getNodeCount()]);
+        return attributes.toArray(new MetadataAttribute[attributes.getNodeCount()]);
     }
 
     /**
@@ -261,10 +279,10 @@ public class MetadataElement extends ProductNode {
      * @return the attribute with the given name or <code>null</code> if it could not be found
      */
     public MetadataAttribute getAttribute(String name) {
-        if (_attributes == null) {
+        if (attributes == null) {
             return null;
         }
-        return _attributes.get(name);
+        return attributes.get(name);
     }
 
     /**
@@ -274,7 +292,17 @@ public class MetadataElement extends ProductNode {
      * @return <code>true</code> if so
      */
     public boolean containsAttribute(String name) {
-        return _attributes != null && _attributes.contains(name);
+        return attributes != null && attributes.contains(name);
+    }
+
+    /**
+     * Gets the index of the given attribute.
+     * @param attribute  The attribute.
+     * @return The attribute's index, or -1.
+     * @since BEAM 4.7
+     */
+    public int getAttributeIndex(MetadataAttribute attribute) {
+        return attributes.indexOf(attribute);
     }
 
 
@@ -497,11 +525,11 @@ public class MetadataElement extends ProductNode {
         boolean oldState = isModified();
         if (oldState != modified) {
             if (!modified) {
-                if (_elements != null) {
-                    _elements.setModified(false);
+                if (elements != null) {
+                    elements.setModified(false);
                 }
-                if (_attributes != null) {
-                    _attributes.setModified(false);
+                if (attributes != null) {
+                    attributes.setModified(false);
                 }
             }
             super.setModified(modified);
@@ -592,13 +620,13 @@ public class MetadataElement extends ProductNode {
      */
     @Override
     public void dispose() {
-        if (_attributes != null) {
-            _attributes.dispose();
-            _attributes = null;
+        if (attributes != null) {
+            attributes.dispose();
+            attributes = null;
         }
-        if (_elements != null) {
-            _elements.dispose();
-            _elements = null;
+        if (elements != null) {
+            elements.dispose();
+            elements = null;
         }
         super.dispose();
     }

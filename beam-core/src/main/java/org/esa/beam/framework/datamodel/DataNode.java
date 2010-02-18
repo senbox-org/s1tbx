@@ -35,12 +35,12 @@ public abstract class DataNode extends ProductNode {
     /**
      * The data type. Always one of <code>ProductData.TYPE_<i>X</i></code>.
      */
-    private final int _dataType;
-    private final long _numElems;
-    private ProductData _data;
-    private boolean _readOnly;
-    private String _unit;
-    private boolean _synthetic;
+    private final int dataType;
+    private final long numElems;
+    private ProductData data;
+    private boolean readOnly;
+    private String unit;
+    private boolean synthetic;
 
     /**
      * Constructs a new data node with the given name, data type and number of elements.
@@ -59,19 +59,19 @@ public abstract class DataNode extends ProductNode {
                 && dataType != ProductData.TYPE_UTC) {
             throw new IllegalArgumentException("dataType is invalid");
         }
-        _dataType = dataType;
-        _numElems = numElems;
-        _data = null;
-        _readOnly = false;
+        this.dataType = dataType;
+        this.numElems = numElems;
+        this.data = null;
+        this.readOnly = false;
     }
 
     public DataNode(String name, ProductData data, boolean readOnly) {
         super(name);
         Guardian.assertNotNull("data", data);
-        _dataType = data.getType();
-        _numElems = data.getNumElems();
-        _data = data;
-        _readOnly = readOnly;
+        this.dataType = data.getType();
+        this.numElems = data.getNumElems();
+        this.data = data;
+        this.readOnly = readOnly;
     }
 
     /**
@@ -80,7 +80,7 @@ public abstract class DataNode extends ProductNode {
      * @return the data type which is always one of the multiple <code>ProductData.TYPE_<i>X</i></code> constants
      */
     public int getDataType() {
-        return _dataType;
+        return dataType;
     }
 
     /**
@@ -89,7 +89,7 @@ public abstract class DataNode extends ProductNode {
      * @return true, if so
      */
     public boolean isFloatingPointType() {
-        return ProductData.isFloatingPointType(_dataType);
+        return ProductData.isFloatingPointType(dataType);
     }
 
     /**
@@ -97,7 +97,7 @@ public abstract class DataNode extends ProductNode {
      */
     public long getNumDataElems() {
         checkState();
-        return _numElems;
+        return numElems;
     }
 
     /**
@@ -109,7 +109,7 @@ public abstract class DataNode extends ProductNode {
             throw new IllegalArgumentException("data node '" + getName() + "' is read-only");
         }
 
-        if (_data == data) {
+        if (this.data == data) {
             return;
         }
 
@@ -117,8 +117,8 @@ public abstract class DataNode extends ProductNode {
             checkDataCompatibility(data);
         }
 
-        ProductData oldData = _data;
-        _data = data;
+        ProductData oldData = this.data;
+        this.data = data;
 
         fireProductNodeChanged(PROPERTY_NAME_DATA, oldData, data);
         fireProductNodeDataChanged();
@@ -133,7 +133,7 @@ public abstract class DataNode extends ProductNode {
      * Gets the data of this data node.
      */
     public ProductData getData() {
-        return _data;
+        return data;
     }
 
     /**
@@ -148,15 +148,15 @@ public abstract class DataNode extends ProductNode {
         }
 
         checkState();
-        if (_data == null) {
-            if (_numElems > Integer.MAX_VALUE) {
+        if (data == null) {
+            if (numElems > Integer.MAX_VALUE) {
                 throw new IllegalStateException("number of elements must be less than "+ (long)Integer.MAX_VALUE + 1);
             }
-            _data = createCompatibleProductData((int) _numElems);
+            data = createCompatibleProductData((int) numElems);
         }
-        Object oldData = _data.getElems();
+        Object oldData = data.getElems();
         if (!ObjectUtils.equalObjects(oldData, elems)) {
-            _data.setElems(elems);
+            data.setElems(elems);
             fireProductNodeDataChanged();
             setModified(true);
         }
@@ -181,39 +181,39 @@ public abstract class DataNode extends ProductNode {
     }
 
     public void setReadOnly(boolean readOnly) {
-        final boolean oldValue = _readOnly;
+        final boolean oldValue = this.readOnly;
         if (oldValue != readOnly) {
-            _readOnly = readOnly;
+            this.readOnly = readOnly;
             fireProductNodeChanged(PROPERTY_NAME_READ_ONLY, oldValue, readOnly);
             setModified(true);
         }
     }
 
     public boolean isReadOnly() {
-        return _readOnly;
+        return readOnly;
     }
 
     public void setUnit(String unit) {
-        final String oldValue = _unit;
+        final String oldValue = this.unit;
         if (!ObjectUtils.equalObjects(oldValue, unit)) {
-            _unit = unit;
+            this.unit = unit;
             fireProductNodeChanged(PROPERTY_NAME_UNIT, oldValue, unit);
             setModified(true);
         }
     }
 
     public String getUnit() {
-        return _unit;
+        return unit;
     }
 
     public boolean isSynthetic() {
-        return _synthetic;
+        return synthetic;
     }
 
     public void setSynthetic(boolean synthetic) {
-        final boolean oldValue = _synthetic;
+        final boolean oldValue = this.synthetic;
         if (oldValue != synthetic) {
-            _synthetic = synthetic;
+            this.synthetic = synthetic;
             fireProductNodeChanged(PROPERTY_NAME_SYNTHETIC, oldValue, synthetic);
             setModified(true);
         }
@@ -301,9 +301,9 @@ public abstract class DataNode extends ProductNode {
      */
     @Override
     public void dispose() {
-        if (_data != null) {
-            _data.dispose();
-            _data = null;
+        if (data != null) {
+            data.dispose();
+            data = null;
         }
         super.dispose();
     }
@@ -320,7 +320,7 @@ public abstract class DataNode extends ProductNode {
     }
 
     private void checkState() {
-        if(_numElems < 0) {
+        if(numElems < 0) {
             throw new IllegalStateException("number of elements must be at last 1");
         }
     }

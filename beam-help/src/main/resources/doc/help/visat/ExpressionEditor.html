@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>VISAT Help - Band Math Expression Editor</title>
+    <title>VISAT Help - Band Maths Expression Editor</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -9,7 +9,7 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Band Math Expression Editor
+            Band Maths Expression Editor
         </td>
 
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
@@ -22,9 +22,9 @@
 </p>
 
 
-<h4><a name="top">The Band Math Expression Editor</a></h4>
+<h4><a name="top">The Band Maths Expression Editor</a></h4>
 
-<p>VISAT's expression editor provides a convenient way to construct math
+<p>VISAT's expression editor provides a convenient way to construct maths
     expressions with <a href="#syntax">C syntax</a> from various data sources, such
     as bands, tie-point grids and flag values. You can combine these data sources
     by a number of <a href="#op3">comparison</a>, <a href="#op1">arithmetic</a>,
@@ -46,7 +46,11 @@
 
 <p class="i1">
     <b>Show bands</b> checkbox<br>
-    Checks whether or not the bands of a product are shown in the list of available data sources.</p>
+    Checks whether or not the bands of a product are shown in the list of available data sources.
+    References to bands in an expression always evaluate to <i>geo-physical</i>, scaled (calibrated) sample values.<br/>
+    If you are more interested in the <i>raw sample values</i> rather than the geo-physical sample values,
+    use the syntax <code>band.<b>raw</b></code>, where <code>band</code> is the name of any band.
+</p>
 
 <p class="i1">
     <b>Show tie-point grids</b> checkbox<br>

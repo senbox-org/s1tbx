@@ -58,7 +58,7 @@ public class CreateVectorDataNodeAction extends ExecCommand {
 
 
     // todo - add help (nf)
-    private static final String HELP_ID = "";
+    private static final String HELP_ID = "geometryManagement";
     private static int numItems = 1;
 
     @Override
