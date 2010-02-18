@@ -39,13 +39,13 @@ import java.util.Map;
  * @author marcoz
  * @version $Revision$ $Date$
  */
-public class BandMathOpTest extends TestCase {
+public class BandMathsOpTest extends TestCase {
 
     private OperatorSpi spi;
 
     @Override
     protected void setUp() throws Exception {
-        spi = new BandMathOp.Spi();
+        spi = new BandMathsOp.Spi();
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
     }
 
@@ -56,7 +56,7 @@ public class BandMathOpTest extends TestCase {
 
     public void testSimpelstCase() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[1];
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
@@ -77,7 +77,7 @@ public class BandMathOpTest extends TestCase {
 
     public void testGeoCodingIsCopied() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[1];
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_UINT8);
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
@@ -93,10 +93,10 @@ public class BandMathOpTest extends TestCase {
     public void testSimpelstCaseWithFactoryMethod() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
 
-        BandMathOp bandMathOp = BandMathOp.createBooleanExpressionBand("band1 > 0", sourceProduct);
-        assertNotNull(bandMathOp);
+        BandMathsOp bandMathsOp = BandMathsOp.createBooleanExpressionBand("band1 > 0", sourceProduct);
+        assertNotNull(bandMathsOp);
 
-        Product targetProduct = bandMathOp.getTargetProduct();
+        Product targetProduct = bandMathsOp.getTargetProduct();
         assertNotNull(targetProduct);
 
         Band band = targetProduct.getBandAt(0);
@@ -112,7 +112,7 @@ public class BandMathOpTest extends TestCase {
 
     public void testScaledInputBand() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[1];
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "band3", ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
@@ -134,7 +134,7 @@ public class BandMathOpTest extends TestCase {
     public void testTwoSourceBandsOneTargetBand() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[1];
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "band1 + band2", ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
 
@@ -151,7 +151,7 @@ public class BandMathOpTest extends TestCase {
     public void testTwoSourceBandsTwoTargetBands() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[2];
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[2];
         bandDescriptors[0] = createBandDescription("b1", "band1 + band2 < 3.0", ProductData.TYPESTRING_INT8);
         bandDescriptors[1] = createBandDescription("b2", "band1 + band2 + 2.5", ProductData.TYPESTRING_INT32);
         parameters.put("targetBands", bandDescriptors);
@@ -180,7 +180,7 @@ public class BandMathOpTest extends TestCase {
         Product sourceProduct1 = createTestProduct(4, 4);
         Product sourceProduct2 = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandMathOp.BandDescriptor[] bandDescriptors = new BandMathOp.BandDescriptor[1];
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "$sourceProduct.0.band1 + $sourceProduct.1.band2",
                                                    ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
@@ -196,8 +196,8 @@ public class BandMathOpTest extends TestCase {
         assertTrue(Arrays.equals(expectedValues, actualValues));
     }
 
-    private BandMathOp.BandDescriptor createBandDescription(String bandName, String expression, String type) {
-        BandMathOp.BandDescriptor bandDescriptor = new BandMathOp.BandDescriptor();
+    private BandMathsOp.BandDescriptor createBandDescription(String bandName, String expression, String type) {
+        BandMathsOp.BandDescriptor bandDescriptor = new BandMathsOp.BandDescriptor();
         bandDescriptor.name = bandName;
         bandDescriptor.description = "aDescription";
         bandDescriptor.expression = expression;

@@ -63,12 +63,12 @@ import java.util.Map;
  * product identifier.
  * </p>
  */
-@OperatorMetadata(alias = "BandMath",
+@OperatorMetadata(alias = "BandMaths",
                   version = "1.0",
                   copyright = "(c) 2010 by Brockmann Consult",
                   description = "Create a product with one or more bands using mathematical expressions.\n" +
                                 "This operator can only be invoked with a Graph XML file.")
-public class BandMathOp extends Operator {
+public class BandMathsOp extends Operator {
 
     public static class BandDescriptor {
         
@@ -105,17 +105,17 @@ public class BandMathOp extends Operator {
 
     private Map<Band, BandDescriptor> descriptorMap;
 
-    public static BandMathOp createBooleanExpressionBand(String expression, Product sourceProduct) {
+    public static BandMathsOp createBooleanExpressionBand(String expression, Product sourceProduct) {
         BandDescriptor[] bandDescriptors = new BandDescriptor[1];
         bandDescriptors[0] = new BandDescriptor();
         bandDescriptors[0].name = "band1";
         bandDescriptors[0].expression = expression;
         bandDescriptors[0].type = ProductData.TYPESTRING_INT8;
 
-        BandMathOp bandMathOp = new BandMathOp();
-        bandMathOp.targetBandDescriptors = bandDescriptors;
-        bandMathOp.sourceProducts = new Product[]{sourceProduct};
-        return bandMathOp;
+        BandMathsOp bandMathsOp = new BandMathsOp();
+        bandMathsOp.targetBandDescriptors = bandDescriptors;
+        bandMathsOp.sourceProducts = new Product[]{sourceProduct};
+        return bandMathsOp;
     }
 
     @Override
@@ -266,7 +266,7 @@ public class BandMathOp extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(BandMathOp.class);
+            super(BandMathsOp.class);
         }
     }
 
