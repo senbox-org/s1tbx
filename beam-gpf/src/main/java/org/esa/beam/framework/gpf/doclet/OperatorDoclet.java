@@ -54,7 +54,7 @@ public class OperatorDoclet extends Doclet {
         }
         com.sun.tools.javadoc.Main.main(new String[] {
                  "-doclet", OperatorDoclet.class.getName(),
-                "-sourcepath", "./beam-gpf/src/main/java;./beam-gpf-common/src/main/java;"+
+                "-sourcepath", "./beam-gpf/src/main/java;./beam-gpf-std-ops/src/main/java;"+
                                "./beam-cluster-analysis/src/main/java;./beam-collocation/src/main/java;"+
                                "./beam-unmix/src/main/java",
 //                "-classpath", "./beam-gpf/target/classes"
