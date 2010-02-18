@@ -78,7 +78,7 @@ public class OperatorHandlerHtml implements OperatorHandler {
         writer.println("<table>");
         writer.println("  <tr><td><b>Name:</b></td><td><code>" + operatorDesc.getName() + "</code></td></tr>");
         writer.println("  <tr><td><b>Full name:</b></td><td><code>" + operatorDesc.getType().getName() + "</code></td></tr>");
-        writer.println("  <tr><td><b>Purpose:</b></td><td>" + operatorDesc.getShortDescription() + "</td></tr>");
+        writer.println("  <tr><td><b>Purpose:</b></td><td>" + makeHtmlConform(operatorDesc.getShortDescription()) + "</td></tr>");
         writer.println("  <tr><td><b>Version:</b></td><td>" + operatorDesc.getVersion() + "</td></tr>");
         writer.println("</table>");
 
@@ -143,6 +143,10 @@ public class OperatorHandlerHtml implements OperatorHandler {
         writer.println("<p><i>TODO</i></p>");
 
         writeFooter(writer);
+    }
+
+    private static String makeHtmlConform(String text) {
+        return text.replace("\n", "<br/>");
     }
 
     private static void writeHeader(String title, PrintWriter writer) {
