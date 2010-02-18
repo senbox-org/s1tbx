@@ -168,8 +168,8 @@ a) select: open product in VISAT - open mosaic - check in 'Update target product
 beam-debug: AbstractProductReader.close(): org.esa.beam.dataio.envisat.EnvisatProductReader[input=C:\Projects\Testing\testdata\in\MERIS\MER_RR__1_test
 .N1]
 org.esa.beam.framework.gpf.OperatorException: Product has no metadata element named 'Processing_Graph'
-        at org.esa.beam.gpf.common.mosaic.MosaicOp.getOperatorParameters(MosaicOp.java:486)
-        at org.esa.beam.gpf.common.mosaic.ui.MosaicIOPanel$2.selectionChanged(MosaicIOPanel.java:106)
+        at org.esa.beam.gpf.std.mosaic.MosaicOp.getOperatorParameters(MosaicOp.java:486)
+        at org.esa.beam.gpf.std.mosaic.ui.MosaicIOPanel$2.selectionChanged(MosaicIOPanel.java:106)
         at com.bc.ceres.swing.selection.support.SelectionChangeSupport.fireSelectionChange(SelectionChangeSupport.java:56)
         at com.bc.ceres.swing.selection.support.SelectionChangeSupport.fireSelectionChange(SelectionChangeSupport.java:51)
         at com.bc.ceres.swing.selection.AbstractSelectionContext.fireSelectionChange(AbstractSelectionContext.java:81)

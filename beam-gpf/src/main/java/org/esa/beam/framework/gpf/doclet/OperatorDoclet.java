@@ -33,7 +33,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
  * <pre>
  * javadoc -doclet "%DocletClassName%" -docletpath "%DocletPath%" ^
  *         -sourcepath "%SourcePath%" -classpath "%ClassPath%" ^
- *         org.esa.beam.framework.gpf.operators.common
+ *         org.esa.beam.framework.gpf.operators.std
  * </pre>
  *
  * @author Norman Fomferra
@@ -59,8 +59,8 @@ public class OperatorDoclet extends Doclet {
                                "./beam-unmix/src/main/java",
 //                "-classpath", "./beam-gpf/target/classes"
                 "org.esa.beam.framework.gpf.operators.common",
-                "org.esa.beam.gpf.common.reproject",
-                "org.esa.beam.gpf.common.mosaic",
+                "org.esa.beam.gpf.std.reproject",
+                "org.esa.beam.gpf.std.mosaic",
                 "org.esa.beam.unmixing",
                 "org.esa.beam.cluster",
                 "org.esa.beam.collocation",
