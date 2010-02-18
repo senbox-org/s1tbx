@@ -150,7 +150,7 @@
         -->
 
     </dependencies>
-        <profiles>
+    <profiles>
         <profile>
             <id>default-tools</id>
             <activation>
