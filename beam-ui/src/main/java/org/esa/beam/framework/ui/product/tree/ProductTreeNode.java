@@ -10,7 +10,7 @@ public abstract class ProductTreeNode implements TreeNode {
     private Object content;
     private ProductTreeNode parent;
 
-    public ProductTreeNode(String name, Object content, ProductTreeNode parent) {
+    protected ProductTreeNode(String name, Object content, ProductTreeNode parent) {
         this.name = name;
         this.content = content;
         this.parent = parent;
@@ -24,18 +24,22 @@ public abstract class ProductTreeNode implements TreeNode {
         return content;
     }
 
+    @Override
     public ProductTreeNode getParent() {
         return parent;
     }
 
+    @Override
     public boolean isLeaf() {
         return getChildCount() == 0;
     }
 
+    @Override
     public boolean getAllowsChildren() {
         return true;
     }
 
+    @Override
     public Enumeration children() {
         ProductTreeNode[] nodes = new ProductTreeNode[getChildCount()];
         for (int i = 0; i < getChildCount(); i++) {
@@ -44,6 +48,7 @@ public abstract class ProductTreeNode implements TreeNode {
         return Collections.enumeration(Arrays.asList(nodes));
     }
 
+    @Override
     public int getIndex(TreeNode node) {
         return getIndex((ProductTreeNode) node);
     }
@@ -53,8 +58,10 @@ public abstract class ProductTreeNode implements TreeNode {
         return getName();
     }
 
+    @Override
     public abstract ProductTreeNode getChildAt(int index);
 
+    @Override
     public abstract int getChildCount();
 
     protected abstract int getIndex(ProductTreeNode node);

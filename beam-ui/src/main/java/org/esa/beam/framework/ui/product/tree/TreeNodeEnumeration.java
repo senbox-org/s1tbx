@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
 
 final class TreeNodeEnumeration {
 
-    static public final Enumeration<TreeNode> EMPTY_ENUMERATION = new EmptyEnumeration();
+    public static final Enumeration<TreeNode> EMPTY_ENUMERATION = new EmptyEnumeration();
 
     private TreeNodeEnumeration() {
 

@@ -47,7 +47,7 @@ class ProductNode extends ProductTreeNode {
         if (hasTiePoints(product)) {
             childIndex++;
             if (childIndex == index) {
-                return new TiePointGroupNode(TIE_POINT_GRIDS, product, this);
+                return new ProductNodeNode(TIE_POINT_GRIDS, product.getTiePointGridGroup(), this);
             }
         }
         if (hasVectorData(product)) {
@@ -59,7 +59,7 @@ class ProductNode extends ProductTreeNode {
         if (hasBands(product)) {
             childIndex++;
             if (childIndex == index) {
-                return new BandGroupNode(BANDS, product, this);
+                return new ProductNodeNode(BANDS, product.getBandGroup(), this);
             }
         }
 
@@ -135,11 +135,11 @@ class ProductNode extends ProductTreeNode {
     }
 
     private boolean hasBands(Product product) {
-        return product.getBands().length > 0;
+        return product.getBandGroup().getNodeCount() > 0;
     }
 
     private boolean hasTiePoints(Product product) {
-        return product.getTiePointGrids().length > 0;
+        return product.getTiePointGridGroup().getNodeCount() > 0;
     }
 
     private boolean hasVectorData(Product product) {

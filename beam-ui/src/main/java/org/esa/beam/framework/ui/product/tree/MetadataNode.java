@@ -5,7 +5,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 class MetadataNode extends ProductTreeNode {
     private MetadataElement metadataElement;
 
-    public MetadataNode(String name, MetadataElement element, ProductTreeNode parent) {
+    MetadataNode(String name, MetadataElement element, ProductTreeNode parent) {
         super(name, element, parent);
         metadataElement = element;
     }

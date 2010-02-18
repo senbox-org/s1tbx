@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.SampleCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
@@ -454,6 +455,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     toolTipBuffer.append(" x ");
                     toolTipBuffer.append(product.getSceneRasterHeight());
                     toolTipBuffer.append(" pixels");
+                } else if (productNode instanceof ProductNodeGroup) {
+                    text = treeNode.getName();
                 } else if (productNode instanceof MetadataElement) {
                     MetadataElement metadataElement =(MetadataElement) productNode;
                     if (metadataElement.getParentElement() != null || metadataElement instanceof SampleCoding) {

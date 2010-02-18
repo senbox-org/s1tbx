@@ -7,8 +7,8 @@ class ProductNodeNode extends ProductTreeNode {
 
     private final ProductNode productNode;
 
-    public ProductNodeNode(String name, ProductNode productNode, ProductTreeNode parent) {
-        super(name, productNode instanceof ProductNodeGroup ? null : productNode, parent);
+    ProductNodeNode(String name, ProductNode productNode, ProductTreeNode parent) {
+        super(name, productNode, parent);
         this.productNode = productNode;
     }
 

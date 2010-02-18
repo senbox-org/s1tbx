@@ -10,7 +10,7 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 class VectorDataGroupNode extends ProductNodeNode {
     private ProductNodeGroup<VectorDataNode> vectorGroup;
 
-    public VectorDataGroupNode(String name, ProductNodeGroup<VectorDataNode> vectorGroup, ProductNode parent) {
+    VectorDataGroupNode(String name, ProductNodeGroup<VectorDataNode> vectorGroup, ProductNode parent) {
         super(name, vectorGroup, parent);
         this.vectorGroup = vectorGroup;
     }
