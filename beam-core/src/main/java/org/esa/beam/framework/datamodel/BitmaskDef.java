@@ -16,7 +16,6 @@ import com.bc.jexp.Term;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.Mask.BandMathType;
 import org.esa.beam.util.*;
 import org.jdom.Element;
 
@@ -280,7 +279,7 @@ public class BitmaskDef extends ProductNode {
     }
     
     public Mask createMask(int width, int height) {
-        return Mask.BandMathType.create(getName(), getDescription(), width, height, 
+        return Mask.BandMathsType.create(getName(), getDescription(), width, height,
                                              getExpr(), getColor(), getTransparency());
     }
 }

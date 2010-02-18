@@ -212,14 +212,14 @@ public class Mask extends Band {
     /**
      * A mask image type which is based on band math.
      */
-    public static class BandMathType extends ImageType {
+    public static class BandMathsType extends ImageType {
 
-        public static final String TYPE_NAME = "Math";
+        public static final String TYPE_NAME = "Maths";
         public static final String PROPERTY_NAME_EXPRESSION = "expression";
         
-        public static final BandMathType INSTANCE =  new BandMathType();
+        public static final BandMathsType INSTANCE =  new BandMathsType();
 
-        private BandMathType() {
+        private BandMathsType() {
             super(TYPE_NAME);
         }
 
@@ -366,13 +366,13 @@ public class Mask extends Band {
         
         public static Mask create(String name, String description, int width, int height,
                                   String expression, Color color, double transparency) {
-            final Mask mask = new Mask(name, width, height, Mask.BandMathType.INSTANCE);
+            final Mask mask = new Mask(name, width, height, BandMathsType.INSTANCE);
             if (description != null) {
                 mask.setDescription(description);
             }
             mask.setImageColor(color);
             mask.setImageTransparency(transparency);
-            BandMathType.setExpression(mask, expression);
+            BandMathsType.setExpression(mask, expression);
             return mask;
         }
     }

@@ -60,7 +60,7 @@ public class BandMathsOpTest extends TestCase {
         bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
-        Product targetProduct = GPF.createProduct("BandMath", parameters, sourceProduct);
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
 
         assertNotNull(targetProduct);
         Band band = targetProduct.getBand("aBandName");
@@ -84,7 +84,7 @@ public class BandMathsOpTest extends TestCase {
         final GeoCoding geoCoding = new CrsGeoCoding(CRS.decode("EPSG:32632"), new Rectangle(4, 4),
                                                      new AffineTransform());
         sourceProduct.setGeoCoding(geoCoding);
-        Product targetProduct = GPF.createProduct("BandMath", parameters, sourceProduct);
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
 
         assertNotNull(targetProduct);
         assertNotNull(targetProduct.getGeoCoding());
@@ -116,7 +116,7 @@ public class BandMathsOpTest extends TestCase {
         bandDescriptors[0] = createBandDescription("aBandName", "band3", ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
-        Product targetProduct = GPF.createProduct("BandMath", parameters, sourceProduct);
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
 
         assertNotNull(targetProduct);
         Band band = targetProduct.getBand("aBandName");
@@ -138,7 +138,7 @@ public class BandMathsOpTest extends TestCase {
         bandDescriptors[0] = createBandDescription("aBandName", "band1 + band2", ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
 
-        Product targetProduct = GPF.createProduct("BandMath", parameters, sourceProduct);
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
         Band band = targetProduct.getBand("aBandName");
 
         float[] actualValues = new float[16];
@@ -156,7 +156,7 @@ public class BandMathsOpTest extends TestCase {
         bandDescriptors[1] = createBandDescription("b2", "band1 + band2 + 2.5", ProductData.TYPESTRING_INT32);
         parameters.put("targetBands", bandDescriptors);
 
-        Product targetProduct = GPF.createProduct("BandMath", parameters, sourceProduct);
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
         Band b1 = targetProduct.getBand("b1");
 
         b1.readRasterDataFully(ProgressMonitor.NULL);
@@ -185,7 +185,7 @@ public class BandMathsOpTest extends TestCase {
                                                    ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
 
-        Product targetProduct = GPF.createProduct("BandMath", parameters,
+        Product targetProduct = GPF.createProduct("BandMaths", parameters,
                                                   new Product[]{sourceProduct1, sourceProduct2});
         Band band = targetProduct.getBand("aBandName");
 

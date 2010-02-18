@@ -72,7 +72,7 @@ public class MaskFormTest extends TestCase {
         for (int i = 0; i < colors.length; i++) {
             String expression = "B > " + (i / (colors.length - 1.0));
             String name = "M_" + (product.getMaskGroup().getNodeCount() + 1);
-            Mask mask = Mask.BandMathType.create(name, expression, product.getSceneRasterWidth(), product.getSceneRasterHeight(), 
+            Mask mask = Mask.BandMathsType.create(name, expression, product.getSceneRasterWidth(), product.getSceneRasterHeight(),
                                                  expression, colors[i], 1.0 - 1.0 / (1 + (i % 4)));
             product.getMaskGroup().add(mask);
         }

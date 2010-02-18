@@ -508,7 +508,7 @@ public class ROIDefinition implements Cloneable {
             final int w = node.getSceneRasterWidth();
             final int h = node.getSceneRasterHeight();
             
-            return Mask.BandMathType.create(maskName, null, w, h, expression, Color.RED, 0.5);
+            return Mask.BandMathsType.create(maskName, null, w, h, expression, Color.RED, 0.5);
         } else {
             return null;
         }

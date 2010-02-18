@@ -271,8 +271,8 @@ public class RasterDataNodeDeleter {
             final Mask[] masks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
             for (final Mask mask : masks) {
                 final String expression;
-                if (mask.getImageType() == Mask.BandMathType.INSTANCE) {
-                    expression = Mask.BandMathType.getExpression(mask);
+                if (mask.getImageType() == Mask.BandMathsType.INSTANCE) {
+                    expression = Mask.BandMathsType.getExpression(mask);
                 } else if (mask.getImageType() == Mask.RangeType.INSTANCE) {
                     expression = Mask.RangeType.getRasterName(mask);
                 } else {

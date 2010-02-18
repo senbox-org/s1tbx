@@ -28,10 +28,10 @@ public class BandMathMaskPersistableTest {
     */
     @Test
     public void testXmlCreation() {
-        Mask mask = Mask.BandMathType.create("Bibo", "A big yellow bird is in the pixel.", 10, 10,
+        Mask mask = Mask.BandMathsType.create("Bibo", "A big yellow bird is in the pixel.", 10, 10,
                                              "false", new Color(17, 11, 67), 0.7);
 
-        final DimapPersistable persistable = new BandMathMaskPersistable();
+        final DimapPersistable persistable = new BandMathsMaskPersistable();
 
         final Element element = persistable.createXmlFromObject(mask);
 
@@ -40,7 +40,7 @@ public class BandMathMaskPersistableTest {
 
         final Attribute type = element.getAttribute(ATTRIB_TYPE);
         assertNotNull(type);
-        assertEquals(Mask.BandMathType.TYPE_NAME, type.getValue());
+        assertEquals(Mask.BandMathsType.TYPE_NAME, type.getValue());
 
         final Element name = element.getChild(TAG_NAME);
         assertNotNull(name);
@@ -68,21 +68,21 @@ public class BandMathMaskPersistableTest {
 
     @Test
     public void testMaskCreation() throws IOException, JDOMException {
-        final DimapPersistable persistable = new BandMathMaskPersistable();
+        final DimapPersistable persistable = new BandMathsMaskPersistable();
         final InputStream resourceStream = getClass().getResourceAsStream("BandMathMask.xml");
         final Document document = new SAXBuilder().build(resourceStream);
         final Product product = new Product("P", "T", 10, 10);
         final Mask maskFromXml = (Mask) persistable.createObjectFromXml(document.getRootElement(), product);
 
         assertNotNull(maskFromXml);
-        assertEquals(Mask.BandMathType.class, maskFromXml.getImageType().getClass());
+        assertEquals(Mask.BandMathsType.class, maskFromXml.getImageType().getClass());
         assertEquals("Bibo", maskFromXml.getName());
         assertEquals("A big yellow bird is in the pixel.", maskFromXml.getDescription());
         assertEquals(0.7, maskFromXml.getImageTransparency(), 0.0);
         assertEquals(new Color(17, 11, 67), maskFromXml.getImageColor());
 
 
-        assertEquals("false", maskFromXml.getImageConfig().getValue(Mask.BandMathType.PROPERTY_NAME_EXPRESSION));
+        assertEquals("false", maskFromXml.getImageConfig().getValue(Mask.BandMathsType.PROPERTY_NAME_EXPRESSION));
     }
 
     private int getAttributeInt(Element element, String attribName) {

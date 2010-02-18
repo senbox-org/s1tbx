@@ -9,28 +9,28 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BandMathMaskPersistableSpiTest {
+public class BandMathsMaskPersistableSpiTest {
 
     private DimapPersistableSpi persistableSpi;
 
     @Before
     public void setup() {
-        persistableSpi = new BandMathMaskPersistableSpi();
+        persistableSpi = new BandMathsMaskPersistableSpi();
     }
 
     @Test
     public void canPersistIntendedMaskType() {
-        final Mask mask = new Mask("M", 10, 10, Mask.BandMathType.INSTANCE);
+        final Mask mask = new Mask("M", 10, 10, Mask.BandMathsType.INSTANCE);
         assertTrue(persistableSpi.canPersist(mask));
-        assertTrue(DimapPersistence.getPersistable(mask) instanceof BandMathMaskPersistable);
+        assertTrue(DimapPersistence.getPersistable(mask) instanceof BandMathsMaskPersistable);
     }
 
     @Test
     public void canDecodeIntendedElement() {
         final Element element = new Element(DimapProductConstants.TAG_MASK);
-        element.setAttribute(DimapProductConstants.ATTRIB_TYPE, "Math");
+        element.setAttribute(DimapProductConstants.ATTRIB_TYPE, "Maths");
         assertTrue(persistableSpi.canDecode(element));
-        assertTrue(DimapPersistence.getPersistable(element) instanceof BandMathMaskPersistable);
+        assertTrue(DimapPersistence.getPersistable(element) instanceof BandMathsMaskPersistable);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class BandMathMaskPersistableSpiTest {
             }
         });
         assertFalse(persistableSpi.canPersist(mask));
-        assertFalse(DimapPersistence.getPersistable(mask) instanceof BandMathMaskPersistable);
+        assertFalse(DimapPersistence.getPersistable(mask) instanceof BandMathsMaskPersistable);
     }
 
     @Test
@@ -50,6 +50,6 @@ public class BandMathMaskPersistableSpiTest {
         final Element element = new Element(DimapProductConstants.TAG_MASK);
         element.setAttribute(DimapProductConstants.ATTRIB_TYPE, "Other");
         assertFalse(persistableSpi.canDecode(element));
-        assertFalse(DimapPersistence.getPersistable(element) instanceof BandMathMaskPersistable);
+        assertFalse(DimapPersistence.getPersistable(element) instanceof BandMathsMaskPersistable);
     }
 }

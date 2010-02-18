@@ -11,7 +11,6 @@ import org.esa.beam.dataio.dimap.spi.DimapPersistence;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Mask.BandMathType;
 import org.esa.beam.framework.datamodel.Mask.ImageType;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -623,7 +622,7 @@ class MaskFormActions {
             Mask selectedMask = getMaskForm().getSelectedMask();
             PropertyContainer selectedMaskConfig = selectedMask.getImageConfig();
             Mask.ImageType type = selectedMask.getImageType();
-            if (type == Mask.BandMathType.INSTANCE) {
+            if (type == Mask.BandMathsType.INSTANCE) {
                 Product product = getMaskForm().getProduct();
                 ProductExpressionPane expressionPane = ProductExpressionPane.createBooleanExpressionPane(
                         new Product[]{product}, product, null);
@@ -738,9 +737,9 @@ class MaskFormActions {
 
 
         void addBandMathMask(String code) {
-            final Mask mask = createNewMask(Mask.BandMathType.INSTANCE);
+            final Mask mask = createNewMask(Mask.BandMathsType.INSTANCE);
             final PropertyContainer imageConfig = mask.getImageConfig();
-            final String propertyNameExpression = BandMathType.PROPERTY_NAME_EXPRESSION;
+            final String propertyNameExpression = Mask.BandMathsType.PROPERTY_NAME_EXPRESSION;
             imageConfig.setValue(propertyNameExpression, code);
             imageConfig.addPropertyChangeListener(propertyNameExpression, new PropertyChangeListener() {
                 @Override
@@ -839,7 +838,7 @@ class MaskFormActions {
             int width = targetProduct.getSceneRasterWidth();
             int height = targetProduct.getSceneRasterHeight();
             String description = mask.getDescription() + " (from " + mask.getProduct().getDisplayName() + ")";
-            Mask targetMask = Mask.BandMathType.create(maskName, description, width, height, 
+            Mask targetMask = Mask.BandMathsType.create(maskName, description, width, height,
                                                        bandName, mask.getImageColor(), mask.getImageTransparency());
             targetProduct.getMaskGroup().add(targetMask);
             return band;

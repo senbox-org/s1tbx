@@ -318,15 +318,15 @@ public class NdviProcessor extends Processor {
         ProductUtils.copyMasks(_inputProduct, _outputProduct);
         ProductUtils.copyOverlayMasks(_inputProduct, _outputProduct);
 
-        final Mask arithMask = Mask.BandMathType.create(NDVI_ARITHMETIC_FLAG_NAME, "An arithmetic exception occured.", 
+        final Mask arithMask = Mask.BandMathsType.create(NDVI_ARITHMETIC_FLAG_NAME, "An arithmetic exception occured.",
                                                         sceneWidth, sceneHeight, 
                                                         (NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME), Color.red.brighter(), 0.7);
         _outputProduct.getMaskGroup().add(arithMask);
-        final Mask lowMask = Mask.BandMathType.create(NDVI_LOW_FLAG_NAME, "NDVI value is too low.", 
+        final Mask lowMask = Mask.BandMathsType.create(NDVI_LOW_FLAG_NAME, "NDVI value is too low.",
                                                       sceneWidth, sceneHeight, 
                                                       (NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME), Color.red, 0.7);
         _outputProduct.getMaskGroup().add(lowMask);
-        final Mask highMask = Mask.BandMathType.create(NDVI_HIGH_FLAG_NAME, "NDVI value is too high.", 
+        final Mask highMask = Mask.BandMathsType.create(NDVI_HIGH_FLAG_NAME, "NDVI value is too high.",
                                                        sceneWidth, sceneHeight, 
                                                        (NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME), Color.red.darker(), 0.7);
         _outputProduct.getMaskGroup().add(highMask);

@@ -424,14 +424,14 @@ public class DimapHeaderWriterTest extends TestCase {
                 header +
                 rasterDimensions +
                 "    <Masks>" + LS +
-                "        <Mask type=\"Math\">" + LS +
+                "        <Mask type=\"Maths\">" + LS +
                 "            <NAME value=\"bitmaskDef1\" />" + LS +
                 "            <DESCRIPTION value=\"description1\" />" + LS +
                 "            <COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />" + LS +
                 "            <TRANSPARENCY value=\"0.75\" />" + LS +
                 "            <EXPRESSION value=\"!l1_flags.INVALID\" />" + LS +
                 "        </Mask>" + LS +
-                "        <Mask type=\"Math\">" + LS +
+                "        <Mask type=\"Maths\">" + LS +
                 "            <NAME value=\"bitmaskDef2\" />" + LS +
                 "            <DESCRIPTION value=\"description2\" />" + LS +
                 "            <COLOR red=\"0\" green=\"255\" blue=\"0\" alpha=\"255\" />" + LS +

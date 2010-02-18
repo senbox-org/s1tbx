@@ -10,24 +10,24 @@ import org.jdom.Element;
  * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
-class BandMathMaskPersistable extends MaskPersistable {
+class BandMathsMaskPersistable extends MaskPersistable {
 
     @Override
-    protected Mask.BandMathType createImageType() {
-        return Mask.BandMathType.INSTANCE;
+    protected Mask.BandMathsType createImageType() {
+        return Mask.BandMathsType.INSTANCE;
     }
 
     @Override
     protected void configureMask(Mask mask, Element element) {
         final PropertyContainer imageConfig = mask.getImageConfig();
         final String expression = getChildAttributeValue(element, TAG_EXPRESSION, ATTRIB_VALUE);
-        imageConfig.setValue(Mask.BandMathType.PROPERTY_NAME_EXPRESSION, expression);
+        imageConfig.setValue(Mask.BandMathsType.PROPERTY_NAME_EXPRESSION, expression);
     }
 
     @Override
     protected void configureElement(Element root, Mask mask) {
         root.addContent(createElement(TAG_EXPRESSION, mask.getImageConfig().getValue(
-                Mask.BandMathType.PROPERTY_NAME_EXPRESSION).toString()));
+                Mask.BandMathsType.PROPERTY_NAME_EXPRESSION).toString()));
     }
 
 }

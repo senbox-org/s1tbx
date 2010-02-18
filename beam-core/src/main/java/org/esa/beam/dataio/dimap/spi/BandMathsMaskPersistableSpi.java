@@ -9,19 +9,19 @@ import org.jdom.Element;
  * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
-public class BandMathMaskPersistableSpi implements DimapPersistableSpi {
+public class BandMathsMaskPersistableSpi implements DimapPersistableSpi {
 
     @Override
     public boolean canDecode(Element element) {
         final String type = element.getAttributeValue(DimapProductConstants.ATTRIB_TYPE);
-        return Mask.BandMathType.TYPE_NAME.equals(type);
+        return Mask.BandMathsType.TYPE_NAME.equals(type);
     }
 
     @Override
     public boolean canPersist(Object object) {
         if (object instanceof Mask) {
             Mask mask = (Mask) object;
-            if(mask.getImageType() == Mask.BandMathType.INSTANCE) {
+            if(mask.getImageType() == Mask.BandMathsType.INSTANCE) {
                 return true;
             }
         }
@@ -30,6 +30,6 @@ public class BandMathMaskPersistableSpi implements DimapPersistableSpi {
 
     @Override
     public DimapPersistable createPersistable() {
-        return new BandMathMaskPersistable();
+        return new BandMathsMaskPersistable();
     }
 }
