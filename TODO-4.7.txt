@@ -2,7 +2,7 @@ VISAT
 =====
 
 Align changelog of beam-visat-rcp and beam-visat
-  ==> FINAL , MP, OPEN
+  ==> FINAL , MP, CLOSED
 
 
 Band Math --> Band Maths
