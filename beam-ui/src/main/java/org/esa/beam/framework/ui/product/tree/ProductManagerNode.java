@@ -11,7 +11,7 @@ class ProductManagerNode extends ProductTreeNode {
 
     private final ProductManager manager;
 
-    public ProductManagerNode(ProductManager manager) {
+    ProductManagerNode(ProductManager manager) {
         super("Open Products", manager, null);
         this.manager = manager;
     }

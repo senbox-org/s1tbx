@@ -14,7 +14,7 @@ class ProductNode extends ProductTreeNode {
 
     private Product product;
 
-    public ProductNode(Product product, ProductTreeNode parent) {
+    ProductNode(Product product, ProductTreeNode parent) {
         super(product.getDisplayName(), product, parent);
         this.product = product;
     }
