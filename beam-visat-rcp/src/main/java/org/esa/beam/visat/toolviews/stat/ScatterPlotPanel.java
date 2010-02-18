@@ -37,7 +37,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
-import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -339,7 +338,7 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
     }
 
     @Override
-    public void compute(Mask selectedMask) {
+    public void compute(final Mask selectedMask) {
 
         final RasterDataNode rasterX = getRaster(X_VAR);
         final RasterDataNode rasterY = getRaster(Y_VAR);
@@ -348,12 +347,6 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
             return;
         }
 
-        final RenderedImage maskImage;
-        if (selectedMask == null) {
-            maskImage = null;
-        } else {
-            maskImage = selectedMask.getSourceImage();
-        }
         ProgressMonitorSwingWorker<ScatterPlot, Object> swingWorker = new ProgressMonitorSwingWorker<ScatterPlot, Object>(
                 this, "Computing scatter plot") {
 
@@ -361,15 +354,15 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
             protected ScatterPlot doInBackground(ProgressMonitor pm) throws Exception {
                 pm.beginTask("Computing scatter plot...", 100);
                 try {
-                    final Range rangeX = getRange(X_VAR, rasterX, maskImage, SubProgressMonitor.create(pm, 15));
-                    final Range rangeY = getRange(Y_VAR, rasterY, maskImage, SubProgressMonitor.create(pm, 15));
+                    final Range rangeX = getRange(X_VAR, rasterX, selectedMask, SubProgressMonitor.create(pm, 15));
+                    final Range rangeY = getRange(Y_VAR, rasterY, selectedMask, SubProgressMonitor.create(pm, 15));
                     final BufferedImage image = ProductUtils.createScatterPlotImage(rasterX,
                                                                                     (float) rangeX.getMin(),
                                                                                     (float) rangeX.getMax(),
                                                                                     rasterY,
                                                                                     (float) rangeY.getMin(),
                                                                                     (float) rangeY.getMax(),
-                                                                                    maskImage,
+                                                                                    selectedMask,
                                                                                     512,
                                                                                     512,
                                                                                     new Color(255, 255, 255, 0),
@@ -453,15 +446,15 @@ class ScatterPlotPanel extends PagePanel implements SingleRoiComputePanel.Comput
         return raster.getName();
     }
 
-    private Range getRange(int varIndex, RasterDataNode raster, RenderedImage roiImage, ProgressMonitor pm) throws
+    private Range getRange(int varIndex, RasterDataNode raster, Mask mask, ProgressMonitor pm) throws
                                                                                                             IOException {
         final boolean autoMinMax = (Boolean) autoMinMaxParams[varIndex].getValue();
         if (autoMinMax) {
             Stx stx;
-            if (roiImage == null) {
+            if (mask == null) {
                 stx = raster.getStx(false, pm);
             } else {
-                stx = Stx.create(raster, roiImage, pm);
+                stx = Stx.create(raster, mask, pm);
             }
             return new Range(raster.scale(stx.getMin()), raster.scale(stx.getMax()));
         } else {

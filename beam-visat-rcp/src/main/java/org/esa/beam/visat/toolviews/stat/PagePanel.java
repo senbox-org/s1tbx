@@ -163,7 +163,6 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         super.updateUI();
         if (mustUpdateContent()) {
             updateContent();
-            parentDialog.getDescriptor().setTitle(getTitle());
             rasterChanged = false;
             productChanged = false;
         }

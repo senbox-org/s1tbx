@@ -19,7 +19,7 @@
 
 <p>This dialog appears from various import and export file chooser dialogs and
     always if a new propduct has to be created from a base product, such as in
-    <a href="BandMath.html">Band math</a> dialog.</p>
+    <a href="BandMaths.html">Band maths</a> dialog.</p>
 
 <p align="center"><img src="images/SubsetDialog.jpg"><br>
 </p>
@@ -34,6 +34,12 @@
     fields. If you drag the rectangle, the field values change simultaneously. <br>
     You can also specify a sub-sampling, by setting the values of
     <code>Scene step X</code> and <code>Scene step Y</code>.
+</p>
+
+<p class="inote">
+    <b>NOTE:</b> Pins outside of the spatial subset area will not be preserved in the
+    resulting product, because they are bound to the pixel coordinates of the product. <br/>
+    GCPs are preserved, because they are bound to a geo-location.
 </p>
 
 <h4>Band Subset</h4>

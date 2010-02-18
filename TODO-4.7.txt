@@ -2,14 +2,14 @@ VISAT
 =====
 
 Align changelog of beam-visat-rcp and beam-visat
-  ==> FINAL , MP, OPEN
+  ==> FINAL , MP, CLOSED
 
 
 Band Math --> Band Maths
   - BandMathOp --> BandMathsOp
   - BandMathMaskPersistable --> BandMathsMaskPersistable
   - Mask.BandMathType --> Mask.BandMathsType
-  ==> FINAL , MP, OPEN
+  ==> FINAL , MP, CLOSED
 
 Reprojection:
 =============
@@ -41,8 +41,7 @@ VectorDataNode:
 ===============
 * Create subset from Product with Pins, GCPs -> GCPs outside of subset bounds are preserved, pins are not
   Explain in help, that this is intended.
-  ==> FINAL, ?, OPEN
-
+  ==> FINAL, MP, CLOSED
 * Import of Geometry does not work when shapefile has no CRS and shapefile coordinates are not in WGS84.
   the user is asked to enter a CRS.
   ==> FINAL, MP, CLOSED
@@ -74,7 +73,7 @@ Product tree:
 * Still can not add/remove geometry vertices
   ==> FINAL, NF, CLOSED
 * Don't display empty groups. With special attention to Pin & GCP Vector Data Nodes.
-  ==> FINAL, MP, ONGOING
+  ==> FINAL, MP, CLOSED
 
 Layers:
 =======

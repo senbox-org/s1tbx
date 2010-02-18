@@ -78,7 +78,7 @@ public class OperatorHandlerHtml implements OperatorHandler {
         writer.println("<table>");
         writer.println("  <tr><td><b>Name:</b></td><td><code>" + operatorDesc.getName() + "</code></td></tr>");
         writer.println("  <tr><td><b>Full name:</b></td><td><code>" + operatorDesc.getType().getName() + "</code></td></tr>");
-        writer.println("  <tr><td><b>Purpose:</b></td><td>" + operatorDesc.getShortDescription() + "</td></tr>");
+        writer.println("  <tr><td><b>Purpose:</b></td><td>" + makeHtmlConform(operatorDesc.getShortDescription()) + "</td></tr>");
         writer.println("  <tr><td><b>Version:</b></td><td>" + operatorDesc.getVersion() + "</td></tr>");
         writer.println("</table>");
 
@@ -91,8 +91,9 @@ public class OperatorHandlerHtml implements OperatorHandler {
         }
 
         writer.println("<h2>Sources</h2>");
-        SourceProductDesc[] sourceProducts = operatorDesc.getSourceProducts();
-        if (sourceProducts.length > 0) {
+        SourceProductDesc[] sourceProducts = operatorDesc.getSourceProductList();
+        SourceProductsDesc sourceProductsField = operatorDesc.getSourceProducts();
+        if (sourceProducts.length > 0 || sourceProductsField != null) {
             writer.println("<table>");
             writer.println("<tr>");
             writer.println("  <th>Name</th>");
@@ -102,6 +103,12 @@ public class OperatorHandlerHtml implements OperatorHandler {
                 writer.println("<tr>");
                 writer.println("  <td><code>" + sourceProduct.getName() + "</code></td>");
                 writer.println("  <td>" + getFullDescription(sourceProduct) + "</td>");
+                writer.println("</tr>");
+            }
+            if(sourceProductsField != null) {
+                writer.println("<tr>");
+                writer.println("  <td><code>" + sourceProductsField.getName() + "</code></td>");
+                writer.println("  <td>" + getFullDescription(sourceProductsField) + "</td>");
                 writer.println("</tr>");
             }
             writer.println("</table>");
@@ -117,12 +124,14 @@ public class OperatorHandlerHtml implements OperatorHandler {
             writer.println("  <th>Name</th>");
             writer.println("  <th>Type</th>");
             writer.println("  <th>Description</th>");
+            writer.println("  <th>Default</th>");
             writer.println("</tr>");
             for (ParameterDesc parameterDesc : parameterDescs) {
                 writer.println("<tr>");
                 writer.println("  <td><code>" + parameterDesc.getName() + "</code></td>");
-                writer.println("  <td><code>" + parameterDesc.getField().getType().getSimpleName() + "</code></td>");
+                writer.println("  <td><code>" + parameterDesc.getType().getSimpleName() + "</code></td>");
                 writer.println("  <td>" + getFullDescription(parameterDesc) + "</td>");
+                writer.println("  <td>" + parameterDesc.getDefaultValue() + "</td>");
                 writer.println("</tr>");
             }
             writer.println("</table>");
@@ -134,6 +143,10 @@ public class OperatorHandlerHtml implements OperatorHandler {
         writer.println("<p><i>TODO</i></p>");
 
         writeFooter(writer);
+    }
+
+    private static String makeHtmlConform(String text) {
+        return text.replace("\n", "<br/>");
     }
 
     private static void writeHeader(String title, PrintWriter writer) {

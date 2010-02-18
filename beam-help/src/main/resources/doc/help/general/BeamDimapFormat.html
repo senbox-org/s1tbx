@@ -16,10 +16,6 @@
     </tr>
 </table>
 
-<p class="note">
-   <b>IMPORTANT NOTE:</b> This help page refers to an outdated user interface. It will be updated for the final BEAM 4.7 release.
-</p>
-
 <h3>Introduction</h3>
 
 <p>VISAT and the scientific data processors use a simple data input/output format,
@@ -29,16 +25,22 @@
     DIMAP profile called BEAM-DIMAP.
 
 <p>The BEAM-DIMAP is the standard I/O product format for VISAT and the BEAM Scientific Tools.
-    The format was choosen, because it has a very simple and easy-to-understand structure.</p>
+    The format was chosen, because it has a very simple and easy-to-understand structure.</p>
 
 <h3>Overview</h3>
 
 <p>A data product stored in this format is composed of
 <ul>
-    <li>a single product header file with the suffix <code>.dim</code> in XML format containing the product meta-data
-        and</li>
-    <li>an additional directory with the same name plus the suffix <code>.data</code> containing ENVI<sup>&reg;</sup>
-        -compatible images for each band.</li>
+    <li>a single product header file with the suffix <code>.dim</code> in XML format containing the product meta-data</li>
+    <li>an additional directory with the same name plus the suffix <code>.data</code><br/>
+        <ul>
+            <li>containing ENVI<sup>&reg;</sup>-compatible images for each band.</li>
+            <li>containing a directory <code>tie_point_grids</code> which contains ENVI<sup>&reg;</sup>-compatible
+                images for each tie-point grid
+            </li>
+            <li>containing a directory <code>vector_data</code>which contains the geometries in a proprietary format.</li>
+        </ul>
+    </li>
 </ul>
 
 <p></p>

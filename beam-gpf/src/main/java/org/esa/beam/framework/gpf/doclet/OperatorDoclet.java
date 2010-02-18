@@ -33,7 +33,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
  * <pre>
  * javadoc -doclet "%DocletClassName%" -docletpath "%DocletPath%" ^
  *         -sourcepath "%SourcePath%" -classpath "%ClassPath%" ^
- *         org.esa.beam.framework.gpf.operators.common
+ *         org.esa.beam.framework.gpf.operators.std
  * </pre>
  *
  * @author Norman Fomferra
@@ -54,10 +54,16 @@ public class OperatorDoclet extends Doclet {
         }
         com.sun.tools.javadoc.Main.main(new String[] {
                  "-doclet", OperatorDoclet.class.getName(),
-                "-sourcepath", "./beam-gpf/src/main/java;./beam-gpf-common/src/main/java",
+                "-sourcepath", "./beam-gpf/src/main/java;./beam-gpf-std-ops/src/main/java;"+
+                               "./beam-cluster-analysis/src/main/java;./beam-collocation/src/main/java;"+
+                               "./beam-unmix/src/main/java",
 //                "-classpath", "./beam-gpf/target/classes"
                 "org.esa.beam.framework.gpf.operators.common",
-                "org.esa.beam.gpf.common.reproject",
+                "org.esa.beam.gpf.std.reproject",
+                "org.esa.beam.gpf.std.mosaic",
+                "org.esa.beam.unmixing",
+                "org.esa.beam.cluster",
+                "org.esa.beam.collocation",
                 "org.esa.beam.framework.gpf.operators.meris",
         });
     }
@@ -89,8 +95,12 @@ public class OperatorDoclet extends Doclet {
                     Class<? extends Operator> type = (Class<? extends Operator>) Class.forName(classDoc.qualifiedTypeName());
                     OperatorMetadata annotation = type.getAnnotation(OperatorMetadata.class);
                     if (annotation != null) {
-                        OperatorDesc operatorDesc = new OperatorDesc(type, classDoc, annotation);
-                        operatorHandler.processOperator(operatorDesc);
+                        if (!annotation.internal()) {
+                            OperatorDesc operatorDesc = new OperatorDesc(type, classDoc, annotation);
+                            operatorHandler.processOperator(operatorDesc);
+                        }else{
+                            System.err.println("Warning: Skipping " + classDoc.typeName() + " because it is internal.");
+                        }
                     } else {
                         System.err.println("Warning: Skipping " + classDoc.typeName() + " because it has no metadata.");
                     }

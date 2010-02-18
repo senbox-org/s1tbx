@@ -15,10 +15,6 @@
     </tr>
 </table>
 
-<p class="note">
-   <b>IMPORTANT NOTE:</b> This help page refers to an outdated user interface. It will be updated for the final BEAM 4.7 release.
-</p>
-
 <h3>Introduction</h3>
 
 <p><code>pconvert</code> is a command line tool which lets a user convert <a href="BeamDimapFormat.html">BEAM-DIMAP</a>,
@@ -33,13 +29,9 @@
     <a href="BeamDimapFormat.html">BEAM-DIMAP</a> format.
 </p>
 
-<p>Please take a look at the closely related command-line tool <code><a href="../mapproj/MapProjUsage.html">mapproj</a>
-</code>.
-</p>
-
 <h3>Running pconvert</h3>
 
-<p>For executing the mapproj tool there is an executable script file located in the <code>bin</code> directory
+<p>For executing the pconvert tool there is an executable script file located in the <code>bin</code> directory
     of your BEAM installation directory. The file name is <code>pconvert.bat</code> for MS Windows, <code>pconvert.command</code> for Mac OS X and <code>
     pconvert.sh</code> for UNIX operating systems.</p>
 
@@ -100,101 +92,101 @@
 </p>
 
 <pre>
-    Usage: pconvert [&lt;options&gt;] &lt;file-1&gt; [&lt;file-2&gt; &lt;file-3&gt; ...]
+Usage: pconvert [&lt;options&gt;] &lt;file-1&gt; [&lt;file-2&gt; &lt;file-3&gt; ...]
 
-    where the &lt;file-i&gt; are the input data products and &lt;options&gt;
-    can be a combination of the following options:
+  where the &lt;file-i&gt; are the input data products and &lt;options&gt;
+  can be a combination of the following options:
 
-    -f or --format &lt;ext&gt;
-    Specifies output format and file extension,
-    possible values for &lt;ext&gt; are
-    For product conversion:
-    dim - <a href="BeamDimapFormat.html">BEAM-DIMAP</a> product format
-    h5 - HDF5 product format
-    tifp - GeoTIFF product format
-    For image conversion:
-    png - Portable Network Graphics image format
-    jpg - JPEG image format
-    tif - GeoTIFF image format
-    bmp - Microsoft Bitmap image format
-    Note:
-    If image conversion is selected the product must at least
-    contain three bands to create an image.
-    If this is not the case, you must use one of the options -b or -p
-    to define the image content.
-    The default value is "-f dim"
-    -b or --bands &lt;i&gt; or &lt;iR&gt;,&lt;iG&gt;,&lt;iB&gt; or &lt;i1&gt;,&lt;i2&gt;,&lt;i3&gt;,&lt;i4&gt;...
-    Don't use this option in combination with option -p.
-    Specifies indices of the bands to be exported as a comma separated
-    index list, 1 (one) corresponds to the first band.
-    For image output, the number of bands should be 1 (greyscale) or
-    3 (RGB), the default value is "-b 8,5,2" (optimized for MERIS).
-    For product output, the default value includes all bands.
+  -f or --format &lt;ext&gt;
+     Specifies output format and file extension,
+     possible values for &lt;ext&gt; are
+       For product conversion:
+         dim  - <a href="BeamDimapFormat.html">BEAM-DIMAP</a> product format
+         h5   - HDF5 product format
+         tifp - GeoTIFF product format
+       For image conversion:
+         png  - Portable Network Graphics image format
+         jpg  - JPEG image format
+         tif  - GeoTIFF image format
+         bmp  - Microsoft Bitmap image format
+       Note:
+         If image conversion is selected the product must at least
+         contain three bands to create an image.
+         If this is not the case, you must use one of the options -b or -p
+         to define the image content.
+     The default value is "-f dim"
+  -b or --bands &lt;i&gt; or &lt;iR&gt;,&lt;iG&gt;,&lt;iB&gt; or &lt;i1&gt;,&lt;i2&gt;,&lt;i3&gt;,&lt;i4&gt;...
+     Don't use this option in combination with option -p.
+     Specifies indices of the bands to be exported as a comma separated
+     index list, 1 (one) corresponds to the first band.
+     For image output, the number of bands should be 1 (greyscale) or
+     3 (RGB), the default value is "-b 8,5,2" (optimized for MERIS).
+     For product output, the default value includes all bands.
 
-    -p or --rgb-profile &lt;file-path&gt;
-    Valid for greyscale or RGB image output only.
-    Don't use this option in combination with option -b.
-    Specifies the file path to a text file containing an mathematic band
-    <a href="../visat/ExpressionEditor.html#syntax">expression</a> for each of the RGB channels.
-    The syntax of the file is as follows:
-    red = &lt;red-expression&gt;
-    green = &lt;green-expression&gt;
-    blue = &lt;blue-expression&gt;
-    It is also possible to use r, g and b instead of red, green and blue.
-    Empty lines and lines beginning with the '#' character are ignored.
+  -p or --rgb-profile &lt;file-path&gt;
+     Valid for greyscale or RGB image output only.
+     Don't use this option in combination with option -b.
+     Specifies the file path to a text file containing an mathematic
+     band expression for each of the RGB channels.
+     The syntax of the file is as follows:
+         red = &lt;red-expression&gt;
+         green = &lt;green-expression&gt;
+         blue = &lt;blue-expression&gt;
+     It is also possible to use r, g and b instead of red, green and blue.
+     Empty lines and lines beginning with the '#' character are ignored.
 
-    -s or --histo-skip &lt;lower&gt;,&lt;upper&gt;
-    Valid for greyscale or RGB image output only.
-    Specifies the amount of pixels in percent to be skipped from the
-    lower resp. upper end of each of the histograms of the R,G and B
-    channels. For image output, the default value is "-s 1.0,4.0"
-    For product output, the option is ignored.
+  -s or --histo-skip &lt;lower&gt;,&lt;upper&gt;
+     Valid for greyscale or RGB image output only.
+     Specifies the amount of pixels in percent to be skipped from the
+     lower resp. upper end of each of the histograms of the R,G and B
+     channels. For image output, the default value is "-s 1.0,4.0"
+     For product output, the option is ignored.
 
-    -m or --histo-match &lt;algorithm&gt;
-    Valid for greyscale or RGB image output only.
-    Specifies the histogram matching algorithm to be applied.
-    Possible values for &lt;algorithm&gt; are:
-    off - no histogram matching
-    equalize - force an equalized output histogram
-    normalize - force a normalized output histogram
-    the default value is "-m off".
+  -m or --histo-match &lt;algorithm&gt;
+     Valid for greyscale or RGB image output only.
+     Specifies the histogram matching algorithm to be applied.
+     Possible values for &lt;algorithm&gt; are:
+         off - no histogram matching
+         equalize - force an equalized output histogram
+         normalize - force a normalized output histogram
+     the default value is "-m off".
 
-    -c or --color-palette &lt;file-path&gt;
-    Valid only for image output of a single band.
-    Specifies the file path to a text file containing a colour
-    palette definition.
+  -c or --color-palette &lt;file-path&gt;
+     Valid only for image output of a single band.
+     Specifies the file path to a text file containing a colour
+     palette definition.
 
-    -n or --no-data-color &lt;red&gt;,&lt;green&gt;,&lt;blue&gt;[,&lt;alpha&gt;]
-    Valid for greyscale or RGB image output only.
-    Specifies the colour that should be used for the no-data layer.
-    The alpha value is optional. All component values have to be
-    between 0 and 255. An alpha value of 255 means fully opaque
-    and 0 means fully transparent.
+  -n or --no-data-color &lt;red&gt;,&lt;green&gt;,&lt;blue&gt;[,&lt;alpha&gt;]
+     Valid for greyscale or RGB image output only.
+     Specifies the colour that should be used for the no-data layer.
+     The alpha value is optional. All component values have to be between
+     0 and 255. An alpha value of 255 means fully opaque and 0 means
+     fully transparent.
 
-    -r or --max-res &lt;x-res&gt;,&lt;y-res&gt;
-    Specifies the maximum image output size in pixels, for example 512,512.
-    By default, the full product scene size is taken.
-    This option can't be combined with -H or -W
+  -r or --max-res &lt;x-res&gt;,&lt;y-res&gt;
+     Specifies the maximum image output size in pixels, for example 512,512.
+     By default, the full product scene size is taken.
+     This option can't be combined with -H or -W
 
-    -W or --width &lt;width&gt;
-    Forces the specified image output width in pixels, for example 512.
-    The image aspect ratio will be preserved.
-    This option can't be combined with -r or -H
+  -W or --width  &lt;width&gt;
+     Forces the specified image output width in pixels, for example 512.
+     The image aspect ratio will be preserved.
+     This option can't be combined with -r or -H
 
-    -H or --height &lt;height&gt;
-    Forces the specified image output height in pixels, for example 512.
-    The image aspect ratio will be preserved.
-    This option can't be combined with -r or -W
+  -H or --height  &lt;height&gt;
+     Forces the specified image output height in pixels, for example 512.
+     The image aspect ratio will be preserved.
+     This option can't be combined with -r or -W
 
-    -o or --outdir &lt;dir-path&gt;
-    Specifies the output directory.
-    The default value is the current working directory.
+  -o or --outdir &lt;dir-path&gt;
+     Specifies the output directory.
+     The default value is the current working directory.
 
-    -d or --debug
-    Turns the debug mode on.
+  -d or --debug
+     Turns the debug mode on.
 
-    -? or -h or --help
-    Prints this usage help.
+  -? or -h or --help
+     Prints this usage help.
 
 </pre>
 

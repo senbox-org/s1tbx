@@ -13,18 +13,28 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.impl.Tokenizer;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.StringUtils;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.Color;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -145,6 +155,29 @@ public class Mask extends Band {
         getImageType().handleRename(this, oldExternalName, newExternalName);
         super.updateExpression(oldExternalName, newExternalName);
     }
+    
+    @Override
+    public Area getAreaOfData() {
+        if (imageType == VectorDataType.INSTANCE) {
+            ReferencedEnvelope envelope = VectorDataType.getVectorData(this).getFeatureCollection().getBounds();
+            Rectangle2D modelBounds = new Rectangle2D.Double(envelope.getMinX(), envelope.getMinY(),
+                                                             envelope.getWidth(), envelope.getHeight());
+            AffineTransform imageToModelTransform;
+            if (getProduct() != null) {
+                imageToModelTransform = ImageManager.getImageToModelTransform(getProduct().getGeoCoding());
+            } else {
+                imageToModelTransform = new AffineTransform();
+            }
+            try {
+                imageToModelTransform.invert();
+            } catch (NoninvertibleTransformException e) {
+                return null;
+            }
+            return new Area(imageToModelTransform.createTransformedShape(modelBounds));
+        } else {
+            return super.getAreaOfData();
+        }
+    }
 
     /**
      * Specifies a factory for the {@link RasterDataNode#getSourceImage() source image} used by a {@link Mask}.
@@ -212,14 +245,14 @@ public class Mask extends Band {
     /**
      * A mask image type which is based on band math.
      */
-    public static class BandMathType extends ImageType {
+    public static class BandMathsType extends ImageType {
 
-        public static final String TYPE_NAME = "Math";
+        public static final String TYPE_NAME = "Maths";
         public static final String PROPERTY_NAME_EXPRESSION = "expression";
         
-        public static final BandMathType INSTANCE =  new BandMathType();
+        public static final BandMathsType INSTANCE =  new BandMathsType();
 
-        private BandMathType() {
+        private BandMathsType() {
             super(TYPE_NAME);
         }
 
@@ -366,13 +399,13 @@ public class Mask extends Band {
         
         public static Mask create(String name, String description, int width, int height,
                                   String expression, Color color, double transparency) {
-            final Mask mask = new Mask(name, width, height, Mask.BandMathType.INSTANCE);
+            final Mask mask = new Mask(name, width, height, BandMathsType.INSTANCE);
             if (description != null) {
                 mask.setDescription(description);
             }
             mask.setImageColor(color);
             mask.setImageTransparency(transparency);
-            BandMathType.setExpression(mask, expression);
+            BandMathsType.setExpression(mask, expression);
             return mask;
         }
     }

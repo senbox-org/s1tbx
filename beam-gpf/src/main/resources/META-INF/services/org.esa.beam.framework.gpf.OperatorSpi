@@ -1,9 +1,10 @@
 org.esa.beam.framework.gpf.operators.common.ReadOp$Spi
 org.esa.beam.framework.gpf.operators.common.MergeOp$Spi
 org.esa.beam.framework.gpf.operators.common.WriteOp$Spi
+org.esa.beam.framework.gpf.operators.common.SubsetOp$Spi
 org.esa.beam.framework.gpf.operators.common.WriteRGBOp$Spi
 org.esa.beam.framework.gpf.operators.common.PassThroughOp$Spi
-org.esa.beam.framework.gpf.operators.common.BandMathOp$Spi
+org.esa.beam.framework.gpf.operators.common.BandMathsOp$Spi
 org.esa.beam.framework.gpf.operators.meris.N1PatcherOp$Spi
 org.esa.beam.framework.gpf.operators.meris.NdviOp$Spi
 org.esa.beam.framework.gpf.operators.meris.L3ToL1Op$Spi

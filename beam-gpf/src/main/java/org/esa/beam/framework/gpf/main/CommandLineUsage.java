@@ -27,6 +27,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,11 +69,10 @@ class CommandLineUsage {
     }
 
     private static String getUsagePattern() {
-        BufferedReader bufferedReader = new BufferedReader(
-                new InputStreamReader(
-                        CommandLineArgs.class.getResourceAsStream(COMMAND_LINE_USAGE_RESOURCE)));
         StringBuilder sb = new StringBuilder(1024);
         try {
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(CommandLineArgs.class.getResourceAsStream(COMMAND_LINE_USAGE_RESOURCE)));
             try {
                 while (true) {
                     String line = bufferedReader.readLine();
@@ -229,9 +230,13 @@ class CommandLineUsage {
 
         if (operatorClassDescriptor.getOperatorMetadata() != null && !operatorClassDescriptor.getOperatorMetadata().description().isEmpty()) {
             usageText.append("\nDescription:\n");
-            usageText.append("  ");
-            usageText.append(operatorClassDescriptor.getOperatorMetadata().description());
-            usageText.append("\n");
+            final String description = operatorClassDescriptor.getOperatorMetadata().description();
+            final String[] lines = description.split("\n");
+            for (String line : lines) {
+                usageText.append("  ");
+                usageText.append(line);
+                usageText.append("\n");
+            }
         }
         if (!propertyDocElementList.isEmpty()) {
             usageText.append("\nComputed Properties:\n");
@@ -380,20 +385,41 @@ class CommandLineUsage {
         for (DocElement docElement : docElementList) {
             maxLength = Math.max(maxLength, docElement.syntax.length());
         }
+
+        sortAlphabetically(docElementList);
+
         for (DocElement docElement : docElementList) {
             usageText.append(docElement.syntax);
             if (docElement.descriptionLines.length > 0) {
                 int spacesCount = minSpaceCount + maxLength - docElement.syntax.length();
                 for (int i = 0; i < docElement.descriptionLines.length; i++) {
-                    usageText.append(spaces(spacesCount));
-                    usageText.append(docElement.descriptionLines[i]);
-                    usageText.append('\n');
+                    final String description = docElement.descriptionLines[i];
+                    final String[] lines = description.split("\n");
+                    appendLine(usageText, spaces(spacesCount), lines[0]);
+                    for (int j = 1, linesLength = lines.length; j < linesLength; j++) {
+                        appendLine(usageText, spaces(minSpaceCount + maxLength), lines[j]);
+                    }
                     spacesCount = minSpaceCount + maxLength;
                 }
             } else {
                 usageText.append('\n');
             }
         }
+    }
+
+    private static void appendLine(StringBuilder builder, String spaces, String descriptionLine) {
+        builder.append(spaces);
+        builder.append(descriptionLine);
+        builder.append('\n');
+    }
+
+    private static void sortAlphabetically(List<DocElement> docElementList) {
+        Collections.sort(docElementList, new Comparator<DocElement>() {
+            @Override
+            public int compare(DocElement element1, DocElement element2) {
+                return element1.syntax.compareTo(element2.syntax);
+            }
+        });
     }
 
     private static void appendXmlUsage(StringBuilder usageText, OperatorClassDescriptor operatorClassDescriptor) {
@@ -421,9 +447,7 @@ class CommandLineUsage {
 
         final StringTokenizer st = new StringTokenizer(graphElem.toXml().replace('\r', ' '), "\n");
         while (st.hasMoreElements()) {
-            usageText.append("  ");
-            usageText.append(st.nextToken());
-            usageText.append('\n');
+            appendLine(usageText, "  ", st.nextToken());
         }
     }
 

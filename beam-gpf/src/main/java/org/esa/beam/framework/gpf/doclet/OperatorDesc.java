@@ -5,6 +5,7 @@ import com.sun.javadoc.FieldDoc;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 
@@ -20,7 +21,9 @@ public class OperatorDesc  implements ElementDesc {
 
     private final TargetProductDesc targetProduct;
 
-    private final ArrayList<SourceProductDesc> sourceProducts;
+    private final ArrayList<SourceProductDesc> sourceProductList;
+
+    private SourceProductsDesc sourceProducts;
 
     private final ArrayList<ParameterDesc> parameters;
 
@@ -37,7 +40,7 @@ public class OperatorDesc  implements ElementDesc {
         }
 
         TargetProductDesc targetProductDesc = null;
-        sourceProducts = new ArrayList<SourceProductDesc>();
+        sourceProductList = new ArrayList<SourceProductDesc>();
         parameters = new ArrayList<ParameterDesc>();
         for (Field field : fields) {
             TargetProduct targetProduct = field.getAnnotation(TargetProduct.class);
@@ -46,7 +49,12 @@ public class OperatorDesc  implements ElementDesc {
             }
             SourceProduct sourceProduct = field.getAnnotation(SourceProduct.class);
             if (sourceProduct != null) {
-                sourceProducts.add(new SourceProductDesc(field, fieldDocMap.get(field.getName()), sourceProduct));
+                sourceProductList.add(new SourceProductDesc(field, fieldDocMap.get(field.getName()), sourceProduct));
+            }
+            SourceProducts sourceProductsAnnot = field.getAnnotation(SourceProducts.class);
+            if (sourceProductsAnnot != null && sourceProducts == null) {
+                sourceProducts = new SourceProductsDesc(field, fieldDocMap.get(field.getName()),
+                                                             sourceProductsAnnot);
             }
             Parameter parameter = field.getAnnotation(Parameter.class);
             if (parameter != null) {
@@ -84,8 +92,12 @@ public class OperatorDesc  implements ElementDesc {
         return targetProduct;
     }
 
-    public SourceProductDesc[] getSourceProducts() {
-        return sourceProducts.toArray(new SourceProductDesc[sourceProducts.size()]);
+    public SourceProductDesc[] getSourceProductList() {
+        return sourceProductList.toArray(new SourceProductDesc[sourceProductList.size()]);
+    }
+
+    public SourceProductsDesc getSourceProducts() {
+        return sourceProducts;
     }
 
     public ParameterDesc[] getParameters() {

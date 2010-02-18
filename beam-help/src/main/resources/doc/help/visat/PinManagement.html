@@ -14,10 +14,6 @@
     </tr>
 </table>
 
-<p class="note">
-   <b>IMPORTANT NOTE:</b> This help page refers to an outdated user interface. It will be updated for the final BEAM 4.7 release.
-</p>
-
 <h4>Pin Management in VISAT</h4>
 
 <p>
@@ -42,15 +38,18 @@
     <a href="EditMenu.html#deletePin">delete pin</a> command in the Edit Menu.
     It is also possible to create and remove pins by using the <a href="#pinManager">pin manager</a>.
 
-
-<h4><a name="pinTool">The Pin Tool &nbsp;&nbsp;</a><img src="images/icons/PinTool24.gif"></h4>
+<p>
+    When creating a <a href="ProductSubsetDialog.html">spatial subset</a> of a product which contains pins, the pins located outside of the spatial area
+    will not be copied to the resulting product.
 
 <p>
-    The pin tool is used to create a new pin but and also to select an existing pin.
-    If the pin tool is active, a click into an image view creates a new pin at the
-    current cursor position. If you click on an existing pin is becomes the selected pin.
-    If you double-click on an existing pin the <a href="#editPinDialog">Edit Pin</a> dialog appears and
-    lets you the edit the properties of the selected pin.
+    <a name="pinTool">The Pin Tool &nbsp;&nbsp;</a><img src="images/icons/PinTool24.gif"><br/>
+    The Pin Tool is used to create a new pin. If the Pin Tool is active, a click into an image view
+    creates a new pin at the current cursor position.<br>
+    <a name="selectTool"><b>The Select Tool &nbsp;&nbsp;</b></a><img src="images/icons/SelectTool24.gif"><br/>
+    Selecting existing pins can be done with the Select Tool. If you click on an existing pin with the Select Tool
+    it becomes the selected pin. If you double-click on an existing pin the <a href="#editPinDialog">Edit Pin</a> dialog appears
+    and lets you edit the properties of the selected Pin.
 
 
 <h4><a name="pinManager">The Pin Manager &nbsp;&nbsp;</a><img src="images/icons/PinManager24.gif"></h4>

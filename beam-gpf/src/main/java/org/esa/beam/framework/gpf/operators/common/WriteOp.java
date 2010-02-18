@@ -31,13 +31,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This write operator stores the source product to the specified file location on the hard disc.
+ * <br/>
+ * When using GPT with a graph-file, instances of <code>WriteOp</code> are appended to leaf nodes.
+ * This means, that it is not necessary to include nodes for writing in a graph.
+ * But it can be used, to store results of non-leaf nodes.
+ */
 @OperatorMetadata(alias = "Write",
-                  description = "Writes a product to disk.")
+                  version="1.2",
+                  authors = "Marco Zuehlke, Norman Fomferra",
+                  copyright = "(c) 2010 by Brockmann Consult",
+                  description = "Writes a product to the hard disc.")
 public class WriteOp extends Operator {
 
     @TargetProduct
     private Product targetProduct;
-    @SourceProduct(alias = "source")
+    @SourceProduct(alias = "source", description = "The source product to be written.")
     private Product sourceProduct;
 
     @Parameter(description = "The output file to which the data product is written.")

@@ -29,6 +29,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import javax.media.jai.JAI;
@@ -197,19 +198,14 @@ public class OperatorExecutor {
     }
 
     private static PlanarImage[] createImages(Band[] targetBands, OperatorContext operatorContext) {
-        PlanarImage[] images = new PlanarImage[targetBands.length];
-        int index = 0;
+        final ArrayList<PlanarImage> images = new ArrayList<PlanarImage>(targetBands.length);
         for (final Band band : targetBands) {
             OperatorImage operatorImage = operatorContext.getTargetImage(band);
             if (operatorImage != null) {
-                images[index++] = operatorImage;
-            } else {
-                String message = String.format("The band '%s' of the '%s' does not have an associated target image.",
-                                               band.getName(), operatorContext.getOperator().getClass().getSimpleName());
-                throw new OperatorException(message);
+                images.add(operatorImage);
             }
         }
-        return images;
+        return images.toArray(new PlanarImage[images.size()]);
     }
 
     private static void checkForCancelation(ProgressMonitor pm) {

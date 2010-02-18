@@ -20,14 +20,17 @@ import java.awt.Rectangle;
 import java.io.IOException;
 
 @OperatorMetadata(alias = "Subset",
-                  description = "Create a spatial and/or spectral subset of the source product.")
+                  authors = "Marco Zuehlke",
+                  copyright = "(c) 2010 by Brockmann Consult",
+                  description = "Create a spatial and/or spectral subset of data product.",
+                  internal = true)
 public class SubsetOp extends Operator {
 
-    @SourceProduct
+    @SourceProduct(alias = "source", description = "The source product to be subsetted.")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
-    @Parameter
+    @Parameter()
     private Rectangle region;
     @Parameter(defaultValue = "1")
     private int subSamplingX;
@@ -131,6 +134,7 @@ public class SubsetOp extends Operator {
 
 
     public static class Spi extends OperatorSpi {
+
         public Spi() {
             super(SubsetOp.class);
         }

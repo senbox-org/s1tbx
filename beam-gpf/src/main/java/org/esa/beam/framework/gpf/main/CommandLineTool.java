@@ -93,7 +93,7 @@ class CommandLineTool {
         TileCache tileCache = JAI.getDefaultInstance().getTileCache();
         tileCache.setMemoryCapacity(lineArgs.getTileCacheCapacity());
         SystemUtils.initThirdPartyLibraries();
-        
+
         if (lineArgs.getOperatorName() != null) {
             Map<String, Object> parameters = getParameterMap(lineArgs);
             Map<String, Product> sourceProducts = getSourceProductMap(lineArgs);
@@ -118,7 +118,7 @@ class CommandLineTool {
                 String sourceFilepath = entry.getValue();
                 String sourceNodeId = sourceNodeIdMap.get(sourceId);
                 if (graph.getNode(sourceNodeId) == null) {
-                    
+
                     DomElement parameters = new DefaultDomElement("parameters");
                     parameters.createChild("file").setValue(sourceFilepath);
 
@@ -136,7 +136,7 @@ class CommandLineTool {
                 parameters.createChild("formatName").setValue(lineArgs.getTargetFormatName());
 
                 Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
-                targetNode.addSource(new NodeSource("input", lastNode.getId()));
+                targetNode.addSource(new NodeSource("source", lastNode.getId()));
                 targetNode.setConfiguration(parameters);
 
                 graph.addNode(targetNode);

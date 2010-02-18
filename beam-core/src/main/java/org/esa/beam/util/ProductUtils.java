@@ -1471,6 +1471,54 @@ public class ProductUtils {
      * @param raster2    the second raster data node
      * @param sampleMin2 the minimum sample value to be considered in the second raster
      * @param sampleMax2 the maximum sample value to be considered in the second raster
+     * @param roiMask    an optional mask to be used as a ROI for the computation
+     * @param width      the width of the output image
+     * @param height     the height of the output image
+     * @param background the background color of the output image
+     * @param image      an image to be used as output image, if <code>null</code> a new image is created
+     * @param pm         the progress monitor
+     *
+     * @return the scatter plot image
+     *
+     * @throws java.io.IOException when an error occurred.
+     */
+    public static BufferedImage createScatterPlotImage(final RasterDataNode raster1,
+                                                       final float sampleMin1,
+                                                       final float sampleMax1,
+                                                       final RasterDataNode raster2,
+                                                       final float sampleMin2,
+                                                       final float sampleMax2,
+                                                       final Mask roiMask,
+                                                       final int width,
+                                                       final int height,
+                                                       final Color background,
+                                                       BufferedImage image,
+                                                       final ProgressMonitor pm) throws IOException {
+
+        Guardian.assertNotNull("raster1", raster1);
+        Guardian.assertNotNull("raster2", raster2);
+        Guardian.assertNotNull("background", background);
+        if (raster1.getSceneRasterWidth() != raster2.getSceneRasterWidth()
+            || raster1.getSceneRasterHeight() != raster2.getSceneRasterHeight()) {
+            throw new IllegalArgumentException("'raster1' has not the same size as 'raster2'");
+        }
+
+        image = getcompatibleBufferedImageForScatterPlot(image, width, height, background);
+        final byte[] pixelValues = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        ScatterPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roiMask, width,
+                               height, pixelValues, pm);
+        return image;
+    }
+
+    /**
+     * Creates a scatter plot image from two raster data nodes.
+     *
+     * @param raster1    the first raster data node
+     * @param sampleMin1 the minimum sample value to be considered in the first raster
+     * @param sampleMax1 the maximum sample value to be considered in the first raster
+     * @param raster2    the second raster data node
+     * @param sampleMin2 the minimum sample value to be considered in the second raster
+     * @param sampleMax2 the maximum sample value to be considered in the second raster
      * @param roiImage   an optional image to be used as a ROI for the computation
      * @param width      the width of the output image
      * @param height     the height of the output image
@@ -1481,6 +1529,7 @@ public class ProductUtils {
      * @return the scatter plot image
      *
      * @throws java.io.IOException when an error occurred.
+     * @deprecated since BEAM 4.7, use {@link #createScatterPlotImage(RasterDataNode, float, float, RasterDataNode, float, float, Mask, int, int, Color, BufferedImage, ProgressMonitor)} instead.
      */
     public static BufferedImage createScatterPlotImage(final RasterDataNode raster1,
                                                        final float sampleMin1,
@@ -1502,10 +1551,14 @@ public class ProductUtils {
             throw new IllegalArgumentException("'raster1' has not the same size as 'raster2'");
         }
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        Debug.trace("RasterDataNode: Started computing scatter-plot: " + stopWatch.toString());
+        image = getcompatibleBufferedImageForScatterPlot(image, width, height, background);
+        final byte[] pixelValues = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        ScatterPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roiImage, width,
+                               height, pixelValues, pm);
+        return image;
+    }
 
+    private static BufferedImage getcompatibleBufferedImageForScatterPlot(BufferedImage image, int width, int height, Color background) {
         if (image == null
             || image.getWidth() != width
             || image.getHeight() != height
@@ -1537,9 +1590,6 @@ public class ProductUtils {
                                       BufferedImage.TYPE_BYTE_INDEXED,
                                       new IndexColorModel(8, palSize, r, g, b, a));
         }
-        final byte[] pixelValues = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-        ScatterPlot.accumulate(raster1, sampleMin1, sampleMax1, raster2, sampleMin2, sampleMax2, roiImage, width,
-                               height, pixelValues, pm);
         return image;
     }
 

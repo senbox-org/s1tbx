@@ -13,7 +13,6 @@ import org.junit.After;
 import org.junit.Before;
 
 import java.awt.Color;
-import java.awt.geom.AffineTransform;
 
 public class RoiLayerConfigurationPersistencyTest extends AbstractLayerConfigurationPersistencyTest {
 
@@ -28,9 +27,9 @@ public class RoiLayerConfigurationPersistencyTest extends AbstractLayerConfigura
     public void setup() {
         product = createTestProduct("Test", "Test");
         raster = addVirtualBand(product, "virtualBand", ProductData.TYPE_INT32, "17");
-        Mask mask = new Mask(raster.getName() + "_roi", product.getSceneRasterWidth(), product.getSceneRasterHeight(), Mask.BandMathType.INSTANCE);
+        Mask mask = new Mask(raster.getName() + "_roi", product.getSceneRasterWidth(), product.getSceneRasterHeight(), Mask.BandMathsType.INSTANCE);
         product.getMaskGroup().add(mask);
-        Mask.BandMathType.setExpression(mask, "virtualBand == 17");
+        Mask.BandMathsType.setExpression(mask, "virtualBand == 17");
 
         getProductManager().addProduct(product);
     }

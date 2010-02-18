@@ -265,8 +265,8 @@ public class ProductSubsetDialog extends ModalDialog {
                 final Mask[] overlayMasks = overlayMaskGroup.toArray(new Mask[overlayMaskGroup.getNodeCount()]);
                 for (final Mask overlayMask : overlayMasks) {
                     final String expression;
-                    if (overlayMask.getImageType() == Mask.BandMathType.INSTANCE) {
-                        expression = Mask.BandMathType.getExpression(overlayMask);
+                    if (overlayMask.getImageType() == Mask.BandMathsType.INSTANCE) {
+                        expression = Mask.BandMathsType.getExpression(overlayMask);
                     } else if (overlayMask.getImageType() == Mask.RangeType.INSTANCE) {
                         expression = Mask.RangeType.getExpression(overlayMask);
                     } else {

@@ -33,7 +33,6 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
-import java.awt.image.RenderedImage;
 
 /**
  * A pane within the statistcs window which displays a histogram.
@@ -240,13 +239,6 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
 
     @Override
     public void compute(final Mask selectedMask) {
-        final RenderedImage maskImage;
-        if (selectedMask == null) {
-            maskImage = null;
-        } else {
-            maskImage = selectedMask.getSourceImage();
-        }
-
         final int numBins = ((Number) numBinsParam.getValue()).intValue();
         final boolean autoMinMaxEnabled = getAutoMinMaxEnabled();
         final Range range;
@@ -262,12 +254,12 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
             @Override
             protected Stx doInBackground(ProgressMonitor pm) throws Exception {
                 final Stx stx;
-                if (maskImage == null && range == null && numBins == Stx.DEFAULT_BIN_COUNT) {
+                if (selectedMask == null && range == null && numBins == Stx.DEFAULT_BIN_COUNT) {
                     stx = getRaster().getStx(true, pm);
                 } else if (range == null) {
-                    stx = Stx.create(getRaster(), maskImage, numBins, pm);
+                    stx = Stx.create(getRaster(), selectedMask, numBins, pm);
                 } else {
-                    stx = Stx.create(getRaster(), maskImage, numBins, range.getMin(), range.getMax(), pm);
+                    stx = Stx.create(getRaster(), selectedMask, numBins, range.getMin(), range.getMax(), pm);
                 }
                 return stx;
             }

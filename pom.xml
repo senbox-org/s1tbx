@@ -123,7 +123,7 @@
         <module>beam-visat-rcp</module>
         <module>beam-visat</module>
         <module>beam-gpf</module>
-        <module>beam-gpf-common</module>
+        <module>beam-gpf-std-ops</module>
         <module>beam-processing</module>
         <module>beam-scripting</module>
         <module>beam-help</module>

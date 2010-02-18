@@ -41,14 +41,14 @@ public class MaskTest {
     public void testRenameBand() {
         Product product = new Product("t", "d", 1, 1);
         Band band = product.addBand("b", ProductData.TYPE_INT8);
-        Mask mask = new Mask("m", 1, 1, Mask.BandMathType.INSTANCE);
-        Mask.BandMathType.setExpression(mask, "b == 2");
+        Mask mask = new Mask("m", 1, 1, Mask.BandMathsType.INSTANCE);
+        Mask.BandMathsType.setExpression(mask, "b == 2");
         product.getMaskGroup().add(mask);
         
-        String expression = Mask.BandMathType.getExpression(mask);
+        String expression = Mask.BandMathsType.getExpression(mask);
         assertEquals("b == 2", expression);
         band.setName("c");
-        expression = Mask.BandMathType.getExpression(mask);
+        expression = Mask.BandMathsType.getExpression(mask);
         assertEquals("c == 2", expression);
     }
 

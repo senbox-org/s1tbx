@@ -82,6 +82,7 @@ public class StatisticsToolView extends AbstractToolView {
         }
         currTabIndex = tabIndex;
         tabbedPane.setSelectedIndex(tabIndex);
+        updateUIState();
     }
 
     @Override
@@ -114,13 +115,11 @@ public class StatisticsToolView extends AbstractToolView {
                 if (tabbedPane.getSelectedIndex() != currTabIndex) {
                     currTabIndex = tabbedPane.getSelectedIndex();
                     updateUIState();
-                    updateHelpBroker();
                 }
             }
         });
-
+        tabbedPane.setSelectedIndex(0);
         updateUIState();
-        updateHelpBroker();
         return tabbedPane;
     }
 
@@ -153,7 +152,7 @@ public class StatisticsToolView extends AbstractToolView {
         view.getRootLayer().addListener(pagePanelLL);
         view.getFigureEditor().addSelectionChangeListener(pagePanelSCL);
     }
-    
+
     private void removeViewListener(ProductSceneView view) {
         view.getRootLayer().removeListener(pagePanelLL);
         view.getFigureEditor().removeSelectionChangeListener(pagePanelSCL);
@@ -233,6 +232,7 @@ public class StatisticsToolView extends AbstractToolView {
                 setTitle("");
             }
         }
+        updateHelpBroker();
     }
 
     private void selectionChanged(Product product, RasterDataNode raster, VectorDataNode vectorDataNode) {

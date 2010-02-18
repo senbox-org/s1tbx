@@ -85,6 +85,23 @@ public class CommandLineToolMultiSourceGraphTest {
                   "BEAM-DIMAP"
         );
     }
+    
+    @Test
+    public void testGraphWithOnlyNamedSources() throws Exception {
+        final Map<String, String> map = new HashMap<String, String>();
+        map.put("ReadProduct$0", "vincent.dim");
+        map.put("ReadProduct$1", "ernie.dim");
+        map.put("ReadProduct$2", "idefix.dim");
+
+        testGraph(new String[]{"graph.xml","-SVincent=vincent.dim", "-Sernie=ernie.dim","-Sidefix=idefix.dim"},
+                  5,
+                  "g=graph.xml;e=chain1;",
+                  map,
+                  "WriteProduct$node1",
+                  "target.dim",
+                  "BEAM-DIMAP"
+        );
+    }
 
 
     private void testGraph(String[] args,

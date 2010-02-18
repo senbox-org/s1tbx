@@ -13,7 +13,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 import java.awt.BorderLayout;
-import java.awt.image.RenderedImage;
 import java.util.List;
 
 /**
@@ -97,8 +96,7 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
                             stx = Stx.create(getRaster(), 0, subPm);
                             getRaster().setStx(stx);
                         } else {
-                            final RenderedImage maskImage = mask.getSourceImage();
-                            stx = Stx.create(getRaster(), maskImage, subPm);
+                            stx = Stx.create(getRaster(), mask, subPm);
                         }
                         publish(new ComputeResult(stx, mask));
                     }

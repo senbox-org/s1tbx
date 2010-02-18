@@ -12,6 +12,10 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.7:<br/>
+          [BEAM-1076] Revise statistics to use multiple ROIs<br/>
+          [BEAM-1075] Reengineer map projection by exploiting GeoTools API capabilities<br/>
+          [BEAM-1074] Introduce new mask and ROI management<br/>
+          [BEAM-1073] Introduce new geometry management<br/>
           [BEAM-1072] Access raw counts of bands in band maths expressions<br/>
           [BEAM-1069] Include wavelength into band property but spectrum view does not work<br/>
           [BEAM-1040] Exchange 'no data' with 'NaN' in text exports<br/>
@@ -32,6 +36,12 @@
           [BEAM-1001] SelectedProduct can be null in BandArithmetic<br/>
           [BEAM-1000] Spelling error in band arithmetic<br/>
           [BEAM-991] Yaxis of scatterplot does not show the right values<br/>
+          [BEAM-991] Yaxis of scatterplot does not show the right values<br/>
+          [BEAM-979] History of recent products incorrect<br/>
+          [BEAM-646] World map incorrect on AATSR orbits<br/>
+          [BEAM-456] ROI includes also no-data pixels if "Include pixel by conditions" is selected<br/>
+          [BEAM-494] Provide support for more map-projections<br/>
+          [BEAM-484] Simplify ROI/Shape management<br/>
           [BEAM-456] ROI includes also no-data pixels if "Include pixel by conditions" is selected<br/>
         </p>
         <p>Changes in 4.6:<br/>
@@ -41,7 +51,7 @@
           [BEAM-995] Exporting image yields out-of-memory error<br/>
           [BEAM-994] VISAT "Save As" command shall not close views anymore<br/>
           [BEAM-979] History of recent products incorrect<br/>
-          [BEAM-967] PixelInfoView disregards pin movements if "Snap to selected pin" is selected<br/> 
+          [BEAM-967] PixelInfoView disregards pin movements if "Snap to selected pin" is selected<br/>
           [BEAM-954] PixelInfoView updates too often<br/>
           [BEAM-942] VISAT sometimes hangs on startup<br/>
           [BEAM-937] Colour palette sometimes incorrectly imported<br/>
@@ -176,7 +186,7 @@
         <layerEditor>
             <editor>org.esa.beam.visat.toolviews.layermanager.editors.GraticuleLayerEditor</editor>
             <layerType>org.esa.beam.glayer.GraticuleLayerType</layerType>
-        </layerEditor>       
+        </layerEditor>
     </extension>
 
     <extension point="beam-ui:layerSources">
@@ -746,7 +756,7 @@
             <parent>export</parent>
             <id>exportColorPalette</id>
             <class>org.esa.beam.visat.actions.ExportColorPaletteAction</class>
-            <text>Export Colour Palette...</text>
+            <text>Export Colour Palette as File...</text>
             <mnemonic>a</mnemonic>
             <shortDescr>Export the colour palette to plain text.</shortDescr>
             <description>Export the colour palette of the current view to a plain text file.</description>
@@ -800,7 +810,7 @@
             <shortDescr>Exports the currently selected geometry.</shortDescr>
             <description>Exports the currently selected geometry as ESRI Shapefile.</description>
             <context>vectorDataNode</context>
-            <helpId>exportGeometry</helpId>
+            <helpId>exportShapefile</helpId>
         </action>
 
         <action>
@@ -1562,7 +1572,7 @@
             <context>image</context>
             <helpId>rangeFinder</helpId>
         </action>
-        
+
         <action>
             <id>layout</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
