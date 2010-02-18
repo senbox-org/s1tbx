@@ -1,5 +1,5 @@
 /*
- * $Id: BandArithmetikDialog.java,v 1.1 2007/04/19 10:28:47 norman Exp $
+ * $Id$
  *
  * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
  *
