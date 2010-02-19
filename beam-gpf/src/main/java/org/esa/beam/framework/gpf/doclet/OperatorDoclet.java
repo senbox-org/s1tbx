@@ -59,8 +59,8 @@ public class OperatorDoclet extends Doclet {
                                "./beam-unmix/src/main/java",
 //                "-classpath", "./beam-gpf/target/classes"
                 "org.esa.beam.framework.gpf.operators.common",
-                "org.esa.beam.gpf.std.reproject",
-                "org.esa.beam.gpf.std.mosaic",
+                "org.esa.beam.gpf.operators.standard.reproject",
+                "org.esa.beam.gpf.operators.standard.mosaic",
                 "org.esa.beam.unmixing",
                 "org.esa.beam.cluster",
                 "org.esa.beam.collocation",
