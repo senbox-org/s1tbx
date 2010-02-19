@@ -69,7 +69,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 
 /**
- * <p>
+ * <p/>
  * The reprojection operator is used to geo-reference data products.
  * Beside plain reprojection it is able to use a Digital Elevation Model (DEM) to orthorectify a data product and
  * to collocate one product with another.
@@ -132,21 +132,20 @@ public class ReprojectionOp extends Operator {
 
 
     // target grid  todo - parameter object?
-    @Parameter(description = "The pixels per reference unit in X direction.")
+    @Parameter(description = "The pixel size in X direction given in CRS units.")
     private Double pixelSizeX;
-    @Parameter(description = "The pixels per reference unit in Y direction.")
+    @Parameter(description = "The pixel size in Y direction given in CRS units.")
     private Double pixelSizeY;
     @Parameter(description = "The width of the target product.")
     private Integer width;
     @Parameter(description = "The height of the target product.")
     private Integer height;
 
-    @Parameter(
-            description = "Wether the source product should be orthorectified. (Currently only applicable for MERIS and AATSR)",
-            defaultValue = "false")
+    @Parameter(description = "Whether the source product should be orthorectified. (Not applicable to all products)",
+               defaultValue = "false")
     private boolean orthorectify;
-    @Parameter(
-            description = "The name of the elevation model for the orthorectification. If not given tie-point data is used.")
+    @Parameter(description = "The name of the elevation model for the orthorectification. " +
+                             "If not given tie-point data is used.")
     private String elevationModelName;
 
     @Parameter(description = "The value used to indicate no-data.")
@@ -452,8 +451,8 @@ public class ReprojectionOp extends Operator {
         final Placemark[] placemarks = sourcePlacemarkGroup.toArray(new Placemark[0]);
         for (Placemark placemark : placemarks) {
             final Placemark placemark1 = new Placemark(placemark.getName(), placemark.getLabel(),
-                                     placemark.getDescription(), null, placemark.getGeoPos(),
-                                     symbol, targetPlacemarkGroup.getProduct().getGeoCoding());
+                                                       placemark.getDescription(), null, placemark.getGeoPos(),
+                                                       symbol, targetPlacemarkGroup.getProduct().getGeoCoding());
             targetPlacemarkGroup.add(placemark1);
         }
     }
