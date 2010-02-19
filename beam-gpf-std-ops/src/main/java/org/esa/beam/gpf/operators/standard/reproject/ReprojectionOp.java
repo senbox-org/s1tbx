@@ -69,6 +69,11 @@ import java.io.IOException;
 import java.text.MessageFormat;
 
 /**
+ * <p>
+ * The reprojection operator is used to geo-reference data products.
+ * Beside plain reprojection it is able to use a Digital Elevation Model (DEM) to orthorectify a data product and
+ * to collocate one product with another.
+ *
  * @author Marco Zuehlke
  * @author Marco Peters
  * @version $Revision$ $Date$
