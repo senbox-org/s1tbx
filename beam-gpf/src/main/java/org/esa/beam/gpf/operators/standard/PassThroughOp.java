@@ -1,4 +1,4 @@
-package org.esa.beam.framework.gpf.operators.common;
+package org.esa.beam.gpf.operators.standard;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;

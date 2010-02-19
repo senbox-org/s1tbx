@@ -1,4 +1,4 @@
-package org.esa.beam.framework.gpf.operators.meris;
+package org.esa.beam.gpf.operators.meris;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;

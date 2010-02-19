@@ -1,4 +1,4 @@
-package org.esa.beam.framework.gpf.operators.common;
+package org.esa.beam.gpf.operators.standard;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
@@ -11,7 +11,6 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.internal.JaiHelper;
 
-import javax.media.jai.Interpolation;
 import java.awt.RenderingHints;
 import java.text.MessageFormat;
 import java.util.HashMap;

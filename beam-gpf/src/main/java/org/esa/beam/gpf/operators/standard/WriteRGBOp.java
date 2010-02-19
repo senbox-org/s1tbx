@@ -1,4 +1,4 @@
-package org.esa.beam.framework.gpf.operators.common;
+package org.esa.beam.gpf.operators.standard;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;

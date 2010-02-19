@@ -14,17 +14,17 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-package org.esa.beam.framework.gpf.operators.common;
+package org.esa.beam.gpf.operators.standard;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.sun.media.jai.util.SunTileScheduler;
-
+import junit.framework.TestCase;
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -42,13 +42,10 @@ import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
 import org.esa.beam.util.SystemUtils;
 
-import java.io.File;
-import java.io.StringReader;
-
 import javax.media.jai.JAI;
 import javax.media.jai.TileScheduler;
-
-import junit.framework.TestCase;
+import java.io.File;
+import java.io.StringReader;
 
 /**
  * Created by marcoz.
