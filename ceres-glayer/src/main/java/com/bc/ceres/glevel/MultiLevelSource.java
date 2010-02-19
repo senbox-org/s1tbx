@@ -2,6 +2,7 @@ package com.bc.ceres.glevel;
 
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 
+import java.awt.*;
 import java.awt.image.RenderedImage;
 
 /**
@@ -32,6 +33,15 @@ public interface MultiLevelSource {
      * @return The scaled image, must be in the range 0 to {@link MultiLevelModel#getLevelCount()}-1.
      */
     RenderedImage getImage(int level);
+
+    /**
+     * Gets the scaled shape for the given resolution level.
+     * If not {@code null} this shape encloses the entire area of the image, that contains data.
+     *
+     * @param level The resolution level.
+     * @return The scaled shape, can be {@code null}.
+     */
+    Shape getImageShape(int level);
 
     /**
      * <p>Provides a hint that the level images provided so far will no longer be accessed from a

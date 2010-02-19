@@ -4,6 +4,7 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 
 import javax.media.jai.PlanarImage;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 
 /**
@@ -45,6 +46,11 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
             levelImages[level] = levelImage;
         }
         return levelImage;
+    }
+
+    @Override
+    public Shape getImageShape(int level) {
+        return null;
     }
 
     /**

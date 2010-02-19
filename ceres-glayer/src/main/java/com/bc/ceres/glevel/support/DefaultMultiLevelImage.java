@@ -5,6 +5,7 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 
 import javax.media.jai.ImageLayout;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 
 /**
@@ -48,6 +49,11 @@ public class DefaultMultiLevelImage extends MultiLevelImage {
     @Override
     public final RenderedImage getImage(int level) {
         return source.getImage(level);
+    }
+
+    @Override
+    public Shape getImageShape(int level) {
+        return source.getImageShape(level);
     }
 
     @Override

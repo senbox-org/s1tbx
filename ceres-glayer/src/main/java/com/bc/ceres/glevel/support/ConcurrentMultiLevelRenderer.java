@@ -79,7 +79,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
         // Create set of required tile indexes
         final Rectangle clippedImageRegion = getImageRegion(viewport, multiLevelSource, currentLevel, viewBounds);
-        final Set<TileIndex> requiredTileIndexes = getTileIndexes(planarImage, currentLevel, clippedImageRegion);
+        final Set<TileIndex> requiredTileIndexes = getTileIndexes(planarImage, multiLevelSource.getImageShape(currentLevel), currentLevel, clippedImageRegion);
         if (requiredTileIndexes.isEmpty()) {
             return; // nothing to render
         }
@@ -134,7 +134,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
         // Cancel any pending tile requests that are not in the visible region
         final Rectangle visibleImageRegion = getImageRegion(viewport, multiLevelSource, currentLevel, viewport.getViewBounds());
-        final Set<TileIndex> visibleTileIndexSet = getTileIndexes(planarImage, currentLevel, visibleImageRegion);
+        final Set<TileIndex> visibleTileIndexSet = getTileIndexes(planarImage, multiLevelSource.getImageShape(currentLevel), currentLevel, visibleImageRegion);
         if (!visibleTileIndexSet.isEmpty()) {
             cancelTileRequests(visibleTileIndexSet);
         }
@@ -209,14 +209,17 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         return points;
     }
 
-    private static Set<TileIndex> getTileIndexes(PlanarImage planarImage, int level, Rectangle clippedImageRegion) {
+    private static Set<TileIndex> getTileIndexes(PlanarImage planarImage, Shape imageShape, int level, Rectangle clippedImageRegion) {
         final Point[] indices = planarImage.getTileIndices(clippedImageRegion);
         if (indices == null || indices.length == 0) {
             return Collections.emptySet();
         }
         final Set<TileIndex> indexes = new HashSet<TileIndex>((3 * indices.length) / 2);
         for (Point point : indices) {
-            indexes.add(new TileIndex(point.x, point.y, level));
+            Rectangle tileRect = planarImage.getTileRect(point.x, point.y);
+            if (imageShape == null || imageShape.intersects(tileRect)) {
+                indexes.add(new TileIndex(point.x, point.y, level));
+            }
         }
         return indexes;
     }
