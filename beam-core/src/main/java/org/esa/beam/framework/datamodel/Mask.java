@@ -13,28 +13,18 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.impl.Tokenizer;
-import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.StringUtils;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.awt.Color;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Rectangle2D;
+import java.awt.*;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -157,26 +147,8 @@ public class Mask extends Band {
     }
     
     @Override
-    public Area getAreaOfData() {
-        if (imageType == VectorDataType.INSTANCE) {
-            ReferencedEnvelope envelope = VectorDataType.getVectorData(this).getFeatureCollection().getBounds();
-            Rectangle2D modelBounds = new Rectangle2D.Double(envelope.getMinX(), envelope.getMinY(),
-                                                             envelope.getWidth(), envelope.getHeight());
-            AffineTransform imageToModelTransform;
-            if (getProduct() != null) {
-                imageToModelTransform = ImageManager.getImageToModelTransform(getProduct().getGeoCoding());
-            } else {
-                imageToModelTransform = new AffineTransform();
-            }
-            try {
-                imageToModelTransform.invert();
-            } catch (NoninvertibleTransformException e) {
-                return null;
-            }
-            return new Area(imageToModelTransform.createTransformedShape(modelBounds));
-        } else {
-            return super.getAreaOfData();
-        }
+    public Shape getValidShape() {
+        return getSourceImage().getImageShape(0);
     }
 
     /**

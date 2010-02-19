@@ -6,8 +6,12 @@ import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.geometry.BoundingBox;
+
+import java.util.Iterator;
 
 /**
  * A container which allows to store vector data in the BEAM product model.
@@ -42,6 +46,7 @@ public class VectorDataNode extends ProductNode {
     private final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
     private final CollectionListener featureCollectionListener;
     private String defaultCSS;
+    private ReferencedEnvelope bounds = null;
 
     /**
      * Constructs a new vector data node for the given feature collection.
@@ -95,6 +100,7 @@ public class VectorDataNode extends ProductNode {
      * @param features The feature(s) added.
      */
     public void fireFeaturesAdded(SimpleFeature... features) {
+        bounds = null;
         fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, null, features);
     }
 
@@ -110,6 +116,7 @@ public class VectorDataNode extends ProductNode {
      * @param features The feature(s) removed.
      */
     public void fireFeaturesRemoved(SimpleFeature... features) {
+        bounds = null;
         fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, features, null);
     }
 
@@ -125,6 +132,7 @@ public class VectorDataNode extends ProductNode {
      * @param features The feature(s) changed.
      */
     public void fireFeaturesChanged(SimpleFeature... features) {
+        bounds = null;
         fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, features, features);
     }
 
@@ -141,6 +149,27 @@ public class VectorDataNode extends ProductNode {
     public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection() {
         return featureCollection;
     }
+
+    /**
+     * Gets the bounding box for the features in this feature collection.
+     *
+     * @return the envelope of the geometries contained by this feature
+     *         collection.
+     */
+    public ReferencedEnvelope getEnvelope() {
+        if (bounds == null) {
+            bounds = new ReferencedEnvelope(featureType.getCoordinateReferenceSystem());
+
+            for (Iterator<SimpleFeature> i = featureCollection.iterator(); i.hasNext();) {
+                BoundingBox geomBounds = i.next().getBounds();
+                if ( ! geomBounds.isEmpty() ) {
+                    bounds.include(geomBounds);
+                }
+            }
+        }
+        return bounds;
+    }
+
 
     @Override
     public long getRawStorageSize(ProductSubsetDef subsetDef) {

@@ -22,9 +22,10 @@ import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.PixelAccessor;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.UnpackedImageData;
 import javax.media.jai.operator.MinDescriptor;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
@@ -80,13 +81,13 @@ public class ScatterPlot {
                                                         raster2.scaleInverse(sampleMin2),
                                                         raster2.scaleInverse(sampleMax2),
                                                         width, height);
-        Area maskArea = null;
+        Shape maskShape = null;
         RenderedImage maskImage = null;
         if (roiMask != null) {
-            maskArea = roiMask.getAreaOfData();
+            maskShape = roiMask.getValidShape();
             maskImage = roiMask.getSourceImage();
         }
-        scatterPlotOp.accumulate(raster1, raster2, maskImage, maskArea, pixelValues, pm);
+        scatterPlotOp.accumulate(raster1, raster2, maskImage, maskShape, pixelValues, pm);
     }
 
     /**
@@ -168,8 +169,9 @@ public class ScatterPlot {
             }
         }
 
-        public void accumulate(RasterDataNode raster1, RasterDataNode raster2, RenderedImage roiImage, Area roiArea, byte[] pixelValues, ProgressMonitor pm) {
+        public void accumulate(RasterDataNode raster1, RasterDataNode raster2, RenderedImage roiImage, Shape roiShape, byte[] pixelValues, ProgressMonitor pm) {
 
+            PlanarImage dataImage = raster1.getSourceImage();
             RenderedImage dataImage1 = raster1.getSourceImage();
             RenderedImage dataImage2 = raster2.getSourceImage();
             final SampleModel dataSampleModel1 = dataImage1.getSampleModel();
@@ -211,19 +213,24 @@ public class ScatterPlot {
                     maskImage = roiImage;
                 }
             }
-            Area dataArea = raster1.getAreaOfData();
-            Area dataArea2 = raster2.getAreaOfData();
-            if (dataArea != null && dataArea2 != null) {
-                dataArea.intersect(dataArea2);
-            } else if (dataArea2 != null) {
-                dataArea = dataArea2;
+            Shape validShape1 = raster1.getValidShape();
+            Shape validShape2 = raster2.getValidShape();
+            Shape effectiveShape = validShape1;
+            if (validShape1 != null && validShape2 != null) {
+                Area area = new Area(validShape1);
+                area.intersect(new Area(validShape2));
+                effectiveShape = area;
+            } else if (validShape2 != null) {
+                effectiveShape = validShape2;
             }
-            if (dataArea != null && roiArea != null) {
-                dataArea.intersect(roiArea);
-            } else if (roiArea != null) {
-                dataArea = roiArea;
+            if (effectiveShape != null && roiShape != null) {
+                Area area = new Area(effectiveShape);
+                area.intersect(new Area(roiShape));
+                effectiveShape = area;
+            } else if (roiShape != null) {
+                effectiveShape = roiShape;
             }
-            
+
             PixelAccessor maskAccessor;
             if (maskImage != null) {
                 SampleModel maskSampleModel = maskImage.getSampleModel();
@@ -256,11 +263,9 @@ public class ScatterPlot {
                             throw new CancellationException("Process terminated by user."); /* I18N */
                         }
                         boolean tileContainsData = true;
-                        if (dataArea != null) {
-                            int tx = dataImage1.getTileGridXOffset() + tileX * dataImage1.getTileWidth();
-                            int ty = dataImage1.getTileGridYOffset() + tileY * dataImage1.getTileHeight();
-                            Rectangle dataRect = new Rectangle(tx, ty, dataImage1.getTileWidth(), dataImage1.getTileHeight());
-                            if (!dataArea.intersects(dataRect)) {
+                        if (effectiveShape != null) {
+                            Rectangle dataRect = dataImage.getTileRect(tileX, tileY);
+                            if (!effectiveShape.intersects(dataRect)) {
                                 tileContainsData = false;
                             }
                         }

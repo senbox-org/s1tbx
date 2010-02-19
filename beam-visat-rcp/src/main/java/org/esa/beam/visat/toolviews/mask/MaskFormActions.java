@@ -29,15 +29,12 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.CreateVectorDataNodeAction;
 import org.esa.beam.visat.internal.RasterDataNodeDeleter;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -913,14 +910,12 @@ class MaskFormActions {
 
         private static Rectangle2D handleVectorMask(Mask mask) {
             VectorDataNode vectorData = Mask.VectorDataType.getVectorData(mask);
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorData.getFeatureCollection();
-            if (featureCollection.isEmpty()) {
-                return null;
+            ReferencedEnvelope envelope = vectorData.getEnvelope();
+            if (!envelope.isEmpty()) {
+                return new Rectangle2D.Double(envelope.getMinX(), envelope.getMinY(),
+                        envelope.getWidth(), envelope.getHeight());
             }
-            ReferencedEnvelope envelope = featureCollection.getBounds();
-            Rectangle2D modelBounds = new Rectangle2D.Double(envelope.getMinX(), envelope.getMinY(),
-                                                 envelope.getWidth(), envelope.getHeight());
-            return modelBounds;
+            return null;
         }
         
         private Rectangle2D handleImageMask(Mask mask, AffineTransform i2m) {
