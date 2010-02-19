@@ -189,7 +189,7 @@ public class ProductTreeModel implements TreeModel {
         public void nodeRemoved(ProductNodeEvent event) {
             final TreePath path = getTreePath(event.getSourceNode().getProduct());
             if (path != null) {
-                fireTreeNodeChanged(path);
+                fireTreeNodeRemoved(path);
             }
         }
     }
