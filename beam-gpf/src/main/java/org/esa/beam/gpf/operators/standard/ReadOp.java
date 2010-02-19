@@ -18,7 +18,13 @@ import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Reads the specified file as product.
+ */
 @OperatorMetadata(alias = "Read",
+                  version="1.1",
+                  authors = "Marco Zuehlke, Norman Fomferra",
+                  copyright = "(c) 2010 by Brockmann Consult",
                   description = "Reads a product from disk.")
 public class ReadOp extends Operator {
 

@@ -61,10 +61,10 @@ public class OperatorDoclet extends Doclet {
                 "org.esa.beam.gpf.operators.standard",
                 "org.esa.beam.gpf.operators.standard.reproject",
                 "org.esa.beam.gpf.operators.standard.mosaic",
+                "org.esa.beam.gpf.operators.meris",
                 "org.esa.beam.unmixing",
                 "org.esa.beam.cluster",
                 "org.esa.beam.collocation",
-                "org.esa.beam.gpf.operators.meris",
         });
     }
 
