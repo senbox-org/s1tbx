@@ -18,7 +18,6 @@ package org.esa.beam.framework.ui.product.tree;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
@@ -156,14 +155,15 @@ public class ProductTreeModel implements TreeModel {
     }
 
     private class ProductListener extends ProductNodeListenerAdapter {
+
         @Override
         public void nodeChanged(ProductNodeEvent event) {
             if (event.getSourceNode() instanceof VectorDataNode) {
                 VectorDataNode vectorDataNode = (VectorDataNode) event.getSourceNode();
-                if(vectorDataNode.isInternalNode()) {
+                if (vectorDataNode.isInternalNode()) {
                     TreePath path = getTreePath(event.getSourceNode());
                     if (path != null) {
-                    fireTreeNodeChanged(path);
+                        fireTreeNodeChanged(path);
                     }
                 }
             }
@@ -179,8 +179,7 @@ public class ProductTreeModel implements TreeModel {
 
         @Override
         public void nodeAdded(ProductNodeEvent event) {
-            ProductNode content = event.getSourceNode();
-            TreePath path = getTreePath(content);
+            TreePath path = getTreePath(event.getSourceNode());
             if (path != null) {
                 fireTreeNodeInserted(path);
             }
@@ -188,7 +187,10 @@ public class ProductTreeModel implements TreeModel {
 
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
-            fireTreeNodeRemoved(getTreePath(event.getSourceNode().getProduct()));
+            final TreePath path = getTreePath(event.getSourceNode().getProduct());
+            if (path != null) {
+                fireTreeNodeChanged(path);
+            }
         }
     }
 }
