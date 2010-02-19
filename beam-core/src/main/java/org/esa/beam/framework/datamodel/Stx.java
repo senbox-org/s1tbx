@@ -8,8 +8,9 @@ import org.esa.beam.jai.ImageManager;
 
 import javax.media.jai.Histogram;
 import javax.media.jai.PixelAccessor;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.MinDescriptor;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
@@ -49,13 +50,13 @@ public class Stx {
     }
 
     public static Stx create(RasterDataNode raster, Mask roiMask, ProgressMonitor pm) {
-        Area maskArea = null;
+        Shape maskShape = null;
         RenderedImage maskImage = null;
         if (roiMask != null) {
-            maskArea = roiMask.getAreaOfData();
+            maskShape = roiMask.getValidShape();
             maskImage = roiMask.getSourceImage();
         }
-        return createImpl(raster, 0, maskImage, maskArea, DEFAULT_BIN_COUNT, pm);
+        return createImpl(raster, 0, maskImage, maskShape, DEFAULT_BIN_COUNT, pm);
     }
 
     /**
@@ -67,13 +68,13 @@ public class Stx {
     }
 
     public static Stx create(RasterDataNode raster, Mask roiMask, int binCount, ProgressMonitor pm) {
-        Area maskArea = null;
+        Shape maskShape = null;
         RenderedImage maskImage = null;
         if (roiMask != null) {
-            maskArea = roiMask.getAreaOfData();
+            maskShape = roiMask.getValidShape();
             maskImage = roiMask.getSourceImage();
         }
-        return createImpl(raster, 0, maskImage, maskArea, binCount, pm);
+        return createImpl(raster, 0, maskImage, maskShape, binCount, pm);
     }
 
     public static Stx create(RasterDataNode raster, int level, int binCount, double min, double max,
@@ -92,13 +93,13 @@ public class Stx {
 
     public static Stx create(RasterDataNode raster, Mask roiMask, int binCount, double min, double max,
                              ProgressMonitor pm) {
-        Area maskArea = null;
+        Shape maskShape = null;
         RenderedImage maskImage = null;
         if (roiMask != null) {
-            maskArea = roiMask.getAreaOfData();
+            maskShape = roiMask.getValidShape();
             maskImage = roiMask.getSourceImage();
         }
-        return createImpl(raster, 0, maskImage, maskArea, binCount, min, max, pm);
+        return createImpl(raster, 0, maskImage, maskShape, binCount, min, max, pm);
     }
 
 
@@ -243,12 +244,12 @@ public class Stx {
     }
 
 
-    private static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Area maskArea, int binCount,
+    private static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape, int binCount,
                               ProgressMonitor pm) {
         try {
             pm.beginTask("Computing statistics", 3);
             final ExtremaStxOp extremaOp = new ExtremaStxOp();
-            accumulate(raster, level, maskImage, maskArea, extremaOp, SubProgressMonitor.create(pm, 1));
+            accumulate(raster, level, maskImage, maskShape, extremaOp, SubProgressMonitor.create(pm, 1));
 
             double min = extremaOp.getLowValue();
             double max = extremaOp.getHighValue();
@@ -263,14 +264,14 @@ public class Stx {
 
             double off = getHighValueOffset(raster);
             final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max + off);
-            accumulate(raster, level, maskImage, maskArea, histogramOp, SubProgressMonitor.create(pm, 1));
+            accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 1));
 
             // Create JAI histo, but use our "BEAM" bins
             final Histogram histogram = createHistogram(binCount, min, max + off);
             System.arraycopy(histogramOp.getBins(), 0, histogram.getBins(0), 0, binCount);
 
 
-            return createImpl(raster, level, maskImage, maskArea, histogram,
+            return createImpl(raster, level, maskImage, maskShape, histogram,
                           min, max, mean, numValues,
                           SubProgressMonitor.create(pm, 1));
         } finally {
@@ -278,27 +279,27 @@ public class Stx {
         }
     }
 
-    private static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Area maskArea, int binCount, double min,
+    private static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape, int binCount, double min,
                               double max, ProgressMonitor pm) {
         try {
             pm.beginTask("Computing statistics", 3);
 
             double off = getHighValueOffset(raster);
             final HistogramStxOp histogramOp = new HistogramStxOp(binCount, min, max + off);
-            accumulate(raster, level, maskImage, maskArea, histogramOp, SubProgressMonitor.create(pm, 1));
+            accumulate(raster, level, maskImage, maskShape, histogramOp, SubProgressMonitor.create(pm, 1));
 
             // Create JAI histo, but use our "BEAM" bins
             final Histogram histogram = createHistogram(binCount, min, max + off);
             System.arraycopy(histogramOp.getBins(), 0, histogram.getBins(0), 0, binCount);
 
-            return createImpl(raster, level, maskImage, maskArea, histogram, min, max, Double.NaN, -1L,
+            return createImpl(raster, level, maskImage, maskShape, histogram, min, max, Double.NaN, -1L,
                           SubProgressMonitor.create(pm, 1));
         } finally {
             pm.done();
         }
     }
 
-    private static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Area maskArea,
+    private static Stx createImpl(RasterDataNode raster, int level, RenderedImage maskImage, Shape maskShape,
                               Histogram histogram, double min, double max, double mean, long numSamples,
                               ProgressMonitor pm) {
         try {
@@ -308,11 +309,11 @@ public class Stx {
             }
             if (Double.isNaN(mean)) {
                 final MeanStxOp meanOp = new MeanStxOp(numSamples);
-                accumulate(raster, level, maskImage, maskArea, meanOp, SubProgressMonitor.create(pm, 1));
+                accumulate(raster, level, maskImage, maskShape, meanOp, SubProgressMonitor.create(pm, 1));
                 mean = meanOp.getMean();
             }
             final StdDevStxOp stdDevOp = new StdDevStxOp(numSamples, mean);
-            accumulate(raster, level, maskImage, maskArea, stdDevOp, SubProgressMonitor.create(pm, 1));
+            accumulate(raster, level, maskImage, maskShape, stdDevOp, SubProgressMonitor.create(pm, 1));
             double stdDev = stdDevOp.getStdDev();
 
             return new Stx(min, max, mean, stdDev, histogram, level);
@@ -331,7 +332,7 @@ public class Stx {
 
     private static void accumulate(RasterDataNode raster,
                                    int level,
-                                   RenderedImage roiImage, Area roiArea,
+                                   RenderedImage roiImage, Shape maskShape,
                                    StxOp op,
                                    ProgressMonitor pm) {
 
@@ -340,7 +341,7 @@ public class Stx {
         Assert.argument(roiImage == null || level == 0, "level");
         Assert.notNull(pm, "pm");
 
-        final RenderedImage dataImage = ImageManager.getInstance().getSourceImage(raster, level);
+        final PlanarImage dataImage = ImageManager.getInstance().getSourceImage(raster, level);
         final SampleModel dataSampleModel = dataImage.getSampleModel();
         if (dataSampleModel.getNumBands() != 1) {
             throw new IllegalStateException("dataSampleModel.numBands != 1");
@@ -355,11 +356,14 @@ public class Stx {
                 maskImage = roiImage;
             }
         }
-        Area dataArea = raster.getAreaOfData();
-        if (dataArea != null && roiArea != null) {
-            dataArea.intersect(roiArea);
-        } else if (roiArea != null) {
-            dataArea = roiArea;
+        Shape validShape = raster.getValidShape();
+        Shape effectiveShape = validShape;
+        if (validShape != null && maskShape != null) {
+            Area area = new Area(validShape);
+            area.intersect(new Area(maskShape));
+            effectiveShape = area;
+        } else if (maskShape != null) {
+            effectiveShape = maskShape;
         }
 
         final PixelAccessor maskAccessor;
@@ -396,11 +400,9 @@ public class Stx {
                         throw new CancellationException("Process terminated by user."); /*I18N*/
                     }
                     boolean tileContainsData = true;
-                    if (dataArea != null) {
-                        int tx = dataImage.getTileGridXOffset() + tileX * dataImage.getTileWidth(); 
-                        int ty = dataImage.getTileGridYOffset() + tileY * dataImage.getTileHeight();
-                        Rectangle dataRect = new Rectangle(tx, ty, dataImage.getTileWidth(), dataImage.getTileHeight());
-                        if (!dataArea.intersects(dataRect)) {
+                    if (effectiveShape != null) {
+                        Rectangle dataRect = dataImage.getTileRect(tileX, tileY);
+                        if (!effectiveShape.intersects(dataRect)) {
                             tileContainsData = false;
                         }
                     }
