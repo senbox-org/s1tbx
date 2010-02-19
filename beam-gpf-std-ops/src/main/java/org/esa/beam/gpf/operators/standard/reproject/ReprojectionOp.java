@@ -136,9 +136,9 @@ public class ReprojectionOp extends Operator {
     private Double pixelSizeX;
     @Parameter(description = "The pixels per reference unit in Y direction.")
     private Double pixelSizeY;
-    @Parameter(description = "The width of the output product.")
+    @Parameter(description = "The width of the target product.")
     private Integer width;
-    @Parameter(description = "The height of the output product.")
+    @Parameter(description = "The height of the target product.")
     private Integer height;
 
     @Parameter(
