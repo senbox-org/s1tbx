@@ -62,12 +62,15 @@ import java.util.Map;
  * The bands of the first source product (<code>sourceProducts<b>0</b></code>) can be referenced without this
  * product identifier.
  * </p>
+ * <p>
+ * When using this operator from the command-line Graph XML file must be provided in order to
+ * specify all parameters.
+ * </p>
  */
 @OperatorMetadata(alias = "BandMaths",
                   version = "1.0",
                   copyright = "(c) 2010 by Brockmann Consult",
-                  description = "Create a product with one or more bands using mathematical expressions.\n" +
-                                "This operator can only be invoked with a Graph XML file.")
+                  description = "Create a product with one or more bands using mathematical expressions.")
 public class BandMathsOp extends Operator {
 
     public static class BandDescriptor {

@@ -1315,6 +1315,36 @@
             <helpId>flipDialog</helpId>
         </action>
 
+        <action>
+            <id>reprojectionAction</id>
+            <class>org.esa.beam.gpf.operators.reproject.ReprojectionAction</class>
+            <parent>tools</parent>
+            <placeAfter>flipping</placeAfter>
+            <placeBefore>orthorectificationAction</placeBefore>
+            <text>Reprojection...</text>
+            <shortDescr>Apply a reprojection.</shortDescr>
+            <helpId>reprojectionAction</helpId>
+        </action>
+        <action>
+            <id>orthorectificationAction</id>
+            <class>org.esa.beam.gpf.operators.reproject.OrthorectificationAction</class>
+            <parent>tools</parent>
+            <placeAfter>reprojectionAction</placeAfter>
+            <placeBefore>mosaicAction</placeBefore>
+            <text>Orthorectification...</text>
+            <shortDescr>Apply an orthorectification.</shortDescr>
+            <helpId>orthorectificationAction</helpId>
+        </action>
+        <action>
+            <id>mosaicAction</id>
+            <class>org.esa.beam.gpf.operators.mosaic.MosaicAction</class>
+            <parent>tools</parent>
+            <placeAfter>orthorectificationAction</placeAfter>
+            <text>Mosaic...</text>
+            <shortDescr>Create a mosaic of multiple products.</shortDescr>
+            <helpId>mosaicAction</helpId>
+        </action>
+
 
         <action>
             <id>helpTopics</id>

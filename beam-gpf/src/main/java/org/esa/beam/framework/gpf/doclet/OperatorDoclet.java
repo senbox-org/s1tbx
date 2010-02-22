@@ -54,13 +54,12 @@ public class OperatorDoclet extends Doclet {
         }
         com.sun.tools.javadoc.Main.main(new String[] {
                  "-doclet", OperatorDoclet.class.getName(),
-                "-sourcepath", "./beam-gpf/src/main/java;./beam-gpf-std-ops/src/main/java;"+
+                "-sourcepath", "./beam-gpf/src/main/java;"+
                                "./beam-cluster-analysis/src/main/java;./beam-collocation/src/main/java;"+
                                "./beam-unmix/src/main/java",
 //                "-classpath", "./beam-gpf/target/classes"
                 "org.esa.beam.gpf.operators.standard",
-                "org.esa.beam.gpf.operators.standard.reproject",
-                "org.esa.beam.gpf.operators.standard.mosaic",
+                "org.esa.beam.gpf.operators.standard.reproject",                
                 "org.esa.beam.gpf.operators.meris",
                 "org.esa.beam.unmixing",
                 "org.esa.beam.cluster",
