@@ -13,6 +13,10 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.1:<br/>
+        [BEAM-1080] The valid pixel expression of the OBPG L2 products does not conform to product specification<br/>
+        [BEAM-1079] Set product start and stop time from metadata<br/>
+        [BEAM-1078] OBPG reader should use the pure Java netcdf library<br/>
         Changes in 1.0.2:<br/>
         [BEAM-922] Wrong Exception type thrown on format errors<br/>
         Changes in 1.0.101:<br/>
