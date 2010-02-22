@@ -97,6 +97,7 @@ BEAM-1072 - Access raw counts of bands in band maths expressions
 BEAM-1078 - OBPG reader should use the pure Java netcdf library
 BEAM-1079 - Set product start and stop time from metadata
 BEAM-1080 - The valid pixel expression of the OBPG L2 products does not conform to product specification
+CBOX-75   - CHRIS/Proba product reader should use the pure Java netcdf library
 
 Bugs
 BEAM-456 - ROI includes also no-data pixels if "Include pixel by conditions" is selected.
