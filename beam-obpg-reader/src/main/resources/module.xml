@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-obpg-reader</symbolicName>
-    <version>1.0.2</version>
+    <version>1.1</version>
     <name>NASA Ocean Color Product Reader</name>
     <description>A reader for NASA Ocean Color (HDF) Level-2 Data Products</description>
 
@@ -25,8 +25,8 @@
         <module>beam-core</module>
     </dependency>
     <dependency>
-        <module>lib-hdf</module>
-    </dependency>
+        <module>lib-netcdf</module>
+    </dependency>    
     <dependency>
         <module>beam-visat</module>
         <optional>true</optional>

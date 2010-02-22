@@ -14,14 +14,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.dataio.obpg.hdf;
+package org.esa.beam.dataio.obpg;
 
-import junit.framework.TestCase;
-import ncsa.hdf.hdflib.HDFConstants;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.dataio.obpg.ObpgUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.datamodel.Product;
+
+import ucar.nc2.Attribute;
 
 import java.util.ArrayList;
+
+import junit.framework.TestCase;
 
 public class ObpgUtils_createProductBody_Test extends TestCase {
 
@@ -33,12 +36,12 @@ public class ObpgUtils_createProductBody_Test extends TestCase {
     }
 
     public void test_ok() throws ProductIOException {
-        final ArrayList<HdfAttribute> globalAttributes = new ArrayList<HdfAttribute>();
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_NAME, HDFConstants.DFNT_CHAR8, "ProductName", 11));
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_TYPE, HDFConstants.DFNT_CHAR8, "ProductType", 11));
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_WIDTH, HDFConstants.DFNT_INT32, "2030", 1));
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_HEIGHT, HDFConstants.DFNT_INT32, "1354", 1));
-
+        final ArrayList<Attribute> globalAttributes = new ArrayList<Attribute>();
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_NAME, "ProductName"));
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_TYPE, "ProductType"));
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_WIDTH, 2030));
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_HEIGHT, 1354));
+        
         final Product product = obpgUtils.createProductBody(globalAttributes);
 
         assertNotNull(product);
@@ -49,11 +52,11 @@ public class ObpgUtils_createProductBody_Test extends TestCase {
     }
 
     public void test_WithoutNameAttribute() {
-        final ArrayList<HdfAttribute> globalAttributes = new ArrayList<HdfAttribute>();
-//        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_NAME, HDFConstants.DFNT_CHAR8, "ProductName", 11));
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_TYPE, HDFConstants.DFNT_CHAR8, "ProductType", 11));
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_WIDTH, HDFConstants.DFNT_INT32, "2030", 1));
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_HEIGHT, HDFConstants.DFNT_INT32, "1354", 1));
+        final ArrayList<Attribute> globalAttributes = new ArrayList<Attribute>();
+        //globalAttributes.add(new Attribute(ObpgUtils.KEY_NAME, "ProductName"));
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_TYPE, "ProductType"));
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_WIDTH, 2030));
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_HEIGHT, 1354));
 
         try {
             obpgUtils.createProductBody(globalAttributes);
@@ -65,11 +68,11 @@ public class ObpgUtils_createProductBody_Test extends TestCase {
     }
 
     public void test_WithoutTypeAttribute() {
-        final ArrayList<HdfAttribute> globalAttributes = new ArrayList<HdfAttribute>();
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_NAME, HDFConstants.DFNT_CHAR8, "ProductName", 11));
-//        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_TYPE, HDFConstants.DFNT_CHAR8, "ProductType", 11));
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_WIDTH, HDFConstants.DFNT_INT32, "2030", 1));
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_HEIGHT, HDFConstants.DFNT_INT32, "1354", 1));
+        final ArrayList<Attribute> globalAttributes = new ArrayList<Attribute>();
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_NAME, "ProductName"));
+        //globalAttributes.add(new Attribute(ObpgUtils.KEY_TYPE, "ProductType"));
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_WIDTH, 2030));
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_HEIGHT, 1354));
 
         try {
             obpgUtils.createProductBody(globalAttributes);
@@ -81,11 +84,11 @@ public class ObpgUtils_createProductBody_Test extends TestCase {
     }
 
     public void test_WithoutWidthAttribute() {
-        final ArrayList<HdfAttribute> globalAttributes = new ArrayList<HdfAttribute>();
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_NAME, HDFConstants.DFNT_CHAR8, "ProductName", 11));
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_TYPE, HDFConstants.DFNT_CHAR8, "ProductType", 11));
-//        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_WIDTH, HDFConstants.DFNT_INT32, "2030", 1));
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_HEIGHT, HDFConstants.DFNT_INT32, "1354", 1));
+        final ArrayList<Attribute> globalAttributes = new ArrayList<Attribute>();
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_NAME, "ProductName"));
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_TYPE, "ProductType"));
+        //globalAttributes.add(new Attribute(ObpgUtils.KEY_WIDTH, 2030));
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_HEIGHT, 1354));
 
         try {
             obpgUtils.createProductBody(globalAttributes);
@@ -97,11 +100,11 @@ public class ObpgUtils_createProductBody_Test extends TestCase {
     }
 
     public void test_WithoutHeightAttribute() {
-        final ArrayList<HdfAttribute> globalAttributes = new ArrayList<HdfAttribute>();
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_NAME, HDFConstants.DFNT_CHAR8, "ProductName", 11));
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_TYPE, HDFConstants.DFNT_CHAR8, "ProductType", 11));
-        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_WIDTH, HDFConstants.DFNT_INT32, "2030", 1));
-//        globalAttributes.add(new HdfAttribute(ObpgUtils.KEY_HEIGHT, HDFConstants.DFNT_INT32, "1354", 1));
+        final ArrayList<Attribute> globalAttributes = new ArrayList<Attribute>();
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_NAME, "ProductName"));
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_TYPE, "ProductType"));
+        globalAttributes.add(new Attribute(ObpgUtils.KEY_WIDTH, 2030));
+        //globalAttributes.add(new Attribute(ObpgUtils.KEY_HEIGHT, 1354));
 
         try {
             obpgUtils.createProductBody(globalAttributes);

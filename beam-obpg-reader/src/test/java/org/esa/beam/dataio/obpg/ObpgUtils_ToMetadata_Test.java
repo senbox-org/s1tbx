@@ -14,12 +14,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.dataio.obpg.hdf;
+package org.esa.beam.dataio.obpg;
 
-import junit.framework.TestCase;
-import ncsa.hdf.hdflib.HDFConstants;
+import org.esa.beam.dataio.obpg.ObpgUtils;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.ProductData;
+
+import java.util.Arrays;
+import java.util.List;
+
+import ucar.nc2.Attribute;
+import junit.framework.TestCase;
 
 public class ObpgUtils_ToMetadata_Test extends TestCase {
 
@@ -31,7 +36,7 @@ public class ObpgUtils_ToMetadata_Test extends TestCase {
     }
 
     public void test_single_int() {
-        final HdfAttribute hdfAttribute = new HdfAttribute("name", HDFConstants.DFNT_INT32, "23985623", 1);
+        final Attribute hdfAttribute = new Attribute("name", 23985623);
 
         final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(hdfAttribute);
 
@@ -48,9 +53,10 @@ public class ObpgUtils_ToMetadata_Test extends TestCase {
     }
 
     public void test_three_Ints() {
-        final HdfAttribute hdfAttribute = new HdfAttribute("name", HDFConstants.DFNT_INT16, "23,56,1234", 3);
+        List<Integer> values = Arrays.asList(23 ,56 ,1234);
+        final Attribute attribute = new Attribute("name", values);
 
-        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(hdfAttribute);
+        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(attribute);
 
         assertNotNull(metaAttribute);
         assertEquals("name", metaAttribute.getName());
@@ -67,9 +73,9 @@ public class ObpgUtils_ToMetadata_Test extends TestCase {
     }
 
     public void test_single_float() {
-        final HdfAttribute hdfAttribute = new HdfAttribute("name", HDFConstants.DFNT_FLOAT, "0.23", 1);
+        final Attribute attribute = new Attribute("name", 0.23f);
 
-        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(hdfAttribute);
+        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(attribute);
 
         assertNotNull(metaAttribute);
         assertEquals("name", metaAttribute.getName());
@@ -84,9 +90,10 @@ public class ObpgUtils_ToMetadata_Test extends TestCase {
     }
 
     public void test_three_floats() {
-        final HdfAttribute hdfAttribute = new HdfAttribute("name", HDFConstants.DFNT_FLOAT, "0.23,3.56,1234.34", 3);
+        List<Float> values = Arrays.asList(0.23f ,3.56f ,1234.34f);
+        final Attribute attribute = new Attribute("name", values);
 
-        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(hdfAttribute);
+        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(attribute);
 
         assertNotNull(metaAttribute);
         assertEquals("name", metaAttribute.getName());
@@ -103,9 +110,9 @@ public class ObpgUtils_ToMetadata_Test extends TestCase {
     }
 
     public void test_single_double() {
-        final HdfAttribute hdfAttribute = new HdfAttribute("name", HDFConstants.DFNT_FLOAT64, "0.56", 1);
+        final Attribute attribute = new Attribute("name", 0.56);
 
-        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(hdfAttribute);
+        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(attribute);
 
         assertNotNull(metaAttribute);
         assertEquals("name", metaAttribute.getName());
@@ -120,9 +127,10 @@ public class ObpgUtils_ToMetadata_Test extends TestCase {
     }
 
     public void test_three_doubles() {
-        final HdfAttribute hdfAttribute = new HdfAttribute("name", HDFConstants.DFNT_FLOAT64, "0.23,3.56,1234.34", 3);
+        List<Double> values = Arrays.asList(0.23 ,3.56 ,1234.34);
+        final Attribute attribute = new Attribute("name", values);
 
-        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(hdfAttribute);
+        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(attribute);
 
         assertNotNull(metaAttribute);
         assertEquals("name", metaAttribute.getName());
@@ -139,9 +147,9 @@ public class ObpgUtils_ToMetadata_Test extends TestCase {
     }
 
     public void test_single_char() {
-        final HdfAttribute hdfAttribute = new HdfAttribute("name", HDFConstants.DFNT_CHAR, "A", 1);
+        final Attribute attribute = new Attribute("name", "A");
 
-        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(hdfAttribute);
+        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(attribute);
 
         assertNotNull(metaAttribute);
         assertEquals("name", metaAttribute.getName());
@@ -156,9 +164,9 @@ public class ObpgUtils_ToMetadata_Test extends TestCase {
     }
 
     public void test_more_chars() {
-        final HdfAttribute hdfAttribute = new HdfAttribute("name", HDFConstants.DFNT_CHAR, "Skasom", 6);
+        final Attribute attribute = new Attribute("name", "Skasom");
 
-        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(hdfAttribute);
+        final MetadataAttribute metaAttribute = obpgUtils.attributeToMetadata(attribute);
 
         assertNotNull(metaAttribute);
         assertEquals("name", metaAttribute.getName());

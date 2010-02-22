@@ -16,12 +16,7 @@
  */
 package org.esa.beam.dataio.obpg;
 
-import com.bc.ceres.core.ProgressMonitor;
-import ncsa.hdf.hdflib.HDFException;
-import org.esa.beam.dataio.obpg.bandreader.ObpgBandReader;
-import org.esa.beam.dataio.obpg.hdf.HdfAttribute;
-import org.esa.beam.dataio.obpg.hdf.ObpgUtils;
-import org.esa.beam.dataio.obpg.hdf.SdsInfo;
+import org.esa.beam.dataio.obpg.ObpgUtils;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -33,8 +28,12 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.Section;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,12 +43,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import com.bc.ceres.core.ProgressMonitor;
+
 public class ObpgProductReader extends AbstractProductReader {
 
     ObpgUtils obpgUtils = new ObpgUtils();
-    private int fileId;
-    private Map<Band, ObpgBandReader> readerMap;
+    private Map<Band, Variable> variableMap;
     private boolean mustFlip;
+    private NetcdfFile ncfile;
 
     /**
      * Constructs a new abstract product reader.
@@ -65,72 +69,92 @@ public class ObpgProductReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
 
         try {
-            try {
-                final HashMap<String, String> l2BandInfoMap = getL2BandInfoMap();
-                final HashMap<String, String> l2FlagsInfoMap = getL2FlagsInfoMap();
-                final BitmaskDef[] defs = getDefaultBitmaskDefs(l2FlagsInfoMap);
-
-                final File inFile = ObpgUtils.getInputFile(getInput());
-                final String path = inFile.getPath();
-                fileId = obpgUtils.openHdfFileReadOnly(path);
-                final int sdStart = obpgUtils.openSdInterfaceReadOnly(path);
-                final List<HdfAttribute> globalAttributes = obpgUtils.readGlobalAttributes(sdStart);
-                final Product product = obpgUtils.createProductBody(globalAttributes);
-                mustFlip = obpgUtils.mustFlip(globalAttributes);
-                obpgUtils.addGlobalMetadata(product, globalAttributes);
-                final SdsInfo[] sdsInfos = obpgUtils.extractSdsData(sdStart);
-                obpgUtils.addScientificMetadata(product, sdsInfos);
-                readerMap = obpgUtils.addBands(product, sdsInfos, l2BandInfoMap, l2FlagsInfoMap);
-                product.setProductReader(this);
-                obpgUtils.addGeocoding(product, sdsInfos, mustFlip);
-                obpgUtils.addBitmaskDefinitions(product, defs);
-                product.setFileLocation(inFile);
-                return product;
-            } finally {
-                obpgUtils.closeHdfFile(fileId);
-            }
-        } catch (HDFException e) {
+            final HashMap<String, String> l2BandInfoMap = getL2BandInfoMap();
+            final HashMap<String, String> l2FlagsInfoMap = getL2FlagsInfoMap();
+            final BitmaskDef[] defs = getDefaultBitmaskDefs(l2FlagsInfoMap);
+            
+            final File inFile = ObpgUtils.getInputFile(getInput());
+            final String path = inFile.getPath();
+            ncfile = NetcdfFile.open(path);
+            
+            final Product product = obpgUtils.createProductBody(ncfile.getGlobalAttributes());
+            mustFlip = obpgUtils.mustFlip(ncfile);
+            obpgUtils.addGlobalMetadata(product, ncfile.getGlobalAttributes());
+            obpgUtils.addScientificMetadata(product, ncfile);
+            variableMap = obpgUtils.addBands(product, ncfile, l2BandInfoMap, l2FlagsInfoMap);
+            product.setProductReader(this);
+            obpgUtils.addGeocoding(product, ncfile, mustFlip);
+            obpgUtils.addBitmaskDefinitions(product, defs);
+            product.setFileLocation(inFile);
+            return product;
+        } catch (IOException e) {
             throw new ProductIOException(e.getMessage());
+        }
+    }
+    
+    @Override
+    public void close() throws IOException {
+        if (ncfile != null) {
+            ncfile.close();
         }
     }
 
     @Override
-    protected synchronized void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth,
+    protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth,
                                                        int sourceHeight,
                                                        int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                                        int destOffsetY, int destWidth, int destHeight,
                                                        ProductData destBuffer,
                                                        ProgressMonitor pm) throws IOException {
-        readBandRasterDataImpl(sourceOffsetX, sourceOffsetY,
-                               sourceWidth, sourceHeight,
-                               sourceStepX, sourceStepY,
-                               destBand,
-                               destBuffer,
-                               pm);
-    }
-
-    protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY,
-                                          int sourceWidth, int sourceHeight,
-                                          int sourceStepX, int sourceStepY,
-                                          Band destBand,
-                                          ProductData destBuffer,
-                                          ProgressMonitor pm) throws IOException {
 
         if (mustFlip) {
             sourceOffsetY = destBand.getSceneRasterHeight() - (sourceOffsetY + sourceHeight);
             sourceOffsetX = destBand.getSceneRasterWidth() - (sourceOffsetX + sourceWidth);
         }
-        final ObpgBandReader bandReader = readerMap.get(destBand);
+        Variable variable = variableMap.get(destBand);
         try {
-            bandReader.readBandData(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
-                                    destBuffer, pm);
+            readBandData(variable, sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, destBuffer, pm);
             if (mustFlip) {
                 reverse(destBuffer);
             }
-        } catch (HDFException e) {
+        } catch (Exception e) {
             final ProductIOException exception = new ProductIOException(e.getMessage());
             exception.setStackTrace(e.getStackTrace());
             throw exception;
+        }
+    }
+    
+    private void readBandData(Variable variable, int sourceOffsetX, int sourceOffsetY, int sourceWidth,
+                              int sourceHeight, ProductData destBuffer, ProgressMonitor pm) throws IOException,
+                                                                                           ProductIOException,
+                                                                                           InvalidRangeException {
+
+        final int[] start = new int[] {sourceOffsetY, sourceOffsetX};
+        final int[] stride = new int[] {1, 1};
+        final int[] count = new int[] {1, sourceWidth};
+        Object buffer = destBuffer.getElems();
+
+        int targetIndex = 0;
+        pm.beginTask("Reading band '" + variable.getShortName() + "'...", sourceHeight);
+        // loop over lines
+        try {
+            for (int y = 0; y < sourceHeight; y++) {
+                if (pm.isCanceled()) {
+                    break;
+                }
+                Section section = new Section(start, count, stride);
+                Array array;
+                synchronized (variable) {
+                    array = variable.read(section);
+                }
+                final Object storage = array.getStorage();
+                System.arraycopy(storage, 0, buffer, targetIndex, sourceWidth);
+                start[0]++;
+                targetIndex += sourceWidth;
+                pm.worked(1);
+            }
+        } finally {
+            pm.done();
         }
     }
 
@@ -164,10 +188,9 @@ public class ObpgProductReader extends AbstractProductReader {
                 final DocumentBuilder builder = factory.newDocumentBuilder();
                 final org.w3c.dom.Document w3cDocument = builder.parse(stream);
                 final Document document = new DOMBuilder().build(w3cDocument);
-                final List children = document.getRootElement().getChildren("Bitmask_Definition");
+                final List<Element> children = document.getRootElement().getChildren("Bitmask_Definition");
                 final ArrayList<BitmaskDef> bitmaskDefList = new ArrayList<BitmaskDef>(children.size());
-                for (Object aChildren : children) {
-                    Element element = (Element) aChildren;
+                for (Element element : children) {
                     final BitmaskDef bitmaskDef = BitmaskDef.createBitmaskDef(element);
                     final String description = l2FlagsInfoMap.get(bitmaskDef.getName());
                     bitmaskDef.setDescription(description);
