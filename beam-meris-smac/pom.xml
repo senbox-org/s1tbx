@@ -8,13 +8,13 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam</artifactId>
-        <version>4.7-SNAPSHOT</version>
+        <version>4.7</version>
     </parent>
 
     <name>BEAM MERIS SMAC Atmospheric Correction</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-meris-smac</artifactId>
-    <version>1.5.203-SNAPSHOT</version>
+    <version>1.5.203</version>
 
     <packaging>jar</packaging>
 

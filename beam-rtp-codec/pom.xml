@@ -6,13 +6,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.7-SNAPSHOT</version>
+        <version>4.7</version>
     </parent>
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-rtp-codec</artifactId>
     <name>BEAM Raw, tiled pyramid codec (experimental)</name>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

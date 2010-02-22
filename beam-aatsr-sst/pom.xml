@@ -8,13 +8,13 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam</artifactId>
-        <version>4.7-SNAPSHOT</version>
+        <version>4.7</version>
     </parent>
 
     <name>BEAM AATSR SST Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-aatsr-sst</artifactId>
-    <version>1.4.202-SNAPSHOT</version>
+    <version>1.4.202</version>
 
     <packaging>jar</packaging>
 
