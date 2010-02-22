@@ -115,37 +115,43 @@ public class ObpgUtils {
         return inputFile;
     }
 
-    public Product createProductBody(List<Attribute> gloabAttributes) throws ProductIOException {
-        String productName = getStringAttribute(gloabAttributes, KEY_NAME);
-        String productType = "OBPG " + getStringAttribute(gloabAttributes, KEY_TYPE);
-        int sceneRasterWidth = getIntAttribute(gloabAttributes, KEY_WIDTH);
-        int sceneRasterHeight = getIntAttribute(gloabAttributes, KEY_HEIGHT);
+    public Product createProductBody(List<Attribute> globalAttributes) throws ProductIOException {
+        String productName = getStringAttribute(KEY_NAME, globalAttributes);
+        String productType = "OBPG " + getStringAttribute(KEY_TYPE, globalAttributes);
+        int sceneRasterWidth = getIntAttribute(KEY_WIDTH, globalAttributes);
+        int sceneRasterHeight = getIntAttribute(KEY_HEIGHT, globalAttributes);
 
         final Product product = new Product(productName, productType, sceneRasterWidth, sceneRasterHeight);
         product.setDescription(productName);
-        String startTime = getStringAttribute(gloabAttributes, KEY_START_TIME);
-        String endTime = getStringAttribute(gloabAttributes, KEY_END_TIME);
-        
-        final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyDDDHHmmssSSS");
-        try {
-            final Date startDate = dateFormat.parse(startTime);
-            String millis = startTime.substring(startTime.length()-3);
-            final ProductData.UTC utcStart = ProductData.UTC.create(startDate, Long.parseLong(millis)*1000);
-            product.setStartTime(utcStart);
-            
-            final Date endDate = dateFormat.parse(endTime);
-            millis = endTime.substring(endTime.length()-3);
-            final ProductData.UTC utcEnd = ProductData.UTC.create(endDate, Long.parseLong(millis)*1000);
-            product.setEndTime(utcEnd);
-        } catch (ParseException ignored) {
-        }
 
-        
+        ProductData.UTC utcStart = getUTCAttribute(KEY_START_TIME, globalAttributes);
+        if (utcStart != null) {
+            product.setStartTime(utcStart);
+        }
+        ProductData.UTC utcEnd = getUTCAttribute(KEY_END_TIME, globalAttributes);
+        if (utcEnd != null) {
+            product.setEndTime(utcEnd);
+        }
         return product;
     }
+
+    private ProductData.UTC getUTCAttribute(String key, List<Attribute> globalAttributes) {
+        Attribute attribute = findAttribute(key, globalAttributes);
+        if (attribute != null) {
+            String timeString = attribute.getStringValue().trim();
+            final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyDDDHHmmssSSS");
+            try {
+                final Date date= dateFormat.parse(timeString);
+                String milliSeconds = timeString.substring(timeString.length()-3);
+                return ProductData.UTC.create(date, Long.parseLong(milliSeconds)*1000);
+            } catch (ParseException e) {
+            }
+        }
+        return null;
+    }
     
-    private String getStringAttribute(List<Attribute> gloabAttributes, String key) throws ProductIOException {
-        Attribute attribute = findAttribute(key, gloabAttributes);
+    private String getStringAttribute(String key, List<Attribute> globalAttributes) throws ProductIOException {
+        Attribute attribute = findAttribute(key, globalAttributes);
         if (attribute == null || attribute.getLength() != 1) {
             throw new ProductIOException("Global attribute '" + key + "' is missing.");
         } else {
@@ -153,8 +159,8 @@ public class ObpgUtils {
         }
     }
     
-    private int getIntAttribute(List<Attribute> gloabAttributes, String key) throws ProductIOException {
-        Attribute attribute = findAttribute(key, gloabAttributes);
+    private int getIntAttribute(String key, List<Attribute> globalAttributes) throws ProductIOException {
+        Attribute attribute = findAttribute(key, globalAttributes);
         if (attribute == null) {
             throw new ProductIOException("Global attribute '" + key + "' is missing.");
         } else {
