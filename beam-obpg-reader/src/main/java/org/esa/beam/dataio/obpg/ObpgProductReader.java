@@ -144,7 +144,7 @@ public class ObpgProductReader extends AbstractProductReader {
                 }
                 Section section = new Section(start, count, stride);
                 Array array;
-                synchronized (variable) {
+                synchronized (ncfile) {
                     array = variable.read(section);
                 }
                 final Object storage = array.getStorage();
