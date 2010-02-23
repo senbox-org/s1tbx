@@ -8,13 +8,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.7</version>
+        <version>4.8-SNAPSHOT</version>
     </parent>
 
     <name>BEAM Installer Files</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-installer</artifactId>
-    <version>4.7</version>
+    <version>4.8-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
