@@ -1,0 +1,182 @@
+#################################################################
+VISAT GUI Tests results
+#################################################################
+
+bug 3)
+      create Math band named new_band_1
+      change band properties  for new_band_1: virtual band expression = new_band_1
+      --> endless loop --> VISAT must be killed
+
+-------------------------------------------------------------------------------------------
+
+bug 8)  no reproduceable small reproj. prod.
+     open image view
+     joggle (rütteln) viewport (transparent rectangle) in the Navigation Window
+     
+Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
+	at org.esa.beam.visat.toolviews.nav.NavigationCanvas$MouseHandler.mouseDragged(NavigationCanvas.java:205)
+	at java.awt.Component.processMouseMotionEvent(Component.java:6311)
+	at javax.swing.JComponent.processMouseMotionEvent(JComponent.java:3285)
+	at java.awt.Component.processEvent(Component.java:6032)
+	at java.awt.Container.processEvent(Container.java:2041)
+	at java.awt.Component.dispatchEventImpl(Component.java:4630)
+	at java.awt.Container.dispatchEventImpl(Container.java:2099)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4574)
+	at java.awt.LightweightDispatcher.processMouseEvent(Container.java:4255)
+	at java.awt.LightweightDispatcher.dispatchEvent(Container.java:4168)
+	at java.awt.Container.dispatchEventImpl(Container.java:2085)
+	at java.awt.Window.dispatchEventImpl(Window.java:2475)
+	at java.awt.Component.dispatchEvent(Component.java:4460)
+	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:174)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:169)
+	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
+
+-------------------------------------------------------------------------
+
+
+ -----------------------------------------------------------------------------------------------------------
+import Spatial subset from PRISM data (PSM_O1B2R)
+VOL-ALPSMF019892665-O1B2R_UF
+
+or
+
+Product Grabber
+open dir containing this PRISM data
+
+java.lang.IllegalStateException: org.opengis.referencing.operation.OperationNotFoundException: Bursa wolf parameters required.
+	at org.esa.beam.util.FeatureCollectionClipper.getTransform(FeatureCollectionClipper.java:125)
+	at org.esa.beam.util.ProductUtils.copyVectorData(ProductUtils.java:1433)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProduct(ProductSubsetBuilder.java:339)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.readProductNodesImpl(ProductSubsetBuilder.java:95)
+	at org.esa.beam.framework.dataio.AbstractProductReader.readProductNodes(AbstractProductReader.java:159)
+	at org.esa.beam.framework.dataio.AbstractProductBuilder.readProductNodes(AbstractProductBuilder.java:72)
+	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProductSubset(ProductSubsetBuilder.java:70)
+
+(
+	at org.esa.beam.framework.ui.NewProductDialog.onOK(NewProductDialog.java:168)
+	at org.esa.beam.framework.ui.AbstractDialog$3.actionPerformed(AbstractDialog.java:423)
+	at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
+	at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)
+	at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:387)
+    ...
+ and for Product Grabber:
+
+   	at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProductSubset(ProductSubsetBuilder.java:64)
+	at org.esa.beam.framework.datamodel.Product.createSubset(Product.java:1583)
+	at org.esa.beam.visat.actions.pgrab.model.dataprovider.QuicklookProvider.createQuickLook(QuicklookProvider.java:110)
+	at org.esa.beam.visat.actions.pgrab.model.dataprovider.QuicklookProvider.createData(QuicklookProvider.java:65)
+	at org.esa.beam.visat.actions.pgrab.model.RepositoryManager$UpdateProcess.doInBackground(RepositoryManager.java:315)
+	at org.esa.beam.visat.actions.pgrab.model.RepositoryManager$UpdateProcess.doInBackground(RepositoryManager.java:224)
+	at javax.swing.SwingWorker$1.call(SwingWorker.java:278)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at javax.swing.SwingWorker.run(SwingWorker.java:317)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:619)
+)
+
+Caused by: org.opengis.referencing.operation.OperationNotFoundException: Bursa wolf parameters required.
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperationStep(DefaultCoordinateOperationFactory.java:1072)
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperationStep(DefaultCoordinateOperationFactory.java:1136)
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperationStep(DefaultCoordinateOperationFactory.java:881)
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperationStep(DefaultCoordinateOperationFactory.java:965)
+	at org.geotools.referencing.operation.DefaultCoordinateOperationFactory.createOperation(DefaultCoordinateOperationFactory.java:243)
+	at org.geotools.referencing.operation.BufferedCoordinateOperationFactory.createOperation(BufferedCoordinateOperationFactory.java:254)
+	at org.geotools.referencing.CRS.findMathTransform(CRS.java:1026)
+	at org.geotools.referencing.CRS.findMathTransform(CRS.java:994)
+	at org.esa.beam.util.FeatureCollectionClipper.getTransform(FeatureCollectionClipper.java:120)
+	... 106 more
+----------------------------------------------------------------------------
+
+prod = A2004216092500.L2_LAC.x.hdf (OBPG, child)
+
+import/export band subset (nLw_412 + flags)
+
+Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
+   at org.esa.beam.framework.dataio.ProductSubsetBuilder.readBandRasterDataImpl(ProductSubsetBuilder.java:134)
+   at org.esa.beam.framework.dataio.AbstractProductReader.readBandRasterData(AbstractProductReader.java:240)
+   at org.esa.beam.jai.BandOpImage.computeProductData(BandOpImage.java:37)
+   at org.esa.beam.jai.RasterDataNodeOpImage.computeRect(RasterDataNodeOpImage.java:57)
+   at javax.media.jai.SourcelessOpImage.computeTile(SourcelessOpImage.java:137)
+   at com.sun.media.jai.util.SunTileScheduler.scheduleTile(SunTileScheduler.java:904)
+   at javax.media.jai.OpImage.getTile(OpImage.java:1129)
+   at com.bc.ceres.glevel.MultiLevelImage.getTile(MultiLevelImage.java:38)
+   at com.sun.media.jai.opimage.CropOpImage.getTile(CropOpImage.java:122)
+   at javax.media.jai.PlanarImage.cobbleFloat(PlanarImage.java:3254)
+   at javax.media.jai.PlanarImage.getData(PlanarImage.java:2181)
+   at javax.media.jai.RenderedOp.getData(RenderedOp.java:2276)
+   at com.bc.ceres.glevel.MultiLevelImage.getData(MultiLevelImage.java:48)
+   at org.esa.beam.framework.datamodel.Band.readRasterData(Band.java:336)
+   at org.esa.beam.framework.datamodel.AbstractBand.readSubRegionRasterData(AbstractBand.java:776)
+   at org.esa.beam.framework.datamodel.AbstractBand.readPixels(AbstractBand.java:235)
+   at org.esa.beam.framework.datamodel.PixelGeoCoding$PixelGrid.create(PixelGeoCoding.java:803)
+   at org.esa.beam.framework.datamodel.PixelGeoCoding$PixelGrid.access$000(PixelGeoCoding.java:772)
+   at org.esa.beam.framework.datamodel.PixelGeoCoding.initData(PixelGeoCoding.java:144)
+   at org.esa.beam.framework.datamodel.PixelGeoCoding.initialize(PixelGeoCoding.java:441)
+   at org.esa.beam.framework.datamodel.PixelGeoCoding.getGeoPos(PixelGeoCoding.java:460)
+   at org.esa.beam.framework.datamodel.Product.isCompatibleProduct(Product.java:1179)
+   at org.esa.beam.util.ProductUtils.copyVectorData(ProductUtils.java:1408)
+   at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProduct(ProductSubsetBuilder.java:339)
+   at org.esa.beam.framework.dataio.ProductSubsetBuilder.readProductNodesImpl(ProductSubsetBuilder.java:95)
+   at org.esa.beam.framework.dataio.AbstractProductReader.readProductNodes(AbstractProductReader.java:159)
+   at org.esa.beam.framework.dataio.AbstractProductBuilder.readProductNodes(AbstractProductBuilder.java:72)
+   at org.esa.beam.framework.dataio.ProductSubsetBuilder.createProductSubset(ProductSubsetBuilder.java:70)
+
+    .......... 
+-------------------------------------------------------------------------------------
+
+
+new mosaic processor
+====================
+
+- has no menu and therefore it is not possible to work with the request files
+-----------------------------------------------------------------
+
+-UTM proj. problem:
+add some products (distributed on the world) to product list
+select area: west long = 5, east long. = 20, north lat. = 65, south lat.= 50
+select UTM, North, zone 32
+
+output product: north lat.:	0°00'02" N, south lat.:	15°23'04" S  !!!!!
+Map CRS:
+PROJCS["UTM Zone 32 / World Geodetic System 1984",
+  GEOGCS["World Geodetic System 1984",
+    DATUM["World Geodetic System 1984",
+      SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]],
+      AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]],
+    UNIT["degree", 0.017453292519943295],
+    AXIS["Geodetic longitude", EAST],
+    AXIS["Geodetic latitude", NORTH]],
+  PROJECTION["Transverse_Mercator"],
+  PARAMETER["central_meridian", 9.0],
+  PARAMETER["latitude_of_origin", 0.0],
+  PARAMETER["scale_factor", 0.9996],
+  PARAMETER["false_easting", 500000.0],
+  PARAMETER["false_northing", 0.0],
+-----------------------------------------------------------------------------
+(IS_ALREADY_FIXED, mz, 2010-01-27)
+- select/deselect 'Update target product' checkBox causes IllegalArgumentException
+
+a) select: open product in VISAT - open mosaic - check in 'Update target product' --> the name of target product will be change to open in VISAT data automatically -->
+beam-debug: AbstractProductReader.close(): org.esa.beam.dataio.envisat.EnvisatProductReader[input=C:\Projects\Testing\testdata\in\MERIS\MER_RR__1_test
+.N1]
+org.esa.beam.framework.gpf.OperatorException: Product has no metadata element named 'Processing_Graph'
+        at org.esa.beam.gpf.operators.mosaic.MosaicOp.getOperatorParameters(MosaicOp.java:486)
+        at org.esa.beam.gpf.operators.mosaic.ui.MosaicIOPanel$2.selectionChanged(MosaicIOPanel.java:106)
+        at com.bc.ceres.swing.selection.support.SelectionChangeSupport.fireSelectionChange(SelectionChangeSupport.java:56)
+        at com.bc.ceres.swing.selection.support.SelectionChangeSupport.fireSelectionChange(SelectionChangeSupport.java:51)
+        at com.bc.ceres.swing.selection.AbstractSelectionContext.fireSelectionChange(AbstractSelectionContext.java:81)
+        at com.bc.ceres.swing.selection.support.ComboBoxSelectionContext.access$100(ComboBoxSelectionContext.java:15)
+        at com.bc.ceres.swing.selection.support.ComboBoxSelectionContext$ComboBoxSelectionHandler.itemStateChanged(ComboBoxSelectionContext.java:56)
+
+------------------------------------------------------------------------------------------------------------------------------
+
+- missing CRS information
+------------------------------------------------------------------------------------------------------------------------------
