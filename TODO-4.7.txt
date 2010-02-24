@@ -90,58 +90,8 @@ Other BEAM/VISAT/API Stuff:
   - abstract ProductNode.handleNodeDataChanged(node, oldName, newName)
   ==> FINAL (really?), *, OPEN
 
+API Changes
+===========
 
-//////////////////////////////////////////////////////////////////////////////////////
-// TODO put in Wiki
-
-h2. API changes:
-
-h3. Product Data Model Changes
-* Introduced Mask class
-* Introduced VectorDataNode class
-* Product class
-** Added new methods to Product class
-**# ProductNodeGroup<VectorData> getVectorDataGroup()
-**# ProductNodeGroup<Mask> getMaskGroup()
-** Deprecated a lot of old methods dealing with {{BitRaster}} and bitmasks in general
-** Change events for the following "properties" are not fired anymore: modified, owner 
-* Added new methods to ProductVisitor interface:
-*# void visit(Mask mask)
-*# void visit(VectorDataNode dataNode)
-* ProductNode class
-** Rename updateExpression(s1, s2) to handleRename(node, s1, s2)  (TODO!)
-* Rename 'Pin' into 'Placemark'.
-
-h3. Ceres Binding API Changes
-
-* Terminology changes followed by extensive renamings:
-** ValueModel --> Property
-** ValueDescriptor --> PropertyDescriptor
-** ValueContainer --> PropertyContainer
-** ValueAccessor --> PropertyAccessor
-** ClassFieldDescriptorFactory --> PropertyDescriptorFactory
-** ValueDescriptor.properties --> PropertyDescriptor.attributes (incl. all accessors)
-* New interface PropertyAccessorFactory
-* PropertyContainer.setValue(String propertyName, Object value) now throws IllegalArgumentException
- by wrapping a previously thrown ValidationException.
-
-* PropertySet is an interface which has been extracted from PropertyContainer.
-  Thus, in many places (including public BEAM API) the use of PropertyContainer has been replaced by PropertySet
-
-* ValueEditor --> PropertyEditor
-* ValueEditorRegistry --> PropertyEditorRegistry
-* ValueEditorsPane --> PropertyPane
-* Moved swing.binding packages between modules: ceres-binding:com.bc.ceres.binding.swing --> ceres-ui:com.bc.ceres.swing.binding
-
-
-h3. Ceres Layer API Changes
-
-* Renamed method LayerType.getConfigurationTemplate() to  createLayerConfig()
-* Moved methods LayerType.createDefaultValueModel() ValueModel.createValueModel()
-
-h3. Ceres Core API Changes
-* Renamed class ServiceRegistryFactory to ServiceRegistryManager
-
-h2. Operator changes
-
-* Renamed source product alias in WriteOp from "input" to "source" for consistency.
+* ProductNode:  Change updateExpression(s1, s2) to handleRename(node, s1, s2)
+  ==> FINAL (v4.8), ?, OPEN
