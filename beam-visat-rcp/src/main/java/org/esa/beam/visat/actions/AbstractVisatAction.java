@@ -77,14 +77,15 @@ public abstract class AbstractVisatAction extends AppCommand {
         }
 
         @Override
-        public void handleError(Throwable e) {
-            e.printStackTrace();
-            app.showErrorDialog(toolTitle, e.getMessage());
+        public void handleError(Throwable t) {
+            handleError(t.getMessage(), t);
         }
 
         @Override
-        public void handleError(String message, Throwable e) {
-            e.printStackTrace();
+        public void handleError(String message, Throwable t) {
+            if (t != null) {
+                t.printStackTrace();
+            }
             app.showErrorDialog(toolTitle, message);
         }
 

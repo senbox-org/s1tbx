@@ -18,9 +18,9 @@ public interface AppContext {
     Product getSelectedProduct();
 
     @Deprecated
-    void handleError(Throwable e);
+    void handleError(Throwable t);
     
-    void handleError(String message, Throwable e);
+    void handleError(String message, Throwable t);
 
     PropertyMap getPreferences();
 
