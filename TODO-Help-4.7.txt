@@ -2,40 +2,6 @@
  HELP review
 ################################################################
 
-
-
-
-
-
- General
-#########
-
- 3) New Page
- - What's new in BEAM 4.7:
-    o World map
-    o Navigation sync. prod / cursor
-    o Repro, Mosaic, Mask, Geom
-    o Statistics
-    o GPF + gpt description
-    o Help general revision
-
-   ==> PRE, MP,NF , CLOSED
-
- ------------------------------------------------------------
- BEAM-DIMAP Format
- *****************
- 1) add depiction of the vector_data directory (? --> yes)
- 2) describe "vector_data" in terms of "all geometry containers"
-   ==> PRE, MP, CLOSED
-
- ------------------------------------------------------------
- The 'pconvert' Tool
- *******************
- 1) "Please take a look at the closely related command-line tool mapproj ."
- tool mapproj does not exists --> delete or refer to "other command line tools", e.g gpt, "old" processors
-  ==> PRE, MP, CLOSED
-
- ------------------------------------------------------------
  VISAT
 ########
 
@@ -56,246 +22,26 @@
  ************
 - old screenshot
   ------------------------------------------------------------
-  Tools / Import and Export Tools
- **************************
- 1) 'Import Shape' is empty (no link to old 'Import Transect Data' )
-   shall the page 'Import Transect Data ' be updated considering the new geometries ?
-   ==> PRE, MP, CLOSED,
 
-3) missing 'Export Product Metadata'
-   ==> FINAL, MP, CLOSED
-
-4) missing 'Export PIN Pixels'
-   ==> FINAL, ?, CLOSED
-
- ------------------------------------------------------------
- Imaging Tools
- **************
- 1) Image View
- - Context Menu -> old screenshot and Entries
-   ==> PRE, NP, CLOSED
-
-   visat/ProductSceneView.html/Context Menu
-   -> export pixel values of a ROI-Mask to clipboard or file   (OK)
-   -> add 'Export Pin pixels' entry       (OK)
-   -> add 'Export Colour Palette'  entry (OK)
-   -> add 'Show Geometry Overlay' entry  (OK)
-   ==> PRE, MP, CLOSED
-
-
- 2) Layer Manager
-
- - Layer Editor does not work as described in help
-   ==> PRE, MP, CLOSED
-
- 3) The Navigation Window
-
- - another icon 'Syncronize compatible products'
-   ==> PRE, MP, CLOSED
- - new icon 'Syncronize cursor position'
-   ==> PRE, MP, CLOSED
-
- 4) Color manipulation
-
- - missing description of the " Rough statistics!"
-   ==> FINAL, MP, CLOSED
- - missing description of the "show extra information" icon.
-   ==> FINAL, MP, CLOSED
-
- 5) Bitmask Overlay Window
- remove
-    ==> PRE, MP, CLOSED
-
-
- 6) Bitmask Editor
- is not any more "Bitmask" Editor
-    ==> PRE, MP, CLOSED
-
- ------------------------------------------------------------
- Analysis Tools
- **************
- 1) The VISAT World Map
- - old screenshot
- - old description:  'zoomlevels (1x - 32x)' does not exist
- - two new icons: zoom and zoom all
-   ==> PRE, MP, CLOSED
-
- 2)  GCP Management
- - a new alternative of the GCP selection and deleting
-   ==> PRE, MP, CLOSED
-
- 3)  PIN Management
- - a new alternative of the PIN selection and deleting
-   ==> PRE, MP, CLOSED
-
- 4) Band ROI Definition ( Shapes and ROIs)
- is OLD
-   ==> PRE, MP, CLOSED
-
- 5) Band Statistics
- - old image
- - old description
-   ==> PRE, MP, CLOSED
-
- 6) Band Histogram
- - old image
- - old description
-   ==> PRE, MP, CLOSED
-
- 7) Band Scatter Plot
- - old image
- - old description
-   ==> PRE, MP, CLOSED
-
- 8) Band Transect Profile plot
- maybe add description of the figure selection ?
-   ==> PRE, MP, CLOSED
-
- 9) Band Transect Co-ordinate list
- maybe add description of the figure selection ?
-   ==> PRE, MP, CLOSED
-
- 10) Compute Mask Area
- maybe add how one of the ROI can be selected ?
-   ==> PRE, RQ, CLOSED
- ------------------------------------------------------------
- Product Generation Tools
- *************************
- 1) Arithmetic Expression Editor
- - old screenshot
- - add show masks checkbox to Data Sources list
-   ==> PRE, MP, CLOSED
-
- 2) Map Projection Dialog
-remove
-   ==> PRE, MP, CLOSED
-
- 3) Orthorectification Dialog
- remove
-    ==> PRE, MP, CLOSED
-
-
- 4) Pixel Geo-Coding
-   missing description of the "beam.envisat.amorgos.usePixelGeoCoding = true" option in the beam.config file
-   describe in ENVISAT file reader, link to it
-    ==> FINAL, MP, CLOSED
-
- 5) Module Manager
- - Windows 7 screenshot
-    ==> FINAL, MP, CLOSED
-
- ------------------------------------------------------------
  Reference
  **********
- 1) product Browser
- - old screenshot
- - Geometries node description
-    ==> PRE, RQ, CLOSED
-
- 2) Preferences Dialog
- - old screenshot
- - description of the Pin Overlay, GCP Overlay, Shape Figure Overlay and ROI Overlay shall be replaced by Mask Layer Overlay
-    ==> PRE, RQ, CLOSED
-
- 3) Main Toolbar
-
-
-    Toolbars.html/Show Geometry Overlay --> change link 'Shapes and ROI handling'
-     ==> PRE, RQ, CLOSED (there was no link to shapes and ROI handling)
-
- - add new icons:
-    Show GCPs
-    Mask Manager
-
-    ==> PRE, RQ, CLOSED
-
-  4) File menu
-
-     a) Import
-  	- missing 'Import GeoTIFF Product' item
-    ==> PRE, RQ, CLOSED (it was not missing)
-
-
-     b) Export
-
-
-  	- missing 'Export Transect Pixels'
-  	- missing 'Export PIN Pixels'
-    ==> FINAL, MP, CLOSED
-
-
-  5) Edit Menu
-   - add to Help new Items:
-  	Cut
-  	Copy
-  	Paste
-  	Select All
-   - add icon to 'Delete'
-
-    ==> PRE, NF, CLOSED - describe usage in chapter "Geometry"
-
-
-  6) View Menu
-       - ToolWindows.html must be updated.
-       - missing link to Layer Manager and  Mask/ROI Manager pages
-        ==> PRE (?), MP, CLOSED
-
-  8) Analysis Menu
-
-  - Help: Compute Roi Area...--> BEAM4.7: Compute ROI-Mask Area
-
-    ==> PRE, RQ, CLOSED
 
   9) Tools Menu
 
-   - add to Help:
-  	Create Geometry Container
-  	Orthorectification(New ?)
-  	Reprojection
-  	Mosaic (NEW ??)
-
-     ==> PRE, MP, CLOSED
-
-   - delete from Help:
-  	Map Projection
-  	Orthorectification
-  	Level 3 Mosaic Processor
-
-    ==> PRE, MP, CLOSED
-
     links to processor's pages do not work
-
     ==> -, MP, OPEN (stays open)
-
 
   10) Window Menu
 
    - old images
 
-
-
     not updated screenshots:
 
-    ComputeRoiArea.jpg        (OK)
-    ExportROIPixels.jpg       (OK)
-    MapProjection.jpg - old    (OK)
-    NavigationWindowFullOrbit.jpg - is not in usages    (OK)
-    Orthorectification_ex001.jpg    (OK)
-    OrthorectificationDialog.jpg  - old   (OK)
-    PopupMenuImageView.png (change "Export Colour Palette as Image..." to Export Colour Palette as File(?)) (OK)
-    RoiDefinitionWindow.jpg - old    (OK)
     Toolbar.jpg - old
     VisatFrame.jpg - old
     WindowsCascaded.jpg - old ((toolbar, title)
     WindowsEven.jpg- old
     WindowsHorizontal.jpg - old
     WindowsVertical.jpg - old
-    WorldMap.jpg - old   (OK)
 
-    Mosaic new
-
-    geometry icons
-
-     ==> PRE(?), MP, CLOSED
-
--------------------------------------------------------------------   
+-------------------------------------------------------------------

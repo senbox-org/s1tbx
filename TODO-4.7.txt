@@ -1,16 +1,3 @@
-VISAT
-=====
-
-Align changelog of beam-visat-rcp and beam-visat
-  ==> FINAL , MP, CLOSED
-
-
-Band Math --> Band Maths
-  - BandMathOp --> BandMathsOp
-  - BandMathMaskPersistable --> BandMathsMaskPersistable
-  - Mask.BandMathType --> Mask.BandMathsType
-  ==> FINAL , MP, CLOSED
-
 Reprojection:
 =============
 * Old org.esa.beam.framework.dataop.maptransf still heavily in use!
@@ -29,22 +16,6 @@ Masks:
   operate on such mask types. The raster data of the new mask type will need to
   be stored to disk.
   ==> FINAL (v4.8), ?, OPEN
-
-* Transfer Mask Dialog:
-  Explain "descr" and "pixel" in dialog and help. Use an example.
-  ==> FINAL , MZ, CLOSED
-* ROI/Mask Manager: When deleting a "geometry mask" the associated geometry shall be deleted as well.
-  Forbid deletion of "pin" and "placemark" masks!
-  ==> FINAL , MZ, CLOSED
-     
-VectorDataNode:
-===============
-* Create subset from Product with Pins, GCPs -> GCPs outside of subset bounds are preserved, pins are not
-  Explain in help, that this is intended.
-  ==> FINAL, MP, CLOSED
-* Import of Geometry does not work when shapefile has no CRS and shapefile coordinates are not in WGS84.
-  the user is asked to enter a CRS.
-  ==> FINAL, MP, CLOSED
 
 Figures:
 ========
@@ -65,26 +36,6 @@ Figures:
 * Allow for geometric operations on geometries: add/sub/intersection (JTS!)
   ==> FINAL (v4.8), ?, OPEN
 
-* Layer style editor doesn't work anymore. Support only our style. Not SLD.
-  ==> FINAL, MP, CLOSED
-
-Product tree:
-=============
-* Still can not add/remove geometry vertices
-  ==> FINAL, NF, CLOSED
-* Don't display empty groups. With special attention to Pin & GCP Vector Data Nodes.
-  ==> FINAL, MP, CLOSED
-
-Layers:
-=======
-* Don't use class names e.g. in Session I/O.
-  ==> FINAL, MZ, CLOSED
-* Graticule layer does not recognize preference changes (reported by Sean Bailey)
-  Also No-data layer is affected.
-  ==> FINAL, MP, CLOSED
-  (OF:  Graticule layer will be update in the image view immediately, but  No-data not.
-  For No-data update you must close and reopen image view. Is it OK?)
-  (MP: fixed)
 
 GPF Processors:
 ===============
@@ -105,35 +56,11 @@ GPF Processors:
     owner, e.g. flag RasterDataNode.isSourceImageOwner()
   ==> FINAL (v4.8), ?, OPEN
 
-* Verify that Operator that terminate by throwing an exception and handled correctly. For all cases:
-  [tile, tileStack] [gtp, graph, Visat]. Original problem reported by Luis Veci.
-  ==> FINAL, MZ, CLOSED
-* Done, enable/harmonise geo-coding transfer in all GPF ops  (see BEAM-1047 and BEAM-1050)  
-  ==> FINAL, MP, CLOSED
-
 SMOS-Box:
 =========
 * Export GridCellExporter still uses "product.getPinGroup().getSelectedNodes()" and ROIDefinition.
   ==> FINAL, *, OPEN
   
-* We need the RasterDataNode.areaOfInterest:Geometry new property for boosting
-  statistics computation and possibly also display. This property is optional but
-  some product readers may set it, e.g. SMOS reader. Tile bounds can easily be
-  tested for intersection with areaOfInterest and possibly ignored.
-  Also very important for SMOS-Box 2.1
-  ==> FINAL, RQ, CLOSED
-* Pin table with band values is not updated when snapshot ID is changed
-  ==> FINAL, RQ, CLOSED (needs to be tested by OF)
-  (OF: the values in the Pin table are not always match values in the Pixel Info)
-  (MZ: fixed)
-* Speed up statistics for Stokes bands
-  ==> FINAL, RQ, CLOSED (duplicated)
-
-GlobToolbox
-===========
-* Create add on installer
-  ==> FINAL, MP, OPEN
-
 CHRIS-GeoCorrection
 ===================
 * Auto-Download Telemetry
@@ -149,12 +76,7 @@ Envisat Reprocessing 3:
 
 Other BEAM/VISAT/API Stuff:
 ===========================
-* When loading our OBPG Level-2 data products pixel times are not
-  displayed and the No-Data Overlay doesn't work for missing data (e.g.
-  after reprojecting L2 chlor_a, the missing pixels in the resulting map
-  are not detected as missing)  (reported by Sean Bailey)
-  ==> FINAL, ?, OPEN
-  
+
 * ProductIO: update Tutorial
 ** ProductIO.readProduct(..., PruductSubsetDef def) remove SubsetDef
 ** Product.setWriter(Writer)
@@ -167,18 +89,6 @@ Other BEAM/VISAT/API Stuff:
   - abstract ProductNode.handleRename(node, oldName, newName)
   - abstract ProductNode.handleNodeDataChanged(node, oldName, newName)
   ==> FINAL (really?), *, OPEN
-
-* Generic GPF action
-  ==> FINAL, MZ, CLOSED  
-* Move PropertyPane and dependency to TableLayout into Ceres
-  ==> FINAL, MZ, CLOSED
-* ProductIO changes;
-** ProductIO.readProduct(..., PruductSubsetDef def) remove SubsetDef
-** Product.setWriter(Writer)
-** Product.writeHeader()
-  ==> FINAL, MZ, CLOSED
-* Rename 'Pin' into 'Placemark'. Add to API changes section below.
-  ==> FINAL, MZ, CLOSED
 
 
 //////////////////////////////////////////////////////////////////////////////////////
