@@ -18,10 +18,6 @@
      +-- ...
    ==> PRE, MP, OPEN
 
- Introduction
- ************
-- old screenshot
-  ------------------------------------------------------------
 
  Reference
  **********
@@ -31,17 +27,5 @@
     links to processor's pages do not work
     ==> -, MP, OPEN (stays open)
 
-  10) Window Menu
-
-   - old images
-
-    not updated screenshots:
-
-    Toolbar.jpg - old
-    VisatFrame.jpg - old
-    WindowsCascaded.jpg - old ((toolbar, title)
-    WindowsEven.jpg- old
-    WindowsHorizontal.jpg - old
-    WindowsVertical.jpg - old
 
 -------------------------------------------------------------------
