@@ -96,6 +96,7 @@ public class OperatorContext {
     private PropertyContainer propertyContainer;
     private RenderingHints renderingHints;
     private PerformanceMetric performanceMetric;
+    private boolean initialising;
 
 
     public OperatorContext(Operator operator) {
@@ -366,23 +367,30 @@ public class OperatorContext {
     }
 
     private void initializeOperator() throws OperatorException {
+        Assert.state(targetProduct == null, "targetProduct == null");
         Assert.state(operator != null, "operator != null");
+        Assert.state(!initialising, "!initialising, attempt to call getTargetProduct() from within initialise()?");
 
-        if (!(operator instanceof GraphOp)) {
-            initSourceProductFields();
-            injectParameterValues();
-            injectConfiguration();
-        }
-        operator.initialize();
-        initTargetProduct();
-        initTargetProperties();
-        if (!(operator instanceof GraphOp)) {
-            initPassThrough();
-        }
-        initTargetImages();
-        initGraphMetadata();
+        try {
+            initialising = true;
+            if (!(operator instanceof GraphOp)) {
+                initSourceProductFields();
+                injectParameterValues();
+                injectConfiguration();
+            }
+            operator.initialize();
+            initTargetProduct();
+            initTargetProperties();
+            if (!(operator instanceof GraphOp)) {
+                initPassThrough();
+            }
+            initTargetImages();
+            initGraphMetadata();
 
-        targetProduct.setModified(false);
+            targetProduct.setModified(false);
+        } finally {
+            initialising = false;
+        }
     }
 
     private PropertyContainer getOperatorValueContainer() {

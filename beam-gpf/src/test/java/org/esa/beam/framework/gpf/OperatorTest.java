@@ -29,6 +29,23 @@ public class OperatorTest extends TestCase {
         assertTrue(op.computeTileCalled);
     }
 
+    public void testThatGetTargetProductMustNotBeCalledFromInitialize() {
+        Operator op = new Operator() {
+            @Override
+            public void initialize() throws OperatorException {
+                getTargetProduct();
+            }
+        };
+        try {
+            op.getTargetProduct();
+            fail("RuntimeException expected: Operator shall not allow calling getTargetProduct() from within initialize().");
+        } catch (OperatorException e) {
+            fail("RuntimeException expected: Operator shall not allow calling getTargetProduct() from within initialize().");
+        } catch (RuntimeException e) {
+            // ok, passed
+        }
+    }
+
     public void testPassThroughDetection() throws OperatorException, IOException {
         Product sourceProduct = createFooProduct();
         final Operator op = new PassThroughOp(sourceProduct);
