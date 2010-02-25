@@ -888,7 +888,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             validMaskImage.dispose();
             validMaskImage = null;
         }
-        if (geophysicalImage != null) {
+        if (geophysicalImage != null && geophysicalImage != sourceImage) {
             geophysicalImage.dispose();
             geophysicalImage = null;
         }
