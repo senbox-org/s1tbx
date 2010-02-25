@@ -8,13 +8,13 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam</artifactId>
-        <version>4.7-SNAPSHOT</version>
+        <version>4.8-SNAPSHOT</version>
     </parent>
 
     <name>BEAM MERIS Smile Correction Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-meris-smile</artifactId>
-    <version>1.2.101-SNAPSHOT</version>
+    <version>1.2.101</version>
 
     <packaging>jar</packaging>
 

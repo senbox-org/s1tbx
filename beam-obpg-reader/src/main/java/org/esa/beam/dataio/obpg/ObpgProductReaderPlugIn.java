@@ -12,24 +12,21 @@
  */
 package org.esa.beam.dataio.obpg;
 
-import ncsa.hdf.hdflib.HDFConstants;
-import org.esa.beam.dataio.obpg.hdf.HdfAttribute;
-import org.esa.beam.dataio.obpg.hdf.ObpgUtils;
+import org.esa.beam.dataio.obpg.ObpgUtils;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileFilter;
 
+import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
+
 import java.io.File;
-import java.util.List;
+import java.io.IOException;
 import java.util.Locale;
 
 public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
-
-    // This is here just to keep the property name
-//    private static final String HDF4_PROPERTY_KEY = "ncsa.hdf.hdflib.HDFLibrary.hdflib";
 
     public static final String DEFAULT_FILE_EXTENSION = ".hdf";
     public static final String DEFAULT_FILE_EXTENSION_L2_LAC = ".L2_LAC";
@@ -45,58 +42,38 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
             "OCTS Level-2 Data"
     };
 
-    public static boolean isHdfLibAvailable() {
-        return hdfLibAvailable;
-    }
-
-    private static boolean hdfLibAvailable = false;
-
     ObpgUtils utils = new ObpgUtils();
-
-    static {
-        hdfLibAvailable = SystemUtils.loadHdf4Lib(ObpgProductReaderPlugIn.class) != null;
-    }
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      */
     public DecodeQualification getDecodeQualification(Object input) {
-        if (!hdfLibAvailable) {
-            return DecodeQualification.UNABLE;
-        }
+        final File file = getInputFile(input);
+        NetcdfFile ncfile = null;
         try {
-            int sdsId = HDFConstants.FAIL;
-
-            try {
-                final File file = getInputFile(input);
-                if (file == null
-                        || !file.isFile()
-                        || !utils.isHdfFile(file.getPath())) {
-                    return DecodeQualification.UNABLE;
-                }
-                sdsId = utils.openSdInterfaceReadOnly(file.getPath());
-                final List<HdfAttribute> list = utils.readGlobalAttributes(sdsId);
-                for (HdfAttribute hdfAttribute : list) {
-                    if ("Title".equals(hdfAttribute.getName())) {
-                        final String value = hdfAttribute.getStringValue();
-                        if (value != null) {
-                            if (StringUtils.containsIgnoreCase(magicStrings, value.trim())) {
-                                return DecodeQualification.INTENDED;
-                            }
-                        }
-                        break;
+            if (file == null || !file.isFile()) {
+                return DecodeQualification.UNABLE;
+            }
+            ncfile = NetcdfFile.open(file.getPath());
+            Attribute titleAttribute = ncfile.findGlobalAttribute("Title");
+            if (titleAttribute != null) {
+                final String value = titleAttribute.getStringValue();
+                if (value != null) {
+                    if (StringUtils.containsIgnoreCase(magicStrings, value.trim())) {
+                        return DecodeQualification.INTENDED;
                     }
                 }
-            } finally {
-                if (sdsId != HDFConstants.FAIL) {
-                    utils.closeSdInterface(sdsId);
+            }
+        } catch (IOException ignore) {
+        } finally {
+            if (ncfile != null) {
+                try {
+                    ncfile.close();
+                } catch (IOException ignore) {
                 }
             }
-        } catch (Exception e) {
-            // nothing to do, return value is already false
         }
-
         return DecodeQualification.UNABLE;
     }
 
@@ -119,10 +96,6 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      * @return a new reader instance, never <code>null</code>
      */
     public ProductReader createReaderInstance() {
-        if (!hdfLibAvailable) {
-            return null;
-        }
-
         return new ObpgProductReader(this);
     }
 
@@ -167,10 +140,6 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
     public String[] getFormatNames() {
-        if (!hdfLibAvailable) {
-            return new String[0];
-        }
-
         return new String[]{FORMAT_NAME};
     }
 

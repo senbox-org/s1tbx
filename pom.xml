@@ -8,7 +8,7 @@
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam</artifactId>
-    <version>4.7-SNAPSHOT</version>
+    <version>4.8-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -123,7 +123,6 @@
         <module>beam-visat-rcp</module>
         <module>beam-visat</module>
         <module>beam-gpf</module>
-        <module>beam-gpf-std-ops</module>
         <module>beam-processing</module>
         <module>beam-scripting</module>
         <module>beam-help</module>
@@ -171,7 +170,7 @@
            -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <ceres.version>0.10-SNAPSHOT</ceres.version>
+        <ceres.version>0.11-SNAPSHOT</ceres.version>
         <geotools.version>2.6.1</geotools.version>
     </properties>
 
@@ -227,32 +226,32 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-core</artifactId>
-                <version>4.7-SNAPSHOT</version>
+                <version>4.8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-gpf</artifactId>
-                <version>4.7-SNAPSHOT</version>
+                <version>4.8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-ui</artifactId>
-                <version>4.7-SNAPSHOT</version>
+                <version>4.8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-processing</artifactId>
-                <version>4.7-SNAPSHOT</version>
+                <version>4.8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat-rcp</artifactId>
-                <version>4.7-SNAPSHOT</version>
+                <version>4.8-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat</artifactId>
-                <version>4.7-SNAPSHOT</version>
+                <version>4.8-SNAPSHOT</version>
             </dependency>
 
             <!-- BEAM Modules ############################################# -->
@@ -260,7 +259,7 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-envisat-reader</artifactId>
-                <version>1.3.101-SNAPSHOT</version>
+                <version>1.3.101</version>
             </dependency>
 
             <dependency>

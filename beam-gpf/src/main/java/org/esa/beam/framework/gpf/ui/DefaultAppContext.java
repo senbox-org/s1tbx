@@ -92,14 +92,14 @@ public class DefaultAppContext implements AppContext {
     }
 
     @Override
-    public void handleError(Throwable e) {
-        handleError("An error occured:\n" + e.getMessage(), e);
+    public void handleError(Throwable t) {
+        handleError("An error occured:\n" + t.getMessage(), t);
     }
 
     @Override
-    public void handleError(String message, Throwable e) {
-        if (e != null) {
-            e.printStackTrace();
+    public void handleError(String message, Throwable t) {
+        if (t != null) {
+            t.printStackTrace();
         }
         JOptionPane.showMessageDialog(getApplicationWindow(), message);
     }

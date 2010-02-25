@@ -47,14 +47,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
             try {
                 ncFile = NetcdfFile.open(file.getAbsolutePath());
                 
-                System.out.println(ncFile.toString());
-                System.out.println();
                 if (isSensorTypeAttributeCorrect(ncFile)) {
-                    List<Attribute> globalNcAttributes = ncFile.getGlobalAttributes();
-                    for (Attribute attribute : globalNcAttributes) {
-                        System.out.println(attribute.getName() + " " + attribute.getDataType());
-                    }
-                    System.out.println();
                     return DecodeQualification.INTENDED;
                 }
             } catch (Throwable e) {

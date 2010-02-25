@@ -21,27 +21,16 @@ import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.util.io.BeamFileFilter;
 
-import java.text.MessageFormat;
-
 public class ObpgProductReaderPlugIn_Test extends TestCase {
 
     private ObpgProductReaderPlugIn plugIn;
 
     @Override
     protected void setUp() throws Exception {
-        if (!TestUtil.isHdfLibraryAvailable()) {
-            return;
-        }
-
         plugIn = new ObpgProductReaderPlugIn();
     }
 
     public void testDefaultFileExtensions() {
-        if (!TestUtil.isHdfLibraryAvailable()) {
-            System.out.println(MessageFormat.format(
-                    "Skipping test in class ''{0}'' since HDF library is not available", getClass().getName()));
-            return;
-        }
         final String[] fileExtensions = plugIn.getDefaultFileExtensions();
 
         assertNotNull(fileExtensions);
@@ -52,11 +41,6 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void testCreateReaderInstance() {
-        if (!TestUtil.isHdfLibraryAvailable()) {
-            System.out.println(MessageFormat.format(
-                    "Skipping test in class ''{0}'' since HDF library is not available", getClass().getName()));
-            return;
-        }
         final ProductReader productReader = plugIn.createReaderInstance();
 
         assertNotNull(productReader);
@@ -65,11 +49,6 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void testGetFormatNames() {
-        if (!TestUtil.isHdfLibraryAvailable()) {
-            System.out.println(MessageFormat.format(
-                    "Skipping test in class ''{0}'' since HDF library is not available", getClass().getName()));
-            return;
-        }
         final String[] formatNames = plugIn.getFormatNames();
 
         assertNotNull(formatNames);
@@ -78,11 +57,6 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void testGetInputTypes() {
-        if (!TestUtil.isHdfLibraryAvailable()) {
-            System.out.println(MessageFormat.format(
-                    "Skipping test in class ''{0}'' since HDF library is not available", getClass().getName()));
-            return;
-        }
         final Class[] classes = plugIn.getInputTypes();
 
         assertNotNull(classes);
@@ -92,11 +66,6 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
     }
 
     public void test() {
-        if (!TestUtil.isHdfLibraryAvailable()) {
-            System.out.println(MessageFormat.format(
-                    "Skipping test in class ''{0}'' since HDF library is not available", getClass().getName()));
-            return;
-        }
         final BeamFileFilter beamFileFilter = plugIn.getProductFileFilter();
 
         assertNotNull(beamFileFilter);

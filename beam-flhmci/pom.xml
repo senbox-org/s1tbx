@@ -8,13 +8,13 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam</artifactId>
-        <version>4.7-SNAPSHOT</version>
+        <version>4.8-SNAPSHOT</version>
     </parent>
 
     <name>BEAM MERIS FLH/MCI Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-flhmci</artifactId>
-    <version>1.6.102-SNAPSHOT</version>
+    <version>1.6.102</version>
 
     <packaging>jar</packaging>
 

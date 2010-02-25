@@ -6,7 +6,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.operators.common.PassThroughOp;
+import org.esa.beam.gpf.operators.standard.PassThroughOp;
 
 import java.io.IOException;
 

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-visat-rcp</symbolicName>
-    <version>4.7</version>
+    <version>4.8</version>
     <name>VISAT Rich Client Platform</name>
 
     <description>
@@ -18,6 +18,7 @@
           [BEAM-1073] Introduce new geometry management<br/>
           [BEAM-1072] Access raw counts of bands in band maths expressions<br/>
           [BEAM-1069] Include wavelength into band property but spectrum view does not work<br/>
+          [BEAM-1062] Mis-spelling of Band Maths<br/>
           [BEAM-1040] Exchange 'no data' with 'NaN' in text exports<br/>
           [BEAM-1028] Navigation window not fully functional on Unix/GTK+<br/>
           [BEAM-1025] Installer does not run after Java update on Mac Os X<br/>
@@ -37,11 +38,13 @@
           [BEAM-1000] Spelling error in band arithmetic<br/>
           [BEAM-991] Yaxis of scatterplot does not show the right values<br/>
           [BEAM-991] Yaxis of scatterplot does not show the right values<br/>
+          [BEAM-962] Provide VISAT action to open a GPF operator GUI<br/>
           [BEAM-979] History of recent products incorrect<br/>
           [BEAM-646] World map incorrect on AATSR orbits<br/>
           [BEAM-456] ROI includes also no-data pixels if "Include pixel by conditions" is selected<br/>
           [BEAM-494] Provide support for more map-projections<br/>
           [BEAM-484] Simplify ROI/Shape management<br/>
+          [BEAM-471] Provide delete command<br/>
           [BEAM-456] ROI includes also no-data pixels if "Include pixel by conditions" is selected<br/>
         </p>
         <p>Changes in 4.6:<br/>
@@ -1310,6 +1313,36 @@
             <text>Data Flip...</text>
             <shortDescr>Apply Data Flip</shortDescr>
             <helpId>flipDialog</helpId>
+        </action>
+
+        <action>
+            <id>reprojectionAction</id>
+            <class>org.esa.beam.gpf.operators.reproject.ReprojectionAction</class>
+            <parent>tools</parent>
+            <placeAfter>flipping</placeAfter>
+            <placeBefore>orthorectificationAction</placeBefore>
+            <text>Reprojection...</text>
+            <shortDescr>Apply a reprojection.</shortDescr>
+            <helpId>reprojectionAction</helpId>
+        </action>
+        <action>
+            <id>orthorectificationAction</id>
+            <class>org.esa.beam.gpf.operators.reproject.OrthorectificationAction</class>
+            <parent>tools</parent>
+            <placeAfter>reprojectionAction</placeAfter>
+            <placeBefore>mosaicAction</placeBefore>
+            <text>Orthorectification...</text>
+            <shortDescr>Apply an orthorectification.</shortDescr>
+            <helpId>orthorectificationAction</helpId>
+        </action>
+        <action>
+            <id>mosaicAction</id>
+            <class>org.esa.beam.gpf.operators.mosaic.MosaicAction</class>
+            <parent>tools</parent>
+            <placeAfter>orthorectificationAction</placeAfter>
+            <text>Mosaic...</text>
+            <shortDescr>Create a mosaic of multiple products.</shortDescr>
+            <helpId>mosaicAction</helpId>
         </action>
 
 

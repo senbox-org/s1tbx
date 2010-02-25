@@ -9,6 +9,7 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 
@@ -24,7 +25,7 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
     public static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
         RasterDataNode rdn = rasterDataNodes[0];
         final ImageManager imageManager = ImageManager.getInstance();
-        MultiLevelModel model = imageManager.getMultiLevelModel(rdn);
+        MultiLevelModel model = ImageManager.getMultiLevelModel(rdn);
         imageManager.prepareImageInfos(rasterDataNodes, pm);
         return new BandImageMultiLevelSource(model, rasterDataNodes);
     }
@@ -66,6 +67,11 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
 
     public ImageInfo getImageInfo() {
         return imageInfo;
+    }
+
+    @Override
+    public Shape getImageShape(int level) {
+        return rasterDataNodes[0].getSourceImage().getImageShape(level);
     }
 
     @Override

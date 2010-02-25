@@ -5,6 +5,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerFilter;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.glayer.swing.AdjustableViewScrollPane;
@@ -229,8 +230,19 @@ public class ProductSceneView extends BasicView
 
         DefaultViewport viewport = new DefaultViewport(isModelYAxisDown(baseImageLayer));
 
-        this.layerCanvas = new LayerCanvas(sceneImage.getRootLayer(), viewport);
-
+        final Layer rootLayer = sceneImage.getRootLayer();
+        this.layerCanvas = new LayerCanvas(rootLayer, viewport);
+        rootLayer.addListener(new AbstractLayerListener() {
+            @Override
+            public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
+                for (Layer childLayer : childLayers) {
+                    if(childLayer == selectedLayer) {
+                        setSelectedLayer(null);
+                        return;
+                    }
+                }
+            }
+        });
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(
                 PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
         this.layerCanvas.setNavControlShown(navControlShown);

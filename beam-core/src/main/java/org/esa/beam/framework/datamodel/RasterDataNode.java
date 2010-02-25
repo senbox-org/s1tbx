@@ -153,8 +153,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private ROI validMaskROI;
     
-    private Area areaOfData = null;
-
     /**
      * Constructs an object of type <code>RasterDataNode</code>.
      *
@@ -2176,22 +2174,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Sets an area where this raster data nodes has data. If <code>null</code> the whole
-     * image has data.
-     *
-     * @param areaOfData the area where this raster has data
-     *
-     * @since BEAM 4.7
-     */
-    public void setAreaOfData(Area areaOfData) {
-        final Area oldValue = this.areaOfData;
-        if (oldValue != areaOfData) {
-            this.areaOfData = areaOfData;
-            fireProductNodeChanged(PROPERTY_NAME_AREA_OF_DATA, oldValue, areaOfData);
-        }
-    }
-
-    /**
      * Gets the area where this raster has data, If <code>null</code> the whole
      * image has data.
      *
@@ -2199,8 +2181,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @since BEAM 4.7
      */
-    public Area getAreaOfData() {
-        return areaOfData;
+    public Shape getValidShape() {
+        return validMaskImage != null ? validMaskImage.getImageShape(0) : null;
     }
 
     private static MultiLevelImage toMultiLevelImage(RenderedImage sourceImage) {

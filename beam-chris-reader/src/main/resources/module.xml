@@ -14,6 +14,10 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in Version 1.6
+        <ul>
+        <li>[CBOX-75] CHRIS/Proba product reader should use the pure Java netcdf library</li>
+        </ul>
         <p>Changes in Version 1.5
         <ul>
         <li>[CBOX-59] Write 'Proba' instead of 'PROBA'</li>

@@ -200,9 +200,6 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
     @Override
     public synchronized void dispose() {
         termMap.clear();
-        for (int i = 0; i < products.length; i++) {
-            products[i] = null;
-        }
     }
 
     @Override

@@ -603,6 +603,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             for (ProductTreeListener l : productTreeListenerList) {
                 if (node instanceof Product) {
                     l.productSelected((Product) node, clickCount);
+                } else if (node instanceof ProductNodeGroup) {
+                    l.productSelected(((ProductNode) node).getProduct(), clickCount);
                 } else if (node instanceof MetadataElement) {
                     l.metadataElementSelected((MetadataElement) node, clickCount);
                 } else if (node instanceof TiePointGrid) {

@@ -9,7 +9,7 @@ import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
-import org.esa.beam.framework.gpf.operators.common.WriteOp;
+import org.esa.beam.gpf.operators.standard.WriteOp;
 
 import java.io.File;
 import java.io.FileReader;

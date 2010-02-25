@@ -1,7 +1,8 @@
-﻿                                 CHANGELOG
+                                 CHANGELOG
 
 This file contains all significant changes for each BEAM release.
 
+    o 22.02.2010: Version 4.7
     o 02.06.2009: Version 4.6
     o 31.10.2008: Version 4.5
     o 11.07.2008: Version 4.2
@@ -22,7 +23,130 @@ This file contains all significant changes for each BEAM release.
     o 07.03.2003: Version 1.1
     o 06.12.2002: Version 1.0
 
+
 _____________________________________________________________________________
+
+ Changes from 4.6 to 4.7
+_____________________________________________________________________________
+
+
+1) New VISAT Features and Improvements
+
+o VISAT now provides a Geometry Management allowing users to draw and
+  manipulate geometries (vector data) or to import them from ESRI Shapefiles.
+  Geometries are now an integral part of the BEAM data model.
+
+o The VISAT Mask and ROI Management has been revised completely. Any number
+  of raster data masks can be defined by band maths expressions, value ranges
+  and existing geometries. Each mask can serve as a region of interest (ROI)
+  for raster data analysis.
+
+o The Statistics, Histogram, and Scatter Plot tool windows have been enhanced
+  in order to support the new, named ROIs. The Statistics tool window can now
+  operate on multiple ROIs.
+
+o The Reprojection (formerly 'Map Projection'), Mosaicing and
+  Orthorectification processors have been redesigned from scratch.
+  Due to the great GeoTools library, BEAM now offers more than 100 predefined,
+  map projections based on their EPSG codes. For user-defined map projections
+  you can now select from 25 map projection transformations and more than
+  100 geodetic datums. Since the new Reprojection, Mosaicing and
+  Orthorectification processors are developed using the
+  BEAM Graph Processing Framework (GPF), they now offer a powerful command-line
+  and can be used in any GPF XML processing graph for, e.g., pre- and
+  post-processing. Finally, the runtime performance of this tools has been
+  drastically improved.
+
+o The Navigation tool window has been improved. It is now feasible to display
+  a synchronized pixel cursor in all image views.
+
+o The World Map tool window has been completely revised. It now uses a
+  higher-resolution RGB (NASA Blue Marble) in which you can easily pan and
+  zoom in and out.
+
+
+2) Complete list of BEAM 4.7 bug fixes and improvements
+
+New Features
+BEAM-470 - Provide cut/copy/paste commands
+BEAM-471 - Provide delete command
+BEAM-494 - Provide support for more map-projections
+BEAM-498 - Provide a layer for editable shapes.
+BEAM-1010 - Show cursor position in other views
+BEAM-1016 - Add "Zoom to Layer"-Button to Layer Manager
+BEAM-1073 - Introduce new geometry management
+BEAM-1074 - Introduce new mask and ROI management
+BEAM-1075 - Reengineer map projection by exploiting GeoTools API capabilities
+BEAM-1076 - Revise statistics to use multiple ROIs
+
+Improvements
+BEAM-484 - Simplify ROI/Shape management
+BEAM-657 - Include co-location capabilities
+BEAM-662 - The mapproj-tool should have help option
+BEAM-962 - Provide VISAT action to open a GPF operator GUI
+BEAM-1007 - Geo-location / Tie Point Grid consistency
+BEAM-1011 - Worl Map Tool View to utilise new layer capabilities
+BEAM-1021 - File chooser boxes shall support "component documents"
+BEAM-1022 - Use new NetCDF 4.0 library
+BEAM-1029 - Make 'Nimbus' default look&feel on Unix
+BEAM-1033 - DIMAP should preserve PixelGeoCoding
+BEAM-1034 - Envisat reader should create PixelGeoCoding for FSG/FRG products automatically
+BEAM-1040 - Exchange 'no data' with 'NaN' in text exports
+BEAM-1050 - Preserve special geo-codings in all data processors
+BEAM-1072 - Access raw counts of bands in band maths expressions
+BEAM-1078 - OBPG reader should use the pure Java netcdf library
+BEAM-1079 - Set product start and stop time from metadata
+BEAM-1080 - The valid pixel expression of the OBPG L2 products does not conform to product specification
+CBOX-75   - CHRIS/Proba product reader should use the pure Java netcdf library
+
+Bugs
+BEAM-456 - ROI includes also no-data pixels if "Include pixel by conditions" is selected.
+BEAM-479 - Map-projections cannot check if projection and output parameters are applicable to a given data product.
+BEAM-646 - World map incorrect on AATSR orbits
+BEAM-729 - DEL-Key does not work for selected items in VISAT
+BEAM-815 - Illegal argument exception in Java ArrayList when running mapproj.sh to process an ENVISAT ASAR N1 file
+BEAM-850 - BEAM 4.2 Has Lost Command Line Scripting Capability of 'MosaicProcessorMain'
+BEAM-984 - Mosaic Processor and VISAT freeze when selecting Transverse Mercator projection
+BEAM-991 - Yaxis of scatterplot does not show the right values
+BEAM-1000 - Spelling error in band arithmetic
+BEAM-1001 - SelectedProduct can be null in BandArithmetic
+BEAM-1002 - Editing bitmask overlays is not possible using the nimbus or gtk look & feel
+BEAM-1004 - X and Y variables always zero in band arithmetic
+BEAM-1005 - Incorrect scatter plot axes
+BEAM-1006 - MER_FSG pixel geocoding not used
+BEAM-1008 - Mapproj tool is slow
+BEAM-1014 - ROI not considered when using value range
+BEAM-1015 - ProductUtils.copyTiePointGrids does not copy description text
+BEAM-1017 - Wrong constant SECONDS_PER_DAY
+BEAM-1018 - Value range of ROI does not consider no-data value
+BEAM-1019 - Blue Marble Layer can not be restored from saved session
+BEAM-1020 - Exception during GUI initialization of Mosaic processor
+BEAM-1023 - Can not overlay compatible products
+BEAM-1024 - VISAT does not launch after Java update on Mac Os X
+BEAM-1025 - Installer does not run after Java update on Mac Os X
+BEAM-1026 - Mac/*nix commands/scripts fail because wrong line format (LR+CR)
+BEAM-1027 - VISAT icon is missing on Mac OS X
+BEAM-1028 - Navigation window not fully functional on Unix/GTK+
+BEAM-1030 - UTM projected products have wrong CRS
+BEAM-1031 - Filtered bands are not available when opening a saved product in VISAT
+BEAM-1032 - Orthorectification not applicable for MER_FRS_2P
+BEAM-1035 - BandArithmetic.NamespaceExtender should not hold references to products
+BEAM-1036 - Ensure temporarily loaded products are disposed in processors
+BEAM-1037 - PConvert does not consider histo-skip option
+BEAM-1038 - Not possible to export a product on Mac OS X
+BEAM-1041 - Update jai-imageio library to support big GeoTiff files
+BEAM-1042 - Pin pixels exported using BEAM 4.6.1 not correct.
+BEAM-1044 - Colour palette changes when valid-pixel expression or no-data value are modified
+BEAM-1047 - BandArithmetic operator does not consider geo-coding
+BEAM-1048 - Product can not be opened if it contains Pin located outside product boundary
+BEAM-1049 - Export image dialog has strange behavior
+BEAM-1051 - A corrupt product breaks the binning process
+BEAM-1053 - SMAC incorrect units
+BEAM-1056 - Statistics of ALOS/AVNIR2 are initially not correctly computed
+BEAM-1061 - Corruption of band layer generated from command line using Band Maths Tool in BEAM 4.7 RC1
+BEAM-1062 - Mis-spelling of Band Maths
+BEAM-1065 - Method TiePointGrid.cloneTiePointGrid() does not consider the unit
+BEAM-1069 - include wavelength into band property but spectrum view does not work
 
 
 _____________________________________________________________________________

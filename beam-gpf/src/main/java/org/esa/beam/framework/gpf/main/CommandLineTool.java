@@ -16,13 +16,12 @@ import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.framework.gpf.graph.NodeSource;
-import org.esa.beam.framework.gpf.operators.common.ReadOp;
-import org.esa.beam.framework.gpf.operators.common.WriteOp;
+import org.esa.beam.gpf.operators.standard.ReadOp;
+import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.SystemUtils;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
