@@ -94,8 +94,14 @@ public class ModuleReader {
             module.setContentLength(locationFile.length());
             module.setLastModified(locationFile.lastModified());
             if (locationFile.isDirectory()) {
-                String[] libs = scanImpliciteLibs(locationFile);
-                module.setImpliciteLibs(libs);
+                File implicitLibDir = new File(locationFile, "lib");
+                if (implicitLibDir.exists() && implicitLibDir.isDirectory()) {
+                    String[] libs = scanImpliciteLibs(implicitLibDir);
+                    for (int i = 0; i < libs.length; i++) {
+                        libs[i] = "lib/" + libs[i];
+                    }
+                    module.setImpliciteLibs(libs);
+                }
                 if (module.isNative()) {
                     String[] nativeLibs = scanImpliciteNativeLibs(locationFile);
                     module.setImpliciteNativeLibs(nativeLibs);

@@ -89,22 +89,16 @@ public class ModuleScannerTest
                    "a-module-dir-with-jars",
                    "a-module-dir-with-jars",
                    new String[]{
-                           "lib-1.jar",
-                           "lib-2.jar",
-                           "bin/lib-3.jar",
-                           "bin/lib-4.jar",
-                           "libs/lib-5.jar",
-                           "libs/lib-6.jar",
+                           "lib/lib-5.jar",
+                           "lib/lib-6.jar",
                    },
                    new String[0]);
         testModule(map, modulesDir,
                    "a-module-dir-with-jars-and-classes",
                    "a-module-dir-with-jars-and-classes",
                    new String[]{
-                           "lib-1.jar",
-                           "lib-2.jar",
-                           "bin/lib-3.jar",
-                           "bin/lib-4.jar",
+                           "lib/lib-3.jar",
+                           "lib/lib-4.jar",
                    },
                    new String[0]);
         testModule(map, modulesDir,
@@ -144,7 +138,7 @@ public class ModuleScannerTest
         assertNotNull(impliciteLibs);
         Collections.addAll(actualSet, impliciteLibs);
         for (String expectedEntry : expectedImpliciteLibs) {
-            assertTrue("missing entry [" + expectedEntry + "]", actualSet.contains(expectedEntry));
+            assertTrue("missing implicit lib [" + expectedEntry + "]", actualSet.contains(expectedEntry));
         }
 
         actualSet.clear();
@@ -152,7 +146,7 @@ public class ModuleScannerTest
         assertNotNull(impliciteNativeLibs);
         Collections.addAll(actualSet, impliciteNativeLibs);
         for (String expectedEntry : expectedImpliciteNativeLibs) {
-            assertTrue("missing entry [" + expectedEntry + "]", actualSet.contains(expectedEntry));
+            assertTrue("missing native lib [" + expectedEntry + "]", actualSet.contains(expectedEntry));
         }
     }
 
