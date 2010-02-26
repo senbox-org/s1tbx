@@ -202,11 +202,15 @@ public class ObpgUtils {
     public void addScientificMetadata(Product product, NetcdfFile ncFile) throws IOException {
         final MetadataElement scanLineAttrib = getMetadataElementSave(product, SCAN_LINE_ATTRIBUTES);
         Group group = ncFile.findGroup(SCAN_LINE_ATTRIBUTES_GROUP);
-        handleMetadataGroup(group, scanLineAttrib);
-        
+        if (group != null) {
+            handleMetadataGroup(group, scanLineAttrib);
+        }
+
         final MetadataElement sensorBandParam = getMetadataElementSave(product, SENSOR_BAND_PARAMETERS);
         group = ncFile.findGroup(SENSOR_BAND_PARAMETERS_GROUP);
-        handleMetadataGroup(group, sensorBandParam);
+        if (group != null) {
+            handleMetadataGroup(group, sensorBandParam);
+        }
     }
     
     private void handleMetadataGroup(Group group, MetadataElement metadataElement) throws IOException {
