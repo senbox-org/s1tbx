@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-obpg-reader</symbolicName>
-    <version>1.1</version>
+    <version>1.2</version>
     <name>NASA Ocean Color Product Reader</name>
     <description>A reader for NASA Ocean Color (HDF) Level-2 Data Products</description>
 
@@ -13,6 +13,9 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.2:<br/>
+        [BEAM-1087] - OBPG child products can not be read<br/>
+        [BEAM-1085] - Support reprocessed data by NASA OBPG<br/>
         Changes in 1.1:<br/>
         [BEAM-1080] The valid pixel expression of the OBPG L2 products does not conform to product specification<br/>
         [BEAM-1079] Set product start and stop time from metadata<br/>
