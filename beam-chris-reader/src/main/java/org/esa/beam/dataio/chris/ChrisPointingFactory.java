@@ -1,13 +1,10 @@
 package org.esa.beam.dataio.chris;
 
-import org.esa.beam.framework.datamodel.AngularDirection;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Pointing;
 import org.esa.beam.framework.datamodel.PointingFactory;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.TiePointGridPointing;
 
 public final class ChrisPointingFactory implements PointingFactory {
 
@@ -25,49 +22,12 @@ public final class ChrisPointingFactory implements PointingFactory {
 
     @Override
     public Pointing createPointing(final RasterDataNode raster) {
-        return new Pointing() {
-            @Override
-            public GeoCoding getGeoCoding() {
-                return raster.getProduct().getGeoCoding();
-            }
-
-            @Override
-            public AngularDirection getSunDir(PixelPos pixelPos, AngularDirection angularDirection) {
-                return null;
-            }
-
-            @Override
-            public AngularDirection getViewDir(PixelPos pixelPos, AngularDirection angularDirection) {
-                final ProductNodeGroup<TiePointGrid> tiePointGroup = raster.getProduct().getTiePointGridGroup();
-                final int x = (int) pixelPos.x;
-                final int y = (int) pixelPos.y;
-
-                angularDirection.azimuth = tiePointGroup.get("vaa").getPixelDouble(x, y);
-                angularDirection.zenith = tiePointGroup.get("vza").getPixelDouble(x, y);
-
-                return angularDirection;
-            }
-
-            @Override
-            public float getElevation(PixelPos pixelPos) {
-                return 0.0f;
-            }
-
-            @Override
-            public boolean canGetSunDir() {
-                return false;
-            }
-
-            @Override
-            public boolean canGetViewDir() {
-                final ProductNodeGroup<TiePointGrid> tiePointGroup = raster.getProduct().getTiePointGridGroup();
-                return tiePointGroup.contains("vaa") && tiePointGroup.contains("vza");
-            }
-
-            @Override
-            public boolean canGetElevation() {
-                return false;
-            }
-        };
+        final Product product = raster.getProduct();
+        return new TiePointGridPointing(product.getGeoCoding(),
+                                        null,
+                                        null,
+                                        product.getTiePointGrid("vza"),
+                                        product.getTiePointGrid("vaa"),
+                                        null);
     }
 }
