@@ -8,6 +8,7 @@ package org.esa.beam.framework.dataop.dem;
 
 import org.esa.beam.framework.datamodel.AngularDirection;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoCodingMathTransform;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Pointing;
@@ -15,6 +16,10 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.RsMathUtils;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultDerivedCRS;
+import org.geotools.referencing.cs.DefaultCartesianCS;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -44,6 +49,9 @@ public class Orthorectifier implements GeoCoding {
     private final GeoCoding geoCoding;
     private final ElevationModel elevationModel;
     private final int maxIterationCount;
+    private final DefaultDerivedCRS imageCRS;
+
+    private volatile MathTransform imageToMapTransform;
 
     /**
      * Constructs a new <code>Orthorectifier</code>.
@@ -70,9 +78,10 @@ public class Orthorectifier implements GeoCoding {
         this.sceneRasterWidth = sceneRasterWidth;
         this.sceneRasterHeight = sceneRasterHeight;
         this.pointing = pointing;
-        geoCoding = pointing.getGeoCoding();
+        this.geoCoding = pointing.getGeoCoding();
         this.elevationModel = elevationModel;
         this.maxIterationCount = maxIterationCount;
+        this.imageCRS = createImageCRS(pointing.getGeoCoding().getGeoCRS(), new GeoCodingMathTransform(this));
     }
 
     /**
@@ -93,7 +102,7 @@ public class Orthorectifier implements GeoCoding {
 
     @Override
     public CoordinateReferenceSystem getImageCRS() {
-        return geoCoding.getImageCRS();
+        return imageCRS;
     }
 
     /**
@@ -111,7 +120,7 @@ public class Orthorectifier implements GeoCoding {
     @Deprecated
     @Override
     public AffineTransform getImageToModelTransform() {
-        return ImageManager.getImageToModelTransform(geoCoding);
+        return ImageManager.getImageToModelTransform(this);
     }
 
     @Override
@@ -126,7 +135,17 @@ public class Orthorectifier implements GeoCoding {
 
     @Override
     public MathTransform getImageToMapTransform() {
-        return geoCoding.getImageToMapTransform();
+        synchronized (this) {
+            if (imageToMapTransform == null) {
+                try {
+                    imageToMapTransform = CRS.findMathTransform(imageCRS, getMapCRS());
+                } catch (FactoryException e) {
+                    throw new IllegalStateException(
+                            "Not able to find a math transformation from image to map CRS.", e);
+                }
+            }
+        }
+        return imageToMapTransform;
     }
 
     public Pointing getPointing() {
@@ -134,7 +153,7 @@ public class Orthorectifier implements GeoCoding {
     }
 
     public GeoCoding getGeoCoding() {
-        return geoCoding;
+        return pointing.getGeoCoding();
     }
 
     public ElevationModel getElevationModel() {
@@ -237,8 +256,8 @@ public class Orthorectifier implements GeoCoding {
     private PixelPos performPredictionCorrection(final PixelPos pixelPos) {
         PixelPos correctedPixelPos = new PixelPos();
         if (correctPrediction(pixelPos, 1.0, correctedPixelPos)
-                || correctPrediction(pixelPos, 0.5, correctedPixelPos)
-                || correctPrediction(pixelPos, 2.0, correctedPixelPos)) {
+            || correctPrediction(pixelPos, 0.5, correctedPixelPos)
+            || correctPrediction(pixelPos, 2.0, correctedPixelPos)) {
             return correctedPixelPos;
         }
         return null;
@@ -296,7 +315,7 @@ public class Orthorectifier implements GeoCoding {
 
     protected final boolean isPixelPosValid(PixelPos pixelPos) {
         return pixelPos.x >= 0 && pixelPos.x <= sceneRasterWidth &&
-                pixelPos.y >= 0 && pixelPos.y <= sceneRasterHeight;
+               pixelPos.y >= 0 && pixelPos.y <= sceneRasterHeight;
     }
 
     protected final float getElevation(GeoPos geoPos, PixelPos pixelPos) {
@@ -327,4 +346,13 @@ public class Orthorectifier implements GeoCoding {
 //        final double distance = Math.abs(elevation) * Math.tan(MathUtils.DTOR * _vg.zenith);
 //        return distance < 25.0;   // todo (nf) - get from Pointing or so
     }
+
+    protected static DefaultDerivedCRS createImageCRS(CoordinateReferenceSystem baseCRS,
+                                                      MathTransform baseToDerivedTransform) {
+        return new DefaultDerivedCRS("Image CS based on " + baseCRS.getName(),
+                                     baseCRS,
+                                     baseToDerivedTransform,
+                                     DefaultCartesianCS.DISPLAY);
+    }
+
 }
