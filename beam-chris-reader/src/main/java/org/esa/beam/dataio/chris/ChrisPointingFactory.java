@@ -11,12 +11,36 @@ public final class ChrisPointingFactory implements PointingFactory {
     @Override
     public String[] getSupportedProductTypes() {
         return new String[]{
+                // uncorrected products
+                "CHRIS_M0_GC",
+                "CHRIS_M1_GC",
+                "CHRIS_M2_GC",
+                "CHRIS_M3_GC",
+                "CHRIS_M4_GC",
+                "CHRIS_M5_GC",
+                "CHRIS_M20_GC",
+                "CHRIS_M30_GC",
+                "CHRIS_M3A_GC",
+                // noise-corrected products
+                "CHRIS_M0_NR_GC",
+                "CHRIS_M1_NR_GC",
+                "CHRIS_M2_NR_GC",
+                "CHRIS_M3_NR_GC",
+                "CHRIS_M4_NR_GC",
+                "CHRIS_M5_NR_GC",
+                "CHRIS_M20_NR_GC",
+                "CHRIS_M30_NR_GC",
+                "CHRIS_M3A_NR_GC",
+                // atmosphere-corrected products
                 "CHRIS_M0_NR_AC_GC",
                 "CHRIS_M1_NR_AC_GC",
                 "CHRIS_M2_NR_AC_GC",
                 "CHRIS_M3_NR_AC_GC",
                 "CHRIS_M4_NR_AC_GC",
-                "CHRIS_M5_NR_AC_GC"
+                "CHRIS_M5_NR_AC_GC",
+                "CHRIS_M20_NR_AC_GC",
+                "CHRIS_M30_NR_AC_GC",
+                "CHRIS_M3A_NR_AC_GC"
         };
     }
 
