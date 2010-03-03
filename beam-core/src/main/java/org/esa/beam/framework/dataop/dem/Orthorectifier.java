@@ -81,7 +81,12 @@ public class Orthorectifier implements GeoCoding {
         this.geoCoding = pointing.getGeoCoding();
         this.elevationModel = elevationModel;
         this.maxIterationCount = maxIterationCount;
-        this.imageCRS = createImageCRS(pointing.getGeoCoding().getGeoCRS(), new GeoCodingMathTransform(this));
+
+        final CoordinateReferenceSystem geoCRS = geoCoding.getGeoCRS();
+        this.imageCRS = new DefaultDerivedCRS("Image CS based on " + geoCRS.getName(),
+                                              geoCRS,
+                                              new GeoCodingMathTransform(this),
+                                              DefaultCartesianCS.DISPLAY);
     }
 
     /**
@@ -346,13 +351,5 @@ public class Orthorectifier implements GeoCoding {
 //        final double distance = Math.abs(elevation) * Math.tan(MathUtils.DTOR * _vg.zenith);
 //        return distance < 25.0;   // todo (nf) - get from Pointing or so
     }
-
-    protected static DefaultDerivedCRS createImageCRS(CoordinateReferenceSystem baseCRS,
-                                                      MathTransform baseToDerivedTransform) {
-        return new DefaultDerivedCRS("Image CS based on " + baseCRS.getName(),
-                                     baseCRS,
-                                     baseToDerivedTransform,
-                                     DefaultCartesianCS.DISPLAY);
-    }
-
+    
 }

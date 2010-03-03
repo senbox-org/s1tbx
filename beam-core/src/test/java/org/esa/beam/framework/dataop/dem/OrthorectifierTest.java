@@ -14,6 +14,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Pointing;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -160,7 +161,7 @@ public class OrthorectifierTest extends TestCase {
 
         @Override
         public CoordinateReferenceSystem getGeoCRS() {
-            return null;
+            return DefaultGeographicCRS.WGS84;
         }
 
         @Override
