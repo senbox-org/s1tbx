@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-core</symbolicName>
-    <version>4.7</version>
+    <version>4.7.1</version>
     <name>BEAM Core Library</name>
 
 
@@ -25,6 +25,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 4.7.1:<br/>
+        [BEAM-1088] Orthorectification does a map projection only<br/>
         <p>Changes in 4.7:<br/>
         [BEAM-1065] Method TiePointGrid.cloneTiePointGrid() does not consider the unit<br/>
         [BEAM-1050] Preserve special geo-codings in all data processors<br/>

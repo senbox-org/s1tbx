@@ -16,11 +16,13 @@
  */
 package org.esa.beam.dataio.chris;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.junit.Test;
 
 import java.util.Iterator;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Marco Peters.
@@ -28,17 +30,12 @@ import java.util.Iterator;
  * @author Marco Peters
  * @version $Revision$ $Date$
  */
-public class ReaderLoadedAsServiceTest extends TestCase {
+public class ChrisProductReaderLoadedAsServiceTest {
 
-    public void testReaderIsLoaded() {
-
-        ProductIOPlugInManager plugInManager = ProductIOPlugInManager.getInstance();
-        Iterator readerPlugIns = plugInManager.getReaderPlugIns("CHRIS_PROBA");
-
-        // Note: iterator may be empty since MODIS uses native HDF libs which may not be available
-        if (readerPlugIns.hasNext()) {
-            ProductReaderPlugIn plugIn = (ProductReaderPlugIn) readerPlugIns.next();
-            assertEquals(ChrisProductReaderPlugIn.class, plugIn.getClass());
-        }
+    @Test
+    public void chrisReaderIsLoaded() {
+        final Iterator iterator = ProductIOPlugInManager.getInstance().getReaderPlugIns(ChrisConstants.FORMAT_NAME);
+        final ProductReaderPlugIn plugIn = (ProductReaderPlugIn) iterator.next();
+        assertEquals(ChrisProductReaderPlugIn.class, plugIn.getClass());
     }
 }
