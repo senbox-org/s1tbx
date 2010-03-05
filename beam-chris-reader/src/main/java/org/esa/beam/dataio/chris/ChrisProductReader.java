@@ -18,22 +18,29 @@ import org.esa.beam.dataio.chris.internal.DropoutCorrection;
 import org.esa.beam.dataio.chris.internal.MaskRefinement;
 import org.esa.beam.dataio.chris.internal.SunPositionCalculator;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.io.FileUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 /**
- * Reader for CHRIS products.
+ * Reader for CHRIS/Proba products.
  *
  * @author Norman Fomferra
  * @author Ralf Quast
@@ -134,7 +141,7 @@ public class ChrisProductReader extends AbstractProductReader {
         setStartAndEndTimes(product);
         addMetadataElements(product);
         addRciAndMaskBands(product);
-        addFlagCodingsAndBitmasks(product);
+        addFlagCodingsAndMasks(product);
 
         // due to mask refinement the preferred tile size has full size
         product.setPreferredTileSize(sceneRasterWidth, sceneRasterHeight);
@@ -167,7 +174,7 @@ public class ChrisProductReader extends AbstractProductReader {
             product.setStartTime(utc);
             product.setEndTime(utc);
         } catch (ParseException ignored) {
-            // todo - warning
+            // ignore
         }
     }
 
@@ -187,7 +194,7 @@ public class ChrisProductReader extends AbstractProductReader {
         }
 
         mph.addAttribute(new MetadataAttribute(ChrisConstants.ATTR_NAME_NOISE_REDUCTION,
-                ProductData.createInstance("None"), true));
+                                               ProductData.createInstance("None"), true));
 
         final MetadataElement bandInfo = createBandInfo();
 
@@ -294,7 +301,7 @@ public class ChrisProductReader extends AbstractProductReader {
         }
     }
 
-    private void addFlagCodingsAndBitmasks(final Product product) {
+    private void addFlagCodingsAndMasks(final Product product) {
         final FlagCoding flagCoding = new FlagCoding("CHRIS");
 
         for (final Flags flag : Flags.values()) {
@@ -305,26 +312,30 @@ public class ChrisProductReader extends AbstractProductReader {
             band.setSampleCoding(flagCoding);
         }
 
-        addSpectrumBitmask(product, Flags.DROPOUT, "spectrum_dropout",
-                "Spectrum contains a dropout pixel");
-        addSpectrumBitmask(product, Flags.SATURATED, "spectrum_saturated",
-                "Spectrum contains a saturated pixel");
-        addSpectrumBitmask(product, Flags.DROPOUT_CORRECTED, "spectrum_dropout_corrected",
-                "Spectrum contains a corrected dropout pixel");
+        addSpectrumMask(product, Flags.DROPOUT, "spectrum_dropout",
+                        "Spectrum contains a dropout pixel");
+        addSpectrumMask(product, Flags.SATURATED, "spectrum_saturated",
+                        "Spectrum contains a saturated pixel");
+        addSpectrumMask(product, Flags.DROPOUT_CORRECTED, "spectrum_dropout_corrected",
+                        "Spectrum contains a corrected dropout pixel");
 
         for (int i = 0; i < spectralBandCount; ++i) {
             for (final Flags flag : Flags.values()) {
-                product.addBitmaskDef(new BitmaskDef(
-                        new StringBuilder(rciBands[i].getName()).append("_").append(flag).toString(),
-                        flag.getDescription(),
-                        new StringBuilder(maskBands[i].getName()).append(".").append(flag).toString(),
-                        flag.getColor(),
-                        flag.getTransparency()));
+
+                final String name = new StringBuilder(rciBands[i].getName()).append("_").append(flag).toString();
+                final String expr = new StringBuilder(maskBands[i].getName()).append(".").append(flag).toString();
+                product.getMaskGroup().add(Mask.BandMathsType.create(name,
+                                                                     flag.getDescription(),
+                                                                     sceneRasterWidth,
+                                                                     sceneRasterHeight,
+                                                                     expr,
+                                                                     flag.getColor(),
+                                                                     flag.getTransparency()));
             }
         }
     }
 
-    private void addSpectrumBitmask(Product product, Flags flag, String name, String description) {
+    private void addSpectrumMask(Product product, Flags flag, String name, String description) {
         final StringBuilder expression = new StringBuilder();
         for (int i = 0; i < spectralBandCount; ++i) {
             if (i > 0) {
@@ -332,8 +343,13 @@ public class ChrisProductReader extends AbstractProductReader {
             }
             expression.append(maskBands[i].getName()).append(".").append(flag);
         }
-        product.addBitmaskDef(new BitmaskDef(name, description, expression.toString(), flag.getColor(),
-                flag.getTransparency()));
+        product.getMaskGroup().add(Mask.BandMathsType.create(name,
+                                                             description,
+                                                             sceneRasterWidth,
+                                                             sceneRasterHeight,
+                                                             expression.toString(),
+                                                             flag.getColor(),
+                                                             flag.getTransparency()));
     }
 
     private void readRciBandRasterData(int bandIndex,
@@ -375,13 +391,14 @@ public class ChrisProductReader extends AbstractProductReader {
                 pm.worked(1);
             }
             dropoutCorrection.compute(rciData, maskData, sceneRasterWidth, tileHeight,
-                    new Rectangle(targetOffsetX, targetOffsetY - tileOffsetY, targetWidth, targetHeight));
+                                      new Rectangle(targetOffsetX, targetOffsetY - tileOffsetY, targetWidth,
+                                                    targetHeight));
             pm.worked(3);
 
             for (int i = 0; i < targetHeight; ++i) {
                 //noinspection SuspiciousSystemArraycopy
                 System.arraycopy(rciData[0], targetOffsetX + (targetOffsetY - tileOffsetY + i) * sceneRasterWidth,
-                        targetBuffer.getElems(), i * targetWidth, targetWidth);
+                                 targetBuffer.getElems(), i * targetWidth, targetWidth);
             }
             pm.worked(1);
         } finally {
@@ -407,7 +424,7 @@ public class ChrisProductReader extends AbstractProductReader {
             for (int i = 0; i < targetHeight; ++i) {
                 //noinspection SuspiciousSystemArraycopy
                 System.arraycopy(maskData, targetOffsetX + i * sceneRasterWidth, targetBuffer.getElems(),
-                        i * targetWidth, targetWidth);
+                                 i * targetWidth, targetWidth);
                 pm.worked(1);
             }
         } finally {
@@ -423,11 +440,11 @@ public class ChrisProductReader extends AbstractProductReader {
         if (maskBand.hasRasterData()) {
             //noinspection SuspiciousSystemArraycopy
             System.arraycopy(maskBand.getRasterData().getElems(), tileOffsetY * sceneRasterWidth,
-                    maskData, 0, maskData.length);
+                             maskData, 0, maskData.length);
             if (rciBand.hasRasterData()) {
                 //noinspection SuspiciousSystemArraycopy
                 System.arraycopy(rciBand.getRasterData().getElems(), tileOffsetY * sceneRasterWidth,
-                        rciData, 0, rciData.length);
+                                 rciData, 0, rciData.length);
             } else {
                 chrisFile.readRciData(bandIndex, 0, tileOffsetY, 1, 1, sceneRasterWidth, tileHeight, rciData);
             }
