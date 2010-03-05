@@ -27,7 +27,7 @@ class SpectrumGraph extends AbstractDiagramGraph {
     private final Range energyRange;
     private final Range wavelengthRange;
 
-    public SpectrumGraph(Placemark placemark, Band[] bands) {
+    SpectrumGraph(Placemark placemark, Band[] bands) {
         Debug.assertNotNull(bands);
         this.placemark = placemark;
         this.bands = bands;
@@ -40,38 +40,47 @@ class SpectrumGraph extends AbstractDiagramGraph {
         return placemark;
     }
 
+    @Override
     public String getXName() {
         return "Wavelength";
     }
 
+    @Override
     public String getYName() {
         return placemark != null ? placemark.getLabel() : "Cursor";
     }
 
+    @Override
     public int getNumValues() {
         return bands.length;
     }
 
+    @Override
     public double getXValueAt(int index) {
         return wavelengths[index];
     }
 
+    @Override
     public double getYValueAt(int index) {
         return energies[index];
     }
 
+    @Override
     public double getXMin() {
         return wavelengthRange.getMin();
     }
 
+    @Override
     public double getXMax() {
         return wavelengthRange.getMax();
     }
 
+    @Override
     public double getYMin() {
         return energyRange.getMin();
     }
 
+    @Override
     public double getYMax() {
         return energyRange.getMax();
     }
@@ -84,6 +93,7 @@ class SpectrumGraph extends AbstractDiagramGraph {
         Debug.assertNotNull(bands);
         this.bands = bands.clone();
         Arrays.sort(this.bands, new Comparator<Band>() {
+            @Override
             public int compare(Band band1, Band band2) {
                 final float v = band1.getSpectralWavelength() - band2.getSpectralWavelength();
                 return v < 0.0F ? -1 : v > 0.0F ? 1 : 0;
