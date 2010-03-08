@@ -236,10 +236,6 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                         pixelY = placemark.getPixelPos().y;
                     }
                     placemark.setPixelPos(new PixelPos((Float) value, pixelY));
-//                    GeoPos geoPos = placemarkDescriptor.updateGeoPos(product.getGeoCoding(),
-//                                                                     placemark.getPixelPos(),
-//                                                                     placemark.getGeoPos());
-//                    placemark.setGeoPos(geoPos);
                 }
             } else if (columnIndex == 1) {
                 if (value instanceof Float) {
@@ -250,10 +246,6 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                         pixelX = placemark.getPixelPos().x;
                     }
                     placemark.setPixelPos(new PixelPos(pixelX, (Float) value));
-//                    GeoPos geoPos = placemarkDescriptor.updateGeoPos(product.getGeoCoding(),
-//                                                                     placemark.getPixelPos(),
-//                                                                     placemark.getGeoPos());
-//                    placemark.setGeoPos(geoPos);
                 }
             } else if (columnIndex == 2) {
                 if (value instanceof Float) {
@@ -264,10 +256,6 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                         lat = placemark.getGeoPos().lat;
                     }
                     placemark.setGeoPos(new GeoPos(lat, (Float) value));
-//                    PixelPos pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(),
-//                                                                           placemark.getGeoPos(),
-//                                                                           placemark.getPixelPos());
-//                    placemark.setPixelPos(pixelPos);
                 }
             } else if (columnIndex == 3) {
                 if (value instanceof Float) {
@@ -278,10 +266,6 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                         lon = placemark.getGeoPos().lon;
                     }
                     placemark.setGeoPos(new GeoPos((Float) value, lon));
-//                    PixelPos pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(),
-//                                                                           placemark.getGeoPos(),
-//                                                                           placemark.getPixelPos());
-//                    placemark.setPixelPos(pixelPos);
                 }
             } else if (columnIndex == getStandardColumnNames().length - 1) {
                 String strValue = value.toString();
