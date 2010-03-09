@@ -82,7 +82,7 @@ class MaskFormActions {
                 new NewDifferenceAction(maskForm), new NewInvDifferenceAction(maskForm),
                 new NewComplementAction(maskForm), new NullAction(maskForm),
                 new CopyAction(maskForm), new EditAction(maskForm),
-                new RemoveAction(maskForm),new TransferAction(maskForm),
+                new RemoveAction(maskForm), new TransferAction(maskForm),
                 new ImportAction(maskToolView, maskForm), new ExportAction(maskToolView, maskForm),
                 new ZoomToVectorMaskAction(maskToolView, maskForm), new NullAction(maskForm),
         };
@@ -152,7 +152,8 @@ class MaskFormActions {
     private static class NewBandMathsAction extends BandMathsAction {
 
         private NewBandMathsAction(MaskForm maskForm) {
-            super(maskForm, "BandMath24.png", "bandMathButton", "Creates a new mask based on a logical band maths expression");
+            super(maskForm, "BandMath24.png", "bandMathButton",
+                  "Creates a new mask based on a logical band maths expression");
         }
 
         @Override
@@ -386,12 +387,13 @@ class MaskFormActions {
     private static class RemoveAction extends MaskAction {
 
         private RemoveAction(MaskForm maskForm) {
-            super(maskForm, "icons/Remove24.gif", "editButton", "Remove the selected mask.");
+            super(maskForm, "icons/Remove24.gif", "removeButton", "Remove the selected mask.");
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
             Mask[] selectedMasks = getMaskForm().getSelectedMasks();
+            getMaskForm().getMaskTable().clearSelection();
             RasterDataNodeDeleter.deleteRasterDataNodes(selectedMasks);
         }
 
@@ -836,7 +838,7 @@ class MaskFormActions {
             int height = targetProduct.getSceneRasterHeight();
             String description = mask.getDescription() + " (from " + mask.getProduct().getDisplayName() + ")";
             Mask targetMask = Mask.BandMathsType.create(maskName, description, width, height,
-                                                       bandName, mask.getImageColor(), mask.getImageTransparency());
+                                                        bandName, mask.getImageColor(), mask.getImageTransparency());
             targetProduct.getMaskGroup().add(targetMask);
             return band;
         }
@@ -859,7 +861,7 @@ class MaskFormActions {
             return foundName;
         }
     }
-    
+
     private static class ZoomToVectorMaskAction extends MaskAction {
 
         private final AbstractToolView toolView;
@@ -874,9 +876,9 @@ class MaskFormActions {
         void updateState() {
             setEnabled(getMaskForm().getSelectedRowCount() == 1 &&
                        VisatApp.getApp().getSelectedProductSceneView() != null);
-            
+
         }
-        
+
         @Override
         public void actionPerformed(ActionEvent e) {
             Mask mask = getMaskForm().getSelectedMask();
@@ -887,7 +889,8 @@ class MaskFormActions {
                 if (imageType == Mask.VectorDataType.INSTANCE) {
                     modelBounds = handleVectorMask(mask);
                 } else {
-                    modelBounds = handleImageMask(mask, productSceneView.getBaseImageLayer().getImageToModelTransform());
+                    modelBounds = handleImageMask(mask,
+                                                  productSceneView.getBaseImageLayer().getImageToModelTransform());
                 }
                 if (modelBounds != null) {
                     Viewport viewport = productSceneView.getViewport();
@@ -913,11 +916,11 @@ class MaskFormActions {
             ReferencedEnvelope envelope = vectorData.getEnvelope();
             if (!envelope.isEmpty()) {
                 return new Rectangle2D.Double(envelope.getMinX(), envelope.getMinY(),
-                        envelope.getWidth(), envelope.getHeight());
+                                              envelope.getWidth(), envelope.getHeight());
             }
             return null;
         }
-        
+
         private Rectangle2D handleImageMask(Mask mask, AffineTransform i2m) {
             RenderedImage image = mask.getSourceImage().getImage(0);
             final int minTileX = image.getMinTileX();
@@ -930,7 +933,7 @@ class MaskFormActions {
             int maxX = 0;
             int minY = height;
             int maxY = 0;
-            
+
             for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
                 for (int tileY = minTileY; tileY < minTileY + numYTiles; ++tileY) {
                     final Raster data = image.getTile(tileX, tileY);

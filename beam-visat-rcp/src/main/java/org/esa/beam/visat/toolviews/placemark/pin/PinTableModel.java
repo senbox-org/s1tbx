@@ -37,6 +37,11 @@ public class PinTableModel extends AbstractPlacemarkTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
+        if (getProduct().getGeoCoding() == null &&
+            (columnIndex == 2 || columnIndex == 3)) {
+            return false;
+        }
+        
         return columnIndex < getStandardColumnNames().length;
     }
 
