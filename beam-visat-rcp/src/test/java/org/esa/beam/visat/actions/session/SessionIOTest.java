@@ -43,7 +43,6 @@ public class SessionIOTest extends TestCase {
         final StringWriter writer = new StringWriter();
         SessionIO.getInstance().writeSession(session1, writer);
         final String xml = writer.toString();
-        System.out.println("Session XML:\n" + xml);
         final StringReader reader = new StringReader(xml);
         final Session session2 = SessionIO.getInstance().readSession(reader);
         testSession(session2);
