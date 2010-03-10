@@ -28,8 +28,9 @@ public class AlgorithmFactory implements AlgorithmCreator {
      * Retrieves an algorithm object specified by the identifier string passed in.
      *
      * @param algoName the algorithm name
-     * @throws IllegalArgumentException if the requested algorithm is unkown
+     * @throws IllegalArgumentException if the requested algorithm is unknown
      */
+    @Override
     public Algorithm getAlgorithm(String algoName) throws IllegalArgumentException {
         Guardian.assertNotNull("algoName", algoName);
 

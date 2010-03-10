@@ -91,7 +91,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
             storeContext();
 
         } catch (IOException e) {
-            throw new ProcessorException("An I/O error occured:\n" + e.getMessage(), e);
+            throw new ProcessorException("An I/O error occurred:\n" + e.getMessage(), e);
         }
     }
 
@@ -182,26 +182,26 @@ public class L3UpdateProcessor extends L3SubProcessor {
      *
      * @param ref the <code>ProductRef</code> designating the product to be loaded
      * @return the loaded and validated product
-     * @throws ProcessorException if the product can not be used for processing
      */
-    protected Product loadValidatedProduct(ProductRef ref) throws ProcessorException {
+    protected Product loadValidatedProduct(ProductRef ref)  {
         try {
             Product prod = ProductIO.readProduct(ref.getFile());
             if (prod == null) {
-               throw new ProcessorException("Unknown type of product.");
+               handleError(ref, "Unknown type of product.");
             } else if (!productContainsBands(prod)) {
-                throw new ProcessorException("The product does not contain all the bands expected.");
+                handleError(ref, "The product does not contain all the bands expected.");
             } else if (!bitmasksAreApplicable(prod)) {
-                throw new ProcessorException("The bitmasks are not applicable to this product");
+                handleError(ref, "The bitmasks are not applicable to this product");
             } else if (!productIsInArea(prod)) {
-                throw new ProcessorException("The product does not intersect area of interest.");
+                handleError(ref, "The product does not intersect area of interest.");
             } else {
                 return prod;
             }
-
         } catch (IOException e) {
-            throw new ProcessorException(e.getMessage(),e);
+            e.printStackTrace();
+            handleError(ref, e.getMessage());
         }
+        return null;
     }
 
     private void handleError(ProductRef ref, String messagePart2) {
