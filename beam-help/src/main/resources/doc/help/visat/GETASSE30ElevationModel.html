@@ -20,10 +20,8 @@
 <p>
     GETASSE30 stands for <b>G</b>lobal <b>E</b>arth <b>T</b>opography <b>A</b>nd <b>S</b>ea <b>S</b>urface <b>E</b>levation
     at <b>30</b> arc second resolution. This elevation model is currently BEAM's default DEM and has kindly been
-    provided
-    to the BEAM development team by Marc Bouvet (marc.bouvet@esa.int) of ESA/ESRIN. This documentation is also by
-    courtesy
-    of Marc Bouvet.
+    provided to the BEAM development team by Marc Bouvet (marc.bouvet@esa.int) of ESA/ESRIN. This documentation is also by
+    courtesy of Marc Bouvet.
 
 <p>Because of its size, the BEAM installer will not automatically install the GETASSE30 DEM files. But at first use
     VISAT will offer to download the DEM for you, alternatively the GETASSE30 dataset can be manually downloaded
@@ -32,9 +30,9 @@
     connection is fast enough. If you like to install by yourself, please follow the instructions given here:
     <ol>
         <li>Download <code>GETASSE30.zip</code> from the BEAM home page.</li>
-        <li>Create directory <code>${BEAM-INSTALL-DIR}/auxdata/dem/GETASSE30</code></li>
+        <li>Create directory <code>${USER_HOME}/.beam/beam-core/auxdata/dem/GETASSE30</code></li>
         <li>The simplest way is unzip the <code>GETASSE30.zip</code> and copy the files into
-            <p><code>${BEAM-INSTALL-DIR}/auxdata/dem/GETASSE30/</code>.</p>
+            <p><code>${USER_HOME}/.beam/beam-core/auxdata/dem/GETASSE30/</code>.</p>
             The DEM is now installed.</li>
     </ol>
 
@@ -45,7 +43,7 @@
     <ol start=4>
         <li>Copy the unzipped GETASSE30 dataset to a location accessible
             by your BEAM installation(s). This directory we call <code>${SHARED_GETASSE30}</code> from now on.</li>
-        <li>Create a file named "dem.properties" in <code>${BEAM-INSTALL-DIR}/auxdata/dem/GETASSE30/</code> and open the
+        <li>Create a file named "dem.properties" in <code>${USER_HOME}/.beam/beam-core/auxdata/dem/GETASSE30/</code> and open the
             new
             file in a text editor. <br>
             Add the following line <p><code>dem.installDir = ${SHARED_GETASSE30}</code></p> to it and don't forget to
