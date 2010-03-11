@@ -40,7 +40,7 @@
     <repositories>
         <repository>
             <id>bc-mvn</id>
-            <name>Public Maven Repository at Brockmann-Consult</name>
+            <name>Public Maven Repository at Brockmann Consult</name>
             <url>http://www.brockmann-consult.de/mvn/os</url>
             <releases>
                 <enabled>true</enabled>
@@ -71,7 +71,7 @@
     <pluginRepositories>
         <pluginRepository>
             <id>bc-mvn-repo</id>
-            <name>Public Maven Repository at Brockmann-Consult</name>
+            <name>Public Maven Repository at Brockmann Consult</name>
             <url>http://www.brockmann-consult.de/mvn/os</url>
             <releases>
                 <enabled>true</enabled>
