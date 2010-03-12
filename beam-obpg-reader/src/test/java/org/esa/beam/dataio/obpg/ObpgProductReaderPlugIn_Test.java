@@ -34,10 +34,13 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
         final String[] fileExtensions = plugIn.getDefaultFileExtensions();
 
         assertNotNull(fileExtensions);
-        assertEquals(3, fileExtensions.length);
+        assertEquals(6, fileExtensions.length);
         assertEquals(".hdf", fileExtensions[0]);
         assertEquals(".L2_LAC", fileExtensions[1]);
-        assertEquals(".L2_MLAC", fileExtensions[2]);
+        assertEquals(".L2_LAC_OC", fileExtensions[2]);
+        assertEquals(".L2_LAC_SST", fileExtensions[3]);
+        assertEquals(".L2_LAC_SST4", fileExtensions[4]);
+        assertEquals(".L2_MLAC", fileExtensions[5]);
     }
 
     public void testCreateReaderInstance() {
@@ -71,10 +74,13 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
         assertNotNull(beamFileFilter);
         final String[] extensions = beamFileFilter.getExtensions();
         assertNotNull(extensions);
-        assertEquals(3, extensions.length);
+        assertEquals(6, extensions.length);
         assertEquals(".hdf", extensions[0]);
         assertEquals(".L2_LAC", extensions[1]);
-        assertEquals(".L2_MLAC", extensions[2]);
+        assertEquals(".L2_LAC_OC", extensions[2]);
+        assertEquals(".L2_LAC_SST", extensions[3]);
+        assertEquals(".L2_LAC_SST4", extensions[4]);
+        assertEquals(".L2_MLAC", extensions[5]);
         assertEquals("NASA-OBPG", beamFileFilter.getFormatName());
     }
 

@@ -12,13 +12,10 @@
  */
 package org.esa.beam.dataio.obpg;
 
-import org.esa.beam.dataio.obpg.ObpgUtils;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileFilter;
-
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 
@@ -28,9 +25,12 @@ import java.util.Locale;
 
 public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
 
-    public static final String DEFAULT_FILE_EXTENSION = ".hdf";
-    public static final String DEFAULT_FILE_EXTENSION_L2_LAC = ".L2_LAC";
-    public static final String DEFAULT_FILE_EXTENSION_L2_MLAC = ".L2_MLAC";
+    private static final String DEFAULT_FILE_EXTENSION = ".hdf";
+    private static final String DEFAULT_FILE_EXTENSION_L2_LAC = ".L2_LAC";
+    private static final String DEFAULT_FILE_EXTENSION_L2_LAC_OC = DEFAULT_FILE_EXTENSION_L2_LAC + "_OC";
+    private static final String DEFAULT_FILE_EXTENSION_L2_LAC_SST = DEFAULT_FILE_EXTENSION_L2_LAC + "_SST";
+    private static final String DEFAULT_FILE_EXTENSION_L2_LAC_SST4 = DEFAULT_FILE_EXTENSION_L2_LAC + "_SST4";
+    private static final String DEFAULT_FILE_EXTENSION_L2_MLAC = ".L2_MLAC";
     public static final String READER_DESCRIPTION = "NASA Ocean Color (OBPG) Products";
     public static final String FORMAT_NAME = "NASA-OBPG";
 
@@ -42,12 +42,11 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
             "OCTS Level-2 Data"
     };
 
-    ObpgUtils utils = new ObpgUtils();
-
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      */
+    @Override
     public DecodeQualification getDecodeQualification(Object input) {
         final File file = getInputFile(input);
         NetcdfFile ncfile = null;
@@ -60,8 +59,11 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
             if (titleAttribute != null) {
                 final String value = titleAttribute.getStringValue();
                 if (value != null) {
-                    if (StringUtils.containsIgnoreCase(magicStrings, value.trim())) {
-                        return DecodeQualification.INTENDED;
+                    final String title = value.trim();
+                    for (String magicString : magicStrings) {
+                        if(title.contains(magicString)) {
+                            return DecodeQualification.INTENDED;
+                        }
                     }
                 }
             }
@@ -83,9 +85,10 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      * <p> Intances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
      * <code>ProductReader</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
      * case).
-     *
+     *                                                                         C:\Dokumente und Einstellungen\Marco Peters\Eigene Dateien\EOData\SMOS\SMOS-DPSG-V3\L1C\SM_TEST_MIR_SCLF1C_20070223T061043_20070223T061048_161_001_0
      * @return an array containing valid input types, never <code>null</code>
      */
+    @Override
     public Class[] getInputTypes() {
         return new Class[]{String.class, File.class};
     }
@@ -95,10 +98,12 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return a new reader instance, never <code>null</code>
      */
+    @Override
     public ProductReader createReaderInstance() {
         return new ObpgProductReader(this);
     }
 
+    @Override
     public BeamFileFilter getProductFileFilter() {
         String[] formatNames = getFormatNames();
         String formatName = "";
@@ -110,14 +115,20 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
 
     /**
      * Gets the default file extensions associated with each of the format names returned by the <code>{@link
-     * #getFormatNames}</code> method. <p>The string array returned shall always have the same lenhth as the array
+     * #getFormatNames}</code> method. <p>The string array returned shall always have the same length as the array
      * returned by the <code>{@link #getFormatNames}</code> method. <p>The extensions returned in the string array shall
      * always include a leading colon ('.') character, e.g. <code>".hdf"</code>
      *
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getDefaultFileExtensions() {
-        return new String[]{DEFAULT_FILE_EXTENSION, DEFAULT_FILE_EXTENSION_L2_LAC, DEFAULT_FILE_EXTENSION_L2_MLAC};
+        return new String[]{DEFAULT_FILE_EXTENSION,
+                DEFAULT_FILE_EXTENSION_L2_LAC,
+                DEFAULT_FILE_EXTENSION_L2_LAC_OC,
+                DEFAULT_FILE_EXTENSION_L2_LAC_SST,
+                DEFAULT_FILE_EXTENSION_L2_LAC_SST4,
+                DEFAULT_FILE_EXTENSION_L2_MLAC};
     }
 
     /**
@@ -130,6 +141,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return a textual description of this product reader/writer
      */
+    @Override
     public String getDescription(Locale locale) {
         return READER_DESCRIPTION;
     }
@@ -139,6 +151,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getFormatNames() {
         return new String[]{FORMAT_NAME};
     }
@@ -146,7 +159,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
     private File getInputFile(Object input) {
         try {
             return ObpgUtils.getInputFile(input);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
             //ignore
         }
         return null;

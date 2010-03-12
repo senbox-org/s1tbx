@@ -31,6 +31,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      */
+    @Override
     public DecodeQualification getDecodeQualification(Object input) {
         final File file;
         if (input instanceof String) {
@@ -76,6 +77,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return an array containing valid input types, never <code>null</code>
      */
+    @Override
     public Class[] getInputTypes() {
         return new Class[]{String.class, File.class};
     }
@@ -85,10 +87,12 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return a new reader instance, never <code>null</code>
      */
+    @Override
     public ProductReader createReaderInstance() {
         return new ChrisProductReader(this);
     }
 
+    @Override
     public BeamFileFilter getProductFileFilter() {
         String[] formatNames = getFormatNames();
         String formatName = "";
@@ -106,6 +110,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getDefaultFileExtensions() {
         return new String[]{ChrisConstants.DEFAULT_FILE_EXTENSION};
     }
@@ -120,6 +125,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return a textual description of this product reader/writer
      */
+    @Override
     public String getDescription(Locale locale) {
         return ChrisConstants.READER_DESCRIPTION;
     }
@@ -129,6 +135,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getFormatNames() {
         return new String[]{ChrisConstants.FORMAT_NAME};
     }
