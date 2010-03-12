@@ -426,7 +426,7 @@ class LayerManagerForm extends AbstractLayerForm {
             if (selectedLayer != null) {
                 removeTransparencyChangeListener(selectedLayer);
             }
-            selectedLayer = getLayer(event.getPath());
+            selectedLayer = getLayer(event.getNewLeadSelectionPath());
             if (selectedLayer != null) {
                 installTransparencyChangeListener(selectedLayer);
             }
