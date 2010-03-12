@@ -1,0 +1,93 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-spot-vgt-reader</symbolicName>
+    <version>1.0</version>
+    <name>BEAM SPOT VGT Product Reader</name>
+
+    <description>Enables BEAM to read SPOT VGT data products.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+        ]]>
+    </changelog>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>lib-netcdf</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+
+    <categories>Reader,CHRIS</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <id>importSpotVgtProduct</id>
+            <helpId>importSpotVgtProduct</helpId>
+            <formatName>SPOT-VGT</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>Import SPOT VGT Product...</text>
+            <mnemonic>M</mnemonic>
+            <shortDescr>Import a SPOT VGT data product or product subset.</shortDescr>
+            <description>Import a SPOT VGT data product or product subset.</description>
+        </action>
+    </extension>
+          
+    <extension point="beam-core:rgbProfiles">
+        <rgbProfile>
+            <name>CHRIS/Proba - Mode 0</name>
+            <red>radiance_3</red>
+            <green>radiance_2</green>
+            <blue>radiance_1</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>CHRIS/Proba - Mode 1</name>
+            <red>radiance_23</red>
+            <green>radiance_13</green>
+            <blue>radiance_3</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>CHRIS/Proba - Mode 2</name>
+            <red>radiance_10</red>
+            <green>radiance_6</green>
+            <blue>radiance_2</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>CHRIS/Proba - Mode 3</name>
+            <red>radiance_7</red>
+            <green>radiance_4</green>
+            <blue>radiance_1</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>CHRIS/Proba - Mode 3A</name>
+            <red>radiance_8</red>
+            <green>radiance_5</green>
+            <blue>radiance_2</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>CHRIS/Proba - Mode 4</name>
+            <red>radiance_4</red>
+            <green>radiance_2</green>
+            <blue>radiance_1</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>CHRIS/Proba - Mode 5</name>
+            <red>radiance_7</red>
+            <green>radiance_4</green>
+            <blue>radiance_1</blue>
+        </rgbProfile>
+    </extension>
+
+</module>
