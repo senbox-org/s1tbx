@@ -88,7 +88,9 @@ public class ProductProjectionBuilderTest extends TestCase {
         assertEquals(pin.getGeoPos().lon, pin2.getGeoPos().lon, 1.0e-4f);
         assertEquals(gcp.getGeoPos().lat, gcp2.getGeoPos().lat, 1.0e-4f);
         assertEquals(gcp.getGeoPos().lon, gcp2.getGeoPos().lon, 1.0e-4f);
-        assertFalse(pin2.getPixelPos().isValid());
-        assertFalse(gcp2.getPixelPos().isValid());
+        assertEquals(54.7000, pin2.getPixelPos().x, 1.0e-4f);
+        assertEquals(-86.3562, pin2.getPixelPos().y, 1.0e-4f);
+        assertEquals(54.7428, gcp2.getPixelPos().x, 1.0e-4f);
+        assertEquals(-86.3812, gcp2.getPixelPos().y, 1.0e-4f);
     }
 }

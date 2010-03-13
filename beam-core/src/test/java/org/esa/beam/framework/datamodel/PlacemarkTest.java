@@ -132,8 +132,8 @@ public class PlacemarkTest extends TestCase {
         final String[] expectedPropertyNames = new String[]{
                 null,
                 ProductNode.PROPERTY_NAME_DESCRIPTION,
-                Placemark.PROPERTY_NAME_GEOPOS,
                 Placemark.PROPERTY_NAME_PIXELPOS,
+                Placemark.PROPERTY_NAME_GEOPOS,
                 Placemark.PROPERTY_NAME_PINSYMBOL,
                 null
         };
