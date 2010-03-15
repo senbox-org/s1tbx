@@ -8,6 +8,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -85,12 +87,19 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
     }
 
     private ProductSceneView getProductSceneView(MouseEvent event) {
-        if (event.getComponent() instanceof ProductSceneView) {
-            return (ProductSceneView) event.getComponent();
+        final Component eventComponent = event.getComponent();
+        if (eventComponent instanceof ProductSceneView) {
+            return (ProductSceneView) eventComponent;
         }
-        if (event.getComponent().getParent() instanceof ProductSceneView) {
-            return (ProductSceneView) event.getComponent().getParent();
+        final Container parentComponent = eventComponent.getParent();
+        if (parentComponent instanceof ProductSceneView) {
+            return (ProductSceneView) parentComponent;
         }
+        // Case: Scroll bars are displayed
+        if (parentComponent.getParent() instanceof ProductSceneView) {
+            return (ProductSceneView) parentComponent.getParent();
+        }
+
         return null;
     }
 }
