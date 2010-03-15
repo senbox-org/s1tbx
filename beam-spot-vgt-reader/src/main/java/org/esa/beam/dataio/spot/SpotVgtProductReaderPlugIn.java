@@ -1,0 +1,140 @@
+/*
+ * Copyright (C) 2010  by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ */
+package org.esa.beam.dataio.spot;
+
+import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.io.BeamFileFilter;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.Locale;
+
+public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
+    public static final HdfFilenameFilter HDF_FILTER = new HdfFilenameFilter();
+
+    /**
+     * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
+     * is capable of decoding the input's content.
+     */
+    public DecodeQualification getDecodeQualification(Object input) {
+        File file = getFileInput(input);
+        if (file == null) {
+            return DecodeQualification.UNABLE;
+        }
+        if (file.isFile() && SpotVgtConstants.PHYS_VOL_FILENAME.equals(file.getName())) {
+            File dataDir = new File(file.getParentFile(), "0001");
+            if (dataDir.exists()) {
+                String[] hdfFileNames = dataDir.list(HDF_FILTER);
+                if (hdfFileNames != null && hdfFileNames.length > 0) {
+                    return (hdfFileNames.length == 11) ? DecodeQualification.INTENDED : DecodeQualification.SUITABLE;
+                }
+            }
+        }
+
+        return DecodeQualification.UNABLE;
+    }
+
+    static File getFileInput(Object input) {
+        File file = null;
+        if (input instanceof String) {
+            file = new File((String) input);
+        } else if (input instanceof File) {
+            file = (File) input;
+        }
+        return file;
+    }
+
+    /**
+     * Returns an array containing the classes that represent valid input types for this reader.
+     * <p/>
+     * <p> Intances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
+     * <code>ProductReader</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
+     * case).
+     *
+     * @return an array containing valid input types, never <code>null</code>
+     */
+    public Class[] getInputTypes() {
+        return new Class[]{String.class, File.class};
+    }
+
+    /**
+     * Creates an instance of the actual product reader class. This method should never return <code>null</code>.
+     *
+     * @return a new reader instance, never <code>null</code>
+     */
+    public ProductReader createReaderInstance() {
+        return new SpotVgtProductReader(this);
+    }
+
+    /**
+     * Gets an instance of {@link org.esa.beam.util.io.BeamFileFilter} for use in a {@link javax.swing.JFileChooser JFileChooser}.
+     *
+     * @return a file filter
+     */
+    public BeamFileFilter getProductFileFilter() {
+        return new BeamFileFilter(SpotVgtConstants.FORMAT_NAME,
+                                  getDefaultFileExtensions(),
+                                  getDescription(null));
+    }
+
+    /**
+     * Gets the default file extensions associated with each of the format names returned by the <code>{@link
+     * #getFormatNames}</code> method. <p>The string array returned shall always have the same lenhth as the array
+     * returned by the <code>{@link #getFormatNames}</code> method. <p>The extensions returned in the string array shall
+     * always include a leading colon ('.') character, e.g. <code>".hdf"</code>
+     *
+     * @return the default file extensions for this product I/O plug-in, never <code>null</code>
+     */
+    public String[] getDefaultFileExtensions() {
+        return new String[]{
+                SpotVgtConstants.FILE_EXTENSION.toUpperCase(),
+                SpotVgtConstants.FILE_EXTENSION.toLowerCase()
+        };
+    }
+
+    /**
+     * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
+     * used.
+     * <p/>
+     * <p> In a GUI, the description returned could be used as tool-tip text.
+     *
+     * @param locale the local for the given decription string, if <code>null</code> the default locale is used
+     * @return a textual description of this product reader/writer
+     */
+    public String getDescription(Locale locale) {
+        return SpotVgtConstants.READER_DESCRIPTION;
+    }
+
+    /**
+     * Gets the names of the product formats handled by this product I/O plug-in.
+     *
+     * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
+     */
+    public String[] getFormatNames() {
+        return new String[]{SpotVgtConstants.FORMAT_NAME};
+    }
+
+    static String getBandName(File hdfFile) {
+        String name = hdfFile.getName();
+        int p1 = name.indexOf("_");
+        int p2 = name.lastIndexOf('.');
+        return name.substring(p1 == -1 ? 0 : p1 + 1, p2);
+    }
+
+    private static class HdfFilenameFilter implements FilenameFilter {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.endsWith(".hdf") || name.endsWith(".HDF");
+        }
+    }
+}

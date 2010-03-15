@@ -95,7 +95,7 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
     }
 
     /**
-     * Creates a new raster containing no interpretable data. The raster's
+     * Creates a new raster containing solely no-data (non-interpretable data, missing data) samples. The raster's
      * data buffer is filled with the given no-data value.
      * <p/>
      * The raster's origin is (0, 0). In order to translate the raster,
