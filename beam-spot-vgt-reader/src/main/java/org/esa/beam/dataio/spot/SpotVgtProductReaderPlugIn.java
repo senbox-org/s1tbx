@@ -10,17 +10,21 @@
  */
 package org.esa.beam.dataio.spot;
 
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Locale;
 
 public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
-    public static final HdfFilenameFilter HDF_FILTER = new HdfFilenameFilter();
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -32,27 +36,23 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
         if (file.isFile() && SpotVgtConstants.PHYS_VOL_FILENAME.equals(file.getName())) {
-            File dataDir = new File(file.getParentFile(), "0001");
-            if (dataDir.exists()) {
-                String[] hdfFileNames = dataDir.list(HDF_FILTER);
+            PhysVolDescriptor physVolDescriptor;
+            try {
+                physVolDescriptor = new PhysVolDescriptor(file);
+            } catch (IOException e) {
+                return DecodeQualification.UNABLE;
+            }
+            File dataDir = physVolDescriptor.getDataDir();
+            if (dataDir != null && dataDir.exists()) {
+                String[] hdfFileNames = dataDir.list(SpotVgtConstants.HDF_FILTER);
                 if (hdfFileNames != null && hdfFileNames.length > 0) {
                     return (hdfFileNames.length == 11) ? DecodeQualification.INTENDED : DecodeQualification.SUITABLE;
                 }
             }
         }
-
         return DecodeQualification.UNABLE;
     }
 
-    static File getFileInput(Object input) {
-        File file = null;
-        if (input instanceof String) {
-            file = new File((String) input);
-        } else if (input instanceof File) {
-            file = (File) input;
-        }
-        return file;
-    }
 
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
@@ -131,10 +131,42 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
         return name.substring(p1 == -1 ? 0 : p1 + 1, p2);
     }
 
-    private static class HdfFilenameFilter implements FilenameFilter {
-        @Override
-        public boolean accept(File dir, String name) {
-            return name.endsWith(".hdf") || name.endsWith(".HDF");
+    static PropertySet readPhysVolDescriptor(File inputFile) throws IOException {
+        return readKeyValuePairs(inputFile);
+    }
+
+    static PropertySet readKeyValuePairs(File inputFile) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+        try {
+            PropertySet headerProperties = new PropertyContainer();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                int i = line.indexOf(' ');
+                String key, value;
+                if (i > 0) {
+                    key = line.substring(0, i);
+                    value = line.substring(i + 1).trim();
+                } else {
+                    key = line;
+                    value = "";
+                }
+                headerProperties.addProperty(Property.create(key, value));
+            }
+            return headerProperties;
+        } finally {
+            reader.close();
         }
     }
+
+    static File getFileInput(Object input) {
+        File file = null;
+        if (input instanceof String) {
+            file = new File((String) input);
+        } else if (input instanceof File) {
+            file = (File) input;
+        }
+        return file;
+    }
+
 }

@@ -10,31 +10,21 @@
  */
 package org.esa.beam.dataio.spot;
 
+import java.io.File;
+import java.io.FilenameFilter;
+
 public class SpotVgtConstants {
 
     public static final String PHYS_VOL_FILENAME = "PHYS_VOL.TXT";
-
     public static final String FILE_EXTENSION = "TXT";
-    public static final String DEFAULT_DATA_DIR_NAME = "0001";
     public static final String READER_DESCRIPTION = "SPOT VGT Data Products";
     public static final String FORMAT_NAME = "SPOT-VGT";
+    public static final HdfFilenameFilter HDF_FILTER = new HdfFilenameFilter();
 
-    // Meta data attributes
-    public static final String ATTR_NAME_IMAGE_NUMBER = "Image Number";
-    public static final String ATTR_NAME_CHRIS_MODE = "CHRIS Mode";
-    public static final String ATTR_NAME_NUMBER_OF_SAMPLES = "Number of Samples";
-    public static final String ATTR_NAME_NUMBER_OF_GROUND_LINES = "Number of Ground Lines";
-    public static final String ATTR_NAME_IMAGE_FLIPPED_ALONG_TRACK = "Image Flipped Along-Track";
-
-
-    // Scientific data set names
-    static final String SDS_NAME_RCI_IMAGE = "RCI Image";
-    static final String SDS_NAME_MASK = "Saturation/Reset Mask";
-
-    static final String VS_NAME_GAIN_INFO = "Gain Information";
-    static final String VS_NAME_GAIN_SETTING = "Gain Setting";
-    static final String VS_NAME_GAIN_VALUE = "Gain Value";
-    static final String VS_NAME_MODE_INFO = "Mode Information";
-    static final String[] VS_NAME_MODE_FIELDS = {"WlLow","WlHigh","WlMid","BWidth","Gain","Low Row","High Row"};
-
+    private static class HdfFilenameFilter implements FilenameFilter {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.endsWith(".hdf") || name.endsWith(".HDF");
+        }
+    }
 }

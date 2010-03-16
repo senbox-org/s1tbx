@@ -151,6 +151,7 @@
         <module>beam-modis-reader</module>
         <module>beam-obpg-reader</module>
         <module>beam-chris-reader</module>
+        <module>beam-spot-vgt-reader</module>
         <module>beam-landsat-reader</module>
         <module>beam-geotiff</module>
         <module>beam-hdf5-writer</module>
