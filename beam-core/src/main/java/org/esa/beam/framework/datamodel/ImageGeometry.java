@@ -22,7 +22,6 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.measure.unit.SI;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
