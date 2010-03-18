@@ -132,6 +132,14 @@ public class CrsGeoCodingTest {
         assertFalse(destScene.getGeoCoding().isCrossingMeridianAt180());
     }
 
+    @Test
+    public void testWholeWorld() throws Exception {
+        final Rectangle imageBounds = new Rectangle(10, 20);
+        srcGeoCoding = createCrsGeoCodingCoveringWholeWorld(imageBounds);
+
+        assertFalse(srcGeoCoding.isCrossingMeridianAt180());
+    }
+
     private void comparePixelPos(GeoCoding destGeoCoding, PixelPos pixelPos, PixelPos pixelPos1) {
         GeoPos srcPos = srcGeoCoding.getGeoPos(pixelPos, null);
         GeoPos destPos = destGeoCoding.getGeoPos(pixelPos1, null);
@@ -156,6 +164,17 @@ public class CrsGeoCodingTest {
         i2m.translate(easting, northing);
         final int scaleX = 1;
         final int scaleY = 1;
+        i2m.scale(scaleX, -scaleY);
+        return new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, i2m);
+    }
+    
+    private CrsGeoCoding createCrsGeoCodingCoveringWholeWorld(Rectangle imageBounds) throws Exception {
+        AffineTransform i2m = new AffineTransform();
+        final int northing = 60;
+        final int easting = -180;
+        i2m.translate(easting, northing);
+        final double scaleX = 360/imageBounds.getWidth();
+        final double scaleY = 1.0;
         i2m.scale(scaleX, -scaleY);
         return new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, i2m);
     }

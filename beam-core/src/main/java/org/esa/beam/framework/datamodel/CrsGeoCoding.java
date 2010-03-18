@@ -1,5 +1,6 @@
 package org.esa.beam.framework.datamodel;
 
+import com.vividsolutions.jts.geom.Envelope;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
@@ -13,7 +14,6 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.AbstractCoordinateOperationFactory;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.resources.CRSUtilities;
-import org.opengis.geometry.BoundingBox;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -39,7 +39,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     public CrsGeoCoding(final CoordinateReferenceSystem mapCRS,
                         final Rectangle imageBounds,
                         final AffineTransform imageToMap) throws FactoryException,
-            TransformException {
+                                                                 TransformException {
         this.imageBounds = imageBounds;
         this.imageToMap = imageToMap;
         setMapCRS(mapCRS);
@@ -62,7 +62,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         } else {
             setGeoCRS(DefaultGeographicCRS.WGS84);
         }
-        
+
         setImageCRS(createImageCRS(mapCRS, i2m.inverse()));
 
         MathTransform map2Geo = CRS.findMathTransform(mapCRS, getGeoCRS(), true);
@@ -169,17 +169,17 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     public String toString() {
         final String s = super.toString();
         return s + "\n\n" +
-                "Map CRS:\n" + getMapCRS().toString() + "\n" +
-                "Image To Map:\n" + imageToMap.toString();
+               "Map CRS:\n" + getMapCRS().toString() + "\n" +
+               "Image To Map:\n" + imageToMap.toString();
 
     }
 
     private boolean detect180MeridianCrossing() throws TransformException, FactoryException {
         ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(this.imageBounds, getImageCRS());
         referencedEnvelope = referencedEnvelope.transform(getGeoCRS(), true);
-        final Rectangle2D.Double meridian180 = new Rectangle2D.Double(180 - 1.0e-3, 90, 2 * 1.0e-3, -180);
-        final BoundingBox meridian180Envelop = new ReferencedEnvelope(meridian180, getGeoCRS());
-        return referencedEnvelope.intersects(meridian180Envelop);
+        final DirectPosition uc = referencedEnvelope.getUpperCorner();
+        final DirectPosition lc = referencedEnvelope.getLowerCorner();
+        return uc.getOrdinate(0) > 180 || lc.getOrdinate(0) < -180;
     }
 
 }
