@@ -1,6 +1,5 @@
 package org.esa.beam.framework.datamodel;
 
-import com.vividsolutions.jts.geom.Envelope;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
@@ -25,7 +24,6 @@ import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 
 public class CrsGeoCoding extends AbstractGeoCoding {
 
@@ -175,7 +173,13 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     }
 
     private boolean detect180MeridianCrossing() throws TransformException, FactoryException {
-        ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(this.imageBounds, getImageCRS());
+        final Rectangle bounds = this.imageBounds;
+
+        ReferencedEnvelope referencedEnvelope = new ReferencedEnvelope(bounds.getMinX() + 0.5,
+                                                                       bounds.getMaxX() - 0.5,
+                                                                       bounds.getMinY() + 0.5,
+                                                                       bounds.getMaxY() - 0.5,
+                                                                       getImageCRS());
         referencedEnvelope = referencedEnvelope.transform(getGeoCRS(), true);
         final DirectPosition uc = referencedEnvelope.getUpperCorner();
         final DirectPosition lc = referencedEnvelope.getLowerCorner();

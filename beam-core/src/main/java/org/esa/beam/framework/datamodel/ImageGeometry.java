@@ -22,6 +22,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import javax.measure.unit.SI;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -186,11 +187,16 @@ public class ImageGeometry {
             Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
             int pointsPerSide = Math.min(sourceH, sourceW) / 10;
             pointsPerSide = Math.max(9, pointsPerSide);
-
             final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
             final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
-            return new Rectangle2D.Double(targetEnvelope.getMinX(), targetEnvelope.getMinY(),
-                                          targetEnvelope.getWidth(), targetEnvelope.getHeight());
+            double minX = targetEnvelope.getMinX();
+            double width = targetEnvelope.getWidth();
+            if(product.getGeoCoding().isCrossingMeridianAt180()) {
+                minX = -180.0;
+                width = 360;
+            }
+            return new Rectangle2D.Double(minX, targetEnvelope.getMinY(),
+                                          width, targetEnvelope.getHeight());
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
