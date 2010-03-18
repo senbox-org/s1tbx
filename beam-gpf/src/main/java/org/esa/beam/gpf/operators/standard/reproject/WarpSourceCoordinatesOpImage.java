@@ -57,7 +57,8 @@ class WarpSourceCoordinatesOpImage extends SourcelessOpImage {
         if (tileSize == null) {
             throw new IllegalArgumentException("tileSize");
         }
-        SampleModel sampleModel = RasterFactory.createPixelInterleavedSampleModel(DataBuffer.TYPE_FLOAT, width, height, 2);
+        SampleModel sampleModel = RasterFactory.createPixelInterleavedSampleModel(DataBuffer.TYPE_FLOAT,
+                                                                                  tileSize.width, tileSize.height, 2);
         ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
 
         if (colorModel == null) {
