@@ -318,8 +318,10 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         }
 
         private void updateValueSets(Product product) {
-            for (PropertyDescriptor propertyDescriptor : rasterDataNodeTypeProperties) {
-                updateValueSet(propertyDescriptor, product);
+            if (rasterDataNodeTypeProperties != null) {
+                for (PropertyDescriptor propertyDescriptor : rasterDataNodeTypeProperties) {
+                    updateValueSet(propertyDescriptor, product);
+                }
             }
         }
     }

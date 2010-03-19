@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-gpf</symbolicName>
-    <version>4.7</version>
+    <version>4.7.1</version>
     <name>BEAM Graph Processing Framework (GPF)</name>
 
     <description>The basic framework for processing using Operators and the GPT.</description>
@@ -14,6 +14,10 @@
 
     <changelog>
         <![CDATA[
+        <p>From 4.7 to 4.7.1:<br/>
+            [BEAM-1099] DefaultSingleTargetProductDialog without processing parameter leads to exception<br/>
+            [BEAM 1097] Exception if reprojection results in large target product<br/>
+        </p>
         <p>From 4.6 to 4.7:<br/>
          	[BEAM-1061] Corruption of band layer generated from command line using Band Maths Tool in BEAM 4.7 RC1<br/>
          	[BEAM-1004] X and Y variables always zero in band arithmetic<br/>
