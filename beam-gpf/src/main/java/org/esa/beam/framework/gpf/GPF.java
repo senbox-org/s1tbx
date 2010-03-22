@@ -184,6 +184,9 @@ public class GPF {
         if (sourceProducts.length > 0) {
             sourceProductMap = new HashMap<String, Product>(sourceProducts.length);
             OperatorSpi operatorSpi = GPF.getDefaultInstance().spiRegistry.getOperatorSpi(operatorName);
+            if(operatorSpi == null) {
+                throw new OperatorException(String.format("Operator for '%s' not found. Maybe OperatorSpi is not loaded.", operatorName));
+            }
             Field[] declaredFields = operatorSpi.getOperatorClass().getDeclaredFields();
             for (Field declaredField : declaredFields) {
                 SourceProduct sourceProductAnnotation = declaredField.getAnnotation(SourceProduct.class);
