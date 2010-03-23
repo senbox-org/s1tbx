@@ -31,8 +31,11 @@ import org.esa.beam.framework.datamodel.RGBImageProfileManager;
 import org.esa.beam.util.SystemUtils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ServiceConfigurationError;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 /**
  * <p><i><b>IMPORTANT NOTE:</b>
@@ -53,20 +56,31 @@ public class BeamCoreActivator implements Activator {
 
     public static <T> void loadServices(ServiceRegistry<T> registry) {
         Iterable<T> iterable = SystemUtils.loadServices(registry.getServiceType());
-        for (T service : iterable) {
-            registry.addService(service);
+        final Iterator<T> iterator = iterable.iterator();
+
+        //noinspection WhileLoopReplaceableByForEach
+        while (iterator.hasNext()) {
+            try {
+                registry.addService(iterator.next());
+            } catch (ServiceConfigurationError e) {
+                if (moduleContext != null) {
+                    moduleContext.getLogger().log(Level.WARNING, e.getMessage(), e.getCause());
+                } else {
+                    System.err.print(e.getMessage());    
+                }
+            }
         }
     }
 
     @Override
     public void start(ModuleContext moduleContext) throws CoreException {
-        this.moduleContext = moduleContext;
+        BeamCoreActivator.moduleContext = moduleContext;
         registerRGBProfiles(moduleContext);
     }
 
     @Override
     public void stop(ModuleContext moduleContext) throws CoreException {
-        this.moduleContext = null;
+        BeamCoreActivator.moduleContext = null;
     }
 
     private static void registerRGBProfiles(ModuleContext moduleContext) throws CoreException {
@@ -85,6 +99,7 @@ public class BeamCoreActivator implements Activator {
     }
 
     // todo - move this method elsewhere. ModuleContext or Module?
+
     public static <T> List<T> loadExecutableExtensions(ModuleContext moduleContext,
                                                        String extensionPointId,
                                                        String elementName,
