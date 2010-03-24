@@ -10,10 +10,13 @@
  */
 package org.esa.beam.dataio.spot;
 
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import ucar.ma2.Array;
@@ -68,6 +71,8 @@ import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
 
 // todo - define FlagCoding and default Masks
 // todo - define RGB profiles
+// todo - set spectral band properties for B0, B2, B3, MIR
+// todo - What is TG? Flags?
 
 /**
  * Reader for SPOT VGT products.
@@ -94,8 +99,8 @@ public class SpotVgtProductReader extends AbstractProductReader {
 
         PhysVolDescriptor physVolDescriptor = new PhysVolDescriptor(inputFile);
 
-        File productDescriptorFile = new File(physVolDescriptor.getDataDir(), String.format("%04d_LOG.TXT",
-                                                                                            physVolDescriptor.getPhysVolNumber()));
+        String productDescriptorName = String.format("%04d_LOG", physVolDescriptor.getPhysVolNumber());
+        File productDescriptorFile = new File(physVolDescriptor.getDataDir(), productDescriptorName + ".TXT");
         ProductDescriptor productDescriptor = new ProductDescriptor(productDescriptorFile);
 
         File[] hdfFiles = physVolDescriptor.getDataDir().listFiles(HDF_FILTER);
@@ -143,7 +148,21 @@ public class SpotVgtProductReader extends AbstractProductReader {
             }
         }
 
+        product.getMetadataRoot().addElement(createMetadataElement("PHYS_VOL",
+                                                                   physVolDescriptor.getPropertySet().getProperties()));
+        product.getMetadataRoot().addElement(createMetadataElement(productDescriptorName, 
+                                                                   productDescriptor.getPropertySet().getProperties()));
+
         return product;
+    }
+
+    private MetadataElement createMetadataElement(String name, Property[] properties) {
+        MetadataElement physVolElement = new MetadataElement(name);
+        for (Property property : properties) {
+            physVolElement.addAttribute(new MetadataAttribute(property.getName(),
+                                                              ProductData.createInstance(property.getValueAsText()), true));
+        }
+        return physVolElement;
     }
 
     @Override

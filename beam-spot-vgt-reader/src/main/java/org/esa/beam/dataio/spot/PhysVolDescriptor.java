@@ -32,6 +32,10 @@ final class PhysVolDescriptor {
         formatReference = getValue("FORMAT_REFERENCE");
     }
 
+    public PropertySet getPropertySet() {
+        return propertySet;
+    }
+
     public String getValue(String key) {
         return (String) propertySet.getValue(key);
     }
