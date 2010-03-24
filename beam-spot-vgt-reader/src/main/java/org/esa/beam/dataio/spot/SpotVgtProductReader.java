@@ -15,6 +15,8 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -25,8 +27,10 @@ import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,10 +73,7 @@ import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
     SYNTHESIS_LAST_DATE       20060730235628
 */
 
-// todo - define FlagCoding and default Masks
 // todo - define RGB profiles
-// todo - set spectral band properties for B0, B2, B3, MIR
-// todo - What is TG? Flags?
 
 /**
  * Reader for SPOT VGT products.
@@ -99,14 +100,14 @@ public class SpotVgtProductReader extends AbstractProductReader {
 
         PhysVolDescriptor physVolDescriptor = new PhysVolDescriptor(inputFile);
 
-        String productDescriptorName = String.format("%04d_LOG", physVolDescriptor.getPhysVolNumber());
-        File productDescriptorFile = new File(physVolDescriptor.getDataDir(), productDescriptorName + ".TXT");
-        ProductDescriptor productDescriptor = new ProductDescriptor(productDescriptorFile);
+        File productDescriptorFile = new File(physVolDescriptor.getDataDir(),
+                                              String.format("%04d_LOG.TXT", physVolDescriptor.getPhysVolNumber()));
+        LogVolDescriptor logVolDescriptor = new LogVolDescriptor(productDescriptorFile);
 
-        File[] hdfFiles = physVolDescriptor.getDataDir().listFiles(HDF_FILTER);
 
         fileVars = new HashMap<Band, FileVar>(33);
 
+        File[] hdfFiles = physVolDescriptor.getDataDir().listFiles(HDF_FILTER);
         Product product = null;
         for (File hdfFile : hdfFiles) {
             NetcdfFile netcdfFile = NetcdfFile.open(hdfFile.getPath());
@@ -136,7 +137,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
                 }
                 if (bandDataType != ProductData.TYPE_UNDEFINED) {
                     if (product == null) {
-                        product = new Product(productDescriptor.getProductId(),
+                        product = new Product(logVolDescriptor.getProductId(),
                                               physVolDescriptor.getFormatReference(),
                                               pixelDataVar.getDimension(1).getLength(),
                                               pixelDataVar.getDimension(0).getLength(), this);
@@ -148,21 +149,121 @@ public class SpotVgtProductReader extends AbstractProductReader {
             }
         }
 
-        product.getMetadataRoot().addElement(createMetadataElement("PHYS_VOL",
-                                                                   physVolDescriptor.getPropertySet().getProperties()));
-        product.getMetadataRoot().addElement(createMetadataElement(productDescriptorName, 
-                                                                   productDescriptor.getPropertySet().getProperties()));
+        addMetadata(product, physVolDescriptor, logVolDescriptor);
+        addFlagsAndMasks(product);
+        addSpectralInfo(product);
 
         return product;
     }
 
-    private MetadataElement createMetadataElement(String name, Property[] properties) {
-        MetadataElement physVolElement = new MetadataElement(name);
-        for (Property property : properties) {
-            physVolElement.addAttribute(new MetadataAttribute(property.getName(),
-                                                              ProductData.createInstance(property.getValueAsText()), true));
+    private void addSpectralInfo(Product product) {
+        addSpectralInfo(product, "B0", 0, 430, 470);
+        addSpectralInfo(product, "B2", 1, 610, 680);
+        addSpectralInfo(product, "B3", 2, 780, 890);
+        addSpectralInfo(product, "MIR", 3, 1580, 1750);
+    }
+
+    private void addSpectralInfo(Product product, String name, int index, float min, float max) {
+        if (product.getBand(name) != null) {
+            product.getBand(name).setSpectralBandIndex(index);
+            product.getBand(name).setSpectralWavelength(min + 0.5f * (max - min));
+            product.getBand(name).setSpectralBandwidth(max - min);
+            product.getBand(name).setDescription(MessageFormat.format("{0} spectral band", name));
         }
-        return physVolElement;
+    }
+
+    private void addMetadata(Product product, PhysVolDescriptor physVolDescriptor, LogVolDescriptor logVolDescriptor) {
+        product.getMetadataRoot().addElement(createMetadataElement("PHYS_VOL",
+                                                                   "Physical volume descriptor",
+                                                                   physVolDescriptor.getPropertySet().getProperties()));
+        product.getMetadataRoot().addElement(createMetadataElement("LOG_VOL",
+                                                                   "Logical volume descriptor",
+                                                                   logVolDescriptor.getPropertySet().getProperties()));
+    }
+
+    private void addFlagsAndMasks(Product product) {
+        Band smBand = product.getBand("SM");
+        if (smBand != null) {
+            FlagCoding flagCoding = new FlagCoding("SM");
+            flagCoding.addFlag("B0_OK", 0x80, "Radiometric quality for band B0 is good.");
+            flagCoding.addFlag("B2_OK", 0x40, "Radiometric quality for band B2 is good.");
+            flagCoding.addFlag("B3_OK", 0x20, "Radiometric quality for band B3 is good.");
+            flagCoding.addFlag("MIR_OK", 0x10, "Radiometric quality for band MIR is good.");
+            flagCoding.addFlag("LAND", 0x08, "Land code 1 or water code 0.");
+            flagCoding.addFlag("ICE_SNOW", 0x04, "Ice/snow code 1, code 0 if there is no ice/snow");
+            flagCoding.addFlag("CLOUD_2", 0x02, "");
+            flagCoding.addFlag("CLOUD_1", 0x01, "");
+            product.getFlagCodingGroup().add(flagCoding);
+            smBand.setSampleCoding(flagCoding);
+
+            product.getMaskGroup().add(Mask.BandMathsType.create("B0_BAD", "Radiometric quality for band B0 is bad.",
+                                                                 product.getSceneRasterWidth(),
+                                                                 product.getSceneRasterHeight(), "!SM.B0_OK",
+                                                                 Color.RED, 0.2));
+            product.getMaskGroup().add(Mask.BandMathsType.create("B2_BAD", "Radiometric quality for band B2 is bad.",
+                                                                 product.getSceneRasterWidth(),
+                                                                 product.getSceneRasterHeight(), "!SM.B2_OK",
+                                                                 Color.RED, 0.2));
+            product.getMaskGroup().add(Mask.BandMathsType.create("B3_BAD", "Radiometric quality for band B3 is bad.",
+                                                                 product.getSceneRasterWidth(),
+                                                                 product.getSceneRasterHeight(), "!SM.B3_OK",
+                                                                 Color.RED, 0.2));
+            product.getMaskGroup().add(Mask.BandMathsType.create("MIR_BAD", "Radiometric quality for band MIR is bad.",
+                                                                 product.getSceneRasterWidth(),
+                                                                 product.getSceneRasterHeight(), "!SM.MIR_OK",
+                                                                 Color.RED, 0.2));
+            product.getMaskGroup().add(Mask.BandMathsType.create("LAND", "Land mask.",
+                                                                 product.getSceneRasterWidth(),
+                                                                 product.getSceneRasterHeight(), "SM.LAND",
+                                                                 Color.GREEN, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("WATER", "Water mask.",
+                                                                 product.getSceneRasterWidth(),
+                                                                 product.getSceneRasterHeight(), "!SM.LAND",
+                                                                 Color.BLUE, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("ICE_SNOW", "Ice/snow mask.",
+                                                                 product.getSceneRasterWidth(),
+                                                                 product.getSceneRasterHeight(), "SM.ICE_SNOW",
+                                                                 Color.MAGENTA, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("CLEAR", "Clear sky.",
+                                                                 product.getSceneRasterWidth(),
+                                                                 product.getSceneRasterHeight(), "!SM.CLOUD_1 && !SM.CLOUD_2",
+                                                                 Color.ORANGE, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("CLOUD_SHADOW", "Cloud shadow.",
+                                                                 product.getSceneRasterWidth(),
+                                                                 product.getSceneRasterHeight(), "SM.CLOUD_1 && !SM.CLOUD_2",
+                                                                 Color.CYAN, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("CLOUD_UNCERTAIN", "Cloud uncertain.",
+                                                                 product.getSceneRasterWidth(),
+                                                                 product.getSceneRasterHeight(), "!SM.CLOUD_1 && SM.CLOUD_2",
+                                                                 Color.ORANGE, 0.5));
+            product.getMaskGroup().add(Mask.BandMathsType.create("CLOUD", "Cloud certain.",
+                                                                 product.getSceneRasterWidth(),
+                                                                 product.getSceneRasterHeight(), "SM.CLOUD_1 && SM.CLOUD_2",
+                                                                 Color.YELLOW, 0.5));
+
+            if (product.getBand("B0") != null) {
+                product.getBand("B0").setValidPixelExpression("SM.B0_OK");
+            }
+            if (product.getBand("B2") != null) {
+                product.getBand("B2").setValidPixelExpression("SM.B2_OK");
+            }
+            if (product.getBand("B3") != null) {
+                product.getBand("B3").setValidPixelExpression("SM.B3_OK");
+            }
+            if (product.getBand("MIR") != null) {
+                product.getBand("MIR").setValidPixelExpression("SM.MIR_OK");
+            }
+        }
+    }
+
+    private MetadataElement createMetadataElement(String name, String description, Property[] properties) {
+        MetadataElement element = new MetadataElement(name);
+        element.setDescription(description);
+        for (Property property : properties) {
+            element.addAttribute(new MetadataAttribute(property.getName(),
+                                                       ProductData.createInstance(property.getValueAsText()), true));
+        }
+        return element;
     }
 
     @Override
