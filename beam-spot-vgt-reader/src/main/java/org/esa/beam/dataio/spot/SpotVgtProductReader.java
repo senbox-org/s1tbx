@@ -156,22 +156,6 @@ public class SpotVgtProductReader extends AbstractProductReader {
         return product;
     }
 
-    private void addSpectralInfo(Product product) {
-        addSpectralInfo(product, "B0", 0, 430, 470);
-        addSpectralInfo(product, "B2", 1, 610, 680);
-        addSpectralInfo(product, "B3", 2, 780, 890);
-        addSpectralInfo(product, "MIR", 3, 1580, 1750);
-    }
-
-    private void addSpectralInfo(Product product, String name, int index, float min, float max) {
-        if (product.getBand(name) != null) {
-            product.getBand(name).setSpectralBandIndex(index);
-            product.getBand(name).setSpectralWavelength(min + 0.5f * (max - min));
-            product.getBand(name).setSpectralBandwidth(max - min);
-            product.getBand(name).setDescription(MessageFormat.format("{0} spectral band", name));
-        }
-    }
-
     private void addMetadata(Product product, PhysVolDescriptor physVolDescriptor, LogVolDescriptor logVolDescriptor) {
         product.getMetadataRoot().addElement(createMetadataElement("PHYS_VOL",
                                                                    "Physical volume descriptor",
@@ -195,6 +179,13 @@ public class SpotVgtProductReader extends AbstractProductReader {
             flagCoding.addFlag("CLOUD_1", 0x01, "");
             product.getFlagCodingGroup().add(flagCoding);
             smBand.setSampleCoding(flagCoding);
+
+            Band[] bands = product.getBands();
+            for (Band band : bands) {
+                if (band != smBand) {
+                    band.setValidPixelExpression("SM.LAND");
+                }
+            }
 
             product.getMaskGroup().add(Mask.BandMathsType.create("B0_BAD", "Radiometric quality for band B0 is bad.",
                                                                  product.getSceneRasterWidth(),
@@ -240,19 +231,22 @@ public class SpotVgtProductReader extends AbstractProductReader {
                                                                  product.getSceneRasterWidth(),
                                                                  product.getSceneRasterHeight(), "SM.CLOUD_1 && SM.CLOUD_2",
                                                                  Color.YELLOW, 0.5));
+        }
+    }
 
-            if (product.getBand("B0") != null) {
-                product.getBand("B0").setValidPixelExpression("SM.B0_OK");
-            }
-            if (product.getBand("B2") != null) {
-                product.getBand("B2").setValidPixelExpression("SM.B2_OK");
-            }
-            if (product.getBand("B3") != null) {
-                product.getBand("B3").setValidPixelExpression("SM.B3_OK");
-            }
-            if (product.getBand("MIR") != null) {
-                product.getBand("MIR").setValidPixelExpression("SM.MIR_OK");
-            }
+    private void addSpectralInfo(Product product) {
+        addSpectralInfo(product, "B0", 0, 430, 470);
+        addSpectralInfo(product, "B2", 1, 610, 680);
+        addSpectralInfo(product, "B3", 2, 780, 890);
+        addSpectralInfo(product, "MIR", 3, 1580, 1750);
+    }
+
+    private void addSpectralInfo(Product product, String name, int index, float min, float max) {
+        if (product.getBand(name) != null) {
+            product.getBand(name).setSpectralBandIndex(index);
+            product.getBand(name).setSpectralWavelength(min + 0.5f * (max - min));
+            product.getBand(name).setSpectralBandwidth(max - min);
+            product.getBand(name).setDescription(MessageFormat.format("{0} spectral band", name));
         }
     }
 
