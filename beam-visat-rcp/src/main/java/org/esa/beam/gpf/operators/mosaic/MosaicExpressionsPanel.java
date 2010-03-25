@@ -106,23 +106,23 @@ class MosaicExpressionsPanel extends JPanel {
         variableButtonsPanel.setName(labelName);
 
         final Component bandFilterButton = createBandFilterButton();
-        bandFilterButton.setName(labelName);
+        bandFilterButton.setName(labelName + "_bandFilter");
         variableButtonsPanel.add(bandFilterButton);
 
         final Component newVariableButton = createNewVariableButton();
-        newVariableButton.setName(labelName);
+        newVariableButton.setName(labelName + "_newVariable");
         variableButtonsPanel.add(newVariableButton);
 
         final Component removeVariableButton = createRemoveVariableButton();
-        removeVariableButton.setName(labelName);
+        removeVariableButton.setName(labelName + "_removeVariable");
         variableButtonsPanel.add(removeVariableButton);
 
         final Component moveVariableUpButton = createMoveVariableUpButton();
-        moveVariableUpButton.setName(labelName);
+        moveVariableUpButton.setName(labelName + "moveVariableUp");
         variableButtonsPanel.add(moveVariableUpButton);
 
         final Component moveVariableDownButton = createMoveVariableDownButton();
-        moveVariableDownButton.setName(labelName);
+        moveVariableDownButton.setName(labelName + "moveVariableDown");
         variableButtonsPanel.add(moveVariableDownButton);
         mosaicModel.getPropertyContainer().addPropertyChangeListener("updateMode", new PropertyChangeListener() {
             @Override
@@ -164,19 +164,19 @@ class MosaicExpressionsPanel extends JPanel {
         conditionButtonsPanel.setName(labelName);
 
         final Component newConditionButton = createNewConditionButton();
-        newConditionButton.setName(labelName);
+        newConditionButton.setName(labelName + "_newCondition");
         conditionButtonsPanel.add(newConditionButton);
 
         final Component removeConditionButton = createRemoveConditionButton();
-        removeConditionButton.setName(labelName);
+        removeConditionButton.setName(labelName + "_removeCondition");
         conditionButtonsPanel.add(removeConditionButton);
 
         final Component moveConditionUpButton = createMoveConditionUpButton();
-        moveConditionUpButton.setName(labelName);
+        moveConditionUpButton.setName(labelName + "moveConditionUp");
         conditionButtonsPanel.add(moveConditionUpButton);
 
         final Component moveConditionDownButton = createMoveConditionDownButton();
-        moveConditionDownButton.setName(labelName);
+        moveConditionDownButton.setName(labelName + "moveConditionDown");
         conditionButtonsPanel.add(moveConditionDownButton);
 
         mosaicModel.getPropertyContainer().addPropertyChangeListener("updateMode", new PropertyChangeListener() {
