@@ -439,8 +439,8 @@ class LayerManagerForm extends AbstractLayerForm {
         @Override
         public void valueChanged(TreeSelectionEvent event) {
             if (!adjusting) {
-                Layer layer = getLayer(event.getPath());
-                layer.setVisible(((TreeSelectionModel) event.getSource()).isPathSelected(event.getPath()));
+                Layer layer = getLayer(event.getNewLeadSelectionPath());
+                layer.setVisible(((TreeSelectionModel) event.getSource()).isPathSelected(event.getNewLeadSelectionPath()));
             }
         }
     }
