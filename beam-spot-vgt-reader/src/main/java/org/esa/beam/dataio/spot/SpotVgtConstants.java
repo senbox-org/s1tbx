@@ -16,7 +16,6 @@ import java.io.FilenameFilter;
 public class SpotVgtConstants {
 
     public static final String PHYS_VOL_FILENAME = "PHYS_VOL.TXT";
-    public static final String FILE_EXTENSION = "TXT";
     public static final String READER_DESCRIPTION = "SPOT VGT Data Products";
     public static final String FORMAT_NAME = "SPOT-VGT";
     public static final HdfFilenameFilter HDF_FILTER = new HdfFilenameFilter();

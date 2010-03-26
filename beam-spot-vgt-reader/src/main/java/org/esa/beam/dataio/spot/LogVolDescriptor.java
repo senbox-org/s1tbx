@@ -4,15 +4,14 @@ import com.bc.ceres.binding.PropertySet;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 
 final class LogVolDescriptor {
-    private final File file;
     private final PropertySet propertySet;
     private final String productId;
 
-    public LogVolDescriptor(File file) throws IOException {
-        this.file = file;
-        this.propertySet = SpotVgtProductReaderPlugIn.readKeyValuePairs(file);
+    public LogVolDescriptor(Reader reader) throws IOException {
+        this.propertySet = SpotVgtProductReaderPlugIn.readKeyValuePairs(reader);
         this.productId = getValue("PRODUCT_ID");
     }
 

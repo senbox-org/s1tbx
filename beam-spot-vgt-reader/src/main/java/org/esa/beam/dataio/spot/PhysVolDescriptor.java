@@ -3,19 +3,29 @@ package org.esa.beam.dataio.spot;
 import com.bc.ceres.binding.PropertySet;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 
 final class PhysVolDescriptor {
-    private final File file;
     private final PropertySet propertySet;
     private final int physVolNumber;
     private final String productId;
     private final String formatReference;
-    private final File dataDir;
+    private final String logVolDirName;
+    private String logVolDescrFileName;
 
-    public PhysVolDescriptor(File file) throws IOException {
-        this.file = file;
-        this.propertySet = SpotVgtProductReaderPlugIn.readKeyValuePairs(file);
+    public static PhysVolDescriptor create(File file) throws IOException {
+        FileReader reader = new FileReader(file);
+        try {
+            return new PhysVolDescriptor(reader);
+        } finally {
+            reader.close();
+        }
+    }
+
+    public PhysVolDescriptor(Reader reader) throws IOException {
+        this.propertySet = SpotVgtProductReaderPlugIn.readKeyValuePairs(reader);
 
         String value = getValue("PHYS_VOL_NUMBER");
         if (value != null) {
@@ -27,9 +37,11 @@ final class PhysVolDescriptor {
         } else {
             throw new IOException("Invalid SPOT VGT volume descriptor. Missing value for 'PHYS_VOL_NUMBER'.");
         }
-        dataDir = new File(file.getParent(), String.format("%04d", physVolNumber));
-        productId = getValue(String.format("PRODUCT_#%04d_ID", physVolNumber));
+        logVolDirName = String.format("%04d", physVolNumber);
+        logVolDescrFileName = String.format("%s/%s_LOG.TXT", logVolDirName, logVolDirName);
+        productId = getValue(String.format("PRODUCT_#%s_ID", logVolDirName));
         formatReference = getValue("FORMAT_REFERENCE");
+
     }
 
     public PropertySet getPropertySet() {
@@ -40,16 +52,16 @@ final class PhysVolDescriptor {
         return (String) propertySet.getValue(key);
     }
 
-    public File getFile() {
-        return file;
-    }
-
     public int getPhysVolNumber() {
         return physVolNumber;
     }
 
-    public File getDataDir() {
-        return dataDir;
+    public String getLogVolDirName() {
+        return logVolDirName;
+    }
+
+    public String getLogVolDescriptorFileName() {
+        return logVolDescrFileName;
     }
 
     public String getProductId() {
@@ -59,4 +71,5 @@ final class PhysVolDescriptor {
     public String getFormatReference() {
         return formatReference;
     }
+
 }

@@ -34,7 +34,6 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.esa.beam.dataio.spot.SpotVgtConstants.HDF_FILTER;
 import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getBandName;
 import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
 
@@ -84,6 +83,7 @@ import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
 public class SpotVgtProductReader extends AbstractProductReader {
 
     private HashMap<Band, FileVar> fileVars;
+    private FileNode fileNode;
 
     /**
      * Constructor.
@@ -97,54 +97,59 @@ public class SpotVgtProductReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         File inputFile = getFileInput(getInput());
+        fileNode = FileNode.create(inputFile);
+        return createProduct();
+    }
 
-        PhysVolDescriptor physVolDescriptor = new PhysVolDescriptor(inputFile);
-
-        File productDescriptorFile = new File(physVolDescriptor.getDataDir(),
-                                              String.format("%04d_LOG.TXT", physVolDescriptor.getPhysVolNumber()));
-        LogVolDescriptor logVolDescriptor = new LogVolDescriptor(productDescriptorFile);
-
+    private Product createProduct() throws IOException {
+        PhysVolDescriptor physVolDescriptor = new PhysVolDescriptor(fileNode.getReader(SpotVgtConstants.PHYS_VOL_FILENAME));
+        LogVolDescriptor logVolDescriptor = new LogVolDescriptor(fileNode.getReader(physVolDescriptor.getLogVolDescriptorFileName()));
 
         fileVars = new HashMap<Band, FileVar>(33);
 
-        File[] hdfFiles = physVolDescriptor.getDataDir().listFiles(HDF_FILTER);
+        String[] logVolFileNames = fileNode.list(physVolDescriptor.getLogVolDirName());
         Product product = null;
-        for (File hdfFile : hdfFiles) {
-            NetcdfFile netcdfFile = NetcdfFile.open(hdfFile.getPath());
+        for (String logVolFileName : logVolFileNames) {
 
-            HashMap<String, Variable> variables = new HashMap<String, Variable>();
-            for (Variable variable : netcdfFile.getVariables()) {
-                variables.put(variable.getName(), variable);
-            }
+            if (logVolFileName.endsWith(".hdf") || logVolFileName.endsWith(".HDF")) {
 
-            Variable pixelDataVar = variables.get("PIXEL DATA");
-            if (pixelDataVar == null) {
-                pixelDataVar = variables.get("ANGLES_VALUES");
-            }
-            if (pixelDataVar != null && pixelDataVar.getRank() == 2 && pixelDataVar.getDataType().isNumeric()) {
-                DataType netCdfDataType = pixelDataVar.getDataType();
-                int bandDataType = ProductData.TYPE_UNDEFINED;
-                if (Byte.TYPE == netCdfDataType.getPrimitiveClassType()) {
-                    bandDataType = ProductData.TYPE_INT8;
-                } else if (Short.TYPE == netCdfDataType.getPrimitiveClassType()) {
-                    bandDataType = ProductData.TYPE_INT16;
-                } else if (Integer.TYPE == netCdfDataType.getPrimitiveClassType()) {
-                    bandDataType = ProductData.TYPE_INT32;
-                } else if (Float.TYPE == netCdfDataType.getPrimitiveClassType()) {
-                    bandDataType = ProductData.TYPE_FLOAT32;
-                } else if (Double.TYPE == netCdfDataType.getPrimitiveClassType()) {
-                    bandDataType = ProductData.TYPE_FLOAT64;
+                File hdfFile = fileNode.getFile(physVolDescriptor.getLogVolDirName() + "/" + logVolFileName);
+                NetcdfFile netcdfFile = NetcdfFile.open(hdfFile.getPath());
+
+                HashMap<String, Variable> variables = new HashMap<String, Variable>();
+                for (Variable variable : netcdfFile.getVariables()) {
+                    variables.put(variable.getName(), variable);
                 }
-                if (bandDataType != ProductData.TYPE_UNDEFINED) {
-                    if (product == null) {
-                        product = new Product(logVolDescriptor.getProductId(),
-                                              physVolDescriptor.getFormatReference(),
-                                              pixelDataVar.getDimension(1).getLength(),
-                                              pixelDataVar.getDimension(0).getLength(), this);
-                        product.setFileLocation(inputFile);
+
+                Variable pixelDataVar = variables.get("PIXEL DATA");
+                if (pixelDataVar == null) {
+                    pixelDataVar = variables.get("ANGLES_VALUES");
+                }
+                if (pixelDataVar != null && pixelDataVar.getRank() == 2 && pixelDataVar.getDataType().isNumeric()) {
+                    DataType netCdfDataType = pixelDataVar.getDataType();
+                    int bandDataType = ProductData.TYPE_UNDEFINED;
+                    if (Byte.TYPE == netCdfDataType.getPrimitiveClassType()) {
+                        bandDataType = ProductData.TYPE_INT8;
+                    } else if (Short.TYPE == netCdfDataType.getPrimitiveClassType()) {
+                        bandDataType = ProductData.TYPE_INT16;
+                    } else if (Integer.TYPE == netCdfDataType.getPrimitiveClassType()) {
+                        bandDataType = ProductData.TYPE_INT32;
+                    } else if (Float.TYPE == netCdfDataType.getPrimitiveClassType()) {
+                        bandDataType = ProductData.TYPE_FLOAT32;
+                    } else if (Double.TYPE == netCdfDataType.getPrimitiveClassType()) {
+                        bandDataType = ProductData.TYPE_FLOAT64;
                     }
-                    Band band = product.addBand(getBandName(hdfFile), bandDataType);
-                    fileVars.put(band, new FileVar(netcdfFile, pixelDataVar));
+                    if (bandDataType != ProductData.TYPE_UNDEFINED) {
+                        if (product == null) {
+                            product = new Product(logVolDescriptor.getProductId(),
+                                                  physVolDescriptor.getFormatReference(),
+                                                  pixelDataVar.getDimension(1).getLength(),
+                                                  pixelDataVar.getDimension(0).getLength(), this);
+                            product.setFileLocation(new File(fileNode.getName()));
+                        }
+                        Band band = product.addBand(getBandName(logVolFileName), bandDataType);
+                        fileVars.put(band, new FileVar(netcdfFile, pixelDataVar));
+                    }
                 }
             }
         }
@@ -152,7 +157,6 @@ public class SpotVgtProductReader extends AbstractProductReader {
         addMetadata(product, physVolDescriptor, logVolDescriptor);
         addFlagsAndMasks(product);
         addSpectralInfo(product);
-
         return product;
     }
 
@@ -311,6 +315,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
             }
         }
         fileVars.clear();
+        fileNode.close();
         super.close();
     }
 
