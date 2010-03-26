@@ -48,7 +48,7 @@ import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
 public class SpotVgtProductReader extends AbstractProductReader {
 
     private HashMap<Band, FileVar> fileVars;
-    private FileNode fileNode;
+    private VirtualDir virtualDir;
 
     /**
      * Constructor.
@@ -62,23 +62,23 @@ public class SpotVgtProductReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         File inputFile = getFileInput(getInput());
-        fileNode = FileNode.create(inputFile);
+        virtualDir = VirtualDir.create(inputFile);
         return createProduct();
     }
 
     private Product createProduct() throws IOException {
-        PhysVolDescriptor physVolDescriptor = new PhysVolDescriptor(fileNode.getReader(SpotVgtConstants.PHYS_VOL_FILENAME));
-        LogVolDescriptor logVolDescriptor = new LogVolDescriptor(fileNode.getReader(physVolDescriptor.getLogVolDescriptorFileName()));
+        PhysVolDescriptor physVolDescriptor = new PhysVolDescriptor(virtualDir.getReader(SpotVgtConstants.PHYS_VOL_FILENAME));
+        LogVolDescriptor logVolDescriptor = new LogVolDescriptor(virtualDir.getReader(physVolDescriptor.getLogVolDescriptorFileName()));
 
         fileVars = new HashMap<Band, FileVar>(33);
 
-        String[] logVolFileNames = fileNode.list(physVolDescriptor.getLogVolDirName());
+        String[] logVolFileNames = virtualDir.list(physVolDescriptor.getLogVolDirName());
         Product product = null;
         for (String logVolFileName : logVolFileNames) {
 
             if (logVolFileName.endsWith(".hdf") || logVolFileName.endsWith(".HDF")) {
 
-                File hdfFile = fileNode.getFile(physVolDescriptor.getLogVolDirName() + "/" + logVolFileName);
+                File hdfFile = virtualDir.getFile(physVolDescriptor.getLogVolDirName() + "/" + logVolFileName);
                 NetcdfFile netcdfFile = NetcdfFile.open(hdfFile.getPath());
 
                 HashMap<String, Variable> variables = new HashMap<String, Variable>();
@@ -110,7 +110,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
                                                   physVolDescriptor.getFormatReference(),
                                                   pixelDataVar.getDimension(1).getLength(),
                                                   pixelDataVar.getDimension(0).getLength(), this);
-                            product.setFileLocation(new File(fileNode.getName()));
+                            product.setFileLocation(new File(virtualDir.getBasePath()));
                         }
                         Band band = product.addBand(getBandName(logVolFileName), bandDataType);
                         fileVars.put(band, new FileVar(netcdfFile, pixelDataVar));
@@ -179,7 +179,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
             }
         }
         fileVars.clear();
-        fileNode.close();
+        virtualDir.close();
         super.close();
     }
 

@@ -37,20 +37,20 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
 
-        FileNode fileNode = FileNode.create(file);
-        if (fileNode == null) {
+        VirtualDir virtualDir = VirtualDir.create(file);
+        if (virtualDir == null) {
             return DecodeQualification.UNABLE;
         }
 
         try {
             try {
-                Reader reader = fileNode.getReader(SpotVgtConstants.PHYS_VOL_FILENAME);
+                Reader reader = virtualDir.getReader(SpotVgtConstants.PHYS_VOL_FILENAME);
                 if (reader == null) {
                     return DecodeQualification.UNABLE;
                 }
                 try {
                     PhysVolDescriptor descriptor = new PhysVolDescriptor(reader);
-                    String[] strings = fileNode.list(descriptor.getLogVolDirName());
+                    String[] strings = virtualDir.list(descriptor.getLogVolDirName());
                     if (strings.length == 0) {
                         return DecodeQualification.UNABLE;
                     }
@@ -62,7 +62,7 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
                 return DecodeQualification.UNABLE;
             }
         } finally {
-            fileNode.close();
+            virtualDir.close();
         }
     }
 
