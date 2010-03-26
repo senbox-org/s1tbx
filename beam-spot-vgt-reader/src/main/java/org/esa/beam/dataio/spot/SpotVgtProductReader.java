@@ -32,17 +32,12 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getBandName;
 import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
-
-// todo - set product start/stop time from productDescriptor:
-/*
-    SYNTHESIS_FIRST_DATE      20060720223132
-    SYNTHESIS_LAST_DATE       20060730235628
-*/
 
 // todo - define RGB profiles
 
@@ -130,8 +125,64 @@ public class SpotVgtProductReader extends AbstractProductReader {
         addFlagsAndMasks(product);
         addSpectralInfo(product);
         addGeoCoding(product, logVolDescriptor);
+        addTimeCoding(product, logVolDescriptor);
 
         return product;
+    }
+
+    @Override
+    protected void readBandRasterDataImpl(int sourceOffsetX,
+                                          int sourceOffsetY,
+                                          int sourceWidth,
+                                          int sourceHeight,
+                                          int sourceStepX,
+                                          int sourceStepY,
+                                          Band targetBand,
+                                          int targetOffsetX,
+                                          int targetOffsetY,
+                                          int targetWidth,
+                                          int targetHeight,
+                                          ProductData targetBuffer,
+                                          ProgressMonitor pm) throws IOException {
+        Assert.state(sourceOffsetX == targetOffsetX, "sourceOffsetX != targetOffsetX");
+        Assert.state(sourceOffsetY == targetOffsetY, "sourceOffsetY != targetOffsetY");
+        Assert.state(sourceStepX == 1, "sourceStepX != 1");
+        Assert.state(sourceStepY == 1, "sourceStepY != 1");
+        Assert.state(sourceWidth == targetWidth, "sourceWidth != targetWidth");
+        Assert.state(sourceHeight == targetHeight, "sourceHeight != targetHeight");
+
+        FileVar fileVar = fileVars.get(targetBand);
+        if (fileVar == null) {
+            return;
+        }
+        final Variable variable = fileVar.var;
+        synchronized (variable) {
+            try {
+                Array array = variable.read(new int[]{targetOffsetY, targetOffsetX},
+                                            new int[]{targetHeight, targetWidth});
+                System.arraycopy(array.getStorage(),
+                                 0,
+                                 targetBuffer.getElems(),
+                                 0, targetWidth * targetHeight);
+            } catch (InvalidRangeException e) {
+                // ?
+            }
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        for (Map.Entry<Band, FileVar> entry : fileVars.entrySet()) {
+            NetcdfFile netcdfFile = entry.getValue().file;
+            try {
+                netcdfFile.close();
+            } catch (IOException e) {
+                // ok
+            }
+        }
+        fileVars.clear();
+        fileNode.close();
+        super.close();
     }
 
     private void addGeoCoding(Product product, LogVolDescriptor logVolDescriptor) {
@@ -245,59 +296,15 @@ public class SpotVgtProductReader extends AbstractProductReader {
         return element;
     }
 
-    @Override
-    protected void readBandRasterDataImpl(int sourceOffsetX,
-                                          int sourceOffsetY,
-                                          int sourceWidth,
-                                          int sourceHeight,
-                                          int sourceStepX,
-                                          int sourceStepY,
-                                          Band targetBand,
-                                          int targetOffsetX,
-                                          int targetOffsetY,
-                                          int targetWidth,
-                                          int targetHeight,
-                                          ProductData targetBuffer,
-                                          ProgressMonitor pm) throws IOException {
-        Assert.state(sourceOffsetX == targetOffsetX, "sourceOffsetX != targetOffsetX");
-        Assert.state(sourceOffsetY == targetOffsetY, "sourceOffsetY != targetOffsetY");
-        Assert.state(sourceStepX == 1, "sourceStepX != 1");
-        Assert.state(sourceStepY == 1, "sourceStepY != 1");
-        Assert.state(sourceWidth == targetWidth, "sourceWidth != targetWidth");
-        Assert.state(sourceHeight == targetHeight, "sourceHeight != targetHeight");
-
-        FileVar fileVar = fileVars.get(targetBand);
-        if (fileVar == null) {
-            return;
+    private void addTimeCoding(Product product, LogVolDescriptor logVolDescriptor) {
+        Date startDate = logVolDescriptor.getStartDate();
+        if (startDate != null) {
+            product.setStartTime(ProductData.UTC.create(startDate, 0));
         }
-        final Variable variable = fileVar.var;
-        synchronized (variable) {
-            try {
-                Array array = variable.read(new int[]{targetOffsetY, targetOffsetX},
-                                            new int[]{targetHeight, targetWidth});
-                System.arraycopy(array.getStorage(),
-                                 0,
-                                 targetBuffer.getElems(),
-                                 0, targetWidth * targetHeight);
-            } catch (InvalidRangeException e) {
-                // ?
-            }
+        Date endDate = logVolDescriptor.getEndDate();
+        if (endDate != null) {
+            product.setEndTime(ProductData.UTC.create(endDate, 0));
         }
-    }
-
-    @Override
-    public void close() throws IOException {
-        for (Map.Entry<Band, FileVar> entry : fileVars.entrySet()) {
-            NetcdfFile netcdfFile = entry.getValue().file;
-            try {
-                netcdfFile.close();
-            } catch (IOException e) {
-                // ok
-            }
-        }
-        fileVars.clear();
-        fileNode.close();
-        super.close();
     }
 
     private static class FileVar {
