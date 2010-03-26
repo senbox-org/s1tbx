@@ -39,8 +39,6 @@ import java.util.Map;
 import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getBandName;
 import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
 
-// todo - define RGB profiles
-
 /**
  * Reader for SPOT VGT products.
  *
