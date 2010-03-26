@@ -15,6 +15,9 @@ public class FileNodeTest extends TestCase {
 
     public void testDir() throws IOException {
         File file = TestDataDir.get("FileNodeTest.dir");
+        File dir2 = new File(file, "dir2");
+        dir2.mkdir();
+        dir2.deleteOnExit();
         testFileNode(file, FileNode.create(file));
     }
 
