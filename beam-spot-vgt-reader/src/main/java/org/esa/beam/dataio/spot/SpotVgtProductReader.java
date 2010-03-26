@@ -15,12 +15,16 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -28,6 +32,8 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -157,7 +163,16 @@ public class SpotVgtProductReader extends AbstractProductReader {
         addMetadata(product, physVolDescriptor, logVolDescriptor);
         addFlagsAndMasks(product);
         addSpectralInfo(product);
+        addGeoCoding(product, logVolDescriptor);
+        
         return product;
+    }
+
+    private void addGeoCoding(Product product, LogVolDescriptor logVolDescriptor) {
+        GeoCoding geoCoding = logVolDescriptor.getGeoCoding();
+        if (geoCoding != null) {
+            product.setGeoCoding(geoCoding);
+        }
     }
 
     private void addMetadata(Product product, PhysVolDescriptor physVolDescriptor, LogVolDescriptor logVolDescriptor) {

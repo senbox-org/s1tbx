@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class PhysVolDescriptorTest extends TestCase {
 
-    public void testPhysVolumeDescriptor() throws IOException {
+    public void testIt() throws IOException {
         File dir = TestDataDir.get();
         File file = new File(dir, "decode_qual_intended/PHYS_VOL.TXT");
         FileReader reader = new FileReader(file);
