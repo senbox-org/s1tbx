@@ -124,45 +124,19 @@ public abstract class FileNode {
                 tempZipFileDir = new File(getTempDir(), FileUtils.getFilenameWithoutExtension(new File(zipFile.getName())));
             }
 
-            File file = new File(tempZipFileDir, zipEntry.getName());
-            if (file.exists()) {
-                return file;
+            File tempFile = new File(tempZipFileDir, zipEntry.getName());
+            if (tempFile.exists()) {
+                return tempFile;
             }
 
-            System.out.println("Extracting ZIP-entry to " + file);
-
+            // System.out.println("Extracting ZIP-entry to " + tempFile);
             if (zipEntry.isDirectory()) {
-                file = new File(tempZipFileDir, path);
-                file.mkdirs();
-                if (!file.exists()) {
-                    throw new IOException("Failed to create temporary directory " + file);
-                }
+                tempFile.mkdirs();
             } else {
-                InputStream is = zipFile.getInputStream(zipEntry);
-                try {
-                    file = new File(tempZipFileDir, path);
-                    file.getParentFile().mkdirs();
-
-                    BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE);
-                    try {
-                        byte[] bytes = new byte[1024];
-                        int n;
-                        while ((n = is.read(bytes)) > 0) {
-                            os.write(bytes, 0, n);
-                        }
-                    } finally {
-                        os.close();
-                    }
-                } finally {
-                    is.close();
-                }
-
-                if (!file.exists()) {
-                    throw new IOException("Failed to create temporary file " + file);
-                }
+                unzip(zipEntry, tempFile);
             }
 
-            return file;
+            return tempFile;
         }
 
         @Override
@@ -199,10 +173,6 @@ public abstract class FileNode {
             }
         }
 
-        private String normalizeFileName() {
-            return zipFile.getName().replace("/", "_").replace("\\", "_").replace(".", "_").replace(":", "_");
-        }
-
         private InputStream getInputStream(ZipEntry zipEntry) throws IOException {
             return zipFile.getInputStream(zipEntry);
         }
@@ -221,7 +191,7 @@ public abstract class FileNode {
             if (tempDirName != null) {
                 tempDir = new File(tempDirName);
             }
-            if (tempDir == null) {
+            if (tempDir == null || !tempDir.exists()) {
                 tempDir = new File(SystemUtils.getUserHomeDir(), ".beam/temp");
                 tempDir.mkdirs();
             }
@@ -231,6 +201,25 @@ public abstract class FileNode {
             return tempDir;
         }
 
+        private void unzip(ZipEntry zipEntry, File tempFile) throws IOException {
+            InputStream is = zipFile.getInputStream(zipEntry);
+            if (is != null) {
+                try {
+                    tempFile.getParentFile().mkdirs();
+                    BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(tempFile), BUFFER_SIZE);
+                    try {
+                        byte[] bytes = new byte[1024];
+                        int n;
+                        while ((n = is.read(bytes)) > 0) {
+                            os.write(bytes, 0, n);
+                        }
+                    } finally {
+                        os.close();
+                    }
+                } finally {
+                    is.close();
+                }
+            }
+        }
     }
-
 }
