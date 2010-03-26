@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class FileNodeTest extends TestCase {
+
     public void testZip() throws IOException {
         File file = TestDataDir.get("FileNodeTest.zip");
         testFileNode(file, FileNode.create(file));

@@ -1,5 +1,8 @@
 package org.esa.beam.dataio.spot;
 
+import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.FileUtils;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,7 +14,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -95,9 +97,9 @@ public abstract class FileNode {
     }
 
     private static class Zip extends FileNode {
-        private static final int SIZE = 4 * 1024 * 1024;
-        private HashMap<String, File> fileMap;
+        private static final int BUFFER_SIZE = 4 * 1024 * 1024;
         private final ZipFile zipFile;
+        private File tempZipFileDir;
 
         private Zip(ZipFile zipFile) throws IOException {
             this.zipFile = zipFile;
@@ -115,38 +117,52 @@ public abstract class FileNode {
 
         @Override
         public File getFile(String path) throws IOException {
-            File tempFile;
-
-            if (fileMap != null) {
-                tempFile = fileMap.get(path);
-                if (tempFile != null) {
-                    return tempFile;
-                }
-            } else {
-                fileMap = new HashMap<String, File>(211);
-            }
 
             ZipEntry zipEntry = getEntry(path);
-            InputStream is = zipFile.getInputStream(zipEntry);
-            try {
-                tempFile = File.createTempFile(normalizeFileName() + "_" + Long.toHexString(System.nanoTime()), ".tmp");
-                BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(tempFile), SIZE);
-                try {
-                    byte[] bytes = new byte[1024];
-                    int n;
-                    while ((n = is.read(bytes)) > 0) {
-                        os.write(bytes, 0, n);
-                    }
-                } finally {
-                    os.close();
-                }
-            } finally {
-                is.close();
+
+            if (tempZipFileDir == null) {
+                tempZipFileDir = new File(getTempDir(), FileUtils.getFilenameWithoutExtension(new File(zipFile.getName())));
             }
 
-            fileMap.put(path, tempFile);
+            File file = new File(tempZipFileDir, zipEntry.getName());
+            if (file.exists()) {
+                return file;
+            }
 
-            return tempFile;
+            System.out.println("Extracting ZIP-entry to " + file);
+
+            if (zipEntry.isDirectory()) {
+                file = new File(tempZipFileDir, path);
+                file.mkdirs();
+                if (!file.exists()) {
+                    throw new IOException("Failed to create temporary directory " + file);
+                }
+            } else {
+                InputStream is = zipFile.getInputStream(zipEntry);
+                try {
+                    file = new File(tempZipFileDir, path);
+                    file.getParentFile().mkdirs();
+
+                    BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE);
+                    try {
+                        byte[] bytes = new byte[1024];
+                        int n;
+                        while ((n = is.read(bytes)) > 0) {
+                            os.write(bytes, 0, n);
+                        }
+                    } finally {
+                        os.close();
+                    }
+                } finally {
+                    is.close();
+                }
+
+                if (!file.exists()) {
+                    throw new IOException("Failed to create temporary file " + file);
+                }
+            }
+
+            return file;
         }
 
         @Override
@@ -178,10 +194,8 @@ public abstract class FileNode {
             } catch (IOException e) {
                 // ok
             }
-            if (fileMap != null) {
-                for (File file1 : fileMap.values()) {
-                    file1.delete();
-                }
+            if (tempZipFileDir != null) {
+                SystemUtils.deleteFileTree(tempZipFileDir);
             }
         }
 
@@ -199,6 +213,22 @@ public abstract class FileNode {
                 throw new FileNotFoundException(zipFile.getName() + "!" + path);
             }
             return zipEntry;
+        }
+
+        private static File getTempDir() throws IOException {
+            File tempDir = null;
+            String tempDirName = System.getProperty("java.io.tmpdir");
+            if (tempDirName != null) {
+                tempDir = new File(tempDirName);
+            }
+            if (tempDir == null) {
+                tempDir = new File(SystemUtils.getUserHomeDir(), ".beam/temp");
+                tempDir.mkdirs();
+            }
+            if (!tempDir.exists()) {
+                throw new IOException("Temporary directory not available: " + tempDir);
+            }
+            return tempDir;
         }
 
     }

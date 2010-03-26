@@ -15,16 +15,13 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -32,8 +29,6 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -42,35 +37,6 @@ import java.util.Map;
 
 import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getBandName;
 import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
-
-// todo - derive GeoCoding from productDescriptor:
-/*
-    MAP_PROJ_NAME             PLATE_CARREE_1KMG nom provisoirement egal au code
-    MAP_PROJ_FAMILY           UNPROJECTED
-    MAP_PROJ_CODE             PLATE_CARREE_1KMG
-    MAP_PROJ_UNIT             DEGREES
-    MAP_PROJ_RESOLUTION       0.0089285714
-    GEODETIC_SYST_NAME        WGS 1984
-    GEODETIC_SYST_CODE        WG84
-    HORIZ_DATUM               WGS 1984
-    MERIDIAN_NAME             GREENWICH
-    MERIDIAN_ORIGIN           +000.000
-    SPHEROID_NAME             WGS 1984
-    SPHEROID_SEMI_MAJ_AXIS    6378137.000
-    SPHEROID_SEMI_MIN_AXIS    6356752.314
-    CARTO_UPPER_LEFT_X         -11.000000
-    CARTO_UPPER_LEFT_Y          75.000000
-    CARTO_UPPER_RIGHT_X         62.000000
-    CARTO_UPPER_RIGHT_Y         75.000000
-    CARTO_LOWER_RIGHT_X         62.000000
-    CARTO_LOWER_RIGHT_Y         25.000000
-    CARTO_LOWER_LEFT_X         -11.000000
-    CARTO_LOWER_LEFT_Y          25.000000
-    CARTO_CENTER_X              25.500000
-    CARTO_CENTER_Y              50.000000
-    CARTO_HEIGHT                50.000000
-    CARTO_WIDTH                 73.000000
- */
 
 // todo - set product start/stop time from productDescriptor:
 /*
@@ -164,7 +130,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
         addFlagsAndMasks(product);
         addSpectralInfo(product);
         addGeoCoding(product, logVolDescriptor);
-        
+
         return product;
     }
 
