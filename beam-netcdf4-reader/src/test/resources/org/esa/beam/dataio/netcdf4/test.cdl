@@ -1,0 +1,47 @@
+netcdf test {
+dimensions:
+	lon = 5 ;
+	lat = 5 ;
+variables:
+	float lon(lon) ;
+		lon:long_name = "longitude" ;
+		lon:unit = "degrees_east" ;
+	float lat(lat) ;
+		lat:long_name = "latitude" ;
+		lat:unit = "degrees_north" ;
+	float CHL1_value(lat, lon) ;
+		CHL1_value:parameter_code = "CHL1" ;
+		CHL1_value:parameter = "CHL1" ;
+		CHL1_value:long_name = "CHL1" ;
+		CHL1_value:_FillValue = -3.402823e+038f ;
+		CHL1_value:units = "test" ;
+	short CHL1_flags(lat, lon) ;
+		CHL1_flags:parameter_code = "CHL1" ;
+		CHL1_flags:parameter = "CHL1" ;
+		CHL1_flags:long_name = "CHL1 flags" ;
+
+// global attributes:
+		:Conventions = "CF-1.0" ;
+		:title = "Test product" ;
+		:start_time = "2002-12-24 11:12:13" ;
+		:stop_time = "2002-12-24 11:12:14" ;
+data:
+
+ lon = -0.02, -0.01, 0.00, 0.01, 0.02 ;
+
+ lat = -0.02, -0.01, 0.00, 0.01, 0.02 ;
+
+ CHL1_value =
+  0.0,   1.0,  2.0,  3.0, 4.0,
+  5.0,     _,    _,  8.0, 9.0,
+  10.0, 11.0, 12.0, 13.0, 14.0,
+  15.0, 16.0, 17.0, 18.0, 19.0,
+  20.0, 21.0, 22.0, 23.0, 24.0 ;
+
+CHL1_flags =
+  8196, 8196, 8196, 8196, 8196,
+  8196,    2,    6, 8196, 8196,
+  8196, 8196, 8196, 8196, 8196,
+  8196, 8196, 8196, 8196, 8196,
+  8196, 8196, 8196, 8196, 8196 ;
+}
