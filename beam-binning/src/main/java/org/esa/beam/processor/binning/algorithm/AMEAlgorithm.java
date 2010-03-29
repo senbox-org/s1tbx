@@ -54,7 +54,7 @@ final class AMEAlgorithm implements Algorithm {
     public void init(String algorithmParams) throws ProcessorException {
         final String[] strings = StringUtils.csvToArray(algorithmParams);
         if (strings.length != 1) {
-            throw new ProcessorException("The 'algorithmParams' parameter contins more or less than the one expected element");
+            throw new ProcessorException("The 'algorithmParams' parameter contains more or less than the one expected element");
         }
         _weightCoeff = Float.parseFloat(strings[0]);
         _weightCoeffMinusOne = _weightCoeff - 1.f;
