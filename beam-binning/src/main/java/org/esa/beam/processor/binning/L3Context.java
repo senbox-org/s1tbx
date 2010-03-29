@@ -102,8 +102,7 @@ public class L3Context {
         saveProperties(contextProps, BinDatabaseConstants.CONTEXT_PROPERTIES_FILE);
     }
 
-    public void load(File dbDir) throws IOException,
-            ProcessorException {
+    public void load(File dbDir) throws IOException, ProcessorException {
         _databaseDir = dbDir;
         Properties props = loadProperties(BinDatabaseConstants.CONTEXT_PROPERTIES_FILE);
 

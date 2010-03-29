@@ -64,6 +64,7 @@ public class SpatialBinDatabase extends AbstractBinDatabase {
         }
     }
 
+    @Override
     public void read(Point gridPoint, Bin bin) throws IOException {
         if (!locator.isValidPosition(gridPoint)) {
             return;
@@ -79,6 +80,7 @@ public class SpatialBinDatabase extends AbstractBinDatabase {
         store.read(localPoint, bin);
     }
 
+    @Override
     public void write(Point gridPoint, Bin bin) throws IOException {
         if (!locator.isValidPosition(gridPoint) || !bin.containsData()) {
             return;
@@ -154,7 +156,7 @@ public class SpatialBinDatabase extends AbstractBinDatabase {
 
         GeoCoding coding = product.getGeoCoding();
         if (coding == null) {
-            throw new IllegalArgumentException("The given product: " + product.getName() + " has no geocoding");
+            throw new ProcessorException("The given product: " + product.getName() + " has no geo-coding");
         }
         final L3Context.BandDefinition[] bandDefs = context.getBandDefinitions();
         final int productWidth = product.getSceneRasterWidth();

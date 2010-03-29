@@ -50,9 +50,10 @@ public class FloatArrayBin implements Bin {
      *
      * @param bandIndex
      */
+    @Override
     public void setBandIndex(int bandIndex) {
         if (bandIndex >= numBands) {
-            throw new ArrayIndexOutOfBoundsException("A band with the given Index of " + bandIndex + "didn't exist");
+            throw new IndexOutOfBoundsException("A band with the given Index of " + bandIndex + "didn't exist");
         }
         this.bandIndex = bandIndex;
     }
@@ -62,6 +63,7 @@ public class FloatArrayBin implements Bin {
      *
      * @param index the field index
      */
+    @Override
     public float read(int index) {
         return data[offsets[bandIndex] + index];
     }
@@ -72,6 +74,7 @@ public class FloatArrayBin implements Bin {
      * @param index the field to be written to
      * @param value the value to be written
      */
+    @Override
     public void write(int index, float value) {
         data[offsets[bandIndex] + index] = value;
     }
@@ -82,6 +85,7 @@ public class FloatArrayBin implements Bin {
      * The argument for containing data is that at least one data element
      * contains a non 0.f value.
      */
+    @Override
     public boolean containsData() {
         boolean bRet = false;
 
@@ -97,6 +101,7 @@ public class FloatArrayBin implements Bin {
     /**
      * Clears the bin, i.e. sets all data fields to 0.f.
      */
+    @Override
     public void clear() {
         for (int n = 0; n < data.length; n++) {
             data[n] = 0.f;
@@ -108,6 +113,7 @@ public class FloatArrayBin implements Bin {
      *
      * @param dataToLoad The data which is loaded into the bin.
      */
+    @Override
     public void load(float[] dataToLoad) {
         System.arraycopy(dataToLoad, 0, data, 0, data.length);
     }
@@ -118,6 +124,7 @@ public class FloatArrayBin implements Bin {
      * @param recycledSaveData a float arry that can be used if given.
      * @return A flat array with all values of the bin.
      */
+    @Override
     public float[] save(float[] recycledSaveData) {
         float[] savedData;
         if(recycledSaveData == null || recycledSaveData.length != data.length) {
