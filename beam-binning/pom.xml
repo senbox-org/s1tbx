@@ -14,7 +14,7 @@
     <name>BEAM Level-3 Binning Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-binning</artifactId>
-    <version>2.0.2</version>
+    <version>2.1-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
