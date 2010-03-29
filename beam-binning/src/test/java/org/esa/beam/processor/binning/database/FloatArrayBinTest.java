@@ -2,13 +2,6 @@ package org.esa.beam.processor.binning.database;
 
 import junit.framework.TestCase;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 12.08.2005
- * Time: 11:21:17
- * To change this template use File | Settings | File Templates.
- */
 public class FloatArrayBinTest  extends TestCase {
      private FloatArrayBin bin12;
 
@@ -27,15 +20,15 @@ public class FloatArrayBinTest  extends TestCase {
         try{
             bin1.setBandIndex(0);
             bin1.read(1);
-            fail("Should raise an ArrayIndexOutOfBoundsException. Contains only one dataItem.");
-        }catch(ArrayIndexOutOfBoundsException e) {
+            fail("Should raise an IndexOutOfBoundsException. Contains only one dataItem.");
+        }catch(IndexOutOfBoundsException ignored) {
         }
 
         try{
             bin12.setBandIndex(1);
             bin12.read(3);
-            fail("Should raise an ArrayIndexOutOfBoundsException. Contains only two dataItem.");
-        }catch(ArrayIndexOutOfBoundsException e) {
+            fail("Should raise an IndexOutOfBoundsException. Contains only two dataItem.");
+        }catch(IndexOutOfBoundsException ignored) {
         }
     }
 
@@ -43,15 +36,15 @@ public class FloatArrayBinTest  extends TestCase {
         Bin bin1 = new FloatArrayBin(new int[]{1});
         try{
             bin1.setBandIndex(1);
-            fail("Should raise an ArrayIndexOutOfBoundsException. Contains only one band.");
-        }catch(ArrayIndexOutOfBoundsException e) {
+            fail("Should raise anIndexOutOfBoundsException. Contains only one band.");
+        }catch(IndexOutOfBoundsException ignored) {
         }
 
         Bin bin11 = new FloatArrayBin(new int[]{1, 1});
         try{
             bin11.setBandIndex(2);
-            fail("Should raise an ArrayIndexOutOfBoundsException. Contains only two bands.");
-        }catch(ArrayIndexOutOfBoundsException e) {
+            fail("Should raise an IndexOutOfBoundsException. Contains only two bands.");
+        }catch(IndexOutOfBoundsException ignored) {
         }
     }
 

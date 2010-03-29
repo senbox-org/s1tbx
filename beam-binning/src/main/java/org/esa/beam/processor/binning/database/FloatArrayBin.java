@@ -53,7 +53,7 @@ public class FloatArrayBin implements Bin {
     @Override
     public void setBandIndex(int bandIndex) {
         if (bandIndex >= numBands) {
-            throw new IndexOutOfBoundsException("A band with the given Index of " + bandIndex + "didn't exist");
+            throw new IndexOutOfBoundsException("A band with the given Index of " + bandIndex + " didn't exist");
         }
         this.bandIndex = bandIndex;
     }
