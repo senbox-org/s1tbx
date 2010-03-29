@@ -86,9 +86,15 @@ public class SpotVgtProductReader extends AbstractProductReader {
                     variables.put(variable.getName(), variable);
                 }
 
-                Variable pixelDataVar = variables.get("PIXEL DATA");
+                Variable pixelDataVar = variables.get("PIXEL_DATA");
+                if (pixelDataVar == null) {
+                    pixelDataVar = variables.get("PIXEL DATA");
+                }
                 if (pixelDataVar == null) {
                     pixelDataVar = variables.get("ANGLES_VALUES");
+                }
+                if (pixelDataVar == null) {
+                    pixelDataVar = variables.get("ANGLES VALUES");
                 }
                 if (pixelDataVar != null && pixelDataVar.getRank() == 2 && pixelDataVar.getDataType().isNumeric()) {
                     DataType netCdfDataType = pixelDataVar.getDataType();
