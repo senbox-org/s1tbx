@@ -184,10 +184,11 @@ public class MerisProductFile extends ProductFile {
      *
      * @param file            the abstract file path representation.
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
+     * @param lineInterleaved if true the Envisat file is expected to be in line interleaved storage format
      * @throws java.io.IOException if an I/O error occurs
      */
-    protected MerisProductFile(File file, ImageInputStream dataInputStream) throws IOException {
-        super(file, dataInputStream);
+    protected MerisProductFile(File file, ImageInputStream dataInputStream, boolean lineInterleaved) throws IOException {
+        super(file, dataInputStream, lineInterleaved);
     }
 
     /**

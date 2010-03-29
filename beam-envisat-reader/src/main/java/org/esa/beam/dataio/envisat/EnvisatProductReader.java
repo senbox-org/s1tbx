@@ -130,6 +130,8 @@ public class EnvisatProductReader extends AbstractProductReader {
             }
         } else if (input instanceof ImageInputStream) {
             _productFile = ProductFile.open((ImageInputStream) input);
+        } else if (input instanceof ProductFile) {
+            _productFile = (ProductFile) input;
         }
 
         Debug.assertNotNull(_productFile);

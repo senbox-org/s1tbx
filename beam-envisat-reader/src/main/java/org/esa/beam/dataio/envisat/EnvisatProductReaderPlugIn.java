@@ -147,7 +147,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      * @see org.esa.beam.framework.dataio.AbstractProductReader#readProductNodes
      */
     public Class[] getInputTypes() {
-        return new Class[]{String.class, File.class, ImageInputStream.class};
+        return new Class[]{String.class, File.class, ImageInputStream.class, ProductFile.class};
     }
 
     /**

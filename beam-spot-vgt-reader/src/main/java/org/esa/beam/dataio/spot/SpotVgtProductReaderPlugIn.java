@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Locale;
 
 public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
@@ -35,22 +36,34 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
         if (file == null) {
             return DecodeQualification.UNABLE;
         }
-        if (file.isFile() && SpotVgtConstants.PHYS_VOL_FILENAME.equals(file.getName())) {
-            PhysVolDescriptor physVolDescriptor;
+
+        VirtualDir virtualDir = VirtualDir.create(file);
+        if (virtualDir == null) {
+            return DecodeQualification.UNABLE;
+        }
+
+        try {
             try {
-                physVolDescriptor = new PhysVolDescriptor(file);
+                Reader reader = virtualDir.getReader(SpotVgtConstants.PHYS_VOL_FILENAME);
+                if (reader == null) {
+                    return DecodeQualification.UNABLE;
+                }
+                try {
+                    PhysVolDescriptor descriptor = new PhysVolDescriptor(reader);
+                    String[] strings = virtualDir.list(descriptor.getLogVolDirName());
+                    if (strings.length == 0) {
+                        return DecodeQualification.UNABLE;
+                    }
+                } finally {
+                    reader.close();
+                }
+                return DecodeQualification.INTENDED;
             } catch (IOException e) {
                 return DecodeQualification.UNABLE;
             }
-            File dataDir = physVolDescriptor.getDataDir();
-            if (dataDir != null && dataDir.exists()) {
-                String[] hdfFileNames = dataDir.list(SpotVgtConstants.HDF_FILTER);
-                if (hdfFileNames != null && hdfFileNames.length > 0) {
-                    return (hdfFileNames.length == 11) ? DecodeQualification.INTENDED : DecodeQualification.SUITABLE;
-                }
-            }
+        } finally {
+            virtualDir.close();
         }
-        return DecodeQualification.UNABLE;
     }
 
 
@@ -97,8 +110,7 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
      */
     public String[] getDefaultFileExtensions() {
         return new String[]{
-                SpotVgtConstants.FILE_EXTENSION.toUpperCase(),
-                SpotVgtConstants.FILE_EXTENSION.toLowerCase()
+                ".txt", ".TXT", ".zip", ".ZIP"
         };
     }
 
@@ -124,8 +136,7 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
         return new String[]{SpotVgtConstants.FORMAT_NAME};
     }
 
-    static String getBandName(File hdfFile) {
-        String name = hdfFile.getName();
+    static String getBandName(String name) {
         int p1 = name.indexOf("_");
         int p2 = name.lastIndexOf('.');
         return name.substring(p1 == -1 ? 0 : p1 + 1, p2);
@@ -136,11 +147,15 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     static PropertySet readKeyValuePairs(File inputFile) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+        return readKeyValuePairs(new FileReader(inputFile));
+    }
+
+    static PropertySet readKeyValuePairs(Reader reader) throws IOException {
+        BufferedReader breader = new BufferedReader(reader);
         try {
             PropertySet headerProperties = new PropertyContainer();
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = breader.readLine()) != null) {
                 line = line.trim();
                 int i = line.indexOf(' ');
                 String key, value;
@@ -155,18 +170,27 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
             }
             return headerProperties;
         } finally {
-            reader.close();
+            breader.close();
         }
     }
 
     static File getFileInput(Object input) {
-        File file = null;
         if (input instanceof String) {
-            file = new File((String) input);
+            return getFileInput(new File((String) input));
         } else if (input instanceof File) {
-            file = (File) input;
+            return getFileInput((File) input);
         }
-        return file;
+        return null;
     }
 
+    static File getFileInput(File file) {
+        if (file.isDirectory()) {
+            return file;
+        } else if (file.getName().endsWith(".zip") || file.getName().endsWith(".ZIP")) {
+            return file;
+        } else if (file.getName().endsWith(".txt") || file.getName().endsWith(".TXT")) {
+            return file.getParentFile();
+        }
+        return null;
+    }
 }
