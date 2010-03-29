@@ -101,18 +101,39 @@ final class LogVolDescriptor {
     }
 
     public Date getStartDate() {
-        return getDate("SYNTHESIS_FIRST_DATE");
+        Date date = getDate("SYNTHESIS_FIRST_DATE");
+        if (date == null) {
+            date = getDate("SEGM_FIRST_DATE", "SEGM_FIRST_TIME");
+        }
+        return date;
     }
 
     public Date getEndDate() {
-        return getDate("SYNTHESIS_LAST_DATE");
+        Date date = getDate("SYNTHESIS_LAST_DATE");
+        if (date == null) {
+            date = getDate("SEGM_LAST_DATE", "SEGM_LAST_TIME");
+        }
+        return date;
     }
 
     private Date getDate(String s) {
-        String synthesis_first_date = getValue(s);
-        if (synthesis_first_date != null) {
+        String value = getValue(s);
+        if (value != null) {
             try {
-                return DATE_FORMAT.parse(synthesis_first_date);
+                return DATE_FORMAT.parse(value);
+            } catch (ParseException e) {
+                // ?
+            }
+        }
+        return null;
+    }
+
+    private Date getDate(String s1, String s2) {
+        String value1 = getValue(s1);
+        String value2 = getValue(s2);
+        if (value1 != null && value2 != null) {
+            try {
+                return DATE_FORMAT.parse(value1 + value2);
             } catch (ParseException e) {
                 // ?
             }
