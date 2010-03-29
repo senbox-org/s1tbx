@@ -81,7 +81,7 @@ public abstract class VirtualDir {
     public abstract void close();
 
     /**
-     * Creates an instance of a virtual directory object from the given a directory or a ZIP-file.
+     * Creates an instance of a virtual directory object from a given directory or ZIP-file.
      *
      * @param file A directory or a ZIP-file.
      * @return The virtual directory instance, or {@code null} if {@code file} is not a directory or a ZIP-file or
@@ -137,6 +137,7 @@ public abstract class VirtualDir {
 
     private static class Zip extends VirtualDir {
         private static final int BUFFER_SIZE = 4 * 1024 * 1024;
+        
         private final ZipFile zipFile;
         private File tempZipFileDir;
 
