@@ -91,7 +91,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
             storeContext();
 
         } catch (IOException e) {
-            throw new ProcessorException("An I/O error occured:\n" + e.getMessage(), e);
+            throw new ProcessorException("An I/O error occurred:\n" + e.getMessage(), e);
         }
     }
 
