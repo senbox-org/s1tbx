@@ -115,7 +115,7 @@ public class OperatorExecutor {
                 // executeRowBandColumn(pm); 
                 scheduleRowBandColumn(semaphore, listeners, pm);
             } else if (executionOrder == ExecutionOrder.ROW_COLUMN_BAND) {
-                ScheduleRowColumnBand(semaphore, listeners, pm);
+                scheduleRowColumnBand(semaphore, listeners, pm);
             } else if (executionOrder == ExecutionOrder.BAND_ROW_COLUMN) {
                 scheduleBandRowColumn(semaphore, listeners, pm);
             } else {
@@ -152,7 +152,7 @@ public class OperatorExecutor {
         }
     }
 
-    private void ScheduleRowColumnBand(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
+    private void scheduleRowColumnBand(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (int tileX = 0; tileX < tileCountX; tileX++) {
                 for (final PlanarImage image : images) {
