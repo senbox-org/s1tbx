@@ -122,17 +122,16 @@ public class WriteOp extends Operator {
                 }
             }
             final Rectangle rect = targetTile.getRectangle();
-            final Tile sourceTile = getSourceTile(targetBand, rect, pm);
             if (writeEntireTileRows) {
                 int tileX = MathUtils.floorInt(targetTile.getMinX() / (double) tileSize.width);
                 int tileY = MathUtils.floorInt(targetTile.getMinY() / (double) tileSize.height);
                 Row row = new Row(targetBand, tileY);
-                Tile[] tileRow = updateTileRow(row, tileX, sourceTile);
+                Tile[] tileRow = updateTileRow(row, tileX, targetTile);
                 if (tileRow != null) {
                     writeTileRow(targetBand, tileRow);
                 }
             } else {
-                final ProductData rawSamples = sourceTile.getRawSamples();
+                final ProductData rawSamples = targetTile.getRawSamples();
                 synchronized (productWriter) {
                     productWriter.writeBandRasterData(targetBand, rect.x, rect.y, rect.width, rect.height, rawSamples, pm);
                 }
@@ -340,4 +339,3 @@ public class WriteOp extends Operator {
 
     }
 }
-    
