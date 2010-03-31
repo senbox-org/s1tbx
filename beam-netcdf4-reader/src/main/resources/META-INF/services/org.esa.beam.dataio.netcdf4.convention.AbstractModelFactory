@@ -1,0 +1,2 @@
+org.esa.beam.dataio.netcdf4.convention.beam.BeamModelFactory
+org.esa.beam.dataio.netcdf4.convention.cf.CfModelFactory

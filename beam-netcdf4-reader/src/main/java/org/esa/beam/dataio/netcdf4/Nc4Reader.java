@@ -1,8 +1,8 @@
 package org.esa.beam.dataio.netcdf4;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.dataio.netcdf4.convention.AbstractModelFactory;
 import org.esa.beam.dataio.netcdf4.convention.Model;
+import org.esa.beam.dataio.netcdf4.convention.ModelFactoryRegistry;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -101,7 +101,7 @@ public class Nc4Reader extends AbstractProductReader {
         final File fileLocation = new File(getInput().toString());
         rp = new Nc4ReaderParameters(NetcdfFile.open(fileLocation.getPath()));
 
-        final Model convention = AbstractModelFactory.createModelFactory(rp).createModel();
+        final Model convention = ModelFactoryRegistry.getInstance().getModelFactory(rp).createModel();
 
         if (rp.getRasterDigest() == null) {
             close();

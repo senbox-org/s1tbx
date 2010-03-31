@@ -1,11 +1,6 @@
 package org.esa.beam.dataio.netcdf4.convention;
 
 import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
-import org.esa.beam.dataio.netcdf4.convention.beam.BeamModelFactory;
-import org.esa.beam.dataio.netcdf4.convention.cf.CfModelFactory;
-import ucar.nc2.Variable;
-
-import java.util.Map;
 
 /*
  * User: Thomas Storm
@@ -120,28 +115,6 @@ public abstract class AbstractModelFactory {
         return model;
     }
 
-    public static AbstractModelFactory createModelFactory(Nc4ReaderParameters rp) {
-        if (fitsToOIFPattern(rp)) {
-            return new BeamModelFactory();
-        } else if (fitsToHdfEosPattern(rp)) {
-            return new CfModelFactory();
-        } else if (fitsToHdfImappPattern(rp)) {
-            return new CfModelFactory();
-        }
-        return new CfModelFactory();
-    }
+    protected abstract boolean isIntendedFor(Nc4ReaderParameters rp);
 
-    private static boolean fitsToOIFPattern(Nc4ReaderParameters rp) {
-        final String profile = rp.getGlobalAttributes().getValue("metadata_profile", "nothing");
-        return "beam".equalsIgnoreCase(profile);
-    }
-
-    private static boolean fitsToHdfImappPattern(Nc4ReaderParameters rp) {
-        return rp.getNetcdfFile().findGlobalAttribute("RANGEBEGINNINGDATE") != null;
-    }
-
-    private static boolean fitsToHdfEosPattern(Nc4ReaderParameters rp) {
-        final Map<String, Variable> globalVariablesMap = rp.getGlobalVariablesMap();
-        return globalVariablesMap.containsKey("StructMetadata.0");
-    }
 }

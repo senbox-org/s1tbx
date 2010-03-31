@@ -1,5 +1,6 @@
 package org.esa.beam.dataio.netcdf4.convention.beam;
 
+import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.convention.AbstractModelFactory;
 import org.esa.beam.dataio.netcdf4.convention.InitialisationPart;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
@@ -79,5 +80,11 @@ public class BeamModelFactory extends AbstractModelFactory {
     @Override
     public ModelPart getTiePointGridPart() {
         return new BeamTiePointGridPart();
+    }
+
+    @Override
+    protected boolean isIntendedFor(Nc4ReaderParameters rp) {
+        final String profile = rp.getGlobalAttributes().getValue("metadata_profile", "nothing");
+        return "beam".equalsIgnoreCase(profile);
     }
 }
