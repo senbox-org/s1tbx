@@ -4,6 +4,8 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 
 import javax.media.jai.Interpolation;
+import javax.media.jai.OpImage;
+import javax.media.jai.TileCache;
 import javax.media.jai.operator.ScaleDescriptor;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -77,6 +79,8 @@ public class DefaultMultiLevelSource extends AbstractMultiLevelSource {
 
     /**
      * Returns the level-0 image if {@code level} equals zero, otherwise calls {@code super.getLevelImage(level)}.
+     * This override prevents the base class from storing a reference to the source image (the level-0 image).
+     * See {@link AbstractMultiLevelSource#createImage(int)}.
      *
      * @param level The level.
      * @return The image.
@@ -90,18 +94,25 @@ public class DefaultMultiLevelSource extends AbstractMultiLevelSource {
     }
 
     /**
-     * Returns the level-0 image if {@code level} equals zero, otherwise creates a scaled version of it.
+     * Creates a scaled version of the level-0 image for the given level.
+     * See {@link #getImage(int)} and {@link AbstractMultiLevelSource#createImage(int) super.createImage(int)}.
      *
      * @param level The level.
      * @return The image.
      */
     @Override
-    public RenderedImage createImage(int level) {
+    protected RenderedImage createImage(int level) {
         if (level == 0) {
             return sourceImage;
         }
         final float scale = (float) (1.0 / getModel().getScale(level));
         return ScaleDescriptor.create(sourceImage, scale, scale, 0.0f, 0.0f, interpolation, null);
+    }
+
+    @Override
+    public void reset() {
+        removeTilesFromCache(sourceImage);
+        super.reset();
     }
 
     public static MultiLevelModel createDefaultMultiLevelModel(RenderedImage sourceImage, int levelCount) {
@@ -111,10 +122,20 @@ public class DefaultMultiLevelSource extends AbstractMultiLevelSource {
                                           sourceImage.getHeight());
     }
 
-
     private static MultiLevelSource createNull() {
         final BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_BYTE_GRAY);
         final DefaultMultiLevelModel model = new DefaultMultiLevelModel(1, new AffineTransform(), null);
         return new DefaultMultiLevelSource(image, model);
+    }
+
+    // todo - very useful method, make it accessible from outside.
+    private static void removeTilesFromCache(RenderedImage image) {
+        if (image instanceof OpImage) {
+            OpImage opImage = (OpImage) image;
+            TileCache tileCache = opImage.getTileCache();
+            if (tileCache != null) {
+                tileCache.removeTiles(image);
+            }
+        }
     }
 }

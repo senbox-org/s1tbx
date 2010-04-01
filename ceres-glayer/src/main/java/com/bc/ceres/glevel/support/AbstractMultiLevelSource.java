@@ -55,6 +55,8 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
 
     /**
      * Called by {@link #getImage(int)} if a level image is requested for the first time.
+     * Note that images created via this method will be {@link PlanarImage#dispose disposed}
+     * when {@link #reset} is called on this multi-level image source. See {@link #getImage(int)}.
      *
      * @param level The resolution level.
      *
