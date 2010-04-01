@@ -29,6 +29,7 @@ import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -44,30 +45,27 @@ import org.esa.beam.util.SystemUtils;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileScheduler;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.StringReader;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
+
 public class WriteOpTest extends TestCase {
-    private static final int RASTER_SIZE = 4;
-    private MockFillerOp.Spi fillOpSpi = new MockFillerOp.Spi();
+
+    private static final int RASTER_WIDTH = 4;
+    private static final int RASTER_HEIGHT = 40;
+
+    private AlgoOp.Spi algoSpi = new AlgoOp.Spi();
     private WriteOp.Spi writeSpi = new WriteOp.Spi();
     private File outputFile;
-    private int parallelism;
     private TileScheduler jaiTileScheduler;
 
     @Override
     protected void setUp() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(fillOpSpi);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(algoSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(writeSpi);
-        outputFile = GlobalTestConfig.getBeamTestDataOutputFile("DIMAP/writtenProduct.dim");
+        outputFile = GlobalTestConfig.getBeamTestDataOutputFile("WriteOpTest/writtenProduct.dim");
         outputFile.getParentFile().mkdirs();
-        outputFile.createNewFile();
         JAI jai = JAI.getDefaultInstance();
         jaiTileScheduler = jai.getTileScheduler();
         SunTileScheduler tileScheduler = new SunTileScheduler();
@@ -77,7 +75,7 @@ public class WriteOpTest extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(fillOpSpi);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(algoSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(writeSpi);
         File parentFile = outputFile.getParentFile();
         SystemUtils.deleteFileTree(parentFile);
@@ -91,7 +89,7 @@ public class WriteOpTest extends TestCase {
                 + "    <target refid=\"node2\" />\n"
                 + "  </header>\n"
                 + "  <node id=\"node1\">\n"
-                + "    <operator>MockFiller</operator>\n"
+                + "    <operator>Algo</operator>\n"
                 + "  </node>\n"
                 + "  <node id=\"node2\">\n"
                 + "    <operator>Write</operator>\n"
@@ -115,54 +113,71 @@ public class WriteOpTest extends TestCase {
 
         Product productOnDisk = ProductIO.readProduct(outputFile);
         assertNotNull(productOnDisk);
-        final ProductNodeGroup<Placemark> placemarkProductNodeGroup = productOnDisk.getPinGroup();
 
-        assertEquals(40, placemarkProductNodeGroup.getNodeCount());     // one for each tile, we have 4 tiles
         assertEquals("writtenProduct", productOnDisk.getName());
-        assertEquals(1, productOnDisk.getNumBands());
-        Band band1 = productOnDisk.getBandAt(0);
-        assertEquals("Op1A", band1.getName());
-        assertEquals(RASTER_SIZE, band1.getSceneRasterWidth());
-        band1.loadRasterData();
-        assertEquals(42, band1.getPixelInt(0, 0));
+        assertEquals(3, productOnDisk.getNumBands());
+        assertEquals("OperatorBand", productOnDisk.getBandAt(0).getName());
+        assertEquals("ConstantBand", productOnDisk.getBandAt(1).getName());
+        assertEquals("VirtualBand", productOnDisk.getBandAt(2).getName());
+
+        Band operatorBand = productOnDisk.getBandAt(0);
+        operatorBand.loadRasterData();
+        assertEquals(42, operatorBand.getPixelInt(0, 0));
+
+        // Test that header has been rewritten due to data model changes in AlgoOp.computeTile()
+        final ProductNodeGroup<Placemark> placemarkProductNodeGroup = productOnDisk.getPinGroup();
+        // 40 pins expected --> one for each tile, we have 40 tiles
+        assertEquals(40, placemarkProductNodeGroup.getNodeCount());
+
         productOnDisk.dispose();
     }
 
-    @OperatorMetadata(alias = "MockFiller")
-    public static class MockFillerOp extends Operator {
+    /**
+     * Some algorithm.
+     */
+    @OperatorMetadata(alias = "Algo")
+    public static class AlgoOp extends Operator {
 
         @TargetProduct
         private Product targetProduct;
 
         @Override
         public void initialize() {
-            targetProduct = new Product("Op1Name", "Op1Type", RASTER_SIZE, 10*RASTER_SIZE);
-            targetProduct.addBand("Op1A", ProductData.TYPE_INT8);
+
+            targetProduct = new Product("name", "desc", RASTER_WIDTH, RASTER_HEIGHT);
+            targetProduct.addBand("OperatorBand", ProductData.TYPE_INT8);
+            targetProduct.addBand("ConstantBand", ProductData.TYPE_INT8).setSourceImage(new BufferedImage(RASTER_WIDTH, RASTER_HEIGHT, BufferedImage.TYPE_BYTE_INDEXED));
+            targetProduct.addBand(new VirtualBand("VirtualBand", ProductData.TYPE_FLOAT32, RASTER_WIDTH, RASTER_HEIGHT, "OperatorBand + ConstantBand"));
+
             targetProduct.setPreferredTileSize(2, 2);
         }
 
         @Override
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
-            //System.out.println(getClass().getName() + ":");
-            //System.out.println("  band = " + band);
-            //System.out.println("  targetTile = " + targetTile.getRectangle());
+            // Fill the tile with the constant sample value 42
+            //
             for (Pos pos : targetTile) {
                 targetTile.setSample(pos.x, pos.y, 42);
             }
+
+            // Set a pin, so that we can test that the header is rewritten after
+            // a data model change.
+            //
             final int minX = targetTile.getMinX();
             final int minY = targetTile.getMinY();
             final PlacemarkSymbol symbol = PinDescriptor.INSTANCE.createDefaultSymbol();
             Placemark placemark = new Placemark(band.getName() + minX + "," + minY,
-                                                        "label", "descr",
-                                                        new PixelPos(minX, minY), null,
-                                                        symbol, targetProduct.getGeoCoding());
+                                                "label", "descr",
+                                                new PixelPos(minX, minY), null,
+                                                symbol, targetProduct.getGeoCoding());
+
             targetProduct.getPinGroup().add(placemark);
         }
 
         public static class Spi extends OperatorSpi {
 
             public Spi() {
-                super(MockFillerOp.class);
+                super(AlgoOp.class);
             }
         }
     }

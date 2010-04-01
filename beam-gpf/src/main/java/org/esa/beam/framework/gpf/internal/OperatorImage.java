@@ -1,19 +1,17 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.jai.ImageManager;
-
-import java.awt.Rectangle;
-import java.awt.image.RenderedImage;
-import java.awt.image.WritableRaster;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.SourcelessOpImage;
+import java.awt.Rectangle;
+import java.awt.image.RenderedImage;
+import java.awt.image.WritableRaster;
 
 class OperatorImage extends SourcelessOpImage {
 
@@ -53,25 +51,33 @@ class OperatorImage extends SourcelessOpImage {
         return targetBand;
     }
 
+
     @Override
     protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
 
         long nanos1 = System.nanoTime();
 
-        Tile targetTile = createTargetTile(destRect, tile);
-        if (operatorContext.isComputeTileMethodUsable()) {
-            operatorContext.getOperator().computeTile(getTargetBand(), targetTile, getProgressMonitor());
+        Tile targetTile;
+        if (getOperatorContext().isComputing(getTargetBand())) {
+            targetTile = createTargetTile(getTargetBand(), tile, destRect);
+        } else if (requiresAllBands()) {
+            targetTile = getOperatorContext().getSourceTile(getTargetBand(), destRect, getProgressMonitor());
+        } else {
+            targetTile = null;
+        }
+        // computeTile() may have been deactivated
+        if (targetTile != null && getOperatorContext().isComputeTileMethodUsable()) {
+            getOperatorContext().getOperator().computeTile(getTargetBand(), targetTile, getProgressMonitor());
         }
 
         long nanos2 = System.nanoTime();
-
-        double targetNanosPerPixel = (double) (nanos2 - nanos1) / (double) (destRect.width * destRect.height);
-        operatorContext.getPerformanceMetric().updateTarget(targetNanosPerPixel);
-
-        double sourceNanosPerPixel = operatorContext.getSourceNanosPerPixel();
-        operatorContext.getPerformanceMetric().updateSource(sourceNanosPerPixel);
+        updatePerformanceMetrics(nanos1, nanos2, destRect);
     }
-    
+
+    protected boolean requiresAllBands() {
+        return operatorContext.requiresAllBands();
+    }
+
     protected void updatePerformanceMetrics(long nanos1, long nanos2, Rectangle destRect) {
         double targetNanosPerPixel = (double) (nanos2 - nanos1) / (double) (destRect.width * destRect.height);
         operatorContext.getPerformanceMetric().updateTarget(targetNanosPerPixel);
@@ -116,16 +122,6 @@ class OperatorImage extends SourcelessOpImage {
             opImage.setProgressMonitor(pm);
         }
         return oldPm;
-    }
-
-    private Tile createTargetTile(Rectangle targetRectangle, WritableRaster targetTileRaster) {
-        Tile targetTile;
-        if (operatorContext.isPassThrough()) {
-            targetTile = operatorContext.getSourceTile(getTargetBand(), targetRectangle, getProgressMonitor());
-        } else {
-            targetTile = createTargetTile(getTargetBand(), targetTileRaster, targetRectangle);
-        }
-        return targetTile;
     }
 
     protected static TileImpl createTargetTile(Band band, WritableRaster targetTileRaster, Rectangle targetRectangle) {

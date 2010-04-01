@@ -90,6 +90,16 @@ public abstract class Operator {
     public abstract void initialize() throws OperatorException;
 
     /**
+     * Updates this operator forcing it to recreate the target product.
+     * <i>Warning: Experimental API added by nf (25.02.2010)</i><br/>
+     *
+     * @since BEAM 4.8
+     */
+    public void update() {
+        context.updateOperator();
+    }
+
+    /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      * <p>This method shall never be called directly.
@@ -129,7 +139,7 @@ public abstract class Operator {
     /**
      * Deactivates the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile}
      * method. This method can be called from within the {@link #initialize()} method if the current operator configuration prevents
-     * the computation of tiles of individual, independend bands.
+     * the computation of tiles of individual, independent bands.
      *
      * @throws IllegalStateException if the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack} method is not implemented
      */
@@ -138,6 +148,10 @@ public abstract class Operator {
             throw new IllegalStateException("!context.isComputeTileStackMethodUsable()");
         }
         context.setComputeTileMethodUsable(false);
+    }
+
+    protected final void setRequiresAllBands(boolean requiresAllBands) {
+        context.setRequiresAllBands(requiresAllBands);
     }
 
     /**

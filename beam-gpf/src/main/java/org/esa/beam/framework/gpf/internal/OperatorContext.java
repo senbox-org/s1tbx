@@ -28,6 +28,7 @@ import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.Xpp3DomElement;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
@@ -97,6 +98,7 @@ public class OperatorContext {
     private RenderingHints renderingHints;
     private PerformanceMetric performanceMetric;
     private boolean initialising;
+    private boolean requiresAllBands;
 
 
     public OperatorContext(Operator operator) {
@@ -393,6 +395,18 @@ public class OperatorContext {
         }
     }
 
+    /**
+     * Updates this operator forcing it to recreate the target product.
+     * <i>Warning: Experimental API added by nf (25.02.2010)</i><br/>
+     *
+     * @since BEAM 4.8
+     */
+    public void updateOperator() throws OperatorException {
+        targetProduct = null;
+        initializeOperator();
+    }
+
+
     private PropertyContainer getOperatorValueContainer() {
         if (propertyContainer == null) {
             PropertyDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
@@ -542,29 +556,57 @@ public class OperatorContext {
         }
         targetImageMap = new HashMap<Band, OperatorImage>(targetBands.length * 2);
         for (final Band targetBand : targetBands) {
-            if (!isRegularBand(targetBand)) {
-                continue;
-            }
-            final OperatorImage image;
-            if (operatorMustComputeTileStack()) {
-                image = new OperatorImageTileStack(targetBand, this, locks);
-            } else {
-                image = new OperatorImage(targetBand, this);
-            }
-            targetImageMap.put(targetBand, image);
+            // Only register non-virtual bands
+            if (isRegularBand(targetBand)) {
 
-            // Note: It is legal not to set the newly created operator image
-            // in the target band, if it already has a source image set.
-            // This case occurs for "pass-through" operators.
-            // Pull processing in GPF is primarily triggered by fetching tiles
-            // of the target images of this operator context, not directly
-            // by using the band's source images. Otherwise the WriteOp.computeTile()
-            // method would never be called.
-            //
-            if (!targetBand.isSourceImageSet()) {
-                targetBand.setSourceImage(image);
+                OperatorImage opImage = getOwnedOperatorImage(targetBand);
+                if (opImage == null) {
+
+                    final OperatorImage image;
+                    if (operatorMustComputeTileStack()) {
+                        image = new OperatorImageTileStack(targetBand, this, locks);
+                    } else {
+                        image = new OperatorImage(targetBand, this);
+                    }
+                    targetImageMap.put(targetBand, image);
+
+                    // Note: It is legal not to set the newly created operator image
+                    // in the target band, if it already has a source image set.
+                    // This case occurs for "pass-through" operators.
+                    // Pull processing in GPF is primarily triggered by fetching tiles
+                    // of the target images of this operator context, not directly
+                    // by using the band's source images. Otherwise the WriteOp.computeTile()
+                    // method would never be called.
+                    //
+                    if (!targetBand.isSourceImageSet()) {
+                        targetBand.setSourceImage(image);
+                    }
+                } else {
+                    targetBand.getSourceImage().reset();
+                    targetImageMap.put(targetBand, opImage);
+                }
             }
+
         }
+    }
+
+    private OperatorImage getOwnedOperatorImage(Band targetBand) {
+        // If there is no source image then we can't own it
+        if (!targetBand.isSourceImageSet()) {
+            return null;
+        }
+        // If the source image is not an OperatorImage then we can't own it neither
+        RenderedImage renderedImage = targetBand.getSourceImage().getImage(0);
+        if (!(renderedImage instanceof OperatorImage)) {
+            return null;
+        }
+        // If the OperatorImage's context is not us, then it is not ours
+        OperatorImage operatorImage = (OperatorImage) renderedImage;
+        if (this != operatorImage.getOperatorContext()) {
+            return null;
+        }
+        // Now it must be an OperatorImage that we have created
+        return operatorImage;
     }
 
     private Dimension getPreferredTileSize() {
@@ -590,8 +632,26 @@ public class OperatorContext {
     }
 
     private void initTargetProduct() throws OperatorException {
-        Field[] declaredFields = operator.getClass().getDeclaredFields();
-        for (Field declaredField : declaredFields) {
+        Class<? extends Operator> operatorClass = operator.getClass();
+        initTargetProduct(operatorClass);
+        if (targetProduct == null) {
+            final String message = formatExceptionMessage("No target product set.");
+            throw new OperatorException(message);
+        }
+        if (targetProduct.getProductReader() == null) {
+            targetProduct.setProductReader(new OperatorProductReader(this));
+        }
+        if (renderingHints != null && GPF.KEY_TILE_SIZE.isCompatibleValue(renderingHints.get(GPF.KEY_TILE_SIZE))) {
+            targetProduct.setPreferredTileSize((Dimension) renderingHints.get(GPF.KEY_TILE_SIZE));
+        }
+    }
+
+    private void initTargetProduct(Class<? extends Operator> operatorClass) {
+        Class<?> superClass = operatorClass.getSuperclass();
+        if (superClass != null && !superClass.equals(Operator.class)) {
+            initTargetProduct((Class<? extends Operator>) superClass);
+        }
+        for (Field declaredField : operatorClass.getDeclaredFields()) {
             TargetProduct targetProductAnnotation = declaredField.getAnnotation(TargetProduct.class);
             if (targetProductAnnotation != null) {
                 if (!declaredField.getType().equals(Product.class)) {
@@ -611,16 +671,6 @@ public class OperatorContext {
                     }
                 }
             }
-        }
-        if (targetProduct == null) {
-            final String message = formatExceptionMessage("No target product set.");
-            throw new OperatorException(message);
-        }
-        if (targetProduct.getProductReader() == null) {
-            targetProduct.setProductReader(new OperatorProductReader(this));
-        }
-        if (renderingHints != null && GPF.KEY_TILE_SIZE.isCompatibleValue(renderingHints.get(GPF.KEY_TILE_SIZE))) {
-            targetProduct.setPreferredTileSize((Dimension) renderingHints.get(GPF.KEY_TILE_SIZE));
         }
     }
 
@@ -653,7 +703,11 @@ public class OperatorContext {
     }
 
     private void initSourceProductFields() throws OperatorException {
-        Field[] declaredFields = operator.getClass().getDeclaredFields();
+        initSourceProductFields(operator.getClass());
+    }
+
+    private void initSourceProductFields(Class<? extends Operator> operatorClass) {
+        Field[] declaredFields = operatorClass.getDeclaredFields();
         for (Field declaredField : declaredFields) {
             SourceProduct sourceProductAnnotation = declaredField.getAnnotation(SourceProduct.class);
             if (sourceProductAnnotation != null) {
@@ -664,10 +718,13 @@ public class OperatorContext {
                 processSourceProductsField(declaredField, sourceProductsAnnotation);
             }
         }
+        Class<?> superClass = operatorClass.getSuperclass();
+        if (superClass != null && !superClass.equals(Operator.class)) {
+            initSourceProductFields((Class<? extends Operator>) superClass);
+        }
     }
 
-    private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws
-            OperatorException {
+    private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws OperatorException {
         if (declaredField.getType().equals(Product.class)) {
             Product sourceProduct = getSourceProduct(declaredField.getName());
             if (sourceProduct == null) {
@@ -947,5 +1004,23 @@ public class OperatorContext {
                 operatorContext.logPerformanceAnalysis(indent + "  ");
             }
         }
+    }
+
+    boolean isComputing(Band band) {
+        if (band.isSourceImageSet()) {
+            RenderedImage sourceImage = band.getSourceImage().getImage(0);
+            OperatorImage targetImage = getTargetImage(band);
+            return targetImage == sourceImage;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean requiresAllBands() {
+        return requiresAllBands;
+    }
+
+    public void setRequiresAllBands(boolean requiresAllBands) {
+        this.requiresAllBands = requiresAllBands;
     }
 }

@@ -71,8 +71,8 @@ public class WriteOp extends Operator {
     private Dimension tileSize;
     private int tileCountX;
 
-
     public WriteOp() {
+        setRequiresAllBands(true);
     }
 
     public WriteOp(Product sourceProduct, File file, String formatName) {
@@ -80,6 +80,7 @@ public class WriteOp extends Operator {
     }
 
     public WriteOp(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure) {
+        this();
         this.sourceProduct = sourceProduct;
         this.file = file;
         this.formatName = formatName;
