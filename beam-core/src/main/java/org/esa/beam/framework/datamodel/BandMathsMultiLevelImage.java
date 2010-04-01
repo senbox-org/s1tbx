@@ -19,14 +19,14 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 /**
- * A {@link MultiLevelImage} computed from raster data arithmetics. The {@link MathMultiLevelImage}
- * resets itsself whenever any referred raster data have changed.
+ * A {@link MultiLevelImage} computed from band maths. The {@link BandMathsMultiLevelImage}
+ * resets itself whenever any referred raster data have changed.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  * @since BEAM 4.7
  */
-class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeListener {
+class BandMathsMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeListener {
 
     private final Map<Product, Set<ProductNode>> nodeMap = new WeakHashMap<Product, Set<ProductNode>>();
 
@@ -54,7 +54,7 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
                                                  ResolutionLevel.create(getModel(), level));
             }
         };
-        return new MathMultiLevelImage(multiLevelSource, expression, associatedNode.getProduct()) {
+        return new BandMathsMultiLevelImage(multiLevelSource, expression, associatedNode.getProduct()) {
             @Override
             public void reset() {
                 super.reset();
@@ -71,7 +71,7 @@ class MathMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeL
      * @param expression       the raster data arithmetic expression.
      * @param product          the parent of the raster data node(s) referred in {@code expression}.
      */
-    MathMultiLevelImage(MultiLevelSource multiLevelSource, String expression, Product product) {
+    BandMathsMultiLevelImage(MultiLevelSource multiLevelSource, String expression, Product product) {
         super(multiLevelSource);
         try {
             final RasterDataNode[] nodes;

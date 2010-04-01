@@ -265,7 +265,7 @@ public class VirtualBand extends Band {
      * @return A multi-level image.
      */
     public static MultiLevelImage createVirtualSourceImage(final RasterDataNode raster, final String expression) {
-        return MathMultiLevelImage.create(expression, raster);
+        return BandMathsMultiLevelImage.create(expression, raster);
     }
 }
 

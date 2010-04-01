@@ -13,13 +13,13 @@ import org.junit.Test;
 import java.awt.image.RenderedImage;
 import java.util.Arrays;
 
-public class MathMultiLevelImageTest {
+public class BandMathsMultiLevelImageTest {
 
     private Product p;
     private Product q;
     private VirtualBand v;
     private VirtualBand w;
-    private MathMultiLevelImage image;
+    private BandMathsMultiLevelImage image;
 
     @Before
     public void setup() {
@@ -37,7 +37,7 @@ public class MathMultiLevelImageTest {
 
         final String expression = "$1.V == $2.W";
         final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(v);
-        image = new MathMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
+        image = new BandMathsMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {
                 return VirtualBandOpImage.createMask(expression, p, ResolutionLevel.create(getModel(), level));

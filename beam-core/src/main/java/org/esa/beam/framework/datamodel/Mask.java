@@ -246,7 +246,7 @@ public class Mask extends Band {
                                                          ResolutionLevel.create(getModel(), level));
                 }
             };
-            return new MathMultiLevelImage(multiLevelSource, getExpression(mask), mask.getProduct()) {
+            return new BandMathsMultiLevelImage(multiLevelSource, getExpression(mask), mask.getProduct()) {
                 @Override
                 public void reset() {
                     super.reset();
@@ -460,7 +460,7 @@ public class Mask extends Band {
                                                          ResolutionLevel.create(getModel(), level));
                 }
             };
-            return new MathMultiLevelImage(multiLevelSource, getExpression(mask), mask.getProduct()) {
+            return new BandMathsMultiLevelImage(multiLevelSource, getExpression(mask), mask.getProduct()) {
                 @Override
                 public void reset() {
                     super.reset();
