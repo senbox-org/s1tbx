@@ -238,10 +238,13 @@ public class VectorDataLayerEditor extends AbstractLayerConfigurationEditor {
         public void hierarchyChanged(HierarchyEvent e) {
             if ((e.getChangeFlags() & HierarchyEvent.PARENT_CHANGED) == HierarchyEvent.PARENT_CHANGED) {
                 if (e.getChanged().getParent() == null) {
-                    final FigureEditor figureEditor = applicationContext.getSelectedProductSceneView().getFigureEditor();
-                    if (!containsListener(figureEditor, selectionChangeHandler)) {
-                        figureEditor.removeSelectionChangeListener(selectionChangeHandler);
-                        getBindingContext().removePropertyChangeListener(updateStyleListener);
+                    ProductSceneView sceneView = applicationContext.getSelectedProductSceneView();
+                    if (sceneView != null) {
+                        final FigureEditor figureEditor = sceneView.getFigureEditor();
+                        if (!containsListener(figureEditor, selectionChangeHandler)) {
+                            figureEditor.removeSelectionChangeListener(selectionChangeHandler);
+                            getBindingContext().removePropertyChangeListener(updateStyleListener);
+                        }
                     }
                 }
             }
