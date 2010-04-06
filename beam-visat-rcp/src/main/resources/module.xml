@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.7.1:<br/>
+          [BEAM-1105] NullPointerException is thrown, if editor for geometry layer is visible<br/>
           [BEAM-1094] Not possible to add placemarks if scrollbars are used<br/>
           [BEAM-1093] Dragging does not work in Layer Manager<br/>
         </p>
