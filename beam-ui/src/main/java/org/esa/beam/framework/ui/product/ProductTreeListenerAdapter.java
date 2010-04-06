@@ -63,11 +63,11 @@ public abstract class ProductTreeListenerAdapter implements ProductTreeListener2
     /**
      * Called when a product's metadata element has been selected in the tree.
      *
-     * @param matadataElement The selected metadata element.
+     * @param metadataElement The selected metadata element.
      * @param clickCount      The number of mouse clicks.
      */
     @Override
-    public void metadataElementSelected(MetadataElement matadataElement, int clickCount) {
+    public void metadataElementSelected(MetadataElement metadataElement, int clickCount) {
     }
 
     /**
