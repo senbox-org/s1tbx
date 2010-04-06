@@ -18,6 +18,7 @@ package org.esa.beam.visat.toolviews.mask;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -190,20 +191,33 @@ public abstract class MaskToolView extends AbstractToolView {
     private class MaskPTL extends ProductTreeListenerAdapter {
         @Override
         public void productSelected(Product product, int clickCount) {
-            maskForm.reconfigureMaskTable(product, null);
             setSceneView(null);
+            maskForm.reconfigureMaskTable(product, null);
         }
 
         @Override
         public void bandSelected(Band band, int clickCount) {
-            maskForm.reconfigureMaskTable(band.getProduct(), band);
             setSceneView(null);
+            maskForm.reconfigureMaskTable(band.getProduct(), band);
         }
         
         @Override
         public void tiePointGridSelected(TiePointGrid tiePointGrid, int clickCount) {
-            maskForm.reconfigureMaskTable(tiePointGrid.getProduct(), tiePointGrid);
             setSceneView(null);
+            maskForm.reconfigureMaskTable(tiePointGrid.getProduct(), tiePointGrid);
         }
+                                    
+        @Override
+        public void metadataElementSelected(MetadataElement metadataElement, int clickCount) {
+            setSceneView(null);
+            maskForm.reconfigureMaskTable(metadataElement.getProduct(), null);
+        }
+
+        @Override
+        public void vectorDataSelected(VectorDataNode vectorDataNode, int clickCount) {
+            setSceneView(null);
+            maskForm.reconfigureMaskTable(vectorDataNode.getProduct(), null);
+        }
+
     }
 }
