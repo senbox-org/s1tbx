@@ -133,7 +133,7 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
         if (loggerName == null) {
             loggerName = declaringModule.getSymbolicName();
         }
-        if (version == null || "${beam.version}".equals(version)) {
+        if (version == null || "${beam.build.id}".equals(version)) {
             version = declaringModule.getVersion().toString();
         }
         if (copyright == null) {
