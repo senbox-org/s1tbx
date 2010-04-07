@@ -11,7 +11,6 @@
 	
     <groupId>com.bc.ceres</groupId>
     <artifactId>ceres-ui</artifactId>
-    <version>0.11-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Ceres UI</name>
 

@@ -17,6 +17,15 @@
 
     <packaging>pom</packaging>
 
+    <!--
+    In version 2.1 of Maven the sourceEncoding property will be embedded in the
+    build tag. For now the convention is to that it as property.
+    TODO: Move the sourceEncoding property to the build tag if version 2.1 is released
+    -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <organization>
         <name>Brockmann Consult GmbH</name>
         <url>http://www.brockmann-consult.de</url>
@@ -36,30 +45,32 @@
 
     <repositories>
         <repository>
-            <id>bc-mvn-repo-public</id>
-            <name>Public Maven Repository at Brockmann-Consult</name>
-            <url>http://www.brockmann-consult.de/mvn/os</url>
-            <releases>
-              <enabled>true</enabled>
-              <checksumPolicy>warn</checksumPolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <checksumPolicy>warn</checksumPolicy>
-            </snapshots>
-        </repository>
+              <id>bc-mvn-repo-http</id>
+              <name>Public Maven Repository at Brockmann Consult</name>
+              <url>http://www.brockmann-consult.de/mvn/os</url>
+              <releases>
+                  <enabled>true</enabled>
+                  <checksumPolicy>warn</checksumPolicy>
+              </releases>
+              <snapshots>
+                  <enabled>true</enabled>
+                  <checksumPolicy>warn</checksumPolicy>
+              </snapshots>
+          </repository>        
     </repositories>
 
     <distributionManagement>
         <repository>
-            <id>bc-mvn-repo</id>
+            <id>bc-mvn-repo-public</id>
             <name>Public Maven Repository at Brockmann Consult</name>
-            <url>scp://apache.bc.local/bc-mvn-repo/os</url>
+            <url>scp://www.brockmann-consult.de/var/www/www.brockmann-consult.de/mvn/os</url>
+            <uniqueVersion>false</uniqueVersion>
         </repository>
         <snapshotRepository>
-            <id>bc-mvn-repo</id>
-            <name>Public Maven Repository at Brockmann Consult</name>
-            <url>scp://apache.bc.local/bc-mvn-repo/os</url>
+            <id>bc-mvn-repo-public</id>
+            <name>Public Maven Snapshot Repository at Brockmann Consult</name>
+            <url>scp://www.brockmann-consult.de/var/www/www.brockmann-consult.de/mvn/os</url>
+            <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
 
@@ -72,15 +83,15 @@
     </licenses>
 
     <modules>
+        <module>ceres-launcher</module>
         <module>ceres-core</module>
         <module>ceres-binding</module>
         <module>ceres-ui</module>
         <module>ceres-deploy</module>
         <module>ceres-glayer</module>
-        <module>ceres-binio</module>
-        <module>ceres-launcher</module>
-        <module>ceres-site</module>
         <module>ceres-jai</module>
+        <module>ceres-binio</module>
+        <module>ceres-site</module>
     </modules>
 
     <dependencyManagement>
@@ -104,27 +115,47 @@
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-launcher</artifactId>
-                <version>0.11-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-binding</artifactId>
-                <version>0.11-SNAPSHOT</version>
+                <version>${pom.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-core</artifactId>
-                <version>0.11-SNAPSHOT</version>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-binding</artifactId>
+                <version>${pom.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-ui</artifactId>
-                <version>0.11-SNAPSHOT</version>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-deploy</artifactId>
+                <version>${pom.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-glayer</artifactId>
-                <version>0.11-SNAPSHOT</version>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-jai</artifactId>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-binio</artifactId>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-site</artifactId>
+                <version>${pom.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -135,15 +166,6 @@
             <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
-
-    <!--
-    In version 2.1 of Maven the sourceEncoding property will be embedded in the
-    build tag. For now the convention is to that it as property.
-    TODO: Move the sourceEncoding property to the build tag if version 2.1 is released
-    -->
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 
     <build>
         <plugins>
