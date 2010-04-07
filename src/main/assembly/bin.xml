@@ -94,10 +94,6 @@
             <excludes>
                 <exclude>org.esa.beam:beam-bootstrap</exclude>
                 <exclude>org.esa.beam:beam-installer</exclude>
-                <exclude>com.bc.ceres:ceres-launcher</exclude>
-                <exclude>com.bc.ceres:ceres-deploy</exclude>
-                <exclude>com.bc.ceres:ceres-fs</exclude>
-                <exclude>com.bc.ceres:ceres-site</exclude>
             </excludes>
             <binaries>
                 <outputDirectory>modules</outputDirectory>
@@ -122,9 +118,21 @@
                             <exclude>ucar.netcdf:*</exclude>
                         </excludes>
                     </dependencySet>
+                    <dependencySet>
+                        <outputDirectory>modules</outputDirectory>
+						<outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
+                        <includes>
+                            <include>com.bc.ceres:*</include>
+                        </includes>
+                        <excludes>
+                            <exclude>com.bc.ceres:ceres-launcher</exclude>
+                            <exclude>com.bc.ceres:ceres-deploy</exclude>
+                            <exclude>com.bc.ceres:ceres-site</exclude>
+                        </excludes>
+                    </dependencySet>
                 </dependencySets>
 		    </binaries>
 		</moduleSet>
     </moduleSets>
-	
+
 </assembly>

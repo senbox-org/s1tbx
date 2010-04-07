@@ -14,7 +14,6 @@
     <name>BEAM VISAT Application</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-visat</artifactId>
-    <version>4.8-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 

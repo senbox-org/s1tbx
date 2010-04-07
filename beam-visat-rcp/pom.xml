@@ -11,7 +11,6 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-visat-rcp</artifactId>
     <packaging>jar</packaging>
-    <version>4.8-SNAPSHOT</version>
     <name>BEAM VISAT Rich Client Platform</name>
 
     <dependencies>
