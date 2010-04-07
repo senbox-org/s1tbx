@@ -23,6 +23,11 @@
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-javahelp-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>index.html</exclude> <!-- because javahelp does not like framesets-->
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
