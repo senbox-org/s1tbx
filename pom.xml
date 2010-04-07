@@ -109,7 +109,6 @@
     </distributionManagement>
 
     <modules>
-        <module>../ceres</module>
 
         <!-- the bootstrap module has no sources,
              its only purpose is to construct a class path for VISAT
@@ -170,7 +169,7 @@
            -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <ceres.version>0.10.1-SNAPSHOT</ceres.version>
+        <ceres.version>0.10.2-SNAPSHOT</ceres.version>
         <geotools.version>2.6.1</geotools.version>
     </properties>
 
@@ -188,7 +187,7 @@
             <dependency>
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-core</artifactId>
-                <version>0.10.2-SNAPSHOT</version>
+                <version>${ceres.version}</version>
             </dependency>
 
             <dependency>
