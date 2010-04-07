@@ -97,14 +97,16 @@
 
     <distributionManagement>
         <repository>
-            <id>bc-mvn-repo</id>
-            <name>Public Maven Repository at Brockmann Consult</name>
-            <url>scp://apache.bc.local/bc-mvn-repo/os</url>
+            <id>bc-mvn-repo-closed</id>
+            <name>Private Maven Repository at Brockmann Consult</name>
+            <url>scp://www.brockmann-consult.de/home/maven-cs</url>
+            <uniqueVersion>false</uniqueVersion>
         </repository>
         <snapshotRepository>
-            <id>bc-mvn-repo</id>
-            <name>Public Maven Repository at Brockmann Consult</name>
-            <url>scp://apache.bc.local/bc-mvn-repo/os</url>
+            <id>bc-mvn-repo-closed</id>
+            <name>Private Maven Snapshot Repository at Brockmann Consult</name>
+            <url>scp://www.brockmann-consult.de/home/maven-cs</url>
+            <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
 
@@ -169,6 +171,7 @@
            -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <beam.version>4.7.1-SNAPSHOT</beam.version>
         <ceres.version>0.10.2-SNAPSHOT</ceres.version>
         <geotools.version>2.6.1</geotools.version>
     </properties>
@@ -225,32 +228,32 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-core</artifactId>
-                <version>4.7.1</version>
+                <version>${beam.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-gpf</artifactId>
-                <version>4.7.1-SNAPSHOT</version>
+                <version>${beam.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-ui</artifactId>
-                <version>4.7.1-SNAPSHOT</version>
+                <version>${beam.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-processing</artifactId>
-                <version>4.7.1-SNAPSHOT</version>
+                <version>${beam.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat-rcp</artifactId>
-                <version>4.7.1-SNAPSHOT</version>
+                <version>${beam.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-visat</artifactId>
-                <version>4.7.1-SNAPSHOT</version>
+                <version>${beam.version}</version>
             </dependency>
 
             <!-- BEAM Modules ############################################# -->
