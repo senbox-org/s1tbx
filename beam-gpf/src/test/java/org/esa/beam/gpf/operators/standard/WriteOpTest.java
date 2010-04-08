@@ -85,9 +85,6 @@ public class WriteOpTest extends TestCase {
     public void testWrite() throws Exception {
         String graphOpXml = "<graph id=\"myOneNodeGraph\">\n"
                 + "  <version>1.0</version>\n"
-                + "  <header>\n"
-                + "    <target refid=\"node2\" />\n"
-                + "  </header>\n"
                 + "  <node id=\"node1\">\n"
                 + "    <operator>Algo</operator>\n"
                 + "  </node>\n"
