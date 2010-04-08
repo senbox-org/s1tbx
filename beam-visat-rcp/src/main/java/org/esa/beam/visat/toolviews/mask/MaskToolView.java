@@ -19,9 +19,6 @@ package org.esa.beam.visat.toolviews.mask;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.help.HelpSys;
@@ -39,14 +36,8 @@ import javax.swing.event.ListSelectionListener;
 
 public abstract class MaskToolView extends AbstractToolView {
 
-    private final ProductNodeListener titleUpdater;
     private MaskForm maskForm;
     private String prefixTitle;
-
-    public MaskToolView() {
-        this.titleUpdater = createTitleUpdater();
-    }
-
 
     private void updateTitle() {
         final String suffix;
@@ -58,17 +49,6 @@ public abstract class MaskToolView extends AbstractToolView {
             suffix = "";
         }
         getDescriptor().setTitle(prefixTitle + suffix);
-    }
-
-    private ProductNodeListener createTitleUpdater() {
-        return new ProductNodeListenerAdapter() {
-            @Override
-            public void nodeChanged(final ProductNodeEvent event) {
-                if (event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
-                    updateTitle();
-                }
-            }
-        };
     }
 
     @Override
@@ -101,9 +81,6 @@ public abstract class MaskToolView extends AbstractToolView {
 
         updateMaskForm();
 
-        // Add an internal frame listsner to VISAT so that we can update our
-        // mask manager with the information of the currently activated
-        // product scene view.
         VisatApp.getApp().addProductTreeListener(new MaskPTL());
 
         maskForm.updateState();
