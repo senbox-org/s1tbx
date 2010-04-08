@@ -475,7 +475,6 @@ public class GeoTiffProductReader extends AbstractProductReader {
         final int height = product.getSceneRasterHeight();
 
         final GcpDescriptor gcpDescriptor = GcpDescriptor.INSTANCE;
-        final PlacemarkSymbol symbol = gcpDescriptor.createDefaultSymbol();
         final ProductNodeGroup<Placemark> gcpGroup = product.getGcpGroup();
         for (int i = 0; i < numTiePoints; i++) {
             final int offset = i * 6;
@@ -493,7 +492,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
             final String name = gcpDescriptor.getRoleName() + "_" + i;
             final String label = gcpDescriptor.getRoleLabel() + "_" + i;
-            final Placemark gcp = new Placemark(name, label, "", pixelPos, geoPos, symbol, product.getGeoCoding());
+            final Placemark gcp = new Placemark(name, label, "", pixelPos, geoPos, gcpDescriptor, product.getGeoCoding());
             gcpGroup.add(gcp);
         }
 

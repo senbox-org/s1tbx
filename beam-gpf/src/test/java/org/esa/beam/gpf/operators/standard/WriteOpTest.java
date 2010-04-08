@@ -151,11 +151,10 @@ public class WriteOpTest extends TestCase {
             }
             final int minX = targetTile.getMinX();
             final int minY = targetTile.getMinY();
-            final PlacemarkSymbol symbol = PinDescriptor.INSTANCE.createDefaultSymbol();
             Placemark placemark = new Placemark(band.getName() + minX + "," + minY,
                                                         "label", "descr",
                                                         new PixelPos(minX, minY), null,
-                                                        symbol, targetProduct.getGeoCoding());
+                                                        PinDescriptor.INSTANCE, targetProduct.getGeoCoding());
             targetProduct.getPinGroup().add(placemark);
         }
 

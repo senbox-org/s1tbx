@@ -112,7 +112,7 @@ public class ProductTreeModelTest {
     private Placemark createDummyPin(String name) {
         return new Placemark(name, "", "",
                              new PixelPos(0.5f, 0.5f), null,
-                             PinDescriptor.INSTANCE.createDefaultSymbol(), null);
+                             PinDescriptor.INSTANCE, null);
     }
 
     private Product createDummyProduct(String name) {

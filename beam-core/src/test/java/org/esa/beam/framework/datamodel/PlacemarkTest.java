@@ -18,14 +18,6 @@ package org.esa.beam.framework.datamodel;
 
 import junit.framework.TestCase;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
@@ -33,7 +25,8 @@ import org.jdom.Element;
 import java.awt.Color;
 import java.awt.geom.Line2D;
 import java.io.StringWriter;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlacemarkTest extends TestCase {
 
@@ -44,15 +37,15 @@ public class PlacemarkTest extends TestCase {
     private static final String _ls = SystemUtils.LS;
 
     private Product product;
-    private Vector eventTypes;
-    private Vector events;
+    private List<String> eventTypes;
+    private List<ProductNodeEvent> events;
 
 
     @Override
     public void setUp() {
         product = new Product("product", "t", 10, 10);
-        eventTypes = new Vector();
-        events = new Vector();
+        eventTypes = new ArrayList<String>();
+        events = new ArrayList<ProductNodeEvent>();
         product.addProductNodeListener(new ProductNodeListener() {
             @Override
             public void nodeChanged(ProductNodeEvent event) {
@@ -88,13 +81,10 @@ public class PlacemarkTest extends TestCase {
         });
     }
 
-    @Override
-    public void tearDown() {
-    }
 
     public void testPinEvents() {
         final Placemark placemark1 = new Placemark("pinName", "pinLabel", "", null, new GeoPos(),
-                                 PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+                                 PinDescriptor.INSTANCE, product.getGeoCoding());
 
         assertEquals(0, product.getPinGroup().getNodeCount());
         assertEquals(0, events.size());
@@ -112,18 +102,18 @@ public class PlacemarkTest extends TestCase {
 
         placemark1.setGeoPos(new GeoPos(4, 4));
         assertEquals(1, product.getPinGroup().getNodeCount());
-        assertEquals(3, events.size());
-        assertEquals(3, eventTypes.size());
-
-        placemark1.setSymbol(new PlacemarkSymbol("symb1", new Line2D.Float(4, 5, 6, 7)));
-        assertEquals(1, product.getPinGroup().getNodeCount());
         assertEquals(4, events.size());
         assertEquals(4, eventTypes.size());
 
-        product.getPinGroup().remove(placemark1);
-        assertEquals(0, product.getPinGroup().getNodeCount());
+        placemark1.setSymbol(new PlacemarkSymbol("symb1", new Line2D.Float(4, 5, 6, 7)));
+        assertEquals(1, product.getPinGroup().getNodeCount());
         assertEquals(5, events.size());
         assertEquals(5, eventTypes.size());
+
+        product.getPinGroup().remove(placemark1);
+        assertEquals(0, product.getPinGroup().getNodeCount());
+        assertEquals(6, events.size());
+        assertEquals(6, eventTypes.size());
 
 
         final String[] expectedEventTypes = new String[]{
@@ -131,9 +121,10 @@ public class PlacemarkTest extends TestCase {
                 _NODE_CHANGED,
                 _NODE_CHANGED,
                 _NODE_CHANGED,
+                _NODE_CHANGED,
                 _NODE_REMOVED
         };
-        final String[] currentEventTypes = (String[]) eventTypes.toArray(new String[eventTypes.size()]);
+        final String[] currentEventTypes = eventTypes.toArray(new String[eventTypes.size()]);
         for (int i = 0; i < currentEventTypes.length; i++) {
             assertEquals("event number: " + i, expectedEventTypes[i], currentEventTypes[i]);
         }
@@ -142,11 +133,11 @@ public class PlacemarkTest extends TestCase {
                 null,
                 ProductNode.PROPERTY_NAME_DESCRIPTION,
                 Placemark.PROPERTY_NAME_GEOPOS,
+                Placemark.PROPERTY_NAME_PIXELPOS,
                 Placemark.PROPERTY_NAME_PINSYMBOL,
                 null
         };
-        final ProductNodeEvent[] currentProductNodeEvents = (ProductNodeEvent[]) events.toArray(
-                new ProductNodeEvent[events.size()]);
+        final ProductNodeEvent[] currentProductNodeEvents = events.toArray(new ProductNodeEvent[events.size()]);
         for (int i = 0; i < currentProductNodeEvents.length; i++) {
             final ProductNodeEvent currentProductNodeEvent = currentProductNodeEvents[i];
             assertEquals("event number: " + i, placemark1, currentProductNodeEvent.getSourceNode());
@@ -156,7 +147,7 @@ public class PlacemarkTest extends TestCase {
 
     public void testWriteXML_XmlWriterIsNull() {
         Placemark placemark = new Placemark("pinName", "pinLabel", "", null, new GeoPos(),
-                                PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+                                PinDescriptor.INSTANCE, product.getGeoCoding());
 
         try {
             placemark.writeXML(null, 1);
@@ -169,7 +160,7 @@ public class PlacemarkTest extends TestCase {
     }
 
     public void testWriteXML_IndentIsSmallerThanZero() {
-        Placemark placemark = new Placemark("pinName", "pinLabel", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+        Placemark placemark = new Placemark("pinName", "pinLabel", "", null, new GeoPos(), PinDescriptor.INSTANCE, product.getGeoCoding());
 
         try {
             placemark.writeXML(new XmlWriter(new StringWriter(), false), -1);
@@ -183,7 +174,7 @@ public class PlacemarkTest extends TestCase {
 
     public void testWriteXML_DifferentValidIndent() {
         Placemark placemark = new Placemark("pinName", "pinLabel", "", null, new GeoPos(4f, 87f),
-                          PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+                          PinDescriptor.INSTANCE, product.getGeoCoding());
         placemark.setDescription("pinDescription");
         placemark.setSymbol(PlacemarkSymbol.createDefaultPinSymbol());
 
@@ -229,8 +220,8 @@ public class PlacemarkTest extends TestCase {
         final float pinLon = 23.4f;
 
         try {
-            Placemark.createPlacemark(null, null, null);
-            fail("NullPointerException expexcted");
+            Placemark.createPlacemark(null, (PlacemarkDescriptor) null, null);
+            fail("NullPointerException expected");
         } catch (NullPointerException e) {
             // OK
         }
@@ -247,7 +238,7 @@ public class PlacemarkTest extends TestCase {
         pinElem.setAttribute(DimapProductConstants.ATTRIB_NAME, pinName);
 
         try {
-            Placemark.createPlacemark(pinElem, null, null);
+            Placemark.createPlacemark(pinElem, (PlacemarkDescriptor) null, null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // OK
@@ -258,7 +249,7 @@ public class PlacemarkTest extends TestCase {
         pinElem.addContent(latElem);
 
         try {
-            Placemark.createPlacemark(pinElem, null, null);
+            Placemark.createPlacemark(pinElem, (PlacemarkDescriptor)null, null);
             fail("IllegalArgumentException expected");
         } catch (Exception e) {
             // OK
@@ -304,7 +295,7 @@ public class PlacemarkTest extends TestCase {
         outlineElem.addContent(colorElem);
         pinElem.addContent(outlineElem);
 
-        placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE.createDefaultSymbol(), null);
+        placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE, null);
         assertNotNull("pin must be not null", placemark);
         assertEquals(pinName, placemark.getName());
         assertEquals(pinDesc, placemark.getDescription());
@@ -317,7 +308,7 @@ public class PlacemarkTest extends TestCase {
     }
 
     public void testLabelSettings() {
-        Placemark p = new Placemark("rallamann", "rallamann", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+        Placemark p = new Placemark("rallamann", "rallamann", "", null, new GeoPos(), PinDescriptor.INSTANCE, product.getGeoCoding());
         assertEquals("rallamann", p.getName());
         assertEquals("rallamann", p.getLabel());
 
