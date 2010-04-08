@@ -83,8 +83,10 @@ public abstract class AbstractLayerToolView extends AbstractToolView {
         dockableFrame.addDockableFrameListener(new DockableFrameAdapter() {
             @Override
             public void dockableFrameActivated(DockableFrameEvent dockableFrameEvent) {
-                final RasterDataNode raster = selectedView.getRaster();
-                VisatApp.getApp().getProductTree().select(raster);
+                if (selectedView != null) {
+                    final RasterDataNode raster = selectedView.getRaster();
+                    VisatApp.getApp().getProductTree().select(raster);
+                }
             }
         });
 
