@@ -98,7 +98,7 @@ public abstract class AbstractLayerToolView extends AbstractToolView {
     }
 
     /**
-     * A view closed.
+     * A view opened.
      *
      * @param view The view.
      */
@@ -106,7 +106,7 @@ public abstract class AbstractLayerToolView extends AbstractToolView {
     }
 
     /**
-     * A view opened.
+     * A view closed.
      *
      * @param view The view.
      */
