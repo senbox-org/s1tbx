@@ -99,6 +99,6 @@ public class PlacemarkGroupTest {
     }
 
     private Placemark createPlacemark(String name, PixelPos pixelPos, GeoPos geoPos) {
-        return new Placemark(name, "", "", pixelPos, geoPos, PinDescriptor.INSTANCE.createDefaultSymbol(), null);
+        return new Placemark(name, "", "", pixelPos, geoPos, PinDescriptor.INSTANCE, null);
     }
 }

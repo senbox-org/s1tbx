@@ -73,7 +73,7 @@ public class PlacemarkLayerTest extends TestCase {
     }
 
     private Placemark createPlacemark(String s) {
-        return new Placemark(s, "L", "D", new PixelPos(), new GeoPos(), new PlacemarkSymbol("S", new Rectangle(0, 0, 1, 1)), null);
+        return new Placemark(s, "L", "D", new PixelPos(), new GeoPos(), PinDescriptor.INSTANCE, null);
     }
 
     private static class MyLayerListener extends AbstractLayerListener {

@@ -48,6 +48,6 @@ public class PlacemarkLayerConfigurationPersistencyTest extends AbstractLayerCon
     }
 
     private Placemark createPlacemark(String name) {
-        return new Placemark(name, "", "", new PixelPos(), new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+        return new Placemark(name, "", "", new PixelPos(), new GeoPos(), PinDescriptor.INSTANCE, product.getGeoCoding());
     }
 }
