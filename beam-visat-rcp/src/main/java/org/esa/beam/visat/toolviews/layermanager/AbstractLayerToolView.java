@@ -14,9 +14,16 @@
  */
 package org.esa.beam.visat.toolviews.layermanager;
 
+import com.bc.ceres.glayer.Layer;
+import com.jidesoft.docking.DockableFrame;
+import com.jidesoft.docking.event.DockableFrameAdapter;
+import com.jidesoft.docking.event.DockableFrameEvent;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.JComponent;
@@ -28,8 +35,6 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-import com.bc.ceres.glayer.Layer;
 
 /**
  * Layer manager tool view.
@@ -43,6 +48,7 @@ public abstract class AbstractLayerToolView extends AbstractToolView {
     private ProductSceneView selectedView;
     private Layer selectedLayer;
     private final SelectedLayerPCL selectedLayerPCL;
+    private String prefixTitle;
 
     protected AbstractLayerToolView() {
         appContext = VisatApp.getApp();
@@ -70,9 +76,21 @@ public abstract class AbstractLayerToolView extends AbstractToolView {
         controlPanel = new JPanel(new BorderLayout());
         controlPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
 
+        prefixTitle = getDescriptor().getTitle();
+        updateTitle();
+
+        DockableFrame dockableFrame = (DockableFrame) getContext().getPane().getControl();
+        dockableFrame.addDockableFrameListener(new DockableFrameAdapter() {
+            @Override
+            public void dockableFrameActivated(DockableFrameEvent dockableFrameEvent) {
+//                VisatApp.getApp().getProductTree().select( selectedBand );
+            }
+        });
+
         final ProductSceneView sceneView = appContext.getSelectedProductSceneView();
         setSelectedView(sceneView);
 
+        VisatApp.getApp().addProductTreeListener(new LayerPTL());
         VisatApp.getApp().addInternalFrameListener(new LayerManagerIFL());
 
         return controlPanel;
@@ -135,7 +153,19 @@ public abstract class AbstractLayerToolView extends AbstractToolView {
         }
     }
 
+    private void updateTitle() {
+        final String suffix;
+        final ProductSceneView view = getSelectedView();
+        if (view != null) {
+            suffix = " - " + view.getRaster().getDisplayName();
+        } else {
+            suffix = "";
+        }
+        getDescriptor().setTitle(prefixTitle + suffix);
+    }
+
     private class LayerManagerIFL extends InternalFrameAdapter {
+
         @Override
         public void internalFrameActivated(InternalFrameEvent e) {
             final Container contentPane = e.getInternalFrame().getContentPane();
@@ -144,6 +174,7 @@ public abstract class AbstractLayerToolView extends AbstractToolView {
                 final ProductSceneView view = (ProductSceneView) contentPane;
                 setSelectedView(view);
                 viewOpened(view);
+                updateTitle();
             } else {
                 setSelectedView(null);
             }
@@ -165,10 +196,10 @@ public abstract class AbstractLayerToolView extends AbstractToolView {
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
                 viewClosed(view);
-                final ProductSceneView selectedView = VisatApp.getApp().getSelectedProductSceneView();
-                if (AbstractLayerToolView.this.selectedView == selectedView) {
+                if (AbstractLayerToolView.this.selectedView == view) {
                     setSelectedView(null);
                 }
+                updateTitle();
             }
         }
     }
@@ -182,4 +213,15 @@ public abstract class AbstractLayerToolView extends AbstractToolView {
             }
         }
     }
+
+    private class LayerPTL extends ProductTreeListenerAdapter {
+
+        @Override
+        public void productNodeSelected(ProductNode productNode, int clickCount) {
+            if (productNode instanceof RasterDataNode) {
+                updateTitle();
+            }
+        }
+    }
+
 }

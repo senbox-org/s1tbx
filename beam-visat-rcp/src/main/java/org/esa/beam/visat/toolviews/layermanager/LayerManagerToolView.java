@@ -14,14 +14,13 @@
  */
 package org.esa.beam.visat.toolviews.layermanager;
 
+import com.bc.ceres.glayer.Layer;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.util.WeakHashMap;
 import java.awt.BorderLayout;
-
-import com.bc.ceres.glayer.Layer;
+import java.util.WeakHashMap;
 
 /**
  * Layer manager tool view.
