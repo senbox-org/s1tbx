@@ -94,7 +94,7 @@ public class VectorDataNodeReader {
                 break;
             }
             if (tokens.length != 1 + simpleFeatureType.getAttributeCount()) {
-                throw new IOException("Shit.");  // todo - msg
+                throw new IOException("Not able to read feature collection");
             }
             builder.reset();
             String fid = null;
@@ -111,7 +111,7 @@ public class VectorDataNodeReader {
                         }
                         builder.set(simpleFeatureType.getDescriptor(i - 1).getLocalName(), value);
                     } catch (ConversionException e) {
-                        throw new IOException("Shit.", e);  // todo - msg
+                        throw new IOException("Not able to read feature collection", e);
                     }
                 }
             }
