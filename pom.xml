@@ -96,19 +96,20 @@
     </pluginRepositories>
 
     <distributionManagement>
-        <repository>
-            <id>bc-mvn-repo-closed</id>
-            <name>Private Maven Repository at Brockmann Consult</name>
-            <url>scp://www.brockmann-consult.de/home/maven-cs</url>
-            <uniqueVersion>false</uniqueVersion>
-        </repository>
-        <snapshotRepository>
-            <id>bc-mvn-repo-closed</id>
-            <name>Private Maven Snapshot Repository at Brockmann Consult</name>
-            <url>scp://www.brockmann-consult.de/home/maven-cs</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-    </distributionManagement>
+       <repository>
+           <id>bc-mvn-repo-public</id>
+           <name>Public Maven Repository at Brockmann Consult</name>
+           <url>scp://www.brockmann-consult.de/var/www/www.brockmann-consult.de/mvn/os</url>
+           <uniqueVersion>false</uniqueVersion>
+       </repository>
+       <snapshotRepository>
+           <id>bc-mvn-repo-public</id>
+           <name>Public Maven Snapshot Repository at Brockmann Consult</name>
+           <url>scp://www.brockmann-consult.de/var/www/www.brockmann-consult.de/mvn/os</url>
+           <uniqueVersion>false</uniqueVersion>
+       </snapshotRepository>
+   </distributionManagement>
+
 
     <modules>
 
