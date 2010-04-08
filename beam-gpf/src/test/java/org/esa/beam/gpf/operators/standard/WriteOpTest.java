@@ -25,7 +25,6 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -162,11 +161,10 @@ public class WriteOpTest extends TestCase {
             //
             final int minX = targetTile.getMinX();
             final int minY = targetTile.getMinY();
-            final PlacemarkSymbol symbol = PinDescriptor.INSTANCE.createDefaultSymbol();
             Placemark placemark = new Placemark(band.getName() + minX + "," + minY,
-                                                "label", "descr",
-                                                new PixelPos(minX, minY), null,
-                                                symbol, targetProduct.getGeoCoding());
+                                                        "label", "descr",
+                                                        new PixelPos(minX, minY), null,
+                                                        PinDescriptor.INSTANCE, targetProduct.getGeoCoding());
 
             targetProduct.getPinGroup().add(placemark);
         }

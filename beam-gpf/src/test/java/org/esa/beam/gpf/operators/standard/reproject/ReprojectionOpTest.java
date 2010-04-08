@@ -2,17 +2,19 @@ package org.esa.beam.gpf.operators.standard.reproject;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.*;
 
 public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
@@ -155,20 +157,20 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
     @Test
     public void testCopyPlacemarkGroups() throws IOException {
-        final PlacemarkSymbol defaultPinSymbol = PlacemarkSymbol.createDefaultPinSymbol();
-        final Placemark pin = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol, sourceProduct.getGeoCoding());
-        final Placemark gcp = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol, sourceProduct.getGeoCoding());
+        final PlacemarkDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+        final Placemark pin = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, pinDescriptor, sourceProduct.getGeoCoding());
+        final Placemark gcp = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null, pinDescriptor, sourceProduct.getGeoCoding());
 
         sourceProduct.getPinGroup().add(pin);
         sourceProduct.getGcpGroup().add(gcp);
 
         parameterMap.put("crs", WGS84_CODE);
-        Product targetPoduct = createReprojectedProduct();
+        Product targetProduct = createReprojectedProduct();
 
-        assertEquals(1, targetPoduct.getPinGroup().getNodeCount());
-        assertEquals(1, targetPoduct.getGcpGroup().getNodeCount());
-        final Placemark pin2 = targetPoduct.getPinGroup().get(0);
-        final Placemark gcp2 = targetPoduct.getGcpGroup().get(0);
+        assertEquals(1, targetProduct.getPinGroup().getNodeCount());
+        assertEquals(1, targetProduct.getGcpGroup().getNodeCount());
+        final Placemark pin2 = targetProduct.getPinGroup().get(0);
+        final Placemark gcp2 = targetProduct.getGcpGroup().get(0);
 
         assertEquals("P1", pin2.getName());
         assertEquals("G1", gcp2.getName());

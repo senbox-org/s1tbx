@@ -1,9 +1,10 @@
 package org.esa.beam.framework.dataio;
 
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
@@ -35,13 +36,13 @@ public class ProductSubsetBuilderTest extends TestCase {
     }
 
     public void testCopyPlacemarkGroupsOnlyForRegionSubset() throws IOException {
-        final PlacemarkSymbol defaultPinSymbol = PlacemarkSymbol.createDefaultPinSymbol();
-        final Placemark pin1 = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol, product.getGeoCoding());
-        final Placemark pin2 = new Placemark("P2", "", "", new PixelPos(3.5f, 3.5f), null, defaultPinSymbol, product.getGeoCoding());
-        final Placemark pin3 = new Placemark("P3", "", "", new PixelPos(9.5f, 9.5f), null, defaultPinSymbol, product.getGeoCoding());
-        final Placemark gcp1 = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol, product.getGeoCoding());
-        final Placemark gcp2 = new Placemark("G2", "", "", new PixelPos(4.5f, 4.5f), null, defaultPinSymbol, product.getGeoCoding());
-        final Placemark gcp3 = new Placemark("G3", "", "", new PixelPos(10.5f, 10.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final PlacemarkDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+        final Placemark pin1 = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, pinDescriptor, product.getGeoCoding());
+        final Placemark pin2 = new Placemark("P2", "", "", new PixelPos(3.5f, 3.5f), null, pinDescriptor, product.getGeoCoding());
+        final Placemark pin3 = new Placemark("P3", "", "", new PixelPos(9.5f, 9.5f), null, pinDescriptor, product.getGeoCoding());
+        final Placemark gcp1 = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null, pinDescriptor, product.getGeoCoding());
+        final Placemark gcp2 = new Placemark("G2", "", "", new PixelPos(4.5f, 4.5f), null, pinDescriptor, product.getGeoCoding());
+        final Placemark gcp3 = new Placemark("G3", "", "", new PixelPos(10.5f, 10.5f), null, pinDescriptor, product.getGeoCoding());
 
         product.getPinGroup().add(pin1);
         product.getPinGroup().add(pin2);
@@ -64,13 +65,13 @@ public class ProductSubsetBuilderTest extends TestCase {
     }
 
     public void testCopyPlacemarkGroupsOnlyForNullSubset() throws IOException {
-        final PlacemarkSymbol defaultPinSymbol = PlacemarkSymbol.createDefaultPinSymbol();
-        final Placemark pin1 = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol, product.getGeoCoding());
-        final Placemark pin2 = new Placemark("P2", "", "", new PixelPos(3.5f, 3.5f), null, defaultPinSymbol, product.getGeoCoding());
-        final Placemark pin3 = new Placemark("P3", "", "", new PixelPos(9.5f, 9.5f), null, defaultPinSymbol, product.getGeoCoding());
-        final Placemark gcp1 = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol, product.getGeoCoding());
-        final Placemark gcp2 = new Placemark("G2", "", "", new PixelPos(4.5f, 4.5f), null, defaultPinSymbol, product.getGeoCoding());
-        final Placemark gcp3 = new Placemark("G3", "", "", new PixelPos(10.5f, 10.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final PlacemarkDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+        final Placemark pin1 = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, pinDescriptor, product.getGeoCoding());
+        final Placemark pin2 = new Placemark("P2", "", "", new PixelPos(3.5f, 3.5f), null, pinDescriptor, product.getGeoCoding());
+        final Placemark pin3 = new Placemark("P3", "", "", new PixelPos(9.5f, 9.5f), null, pinDescriptor, product.getGeoCoding());
+        final Placemark gcp1 = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null, pinDescriptor, product.getGeoCoding());
+        final Placemark gcp2 = new Placemark("G2", "", "", new PixelPos(4.5f, 4.5f), null, pinDescriptor, product.getGeoCoding());
+        final Placemark gcp3 = new Placemark("G3", "", "", new PixelPos(10.5f, 10.5f), null, pinDescriptor, product.getGeoCoding());
 
         product.getPinGroup().add(pin1);
         product.getPinGroup().add(pin2);

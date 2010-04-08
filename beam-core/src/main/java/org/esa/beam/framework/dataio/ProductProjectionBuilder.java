@@ -20,11 +20,13 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.util.CachingObjectArray;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Pointing;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -439,21 +441,21 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         ProductUtils.copyMasks(getSourceProduct(), product);
         ProductUtils.copyOverlayMasks(getSourceProduct(), product);
         copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(),
-                       PlacemarkSymbol.createDefaultPinSymbol());
+                       PinDescriptor.INSTANCE);
         copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(),
-                       PlacemarkSymbol.createDefaultGcpSymbol());
+                       GcpDescriptor.INSTANCE);
         // TODO - TESTTESTTEST (nf)
         product.setPreferredTileSize(64, 64);
         return product;
     }
 
     private static void copyPlacemarks(ProductNodeGroup<Placemark> sourcePlacemarkGroup,
-                                       ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkSymbol symbol) {
+                                       ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkDescriptor descriptor) {
         final Placemark[] placemarks = sourcePlacemarkGroup.toArray(new Placemark[0]);
         for (Placemark placemark : placemarks) {
             final Placemark placemark1 = new Placemark(placemark.getName(), placemark.getLabel(),
                                      placemark.getDescription(), null, placemark.getGeoPos(),
-                                     symbol, targetPlacemarkGroup.getProduct().getGeoCoding());
+                                     descriptor, targetPlacemarkGroup.getProduct().getGeoCoding());
             targetPlacemarkGroup.add(placemark1);
         }
     }

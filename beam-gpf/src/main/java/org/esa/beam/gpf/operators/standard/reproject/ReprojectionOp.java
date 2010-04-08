@@ -21,12 +21,14 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ImageGeometry;
 import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -211,9 +213,9 @@ public class ReprojectionOp extends Operator {
         * Placemarks & masks
         */
         copyPlacemarks(sourceProduct.getPinGroup(), targetProduct.getPinGroup(),
-                       PlacemarkSymbol.createDefaultPinSymbol());
+                       PinDescriptor.INSTANCE);
         copyPlacemarks(sourceProduct.getGcpGroup(), targetProduct.getGcpGroup(),
-                       PlacemarkSymbol.createDefaultGcpSymbol());
+                       GcpDescriptor.INSTANCE);
         ProductUtils.copyVectorData(sourceProduct, targetProduct);
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
@@ -447,12 +449,12 @@ public class ReprojectionOp extends Operator {
     }
 
     private static void copyPlacemarks(ProductNodeGroup<Placemark> sourcePlacemarkGroup,
-                                       ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkSymbol symbol) {
+                                       ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkDescriptor descriptor) {
         final Placemark[] placemarks = sourcePlacemarkGroup.toArray(new Placemark[0]);
         for (Placemark placemark : placemarks) {
             final Placemark placemark1 = new Placemark(placemark.getName(), placemark.getLabel(),
                                                        placemark.getDescription(), null, placemark.getGeoPos(),
-                                                       symbol, targetPlacemarkGroup.getProduct().getGeoCoding());
+                                                       descriptor, targetPlacemarkGroup.getProduct().getGeoCoding());
             targetPlacemarkGroup.add(placemark1);
         }
     }

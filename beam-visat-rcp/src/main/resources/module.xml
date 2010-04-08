@@ -14,9 +14,11 @@
         <p>Changes in 4.8:<br/>
           [BEAM-1106] ToolViews do not reflect the selected state correctly in all cases<br/>
           [BEAM-1105] NullPointerException is thrown, if editor for geometry layer is visible<br/>
+          [BEAM-1095] Pixel position is updated when geo-location is changed for GCPs<br/>
           [BEAM-1097] Exception when reprojection results in large target product<br/>
           [BEAM-1094] Not possible to add placemarks if scrollbars are used<br/>
           [BEAM-1093] Dragging does not work in Layer Manager<br/>
+          [BEAM-1057] Navigation rotation edit field prevents rotating image<br/>
         </p>
         <p>Changes in 4.7:<br/>
           [BEAM-1076] Revise statistics to use multiple ROIs<br/>

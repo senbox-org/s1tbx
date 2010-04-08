@@ -25,6 +25,7 @@ import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FXYGeoCoding;
 import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
@@ -32,9 +33,9 @@ import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PointingFactory;
 import org.esa.beam.framework.datamodel.PointingFactoryRegistry;
 import org.esa.beam.framework.datamodel.Product;
@@ -739,9 +740,8 @@ public class DimapProductHelpers {
         }
         for (Object pinElement : pinElements) {
             final Element pinElem = (Element) pinElement;
-            final Placemark placemark = Placemark.createPlacemark(pinElem, PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+            final Placemark placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE, product.getGeoCoding());
             if (placemark != null) {
-                placemark.updatePixelPos(product.getGeoCoding());
                 product.getPinGroup().add(placemark);
             }
         }
@@ -757,7 +757,7 @@ public class DimapProductHelpers {
         }
         for (Object gcpElement : gcpElements) {
             final Element gcpElem = (Element) gcpElement;
-            final Placemark gcp = Placemark.createPlacemark(gcpElem, PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
+            final Placemark gcp = Placemark.createPlacemark(gcpElem, GcpDescriptor.INSTANCE, product.getGeoCoding());
             if (gcp != null) {
                 product.getGcpGroup().add(gcp);
             }

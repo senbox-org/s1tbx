@@ -17,9 +17,9 @@
 package org.esa.beam.framework.dataio;
 
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
@@ -66,9 +66,10 @@ public class ProductProjectionBuilderTest extends TestCase {
     }
 
     public void testCopyPlacemarkGroups() throws IOException {
-        final PlacemarkSymbol defaultPinSymbol = PlacemarkSymbol.createDefaultPinSymbol();
-        final Placemark pin = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol, product.getGeoCoding());
-        final Placemark gcp = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol, product.getGeoCoding());
+        final Placemark pin = new Placemark("P1", "", "", new PixelPos(1.5f, 1.5f), null,
+                                            PinDescriptor.INSTANCE, product.getGeoCoding());
+        final Placemark gcp = new Placemark("G1", "", "", new PixelPos(2.5f, 2.5f), null,
+                                            PinDescriptor.INSTANCE, product.getGeoCoding());
 
         product.getPinGroup().add(pin);
         product.getGcpGroup().add(gcp);

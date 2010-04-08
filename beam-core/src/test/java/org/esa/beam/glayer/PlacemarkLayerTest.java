@@ -7,13 +7,11 @@ import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
@@ -73,7 +71,7 @@ public class PlacemarkLayerTest extends TestCase {
     }
 
     private Placemark createPlacemark(String s) {
-        return new Placemark(s, "L", "D", new PixelPos(), new GeoPos(), new PlacemarkSymbol("S", new Rectangle(0, 0, 1, 1)), null);
+        return new Placemark(s, "L", "D", new PixelPos(), new GeoPos(), PinDescriptor.INSTANCE, null);
     }
 
     private static class MyLayerListener extends AbstractLayerListener {

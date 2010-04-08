@@ -17,19 +17,20 @@
 package org.esa.beam.dataio.dimap;
 
 import com.bc.ceres.core.ProgressMonitor;
-
+import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FXYGeoCoding;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.GeneralFilterBand;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Kernel;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -51,8 +52,6 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.StringWriter;
-
-import junit.framework.TestCase;
 
 public class DimapHeaderWriterTest extends TestCase {
 
@@ -312,16 +311,17 @@ public class DimapHeaderWriterTest extends TestCase {
     }
 
     private void addPinsToProduct() {
-        final Placemark placemark1 = new Placemark("pin1", "pin1", "", null, new GeoPos(), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+        final PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+        final Placemark placemark1 = new Placemark("pin1", "pin1", "", null, new GeoPos(), pinDescriptor, product.getGeoCoding());
         ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
         pinGroup.add(placemark1);
 
-        final Placemark placemark2 = new Placemark("pin2", "pin2", "", null, new GeoPos(4, 8), PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+        final Placemark placemark2 = new Placemark("pin2", "pin2", "", null, new GeoPos(4, 8), pinDescriptor, product.getGeoCoding());
         placemark2.setDescription("desc2");
         pinGroup.add(placemark2);
 
         final Placemark placemark3 = new Placemark("pin3", "pin3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                 PlacemarkSymbol.createDefaultPinSymbol(), product.getGeoCoding());
+                                 pinDescriptor, product.getGeoCoding());
         pinGroup.add(placemark3);
     }
 
@@ -371,16 +371,19 @@ public class DimapHeaderWriterTest extends TestCase {
     }
 
     private void addGcpsToProduct() {
-        final Placemark placemark1 = new Placemark("gcp1", "gcp1", "", null, new GeoPos(), PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
+        final GcpDescriptor gcpDescriptor = GcpDescriptor.INSTANCE;
+        final Placemark placemark1 = new Placemark("gcp1", "gcp1", "", null, new GeoPos(),
+                                                   gcpDescriptor, product.getGeoCoding());
         ProductNodeGroup<Placemark> pinGroup = product.getGcpGroup();
         pinGroup.add(placemark1);
 
-        final Placemark placemark2 = new Placemark("gcp2", "gcp2", "", null, new GeoPos(4, 8), PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
+        final Placemark placemark2 = new Placemark("gcp2", "gcp2", "", null, new GeoPos(4, 8),
+                                                   gcpDescriptor, product.getGeoCoding());
         placemark2.setDescription("desc2");
         pinGroup.add(placemark2);
 
         final Placemark placemark3 = new Placemark("gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                 PlacemarkSymbol.createDefaultGcpSymbol(), product.getGeoCoding());
+                                 gcpDescriptor, product.getGeoCoding());
         pinGroup.add(placemark3);
     }
 

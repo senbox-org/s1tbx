@@ -9,9 +9,9 @@ import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkSymbol;
 import org.esa.beam.framework.datamodel.Product;
@@ -370,7 +370,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                                    uniquePinNameAndLabel[1],
                                    "",
                                    new PixelPos(0, 0), null,
-                                   placemarkDescriptor.createDefaultSymbol(),
+                                   placemarkDescriptor,
                                    product.getGeoCoding());
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, newPlacemark, placemarkDescriptor)) {
             makePlacemarkNameUnique(newPlacemark);
@@ -387,8 +387,9 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                                    activePlacemark.getDescription(),
                                    activePlacemark.getPixelPos(),
                                    activePlacemark.getGeoPos(),
-                                   createPinSymbolCopy(activePlacemark.getSymbol()),
+                                   PinDescriptor.INSTANCE,
                                    activePlacemark.getProduct().getGeoCoding());
+        newPlacemark.setSymbol(createPinSymbolCopy(activePlacemark.getSymbol()));
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, newPlacemark, placemarkDescriptor)) {
             makePlacemarkNameUnique(newPlacemark);
             updateUIState();
@@ -912,7 +913,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                         geoCoding = product.getGeoCoding();
                     }
                     Placemark placemark = new Placemark(name, label, "", null, new GeoPos(lat, lon),
-                                            placemarkDescriptor.createDefaultSymbol(), geoCoding);
+                                            placemarkDescriptor, geoCoding);
                     if (desc != null) {
                         placemark.setDescription(desc);
                     }

@@ -5,9 +5,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.PlacemarkSymbol;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
@@ -18,7 +18,7 @@ import org.opengis.referencing.operation.TransformException;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class PinPositionTest {
 
@@ -33,8 +33,7 @@ public class PinPositionTest {
         final Product product = new Product("P", "T", 10, 10);
         product.setGeoCoding(geoCoding);
 
-        final PlacemarkSymbol placemarkSymbol = PlacemarkSymbol.createDefaultPinSymbol();
-        placemark = new Placemark("P1", "L", "", new PixelPos(1.0f, 1.0f), null, placemarkSymbol, product.getGeoCoding());
+        placemark = new Placemark("P1", "L", "", new PixelPos(1.0f, 1.0f), null, PinDescriptor.INSTANCE, product.getGeoCoding());
         product.getPinGroup().add(placemark);
     }
 
