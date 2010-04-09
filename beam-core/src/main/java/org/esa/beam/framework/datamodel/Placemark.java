@@ -442,9 +442,10 @@ public class Placemark extends ProductNode {
         final GeometryFactory geometryFactory = new GeometryFactory();
         final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
         PixelPos imagePos = pixelPos;
-        if (imagePos == null) {
-            descriptor.updatePixelPos(geoCoding, geoPos, imagePos);
+        if (imagePos == null && geoCoding != null && geoCoding.canGetGeoPos()) {
+            imagePos = geoCoding.getPixelPos(geoPos, imagePos);
         }
+
         if (imagePos == null) {
             imagePos = new PixelPos();
             imagePos.setInvalid();
@@ -457,10 +458,12 @@ public class Placemark extends ProductNode {
 
         feature.setAttribute(Placemark.PROPERTY_NAME_PIXELPOS, geometryFactory.createPoint(toCoordinate(imagePos)));
 
-        if (geoPos != null) {
+        if (geoPos == null) {
+            if (geoCoding != null && geoCoding.canGetGeoPos()) {
+                geoPos = geoCoding.getGeoPos(imagePos, geoPos);
+            }
+        } else {
             descriptor.updateGeoPos(geoCoding, imagePos, geoPos);
-        } else if (geoCoding != null && geoCoding.canGetGeoPos()) {
-            geoPos = geoCoding.getGeoPos(imagePos, geoPos);
         }
 
         if (geoPos != null) {
@@ -552,7 +555,8 @@ public class Placemark extends ProductNode {
 
         private static final SimpleFeatureType PLACEMARK_FEATURE_TYPE = createFeatureType(PLACEMARK_FEATURE_TYPE_NAME);
 
-        private Holder() {}
+        private Holder() {
+        }
     }
 
 
@@ -572,7 +576,8 @@ public class Placemark extends ProductNode {
      * @deprecated since 4.7, use {@link Placemark#Placemark(String, String, String, PixelPos, GeoPos, PlacemarkDescriptor, GeoCoding)}
      */
     @Deprecated
-    public Placemark(String name, String label, String description, PixelPos pixelPos, GeoPos geoPos, PlacemarkSymbol symbol) {
+    public Placemark(String name, String label, String description, PixelPos pixelPos, GeoPos geoPos,
+                     PlacemarkSymbol symbol) {
         this(name, label, description, pixelPos, geoPos, PinDescriptor.INSTANCE, null);
     }
 
