@@ -1424,7 +1424,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 VectorDataLayer vectorDataLayer = (VectorDataLayer) layer;
                 if (vectorDataLayer.getVectorDataNode() == getProduct().getPinGroup().getVectorDataNode() ||
                         vectorDataLayer.getVectorDataNode() == getProduct().getGcpGroup().getVectorDataNode()) {
-                    System.out.println("PlacemarkManagerToolView$ViewSelectionChangeHandler.selectionChanged: event = " + event);
                     updateUIState();
                 }
             }
