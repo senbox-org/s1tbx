@@ -116,7 +116,7 @@ public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
                                     pd = GcpDescriptor.INSTANCE;
                                 }
                                 // Only call add() if we don't have the pin already
-                                _add(new Placemark(feature, pd));
+                                _add(new Placemark(feature, "", pd));
                             }
                         }
                     } else if (newFeatures == null) { // features removed?
@@ -131,7 +131,7 @@ public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
                         for (SimpleFeature feature : newFeatures) {
                             final Placemark placemark = placemarkMap.get(feature);
                             if (placemark != null) {
-                                placemark.updatePixelPos();
+                                placemark.updatePositions();
                             }
                         }
                     }
