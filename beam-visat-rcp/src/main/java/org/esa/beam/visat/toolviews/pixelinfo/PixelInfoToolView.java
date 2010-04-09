@@ -3,8 +3,11 @@ package org.esa.beam.visat.toolviews.pixelinfo;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.swing.dock.DockablePane;
-import org.esa.beam.framework.datamodel.Placemark;
+import com.jidesoft.docking.DockableFrame;
+import com.jidesoft.docking.event.DockableFrameAdapter;
+import com.jidesoft.docking.event.DockableFrameEvent;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -82,6 +85,20 @@ public class PixelInfoToolView extends AbstractToolView {
                 }
             }
         });
+
+        DockableFrame dockableFrame = (DockableFrame) getContext().getPane().getControl();
+        dockableFrame.addDockableFrameListener(new DockableFrameAdapter() {
+            @Override
+            public void dockableFrameTabShown(DockableFrameEvent e) {
+                updatePixelInfo();
+            }
+
+            @Override
+            public void dockableFrameShown(DockableFrameEvent e) {
+                updatePixelInfo();
+            }
+        });
+
         setShowOnlyLoadedBands(preferences, bandDisplayValidator);
         setShowPixelPosDecimals(preferences);
         setShowGeoPosDecimal(preferences);
@@ -97,9 +114,7 @@ public class PixelInfoToolView extends AbstractToolView {
         pinCheckbox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (pinCheckbox.isSelected()) {
-                    setToSelectedPin(currentView);
-                }
+                updatePixelInfo();
             }
         });
 
@@ -136,6 +151,19 @@ public class PixelInfoToolView extends AbstractToolView {
         initOpenedFrames();
 
         return pixelInfoViewPanel;
+    }
+
+    private void updatePixelInfo() {
+        if (isSnapToSelectedPin()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    snapToSelectedPin(currentView);
+                }
+            });
+        } else {
+            pixelInfoView.updatePixelValues(currentView, -1, -1, 0, false);
+        }
     }
 
     private AbstractButton createToggleButton(PixelInfoView pixelInfoView, PixelInfoView.DockablePaneKey paneKey,
@@ -192,15 +220,17 @@ public class PixelInfoToolView extends AbstractToolView {
         productSceneView.addPixelPositionListener(registerPPL(productSceneView));
         final Product product = productSceneView.getProduct();
         product.addProductNodeListener(getOrCreatePinChangedListener());
-        if (isSnapToPin()) {
-            setToSelectedPin(productSceneView);
-        }
+
+        updatePixelInfo();
+
         if (productSceneView == VisatApp.getApp().getSelectedProductSceneView()) {
             if (currentView != null) {
-                currentView.removePropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN, pinSelectionChangeListener);
+                currentView.removePropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN,
+                                                         pinSelectionChangeListener);
             }
             currentView = productSceneView;
-            currentView.addPropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN, pinSelectionChangeListener);
+            currentView.addPropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN,
+                                                  pinSelectionChangeListener);
         }
     }
 
@@ -242,11 +272,11 @@ public class PixelInfoToolView extends AbstractToolView {
         return pinChangedListener;
     }
 
-    private boolean isSnapToPin() {
+    private boolean isSnapToSelectedPin() {
         return pinCheckbox.isSelected();
     }
 
-    private void setToSelectedPin(ProductSceneView sceneView) {
+    private void snapToSelectedPin(ProductSceneView sceneView) {
         if (sceneView != null) {
             final Placemark pin = sceneView.getSelectedPin();
             if (pin == null) {
@@ -291,15 +321,15 @@ public class PixelInfoToolView extends AbstractToolView {
             Container content = getContent(e);
             if (content instanceof ProductSceneView) {
                 if (currentView != null) {
-                    currentView.removePropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN, pinSelectionChangeListener);
+                    currentView.removePropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN,
+                                                             pinSelectionChangeListener);
                 }
                 currentView = (ProductSceneView) content;
-                currentView.addPropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN, pinSelectionChangeListener);
+                currentView.addPropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN,
+                                                      pinSelectionChangeListener);
                 final Product product = currentView.getProduct();
                 product.addProductNodeListener(getOrCreatePinChangedListener());
-                if (isSnapToPin()) {
-                    setToSelectedPin(currentView);
-                }
+                updatePixelInfo();
             }
         }
 
@@ -308,7 +338,8 @@ public class PixelInfoToolView extends AbstractToolView {
             final Container content = getContent(e);
             if (content instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) content;
-                view.removePropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN, pinSelectionChangeListener);
+                view.removePropertyChangeListener(ProductSceneView.PROPERTY_NAME_SELECTED_PIN,
+                                                  pinSelectionChangeListener);
                 view.removePixelPositionListener(unregisterPPL(view));
                 removePinChangedListener(e);
             }
@@ -326,7 +357,7 @@ public class PixelInfoToolView extends AbstractToolView {
                 final ProductSceneView view = (ProductSceneView) content;
                 final Product product = view.getProduct();
                 product.removeProductNodeListener(getOrCreatePinChangedListener());
-                if (isSnapToPin()) {
+                if (isSnapToSelectedPin()) {
                     pixelInfoView.updatePixelValues(view, -1, -1, 0, false);
                 }
             }
@@ -338,7 +369,7 @@ public class PixelInfoToolView extends AbstractToolView {
     }
 
     private class PixelInfoPPL implements PixelPositionListener {
-
+        // (mp,ts - 09.04.2010) todo - this listener should also make use of updatePixelInfo()
         private final ProductSceneView view;
 
         private PixelInfoPPL(ProductSceneView view) {
@@ -361,7 +392,7 @@ public class PixelInfoToolView extends AbstractToolView {
         }
 
         private boolean isActive() {
-            return isVisible() && !isSnapToPin();
+            return isVisible() && !isSnapToSelectedPin();
         }
     }
 
@@ -369,59 +400,42 @@ public class PixelInfoToolView extends AbstractToolView {
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
-            if (isActive()) {
-                if (Placemark.PROPERTY_NAME_PIXELPOS.equals(event.getPropertyName())) {
-                    updatePin(event);
-                }
+            if (Placemark.PROPERTY_NAME_PIXELPOS.equals(event.getPropertyName())) {
+                handlePinEvent(event);
             }
         }
 
         @Override
         public void nodeDataChanged(ProductNodeEvent event) {
-            if (isActive()) {
-                updatePin(event);
-            }
+            handlePinEvent(event);
         }
 
         @Override
         public void nodeAdded(ProductNodeEvent event) {
-            if (isActive()) {
-                updatePin(event);
-            }
+            handlePinEvent(event);
         }
 
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
-            if (isActive()) {
-                updatePin(event);
-            }
+            handlePinEvent(event);
         }
 
-        private void updatePin(ProductNodeEvent event) {
-            ProductNode sourceNode = event.getSourceNode();
-            Placemark pin = currentView.getSelectedPin();
-            if (sourceNode == pin) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        setToSelectedPin(currentView);
-                    }
-                });
+        private void handlePinEvent(ProductNodeEvent event) {
+            if (event.getSourceNode() == currentView.getSelectedPin()) {
+                updatePixelInfo();
             }
-        }
-
-        private boolean isActive() {
-            return isSnapToPin();
         }
     }
-    
+
     private class PinSelectionChangeListener implements PropertyChangeListener {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            setToSelectedPin(currentView);
+            if (isVisible()) {
+                updatePixelInfo();
+            }
         }
-        
+
     }
 
     private static class DisplayFilter extends PixelInfoView.DisplayFilter {
