@@ -143,11 +143,10 @@ public class Placemark extends ProductNode {
         setSymbol(symbol);
     }
 
-    // todo - add PlacemarkDescriptor as parameter
-    Placemark(SimpleFeature feature) {
+    Placemark(SimpleFeature feature, PlacemarkDescriptor descriptor) {
         super(feature.getID(), "");
         this.feature = feature;
-        placemarkDescriptor = PinDescriptor.INSTANCE;
+        placemarkDescriptor = descriptor;
     }
 
     /**
@@ -571,9 +570,13 @@ public class Placemark extends ProductNode {
         final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(featureType, name, geometry, null);
 
         feature.setAttribute(Placemark.PROPERTY_NAME_PIXELPOS, geometryFactory.createPoint(toCoordinate(imagePos)));
-        
-        descriptor.updateGeoPos(geoCoding, imagePos, geoPos);
 
+        if (geoPos != null) {
+            descriptor.updateGeoPos(geoCoding, imagePos, geoPos);
+        }else if (geoCoding != null && geoCoding.canGetGeoPos()) {
+            geoPos = geoCoding.getGeoPos(imagePos, geoPos);
+        }
+        
         if (geoPos != null) {
             feature.setAttribute(Placemark.PROPERTY_NAME_GEOPOS, geometryFactory.createPoint(toCoordinate(geoPos)));
         }
