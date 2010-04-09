@@ -65,35 +65,6 @@ public class Placemark extends ProductNode {
     private SimpleFeature feature;
     private PlacemarkDescriptor placemarkDescriptor;
 
-    /**
-     * Returns the type of features underlying all placemarks.
-     *
-     * @return the type of features underlying all placemarks.
-     *
-     * @since BEAM 4.7
-     */
-    public static SimpleFeatureType getFeatureType() {
-        return Holder.PLACEMARK_FEATURE_TYPE;
-    }
-
-    /**
-     * Creates a new placemark.
-     *
-     * @param name        the placemark's name.
-     * @param label       the placemark's label.
-     * @param description the placemark's description
-     * @param pixelPos    the placemark's pixel position
-     * @param geoPos      the placemark's geo-position.
-     * @param symbol      the placemark's symbol.
-     *
-     * @deprecated since 4.7, use {@link Placemark#Placemark(String, String, String, PixelPos, GeoPos, PlacemarkSymbol, GeoCoding)}
-     */
-    @Deprecated
-    public Placemark(String name, String label, String description, PixelPos pixelPos, GeoPos geoPos,
-                     PlacemarkSymbol symbol) {
-        this(name, label, description, pixelPos, geoPos, symbol, null);
-    }
-
 
     /**
      * Creates a new placemark.
@@ -108,46 +79,25 @@ public class Placemark extends ProductNode {
      */
     public Placemark(String name, String label, String description, PixelPos pixelPos, GeoPos geoPos,
                      PlacemarkDescriptor descriptor, GeoCoding geoCoding) {
-        super(name, description);
-        if (pixelPos == null && geoPos == null) {
-            throw new IllegalArgumentException("pixelPos == null && geoPos == null");
-        }
-        // todo: rq/?? - we need to ensure that the pixel position can be calculated, though many tests fail then
-        // if (pixelPos == null && geoCoding == null || !geoCoding.canGetPixelPos()) {
-        //     throw new IllegalArgumentException("pixelPos == null && geoCoding == null || !geoCoding.canGetPixelPos()");
-        // }
+        this(createFeature(name, label, pixelPos, geoPos, descriptor, geoCoding), description, descriptor);
+    }
 
+    Placemark(SimpleFeature feature, String description, PlacemarkDescriptor descriptor) {
+        super(feature.getID(), description);
+        this.feature = feature;
         placemarkDescriptor = descriptor;
-        feature = createFeature(name, label, pixelPos, geoPos, placemarkDescriptor.createDefaultSymbol(), geoCoding);
-
+        setSymbol(placemarkDescriptor.createDefaultSymbol());
     }
 
     /**
-     * Creates a new placemark.
+     * Returns the type of features underlying all placemarks.
      *
-     * @param name        the placemark's name.
-     * @param label       the placemark's label.
-     * @param description the placemark's description
-     * @param pixelPos    the placemark's pixel position
-     * @param geoPos      the placemark's geo-position.
-     * @param symbol      the placemark's symbol.
-     * @param geoCoding   the placemark's geo-coding.
+     * @return the type of features underlying all placemarks.
      *
-     * @deprecated since BEAM 4.7.1, use {@link #Placemark(String, String, String, PixelPos, GeoPos, PlacemarkDescriptor, GeoCoding)} instead.
-     *             This Method creates by default a placemark with the behavior of a pin.
+     * @since BEAM 4.7
      */
-    @Deprecated
-    public Placemark(String name, String label, String description, PixelPos pixelPos, GeoPos geoPos,
-                     PlacemarkSymbol symbol, GeoCoding geoCoding) {
-        this(name, label, description, pixelPos, geoPos, PinDescriptor.INSTANCE, geoCoding);
-        setSymbol(symbol);
-    }
-
-    // todo - add PlacemarkDescriptor as parameter
-    Placemark(SimpleFeature feature) {
-        super(feature.getID(), "");
-        this.feature = feature;
-        placemarkDescriptor = PinDescriptor.INSTANCE;
+    public static SimpleFeatureType getFeatureType() {
+        return Holder.PLACEMARK_FEATURE_TYPE;
     }
 
     /**
@@ -222,9 +172,12 @@ public class Placemark extends ProductNode {
 
     public void setPixelPos(PixelPos pixelPos) {
         setPixelCoordinate(pixelPos, true);
-        final GeoPos geoPos = toGeoPos(getGeoCoordinate());
-        placemarkDescriptor.updateGeoPos(getProduct().getGeoCoding(), pixelPos, geoPos);
-        setGeoCoordinate(geoPos);
+        final Product product = getProduct();
+        if (product != null) {
+            final GeoPos geoPos = toGeoPos(getGeoCoordinate());
+            placemarkDescriptor.updateGeoPos(product.getGeoCoding(), pixelPos, geoPos);
+            setGeoCoordinate(geoPos);
+        }
     }
 
     /**
@@ -241,7 +194,7 @@ public class Placemark extends ProductNode {
             final int h = product.getSceneRasterHeight();
             final Rectangle bounds = new Rectangle(0, 0, w, h);
             if (!bounds.contains(pixelPos.x, pixelPos.y)) {
-                pixelPos = null;
+                pixelPos.setInvalid();
             }
         }
         return pixelPos;
@@ -258,7 +211,10 @@ public class Placemark extends ProductNode {
         return toGeoPos(getGeoCoordinate());
     }
 
-    public void updatePixelPos() {
+    /**
+     * Updates pixel and geo position according to the current geometry (model coordinates).
+     */
+    public void updatePositions() {
         final Point point = (Point) feature.getDefaultGeometry();
         if (point != null) {
             if (getProduct() != null) {
@@ -267,7 +223,7 @@ public class Placemark extends ProductNode {
                 PixelPos pixelPos = new PixelPos((float) point.getX(), (float) point.getY());
                 try {
                     i2m.inverseTransform(pixelPos, pixelPos);
-                } catch (NoninvertibleTransformException e) {
+                } catch (NoninvertibleTransformException ignored) {
                     // ignore
                 }
                 setPixelCoordinate(pixelPos, false);
@@ -279,7 +235,6 @@ public class Placemark extends ProductNode {
 
         }
     }
-
 
     public void writeXML(XmlWriter writer, int indent) {
         Guardian.assertNotNull("writer", writer);
@@ -310,55 +265,6 @@ public class Placemark extends ProductNode {
             writeColor(DimapProductConstants.TAG_PLACEMARK_OUTLINE_COLOR, indent, outlineColor, writer);
         }
         writer.println(pinTags[1]);
-    }
-
-    /**
-     * Creates a new GCP from an XML element.
-     *
-     * @param element the element.
-     *
-     * @return the placemark created.
-     *
-     * @throws NullPointerException     if element is null
-     * @throws IllegalArgumentException if element is invalid
-     * @deprecated since BEAM 4.7, use {@link #createPlacemark(Element, PlacemarkDescriptor, GeoCoding)} instead
-     */
-    @Deprecated
-    public static Placemark createGcp(Element element) {
-        return createPlacemark(element, GcpDescriptor.INSTANCE, null);
-    }
-
-    /**
-     * Creates a new Pin from an XML element.
-     *
-     * @param element the element.
-     *
-     * @return the placemark created.
-     *
-     * @throws NullPointerException     if element is null
-     * @throws IllegalArgumentException if element is invalid
-     * @deprecated since BEAM 4.7, use {@link #createPlacemark(org.jdom.Element, PlacemarkDescriptor, GeoCoding)} instead
-     */
-    @Deprecated
-    public static Placemark createPin(Element element) {
-        return createPlacemark(element, PinDescriptor.INSTANCE, null);
-    }
-
-    /**
-     * Creates a new placemark from an XML element and a given symbol.
-     *
-     * @param element the element.
-     * @param symbol  the symbol.
-     *
-     * @return the placemark created.
-     *
-     * @throws NullPointerException     if element is null
-     * @throws IllegalArgumentException if element is invalid
-     * @deprecated since BEAM 4.7, use {@link #createPlacemark(Element, PlacemarkDescriptor, GeoCoding)} instead
-     */
-    @Deprecated
-    public static Placemark createPlacemark(Element element, PlacemarkSymbol symbol) {
-        return createPlacemark(element, symbol, null);
     }
 
     /**
@@ -442,27 +348,6 @@ public class Placemark extends ProductNode {
     }
 
     /**
-     * Creates a new placemark from an XML element and a given symbol.
-     *
-     * @param element   the element.
-     * @param symbol    the symbol.
-     * @param geoCoding the geoCoding to used by the placemark. Can be <code>null</code>.
-     *
-     * @return the placemark created.
-     *
-     * @throws NullPointerException     if element is null
-     * @throws IllegalArgumentException if element is invalid
-     * @deprecated since BEAM 4.7.1, use {@link #createPlacemark(org.jdom.Element, org.esa.beam.framework.datamodel.PlacemarkDescriptor, GeoCoding)}
-     *             This method generates by default a Placemark with the behavior of a pin.
-     */
-    @Deprecated
-    public static Placemark createPlacemark(Element element, PlacemarkSymbol symbol, GeoCoding geoCoding) {
-        final Placemark placemark = createPlacemark(element, PinDescriptor.INSTANCE, geoCoding);
-        placemark.setSymbol(symbol);
-        return placemark;
-    }
-
-    /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
      * <p/>
@@ -487,15 +372,15 @@ public class Placemark extends ProductNode {
     }
 
     private void updateGeometry(PixelPos pixelPos) {
-        if (getProduct() != null) {
-            final AffineTransform i2m = ImageManager.getImageToModelTransform(getProduct().getGeoCoding());
-            final Point2D.Double geometryPoint = new Point2D.Double();
+        final Product product = getProduct();
+        final Point2D.Double geometryPoint = new Point2D.Double(pixelPos.x, pixelPos.y);
+        if (product != null) {
+            final AffineTransform i2m = ImageManager.getImageToModelTransform(product.getGeoCoding());
             i2m.transform(pixelPos, geometryPoint);
-
-            final Point point = (Point) feature.getDefaultGeometry();
-            point.getCoordinate().setCoordinate(toCoordinate(geometryPoint));
-            point.geometryChanged();
         }
+        final Point point = (Point) feature.getDefaultGeometry();
+        point.getCoordinate().setCoordinate(toCoordinate(geometryPoint));
+        point.geometryChanged();
     }
 
     private Coordinate getPixelCoordinate() {
@@ -550,13 +435,17 @@ public class Placemark extends ProductNode {
     }
 
     private static SimpleFeature createFeature(String name, String label, PixelPos pixelPos, GeoPos geoPos,
-                                               PlacemarkSymbol symbol, GeoCoding geoCoding) {
+                                               PlacemarkDescriptor descriptor, GeoCoding geoCoding) {
+        if (pixelPos == null && geoPos == null) {
+            throw new IllegalArgumentException("pixelPos == null && geoPos == null");
+        }
         final GeometryFactory geometryFactory = new GeometryFactory();
         final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
         PixelPos imagePos = pixelPos;
-        if (imagePos == null && geoCoding != null && geoCoding.canGetPixelPos()) {
+        if (imagePos == null && geoCoding != null && geoCoding.canGetGeoPos()) {
             imagePos = geoCoding.getPixelPos(geoPos, imagePos);
         }
+
         if (imagePos == null) {
             imagePos = new PixelPos();
             imagePos.setInvalid();
@@ -568,10 +457,15 @@ public class Placemark extends ProductNode {
         final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(featureType, name, geometry, null);
 
         feature.setAttribute(Placemark.PROPERTY_NAME_PIXELPOS, geometryFactory.createPoint(toCoordinate(imagePos)));
-        
-        if (geoPos == null && geoCoding != null && geoCoding.canGetGeoPos()) {
-            geoPos = geoCoding.getGeoPos(imagePos, geoPos);
+
+        if (geoPos == null) {
+            if (geoCoding != null && geoCoding.canGetGeoPos()) {
+                geoPos = geoCoding.getGeoPos(imagePos, geoPos);
+            }
+        } else {
+            descriptor.updateGeoPos(geoCoding, imagePos, geoPos);
         }
+
         if (geoPos != null) {
             feature.setAttribute(Placemark.PROPERTY_NAME_GEOPOS, geometryFactory.createPoint(toCoordinate(geoPos)));
         }
@@ -580,7 +474,7 @@ public class Placemark extends ProductNode {
         } else {
             feature.setAttribute(Placemark.PROPERTY_NAME_LABEL, label);
         }
-        feature.setAttribute("symbol", symbol);
+        feature.setAttribute("symbol", descriptor.createDefaultSymbol());
 
         return feature;
     }
@@ -640,7 +534,6 @@ public class Placemark extends ProductNode {
     }
 
 
-
     private static SimpleFeatureType createFeatureType(String name) {
         final SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
 
@@ -661,5 +554,135 @@ public class Placemark extends ProductNode {
     private static class Holder {
 
         private static final SimpleFeatureType PLACEMARK_FEATURE_TYPE = createFeatureType(PLACEMARK_FEATURE_TYPE_NAME);
+
+        private Holder() {
+        }
     }
+
+
+    ///////////////////////////////////////////////
+    // deprecated stuff
+
+    /**
+     * Creates a new placemark.
+     *
+     * @param name        the placemark's name.
+     * @param label       the placemark's label.
+     * @param description the placemark's description
+     * @param pixelPos    the placemark's pixel position
+     * @param geoPos      the placemark's geo-position.
+     * @param symbol      the placemark's symbol.
+     *
+     * @deprecated since 4.7, use {@link Placemark#Placemark(String, String, String, PixelPos, GeoPos, PlacemarkDescriptor, GeoCoding)}
+     */
+    @Deprecated
+    public Placemark(String name, String label, String description, PixelPos pixelPos, GeoPos geoPos,
+                     PlacemarkSymbol symbol) {
+        this(name, label, description, pixelPos, geoPos, PinDescriptor.INSTANCE, null);
+    }
+
+
+    /**
+     * Creates a new placemark.
+     *
+     * @param name        the placemark's name.
+     * @param label       the placemark's label.
+     * @param description the placemark's description
+     * @param pixelPos    the placemark's pixel position
+     * @param geoPos      the placemark's geo-position.
+     * @param symbol      the placemark's symbol.
+     * @param geoCoding   the placemark's geo-coding.
+     *
+     * @deprecated since BEAM 4.7.1, use {@link #Placemark(String, String, String, PixelPos, GeoPos, PlacemarkDescriptor, GeoCoding)} instead.
+     *             This Method creates by default a placemark with the behavior of a pin.
+     */
+    @Deprecated
+    public Placemark(String name, String label, String description, PixelPos pixelPos, GeoPos geoPos,
+                     PlacemarkSymbol symbol, GeoCoding geoCoding) {
+        this(name, label, description, pixelPos, geoPos, PinDescriptor.INSTANCE, geoCoding);
+    }
+
+    /**
+     * Updates pixel and geo position according to the current geometry (model coordinates).
+     *
+     * @deprecated since BEAM 4.7.1, use {@link #updatePositions()} instead
+     */
+    @Deprecated
+    public void updatePixelPos() {
+        updatePositions();
+    }
+
+    /**
+     * Creates a new GCP from an XML element.
+     *
+     * @param element the element.
+     *
+     * @return the placemark created.
+     *
+     * @throws NullPointerException     if element is null
+     * @throws IllegalArgumentException if element is invalid
+     * @deprecated since BEAM 4.7, use {@link #createPlacemark(Element, PlacemarkDescriptor, GeoCoding)} instead
+     */
+    @Deprecated
+    public static Placemark createGcp(Element element) {
+        return createPlacemark(element, GcpDescriptor.INSTANCE, null);
+    }
+
+    /**
+     * Creates a new Pin from an XML element.
+     *
+     * @param element the element.
+     *
+     * @return the placemark created.
+     *
+     * @throws NullPointerException     if element is null
+     * @throws IllegalArgumentException if element is invalid
+     * @deprecated since BEAM 4.7, use {@link #createPlacemark(org.jdom.Element, PlacemarkDescriptor, GeoCoding)} instead
+     */
+    @Deprecated
+    public static Placemark createPin(Element element) {
+        return createPlacemark(element, PinDescriptor.INSTANCE, null);
+    }
+
+    /**
+     * Creates a new placemark from an XML element and a given symbol.
+     *
+     * @param element the element.
+     * @param symbol  the symbol.
+     *
+     * @return the placemark created.
+     *
+     * @throws NullPointerException     if element is null
+     * @throws IllegalArgumentException if element is invalid
+     * @deprecated since BEAM 4.7, use {@link #createPlacemark(Element, PlacemarkDescriptor, GeoCoding)} instead
+     */
+    @Deprecated
+    public static Placemark createPlacemark(Element element, PlacemarkSymbol symbol) {
+        final Placemark placemark = createPlacemark(element, PinDescriptor.INSTANCE, null);
+        placemark.setSymbol(symbol);
+        return placemark;
+    }
+
+    /**
+     * Creates a new placemark from an XML element and a given symbol.
+     *
+     * @param element   the element.
+     * @param symbol    the symbol.
+     * @param geoCoding the geoCoding to used by the placemark. Can be <code>null</code>.
+     *
+     * @return the placemark created.
+     *
+     * @throws NullPointerException     if element is null
+     * @throws IllegalArgumentException if element is invalid
+     * @deprecated since BEAM 4.7.1, use {@link #createPlacemark(org.jdom.Element, org.esa.beam.framework.datamodel.PlacemarkDescriptor, GeoCoding)}
+     *             This method generates by default a Placemark with the behavior of a pin.
+     */
+    @Deprecated
+    public static Placemark createPlacemark(Element element, PlacemarkSymbol symbol, GeoCoding geoCoding) {
+        final Placemark placemark = createPlacemark(element, PinDescriptor.INSTANCE, geoCoding);
+        placemark.setSymbol(symbol);
+        return placemark;
+    }
+
+
 }
