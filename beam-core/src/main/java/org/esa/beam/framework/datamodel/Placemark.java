@@ -118,7 +118,7 @@ public class Placemark extends ProductNode {
         // }
 
         placemarkDescriptor = descriptor;
-        feature = createFeature(name, label, pixelPos, geoPos, placemarkDescriptor.createDefaultSymbol(), geoCoding);
+        feature = createFeature(name, label, pixelPos, geoPos, placemarkDescriptor, geoCoding);
 
     }
 
@@ -244,7 +244,7 @@ public class Placemark extends ProductNode {
             final int h = product.getSceneRasterHeight();
             final Rectangle bounds = new Rectangle(0, 0, w, h);
             if (!bounds.contains(pixelPos.x, pixelPos.y)) {
-                pixelPos = null;
+                pixelPos.setInvalid();
             }
         }
         return pixelPos;
@@ -490,15 +490,15 @@ public class Placemark extends ProductNode {
     }
 
     private void updateGeometry(PixelPos pixelPos) {
-        if (getProduct() != null) {
-            final AffineTransform i2m = ImageManager.getImageToModelTransform(getProduct().getGeoCoding());
-            final Point2D.Double geometryPoint = new Point2D.Double();
+        final Product product = getProduct();
+        final Point2D.Double geometryPoint = new Point2D.Double(pixelPos.x, pixelPos.y);
+        if (product != null) {
+            final AffineTransform i2m = ImageManager.getImageToModelTransform(product.getGeoCoding());
             i2m.transform(pixelPos, geometryPoint);
-
-            final Point point = (Point) feature.getDefaultGeometry();
-            point.getCoordinate().setCoordinate(toCoordinate(geometryPoint));
-            point.geometryChanged();
         }
+        final Point point = (Point) feature.getDefaultGeometry();
+        point.getCoordinate().setCoordinate(toCoordinate(geometryPoint));
+        point.geometryChanged();
     }
 
     private Coordinate getPixelCoordinate() {
@@ -553,12 +553,12 @@ public class Placemark extends ProductNode {
     }
 
     private static SimpleFeature createFeature(String name, String label, PixelPos pixelPos, GeoPos geoPos,
-                                               PlacemarkSymbol symbol, GeoCoding geoCoding) {
+                                               PlacemarkDescriptor descriptor, GeoCoding geoCoding) {
         final GeometryFactory geometryFactory = new GeometryFactory();
         final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
         PixelPos imagePos = pixelPos;
-        if (imagePos == null && geoCoding != null && geoCoding.canGetPixelPos()) {
-            imagePos = geoCoding.getPixelPos(geoPos, imagePos);
+        if (imagePos == null) {
+            descriptor.updatePixelPos(geoCoding, geoPos, imagePos);
         }
         if (imagePos == null) {
             imagePos = new PixelPos();
@@ -572,9 +572,8 @@ public class Placemark extends ProductNode {
 
         feature.setAttribute(Placemark.PROPERTY_NAME_PIXELPOS, geometryFactory.createPoint(toCoordinate(imagePos)));
         
-        if (geoPos == null && geoCoding != null && geoCoding.canGetGeoPos()) {
-            geoPos = geoCoding.getGeoPos(imagePos, geoPos);
-        }
+        descriptor.updateGeoPos(geoCoding, imagePos, geoPos);
+
         if (geoPos != null) {
             feature.setAttribute(Placemark.PROPERTY_NAME_GEOPOS, geometryFactory.createPoint(toCoordinate(geoPos)));
         }
@@ -583,7 +582,7 @@ public class Placemark extends ProductNode {
         } else {
             feature.setAttribute(Placemark.PROPERTY_NAME_LABEL, label);
         }
-        feature.setAttribute("symbol", symbol);
+        feature.setAttribute("symbol", descriptor.createDefaultSymbol());
 
         return feature;
     }

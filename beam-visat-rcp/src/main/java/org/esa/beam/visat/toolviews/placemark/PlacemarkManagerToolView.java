@@ -588,18 +588,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 numPinsRenamed++;
             }
 
-            PixelPos newPixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(), placemark.getGeoPos(),
-                                                                      placemark.getPixelPos());
-            placemark.setPixelPos(newPixelPos);
-
-            final PixelPos pixelPos;
-            if (placemark.getPixelPos() != null) {
-                pixelPos = placemark.getPixelPos();
-            } else {
-                pixelPos = new PixelPos();
-                pixelPos.setInvalid();
-            }
-
+            final PixelPos pixelPos = placemark.getPixelPos();
             if (!pixelPos.isValid()) {
                 numInvalids++;
                 continue;
@@ -950,7 +939,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     if (product != null) {
                         geoCoding = product.getGeoCoding();
                     }
-                    placemarks.add(Placemark.createPlacemark(element, placemarkDescriptor, geoCoding));
+                    final Placemark placemark = Placemark.createPlacemark(element, placemarkDescriptor, geoCoding);
+                    placemarks.add(placemark);
                 } catch (IllegalArgumentException ignored) {
                 }
             }
