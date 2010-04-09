@@ -285,17 +285,16 @@ public class BandLineReader {
                 sMaxX = _bandInfo.getWidth() - 1 - sourceMinX;
             }
 
-//            readLineRecord(sourceY);
             readDataFieldSegment(sourceY, sMinX, sMaxX);
 
             ensureBandLineDecoder().computeLine(
-                        getPixelDataField().getElems(),
-                        sMinX,
-                        sMaxX,
-                        sourceStepX,
-                        destRaster.getElems(),
-                        destPos,
-                        destRasterIncr);
+                    getPixelDataField().getElems(),
+                    sMinX,
+                    sMaxX,
+                    sourceStepX,
+                    destRaster.getElems(),
+                    destPos,
+                    destRasterIncr);
         } else {
             int inkrement = destRasterPos;
             final double missingValue = productFile.getMissingMDSRPixelValue();
@@ -314,10 +313,10 @@ public class BandLineReader {
      */
     public synchronized void readLineRecord(int sourceY) throws IOException {
         getPixelDataReader().readRecord(sourceY,
-                getPixelDataRecord());
+                                        getPixelDataRecord());
     }
 
-    
+
     private void readDataFieldSegment(int sourceY, int minX, int maxX) throws IOException {
         getPixelDataReader().readFieldSegment(sourceY, fieldOffset, dataFieldSampleSize, minX, maxX, getPixelDataField());
     }
@@ -335,11 +334,11 @@ public class BandLineReader {
         }
         return offset;
     }
-    
+
     private int getDataFieldSampleSize(BandInfo bandInfo) {
         final int sampleModel = bandInfo.getSampleModel();
         if (sampleModel == BandInfo.SMODEL_1OF1) {
-            return 1; 
+            return 1;
         } else if (sampleModel == BandInfo.SMODEL_1OF2
                 || sampleModel == BandInfo.SMODEL_2OF2
                 || sampleModel == BandInfo.SMODEL_2UB_TO_S) {
