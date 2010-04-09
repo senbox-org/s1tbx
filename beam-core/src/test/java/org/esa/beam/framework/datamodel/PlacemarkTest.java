@@ -229,7 +229,7 @@ public class PlacemarkTest extends TestCase {
         Element pinElem = new Element(DimapProductConstants.TAG_PLACEMARK);
 
         try {
-            Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE.createDefaultSymbol(), null);
+            Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE, null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             // OK
@@ -259,7 +259,7 @@ public class PlacemarkTest extends TestCase {
         lonElem.setText(String.valueOf(pinLon));
         pinElem.addContent(lonElem);
 
-        Placemark placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE.createDefaultSymbol(), null);
+        Placemark placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE, null);
         assertNotNull("pin must be not null", placemark);
         assertEquals(pinName, placemark.getName());
         assertNull(placemark.getDescription());
@@ -270,7 +270,7 @@ public class PlacemarkTest extends TestCase {
         descElem.setText(pinDesc);
         pinElem.addContent(descElem);
 
-        placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE.createDefaultSymbol(), null);
+        placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE, null);
         assertNotNull("pin must be not null", placemark);
         assertEquals(pinName, placemark.getName());
         assertEquals(pinDesc, placemark.getDescription());

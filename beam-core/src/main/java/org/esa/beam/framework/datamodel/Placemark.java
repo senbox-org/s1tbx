@@ -222,9 +222,12 @@ public class Placemark extends ProductNode {
 
     public void setPixelPos(PixelPos pixelPos) {
         setPixelCoordinate(pixelPos, true);
-        final GeoPos geoPos = toGeoPos(getGeoCoordinate());
-        placemarkDescriptor.updateGeoPos(getProduct().getGeoCoding(), pixelPos, geoPos);
-        setGeoCoordinate(geoPos);
+        final Product product = getProduct();
+        if (product != null) {
+            final GeoPos geoPos = toGeoPos(getGeoCoordinate());
+            placemarkDescriptor.updateGeoPos(product.getGeoCoding(), pixelPos, geoPos);
+            setGeoCoordinate(geoPos);
+        }
     }
 
     /**

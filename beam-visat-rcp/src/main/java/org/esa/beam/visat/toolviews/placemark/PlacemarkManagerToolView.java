@@ -950,7 +950,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     if (product != null) {
                         geoCoding = product.getGeoCoding();
                     }
-                    placemarks.add(Placemark.createPlacemark(element, placemarkDescriptor.createDefaultSymbol(), geoCoding));
+                    placemarks.add(Placemark.createPlacemark(element, placemarkDescriptor, geoCoding));
                 } catch (IllegalArgumentException ignored) {
                 }
             }
