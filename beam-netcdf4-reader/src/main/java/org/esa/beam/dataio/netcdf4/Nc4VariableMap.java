@@ -15,10 +15,10 @@ import java.util.Map;
  */
 public class Nc4VariableMap {
 
-    private Map<String, Variable> _map;
+    private final Map<String, Variable> map;
 
     public Nc4VariableMap(int initialCapacity) {
-        _map = new HashMap<String, Variable>(initialCapacity);
+        map = new HashMap<String, Variable>(initialCapacity);
     }
 
     public Nc4VariableMap(Variable[] variables) {
@@ -48,7 +48,7 @@ public class Nc4VariableMap {
      * @return The variable or null.
      */
     public Variable get(String name) {
-        return _map.get(name);
+        return map.get(name);
     }
 
     /**
@@ -57,14 +57,14 @@ public class Nc4VariableMap {
      * @param variable The variable.
      */
     public void put(Variable variable) {
-        _map.put(getAbsoluteName(variable), variable);
+        map.put(getAbsoluteName(variable), variable);
     }
 
     /**
      * Removes all variables from this map.
      */
     public void clear() {
-        _map.clear();
+        map.clear();
     }
 
 
@@ -74,7 +74,7 @@ public class Nc4VariableMap {
      * @return <code>true</code>  if this map is empty.
      */
     public boolean isEmpty() {
-        return _map.isEmpty();
+        return map.isEmpty();
     }
 
     /**

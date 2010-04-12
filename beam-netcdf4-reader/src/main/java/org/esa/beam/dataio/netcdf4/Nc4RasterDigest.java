@@ -17,13 +17,11 @@ public class Nc4RasterDigest {
 
     private final Nc4Dim _rasterDim;
     private final Variable[] _variables;
-    private final Map<Nc4Dim, List<Variable>> rasters;
 
 
     public Nc4RasterDigest(Nc4Dim rasterDim, Variable[] variables) {
         _rasterDim = rasterDim;
         _variables = variables;
-        rasters = new HashMap<Nc4Dim, List<Variable>>();
     }
 
     public Nc4Dim getRasterDim() {

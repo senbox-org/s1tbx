@@ -41,19 +41,20 @@ public class BeamGeocodingPart implements ModelPart {
     @Override
     public void read(Product p, Nc4ReaderParameters rp) throws IOException {
         final Attribute tpCoordinatesAtt = rp.getNetcdfFile().findGlobalAttribute(TIEPOINT_COORDINATES);
-        if (tpCoordinatesAtt == null) {
+        if (tpCoordinatesAtt != null) {
+            final String[] tpGridNames = tpCoordinatesAtt.getStringValue().split(" ");
+            if (tpGridNames.length != 2
+                    || !p.containsTiePointGrid(tpGridNames[lonIndex])
+                    || !p.containsTiePointGrid(tpGridNames[latIndex])) {
+                throw new ProductIOException("Illegal values in global attribute '" + TIEPOINT_COORDINATES + "'");
+            }
+            final TiePointGrid lon = p.getTiePointGrid(tpGridNames[lonIndex]);
+            final TiePointGrid lat = p.getTiePointGrid(tpGridNames[latIndex]);
+            final TiePointGeoCoding tiePointGeoCoding = new TiePointGeoCoding(lat, lon);
+            p.setGeoCoding(tiePointGeoCoding);
+        } else {
             CfGeocodingPart.readGeocoding(p, rp);
         }
-        final String[] tpGridNames = tpCoordinatesAtt.getStringValue().split(" ");
-        if (tpGridNames.length != 2
-            || !p.containsTiePointGrid(tpGridNames[lonIndex])
-            || !p.containsTiePointGrid(tpGridNames[latIndex])) {
-            throw new ProductIOException("Illegal values in global attribute '" + TIEPOINT_COORDINATES + "'");
-        }
-        final TiePointGrid lon = p.getTiePointGrid(tpGridNames[lonIndex]);
-        final TiePointGrid lat = p.getTiePointGrid(tpGridNames[latIndex]);
-        final TiePointGeoCoding tiePointGeoCoding = new TiePointGeoCoding(lat, lon);
-        p.setGeoCoding(tiePointGeoCoding);
     }
 
     @Override

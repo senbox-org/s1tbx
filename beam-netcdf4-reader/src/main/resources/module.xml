@@ -27,6 +27,10 @@
 
     <categories>Reader,NetCDF,HDF,CF,EOS</categories>
 
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>org.esa.beam.dataio.netcdf4.convention.AbstractModelFactory</serviceProvider>
+    </extension>
+
     <extension point="beam-ui:actions">
         <action>
             <id>importNetcdf4SupportedProduct</id>

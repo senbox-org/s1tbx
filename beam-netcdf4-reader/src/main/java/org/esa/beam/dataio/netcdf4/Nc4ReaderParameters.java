@@ -10,22 +10,31 @@ import java.util.Map;
 
 public class Nc4ReaderParameters {
 
+    private final Nc4VariableMap rasterVariableMap;
+    private final List<Variable> globalVariables;
+    private final Map<String, Variable> globalVariablesMap;
+    private final Nc4AttributeMap globalAttributes;
+    private final Nc4RasterDigest rasterDigest;
     private NetcdfFile netcdfFile;
-    private Nc4VariableMap rasterVariableMap;
     private boolean yFlipped;
-    private Nc4RasterDigest rasterDigest;
-    private List<Variable> globalVariables;
-    private Map<String, Variable> globalVariablesMap;
-    private Nc4AttributeMap globalAttributes;
-
-    public NetcdfFile getNetcdfFile() {
-        return netcdfFile;
-    }
 
     public Nc4ReaderParameters(NetcdfFile netcdfFile) {
         Assert.argument(netcdfFile != null, "netcdfFile != null");
         this.netcdfFile = netcdfFile;
-        init();
+        globalAttributes = Nc4AttributeMap.create(netcdfFile);
+        globalVariables = netcdfFile.getVariables();
+        globalVariablesMap = Nc4ReaderUtils.createVariablesMap(globalVariables);
+
+        rasterDigest = Nc4RasterDigest.createRasterDigest(netcdfFile.getRootGroup(), this);
+        if (rasterDigest != null) {
+            rasterVariableMap = new Nc4VariableMap(rasterDigest.getRasterVariables());
+        } else {
+            rasterVariableMap = null;
+        }
+    }
+
+    public NetcdfFile getNetcdfFile() {
+        return netcdfFile;
     }
 
     public Nc4VariableMap getRasterVariableMap() {
@@ -56,37 +65,19 @@ public class Nc4ReaderParameters {
     public void close() throws IOException {
         if (globalAttributes != null) {
             globalAttributes.clear();
-            globalAttributes = null;
         }
         if (globalVariables != null) {
             globalVariables.clear();
-            globalVariables = null;
         }
         if (globalVariablesMap != null) {
             globalVariablesMap.clear();
-            globalVariablesMap = null;
-        }
-        if (rasterDigest != null) {
-            rasterDigest = null;
         }
         if (rasterVariableMap != null) {
             rasterVariableMap.clear();
-            rasterVariableMap = null;
         }
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
-        }
-    }
-
-    private void init() {
-        globalAttributes = Nc4AttributeMap.create(netcdfFile);
-        globalVariables = netcdfFile.getVariables();
-        globalVariablesMap = Nc4ReaderUtils.createVariablesMap(globalVariables);
-
-        rasterDigest = Nc4RasterDigest.createRasterDigest(netcdfFile.getRootGroup(), this);
-        if (rasterDigest != null) {
-            rasterVariableMap = new Nc4VariableMap(rasterDigest.getRasterVariables());
         }
     }
 

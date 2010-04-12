@@ -16,10 +16,10 @@ import java.util.Map;
  */
 public class Nc4AttributeMap {
 
-    private Map<String, Attribute> _map;
+    private final Map<String, Attribute> map;
 
     public Nc4AttributeMap(int initialCapacity) {
-        _map = new HashMap<String, Attribute>(initialCapacity);
+        map = new HashMap<String, Attribute>(initialCapacity);
     }
 
     public Nc4AttributeMap(Attribute[] attributes) {
@@ -46,18 +46,18 @@ public class Nc4AttributeMap {
     }
 
     public Attribute get(String name) {
-        return _map.get(name);
+        return map.get(name);
     }
 
     public void put(Attribute attribute) {
-        _map.put(attribute.getName(), attribute);
+        map.put(attribute.getName(), attribute);
     }
 
     /**
      * Removes all attributes from this map.
      */
     public void clear() {
-        _map.clear();
+        map.clear();
     }
 
     public Number getNumericValue(String name) {
