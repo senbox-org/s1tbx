@@ -12,6 +12,8 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.8:<br/>
+          [BEAM-1109] Pixel Info View does not update if "Snap to selected pin" is clicked<br/>
+          [BEAM-1108] Import of Pins/GCPs fails<br/>
           [BEAM-1106] ToolViews do not reflect the selected state correctly in all cases<br/>
           [BEAM-1105] NullPointerException is thrown, if editor for geometry layer is visible<br/>
           [BEAM-1097] Exception when reprojection results in large target product<br/>
