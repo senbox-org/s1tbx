@@ -14,7 +14,7 @@ public class Nc4ReaderParameters {
     private final List<Variable> globalVariables;
     private final Map<String, Variable> globalVariablesMap;
     private final Nc4AttributeMap globalAttributes;
-    private Nc4RasterDigest rasterDigest;
+    private final Nc4RasterDigest rasterDigest;
     private NetcdfFile netcdfFile;
     private boolean yFlipped;
 
@@ -71,9 +71,6 @@ public class Nc4ReaderParameters {
         }
         if (globalVariablesMap != null) {
             globalVariablesMap.clear();
-        }
-        if (rasterDigest != null) {
-            rasterDigest = null;
         }
         if (rasterVariableMap != null) {
             rasterVariableMap.clear();
