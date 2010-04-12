@@ -498,8 +498,11 @@ public class PlacemarkDialog extends ModalDialog {
         dialog.setName(placemark.getName());
         dialog.setLabel(placemark.getLabel());
         dialog.setDescription(placemark.getDescription() != null ? placemark.getDescription() : "");
+        // prevent that geoPos change updates pixelPos and vice versa during dialog creation
+        dialog.adjusting = true;
         dialog.setPixelPos(placemark.getPixelPos());
         dialog.setGeoPos(placemark.getGeoPos());
+        dialog.adjusting = false;
         dialog.setPlacemarkSymbol(placemark.getSymbol());
         boolean ok = (dialog.show() == ID_OK);
         if (ok) {
