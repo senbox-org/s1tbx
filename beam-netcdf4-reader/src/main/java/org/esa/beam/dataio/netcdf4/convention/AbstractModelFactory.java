@@ -82,6 +82,9 @@ public abstract class AbstractModelFactory {
         if (bandPart != null) {
             model.addModelPart(bandPart);
         }
+        if (tiePointGridPart != null) {
+            model.addModelPart(tiePointGridPart);
+        }
         if (flagCodingPart != null) {
             model.addModelPart(flagCodingPart);
         }
@@ -99,9 +102,6 @@ public abstract class AbstractModelFactory {
         }
         if (stxPart != null) {
             model.addModelPart(stxPart);
-        }
-        if (tiePointGridPart != null) {
-            model.addModelPart(tiePointGridPart);
         }
         if (startTimePart != null) {
             model.addModelPart(startTimePart);
