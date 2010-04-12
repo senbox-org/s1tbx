@@ -100,6 +100,10 @@ public class Placemark extends ProductNode {
         return Holder.PLACEMARK_FEATURE_TYPE;
     }
 
+    public PlacemarkDescriptor getPlacemarkDescriptor() {
+        return placemarkDescriptor;
+    }
+
     /**
      * Returns the {@link SimpleFeature}, underlying this placemark.
      *
