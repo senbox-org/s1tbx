@@ -442,7 +442,8 @@ public class Placemark extends ProductNode {
         final GeometryFactory geometryFactory = new GeometryFactory();
         final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
         PixelPos imagePos = pixelPos;
-        if (imagePos == null && geoCoding != null && geoCoding.canGetGeoPos()) {
+
+        if ( (descriptor instanceof PinDescriptor || imagePos == null ) && geoPos != null && geoCoding != null && geoCoding.canGetPixelPos() ) {
             imagePos = geoCoding.getPixelPos(geoPos, imagePos);
         }
 
