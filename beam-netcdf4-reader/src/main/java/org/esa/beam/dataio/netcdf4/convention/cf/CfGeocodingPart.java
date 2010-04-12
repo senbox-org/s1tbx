@@ -16,7 +16,6 @@
  */
 package org.esa.beam.dataio.netcdf4.convention.cf;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.netcdf4.Nc4AttributeMap;
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
 import org.esa.beam.dataio.netcdf4.Nc4Dim;
@@ -25,6 +24,7 @@ import org.esa.beam.dataio.netcdf4.Nc4ReaderUtils;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -54,9 +54,12 @@ public class CfGeocodingPart implements ModelPart {
     }
 
     public static void readGeocoding(Product p, Nc4ReaderParameters rp) throws IOException {
-        p.setGeoCoding(createConventionBasedMapGeoCoding(p, rp));
-        if (p.getGeoCoding() == null) {
-            setPixelGeoCoding(p);
+        GeoCoding geoCoding = createConventionBasedMapGeoCoding(p, rp);
+        if (geoCoding == null) {
+            geoCoding = createPixelGeoCoding(p);
+        }
+        if (geoCoding != null) {
+            p.setGeoCoding(geoCoding);
         }
     }
 
@@ -174,7 +177,7 @@ public class CfGeocodingPart implements ModelPart {
         return new MapInfoX(mapInfo, yFlipped);
     }
 
-    public static void setPixelGeoCoding(Product product) throws IOException {
+    public static GeoCoding createPixelGeoCoding(Product product) throws IOException {
         Band lonBand = product.getBand(Nc4Constants.LON_VAR_NAME);
         if (lonBand == null) {
             lonBand = product.getBand(Nc4Constants.LONGITUDE_VAR_NAME);
@@ -184,11 +187,9 @@ public class CfGeocodingPart implements ModelPart {
             latBand = product.getBand(Nc4Constants.LATITUDE_VAR_NAME);
         }
         if (latBand != null && lonBand != null) {
-            product.setGeoCoding(new PixelGeoCoding(latBand,
-                                                    lonBand,
-                                                    latBand.getValidPixelExpression(),
-                                                    5, ProgressMonitor.NULL));
+            return new PixelGeoCoding(latBand, lonBand, latBand.getValidPixelExpression(), 5);
         }
+        return null;
     }
 
     /**
