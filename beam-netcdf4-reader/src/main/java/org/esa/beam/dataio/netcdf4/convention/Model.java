@@ -16,10 +16,8 @@ public class Model {
 
     public Product readProduct(final String productName, Nc4ReaderParameters rp) throws IOException {
         final Product product = initialisationPart.readProductBody(productName, rp);
-        if (modelParts != null) {
-            for (ModelPart modelPart : modelParts) {
-                modelPart.read(product, rp);
-            }
+        for (ModelPart modelPart : modelParts) {
+            modelPart.read(product, rp);
         }
         return product;
     }
