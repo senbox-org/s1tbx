@@ -79,6 +79,9 @@ public class Product extends ProductNode {
     public static final String METADATA_ROOT_NAME = "metadata";
     public static final String HISTORY_ROOT_NAME = "history";
 
+    public static final String PIN_MASK_NAME = "pins";
+    public static final String GCP_MASK_NAME = "ground_control_points";
+
     public static final String PROPERTY_NAME_FILE_LOCATION = "fileLocation";
     public static final String PROPERTY_NAME_GEOCODING = "geoCoding";
     public static final String PROPERTY_NAME_POINTING = "pointing";
@@ -274,9 +277,9 @@ public class Product extends ProductNode {
         this.indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "indexCodingGroup", true);
         this.flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flagCodingGroup", true);
         this.maskGroup = new ProductNodeGroup<Mask>(this, "maskGroup", true);
-        final VectorDataNode pinVectorDataNode = new VectorDataNode("pins", Placemark.getFeatureType());
+        final VectorDataNode pinVectorDataNode = new VectorDataNode(PIN_MASK_NAME, Placemark.getFeatureType());
         this.vectorDataGroup.add(pinVectorDataNode);
-        final VectorDataNode gcpVectorDataNode = new VectorDataNode("ground_control_points", Placemark.getFeatureType());
+        final VectorDataNode gcpVectorDataNode = new VectorDataNode(GCP_MASK_NAME, Placemark.getFeatureType());
         this.vectorDataGroup.add(gcpVectorDataNode);
         this.pinGroup = new PlacemarkGroup(this, "pinGroup", pinVectorDataNode);
         this.gcpGroup = new PlacemarkGroup(this, "gcpGroup", gcpVectorDataNode);
