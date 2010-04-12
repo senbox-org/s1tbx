@@ -22,6 +22,9 @@
     
     <changelog>
         <![CDATA[
+        <p>Changes in 0.11<br/>
+        [CERES-47] Figures are not correctly moved if multiple are selected<br/>
+        </p>
         <p>Changes in 0.8<br/>
         [CERES-32] ProgressMonitorSwingWorker can cause deadlock<br/>
         [CERES-22] Multiple versions of one module available for installation<br/>

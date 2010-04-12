@@ -37,7 +37,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
         init(list);
     }
 
-    private void init(List<Figure> list) {
+    private synchronized void init(List<Figure> list) {
         this.figureList = new ArrayList<Figure>(list);
         this.figureSet = new HashSet<Figure>(list);
         this.changeDelegate = new ChangeDelegate();
@@ -57,7 +57,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
         if (getFigureCount() == 0) {
             return false;
         }
-        for (Figure figure : figureList) {
+        for (Figure figure : getFigures()) {
             if (!figure.isSelected()) {
                 return false;
             }
@@ -68,7 +68,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     @Override
     public void setSelected(boolean selected) {
         if (isSelectable()) {
-            for (Figure figure : figureList) {
+            for (Figure figure : getFigures()) {
                 if (figure.isSelectable()) {
                     figure.setSelected(selected);
                 }
@@ -131,7 +131,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     }
 
     @Override
-    public int getFigureIndex(Figure figure) {
+    public synchronized int getFigureIndex(Figure figure) {
         return figureList.indexOf(figure);
     }
 
@@ -212,7 +212,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     @Override
     public synchronized void move(double dx, double dy) {
         if (getFigureCount() > 0) {
-            for (Figure figure : figureList) {
+            for (Figure figure : getFigures()) {
                 figure.move(dx, dy);
             }
             fireFigureChanged();
@@ -222,7 +222,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     @Override
     public synchronized void scale(Point2D refPoint, double sx, double sy) {
         if (getFigureCount() > 0) {
-            for (Figure figure : figureList) {
+            for (Figure figure : getFigures()) {
                 figure.scale(refPoint, sx, sy);
             }
             fireFigureChanged();
@@ -232,7 +232,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
     @Override
     public synchronized void rotate(Point2D point, double theta) {
         if (getFigureCount() > 0) {
-            for (Figure figure : figureList) {
+            for (Figure figure : getFigures()) {
                 figure.rotate(point, theta);
             }
             fireFigureChanged();
@@ -241,7 +241,7 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
 
     @Override
     public synchronized void draw(Rendering rendering) {
-        for (Figure figure : figureList) {
+        for (Figure figure : getFigures()) {
             figure.draw(rendering);
         }
     }
@@ -251,8 +251,9 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
         if (getFigureCount() == 0) {
             return null;
         }
-        Map<Figure, Object> mementoMap = new HashMap<Figure, Object>(figureList.size());
-        for (Figure figure : figureList) {
+        final Figure[] figures = getFigures();
+        Map<Figure, Object> mementoMap = new HashMap<Figure, Object>(figures.length);
+        for (Figure figure : figures) {
             mementoMap.put(figure, figure.createMemento());
         }
         return mementoMap;
@@ -272,10 +273,11 @@ public class DefaultFigureCollection extends AbstractFigure implements FigureCol
 
     protected synchronized Rectangle2D computeBounds() {
         final Rectangle2D bounds = new Rectangle2D.Double();
-        if (getFigureCount() > 0) {
-            bounds.setRect(figureList.get(0).getBounds());
-            for (int i = 1; i < figureList.size(); i++) {
-                Figure figure = figureList.get(i);
+        final Figure[] figures = getFigures();
+        if (figures.length > 0) {
+            bounds.setRect(figures[0].getBounds());
+            for (int i = 1; i < figures.length; i++) {
+                Figure figure = figures[i];
                 bounds.add(figure.getBounds());
             }
         }
