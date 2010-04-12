@@ -3,11 +3,17 @@ package org.esa.beam.visat.toolviews.mask;
 import com.jidesoft.utils.Lm;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 
+import javax.swing.table.TableModel;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
@@ -36,14 +42,54 @@ public class MaskFormTest extends TestCase {
         assertNotNull(maskManagerForm.getHelpButton());
         assertEquals("helpButton", maskManagerForm.getHelpButton().getName());
         assertNotNull(maskManagerForm.createContentPanel());
+        assertEquals(12, maskManagerForm.getRowCount());
+        final TableModel tableModel = maskManagerForm.getMaskTable().getModel();
+        assertEquals("M_3", tableModel.getValueAt(0, 0));
+        tableModel.setValueAt("test_3", 0, 0);
+        assertEquals("test_3", tableModel.getValueAt(0, 0));
+        assertEquals("M_4", tableModel.getValueAt(1, 0));
+
+        final PlacemarkGroup gcpGroup = product.getGcpGroup();
+        final PlacemarkGroup pinGroup = product.getPinGroup();
+
+        gcpGroup.add(new Placemark("G", "L", "D", new PixelPos(10, 10), null, GcpDescriptor.INSTANCE, null));
+        assertEquals(13, maskManagerForm.getRowCount());
+
+        assertEquals(Product.GCP_MASK_NAME, tableModel.getValueAt(0, 0));
+        tableModel.setValueAt("test_gcp", 0, 0);
+        assertEquals("test_gcp", tableModel.getValueAt(0, 0));
+
+        assertEquals("test_3", tableModel.getValueAt(1, 0));
+        tableModel.setValueAt("M_3", 1, 0);
+        assertEquals("M_3", tableModel.getValueAt(1, 0));
+
+        pinGroup.add(new Placemark("P", "L", "D", new PixelPos(10, 10), null, PinDescriptor.INSTANCE, null));
         assertEquals(14, maskManagerForm.getRowCount());
+
+        assertEquals(Product.PIN_MASK_NAME, tableModel.getValueAt(0, 0));
+        tableModel.setValueAt("test_pin", 0, 0);
+        assertEquals("test_pin", tableModel.getValueAt(0, 0));
+
+        assertEquals("test_gcp", tableModel.getValueAt(1, 0));
+        tableModel.setValueAt(Product.GCP_MASK_NAME, 1, 0);
+        assertEquals(Product.GCP_MASK_NAME, tableModel.getValueAt(1, 0));
+
+        assertEquals("M_3", tableModel.getValueAt(2, 0));
+        tableModel.setValueAt("test_3", 2, 0);
+        assertEquals("test_3", tableModel.getValueAt(2, 0));
+
+        gcpGroup.removeAll();
+        assertEquals(13, maskManagerForm.getRowCount());
+        assertEquals("test_pin", tableModel.getValueAt(0, 0));
+        assertEquals("test_3", tableModel.getValueAt(1, 0));
+
     }
 
     public void testMaskViewerForm() {
         assertSame(product, maskViewerForm.getProduct());
         assertNull(maskViewerForm.getHelpButton());
         assertNotNull(maskViewerForm.createContentPanel());
-        assertEquals(14, maskViewerForm.getRowCount());
+        assertEquals(12, maskViewerForm.getRowCount());
     }
 
     static Product createTestProduct() {

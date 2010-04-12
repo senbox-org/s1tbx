@@ -14,6 +14,8 @@
 package org.esa.beam.visat.toolviews.mask;
 
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -239,13 +241,24 @@ class MaskTableModel extends AbstractTableModel {
     @Override
     public int getRowCount() {
         ProductNodeGroup<Mask> maskGroup = getMaskGroup();
-        return maskGroup != null ? maskGroup.getNodeCount() : 0;
+        int maskCount = 0;
+        if (maskGroup != null) {
+            maskCount = maskGroup.getNodeCount();
+            if(isPlacemarkGroupEmpty(maskGroup.getProduct().getPinGroup())) {
+                maskCount--;
+            }
+            if(isPlacemarkGroupEmpty(maskGroup.getProduct().getGcpGroup())) {
+                maskCount--;
+            }
+        }
+        return maskCount;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-
-        Mask mask = getMaskGroup().get(rowIndex);
+        final ProductNodeGroup<Mask> maskGroup = getMaskGroup();
+        int adjustedIndex = adjustRowIndex(maskGroup, rowIndex);
+        Mask mask = maskGroup.get(adjustedIndex);
         int column = modeIdxs[columnIndex];
 
         if (column == IDX_VISIBILITY) {
@@ -277,7 +290,9 @@ class MaskTableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        Mask mask = getMaskGroup().get(rowIndex);
+        final ProductNodeGroup<Mask> maskGroup = getMaskGroup();
+        int adjustedIndex = adjustRowIndex(maskGroup, rowIndex);
+        Mask mask = maskGroup.get(adjustedIndex);
         int column = modeIdxs[columnIndex];
 
         if (column == IDX_VISIBILITY) {
@@ -291,7 +306,7 @@ class MaskTableModel extends AbstractTableModel {
                 overlayMaskGroup.remove(mask);
             }
             visibleBand.fireImageInfoChanged();
-            fireTableCellUpdated(rowIndex, columnIndex);
+            fireTableCellUpdated(adjustedIndex, columnIndex);
         } else if (column == IDX_ROI) {
             boolean isRoi = (Boolean) aValue;
             final ProductNodeGroup<Mask> roiMaskGroup = visibleBand.getRoiMaskGroup();
@@ -303,23 +318,43 @@ class MaskTableModel extends AbstractTableModel {
                 roiMaskGroup.remove(mask);
             }
             visibleBand.fireImageInfoChanged();
-            fireTableCellUpdated(rowIndex, columnIndex);
+            fireTableCellUpdated(adjustedIndex, columnIndex);
         } else if (column == IDX_NAME) {
             mask.setName((String) aValue);
-            fireTableCellUpdated(rowIndex, columnIndex);
+            fireTableCellUpdated(adjustedIndex, columnIndex);
         } else if (column == IDX_TYPE) {
             // type is not editable!
         } else if (column == IDX_COLOR) {
             mask.setImageColor((Color) aValue);
-            fireTableCellUpdated(rowIndex, columnIndex);
+            fireTableCellUpdated(adjustedIndex, columnIndex);
         } else if (column == IDX_TRANSPARENCY) {
             mask.setImageTransparency((Double) aValue);
-            fireTableCellUpdated(rowIndex, columnIndex);
+            fireTableCellUpdated(adjustedIndex, columnIndex);
         } else if (column == IDX_DESCRIPTION) {
             mask.setDescription((String) aValue);
-            fireTableCellUpdated(rowIndex, columnIndex);
+            fireTableCellUpdated(adjustedIndex, columnIndex);
         }
 
+    }
+
+    private int adjustRowIndex(ProductNodeGroup<Mask> maskGroup, int rowIndex) {
+        final PlacemarkGroup pinGroup = maskGroup.getProduct().getPinGroup();
+        final int pinIndex = maskGroup.indexOf(Product.PIN_MASK_NAME);
+
+        final PlacemarkGroup gcpGroup = maskGroup.getProduct().getGcpGroup();
+        final int gcpIndex = maskGroup.indexOf(Product.GCP_MASK_NAME);
+
+        if(isPlacemarkGroupEmpty(pinGroup) && rowIndex >= pinIndex ) {
+            rowIndex++;
+        }
+        if( isPlacemarkGroupEmpty(gcpGroup) && rowIndex >= gcpIndex ) {
+            rowIndex++;
+        }
+        return rowIndex;
+    }
+
+    private boolean isPlacemarkGroupEmpty(PlacemarkGroup placemarkGroup) {
+        return placemarkGroup.getNodeCount() == 0;
     }
 
     private class MaskPNL extends ProductNodeListenerAdapter {
@@ -341,6 +376,8 @@ class MaskTableModel extends AbstractTableModel {
 
         private void processEvent(ProductNodeEvent event) {
             if (event.getSourceNode() instanceof Mask) {
+                fireTableDataChanged();
+            }else if (event.getSourceNode() instanceof Placemark){
                 fireTableDataChanged();
             }else if (event.getSourceNode() == visibleBand
                     && event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_IMAGE_INFO)) {
