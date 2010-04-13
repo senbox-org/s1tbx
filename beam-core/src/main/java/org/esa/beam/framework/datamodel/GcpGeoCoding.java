@@ -311,6 +311,13 @@ public class GcpGeoCoding extends AbstractGeoCoding {
     }
 
     private void initCoordinates(Placemark[] gcps) {
+        for (final Placemark gcp : gcps) {
+            final PixelPos pixelPos = gcp.getPixelPos();
+            final GeoPos geoPos = gcp.getGeoPos();
+            if (pixelPos == null || !pixelPos.isValid() || geoPos == null || !geoPos.isValid()) {
+                throw new IllegalArgumentException("Invalid ground control point.");
+            }
+        }
         x = new double[gcps.length];
         y = new double[gcps.length];
 
