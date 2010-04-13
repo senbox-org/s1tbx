@@ -116,10 +116,26 @@ public class JavaMathTest extends TestCase {
      * BEAM does not really rely on the success of this test,
      * it's just for demonstration purpose.
      */
-    public void testDoubleUnequalFloat() {
+    public void testDoubleUnequalToFloat() {
         assertTrue(0.1f != 0.1d);
         assertTrue(1f == 1d);
         assertTrue((0.1f * 10f) == (0.1d * 10d));
+
+        final double d1 = 7.1;
+        final float f1 = (float) d1;
+        assertFalse(d1 == f1);
+    }
+
+    /**
+     * If this test fails with some JDK > 5.0, just comment it out.
+     * BEAM does not really rely on the success of this test,
+     * it's just for demonstration purpose.
+     */
+    public void testFloatEqualToDouble() {
+        final float f1 = 7.1f;
+        final double d1 = f1;
+
+        assertTrue(f1 == d1);
     }
 
     /**
