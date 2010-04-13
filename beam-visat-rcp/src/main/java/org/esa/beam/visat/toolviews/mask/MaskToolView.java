@@ -114,5 +114,11 @@ public abstract class MaskToolView extends AbstractToolView {
             updateMaskForm();
         }
 
+        @Override
+        public void productRemoved(Product product) {
+            if (maskForm.getProduct() == product) {
+                updateMaskForm();
+            }
+        }
     }
 }
