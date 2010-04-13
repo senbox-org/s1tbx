@@ -161,11 +161,15 @@ class MaskTableModel extends AbstractTableModel {
     }
 
     Mask getMask(int selectedRow) {
-        return getMaskGroup().get(selectedRow);
+        ProductNodeGroup<Mask> maskGroup = getMaskGroup();
+        int modelIndex = convertRow2ModelIndex(maskGroup, selectedRow);
+        return maskGroup.get(modelIndex);
     }
 
     int getMaskIndex(String name) {
-        return getMaskGroup().indexOf(name);
+        int modelIndex = getMaskGroup().indexOf(name);
+        int rowIndex = convertModel2RowIndex(getMaskGroup(), modelIndex);
+        return rowIndex;
     }
 
     void addMask(Mask mask) {
@@ -174,7 +178,9 @@ class MaskTableModel extends AbstractTableModel {
     }
 
     public void addMask(Mask mask, int index) {
-        getProduct().getMaskGroup().add(index, mask);
+        ProductNodeGroup<Mask> maskGroup = getProduct().getMaskGroup();
+        int modelIndex = convertRow2ModelIndex(maskGroup, index);
+        maskGroup.add(modelIndex, mask);
         fireTableDataChanged();
     }
 
@@ -257,8 +263,8 @@ class MaskTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         final ProductNodeGroup<Mask> maskGroup = getMaskGroup();
-        int adjustedIndex = adjustRowIndex(maskGroup, rowIndex);
-        Mask mask = maskGroup.get(adjustedIndex);
+        int modelIndex = convertRow2ModelIndex(maskGroup, rowIndex);
+        Mask mask = maskGroup.get(modelIndex);
         int column = modeIdxs[columnIndex];
 
         if (column == IDX_VISIBILITY) {
@@ -291,8 +297,8 @@ class MaskTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         final ProductNodeGroup<Mask> maskGroup = getMaskGroup();
-        int adjustedIndex = adjustRowIndex(maskGroup, rowIndex);
-        Mask mask = maskGroup.get(adjustedIndex);
+        int modelIndex = convertRow2ModelIndex(maskGroup, rowIndex);
+        Mask mask = maskGroup.get(modelIndex);
         int column = modeIdxs[columnIndex];
 
         if (column == IDX_VISIBILITY) {
@@ -306,7 +312,7 @@ class MaskTableModel extends AbstractTableModel {
                 overlayMaskGroup.remove(mask);
             }
             visibleBand.fireImageInfoChanged();
-            fireTableCellUpdated(adjustedIndex, columnIndex);
+            fireTableCellUpdated(rowIndex, columnIndex);
         } else if (column == IDX_ROI) {
             boolean isRoi = (Boolean) aValue;
             final ProductNodeGroup<Mask> roiMaskGroup = visibleBand.getRoiMaskGroup();
@@ -318,39 +324,57 @@ class MaskTableModel extends AbstractTableModel {
                 roiMaskGroup.remove(mask);
             }
             visibleBand.fireImageInfoChanged();
-            fireTableCellUpdated(adjustedIndex, columnIndex);
+            fireTableCellUpdated(rowIndex, columnIndex);
         } else if (column == IDX_NAME) {
             mask.setName((String) aValue);
-            fireTableCellUpdated(adjustedIndex, columnIndex);
+            fireTableCellUpdated(rowIndex, columnIndex);
         } else if (column == IDX_TYPE) {
             // type is not editable!
         } else if (column == IDX_COLOR) {
             mask.setImageColor((Color) aValue);
-            fireTableCellUpdated(adjustedIndex, columnIndex);
+            fireTableCellUpdated(rowIndex, columnIndex);
         } else if (column == IDX_TRANSPARENCY) {
             mask.setImageTransparency((Double) aValue);
-            fireTableCellUpdated(adjustedIndex, columnIndex);
+            fireTableCellUpdated(rowIndex, columnIndex);
         } else if (column == IDX_DESCRIPTION) {
             mask.setDescription((String) aValue);
-            fireTableCellUpdated(adjustedIndex, columnIndex);
+            fireTableCellUpdated(rowIndex, columnIndex);
         }
 
     }
 
-    private int adjustRowIndex(ProductNodeGroup<Mask> maskGroup, int rowIndex) {
+    private int convertModel2RowIndex(ProductNodeGroup<Mask> maskGroup, int modelIndex) {
         final PlacemarkGroup pinGroup = maskGroup.getProduct().getPinGroup();
         final int pinIndex = maskGroup.indexOf(Product.PIN_MASK_NAME);
 
         final PlacemarkGroup gcpGroup = maskGroup.getProduct().getGcpGroup();
         final int gcpIndex = maskGroup.indexOf(Product.GCP_MASK_NAME);
+        int rowIndex = modelIndex;
 
         if(isPlacemarkGroupEmpty(pinGroup) && rowIndex >= pinIndex ) {
-            rowIndex++;
+            rowIndex--;
         }
         if( isPlacemarkGroupEmpty(gcpGroup) && rowIndex >= gcpIndex ) {
-            rowIndex++;
+            rowIndex--;
         }
         return rowIndex;
+    }
+
+    private int convertRow2ModelIndex(ProductNodeGroup<Mask> maskGroup, int rowIndex) {
+        final PlacemarkGroup pinGroup = maskGroup.getProduct().getPinGroup();
+        final int pinIndex = maskGroup.indexOf(Product.PIN_MASK_NAME);
+
+        final PlacemarkGroup gcpGroup = maskGroup.getProduct().getGcpGroup();
+        final int gcpIndex = maskGroup.indexOf(Product.GCP_MASK_NAME);
+        int modelIndex = rowIndex;
+
+        if(isPlacemarkGroupEmpty(pinGroup) && modelIndex >= pinIndex ) {
+            modelIndex++;
+        }
+        if( isPlacemarkGroupEmpty(gcpGroup) && modelIndex >= gcpIndex ) {
+            modelIndex++;
+        }
+        return modelIndex;
     }
 
     private boolean isPlacemarkGroupEmpty(PlacemarkGroup placemarkGroup) {
