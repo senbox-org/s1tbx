@@ -20,8 +20,10 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glayer.support.LayerUtils;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -33,6 +35,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import java.beans.PropertyChangeEvent;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 
 public class MaskCollectionLayer extends CollectionLayer {
@@ -74,30 +77,37 @@ public class MaskCollectionLayer extends CollectionLayer {
         return MaskLayerType.createLayer(getRaster(), mask);
     }
 
-    private ImageLayer getMaskLayer(Mask mask) {
-        for (Layer layer : getChildren()) {
-            if (layer instanceof ImageLayer) {
-                final Object value = layer.getConfiguration().getValue(MaskLayerType.PROPERTY_NAME_MASK);
-                if (mask == value) {
-                    return (ImageLayer) layer;
-                }
+    private ImageLayer getMaskLayer(final Mask mask) {
+        LayerFilter layerFilter = new LayerFilter() {
+            @Override
+            public boolean accept(Layer layer) {
+                return (layer instanceof  ImageLayer &&
+                        mask == layer.getConfiguration().getValue(MaskLayerType.PROPERTY_NAME_MASK));
             }
-        }
-        return null;
+        };
+        return (ImageLayer) LayerUtils.getChildLayer(LayerUtils.getRootLayer(this), LayerUtils.SEARCH_DEEP, layerFilter);
     }
 
-    synchronized void updateChildren() {
+    private synchronized void updateChildren() {
 
         // Collect all current mask layers
+        LayerFilter layerFilter = new LayerFilter() {
+            @Override
+            public boolean accept(Layer layer) {
+                PropertySet conf = layer.getConfiguration();
+                return conf.isPropertyDefined(MaskLayerType.PROPERTY_NAME_MASK) && conf.getValue(MaskLayerType.PROPERTY_NAME_MASK) != null;
+            }
+        };
+        List<Layer> maskLayers = LayerUtils.getChildLayers(LayerUtils.getRootLayer(this), LayerUtils.SEARCH_DEEP, layerFilter);
         HashMap<Mask, Layer> currentLayers = new HashMap<Mask, Layer>();
-        for (Layer maskLayer : getChildren()) {
-            Mask mask = (Mask) maskLayer.getConfiguration().getValue("mask");
+        for (Layer maskLayer : maskLayers) {
+            Mask mask = (Mask) maskLayer.getConfiguration().getValue(MaskLayerType.PROPERTY_NAME_MASK);
             currentLayers.put(mask, maskLayer);
         }
 
         // Allign mask layers with available masks
         Mask[] availableMasks = raster.getProduct().getMaskGroup().toArray(new Mask[0]);
-        HashSet<Layer> unusedLayers = new HashSet<Layer>(getChildren());
+        HashSet<Layer> unusedLayers = new HashSet<Layer>(maskLayers);
         for (Mask availableMask : availableMasks) {
             Layer layer = currentLayers.get(availableMask);
             if (layer != null) {
@@ -112,7 +122,10 @@ public class MaskCollectionLayer extends CollectionLayer {
         // Remove unused layers
         for (Layer layer : unusedLayers) {
             layer.dispose();
-            getChildren().remove(layer);
+            Layer layerParent = layer.getParent();
+            if (layerParent != null) {
+                layerParent.getChildren().remove(layer);
+            }
         }
     }
 
