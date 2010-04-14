@@ -59,12 +59,7 @@ public class VectorDataCollectionLayer extends CollectionLayer {
     }
 
     private Layer getLayer(final VectorDataNode vectorDataNode) {
-        LayerFilter layerFilter = new LayerFilter() {
-            @Override
-            public boolean accept(Layer layer) {
-                return (vectorDataNode == layer.getConfiguration().getValue(VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA));
-            }
-        };
+        LayerFilter layerFilter = VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode);
         return LayerUtils.getChildLayer(LayerUtils.getRootLayer(this), LayerUtils.SEARCH_DEEP, layerFilter);
     }
 
