@@ -15,6 +15,7 @@
     <changelog>
         <![CDATA[
         <p>From 4.7 to 4.8:<br/>
+            [BEAM-1112] GPF Operator API to provide better support for image filters and convolutions
             [BEAM-1099] DefaultSingleTargetProductDialog without processing parameter leads to exception<br/>
             [BEAM-1097] Exception if reprojection results in large target product<br/>
         </p>

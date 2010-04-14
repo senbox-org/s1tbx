@@ -51,6 +51,7 @@ import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
+import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -290,15 +291,24 @@ public class OperatorContext {
         this.computeTileStackMethodUsable = computeTileStackMethodUsable;
     }
 
-    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle, ProgressMonitor pm) {
-        RenderedImage image = rasterDataNode.getSourceImage();
+    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, ProgressMonitor pm) {
+        return getSourceTile(rasterDataNode, region, null, pm);
+    }
+
+    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender, ProgressMonitor pm) {
+        MultiLevelImage image = rasterDataNode.getSourceImage();
         ProgressMonitor oldPm = OperatorImage.setProgressMonitor(image, pm);
         try {
             /////////////////////////////////////////////////////////////////////
             //
             // Note: GPF pull-processing is triggered here!
             //
-            Raster awtRaster = image.getData(rectangle); // Note: copyData is NOT faster!
+            Raster awtRaster;
+            if (borderExtender != null) {
+                awtRaster = image.getExtendedData(region, borderExtender);
+            } else {
+                awtRaster = image.getData(region); // Note: copyData is NOT faster!
+            }
             //
             /////////////////////////////////////////////////////////////////////
             return new TileImpl(rasterDataNode, awtRaster);
@@ -1023,4 +1033,5 @@ public class OperatorContext {
     public void setRequiresAllBands(boolean requiresAllBands) {
         this.requiresAllBands = requiresAllBands;
     }
+
 }

@@ -7,6 +7,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
 
+import javax.media.jai.BorderExtender;
 import java.awt.Rectangle;
 import java.text.MessageFormat;
 import java.util.Map;
@@ -316,22 +317,41 @@ public abstract class Operator {
     }
 
     /**
-     * Gets a {@link Tile} for a given band and rectangle.
+     * Gets a {@link Tile} for a given band and image region.
      *
      * @param rasterDataNode the raster data node of a data product,
      *                       e.g. a {@link org.esa.beam.framework.datamodel.Band Band} or
      *                       {@link org.esa.beam.framework.datamodel.TiePointGrid TiePointGrid}.
-     * @param rectangle      the raster rectangle in pixel coordinates
-     * @param pm             The progress monitor passed into the
+     * @param region      the image region in pixel coordinates
+     * @param pm             The progress monitor passed into
      *                       the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile} method or
      *                       the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
      * @return a tile.
      * @throws OperatorException if the tile request cannot be processed
      */
-    public final Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
-        return context.getSourceTile(rasterDataNode, rectangle, pm);
+    public final Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, ProgressMonitor pm) throws OperatorException {
+        return context.getSourceTile(rasterDataNode, region, pm);
     }
 
+    /**
+     * Gets a {@link Tile} for a given band and image region. The region can overlap the bounds of source image.
+     * This method is particulary useful if you need to compute target pixels from an n x m region around a corresponding source pixel.
+     * In this case an extended tile will need to be read from the source.
+     *
+     * @param rasterDataNode the raster data node of a data product,
+     *                       e.g. a {@link org.esa.beam.framework.datamodel.Band Band} or
+     *                       {@link org.esa.beam.framework.datamodel.TiePointGrid TiePointGrid}.
+     * @param region      The image region in pixel coordinates
+     * @param borderExtender A strategy used to fill the raster regions that lie outside the bounds of the source image. 
+     * @param pm             The progress monitor passed into
+     *                       the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile} method or
+     *                       the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
+     * @return A tile whose region can overlap the bounds of source image.
+     * @throws OperatorException if the tile request cannot be processed
+     */
+    public final Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender, ProgressMonitor pm) throws OperatorException {
+        return context.getSourceTile(rasterDataNode, region, borderExtender, pm);
+    }
 
     /**
      * Checks for cancelation of the current processing request. Throws an exception, if the
