@@ -69,4 +69,18 @@ public class LayerUtilsTest extends TestCase {
         assertSame(layerC2, pathC2[2]);
     }
 
+
+    public void testGetRootLayer() {
+        Layer root = createLayerTree();
+        Layer directRoot = LayerUtils.getRootLayer(root);
+        assertSame(root, directRoot);
+
+        Layer layerC = LayerUtils.getChildLayerByName(root, "C");
+        Layer cRoot = LayerUtils.getRootLayer(layerC);
+        assertSame(root, cRoot);
+
+        Layer layerC2 = LayerUtils.getChildLayerByName(root, "C2");
+        Layer c2Root = LayerUtils.getRootLayer(layerC2);
+        assertSame(root, c2Root);
+    }
 }

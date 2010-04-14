@@ -98,6 +98,16 @@ public class LayerUtils {
         }
     }
 
+    public static Layer getRootLayer(Layer layer) {
+        Layer rootLayer = layer;
+        Layer parent = layer.getParent();
+        while (parent != null) {
+            rootLayer = parent;
+            parent = rootLayer.getParent();
+        }
+        return rootLayer;
+    }
+
     public static Layer[] getLayerPath(Layer root, Layer layer) {
         Assert.notNull(root, "root");
         Assert.notNull(layer, "layer");
