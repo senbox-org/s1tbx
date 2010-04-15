@@ -34,7 +34,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -174,45 +173,20 @@ public class Placemark extends ProductNode {
         }
     }
 
-    public void setPixelPos(PixelPos pixelPos) {
-        setPixelCoordinate(pixelPos, true);
-        final Product product = getProduct();
-        if (product != null) {
-            final GeoPos geoPos = toGeoPos(getGeoCoordinate());
-            placemarkDescriptor.updateGeoPos(product.getGeoCoding(), pixelPos, geoPos);
-            setGeoCoordinate(geoPos);
-        }
-    }
-
-    /**
-     * Returns this placemark's pixel position.
-     *
-     * @return this placemark's pixel position. If this placemark's pixel position is {@code null}, the pixel
-     *         position returned is calculated from this placemark's geo-position, if possible.
-     */
     public PixelPos getPixelPos() {
-        PixelPos pixelPos = toPixelPos(getPixelCoordinate());
-        final Product product = getProduct();
-        if (pixelPos != null && product != null) {
-            final int w = product.getSceneRasterWidth();
-            final int h = product.getSceneRasterHeight();
-            final Rectangle bounds = new Rectangle(0, 0, w, h);
-            if (!bounds.contains(pixelPos.x, pixelPos.y)) {
-                pixelPos.setInvalid();
-            }
-        }
-        return pixelPos;
+        return toPixelPos(getPixelPosAttribute());
     }
 
-    public void setGeoPos(GeoPos geoPos) {
-        setGeoCoordinate(geoPos);
-        final PixelPos pixelPos = toPixelPos(getPixelCoordinate());
-        placemarkDescriptor.updatePixelPos(getProduct().getGeoCoding(), geoPos, pixelPos);
-        setPixelCoordinate(pixelPos, true);
+    public void setPixelPos(PixelPos pixelPos) {
+        setPixelPosAttribute(pixelPos, true, true);
     }
 
     public GeoPos getGeoPos() {
-        return toGeoPos(getGeoCoordinate());
+        return toGeoPos(getGeoPosAttribute());
+    }
+
+    public void setGeoPos(GeoPos geoPos) {
+        setGeoPosAttribute(geoPos, true);
     }
 
     /**
@@ -220,23 +194,16 @@ public class Placemark extends ProductNode {
      */
     public void updatePositions() {
         final Point point = (Point) feature.getDefaultGeometry();
-        if (point != null) {
-            if (getProduct() != null) {
-                final GeoCoding geoCoding = getProduct().getGeoCoding();
-                final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
-                PixelPos pixelPos = new PixelPos((float) point.getX(), (float) point.getY());
-                try {
-                    i2m.inverseTransform(pixelPos, pixelPos);
-                } catch (NoninvertibleTransformException ignored) {
-                    // ignore
-                }
-                setPixelCoordinate(pixelPos, false);
-
-                GeoPos geoPos = toGeoPos(getGeoCoordinate());
-                placemarkDescriptor.updateGeoPos(geoCoding, pixelPos, geoPos);
-                setGeoCoordinate(geoPos);
+        if (getProduct() != null) {
+            final GeoCoding geoCoding = getProduct().getGeoCoding();
+            final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
+            PixelPos pixelPos = new PixelPos((float) point.getX(), (float) point.getY());
+            try {
+                i2m.inverseTransform(pixelPos, pixelPos);
+            } catch (NoninvertibleTransformException ignored) {
+                // ignore
             }
-
+            setPixelPosAttribute(pixelPos, true, false);
         }
     }
 
@@ -375,19 +342,8 @@ public class Placemark extends ProductNode {
         super.dispose();
     }
 
-    private void updateGeometry(PixelPos pixelPos) {
-        final Product product = getProduct();
-        final Point2D.Double geometryPoint = new Point2D.Double(pixelPos.x, pixelPos.y);
-        if (product != null) {
-            final AffineTransform i2m = ImageManager.getImageToModelTransform(product.getGeoCoding());
-            i2m.transform(pixelPos, geometryPoint);
-        }
-        final Point point = (Point) feature.getDefaultGeometry();
-        point.getCoordinate().setCoordinate(toCoordinate(geometryPoint));
-        point.geometryChanged();
-    }
 
-    private Coordinate getPixelCoordinate() {
+    private Coordinate getPixelPosAttribute() {
         final Point point = (Point) feature.getAttribute(PROPERTY_NAME_PIXELPOS);
         if (point != null) {
             return point.getCoordinate();
@@ -395,9 +351,9 @@ public class Placemark extends ProductNode {
         return null;
     }
 
-    private void setPixelCoordinate(PixelPos pixelPos, boolean updateGeometry) {
+    private void setPixelPosAttribute(PixelPos pixelPos, boolean updateGeoPos, boolean updateDefaultGeometry) {
         final Coordinate newCoordinate = toCoordinate(pixelPos);
-        final Coordinate oldCoordinate = getPixelCoordinate();
+        final Coordinate oldCoordinate = getPixelPosAttribute();
         if (!ObjectUtils.equalObjects(oldCoordinate, newCoordinate)) {
             if (oldCoordinate == null) {
                 final GeometryFactory geometryFactory = new GeometryFactory();
@@ -407,14 +363,23 @@ public class Placemark extends ProductNode {
                 point.getCoordinate().setCoordinate(newCoordinate);
                 point.geometryChanged();
             }
-            if (updateGeometry) {
-                updateGeometry(pixelPos);
+
+            // Make sure, object is in a consistent state
+            if (updateDefaultGeometry) {
+                updateDefaultGeometryAttribute(pixelPos);
             }
+
+            if (updateGeoPos && getProduct() != null) {
+                final GeoPos geoPos = getGeoPos();
+                placemarkDescriptor.updateGeoPos(getProduct().getGeoCoding(), pixelPos, geoPos);
+                setGeoPosAttribute(geoPos, false);
+            }
+
             fireProductNodeChanged(PROPERTY_NAME_PIXELPOS);
         }
     }
 
-    private Coordinate getGeoCoordinate() {
+    private Coordinate getGeoPosAttribute() {
         final Point point = (Point) feature.getAttribute(PROPERTY_NAME_GEOPOS);
         if (point != null) {
             return point.getCoordinate();
@@ -422,9 +387,9 @@ public class Placemark extends ProductNode {
         return null;
     }
 
-    private void setGeoCoordinate(GeoPos geoPos) {
+    private void setGeoPosAttribute(GeoPos geoPos, boolean updatePixelPos) {
         final Coordinate newCoordinate = toCoordinate(geoPos);
-        final Coordinate oldCoordinate = getGeoCoordinate();
+        final Coordinate oldCoordinate = getGeoPosAttribute();
         if (!ObjectUtils.equalObjects(oldCoordinate, newCoordinate)) {
             if (oldCoordinate == null) {
                 final GeometryFactory geometryFactory = new GeometryFactory();
@@ -434,8 +399,27 @@ public class Placemark extends ProductNode {
                 point.getCoordinate().setCoordinate(newCoordinate);
                 point.geometryChanged();
             }
+
+            if (updatePixelPos && getProduct() != null) {
+                final PixelPos pixelPos = getPixelPos();
+                placemarkDescriptor.updatePixelPos(getProduct().getGeoCoding(), geoPos, pixelPos);
+                setPixelPosAttribute(pixelPos, false, true);
+            }
+
             fireProductNodeChanged(PROPERTY_NAME_GEOPOS);
         }
+    }
+
+    private void updateDefaultGeometryAttribute(PixelPos pixelPos) {
+        final Product product = getProduct();
+        final Point2D.Float geometryPoint = new Point2D.Float(pixelPos.x, pixelPos.y);
+        if (product != null) {
+            final AffineTransform i2m = ImageManager.getImageToModelTransform(product.getGeoCoding());
+            i2m.transform(pixelPos, geometryPoint);
+        }
+        final Point point = (Point) feature.getDefaultGeometry();
+        point.getCoordinate().setCoordinate(toCoordinate(geometryPoint));
+        point.geometryChanged();
     }
 
     private static SimpleFeature createFeature(String name, String label, PixelPos pixelPos, GeoPos geoPos,
@@ -447,7 +431,7 @@ public class Placemark extends ProductNode {
         final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
         PixelPos imagePos = pixelPos;
 
-        if ( (descriptor instanceof PinDescriptor || imagePos == null ) && geoPos != null && geoCoding != null && geoCoding.canGetPixelPos() ) {
+        if ((descriptor instanceof PinDescriptor || imagePos == null) && geoPos != null && geoCoding != null && geoCoding.canGetPixelPos()) {
             imagePos = geoCoding.getPixelPos(geoPos, imagePos);
         }
 

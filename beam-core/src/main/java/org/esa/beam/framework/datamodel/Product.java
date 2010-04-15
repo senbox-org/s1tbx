@@ -302,11 +302,11 @@ public class Product extends ProductNode {
         final ProductNodeGroup<Placemark> pinGroup = getPinGroup();
         for (int i = 0; i < pinGroup.getNodeCount(); i++) {
             final Placemark pin = pinGroup.get(i);
-            final PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
-            final GeoPos geoPos = pin.getGeoPos();
+            final PlacemarkDescriptor pinDescriptor = pin.getPlacemarkDescriptor();
             final PixelPos pixelPos = pin.getPixelPos();
+            GeoPos geoPos = pin.getGeoPos();
             if (pixelPos != null) {
-                pinDescriptor.updateGeoPos(getGeoCoding(), pixelPos, geoPos);
+                geoPos = pinDescriptor.updateGeoPos(getGeoCoding(), pixelPos, geoPos);
             }
             pin.setGeoPos(geoPos);
         }

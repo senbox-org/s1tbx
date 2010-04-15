@@ -4,13 +4,14 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerFilter;
+import com.bc.ceres.glayer.support.LayerUtils;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.VectorDataNode;
-import static org.esa.beam.framework.ui.product.VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -57,14 +58,9 @@ public class VectorDataCollectionLayer extends CollectionLayer {
         return layer;
     }
 
-    private Layer getLayer(VectorDataNode vectorDataNode) {
-        for (final Layer child : getChildren()) {
-            final Object value = child.getConfiguration().getValue(PROPERTY_NAME_VECTOR_DATA);
-            if (vectorDataNode == value) {
-                return child;
-            }
-        }
-        return null;
+    private Layer getLayer(final VectorDataNode vectorDataNode) {
+        LayerFilter layerFilter = VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode);
+        return LayerUtils.getChildLayer(LayerUtils.getRootLayer(this), LayerUtils.SEARCH_DEEP, layerFilter);
     }
 
     synchronized void updateChildren() {
@@ -72,27 +68,42 @@ public class VectorDataCollectionLayer extends CollectionLayer {
         if (vectorDataGroup == null) {
             return;
         }
-        final Map<VectorDataNode, Layer> children = new HashMap<VectorDataNode, Layer>();
-        List<Layer> childLayers = getChildren();
-        for (final Layer child : childLayers) {
-            final String name = (String) child.getConfiguration().getValue(PROPERTY_NAME_VECTOR_DATA);
+        // Collect all current vector layers
+        LayerFilter layerFilter = new LayerFilter() {
+            @Override
+            public boolean accept(Layer layer) {
+                PropertySet conf = layer.getConfiguration();
+                return conf.isPropertyDefined(VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA) && conf.getValue(VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA) != null;
+            }
+        };
+        List<Layer> vectorLayers = LayerUtils.getChildLayers(LayerUtils.getRootLayer(this), LayerUtils.SEARCH_DEEP, layerFilter);
+        final Map<VectorDataNode, Layer> currentLayers = new HashMap<VectorDataNode, Layer>();
+        for (final Layer child : vectorLayers) {
+            final String name = (String) child.getConfiguration().getValue(VectorDataLayerType.PROPERTY_NAME_VECTOR_DATA);
             final VectorDataNode vectorDataNode = vectorDataGroup.get(name);
-            children.put(vectorDataNode, child);
+            currentLayers.put(vectorDataNode, child);
         }
-        final Set<Layer> orphans = new HashSet<Layer>(children.values());
+
+        // Allign vector layers with available vectors
+        final Set<Layer> unusedLayers = new HashSet<Layer>(vectorLayers);
         VectorDataNode[] vectorDataNodes = vectorDataGroup.toArray(new VectorDataNode[vectorDataGroup.getNodeCount()]);
         for (final VectorDataNode vectorDataNode : vectorDataNodes) {
-            final Layer child = children.get(vectorDataNode);
-            if (child == null) {
-                final Layer layer = createLayer(vectorDataNode);
-                childLayers.add(layer);
+            Layer layer = currentLayers.get(vectorDataNode);
+            if (layer != null) {
+                unusedLayers.remove(layer);
             } else {
-                orphans.remove(child);
+                layer = createLayer(vectorDataNode);
+                getChildren().add(layer);
             }
         }
-        for (final Layer orphan : orphans) {
-            childLayers.remove(orphan);
-            orphan.dispose();
+
+        // Remove unused layers
+        for (Layer layer : unusedLayers) {
+            layer.dispose();
+            Layer layerParent = layer.getParent();
+            if (layerParent != null) {
+                layerParent.getChildren().remove(layer);
+            }
         }
     }
 

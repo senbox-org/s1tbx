@@ -208,7 +208,7 @@ public class ProductSceneImage implements ProductLayerContext {
         final VectorDataNode vectorDataNode = getProduct().getGcpGroup().getVectorDataNode();
         final Layer vectorDataCollectionLayer = getVectorDataCollectionLayer(create);
         if (vectorDataCollectionLayer != null) {
-            return LayerUtils.getChildLayer(vectorDataCollectionLayer,
+            return LayerUtils.getChildLayer(getRootLayer(),
                                             LayerUtils.SEARCH_DEEP,
                                             VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode));
         } else {
@@ -220,7 +220,7 @@ public class ProductSceneImage implements ProductLayerContext {
         final VectorDataNode vectorDataNode = getProduct().getPinGroup().getVectorDataNode();
         final Layer vectorDataCollectionLayer = getVectorDataCollectionLayer(create);
         if (vectorDataCollectionLayer != null) {
-            return LayerUtils.getChildLayer(vectorDataCollectionLayer,
+            return LayerUtils.getChildLayer(getRootLayer(),
                                             LayerUtils.SEARCH_DEEP,
                                             VectorDataLayerFilterFactory.createNodeFilter(vectorDataNode));
         }else {

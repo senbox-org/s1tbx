@@ -317,8 +317,9 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     }
 
     protected void addCellEditor(TableColumnModel columnModel) {
-        columnModel.getColumn(0).setCellEditor(new PinXCellEditor());
-        columnModel.getColumn(1).setCellEditor(new PinYCellEditor());
+        final PinCellEditor pixelCellEditor = new PinCellEditor();
+        columnModel.getColumn(0).setCellEditor(pixelCellEditor);
+        columnModel.getColumn(1).setCellEditor(pixelCellEditor);
         columnModel.getColumn(2).setCellEditor(new PinLonCellEditor());
         columnModel.getColumn(3).setCellEditor(new PinLatCellEditor());
     }
@@ -580,7 +581,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         if (placemarks.length == 0) {
             return;
         }
-        int numPinsOutOfBounds = 0;
+//        int numPinsOutOfBounds = 0;
         int numPinsRenamed = 0;
         int numInvalids = 0;
         for (Placemark placemark : placemarks) {
@@ -594,16 +595,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 continue;
             }
 
-            if (product.containsPixel(pixelPos)) {
-                getPlacemarkGroup().add(placemark);
-            } else {
-                if (placemarkDescriptor instanceof PinDescriptor) {
-                    numPinsOutOfBounds++;
-                } else {
-                    placemark.setPixelPos(new PixelPos(0.0f, 0.0f));
-                    getPlacemarkGroup().add(placemark);
-                }
-            }
+            getPlacemarkGroup().add(placemark);
+
             if (!allPlacemarks) {
                 break; // import only the first one
             }
@@ -614,15 +607,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
         if (numPinsRenamed > 0) {
             showWarningDialog(MessageFormat.format("One or more {0}s have been renamed,\nbecause their former names are already existing.", placemarkDescriptor.getRoleLabel())); /*I18N*/
-        }
-        if (numPinsOutOfBounds > 0) {
-            if (numPinsOutOfBounds == placemarks.length) {
-                showErrorDialog(
-                        MessageFormat.format("No {0}s have been imported, because their pixel\npositions are outside the product''s bounds.", placemarkDescriptor.getRoleLabel())); /*I18N*/
-            } else {
-                showErrorDialog(
-                        MessageFormat.format("{0} {1}s have not been imported, because their pixel\npositions are outside the product''s bounds.", numPinsOutOfBounds, placemarkDescriptor.getRoleLabel())); /*I18N*/
-            }
         }
     }
 
@@ -927,7 +911,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             Document document = new DOMBuilder().build(w3cDocument);
             final Element rootElement = document.getRootElement();
             List children = rootElement.getChildren(DimapProductConstants.TAG_PLACEMARK);
-            if (children.size() == 0) {
+            if (children.isEmpty()) {
                 // support for old pin XML format (.pnx)
                 children = rootElement.getChildren(DimapProductConstants.TAG_PIN);
             }
@@ -1218,11 +1202,11 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private abstract class PinCellEditor extends DefaultCellEditor {
+    private class PinCellEditor extends DefaultCellEditor {
 
         private Border defaultBorder;
 
-        public PinCellEditor() {
+        protected PinCellEditor() {
             super(new JTextField());
             JTextField textField = (JTextField) getComponent();
             defaultBorder = textField.getBorder();
@@ -1264,7 +1248,9 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             return true;
         }
 
-        protected abstract boolean validateValue(Product product, float value);
+        protected boolean validateValue(Product product, float value) {
+            return true;
+        }
 
         @Override
         public Object getCellEditorValue() {
@@ -1277,79 +1263,19 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private class PinXCellEditor extends PinCellEditor {
-
-        public PinXCellEditor() {
-            super();
-        }
-
-        @Override
-        protected boolean validateValue(Product product, float value) {
-            Placemark currentPlacemark = getSelectedPlacemarkFromTable();
-            PixelPos pixelPos = currentPlacemark.getPixelPos();
-            return product.containsPixel(value, pixelPos.y);
-        }
-    }
-
-    private class PinYCellEditor extends PinCellEditor {
-
-        public PinYCellEditor() {
-            super();
-        }
-
-        @Override
-        protected boolean validateValue(Product product, float value) {
-            Placemark currentPlacemark = getSelectedPlacemarkFromTable();
-            PixelPos pixelPos = currentPlacemark.getPixelPos();
-            return product.containsPixel(pixelPos.x, value);
-        }
-    }
-
     private class PinLatCellEditor extends PinCellEditor {
-
-        public PinLatCellEditor() {
-            super();
-        }
 
         @Override
         protected boolean validateValue(Product product, float lat) {
-            if (lat < -90.0 || lat > 90.0) {
-                return false;
-            }
-            GeoCoding geoCoding = product.getGeoCoding();
-            if (geoCoding == null || !geoCoding.canGetGeoPos() || !geoCoding.canGetPixelPos()) {
-                return true;
-            }
-
-            Placemark currentPlacemark = getSelectedPlacemarkFromTable();
-            GeoPos geoPos = new GeoPos(lat, currentPlacemark.getGeoPos().getLon());
-            PixelPos pixelPos = new PixelPos(currentPlacemark.getPixelPos().x, currentPlacemark.getPixelPos().y);
-            pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(), geoPos, pixelPos);
-
-            return product.containsPixel(pixelPos.x, pixelPos.y);
+            return !(lat < -90.0 || lat > 90.0);
         }
     }
 
     private class PinLonCellEditor extends PinCellEditor {
 
-        public PinLonCellEditor() {
-            super();
-        }
-
         @Override
         protected boolean validateValue(Product product, float lon) {
-            if (lon < -180.0 || lon > 180.0) {
-                return false;
-            }
-            GeoCoding geoCoding = product.getGeoCoding();
-            if (geoCoding == null || !geoCoding.canGetGeoPos() || !geoCoding.canGetPixelPos()) {
-                return true;
-            }
-            Placemark currentPlacemark = getSelectedPlacemarkFromTable();
-            GeoPos geoPos = new GeoPos(currentPlacemark.getGeoPos().getLat(), lon);
-            PixelPos pixelPos = new PixelPos(currentPlacemark.getPixelPos().x, currentPlacemark.getPixelPos().y);
-            pixelPos = placemarkDescriptor.updatePixelPos(geoCoding, geoPos, pixelPos);
-            return product.containsPixel(pixelPos.x, pixelPos.y);
+            return !(lon < -180.0 || lon > 180.0);
         }
     }
 

@@ -2,6 +2,7 @@ package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.geom.Point2D;
 import java.util.Arrays;
@@ -107,6 +108,15 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         }
         targetScene.setGeoCoding(new GcpGeoCoding(getMethod(), x2, y2, lons, lats, sceneWidth, sceneHeight, datum));
         return true;
+    }
+
+    @Override
+    public MathTransform getImageToMapTransform() {
+        if (originalGeoCoding != null) {
+            return originalGeoCoding.getImageToMapTransform();
+        } else {
+            return super.getImageToMapTransform();
+        }
     }
 
     /**
