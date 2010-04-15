@@ -88,6 +88,7 @@ public class LookupTableTest extends TestCase {
         final FracIndex[] fi = FracIndex.createArray(3);
         final Random rng = new Random(27182);
 
+        final double[] v = new double[1 << 3];
         for (int i = 0; i < 10; ++i) {
             // Compute random coordinates and fractional indices
             for (int j = 0; j < 3; ++j) {
@@ -110,7 +111,7 @@ public class LookupTableTest extends TestCase {
 
             final double expected = r[2] + 5.0 * (r[1] + 5.0 * r[0]);
             final double a = lut.getValue(x);
-            final double b = lut.getValue(fi);
+            final double b = lut.getValue(fi, v);
 
             assertEquals(expected, a, 1.0E-10);
             assertEquals(expected, b, 1.0E-10);

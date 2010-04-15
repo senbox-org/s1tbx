@@ -28,7 +28,6 @@ import java.text.MessageFormat;
  * The class {@code LookupTable} performs the function of multilinear
  * interpolation for lookup tables with an arbitrary number of dimensions.
  * <p/>
- * todo - thread safety
  * todo - method for degrading a table (see C++ code below)
  *
  * @author Ralf Quast
@@ -52,14 +51,6 @@ public class LookupTable {
      * The relative array offsets of the lookup values for the vertices of a coordinate grid cell.
      */
     private final int[] o;
-    /**
-     * The lookup values for the vertices bracketing the lookup point.
-     */
-    private final double[] v;
-    /**
-     * The normalized representation of the lookup point's coordinates.
-     */
-    private final FracIndex[] fracIndexes;
 
     /**
      * Constructs a lookup table for the lookup values and dimensions supplied as arguments.
@@ -69,6 +60,7 @@ public class LookupTable {
      * @param dimensions the interval partitions defining the dimensions associated with the lookup
      *                   table. An interval partition is a strictly increasing sequence of at least
      *                   two real numbers, see {@link IntervalPartition}.
+     *
      * @throws IllegalArgumentException if the length of the {@code values} array is not equal to
      *                                  the number of coordinate grid vertices.
      * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
@@ -86,6 +78,7 @@ public class LookupTable {
      * @param dimensions the interval partitions defining the dimensions associated with the lookup
      *                   table. An interval partition is a strictly increasing sequence of at least
      *                   two real numbers, see {@link IntervalPartition}.
+     *
      * @throws IllegalArgumentException if the length of the {@code values} array is not equal to
      *                                  the number of coordinate grid vertices.
      * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
@@ -103,6 +96,7 @@ public class LookupTable {
      * @param dimensions the interval partitions defining the dimensions associated with the lookup
      *                   table. An interval partition is a strictly increasing sequence of at least
      *                   two real numbers, see {@link IntervalPartition}.
+     *
      * @throws IllegalArgumentException if the length of the {@code values} array is is not equal to
      *                                  the number of coordinate grid vertices or any dimension is
      *                                  not an interval partion.
@@ -121,6 +115,7 @@ public class LookupTable {
      * @param dimensions the interval partitions defining the dimensions associated with the lookup
      *                   table. An interval partition is a strictly increasing sequence of at least
      *                   two real numbers, see {@link IntervalPartition}.
+     *
      * @throws IllegalArgumentException if the length of the {@code values} array is is not equal to
      *                                  the number of coordinate grid vertices or any dimension is
      *                                  not an interval partion.
@@ -148,9 +143,6 @@ public class LookupTable {
 
         o = new int[1 << n];
         computeVertexOffsets(strides, o);
-
-        v = new double[1 << n];
-        fracIndexes = FracIndex.createArray(n);
     }
 
     /**
@@ -175,6 +167,7 @@ public class LookupTable {
      * Returns the the ith dimension associated with the lookup table.
      *
      * @param i the index number of the dimension of interest
+     *
      * @return the ith dimension.
      */
     public final IntervalPartition getDimension(final int i) {
@@ -185,30 +178,48 @@ public class LookupTable {
      * Returns an interpolated value for the given coordinates.
      *
      * @param coordinates the coordinates of the lookup point.
+     *
      * @return the interpolated value.
+     *
      * @throws IllegalArgumentException if the length of the {@code coordinates} array is
      *                                  not equal to the number of dimensions associated
      *                                  with the lookup table.
      * @throws NullPointerException     if the {@code coordinates} array is {@code null}.
      */
     public final double getValue(final double... coordinates) throws IllegalArgumentException {
+        return getValue(coordinates, FracIndex.createArray(coordinates.length), new double[1 << coordinates.length]);
+    }
+
+    /**
+     * Returns an interpolated value for the given coordinates.
+     *
+     * @param coordinates the coordinates of the lookup point.
+     * @param fracIndexes the {@link FracIndex} coordinates of the lookup point. Array
+     *                    must have the same length as {@code coordinates}.
+     * @param v           workspace array, with length 2^, where n is the length of
+     *                    {@code coordinates}.
+     *
+     * @return the interpolated value.
+     *
+     * @throws IllegalArgumentException  if the length of the {@code coordinates} array is
+     *                                   not equal to the number of dimensions associated
+     *                                   with the lookup table.
+     * @throws IndexOutOfBoundsException if the length of the {@code fracIndexes} and {@code v}
+     *                                   arrays is do not have proper length.
+     * @throws NullPointerException      if the {@code coordinates} array is {@code null}.
+     */
+    public final double getValue(final double[] coordinates, final FracIndex[] fracIndexes, final double[] v) throws
+                                                                                                              IllegalArgumentException {
         ensureLegalArray(coordinates, dimensions.length);
 
         for (int i = 0; i < dimensions.length; ++i) {
             computeFracIndex(dimensions[i], coordinates[i], fracIndexes[i]);
         }
 
-        return getValue(fracIndexes);
+        return getValue(fracIndexes, v);
     }
 
-    /**
-     * Returns an interpolated value for the given {@link FracIndex} coordinates (see
-     * {@link #computeFracIndex} for an explanation of terms).
-     *
-     * @param fracIndexes the {@link FracIndex} coordinates of the lookup point.
-     * @return the interpolated value.
-     */
-    double getValue(final FracIndex... fracIndexes) {
+    double getValue(final FracIndex[] fracIndexes, final double[] v) {
         int origin = 0;
         for (int i = 0; i < dimensions.length; ++i) {
             origin += fracIndexes[i].i * strides[i];
@@ -288,6 +299,7 @@ public class LookupTable {
      * Returns the number of vertices in the coordinate grid defined by the given dimensions.
      *
      * @param dimensions the dimensions defining the coordinate grid.
+     *
      * @return the number of vertices.
      */
     static int getVertexCount(final IntervalPartition[] dimensions) {
@@ -315,8 +327,8 @@ public class LookupTable {
     }
 
     static void ensureLegalArray(final float[] array, final int length) throws
-            IllegalArgumentException,
-            NullPointerException {
+                                                                        IllegalArgumentException,
+                                                                        NullPointerException {
         if (array == null) {
             throw new NullPointerException("array == null");
         }
@@ -327,8 +339,8 @@ public class LookupTable {
     }
 
     static void ensureLegalArray(final double[] array, final int length) throws
-            IllegalArgumentException,
-            NullPointerException {
+                                                                         IllegalArgumentException,
+                                                                         NullPointerException {
         if (array == null) {
             throw new NullPointerException("array == null");
         }
@@ -339,8 +351,8 @@ public class LookupTable {
     }
 
     static void ensureLegalArray(Array array, final int length) throws
-            IllegalArgumentException,
-            NullPointerException {
+                                                                IllegalArgumentException,
+                                                                NullPointerException {
         if (array == null) {
             throw new NullPointerException("array == null");
         }
