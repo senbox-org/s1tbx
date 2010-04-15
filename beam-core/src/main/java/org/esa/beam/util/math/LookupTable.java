@@ -22,8 +22,6 @@ package org.esa.beam.util.math;
 
 import java.text.MessageFormat;
 
-// Keep This class even it is not yet used
-
 /**
  * The class {@code LookupTable} performs the function of multilinear
  * interpolation for lookup tables with an arbitrary number of dimensions.
@@ -186,7 +184,7 @@ public class LookupTable {
      *                                  with the lookup table.
      * @throws NullPointerException     if the {@code coordinates} array is {@code null}.
      */
-    public final double getValue(final double... coordinates) throws IllegalArgumentException {
+    public final double getValue(final double... coordinates) throws IllegalArgumentException, NullPointerException {
         return getValue(coordinates, FracIndex.createArray(coordinates.length), new double[1 << coordinates.length]);
     }
 
@@ -194,22 +192,21 @@ public class LookupTable {
      * Returns an interpolated value for the given coordinates.
      *
      * @param coordinates the coordinates of the lookup point.
-     * @param fracIndexes the {@link FracIndex} coordinates of the lookup point. Array
-     *                    must have the same length as {@code coordinates}.
-     * @param v           workspace array, with length 2^, where n is the length of
-     *                    {@code coordinates}.
+     * @param fracIndexes workspace array of (at least) the same length as {@code coordinates}.
+     * @param v           workspace array of (at least) length {@code 1 << coordinates.length}.
      *
      * @return the interpolated value.
      *
-     * @throws IllegalArgumentException  if the length of the {@code coordinates} array is
-     *                                   not equal to the number of dimensions associated
-     *                                   with the lookup table.
-     * @throws IndexOutOfBoundsException if the length of the {@code fracIndexes} and {@code v}
-     *                                   arrays is do not have proper length.
-     * @throws NullPointerException      if the {@code coordinates} array is {@code null}.
+     * @throws ArrayIndexOutOfBoundsException if the {@code fracIndexes} and {@code v} arrays
+     *                                        do not have proper length.
+     * @throws IllegalArgumentException       if the length of the {@code coordinates} array is
+     *                                        not equal to the number of dimensions associated
+     *                                        with the lookup table.
+     * @throws NullPointerException           if any parameter is {@code null} or exhibits any
+     *                                        element, which is {@code null}.
      */
-    public final double getValue(final double[] coordinates, final FracIndex[] fracIndexes, final double[] v) throws
-                                                                                                              IllegalArgumentException {
+    public final double getValue(final double[] coordinates, final FracIndex[] fracIndexes, final double[] v)
+            throws IllegalArgumentException, IndexOutOfBoundsException, NullPointerException {
         ensureLegalArray(coordinates, dimensions.length);
 
         for (int i = 0; i < dimensions.length; ++i) {
