@@ -18,7 +18,7 @@ package org.esa.beam.util.math;
  * The class {@code FracIndex} is a simple representation of
  * an index with an integral and a fractional component.
  */
-final class FracIndex {
+public final class FracIndex {
 
     /**
      * The integral component.
