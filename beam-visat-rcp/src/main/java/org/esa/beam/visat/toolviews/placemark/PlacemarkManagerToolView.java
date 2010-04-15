@@ -631,6 +631,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         int id = 1;
         while (getPlacemarkGroup().contains(name)) {
             name = name0 + "_" + id;
+            id++;
         }
         if (!name0.equals(name)) {
             placemark.setName(name);
