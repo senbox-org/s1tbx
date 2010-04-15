@@ -27,13 +27,13 @@ public abstract class AbstractGeoCoding implements GeoCoding {
     private CoordinateReferenceSystem imageCRS;
     private CoordinateReferenceSystem mapCRS;
     private CoordinateReferenceSystem geoCRS;
-    private MathTransform image2Map;
+    private volatile MathTransform image2Map;
 
     protected AbstractGeoCoding() {
         setGeoCRS(DefaultGeographicCRS.WGS84);
         setImageCRS(createImageCRS(geoCRS, new GeoCodingMathTransform(this)));
         setMapCRS(geoCRS);
-        
+
     }
 
     /**
@@ -81,12 +81,15 @@ public abstract class AbstractGeoCoding implements GeoCoding {
 
     @Override
     public MathTransform getImageToMapTransform() {
-        synchronized (this) {
-            if (image2Map == null ) {
-                try {
-                    image2Map = CRS.findMathTransform(imageCRS, mapCRS);
-                } catch (FactoryException e) {
-                    throw new IllegalArgumentException("Not able to find a math transformation from image to map crs.", e);
+        if (image2Map == null) {
+            synchronized (this) {
+                if (image2Map == null) {
+                    try {
+                        image2Map = CRS.findMathTransform(imageCRS, mapCRS);
+                    } catch (FactoryException e) {
+                        throw new IllegalArgumentException(
+                                "Not able to find a math transformation from image to map CRS.", e);
+                    }
                 }
             }
         }
