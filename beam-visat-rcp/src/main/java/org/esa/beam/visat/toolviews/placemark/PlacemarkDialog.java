@@ -92,11 +92,6 @@ public class PlacemarkDialog extends ModalDialog {
 
     @Override
     protected void onOK() {
-        if (!product.containsPixel(getPixelX(), getPixelY())) {
-            showInformationDialog("The " + placemarkDescriptor.getRoleLabel() + " cannot be set because\n" +
-                    "its pixel coordinate is out of bounds."); /*I18N*/
-            return;
-        }
         if (ProductNode.isValidNodeName(getName())) {
             if (symbolChanged) {
                 // Create new symbol instance so an event is fired by placemark when new symbol is set.

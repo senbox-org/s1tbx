@@ -56,9 +56,6 @@ public abstract class InsertPlacemarkInteractor extends FigureEditorInteractor {
     }
 
     private void insertPlacemark(ProductSceneView view) {
-        if (!view.isCurrentPixelPosValid()) {
-            return;
-        }
         Product product = view.getProduct();
         final String[] uniqueNameAndLabel = PlacemarkNameFactory.createUniqueNameAndLabel(placemarkDescriptor,
                                                                                           product);
