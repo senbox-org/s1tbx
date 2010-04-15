@@ -41,7 +41,6 @@ import javax.media.jai.ROI;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -145,11 +144,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private MultiLevelImage sourceImage;
     private MultiLevelImage geophysicalImage;
-
-    @Deprecated
+    
+    // todo - use instead of validMaskImage, deprecate validMaskImage
+    // private Mask validMask;
     private MultiLevelImage validMaskImage;
-    // todo - use instead of validMaskImage
-    private Mask validMask;
 
     private ROI validMaskROI;
     
@@ -1851,7 +1849,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the pixel value at (x,y) as string or an error message text
      */
     public String getPixelString(int x, int y) {
-        if (!isPixelInRange(x, y)) {
+        if (!isPixelWithinImageBounds(x, y)) {
             return INVALID_POS_TEXT;
         }
         if (hasRasterData()) {
@@ -1889,7 +1887,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
     }
 
-    private boolean isPixelInRange(int x, int y) {
+    private boolean isPixelWithinImageBounds(int x, int y) {
         return x >= 0 && y >= 0 && x < getSceneRasterWidth() && y < getSceneRasterHeight();
     }
 

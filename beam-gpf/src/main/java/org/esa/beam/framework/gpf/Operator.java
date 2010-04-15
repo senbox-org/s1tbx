@@ -348,6 +348,7 @@ public abstract class Operator {
      *                       the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
      * @return A tile whose region can overlap the bounds of source image.
      * @throws OperatorException if the tile request cannot be processed
+     * @since BEAM 4.7.1
      */
     public final Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender, ProgressMonitor pm) throws OperatorException {
         return context.getSourceTile(rasterDataNode, region, borderExtender, pm);

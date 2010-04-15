@@ -14,6 +14,7 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.util.Iterator;
 
+
 /**
  * A {@link Tile} implementation backed by a {@link java.awt.image.Raster}.
  */
@@ -29,7 +30,7 @@ public class TileImpl implements Tile {
     private final int width;
     private final int height;
     private final boolean target;
-    private final boolean scalingApplied;
+    private final boolean requiresCalibration;
     private final int scanlineOffset;
     private final int scanlineStride;
     private final byte[] dataBufferByte;
@@ -73,8 +74,9 @@ public class TileImpl implements Tile {
         this.maxY = rectangle.y + rectangle.height - 1;
         this.width = rectangle.width;
         this.height = rectangle.height;
-        this.scalingApplied = rasterDataNode.isScalingApplied();
         this.target = target;
+        // todo - optimize getSample()/setSample() methods by using a Closure that either honours calibration or not. (nf 04.2010)
+        this.requiresCalibration = rasterDataNode.isScalingApplied();
 
         int smX0 = rectangle.x - raster.getSampleModelTranslateX();
         int smY0 = rectangle.y - raster.getSampleModelTranslateY();
@@ -90,46 +92,84 @@ public class TileImpl implements Tile {
         this.dataBufferDouble = (primitiveArray instanceof double[]) ? (double[]) primitiveArray : null;
     }
 
+    @Override
+    public float toCalibrated(float sample) {
+        return (float) rasterDataNode.scale(sample);
+    }
+
+    @Override
+    public double toCalibrated(double sample) {
+        return rasterDataNode.scale(sample);
+    }
+
+    @Override
+    public float toRaw(float sample) {
+        return (float) rasterDataNode.scaleInverse(sample);
+    }
+
+    @Override
+    public double toRaw(double sample) {
+        return rasterDataNode.scaleInverse(sample);
+    }
+
+    @Override
     public final boolean isTarget() {
         return target;
     }
 
+    @Override
+    public boolean isSampleValid(int x, int y) {
+        // todo - THIS IS VERY INEFFICIENT! (nf - 04.2010) 
+        // fixme - read flag directly from a validMaskTile:TileImpl (nf - 04.2010)
+        return rasterDataNode.isPixelValid(x, y);
+    }
+
+    @Override
     public final Rectangle getRectangle() {
         return new Rectangle(minX, minY, width, height);
     }
 
+    @Override
     public final int getMinX() {
         return minX;
     }
 
+    @Override
     public final int getMaxX() {
         return maxX;
     }
 
+    @Override
     public final int getMinY() {
         return minY;
     }
 
+    @Override
     public final int getMaxY() {
         return maxY;
     }
 
+    @Override
     public final int getWidth() {
         return width;
     }
 
+    @Override
     public final int getHeight() {
         return height;
     }
 
+    @Override
     public final RasterDataNode getRasterDataNode() {
         return rasterDataNode;
     }
 
+    @Override
     public int getDataBufferIndex(int x, int y) {
         return scanlineOffset + (x - minX) + (y - minY) * scanlineStride;
     }
 
+    @Override
     public synchronized ProductData getDataBuffer() {
         if (dataBuffer == null) {
             dataBuffer = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getPrimitiveArray(raster.getDataBuffer()));
@@ -137,34 +177,42 @@ public class TileImpl implements Tile {
         return dataBuffer;
     }
 
+    @Override
     public final byte[] getDataBufferByte() {
         return dataBufferByte;
     }
 
+    @Override
     public final short[] getDataBufferShort() {
         return dataBufferShort;
     }
 
+    @Override
     public final int[] getDataBufferInt() {
         return dataBufferInt;
     }
 
+    @Override
     public final float[] getDataBufferFloat() {
         return dataBufferFloat;
     }
 
+    @Override
     public final double[] getDataBufferDouble() {
         return dataBufferDouble;
     }
 
+    @Override
     public final int getScanlineOffset() {
         return scanlineOffset;
     }
 
+    @Override
     public final int getScanlineStride() {
         return scanlineStride;
     }
 
+    @Override
     public synchronized ProductData getRawSamples() {
         if (rawSamples == null) {
             ProductData dataBuffer = getDataBuffer();
@@ -183,6 +231,7 @@ public class TileImpl implements Tile {
         return rawSamples;
     }
 
+    @Override
     public synchronized void setRawSamples(ProductData rawSamples) {
         Assert.notNull(rawSamples, "rawSamples");
         if (target) {
@@ -194,65 +243,76 @@ public class TileImpl implements Tile {
         }
     }
 
+    @Override
     public boolean getSampleBoolean(int x, int y) {
         return getSampleInt(x, y) != 0;
     }
 
+    @Override
     public void setSample(int x, int y, boolean sample) {
         setSample(x, y, sample ? 1 : 0);
     }
 
+    @Override
     public int getSampleInt(int x, int y) {
         int sample = raster.getSample(x, y, 0);
         // todo - handle unsigned data types here!!!
-        if (scalingApplied) {
-            sample = (int) Math.floor(rasterDataNode.scale(sample) + 0.5);
+        if (requiresCalibration) {
+            sample = (int) Math.floor(toCalibrated(sample) + 0.5);
         }
         return sample;
     }
 
+    @Override
     public void setSample(int x, int y, int sample) {
-        if (scalingApplied) {
-            sample = (int) Math.floor(rasterDataNode.scaleInverse(sample) + 0.5);
+        if (requiresCalibration) {
+            sample = (int) Math.floor(toRaw((double) sample) + 0.5);
         }
         writableRaster.setSample(x, y, 0, sample);
     }
 
+    @Override
     public float getSampleFloat(int x, int y) {
         float sample = raster.getSampleFloat(x, y, 0);
-        if (scalingApplied) {
-            sample = (float) rasterDataNode.scale(sample);
+        if (requiresCalibration) {
+            sample = toCalibrated(sample);
         }
         return sample;
     }
 
+    @Override
     public void setSample(int x, int y, float sample) {
-        if (scalingApplied) {
-            sample = (float) rasterDataNode.scaleInverse(sample);
+        if (requiresCalibration) {
+            sample = toRaw(sample);
         }
         writableRaster.setSample(x, y, 0, sample);
     }
 
+
+    @Override
     public double getSampleDouble(int x, int y) {
         double sample = raster.getSampleDouble(x, y, 0);
-        if (scalingApplied) {
-            sample = rasterDataNode.scale(sample);
+        if (requiresCalibration) {
+            sample = toCalibrated(sample);
         }
         return sample;
     }
 
+    @Override
     public void setSample(int x, int y, double sample) {
-        if (scalingApplied) {
-            sample = rasterDataNode.scaleInverse(sample);
+        if (requiresCalibration) {
+            sample = toRaw(sample);
         }
         writableRaster.setSample(x, y, 0, sample);
     }
-    
+
+    @Override
     public boolean getSampleBit(int x, int y, int bitIndex) {
         long sample = raster.getSample(x, y, 0);
         return BitSetter.isFlagSet(sample, bitIndex);
     }
     
+    @Override
     public void setSample(int x, int y, int bitIndex, boolean sample) {
         long longSample = raster.getSample(x, y, 0);
         long newSample = BitSetter.setFlag(longSample, bitIndex, sample);
