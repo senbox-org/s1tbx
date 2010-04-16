@@ -337,8 +337,10 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         private void fireTableDataChanged(ProductNodeEvent event) {
             if (event.getSourceNode() instanceof Placemark) {
                 Placemark placemark = (Placemark) event.getSourceNode();
-                if (placemarkList.contains(placemark)) {
-                    AbstractPlacemarkTableModel.this.fireTableDataChanged();
+                // BEAM-1117: VISAT slows down using pins with GCP geo-coded images
+                final int index = placemarkList.indexOf(placemark);
+                if (index != -1) {
+                    AbstractPlacemarkTableModel.this.fireTableRowsUpdated(index, index);
                 }
             }
         }
