@@ -4,7 +4,6 @@ import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
@@ -321,41 +320,46 @@ class GcpGeoCodingForm extends JPanel {
         @Override
         public void nodeChanged(ProductNodeEvent event) {
             // exclude geo-coding changes to prevent recursion
-            boolean isPinEvent = false;
-            if (event.getSourceNode() instanceof Placemark) {
-                Placemark placemark = (Placemark) event.getSourceNode();
-                isPinEvent = placemark.getPlacemarkDescriptor() instanceof PinDescriptor;
-            }
-            if (Product.PROPERTY_NAME_GEOCODING.equals(event.getPropertyName()) || isPinEvent) {
+            if (Product.PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
                 return;
             }
-            updateGcpGeoCoding();
+            final ProductNode sourceNode = event.getSourceNode();
+            if (sourceNode instanceof Placemark) {
+                if (currentProduct.getGcpGroup().contains((Placemark) sourceNode)) {
+                    updateGcpGeoCoding();
+                }
+            }
         }
 
         @Override
         public void nodeDataChanged(ProductNodeEvent event) {
-            updateGcpGeoCoding();
+            nodeChanged(event);
         }
 
         @Override
         public void nodeAdded(ProductNodeEvent event) {
-            updateGcpGeoCoding();
+            if (event.getGroup() == currentProduct.getGcpGroup()) {
+                updateGcpGeoCoding();
+            }
         }
 
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
-            updateGcpGeoCoding();
+            if (event.getGroup() == currentProduct.getGcpGroup()) {
+                updateGcpGeoCoding();
+            }
         }
 
         private void updateGcpGeoCoding() {
-            GeoCoding geoCoding = currentProduct.getGeoCoding();
+            final GeoCoding geoCoding = currentProduct.getGeoCoding();
             if (geoCoding instanceof GcpGeoCoding) {
-                GcpGeoCoding gcpGeoCoding = ((GcpGeoCoding) geoCoding);
-                if (currentProduct.getGcpGroup().getNodeCount() < gcpGeoCoding.getMethod().getTermCountP()) {
+                final GcpGeoCoding gcpGeoCoding = ((GcpGeoCoding) geoCoding);
+                final PlacemarkGroup gcpGroup = currentProduct.getGcpGroup();
+                final int gcpCount = gcpGroup.getNodeCount();
+                if (gcpCount < gcpGeoCoding.getMethod().getTermCountP()) {
                     detachGeoCoding(currentProduct);
                 } else {
-                    Placemark[] gcps = currentProduct.getGcpGroup().toArray(new Placemark[0]);
-                    gcpGeoCoding.setGcps(gcps);
+                    gcpGeoCoding.setGcps(gcpGroup.toArray(new Placemark[gcpCount]));
                     currentProduct.fireProductNodeChanged(Product.PROPERTY_NAME_GEOCODING);
                     updateUIState();
                 }
