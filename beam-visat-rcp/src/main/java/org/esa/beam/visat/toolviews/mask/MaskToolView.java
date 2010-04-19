@@ -93,12 +93,14 @@ public abstract class MaskToolView extends AbstractToolView {
 
     private void updateMaskForm() {
         ProductNode selectedProductNode = VisatApp.getApp().getSelectedProductNode();
-        if (selectedProductNode instanceof Product) {
-            Product product = (Product) selectedProductNode;
-            maskForm.reconfigureMaskTable(product, null);
-        } else if (selectedProductNode instanceof RasterDataNode) {
+        if (selectedProductNode instanceof RasterDataNode) {
             RasterDataNode rdn = (RasterDataNode) selectedProductNode;
             maskForm.reconfigureMaskTable(rdn.getProduct(), rdn);
+        } else if (selectedProductNode instanceof Product) {
+            Product product = (Product) selectedProductNode;
+            maskForm.reconfigureMaskTable(product, null);
+        } else if (selectedProductNode != null && selectedProductNode.getProduct() != null) {
+            maskForm.reconfigureMaskTable(selectedProductNode.getProduct(), null);
         } else {
             maskForm.clearMaskTable();
         }
