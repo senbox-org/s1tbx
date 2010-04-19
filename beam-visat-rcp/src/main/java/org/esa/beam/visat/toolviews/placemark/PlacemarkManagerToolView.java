@@ -1283,15 +1283,12 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     private class ProductSelectionListener extends ProductTreeListenerAdapter {
 
         @Override
-        public void productAdded(Product product) {
-            setProduct(product);
-        }
-
-        @Override
         public void productRemoved(Product product) {
-            setProduct(null);
-            productToSelectedBands.remove(product);
-            productToSelectedGrids.remove(product);
+            if (product == getProduct()) {
+                setProduct(null);
+                productToSelectedBands.remove(product);
+                productToSelectedGrids.remove(product);
+            }
         }
 
         @Override
