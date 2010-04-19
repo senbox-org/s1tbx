@@ -51,7 +51,7 @@ import java.util.Iterator;
  * </pre>
  * <p>The method {@link #getRawSamples()} used in option (2) returns a writable buffer for the raw, non-calibrated
  * sample values.
- * Use the {@link #toPhysical(float)} and {@link #toRaw(float)} to convert between physical and raw
+ * Use the {@link #toGeoPhysical(float)} and {@link #toRaw(float)} to convert between physical and raw
  * sample values.</p>
 
  * <p/>
@@ -77,7 +77,7 @@ import java.util.Iterator;
  * (because {@link org.esa.beam.framework.datamodel.RasterDataNode#getDataType() getRasterDataNode().getDataType()}
  * returns {@link ProductData#TYPE_FLOAT32}).<br/>
  * The {@link #getDataBufferFloat()} and its derivatives all return arrays of raw, non-calibrated sample values.
- * Use the {@link #toPhysical(float)} and {@link #toRaw(float)} to convert between physical and raw
+ * Use the {@link #toGeoPhysical (float)} and {@link #toRaw(float)} to convert between physical and raw
  * sample values.</p>
  *
  * @author Norman Fomferra
@@ -110,7 +110,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * @param rawSample The raw sample value.
      * @return The calibrated sample value.
      */
-    float toPhysical(float rawSample);
+    float toGeoPhysical(float rawSample);
 
     /**
      * Converts a raw sample value (e.g. digital counts) to a (geo-)physically scaled sample value
@@ -119,7 +119,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * @param rawSample The raw sample value.
      * @return The calibrated sample value.
      */
-    double toPhysical(double rawSample);
+    double toGeoPhysical(double rawSample);
 
     /**
      * Converts a (geo-)physically scaled sample value of type {@code float} to a

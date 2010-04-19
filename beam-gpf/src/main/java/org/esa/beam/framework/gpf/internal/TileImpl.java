@@ -93,12 +93,12 @@ public class TileImpl implements Tile {
     }
 
     @Override
-    public float toPhysical(float sample) {
+    public float toGeoPhysical(float sample) {
         return (float) rasterDataNode.scale(sample);
     }
 
     @Override
-    public double toPhysical(double sample) {
+    public double toGeoPhysical(double sample) {
         return rasterDataNode.scale(sample);
     }
 
@@ -258,7 +258,7 @@ public class TileImpl implements Tile {
         int sample = raster.getSample(x, y, 0);
         // todo - handle unsigned data types here!!!
         if (raw) {
-            sample = (int) Math.floor(toPhysical(sample) + 0.5);
+            sample = (int) Math.floor(toGeoPhysical(sample) + 0.5);
         }
         return sample;
     }
@@ -276,7 +276,7 @@ public class TileImpl implements Tile {
     public float getSampleFloat(int x, int y) {
         float sample = raster.getSampleFloat(x, y, 0);
         if (raw) {
-            sample = toPhysical(sample);
+            sample = toGeoPhysical(sample);
         }
         return sample;
     }
@@ -294,7 +294,7 @@ public class TileImpl implements Tile {
     public double getSampleDouble(int x, int y) {
         double sample = raster.getSampleDouble(x, y, 0);
         if (raw) {
-            sample = toPhysical(sample);
+            sample = toGeoPhysical(sample);
         }
         return sample;
     }
