@@ -30,7 +30,7 @@ public class TileImpl implements Tile {
     private final int width;
     private final int height;
     private final boolean target;
-    private final boolean requiresCalibration;
+    private final boolean raw;
     private final int scanlineOffset;
     private final int scanlineStride;
     private final byte[] dataBufferByte;
@@ -76,7 +76,7 @@ public class TileImpl implements Tile {
         this.height = rectangle.height;
         this.target = target;
         // todo - optimize getSample()/setSample() methods by using a Closure that either honours calibration or not. (nf 04.2010)
-        this.requiresCalibration = rasterDataNode.isScalingApplied();
+        this.raw = rasterDataNode.isScalingApplied();
 
         int smX0 = rectangle.x - raster.getSampleModelTranslateX();
         int smY0 = rectangle.y - raster.getSampleModelTranslateY();
@@ -93,12 +93,12 @@ public class TileImpl implements Tile {
     }
 
     @Override
-    public float toCalibrated(float sample) {
+    public float toPhysical(float sample) {
         return (float) rasterDataNode.scale(sample);
     }
 
     @Override
-    public double toCalibrated(double sample) {
+    public double toPhysical(double sample) {
         return rasterDataNode.scale(sample);
     }
 
@@ -257,15 +257,16 @@ public class TileImpl implements Tile {
     public int getSampleInt(int x, int y) {
         int sample = raster.getSample(x, y, 0);
         // todo - handle unsigned data types here!!!
-        if (requiresCalibration) {
-            sample = (int) Math.floor(toCalibrated(sample) + 0.5);
+        if (raw) {
+            sample = (int) Math.floor(toPhysical(sample) + 0.5);
         }
         return sample;
     }
 
     @Override
     public void setSample(int x, int y, int sample) {
-        if (requiresCalibration) {
+        // todo - handle unsigned data types here!!!
+        if (raw) {
             sample = (int) Math.floor(toRaw((double) sample) + 0.5);
         }
         writableRaster.setSample(x, y, 0, sample);
@@ -274,15 +275,15 @@ public class TileImpl implements Tile {
     @Override
     public float getSampleFloat(int x, int y) {
         float sample = raster.getSampleFloat(x, y, 0);
-        if (requiresCalibration) {
-            sample = toCalibrated(sample);
+        if (raw) {
+            sample = toPhysical(sample);
         }
         return sample;
     }
 
     @Override
     public void setSample(int x, int y, float sample) {
-        if (requiresCalibration) {
+        if (raw) {
             sample = toRaw(sample);
         }
         writableRaster.setSample(x, y, 0, sample);
@@ -292,15 +293,15 @@ public class TileImpl implements Tile {
     @Override
     public double getSampleDouble(int x, int y) {
         double sample = raster.getSampleDouble(x, y, 0);
-        if (requiresCalibration) {
-            sample = toCalibrated(sample);
+        if (raw) {
+            sample = toPhysical(sample);
         }
         return sample;
     }
 
     @Override
     public void setSample(int x, int y, double sample) {
-        if (requiresCalibration) {
+        if (raw) {
             sample = toRaw(sample);
         }
         writableRaster.setSample(x, y, 0, sample);
