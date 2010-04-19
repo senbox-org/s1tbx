@@ -52,7 +52,9 @@ public class CrsGeoCoding extends AbstractGeoCoding {
 
         MathTransform i2m = new AffineTransform2D(imageToMap);
 
-        //TODO -- is this ok ?
+        //TODO - is this ok ?
+        // yes for the if branch, because a map CRS is always based on a geographic CRS
+        // the else branch is only a fallback
         if (mapCRS instanceof DerivedCRS) {
             DerivedCRS derivedCRS = (DerivedCRS) mapCRS;
             CoordinateReferenceSystem baseCRS = derivedCRS.getBaseCRS();
