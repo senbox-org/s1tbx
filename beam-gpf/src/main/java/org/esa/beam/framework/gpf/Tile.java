@@ -34,7 +34,7 @@ import java.util.Iterator;
  *   }
  * </pre>
  * <p>The methods {@link #getSampleFloat(int, int)} and {@link #setSample(int, int, float)} and their derivatives
- * used in option (1) return and expect calibrated, geo-physical sample values.</p>
+ * used in option (1) return and expect (geo-)physically scaled sample values.</p>
  * <p/>
  * <p>(2) More performance is gained if the sample data buffer is checked out and committed
  * (required after modification only):</p>
@@ -51,7 +51,7 @@ import java.util.Iterator;
  * </pre>
  * <p>The method {@link #getRawSamples()} used in option (2) returns a writable buffer for the raw, non-calibrated
  * sample values.
- * Use the {@link #toCalibrated(float)} and {@link #toRaw(float)} to convert between raw and calibrated
+ * Use the {@link #toGeoPhysical(float)} and {@link #toRaw(float)} to convert between physical and raw
  * sample values.</p>
 
  * <p/>
@@ -77,7 +77,7 @@ import java.util.Iterator;
  * (because {@link org.esa.beam.framework.datamodel.RasterDataNode#getDataType() getRasterDataNode().getDataType()}
  * returns {@link ProductData#TYPE_FLOAT32}).<br/>
  * The {@link #getDataBufferFloat()} and its derivatives all return arrays of raw, non-calibrated sample values.
- * Use the {@link #toCalibrated (float)} and {@link #toRaw (float)} to convert between raw and calibrated
+ * Use the {@link #toGeoPhysical (float)} and {@link #toRaw(float)} to convert between physical and raw
  * sample values.</p>
  *
  * @author Norman Fomferra
@@ -104,24 +104,25 @@ public interface Tile extends Iterable<Tile.Pos> {
     boolean isTarget();
 
     /**
-     * Converts a raw sample value (e.g. digital counts) to a calibrated sample value
-     * (e.g. a geo-physically meaningful quantity) of type {@code float}.
+     * Converts a raw sample value (e.g. digital counts) to a (geo-)physically scaled sample value
+     * of type {@code float}.
      *
      * @param rawSample The raw sample value.
      * @return The calibrated sample value.
      */
-    float toCalibrated(float rawSample);
+    float toGeoPhysical(float rawSample);
 
     /**
-     * Converts a raw sample value (e.g. digital counts) to a calibrated sample value
-     * (e.g. a geo-physically meaningful quantity) of type {@code double}.
+     * Converts a raw sample value (e.g. digital counts) to a (geo-)physically scaled sample value
+     * of type {@code double}.
+     *
      * @param rawSample The raw sample value.
      * @return The calibrated sample value.
      */
-    double toCalibrated(double rawSample);
+    double toGeoPhysical(double rawSample);
 
     /**
-     * Converts a to a calibrated sample value (e.g. a geo-physically meaningful quantity) of type {@code float} to a
+     * Converts a (geo-)physically scaled sample value of type {@code float} to a
      * its corresponding raw sample value (e.g. digital counts).
      *
      * @param sample The calibrated sample value.
@@ -130,7 +131,7 @@ public interface Tile extends Iterable<Tile.Pos> {
     float toRaw(float sample);
 
     /**
-     * Converts a to a calibrated sample value (e.g. a geo-physically meaningful quantity) of type {@code double} to a
+     * Converts a (geo-)physically scaled sample value of type {@code double} to a
      * its corresponding raw sample value (e.g. digital counts).
      *
      * @param sample The calibrated sample value.
@@ -193,7 +194,7 @@ public interface Tile extends Iterable<Tile.Pos> {
     int getHeight();
 
     /**
-     * Gets the index into the underlying data buffer for the given pixel coordinates.
+     * Gets the index into the underlying raw sample buffer for the given pixel coordinates.
      * <p>The pixel coordinates are absolute; meaning they are defined in the scene raster coordinate system
      * of this tile's {@link #getRasterDataNode()  RasterDataNode}.
      * </p>
@@ -212,7 +213,7 @@ public interface Tile extends Iterable<Tile.Pos> {
     int getDataBufferIndex(int x, int y);
 
     /**
-     * <p>Obtains access to the underlying data buffer. The data buffer holds the
+     * <p>Obtains access to the underlying raw sample buffer. The data buffer holds the
      * raw (unscaled, uncalibrated) sample data (e.g. detector counts).</p>
      * Elements in this array must be addressed
      * by an index computed via the {@link #getScanlineStride() scanlineStride} and
@@ -254,7 +255,7 @@ public interface Tile extends Iterable<Tile.Pos> {
     ProductData getDataBuffer();
 
     /**
-     * Gets the underlying data buffer's primitive array of type <code>byte</code> (signed or unsigned).
+     * Gets the underlying raw sample array of type <code>byte</code> (signed or unsigned).
      * If the underlying data buffer is not of type <code>byte</code>, <code>null</code> is returned.
      * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
      *
@@ -265,7 +266,7 @@ public interface Tile extends Iterable<Tile.Pos> {
     byte[] getDataBufferByte();
 
     /**
-     * Gets the underlying data buffer's primitive array of type <code>short</code> (signed or unsigned).
+     * Gets the underlying raw sample array of type <code>short</code> (signed or unsigned).
      * If the underlying data buffer is not of type <code>short</code>, <code>null</code> is returned.
      * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
      *
@@ -276,7 +277,7 @@ public interface Tile extends Iterable<Tile.Pos> {
     short[] getDataBufferShort();
 
     /**
-     * Gets the underlying data buffer's primitive array of type <code>int</code>.
+     * Gets the underlying raw sample array of type <code>int</code>.
      * If the underlying data buffer is not of type <code>int</code>, <code>null</code> is returned.
      * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
      *
@@ -287,7 +288,7 @@ public interface Tile extends Iterable<Tile.Pos> {
     int[] getDataBufferInt();
 
     /**
-     * Gets the underlying data buffer's primitive array of type <code>float</code>.
+     * Gets the underlying raw sample array of type <code>float</code>.
      * If the underlying data buffer is not of type <code>float</code>, <code>null</code> is returned.
      * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
      *
@@ -298,7 +299,7 @@ public interface Tile extends Iterable<Tile.Pos> {
     float[] getDataBufferFloat();
 
     /**
-     * Gets the underlying data buffer's primitive array of type <code>double</code>.
+     * Gets the underlying raw sample array of type <code>double</code>.
      * If the underlying data buffer is not of type <code>double</code>, <code>null</code> is returned.
      * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
      *
@@ -327,7 +328,7 @@ public interface Tile extends Iterable<Tile.Pos> {
     int getScanlineStride();
 
     /**
-     * Gets raw (unscaled, uncalibrated) samples, e.g. detector counts, copied from or wrapping the underlying
+     * Gets the raw (unscaled, uncalibrated) samples, e.g. detector counts, copied from or wrapping the underlying
      * data buffer. In contradiction to the {@link #getDataBuffer()} method, the returned samples
      * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
      * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
@@ -340,7 +341,44 @@ public interface Tile extends Iterable<Tile.Pos> {
     ProductData getRawSamples();
 
     /**
-     * Sets raw (unscaled, uncalibrated) samples, e.g. detector counts, into the underlying.
+     * Sets this tile's raw (unscaled, uncalibrated) samples.
+     * The number of given samples must be equal {@link #getWidth() width} {@code *} {@link #getHeight() height}
+     * of this tile.
+     * <p>This method must be used
+     * in order to apply changes made to the samples returned by the {@link #getRawSamples()} method.</p>
+     *
+     * @param rawSamples The raw samples to be set.
+     */
+    void setRawSamples(ProductData rawSamples);
+
+    /**
+     * Gets the scaled, (geo-)physical array of {@code double} samples, copied from or directly returning the underlying
+     * data buffer. In contradiction to the {@link #getDataBuffer()} method, the returned samples
+     * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
+     * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
+     * <p>In order to apply changes of the samples values to this tile, it is mandatory to call
+     * {@link #setRawSamples(org.esa.beam.framework.datamodel.ProductData)} with the modified
+     * {@code ProductData} instance.</p>
+     *
+     * @return The raw samples copied from or directly returning the underlying data buffer.
+     */
+    float[] getSamplesFloat();
+
+    /**
+     * Gets the scaled, (geo-)physical array of {@code double} samples, copied from or directly returning the underlying
+     * data buffer. In contradiction to the {@link #getDataBuffer()} method, the returned samples
+     * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
+     * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
+     * <p>In order to apply changes of the samples values to this tile, it is mandatory to call
+     * {@link #setRawSamples(org.esa.beam.framework.datamodel.ProductData)} with the modified
+     * {@code ProductData} instance.</p>
+     *
+     * @return The raw samples copied from or directly returning the underlying data buffer.
+     */
+    double[] getSamplesDouble();
+
+    /**
+     * Sets this tile's scaled, (geo-)physical samples as array of {@code floats}s.
      * The number of given samples must be equal {@link #getWidth() width} {@code *} {@link #getHeight() height}
      * of this tile.
      * <p>This method must be used
@@ -348,10 +386,18 @@ public interface Tile extends Iterable<Tile.Pos> {
      *
      * @param samples The raw samples to be set.
      */
-    void setRawSamples(ProductData samples);
+    void setSamples(float[] samples);
 
-// todo - define getSamples():ProductData (nf - 09.10.2007)
-// todo - define setSamples(samples:ProductData):void (nf - 09.10.2007)
+    /**
+     * Sets this tile's scaled, (geo-)physical samples as array of {@code double}s.
+     * The number of given samples must be equal {@link #getWidth() width} {@code *} {@link #getHeight() height}
+     * of this tile.
+     * <p>This method must be used
+     * in order to apply changes made to the samples returned by the {@link #getRawSamples()} method.</p>
+     *
+     * @param samples The raw samples to be set.
+     */
+    void setSamples(double[] samples);
 
     /**
      * Checks whether or not the sample value exists and is valid at a given image pixel position.
@@ -364,103 +410,103 @@ public interface Tile extends Iterable<Tile.Pos> {
     boolean isSampleValid(int x, int y);
 
     /**
-     * Gets the geophysical (scaled, calibrated) sample at the given pixel coordinate as {@code boolean} value.
+     * Gets the (geo-)physically scaled sample at the given pixel coordinate as {@code boolean} value.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
      * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
-     * @return The geophysical sample as {@code boolean} value.
+     * @return The (geo-)physical sample as {@code boolean} value.
      */
     boolean getSampleBoolean(int x, int y);
 
     /**
-     * Sets the geophysical (scaled, calibrated) sample at the given pixel coordinate from a {@code boolean} value.
+     * Sets the (geo-)physically scaled sample at the given pixel coordinate from a {@code boolean} value.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
      * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
      * @param x      The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y      The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
-     * @param sample The geophysical sample as {@code boolean} value.
+     * @param sample The (geo-)physically scaled sample as {@code boolean} value.
      */
     void setSample(int x, int y, boolean sample);
 
     /**
-     * Gets the geophysical (scaled, calibrated) sample at the given pixel coordinate as {@code int} value.
+     * Gets the (geo-)physically scaled sample at the given pixel coordinate as {@code int} value.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
      * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
-     * @return The geophysical sample as {@code int} value.
+     * @return The (geo-)physically scaled sample as {@code int} value.
      */
     int getSampleInt(int x, int y);
 
     /**
-     * Sets the geophysical (scaled, calibrated) sample at the given pixel coordinate from a {@code int} value.
+     * Sets the (geo-)physically scaled sample at the given pixel coordinate from a {@code int} value.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
      * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
      * @param x      The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y      The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
-     * @param sample The geophysical sample as {@code int} value.
+     * @param sample The (geo-)physically scaled sample as {@code int} value.
      */
     void setSample(int x, int y, int sample);
 
     /**
-     * Gets the geophysical (scaled, calibrated) sample at the given pixel coordinate as {@code float} value.
+     * Gets the (geo-)physically scaled sample at the given pixel coordinate as {@code float} value.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
      * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
-     * @return The geophysical sample as {@code float} value.
+     * @return The (geo-)physically scaled sample as {@code float} value.
      */
     float getSampleFloat(int x, int y);
 
     /**
-     * Sets the geophysical (scaled, calibrated) sample at the given pixel coordinate from a {@code float} value.
+     * Sets the (geo-)physically scaled sample at the given pixel coordinate from a {@code float} value.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
      * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
      * @param x      The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y      The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
-     * @param sample The geophysical sample as {@code float} value.
+     * @param sample The (geo-)physically scaled sample as {@code float} value.
      */
     void setSample(int x, int y, float sample);
 
     /**
-     * Gets the geophysical (scaled, calibrated) sample value for the given pixel coordinate as {@code double}.
+     * Gets the (geo-)physically scaled sample value for the given pixel coordinate as {@code double}.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
      * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
-     * @return The geophysical sample as {@code double} value.
+     * @return The (geo-)physically scaled sample as {@code double} value.
      */
     double getSampleDouble(int x, int y);
 
     /**
-     * Sets the geophysical (scaled, calibrated) sample at the given pixel coordinate from a {@code double} value.
+     * Sets the (geo-)physically scaled sample at the given pixel coordinate from a {@code double} value.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
      * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
      * @param x      The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y      The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
-     * @param sample The geophysical sample as {@code double} value.
+     * @param sample The (geo-)physically scaled sample as {@code double} value.
      */
     void setSample(int x, int y, double sample);
 
     /**
-     * Gets the sample value for the given pixel coordinate and the specified bit index as {@code boolean}.
+     * Gets the bit-coded sample value for the given pixel coordinate and the specified bit index as a {@code boolean}.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
      * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
@@ -473,7 +519,7 @@ public interface Tile extends Iterable<Tile.Pos> {
     boolean getSampleBit(int x, int y, int bitIndex);
 
     /**
-     * Sets the sample at the given pixel coordinate and the specified bit index from a {@code boolean} value.
+     * Sets the bit-coded sample at the given pixel coordinate and the specified bit index from a {@code boolean} value.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
      * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>

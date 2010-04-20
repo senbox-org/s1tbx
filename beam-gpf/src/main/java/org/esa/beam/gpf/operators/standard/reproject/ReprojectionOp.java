@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ImageGeometry;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
@@ -452,8 +453,18 @@ public class ReprojectionOp extends Operator {
                                        ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkDescriptor descriptor) {
         final Placemark[] placemarks = sourcePlacemarkGroup.toArray(new Placemark[0]);
         for (Placemark placemark : placemarks) {
+            PixelPos targetPixelPos = null;
+            if (descriptor instanceof GcpDescriptor) { // reproject GCP position
+                final PixelPos srcPixelPos = placemark.getPixelPos();
+                final GeoPos srcGeoPos = new GeoPos();
+                sourcePlacemarkGroup.getProduct().getGeoCoding().getGeoPos(srcPixelPos, srcGeoPos);
+
+                targetPixelPos = new PixelPos(srcPixelPos.x, srcPixelPos.y);
+                targetPlacemarkGroup.getProduct().getGeoCoding().getPixelPos(srcGeoPos, targetPixelPos);
+            }
+
             final Placemark placemark1 = new Placemark(placemark.getName(), placemark.getLabel(),
-                                                       placemark.getDescription(), null, placemark.getGeoPos(),
+                                                       placemark.getDescription(), targetPixelPos, placemark.getGeoPos(),
                                                        descriptor, targetPlacemarkGroup.getProduct().getGeoCoding());
             targetPlacemarkGroup.add(placemark1);
         }

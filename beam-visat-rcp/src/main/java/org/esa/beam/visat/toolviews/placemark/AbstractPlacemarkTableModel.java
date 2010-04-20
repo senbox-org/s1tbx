@@ -73,8 +73,8 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
         placemarkList.clear();
         initPlacemarkList(this.product);
-        selectedBands = null;
-        selectedGrids = null;
+        selectedBands = new Band[0];
+        selectedGrids = new TiePointGrid[0];
         fireTableStructureChanged();
     }
 
