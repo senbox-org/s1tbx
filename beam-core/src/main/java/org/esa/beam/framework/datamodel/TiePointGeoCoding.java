@@ -206,8 +206,12 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         if (approximations != null) {
             float lat = normalizeLat(geoPos.lat);
             float lon = normalizeLon(geoPos.lon);
+            // ensure that pixel is out of image (= no source position)
             if (pixelPos == null) {
                 pixelPos = new PixelPos(-1.0f, -1.0f);
+            } else {
+                pixelPos.x = -1;
+                pixelPos.y = -1;
             }
             
             if (!Float.isNaN(lat) && !Float.isNaN(lon)) {

@@ -26,6 +26,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,11 +81,12 @@ public class RangeFinderInteractor extends ViewportInteractor {
         if (overlay == null) {
             createOverlay(view);
         }
-        pointList.add(e.getPoint());
-        currPoint.setLocation(e.getPoint());
-        overlay.repaint();
-        
-        if (e.getClickCount() > 1 && pointList.size() > 0) {
+        if (e.getClickCount() == 1) {
+            pointList.add(e.getPoint());
+            currPoint.setLocation(e.getPoint());
+            overlay.repaint();
+        }
+        if (e.getClickCount() == 2 && pointList.size() > 0) {
             showDetailsDialog(view);
             pointList.clear();
             removeOverlay();
@@ -123,10 +126,15 @@ public class RangeFinderInteractor extends ViewportInteractor {
         float distance = 0;
         float distanceError = 0;
 
+        final AffineTransform v2i = view.getLayerCanvas().getViewport().getViewToModelTransform();
+        v2i.concatenate(view.getBaseImageLayer().getModelToImageTransform());
+
+        final Point p1 = new Point();
+        final Point p2 = new Point();
         final DistanceData[] distanceDatas = new DistanceData[pointList.size() - 1];
         for (int i = 0; i < distanceDatas.length; i++) {
-            final Point p1 = pointList.get(i);
-            final Point p2 = pointList.get(i + 1);
+            v2i.transform(pointList.get(i), p1);
+            v2i.transform(pointList.get(i + 1), p2);
 
             final DistanceData distanceData = new DistanceData(geoCoding, p1, p2);
             distance += distanceData.distance;
@@ -189,7 +197,7 @@ public class RangeFinderInteractor extends ViewportInteractor {
         content.setPreferredSize(new Dimension(300, 150));
 
         final ModalDialog detailsWindow = new ModalDialog(parentWindow,
-                                                          org.esa.beam.visat.actions.rangefinder.RangeFinderInteractor.TITLE + " - Details",
+                                                          TITLE + " - Details",
                                                           /*I18N*/
                                                           ModalDialog.ID_OK,
                                                           null);
