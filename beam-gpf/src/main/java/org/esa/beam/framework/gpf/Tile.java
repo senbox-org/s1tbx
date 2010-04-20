@@ -328,7 +328,7 @@ public interface Tile extends Iterable<Tile.Pos> {
     int getScanlineStride();
 
     /**
-     * Gets raw (unscaled, uncalibrated) samples, e.g. detector counts, copied from or wrapping the underlying
+     * Gets the raw (unscaled, uncalibrated) samples, e.g. detector counts, copied from or wrapping the underlying
      * data buffer. In contradiction to the {@link #getDataBuffer()} method, the returned samples
      * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
      * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
@@ -341,7 +341,44 @@ public interface Tile extends Iterable<Tile.Pos> {
     ProductData getRawSamples();
 
     /**
-     * Sets raw (unscaled, uncalibrated) samples, e.g. detector counts, into the underlying.
+     * Sets this tile's raw (unscaled, uncalibrated) samples.
+     * The number of given samples must be equal {@link #getWidth() width} {@code *} {@link #getHeight() height}
+     * of this tile.
+     * <p>This method must be used
+     * in order to apply changes made to the samples returned by the {@link #getRawSamples()} method.</p>
+     *
+     * @param rawSamples The raw samples to be set.
+     */
+    void setRawSamples(ProductData rawSamples);
+
+    /**
+     * Gets the scaled, (geo-)physical array of {@code double} samples, copied from or directly returning the underlying
+     * data buffer. In contradiction to the {@link #getDataBuffer()} method, the returned samples
+     * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
+     * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
+     * <p>In order to apply changes of the samples values to this tile, it is mandatory to call
+     * {@link #setRawSamples(org.esa.beam.framework.datamodel.ProductData)} with the modified
+     * {@code ProductData} instance.</p>
+     *
+     * @return The raw samples copied from or directly returning the underlying data buffer.
+     */
+    float[] getSamplesFloat();
+
+    /**
+     * Gets the scaled, (geo-)physical array of {@code double} samples, copied from or directly returning the underlying
+     * data buffer. In contradiction to the {@link #getDataBuffer()} method, the returned samples
+     * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
+     * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
+     * <p>In order to apply changes of the samples values to this tile, it is mandatory to call
+     * {@link #setRawSamples(org.esa.beam.framework.datamodel.ProductData)} with the modified
+     * {@code ProductData} instance.</p>
+     *
+     * @return The raw samples copied from or directly returning the underlying data buffer.
+     */
+    double[] getSamplesDouble();
+
+    /**
+     * Sets this tile's scaled, (geo-)physical samples as array of {@code floats}s.
      * The number of given samples must be equal {@link #getWidth() width} {@code *} {@link #getHeight() height}
      * of this tile.
      * <p>This method must be used
@@ -349,10 +386,18 @@ public interface Tile extends Iterable<Tile.Pos> {
      *
      * @param samples The raw samples to be set.
      */
-    void setRawSamples(ProductData samples);
+    void setSamples(float[] samples);
 
-// todo - define getSamples():ProductData (nf - 09.10.2007)
-// todo - define setSamples(samples:ProductData):void (nf - 09.10.2007)
+    /**
+     * Sets this tile's scaled, (geo-)physical samples as array of {@code double}s.
+     * The number of given samples must be equal {@link #getWidth() width} {@code *} {@link #getHeight() height}
+     * of this tile.
+     * <p>This method must be used
+     * in order to apply changes made to the samples returned by the {@link #getRawSamples()} method.</p>
+     *
+     * @param samples The raw samples to be set.
+     */
+    void setSamples(double[] samples);
 
     /**
      * Checks whether or not the sample value exists and is valid at a given image pixel position.

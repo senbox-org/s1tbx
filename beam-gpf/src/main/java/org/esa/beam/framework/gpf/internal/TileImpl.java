@@ -244,6 +244,74 @@ public class TileImpl implements Tile {
     }
 
     @Override
+    public float[] getSamplesFloat() {
+        final ProductData data = getRawSamples();
+        if (raw) {
+            final int size = data.getNumElems();
+            float[] samples = new float[size];
+            for (int i = 0; i < size; i++) {
+                samples[i] = toGeoPhysical(data.getElemFloatAt(i));
+            }
+            return samples;
+        } else {
+            if (data.getType() == ProductData.TYPE_FLOAT32) {
+                return (float[]) data.getElems();
+            } else {
+                final int size = data.getNumElems();
+                float[] samples = new float[size];
+                for (int i = 0; i < size; i++) {
+                    samples[i] = data.getElemFloatAt(i);
+                }
+                return samples;
+            }
+        }
+    }
+
+    @Override
+    public double[] getSamplesDouble() {
+        final ProductData data = getRawSamples();
+        if (raw) {
+            final int size = data.getNumElems();
+            double[] samples = new double[size];
+            for (int i = 0; i < size; i++) {
+                samples[i] = toGeoPhysical(data.getElemDoubleAt(i));
+            }
+            return samples;
+        } else {
+            if (data.getType() == ProductData.TYPE_FLOAT64) {
+                return (double[]) data.getElems();
+            } else {
+                final int size = data.getNumElems();
+                double[] samples = new double[size];
+                for (int i = 0; i < size; i++) {
+                    samples[i] = data.getElemDoubleAt(i);
+                }
+                return samples;
+            }
+        }
+    }
+
+    @Override
+    public void setSamples(float[] samples) {
+        int i = 0;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                setSample(x, y, samples[i++]);
+            }
+        }
+    }
+
+    @Override
+    public void setSamples(double[] samples) {
+        int i = 0;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                setSample(x, y, samples[i++]);
+            }
+        }
+    }
+
+    @Override
     public boolean getSampleBoolean(int x, int y) {
         return getSampleInt(x, y) != 0;
     }
