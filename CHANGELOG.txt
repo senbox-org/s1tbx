@@ -204,7 +204,7 @@ _____________________________________________________________________________
 
 1) New VISAT Features
 
-o A couple of new layers have been added to VISAT. Layers are used to enhance 
+o A couple of new layers have been added to VISAT. Layers are used to enhance
   the (image) views by displaying additional data sources. The new layers are:
   - Images of other bands or tie-point grids
   - Images loaded from JPG or PNG image files
@@ -213,12 +213,12 @@ o A couple of new layers have been added to VISAT. Layers are used to enhance
   - NASA Blue Marble for Lat/lon projected views
   - Wind speed vectors for MERIS
 
-o The layer manager tool window is now used to add, remove, change, select 
+o The layer manager tool window is now used to add, remove, change, select
   and organise the layers displayed in the selected view.
 
 o The new layer editor tool window is used to manipulate the properties of the
-  selected layer. 
-  
+  selected layer.
+
 o VISAT now allows to store and restore sessions. A session comprises all
   opened product files and associated views along with their layers and
   layer settings. A stored session only stores the file path references,
@@ -226,18 +226,18 @@ o VISAT now allows to store and restore sessions. A session comprises all
 
 2) VISAT Improvements
 
-o The band arithmetic GUI has been completely revised and simplified. 
+o The band arithmetic GUI has been completely revised and simplified.
 
-o When creating non-virtual bands using band arithmetic in BEAM versions 
-  prior to 4.6, the raster data has been allocated in memory which often caused 
-  out-of-memory errors for large images. This problem has been removed, raster 
+o When creating non-virtual bands using band arithmetic in BEAM versions
+  prior to 4.6, the raster data has been allocated in memory which often caused
+  out-of-memory errors for large images. This problem has been removed, raster
   data is now computed when requested.
 
-o The image export has been improved. Users can now specify the image output 
+o The image export has been improved. Users can now specify the image output
   resolution. The created image files will directly represent the content of the
   selected view comprising all displayed layers.
 
-o The colour manipulation window now indicates rough statistics generated 
+o The colour manipulation window now indicates rough statistics generated
   from a low-res version of the displayed image. Users can now compute accurate
   statistics on demand.
   Colour palette import will now either
