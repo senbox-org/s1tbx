@@ -94,6 +94,7 @@
             <excludes>
                 <exclude>org.esa.beam:beam-bootstrap</exclude>
                 <exclude>org.esa.beam:beam-installer</exclude>
+                <exclude>org.esa.beam:beam-rtp-codec</exclude>
             </excludes>
             <binaries>
                 <outputDirectory>modules</outputDirectory>
