@@ -2,6 +2,7 @@
 
 This file contains all significant changes for each BEAM release.
 
+    o 23.04.2010: Version 4.7.1
     o 22.02.2010: Version 4.7
     o 02.06.2009: Version 4.6
     o 31.10.2008: Version 4.5
@@ -22,6 +23,53 @@ This file contains all significant changes for each BEAM release.
     o 27.06.2003: Version 2.0
     o 07.03.2003: Version 1.1
     o 06.12.2002: Version 1.0
+
+
+_____________________________________________________________________________
+
+ Changes from 4.7 to 4.7.1
+_____________________________________________________________________________
+
+1) New BEAM Features
+
+o The GPF Operator API now provides better support for image filters and
+  convolutions. Now it is possible to call getSourceTile(...) with a
+  BorderExtender parameter which is a strategy used to fill the raster regions
+  that lie outside the bounds of the source image.
+
+o There is an easier way for developers to check the availability of a tile's
+  sample value at a given image position by using isSampleValid(...).
+
+2) Complete list of BEAM 4.7 bug fixes and improvements
+
+New Features
+BEAM-1112 - GPF Operator API to provide better support for image filters and convolutions
+BEAM-1114 - GPF Tile API to provide method to directly check sample validity
+
+Improvements
+BEAM-1116 - GPF Tile API and API-docs to better express difference between raw and physical samples
+BEAM-1085 - Support reprocessed data by NASA OBPG
+BEAM-1110 - Don't show empty masks for pins and GCPs
+
+Bugs
+BEAM-1097 - Exception if reprojection results in large target product
+BEAM-1108 - Import of Pins/GCPs fails
+BEAM-1107 - METOP reader cannot open subset products
+BEAM-1095 - Pixel position is updated when geo-location is changed for GCPs
+BEAM-1118 - Deletion of masks
+BEAM-1093 - Dragging does not work in Layer Manager
+BEAM-1057 - Navigation rotation edit field prevents rotating image
+BEAM-1105 - NullPointerException is thrown, if editor for geometry layer is visible
+BEAM-1087 - OBPG child products can not be read
+BEAM-1088 - Orthorectification does a map projection only
+BEAM-1109 - Pixel Info View does not update if "Snap to selected pin" is clicked
+BEAM-1103 - Product outside of target area breaks processing of L3 binning
+BEAM-1106 - ToolViews do not reflect the selected state correctly in all cases
+BEAM-1099 - DefaultSingleTargetProductDialog without processing parameter leads to exception
+BEAM-1121 - Range Finder Tool yields NaN values
+BEAM-1082 - Installation instructions are wrong for GETASSE30
+BEAM-1094 - Not possible to add placemarks if scrollbars are used
+BEAM-1111 - Placemarks are not correctly moved if multiple are selected
 
 
 _____________________________________________________________________________
@@ -156,7 +204,7 @@ _____________________________________________________________________________
 
 1) New VISAT Features
 
-o A couple of new layers have been added to VISAT. Layers are used to enhance 
+o A couple of new layers have been added to VISAT. Layers are used to enhance
   the (image) views by displaying additional data sources. The new layers are:
   - Images of other bands or tie-point grids
   - Images loaded from JPG or PNG image files
@@ -165,12 +213,12 @@ o A couple of new layers have been added to VISAT. Layers are used to enhance
   - NASA Blue Marble for Lat/lon projected views
   - Wind speed vectors for MERIS
 
-o The layer manager tool window is now used to add, remove, change, select 
+o The layer manager tool window is now used to add, remove, change, select
   and organise the layers displayed in the selected view.
 
 o The new layer editor tool window is used to manipulate the properties of the
-  selected layer. 
-  
+  selected layer.
+
 o VISAT now allows to store and restore sessions. A session comprises all
   opened product files and associated views along with their layers and
   layer settings. A stored session only stores the file path references,
@@ -178,18 +226,18 @@ o VISAT now allows to store and restore sessions. A session comprises all
 
 2) VISAT Improvements
 
-o The band arithmetic GUI has been completely revised and simplified. 
+o The band arithmetic GUI has been completely revised and simplified.
 
-o When creating non-virtual bands using band arithmetic in BEAM versions 
-  prior to 4.6, the raster data has been allocated in memory which often caused 
-  out-of-memory errors for large images. This problem has been removed, raster 
+o When creating non-virtual bands using band arithmetic in BEAM versions
+  prior to 4.6, the raster data has been allocated in memory which often caused
+  out-of-memory errors for large images. This problem has been removed, raster
   data is now computed when requested.
 
-o The image export has been improved. Users can now specify the image output 
+o The image export has been improved. Users can now specify the image output
   resolution. The created image files will directly represent the content of the
   selected view comprising all displayed layers.
 
-o The colour manipulation window now indicates rough statistics generated 
+o The colour manipulation window now indicates rough statistics generated
   from a low-res version of the displayed image. Users can now compute accurate
   statistics on demand.
   Colour palette import will now either
