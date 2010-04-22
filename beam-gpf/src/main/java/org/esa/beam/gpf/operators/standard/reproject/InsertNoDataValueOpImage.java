@@ -26,15 +26,13 @@ import javax.media.jai.RasterFormatTag;
 
 final class InsertNoDataValueOpImage extends PointOpImage {
     private final double noDataValue;
-    private final RenderedImage maskImage;
     private final RasterFormatTag maskRasterFormatTag;
-    
+
     InsertNoDataValueOpImage(RenderedImage sourceImage, RenderedImage maskImage, double noDataValue) {
-        super(sourceImage, null, null, true);
-        this.maskImage = maskImage;
+        super(sourceImage, maskImage, null, null, true);
         this.noDataValue = noDataValue;
-        int compatibleTag = RasterAccessor.findCompatibleTag(null, maskImage.getSampleModel());
-        maskRasterFormatTag = new RasterFormatTag(maskImage.getSampleModel(), compatibleTag);
+        int compatibleTagId = RasterAccessor.findCompatibleTag(null, maskImage.getSampleModel());
+        maskRasterFormatTag = new RasterFormatTag(maskImage.getSampleModel(), compatibleTagId);
         setTileCache(JAI.getDefaultInstance().getTileCache());
     }
 
@@ -42,11 +40,8 @@ final class InsertNoDataValueOpImage extends PointOpImage {
     protected void computeRect(Raster[] sources, WritableRaster dest, Rectangle destRect) {
         RasterFormatTag[] formatTags = getFormatTags();
         RasterAccessor s = new RasterAccessor(sources[0], destRect, formatTags[0], getSourceImage(0).getColorModel());
-        int toTileX = XToTileX(destRect.x);
-        int toTileY = YToTileY(destRect.y);
-        Raster maskTile = maskImage.getTile(toTileX, toTileY);
-        RasterAccessor m = new RasterAccessor(maskTile, destRect, maskRasterFormatTag, maskImage.getColorModel());
-        RasterAccessor d = new RasterAccessor(dest, destRect, formatTags[1], getColorModel());
+        RasterAccessor m = new RasterAccessor(sources[1], destRect, maskRasterFormatTag, getSourceImage(1).getColorModel());
+        RasterAccessor d = new RasterAccessor(dest, destRect, formatTags[2], getColorModel());
         switch (d.getDataType()) {
             case 0: // '\0'
                 computeRectByte(s,  m, d, (byte) noDataValue);
