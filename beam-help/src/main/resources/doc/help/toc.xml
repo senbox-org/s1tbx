@@ -97,7 +97,7 @@
                 </tocitem>
                 <tocitem text="Mosaic" target="mosaicAction">
                     <tocitem text="Mosaic Dialog" target="mosaicAction"/>
-                    <tocitem text="Mosaic Algorithm Description" target="mosaicAlgorithmSpec"/>
+                    <tocitem text="Mosaic Algorithm Description" target="mosaicAlgo"/>
                 </tocitem>
 
                 <tocitem text="Attach Pixel-based Geo-Coding" target="pixelGeoCodingSetup"/>
