@@ -129,7 +129,7 @@ public class L3ToL1Op extends MerisBasisOp {
                         targetTile.setSample(x, y, sample);
                     }
                 }
-                checkForCancelation(pm);
+                checkForCancellation(pm);
                 pm.worked(1);
             }
         } catch (Exception e) {

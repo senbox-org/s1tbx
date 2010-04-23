@@ -143,7 +143,7 @@ public class RRToFRSOp extends Operator {
                     iy = 0;
                     rrY++;
                 }
-                checkForCancelation(pm);
+                checkForCancellation(pm);
                 pm.worked(1);
             }
         } finally {

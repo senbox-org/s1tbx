@@ -207,7 +207,7 @@ public class OperatorContext {
         return passThrough;
     }
 
-    public void checkForCancelation(ProgressMonitor pm) throws OperatorException {
+    public void checkForCancellation(ProgressMonitor pm) throws OperatorException {
         if (pm.isCanceled()) {
             throw new OperatorException(OPERATION_CANCELED_MESSAGE);
         }

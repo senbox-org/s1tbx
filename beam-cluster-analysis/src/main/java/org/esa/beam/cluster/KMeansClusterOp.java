@@ -37,7 +37,6 @@ import org.esa.beam.util.math.MathUtils;
 import javax.media.jai.ROI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.image.Raster;
 
 /**
  * Operator for k-means cluster analysis.
@@ -184,7 +183,7 @@ public class KMeansClusterOp extends Operator {
                 for (int i = 0; (i < iterationCount && !endIteration); ++i) {
                     clusterer.startIteration();
                     for (Rectangle rectangle : tileRectangles) {
-                        checkForCancelation(pm);
+                        checkForCancellation(pm);
                         PixelIter pixelIterr = createPixelIter(rectangle, SubProgressMonitor.create(pm, 1));
                         clusterer.iterateTile(pixelIterr);
                         pm.worked(1);

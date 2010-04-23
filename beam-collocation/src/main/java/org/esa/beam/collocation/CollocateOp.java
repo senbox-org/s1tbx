@@ -257,7 +257,7 @@ public class CollocateOp extends Operator {
             pm.done();
 
             for (final Band targetBand : targetProduct.getBands()) {
-                checkForCancelation(pm);
+                checkForCancellation(pm);
                 final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
                 final Tile targetTile = targetTileMap.get(targetBand);
 
@@ -326,7 +326,7 @@ public class CollocateOp extends Operator {
 
                 for (int y = targetRectangle.y, index = 0; y < targetRectangle.y + targetRectangle.height; ++y) {
                     for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x, ++index) {
-                        checkForCancelation(pm);
+                        checkForCancellation(pm);
                         final PixelPos sourcePixelPos = sourcePixelPositions[index];
 
                         if (sourcePixelPos != null) {
@@ -350,7 +350,7 @@ public class CollocateOp extends Operator {
             } else {
                 for (int y = targetRectangle.y, index = 0; y < targetRectangle.y + targetRectangle.height; ++y) {
                     for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x, ++index) {
-                        checkForCancelation(pm);
+                        checkForCancellation(pm);
                         targetTile.setSample(x, y, noDataValue);
                     }
                     pm.worked(1);

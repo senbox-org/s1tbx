@@ -355,16 +355,33 @@ public abstract class Operator {
     }
 
     /**
-     * Checks for cancelation of the current processing request. Throws an exception, if the
-     * request has been canceled (e.g. by the user).
+     * Checks for cancellation of the current processing request. Throws an exception, if the
+     * request has been canceled (e.g. by the user). The given progress monitor is usually the one passed into the
+     * {@link #computeTile} or {@link #computeTileStack} methods.
+     *
+     * @param pm The progress monitor passed into the
+     *           the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile} method or
+     *           the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
+     * @throws OperatorException if the current processing request has been canceled (e.g. by the user).
+     * @deprecated Weak "typo" in method name, use {@link #checkForCancellation(com.bc.ceres.core.ProgressMonitor)}
+     */
+    @Deprecated
+    protected final void checkForCancelation(ProgressMonitor pm) throws OperatorException {
+        context.checkForCancellation(pm);
+    }
+
+    /**
+     * Checks for cancellation of the current processing request. Throws an exception, if the
+     * request has been canceled (e.g. by the user). The given progress monitor is usually the one passed into the
+     * {@link #computeTile} or {@link #computeTileStack} methods.
      *
      * @param pm The progress monitor passed into the
      *           the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile} method or
      *           the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
      * @throws OperatorException if the current processing request has been canceled (e.g. by the user).
      */
-    protected final void checkForCancelation(ProgressMonitor pm) throws OperatorException {
-        context.checkForCancelation(pm);
+    protected final void checkForCancellation(ProgressMonitor pm) throws OperatorException {
+        context.checkForCancellation(pm);
     }
 
     /**

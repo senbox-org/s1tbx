@@ -105,7 +105,7 @@ public class ClucovClusterOp extends Operator {
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
                     int dsIndex = y * sourceWidth + x;
                     targetTile.setSample(x, y, ds.group[dsIndex]);
-                    checkForCancelation(pm);
+                    checkForCancellation(pm);
                 }
             }
         }
@@ -150,7 +150,7 @@ public class ClucovClusterOp extends Operator {
             for (int x = 0; x < width; x++) {
                 ds.add(dsVectors[x]);
             }
-            checkForCancelation(pm);
+            checkForCancellation(pm);
         }
         clucov = new Clucov(ds);
         //clucov.
