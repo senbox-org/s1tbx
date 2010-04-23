@@ -53,7 +53,7 @@ import java.util.Iterator;
  * sample values.
  * Use the {@link #toGeoPhysical(float)} and {@link #toRaw(float)} to convert between physical and raw
  * sample values.</p>
-
+ * <p/>
  * <p/>
  * <p>(3) The the fastest way to read from or write to sample data is to directly access the sample data
  * via their primitive data buffers:</p>
@@ -359,6 +359,8 @@ public interface Tile extends Iterable<Tile.Pos> {
      * <p>In order to apply changes of the samples values to this tile, it is mandatory to call
      * {@link #setRawSamples(org.esa.beam.framework.datamodel.ProductData)} with the modified
      * {@code ProductData} instance.</p>
+     * <p>Sample values that are masked out (see {@link #isSampleValid(int, int)}) are returned as array elements
+     * having the value {@link Float#NaN}.</p>
      *
      * @return The raw samples copied from or directly returning the underlying data buffer.
      */
@@ -372,6 +374,8 @@ public interface Tile extends Iterable<Tile.Pos> {
      * <p>In order to apply changes of the samples values to this tile, it is mandatory to call
      * {@link #setRawSamples(org.esa.beam.framework.datamodel.ProductData)} with the modified
      * {@code ProductData} instance.</p>
+     * <p>Sample values that are masked out (see {@link #isSampleValid(int, int)}) are returned as array elements
+     * having the value {@link Float#NaN}.</p>
      *
      * @return The raw samples copied from or directly returning the underlying data buffer.
      */

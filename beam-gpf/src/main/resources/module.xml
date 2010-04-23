@@ -8,13 +8,14 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2008 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2010 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <changelog>
         <![CDATA[
         <p>From 4.7 to 4.8:<br/>
+            [BEAM-1127] GPF geo-physical Tile API doesn't consider the valid-pixel mask<br/>
             [BEAM-1116] GPF Tile API and API-docs to better express difference between raw and physical samples<br/>
             [BEAM-1114] GPF Tile API to provide method to directly check sample validity<br/>
             [BEAM-1112] GPF Operator API to provide better support for image filters and convolutions<br/>
