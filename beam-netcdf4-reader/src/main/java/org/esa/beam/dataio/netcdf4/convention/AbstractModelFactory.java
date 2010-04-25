@@ -1,6 +1,10 @@
 package org.esa.beam.dataio.netcdf4.convention;
 
 import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
+import org.esa.beam.framework.dataio.DecodeQualification;
+import ucar.nc2.NetcdfFile;
+
+import java.io.IOException;
 
 /*
  * User: Thomas Storm
@@ -27,8 +31,6 @@ public abstract class AbstractModelFactory {
     protected ModelPart endTimePart;
     protected ModelPart metaDataPart;
     protected ModelPart descriptionPart;
-
-    protected Model model = new Model();
 
     public AbstractModelFactory() {
         metaDataPart = getMetadataPart();
@@ -72,7 +74,22 @@ public abstract class AbstractModelFactory {
 
     public abstract ModelPart getDescriptionPart();
 
-    public Model createModel() {
+    public Model createModel(NetcdfFile netcdfFile) throws IOException {
+        Nc4ReaderParameters readerParameters = createReaderParameters(netcdfFile);
+        Model model = new Model(readerParameters);
+        initModel(model);
+        return model;
+    }
+
+    protected Nc4ReaderParameters createReaderParameters(NetcdfFile netcdfFile) throws IOException {
+        Nc4ReaderParameters readerParameters = null;
+        if (netcdfFile != null) {
+            readerParameters = new Nc4ReaderParameters(netcdfFile);
+        }
+        return readerParameters;
+    }
+
+    protected void initModel(Model model) {
         if (initPart != null) {
             model.setInitialisationPart(initPart);
         }
@@ -112,9 +129,8 @@ public abstract class AbstractModelFactory {
         if (descriptionPart != null) {
             model.addModelPart(descriptionPart);
         }
-        return model;
     }
 
-    protected abstract boolean isIntendedFor(Nc4ReaderParameters rp);
+    protected abstract DecodeQualification getDecodeQualification(NetcdfFile netcdfFile);
 
 }

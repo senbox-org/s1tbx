@@ -81,7 +81,7 @@ public class CfMetadataPart implements ModelPart {
         return metadataElement;
     }
 
-    private static MetadataElement createMetadataElementFromVariableList(final List<Variable> variableList,
+    public static MetadataElement createMetadataElementFromVariableList(final List<Variable> variableList,
                                                                          String elementName) throws IOException {
         MetadataElement metadataElement = new MetadataElement(elementName);
         for (Variable variable : variableList) {

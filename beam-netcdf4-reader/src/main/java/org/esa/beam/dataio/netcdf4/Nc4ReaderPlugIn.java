@@ -1,5 +1,6 @@
 package org.esa.beam.dataio.netcdf4;
 
+import org.esa.beam.dataio.netcdf4.convention.ModelFactoryRegistry;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -35,32 +36,24 @@ public class Nc4ReaderPlugIn implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
 
-        final NetcdfFile netcdfFile;
+        NetcdfFile netcdfFile = null;
         try {
             netcdfFile = NetcdfFile.open(pathname);
-        } catch (IOException e) {
-            return DecodeQualification.UNABLE;
-        }
-
-        try {
-            final Nc4ReaderParameters rv = new Nc4ReaderParameters(netcdfFile);
-            final Nc4RasterDigest rasterDigest = rv.getRasterDigest();
-            if (rasterDigest == null) {
+            if (netcdfFile == null) {
                 return DecodeQualification.UNABLE;
             }
-            final String metadataProfile = rv.getGlobalAttributes().getValue("metadata_profile", "unable");
-            if ("beam".equalsIgnoreCase(metadataProfile)) {
-                return DecodeQualification.INTENDED;
-            }
+            return ModelFactoryRegistry.getInstance().getDecodeQualification(netcdfFile);
+        } catch (IOException e) {
+            return DecodeQualification.UNABLE;
         } finally {
             try {
-                netcdfFile.close();
+                if (netcdfFile != null) {
+                    netcdfFile.close();
+                }
             } catch (IOException e) {
                 // OK, ignored
             }
         }
-
-        return DecodeQualification.SUITABLE;
     }
 
     /**

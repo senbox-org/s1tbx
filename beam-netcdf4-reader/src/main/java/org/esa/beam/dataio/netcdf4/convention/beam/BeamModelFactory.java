@@ -3,8 +3,12 @@ package org.esa.beam.dataio.netcdf4.convention.beam;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.convention.AbstractModelFactory;
 import org.esa.beam.dataio.netcdf4.convention.InitialisationPart;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.dataio.netcdf4.convention.cf.CfMetadataPart;
+import org.esa.beam.framework.dataio.DecodeQualification;
+import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
 
 /**
  * User: Thomas Storm
@@ -83,8 +87,14 @@ public class BeamModelFactory extends AbstractModelFactory {
     }
 
     @Override
-    protected boolean isIntendedFor(Nc4ReaderParameters rp) {
-        final String profile = rp.getGlobalAttributes().getValue("metadata_profile", "nothing");
-        return "beam".equalsIgnoreCase(profile);
+    protected DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
+        Attribute attribute = netcdfFile.findGlobalAttribute("metadata_profile");
+        if (attribute != null) {
+            String value = attribute.getStringValue();
+            if (value != null && value.equals("beam")) {
+                return DecodeQualification.INTENDED;
+            }
+        }
+        return DecodeQualification.UNABLE;
     }
 }

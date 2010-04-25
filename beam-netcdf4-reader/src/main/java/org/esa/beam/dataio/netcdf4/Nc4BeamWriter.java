@@ -54,7 +54,7 @@ public class Nc4BeamWriter extends AbstractProductWriter {
     @Override
     protected void writeProductNodesImpl() throws IOException {
         writeable = NetcdfFileWriteable.createNew(getOutputString());
-        final Model model = new BeamModelFactory().createModel();
+        final Model model = new BeamModelFactory().createModel(null);
         model.writeProduct(writeable, getSourceProduct());
     }
 
