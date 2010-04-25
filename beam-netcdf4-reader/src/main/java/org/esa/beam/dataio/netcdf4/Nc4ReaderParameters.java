@@ -25,7 +25,7 @@ public class Nc4ReaderParameters {
         globalVariables = netcdfFile.getVariables();
         globalVariablesMap = Nc4ReaderUtils.createVariablesMap(globalVariables);
 
-        rasterDigest = Nc4RasterDigest.createRasterDigest(netcdfFile.getRootGroup(), this);
+        rasterDigest = Nc4RasterDigest.createRasterDigest(netcdfFile.getRootGroup());
         if (rasterDigest != null) {
             rasterVariableMap = new Nc4VariableMap(rasterDigest.getRasterVariables());
         } else {
