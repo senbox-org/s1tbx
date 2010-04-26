@@ -1,6 +1,7 @@
 package org.esa.beam.dataio.netcdf4;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.dataio.netcdf4.convention.AbstractModelFactory;
 import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelFactoryRegistry;
 import org.esa.beam.framework.dataio.AbstractProductReader;
@@ -99,9 +100,17 @@ public class Nc4Reader extends AbstractProductReader {
                                              IOException {
 
         final File fileLocation = new File(getInput().toString());
-        rp = new Nc4ReaderParameters(NetcdfFile.open(fileLocation.getPath()));
+        NetcdfFile netcdfFile = NetcdfFile.open(fileLocation.getPath());
 
-        final Model convention = ModelFactoryRegistry.getInstance().getModelFactory(rp).createModel();
+        System.out.println("netcdfFile = " + netcdfFile);
+
+        AbstractModelFactory modelFactory = ModelFactoryRegistry.getInstance().getModelFactory(netcdfFile);
+        if (modelFactory == null) {
+            netcdfFile.close();
+            throw new IllegalFileFormatException("No convention factory found for netCDF.");
+        }
+        final Model convention = modelFactory.createModel(netcdfFile);
+        rp = convention.getReaderParameters();
 
         if (rp.getRasterDigest() == null) {
             close();
@@ -109,9 +118,7 @@ public class Nc4Reader extends AbstractProductReader {
                                                  "be interpreted as remote sensing bands.");  /*I18N*/
         }
 
-        rp.setYFlipped(false);
-
-        final String productName = getProductName(rp);
+        final String productName = getProductName(netcdfFile);
         final Product product = convention.readProduct(productName, rp);
         product.setFileLocation(fileLocation);
         product.setProductReader(this);
@@ -186,8 +193,7 @@ public class Nc4Reader extends AbstractProductReader {
         super.close();
     }
 
-    public static String getProductName(Nc4ReaderParameters rp) {
-        final NetcdfFile netcdfFile = rp.getNetcdfFile();
+    static String getProductName(NetcdfFile netcdfFile) {
         final String location = netcdfFile.getLocation();
         final int slashIndex = location.lastIndexOf("/");
         final String productName;

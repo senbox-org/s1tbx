@@ -3,8 +3,8 @@ package org.esa.beam.dataio.netcdf4.convention;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.beam.BeamCoreActivator;
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
-import org.esa.beam.dataio.netcdf4.convention.cf.CfModelFactory;
+import org.esa.beam.framework.dataio.DecodeQualification;
+import ucar.nc2.NetcdfFile;
 
 import java.util.Set;
 
@@ -29,14 +29,32 @@ public class ModelFactoryRegistry {
         return Holder.instance;
     }
 
-    public AbstractModelFactory getModelFactory(Nc4ReaderParameters rp) {
+    public AbstractModelFactory getModelFactory(NetcdfFile netcdfFile) {
         final Set<AbstractModelFactory> modelFactories = serviceRegistry.getServices();
+        AbstractModelFactory selectedFactory = null;
         for (AbstractModelFactory modelFactory : modelFactories) {
-            if (modelFactory.isIntendedFor(rp)) {
+            DecodeQualification qualification = modelFactory.getDecodeQualification(netcdfFile);
+            if (qualification == DecodeQualification.SUITABLE) {
+                selectedFactory = modelFactory;
+            } else if (qualification == DecodeQualification.INTENDED) {
                 return modelFactory;
             }
         }
-        return serviceRegistry.getService(CfModelFactory.class.getName());
+        return selectedFactory;
+    }
+
+    public DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
+        final Set<AbstractModelFactory> modelFactories = serviceRegistry.getServices();
+        DecodeQualification bestQualification = DecodeQualification.UNABLE;
+        for (AbstractModelFactory modelFactory : modelFactories) {
+            DecodeQualification qualification = modelFactory.getDecodeQualification(netcdfFile);
+            if (qualification == DecodeQualification.SUITABLE) {
+                bestQualification = qualification;
+            } else if (qualification == DecodeQualification.INTENDED) {
+                return qualification;
+            }
+        }
+        return bestQualification;
     }
 
     private static class Holder {

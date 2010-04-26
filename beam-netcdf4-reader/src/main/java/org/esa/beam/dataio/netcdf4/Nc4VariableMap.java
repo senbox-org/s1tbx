@@ -61,6 +61,16 @@ public class Nc4VariableMap {
     }
 
     /**
+     * Puts a variable with the given name into this map.
+     *
+     * @param name The name.
+     * @param variable The variable.
+     */
+    public void put(String name, Variable variable) {
+        map.put(name, variable);
+    }
+
+    /**
      * Removes all variables from this map.
      */
     public void clear() {

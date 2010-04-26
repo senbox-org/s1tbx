@@ -13,6 +13,11 @@ public class Model {
 
     private InitialisationPart initialisationPart;
     private final List<ModelPart> modelParts = new ArrayList<ModelPart>();
+    private final Nc4ReaderParameters readerParameters;
+
+    public Model(Nc4ReaderParameters readerParameters) {
+        this.readerParameters = readerParameters;
+    }
 
     public Product readProduct(final String productName, Nc4ReaderParameters rp) throws IOException {
         final Product product = initialisationPart.readProductBody(productName, rp);
@@ -38,6 +43,10 @@ public class Model {
 
     public void setInitialisationPart(InitialisationPart initPart) {
         this.initialisationPart = initPart;
+    }
+
+    public Nc4ReaderParameters getReaderParameters() {
+        return readerParameters;
     }
 
     public static class HDW implements HeaderDataWriter {

@@ -32,7 +32,7 @@ public class Nc4RasterDigest {
         return _variables;
     }
 
-    public static Nc4RasterDigest createRasterDigest(final Group group, final Nc4ReaderParameters rv) {
+    public static Nc4RasterDigest createRasterDigest(final Group group) {
         Map<Nc4Dim, List<Variable>> variableListMap = getVariableListMap(group);
         if (variableListMap.isEmpty()) {
             return null;

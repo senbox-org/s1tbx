@@ -19,18 +19,21 @@ public class Nc4ReaderParameters {
     private boolean yFlipped;
 
     public Nc4ReaderParameters(NetcdfFile netcdfFile) {
+        this(netcdfFile, Nc4RasterDigest.createRasterDigest(netcdfFile.getRootGroup()));
+    }
+
+    public Nc4ReaderParameters(NetcdfFile netcdfFile, Nc4RasterDigest rasterDigest) {
+         this(netcdfFile, rasterDigest, (rasterDigest != null ? new Nc4VariableMap(rasterDigest.getRasterVariables()) : null));
+    }
+
+    public Nc4ReaderParameters(NetcdfFile netcdfFile, Nc4RasterDigest rasterDigest, Nc4VariableMap nc4VariableMap) {
         Assert.argument(netcdfFile != null, "netcdfFile != null");
         this.netcdfFile = netcdfFile;
         globalAttributes = Nc4AttributeMap.create(netcdfFile);
         globalVariables = netcdfFile.getVariables();
         globalVariablesMap = Nc4ReaderUtils.createVariablesMap(globalVariables);
-
-        rasterDigest = Nc4RasterDigest.createRasterDigest(netcdfFile.getRootGroup(), this);
-        if (rasterDigest != null) {
-            rasterVariableMap = new Nc4VariableMap(rasterDigest.getRasterVariables());
-        } else {
-            rasterVariableMap = null;
-        }
+        this.rasterDigest = rasterDigest;
+        this.rasterVariableMap = nc4VariableMap;
     }
 
     public NetcdfFile getNetcdfFile() {
