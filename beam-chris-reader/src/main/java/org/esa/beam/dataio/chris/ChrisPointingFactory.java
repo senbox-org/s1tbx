@@ -21,6 +21,16 @@ public final class ChrisPointingFactory implements PointingFactory {
                 "CHRIS_M20_GC",
                 "CHRIS_M30_GC",
                 "CHRIS_M3A_GC",
+                // TOA reflectance products
+                "CHRIS_M0_TOA_REFL_GC",
+                "CHRIS_M1_TOA_REFL_GC",
+                "CHRIS_M2_TOA_REFL_GC",
+                "CHRIS_M3_TOA_REFL_GC",
+                "CHRIS_M4_TOA_REFL_GC",
+                "CHRIS_M5_TOA_REFL_GC",
+                "CHRIS_M20_TOA_REFL_GC",
+                "CHRIS_M30_TOA_REFL_GC",
+                "CHRIS_M3A_TOA_REFL_GC",
                 // noise-corrected products
                 "CHRIS_M0_NR_GC",
                 "CHRIS_M1_NR_GC",
@@ -40,7 +50,17 @@ public final class ChrisPointingFactory implements PointingFactory {
                 "CHRIS_M5_NR_AC_GC",
                 "CHRIS_M20_NR_AC_GC",
                 "CHRIS_M30_NR_AC_GC",
-                "CHRIS_M3A_NR_AC_GC"
+                "CHRIS_M3A_NR_AC_GC",
+                // nose-corrected TOA-reflectance products
+                "CHRIS_M0_NR_TOA_REFL_GC",
+                "CHRIS_M1_NR_TOA_REFL_GC",
+                "CHRIS_M2_NR_TOA_REFL_GC",
+                "CHRIS_M3_NR_TOA_REFL_GC",
+                "CHRIS_M4_NR_TOA_REFL_GC",
+                "CHRIS_M5_NR_TOA_REFL_GC",
+                "CHRIS_M20_NR_TOA_REFL_GC",
+                "CHRIS_M30_NR_TOA_REFL_GC",
+                "CHRIS_M3A_NR_TOA_REFL_GC"
         };
     }
 
