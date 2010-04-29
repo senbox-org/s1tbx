@@ -74,12 +74,10 @@ public class HdfEosUtils {
     }
 
     static String getValue(Element root, String... childs) {
-        System.out.println("HdfEosUtils.getValue");
         Element element = root;
         int index = 0;
         while (element != null && index < childs.length) {
             String childName = childs[index++];
-            System.out.println("childName = " + childName);
             element = element.getChild(childName);
         }
         return element != null ? element.getValue() : null;
