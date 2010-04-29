@@ -2,7 +2,7 @@
 
 This file contains all significant changes for each BEAM release.
 
-    o 23.04.2010: Version 4.7.1
+    o 29.04.2010: Version 4.7.1
     o 22.02.2010: Version 4.7
     o 02.06.2009: Version 4.6
     o 31.10.2008: Version 4.5
