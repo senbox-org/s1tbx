@@ -35,7 +35,7 @@ public class HdfEosFactory extends AbstractModelFactory {
 
     @Override
     public ModelPart getGeocodingPart() {
-        return null;  //TODO
+        return new HdfEosGeocodingPart();
     }
 
     @Override
