@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 
 public class BruteForceClasspathFactory extends AbstractClasspathFactory {
+
     private ArrayList<File> classpath;
 
     public BruteForceClasspathFactory(RuntimeConfig config) {
@@ -16,8 +17,20 @@ public class BruteForceClasspathFactory extends AbstractClasspathFactory {
 
     @Override
     public void processClasspathFile(File file, LibType libType, int level) {
-        if (!file.getName().toLowerCase().startsWith(CERES_LAUNCHER_PREFIX)) {
-            classpath.add(file);
+        if (level > 2) {
+            return;
+        }
+        final String name = file.getName().toLowerCase();
+        if (!name.startsWith(CERES_LAUNCHER_PREFIX)) {
+            if (LibType.LIBRARY.equals(libType)) {
+                classpath.add(file);
+            } else if (LibType.MODULE.equals(libType)) {
+                if (level == 0) {
+                    classpath.add(file);
+                } else if (level == 2 && "lib".equalsIgnoreCase(file.getParentFile().getName())) {
+                    classpath.add(file);
+                }
+            }
         }
     }
 
