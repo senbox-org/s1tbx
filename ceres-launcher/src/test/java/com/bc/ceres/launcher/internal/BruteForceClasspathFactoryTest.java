@@ -1,37 +1,20 @@
 package com.bc.ceres.launcher.internal;
 
 import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
+import junit.framework.TestCase;
 
 import java.io.File;
 
-import junit.framework.TestCase;
-
 public class BruteForceClasspathFactoryTest extends TestCase {
-
-    private File modulesDir;
-    private File beamHelpDir;
-
-    private void createDirectories() throws Exception {
-        modulesDir = new File("modules");
-        modulesDir.mkdir();
-        beamHelpDir = new File(modulesDir, "beam-help-4.0");
-        beamHelpDir.mkdir();
-    }
-
-    private void deleteDirectories() throws Exception {
-        if (beamHelpDir != null) {
-            beamHelpDir.delete();
-        }
-        if (modulesDir != null) {
-            modulesDir.delete();
-        }
-    }
 
     public void testGetFiles() throws Exception {
         DefaultRuntimeConfig config = new DefaultRuntimeConfig();
         BruteForceClasspathFactory bfcf = new BruteForceClasspathFactory(config);
+        final File modulesDir = new File("modules");
+        modulesDir.mkdir();
+        final File beamHelpDir = new File(modulesDir, "beam-help-4.0");
+        beamHelpDir.mkdir();
         try {
-            createDirectories();
             bfcf.processClasspathFile(new File("lib/xpp3-1.3.4.jar"), BruteForceClasspathFactory.LibType.LIBRARY, 0);
             bfcf.processClasspathFile(new File("lib/xstream-1.2.jar"), BruteForceClasspathFactory.LibType.LIBRARY, 0);
             bfcf.processClasspathFile(new File("lib/jdom-1.0.jar"), BruteForceClasspathFactory.LibType.LIBRARY, 0);
@@ -59,7 +42,8 @@ public class BruteForceClasspathFactoryTest extends TestCase {
             assertEquals(new File("modules/beam-help-4.0/lib/lib.jar"), files[8]);
             assertEquals(new File("modules/beam-help-4.0/lib/tile.zip"), files[9]);
         } finally {
-            deleteDirectories();
+            beamHelpDir.delete();
+            modulesDir.delete();
         }
     }
 }
