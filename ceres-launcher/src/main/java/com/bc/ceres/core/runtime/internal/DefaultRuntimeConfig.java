@@ -73,6 +73,7 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
     public DefaultRuntimeConfig() throws RuntimeConfigException {
         properties = System.getProperties();
         initAll();
+        properties.list(System.out);
     }
 
     public String getContextId() {
@@ -398,6 +399,9 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
         if (modulesDirPath != null) {
             File modulesDir = new File(modulesDirPath);
             if (!modulesDir.isDirectory()) {
+                System.out.println("modulesDir = " + modulesDir);
+                System.out.println("modulesDir.isDirectory() = " + modulesDir.isDirectory());
+                System.out.println("modulesDir.isFile() = " + modulesDir.isFile());
                 throw createInvalidPropertyValueException(modulesDirKey, modulesDirPath);
             }
             this.modulesDirPath = modulesDir.getPath();
