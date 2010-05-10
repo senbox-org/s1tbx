@@ -9,6 +9,7 @@
     <changelog>
         <![CDATA[
         Changes in 0.11<br/>
+        [CERES-048] All zip files are appended to classpath using GPT<br/>
         [CERES-046] The module resolver treats all zip files inside a dir-module as implicit libraries<br/>
         Changes in 0.10<br/>
         [CERES-044] Speedup service provider registration<br/>
