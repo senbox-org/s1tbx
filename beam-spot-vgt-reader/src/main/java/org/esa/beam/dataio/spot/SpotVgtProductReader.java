@@ -31,10 +31,12 @@ import ucar.nc2.Variable;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getBandName;
 import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
@@ -47,8 +49,10 @@ import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
  */
 public class SpotVgtProductReader extends AbstractProductReader {
 
+    private static final String BAND_INFO_PROPERTIES = "band-info.properties";
     private HashMap<Band, FileVar> fileVars;
     private VirtualDir virtualDir;
+    private Properties bandInfos;
 
     /**
      * Constructor.
@@ -57,6 +61,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
      */
     SpotVgtProductReader(final SpotVgtProductReaderPlugIn productReaderPlugIn) {
         super(productReaderPlugIn);
+        initBandInfos();
     }
 
     @Override
@@ -119,6 +124,12 @@ public class SpotVgtProductReader extends AbstractProductReader {
                             product.setFileLocation(new File(virtualDir.getBasePath()));
                         }
                         Band band = product.addBand(getBandName(logVolFileName), bandDataType);
+                        BandInfo bandInfo = getBandInfo(band.getName());
+                        if (bandInfo != null) {
+                            band.setScalingFactor(bandInfo.coefA);
+                            band.setScalingOffset(bandInfo.offsetB);
+                            band.setUnit(bandInfo.unit);
+                        }
                         fileVars.put(band, new FileVar(netcdfFile, pixelDataVar));
                     }
                 }
@@ -309,6 +320,47 @@ public class SpotVgtProductReader extends AbstractProductReader {
         if (endDate != null) {
             product.setEndTime(ProductData.UTC.create(endDate, 0));
         }
+    }
+
+    private void initBandInfos() {
+        bandInfos = new Properties();
+        try {
+            InputStream stream = getClass().getResourceAsStream(BAND_INFO_PROPERTIES);
+            bandInfos.load(stream);
+            stream.close();
+        } catch (IOException e) {
+            throw new IllegalStateException(MessageFormat.format("Failed to load resource {0}: {1}",
+                                                                 BAND_INFO_PROPERTIES, e.getMessage()), e);
+        }
+
+    }
+
+    BandInfo getBandInfo(String name) {
+        final String coefA = bandInfos.getProperty(name + ".COEF_A");
+        final String offsetB = bandInfos.getProperty(name + ".OFFSET_B");
+        final String unit = bandInfos.getProperty(name + ".UNIT");
+        if (coefA != null || offsetB != null || unit != null) {
+            try {
+                return new BandInfo(coefA != null ? Double.parseDouble(coefA) : 1.0,
+                                    offsetB != null ? Double.parseDouble(offsetB) : 0.0,
+                                    unit);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    private static class BandInfo {
+        private BandInfo(double coefA, double offsetB, String unit) {
+            this.coefA = coefA;
+            this.offsetB = offsetB;
+            this.unit = unit;
+        }
+
+        final double coefA;
+        final double offsetB;
+        final String unit;
     }
 
     private static class FileVar {

@@ -7,6 +7,7 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,6 +84,9 @@ public class SpotVgtProductReaderPlugInTest extends TestCase {
     }
 
     public static void main(String[] args) throws IOException {
+//        final NetcdfFile netcdfFile = NetcdfFile.open("C:\\Users\\Norman\\EOData\\SPOT-VGT\\V2KRNS10__20060721_RADIO_Europe\\0001\\0001_B3.HDF");
+//        netcdfFile.writeCDL(System.out, false);
+
         Product product = ProductIO.readProduct(new File(args[0]));
         System.out.println("product = " + product);
         Band[] bands = product.getBands();
