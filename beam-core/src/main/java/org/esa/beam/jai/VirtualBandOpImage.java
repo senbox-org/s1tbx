@@ -3,10 +3,7 @@ package org.esa.beam.jai;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.jai.NoDataRaster;
 import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
-import com.bc.jexp.WritableNamespace;
-import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -22,6 +19,7 @@ import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -205,7 +203,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
     @Override
     public Raster computeTile(int tileX, int tileY) {
         final Term term = parseExpression();
-        if (addDataToRasterDataSymbols(getTileRect(tileX, tileY), term)) {
+        if (addDataToReferredRasterDataSymbols(getTileRect(tileX, tileY), term)) {
             termMap.put(new Point(tileX, tileY), term);
             return super.computeTile(tileX, tileY);
         } else {
@@ -268,18 +266,24 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
     }
 
     private Term parseExpression() {
-        WritableNamespace namespace = BandArithmetic.createDefaultNamespace(products, defaultProductIndex);
         final Term term;
         try {
-            Parser parser = new ParserImpl(namespace, false);
-            term = parser.parse(expression);
+            term = BandArithmetic.parseExpression(expression, products, defaultProductIndex);
         } catch (ParseException e) {
-            throw new IllegalStateException("Could not parse expression: " + expression, e);
+            throw new RuntimeException(MessageFormat.format(
+                    "Could not parse expression: ''{0}''.", expression), e);
+        }
+        final ImageManager imageManager = ImageManager.getInstance();
+        for (final RasterDataSymbol symbol : BandArithmetic.getRefRasterDataSymbols(term)) {
+            if (imageManager.getSourceImage(symbol.getRaster(), getLevel()) == this) {
+                throw new RuntimeException(MessageFormat.format(
+                        "Invalid reference ''{0}''.", symbol.getName()));
+            }
         }
         return term;
     }
 
-    private boolean addDataToRasterDataSymbols(Rectangle destRect, Term term) {
+    private boolean addDataToReferredRasterDataSymbols(Rectangle destRect, Term term) {
         for (final RasterDataSymbol symbol : BandArithmetic.getRefRasterDataSymbols(term)) {
             final RenderedImage sourceImage;
             final int dataType;
