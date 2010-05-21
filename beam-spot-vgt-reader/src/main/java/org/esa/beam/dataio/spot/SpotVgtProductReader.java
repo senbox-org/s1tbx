@@ -53,6 +53,14 @@ public class SpotVgtProductReader extends AbstractProductReader {
     private HashMap<Band, FileVar> fileVars;
     private VirtualDir virtualDir;
     private Properties bandInfos;
+    private static final String[] PIXEL_DATA_VAR_NAMES = new String[] {
+            "PIXEL_DATA",
+            "PIXEL DATA",
+            "ANGLES_VALUES",
+            "ANGLES VALUES",
+            "MEASURE_VALUE",
+            "MEASURE VALUE",
+    };
 
     /**
      * Constructor.
@@ -91,16 +99,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
                     variables.put(variable.getName(), variable);
                 }
 
-                Variable pixelDataVar = variables.get("PIXEL_DATA");
-                if (pixelDataVar == null) {
-                    pixelDataVar = variables.get("PIXEL DATA");
-                }
-                if (pixelDataVar == null) {
-                    pixelDataVar = variables.get("ANGLES_VALUES");
-                }
-                if (pixelDataVar == null) {
-                    pixelDataVar = variables.get("ANGLES VALUES");
-                }
+                Variable pixelDataVar = findPixelDataVar(netcdfFile);
                 if (pixelDataVar != null && pixelDataVar.getRank() == 2 && pixelDataVar.getDataType().isNumeric()) {
                     DataType netCdfDataType = pixelDataVar.getDataType();
                     int bandDataType = ProductData.TYPE_UNDEFINED;
@@ -130,6 +129,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
                             band.setScalingOffset(bandInfo.offsetB);
                             band.setUnit(bandInfo.unit);
                         }
+                        band.setDescription(pixelDataVar.getDescription());
                         fileVars.put(band, new FileVar(netcdfFile, pixelDataVar));
                     }
                 }
@@ -143,6 +143,16 @@ public class SpotVgtProductReader extends AbstractProductReader {
         addTimeCoding(product, logVolDescriptor);
 
         return product;
+    }
+
+    private Variable findPixelDataVar(NetcdfFile netcdfFile) {
+        for (String name : PIXEL_DATA_VAR_NAMES) {
+            Variable pixelDataVar = netcdfFile.findTopVariable(name);
+            if (pixelDataVar != null) {
+                break;
+            }
+        }
+        return null;
     }
 
     @Override
