@@ -160,6 +160,7 @@ class HistogramPanel extends PagePanel implements SingleRoiComputePanel.ComputeM
         final XYPlot xyPlot = chart.getXYPlot();
         XYBarRenderer renderer = (XYBarRenderer) xyPlot.getRenderer();
         renderer.setDrawBarOutline(false);
+        renderer.setShadowVisible(false);
         renderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
 
         ChartPanel histogramDisplay = createChartPanel(chart);
