@@ -2,6 +2,7 @@ package org.esa.beam.dataio.spot;
 
 import junit.framework.TestCase;
 
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -22,6 +23,12 @@ public class LogVolDescriptorTest extends TestCase {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
             assertEquals(dateFormat.parse("20060720223132"), descriptor.getStartDate());
             assertEquals(dateFormat.parse("20060730235628"), descriptor.getEndDate());
+            Rectangle bounds = descriptor.getImageBounds();
+            assertNotNull( bounds);
+            assertEquals(0, bounds.x);
+            assertEquals(0, bounds.y);
+            assertEquals(8177, bounds.width);
+            assertEquals(5601, bounds.height);
         } finally {
             reader.close();
         }

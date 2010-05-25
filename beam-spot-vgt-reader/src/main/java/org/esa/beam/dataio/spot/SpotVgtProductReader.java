@@ -22,13 +22,23 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.ImageUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
+import javax.media.jai.BorderExtender;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.CropDescriptor;
+import javax.media.jai.operator.ScaleDescriptor;
 import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +63,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
     private HashMap<Band, FileVar> fileVars;
     private VirtualDir virtualDir;
     private Properties bandInfos;
-    private static final String[] PIXEL_DATA_VAR_NAMES = new String[] {
+    private static final String[] PIXEL_DATA_VAR_NAMES = new String[]{
             "PIXEL_DATA",
             "PIXEL DATA",
             "ANGLES_VALUES",
@@ -83,10 +93,19 @@ public class SpotVgtProductReader extends AbstractProductReader {
         PhysVolDescriptor physVolDescriptor = new PhysVolDescriptor(virtualDir.getReader(SpotVgtConstants.PHYS_VOL_FILENAME));
         LogVolDescriptor logVolDescriptor = new LogVolDescriptor(virtualDir.getReader(physVolDescriptor.getLogVolDescriptorFileName()));
 
+        Rectangle imageBounds = logVolDescriptor.getImageBounds();
+
         fileVars = new HashMap<Band, FileVar>(33);
 
+        int targetWidth = imageBounds.width;
+        int targetHeight = imageBounds.height;
+        Product product = new Product(logVolDescriptor.getProductId(),
+                                      physVolDescriptor.getFormatReference(),
+                                      targetWidth,
+                                      targetHeight, this);
+        product.setFileLocation(new File(virtualDir.getBasePath()));
+
         String[] logVolFileNames = virtualDir.list(physVolDescriptor.getLogVolDirName());
-        Product product = null;
         for (String logVolFileName : logVolFileNames) {
 
             if (logVolFileName.endsWith(".hdf") || logVolFileName.endsWith(".HDF")) {
@@ -99,38 +118,42 @@ public class SpotVgtProductReader extends AbstractProductReader {
                     variables.put(variable.getName(), variable);
                 }
 
-                Variable pixelDataVar = findPixelDataVar(netcdfFile);
-                if (pixelDataVar != null && pixelDataVar.getRank() == 2 && pixelDataVar.getDataType().isNumeric()) {
-                    DataType netCdfDataType = pixelDataVar.getDataType();
-                    int bandDataType = ProductData.TYPE_UNDEFINED;
-                    if (Byte.TYPE == netCdfDataType.getPrimitiveClassType()) {
-                        bandDataType = ProductData.TYPE_INT8;
-                    } else if (Short.TYPE == netCdfDataType.getPrimitiveClassType()) {
-                        bandDataType = ProductData.TYPE_INT16;
-                    } else if (Integer.TYPE == netCdfDataType.getPrimitiveClassType()) {
-                        bandDataType = ProductData.TYPE_INT32;
-                    } else if (Float.TYPE == netCdfDataType.getPrimitiveClassType()) {
-                        bandDataType = ProductData.TYPE_FLOAT32;
-                    } else if (Double.TYPE == netCdfDataType.getPrimitiveClassType()) {
-                        bandDataType = ProductData.TYPE_FLOAT64;
-                    }
+                Variable variable = findPixelDataVariable(netcdfFile);
+                if (isPotentialPixelDataVariable(variable)) {
+                    DataType netCdfDataType = variable.getDataType();
+                    int bandDataType = convertNetcdfTypeToProductDataType(netCdfDataType);
                     if (bandDataType != ProductData.TYPE_UNDEFINED) {
-                        if (product == null) {
-                            product = new Product(logVolDescriptor.getProductId(),
-                                                  physVolDescriptor.getFormatReference(),
-                                                  pixelDataVar.getDimension(1).getLength(),
-                                                  pixelDataVar.getDimension(0).getLength(), this);
-                            product.setFileLocation(new File(virtualDir.getBasePath()));
-                        }
-                        Band band = product.addBand(getBandName(logVolFileName), bandDataType);
-                        BandInfo bandInfo = getBandInfo(band.getName());
+                        String bandName = getBandName(logVolFileName);
+                        BandInfo bandInfo = getBandInfo(bandName);
+
+                        // Check if we know about this variable (bandInfo != null)
+                        //
                         if (bandInfo != null) {
-                            band.setScalingFactor(bandInfo.coefA);
-                            band.setScalingOffset(bandInfo.offsetB);
-                            band.setUnit(bandInfo.unit);
+                            // SPOT VGT P Products contain sub-sampled variables.
+                            // Need to check whether source raster resolution is at target raster resolution.
+                            //
+                            int sourceWidth = variable.getDimension(1).getLength();
+                            int sourceHeight = variable.getDimension(0).getLength();
+                            int sampling = bandInfo.pSampling;
+                            if (sampling == 1 || sourceWidth == targetWidth || sourceHeight == targetHeight) {
+                                // Source raster resolution is at target raster resolution.
+                                addBand(product, bandDataType, bandInfo, netcdfFile, variable);
+                            } else if (sampling > 1 || sourceWidth <= targetWidth || sourceHeight <= targetHeight) {
+                                // Source raster resolution is a sub-sampling.
+                                try {
+                                    ProductData data = readData(variable, bandDataType, sourceWidth, sourceHeight);
+                                    RenderedOp dstImg = createScaledImage(targetWidth, targetHeight, sourceWidth, sourceHeight, sampling, data);
+                                    Band band = addBand(product, bandDataType, bandInfo, netcdfFile, variable);
+                                    band.setSourceImage(dstImg);
+                                } catch (IOException e) {
+                                    // band not added
+                                } catch (InvalidRangeException e) {
+                                    // band not added
+                                }
+                            } else {
+                                // band not added
+                            }
                         }
-                        band.setDescription(pixelDataVar.getDescription());
-                        fileVars.put(band, new FileVar(netcdfFile, pixelDataVar));
                     }
                 }
             }
@@ -145,13 +168,65 @@ public class SpotVgtProductReader extends AbstractProductReader {
         return product;
     }
 
-    private Variable findPixelDataVar(NetcdfFile netcdfFile) {
+    private int convertNetcdfTypeToProductDataType(DataType netCdfDataType) {
+        int bandDataType = ProductData.TYPE_UNDEFINED;
+        if (Byte.TYPE == netCdfDataType.getPrimitiveClassType()) {
+            bandDataType = ProductData.TYPE_INT8;
+        } else if (Short.TYPE == netCdfDataType.getPrimitiveClassType()) {
+            bandDataType = ProductData.TYPE_INT16;
+        } else if (Integer.TYPE == netCdfDataType.getPrimitiveClassType()) {
+            bandDataType = ProductData.TYPE_INT32;
+        } else if (Float.TYPE == netCdfDataType.getPrimitiveClassType()) {
+            bandDataType = ProductData.TYPE_FLOAT32;
+        } else if (Double.TYPE == netCdfDataType.getPrimitiveClassType()) {
+            bandDataType = ProductData.TYPE_FLOAT64;
+        }
+        return bandDataType;
+    }
+
+    private boolean isPotentialPixelDataVariable(Variable variable) {
+        return variable != null && variable.getRank() == 2 && variable.getDataType().isNumeric();
+    }
+
+    private static ProductData readData(Variable variable, int bandDataType, int rasterWidth, int rasterHeight) throws IOException, InvalidRangeException {
+        ProductData data = ProductData.createInstance(bandDataType, rasterWidth * rasterHeight);
+        read(variable, 0, 0, rasterWidth, rasterHeight, data);
+        return data;
+    }
+
+    private static RenderedOp createScaledImage(int targetWidth, int targetHeight, int sourceWidth, int sourceHeight, int sourceSampling, ProductData data) {
+        int tempW = sourceWidth * sourceSampling + 1;
+        int tempH = sourceHeight * sourceSampling + 1;
+        float xScale = (float) tempW / (float) sourceWidth;
+        float yScale = (float) tempH / (float) sourceHeight;
+        RenderingHints renderingHints = new RenderingHints(JAI.KEY_BORDER_EXTENDER, BorderExtender.createInstance(BorderExtender.BORDER_COPY));
+        RenderedImage srcImg = ImageUtils.createRenderedImage(sourceWidth, sourceHeight, data);
+        RenderedOp tempImg = ScaleDescriptor.create(srcImg, xScale, yScale,
+                                                    -0.5f * sourceSampling + 1,
+                                                    -0.5f * sourceSampling + 1,
+                                                    Interpolation.getInstance(Interpolation.INTERP_BILINEAR), renderingHints);
+
+        return CropDescriptor.create(tempImg, 0f, 0f, (float) targetWidth, (float) targetHeight, null);
+    }
+
+    private Band addBand(Product product, int bandDataType, BandInfo bandInfo, NetcdfFile netcdfFile, Variable variable) {
+        Band band = product.addBand(bandInfo.name, bandDataType);
+        band.setScalingFactor(bandInfo.coefA);
+        band.setScalingOffset(bandInfo.offsetB);
+        band.setUnit(bandInfo.unit);
+        band.setDescription(bandInfo.description);
+        fileVars.put(band, new FileVar(netcdfFile, variable));
+        return band;
+    }
+
+    private Variable findPixelDataVariable(NetcdfFile netcdfFile) {
         for (String name : PIXEL_DATA_VAR_NAMES) {
             Variable pixelDataVar = netcdfFile.findTopVariable(name);
             if (pixelDataVar != null) {
-                break;
+                return pixelDataVar;
             }
         }
+        //System.out.println("No variable found in file file " + netcdfFile);
         return null;
     }
 
@@ -183,16 +258,23 @@ public class SpotVgtProductReader extends AbstractProductReader {
         final Variable variable = fileVar.var;
         synchronized (variable) {
             try {
-                Array array = variable.read(new int[]{targetOffsetY, targetOffsetX},
-                                            new int[]{targetHeight, targetWidth});
-                System.arraycopy(array.getStorage(),
-                                 0,
-                                 targetBuffer.getElems(),
-                                 0, targetWidth * targetHeight);
+                read(variable, targetOffsetX, targetOffsetY, targetWidth, targetHeight, targetBuffer);
             } catch (InvalidRangeException e) {
                 // ?
             }
         }
+    }
+
+    private static void read(Variable variable,
+                             int targetOffsetX, int targetOffsetY,
+                             int targetWidth, int targetHeight,
+                             ProductData targetBuffer) throws IOException, InvalidRangeException {
+        Array array = variable.read(new int[]{targetOffsetY, targetOffsetX},
+                                    new int[]{targetHeight, targetWidth});
+        System.arraycopy(array.getStorage(),
+                         0,
+                         targetBuffer.getElems(),
+                         0, targetWidth * targetHeight);
     }
 
     @Override
@@ -230,10 +312,10 @@ public class SpotVgtProductReader extends AbstractProductReader {
         Band smBand = product.getBand("SM");
         if (smBand != null) {
             FlagCoding flagCoding = new FlagCoding("SM");
-            flagCoding.addFlag("B0_OK", 0x80, "Radiometric quality for band B0 is good.");
-            flagCoding.addFlag("B2_OK", 0x40, "Radiometric quality for band B2 is good.");
-            flagCoding.addFlag("B3_OK", 0x20, "Radiometric quality for band B3 is good.");
-            flagCoding.addFlag("MIR_OK", 0x10, "Radiometric quality for band MIR is good.");
+            flagCoding.addFlag("B0_GOOD", 0x80, "Radiometric quality for band B0 is good.");
+            flagCoding.addFlag("B2_GOOD", 0x40, "Radiometric quality for band B2 is good.");
+            flagCoding.addFlag("B3_GOOD", 0x20, "Radiometric quality for band B3 is good.");
+            flagCoding.addFlag("MIR_GOOD", 0x10, "Radiometric quality for band MIR is good.");
             flagCoding.addFlag("LAND", 0x08, "Land code 1 or water code 0.");
             flagCoding.addFlag("ICE_SNOW", 0x04, "Ice/snow code 1, code 0 if there is no ice/snow");
             flagCoding.addFlag("CLOUD_2", 0x02, "");
@@ -244,25 +326,29 @@ public class SpotVgtProductReader extends AbstractProductReader {
             Band[] bands = product.getBands();
             for (Band band : bands) {
                 if (band != smBand) {
-                    band.setValidPixelExpression("SM.LAND");
+                    if (isSpectralBand(band)) {  // P + S1 + S10 products
+                        band.setValidPixelExpression("SM." + band.getName() + "_GOOD");
+                    } else if (!isSubsampledBand(band)) { // S1 + S10 products
+                        band.setValidPixelExpression("SM.LAND");
+                    }
                 }
             }
 
             product.getMaskGroup().add(Mask.BandMathsType.create("B0_BAD", "Radiometric quality for band B0 is bad.",
                                                                  product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "!SM.B0_OK",
+                                                                 product.getSceneRasterHeight(), "!SM.B0_GOOD",
                                                                  Color.RED, 0.2));
             product.getMaskGroup().add(Mask.BandMathsType.create("B2_BAD", "Radiometric quality for band B2 is bad.",
                                                                  product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "!SM.B2_OK",
+                                                                 product.getSceneRasterHeight(), "!SM.B2_GOOD",
                                                                  Color.RED, 0.2));
             product.getMaskGroup().add(Mask.BandMathsType.create("B3_BAD", "Radiometric quality for band B3 is bad.",
                                                                  product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "!SM.B3_OK",
+                                                                 product.getSceneRasterHeight(), "!SM.B3_GOOD",
                                                                  Color.RED, 0.2));
             product.getMaskGroup().add(Mask.BandMathsType.create("MIR_BAD", "Radiometric quality for band MIR is bad.",
                                                                  product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "!SM.MIR_OK",
+                                                                 product.getSceneRasterHeight(), "!SM.MIR_GOOD",
                                                                  Color.RED, 0.2));
             product.getMaskGroup().add(Mask.BandMathsType.create("LAND", "Land mask.",
                                                                  product.getSceneRasterWidth(),
@@ -295,19 +381,29 @@ public class SpotVgtProductReader extends AbstractProductReader {
         }
     }
 
-    private void addSpectralInfo(Product product) {
-        addSpectralInfo(product, "B0", 0, 430, 470);
-        addSpectralInfo(product, "B2", 1, 610, 680);
-        addSpectralInfo(product, "B3", 2, 780, 890);
-        addSpectralInfo(product, "MIR", 3, 1580, 1750);
+    private boolean isSubsampledBand(Band band) {
+        return band.isSourceImageSet();
     }
 
-    private void addSpectralInfo(Product product, String name, int index, float min, float max) {
-        if (product.getBand(name) != null) {
-            product.getBand(name).setSpectralBandIndex(index);
-            product.getBand(name).setSpectralWavelength(min + 0.5f * (max - min));
-            product.getBand(name).setSpectralBandwidth(max - min);
-            product.getBand(name).setDescription(MessageFormat.format("{0} spectral band", name));
+    private boolean isSpectralBand(Band band) {
+        return band.getName().equals("B0") || band.getName().equals("B2") || band.getName().equals("B3") || band.getName().equals("MIR");
+    }
+
+    private void addSpectralInfo(Product product) {
+        addSpectralInfo(product, "B0", 0, 430, 470, 1.963400e+03f);
+        addSpectralInfo(product, "B2", 1, 610, 680, 1.570300e+03f);
+        addSpectralInfo(product, "B3", 2, 780, 890, 1.045600e+03f);
+        addSpectralInfo(product, "MIR", 3, 1580, 1750, 2.347000e+02f);
+    }
+
+    private void addSpectralInfo(Product product, String name, int index, float min, float max, float solFlux) {
+        Band spectralBand = product.getBand(name);
+        if (spectralBand != null) {
+            spectralBand.setSpectralBandIndex(index);
+            spectralBand.setSpectralWavelength(min + 0.5f * (max - min));
+            spectralBand.setSpectralBandwidth(max - min);
+            spectralBand.setSolarFlux(solFlux);
+            spectralBand.setDescription(MessageFormat.format("{0} spectral band", name));
         }
     }
 
@@ -348,12 +444,17 @@ public class SpotVgtProductReader extends AbstractProductReader {
     BandInfo getBandInfo(String name) {
         final String coefA = bandInfos.getProperty(name + ".COEF_A");
         final String offsetB = bandInfos.getProperty(name + ".OFFSET_B");
+        final String sampling = bandInfos.getProperty(name + ".SAMPLING");
         final String unit = bandInfos.getProperty(name + ".UNIT");
-        if (coefA != null || offsetB != null || unit != null) {
+        final String description = bandInfos.getProperty(name + ".DESCRIPTION");
+        if (coefA != null || offsetB != null || unit != null || description != null || sampling != null) {
             try {
-                return new BandInfo(coefA != null ? Double.parseDouble(coefA) : 1.0,
+                return new BandInfo(name,
+                                    coefA != null ? Double.parseDouble(coefA) : 1.0,
                                     offsetB != null ? Double.parseDouble(offsetB) : 0.0,
-                                    unit);
+                                    sampling != null ? Integer.parseInt(sampling) : 1,
+                                    unit,
+                                    description);
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
@@ -362,15 +463,21 @@ public class SpotVgtProductReader extends AbstractProductReader {
     }
 
     private static class BandInfo {
-        private BandInfo(double coefA, double offsetB, String unit) {
+        private BandInfo(String name, double coefA, double offsetB, int pSampling, String unit, String description) {
+            this.name = name;
             this.coefA = coefA;
             this.offsetB = offsetB;
+            this.pSampling = pSampling;
             this.unit = unit;
+            this.description = description;
         }
 
-        final double coefA;
-        final double offsetB;
-        final String unit;
+        private final String name;
+        private final double coefA;
+        private final double offsetB;
+        private final int pSampling;
+        private final String unit;
+        private final String description;
     }
 
     private static class FileVar {
