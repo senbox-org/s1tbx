@@ -194,8 +194,7 @@ public class ImageGeometry {
                 minX = -180.0;
                 width = 360;
             }
-            return new Rectangle2D.Double(minX, targetEnvelope.getMinY(),
-                                          width, targetEnvelope.getHeight());
+            return new Rectangle2D.Double(minX, targetEnvelope.getMinY(), width, targetEnvelope.getHeight());
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
