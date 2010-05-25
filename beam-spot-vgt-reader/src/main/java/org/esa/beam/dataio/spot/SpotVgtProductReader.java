@@ -104,6 +104,9 @@ public class SpotVgtProductReader extends AbstractProductReader {
                                       targetWidth,
                                       targetHeight, this);
         product.setFileLocation(new File(virtualDir.getBasePath()));
+        addGeoCoding(product, logVolDescriptor);
+        addTimeCoding(product, logVolDescriptor);
+        addMetadata(product, physVolDescriptor, logVolDescriptor);
 
         String[] logVolFileNames = virtualDir.list(physVolDescriptor.getLogVolDirName());
         for (String logVolFileName : logVolFileNames) {
@@ -159,11 +162,8 @@ public class SpotVgtProductReader extends AbstractProductReader {
             }
         }
 
-        addMetadata(product, physVolDescriptor, logVolDescriptor);
         addFlagsAndMasks(product);
         addSpectralInfo(product);
-        addGeoCoding(product, logVolDescriptor);
-        addTimeCoding(product, logVolDescriptor);
 
         return product;
     }
