@@ -507,11 +507,11 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                     destBand.setSampleCoding(null);
                 }
                 if (isFullScene(getSubsetDef()) && sourceBand.isStxSet()) {
-                    createImageInfo(sourceBand, destBand);
+                    copyStx(sourceBand, destBand);
                 }
-
                 product.addBand(destBand);
                 bandMap.put(destBand, sourceBand);
+                copyImageInfo(sourceBand, destBand);
             }
         }
     }
@@ -538,14 +538,15 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             if (isNodeAccepted(gridName) || (gridName.equals(latGridName) || gridName.equals(lonGridName))) {
                 final TiePointGrid tiePointGrid = TiePointGrid.createSubset(sourceTiePointGrid, getSubsetDef());
                 if (isFullScene(getSubsetDef()) && sourceTiePointGrid.isStxSet()) {
-                    createImageInfo(sourceTiePointGrid, tiePointGrid);
+                    copyStx(sourceTiePointGrid, tiePointGrid);
                 }
                 product.addTiePointGrid(tiePointGrid);
+                copyImageInfo(sourceTiePointGrid, tiePointGrid);
             }
         }
     }
 
-    private void createImageInfo(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
+    private void copyStx(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
         final Stx sourceStx = sourceRaster.getStx();
         final Stx targetStx = new Stx(sourceStx.getMin(), sourceStx.getMax(),
                                       sourceStx.getMean(), sourceStx.getStandardDeviation(),
@@ -553,6 +554,9 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                                       Arrays.copyOf(sourceStx.getHistogramBins(), sourceStx.getHistogramBins().length),
                                       sourceStx.getResolutionLevel());
         targetRaster.setStx(targetStx);
+    }
+
+    private void copyImageInfo(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
         final ImageInfo imageInfo;
         if (sourceRaster.getImageInfo() != null) {
             imageInfo = sourceRaster.getImageInfo().createDeepCopy();
