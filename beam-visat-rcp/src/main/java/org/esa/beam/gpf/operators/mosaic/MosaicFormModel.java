@@ -14,7 +14,7 @@ import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.gpf.operators.standard.MosaicOp;
 import org.esa.beam.util.math.MathUtils;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.geometry.Envelope;
@@ -49,7 +49,7 @@ class MosaicFormModel {
     public static final String PROPERTY_UPDATE_PRODUCT = "updateProduct";
     public static final String PROPERTY_UPDATE_MODE = "updateMode";
     public static final String PROPERTY_SHOW_SOURCE_PRODUCTS = "showSourceProducts";
-    
+
     public static final String PROPERTY_WEST_BOUND = "westBound";
     public static final String PROPERTY_NORTH_BOUND = "northBound";
     public static final String PROPERTY_EAST_BOUND = "eastBound";
@@ -201,20 +201,22 @@ class MosaicFormModel {
         if (mapCRS != null) {
             final double pixelSizeX = (Double) getPropertyValue("pixelSizeX");
             final double pixelSizeY = (Double) getPropertyValue("pixelSizeY");
-            final Envelope envelope = getTargetEnvelope();
+            final ReferencedEnvelope envelope = getTargetEnvelope();
+            final Envelope mapEnvelope = envelope.transform(mapCRS, true);
 
-            final Envelope targetEnvelope = CRS.transform(envelope, mapCRS);
-            final int sceneRasterWidth = MathUtils.floorInt(targetEnvelope.getSpan(0) / pixelSizeX);
-            final int sceneRasterHeight = MathUtils.floorInt(targetEnvelope.getSpan(1) / pixelSizeY);
-            final Product outputProduct = new Product("mosaic", "MosaicBounds",
-                                                      sceneRasterWidth, sceneRasterHeight);
-            final Rectangle imageRect = new Rectangle(0, 0, sceneRasterWidth, sceneRasterHeight);
+            final int w = MathUtils.floorInt(mapEnvelope.getSpan(0) / pixelSizeX);
+            final int h = MathUtils.floorInt(mapEnvelope.getSpan(1) / pixelSizeY);
+            final Rectangle rectangle = new Rectangle(0, 0, w, h);
+
             final AffineTransform i2mTransform = new AffineTransform();
-            i2mTransform.translate(targetEnvelope.getMinimum(0), targetEnvelope.getMinimum(1));
+            i2mTransform.translate(mapEnvelope.getMinimum(0), mapEnvelope.getMinimum(1));
             i2mTransform.scale(pixelSizeX, pixelSizeY);
             i2mTransform.translate(-0.5, -0.5);
-            outputProduct.setGeoCoding(new CrsGeoCoding(mapCRS, imageRect, i2mTransform));
-            return outputProduct;
+
+            final Product product = new Product("mosaic", "MosaicBounds", w, h);
+            product.setGeoCoding(new CrsGeoCoding(mapCRS, rectangle, i2mTransform));
+
+            return product;
         }
         return null;
     }
@@ -235,7 +237,7 @@ class MosaicFormModel {
         }
     }
 
-    GeneralEnvelope getTargetEnvelope() {
+    ReferencedEnvelope getTargetEnvelope() {
         final double west = (Double) getPropertyValue(PROPERTY_WEST_BOUND);
         final double north = (Double) getPropertyValue(PROPERTY_NORTH_BOUND);
         final double east = (Double) getPropertyValue(PROPERTY_EAST_BOUND);
@@ -244,10 +246,7 @@ class MosaicFormModel {
         final Rectangle2D bounds = new Rectangle2D.Double();
         bounds.setFrameFromDiagonal(west, north, east, south);
 
-        final GeneralEnvelope envelope = new GeneralEnvelope(bounds);
-        envelope.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
-
-        return envelope;
+        return new ReferencedEnvelope(bounds, DefaultGeographicCRS.WGS84);
     }
 
     public WorldMapPaneDataModel getWorldMapModel() {

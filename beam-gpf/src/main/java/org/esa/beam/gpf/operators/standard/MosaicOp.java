@@ -25,10 +25,9 @@ import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.jai.JAIUtils;
 import org.geotools.factory.Hints;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.geometry.Envelope;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -352,7 +351,6 @@ public class MosaicOp extends Operator {
     }
 
     private Product createTargetProduct() {
-        Product product;
         try {
             CoordinateReferenceSystem targetCRS;
             try {
@@ -360,31 +358,31 @@ public class MosaicOp extends Operator {
             } catch (FactoryException e) {
                 targetCRS = CRS.decode(crs, true);
             }
-            Rectangle2D.Double rect = new Rectangle2D.Double();
-            rect.setFrameFromDiagonal(westBound, northBound, eastBound, southBound);
-            GeneralEnvelope generalEnvelope = new GeneralEnvelope(rect);
-            generalEnvelope.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
-            Envelope envelope = CRS.transform(generalEnvelope, targetCRS);
-            int width = (int) (envelope.getSpan(0) / pixelSizeX);
-            int height = (int) (envelope.getSpan(1) / pixelSizeY);
+            final Rectangle2D bounds = new Rectangle2D.Double();
+            bounds.setFrameFromDiagonal(westBound, northBound, eastBound, southBound);
+            final ReferencedEnvelope boundsEnvelope = new ReferencedEnvelope(bounds, DefaultGeographicCRS.WGS84);
+            final ReferencedEnvelope targetEnvelope = boundsEnvelope.transform(targetCRS, true);
+            final int width = (int) (targetEnvelope.getSpan(0) / pixelSizeX);
+            final int height = (int) (targetEnvelope.getSpan(1) / pixelSizeY);
+            final double easting = targetEnvelope.getMinimum(0);
+            final double northing = targetEnvelope.getMaximum(1);
             final AffineTransform mapTransform = new AffineTransform();
-            double easting = envelope.getMinimum(0);
-            double northing = envelope.getMaximum(1);
             mapTransform.translate(easting, northing);
             mapTransform.scale(pixelSizeX, -pixelSizeY);
             mapTransform.translate(-0.5, -0.5);
-            CrsGeoCoding geoCoding = new CrsGeoCoding(targetCRS, new Rectangle(0, 0, width, height),
-                                                      mapTransform);
-            product = new Product("mosaic", "BEAM_MOSAIC", width, height);
+            final CrsGeoCoding geoCoding = new CrsGeoCoding(targetCRS, new Rectangle(0, 0, width, height),
+                                                            mapTransform);
+
+            final Product product = new Product("mosaic", "BEAM_MOSAIC", width, height);
             product.setGeoCoding(geoCoding);
-            Dimension tileSize = JAIUtils.computePreferredTileSize(width, height, 1);
+            final Dimension tileSize = JAIUtils.computePreferredTileSize(width, height, 1);
             product.setPreferredTileSize(tileSize);
             addTargetBands(product);
+
+            return product;
         } catch (Exception e) {
             throw new OperatorException(e);
         }
-
-        return product;
     }
 
     private void addTargetBands(Product product) {
