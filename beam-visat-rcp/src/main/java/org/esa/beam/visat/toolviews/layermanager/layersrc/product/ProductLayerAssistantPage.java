@@ -33,7 +33,6 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.geom.AffineTransform;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,8 +93,6 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         LayerType type = LayerTypeRegistry.getLayerType(RasterImageLayerType.class.getName());
         PropertySet configuration = type.createLayerConfig(getContext().getLayerContext());
         configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, rasterDataNode);
-        final GeoCoding geoCoding = rasterDataNode.getGeoCoding();
-        AffineTransform i2mTransform = ImageManager.getImageToModelTransform(geoCoding);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
