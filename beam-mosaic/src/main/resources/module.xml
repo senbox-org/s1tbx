@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-mosaic</symbolicName>
-    <version>2.3</version>
+    <version>2.4</version>
     <name>Level-3 Mosaic Processor</name>
 
 
