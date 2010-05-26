@@ -7,6 +7,7 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.annotations.Parameter;
@@ -22,8 +23,6 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -199,22 +198,25 @@ class MosaicFormModel {
     public Product getBoundaryProduct() throws FactoryException, TransformException {
         final CoordinateReferenceSystem mapCRS = getTargetCRS();
         if (mapCRS != null) {
-            final double pixelSizeX = (Double) getPropertyValue("pixelSizeX");
-            final double pixelSizeY = (Double) getPropertyValue("pixelSizeY");
             final ReferencedEnvelope envelope = getTargetEnvelope();
             final Envelope mapEnvelope = envelope.transform(mapCRS, true);
 
+            final double pixelSizeX = (Double) getPropertyValue("pixelSizeX");
+            final double pixelSizeY = (Double) getPropertyValue("pixelSizeY");
             final int w = MathUtils.floorInt(mapEnvelope.getSpan(0) / pixelSizeX);
             final int h = MathUtils.floorInt(mapEnvelope.getSpan(1) / pixelSizeY);
-            final Rectangle rectangle = new Rectangle(0, 0, w, h);
-
-            final AffineTransform i2mTransform = new AffineTransform();
-            i2mTransform.translate(mapEnvelope.getMinimum(0), mapEnvelope.getMinimum(1));
-            i2mTransform.scale(pixelSizeX, pixelSizeY);
-            i2mTransform.translate(-0.5, -0.5);
 
             final Product product = new Product("mosaic", "MosaicBounds", w, h);
-            product.setGeoCoding(new CrsGeoCoding(mapCRS, rectangle, i2mTransform));
+            final GeoCoding geoCoding = new CrsGeoCoding(mapCRS,
+                                                         w,
+                                                         h,
+                                                         0.5,
+                                                         0.5,
+                                                         mapEnvelope.getMinimum(0),
+                                                         mapEnvelope.getMaximum(1),
+                                                         pixelSizeX,
+                                                         pixelSizeY);
+            product.setGeoCoding(geoCoding);
 
             return product;
         }

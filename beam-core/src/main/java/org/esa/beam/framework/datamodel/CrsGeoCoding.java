@@ -34,10 +34,35 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     private final Datum datum;
     private final boolean crossingMeridianAt180;
 
+    /**
+     * Constructs a new instance of this class from a map CRS, image dimension, and image-to-map
+     * transformation parameters.
+     *
+     * @param mapCRS          the map CRS.
+     * @param imageWidth      the width of the image.
+     * @param imageHeight     the height of the image.
+     * @param referencePixelX the x-position of the reference pixel.
+     * @param referencePixelY the y-position of the reference pixel.
+     * @param easting         the easting of the reference pixel position.
+     * @param northing        the northing of the reference pixel position.
+     * @param pixelSizeX      the size of a pixel along the x-axis in map units.
+     * @param pixelSizeY      the size of a pixel along the y-axis in map units.
+     *
+     * @throws FactoryException   when an error occurred.
+     * @throws TransformException when an error occurred.
+     */
+    public CrsGeoCoding(CoordinateReferenceSystem mapCRS,
+                        int imageWidth, int imageHeight, double referencePixelX, double referencePixelY, double easting,
+                        double northing,
+                        double pixelSizeX,
+                        double pixelSizeY) throws FactoryException, TransformException {
+        this(mapCRS, new Rectangle(0, 0, imageWidth, imageHeight),
+             createImageToMapTransform(easting, northing, referencePixelY, referencePixelX, pixelSizeX, pixelSizeY));
+    }
+
     public CrsGeoCoding(final CoordinateReferenceSystem mapCRS,
                         final Rectangle imageBounds,
-                        final AffineTransform imageToMap) throws FactoryException,
-                                                                 TransformException {
+                        final AffineTransform imageToMap) throws FactoryException, TransformException {
         this.imageBounds = imageBounds;
         this.imageToMap = imageToMap;
         setMapCRS(mapCRS);
@@ -188,4 +213,17 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         return uc.getOrdinate(0) > 180 || lc.getOrdinate(0) < -180;
     }
 
+    private static AffineTransform createImageToMapTransform(double easting,
+                                                             double northing,
+                                                             double referencePixelY,
+                                                             double referencePixelX,
+                                                             double pixelSizeX,
+                                                             double pixelSizeY) {
+        final AffineTransform at = new AffineTransform();
+        at.translate(easting, northing);
+        at.scale(pixelSizeX, -pixelSizeY);
+        at.translate(-referencePixelX, -referencePixelY);
+
+        return at;
+    }
 }

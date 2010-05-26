@@ -440,7 +440,6 @@ public final class WorldMapPane extends JPanel {
             }
 
             drawText(g2d, text, textCenter, 0.0f);
-
         }
 
         private void drawGeoBoundary(final Graphics2D g2d, final GeoPos[] geoBoundary, final boolean isCurrent,

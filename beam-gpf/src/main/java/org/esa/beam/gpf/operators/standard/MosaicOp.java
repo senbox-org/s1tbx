@@ -39,8 +39,6 @@ import javax.media.jai.operator.AddDescriptor;
 import javax.media.jai.operator.FormatDescriptor;
 import javax.media.jai.operator.MosaicDescriptor;
 import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
@@ -364,14 +362,15 @@ public class MosaicOp extends Operator {
             final ReferencedEnvelope targetEnvelope = boundsEnvelope.transform(targetCRS, true);
             final int width = (int) (targetEnvelope.getSpan(0) / pixelSizeX);
             final int height = (int) (targetEnvelope.getSpan(1) / pixelSizeY);
-            final double easting = targetEnvelope.getMinimum(0);
-            final double northing = targetEnvelope.getMaximum(1);
-            final AffineTransform mapTransform = new AffineTransform();
-            mapTransform.translate(easting, northing);
-            mapTransform.scale(pixelSizeX, -pixelSizeY);
-            mapTransform.translate(-0.5, -0.5);
-            final CrsGeoCoding geoCoding = new CrsGeoCoding(targetCRS, new Rectangle(0, 0, width, height),
-                                                            mapTransform);
+            final CrsGeoCoding geoCoding = new CrsGeoCoding(targetCRS,
+                                                            width,
+                                                            height,
+                                                            0.5,
+                                                            0.5,
+                                                            targetEnvelope.getMinimum(0),
+                                                            targetEnvelope.getMaximum(1),
+                                                            pixelSizeX,
+                                                            pixelSizeY);
 
             final Product product = new Product("mosaic", "BEAM_MOSAIC", width, height);
             product.setGeoCoding(geoCoding);
