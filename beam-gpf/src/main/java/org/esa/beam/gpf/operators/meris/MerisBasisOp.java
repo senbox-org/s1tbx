@@ -31,7 +31,7 @@ import org.esa.beam.util.ProductUtils;
  */
 public abstract class MerisBasisOp extends Operator {
 
-    @Parameter(description="If set to 'false' only the lat and lon TiePoins will be copied to the target product", defaultValue="false")
+    @Parameter(description="If set to 'false' only the lat and lon tie-points will be copied to the target product", defaultValue="false")
     private boolean copyAllTiePoints = false;
 
     /**
