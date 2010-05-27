@@ -25,6 +25,12 @@ import org.opengis.referencing.operation.TransformException;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 
+/**
+ * A geo-coding that is based on a well-known coordinate reference system (CRS) and affine transformation used to
+ * locate a product's scene image within the CRS.
+ *
+ * @since BEAM 4.7 
+ */
 public class CrsGeoCoding extends AbstractGeoCoding {
 
     private final Rectangle imageBounds;
@@ -37,27 +43,58 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     /**
      * Constructs a new instance of this class from a map CRS, image dimension, and image-to-map
      * transformation parameters.
+     * <p/>
+     * The reference pixel is set to the BEAM default value, namely the center of the upper left image pixel
+     * (i.e. {@code referencePixelX = referencePixelY = 0.5}).
      *
      * @param mapCRS          the map CRS.
      * @param imageWidth      the width of the image.
      * @param imageHeight     the height of the image.
-     * @param referencePixelX the x-position of the reference pixel.
-     * @param referencePixelY the y-position of the reference pixel.
      * @param easting         the easting of the reference pixel position.
      * @param northing        the northing of the reference pixel position.
      * @param pixelSizeX      the size of a pixel along the x-axis in map units.
-     * @param pixelSizeY      the size of a pixel along the y-axis in map units.
-     *
+     * @param pixelSizeY      the size of a pixel along the y-axis in map units (negative, if positive image Y-axis points up).
      * @throws FactoryException   when an error occurred.
      * @throws TransformException when an error occurred.
      */
     public CrsGeoCoding(CoordinateReferenceSystem mapCRS,
-                        int imageWidth, int imageHeight, double referencePixelX, double referencePixelY, double easting,
+                        int imageWidth,
+                        int imageHeight,
+                        double easting,
                         double northing,
                         double pixelSizeX,
                         double pixelSizeY) throws FactoryException, TransformException {
-        this(mapCRS, new Rectangle(0, 0, imageWidth, imageHeight),
-             createImageToMapTransform(easting, northing, referencePixelY, referencePixelX, pixelSizeX, pixelSizeY));
+        this(mapCRS, imageWidth, imageHeight, easting, northing, pixelSizeX, pixelSizeY, 0.5, 0.5);
+    }
+
+    /**
+     * Constructs a new instance of this class from a map CRS, image dimension, and image-to-map
+     * transformation parameters.
+     *
+     * @param mapCRS          the map CRS.
+     * @param imageWidth      the width of the image.
+     * @param imageHeight     the height of the image.
+     * @param easting         the easting of the reference pixel position.
+     * @param northing        the northing of the reference pixel position.
+     * @param pixelSizeX      the size of a pixel along the x-axis in map units.
+     * @param pixelSizeY      the size of a pixel along the y-axis in map units (negative, if positive image Y-axis points up).
+     * @param referencePixelX the x-position of the reference pixel.
+     * @param referencePixelY the y-position of the reference pixel.
+     * @throws FactoryException   when an error occurred.
+     * @throws TransformException when an error occurred.
+     */
+    public CrsGeoCoding(CoordinateReferenceSystem mapCRS,
+                        int imageWidth,
+                        int imageHeight,
+                        double easting,
+                        double northing,
+                        double pixelSizeX,
+                        double pixelSizeY,
+                        double referencePixelX,
+                        double referencePixelY) throws FactoryException, TransformException {
+        this(mapCRS,
+             new Rectangle(imageWidth, imageHeight),
+             createImageToMapTransform(easting, northing, pixelSizeX, pixelSizeY, referencePixelX, referencePixelY));
     }
 
     public CrsGeoCoding(final CoordinateReferenceSystem mapCRS,
@@ -215,15 +252,14 @@ public class CrsGeoCoding extends AbstractGeoCoding {
 
     private static AffineTransform createImageToMapTransform(double easting,
                                                              double northing,
-                                                             double referencePixelY,
-                                                             double referencePixelX,
                                                              double pixelSizeX,
-                                                             double pixelSizeY) {
+                                                             double pixelSizeY,
+                                                             double referencePixelX,
+                                                             double referencePixelY) {
         final AffineTransform at = new AffineTransform();
         at.translate(easting, northing);
         at.scale(pixelSizeX, -pixelSizeY);
         at.translate(-referencePixelX, -referencePixelY);
-
         return at;
     }
 }

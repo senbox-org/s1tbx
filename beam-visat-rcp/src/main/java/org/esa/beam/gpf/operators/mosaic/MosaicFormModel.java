@@ -208,14 +208,10 @@ class MosaicFormModel {
 
             final Product product = new Product("mosaic", "MosaicBounds", w, h);
             final GeoCoding geoCoding = new CrsGeoCoding(mapCRS,
-                                                         w,
-                                                         h,
-                                                         0.5,
-                                                         0.5,
+                                                         w, h,
                                                          mapEnvelope.getMinimum(0),
                                                          mapEnvelope.getMaximum(1),
-                                                         pixelSizeX,
-                                                         pixelSizeY);
+                                                         pixelSizeX, pixelSizeY);
             product.setGeoCoding(geoCoding);
 
             return product;

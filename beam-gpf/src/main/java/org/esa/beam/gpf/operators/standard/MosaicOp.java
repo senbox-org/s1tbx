@@ -24,6 +24,7 @@ import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.jai.JAIUtils;
+import org.esa.beam.util.math.MathUtils;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -360,17 +361,14 @@ public class MosaicOp extends Operator {
             bounds.setFrameFromDiagonal(westBound, northBound, eastBound, southBound);
             final ReferencedEnvelope boundsEnvelope = new ReferencedEnvelope(bounds, DefaultGeographicCRS.WGS84);
             final ReferencedEnvelope targetEnvelope = boundsEnvelope.transform(targetCRS, true);
-            final int width = (int) (targetEnvelope.getSpan(0) / pixelSizeX);
-            final int height = (int) (targetEnvelope.getSpan(1) / pixelSizeY);
+            final int width = MathUtils.floorInt(targetEnvelope.getSpan(0) / pixelSizeX);
+            final int height = MathUtils.floorInt(targetEnvelope.getSpan(1) / pixelSizeY);
             final CrsGeoCoding geoCoding = new CrsGeoCoding(targetCRS,
                                                             width,
                                                             height,
-                                                            0.5,
-                                                            0.5,
                                                             targetEnvelope.getMinimum(0),
                                                             targetEnvelope.getMaximum(1),
-                                                            pixelSizeX,
-                                                            pixelSizeY);
+                                                            pixelSizeX, pixelSizeY);
 
             final Product product = new Product("mosaic", "BEAM_MOSAIC", width, height);
             product.setGeoCoding(geoCoding);
