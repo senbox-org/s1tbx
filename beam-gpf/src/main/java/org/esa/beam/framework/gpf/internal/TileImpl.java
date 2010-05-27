@@ -344,7 +344,7 @@ public class TileImpl implements Tile {
     @Override
     public int getSampleInt(int x, int y) {
         int sample = raster.getSample(x, y, 0);
-        // todo - handle unsigned data types here!!!
+        // todo - handle unsigned data types here, see also [BEAM-1147] (nf - 20100527)
         if (scaled) {
             sample = (int) Math.floor(toGeoPhysical(sample) + 0.5);
         }
@@ -353,7 +353,7 @@ public class TileImpl implements Tile {
 
     @Override
     public void setSample(int x, int y, int sample) {
-        // todo - handle unsigned data types here!!!
+        // todo - handle unsigned data types here, see also [BEAM-1147] (nf - 20100527)
         if (scaled) {
             sample = (int) Math.floor(toRaw((double) sample) + 0.5);
         }

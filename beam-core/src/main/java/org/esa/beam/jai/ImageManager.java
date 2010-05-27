@@ -922,7 +922,7 @@ public class ImageManager {
                                         createDefaultRenderingHints());
     }
 
-    // todo - signed byte type (-128...127) not correctly handled, see also [BEAM-] (nf - 20100517)
+    // todo - signed byte type (-128...127) not correctly handled, see also [BEAM-1147] (nf - 20100527)
     public static RenderedImage createRescaleOp(RenderedImage src, int dataType, double factor, double offset,
                                                 boolean log10Scaled) {
         RenderedImage image = createFormatOp(src, dataType);
