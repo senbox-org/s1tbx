@@ -597,7 +597,7 @@ public final class ReinterpreteOpImage extends PointOpImage {
 
                 for (int x = 0; x < w; x++) {
                     final double v = sourceData[sourcePixelOffset];
-                    targetData[targetPixelOffset] = (factor * v + offset);
+                    targetData[targetPixelOffset] = factor * v + offset;
 
                     sourcePixelOffset += sourcePixelStride;
                     targetPixelOffset += targetPixelStride;
