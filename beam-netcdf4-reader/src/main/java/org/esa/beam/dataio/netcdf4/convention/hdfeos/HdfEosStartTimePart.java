@@ -18,14 +18,14 @@ public class HdfEosStartTimePart implements ModelPart {
     @Override
     public void read(Product p, Nc4ReaderParameters rp) throws IOException {
         Element element = HdfEosUtils.getEosElement(HdfEosUtils.CORE_METADATA, rp.getNetcdfFile().getRootGroup());
-        String date = HdfEosUtils.getValue(element, "INVENTORYMETADATA", "MASTERGROUP", "RANGEDATETIME", "RANGEBEGINNINGDATE", "VALUE");
-        String time = HdfEosUtils.getValue(element, "INVENTORYMETADATA", "MASTERGROUP", "RANGEDATETIME", "RANGEBEGINNINGTIME", "VALUE");
-        if (date != null && !date.isEmpty() && time != null && !time.isEmpty()) {
-            String dateTime = date + " " + time;
-            try {
-                ProductData.UTC utc = Nc4ReaderUtils.parseDateTime(dateTime);
-                p.setStartTime(utc);
-            } catch (ParseException ignore) {
+        if (element != null) {
+            String date = HdfEosUtils.getValue(element, "INVENTORYMETADATA", "MASTERGROUP", "RANGEDATETIME", "RANGEBEGINNINGDATE", "VALUE");
+            String time = HdfEosUtils.getValue(element, "INVENTORYMETADATA", "MASTERGROUP", "RANGEDATETIME", "RANGEBEGINNINGTIME", "VALUE");
+            if (date != null && !date.isEmpty() && time != null && !time.isEmpty()) {
+                try {
+                    p.setStartTime(Nc4ReaderUtils.parseDateTime(date + " " + time));
+                } catch (ParseException ignore) {
+                }
             }
         }
     }

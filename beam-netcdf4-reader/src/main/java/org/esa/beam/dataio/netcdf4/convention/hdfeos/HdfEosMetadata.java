@@ -27,9 +27,9 @@ public class HdfEosMetadata implements ModelPart {
         MetadataElement root = p.getMetadataRoot();
         root.addElement(CfMetadataPart.createMetadataElementFromAttributeList(ncFile.getGlobalAttributes(), "MPH"));
         MetadataElement eosElem = new MetadataElement("EOS");
-        eosElem.addElement(createMDE(HdfEosUtils.STRUCT_METADATA, ncFile.getRootGroup()));
-        eosElem.addElement(createMDE(HdfEosUtils.CORE_METADATA, ncFile.getRootGroup()));
-        eosElem.addElement(createMDE(HdfEosUtils.ARCHIVE_METADATA, ncFile.getRootGroup()));
+        createMDE(HdfEosUtils.STRUCT_METADATA, ncFile.getRootGroup(), eosElem);
+        createMDE(HdfEosUtils.CORE_METADATA, ncFile.getRootGroup(), eosElem);
+        createMDE(HdfEosUtils.ARCHIVE_METADATA, ncFile.getRootGroup(), eosElem);
         root.addElement(eosElem);
         List<Variable> ncVariables = ncFile.getVariables();
         filterVariableList(ncVariables);
@@ -49,11 +49,13 @@ public class HdfEosMetadata implements ModelPart {
         }
     }
 
-    private static MetadataElement createMDE(String name, Group eosGroup) throws IOException {
+    private static void createMDE(String name, Group eosGroup, MetadataElement eosElem) throws IOException {
         Element element = HdfEosUtils.getEosElement(name, eosGroup);
-        MetadataElement metadataElement = new MetadataElement(name);
-        addDomToMetadata(element, metadataElement);
-        return metadataElement;
+        if (element != null) {
+            MetadataElement metadataElement = new MetadataElement(name);
+            addDomToMetadata(element, metadataElement);
+            eosElem.addElement(metadataElement);
+        }
     }
 
 

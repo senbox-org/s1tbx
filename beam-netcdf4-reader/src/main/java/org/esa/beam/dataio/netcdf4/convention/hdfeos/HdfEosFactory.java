@@ -8,6 +8,7 @@ import org.esa.beam.dataio.netcdf4.convention.InitialisationPart;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.dataio.netcdf4.convention.cf.CfInitialisationPart;
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.ProductIOException;
 import org.jdom.Element;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
@@ -85,13 +86,14 @@ public class HdfEosFactory extends AbstractModelFactory {
 
     @Override
     protected Nc4ReaderParameters createReaderParameters(NetcdfFile netcdfFile) throws IOException {
-        Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
-
-        Element gridStructure = eosElement.getChild("GridStructure");
-        Element gridElem = (Element) gridStructure.getChildren().get(0);
-        Element gridNameElem = gridElem.getChild("GridName");
-        String gridName = gridNameElem.getText();
+        String gridName = getGridName(netcdfFile);
+        if (gridName == null || gridName.isEmpty()) {
+            throw new ProductIOException("Could not find grid.");
+        }
         Group gridGroup = HdfEosUtils.findGroupNested(netcdfFile.getRootGroup(), gridName);
+        if (gridGroup == null) {
+            throw new ProductIOException("Could not find grid group.");
+        }
         Nc4RasterDigest rasterDigest = Nc4RasterDigest.createRasterDigest(gridGroup);
         Variable[] rasterVariables = rasterDigest.getRasterVariables();
         Nc4VariableMap nc4VariableMap = new Nc4VariableMap(rasterVariables.length);
@@ -105,8 +107,32 @@ public class HdfEosFactory extends AbstractModelFactory {
     protected DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
         Variable variable = netcdfFile.findTopVariable("StructMetadata.0");
         if (variable != null) {
-            return DecodeQualification.INTENDED;
+            try {
+                String gridName = getGridName(netcdfFile);
+                if (gridName != null && !gridName.isEmpty()) {
+                    return DecodeQualification.INTENDED;
+                }
+            } catch (IOException e) {
+                return DecodeQualification.UNABLE;
+            }
         }
         return DecodeQualification.UNABLE;
+    }
+
+    private String getGridName(NetcdfFile netcdfFile) throws IOException {
+        Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
+        if (eosElement != null) {
+            Element gridStructure = eosElement.getChild("GridStructure");
+            if (gridStructure != null) {
+                Element gridElem = (Element) gridStructure.getChildren().get(0);
+                if (gridElem != null) {
+                    Element gridNameElem = gridElem.getChild("GridName");
+                    if (gridNameElem != null) {
+                        return gridNameElem.getText();
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
