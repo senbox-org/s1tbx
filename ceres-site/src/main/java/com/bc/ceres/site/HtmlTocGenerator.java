@@ -27,10 +27,10 @@ public class HtmlTocGenerator implements HtmlGenerator {
     public HtmlTocGenerator() {
     }
 
-    public void generate(PrintWriter out, Module[] modules) throws IOException {
+    public void generate(PrintWriter out, Module[] modules, String version) throws IOException {
         int line = 0;
         out.println("<a name=\"top\"></a>");
-        out.println("<h1>BEAM 4.0 modules</h1>");
+        out.println("<h1>BEAM " + version + " modules</h1>");
         out.println("<table class=\"toc_modules\">");
         out.println("  <tr class=\"head\">");
         output(out, "name");

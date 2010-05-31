@@ -24,13 +24,13 @@ public class PageDecoratorGenerator implements HtmlGenerator {
         this.chain = chain;
     }
     
-    public void generate(PrintWriter out, Module[] modules) throws IOException {
-        out.println("<html><head><title>Ceres Modules</title>" );
+    public void generate(PrintWriter out, Module[] modules, String version) throws IOException {
+        out.println("<html><head><title>Modules</title>" );
         out.println("<link rel=\"stylesheet\" href=\"./modules.css\" type=\"text/css\" media=\"screen\" />");
         out.println("</head>");
         out.println("<body>");
         
-        this.chain.generate(out, modules);
+        this.chain.generate(out, modules, version);
         
         out.println("</body></html>");
         out.flush();

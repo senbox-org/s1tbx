@@ -27,7 +27,7 @@ public class HtmlModuleGenerator implements HtmlGenerator {
     public HtmlModuleGenerator() {
     }
 
-    public void generate(PrintWriter out, Module[] modules) throws IOException {
+    public void generate(PrintWriter out, Module[] modules, String version) throws IOException {
         out.println("<table class=\"modules\">");
         for (Module module : modules) {
             out.println("  <tr class=\"head\">");
@@ -53,10 +53,6 @@ public class HtmlModuleGenerator implements HtmlGenerator {
             out.println("  <tr class=\"totop\"><td></td><td><a href=\"#top\">top</a></td></tr>");
         }
         out.println("</table>");
-    }
-
-    private void output(PrintWriter out, String clazz) {
-        output(out, clazz, "", null);
     }
 
     private void output(PrintWriter out, String clazz, String value, String link) {

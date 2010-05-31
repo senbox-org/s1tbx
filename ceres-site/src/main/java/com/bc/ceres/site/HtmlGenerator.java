@@ -15,5 +15,5 @@ import java.io.PrintWriter;
  *
  */
 public interface HtmlGenerator {
-    void generate(PrintWriter out, Module[] modules) throws IOException;
+    void generate(PrintWriter out, Module[] modules, String version) throws IOException;
 }

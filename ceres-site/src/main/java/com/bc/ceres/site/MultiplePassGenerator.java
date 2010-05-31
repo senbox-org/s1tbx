@@ -23,9 +23,9 @@ public class MultiplePassGenerator implements HtmlGenerator {
         this.delegates = delegates;
     }
 
-    public void generate(PrintWriter out, Module[] modules) throws IOException {
+    public void generate(PrintWriter out, Module[] modules, String version) throws IOException {
         for (HtmlGenerator generator : delegates) {
-            generator.generate(out, modules);
+            generator.generate(out, modules, version);
         }
     }
     

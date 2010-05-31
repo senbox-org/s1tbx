@@ -82,18 +82,22 @@ public class SiteCreator {
         out.flush();
         out.close();
     }
-    
-    private static void generate(URL repositoryUrl, File outputDir) throws IOException, CoreException {
+
+    public static void generate(URL repositoryUrl, File outputDir, String version) throws IOException, CoreException {
         RepositoryScanner moduleScanner = new RepositoryScanner(log, repositoryUrl, ProxyConfig.NULL);
         Module[] modules = moduleScanner.scan(ProgressMonitor.NULL);
         PrintWriter out = new PrintWriter(new FileOutputStream(new File(outputDir, "index.html")));
-        
+
         HtmlGenerator generator = new PageDecoratorGenerator(
                 new MultiplePassGenerator(
-                    new HtmlGenerator[] {
-                        new HtmlTocGenerator(), new HtmlModuleGenerator()
-                    }
+                        new HtmlGenerator[] {
+                                new HtmlTocGenerator(), new HtmlModuleGenerator()
+                        }
                 ) );
-        generator.generate(out, modules);
+        generator.generate(out, modules, version);
+    }
+
+    private static void generate(URL repositoryUrl, File outputDir) throws IOException, CoreException {
+        generate( repositoryUrl, outputDir, "4.7" );
     }
 }
