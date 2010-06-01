@@ -53,7 +53,7 @@ public class SiteCreator {
         System.out.println("Using Output Directory: " + outputDir.getAbsolutePath());
         try {
             generate(moduleDir, outputDir);
-            copyStaticContent(outputDir);
+//            copyStaticContent(outputDir);
         } catch (Exception e) {
             e.printStackTrace();
         }
