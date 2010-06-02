@@ -7,10 +7,11 @@ import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 
+import static com.bc.ceres.jai.operator.ReinterpretDescriptor.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ReinterpreteOpImageTest {
+public class ReinterpretOpImageTest {
 
     private static final int W = 1;
     private static final int H = 1;
@@ -18,8 +19,7 @@ public class ReinterpreteOpImageTest {
     @Test
     public void testRescaleByte() {
         final RenderedImage source = createSourceImage(new Byte[]{-1});
-        final RenderedImage target = ReinterpreteOpImage.create(source, null, 11.0, 1.0, false,
-                                                                ReinterpreteOpImage.Interpretation.AWT);
+        final RenderedImage target = ReinterpretOpImage.create(source, 11.0, 1.0, LINEAR, AWT, null);
         assertTrue(DataBuffer.TYPE_FLOAT == target.getSampleModel().getDataType());
 
         final Raster targetData = target.getData();
@@ -29,8 +29,7 @@ public class ReinterpreteOpImageTest {
     @Test
     public void testRescaleSByte() {
         final RenderedImage source = createSourceImage(new Byte[]{-1});
-        final RenderedImage target = ReinterpreteOpImage.create(source, null, 11.0, 1.0, false,
-                                                                ReinterpreteOpImage.Interpretation.FORCE_BYTE_SIGNED);
+        final RenderedImage target = ReinterpretOpImage.create(source, 11.0, 1.0, LINEAR, INTERPRET_BYTE_SIGNED, null);
         assertTrue(DataBuffer.TYPE_FLOAT == target.getSampleModel().getDataType());
 
         final Raster targetData = target.getData();
@@ -40,8 +39,7 @@ public class ReinterpreteOpImageTest {
     @Test
     public void testRescaleInt() {
         final RenderedImage source = createSourceImage(new Integer[]{-1});
-        final RenderedImage target = ReinterpreteOpImage.create(source, null, 11.0, 1.0, false,
-                                                                ReinterpreteOpImage.Interpretation.AWT);
+        final RenderedImage target = ReinterpretOpImage.create(source, 11.0, 1.0, LINEAR, AWT, null);
         assertTrue(DataBuffer.TYPE_DOUBLE == target.getSampleModel().getDataType());
 
         final Raster targetData = target.getData();
@@ -51,8 +49,7 @@ public class ReinterpreteOpImageTest {
     @Test
     public void testRescaleUInt() {
         final RenderedImage source = createSourceImage(new Integer[]{-1});
-        final RenderedImage target = ReinterpreteOpImage.create(source, null, 11.0, 1.0, false,
-                                                                ReinterpreteOpImage.Interpretation.FORCE_INT_UNSIGNED);
+        final RenderedImage target = ReinterpretOpImage.create(source, 11.0, 1.0, LINEAR, INTERPRET_INT_UNSIGNED, null);
         assertTrue(DataBuffer.TYPE_DOUBLE == target.getSampleModel().getDataType());
 
         final Raster targetData = target.getData();
@@ -62,5 +59,4 @@ public class ReinterpreteOpImageTest {
     static RenderedImage createSourceImage(Number[] v) {
         return ConstantDescriptor.create((float) W, (float) H, v, null);
     }
-
 }

@@ -1,5 +1,9 @@
 package com.bc.ceres.jai.opimage;
 
+import com.bc.ceres.jai.operator.InterpretationType;
+import com.bc.ceres.jai.operator.ReinterpretDescriptor;
+import com.bc.ceres.jai.operator.ScalingType;
+
 import javax.media.jai.ImageLayout;
 import javax.media.jai.PixelAccessor;
 import javax.media.jai.PointOpImage;
@@ -12,48 +16,39 @@ import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.util.Map;
 
-public final class ReinterpreteOpImage extends PointOpImage {
+
+public final class ReinterpretOpImage extends PointOpImage {
 
     private static final double LOG10 = Math.log(10);
 
-    public enum Interpretation {
-
-        AWT,
-        FORCE_BYTE_SIGNED,
-        FORCE_INT_UNSIGNED
-    }
-
-    private final Interpretation interpretation;
     private final double factor;
     private final double offset;
-    private final boolean logScaled;
+    private final ScalingType scalingType;
+    private final InterpretationType interpretationType;
 
-    static RenderedImage create(RenderedImage source, Map config, double factor, double offset,
-                                boolean logScaled, Interpretation interpretation) {
-        final boolean rescale = logScaled || factor != 1.0 || offset != 0.0;
+    static RenderedImage create(RenderedImage source, double factor, double offset, ScalingType scalingType,
+                                InterpretationType interpretation, Map config) {
+        final boolean rescale = scalingType == ReinterpretDescriptor.EXPONENTIAL || factor != 1.0 || offset != 0.0;
         final ImageLayout imageLayout = createTargetImageLayout(source, rescale, interpretation);
 
-        return new ReinterpreteOpImage(source, imageLayout, config,
-                                       factor,
-                                       offset,
-                                       logScaled,
-                                       interpretation);
+        return new ReinterpretOpImage(source, imageLayout, config, factor, offset, scalingType, interpretation);
     }
 
-    private ReinterpreteOpImage(RenderedImage source, ImageLayout imageLayout, Map config,
-                                double factor, double offset, boolean logScaled, Interpretation interpretation) {
+    private ReinterpretOpImage(RenderedImage source, ImageLayout imageLayout, Map config,
+                               double factor, double offset, ScalingType scalingType,
+                               InterpretationType interpretationType) {
         super(source, imageLayout, config, true);
-        this.interpretation = interpretation;
-        this.factor = logScaled ? LOG10 * factor : factor;
-        this.offset = logScaled ? LOG10 * offset : offset;
-        this.logScaled = logScaled;
-        // Set flag to permit in-place operation.
+        this.factor = scalingType == ReinterpretDescriptor.EXPONENTIAL ? LOG10 * factor : factor;
+        this.offset = scalingType == ReinterpretDescriptor.EXPONENTIAL ? LOG10 * offset : offset;
+        this.scalingType = scalingType;
+        this.interpretationType = interpretationType;
+        // set flag to permit in-place operation.
         permitInPlaceOperation();
     }
 
     @Override
     protected void computeRect(Raster[] sourceRasters, WritableRaster targetRaster, Rectangle targetRectangle) {
-        if (logScaled || factor != 1.0 || offset != 0.0) {
+        if (scalingType == ReinterpretDescriptor.EXPONENTIAL || factor != 1.0 || offset != 0.0) {
             rescale(sourceRasters[0], targetRaster, targetRectangle);
         } else {
             reformat(sourceRasters[0], targetRaster, targetRectangle);
@@ -73,7 +68,7 @@ public final class ReinterpreteOpImage extends PointOpImage {
 
         switch (sourceDataType) {
             case DataBuffer.TYPE_BYTE:
-                if (interpretation == Interpretation.FORCE_BYTE_SIGNED) {
+                if (interpretationType == ReinterpretDescriptor.INTERPRET_BYTE_SIGNED) {
                     rescaleSByte(sourcePixels, targetPixels, targetRectangle);
                 } else {
                     rescaleByte(sourcePixels, targetPixels, targetRectangle);
@@ -86,7 +81,7 @@ public final class ReinterpreteOpImage extends PointOpImage {
                 rescaleShort(sourcePixels, targetPixels, targetRectangle);
                 break;
             case DataBuffer.TYPE_INT:
-                if (interpretation == Interpretation.FORCE_INT_UNSIGNED) {
+                if (interpretationType == ReinterpretDescriptor.INTERPRET_INT_UNSIGNED) {
                     rescaleUInt(sourcePixels, targetPixels, targetRectangle);
                 } else {
                     rescaleInt(sourcePixels, targetPixels, targetRectangle);
@@ -115,13 +110,13 @@ public final class ReinterpreteOpImage extends PointOpImage {
 
         switch (sourceDataType) {
             case DataBuffer.TYPE_BYTE:
-                if (interpretation == Interpretation.FORCE_BYTE_SIGNED) {
+                if (interpretationType == ReinterpretDescriptor.INTERPRET_BYTE_SIGNED) {
                     targetPixels = targetAcc.getPixels(targetRaster, targetRectangle, targetDataType, true);
                     reformatSByte(sourcePixels, targetPixels, targetRectangle);
                     break;
                 }
             case DataBuffer.TYPE_INT:
-                if (interpretation == Interpretation.FORCE_INT_UNSIGNED) {
+                if (interpretationType == ReinterpretDescriptor.INTERPRET_INT_UNSIGNED) {
                     targetPixels = targetAcc.getPixels(targetRaster, targetRectangle, targetDataType, true);
                     reformatUInt(sourcePixels, targetPixels, targetRectangle);
                     break;
@@ -215,7 +210,7 @@ public final class ReinterpreteOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (logScaled) {
+        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -266,7 +261,7 @@ public final class ReinterpreteOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (logScaled) {
+        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -317,7 +312,7 @@ public final class ReinterpreteOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (logScaled) {
+        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -368,7 +363,7 @@ public final class ReinterpreteOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (logScaled) {
+        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -418,7 +413,7 @@ public final class ReinterpreteOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (logScaled) {
+        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -469,7 +464,7 @@ public final class ReinterpreteOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (logScaled) {
+        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -520,7 +515,7 @@ public final class ReinterpreteOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (logScaled) {
+        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -571,7 +566,7 @@ public final class ReinterpreteOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (logScaled) {
+        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -607,12 +602,13 @@ public final class ReinterpreteOpImage extends PointOpImage {
     }
 
     private static ImageLayout createTargetImageLayout(RenderedImage source,
-                                                       boolean rescale, Interpretation interpretation) {
+                                                       boolean rescale,
+                                                       InterpretationType interpretationType) {
         final int sourceDataType = source.getSampleModel().getDataType();
         final int w = source.getWidth();
         final int h = source.getHeight();
 
-        final int targetDataType = getTargetDataType(sourceDataType, rescale, interpretation);
+        final int targetDataType = getTargetDataType(sourceDataType, rescale, interpretationType);
         final ImageLayout imageLayout = new ImageLayout();
         imageLayout.setWidth(w);
         imageLayout.setHeight(h);
@@ -621,7 +617,7 @@ public final class ReinterpreteOpImage extends PointOpImage {
         return imageLayout;
     }
 
-    private static int getTargetDataType(int sourceDataType, boolean rescale, Interpretation interpretation) {
+    private static int getTargetDataType(int sourceDataType, boolean rescale, InterpretationType interpretationType) {
         if (rescale) {
             switch (sourceDataType) {
                 case DataBuffer.TYPE_BYTE:
@@ -638,11 +634,11 @@ public final class ReinterpreteOpImage extends PointOpImage {
         } else {
             switch (sourceDataType) {
                 case DataBuffer.TYPE_BYTE:
-                    if (interpretation == Interpretation.FORCE_BYTE_SIGNED) {
+                    if (interpretationType == ReinterpretDescriptor.INTERPRET_BYTE_SIGNED) {
                         return DataBuffer.TYPE_SHORT;
                     }
                 case DataBuffer.TYPE_INT:
-                    if (interpretation == Interpretation.FORCE_INT_UNSIGNED) {
+                    if (interpretationType == ReinterpretDescriptor.INTERPRET_INT_UNSIGNED) {
                         return DataBuffer.TYPE_DOUBLE;
                     }
                 default:
