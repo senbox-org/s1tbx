@@ -39,7 +39,6 @@ public class HtmlTocGenerator implements HtmlGenerator {
         output(out, "symbolicName");
         output(out, "vendor");
         output(out, "version");
-        output(out, "lastModified");
         out.println("  </tr>");
 //        out.println("  <div class=\"body\">");
 
@@ -53,7 +52,6 @@ public class HtmlTocGenerator implements HtmlGenerator {
             output(out, "symbolicName", module.getSymbolicName(), null);
             output(out, "vendor", module.getVendor(), null);
             output(out, "version", module.getVersion().toString(), null);
-            output(out, "lastModified", getDateText(module.getLastModified()), null);
 
             out.println("  </tr>");
         }

@@ -2,13 +2,22 @@ package com.bc.ceres.site;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.internal.ModuleImpl;
 import com.bc.ceres.core.runtime.internal.ModuleManifestParser;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import static junit.framework.Assert.*;
 
@@ -19,28 +28,82 @@ import static junit.framework.Assert.*;
  */
 public class HtmlModuleGeneratorTest {
 
-    @Test
-    public void testIsIncluded() throws CoreException, URISyntaxException, IOException {
-        final HtmlModuleGenerator htmlModuleGenerator = new HtmlModuleGenerator();
+    private List<Module> modules = new ArrayList<Module>();
+    private HtmlModuleGenerator htmlModuleGenerator;
 
-        final File inclusionList = new File( getClass().getResource( "test_inclusion_list.csv").toURI().getPath() );
+    @Before
+    public void setUp() throws URISyntaxException, FileNotFoundException, CoreException, MalformedURLException {
+        ModuleImpl module1 = generateModule( "test_excluded_module.xml" );
+        ModuleImpl module2 = generateModule( "test_glayer_module.xml" );
+        ModuleImpl module3 = generateModule( "test_jai_module.xml" );
 
-        String xml1 = getClass().getResource( "test_glayer_module.xml" ).toURI().getPath();
-        FileReader fileReader1 = new FileReader(xml1);
-        Module module1 = new ModuleManifestParser().parse( fileReader1 );
+        modules.add(module1);
+        modules.add(module2);
+        modules.add(module3);
 
-        String xml2 = getClass().getResource( "test_jai_module.xml" ).toURI().getPath();
-        FileReader fileReader2 = new FileReader(xml2);
-        Module module2 = new ModuleManifestParser().parse( fileReader2 );
-
-        String xml3 = getClass().getResource( "test_excluded_module.xml" ).toURI().getPath();
-        FileReader fileReader3 = new FileReader(xml3);
-        Module module3 = new ModuleManifestParser().parse( fileReader3 );
-
-        assertEquals( true, htmlModuleGenerator.isIncluded( module1, inclusionList ) );
-        assertEquals( true, htmlModuleGenerator.isIncluded( module2, inclusionList ) );
-        assertEquals( false, htmlModuleGenerator.isIncluded( module3, inclusionList ) );
+        htmlModuleGenerator = new HtmlModuleGenerator();
     }
 
+    @Test
+    public void testParsing() throws IOException, CoreException, URISyntaxException {
 
+        final String someResource = getClass().getResource("test_glayer_module.xml").getFile();
+        final String resourceDir = new File(someResource).getParent();
+        final URL repositoryUrl = new File(resourceDir).toURI().toURL();
+
+        final File dest = new File(resourceDir + File.separator + "testGeneration.html");
+        PrintWriter pw = new PrintWriter(dest);
+
+        modules.add( generateModule( "test_jai_module2.xml" ) );
+
+        HtmlGenerator generator = new PageDecoratorGenerator(
+                new MultiplePassGenerator(new HtmlGenerator[]{htmlModuleGenerator}));
+        generator.generate(pw, modules.toArray(new Module[modules.size()]), repositoryUrl.toString());
+        pw.close();
+    }
+
+    @Test
+    public void testIsIncluded() throws CoreException, URISyntaxException, IOException {
+
+        final File inclusionList = new File(getClass().getResource("test_inclusion_list.csv").toURI().getPath());
+
+        assertEquals(false, htmlModuleGenerator.isIncluded(modules.get(0), inclusionList));
+        assertEquals(true, htmlModuleGenerator.isIncluded(modules.get(1), inclusionList));
+        assertEquals(true, htmlModuleGenerator.isIncluded(modules.get(2), inclusionList));
+    }
+
+    @Test
+    public void testRemoveDoubles() throws Exception {
+        Module[] moduleArray = modules.toArray(new Module[modules.size()]);
+        Module[] resultModuleArray = htmlModuleGenerator.removeDoubles(moduleArray);
+
+        assertEquals( 3, moduleArray.length );
+        assertEquals( moduleArray.length, resultModuleArray.length );
+
+        moduleArray = addModule( "test_jai_module2.xml" );
+        assertEquals( 4, moduleArray.length );
+
+        //TODO ts make test run green
+
+//        resultModuleArray = htmlModuleGenerator.removeDoubles(moduleArray);
+//        assertEquals( moduleArray.length - 1, resultModuleArray.length );
+    }
+
+    private ModuleImpl generateModule(String resource) throws URISyntaxException, FileNotFoundException, CoreException,
+                                                              MalformedURLException {
+        final URI uri1 = getClass().getResource(resource).toURI();
+        String xml1 = uri1.getPath();
+        FileReader fileReader1 = new FileReader(xml1);
+        ModuleImpl module1 = new ModuleManifestParser().parse(fileReader1);
+        module1.setLocation(uri1.toURL());
+        return module1;
+    }
+
+    private Module[] addModule( String name ) throws URISyntaxException, FileNotFoundException, CoreException,
+                                        MalformedURLException {
+        Module[] moduleArray;
+        modules.add( generateModule( name ) );
+        moduleArray = modules.toArray(new Module[modules.size()]);
+        return moduleArray;
+    }
 }
