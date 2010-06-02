@@ -7,11 +7,17 @@
 package com.bc.ceres.site;
 
 import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.site.util.CsvReader;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.ResourceBundle;
 
@@ -25,6 +31,7 @@ public class HtmlModuleGenerator implements HtmlGenerator {
 
     private final ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/bc/ceres/site/LocalStrings");
     private static final String KEYWORDS = "keywords";
+    private static final String INCLUSION_LIST_FILENAME = "plugins_list.csv";
 
     /**
      * Creates a new instance of HtmlModuleGenerator
@@ -32,9 +39,12 @@ public class HtmlModuleGenerator implements HtmlGenerator {
     public HtmlModuleGenerator() {
     }
 
-    public void generate(PrintWriter out, Module[] modules, String version) throws IOException {
+    public void generate(PrintWriter out, Module[] modules, String repositoryUrl) throws IOException {
         out.println("<table class=\"modules\">");
         for (Module module : modules) {
+            if (!isIncluded(module, retrieveInclusionList(repositoryUrl))) {
+                continue;
+            }
             out.println("  <tr class=\"head\">");
             out.print("    <td class=\"name\"><a name=\"" + sanitize(module.getName().replace(' ', '_')) + "\"></a>");
             out.print(getDisplayText("name"));
@@ -51,8 +61,8 @@ public class HtmlModuleGenerator implements HtmlGenerator {
             output(out, "copyright", module.getCopyright(), null);
             output(out, "description", module.getDescription(), null);
             final String[] categories = module.getCategories();
-            if( categories.length > 0 ) {
-                out.println( generateKeyWords(categories) );
+            if (categories.length > 0) {
+                out.println(generateKeyWords(categories));
             }
             output(out, "licenseUrl", module.getLicenseUrl(), module.getLicenseUrl());
             output(out, "manifestVersion", module.getManifestVersion(), null);
@@ -66,17 +76,36 @@ public class HtmlModuleGenerator implements HtmlGenerator {
         out.println("</table>");
     }
 
+    private File retrieveInclusionList(String repositoryUrl) {
+        String sep = "/";
+        if (repositoryUrl.endsWith(sep)) {
+            sep = "";
+        }
+        return new File(repositoryUrl + sep + INCLUSION_LIST_FILENAME);
+    }
+
+    boolean isIncluded(Module module, File inclusionList) {
+        try {
+            final InputStream stream = new FileInputStream(inclusionList);
+            final CsvReader csvReader = new CsvReader(new InputStreamReader(stream), new char[]{','});
+            final String[] allowedModules = csvReader.readRecord();
+            return Arrays.asList(allowedModules).contains(module.getSymbolicName());
+        } catch (IOException e) {
+            return true;
+        }
+    }
+
     private String generateKeyWords(String[] categories) {
         final StringBuilder builder = new StringBuilder();
-        builder.append("<tr>\n");
+        builder.append("<tr class=\"description\">\n");
         builder.append("<td class=\"key\">");
         builder.append(getDisplayText(KEYWORDS));
         builder.append("</td>");
         builder.append("<td class=\"value\">");
-        for (int i = 0; i < categories.length-1; i++) {
-            builder.append(categories[i]).append( ", " );
+        for (int i = 0; i < categories.length - 1; i++) {
+            builder.append(categories[i]).append(", ");
         }
-        builder.append( categories[categories.length-1] );
+        builder.append(categories[categories.length - 1]);
         builder.append("</td>\n</tr>");
         return builder.toString();
     }

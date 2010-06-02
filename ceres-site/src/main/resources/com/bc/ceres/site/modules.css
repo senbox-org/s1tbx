@@ -15,7 +15,7 @@ a:hover   {color:02773F; text-decoration:underline;}
 	  width:90%;
 	  font-family:Verdana, Arial, Helvetica, sans-serif;
 	  font-size:12;}
-.module .name { background-color:#ffeeee;
+.module .name { background-color:#F2E9D4;
 		padding-top:2px;
 		padding-bottom:3px;}
 .module .symbolicName { display: none;}
@@ -40,21 +40,23 @@ a:hover   {color:02773F; text-decoration:underline;}
     vertical-align:middle;
     font-weight:bold;
 }
-.modules .name               td { vertical-align:top; border: solid 1px #ffeeee; }
-.modules .description        td { vertical-align:top; border: solid 1px #ffeeee; }
-.modules .aboutUrl           td { vertical-align:top; border: solid 1px #ffeeee; }
-.modules .vendor             td { vertical-align:top; border: solid 1px #ffeeee; }
+.modules .name               td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .description        td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .aboutUrl           td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .vendor             td { vertical-align:top; border: solid 1px #F2E9D4; }
 .modules .activatorClassName { display:none; }
 .modules .symbolicName       { display:none; }
-.modules .contactAddress     td { vertical-align:top; border: solid 1px #ffeeee; }
-.modules .url                td { vertical-align:top; border: solid 1px #ffeeee; }
-.modules .copyright          td { vertical-align:top; border: solid 1px #ffeeee; }
-.modules .licenseUrl         td { vertical-align:top; border: solid 1px #ffeeee; }
+.modules .contactAddress     td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .url                td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .copyright          td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .licenseUrl         td { vertical-align:top; border: solid 1px #F2E9D4; }
 .modules .manifestVersion    { display:none; }
 .modules .packaging          { display:none; }
-.modules .version            td { vertical-align:top; border: solid 1px #ffeeee; }
-.modules .contentLength      td { vertical-align:top; border: solid 1px #ffeeee; }
-.modules .lastModified       td { vertical-align:top; border: solid 1px #ffeeee; }
+.modules .version            td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .contentLength      td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .lastModified       td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .keywords           td { vertical-align:top; border: solid 1px #F2E9D4; }
+.modules .key                td { vertical-align:top; border: solid 1px #F2E9D4; }
 
 
 .modules * .key
@@ -85,22 +87,22 @@ a:hover   {color:02773F; text-decoration:underline;}
 
 .toc_modules                           { display: visible; empty-cells: show; padding: 2px; margin: 2px; }
 .toc_modules                        td { vertical-align: middle; display: visible; empty-cells: show; padding: 4px; margin: 2px; }
-.toc_modules .line                     { display: visible;  border: thin solid #ffeeee; padding: 2px; margin: 2px;}
-.toc_modules .line .name               { display: visible; border: thin solid #ffeeee; padding: 2px; margin: 2px;}
-.toc_modules .line .description        { display: visible; border: thin solid #ffeeee; padding: 2px; margin: 2px; min-width:400px;}
-.toc_modules .line .aboutUrl           { display: visible; border: thin solid #ffeeee; padding: 2px; margin: 2px; }
-.toc_modules .line .vendor             { display: visible; border: thin solid #ffeeee; padding: 2px; margin: 2px; }
+.toc_modules .line                     { display: visible;  border: thin solid #F2E9D4; padding: 2px; margin: 2px;}
+.toc_modules .line .name               { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px;}
+.toc_modules .line .description        { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px; min-width:400px;}
+.toc_modules .line .aboutUrl           { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px; }
+.toc_modules .line .vendor             { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px; }
 .toc_modules .line .activatorClassName { display: none; }
-.toc_modules .line .symbolicName       { display: visible; border: thin solid #ffeeee; padding: 2px; margin: 2px; }
+.toc_modules .line .symbolicName       { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px; }
 .toc_modules .line .contactAddress     { display: none; }
 .toc_modules .line .url                { display: none; }
 .toc_modules .line .copyright          { display: none; }
 .toc_modules .line .licenseUrl         { display: none; }
 .toc_modules .line .manifestVersion    { display: none; }
 .toc_modules .line .packaging          { display: none; }
-.toc_modules .line .version            { display: visible; border: thin solid #ffeeee; padding: 2px; margin: 2px;}
+.toc_modules .line .version            { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px;}
 .toc_modules .line .contentLength      { display: none; }
-.toc_modules .line .lastModified       { display: visible; border: thin solid #ffeeee; padding: 2px; margin: 2px; }
+.toc_modules .line .lastModified       { display: visible; border: thin solid #F2E9D4; padding: 2px; margin: 2px; }
 
 .toc_modules .even {
     color:#000000;
