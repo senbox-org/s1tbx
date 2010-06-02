@@ -14,6 +14,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.2:<br/>
+        [BEAM-1149] - OBPG reader causes Exception if used with GPF<br/>
         [BEAM-1087] - OBPG child products can not be read<br/>
         [BEAM-1085] - Support reprocessed data by NASA OBPG<br/>
         Changes in 1.1:<br/>

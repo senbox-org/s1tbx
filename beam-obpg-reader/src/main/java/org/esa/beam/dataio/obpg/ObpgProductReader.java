@@ -16,7 +16,7 @@
  */
 package org.esa.beam.dataio.obpg;
 
-import org.esa.beam.dataio.obpg.ObpgUtils;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -27,13 +27,14 @@ import org.esa.beam.util.io.CsvReader;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
-
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.Section;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,11 +43,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import com.bc.ceres.core.ProgressMonitor;
 
 public class ObpgProductReader extends AbstractProductReader {
 
@@ -126,8 +122,7 @@ public class ObpgProductReader extends AbstractProductReader {
     
     private void readBandData(Variable variable, int sourceOffsetX, int sourceOffsetY, int sourceWidth,
                               int sourceHeight, ProductData destBuffer, ProgressMonitor pm) throws IOException,
-                                                                                           ProductIOException,
-                                                                                           InvalidRangeException {
+                                                                                                   InvalidRangeException {
 
         final int[] start = new int[] {sourceOffsetY, sourceOffsetX};
         final int[] stride = new int[] {1, 1};
