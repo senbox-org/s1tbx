@@ -28,6 +28,7 @@ public class GeneralFilterRIF implements RenderedImageFactory {
      *
      * @param paramBlock The source image and the convolution kernel.
      */
+    @Override
     public RenderedImage create(ParameterBlock paramBlock, RenderingHints renderHints) {
         ImageLayout layout = renderHints != null ? (ImageLayout) renderHints.get(JAI.KEY_IMAGE_LAYOUT) : null;
         BorderExtender extender = renderHints != null ? (BorderExtender) renderHints.get(JAI.KEY_BORDER_EXTENDER) : null;
