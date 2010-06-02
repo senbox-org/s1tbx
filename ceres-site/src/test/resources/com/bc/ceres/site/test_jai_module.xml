@@ -1,0 +1,33 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+
+    <symbolicName>ceres-jai</symbolicName>
+    <version>0.11</version>
+    <name>Ceres JAI Library</name>
+
+    <categories>System,Library</categories>
+
+    <description>
+        <![CDATA[
+        This description appears within a cdata-tag and is therefore able to feature links, such as the following:
+        <a href="http://www.brockmann-consult.com">click me</a>.<br>
+        Read more about this:
+        <ul>
+                <li><a href="http://www.brockmann-consult.de/beam">BEAM Website</a></li>
+                <li><a href="http://www.brockmann-consult.de/beam-wiki">BEAM Wiki</a></li>
+        </ul>
+                ]]>
+    </description>
+
+    <changelog>
+        <![CDATA[
+                ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://www.brockmann-consult.de/</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+</module>

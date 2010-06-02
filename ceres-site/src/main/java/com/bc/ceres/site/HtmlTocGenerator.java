@@ -23,14 +23,16 @@ public class HtmlTocGenerator implements HtmlGenerator {
 
     private final ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/bc/ceres/site/LocalStrings");
 
-    /** Creates a new instance of HtmlModuleGenerator */
+    /** Creates a new instance of HtmlTocGenerator */
     public HtmlTocGenerator() {
     }
 
-    public void generate(PrintWriter out, Module[] modules) throws IOException {
+    public void generate(PrintWriter out, Module[] modules, String repositoryUrl) throws IOException {
+        String version = SiteCreator.retrieveVersion( repositoryUrl ); 
         int line = 0;
         out.println("<a name=\"top\"></a>");
-        out.println("<h1>BEAM 4.0 modules</h1>");
+        out.println("<h1>BEAM " + version + " modules</h1>");
+        out.println( "This page lists all available modules for BEAM " + version + "." );
         out.println("<table class=\"toc_modules\">");
         out.println("  <tr class=\"head\">");
         output(out, "name");
@@ -42,7 +44,7 @@ public class HtmlTocGenerator implements HtmlGenerator {
 //        out.println("  <div class=\"body\">");
 
         for (Module module : modules) {
-            if(line++ % 2 == 0){
+            if(line++ % 2 == 1){
                 out.println("  <tr class=\"even\">");
             } else {
                 out.println("  <tr class=\"odd\">");

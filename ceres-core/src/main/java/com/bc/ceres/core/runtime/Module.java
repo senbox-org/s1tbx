@@ -2,7 +2,6 @@ package com.bc.ceres.core.runtime;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.runtime.Version;
 
 import java.io.IOException;
 import java.io.InputStream;
