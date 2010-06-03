@@ -12,6 +12,7 @@ import com.bc.ceres.site.util.ModuleUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 /**
  * Generate a HTML view of a module repository. This is only a fragment, not a
@@ -30,7 +31,14 @@ public class HtmlModuleGenerator implements HtmlGenerator {
     public void generate(PrintWriter out, Module[] modules, String repositoryUrl) throws IOException {
         modules = ModuleUtils.removeDoubles(modules);
         for (Module module : modules) {
-            if (!ModuleUtils.isIncluded(module, InclusionListBuilder.retrieveInclusionList(repositoryUrl))) {
+//            if (!ModuleUtils.isIncluded(module, InclusionListBuilder.retrieveInclusionList(repositoryUrl))) {
+            try {
+                final ArrayList<String> inclusionList = new ArrayList<String>();
+                InclusionListBuilder.parsePoms(inclusionList, InclusionListBuilder.retrievePoms() );
+                if (!ModuleUtils.isIncluded(module, inclusionList ) ) {
+                    continue;
+                }
+            } catch(Exception e) {
                 continue;
             }
 

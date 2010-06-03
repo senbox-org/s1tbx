@@ -6,7 +6,9 @@ import com.bc.ceres.core.runtime.internal.ModuleImpl;
 import com.bc.ceres.core.runtime.internal.ModuleManifestParser;
 import org.junit.Before;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -43,10 +45,10 @@ public class ModuleUtilsTest {
     }
 
     @Test
-    public void testPomParsing() throws Exception {
+    public void testFileBasedPomParsing() throws Exception {
         final List<URL> poms = new ArrayList<URL>();
         poms.add(getClass().getResource("test_pom.xml"));
-        File inclusionList = generateTestInclusionFile();
+        File inclusionList = generateFileBasedTestInclusionFile();
         InclusionListBuilder.parsePoms(inclusionList, poms);
 
         CsvReader csvReader = new CsvReader(new FileReader(inclusionList), new char[]{','});
@@ -71,7 +73,43 @@ public class ModuleUtilsTest {
     }
 
     @Test
-    public void testIsIncluded() throws CoreException, URISyntaxException, IOException {
+    public void testIsIncluded() throws CoreException, URISyntaxException, IOException, SAXException,
+                                        ParserConfigurationException {
+        final List<URL> pomList = InclusionListBuilder.retrievePoms();
+        final ArrayList<String> inclusionList = new ArrayList<String>();
+        InclusionListBuilder.parsePoms(inclusionList, pomList);
+
+        assertEquals(false, ModuleUtils.isIncluded(modules.get(0), inclusionList));
+        assertEquals(true, ModuleUtils.isIncluded(modules.get(1), inclusionList));
+        assertEquals(true, ModuleUtils.isIncluded(modules.get(2), inclusionList));
+    }
+
+    @Test
+    public void testPomParsing() throws Exception {
+        final List<URL> poms = new ArrayList<URL>();
+        poms.add(getClass().getResource("test_pom.xml"));
+
+        final ArrayList<String> inclusionList = new ArrayList<String>();
+
+        InclusionListBuilder.parsePoms(inclusionList, poms);
+
+        assertEquals( true, inclusionList.contains( "ceres-launcher" ) );
+        assertEquals( false, inclusionList.contains( "beam-download-portlet" ) );
+
+        assertEquals(9, inclusionList.size());
+
+        final URL pom2 = getClass().getResource("test_pom2.xml");
+        InclusionListBuilder.addPomToInclusionList(inclusionList, pom2);
+
+        int newNumberOfModules = inclusionList.size();
+
+        assertEquals( true, inclusionList.contains( "ceres-launcher" ) );
+        assertEquals( true, inclusionList.contains( "beam-download-portlet" ) );
+        assertEquals( 12, newNumberOfModules);
+    }
+
+    @Test
+    public void testFileBasedIsIncluded() throws CoreException, URISyntaxException, IOException {
 
         final File inclusionList = new File(getClass().getResource(PLUGINS_LIST_CSV).toURI().getPath());
 
@@ -113,7 +151,7 @@ public class ModuleUtilsTest {
         return module;
     }
 
-    private File generateTestInclusionFile() throws IOException {
+    private File generateFileBasedTestInclusionFile() throws IOException {
         final String someResource = getClass().getResource("test_pom.xml").getFile();
         final String resourceDir = new File(someResource).getParent();
         final File inclusionList = new File(resourceDir + File.separator + PLUGINS_LIST_CSV);
@@ -121,5 +159,4 @@ public class ModuleUtilsTest {
         inclusionList.createNewFile();
         return inclusionList;
     }
-
 }

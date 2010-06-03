@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Util class which provides methods to remove double Elements from a given array of
@@ -56,7 +57,7 @@ public class ModuleUtils {
     }
 
     /**
-     * Checks if a module is included on the given inclusionList.
+     * Checks if a module is included on the given inclusion-list.
      *
      * @param module the module to check for
      * @param inclusionList the list, given as csv without line breaks
@@ -72,6 +73,17 @@ public class ModuleUtils {
             // if there is no inclusion list, all modules are displayed 
             return true;
         }
+    }
+
+    /**
+     * Checks if a module is included within the given inclusion-list
+     *
+     * @param module the module to check for, may not be null
+     * @param inclusionList the list, given as list of strings
+     * @return true if the module is included and the inclusion-list is not null
+     */
+    public static boolean isIncluded(Module module, List<String> inclusionList) {
+        return inclusionList == null || inclusionList.contains(module.getSymbolicName());
     }
 
     /**

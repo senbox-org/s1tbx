@@ -1,12 +1,17 @@
 package com.bc.ceres.site;
 
 import com.bc.ceres.core.CoreException;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.ProxyConfig;
 import com.bc.ceres.core.runtime.internal.ModuleImpl;
 import com.bc.ceres.core.runtime.internal.ModuleManifestParser;
+import com.bc.ceres.core.runtime.internal.RepositoryScanner;
 import org.junit.Before;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -18,6 +23,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * User: Thomas Storm
@@ -26,37 +32,33 @@ import java.util.List;
  */
 public class HtmlModuleGeneratorTest {
 
-    private List<Module> modules = new ArrayList<Module>();
+    private List<String> modules = new ArrayList<String>();
     private HtmlModuleGenerator htmlModuleGenerator;
+    private static Logger log = Logger.getLogger(SiteCreator.class.getName());
 
     @Before
     public void setUp() throws URISyntaxException, FileNotFoundException, CoreException, MalformedURLException {
-        ModuleImpl module1 = generateModule( "test_excluded_module.xml" );
-        ModuleImpl module2 = generateModule( "test_glayer_module.xml" );
-        ModuleImpl module3 = generateModule( "test_jai_module.xml" );
-
-        modules.add(module1);
-        modules.add(module2);
-        modules.add(module3);
-
         htmlModuleGenerator = new HtmlModuleGenerator();
     }
 
     @Test
-    public void testParsing() throws IOException, CoreException, URISyntaxException {
+    public void testParsing() throws IOException, CoreException, URISyntaxException, SAXException,
+                                     ParserConfigurationException {
 
         final String someResource = getClass().getResource("test_glayer_module.xml").getFile();
         final String resourceDir = new File(someResource).getParent();
-        final URL repositoryUrl = new File(resourceDir).toURI().toURL();
+
+        URL repositoryUrl = new URL( "http://www.brockmann-consult.de/beam/software/repositories/4.7/" );
 
         final File dest = new File(resourceDir + File.separator + "testGeneration.html");
         PrintWriter pw = new PrintWriter(dest);
 
-        modules.add( generateModule( "test_jai_module2.xml" ) );
+        RepositoryScanner moduleScanner = new RepositoryScanner(log, repositoryUrl, ProxyConfig.NULL);
+        Module[] modules = moduleScanner.scan(ProgressMonitor.NULL);
 
         HtmlGenerator generator = new PageDecoratorGenerator(
                 new MultiplePassGenerator(new HtmlGenerator[]{htmlModuleGenerator}));
-        generator.generate(pw, modules.toArray(new Module[modules.size()]), repositoryUrl.toString());
+        generator.generate(pw, modules, repositoryUrl.toString());
         pw.close();
     }
     
@@ -65,8 +67,8 @@ public class HtmlModuleGeneratorTest {
         final URI uri = getClass().getResource(resource).toURI();
         String xml = uri.getPath();
         FileReader fileReader = new FileReader(xml);
-        ModuleImpl module = new ModuleManifestParser().parse(fileReader);
-        module.setLocation(uri.toURL());
-        return module;
+        ModuleImpl module1 = new ModuleManifestParser().parse(fileReader);
+        module1.setLocation(uri.toURL());
+        return module1;
     }
 }
