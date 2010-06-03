@@ -3,13 +3,12 @@
 
     <symbolicName>exclude_me</symbolicName>
     <version>0.11</version>
-    <name>Ceres JAI Library</name>
+    <name>TEST JAI Library</name>
 
     <categories>System,Library</categories>
 
     <description>
-        The Ceres JAI Library provides extensions based on the Java
-        Advanced Imaging (JAI) library.
+        A test library which is included when only BEAM modules are considered.
     </description>
 
     <changelog>

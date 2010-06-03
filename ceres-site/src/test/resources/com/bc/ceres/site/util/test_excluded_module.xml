@@ -1,9 +1,9 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
 
-    <symbolicName>exclude_me</symbolicName>
+    <symbolicName>exclude-me</symbolicName>
     <version>0.11</version>
-    <name>Ceres JAI Library</name>
+    <name>Test Library</name>
 
     <categories>System,Library</categories>
 

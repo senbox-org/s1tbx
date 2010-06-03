@@ -62,11 +62,11 @@ public class HtmlModuleGeneratorTest {
     
     private ModuleImpl generateModule(String resource) throws URISyntaxException, FileNotFoundException, CoreException,
                                                               MalformedURLException {
-        final URI uri1 = getClass().getResource(resource).toURI();
-        String xml1 = uri1.getPath();
-        FileReader fileReader1 = new FileReader(xml1);
-        ModuleImpl module1 = new ModuleManifestParser().parse(fileReader1);
-        module1.setLocation(uri1.toURL());
-        return module1;
+        final URI uri = getClass().getResource(resource).toURI();
+        String xml = uri.getPath();
+        FileReader fileReader = new FileReader(xml);
+        ModuleImpl module = new ModuleManifestParser().parse(fileReader);
+        module.setLocation(uri.toURL());
+        return module;
     }
 }

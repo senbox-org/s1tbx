@@ -29,6 +29,7 @@ import static junit.framework.Assert.*;
 public class ModuleUtilsTest {
 
     private List<Module> modules = new ArrayList<Module>();
+    public static final String PLUGINS_LIST_CSV = "plugins_list.csv";
 
     @Before
     public void setUp() throws URISyntaxException, FileNotFoundException, CoreException, MalformedURLException {
@@ -72,7 +73,7 @@ public class ModuleUtilsTest {
     @Test
     public void testIsIncluded() throws CoreException, URISyntaxException, IOException {
 
-        final File inclusionList = new File(getClass().getResource("test_inclusion_list.csv").toURI().getPath());
+        final File inclusionList = new File(getClass().getResource(PLUGINS_LIST_CSV).toURI().getPath());
 
         assertEquals(false, ModuleUtils.isIncluded(modules.get(0), inclusionList));
         assertEquals(true, ModuleUtils.isIncluded(modules.get(1), inclusionList));
@@ -115,7 +116,7 @@ public class ModuleUtilsTest {
     private File generateTestInclusionFile() throws IOException {
         final String someResource = getClass().getResource("test_pom.xml").getFile();
         final String resourceDir = new File(someResource).getParent();
-        final File inclusionList = new File(resourceDir + File.separator + "test_inclusion_list.csv");
+        final File inclusionList = new File(resourceDir + File.separator + PLUGINS_LIST_CSV);
         inclusionList.delete();
         inclusionList.createNewFile();
         return inclusionList;

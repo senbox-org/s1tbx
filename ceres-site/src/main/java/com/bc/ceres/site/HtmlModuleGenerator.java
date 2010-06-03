@@ -7,6 +7,7 @@
 package com.bc.ceres.site;
 
 import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.site.util.InclusionListBuilder;
 import com.bc.ceres.site.util.ModuleUtils;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ public class HtmlModuleGenerator implements HtmlGenerator {
     public void generate(PrintWriter out, Module[] modules, String repositoryUrl) throws IOException {
         modules = ModuleUtils.removeDoubles(modules);
         for (Module module : modules) {
-            if (!ModuleUtils.isIncluded(module, ModuleUtils.retrieveInclusionList(repositoryUrl))) {
+            if (!ModuleUtils.isIncluded(module, InclusionListBuilder.retrieveInclusionList(repositoryUrl))) {
                 continue;
             }
 

@@ -12,12 +12,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * User: Thomas Storm
- * Date: 03.06.2010
- * Time: 11:03:07
+ * Util class which provides methods to remove double Elements from a given array of
+ * {@link com.bc.ceres.core.runtime.Module}-objects, to check if a module exists in a dedicated csv-file, to retrieve
+ * the year from a module and to retrieve a
+ *
+ * @author Thomas Storm
+ * @version 1.0
  */
 public class ModuleUtils {
 
+    /**
+     * Removes double modules from a given array. Modules are equal in this sense if they match in their symbolic name.
+     * If the array contains two modules which are equal in that sense, the module with the <b>lower</b> version number
+     * is removed.
+     *
+     * @param modules the module array which shall be cleansed of double modules.
+     * @return the revised module array
+     */
     public static Module[] removeDoubles(Module[] modules) {
 
         final ArrayList<Module> temp = new ArrayList<Module>();
@@ -44,6 +55,13 @@ public class ModuleUtils {
         return temp.toArray(new Module[temp.size()]);
     }
 
+    /**
+     * Checks if a module is included on the given inclusionList.
+     *
+     * @param module the module to check for
+     * @param inclusionList the list, given as csv without line breaks
+     * @return true if the module is included
+     */
     public static boolean isIncluded(Module module, File inclusionList) {
         try {
             final InputStream stream = new FileInputStream(inclusionList);
@@ -56,6 +74,12 @@ public class ModuleUtils {
         }
     }
 
+    /**
+     * Parses the year of the modules release from the module.
+     *
+     * @param module the module
+     * @return the year
+     */
     public static String retrieveYear(Module module) {
         String copyright;
         String year = "-1";
@@ -68,11 +92,4 @@ public class ModuleUtils {
         return year;
     }
 
-    public static File retrieveInclusionList(String repositoryUrl) {
-        String sep = "/";
-        if (repositoryUrl.endsWith(sep)) {
-            sep = "";
-        }
-        return new File(repositoryUrl + sep + InclusionListBuilder.INCLUSION_LIST_FILENAME);
-    }
 }

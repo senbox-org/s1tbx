@@ -2,14 +2,14 @@
     <manifestVersion>0.0.1</manifestVersion>
 
     <symbolicName>ceres-jai</symbolicName>
-    <version>0.11</version>
+    <version>0.10</version>
     <name>Ceres JAI Library</name>
 
     <categories>System,Library</categories>
 
     <description>
         <![CDATA[
-        This module should <b>not</b> be viewed. 
+        JAI in a lower version, should not be displayed
                 ]]>
     </description>
 

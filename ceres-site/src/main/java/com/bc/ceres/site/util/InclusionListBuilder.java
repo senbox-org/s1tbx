@@ -15,11 +15,20 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Basic helper class which allows to generate and extend a file (plugins_list.csv). That file contains a number of
+ * modules which are obtained by one or more given POMs, and are written in single row, comma separated.
+ *
+ * @author Thomas Storm
+ * @version 1.0
+ */
 public class InclusionListBuilder {
 
     private static final String MODULE_NAME = "module";
@@ -34,7 +43,7 @@ public class InclusionListBuilder {
         }
     }
 
-    public static void addPomToInclusionList(File inclusionList, URL pom) throws ParserConfigurationException,
+    static void addPomToInclusionList(File inclusionList, URL pom) throws ParserConfigurationException,
                                                                                  IOException, SAXException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(inclusionList, true));
         try {
@@ -71,6 +80,18 @@ public class InclusionListBuilder {
 
         if (!recordList.contains(moduleName)) {
             writer.write(moduleName);
+        }
+    }
+
+    public static File retrieveInclusionList(String repositoryUrl) {
+        String sep = "/";
+        if (repositoryUrl.endsWith(sep)) {
+            sep = "";
+        }
+        try {
+            return new File( new URI( repositoryUrl + sep + INCLUSION_LIST_FILENAME) );
+        } catch (URISyntaxException e) {
+            return null;
         }
     }
 }
