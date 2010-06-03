@@ -7,17 +7,10 @@
 package com.bc.ceres.site;
 
 import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.site.util.CsvReader;
+import com.bc.ceres.site.util.ModuleUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Generate a HTML view of a module repository. This is only a fragment, not a
@@ -27,8 +20,6 @@ import java.util.List;
  */
 public class HtmlModuleGenerator implements HtmlGenerator {
 
-    private static final String INCLUSION_LIST_FILENAME = "plugins_list.csv";
-
     /**
      * Creates a new instance of HtmlModuleGenerator
      */
@@ -36,78 +27,47 @@ public class HtmlModuleGenerator implements HtmlGenerator {
     }
 
     public void generate(PrintWriter out, Module[] modules, String repositoryUrl) throws IOException {
-        modules = removeDoubles( modules );
+        modules = ModuleUtils.removeDoubles(modules);
         for (Module module : modules) {
-            if (!isIncluded(module, retrieveInclusionList(repositoryUrl))) {
+            if (!ModuleUtils.isIncluded(module, ModuleUtils.retrieveInclusionList(repositoryUrl))) {
                 continue;
             }
 
-            final String copyright = module.getCopyright();
-            int year = Integer.parseInt(copyright.replaceAll("\\D", ""));
+            String year = ModuleUtils.retrieveYear(module);
 
             // heading and download-link
-            out.print("<h2>" + module.getName() + ", Version " );
-            out.print("<a href=\"" + module.getLocation().toExternalForm() + "\">" + module.getVersion() + "</a>");
-            out.println( "</h2>" );
+            out.print("<h2 class=\"heading\">" + module.getName() + " ");
+            out.print("<a href=\"" + module.getLocation().toExternalForm() + "\">");
+            out.print(module.getVersion() + "</a>");
+            out.println("</h2>");
 
             // description
-            out.println( "<div class=\"description\">" );
-            out.println( module.getDescription() );
-            out.println( "</div>" );
+            out.println("<div class=\"description\">");
+            out.println(module.getDescription());
+            out.println("</div>");
+
+            out.println( "<p>" );
 
             // footer
-            out.print( "<div class=\"footer\">" );
-            out.print( module.getVendor() );
-            out.print( ", " );
-            out.print( year );
-            out.print( "&nbsp;|&nbsp;<a href=\"" + module.getLicenseUrl() + "\">Licence</a>" );
-            out.print( "&nbsp;|&nbsp;<a href=\"#top\">top</a>" );
-            out.println( "</div>" );
-        }
-    }
-
-    Module[] removeDoubles(Module[] modules) {
-
-        //TODO ts remove remove list
-
-        final ArrayList<Module> removeList = new ArrayList<Module>();
-        for (Module module : modules ) {
-            final String symbolicName = module.getSymbolicName();
-            final List<Module> list = Arrays.asList(modules);
-            for( Module testModule : list ) {
-                if( testModule.getSymbolicName().equals( symbolicName ) ) {
-                    final boolean isHigherVersion = module.getVersion().compareTo(testModule.getVersion()) == -1;
-                    if( isHigherVersion ) {
-                        removeList.add( module );
-                    }
-                }
+            out.print("<div class=\"footer\">");
+            final String contactUrl = module.getUrl();
+            if( contactUrl != null ) {
+                out.print( "<a href=\"" + contactUrl + "\">" );
             }
-        }
-        final ArrayList<Module> resultList = new ArrayList<Module>();
-        for (Module module : modules) {
-            if( !removeList.contains( module ) ) {
-                resultList.add( module );
+            out.print(module.getVendor());
+            if( contactUrl != null ) {
+                out.print( "</a>" );
             }
+            out.print(!year.equals("-1") ? ", " + year : "");
+            final String licenceUrl = module.getLicenseUrl();
+            if( licenceUrl != null ) {
+                out.print("&nbsp;&#8226;&nbsp;<a href=\"" + licenceUrl + "\">Licence</a>");
+            }
+            out.print("&nbsp;&#8226;&nbsp;<a href=\"#top\">top</a>");
+            out.println("</div>");
+
+            out.println( "<br/>" );
         }
-        return resultList.toArray( new Module[ resultList.size() ] );
     }
 
-    private File retrieveInclusionList(String repositoryUrl) {
-        String sep = "/";
-        if (repositoryUrl.endsWith(sep)) {
-            sep = "";
-        }
-        return new File(repositoryUrl + sep + INCLUSION_LIST_FILENAME);
-    }
-
-    boolean isIncluded(Module module, File inclusionList) {
-        try {
-            final InputStream stream = new FileInputStream(inclusionList);
-            final CsvReader csvReader = new CsvReader(new InputStreamReader(stream), new char[]{','});
-            final String[] allowedModules = csvReader.readRecord();
-            return Arrays.asList(allowedModules).contains(module.getSymbolicName());
-        } catch (IOException e) {
-            return true;
-        }
-    }
 }

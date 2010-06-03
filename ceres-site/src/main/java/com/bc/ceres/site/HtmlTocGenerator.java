@@ -7,6 +7,8 @@
 package com.bc.ceres.site;
 
 import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.site.util.ModuleUtils;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
@@ -29,10 +31,14 @@ public class HtmlTocGenerator implements HtmlGenerator {
 
     public void generate(PrintWriter out, Module[] modules, String repositoryUrl) throws IOException {
         String version = SiteCreator.retrieveVersion( repositoryUrl ); 
-        int line = 0;
         out.println("<a name=\"top\"></a>");
-        out.println("<h1>BEAM " + version + " modules</h1>");
-        out.println( "This page lists all available modules for BEAM " + version + "." );
+        out.println("<h1>BEAM " + version + ".x modules</h1>");
+        printTocTable(out, modules);
+    }
+
+    private void printTocTable(PrintWriter out, Module[] modules) {
+        modules = ModuleUtils.removeDoubles( modules );
+        int line = 0;
         out.println("<table class=\"toc_modules\">");
         out.println("  <tr class=\"head\">");
         output(out, "name");
@@ -55,7 +61,7 @@ public class HtmlTocGenerator implements HtmlGenerator {
 
             out.println("  </tr>");
         }
- //       out.println("  </div>");
+        //       out.println("  </div>");
         out.println("</table>\n<br/><br/>");
     }
 

@@ -1,4 +1,11 @@
-body { background-color: white; margin-top:10px; }
+body { background-color: white;
+       margin-top:10px; }
+
+.footer { font-family:Verdana, Arial, Helvetica, sans-serif;
+          font-size:10px;
+          width:90%; }
+
+h2 { font-size:13px !important; }
 
 a:link 	  {color:A72525; text-decoration:none;}
 a:active  {color:630C3F; text-decoration:none;}
