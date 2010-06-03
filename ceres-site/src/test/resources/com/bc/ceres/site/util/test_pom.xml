@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.bc.ceres</groupId>
+    <artifactId>ceres</artifactId>
+    <version>0.11-SNAPSHOT</version>
+    <name>Ceres</name>
+    <url>http://www.brockmann-consult.de/</url>
+
+    <description>
+        Ceres provides a runtime environment for applications composed of
+        versioned, updatable modules.
+    </description>
+
+    <packaging>pom</packaging>
+
+    <!--
+    In version 2.1 of Maven the sourceEncoding property will be embedded in the
+    build tag. For now the convention is to that it as property.
+    TODO: Move the sourceEncoding property to the build tag if version 2.1 is released
+    -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <organization>
+        <name>Brockmann Consult GmbH</name>
+        <url>http://www.brockmann-consult.de</url>
+    </organization>
+
+    <inceptionYear>2007</inceptionYear>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://www.brockmann-consult.de/beam-jira/browse/CERES</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:svn:https://www.brockmann-consult.de/svn/os/ceres/trunk</connection>
+        <url>https://www.brockmann-consult.de/svn/os/ceres/trunk</url>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>bc-mvn-repo-http</id>
+            <name>Public Maven Repository at Brockmann Consult</name>
+            <url>http://www.brockmann-consult.de/mvn/os</url>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>bc-mvn-repo-public</id>
+            <name>Public Maven Repository at Brockmann Consult</name>
+            <url>scp://www.brockmann-consult.de/var/www/www.brockmann-consult.de/mvn/os</url>
+            <uniqueVersion>false</uniqueVersion>
+        </repository>
+        <snapshotRepository>
+            <id>bc-mvn-repo-public</id>
+            <name>Public Maven Snapshot Repository at Brockmann Consult</name>
+            <url>scp://www.brockmann-consult.de/var/www/www.brockmann-consult.de/mvn/os</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License (GPL)</name>
+            <url>http://www.gnu.org/licenses/gpl.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <modules>
+        <module>ceres-launcher</module>
+        <module>ceres-core</module>
+        <module>ceres-binding</module>
+        <module>ceres-ui</module>
+        <module>ceres-deploy</module>
+        <module>ceres-glayer</module>
+        <module>ceres-jai</module>
+        <module>ceres-binio</module>
+        <module>ceres-site</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.4</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>xpp3</groupId>
+                <artifactId>xpp3</artifactId>
+                <version>1.1.3.3</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-launcher</artifactId>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-core</artifactId>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-binding</artifactId>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-ui</artifactId>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-deploy</artifactId>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-glayer</artifactId>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-jai</artifactId>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-binio</artifactId>
+                <version>${pom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-site</artifactId>
+                <version>${pom.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <debug>true</debug>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <wtpversion>1.5</wtpversion>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <excludePackageNames>*.internal:com.bc.ceres.site</excludePackageNames>
+                    <aggregate>true</aggregate>
+                    <quiet>true</quiet>
+                    <links>
+                        <link>http://java.sun.com/javase/6/docs/api/</link>
+                    </links>
+                    <groups>
+                        <group>
+                            <title>Ceres Core API</title>
+                            <packages>com.bc.ceres.core:com.bc.ceres.core.runtime:com.bc.ceres.launcher</packages>
+                        </group>
+                        <group>
+                            <title>Ceres Binding API</title>
+                            <packages>
+                                com.bc.ceres.binding:com.bc.ceres.binding.accessors:com.bc.ceres.binding.converters:com.bc.ceres.binding.validators:com.bc.ceres.binding.dom:com.bc.ceres.binding.swing
+                            </packages>
+                        </group>
+                        <group>
+                            <title>Ceres Swing API</title>
+                            <packages>com.bc.ceres.swing.update:com.bc.ceres.swing.progress:com.bc.ceres.swing
+                            </packages>
+                        </group>
+                        <group>
+                            <title>Ceres Layer API</title>
+                            <packages>
+                                com.bc.ceres.glayer:com.bc.ceres.glayer.support:com.bc.ceres.grender:com.bc.ceres.grender.support:com.bc.ceres.glevel:com.bc.ceres.glevel.support
+                            </packages>
+                        </group>
+                        <group>
+                            <title>Ceres Binary I/O API</title>
+                            <packages>com.bc.ceres.binio:com.bc.ceres.binio.util:com.bc.ceres.binio.binx
+                            </packages>
+                        </group>
+                    </groups>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <developers>
+        <developer>
+            <id>norman</id>
+            <name>Norman Fomferra</name>
+            <email>norman.fomferra@brockmann-consult.de</email>
+            <organization>Brockmann Consult</organization>
+            <roles>
+                <role>Project Manager</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>marcop</id>
+            <name>Marco Peters</name>
+            <email>marco.peters@brockmann-consult.de</email>
+            <organization>Brockmann Consult</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>ralf</id>
+            <name>Ralf Quast</name>
+            <email>ralf.quast@brockmann-consult.de</email>
+            <organization>Brockmann Consult</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>marcoz</id>
+            <name>Marco Zühlke</name>
+            <email>marco.zuehlke@brockmann-consult.de</email>
+            <organization>Brockmann Consult</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+</project>
