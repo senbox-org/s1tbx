@@ -167,7 +167,7 @@ public class DimapHeaderWriterTest extends TestCase {
             "            <BAND_INDEX>4</BAND_INDEX>" + LS +
             "            <BAND_NAME>gfb1</BAND_NAME>" + LS +
             "            <BAND_DESCRIPTION />" + LS +
-            "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+            "            <DATA_TYPE>int16</DATA_TYPE>" + LS +
             "            <PHYSICAL_UNIT />" + LS +
             "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
             "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +

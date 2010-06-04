@@ -52,7 +52,7 @@ public class Mask extends Band {
      * @param imageType The new mask's image type.
      */
     public Mask(String name, int width, int height, ImageType imageType) {
-        super(name, ProductData.TYPE_INT8, width, height);
+        super(name, ProductData.TYPE_UINT8, width, height);
         Assert.notNull(imageType, "imageType");
         this.imageType = imageType;
         this.imageConfigListener = new PropertyChangeListener() {

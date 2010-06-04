@@ -64,7 +64,7 @@ public class BandImagesTest {
         assertNotNull(band.getSourceImage());
         assertEquals(DataBuffer.TYPE_FLOAT, band.getSourceImage().getSampleModel().getDataType());
         assertNotSame(band.getGeophysicalImage(), band.getSourceImage());
-        assertEquals(DataBuffer.TYPE_DOUBLE, band.getGeophysicalImage().getSampleModel().getDataType());
+        assertEquals(DataBuffer.TYPE_FLOAT, band.getGeophysicalImage().getSampleModel().getDataType());
         assertNotNull(band.getGeophysicalImage());
         assertNull(band.getValidMaskImage());
     }
