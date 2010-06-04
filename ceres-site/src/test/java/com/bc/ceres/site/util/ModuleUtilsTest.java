@@ -85,39 +85,6 @@ public class ModuleUtilsTest {
     }
 
     @Test
-    public void testPomParsing() throws Exception {
-        final List<URL> poms = new ArrayList<URL>();
-        poms.add(getClass().getResource("test_pom.xml"));
-
-        File exclusionList = new File(ExclusionListBuilder.EXCLUSION_LIST_FILENAME);
-        if (exclusionList.exists()) {
-            exclusionList.delete();
-            exclusionList.createNewFile();
-        }
-        ExclusionListBuilder.generateExclusionList(exclusionList, poms);
-        CsvReader reader = new CsvReader(new FileReader(exclusionList), new char[]{ExclusionListBuilder.CSV_SEPARATOR});
-        String[] records = reader.readRecord();
-        List<String> recordList = Arrays.asList(records);
-
-        assertEquals(true, recordList.contains("ceres-launcher"));
-        assertEquals(false, recordList.contains("beam-download-portlet"));
-
-        assertEquals(9, recordList.size());
-
-        final URL pom2 = getClass().getResource("test_pom2.xml");
-        ExclusionListBuilder.addPomToExclusionList(exclusionList, pom2);
-
-        reader = new CsvReader(new FileReader(exclusionList), new char[]{ExclusionListBuilder.CSV_SEPARATOR});
-        records = reader.readRecord();
-        recordList = Arrays.asList(records);
-        int newNumberOfModules = recordList.size();
-
-        assertEquals(true, recordList.contains("ceres-launcher"));
-        assertEquals(true, recordList.contains("beam-download-portlet"));
-        assertEquals(12, newNumberOfModules);
-    }
-
-    @Test
     public void testFileBasedIsIncluded() throws CoreException, URISyntaxException, IOException {
 
         final File inclusionList = new File(getClass().getResource(PLUGINS_LIST_CSV).toURI().getPath());
