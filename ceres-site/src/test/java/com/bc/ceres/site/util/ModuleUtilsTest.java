@@ -54,8 +54,8 @@ public class ModuleUtilsTest {
         CsvReader csvReader = new CsvReader(new FileReader(exclusionList), new char[]{','});
         final String[] firstChunkOfModules = csvReader.readRecord();
 
-        assertEquals( true, Arrays.asList( firstChunkOfModules ).contains( "ceres-launcher" ) );
-        assertEquals( false, Arrays.asList( firstChunkOfModules ).contains( "beam-download-portlet" ) );
+        assertEquals(true, Arrays.asList(firstChunkOfModules).contains("ceres-launcher"));
+        assertEquals(false, Arrays.asList(firstChunkOfModules).contains("beam-download-portlet"));
 
         int numberOfModules = firstChunkOfModules.length;
         assertEquals(9, numberOfModules);
@@ -67,21 +67,21 @@ public class ModuleUtilsTest {
         final String[] secondChunkOfModules = csvReader.readRecord();
         int newNumberOfModules = secondChunkOfModules.length;
 
-        assertEquals( true, Arrays.asList( secondChunkOfModules ).contains( "ceres-launcher" ) );
-        assertEquals( true, Arrays.asList( secondChunkOfModules ).contains( "beam-download-portlet" ) );
-        assertEquals( 12, newNumberOfModules);
+        assertEquals(true, Arrays.asList(secondChunkOfModules).contains("ceres-launcher"));
+        assertEquals(true, Arrays.asList(secondChunkOfModules).contains("beam-download-portlet"));
+        assertEquals(12, newNumberOfModules);
     }
 
     @Test
     public void testIsIncluded() throws CoreException, URISyntaxException, IOException, SAXException,
                                         ParserConfigurationException {
-        final List<URL> pomList = ExclusionListBuilder.retrievePoms( ExclusionListBuilder.POM_LIST_FILENAME );
-        final ArrayList<String> inclusionList = new ArrayList<String>();
-        ExclusionListBuilder.generateExclusionList(inclusionList, pomList);
+        final List<URL> pomList = ExclusionListBuilder.retrievePoms(ExclusionListBuilder.POM_LIST_FILENAME);
+        final File exclusionList = new File(ExclusionListBuilder.EXCLUSION_LIST_FILENAME);
+        ExclusionListBuilder.generateExclusionList(exclusionList, pomList);
 
-        assertEquals(false, ModuleUtils.isExcluded(modules.get(0), inclusionList));
-        assertEquals(true, ModuleUtils.isExcluded(modules.get(1), inclusionList));
-        assertEquals(true, ModuleUtils.isExcluded(modules.get(2), inclusionList));
+        assertEquals(false, ModuleUtils.isExcluded(modules.get(0), exclusionList));
+        assertEquals(true, ModuleUtils.isExcluded(modules.get(1), exclusionList));
+        assertEquals(true, ModuleUtils.isExcluded(modules.get(2), exclusionList));
     }
 
     @Test
@@ -89,23 +89,32 @@ public class ModuleUtilsTest {
         final List<URL> poms = new ArrayList<URL>();
         poms.add(getClass().getResource("test_pom.xml"));
 
-        final ArrayList<String> inclusionList = new ArrayList<String>();
+        File exclusionList = new File(ExclusionListBuilder.EXCLUSION_LIST_FILENAME);
+        if (exclusionList.exists()) {
+            exclusionList.delete();
+            exclusionList.createNewFile();
+        }
+        ExclusionListBuilder.generateExclusionList(exclusionList, poms);
+        CsvReader reader = new CsvReader(new FileReader(exclusionList), new char[]{ExclusionListBuilder.CSV_SEPARATOR});
+        String[] records = reader.readRecord();
+        List<String> recordList = Arrays.asList(records);
 
-        ExclusionListBuilder.generateExclusionList(inclusionList, poms);
+        assertEquals(true, recordList.contains("ceres-launcher"));
+        assertEquals(false, recordList.contains("beam-download-portlet"));
 
-        assertEquals( true, inclusionList.contains( "ceres-launcher" ) );
-        assertEquals( false, inclusionList.contains( "beam-download-portlet" ) );
-
-        assertEquals(9, inclusionList.size());
+        assertEquals(9, recordList.size());
 
         final URL pom2 = getClass().getResource("test_pom2.xml");
-        ExclusionListBuilder.addPomToExclusionList(inclusionList, pom2);
+        ExclusionListBuilder.addPomToExclusionList(exclusionList, pom2);
 
-        int newNumberOfModules = inclusionList.size();
+        reader = new CsvReader(new FileReader(exclusionList), new char[]{ExclusionListBuilder.CSV_SEPARATOR});
+        records = reader.readRecord();
+        recordList = Arrays.asList(records);
+        int newNumberOfModules = recordList.size();
 
-        assertEquals( true, inclusionList.contains( "ceres-launcher" ) );
-        assertEquals( true, inclusionList.contains( "beam-download-portlet" ) );
-        assertEquals( 12, newNumberOfModules);
+        assertEquals(true, recordList.contains("ceres-launcher"));
+        assertEquals(true, recordList.contains("beam-download-portlet"));
+        assertEquals(12, newNumberOfModules);
     }
 
     @Test

@@ -17,7 +17,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,18 +55,9 @@ public class ExclusionListBuilder {
         }
     }
 
-    public static void generateExclusionList(File exclusionList, List<URL> poms) throws ParserConfigurationException,
-                                                                                        IOException,
-                                                                                        SAXException {
-        for (URL pom : poms) {
-            addPomToExclusionList(exclusionList, pom);
-        }
-    }
-
-    public static void generateExclusionList(List<String> exclusionList, List<URL> poms) throws IOException,
-                                                                                                SAXException,
-                                                                                                ParserConfigurationException,
-                                                                                                URISyntaxException {
+    static void generateExclusionList(File exclusionList, List<URL> poms) throws ParserConfigurationException,
+                                                                                 IOException,
+                                                                                 SAXException {
         for (URL pom : poms) {
             addPomToExclusionList(exclusionList, pom);
         }
@@ -101,26 +91,6 @@ public class ExclusionListBuilder {
 
     }
 
-    static void addPomToExclusionList(List<String> exclusionList, URL pom) throws ParserConfigurationException,
-                                                                                  IOException, SAXException,
-                                                                                  URISyntaxException {
-        final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        final Document w3cDoc = builder.parse(pom.toURI().toString());
-        final DOMBuilder domBuilder = new DOMBuilder();
-        final org.jdom.Document doc = domBuilder.build(w3cDoc);
-        final Element root = doc.getRootElement();
-        final Namespace namespace = root.getNamespace();
-        final List<Element> modules = root.getChildren(MODULES_NODE, namespace);
-        if (modules != null) {
-            // hard-coded index 0 is ok because xml-schema allows only one <modules>-node
-            final Element modulesNode = modules.get(0);
-            final List<Element> modulesList = (List<Element>) modulesNode.getChildren(MODULE_NAME, namespace);
-            for (Element module : modulesList) {
-                addModuleToExclusionList(exclusionList, module);
-            }
-        }
-    }
-
     static void addModuleToExclusionList(File exclusionList, Writer writer, String moduleName) throws IOException {
         CsvReader reader = new CsvReader(new FileReader(exclusionList), new char[]{CSV_SEPARATOR});
         final String[] records = reader.readRecord();
@@ -131,19 +101,11 @@ public class ExclusionListBuilder {
 
         if (!recordList.contains(moduleName)) {
             writer.write(moduleName);
-            writer.write( CSV_SEPARATOR );
+            writer.write(CSV_SEPARATOR);
         }
     }
 
-    static void addModuleToExclusionList(List<String> exclusionList, Element module) throws IOException {
-        final String moduleName = module.getText();
-
-        if (!exclusionList.contains(moduleName)) {
-            exclusionList.add(moduleName);
-        }
-    }
-
-    public static List<URL> retrievePoms(String fileName) {
+    static List<URL> retrievePoms(String fileName) {
         List<URL> pomList = new ArrayList<URL>();
         try {
             final String pomListFile = SiteCreator.class.getResource(fileName).getFile();

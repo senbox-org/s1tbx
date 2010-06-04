@@ -8,10 +8,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Util class which provides methods to remove double Elements from a given array of
@@ -29,6 +27,7 @@ public class ModuleUtils {
      * is removed.
      *
      * @param modules the module array which shall be cleansed of double modules.
+     *
      * @return the revised module array
      */
     public static Module[] removeDoubles(Module[] modules) {
@@ -60,16 +59,17 @@ public class ModuleUtils {
     /**
      * Checks if a module is excluded on the given exclusion-list.
      *
-     * @param module the module to check for
+     * @param module        the module to check for
      * @param exclusionList the list, given as csv without line breaks
+     *
      * @return true if the module is included
      */
-    public static boolean isExcluded(Module module, File exclusionList ) {
+    public static boolean isExcluded(Module module, File exclusionList) {
         try {
             final InputStream stream = new FileInputStream(exclusionList);
             final CsvReader csvReader = new CsvReader(new InputStreamReader(stream), new char[]{','});
             final String[] allowedModules = csvReader.readRecord();
-            if( allowedModules == null ) {
+            if (allowedModules == null) {
                 return false;
             }
             return Arrays.asList(allowedModules).contains(module.getSymbolicName());
@@ -80,20 +80,10 @@ public class ModuleUtils {
     }
 
     /**
-     * Checks if a module is excluded within the given exclusion-list
-     *
-     * @param module the module to check for, may not be null
-     * @param exclusionList the list, given as list of strings
-     * @return true if the module is included and the inclusion-list is not null
-     */
-    public static boolean isExcluded(Module module, List<String> exclusionList) {
-        return exclusionList == null || exclusionList.contains(module.getSymbolicName());
-    }
-
-    /**
      * Parses the year of the modules release from the module.
      *
      * @param module the module
+     *
      * @return the year
      */
     public static String retrieveYear(Module module) {
@@ -109,55 +99,28 @@ public class ModuleUtils {
     }
 
     /**
-     * excludes double modules and modules which are on the given exclusion list
-     *
-     * @param modules the modules to clean up
-     * @param exclusionList the list containing modules to be excluded from the view
-     * @return the cleaned-up list of modules
-     */
-    public static Module[] cleanModules(Module[] modules, List<String> exclusionList) {
-        try {
-            final List<URL> pomList = ExclusionListBuilder.retrievePoms(ExclusionListBuilder.POM_LIST_FILENAME);
-            ExclusionListBuilder.generateExclusionList(exclusionList, pomList);
-        } catch (Exception ignored) {
-            // ignore
-        }
-        final ArrayList<Module> removeList = new ArrayList<Module>();
-        for( Module module : modules ) {
-            if( isExcluded( module, exclusionList ) ) {
-                removeList.add( module );
-            }
-        }
-        final ArrayList<Module> temp = new ArrayList<Module>();
-        temp.addAll( Arrays.asList( modules ) );
-        temp.removeAll( removeList );
-        modules = temp.toArray( new Module[temp.size()]);
-        modules = removeDoubles(modules);
-        return modules;
-    }
-
-    /**
      * excludes double modules and modules which are on the given exclusion list file
      *
-     * @param modules the modules to clean up
+     * @param modules       the modules to clean up
      * @param exclusionList the list containing modules to be excluded from the view
+     *
      * @return the cleaned-up list of modules
      */
 
     public static Module[] cleanModules(Module[] modules, File exclusionList) {
-        if( exclusionList == null ) {
+        if (exclusionList == null) {
             return modules;
         }
         final ArrayList<Module> removeList = new ArrayList<Module>();
-        for( Module module : modules ) {
-            if( isExcluded( module, exclusionList ) ) {
-                removeList.add( module );
+        for (Module module : modules) {
+            if (isExcluded(module, exclusionList)) {
+                removeList.add(module);
             }
         }
         final ArrayList<Module> temp = new ArrayList<Module>();
-        temp.addAll( Arrays.asList( modules ) );
-        temp.removeAll( removeList );
-        modules = temp.toArray( new Module[temp.size()]);
+        temp.addAll(Arrays.asList(modules));
+        temp.removeAll(removeList);
+        modules = temp.toArray(new Module[temp.size()]);
         modules = removeDoubles(modules);
         return modules;
     }

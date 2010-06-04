@@ -29,8 +29,7 @@ public class HtmlModuleGenerator implements HtmlGenerator {
     }
 
     public void generate(PrintWriter out, Module[] modules, String repositoryUrl) throws IOException {
-//        File exclusionList = ExclusionListBuilder.retrieveExclusionList(repositoryUrl);
-        File exclusionList = new File( ExclusionListBuilder.EXCLUSION_LIST_FILENAME);
+        File exclusionList = new File(ExclusionListBuilder.EXCLUSION_LIST_FILENAME);
         modules = ModuleUtils.cleanModules(modules, exclusionList);
         for (Module module : modules) {
             String year = ModuleUtils.retrieveYear(module);
