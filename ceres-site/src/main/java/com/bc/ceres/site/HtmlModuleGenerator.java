@@ -7,19 +7,12 @@
 package com.bc.ceres.site;
 
 import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.site.util.CsvReader;
+import com.bc.ceres.site.util.InclusionListBuilder;
+import com.bc.ceres.site.util.ModuleUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.ResourceBundle;
+import java.util.ArrayList;
 
 /**
  * Generate a HTML view of a module repository. This is only a fragment, not a
@@ -29,10 +22,6 @@ import java.util.ResourceBundle;
  */
 public class HtmlModuleGenerator implements HtmlGenerator {
 
-    private final ResourceBundle bundle = java.util.ResourceBundle.getBundle("com/bc/ceres/site/LocalStrings");
-    private static final String KEYWORDS = "keywords";
-    private static final String INCLUSION_LIST_FILENAME = "plugins_list.csv";
-
     /**
      * Creates a new instance of HtmlModuleGenerator
      */
@@ -40,130 +29,54 @@ public class HtmlModuleGenerator implements HtmlGenerator {
     }
 
     public void generate(PrintWriter out, Module[] modules, String repositoryUrl) throws IOException {
-        out.println("<table class=\"modules\">");
+        modules = ModuleUtils.removeDoubles(modules);
         for (Module module : modules) {
-            if (!isIncluded(module, retrieveInclusionList(repositoryUrl))) {
+//            if (!ModuleUtils.isIncluded(module, InclusionListBuilder.retrieveInclusionList(repositoryUrl))) {
+            try {
+                final ArrayList<String> inclusionList = new ArrayList<String>();
+                InclusionListBuilder.parsePoms(inclusionList, InclusionListBuilder.retrievePoms() );
+                if (!ModuleUtils.isIncluded(module, inclusionList ) ) {
+                    continue;
+                }
+            } catch(Exception e) {
                 continue;
             }
-            out.println("  <tr class=\"head\">");
-            out.print("    <td class=\"name\"><a name=\"" + sanitize(module.getName().replace(' ', '_')) + "\"></a>");
-            out.print(getDisplayText("name"));
-            out.println("</td><td class=\"value\"><a href=\"" + sanitize(
-                    module.getLocation().toExternalForm()) + "\">" + sanitize(module.getName()) + "</a></td></tr>");
-//            output(out, "name", module.getName(), module.getLocation().toExternalForm());
-            output(out, "symbolicName", module.getSymbolicName(), null);
-            output(out, "aboutUrl", module.getAboutUrl() != null ? "<span class=\"aboutLink\">about</span>" : "",
-                   module.getAboutUrl());
-            output(out, "activatorClassName", module.getActivatorClassName(), null);
-            output(out, "vendor", module.getVendor(), null);
-            output(out, "contactAddress", module.getContactAddress(), null);
-            output(out, "url", module.getUrl(), module.getUrl());
-            output(out, "copyright", module.getCopyright(), null);
-            output(out, "description", module.getDescription(), null);
-            final String[] categories = module.getCategories();
-            if (categories.length > 0) {
-                out.println(generateKeyWords(categories));
+
+            String year = ModuleUtils.retrieveYear(module);
+
+            // heading and download-link
+            out.print("<h2 class=\"heading\">" + module.getName() + " ");
+            out.print("<a href=\"" + module.getLocation().toExternalForm() + "\">");
+            out.print(module.getVersion() + "</a>");
+            out.println("</h2>");
+
+            // description
+            out.println("<div class=\"description\">");
+            out.println(module.getDescription());
+            out.println("</div>");
+
+            out.println( "<p>" );
+
+            // footer
+            out.print("<div class=\"footer\">");
+            final String contactUrl = module.getUrl();
+            if( contactUrl != null ) {
+                out.print( "<a href=\"" + contactUrl + "\">" );
             }
-            output(out, "licenseUrl", module.getLicenseUrl(), module.getLicenseUrl());
-            output(out, "manifestVersion", module.getManifestVersion(), null);
-            output(out, "packaging", module.getPackaging(), null);
-            output(out, "version", module.getVersion().toString(), null);
-            output(out, "contentLength", getSizeText(module.getContentLength()), null);
-            output(out, "lastModified", getDateText(module.getLastModified()), null);
-
-            out.println("  <tr class=\"totop\"><td></td><td><a href=\"#top\">top</a></td></tr>");
-        }
-        out.println("</table>");
-    }
-
-    private File retrieveInclusionList(String repositoryUrl) {
-        String sep = "/";
-        if (repositoryUrl.endsWith(sep)) {
-            sep = "";
-        }
-        return new File(repositoryUrl + sep + INCLUSION_LIST_FILENAME);
-    }
-
-    boolean isIncluded(Module module, File inclusionList) {
-        try {
-            final InputStream stream = new FileInputStream(inclusionList);
-            final CsvReader csvReader = new CsvReader(new InputStreamReader(stream), new char[]{','});
-            final String[] allowedModules = csvReader.readRecord();
-            return Arrays.asList(allowedModules).contains(module.getSymbolicName());
-        } catch (IOException e) {
-            return true;
-        }
-    }
-
-    private String generateKeyWords(String[] categories) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("<tr class=\"description\">\n");
-        builder.append("<td class=\"key\">");
-        builder.append(getDisplayText(KEYWORDS));
-        builder.append("</td>");
-        builder.append("<td class=\"value\">");
-        for (int i = 0; i < categories.length - 1; i++) {
-            builder.append(categories[i]).append(", ");
-        }
-        builder.append(categories[categories.length - 1]);
-        builder.append("</td>\n</tr>");
-        return builder.toString();
-    }
-
-    private void output(PrintWriter out, String clazz, String value, String link) {
-        if (value != null) {
-            if (clazz.equals("copyright")) {
-                value = value.replace("(C)", "&copy;");
+            out.print(module.getVendor());
+            if( contactUrl != null ) {
+                out.print( "</a>" );
             }
-            clazz = sanitize(clazz);
-            value = sanitize(value);
-            link = sanitize(link);
-            out.print("<tr class=\"" + clazz + "\"><td class=\"key\">");
-            out.print(getDisplayText(clazz));
-            out.print("</td><td class=\"value\">");
-            if (link != null) {
-                out.print("<a href=\"" + link + "\">");
+            out.print(!year.equals("-1") ? ", " + year : "");
+            final String licenceUrl = module.getLicenseUrl();
+            if( licenceUrl != null ) {
+                out.print("&nbsp;&#8226;&nbsp;<a href=\"" + licenceUrl + "\">Licence</a>");
             }
-            if (value != null) {
-                out.print(value.trim());
-            }
-            if (link != null) {
-                out.print("</a>");
-            }
-            out.println("</td>\n</tr>");
+            out.print("&nbsp;&#8226;&nbsp;<a href=\"#top\">top</a>");
+            out.println("</div>");
+
+            out.println( "<br/>" );
         }
     }
 
-    private String getDisplayText(String key) {
-        String bundleKey = "module." + key;
-        if (bundle.containsKey(bundleKey)) {
-            return bundle.getString(bundleKey).trim();
-        }
-        return key.trim();
-    }
-
-    // siehe ModuleTextFactory in ceres-ui... Dieser Code wurde in der Eile
-    // kopiert und modifiziert!
-
-    private static final String NOT_SPECIFIED = "(not specified)";
-
-    static String getText(String s) {
-        return s == null ? NOT_SPECIFIED : s;
-    }
-
-    static String getDateText(long timestamp) {
-        DateFormat dateInstance = SimpleDateFormat.getDateInstance();
-        return dateInstance.format(new Date(timestamp));
-    }
-
-    static String getSizeText(long bytes) {
-        long kilos = Math.round(bytes / 1024.0);
-        long megas = Math.round(bytes / (1024.0 * 1024.0));
-        return getText(megas > 0 ? (megas + " M") : kilos > 0 ? (kilos + " K") : (bytes + " B"));
-    }
-
-    private String sanitize(String link) {
-        // todo: escape HTML special characters.
-        return link;
-    }
 }
