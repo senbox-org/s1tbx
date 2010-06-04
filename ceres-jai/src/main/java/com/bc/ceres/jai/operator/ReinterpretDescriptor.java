@@ -88,7 +88,7 @@ public class ReinterpretDescriptor extends OperationDescriptorImpl {
      * @param interpretationType The interpretation type.
      * @param hints              The <code>RenderingHints</code> to use. May be <code>null</code>.
      *
-     * @return The <code>RenderedImage</code> destination.
+     * @return The <code>RenderedOp</code> destination.
      *
      * @throws IllegalArgumentException if <code>source</code> is <code>null</code>.
      * @see javax.media.jai.JAI
@@ -96,8 +96,8 @@ public class ReinterpretDescriptor extends OperationDescriptorImpl {
      * @see javax.media.jai.RenderedOp
      */
     public static RenderedOp create(RenderedImage source, double factor, double offset,
-                                       ScalingType scalingType, InterpretationType interpretationType,
-                                       RenderingHints hints) {
+                                    ScalingType scalingType, InterpretationType interpretationType,
+                                    RenderingHints hints) {
         final ParameterBlockJAI pb = new ParameterBlockJAI("Reinterpret", RenderedRegistryMode.MODE_NAME);
         pb.setSource("source0", source);
         pb.setParameter(PARAM_NAME_FACTOR, factor);
