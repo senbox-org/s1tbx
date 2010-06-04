@@ -33,6 +33,7 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.jai.SingleBandedSampleModel;
 import org.esa.beam.util.math.DoubleList;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.IndexValidator;
@@ -41,13 +42,17 @@ import org.esa.beam.util.math.Quantizer;
 import org.esa.beam.util.math.Range;
 import org.esa.beam.util.math.Statistics;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -2023,12 +2028,23 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
             @Override
             protected RenderedImage createImage(RenderedImage[] sourceImages, int level) {
-                return ReinterpretDescriptor.create(sourceImages[0],
-                                                    getScalingFactor(),
-                                                    getScalingOffset(),
-                                                    getScalingType(),
-                                                    getInterpretationType(),
-                                                    null);
+                final RenderedImage source = sourceImages[0];
+                final double factor = getScalingFactor();
+                final double offset = getScalingOffset();
+                final ScalingType scalingType = getScalingType();
+                final InterpretationType interpretationType = getInterpretationType();
+                final int sourceDataType = source.getSampleModel().getDataType();
+                final int targetDataType = ReinterpretDescriptor.getTargetDataType(sourceDataType,
+                                                                                   factor,
+                                                                                   offset,
+                                                                                   scalingType,
+                                                                                   interpretationType);
+                final SampleModel sampleModel = new SingleBandedSampleModel(targetDataType,
+                                                                            source.getWidth(),
+                                                                            source.getHeight());
+                final ImageLayout imageLayout = ReinterpretDescriptor.createTargetImageLayout(source, sampleModel);
+                return ReinterpretDescriptor.create(source, factor, offset, scalingType, interpretationType,
+                                                    new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout));
             }
         });
     }
