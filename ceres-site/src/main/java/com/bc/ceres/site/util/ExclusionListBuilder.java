@@ -17,7 +17,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,41 +24,61 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Basic helper class which allows to generate and extend a file (plugins_list.csv). That file contains a number of
+ * Basic helper class which allows to generate and extend a file (exclusion_list.csv). That file contains a number of
  * modules which are obtained by one or more given POMs, and are written in single row, comma separated.
  *
  * @author Thomas Storm
  * @version 1.0
  */
-public class InclusionListBuilder {
+public class ExclusionListBuilder {
 
     private static final String MODULE_NAME = "module";
     private static final String MODULES_NODE = "modules";
 
-    public static final String INCLUSION_LIST_FILENAME = "plugins_list.csv";
+    public static final String EXCLUSION_LIST_FILENAME = "exclusion_list.csv";
     public static final char CSV_SEPARATOR = ',';
+    public static final String POM_LIST_FILENAME = "pom_list";
 
-    public static void parsePoms(File inclusionList, List<URL> poms) throws ParserConfigurationException, IOException,
-                                                                            SAXException {
-        for (URL pom : poms) {
-            addPomToInclusionList(inclusionList, pom);
+    public static void main(String[] args) {
+        File exclusionList;
+        String pomListFileName = POM_LIST_FILENAME;
+        if (args.length < 1) {
+            exclusionList = new File(EXCLUSION_LIST_FILENAME);
+        } else {
+            exclusionList = new File(args[0]);
+        }
+        if (args.length > 1) {
+            pomListFileName = args[1];
+        }
+        try {
+            generateExclusionList(exclusionList, ExclusionListBuilder.retrievePoms(pomListFileName));
+        } catch (Exception ignored) {
         }
     }
 
-    public static void parsePoms(List<String> inclusionList, List<URL> poms) throws IOException, SAXException,
-                                                                                    ParserConfigurationException,
-                                                                                    URISyntaxException {
+    public static void generateExclusionList(File exclusionList, List<URL> poms) throws ParserConfigurationException,
+                                                                                        IOException,
+                                                                                        SAXException {
         for (URL pom : poms) {
-            addPomToInclusionList(inclusionList, pom);
+            addPomToExclusionList(exclusionList, pom);
         }
     }
 
-    static void addPomToInclusionList(File inclusionList, URL pom) throws ParserConfigurationException,
-                                                                                 IOException, SAXException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(inclusionList, true));
+    public static void generateExclusionList(List<String> exclusionList, List<URL> poms) throws IOException,
+                                                                                                SAXException,
+                                                                                                ParserConfigurationException,
+                                                                                                URISyntaxException {
+        for (URL pom : poms) {
+            addPomToExclusionList(exclusionList, pom);
+        }
+    }
+
+    static void addPomToExclusionList(File exclusionList, URL pom) throws ParserConfigurationException,
+                                                                          IOException, SAXException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(exclusionList, true));
         try {
             final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            final Document w3cDoc = builder.parse(new File(pom.getFile()));
+            final Document w3cDoc = builder.parse(pom.openStream());
             final DOMBuilder domBuilder = new DOMBuilder();
             final org.jdom.Document doc = domBuilder.build(w3cDoc);
             final Element root = doc.getRootElement();
@@ -70,19 +89,21 @@ public class InclusionListBuilder {
                 final Element modulesNode = modules.get(0);
                 final List<Element> modulesList = (List<Element>) modulesNode.getChildren(MODULE_NAME, namespace);
                 for (Element module : modulesList) {
-                    addModuleToInclusionList(inclusionList, writer, module);
-                    writer.write(CSV_SEPARATOR);
+                    addModuleToExclusionList(exclusionList, writer, module.getText());
                 }
             }
-        } finally {
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
             writer.close();
         }
 
     }
 
-    static void addPomToInclusionList(List<String> inclusionList, URL pom) throws ParserConfigurationException,
-                                                                                         IOException, SAXException,
-                                                                                         URISyntaxException {
+    static void addPomToExclusionList(List<String> exclusionList, URL pom) throws ParserConfigurationException,
+                                                                                  IOException, SAXException,
+                                                                                  URISyntaxException {
         final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         final Document w3cDoc = builder.parse(pom.toURI().toString());
         final DOMBuilder domBuilder = new DOMBuilder();
@@ -95,49 +116,37 @@ public class InclusionListBuilder {
             final Element modulesNode = modules.get(0);
             final List<Element> modulesList = (List<Element>) modulesNode.getChildren(MODULE_NAME, namespace);
             for (Element module : modulesList) {
-                addModuleToInclusionList(inclusionList, module);
+                addModuleToExclusionList(exclusionList, module);
             }
         }
     }
 
-    static void addModuleToInclusionList(File inclusionList, Writer writer, Element module) throws IOException {
-        CsvReader reader = new CsvReader(new FileReader(inclusionList), new char[]{CSV_SEPARATOR});
+    static void addModuleToExclusionList(File exclusionList, Writer writer, String moduleName) throws IOException {
+        CsvReader reader = new CsvReader(new FileReader(exclusionList), new char[]{CSV_SEPARATOR});
         final String[] records = reader.readRecord();
         List<String> recordList = new ArrayList<String>();
         if (records != null) {
             recordList.addAll(Arrays.asList(records));
         }
-        final String moduleName = module.getText();
 
         if (!recordList.contains(moduleName)) {
             writer.write(moduleName);
+            writer.write( CSV_SEPARATOR );
         }
     }
 
-    static void addModuleToInclusionList(List<String> inclusionList, Element module) throws IOException {
+    static void addModuleToExclusionList(List<String> exclusionList, Element module) throws IOException {
         final String moduleName = module.getText();
 
-        if (!inclusionList.contains(moduleName)) {
-            inclusionList.add(moduleName);
+        if (!exclusionList.contains(moduleName)) {
+            exclusionList.add(moduleName);
         }
     }
 
-    public static File retrieveInclusionList(String repositoryUrl) {
-        String sep = "/";
-        if (repositoryUrl.endsWith(sep)) {
-            sep = "";
-        }
-        try {
-            return new File(new URI(repositoryUrl + sep + INCLUSION_LIST_FILENAME));
-        } catch (URISyntaxException e) {
-            return null;
-        }
-    }
-
-    public static List<URL> retrievePoms() {
+    public static List<URL> retrievePoms(String fileName) {
         List<URL> pomList = new ArrayList<URL>();
         try {
-            final String pomListFile = SiteCreator.class.getResource("pom_list").getFile();
+            final String pomListFile = SiteCreator.class.getResource(fileName).getFile();
             final BufferedReader reader = new BufferedReader(new FileReader(pomListFile));
             String line;
             while ((line = reader.readLine()) != null) {
