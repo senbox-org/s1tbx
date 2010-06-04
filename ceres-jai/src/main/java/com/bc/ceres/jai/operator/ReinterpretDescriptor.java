@@ -111,6 +111,14 @@ public class ReinterpretDescriptor extends OperationDescriptorImpl {
         return JAI.create("Reinterpret", pb, hints);
     }
 
+    /**
+     * Creates the target image layout for a given source and a given target sample model.
+     *
+     * @param source      The source.
+     * @param sampleModel The target sample model.
+     *
+     * @return the target image layout.
+     */
     public static ImageLayout createTargetImageLayout(RenderedImage source, SampleModel sampleModel) {
         final int w = source.getWidth();
         final int h = source.getHeight();
@@ -123,6 +131,19 @@ public class ReinterpretDescriptor extends OperationDescriptorImpl {
         return imageLayout;
     }
 
+    /**
+     * Returns the target data type for a given source data type and reinterpretation properties.
+     *
+     * @param sourceDataType     The source data type
+     * @param factor             The scaling factor.
+     * @param offset             The scaling offset.
+     * @param scalingType        The manner of scaling.
+     * @param interpretationType The interpretation type.
+     *
+     * @return the target data type.
+     *
+     * @see java.awt.image.DataBuffer
+     */
     public static int getTargetDataType(int sourceDataType, double factor, double offset, ScalingType scalingType,
                                         InterpretationType interpretationType) {
         final boolean rescale = scalingType == EXPONENTIAL || factor != 1.0 || offset != 0.0;
