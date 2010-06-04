@@ -7,12 +7,12 @@
 package com.bc.ceres.site;
 
 import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.site.util.InclusionListBuilder;
+import com.bc.ceres.site.util.ExclusionListBuilder;
 import com.bc.ceres.site.util.ModuleUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 
 /**
  * Generate a HTML view of a module repository. This is only a fragment, not a
@@ -29,19 +29,9 @@ public class HtmlModuleGenerator implements HtmlGenerator {
     }
 
     public void generate(PrintWriter out, Module[] modules, String repositoryUrl) throws IOException {
-        modules = ModuleUtils.removeDoubles(modules);
+        File exclusionList = new File(ExclusionListBuilder.EXCLUSION_LIST_FILENAME);
+        modules = ModuleUtils.cleanModules(modules, exclusionList);
         for (Module module : modules) {
-//            if (!ModuleUtils.isIncluded(module, InclusionListBuilder.retrieveInclusionList(repositoryUrl))) {
-            try {
-                final ArrayList<String> inclusionList = new ArrayList<String>();
-                InclusionListBuilder.parsePoms(inclusionList, InclusionListBuilder.retrievePoms() );
-                if (!ModuleUtils.isIncluded(module, inclusionList ) ) {
-                    continue;
-                }
-            } catch(Exception e) {
-                continue;
-            }
-
             String year = ModuleUtils.retrieveYear(module);
 
             // heading and download-link
@@ -55,27 +45,27 @@ public class HtmlModuleGenerator implements HtmlGenerator {
             out.println(module.getDescription());
             out.println("</div>");
 
-            out.println( "<p>" );
+            out.println("<p>");
 
             // footer
             out.print("<div class=\"footer\">");
             final String contactUrl = module.getUrl();
-            if( contactUrl != null ) {
-                out.print( "<a href=\"" + contactUrl + "\">" );
+            if (contactUrl != null) {
+                out.print("<a href=\"" + contactUrl + "\">");
             }
             out.print(module.getVendor());
-            if( contactUrl != null ) {
-                out.print( "</a>" );
+            if (contactUrl != null) {
+                out.print("</a>");
             }
             out.print(!year.equals("-1") ? ", " + year : "");
             final String licenceUrl = module.getLicenseUrl();
-            if( licenceUrl != null ) {
+            if (licenceUrl != null) {
                 out.print("&nbsp;&#8226;&nbsp;<a href=\"" + licenceUrl + "\">Licence</a>");
             }
             out.print("&nbsp;&#8226;&nbsp;<a href=\"#top\">top</a>");
             out.println("</div>");
 
-            out.println( "<br/>" );
+            out.println("<br/>");
         }
     }
 

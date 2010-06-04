@@ -10,12 +10,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Util class which provides methods to remove double Elements from a given array of
  * {@link com.bc.ceres.core.runtime.Module}-objects, to check if a module exists in a dedicated csv-file, to retrieve
- * the year from a module and to retrieve a
+ * the year from a module and to retrieve if a module is on the exclusion list
  *
  * @author Thomas Storm
  * @version 1.0
@@ -28,6 +27,7 @@ public class ModuleUtils {
      * is removed.
      *
      * @param modules the module array which shall be cleansed of double modules.
+     *
      * @return the revised module array
      */
     public static Module[] removeDoubles(Module[] modules) {
@@ -57,17 +57,21 @@ public class ModuleUtils {
     }
 
     /**
-     * Checks if a module is included on the given inclusion-list.
+     * Checks if a module is excluded on the given exclusion-list.
      *
-     * @param module the module to check for
-     * @param inclusionList the list, given as csv without line breaks
+     * @param module        the module to check for
+     * @param exclusionList the list, given as csv without line breaks
+     *
      * @return true if the module is included
      */
-    public static boolean isIncluded(Module module, File inclusionList) {
+    public static boolean isExcluded(Module module, File exclusionList) {
         try {
-            final InputStream stream = new FileInputStream(inclusionList);
+            final InputStream stream = new FileInputStream(exclusionList);
             final CsvReader csvReader = new CsvReader(new InputStreamReader(stream), new char[]{','});
             final String[] allowedModules = csvReader.readRecord();
+            if (allowedModules == null) {
+                return false;
+            }
             return Arrays.asList(allowedModules).contains(module.getSymbolicName());
         } catch (IOException e) {
             // if there is no inclusion list, all modules are displayed 
@@ -76,20 +80,10 @@ public class ModuleUtils {
     }
 
     /**
-     * Checks if a module is included within the given inclusion-list
-     *
-     * @param module the module to check for, may not be null
-     * @param inclusionList the list, given as list of strings
-     * @return true if the module is included and the inclusion-list is not null
-     */
-    public static boolean isIncluded(Module module, List<String> inclusionList) {
-        return inclusionList == null || inclusionList.contains(module.getSymbolicName());
-    }
-
-    /**
      * Parses the year of the modules release from the module.
      *
      * @param module the module
+     *
      * @return the year
      */
     public static String retrieveYear(Module module) {
@@ -104,4 +98,30 @@ public class ModuleUtils {
         return year;
     }
 
+    /**
+     * excludes double modules and modules which are on the given exclusion list file
+     *
+     * @param modules       the modules to clean up
+     * @param exclusionList the list containing modules to be excluded from the view
+     *
+     * @return the cleaned-up list of modules
+     */
+
+    public static Module[] cleanModules(Module[] modules, File exclusionList) {
+        if (exclusionList == null) {
+            return modules;
+        }
+        final ArrayList<Module> removeList = new ArrayList<Module>();
+        for (Module module : modules) {
+            if (isExcluded(module, exclusionList)) {
+                removeList.add(module);
+            }
+        }
+        final ArrayList<Module> temp = new ArrayList<Module>();
+        temp.addAll(Arrays.asList(modules));
+        temp.removeAll(removeList);
+        modules = temp.toArray(new Module[temp.size()]);
+        modules = removeDoubles(modules);
+        return modules;
+    }
 }
