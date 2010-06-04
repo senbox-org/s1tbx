@@ -97,7 +97,7 @@ public class GeneralFilterBand extends FilterBand {
 
     @Override
     protected RenderedImage createSourceImage() {
-        final MultiLevelModel multiLevelModel = ImageManager.getInstance().getMultiLevelModel(this);
+        final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(this);
         return new DefaultMultiLevelImage(new GeneralFilterMultiLevelSource(multiLevelModel, getSource(),
                                                                             BorderExtender.createInstance(
                                                                                     BorderExtenderCopy.BORDER_COPY)));
