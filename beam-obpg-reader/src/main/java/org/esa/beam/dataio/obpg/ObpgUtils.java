@@ -16,7 +16,7 @@
  */
 package org.esa.beam.dataio.obpg;
 
-import org.esa.beam.dataio.obpg.ObpgProductReader;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
@@ -26,7 +26,6 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
@@ -42,8 +41,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.bc.ceres.core.ProgressMonitor;
 
 public class ObpgUtils {
 
@@ -392,6 +389,8 @@ public class ObpgUtils {
 
         latBand.setSynthetic(true);
         lonBand.setSynthetic(true);
+        latBand.getSourceImage();
+        lonBand.getSourceImage();
     }
 
     private float computePixel(final float a, final float b, final double weight) {

@@ -32,8 +32,8 @@ public class BandOpImageTest extends TestCase {
 
         testThatAwtRastersAreWrittenCorrectly(p, "B_INT32", DataBuffer.TYPE_INT);
         testThatAwtRastersAreWrittenCorrectly(p, "B_INT16", DataBuffer.TYPE_SHORT);
+        // todo - conversion from ProductData.B_INT8 --> DataBuffer.TYPE_BYTE still fails, see also [BEAM-1147] (nf - 20100527)
         // testThatAwtRastersAreWrittenCorrectly(p, "B_INT8", DataBuffer.TYPE_BYTE);
-        // todo - conversion from ProductData.B_INT8 --> DataBuffer.TYPE_BYTE still fails!!!
     }
 
     private void testThatAwtRastersAreWrittenCorrectly(Product p, String bandName, int dataBufferType) {

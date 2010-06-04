@@ -16,8 +16,9 @@ public class HdfEosDescriptionPart implements ModelPart {
     @Override
     public void read(Product p, Nc4ReaderParameters rp) throws IOException {
         Element element = HdfEosUtils.getEosElement(HdfEosUtils.ARCHIVE_METADATA, rp.getNetcdfFile().getRootGroup());
-        String v = HdfEosUtils.getValue(element, "ARCHIVEDMETADATA", "MASTERGROUP", "LONGNAME", "VALUE");
-        p.setDescription(v);
+        if (element != null) {
+            p.setDescription(HdfEosUtils.getValue(element, "ARCHIVEDMETADATA", "MASTERGROUP", "LONGNAME", "VALUE"));
+        }
     }
 
     @Override

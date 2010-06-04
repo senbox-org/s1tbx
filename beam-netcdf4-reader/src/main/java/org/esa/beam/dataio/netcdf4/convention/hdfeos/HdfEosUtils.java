@@ -19,6 +19,9 @@ public class HdfEosUtils {
 
     static Element getEosElement(String name, Group eosGroup) throws IOException {
         String smeta = getEosMetadata(name, eosGroup);
+        if (smeta == null) {
+            return null;
+        }
         smeta = smeta.replaceAll("\\s+=\\s+", "=");
 
         StringBuilder sb = new StringBuilder(smeta.length());
@@ -40,19 +43,20 @@ public class HdfEosUtils {
       int n = 0;
       while (true) {
         Variable structMetadataVar = eosGroup.findVariable(name + "." + n);
-        if (structMetadataVar == null) break;
+        if (structMetadataVar == null) {
+            break;
+        }
         if ((structMetadata != null) && (sbuff == null)) { // more than 1 StructMetadata
           sbuff = new StringBuilder(64000);
           sbuff.append(structMetadata);
         }
 
-        // read and parse the ODL
-        Array A = structMetadataVar.read();
-        ArrayChar ca = (ArrayChar) A;
-        structMetadata = ca.getString(); // common case only StructMetadata.0, avoid extra copy
+        Array metadataArray = structMetadataVar.read();
+        structMetadata = ((ArrayChar) metadataArray).getString(); // common case only StructMetadata.0, avoid extra copy
 
-        if (sbuff != null)
+        if (sbuff != null) {
           sbuff.append(structMetadata);
+        }
         n++;
       }
       return (sbuff != null) ? sbuff.toString() : structMetadata;

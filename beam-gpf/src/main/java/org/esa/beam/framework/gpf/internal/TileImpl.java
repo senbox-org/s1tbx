@@ -31,6 +31,7 @@ public class TileImpl implements Tile {
     private final int height;
     private final boolean target;
     private final boolean scaled;
+    private final boolean signedByte;
     private final int scanlineOffset;
     private final int scanlineStride;
     private final byte[] dataBufferByte;
@@ -75,8 +76,9 @@ public class TileImpl implements Tile {
         this.width = rectangle.width;
         this.height = rectangle.height;
         this.target = target;
-        // todo - optimize getSample()/setSample() methods by using a Closure that either honours scaling or not. (nf 04.2010)
+        // todo - optimize getSample()/setSample() methods by using a Closure that either honours scaling / signedByte. (nf 04.2010)
         this.scaled = rasterDataNode.isScalingApplied();
+        this.signedByte = rasterDataNode.getDataType() == ProductData.TYPE_INT8;
 
         int smX0 = rectangle.x - raster.getSampleModelTranslateX();
         int smY0 = rectangle.y - raster.getSampleModelTranslateY();
@@ -244,6 +246,40 @@ public class TileImpl implements Tile {
     }
 
     @Override
+    public int[] getSamplesInt() {
+        // todo - urgently need benchmarks. performance may be poor (nf 04.2010)
+        // todo - directly read this data from RasterDataNode.geophysicalImage once it masks out NaN correctly  (nf 04.2010)
+        if (getRasterDataNode().isValidMaskUsed()) {
+            final int size = width * height;
+            final int[] samples = new int[size];
+            int i = 0;
+            for (int y = minY; y <= maxY; y++) {
+                for (int x = minX; x <= maxX; x++) {
+                    samples[i++] = isSampleValid(x, y) ? getSampleInt(x, y) : 0;
+                }
+            }
+            return samples;
+        } else {
+            final ProductData data = getRawSamples();
+            if (!scaled && data.getType() == ProductData.TYPE_INT32) {
+                return (int[]) data.getElems();
+            }
+            final int size = data.getNumElems();
+            final int[] samples = new int[size];
+            if (scaled) {
+                for (int i = 0; i < size; i++) {
+                    samples[i] = (int) toGeoPhysical(data.getElemIntAt(i));
+                }
+            } else {
+                for (int i = 0; i < size; i++) {
+                    samples[i] = data.getElemIntAt(i);
+                }
+            }
+            return samples;
+        }
+    }
+
+    @Override
     public float[] getSamplesFloat() {
         // todo - urgently need benchmarks. performance may be poor (nf 04.2010)
         // todo - directly read this data from RasterDataNode.geophysicalImage once it masks out NaN correctly  (nf 04.2010)
@@ -312,6 +348,16 @@ public class TileImpl implements Tile {
     }
 
     @Override
+    public void setSamples(int[] samples) {
+        int i = 0;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                setSample(x, y, samples[i++]);
+            }
+        }
+    }
+
+    @Override
     public void setSamples(float[] samples) {
         int i = 0;
         for (int y = 0; y < height; y++) {
@@ -344,7 +390,11 @@ public class TileImpl implements Tile {
     @Override
     public int getSampleInt(int x, int y) {
         int sample = raster.getSample(x, y, 0);
-        // todo - handle unsigned data types here!!!
+        // handle unsigned data types, see also [BEAM-1147] (nf - 20100527)
+        if (signedByte) {
+            //noinspection SillyAssignment
+            sample = (byte) sample;
+        }
         if (scaled) {
             sample = (int) Math.floor(toGeoPhysical(sample) + 0.5);
         }
@@ -353,7 +403,6 @@ public class TileImpl implements Tile {
 
     @Override
     public void setSample(int x, int y, int sample) {
-        // todo - handle unsigned data types here!!!
         if (scaled) {
             sample = (int) Math.floor(toRaw((double) sample) + 0.5);
         }
@@ -363,6 +412,11 @@ public class TileImpl implements Tile {
     @Override
     public float getSampleFloat(int x, int y) {
         float sample = raster.getSampleFloat(x, y, 0);
+        // handle unsigned data types, see also [BEAM-1147] (nf - 20100527)
+        if (signedByte) {
+            //noinspection SillyAssignment
+            sample = (byte) sample;
+        }
         if (scaled) {
             sample = toGeoPhysical(sample);
         }
@@ -381,6 +435,11 @@ public class TileImpl implements Tile {
     @Override
     public double getSampleDouble(int x, int y) {
         double sample = raster.getSampleDouble(x, y, 0);
+        // handle unsigned data types, see also [BEAM-1147] (nf - 20100527)
+        if (signedByte) {
+            //noinspection SillyAssignment
+            sample = (byte) sample;
+        }
         if (scaled) {
             sample = toGeoPhysical(sample);
         }

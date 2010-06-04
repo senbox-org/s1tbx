@@ -20,6 +20,9 @@ import java.util.List;
 
 
 public class HdfEosGeocodingPart implements ModelPart {
+
+    private static final double PIXEL_CENTER = 0.5;
+
     @Override
     public void read(Product p, Nc4ReaderParameters rp) throws IOException {
         NetcdfFile netcdfFile = rp.getNetcdfFile();
@@ -27,30 +30,52 @@ public class HdfEosGeocodingPart implements ModelPart {
         Element gridStructure = eosElement.getChild("GridStructure");
         Element gridElem = (Element) gridStructure.getChildren().get(0);
         Element projectionElem = gridElem.getChild("Projection");
-        String projection = projectionElem.getValue();
         Element ulPointElem = gridElem.getChild("UpperLeftPointMtrs");
-        System.out.println("ulPointElem = " + ulPointElem);
-        List list = ulPointElem.getAttributes();
-        for (int i = 0; i < list.size(); i++) {
-            Object o = list.get(i);
-            System.out.println("o = " + o);
-        }
         Element lrPointElem = gridElem.getChild("LowerRightMtrs");
-        System.out.println("lrPointElem = " + lrPointElem);
+        if (projectionElem == null || ulPointElem == null || lrPointElem == null) {
+            return;
+        }
+        String projection = projectionElem.getValue();
+        if (!projection.equals("GCTP_GEO")) {
+                return;
+        }
+        List<Element> ulList = ulPointElem.getChildren();
+        String ulLon = ulList.get(0).getValue();
+        String ulLat = ulList.get(1).getValue();
+        double upperLeftLon = Double.parseDouble(ulLon);
+        if (upperLeftLon < -180 || upperLeftLon > 180) {
+            return;
+        }
+        double upperLeftLat = Double.parseDouble(ulLat);
+        if (upperLeftLat < -90 || upperLeftLat > 90) {
+            return;
+        }
 
+        List<Element> lrList = lrPointElem.getChildren();
+        String lrLon = lrList.get(0).getValue();
+        String lrLat = lrList.get(1).getValue();
+        double lowerRightLon = Double.parseDouble(lrLon);
+        if (lowerRightLon < -180 || lowerRightLon > 180) {
+            return;
+        }
+        double lowerRightLat = Double.parseDouble(lrLat);
+        if (lowerRightLat < -90 || lowerRightLat > 90) {
+            return;
+        }
 
-//        AffineTransform transform = new AffineTransform();
-//        transform.translate(upperLeftLon, upperLeftLat);
-//        transform.scale(pixelSize, -pixelSize);
-//        transform.translate(-PIXEL_CENTER, -PIXEL_CENTER);
-//        Rectangle rect = new Rectangle(p.getSceneRasterWidth(), p.getSceneRasterHeight());
-//        CrsGeoCoding geoCoding = null;
-//        try {
-//            geoCoding = new CrsGeoCoding(DefaultGeographicCRS.WGS84, rect, transform);
-//            p.setGeoCoding(geoCoding);
-//        } catch (FactoryException ignore) {
-//        } catch (TransformException ignore) {
-//        }
+        double pixelSizeX = (lowerRightLon - upperLeftLon) / p.getSceneRasterWidth();
+        double pixelSizeY = (upperLeftLat - lowerRightLat) / p.getSceneRasterHeight();
+
+        AffineTransform transform = new AffineTransform();
+        transform.translate(upperLeftLon, upperLeftLat);
+        transform.scale(pixelSizeX, -pixelSizeY);
+        transform.translate(-PIXEL_CENTER, -PIXEL_CENTER);
+        Rectangle imageBounds = new Rectangle(p.getSceneRasterWidth(), p.getSceneRasterHeight());
+        try {
+            p.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, transform));
+        } catch (FactoryException ignore) {
+        } catch (TransformException ignore) {
+        }
     }
 
     @Override
