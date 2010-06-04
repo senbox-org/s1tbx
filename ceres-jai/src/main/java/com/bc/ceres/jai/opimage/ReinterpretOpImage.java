@@ -16,6 +16,9 @@ import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.util.Map;
 
+import static com.bc.ceres.jai.operator.ReinterpretDescriptor.EXPONENTIAL;
+import static com.bc.ceres.jai.operator.ReinterpretDescriptor.LINEAR;
+
 
 public final class ReinterpretOpImage extends PointOpImage {
 
@@ -27,19 +30,19 @@ public final class ReinterpretOpImage extends PointOpImage {
     private final InterpretationType interpretationType;
 
     static RenderedImage create(RenderedImage source, double factor, double offset, ScalingType scalingType,
-                                InterpretationType interpretation, Map config) {
-        final boolean rescale = scalingType == ReinterpretDescriptor.EXPONENTIAL || factor != 1.0 || offset != 0.0;
-        final ImageLayout imageLayout = createTargetImageLayout(source, rescale, interpretation);
+                                InterpretationType interpretationType, Map config) {
+        final boolean rescale = scalingType == EXPONENTIAL || factor != 1.0 || offset != 0.0;
+        final ImageLayout imageLayout = createTargetImageLayout(source, rescale, interpretationType);
 
-        return new ReinterpretOpImage(source, imageLayout, config, factor, offset, scalingType, interpretation);
+        return new ReinterpretOpImage(source, imageLayout, config, factor, offset, scalingType, interpretationType);
     }
 
     private ReinterpretOpImage(RenderedImage source, ImageLayout imageLayout, Map config,
                                double factor, double offset, ScalingType scalingType,
                                InterpretationType interpretationType) {
         super(source, imageLayout, config, true);
-        this.factor = scalingType == ReinterpretDescriptor.EXPONENTIAL ? LOG10 * factor : factor;
-        this.offset = scalingType == ReinterpretDescriptor.EXPONENTIAL ? LOG10 * offset : offset;
+        this.factor = scalingType == EXPONENTIAL ? LOG10 * factor : factor;
+        this.offset = scalingType == EXPONENTIAL ? LOG10 * offset : offset;
         this.scalingType = scalingType;
         this.interpretationType = interpretationType;
         // set flag to permit in-place operation.
@@ -48,10 +51,10 @@ public final class ReinterpretOpImage extends PointOpImage {
 
     @Override
     protected void computeRect(Raster[] sourceRasters, WritableRaster targetRaster, Rectangle targetRectangle) {
-        if (scalingType == ReinterpretDescriptor.EXPONENTIAL || factor != 1.0 || offset != 0.0) {
-            rescale(sourceRasters[0], targetRaster, targetRectangle);
-        } else {
+        if (scalingType == LINEAR && factor == 1.0 && offset == 0.0) {
             reformat(sourceRasters[0], targetRaster, targetRectangle);
+        } else {
+            rescale(sourceRasters[0], targetRaster, targetRectangle);
         }
     }
 
@@ -210,7 +213,7 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
+        if (scalingType == EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -261,7 +264,7 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
+        if (scalingType == EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -312,7 +315,7 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
+        if (scalingType == EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -363,7 +366,7 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
+        if (scalingType == EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -413,7 +416,7 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
+        if (scalingType == EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -464,7 +467,7 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
+        if (scalingType == EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -515,7 +518,7 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
+        if (scalingType == EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
@@ -566,7 +569,7 @@ public final class ReinterpretOpImage extends PointOpImage {
         int sourceLineOffset = sourcePixels.bandOffsets[0];
         int targetLineOffset = targetPixels.bandOffsets[0];
 
-        if (scalingType == ReinterpretDescriptor.EXPONENTIAL) {
+        if (scalingType == EXPONENTIAL) {
             for (int y = 0; y < h; y++) {
                 int sourcePixelOffset = sourceLineOffset;
                 sourceLineOffset += sourceLineStride;
