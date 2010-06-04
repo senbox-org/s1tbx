@@ -1,12 +1,15 @@
 package com.bc.ceres.jai.operator;
 
+import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.OperationDescriptorImpl;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.registry.RenderedRegistryMode;
 import java.awt.RenderingHints;
+import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 
 /**
  * An <code>OperationDescriptor</code> describing the "Reinterpret"
@@ -108,4 +111,47 @@ public class ReinterpretDescriptor extends OperationDescriptorImpl {
         return JAI.create("Reinterpret", pb, hints);
     }
 
+    public static ImageLayout createTargetImageLayout(RenderedImage source, SampleModel sampleModel) {
+        final int w = source.getWidth();
+        final int h = source.getHeight();
+
+        final ImageLayout imageLayout = new ImageLayout();
+        imageLayout.setWidth(w);
+        imageLayout.setHeight(h);
+        imageLayout.setSampleModel(sampleModel);
+
+        return imageLayout;
+    }
+
+    public static int getTargetDataType(int sourceDataType, double factor, double offset, ScalingType scalingType,
+                                        InterpretationType interpretationType) {
+        final boolean rescale = scalingType == EXPONENTIAL || factor != 1.0 || offset != 0.0;
+        if (rescale) {
+            switch (sourceDataType) {
+                case DataBuffer.TYPE_BYTE:
+                case DataBuffer.TYPE_USHORT:
+                case DataBuffer.TYPE_SHORT:
+                case DataBuffer.TYPE_FLOAT:
+                    return DataBuffer.TYPE_FLOAT;
+                case DataBuffer.TYPE_INT:
+                case DataBuffer.TYPE_DOUBLE:
+                    return DataBuffer.TYPE_DOUBLE;
+                default:
+                    return DataBuffer.TYPE_UNDEFINED;
+            }
+        } else {
+            switch (sourceDataType) {
+                case DataBuffer.TYPE_BYTE:
+                    if (interpretationType == ReinterpretDescriptor.INTERPRET_BYTE_SIGNED) {
+                        return DataBuffer.TYPE_SHORT;
+                    }
+                case DataBuffer.TYPE_INT:
+                    if (interpretationType == ReinterpretDescriptor.INTERPRET_INT_UNSIGNED) {
+                        return DataBuffer.TYPE_DOUBLE;
+                    }
+                default:
+                    return sourceDataType;
+            }
+        }
+    }
 }

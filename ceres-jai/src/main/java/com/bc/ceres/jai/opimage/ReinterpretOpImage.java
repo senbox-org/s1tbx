@@ -5,6 +5,7 @@ import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import com.bc.ceres.jai.operator.ScalingType;
 
 import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
 import javax.media.jai.PixelAccessor;
 import javax.media.jai.PointOpImage;
 import javax.media.jai.UnpackedImageData;
@@ -13,6 +14,7 @@ import java.awt.image.DataBuffer;
 import java.awt.image.PixelInterleavedSampleModel;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.util.Map;
 
@@ -30,14 +32,29 @@ public final class ReinterpretOpImage extends PointOpImage {
     private final InterpretationType interpretationType;
 
     static RenderedImage create(RenderedImage source, double factor, double offset, ScalingType scalingType,
-                                InterpretationType interpretationType, Map config) {
-        final boolean rescale = scalingType == EXPONENTIAL || factor != 1.0 || offset != 0.0;
-        final ImageLayout imageLayout = createTargetImageLayout(source, rescale, interpretationType);
+                                InterpretationType interpretationType, Map<Object, Object> config) {
+        final ImageLayout imageLayout;
+        if (config != null && config.get(JAI.KEY_IMAGE_LAYOUT) instanceof ImageLayout) {
+            imageLayout = (ImageLayout) config.get(JAI.KEY_IMAGE_LAYOUT);
+        } else {
+            final int targetDataType = ReinterpretDescriptor.getTargetDataType(source.getSampleModel().getDataType(),
+                                                                               factor,
+                                                                               offset,
+                                                                               scalingType,
+                                                                               interpretationType);
+            final PixelInterleavedSampleModel sampleModel = new PixelInterleavedSampleModel(targetDataType,
+                                                                                            source.getWidth(),
+                                                                                            source.getHeight(),
+                                                                                            1,
+                                                                                            source.getWidth(),
+                                                                                            new int[]{0});
+            imageLayout = ReinterpretDescriptor.createTargetImageLayout(source, sampleModel);
+        }
 
         return new ReinterpretOpImage(source, imageLayout, config, factor, offset, scalingType, interpretationType);
     }
 
-    private ReinterpretOpImage(RenderedImage source, ImageLayout imageLayout, Map config,
+    private ReinterpretOpImage(RenderedImage source, ImageLayout imageLayout, Map<Object, Object> config,
                                double factor, double offset, ScalingType scalingType,
                                InterpretationType interpretationType) {
         super(source, imageLayout, config, true);
@@ -604,49 +621,16 @@ public final class ReinterpretOpImage extends PointOpImage {
         }
     }
 
-    private static ImageLayout createTargetImageLayout(RenderedImage source,
-                                                       boolean rescale,
-                                                       InterpretationType interpretationType) {
-        final int sourceDataType = source.getSampleModel().getDataType();
+    private static ImageLayout createTargetImageLayout(RenderedImage source, SampleModel sampleModel) {
         final int w = source.getWidth();
         final int h = source.getHeight();
 
-        final int targetDataType = getTargetDataType(sourceDataType, rescale, interpretationType);
         final ImageLayout imageLayout = new ImageLayout();
         imageLayout.setWidth(w);
         imageLayout.setHeight(h);
-        imageLayout.setSampleModel(new PixelInterleavedSampleModel(targetDataType, w, h, 1, w, new int[]{0}));
+        imageLayout.setSampleModel(sampleModel);
 
         return imageLayout;
     }
 
-    private static int getTargetDataType(int sourceDataType, boolean rescale, InterpretationType interpretationType) {
-        if (rescale) {
-            switch (sourceDataType) {
-                case DataBuffer.TYPE_BYTE:
-                case DataBuffer.TYPE_USHORT:
-                case DataBuffer.TYPE_SHORT:
-                case DataBuffer.TYPE_FLOAT:
-                    return DataBuffer.TYPE_FLOAT;
-                case DataBuffer.TYPE_INT:
-                case DataBuffer.TYPE_DOUBLE:
-                    return DataBuffer.TYPE_DOUBLE;
-                default:
-                    return DataBuffer.TYPE_UNDEFINED;
-            }
-        } else {
-            switch (sourceDataType) {
-                case DataBuffer.TYPE_BYTE:
-                    if (interpretationType == ReinterpretDescriptor.INTERPRET_BYTE_SIGNED) {
-                        return DataBuffer.TYPE_SHORT;
-                    }
-                case DataBuffer.TYPE_INT:
-                    if (interpretationType == ReinterpretDescriptor.INTERPRET_INT_UNSIGNED) {
-                        return DataBuffer.TYPE_DOUBLE;
-                    }
-                default:
-                    return sourceDataType;
-            }
-        }
-    }
 }
