@@ -24,6 +24,7 @@ class StdDevStxOp implements StxOp {
         this.sumOfSquares = 0;
     }
 
+    @Override
     public String getName() {
         return "StdDev";
     }
@@ -32,6 +33,7 @@ class StdDevStxOp implements StxOp {
         return Math.sqrt(sumOfSquares / numSamples);
     }
 
+    @Override
     public void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                     Raster maskTile, Rectangle r) {
         double tmpSumOfSquares = this.sumOfSquares;
@@ -80,6 +82,7 @@ class StdDevStxOp implements StxOp {
         this.sumOfSquares += tmpSumOfSquares;
     }
 
+    @Override
     public void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                      Raster maskTile, Rectangle r) {
         double tmpSumOfSquares = this.sumOfSquares;
@@ -127,6 +130,7 @@ class StdDevStxOp implements StxOp {
 
     }
 
+    @Override
     public void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                     Raster maskTile, Rectangle r) {
         double tmpSumOfSquares = this.sumOfSquares;
@@ -173,6 +177,7 @@ class StdDevStxOp implements StxOp {
         this.sumOfSquares = tmpSumOfSquares;
     }
 
+    @Override
     public void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                   Raster maskTile, Rectangle r) {
         double tmpSumOfSquares = this.sumOfSquares;
@@ -219,6 +224,7 @@ class StdDevStxOp implements StxOp {
         this.sumOfSquares = tmpSumOfSquares;
     }
 
+    @Override
     public void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                     Raster maskTile, Rectangle r) {
         double tmpSumOfSquares = this.sumOfSquares;
@@ -265,6 +271,7 @@ class StdDevStxOp implements StxOp {
         this.sumOfSquares = tmpSumOfSquares;
     }
 
+    @Override
     public void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                      Raster maskTile, Rectangle r) {
         double tmpSumOfSquares = this.sumOfSquares;
