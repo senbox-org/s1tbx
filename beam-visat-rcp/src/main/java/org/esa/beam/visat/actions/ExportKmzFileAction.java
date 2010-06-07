@@ -9,8 +9,8 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ImageLegend;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -265,7 +265,7 @@ public class ExportKmzFileAction extends ExecCommand {
                 visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 final Dimension dimension = new Dimension(view.getProduct().getSceneRasterWidth(),
                                                           view.getProduct().getSceneRasterHeight());
-                RenderedImage image = ExportImageAction.createImage(view, true, dimension, true);
+                RenderedImage image = ExportImageAction.createImage(view, true, dimension, true, true);
                 pm.worked(1);
                 ZipOutputStream outStream = new ZipOutputStream(new FileOutputStream(file));
                 try {
