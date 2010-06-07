@@ -2,7 +2,14 @@ package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.runtime.*;
+import com.bc.ceres.core.runtime.Activator;
+import com.bc.ceres.core.runtime.Dependency;
+import com.bc.ceres.core.runtime.Extension;
+import com.bc.ceres.core.runtime.ExtensionPoint;
+import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.ModuleContext;
+import com.bc.ceres.core.runtime.ModuleState;
+import com.bc.ceres.core.runtime.Version;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +74,7 @@ public class ModuleImpl implements Module {
     private transient ModuleContext context;  // initialised by ModuleStarter
 
     // avoid direct instantiation, modules can only be instantiated by the ModuleManfestParser
+
     private ModuleImpl() {
     }
 
@@ -276,6 +284,7 @@ public class ModuleImpl implements Module {
     }
 
     /*internal*/
+
     public void setVersion(Version version) {
         this.version = version;
     }
@@ -386,6 +395,7 @@ public class ModuleImpl implements Module {
     }
 
     /*internal*/
+
     public void setState(ModuleState state) {
         this.state = state;
     }
@@ -484,7 +494,8 @@ public class ModuleImpl implements Module {
         return resolveExceptionList.toArray(new ResolveException[0]);
     }
 
-    private List<ResolveException> addResolveException(ResolveException resolveException, List<ResolveException> resolveExceptionList) {
+    private List<ResolveException> addResolveException(ResolveException resolveException,
+                                                       List<ResolveException> resolveExceptionList) {
         if (resolveExceptionList == null) {
             resolveExceptionList = new ArrayList<ResolveException>(3);
         }
@@ -498,5 +509,10 @@ public class ModuleImpl implements Module {
         }
         resolveExceptionList.add(resolveException);
         return resolveExceptionList;
+    }
+
+    @Override
+    public int compareTo(Module o) {
+        return this.getName().compareTo(o.getName());
     }
 }

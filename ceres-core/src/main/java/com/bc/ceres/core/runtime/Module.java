@@ -13,7 +13,7 @@ import java.util.Enumeration;
  * <p/>
  * This interface is not intended to be implemented by clients.</p>
  */
-public interface Module {
+public interface Module extends Comparable<Module> {
 
     /**
      * @return The module's unique identifier.

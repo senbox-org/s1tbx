@@ -36,6 +36,7 @@ public class ExclusionListBuilder {
 
     public static final String EXCLUSION_LIST_FILENAME = "exclusion_list.csv";
     public static final char CSV_SEPARATOR = ',';
+    public static final char[] CSV_SEPARATOR_ARRAY = new char[]{CSV_SEPARATOR};
     public static final String POM_LIST_FILENAME = "pom_list";
 
     public static void main(String[] args) {
@@ -44,13 +45,14 @@ public class ExclusionListBuilder {
         if (args.length < 1) {
             exclusionList = new File(EXCLUSION_LIST_FILENAME);
         } else {
-            exclusionList = new File(args[0]);
+            exclusionList = new File(args[0] + File.pathSeparator + EXCLUSION_LIST_FILENAME);
         }
         if (args.length > 1) {
             pomListFileName = args[1];
         }
         try {
             generateExclusionList(exclusionList, ExclusionListBuilder.retrievePoms(pomListFileName));
+            System.out.println("Written exclusion list to " + exclusionList.getAbsolutePath() + ".");
         } catch (Exception ignored) {
         }
     }
@@ -92,7 +94,7 @@ public class ExclusionListBuilder {
     }
 
     static void addModuleToExclusionList(File exclusionList, Writer writer, String moduleName) throws IOException {
-        CsvReader reader = new CsvReader(new FileReader(exclusionList), new char[]{CSV_SEPARATOR});
+        CsvReader reader = new CsvReader(new FileReader(exclusionList), CSV_SEPARATOR_ARRAY);
         final String[] records = reader.readRecord();
         List<String> recordList = new ArrayList<String>();
         if (records != null) {

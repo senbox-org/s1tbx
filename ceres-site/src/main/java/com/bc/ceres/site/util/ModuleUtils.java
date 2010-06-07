@@ -10,9 +10,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+
+import static com.bc.ceres.site.util.ExclusionListBuilder.*;
 
 /**
- * Util class which provides methods to remove double Elements from a given array of
+ * Utility class which provides methods to remove double Elements from a given array of
  * {@link com.bc.ceres.core.runtime.Module}-objects, to check if a module exists in a dedicated csv-file, to retrieve
  * the year from a module and to retrieve if a module is on the exclusion list
  *
@@ -67,7 +70,7 @@ public class ModuleUtils {
     public static boolean isExcluded(Module module, File exclusionList) {
         try {
             final InputStream stream = new FileInputStream(exclusionList);
-            final CsvReader csvReader = new CsvReader(new InputStreamReader(stream), new char[]{','});
+            final CsvReader csvReader = new CsvReader(new InputStreamReader(stream), CSV_SEPARATOR_ARRAY);
             final String[] allowedModules = csvReader.readRecord();
             if (allowedModules == null) {
                 return false;
@@ -99,16 +102,35 @@ public class ModuleUtils {
     }
 
     /**
-     * excludes double modules and modules which are on the given exclusion list file
+     * Retrieves the size of the module-jar
+     *
+     * @param module the module to determine the size of
+     *
+     * @return the size, rounded to megabyte or kilobyte
+     */
+    public static String retrieveSize(Module module) {
+        final long bytes = module.getContentLength();
+        long kilos = Math.round(bytes / 1024.0);
+        long megas = Math.round(bytes / (1024.0 * 1024.0));
+        if (megas > 0) {
+            return megas + " MB";
+        } else if (kilos > 0) {
+            return kilos + " KB";
+        } else {
+            return "< 1 KB";
+        }
+    }
+
+    /**
+     * Excludes double modules and modules which are on the given exclusion list file; returns a sorted list
      *
      * @param modules       the modules to clean up
      * @param exclusionList the list containing modules to be excluded from the view
      *
      * @return the cleaned-up list of modules
      */
-
     public static Module[] cleanModules(Module[] modules, File exclusionList) {
-        if (exclusionList == null) {
+        if (!exclusionList.exists()) {
             return modules;
         }
         final ArrayList<Module> removeList = new ArrayList<Module>();
@@ -120,8 +142,47 @@ public class ModuleUtils {
         final ArrayList<Module> temp = new ArrayList<Module>();
         temp.addAll(Arrays.asList(modules));
         temp.removeAll(removeList);
-        modules = temp.toArray(new Module[temp.size()]);
-        modules = removeDoubles(modules);
-        return modules;
+        Collections.sort(temp);
+        return removeDoubles(temp.toArray(new Module[temp.size()]));
+    }
+
+    /**
+     * Tests if a module (given by its symbolic name) is listed on the exclusion list
+     *
+     * @param module        the module to test, represented by its symbolic name
+     * @param exclusionList the list of exclusions
+     *
+     * @return true if the module is listed on the list
+     */
+    public static boolean isExcluded(String module, File exclusionList) {
+        try {
+            final InputStream stream = new FileInputStream(exclusionList);
+            final CsvReader csvReader = new CsvReader(new InputStreamReader(stream), CSV_SEPARATOR_ARRAY);
+            final String[] allowedModules = csvReader.readRecord();
+            if (allowedModules == null) {
+                return false;
+            }
+            return Arrays.asList(allowedModules).contains(module);
+        } catch (IOException e) {
+            // if there is no inclusion list, all modules are displayed
+            return true;
+        }
+    }
+
+    /**
+     * Returns the real name of a module given by its symbolic name; if it is not found, the symbolic name is returned
+     *
+     * @param symbolicName the symbolic name of the module
+     * @param modules      the array of available modules
+     *
+     * @return the real name of the module, if found; else its symbolic name
+     */
+    public static String symbolicToReadableName(String symbolicName, Module[] modules) {
+        for (Module module : modules) {
+            if (module.getSymbolicName().equals(symbolicName)) {
+                return module.getName();
+            }
+        }
+        return symbolicName;
     }
 }
