@@ -22,6 +22,7 @@ class MeanStxOp implements StxOp {
         this.mean = 0;
     }
 
+    @Override
     public String getName() {
         return "Mean";
     }
@@ -30,6 +31,7 @@ class MeanStxOp implements StxOp {
         return mean;
     }
 
+    @Override
     public void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                     Raster maskTile, Rectangle r) {
         double tempMean = this.mean;
@@ -77,6 +79,7 @@ class MeanStxOp implements StxOp {
         this.mean = tempMean;
     }
 
+    @Override
     public void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                      Raster maskTile, Rectangle r) {
         double tempMean = this.mean;
@@ -123,6 +126,7 @@ class MeanStxOp implements StxOp {
 
     }
 
+    @Override
     public void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                     Raster maskTile, Rectangle r) {
         double tempMean = this.mean;
@@ -168,6 +172,7 @@ class MeanStxOp implements StxOp {
         this.mean = tempMean;
     }
 
+    @Override
     public void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                   Raster maskTile, Rectangle r) {
         double tempMean = this.mean;
@@ -213,6 +218,7 @@ class MeanStxOp implements StxOp {
         this.mean = tempMean;
     }
 
+    @Override
     public void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                     Raster maskTile, Rectangle r) {
         double tempMean = this.mean;
@@ -258,6 +264,7 @@ class MeanStxOp implements StxOp {
         this.mean = tempMean;
     }
 
+    @Override
     public void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                      Raster maskTile, Rectangle r) {
         double tempMean = this.mean;
