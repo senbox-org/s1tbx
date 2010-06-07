@@ -128,29 +128,12 @@ public class ExportImageAction extends AbstractExportImageAction {
     }
 
     static RenderedImage createImage(ProductSceneView view, boolean fullScene, Dimension dimension,
-                                     boolean alphaChannel, boolean isGeoReferenced) {
+                                     boolean alphaChannel, boolean geoReferenced) {
         final int imageType = alphaChannel ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
         final BufferedImage bufferedImage = new BufferedImage(dimension.width, dimension.height, imageType);
 
-        final Viewport vp1 = view.getLayerCanvas().getViewport();
-        final Viewport vp2 = new DefaultViewport(new Rectangle(dimension), vp1.isModelYAxisDown());
-        if (fullScene) {
-            vp2.zoom(view.getBaseImageLayer().getModelBounds());
-        } else {
-            setTransform(vp1, vp2);
-        }
-
-        final BufferedImageRendering imageRendering = new BufferedImageRendering(bufferedImage, vp2);
-        if(isGeoReferenced) {
-            final AffineTransform m2iTransform = view.getBaseImageLayer().getModelToImageTransform(0);
-            final AffineTransform v2mTransform = vp2.getViewToModelTransform();
-            v2mTransform.preConcatenate(m2iTransform);
-            final AffineTransform v2iTransform = new AffineTransform(v2mTransform);
-            
-            final Graphics2D graphics2D = imageRendering.getGraphics();
-            v2iTransform.concatenate(graphics2D.getTransform());
-            graphics2D.setTransform(v2iTransform);
-        }
+        final BufferedImageRendering imageRendering = createRendering(view, fullScene,
+                                                                      geoReferenced, bufferedImage);
         if (!alphaChannel) {
             final Graphics2D graphics = imageRendering.getGraphics();
             graphics.setColor(view.getLayerCanvas().getBackground());
@@ -159,6 +142,33 @@ public class ExportImageAction extends AbstractExportImageAction {
         view.getRootLayer().render(imageRendering);
 
         return bufferedImage;
+    }
+
+    private static BufferedImageRendering createRendering(ProductSceneView view, boolean fullScene,
+                                                          boolean geoReferenced, BufferedImage bufferedImage) {
+        final Viewport vp1 = view.getLayerCanvas().getViewport();
+        final Viewport vp2 = new DefaultViewport(new Rectangle(bufferedImage.getWidth(),bufferedImage.getHeight()),
+                                                 vp1.isModelYAxisDown());
+        if (fullScene) {
+            vp2.zoom(view.getBaseImageLayer().getModelBounds());
+        } else {
+            setTransform(vp1, vp2);
+        }
+
+        final BufferedImageRendering imageRendering = new BufferedImageRendering(bufferedImage, vp2);
+        if(geoReferenced) {
+            // because image to model transform is stored with the exported image we have to invert
+            // image to view transformation
+            final AffineTransform m2iTransform = view.getBaseImageLayer().getModelToImageTransform(0);
+            final AffineTransform v2mTransform = vp2.getViewToModelTransform();
+            v2mTransform.preConcatenate(m2iTransform);
+            final AffineTransform v2iTransform = new AffineTransform(v2mTransform);
+
+            final Graphics2D graphics2D = imageRendering.getGraphics();
+            v2iTransform.concatenate(graphics2D.getTransform());
+            graphics2D.setTransform(v2iTransform);
+        }
+        return imageRendering;
     }
 
     private static void setTransform(Viewport vp1, Viewport vp2) {
@@ -212,7 +222,12 @@ public class ExportImageAction extends AbstractExportImageAction {
             if (isEntireImageSelected()) {
                 final ImageLayer imageLayer = view.getBaseImageLayer();
                 final Rectangle2D modelBounds = imageLayer.getModelBounds();
-                bounds = imageLayer.getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D();
+                Rectangle2D tempBounds = imageLayer.getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D();
+
+                final double mScale = modelBounds.getWidth() / modelBounds.getHeight();
+                final double iScale = tempBounds.getHeight() / tempBounds.getWidth();
+                double scaleFactorX = mScale * iScale;
+                bounds = new Rectangle2D.Double(0, 0, scaleFactorX * tempBounds.getWidth(), 1 * tempBounds.getHeight());
             } else {
                 bounds = view.getLayerCanvas().getViewport().getViewBounds();
             }
