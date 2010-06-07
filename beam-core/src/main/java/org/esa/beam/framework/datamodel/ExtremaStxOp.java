@@ -26,6 +26,7 @@ class ExtremaStxOp implements StxOp {
         this.numValues = 0;
     }
 
+    @Override
     public String getName() {
         return "Extrema";
     }
@@ -46,6 +47,7 @@ class ExtremaStxOp implements StxOp {
         return numValues;
     }
 
+    @Override
     public void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
         double tmpLowValue = this.lowValue;
         double tmpHighValue = this.highValue;
@@ -101,6 +103,7 @@ class ExtremaStxOp implements StxOp {
         this.valueSum = tmpValueSum;
     }
 
+    @Override
     public void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
         double tmpLowValue = this.lowValue;
         double tmpHighValue = this.highValue;
@@ -157,6 +160,7 @@ class ExtremaStxOp implements StxOp {
         this.valueSum = tmpValueSum;
     }
 
+    @Override
     public void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
         double tmpLowValue = this.lowValue;
         double tmpHighValue = this.highValue;
@@ -213,6 +217,7 @@ class ExtremaStxOp implements StxOp {
         this.numValues = tmpNumValues;
     }
 
+    @Override
     public void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
         double tmpLowValue = this.lowValue;
         double tmpHighValue = this.highValue;
@@ -269,6 +274,7 @@ class ExtremaStxOp implements StxOp {
         this.valueSum = tmpValueSum;
     }
 
+    @Override
     public void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
         double tmpLowValue = this.lowValue;
         double tmpHighValue = this.highValue;
@@ -325,6 +331,7 @@ class ExtremaStxOp implements StxOp {
         this.valueSum = tmpValueSum;
     }
 
+    @Override
     public void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor, Raster maskTile, Rectangle r) {
         double tmpLowValue = this.lowValue;
         double tmpHighValue = this.highValue;
