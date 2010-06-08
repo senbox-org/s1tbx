@@ -245,13 +245,16 @@ class StatisticsPanel extends TextPagePanel implements MultipleRoiComputePanel.C
     }
 
     /*
-     * Use error-propagation to compute stddev for log10-scaled bands. (Ask Ralf for maths details.)
+     * Use error-propagation to compute stddev for log10-scaled bands.
      */
     private double getStandardDeviation(Stx stat) {
-        if (getRaster().isLog10Scaled()) {
-            return getRaster().getScalingFactor() * Math.log(10.0) * getMean(stat) * stat.getStandardDeviation();
+        final RasterDataNode raster = getRaster();
+        final double alpha = raster.getScalingFactor();
+        final double delta = stat.getStandardDeviation();
+        if (raster.isLog10Scaled()) {
+            return Math.abs(raster.scale(stat.getMean()) * Math.log(10.0) * alpha * delta);
         } else {
-            return getRaster().scale(stat.getStandardDeviation());
+            return Math.abs(alpha * delta);
         }
     }
 }
