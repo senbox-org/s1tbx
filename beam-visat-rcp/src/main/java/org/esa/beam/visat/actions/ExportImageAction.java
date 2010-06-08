@@ -27,7 +27,6 @@ import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
-
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.io.BeamFileChooser;
@@ -47,6 +46,7 @@ import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -120,26 +120,20 @@ public class ExportImageAction extends AbstractExportImageAction {
 
     @Override
     protected RenderedImage createImage(String imageFormat, ProductSceneView view) {
-        final boolean useAlpha = !"BMP".equals(imageFormat) && !"JPEG".equals(imageFormat);
+        final boolean useAlpha = !BMP_FORMAT_DESCRIPTION[0].equals(imageFormat) && !JPEG_FORMAT_DESCRIPTION[0].equals(imageFormat);
         final boolean entireImage = isEntireImageSelected();
 
-        return createImage(view, entireImage, sizeComponent.getDimension(), useAlpha);
+        return createImage(view, entireImage, sizeComponent.getDimension(), useAlpha,
+                           GEOTIFF_FORMAT_DESCRIPTION[0].equals(imageFormat));
     }
 
     static RenderedImage createImage(ProductSceneView view, boolean fullScene, Dimension dimension,
-                                     boolean alphaChannel) {
+                                     boolean alphaChannel, boolean geoReferenced) {
         final int imageType = alphaChannel ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
         final BufferedImage bufferedImage = new BufferedImage(dimension.width, dimension.height, imageType);
 
-        final Viewport vp1 = view.getLayerCanvas().getViewport();
-        final Viewport vp2 = new DefaultViewport(new Rectangle(dimension), vp1.isModelYAxisDown());
-        if (fullScene) {
-            vp2.zoom(view.getBaseImageLayer().getModelBounds());
-        } else {
-            setTransform(vp1, vp2);
-        }
-
-        final BufferedImageRendering imageRendering = new BufferedImageRendering(bufferedImage, vp2);
+        final BufferedImageRendering imageRendering = createRendering(view, fullScene,
+                                                                      geoReferenced, bufferedImage);
         if (!alphaChannel) {
             final Graphics2D graphics = imageRendering.getGraphics();
             graphics.setColor(view.getLayerCanvas().getBackground());
@@ -148,6 +142,33 @@ public class ExportImageAction extends AbstractExportImageAction {
         view.getRootLayer().render(imageRendering);
 
         return bufferedImage;
+    }
+
+    private static BufferedImageRendering createRendering(ProductSceneView view, boolean fullScene,
+                                                          boolean geoReferenced, BufferedImage bufferedImage) {
+        final Viewport vp1 = view.getLayerCanvas().getViewport();
+        final Viewport vp2 = new DefaultViewport(new Rectangle(bufferedImage.getWidth(),bufferedImage.getHeight()),
+                                                 vp1.isModelYAxisDown());
+        if (fullScene) {
+            vp2.zoom(view.getBaseImageLayer().getModelBounds());
+        } else {
+            setTransform(vp1, vp2);
+        }
+
+        final BufferedImageRendering imageRendering = new BufferedImageRendering(bufferedImage, vp2);
+        if(geoReferenced) {
+            // because image to model transform is stored with the exported image we have to invert
+            // image to view transformation
+            final AffineTransform m2iTransform = view.getBaseImageLayer().getModelToImageTransform(0);
+            final AffineTransform v2mTransform = vp2.getViewToModelTransform();
+            v2mTransform.preConcatenate(m2iTransform);
+            final AffineTransform v2iTransform = new AffineTransform(v2mTransform);
+
+            final Graphics2D graphics2D = imageRendering.getGraphics();
+            v2iTransform.concatenate(graphics2D.getTransform());
+            graphics2D.setTransform(v2iTransform);
+        }
+        return imageRendering;
     }
 
     private static void setTransform(Viewport vp1, Viewport vp2) {
@@ -201,7 +222,12 @@ public class ExportImageAction extends AbstractExportImageAction {
             if (isEntireImageSelected()) {
                 final ImageLayer imageLayer = view.getBaseImageLayer();
                 final Rectangle2D modelBounds = imageLayer.getModelBounds();
-                bounds = imageLayer.getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D();
+                Rectangle2D imageBounds = imageLayer.getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D();
+
+                final double mScale = modelBounds.getWidth() / modelBounds.getHeight();
+                final double iScale = imageBounds.getHeight() / imageBounds.getWidth();
+                double scaleFactorX = mScale * iScale;
+                bounds = new Rectangle2D.Double(0, 0, scaleFactorX * imageBounds.getWidth(), 1 * imageBounds.getHeight());
             } else {
                 bounds = view.getLayerCanvas().getViewport().getViewBounds();
             }

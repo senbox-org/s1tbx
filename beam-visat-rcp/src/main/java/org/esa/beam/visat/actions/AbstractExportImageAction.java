@@ -59,9 +59,9 @@ public abstract class AbstractExportImageAction extends ExecCommand {
     public static final String EXPORT_ROI_IMAGE_CMD_ID = "exportROIImageFile";
     public static final String EXPORT_LEGEND_IMAGE_CMD_ID = "exportLegendImageFile";
 
-    private static final String[] BMP_FORMAT_DESCRIPTION = {"BMP", "bmp", "BMP - Microsoft Windows Bitmap"};
-    private static final String[] PNG_FORMAT_DESCRIPTION = {"PNG", "png", "PNG - Portable Network Graphics"};
-    private static final String[] JPEG_FORMAT_DESCRIPTION = {
+    protected static final String[] BMP_FORMAT_DESCRIPTION = {"BMP", "bmp", "BMP - Microsoft Windows Bitmap"};
+    protected static final String[] PNG_FORMAT_DESCRIPTION = {"PNG", "png", "PNG - Portable Network Graphics"};
+    protected static final String[] JPEG_FORMAT_DESCRIPTION = {
             "JPEG", "jpg,jpeg", "JPEG - Joint Photographic Experts Group"
     };
 
@@ -70,8 +70,8 @@ public abstract class AbstractExportImageAction extends ExecCommand {
 //            "JPEG2000", "jpg,jpeg", "JPEG 2000 - Joint Photographic Experts Group"
 //    };
 
-    private static final String[] TIFF_FORMAT_DESCRIPTION = {"TIFF", "tif,tiff", "TIFF - Tagged Image File Format"};
-    private static final String[] GEOTIFF_FORMAT_DESCRIPTION = {
+    protected static final String[] TIFF_FORMAT_DESCRIPTION = {"TIFF", "tif,tiff", "TIFF - Tagged Image File Format"};
+    protected static final String[] GEOTIFF_FORMAT_DESCRIPTION = {
             "GeoTIFF", "tif,tiff", "GeoTIFF - TIFF with geo-location"
     };
 
@@ -167,7 +167,7 @@ public abstract class AbstractExportImageAction extends ExecCommand {
 
         final BeamFileFilter fileFilter = fileChooser.getBeamFileFilter();
         String imageFormat = fileFilter != null ? fileFilter.getFormatName() : "TIFF";
-        if (imageFormat.equals("GeoTIFF") && !entireImageSelected) {
+        if (imageFormat.equals(GEOTIFF_FORMAT_DESCRIPTION[0]) && !entireImageSelected) {
             final int status = visatApp.showQuestionDialog("GeoTIFF is not applicable to image clippings.\n" +
                                                            "Shall TIFF format be used instead?", null);
             if (status == JOptionPane.YES_OPTION) {
