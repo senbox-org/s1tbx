@@ -222,12 +222,12 @@ public class ExportImageAction extends AbstractExportImageAction {
             if (isEntireImageSelected()) {
                 final ImageLayer imageLayer = view.getBaseImageLayer();
                 final Rectangle2D modelBounds = imageLayer.getModelBounds();
-                Rectangle2D tempBounds = imageLayer.getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D();
+                Rectangle2D imageBounds = imageLayer.getModelToImageTransform().createTransformedShape(modelBounds).getBounds2D();
 
                 final double mScale = modelBounds.getWidth() / modelBounds.getHeight();
-                final double iScale = tempBounds.getHeight() / tempBounds.getWidth();
+                final double iScale = imageBounds.getHeight() / imageBounds.getWidth();
                 double scaleFactorX = mScale * iScale;
-                bounds = new Rectangle2D.Double(0, 0, scaleFactorX * tempBounds.getWidth(), 1 * tempBounds.getHeight());
+                bounds = new Rectangle2D.Double(0, 0, scaleFactorX * imageBounds.getWidth(), 1 * imageBounds.getHeight());
             } else {
                 bounds = view.getLayerCanvas().getViewport().getViewBounds();
             }
