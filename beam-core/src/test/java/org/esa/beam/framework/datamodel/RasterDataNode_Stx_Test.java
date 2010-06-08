@@ -16,6 +16,7 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -46,7 +47,7 @@ public class RasterDataNode_Stx_Test {
         assertEquals(1, stx.getMin(), 1e-11);
         assertEquals(6, stx.getMax(), 1e-11);
         assertEquals(3.5, stx.getMean(), 1e-11);
-        assertEquals(1.707825127659933, stx.getStandardDeviation(), 1e-11);
+        assertEquals(1.8708286933869707, stx.getStandardDeviation(), 1e-11);
         assertEquals(0.009765625, stx.getHistogramBinWidth(), 1e-11);
         assertEquals(512, stx.getHistogramBinCount());
 
@@ -71,7 +72,7 @@ public class RasterDataNode_Stx_Test {
         assertEquals(1, stx.getMin(), 1e-11);
         assertEquals(6, stx.getMax(), 1e-11);
         assertEquals(3.6, stx.getMean(), 1e-11);
-        assertEquals(1.8547236990991407, stx.getStandardDeviation(), 1e-11);
+        assertEquals(2.073644135332772, stx.getStandardDeviation(), 1e-11);
         assertEquals(0.009765625, stx.getHistogramBinWidth(), 1e-11);
         assertEquals(512, stx.getHistogramBinCount());
 
@@ -96,7 +97,7 @@ public class RasterDataNode_Stx_Test {
         assertEquals(4.1, stx.getMin(), 1e-6);
         assertEquals(9.6, stx.getMax(), 1e-6);
         assertEquals(6.850000063578288, stx.getMean(), 1e-11);
-        assertEquals(1.8786077800295558, stx.getStandardDeviation(), 1e-11);
+        assertEquals(2.057911715653782, stx.getStandardDeviation(), 1e-11);
         assertEquals(0.010742188431322575, stx.getHistogramBinWidth(), 1e-11);
         assertEquals(512, stx.getHistogramBinCount());
 
@@ -120,7 +121,7 @@ public class RasterDataNode_Stx_Test {
         assertEquals(4.1, stx.getMin(), 1e-6);
         assertEquals(9.6, stx.getMax(), 1e-6);
         assertEquals(6.740000057220459, stx.getMean(), 1e-11);
-        assertEquals(2.040196221208332, stx.getStandardDeviation(), 1e-11);
+        assertEquals(2.281008719030014, stx.getStandardDeviation(), 1e-11);
         assertEquals(0.010742188431322575, stx.getHistogramBinWidth(), 1e-11);
         assertEquals(512, stx.getHistogramBinCount());
 

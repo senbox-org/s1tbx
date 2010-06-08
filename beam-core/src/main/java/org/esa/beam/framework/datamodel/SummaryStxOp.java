@@ -6,37 +6,62 @@ import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 
-class HistogramStxOp implements StxOp {
+/**
+ * Utility class for calculating minimum, maximum, mean and standard deviation. Uses
+ * a one-pass algorithm for computing mean and variance.
+ *
+ * @author Norman Fomferra
+ * @author Marco Peters
+ * @author Ralf Quast
+ * @version $Revision: $ $Date: $
+ * @since BEAM 4.5.1
+ */
+class SummaryStxOp implements StxOp {
 
-    private final double lowValue;
-    private final double highValue;
-    private final double binWidth;
+    private double minimum;
+    private double maximum;
+    private double mean;
+    private double m2;
+    private long sampleCount;
 
-    private final int[] bins;
-
-    HistogramStxOp(int numBins, double lowValue, double highValue) {
-        this.lowValue = lowValue;
-        this.highValue = highValue;
-        this.binWidth = (highValue - lowValue) / numBins;
-        this.bins = new int[numBins];
+    SummaryStxOp() {
+        this.minimum = Double.MAX_VALUE;
+        this.maximum = Double.MIN_VALUE;
     }
 
     @Override
     public String getName() {
-        return "Histogram";
+        return "Summary";
     }
 
-    int[] getBins() {
-        return bins;
+    final double getMinimum() {
+        return minimum;
+    }
+
+    final double getMaximum() {
+        return maximum;
+    }
+
+    final double getMean() {
+        return mean;
+    }
+
+    final double getStdDev() {
+        return Math.sqrt(getVariance());
+    }
+
+    final double getVariance() {
+        return m2 / (sampleCount - 1);
     }
 
     @Override
     public void accumulateDataUByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                     Raster maskTile, Rectangle r) {
-        final int[] bins = this.bins;
-        final double lowValue = this.lowValue;
-        final double highValue = this.highValue;
-        final double binWidth = this.binWidth;
+        double tileMinimum = this.minimum;
+        double tileMaximum = this.maximum;
+        long tileSampleCount = this.sampleCount;
+        double tileMean = this.mean;
+        double tileM2 = this.m2;
 
         final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_BYTE, false);
         final byte[] data = duid.getByteData(0);
@@ -67,10 +92,15 @@ class HistogramStxOp implements StxOp {
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
                     final double d = data[dataPixelOffset] & 0xff;
-                    if (d >= lowValue && d < highValue) {
-                        int i = (int) ((d - lowValue) / binWidth);
-                        bins[i]++;
+                    if (d < tileMinimum) {
+                        tileMinimum = d;
+                    } else if (d > tileMaximum) {
+                        tileMaximum = d;
                     }
+                    tileSampleCount++;
+                    final double delta = d - tileMean;
+                    tileMean += delta / tileSampleCount;
+                    tileM2 += delta * (d - tileMean);
                 }
                 dataPixelOffset += dataPixelStride;
                 maskPixelOffset += maskPixelStride;
@@ -78,15 +108,22 @@ class HistogramStxOp implements StxOp {
             dataLineOffset += dataLineStride;
             maskLineOffset += maskLineStride;
         }
+
+        this.minimum = tileMinimum;
+        this.maximum = tileMaximum;
+        this.sampleCount = tileSampleCount;
+        this.mean = tileMean;
+        this.m2 = tileM2;
     }
 
     @Override
     public void accumulateDataByte(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                     Raster maskTile, Rectangle r) {
-        final int[] bins = this.bins;
-        final double lowValue = this.lowValue;
-        final double highValue = this.highValue;
-        final double binWidth = this.binWidth;
+        double tileMinimum = this.minimum;
+        double tileMaximum = this.maximum;
+        long tileSampleCount = this.sampleCount;
+        double tileMean = this.mean;
+        double tileM2 = this.m2;
 
         final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_BYTE, false);
         final byte[] data = duid.getByteData(0);
@@ -117,10 +154,15 @@ class HistogramStxOp implements StxOp {
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
                     final double d = data[dataPixelOffset];
-                    if (d >= lowValue && d < highValue) {
-                        int i = (int) ((d - lowValue) / binWidth);
-                        bins[i]++;
+                    if (d < tileMinimum) {
+                        tileMinimum = d;
+                    } else if (d > tileMaximum) {
+                        tileMaximum = d;
                     }
+                    tileSampleCount++;
+                    final double delta = d - tileMean;
+                    tileMean += delta / tileSampleCount;
+                    tileM2 += delta * (d - tileMean);
                 }
                 dataPixelOffset += dataPixelStride;
                 maskPixelOffset += maskPixelStride;
@@ -128,15 +170,22 @@ class HistogramStxOp implements StxOp {
             dataLineOffset += dataLineStride;
             maskLineOffset += maskLineStride;
         }
+
+        this.minimum = tileMinimum;
+        this.maximum = tileMaximum;
+        this.sampleCount = tileSampleCount;
+        this.mean = tileMean;
+        this.m2 = tileM2;
     }
 
     @Override
     public void accumulateDataUShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                      Raster maskTile, Rectangle r) {
-        final int[] bins = this.bins;
-        final double lowValue = this.lowValue;
-        final double highValue = this.highValue;
-        final double binWidth = this.binWidth;
+        double tileMinimum = this.minimum;
+        double tileMaximum = this.maximum;
+        long tileSampleCount = this.sampleCount;
+        double tileMean = this.mean;
+        double tileM2 = this.m2;
 
         final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_USHORT, false);
         final short[] data = duid.getShortData(0);
@@ -167,10 +216,15 @@ class HistogramStxOp implements StxOp {
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
                     final double d = data[dataPixelOffset] & 0xffff;
-                    if (d >= lowValue && d < highValue) {
-                        int i = (int) ((d - lowValue) / binWidth);
-                        bins[i]++;
+                    if (d < tileMinimum) {
+                        tileMinimum = d;
+                    } else if (d > tileMaximum) {
+                        tileMaximum = d;
                     }
+                    tileSampleCount++;
+                    final double delta = d - tileMean;
+                    tileMean += delta / tileSampleCount;
+                    tileM2 += delta * (d - tileMean);
                 }
                 dataPixelOffset += dataPixelStride;
                 maskPixelOffset += maskPixelStride;
@@ -178,15 +232,22 @@ class HistogramStxOp implements StxOp {
             dataLineOffset += dataLineStride;
             maskLineOffset += maskLineStride;
         }
+
+        this.minimum = tileMinimum;
+        this.maximum = tileMaximum;
+        this.sampleCount = tileSampleCount;
+        this.mean = tileMean;
+        this.m2 = tileM2;
     }
 
     @Override
     public void accumulateDataShort(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                     Raster maskTile, Rectangle r) {
-        final int[] bins = this.bins;
-        final double lowValue = this.lowValue;
-        final double highValue = this.highValue;
-        final double binWidth = this.binWidth;
+        double tileMinimum = this.minimum;
+        double tileMaximum = this.maximum;
+        long tileSampleCount = this.sampleCount;
+        double tileMean = this.mean;
+        double tileM2 = this.m2;
 
         final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_SHORT, false);
         final short[] data = duid.getShortData(0);
@@ -217,10 +278,15 @@ class HistogramStxOp implements StxOp {
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
                     final double d = data[dataPixelOffset];
-                    if (d >= lowValue && d < highValue) {
-                        int i = (int) ((d - lowValue) / binWidth);
-                        bins[i]++;
+                    if (d < tileMinimum) {
+                        tileMinimum = d;
+                    } else if (d > tileMaximum) {
+                        tileMaximum = d;
                     }
+                    tileSampleCount++;
+                    final double delta = d - tileMean;
+                    tileMean += delta / tileSampleCount;
+                    tileM2 += delta * (d - tileMean);
                 }
                 dataPixelOffset += dataPixelStride;
                 maskPixelOffset += maskPixelStride;
@@ -228,15 +294,22 @@ class HistogramStxOp implements StxOp {
             dataLineOffset += dataLineStride;
             maskLineOffset += maskLineStride;
         }
+
+        this.minimum = tileMinimum;
+        this.maximum = tileMaximum;
+        this.sampleCount = tileSampleCount;
+        this.mean = tileMean;
+        this.m2 = tileM2;
     }
 
     @Override
     public void accumulateDataInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                   Raster maskTile, Rectangle r) {
-        final int[] bins = this.bins;
-        final double lowValue = this.lowValue;
-        final double highValue = this.highValue;
-        final double binWidth = this.binWidth;
+        double tileMinimum = this.minimum;
+        double tileMaximum = this.maximum;
+        long tileSampleCount = this.sampleCount;
+        double tileMean = this.mean;
+        double tileM2 = this.m2;
 
         final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_INT, false);
         final int[] data = duid.getIntData(0);
@@ -267,10 +340,15 @@ class HistogramStxOp implements StxOp {
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
                     final double d = data[dataPixelOffset];
-                    if (d >= lowValue && d < highValue) {
-                        int i = (int) ((d - lowValue) / binWidth);
-                        bins[i]++;
+                    if (d < tileMinimum) {
+                        tileMinimum = d;
+                    } else if (d > tileMaximum) {
+                        tileMaximum = d;
+                        final double delta = d - tileMean;
+                        tileMean += delta / tileSampleCount;
+                        tileM2 += delta * (d - tileMean);
                     }
+                    tileSampleCount++;
                 }
                 dataPixelOffset += dataPixelStride;
                 maskPixelOffset += maskPixelStride;
@@ -278,15 +356,22 @@ class HistogramStxOp implements StxOp {
             dataLineOffset += dataLineStride;
             maskLineOffset += maskLineStride;
         }
+
+        this.minimum = tileMinimum;
+        this.maximum = tileMaximum;
+        this.sampleCount = tileSampleCount;
+        this.mean = tileMean;
+        this.m2 = tileM2;
     }
 
     @Override
     public void accumulateDataUInt(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                    Raster maskTile, Rectangle r) {
-        final int[] bins = this.bins;
-        final double lowValue = this.lowValue;
-        final double highValue = this.highValue;
-        final double binWidth = this.binWidth;
+        double tileMinimum = this.minimum;
+        double tileMaximum = this.maximum;
+        long tileSampleCount = this.sampleCount;
+        double tileMean = this.mean;
+        double tileM2 = this.m2;
 
         final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_INT, false);
         final int[] data = duid.getIntData(0);
@@ -317,10 +402,15 @@ class HistogramStxOp implements StxOp {
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
                     final double d = data[dataPixelOffset] & 0xffffffffL;
-                    if (d >= lowValue && d < highValue) {
-                        int i = (int) ((d - lowValue) / binWidth);
-                        bins[i]++;
+                    if (d < tileMinimum) {
+                        tileMinimum = d;
+                    } else if (d > tileMaximum) {
+                        tileMaximum = d;
+                        final double delta = d - tileMean;
+                        tileMean += delta / tileSampleCount;
+                        tileM2 += delta * (d - tileMean);
                     }
+                    tileSampleCount++;
                 }
                 dataPixelOffset += dataPixelStride;
                 maskPixelOffset += maskPixelStride;
@@ -328,15 +418,22 @@ class HistogramStxOp implements StxOp {
             dataLineOffset += dataLineStride;
             maskLineOffset += maskLineStride;
         }
+
+        this.minimum = tileMinimum;
+        this.maximum = tileMaximum;
+        this.sampleCount = tileSampleCount;
+        this.mean = tileMean;
+        this.m2 = tileM2;
     }
 
     @Override
     public void accumulateDataFloat(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                     Raster maskTile, Rectangle r) {
-        final int[] bins = this.bins;
-        final double lowValue = this.lowValue;
-        final double highValue = this.highValue;
-        final double binWidth = this.binWidth;
+        double tileMinimum = this.minimum;
+        double tileMaximum = this.maximum;
+        long tileSampleCount = this.sampleCount;
+        double tileMean = this.mean;
+        double tileM2 = this.m2;
 
         final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_FLOAT, false);
         final float[] data = duid.getFloatData(0);
@@ -367,11 +464,15 @@ class HistogramStxOp implements StxOp {
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
                     final double d = data[dataPixelOffset];
-                    if (d >= lowValue && d <= highValue) {
-                        int i = (int) ((d - lowValue) / binWidth);
-                        i = i == bins.length ? i - 1 : i;
-                        bins[i]++;
+                    if (d < tileMinimum) {
+                        tileMinimum = d;
+                    } else if (d > tileMaximum) {
+                        tileMaximum = d;
                     }
+                    tileSampleCount++;
+                    final double delta = d - tileMean;
+                    tileMean += delta / tileSampleCount;
+                    tileM2 += delta * (d - tileMean);
                 }
                 dataPixelOffset += dataPixelStride;
                 maskPixelOffset += maskPixelStride;
@@ -379,15 +480,22 @@ class HistogramStxOp implements StxOp {
             dataLineOffset += dataLineStride;
             maskLineOffset += maskLineStride;
         }
+
+        this.minimum = tileMinimum;
+        this.maximum = tileMaximum;
+        this.sampleCount = tileSampleCount;
+        this.mean = tileMean;
+        this.m2 = tileM2;
     }
 
     @Override
     public void accumulateDataDouble(PixelAccessor dataAccessor, Raster dataTile, PixelAccessor maskAccessor,
                                      Raster maskTile, Rectangle r) {
-        final int[] bins = this.bins;
-        final double lowValue = this.lowValue;
-        final double highValue = this.highValue;
-        final double binWidth = this.binWidth;
+        double tileMinimum = this.minimum;
+        double tileMaximum = this.maximum;
+        long tileSampleCount = this.sampleCount;
+        double tileMean = this.mean;
+        double tileM2 = this.m2;
 
         final UnpackedImageData duid = dataAccessor.getPixels(dataTile, r, DataBuffer.TYPE_DOUBLE, false);
         final double[] data = duid.getDoubleData(0);
@@ -418,11 +526,15 @@ class HistogramStxOp implements StxOp {
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
                     final double d = data[dataPixelOffset];
-                    if (d >= lowValue && d <= highValue) {
-                        int i = (int) ((d - lowValue) / binWidth);
-                        i = i == bins.length ? i - 1 : i;
-                        bins[i]++;
+                    if (d < tileMinimum) {
+                        tileMinimum = d;
+                    } else if (d > tileMaximum) {
+                        tileMaximum = d;
                     }
+                    tileSampleCount++;
+                    final double delta = d - tileMean;
+                    tileMean += delta / tileSampleCount;
+                    tileM2 += delta * (d - tileMean);
                 }
                 dataPixelOffset += dataPixelStride;
                 maskPixelOffset += maskPixelStride;
@@ -430,5 +542,11 @@ class HistogramStxOp implements StxOp {
             dataLineOffset += dataLineStride;
             maskLineOffset += maskLineStride;
         }
+
+        this.minimum = tileMinimum;
+        this.maximum = tileMaximum;
+        this.sampleCount = tileSampleCount;
+        this.mean = tileMean;
+        this.m2 = tileM2;
     }
 }
