@@ -118,7 +118,7 @@ public class Nc4Reader extends AbstractProductReader {
                                                  "be interpreted as remote sensing bands.");  /*I18N*/
         }
 
-        final String productName = getProductName(netcdfFile);
+        final String productName = fileLocation.getName();
         final Product product = convention.readProduct(productName, rp);
         product.setFileLocation(fileLocation);
         product.setProductReader(this);
@@ -191,17 +191,5 @@ public class Nc4Reader extends AbstractProductReader {
                         IOException {
         rp.close();
         super.close();
-    }
-
-    static String getProductName(NetcdfFile netcdfFile) {
-        final String location = netcdfFile.getLocation();
-        final int slashIndex = location.lastIndexOf("/");
-        final String productName;
-        if (slashIndex > -1) {
-            productName = location.substring(slashIndex + 1);
-        } else {
-            productName = location;
-        }
-        return productName;
     }
 }
