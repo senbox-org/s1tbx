@@ -560,10 +560,8 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         final ImageInfo imageInfo;
         if (sourceRaster.getImageInfo() != null) {
             imageInfo = sourceRaster.getImageInfo().createDeepCopy();
-        } else {
-            imageInfo = targetRaster.createDefaultImageInfo(null, ProgressMonitor.NULL);
+            targetRaster.setImageInfo(imageInfo);
         }
-        targetRaster.setImageInfo(imageInfo);
     }
 
     private boolean isFullScene(ProductSubsetDef subsetDef) {
