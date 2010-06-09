@@ -44,6 +44,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * A special-purpose product reader used to build subsets of data products.
@@ -191,9 +192,6 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                                   destBuffer, pm);
     }
 
-    /**
-     * Reads a subsampled bandraster.
-     */
     private void readBandRasterDataSubSampling(Band sourceBand,
                                                int sourceOffsetX, int sourceOffsetY,
                                                int sourceWidth, int sourceHeight,
@@ -386,12 +384,12 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
 
             if (x >= 0 && x < getSceneRasterWidth() && y >= 0 && y < getSceneRasterHeight() || copyAll) {
                 targetPlacemarkGroup.add(new Placemark(placemark.getName(),
-                                                 placemark.getLabel(),
-                                                 placemark.getDescription(),
-                                                 new PixelPos(x, y),
-                                                 placemark.getGeoPos(),
-                                                 descriptor,
-                                                 targetPlacemarkGroup.getProduct().getGeoCoding()));
+                                                       placemark.getLabel(),
+                                                       placemark.getDescription(),
+                                                       new PixelPos(x, y),
+                                                       placemark.getGeoPos(),
+                                                       descriptor,
+                                                       targetPlacemarkGroup.getProduct().getGeoCoding()));
             }
         }
     }
@@ -443,6 +441,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
     }
 
     // @todo 1 nf/nf - duplicated code in ProductProjectionBuilder, ProductFlipper and ProductSubsetBulider
+
     protected void addBandsToProduct(Product product) {
         Debug.assertNotNull(getSourceProduct());
         Debug.assertNotNull(product);
@@ -459,12 +458,11 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 //@todo 1 se/se - extract copy of a band or virtual band to create deep clone of band and virtual band
                 if (!treatVirtualBandsAsRealBands && sourceBand instanceof VirtualBand) {
                     VirtualBand virtualSource = (VirtualBand) sourceBand;
-                    VirtualBand virtualBand = new VirtualBand(bandName,
-                                                              sourceBand.getDataType(),
-                                                              getSceneRasterWidth(),
-                                                              getSceneRasterHeight(),
-                                                              virtualSource.getExpression());
-                    destBand = virtualBand;
+                    destBand = new VirtualBand(bandName,
+                                               sourceBand.getDataType(),
+                                               getSceneRasterWidth(),
+                                               getSceneRasterHeight(),
+                                               virtualSource.getExpression());
                 } else {
                     destBand = new Band(bandName,
                                         sourceBand.getDataType(),
@@ -511,8 +509,10 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 }
                 product.addBand(destBand);
                 bandMap.put(destBand, sourceBand);
-                copyImageInfo(sourceBand, destBand);
             }
+        }
+        for (final Map.Entry<Band, RasterDataNode> entry : bandMap.entrySet()) {
+            copyImageInfo(entry.getValue(), entry.getKey());
         }
     }
 
@@ -571,12 +571,10 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             return true;
         }
         final Rectangle sourceRegion = new Rectangle(0, 0, sourceProduct.getSceneRasterWidth(), getSceneRasterHeight());
-        if (subsetDef.getRegion() == null || subsetDef.getRegion().equals(sourceRegion) &&
-                                             subsetDef.getSubSamplingX() == 1 &&
-                                             subsetDef.getSubSamplingY() == 1) {
-            return true;
-        }
-        return false;
+        return subsetDef.getRegion() == null
+               || subsetDef.getRegion().equals(sourceRegion)
+                  && subsetDef.getSubSamplingX() == 1
+                  && subsetDef.getSubSamplingY() == 1;
     }
 
     protected void addGeoCodingToProduct(final Product product) {
