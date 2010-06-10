@@ -2552,4 +2552,44 @@ public class ProductUtils {
         }
         return path;
     }
+
+    public static double getGeophysicalSampleDouble(Band band, int pixelX, int pixelY, int level) {
+        final PlanarImage image = ImageManager.getInstance().getSourceImage(band, level);
+        final int tileX = image.XToTileX(pixelX);
+        final int tileY = image.YToTileY(pixelY);
+        final Raster data = image.getTile(tileX, tileY);
+
+        final double sample;
+        if (band.getDataType() == ProductData.TYPE_INT8) {
+            sample = (byte) data.getSample(pixelX, pixelY, 0);
+        } else if (band.getDataType() == ProductData.TYPE_UINT32) {
+            sample = data.getSample(pixelX, pixelY, 0) & 0xFFFFFFFFL;
+        } else {
+            sample = data.getSampleDouble(pixelX, pixelY, 0);
+        }
+        if (band.isScalingApplied()) {
+            return band.scale(sample);
+        }
+        return sample;
+    }
+
+    public static long getGeophysicalSampleLong(Band band, int pixelX, int pixelY, int level) {
+        final PlanarImage image = ImageManager.getInstance().getSourceImage(band, level);
+        final int tileX = image.XToTileX(pixelX);
+        final int tileY = image.YToTileY(pixelY);
+        final Raster data = image.getTile(tileX, tileY);
+
+        final long sample;
+        if (band.getDataType() == ProductData.TYPE_INT8) {
+            sample = (byte) data.getSample(pixelX, pixelY, 0);
+        } else if (band.getDataType() == ProductData.TYPE_UINT32) {
+            sample = data.getSample(pixelX, pixelY, 0) & 0xFFFFFFFFL;
+        } else {
+            sample = data.getSample(pixelX, pixelY, 0);
+        }
+        if (band.isScalingApplied()) {
+            return (long) band.scale(sample);
+        }
+        return sample;
+    }
 }

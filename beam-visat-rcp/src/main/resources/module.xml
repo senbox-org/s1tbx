@@ -13,6 +13,7 @@
         <![CDATA[
         <p>Changes in 4.8:<br/>
           [BEAM-1152] Export View as Image - transformation error<br/>
+          [BEAM-1147] Signed byte data type interpreted as unsigned byte<br/>
           [BEAM-1121] Range Finder Tool yields NaN values<br/>
           [BEAM-1118] Deletion of masks<br/>
           [BEAM-1111] Placemarks are not correctly moved if multiple are selected<br/>

@@ -9,6 +9,8 @@
     <description>This module provides user interface components used e.g. by VISAT.</description>
     <changelog>
         <![CDATA[
+        <p>Changes in 4.8<br/>
+        [BEAM-1147] Signed byte data type interpreted as unsigned byte<br/>
         <p>Changes in 4.7<br/>
         [BEAM-1007] Geo-location / Tie Point Grid consistency<br/>
         </p>

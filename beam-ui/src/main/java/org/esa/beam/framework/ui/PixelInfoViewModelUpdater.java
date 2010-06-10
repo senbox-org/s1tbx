@@ -35,6 +35,7 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.PlanarImage;
@@ -392,9 +393,9 @@ class PixelInfoViewModelUpdater {
         }
         if (isPixelValid(band, _pixelX, _pixelY, _level)) {
             if (band.isFloatingPointType()) {
-                return String.valueOf(getSampleFloat(band, _pixelX, _pixelY, _level));
+                return String.valueOf(ProductUtils.getGeophysicalSampleDouble(band, _pixelX, _pixelY, _level));
             } else {
-                return String.valueOf(getSampleInt(band, _pixelX, _pixelY, _level));
+                return String.valueOf(ProductUtils.getGeophysicalSampleLong(band, _pixelX, _pixelY, _level));
             }
         } else {
             return RasterDataNode.NO_DATA_TEXT;
@@ -409,26 +410,6 @@ class PixelInfoViewModelUpdater {
         } else {
             return true;
         }
-    }
-
-    private float getSampleFloat(Band band, int pixelX, int pixelY, int level) {
-        PlanarImage image = ImageManager.getInstance().getSourceImage(band, level);
-        Raster data = getRasterTile(image, pixelX, pixelY);
-        float sampleFloat = data.getSampleFloat(pixelX, pixelY, 0);
-        if (band.isScalingApplied()) {
-            sampleFloat = (float) band.scale(sampleFloat);
-        }
-        return sampleFloat;
-    }
-
-    private int getSampleInt(Band band, int pixelX, int pixelY, int level) {
-        PlanarImage image = ImageManager.getInstance().getSourceImage(band, level);
-        Raster data = getRasterTile(image, pixelX, pixelY);
-        int sampleInt = data.getSample(pixelX, pixelY, 0);
-        if (band.isScalingApplied()) {
-            sampleInt = (int) band.scale(sampleInt);
-        }
-        return sampleInt;
     }
 
     private Raster getRasterTile(PlanarImage image, int pixelX, int pixelY) {
@@ -455,7 +436,7 @@ class PixelInfoViewModelUpdater {
         }
         int rowIndex = 0;
         for (Band band : currentFlagBands) {
-            int pixelValue = available ? getSampleInt(band, _pixelX, _pixelY, _level) : 0;
+            long pixelValue = available ? ProductUtils.getGeophysicalSampleLong(band, _pixelX, _pixelY, _level) : 0;
 
             for (int j = 0; j < band.getFlagCoding().getNumAttributes(); j++) {
                 if (available) {
