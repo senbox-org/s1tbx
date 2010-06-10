@@ -15,6 +15,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>jdom</groupId>
             <artifactId>jdom</artifactId>
             <version>1.1</version>
