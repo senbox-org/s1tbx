@@ -6,6 +6,9 @@ import java.io.IOException;
 
 public class JaiOperationRegistrySpi implements OperationRegistrySpi {
 
+    public JaiOperationRegistrySpi() {
+    }
+
     @Override
     public void updateRegistry(OperationRegistry operationRegistry) {
         try {
