@@ -6,7 +6,6 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -22,8 +21,6 @@ import org.esa.beam.framework.ui.io.FileArrayEditor;
 import org.esa.beam.gpf.operators.standard.MosaicOp;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.io.BeamFileChooser;
-import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.swing.BorderFactory;
@@ -33,7 +30,6 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
-import javax.swing.filechooser.FileFilter;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.FlowLayout;
@@ -68,7 +64,16 @@ class MosaicIOPanel extends JPanel {
         this.appContext = appContext;
         this.mosaicModel = mosaicModel;
         propertyContainer = mosaicModel.getPropertyContainer();
-        sourceFileEditor = new ProductArrayEditor(new FileArrayEditorContext(appContext));
+        final FileArrayEditor.EditorParent context = new FileArrayEditorContext(appContext);
+        sourceFileEditor = new FileArrayEditor(context, "Source products") {
+            @Override
+            protected JFileChooser createFileChooserDialog() {
+                final JFileChooser fileChooser = super.createFileChooserDialog();
+                fileChooser.setDialogTitle("Mosaic - Open Source Product(s)"); /*I18N*/
+
+                return fileChooser;
+            }
+        };
         targetProductSelector = selector;
         updateProductSelector = new SourceProductSelector(appContext);
         updateProductSelector.setProductFilter(new UpdateProductFilter());
@@ -337,32 +342,6 @@ class MosaicIOPanel extends JPanel {
 
     }
 
-    private static class ProductArrayEditor extends FileArrayEditor {
-
-        private ProductArrayEditor(EditorParent context) {
-            super(context, "Source products");
-        }
-
-        @Override
-        protected JFileChooser createFileChooserDialog() {
-            BeamFileChooser fileChooser = new BeamFileChooser();
-            fileChooser.setAcceptAllFileFilterUsed(true);
-            fileChooser.setDialogTitle("Mosaic - Open Source Product(s)"); /*I18N*/
-            fileChooser.setMultiSelectionEnabled(true);
-
-            Iterator allReaderPlugIns = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
-            while (allReaderPlugIns.hasNext()) {
-                final ProductIOPlugIn plugIn = (ProductIOPlugIn) allReaderPlugIns.next();
-                BeamFileFilter productFileFilter = plugIn.getProductFileFilter();
-                fileChooser.addChoosableFileFilter(productFileFilter);
-            }
-            FileFilter actualFileFilter = fileChooser.getAcceptAllFileFilter();
-            fileChooser.setFileFilter(actualFileFilter);
-
-            return fileChooser;
-        }
-    }
-
     private class TargetProductSelectorUpdater implements PropertyChangeListener {
 
         @Override
@@ -395,7 +374,7 @@ class MosaicIOPanel extends JPanel {
             }
         }
     }
-    
+
     public class UpdateProductFilter implements ProductFilter {
 
         @Override
@@ -406,7 +385,7 @@ class MosaicIOPanel extends JPanel {
             final Iterator<ProductWriterPlugIn> writerIterator = ioPlugInManager.getWriterPlugIns(formatName);
             if (writerIterator.hasNext()) {
                 try {
-                    final Map<String, Object> map = MosaicOp.getOperatorParameters(product);
+                    MosaicOp.getOperatorParameters(product);
                 } catch (OperatorException e) {
                     return false;
                 }
