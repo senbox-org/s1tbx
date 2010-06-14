@@ -350,11 +350,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isScalingApplied()
      */
     public int getGeophysicalDataType() {
-        return ImageManager.getProductDataType(ReinterpretDescriptor.getTargetDataType(getDataType(),
-                                                                                       getScalingFactor(),
-                                                                                       getScalingOffset(),
-                                                                                       getScalingType(),
-                                                                                       getInterpretationType()));
+        return ImageManager.getProductDataType(
+                ReinterpretDescriptor.getTargetDataType(ImageManager.getDataBufferType(getDataType()),
+                                                        getScalingFactor(),
+                                                        getScalingOffset(),
+                                                        getScalingType(),
+                                                        getInterpretationType()));
     }
 
     /**
