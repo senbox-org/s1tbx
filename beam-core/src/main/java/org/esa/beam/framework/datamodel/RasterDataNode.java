@@ -41,7 +41,6 @@ import javax.media.jai.ROI;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -77,9 +76,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String PROPERTY_NAME_NO_DATA_VALUE_USED = "noDataValueUsed";
     public static final String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
     public static final String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
+    public static final String PROPERTY_NAME_TIMECODING = "timeCodingProperty";
     public static final String PROPERTY_NAME_STX = "stx";
     public static final String PROPERTY_NAME_AREA_OF_DATA = "areaOfData";
-    
+
     /**
      * Text returned by the <code>{@link #getPixelString}</code> method if no data is available at the given pixel
      * position.
@@ -122,6 +122,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private String validPixelExpression;
 
     private GeoCoding geoCoding;
+    private TimeCoding timeCoding;
 
     private Stx stx;
 
@@ -152,7 +153,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private Mask validMask;
 
     private ROI validMaskROI;
-    
+
     /**
      * Constructs an object of type <code>RasterDataNode</code>.
      *
@@ -279,6 +280,28 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 }
             }
             fireProductNodeChanged(PROPERTY_NAME_GEOCODING);
+        }
+    }
+
+    /**
+     * Returns the time-coding of this {@link RasterDataNode}.
+     *
+     * @return the time-coding
+     */
+    public TimeCoding getTimeCoding() {
+        if (timeCoding == null) {
+            final Product product = getProduct();
+            if (product != null) {
+                return product.getTimeCoding();
+            }
+        }
+        return timeCoding;
+    }
+
+    public void setTimeCoding(TimeCoding timeCoding) {
+        if (!ObjectUtils.equalObjects(this.timeCoding, timeCoding)) {
+            this.timeCoding = timeCoding;
+            fireProductNodeChanged(PROPERTY_NAME_TIMECODING);
         }
     }
 

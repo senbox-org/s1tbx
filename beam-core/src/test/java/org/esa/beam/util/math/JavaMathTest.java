@@ -17,9 +17,7 @@
 
 package org.esa.beam.util.math;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * A set of tests which are used to demonstrate
@@ -109,6 +107,8 @@ public class JavaMathTest extends TestCase {
         assertEquals(0, (int) Math.floor(Double.NaN + 0.5f));
         assertEquals(Integer.MIN_VALUE, (int) Double.NEGATIVE_INFINITY);
         assertEquals(Integer.MAX_VALUE, (int) Double.POSITIVE_INFINITY);
+        assertEquals(Double.NaN, Math.max(Double.NaN, 5.4));
+        assertFalse(Double.NaN < 5.4);
     }
 
     /**
