@@ -12,7 +12,8 @@ public class JaiOperationRegistrySpi implements OperationRegistrySpi {
     @Override
     public void updateRegistry(OperationRegistry operationRegistry) {
         try {
-            operationRegistry.updateFromStream(getClass().getResourceAsStream("/META-INF/registryFile.jai"));
+            operationRegistry.updateFromStream(getClass().getResourceAsStream(
+                    "/META-INF/com/bc/ceres/jai/registryFile.jai"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
