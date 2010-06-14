@@ -27,5 +27,4 @@
         <module>ceres-core</module>
     </dependency>
 
-    <activator>com.bc.ceres.CeresJaiActivator</activator>
 </module>
