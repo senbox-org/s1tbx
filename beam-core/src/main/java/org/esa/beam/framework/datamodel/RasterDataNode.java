@@ -284,7 +284,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Returns the time-coding of this {@link RasterDataNode}.
+     * Getter for the {@link TimeCoding time-coding}. If this RasterDataNode does not contain a time-coding, the time-
+     * coding of the associated product is being returned.
      *
      * @return the time-coding
      */
@@ -298,6 +299,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return timeCoding;
     }
 
+    /**
+     * Setter for the {@link TimeCoding time-coding}
+     *
+     * @param timeCoding the time-coding to set
+     */
     public void setTimeCoding(TimeCoding timeCoding) {
         if (!ObjectUtils.equalObjects(this.timeCoding, timeCoding)) {
             this.timeCoding = timeCoding;

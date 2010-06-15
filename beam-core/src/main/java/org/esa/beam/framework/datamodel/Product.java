@@ -726,11 +726,13 @@ public class Product extends ProductNode {
      * @param startTime the sensing start time, can be null
      */
     public void setStartTime(final ProductData.UTC startTime) {
+        TimeCoding oldTimeCoding = timeCoding;
         if (timeCoding != null) {
             getTimeCoding().setStartTime(startTime);
         } else {
             timeCoding = new DefaultTimeCoding(startTime, startTime, sceneRasterWidth, sceneRasterHeight);
         }
+        fireProductNodeChanged(RasterDataNode.PROPERTY_NAME_TIMECODING, oldTimeCoding, timeCoding);
     }
 
     /**
@@ -761,10 +763,37 @@ public class Product extends ProductNode {
      * @param endTime the sensing stop time, can be null
      */
     public void setEndTime(final ProductData.UTC endTime) {
+        TimeCoding oldTimeCoding = timeCoding;
         if (timeCoding != null) {
-            getTimeCoding().setEndTime(endTime);
+            timeCoding.setEndTime(endTime);
         } else {
             timeCoding = new DefaultTimeCoding(endTime, endTime, sceneRasterWidth, sceneRasterHeight);
+        }
+        fireProductNodeChanged(RasterDataNode.PROPERTY_NAME_TIMECODING, oldTimeCoding, timeCoding);
+    }
+
+    /**
+     * Getter for the {@link TimeCoding time-coding} associated with this product which encapsulates start and end time
+     *
+     * @return the time-coding
+     */
+    public TimeCoding getTimeCoding() {
+        return timeCoding;
+    }
+
+    /**
+     * Setter for the {@link TimeCoding time-coding}.
+     *
+     * @param timeCoding the time-coding to set
+     */
+    public void setTimeCoding(TimeCoding timeCoding) {
+        if (timeCoding == this.timeCoding) {
+            return;
+        }
+        if (timeCoding == null || !timeCoding.equals(this.timeCoding)) {
+            TimeCoding oldTimeCoding = this.timeCoding;
+            this.timeCoding = timeCoding;
+            fireProductNodeChanged(RasterDataNode.PROPERTY_NAME_TIMECODING, oldTimeCoding, timeCoding);
         }
     }
 
@@ -2880,12 +2909,5 @@ public class Product extends ProductNode {
                 }
             }
         });
-    }
-
-    public TimeCoding getTimeCoding() {
-        if (timeCoding == null) {
-            timeCoding = new DefaultTimeCoding(getStartTime(), getEndTime(), sceneRasterWidth, sceneRasterHeight);
-        }
-        return timeCoding;
     }
 }

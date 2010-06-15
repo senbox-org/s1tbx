@@ -1,9 +1,10 @@
 package org.esa.beam.framework.datamodel;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Marco Peters
@@ -42,4 +43,15 @@ public class RasterDataNodeTest {
         assertEquals("1.0", node.getPixelString(1, 0));
     }
 
+    @Test
+    public void testTimeCoding() throws Exception {
+        final Band band = new Band("dummy", ProductData.TYPE_INT32, 10, 10);
+        assertNull(band.getTimeCoding());
+        final Product product = new Product("X", "Y", 10, 10);
+        product.addBand(band);
+        assertNull(product.getTimeCoding());
+        product.setStartTime(ProductData.UTC.parse("15-06-2010", "dd-MM-yyyy"));
+        assertNotNull(product.getTimeCoding());
+        assertEquals(band.getTimeCoding(), product.getTimeCoding());
+    }
 }
