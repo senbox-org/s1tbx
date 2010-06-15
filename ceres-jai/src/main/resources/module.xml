@@ -27,8 +27,6 @@
         <module>ceres-core</module>
     </dependency>
 
-    <extension point="ceres-core:serviceProviders">
-        <servideProvider>javax.media.jai.OperationRegistrySpi</servideProvider>
-    </extension>
+    <activator>com.bc.ceres.jai.ModuleActivator</activator>
 
 </module>
