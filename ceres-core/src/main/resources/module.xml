@@ -53,6 +53,8 @@
     <!--
        todo - describe
     -->
-    <extensionPoint id="serviceProviders"/>
+    <extensionPoint id="serviceProviders">
+        <serviceProvider></serviceProvider>
+    </extensionPoint>
 
 </module>
