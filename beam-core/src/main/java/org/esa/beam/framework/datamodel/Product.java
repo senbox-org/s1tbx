@@ -730,7 +730,7 @@ public class Product extends ProductNode {
         if (timeCoding != null) {
             getTimeCoding().setStartTime(startTime);
         } else {
-            timeCoding = new DefaultTimeCoding(startTime, startTime, sceneRasterWidth, sceneRasterHeight);
+            timeCoding = new DefaultTimeCoding(startTime, startTime, sceneRasterHeight);
         }
         fireProductNodeChanged(RasterDataNode.PROPERTY_NAME_TIMECODING, oldTimeCoding, timeCoding);
     }
@@ -767,7 +767,7 @@ public class Product extends ProductNode {
         if (timeCoding != null) {
             timeCoding.setEndTime(endTime);
         } else {
-            timeCoding = new DefaultTimeCoding(endTime, endTime, sceneRasterWidth, sceneRasterHeight);
+            timeCoding = new DefaultTimeCoding(endTime, endTime, sceneRasterHeight);
         }
         fireProductNodeChanged(RasterDataNode.PROPERTY_NAME_TIMECODING, oldTimeCoding, timeCoding);
     }

@@ -34,7 +34,7 @@ public class ProductTimeCodingTest {
         final Product product = new Product("dummy", "type", 10, 10);
         TimeCoding timeCoding = product.getTimeCoding();
         assertEquals(null, timeCoding);
-        product.setTimeCoding(new DefaultTimeCoding(UTC_15_06_2010, UTC_18_06_2010, 10, 10));
+        product.setTimeCoding(new DefaultTimeCoding(UTC_15_06_2010, UTC_18_06_2010, 10));
         timeCoding = product.getTimeCoding();
         assertNotNull(timeCoding);
         assertEquals(UTC_15_06_2010.getAsDate().getTime(), timeCoding.getStartTime().getAsDate().getTime());
@@ -59,7 +59,7 @@ public class ProductTimeCodingTest {
         product.setTimeCoding(null);
         assertNull(product.getTimeCoding());
 
-        product.setTimeCoding(new DefaultTimeCoding(UTC_15_06_2010, UTC_18_06_2010, 10, 10));
+        product.setTimeCoding(new DefaultTimeCoding(UTC_15_06_2010, UTC_18_06_2010, 10));
         assertNotNull(product.getTimeCoding());
 
         product.setTimeCoding(null);

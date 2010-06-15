@@ -6,7 +6,6 @@ package org.esa.beam.framework.datamodel;
  */
 public class DefaultTimeCoding extends TimeCoding {
 
-    private int width;
     private int height;
 
     /**
@@ -14,14 +13,11 @@ public class DefaultTimeCoding extends TimeCoding {
      *
      * @param startTime the start time
      * @param endTime   the end time
-     * @param width     the width
      * @param height    the height
      */
-    public DefaultTimeCoding(ProductData.UTC startTime, ProductData.UTC endTime,
-                             int width, int height) {
+    public DefaultTimeCoding(ProductData.UTC startTime, ProductData.UTC endTime, int height) {
         super(startTime, endTime);
         this.height = height;
-        this.width = width;
     }
 
     /**
@@ -39,23 +35,11 @@ public class DefaultTimeCoding extends TimeCoding {
         final ProductData.UTC utcEndTime = getEndTime();
 
         final double dStart = utcStartTime.getMJD();
-        final double dStop = utcEndTime.getMJD();
-        if (dStart == 0 || dStop == 0 || !isInBounds(pos)) {
-            throw new IllegalArgumentException("Cannot determine time for pixel " + pos.toString() + ".");
-        } else {
-            final double vPerLine = (dStop - dStart) / (height - 1);
-            final double currentLine = vPerLine * pos.y + dStart;
-            return new ProductData.UTC(currentLine);
-        }
+        final double dEnd = utcEndTime.getMJD();
+        final double vPerLine = (dEnd - dStart) / (height - 1);
+        final double currentLine = vPerLine * pos.y + dStart;
+        return new ProductData.UTC(currentLine);
     }
-
-    private boolean isInBounds(PixelPos pos) {
-        return pos.x < width &&
-               pos.y < height &&
-               pos.x >= 0 &&
-               pos.y >= 0;
-    }
-
 
 }
 
