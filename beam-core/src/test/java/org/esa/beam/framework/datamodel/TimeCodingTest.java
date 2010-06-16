@@ -27,16 +27,6 @@ public class TimeCodingTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testFail1() throws ParseException {
-        new MyTimeCoding(null, UTC_15_06_2010);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testFail2() throws ParseException {
-        new MyTimeCoding(UTC_15_06_2010, null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testTimesinWrongOrder() throws ParseException {
         new MyTimeCoding(UTC_15_06_2010,
                          UTC_10_06_2010);

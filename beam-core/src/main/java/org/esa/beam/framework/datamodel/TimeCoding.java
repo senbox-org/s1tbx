@@ -16,14 +16,10 @@ public abstract class TimeCoding {
      * @param startTime the start time of the time span represented by the time-coding
      * @param endTime   the end time of the time span represented by the time-coding
      *
-     * @throws IllegalArgumentException if startTime or endTime is <code>null</code> or the start time is after the end
-     *                                  time
+     * @throws IllegalArgumentException if the start time is after the end time
      */
     protected TimeCoding(ProductData.UTC startTime, ProductData.UTC endTime) {
-        if (startTime == null || endTime == null) {
-            throw new IllegalArgumentException("No start or end time 'null' allowed.");
-        }
-        if (startTime.getAsDate().after(endTime.getAsDate())) {
+        if (startTime != null && endTime != null && startTime.getAsDate().after(endTime.getAsDate())) {
             throw new IllegalArgumentException("Start time after end time.");
         }
 
@@ -63,12 +59,9 @@ public abstract class TimeCoding {
      *
      * @param endTime the end time to set
      *
-     * @throws IllegalArgumentException if end time is <code>null</code> or before start time
+     * @throws IllegalArgumentException if end time is before start time
      */
     public void setEndTime(ProductData.UTC endTime) {
-        if (endTime == null) {
-            throw new IllegalArgumentException("No end time 'null' allowed.");
-        }
         if (endTime.getAsDate().before(startTime.getAsDate())) {
             throw new IllegalArgumentException("Start time after end time.");
         }
@@ -80,12 +73,9 @@ public abstract class TimeCoding {
      *
      * @param startTime the start time to set
      *
-     * @throws IllegalArgumentException if start time is <code>null</code> or after end time
+     * @throws IllegalArgumentException if start time is after end time
      */
     public void setStartTime(ProductData.UTC startTime) {
-        if (startTime == null) {
-            throw new IllegalArgumentException("No start time 'null' allowed.");
-        }
         if (startTime.getAsDate().after(endTime.getAsDate())) {
             throw new IllegalArgumentException("Start time after end time.");
         }
