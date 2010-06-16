@@ -26,37 +26,30 @@ public class TimeCodingTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testTimesinWrongOrder() throws ParseException {
-        new MyTimeCoding(UTC_15_06_2010,
-                         UTC_10_06_2010);
+        new MyTimeCoding(UTC_15_06_2010, UTC_10_06_2010);
     }
 
     @Test
     public void testSetStartTime() throws Exception {
-        final TimeCoding timeCoding = new MyTimeCoding(UTC_10_06_2010,
-                                                       UTC_15_06_2010);
-        assertEquals(UTC_10_06_2010.getAsDate().getTime(),
-                     timeCoding.getStartTime().getAsDate().getTime());
-        assertEquals(UTC_15_06_2010.getAsDate().getTime(),
-                     timeCoding.getEndTime().getAsDate().getTime());
+        final TimeCoding timeCoding = new MyTimeCoding(UTC_10_06_2010, UTC_15_06_2010);
+        assertEquals(UTC_10_06_2010.getAsDate().getTime(), timeCoding.getStartTime().getAsDate().getTime());
+        assertEquals(UTC_15_06_2010.getAsDate().getTime(), timeCoding.getEndTime().getAsDate().getTime());
 
-        final TimeCoding secondTimeCoding = new MyTimeCoding(UTC_10_06_2010,
-                                                             UTC_15_06_2010);
+        final TimeCoding secondTimeCoding = new MyTimeCoding(UTC_10_06_2010, UTC_15_06_2010);
         assertTrue(timeCoding.equals(secondTimeCoding));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testStartTimeAfterEndTime() throws Exception {
-        final TimeCoding timeCoding = new MyTimeCoding(UTC_10_06_2010,
-                                                       UTC_15_06_2010);
+        final TimeCoding timeCoding = new MyTimeCoding(UTC_10_06_2010, UTC_15_06_2010);
         timeCoding.setStartTime(ProductData.UTC.parse("16-06-2010", "dd-MM-yyyy"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testEndTimeBeforeStartTime() throws Exception {
-        final TimeCoding timeCoding = new MyTimeCoding(UTC_10_06_2010,
-                                                       UTC_15_06_2010);
+        final TimeCoding timeCoding = new MyTimeCoding(UTC_10_06_2010, UTC_15_06_2010);
         timeCoding.setEndTime(ProductData.UTC.parse("04-06-2010", "dd-MM-yyyy"));
     }
 

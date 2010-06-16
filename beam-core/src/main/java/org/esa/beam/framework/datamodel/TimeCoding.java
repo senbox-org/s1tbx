@@ -15,14 +15,8 @@ public abstract class TimeCoding {
      *
      * @param startTime the start time of the time span represented by the time-coding
      * @param endTime   the end time of the time span represented by the time-coding
-     *
-     * @throws IllegalArgumentException if the start time is after the end time
      */
     protected TimeCoding(ProductData.UTC startTime, ProductData.UTC endTime) {
-        if (startTime != null && endTime != null && startTime.getAsDate().after(endTime.getAsDate())) {
-            throw new IllegalArgumentException("Start time after end time.");
-        }
-
         this.startTime = startTime;
         this.endTime = endTime;
     }
@@ -37,15 +31,6 @@ public abstract class TimeCoding {
     public abstract ProductData.UTC getTime(final PixelPos pos);
 
     /**
-     * Getter for the end time
-     *
-     * @return the end time, may be {@code null}
-     */
-    public ProductData.UTC getEndTime() {
-        return endTime;
-    }
-
-    /**
      * Getter for the start time
      *
      * @return the start time, may be {@code null}
@@ -55,31 +40,30 @@ public abstract class TimeCoding {
     }
 
     /**
-     * Setter for the end time
+     * Getter for the end time
      *
-     * @param endTime the end time to set
-     *
-     * @throws IllegalArgumentException if end time is before start time
+     * @return the end time, may be {@code null}
      */
-    public void setEndTime(ProductData.UTC endTime) {
-        if (startTime != null && endTime != null && endTime.getAsDate().before(startTime.getAsDate())) {
-            throw new IllegalArgumentException("Start time after end time.");
-        }
-        this.endTime = endTime;
+    public ProductData.UTC getEndTime() {
+        return endTime;
     }
 
     /**
      * Setter for the start time
      *
      * @param startTime the start time to set
-     *
-     * @throws IllegalArgumentException if start time is after end time
      */
     public void setStartTime(ProductData.UTC startTime) {
-        if (startTime != null && endTime != null && startTime.getAsDate().after(endTime.getAsDate())) {
-            throw new IllegalArgumentException("Start time after end time.");
-        }
         this.startTime = startTime;
+    }
+
+    /**
+     * Setter for the end time
+     *
+     * @param endTime the end time to set
+     */
+    public void setEndTime(ProductData.UTC endTime) {
+        this.endTime = endTime;
     }
 
     @Override
