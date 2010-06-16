@@ -730,7 +730,7 @@ public class Product extends ProductNode {
     public void setStartTime(final ProductData.UTC startTime) {
         TimeCoding oldTimeCoding = timeCoding;
         if (timeCoding != null) {
-            getTimeCoding().setStartTime(startTime);
+            timeCoding.setStartTime(startTime);
         } else {
             timeCoding = new DefaultTimeCoding(startTime, startTime, sceneRasterHeight);
         }

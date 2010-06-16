@@ -31,14 +31,26 @@ public class DefaultTimeCoding extends TimeCoding {
      */
     @Override
     public ProductData.UTC getTime(PixelPos pos) {
-        final ProductData.UTC utcStartTime = getStartTime();
-        final ProductData.UTC utcEndTime = getEndTime();
+        final ProductData.UTC startTime = getStartTime();
+        final ProductData.UTC endTime = getEndTime();
 
-        final double dStart = utcStartTime.getMJD();
-        final double dEnd = utcEndTime.getMJD();
-        final double vPerLine = (dEnd - dStart) / (height - 1);
-        final double currentLine = vPerLine * pos.y + dStart;
-        return new ProductData.UTC(currentLine);
+        if (startTime != null && endTime != null) {
+            final double dStart = startTime.getMJD();
+            final double dEnd = endTime.getMJD();
+            final double vPerLine = (dEnd - dStart) / (height - 1);
+            final double currentLine = vPerLine * pos.y + dStart;
+            return new ProductData.UTC(currentLine);
+        }
+
+        if (startTime != null) {
+            return (ProductData.UTC) startTime.createDeepClone();
+        }
+
+        if (endTime != null) {
+            return (ProductData.UTC) endTime.createDeepClone();
+        }
+
+        return null;
     }
 
 }
