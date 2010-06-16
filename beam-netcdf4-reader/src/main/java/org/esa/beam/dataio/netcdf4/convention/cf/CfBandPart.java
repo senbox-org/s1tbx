@@ -70,7 +70,15 @@ public class CfBandPart implements ModelPart {
         final Number noDataValue = getNoDataValue(attMap);
         if (noDataValue != null) {
             rasterDataNode.setNoDataValue(noDataValue.doubleValue());
-            rasterDataNode.setNoDataValueUsed(true);
+            int dataType = rasterDataNode.getDataType();
+            // TODO (mz, 2010-06-16) replace with normal noDataValue before BEAM 4.8 release
+            if (ProductData.isIntType(dataType)) {
+                int intNoDataValue = (int) rasterDataNode.getNoDataValue();
+                String validExp = rasterDataNode.getName() + ".raw != " + intNoDataValue;
+                rasterDataNode.setValidPixelExpression(validExp);
+            } else {
+                rasterDataNode.setNoDataValueUsed(true);
+            }
         }
     }
 
