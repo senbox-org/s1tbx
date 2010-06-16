@@ -29,6 +29,7 @@ import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriteable;
@@ -74,7 +75,9 @@ public class CfBandPart implements ModelPart {
             // TODO (mz, 2010-06-16) replace with normal noDataValue before BEAM 4.8 release
             if (ProductData.isIntType(dataType)) {
                 int intNoDataValue = (int) rasterDataNode.getNoDataValue();
-                String validExp = rasterDataNode.getName() + ".raw != " + intNoDataValue;
+                String rawSymbol = rasterDataNode.getName() + ".raw";
+                String extName = BandArithmetic.createExternalName(rawSymbol);
+                String validExp = extName + " != " + intNoDataValue;
                 rasterDataNode.setValidPixelExpression(validExp);
             } else {
                 rasterDataNode.setNoDataValueUsed(true);
