@@ -6,6 +6,7 @@ import javax.media.jai.JAI;
 import javax.media.jai.OperationDescriptorImpl;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.RenderedOp;
+import javax.media.jai.registry.RenderableRegistryMode;
 import javax.media.jai.registry.RenderedRegistryMode;
 import java.awt.RenderingHints;
 import java.awt.image.DataBuffer;
@@ -155,7 +156,9 @@ public class ExpressionDescriptor extends OperationDescriptorImpl {
      * @param compilerConfig The configuration for the Java expression compiler.
      * @param hints          The <code>RenderingHints</code> to use.
      *                       May be <code>null</code>.
+     *
      * @return The <code>RenderedOp</code> destination.
+     *
      * @throws IllegalArgumentException if <code>expression</code> is <code>invalid</code>.
      */
     public static RenderedOp create(Map<String, RenderedImage> sources,
