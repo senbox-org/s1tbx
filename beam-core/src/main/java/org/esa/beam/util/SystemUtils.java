@@ -21,6 +21,7 @@ import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
+import javax.media.jai.OperationRegistry;
 import javax.swing.UIManager;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -31,6 +32,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -41,6 +43,7 @@ import java.text.MessageFormat;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
 
 /**
  * A collection of (BEAM-) system level functions.
@@ -92,6 +95,8 @@ public class SystemUtils {
     private static final String FILE_PROTOCOL_PREFIX = "file:";
     private static final String JAR_PROTOCOL_PREFIX = "jar:";
     private static final String EPSG_DATABASE_DIR_NAME = "epsg-database";
+
+    private static final String JAI_REGISTRY_PATH = "/META-INF/javax.media.jai.registryFile.jai";
 
     /**
      * Gets the current user's name, or the string <code>"unknown"</code> if the the user's name cannot be determined.
@@ -523,12 +528,37 @@ public class SystemUtils {
     }
     
     /**
-     * Initialize third party libraries of BEAM
+     * Initialize third party libraries of BEAM.
+     * @param cl The most useful class loader.
+     * @since BEAM 4.8
       */
-    public static void initThirdPartyLibraries() {
-        JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
+    public static void init3rdPartyLibs(ClassLoader cl) {
+        initJAI(cl);
+        initGeoTools();
+    }
+
+    private static void initGeoTools() {
+        // Must store EPSG database in BEAM home, otherwise it will be deleted from default temp location (Unix!, Windows?)
         File epsgDir = new File(SystemUtils.getApplicationDataDir(true), EPSG_DATABASE_DIR_NAME);
         System.setProperty(HsqlEpsgDatabase.DIRECTORY_KEY, epsgDir.getAbsolutePath());
+    }
+
+    private static void initJAI(ClassLoader cl) {
+        // Must use a new operation registry in order to register JAI operators defined in Ceres and BEAM
+        OperationRegistry operationRegistry = OperationRegistry.getThreadSafeOperationRegistry();
+        InputStream is = SystemUtils.class.getResourceAsStream(JAI_REGISTRY_PATH);
+        if (is != null) {
+            try {
+                operationRegistry.updateFromStream(is);
+                operationRegistry.registerServices(cl);
+                JAI.getDefaultInstance().setOperationRegistry(operationRegistry);
+            } catch (IOException e) {
+                BeamLogManager.getSystemLogger().log(Level.SEVERE, MessageFormat.format("Error loading {0}: {1}", JAI_REGISTRY_PATH, e.getMessage()), e);
+            }
+        } else {
+            BeamLogManager.getSystemLogger().warning(MessageFormat.format("{0} not found", JAI_REGISTRY_PATH));
+        }
+        JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
     }
 
     /**

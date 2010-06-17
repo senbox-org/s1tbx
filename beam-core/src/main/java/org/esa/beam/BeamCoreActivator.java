@@ -75,6 +75,7 @@ public class BeamCoreActivator implements Activator {
     @Override
     public void start(ModuleContext moduleContext) throws CoreException {
         BeamCoreActivator.moduleContext = moduleContext;
+        SystemUtils.init3rdPartyLibs(moduleContext.getModule().getClassLoader());
         registerRGBProfiles(moduleContext);
     }
 

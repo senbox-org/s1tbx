@@ -91,7 +91,6 @@ class CommandLineTool {
     private void run(CommandLineArgs lineArgs) throws ValidationException, ConversionException, IOException, GraphException {
         TileCache tileCache = JAI.getDefaultInstance().getTileCache();
         tileCache.setMemoryCapacity(lineArgs.getTileCacheCapacity());
-        SystemUtils.initThirdPartyLibraries();
 
         if (lineArgs.getOperatorName() != null) {
             Map<String, Object> parameters = getParameterMap(lineArgs);

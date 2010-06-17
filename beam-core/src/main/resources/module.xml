@@ -26,12 +26,12 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.8:<br/>
+        [BEAM-1158] External JAI operators are not registered<br/>
         [BEAM-1147] Signed byte data type interpreted as unsigned byte<br/>
         [BEAM-1146] Images explicitly set on a Band have inappropriate image-to-model transformation<br/>
-        <p>Changes in 4.7.1:<br/>
-        [BEAM-1115] Make lookup tables thread safe
-        [BEAM-1088] Orthorectification does a map projection only
         <p>Changes in 4.7:<br/>
+        [BEAM-1115] Make lookup tables thread safe<br/>
+        [BEAM-1088] Orthorectification does a map projection only<br/>
         [BEAM-1065] Method TiePointGrid.cloneTiePointGrid() does not consider the unit<br/>
         [BEAM-1050] Preserve special geo-codings in all data processors<br/>
         [BEAM-1047] BandArithmetic operator does not consider geo-coding<br/>

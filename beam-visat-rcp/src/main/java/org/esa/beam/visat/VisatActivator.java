@@ -9,6 +9,7 @@ import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
 import org.esa.beam.framework.ui.command.Command;
+import org.esa.beam.util.SystemUtils;
 
 import java.util.Set;
 

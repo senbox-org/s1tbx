@@ -24,6 +24,7 @@ import org.esa.beam.framework.processor.ui.ProcessorApp;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamFormatter;
 import org.esa.beam.util.logging.BeamLogManager;
 
@@ -47,14 +48,15 @@ public class ProcessorRunner {
     private String _helpsetPath;
 
     public static void main(String[] args) {
+
         String processorClassName = System.getProperty("beam.processorClass");
         if (processorClassName == null) {
             throw new IllegalArgumentException("System property 'beam.processorClass' not set.");
         }
         try {
             ClassLoader classLoader = ProcessorRunner.class.getClassLoader();
-            Class<Processor> processorClass = (Class<Processor>) classLoader.loadClass(
-                    processorClassName);
+            SystemUtils.init3rdPartyLibs(classLoader);
+            Class<Processor> processorClass = (Class<Processor>) classLoader.loadClass(processorClassName);
             Processor processor = processorClass.newInstance();
             ProcessorRunner.runProcessor(args, processor);
         } catch (ClassNotFoundException e) {

@@ -116,9 +116,8 @@ public class VisatMain implements RuntimeRunnable {
                 }
             });
         }
-        SystemUtils.initThirdPartyLibraries();
         
-        final VisatApp app = createApplication(applicationDescriptor);
+        VisatApp app = createApplication(applicationDescriptor);
         app.startUp(progressMonitor);
         openSession(app, sessionFile);
         openProducts(app, productFilepathList);
