@@ -27,6 +27,7 @@
         <![CDATA[
         <p>Changes in 4.8:<br/>
         [BEAM-1158] External JAI operators are not registered<br/>
+        [BEAM-1157] No-data masking can easily be optimized<br/>
         [BEAM-1147] Signed byte data type interpreted as unsigned byte<br/>
         [BEAM-1146] Images explicitly set on a Band have inappropriate image-to-model transformation<br/>
         <p>Changes in 4.7:<br/>

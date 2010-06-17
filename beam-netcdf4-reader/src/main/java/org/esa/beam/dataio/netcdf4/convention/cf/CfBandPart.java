@@ -74,7 +74,7 @@ public class CfBandPart implements ModelPart {
             int dataType = rasterDataNode.getDataType();
             // TODO (mz, 2010-06-16) replace with normal noDataValue before BEAM 4.8 release
             if (ProductData.isIntType(dataType)) {
-                int intNoDataValue = (int) rasterDataNode.getNoDataValue();
+                double intNoDataValue = rasterDataNode.getNoDataValue();
                 String rawSymbol = rasterDataNode.getName() + ".raw";
                 String extName = BandArithmetic.createExternalName(rawSymbol);
                 String validExp = extName + " != " + intNoDataValue;

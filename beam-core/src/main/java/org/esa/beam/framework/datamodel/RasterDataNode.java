@@ -759,7 +759,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         } else if (Double.isInfinite(noDataValue)) {
             return "!inf(" + ref + ")";
         } else {
-            return "fneq(" + ref + "," + noDataValue + ")";
+            if (ProductData.isIntType(getDataType())) {
+                double rawNoDataValue = getNoDataValue();
+                String rawSymbol = getName() + ".raw";
+                String extName = BandArithmetic.createExternalName(rawSymbol);
+                return extName + " != " + rawNoDataValue;
+            } else {
+                return "fneq(" + ref + "," + noDataValue + ")";
+            }
         }
     }
 

@@ -11,35 +11,60 @@ public class RasterDataNodeNoDataTest extends TestCase {
         double z = 0;
 
         Product p = new Product("p", "t", 10, 10);
-        Band b = p.addBand("b", ProductData.TYPE_FLOAT32);
+        Band floatBand = p.addBand("b", ProductData.TYPE_FLOAT32);
 
-        assertEquals(null, b.getValidMaskExpression());
+        assertEquals(null, floatBand.getValidMaskExpression());
 
-        b.setNoDataValueUsed(true);
-        b.setGeophysicalNoDataValue(-999.0);
-        assertEquals("fneq(b,-999.0)", b.getValidMaskExpression());
+        floatBand.setNoDataValueUsed(true);
+        floatBand.setGeophysicalNoDataValue(-999.0);
+        assertEquals("fneq(b,-999.0)", floatBand.getValidMaskExpression());
 
-        b.setGeophysicalNoDataValue(1.0 / z);
-        assertEquals("!inf(b)", b.getValidMaskExpression());
+        floatBand.setGeophysicalNoDataValue(1.0 / z);
+        assertEquals("!inf(b)", floatBand.getValidMaskExpression());
 
-        b.setGeophysicalNoDataValue(-1.0 / z);
-        assertEquals("!inf(b)", b.getValidMaskExpression());
+        floatBand.setGeophysicalNoDataValue(-1.0 / z);
+        assertEquals("!inf(b)", floatBand.getValidMaskExpression());
 
-        b.setGeophysicalNoDataValue(Double.NaN);
-        assertEquals("!nan(b)", b.getValidMaskExpression());
+        floatBand.setGeophysicalNoDataValue(Double.NaN);
+        assertEquals("!nan(b)", floatBand.getValidMaskExpression());
 
-        b.setNoDataValueUsed(false);
-        b.setValidPixelExpression("b > 0");
-        assertEquals("b > 0", b.getValidMaskExpression());
+        floatBand.setNoDataValueUsed(false);
+        floatBand.setValidPixelExpression("b > 0");
+        assertEquals("b > 0", floatBand.getValidMaskExpression());
 
-        b.setNoDataValueUsed(true);
-        assertEquals("(b > 0) && !nan(b)", b.getValidMaskExpression());
+        floatBand.setNoDataValueUsed(true);
+        assertEquals("(b > 0) && !nan(b)", floatBand.getValidMaskExpression());
 
-        b.setValidPixelExpression("b < -1 || b > 0");
-        assertEquals("(b < -1 || b > 0) && !nan(b)", b.getValidMaskExpression());
+        floatBand.setValidPixelExpression("b < -1 || b > 0");
+        assertEquals("(b < -1 || b > 0) && !nan(b)", floatBand.getValidMaskExpression());
 
-        b.setValidPixelExpression("!nan(b)");
-        assertEquals("!nan(b)", b.getValidMaskExpression());
+        floatBand.setValidPixelExpression("!nan(b)");
+        assertEquals("!nan(b)", floatBand.getValidMaskExpression());
+
+
+        Band intBand = p.addBand("i", ProductData.TYPE_INT32);
+        assertEquals(null, intBand.getValidMaskExpression());
+
+        intBand.setNoDataValueUsed(true);
+        intBand.setNoDataValue(42);
+        assertEquals("i.raw != 42.0", intBand.getValidMaskExpression());
+
+        intBand.setNoDataValueUsed(false);
+        intBand.setValidPixelExpression("i > 0");
+        assertEquals("i > 0", intBand.getValidMaskExpression());
+
+        intBand.setNoDataValueUsed(true);
+        assertEquals("(i > 0) && i.raw != 42.0", intBand.getValidMaskExpression());
+
+        intBand.setValidPixelExpression(null);
+        intBand.setScalingFactor(10);
+        intBand.setGeophysicalNoDataValue(40);
+        assertEquals("i.raw != 4.0", intBand.getValidMaskExpression());
+
+        Band uintBand = p.addBand("u", ProductData.TYPE_UINT8);
+        uintBand.setNoDataValueUsed(true);
+        uintBand.setNoDataValue(-1);
+        assertEquals("u.raw != 255.0", uintBand.getValidMaskExpression());
     }
 
     public void testNodeDataChangedEventFired() {
@@ -129,6 +154,44 @@ public class RasterDataNodeNoDataTest extends TestCase {
         b.setGeophysicalNoDataValue(geoValue);
         assertEquals(rawValue, b.getNoDataValue(), 1e-10);
         assertEquals(geoValue, b.getGeophysicalNoDataValue(), 1e-10);
+    }
+
+    public void testUsageOfRawSymbolForAllDataTypes() {
+        testDataType(ProductData.TYPE_INT8, 4 ,127, "b.raw != 127.0");
+        testDataType(ProductData.TYPE_INT8, 1 ,-1, "b.raw != -1.0");
+
+        testDataType(ProductData.TYPE_UINT8, 4 ,-1, "b.raw != 255.0");
+        testDataType(ProductData.TYPE_UINT8, 4 ,255, "b.raw != 255.0");
+        testDataType(ProductData.TYPE_UINT8, 4 ,256, "b.raw != 0.0");
+
+        testDataType(ProductData.TYPE_INT16, 4, 5, "b.raw != 5.0");
+
+        testDataType(ProductData.TYPE_UINT16, 4, 5, "b.raw != 5.0");
+
+        testDataType(ProductData.TYPE_INT32, 4, 5, "b.raw != 5.0");
+
+        testDataType(ProductData.TYPE_UINT32, 4 ,Integer.MAX_VALUE, "b.raw != 2.147483647E9");
+        testDataType(ProductData.TYPE_UINT32, 4 ,Integer.MAX_VALUE + 1, "b.raw != 2.147483648E9");
+        testDataType(ProductData.TYPE_UINT32, 4 ,-1, "b.raw != 4.294967295E9");
+
+        testDataType(ProductData.TYPE_FLOAT32, 4 ,5, "fneq(b,5.0)");
+        testDataType(ProductData.TYPE_FLOAT64, 4 ,5, "fneq(b,5.0)");
+    }
+
+    private void testDataType(int productDataType, double v1, double v2, String validMask) {
+        Product p = new Product("p", "t", 1, 2);
+
+        Band b = p.addBand("b", productDataType);
+        ProductData pData = ProductData.createInstance(productDataType, 2);
+        pData.setElemDoubleAt(0, v1);
+        pData.setElemDoubleAt(1, v2);
+        b.setData(pData);
+        b.setNoDataValue(v2);
+        b.setNoDataValueUsed(true);
+
+        assertTrue(b.isPixelValid(0, 0));
+        assertFalse(b.isPixelValid(0, 1));
+        assertEquals(validMask, b.getValidMaskExpression());
     }
 
     private Band createBand(Product product,
