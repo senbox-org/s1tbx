@@ -45,6 +45,7 @@ public abstract class AbstractRuntimeTest extends TestCase {
         System.clearProperty(contextId+".home");
         System.clearProperty(contextId+".app");
         System.clearProperty(contextId+".mainClass");
+        System.clearProperty(contextId+".classpath");
         System.clearProperty(contextId+".modules");
         System.clearProperty(contextId+".config");
         System.clearProperty(contextId+".libDirs");
@@ -121,8 +122,17 @@ public abstract class AbstractRuntimeTest extends TestCase {
         touch0(new File(baseDirPath, filePath), data);
     }
 
-    protected URL toURL(String filePath) throws IOException {
-        return new File(getBaseDirPath() + "/" + filePath).toURI().toURL();
+    protected URL toMainURL(String filePath) throws IOException {
+        return new File(filePath).toURI().toURL();
+    }
+
+    protected URL toDefaultURL(String filePath) throws IOException {
+        final File file = new File(filePath);
+        if (file.isAbsolute()) {
+            return file.toURI().toURL();
+        } else {
+            return new File(getBaseDirPath(), file.getPath()).toURI().toURL();
+        }
     }
 
     private void mkdir0(File dir) throws IOException {

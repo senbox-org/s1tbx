@@ -1,17 +1,23 @@
 package com.bc.ceres.launcher;
 
-import com.bc.ceres.launcher.internal.BootstrapClasspathFactory;
-import com.bc.ceres.launcher.internal.BruteForceClasspathFactory;
-import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
 import com.bc.ceres.core.runtime.RuntimeConfig;
 import com.bc.ceres.core.runtime.RuntimeConfigException;
+import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
+import com.bc.ceres.launcher.internal.BootstrapClasspathFactory;
+import com.bc.ceres.launcher.internal.BruteForceClasspathFactory;
 
+import java.io.File;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 /**
  * A launcher for applications based on the Ceres runtime.
+ *
  * @see RuntimeConfig
  * @see ClasspathFactory
  */
@@ -20,11 +26,12 @@ public final class Launcher {
     private ClasspathFactory classpathFactory;
 
     /**
-     * Lauches the application with a default {@link RuntimeConfig} and a {@link ClasspathFactory}
+     * Launches the application with a default {@link RuntimeConfig} and a {@link ClasspathFactory}
      * based on the <code>${ceres.context}.mainClass</code> property. If the main class is
      * {@code "com.bc.ceres.core.runtime.RuntimeLauncher"}, then a minimal classpath which at least includes the
      * <code>ceres-core</code> library is used. Otherwise all directories, JARs and ZIPs found in
      * the home directory will be added to the classpath.
+     *
      * @param args the command-line arguments
      */
     public static void main(String[] args) {
@@ -39,7 +46,8 @@ public final class Launcher {
 
     /**
      * Creates a default launcher.
-     * @return a default laucher.
+     *
+     * @return a default launcher.
      * @throws RuntimeConfigException if the default configuration is invalid
      */
     public static Launcher createDefaultLauncher() throws RuntimeConfigException {
@@ -55,7 +63,8 @@ public final class Launcher {
 
     /**
      * Constructs a new launcher.
-     * @param runtimeConfig the runtime configuration
+     *
+     * @param runtimeConfig    the runtime configuration
      * @param classpathFactory the classpath factory
      */
     public Launcher(RuntimeConfig runtimeConfig, ClasspathFactory classpathFactory) {
@@ -76,16 +85,42 @@ public final class Launcher {
     }
 
     public ClassLoader createClassLoader() throws RuntimeConfigException {
-        URL[] classpath = createClasspath();
         ClassLoader classLoader = getClass().getClassLoader();
-        if (classpath.length > 0) {
-            classLoader = new URLClassLoader(classpath, classLoader);
+
+        URL[] defaultClasspath = createDefaultClasspath();
+        if (defaultClasspath.length > 0) {
+            classLoader = new URLClassLoader(defaultClasspath, classLoader);
         }
+
+        URL[] mainClasspath = createMainClasspath();
+        if (defaultClasspath.length > 0) {
+            classLoader = new URLClassLoader(mainClasspath, classLoader);
+        }
+
+        traceClassLoader("classLoader", classLoader);
         return classLoader;
     }
 
-    public URL[] createClasspath() throws RuntimeConfigException {
+    URL[] createDefaultClasspath() throws RuntimeConfigException {
         return classpathFactory.createClasspath();
+    }
+
+    URL[] createMainClasspath() {
+        ArrayList<URL> urlList = new ArrayList<URL>(16);
+        String paths = runtimeConfig.getMainClassPath();
+        if (paths != null) {
+            StringTokenizer st = new StringTokenizer(paths, File.pathSeparator);
+            while (st.hasMoreTokens()) {
+                String path = st.nextToken().trim();
+                try {
+                    URL url = new File(path).toURI().toURL();
+                    urlList.add(url);
+                } catch (MalformedURLException e) {
+                    trace(MessageFormat.format("Invalid classpath entry: {0}", path));
+                }
+            }
+        }
+        return urlList.toArray(new URL[urlList.size()]);
     }
 
     public void launch(String[] args) throws Exception {
@@ -111,4 +146,23 @@ public final class Launcher {
             System.out.println(String.format("[DEBUG] ceres-launcher: %s", msg));
         }
     }
+
+    // do not delete, useful for debugging
+
+    private void traceClassLoader(String name, ClassLoader classLoader) {
+        System.out.println("=============================================================================");
+        System.out.println(name + ".class = " + classLoader.getClass());
+        if (classLoader instanceof URLClassLoader) {
+            URL[] classpath = ((URLClassLoader) classLoader).getURLs();
+            for (int i = 0; i < classpath.length; i++) {
+                System.out.println(name + ".url[" + i + "] = " + classpath[i]);
+            }
+        }
+        if (classLoader.getParent() != null) {
+            traceClassLoader(name + ".parent", classLoader.getParent());
+        } else {
+            System.out.println(name + ".parent = null");
+        }
+    }
+
 }

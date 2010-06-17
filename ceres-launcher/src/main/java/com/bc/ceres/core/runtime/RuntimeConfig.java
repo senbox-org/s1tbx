@@ -13,6 +13,7 @@ import java.util.logging.Logger;
  * <li><code>${ceres.context}.modules</code> - the application's modules directory, defaults to <code>modules</code>.</li>
  * <li><code>${ceres.context}.libDirs</code> - the application's library directories, defaults to <code>lib</code>.</li>
  * <li><code>${ceres.context}.mainClass</code> - the main class to be used, defaults to <code>com.bc.ceres.core.runtime.RuntimeLauncher</code> (which launches a Ceres module runtime).</li>
+ * <li><code>${ceres.context}.classpath</code> - the main application classpath, defaults to {@code null}.</li>
  * <li><code>${ceres.context}.debug</code> - output extra debugging info.</li>
  * <li><code>${ceres.context}.logLevel</code> - the log level, for valid values see {@link java.util.logging.Level}.</li>
  * </ul>
@@ -53,9 +54,25 @@ public interface RuntimeConfig {
     /**
      * The name of the class providing the main entry point.
      *
-     * @return the home directory path.
+     * @return the name of the main class to be launched, may be {@code null}.
+     * @see #getMainClassPath()
      */
     String getMainClassName();
+
+    /**
+     * An optional classpath containing the paths of additional application directories and ZIPs/JARs.
+     * Path entries are separated by the system-specific path separator.
+     * <p/>
+     * This classpath can be used to specify classes (e.g. the {@link #getMainClassName() main class}), that are neither contained in one of the {@link #getLibDirPaths() lib}
+     * directories nor in the {@link #getModulesDirPath() modules} directory.
+     * <p/>
+     * If specified, the main classpath will be the top-level classpath.
+     *
+     * @return the home directory path, may be {@code null}.
+     * @since Ceres 0.11
+     * @see #getMainClassName()
+     */
+    String getMainClassPath();
 
     /**
      * @return The identifier of the application or <code>null</code>
