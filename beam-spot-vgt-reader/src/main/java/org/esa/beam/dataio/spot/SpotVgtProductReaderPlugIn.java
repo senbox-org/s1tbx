@@ -31,6 +31,7 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      */
+    @Override
     public DecodeQualification getDecodeQualification(Object input) {
         File file = getFileInput(input);
         if (file == null) {
@@ -76,6 +77,7 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return an array containing valid input types, never <code>null</code>
      */
+    @Override
     public Class[] getInputTypes() {
         return new Class[]{String.class, File.class};
     }
@@ -85,6 +87,7 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return a new reader instance, never <code>null</code>
      */
+    @Override
     public ProductReader createReaderInstance() {
         return new SpotVgtProductReader(this);
     }
@@ -94,6 +97,7 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return a file filter
      */
+    @Override
     public BeamFileFilter getProductFileFilter() {
         return new BeamFileFilter(SpotVgtConstants.FORMAT_NAME,
                                   getDefaultFileExtensions(),
@@ -108,6 +112,7 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getDefaultFileExtensions() {
         return new String[]{
                 ".txt", ".TXT", ".zip", ".ZIP"
@@ -123,6 +128,7 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
      * @return a textual description of this product reader/writer
      */
+    @Override
     public String getDescription(Locale locale) {
         return SpotVgtConstants.READER_DESCRIPTION;
     }
@@ -132,6 +138,7 @@ public class SpotVgtProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getFormatNames() {
         return new String[]{SpotVgtConstants.FORMAT_NAME};
     }
