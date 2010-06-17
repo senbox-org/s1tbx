@@ -54,20 +54,22 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
             if (file == null || !file.isFile()) {
                 return DecodeQualification.UNABLE;
             }
-            ncfile = NetcdfFile.open(file.getPath());
-            Attribute titleAttribute = ncfile.findGlobalAttribute("Title");
-            if (titleAttribute != null) {
-                final String value = titleAttribute.getStringValue();
-                if (value != null) {
-                    final String title = value.trim();
-                    for (String magicString : magicStrings) {
-                        if(title.contains(magicString)) {
-                            return DecodeQualification.INTENDED;
+            if (NetcdfFile.canOpen(file.getPath())) {
+                ncfile = NetcdfFile.open(file.getPath());
+                Attribute titleAttribute = ncfile.findGlobalAttribute("Title");
+                if (titleAttribute != null) {
+                    final String value = titleAttribute.getStringValue();
+                    if (value != null) {
+                        final String title = value.trim();
+                        for (String magicString : magicStrings) {
+                            if(title.contains(magicString)) {
+                                return DecodeQualification.INTENDED;
+                            }
                         }
                     }
                 }
             }
-        } catch (IOException ignore) {
+        } catch (Exception ignore) {
         } finally {
             if (ncfile != null) {
                 try {
