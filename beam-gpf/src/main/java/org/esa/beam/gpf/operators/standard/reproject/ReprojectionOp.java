@@ -265,17 +265,24 @@ public class ReprojectionOp extends Operator {
     }
 
     private void reprojectSourceRaster(RasterDataNode sourceRaster) {
-        int geoDataType = sourceRaster.getGeophysicalDataType();
-        double targetNoDataValue = getTargetNoDataValue(sourceRaster);
-        Band targetBand = targetProduct.addBand(sourceRaster.getName(), geoDataType);
+        final int targetDataType;
+        MultiLevelImage sourceImage;
+        if (sourceRaster.isScalingApplied()) {
+            targetDataType = sourceRaster.getGeophysicalDataType();
+            sourceImage = sourceRaster.getGeophysicalImage();
+        } else {
+            targetDataType = sourceRaster.getDataType();
+            sourceImage = sourceRaster.getSourceImage();
+        }
+        final double targetNoDataValue = getTargetNoDataValue(sourceRaster);
+        final Band targetBand = targetProduct.addBand(sourceRaster.getName(), targetDataType);
         targetBand.setNoDataValue(targetNoDataValue);
         targetBand.setNoDataValueUsed(true);
         targetBand.setDescription(sourceRaster.getDescription());
         targetBand.setUnit(sourceRaster.getUnit());
 
-        GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceRaster);
-        MultiLevelImage sourceImage = sourceRaster.getGeophysicalImage();
-        String exp = sourceRaster.getValidMaskExpression();
+        final GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceRaster);
+        final String exp = sourceRaster.getValidMaskExpression();
         if (exp != null) {
             // TODO decide between Virtualband and a special implementation (mz, 2009.11.11)
 //            final String externalName = BandArithmetic.createExternalName(sourceRaster.getName());
@@ -286,7 +293,7 @@ public class ReprojectionOp extends Operator {
 
         final Interpolation resampling = getResampling(targetBand);
         MultiLevelImage projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, targetBand, resampling);
-        if (mustReplaceNaN(sourceRaster, geoDataType, targetNoDataValue)) {
+        if (mustReplaceNaN(sourceRaster, targetDataType, targetNoDataValue)) {
             projectedImage = createNaNReplacedImage(projectedImage, targetNoDataValue);
         }
         targetBand.setSourceImage(projectedImage);
@@ -295,17 +302,17 @@ public class ReprojectionOp extends Operator {
         * Flag and index codings
         */
         if (sourceRaster instanceof Band) {
-            Band sourceBand = (Band) sourceRaster;
+            final Band sourceBand = (Band) sourceRaster;
             ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
-            FlagCoding sourceFlagCoding = sourceBand.getFlagCoding();
-            IndexCoding sourceIndexCoding = sourceBand.getIndexCoding();
+            final FlagCoding sourceFlagCoding = sourceBand.getFlagCoding();
+            final IndexCoding sourceIndexCoding = sourceBand.getIndexCoding();
             if (sourceFlagCoding != null) {
-                String flagCodingName = sourceFlagCoding.getName();
-                FlagCoding destFlagCoding = targetProduct.getFlagCodingGroup().get(flagCodingName);
+                final String flagCodingName = sourceFlagCoding.getName();
+                final FlagCoding destFlagCoding = targetProduct.getFlagCodingGroup().get(flagCodingName);
                 targetBand.setSampleCoding(destFlagCoding);
             } else if (sourceIndexCoding != null) {
-                String indexCodingName = sourceIndexCoding.getName();
-                IndexCoding destIndexCoding = targetProduct.getIndexCodingGroup().get(indexCodingName);
+                final String indexCodingName = sourceIndexCoding.getName();
+                final IndexCoding destIndexCoding = targetProduct.getIndexCodingGroup().get(indexCodingName);
                 targetBand.setSampleCoding(destIndexCoding);
             }
         }
@@ -450,7 +457,8 @@ public class ReprojectionOp extends Operator {
     }
 
     private static void copyPlacemarks(ProductNodeGroup<Placemark> sourcePlacemarkGroup,
-                                       ProductNodeGroup<Placemark> targetPlacemarkGroup, PlacemarkDescriptor descriptor) {
+                                       ProductNodeGroup<Placemark> targetPlacemarkGroup,
+                                       PlacemarkDescriptor descriptor) {
         final Placemark[] placemarks = sourcePlacemarkGroup.toArray(new Placemark[0]);
         for (Placemark placemark : placemarks) {
             PixelPos targetPixelPos = null;
@@ -464,7 +472,8 @@ public class ReprojectionOp extends Operator {
             }
 
             final Placemark placemark1 = new Placemark(placemark.getName(), placemark.getLabel(),
-                                                       placemark.getDescription(), targetPixelPos, placemark.getGeoPos(),
+                                                       placemark.getDescription(), targetPixelPos,
+                                                       placemark.getGeoPos(),
                                                        descriptor, targetPlacemarkGroup.getProduct().getGeoCoding());
             targetPlacemarkGroup.add(placemark1);
         }
