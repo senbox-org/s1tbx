@@ -2,5 +2,6 @@
 *.ipr
 *.iws
 .idea/
-modules/
+/config/
+/modules/
 target/
