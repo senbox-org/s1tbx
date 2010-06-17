@@ -89,7 +89,7 @@ public class SystemUtils {
 
     private static final String _H5_CLASS_NAME = "ncsa.hdf.hdf5lib.H5";
     private static final String _H4_CLASS_NAME = "ncsa.hdf.hdflib.HDFLibrary";
-    private static final String FILE_PROTOCOLL_PREFIX = "file:";
+    private static final String FILE_PROTOCOL_PREFIX = "file:";
     private static final String JAR_PROTOCOL_PREFIX = "jar:";
     private static final String EPSG_DATABASE_DIR_NAME = "epsg-database";
 
@@ -262,8 +262,8 @@ public class SystemUtils {
 
     private static String stripUrlProtocolPrefixes(String path) {
         while (true) {
-            if (path.startsWith(FILE_PROTOCOLL_PREFIX)) {
-                path = path.substring(FILE_PROTOCOLL_PREFIX.length());
+            if (path.startsWith(FILE_PROTOCOL_PREFIX)) {
+                path = path.substring(FILE_PROTOCOL_PREFIX.length());
             } else if (path.startsWith(JAR_PROTOCOL_PREFIX)) {
                 path = path.substring(JAR_PROTOCOL_PREFIX.length());
             } else {
