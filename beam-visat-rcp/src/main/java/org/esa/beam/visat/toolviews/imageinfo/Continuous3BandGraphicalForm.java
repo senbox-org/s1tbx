@@ -221,7 +221,10 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
 
     @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
-        Continuous1BandGraphicalForm.setDisplayProperties(imageInfoEditor.getModel(), raster);
+        ImageInfoEditorModel model = imageInfoEditor.getModel();
+        if (model != null) {
+            Continuous1BandGraphicalForm.setDisplayProperties(model, raster);
+        }
         if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {
             acknowledgeChannel();
         }
