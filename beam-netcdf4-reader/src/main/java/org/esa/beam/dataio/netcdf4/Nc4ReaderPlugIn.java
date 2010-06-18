@@ -31,14 +31,9 @@ public class Nc4ReaderPlugIn implements ProductReaderPlugIn {
      */
     public DecodeQualification getDecodeQualification(final Object input) {
 
-        String pathname = input.toString();
-        if (!Nc4ReaderUtils.hasValidExtension(pathname)) {
-            return DecodeQualification.UNABLE;
-        }
-
         NetcdfFile netcdfFile = null;
         try {
-            netcdfFile = NetcdfFile.open(pathname);
+            netcdfFile = NetcdfFile.open(input.toString());
             if (netcdfFile == null) {
                 return DecodeQualification.UNABLE;
             }
