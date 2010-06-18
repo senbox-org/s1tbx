@@ -133,7 +133,7 @@ public class HdfEosFactory extends AbstractModelFactory {
     private String getGridName(Element eosElement) throws IOException {
         if (eosElement != null) {
             Element gridStructure = eosElement.getChild("GridStructure");
-            if (gridStructure != null) {
+            if (gridStructure != null && gridStructure.getChildren() != null && gridStructure.getChildren().size() > 0) {
                 Element gridElem = (Element) gridStructure.getChildren().get(0);
                 if (gridElem != null) {
                     Element gridNameElem = gridElem.getChild("GridName");
