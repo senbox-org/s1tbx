@@ -110,7 +110,9 @@ public class BeamFileChooser extends JFileChooser {
         Debug.trace("BeamFileChooser: approveSelection(): selectedFile = " + getSelectedFile());
         Debug.trace("BeamFileChooser: approveSelection(): currentFilename = " + getCurrentFilename());
         Debug.trace("BeamFileChooser: approveSelection(): currentDirectory = " + getCurrentDirectory());
-        ensureSelectedFileHasValidExtension();
+        if (getDialogType() != JFileChooser.OPEN_DIALOG) {
+            ensureSelectedFileHasValidExtension();
+        }
         super.approveSelection();
     }
 
@@ -152,12 +154,14 @@ public class BeamFileChooser extends JFileChooser {
         Debug.trace("BeamFileChooser: setCurrentFilename(\"" + currentFilename + "\")");
         String defaultExtension = getDefaultExtension();
 
-        if (currentFilename != null && defaultExtension != null) {
-            FileFilter fileFilter = getFileFilter();
-            if (fileFilter instanceof BeamFileFilter) {
-                BeamFileFilter filter = (BeamFileFilter) fileFilter;
-                if (!filter.checkExtension(currentFilename)) {
-                    currentFilename = FileUtils.exchangeExtension(currentFilename, defaultExtension);
+        if (getDialogType() != JFileChooser.OPEN_DIALOG) {
+            if (currentFilename != null && defaultExtension != null) {
+                FileFilter fileFilter = getFileFilter();
+                if (fileFilter instanceof BeamFileFilter) {
+                    BeamFileFilter filter = (BeamFileFilter) fileFilter;
+                    if (!filter.checkExtension(currentFilename)) {
+                        currentFilename = FileUtils.exchangeExtension(currentFilename, defaultExtension);
+                    }
                 }
             }
         }
@@ -240,6 +244,7 @@ public class BeamFileChooser extends JFileChooser {
         setAcceptAllFileFilterUsed(false);
 
         addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 Object newValue = evt.getNewValue();
                 if (newValue instanceof File) {
@@ -248,6 +253,7 @@ public class BeamFileChooser extends JFileChooser {
             }
         });
         addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final BeamFileFilter beamFileFilter = getBeamFileFilter();
                 if (beamFileFilter != null) {
@@ -285,8 +291,8 @@ public class BeamFileChooser extends JFileChooser {
         if (selectedFile != null) {
             BeamFileFilter mff = getBeamFileFilter();
             if (mff != null
-                    && mff.getDefaultExtension() != null
-                    && !mff.checkExtension(selectedFile)) {
+                && mff.getDefaultExtension() != null
+                && !mff.checkExtension(selectedFile)) {
                 selectedFile = FileUtils.exchangeExtension(selectedFile, mff.getDefaultExtension());
                 Debug.trace("mod. selected file: " + selectedFile.getPath());
                 setSelectedFile(selectedFile);
@@ -308,13 +314,16 @@ public class BeamFileChooser extends JFileChooser {
     }
 
     private static class CompoundDocumentIcon implements Icon {
+
         private final Icon baseIcon;
-        private static final Icon compoundDocumentIcon = new ImageIcon(CompoundDocumentIcon.class.getResource("CompoundDocument12.png"));
+        private static final Icon compoundDocumentIcon = new ImageIcon(
+                CompoundDocumentIcon.class.getResource("CompoundDocument12.png"));
 
         public CompoundDocumentIcon(Icon baseIcon) {
             this.baseIcon = baseIcon;
         }
 
+        @Override
         public void paintIcon(Component c, Graphics g, int x, int y) {
             baseIcon.paintIcon(c, g, x, y);
             compoundDocumentIcon.paintIcon(c, g,
@@ -322,10 +331,12 @@ public class BeamFileChooser extends JFileChooser {
                                            y + baseIcon.getIconHeight() - compoundDocumentIcon.getIconHeight());
         }
 
+        @Override
         public int getIconWidth() {
             return baseIcon.getIconWidth();
         }
 
+        @Override
         public int getIconHeight() {
             return baseIcon.getIconHeight();
         }
