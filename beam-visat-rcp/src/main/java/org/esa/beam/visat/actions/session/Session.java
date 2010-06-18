@@ -134,13 +134,14 @@ public class Session {
                 MetadataElement metadataElement = metadataView.getMetadataElement();
                 StringBuilder sb = new StringBuilder(metadataElement.getName());
                 MetadataElement parent = metadataElement.getParentElement();
-                while (parent != metadataRoot) {
+                while (parent != null && parent != metadataRoot) {
                     sb.append('|');
                     sb.append(parent.getName());
                     parent = parent.getParentElement();
                 }
                 productNodeName = sb.toString();
                 productRefNo = view.getVisibleProductNode().getProduct().getRefNo();
+                // todo - flag and index coding views (rq-20100618)
             }
             viewRefs[i] = new ViewRef(i,
                                       view.getClass().getName(),
@@ -308,6 +309,7 @@ public class Session {
                         collectSceneView(viewRef, productManager, applicationPreferences, pm, problems, views);
                     } else if (ProductMetadataView.class.getName().equals(viewRef.type)) {
                         collectMetadataView(viewRef, productManager, views);
+                        // todo - flag and index coding views (rq-20100618)
                     } else {
                         throw new Exception("Unknown view type: " + viewRef.type);
                     }
