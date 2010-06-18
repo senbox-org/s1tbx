@@ -86,7 +86,8 @@ public class HdfEosFactory extends AbstractModelFactory {
 
     @Override
     protected Nc4ReaderParameters createReaderParameters(NetcdfFile netcdfFile) throws IOException {
-        String gridName = getGridName(netcdfFile);
+        Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
+        String gridName = getGridName(eosElement);
         if (gridName == null || gridName.isEmpty()) {
             throw new ProductIOException("Could not find grid.");
         }
@@ -105,22 +106,31 @@ public class HdfEosFactory extends AbstractModelFactory {
 
     @Override
     protected DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
-        Variable variable = netcdfFile.findTopVariable("StructMetadata.0");
-        if (variable != null) {
-            try {
-                String gridName = getGridName(netcdfFile);
-                if (gridName != null && !gridName.isEmpty()) {
-                    return DecodeQualification.INTENDED;
-                }
-            } catch (IOException e) {
+        try {
+            Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
+            // check for GRID
+            String gridName = getGridName(eosElement);
+            if (gridName == null || gridName.isEmpty()) {
                 return DecodeQualification.UNABLE;
             }
+            //check for projection
+            Element gridStructure = eosElement.getChild("GridStructure");
+            Element gridElem = (Element) gridStructure.getChildren().get(0);
+            Element projectionElem = gridElem.getChild("Projection");
+            if (projectionElem == null) {
+                return DecodeQualification.UNABLE;
+            }
+            String projection = projectionElem.getValue();
+            if (!projection.equals("GCTP_GEO")) {
+                return DecodeQualification.UNABLE;
+            }
+            return DecodeQualification.INTENDED;
+        } catch (Exception e) {
+            return DecodeQualification.UNABLE;
         }
-        return DecodeQualification.UNABLE;
     }
 
-    private String getGridName(NetcdfFile netcdfFile) throws IOException {
-        Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
+    private String getGridName(Element eosElement) throws IOException {
         if (eosElement != null) {
             Element gridStructure = eosElement.getChild("GridStructure");
             if (gridStructure != null) {

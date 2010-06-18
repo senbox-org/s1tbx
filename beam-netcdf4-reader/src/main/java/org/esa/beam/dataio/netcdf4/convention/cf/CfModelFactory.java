@@ -10,6 +10,7 @@ import org.esa.beam.dataio.netcdf4.convention.beam.BeamStxPart;
 import org.esa.beam.dataio.netcdf4.convention.beam.BeamTiePointGridPart;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 /**
  * User: Thomas Storm
@@ -85,6 +86,11 @@ public class CfModelFactory extends AbstractModelFactory {
 
     @Override
     protected DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
+        Variable hdfEosVariable = netcdfFile.getRootGroup().findVariable("StructMetadata.0");
+        if (hdfEosVariable != null) {
+            // we dont't want to handle HDF EOS here
+            return DecodeQualification.UNABLE;
+        }
         Nc4RasterDigest rasterDigest = Nc4RasterDigest.createRasterDigest(netcdfFile.getRootGroup());
         if (rasterDigest != null && rasterDigest.getRasterVariables().length > 0) {
             return DecodeQualification.SUITABLE;

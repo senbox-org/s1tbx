@@ -38,7 +38,7 @@ public class Nc4ReaderPlugIn implements ProductReaderPlugIn {
                 return DecodeQualification.UNABLE;
             }
             return ModelFactoryRegistry.getInstance().getDecodeQualification(netcdfFile);
-        } catch (IOException e) {
+        } catch (Exception e) {
             return DecodeQualification.UNABLE;
         } finally {
             try {

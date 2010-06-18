@@ -55,18 +55,21 @@ public class BeamTiePointGridPart implements ModelPart {
             final Dimension dimensionX = dimensions.get(1);
             if (dimensionY.getLength() != p.getSceneRasterHeight()
                 || dimensionX.getLength() != p.getSceneRasterWidth()) {
+                //maybe this is a tie point grid
                 final String name = variable.getName();
                 final Attribute offsetX = variable.findAttributeIgnoreCase(OFFSET_X);
                 final Attribute offsetY = variable.findAttributeIgnoreCase(OFFSET_Y);
                 final Attribute subSamplingX = variable.findAttributeIgnoreCase(SUBSAMPLING_X);
                 final Attribute subSamplingY = variable.findAttributeIgnoreCase(SUBSAMPLING_Y);
-                final Array array = variable.read();
-                final float[] data = new float[(int) array.getSize()];
-                for (int i = 0; i < data.length; i++) {
-                    data[i] = array.getFloat(i);
-                }
-                final boolean containsAngles = "lon".equalsIgnoreCase(name) || "lat".equalsIgnoreCase(name);
-                final TiePointGrid grid = new TiePointGrid(name,
+                if (offsetX != null && offsetY != null &&
+                        subSamplingX != null && subSamplingY != null) {
+                    final Array array = variable.read();
+                    final float[] data = new float[(int) array.getSize()];
+                    for (int i = 0; i < data.length; i++) {
+                        data[i] = array.getFloat(i);
+                    }
+                    final boolean containsAngles = "lon".equalsIgnoreCase(name) || "lat".equalsIgnoreCase(name);
+                    final TiePointGrid grid = new TiePointGrid(name,
                                                            dimensionX.getLength(),
                                                            dimensionY.getLength(),
                                                            offsetX.getNumericValue().floatValue(),
@@ -75,8 +78,9 @@ public class BeamTiePointGridPart implements ModelPart {
                                                            subSamplingY.getNumericValue().floatValue(),
                                                            data,
                                                            containsAngles);
-                CfBandPart.applyAttributes(grid, variable);
-                p.addTiePointGrid(grid);
+                    CfBandPart.applyAttributes(grid, variable);
+                    p.addTiePointGrid(grid);
+                }
             }
         }
     }

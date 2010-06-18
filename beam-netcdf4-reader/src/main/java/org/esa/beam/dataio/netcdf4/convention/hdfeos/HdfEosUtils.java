@@ -1,6 +1,5 @@
 package org.esa.beam.dataio.netcdf4.convention.hdfeos;
 
-import org.esa.beam.framework.datamodel.MetadataElement;
 import org.jdom.Element;
 import ucar.ma2.Array;
 import ucar.ma2.ArrayChar;
@@ -12,7 +11,7 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 
-public class HdfEosUtils {
+class HdfEosUtils {
     static final String STRUCT_METADATA = "StructMetadata";
     static final String CORE_METADATA = "CoreMetadata";
     static final String ARCHIVE_METADATA = "ArchiveMetadata";
@@ -23,6 +22,7 @@ public class HdfEosUtils {
             return null;
         }
         smeta = smeta.replaceAll("\\s+=\\s+", "=");
+        smeta = smeta.replaceAll("\\?", "_"); // XML names cannot contain the character "?".
 
         StringBuilder sb = new StringBuilder(smeta.length());
         StringTokenizer lineFinder = new StringTokenizer(smeta, "\t\n\r\f");
