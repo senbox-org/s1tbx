@@ -86,7 +86,7 @@ public class CfModelFactory extends AbstractModelFactory {
     @Override
     protected DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
         Nc4RasterDigest rasterDigest = Nc4RasterDigest.createRasterDigest(netcdfFile.getRootGroup());
-        if (rasterDigest.getRasterVariables().length > 0) {
+        if (rasterDigest != null && rasterDigest.getRasterVariables().length > 0) {
             return DecodeQualification.SUITABLE;
         }
         return DecodeQualification.UNABLE;
