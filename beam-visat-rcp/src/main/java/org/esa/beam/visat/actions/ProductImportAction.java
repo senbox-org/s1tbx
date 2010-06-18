@@ -338,6 +338,7 @@ protected class ProductFileChooser extends BeamFileChooser {
         _subsetButton.setMnemonic('S'); /*I18N*/
         _subsetButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 openProductSubsetDialog();
@@ -349,6 +350,7 @@ protected class ProductFileChooser extends BeamFileChooser {
         _historyButton.setMnemonic('H');
         _historyButton.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 // @todo 2 nf/nf - Implement!
             }
@@ -369,6 +371,7 @@ protected class ProductFileChooser extends BeamFileChooser {
 
         addPropertyChangeListener(new PropertyChangeListener() {
 
+            @Override
             public void propertyChange(PropertyChangeEvent e) {
                 String prop = e.getPropertyName();
                 if (prop.equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) {
