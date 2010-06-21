@@ -86,6 +86,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String PROPERTY_NAME_NO_DATA_VALUE_USED = "noDataValueUsed";
     public static final String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
     public static final String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
+    public static final String PROPERTY_NAME_TIMECODING = "timeCodingProperty";
     public static final String PROPERTY_NAME_STX = "stx";
     public static final String PROPERTY_NAME_AREA_OF_DATA = "areaOfData";
 
@@ -131,6 +132,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private String validPixelExpression;
 
     private GeoCoding geoCoding;
+    private TimeCoding timeCoding;
 
     private Stx stx;
 
@@ -287,6 +289,34 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 }
             }
             fireProductNodeChanged(PROPERTY_NAME_GEOCODING);
+        }
+    }
+
+    /**
+     * Getter for the {@link TimeCoding time-coding}. If this RasterDataNode does not contain a time-coding, the time-
+     * coding of the associated product is being returned.
+     *
+     * @return the time-coding
+     */
+    public TimeCoding getTimeCoding() {
+        if (timeCoding == null) {
+            final Product product = getProduct();
+            if (product != null) {
+                return product.getTimeCoding();
+            }
+        }
+        return timeCoding;
+    }
+
+    /**
+     * Setter for the {@link TimeCoding time-coding}
+     *
+     * @param timeCoding the time-coding to set
+     */
+    public void setTimeCoding(TimeCoding timeCoding) {
+        if (!ObjectUtils.equalObjects(this.timeCoding, timeCoding)) {
+            this.timeCoding = timeCoding;
+            fireProductNodeChanged(PROPERTY_NAME_TIMECODING);
         }
     }
 

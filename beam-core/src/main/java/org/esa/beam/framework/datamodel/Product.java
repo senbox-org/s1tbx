@@ -129,16 +129,6 @@ public class Product extends ProductNode {
      */
     private final int sceneRasterHeight;
 
-    /**
-     * The start time of the first raster line.
-     */
-    private ProductData.UTC startTime;
-
-    /**
-     * The start time of the first raster line.
-     */
-    private ProductData.UTC endTime;
-
     private final MetadataElement metadataRoot;
     private final ProductNodeGroup<Band> bandGroup;
     private final ProductNodeGroup<TiePointGrid> tiePointGridGroup;
@@ -167,6 +157,7 @@ public class Product extends ProductNode {
     private String quicklookBandName;
 
     private Dimension preferredTileSize;
+    private TimeCoding timeCoding;
 
     /**
      * Creates a new product without any reader (in-memory product)
@@ -719,7 +710,11 @@ public class Product extends ProductNode {
      * @return the sensing start time, can be null e.g. for non-swath products
      */
     public ProductData.UTC getStartTime() {
-        return startTime;
+        if (timeCoding != null) {
+            return timeCoding.getStartTime();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -733,7 +728,13 @@ public class Product extends ProductNode {
      * @param startTime the sensing start time, can be null
      */
     public void setStartTime(final ProductData.UTC startTime) {
-        this.startTime = startTime;
+        TimeCoding oldTimeCoding = timeCoding;
+        if (timeCoding != null) {
+            timeCoding.setStartTime(startTime);
+        } else {
+            timeCoding = new DefaultTimeCoding(startTime, startTime, sceneRasterHeight);
+        }
+        fireProductNodeChanged(RasterDataNode.PROPERTY_NAME_TIMECODING, oldTimeCoding, timeCoding);
     }
 
     /**
@@ -747,7 +748,10 @@ public class Product extends ProductNode {
      * @return the stop time , can be null e.g. for non-swath products
      */
     public ProductData.UTC getEndTime() {
-        return endTime;
+        if (timeCoding != null) {
+            return timeCoding.getEndTime();
+        }
+        return null;
     }
 
     /**
@@ -761,7 +765,38 @@ public class Product extends ProductNode {
      * @param endTime the sensing stop time, can be null
      */
     public void setEndTime(final ProductData.UTC endTime) {
-        this.endTime = endTime;
+        TimeCoding oldTimeCoding = timeCoding;
+        if (timeCoding != null) {
+            timeCoding.setEndTime(endTime);
+        } else {
+            timeCoding = new DefaultTimeCoding(endTime, endTime, sceneRasterHeight);
+        }
+        fireProductNodeChanged(RasterDataNode.PROPERTY_NAME_TIMECODING, oldTimeCoding, timeCoding);
+    }
+
+    /**
+     * Getter for the {@link TimeCoding time-coding} associated with this product which encapsulates start and end time
+     *
+     * @return the time-coding
+     */
+    public TimeCoding getTimeCoding() {
+        return timeCoding;
+    }
+
+    /**
+     * Setter for the {@link TimeCoding time-coding}.
+     *
+     * @param timeCoding the time-coding to set
+     */
+    public void setTimeCoding(TimeCoding timeCoding) {
+        if (timeCoding == this.timeCoding) {
+            return;
+        }
+        if (timeCoding == null || !timeCoding.equals(this.timeCoding)) {
+            TimeCoding oldTimeCoding = this.timeCoding;
+            this.timeCoding = timeCoding;
+            fireProductNodeChanged(RasterDataNode.PROPERTY_NAME_TIMECODING, oldTimeCoding, timeCoding);
+        }
     }
 
     /**
