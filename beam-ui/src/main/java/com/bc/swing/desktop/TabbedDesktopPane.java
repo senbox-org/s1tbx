@@ -18,8 +18,22 @@ package com.bc.swing.desktop;
 
 import com.jidesoft.swing.JideTabbedPane;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.AbstractAction;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
+import javax.swing.JDesktopPane;
+import javax.swing.JInternalFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -158,8 +172,7 @@ public class TabbedDesktopPane extends JPanel {
                 final InternalFrameProxy placeHolder = getPlaceHolderFor(internalFrame);
                 final int index = tabbedPane.indexOfComponent(placeHolder);
                 if (index > -1) {
-                    tabbedPane.remove(index);
-                    tabbedPane.insertTab(internalFrame.getTitle(), null, placeHolder, null, index);
+                    tabbedPane.setTitleAt(index, internalFrame.getTitle());
                 }
             }
         });
