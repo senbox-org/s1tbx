@@ -26,6 +26,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.8:<br/>
+        [BEAM-1160] Auto-grouping of bands shall be controlled by data model<br/>
         [BEAM-1158] External JAI operators are not registered<br/>
         [BEAM-1157] No-data masking can easily be optimized<br/>
         [BEAM-1147] Signed byte data type interpreted as unsigned byte<br/>

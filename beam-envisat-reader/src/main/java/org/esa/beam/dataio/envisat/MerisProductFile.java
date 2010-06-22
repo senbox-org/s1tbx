@@ -542,6 +542,15 @@ public class MerisProductFile extends ProductFile {
     }
 
     @Override
+    public String[] getBandSubGroupPaths() {
+        if (getProductType().contains("_1")) {
+            return new String[] {"radiance"};
+        } else {
+            return new String[] {"reflec"};
+        }
+    }
+
+    @Override
     void setInvalidPixelExpression(Band band) {
         if (band.getName().startsWith("reflec_")) {
             band.setNoDataValueUsed(true);

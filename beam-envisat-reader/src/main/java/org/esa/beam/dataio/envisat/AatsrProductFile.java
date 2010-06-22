@@ -341,6 +341,14 @@ public class AatsrProductFile extends ProductFile {
         }
     }
 
+    @Override
+    public String[] getBandSubGroupPaths() {
+        if (getProductType().contains("_1")) {
+            return new String[] {"btemp", "reflec"};
+        }
+        return null;
+    }
+
     /**
      * Override because of the AATSR attachment flag treating. Valis dsds might have zero MDSR's attached because the
      * attachment_flag is rised for the whole (subset) product.

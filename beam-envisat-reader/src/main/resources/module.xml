@@ -13,6 +13,10 @@
 
 
     <changelog><![CDATA[
+       <p>Changes from version 1.3.101 to 1.3.200:<br/>
+       [BEAM-1160] Auto-grouping of bands shall be controlled by data model<br/>
+       [BEAM-xxxx] MapReduce?!?!<br/>
+       </p>
        <p>Changes from version 1.3 to 1.3.101:<br/>
        [BEAM-1034] Envisat reader should create PixelGeoCoding for FSG/FRG products automatically<br/>
        [BEAM-1032] Orthorectification not applicable for MER_FRS_2P<br/>

@@ -711,6 +711,18 @@ public abstract class ProductFile {
     }
 
     /**
+     * Gets the sub-group paths applicable to the bands contained in this product.
+     * An application may use this information to display a long list of bands as a tree of bands.
+     * The default implementation returns {@code null}.
+     *
+     * @return the array of sub-group paths or {@code null}.
+     * @since BEAM 4.8
+     */
+    public String[] getBandSubGroupPaths() {
+        return null;
+    }
+
+    /**
      * Gets an array containing all geophysical band readers for this product.
      *
      * @return an array of geophysical band readers, never <code>null</code>. An empty array is returned, if this

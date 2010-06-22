@@ -230,6 +230,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         product.setDescription(getProductFile().getProductDescription());
         product.setStartTime(getProductFile().getSceneRasterStartTime());
         product.setEndTime(getProductFile().getSceneRasterStopTime());
+        product.setBandSubGroupPaths(getProductFile().getBandSubGroupPaths());
 
         addBandsToProduct(product);
         if (!isMetadataIgnored()) {
