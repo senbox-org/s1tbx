@@ -57,6 +57,7 @@ import java.awt.Container;
 import java.awt.Dialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -152,6 +153,7 @@ public class PropertyEditor {
         public Parameter _paramSunSpectralFlux;
 
         public Parameter _paramProductType;
+        public Parameter _paramBandSubGroupPaths;
         public Parameter _paramNoDataValueUsed;
         public Parameter _paramNoDataValue;
         public Parameter _paramGeophysUnit;
@@ -196,6 +198,7 @@ public class PropertyEditor {
                 public void visit(final Product product) {
                     _product = product;
                     initProductTypeParam();
+                    initProductBandGroupingParam();
                 }
 
                 @Override
@@ -322,6 +325,7 @@ public class PropertyEditor {
                 _node.setDescription(_paramDescription.getValueAsText());
                 if (_product != null) {
                     _product.setProductType(_paramProductType.getValueAsText());
+                    _product.setBandSubGroupPaths(parseBandSubGroupPaths());
                 }
                 if (_rasterDataNode != null) {
                     final boolean noDataValueUsed = ((Boolean) _paramNoDataValueUsed.getValue()).booleanValue();
@@ -345,6 +349,24 @@ public class PropertyEditor {
 
             if (_rasterDataNode != null && (_virtualBandPropertyChanged || _validMaskPropertyChanged)) {
                 updateImages();
+            }
+        }
+
+        private String[] parseBandSubGroupPaths() {
+            final String pathsText = _paramBandSubGroupPaths.getValueAsText();
+            if (StringUtils.isNotNullAndNotEmpty(pathsText)) {
+                return StringUtils.toStringArray(pathsText, ":");
+            } else {
+                return null;
+            }
+        }
+
+        private String formatBandSubGroupPaths() {
+            final String[] paths = _product.getBandSubGroupPaths();
+            if (paths != null && paths.length != 0) {
+                return StringUtils.arrayToString(paths, ":");
+            } else {
+                return "";
             }
         }
 
@@ -441,6 +463,17 @@ public class PropertyEditor {
             properties.setEmptyValuesNotAllowed(true);
             properties.setLabel("Product type"); /*I18N*/
             _paramProductType = new Parameter("productType", _product.getProductType(), properties);
+        }
+
+        private void initProductBandGroupingParam() {
+            final ParamProperties properties = new ParamProperties(String.class);
+            properties.setNullValueAllowed(true);
+            properties.setEmptyValuesNotAllowed(false);
+            properties.setLabel("Band grouping"); /*I18N*/
+            properties.setDescription("Colon-separated (':') list of band name parts which are used to auto-create band groups."); /*I18N*/
+            properties.setNumRows(2);
+            properties.setPropertyValue(ParamProperties.WORD_WRAP_KEY, true);
+            _paramBandSubGroupPaths = new Parameter("bandGrouping", formatBandSubGroupPaths(), properties);
         }
 
         private void initVirtualBandExpressionParam() {
@@ -602,6 +635,14 @@ public class PropertyEditor {
             add(_paramProductType.getEditor().getLabelComponent(), _gbc);
             _gbc.weightx = 1;
             add(_paramProductType.getEditor().getComponent(), _gbc);
+            _gbc.fill = GridBagConstraints.HORIZONTAL;
+            _gbc.weighty = 1;
+
+            _gbc.gridy++;
+            _gbc.weightx = 0;
+            add(_paramBandSubGroupPaths.getEditor().getLabelComponent(), _gbc);
+            _gbc.weightx = 1;
+            add(_paramBandSubGroupPaths.getEditor().getComponent(), _gbc);
             _gbc.fill = GridBagConstraints.HORIZONTAL;
             _gbc.weighty = 1;
         }

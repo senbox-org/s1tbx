@@ -94,7 +94,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         final String[] tags = createTags(indent, DimapProductConstants.TAG_ROOT, attributes);
         println(tags[0]);
         indent++;
-        writeMatadataId(indent);
+        writeMetadataId(indent);
         writeDatasetId(indent);
         writeDatasetUse(indent);
         writeProductionElements(indent);
@@ -211,9 +211,15 @@ public final class DimapHeaderWriter extends XmlWriter {
 
     protected void writeImageInterpretationElements(int indent) {
         final Band[] bands = product.getBands();
-        if (bands != null && bands.length > 0) {
+        final String[] bandGrouping = product.getBandSubGroupPaths();
+        final boolean hasBandGrouping = bandGrouping != null && bandGrouping.length > 0;
+        final boolean hasBands = bands != null && bands.length > 0;
+        if (hasBands || hasBandGrouping) {
             final String[] iiTags = createTags(indent, DimapProductConstants.TAG_IMAGE_INTERPRETATION);
             println(iiTags[0]);
+            if (hasBandGrouping) {
+                printLine(indent + 1, DimapProductConstants.TAG_BAND_GROUPING, StringUtils.arrayToString(bandGrouping, ":"));
+            }
             for (int i = 0; i < bands.length; i++) {
                 final Band band = bands[i];
                 if (band instanceof FilterBand) {
@@ -972,7 +978,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         println(productionTags[1]);
     }
 
-    protected void writeMatadataId(int indent) {
+    protected void writeMetadataId(int indent) {
         final String[] idTags = createTags(indent, DimapProductConstants.TAG_METADATA_ID);
         println(idTags[0]);
         final String[][] attributes = new String[1][];

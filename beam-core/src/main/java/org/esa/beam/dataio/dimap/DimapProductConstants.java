@@ -361,13 +361,26 @@ public final class DimapProductConstants {
      *        &lt;IMAGE_TO_MODEL_TRANSFORM&gt;matrix values&lt;/IMAGE_TO_MODEL_TRANSFORM&gt;
      *    &lt;/Geoposition&gt;
      * </pre>
-     * In addition, the persistence of {@code BitmaskDef}s is obsolte, because {@code BitmaskDef}s
+     * In addition, the persistence of {@code BitmaskDef}s is obsolete, because {@code BitmaskDef}s
      * have been marked as deprecated and replaced with {@code Mask}s.  
+     * </td>
+     * </tr>
+     * <tr>
+     * <td valign="top">2.9.0</td>
+     * <td> For 4.8, the element BAND_GROUPING has been introduced.
+     * <pre>
+     *    &lt;Image_Interpretation&gt;
+     *        &lt;BAND_GROUPING&gt;pattern-1:pattern-2:pattern-3&lt;/BAND_GROUPING&gt;
+     *        ...
+     *    &lt;/Image_Interpretation&gt;
+     * </pre>
+     * In addition, the persistence of {@code BitmaskDef}s is obsolete, because {@code BitmaskDef}s
+     * have been marked as deprecated and replaced with {@code Mask}s.
      * </td>
      * </tr>
      * </table>
      */
-    public static final String DIMAP_CURRENT_VERSION = "2.8.0";
+    public static final String DIMAP_CURRENT_VERSION = "2.9.0";
 
     // BEAM-Dimap default text
     public static final String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";
@@ -608,6 +621,7 @@ public final class DimapProductConstants {
     public static final String TAG_VALID_MASK_TERM = "VALID_MASK_TERM";
     public static final String TAG_NO_DATA_VALUE_USED = "NO_DATA_VALUE_USED";
     public static final String TAG_NO_DATA_VALUE = "NO_DATA_VALUE";
+    public static final String TAG_BAND_GROUPING = "BAND_GROUPING";
 
     //Virtual bands support
     public static final String TAG_VIRTUAL_BAND = "VIRTUAL_BAND";

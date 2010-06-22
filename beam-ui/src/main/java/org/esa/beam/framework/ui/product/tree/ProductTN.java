@@ -104,10 +104,11 @@ class ProductTN extends AbstractTN {
     }
 
     private String getGroupName(String[] groupNames, String bandName) {
+        // todo - support path separators ('/') for nested groups  (nf 20100622)
+        // todo - use regexp here (nf 20100622)
         for (String groupName : groupNames) {
             if (bandName.length() > groupName.length()
-                    && bandName.startsWith(groupName)
-                    && "_ .-".indexOf(bandName.charAt(groupName.length())) >= 0) {
+                    && bandName.contains(groupName)) {
                 return groupName;
             }
         }

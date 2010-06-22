@@ -166,6 +166,12 @@ public class ProductTreeModel implements TreeModel {
                         fireTreeNodeChanged(path);
                     }
                 }
+            } else if (event.getSourceNode() instanceof Product) {
+                Product product = (Product) event.getSourceNode();
+                TreePath path = getTreePath(product);
+                if (path != null) {
+                    fireTreeNodeChanged(path);
+                }
             }
         }
 
