@@ -395,6 +395,39 @@ public class ProductTest extends TestCase {
         }
     }
 
+    public void testGetAndSetBandSubGroupPaths() {
+        final Product product = new Product("A", "B", 10, 10);
+        final MyProductNodeListener listener = new MyProductNodeListener();
+        product.addProductNodeListener(listener);
+        listener.pname = "";
+        final String[] uv = {"u", "v"};
+        product.setBandSubGroupPaths(uv);
+        final String[] value = product.getBandSubGroupPaths();
+        assertEquals("u", value[0]);
+        assertEquals("v", value[1]);
+        assertEquals("bandSubGroupPaths", listener.pname );
+
+        listener.pname = "";
+        product.setBandSubGroupPaths(uv);
+        assertEquals("", listener.pname );
+
+        listener.pname = "";
+        product.setBandSubGroupPaths(new String[] {"u", "v"});
+        assertEquals("", listener.pname );
+
+        listener.pname = "";
+        product.setBandSubGroupPaths(new String[] {"c"});
+        assertEquals("bandSubGroupPaths", listener.pname );
+
+        listener.pname = "";
+        product.setBandSubGroupPaths(new String[] {""});
+        assertEquals("bandSubGroupPaths", listener.pname );
+
+        listener.pname = "";
+        product.setBandSubGroupPaths(null);
+        assertEquals("bandSubGroupPaths", listener.pname );
+    }
+
 
     public void testModifiedProperty() {
 
@@ -872,6 +905,27 @@ public class ProductTest extends TestCase {
     private static MapProjection createMapProjectionForTestSetGeocoding() {
         MapTransform mapTransform = new IdentityTransformDescriptor().createTransform(null);
         return new MapProjection("p1", mapTransform, "unit");
+    }
+
+    private static class MyProductNodeListener implements ProductNodeListener {
+        String pname;
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            pname = event.getPropertyName();
+        }
+
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+        }
+
+        @Override
+        public void nodeAdded(ProductNodeEvent event) {
+        }
+
+        @Override
+        public void nodeRemoved(ProductNodeEvent event) {
+        }
     }
 }
 
