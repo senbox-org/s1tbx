@@ -7,11 +7,11 @@ import org.esa.beam.framework.datamodel.ProductManager;
  * User: Marco
  * Date: 13.02.2010
  */
-class ProductManagerNode extends ProductTreeNode {
+class ProductManagerTN extends AbstractTN {
 
     private final ProductManager manager;
 
-    ProductManagerNode(ProductManager manager) {
+    ProductManagerTN(ProductManager manager) {
         super("Open Products", manager, null);
         this.manager = manager;
     }
@@ -21,8 +21,8 @@ class ProductManagerNode extends ProductTreeNode {
     }
 
     @Override
-    public ProductTreeNode getChildAt(int index) {
-        return new ProductNode(manager.getProduct(index), this);
+    public AbstractTN getChildAt(int index) {
+        return new ProductTN(manager.getProduct(index), this);
     }
 
     @Override
@@ -31,8 +31,8 @@ class ProductManagerNode extends ProductTreeNode {
     }
 
     @Override
-    protected int getIndex(ProductTreeNode child) {
-        Product product = ((ProductNode) child).getProduct();
+    protected int getIndex(AbstractTN child) {
+        Product product = ((ProductTN) child).getProduct();
         return manager.getProductIndex(product);
     }
 

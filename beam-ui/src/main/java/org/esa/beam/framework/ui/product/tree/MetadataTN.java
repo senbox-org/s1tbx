@@ -2,10 +2,10 @@ package org.esa.beam.framework.ui.product.tree;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
 
-class MetadataNode extends ProductTreeNode {
+class MetadataTN extends AbstractTN {
     private MetadataElement metadataElement;
 
-    MetadataNode(String name, MetadataElement element, ProductTreeNode parent) {
+    MetadataTN(String name, MetadataElement element, AbstractTN parent) {
         super(name, element, parent);
         metadataElement = element;
     }
@@ -15,8 +15,8 @@ class MetadataNode extends ProductTreeNode {
     }
 
     @Override
-    public ProductTreeNode getChildAt(int index) {
-        return new MetadataNode(metadataElement.getName(), metadataElement.getElementAt(index), this);
+    public AbstractTN getChildAt(int index) {
+        return new MetadataTN(metadataElement.getName(), metadataElement.getElementAt(index), this);
     }
 
     @Override
@@ -25,12 +25,12 @@ class MetadataNode extends ProductTreeNode {
     }
 
     @Override
-    protected int getIndex(ProductTreeNode child) {
-        MetadataNode metadataNode = (MetadataNode) child;
+    protected int getIndex(AbstractTN child) {
+        MetadataTN metadataTN = (MetadataTN) child;
         MetadataElement[] metadataElements = metadataElement.getElements();
         for (int i = 0, metadataElementsLength = metadataElements.length; i < metadataElementsLength; i++) {
             MetadataElement element = metadataElements[i];
-            if(element == metadataNode.getMetadataElement()) {
+            if(element == metadataTN.getMetadataElement()) {
                 return i;
             }
         }

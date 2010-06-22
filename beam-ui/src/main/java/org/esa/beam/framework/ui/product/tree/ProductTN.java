@@ -1,10 +1,14 @@
 package org.esa.beam.framework.ui.product.tree;
 
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 
-class ProductNode extends ProductTreeNode {
+import java.util.HashMap;
+
+class ProductTN extends AbstractTN {
     private static final String METADATA = "Metadata";
     private static final String BANDS = "Bands";
     private static final String VECTOR_DATA = "Geometries";
@@ -14,7 +18,7 @@ class ProductNode extends ProductTreeNode {
 
     private Product product;
 
-    ProductNode(Product product, ProductTreeNode parent) {
+    ProductTN(Product product, AbstractTN parent) {
         super(product.getDisplayName(), product, parent);
         this.product = product;
     }
@@ -24,46 +28,90 @@ class ProductNode extends ProductTreeNode {
     }
 
     @Override
-    public ProductTreeNode getChildAt(int index) {
+    public AbstractTN getChildAt(int index) {
         int childIndex = -1;
         if (hasMetadata(product)) {
             childIndex++;
             if (childIndex == index) {
-                return new MetadataNode(METADATA, product.getMetadataRoot(), this);
+                return new MetadataTN(METADATA, product.getMetadataRoot(), this);
             }
         }
         if (hasFlagCoding(product)) {
             childIndex++;
             if (childIndex == index) {
-                return new ProductNodeNode(FLAG_CODINGS, product.getFlagCodingGroup(), this);
+                return new ProductNodeTN(FLAG_CODINGS, product.getFlagCodingGroup(), this);
             }
         }
         if (hasIndexCoding(product)) {
             childIndex++;
             if (childIndex == index) {
-                return new ProductNodeNode(INDEX_CODINGS, product.getIndexCodingGroup(), this);
+                return new ProductNodeTN(INDEX_CODINGS, product.getIndexCodingGroup(), this);
             }
         }
         if (hasTiePoints(product)) {
             childIndex++;
             if (childIndex == index) {
-                return new ProductNodeNode(TIE_POINT_GRIDS, product.getTiePointGridGroup(), this);
+                return new ProductNodeTN(TIE_POINT_GRIDS, product.getTiePointGridGroup(), this);
             }
         }
         if (hasVectorData(product)) {
             childIndex++;
             if (childIndex == index) {
-                return new VectorDataGroupNode(ProductNode.VECTOR_DATA, this.product.getVectorDataGroup(), this);
+                return new VectorDataGroupTN(ProductTN.VECTOR_DATA, this.product.getVectorDataGroup(), this);
             }
         }
         if (hasBands(product)) {
             childIndex++;
             if (childIndex == index) {
-                return new ProductNodeNode(BANDS, product.getBandGroup(), this);
+                String[] groupNames = product.getBandSubGroupPaths();
+                boolean autoGrouping = groupNames != null;
+                if (autoGrouping) {
+                    return new ProductNodeTN(BANDS, group(product.getBandGroup(), groupNames), this);
+                } else {
+                    return new ProductNodeTN(BANDS, product.getBandGroup(), this);
+                }
             }
         }
 
         throw new IndexOutOfBoundsException(String.format("No child for index <%d>.", index));
+    }
+
+    private ProductNode group(ProductNodeGroup<Band> bandGroup, String[] groupNames) {
+
+        HashMap<String, ProductNodeGroup<Band>> subGroupMap = new HashMap<String, ProductNodeGroup<Band>>();
+
+        final ProductNodeGroup newGroup = new ProductNodeGroup(null, bandGroup.getName(), false);
+        newGroup.setDescription(bandGroup.getDescription());
+
+        final int count = bandGroup.getNodeCount();
+        for (int i = 0; i < count; i++) {
+            final Band band = bandGroup.get(i);
+            final String bandName = band.getName();
+            String subGroupName = getGroupName(groupNames, bandName);
+            if (subGroupName != null) {
+                ProductNodeGroup<Band> subGroup = subGroupMap.get(subGroupName);
+                if (subGroup == null) {
+                    subGroup = new ProductNodeGroup<Band>(null, subGroupName, false);
+                    subGroupMap.put(subGroupName, subGroup);
+                    newGroup.add(subGroup);
+                }
+                subGroup.add(band);
+            } else {
+                newGroup.add(band);
+            }
+        }
+        return newGroup;
+    }
+
+    private String getGroupName(String[] groupNames, String bandName) {
+        for (String groupName : groupNames) {
+            if (bandName.length() > groupName.length()
+                    && bandName.startsWith(groupName)
+                    && "_ .-".indexOf(bandName.charAt(groupName.length())) >= 0) {
+                return groupName;
+            }
+        }
+        return null;
     }
 
 
@@ -93,41 +141,41 @@ class ProductNode extends ProductTreeNode {
 
 
     @Override
-    protected int getIndex(ProductTreeNode child) {
+    protected int getIndex(AbstractTN child) {
         int childIndex = -1;
         if (hasMetadata(product)) {
             childIndex++;
-            if(child.getName().equals(METADATA)) {
+            if (child.getName().equals(METADATA)) {
                 return childIndex;
             }
         }
         if (hasFlagCoding(product)) {
             childIndex++;
-            if(child.getName().equals(FLAG_CODINGS)) {
+            if (child.getName().equals(FLAG_CODINGS)) {
                 return childIndex;
             }
         }
         if (hasIndexCoding(product)) {
             childIndex++;
-            if(child.getName().equals(INDEX_CODINGS)) {
+            if (child.getName().equals(INDEX_CODINGS)) {
                 return childIndex;
             }
         }
         if (hasTiePoints(product)) {
             childIndex++;
-            if(child.getName().equals(TIE_POINT_GRIDS)) {
+            if (child.getName().equals(TIE_POINT_GRIDS)) {
                 return childIndex;
             }
         }
         if (hasVectorData(product)) {
             childIndex++;
-            if(child.getName().equals(VECTOR_DATA)) {
+            if (child.getName().equals(VECTOR_DATA)) {
                 return childIndex;
             }
         }
         if (hasBands(product)) {
             childIndex++;
-            if(child.getName().equals(BANDS)) {
+            if (child.getName().equals(BANDS)) {
                 return childIndex;
             }
         }

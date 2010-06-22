@@ -36,14 +36,14 @@ import java.util.List;
 
 public class ProductTreeModel implements TreeModel {
 
-    private final ProductManagerNode rootNode;
+    private final ProductManagerTN rootTN;
     private ProductNodeListener productNodeListener;
     private ProductManager productManager;
     private final EventListenerList treeModelListeners;
 
     public ProductTreeModel(final ProductManager manager) {
         this.productManager = manager;
-        rootNode = new ProductManagerNode(productManager);
+        rootTN = new ProductManagerTN(productManager);
         productNodeListener = new ProductListener();
         productManager.addListener(new ProductManagerListener());
         treeModelListeners = new EventListenerList();
@@ -54,19 +54,19 @@ public class ProductTreeModel implements TreeModel {
     }
 
     @Override
-    public ProductTreeNode getChild(Object parent, int index) {
-        return ((ProductTreeNode) parent).getChildAt(index);
+    public AbstractTN getChild(Object parent, int index) {
+        return ((AbstractTN) parent).getChildAt(index);
     }
 
     @Override
     public int getChildCount(Object parent) {
-        return ((ProductTreeNode) parent).getChildCount();
+        return ((AbstractTN) parent).getChildCount();
     }
 
 
     @Override
     public int getIndexOfChild(Object parent, Object child) {
-        return ((ProductTreeNode) parent).getIndex((ProductTreeNode) child);
+        return ((AbstractTN) parent).getIndex((AbstractTN) child);
     }
 
     @Override
@@ -80,13 +80,13 @@ public class ProductTreeModel implements TreeModel {
     }
 
     @Override
-    public ProductTreeNode getRoot() {
-        return rootNode;
+    public AbstractTN getRoot() {
+        return rootTN;
     }
 
     @Override
     public boolean isLeaf(Object node) {
-        return ((ProductTreeNode) node).getChildCount() == 0;
+        return ((AbstractTN) node).getChildCount() == 0;
     }
 
     @Override
@@ -122,10 +122,10 @@ public class ProductTreeModel implements TreeModel {
     public TreePath getTreePath(Object nodeContent) {
         Enumeration enumeration = new TreeNodeEnumeration.Postorder(getRoot());
         while (enumeration.hasMoreElements()) {
-            ProductTreeNode childNode = (ProductTreeNode) enumeration.nextElement();
+            AbstractTN childNode = (AbstractTN) enumeration.nextElement();
             if (childNode.getContent() == nodeContent) {
-                ProductTreeNode actualNode = childNode;
-                List<ProductTreeNode> pathList = new ArrayList<ProductTreeNode>();
+                AbstractTN actualNode = childNode;
+                List<AbstractTN> pathList = new ArrayList<AbstractTN>();
                 while (actualNode != null) {
                     pathList.add(actualNode);
                     actualNode = actualNode.getParent();

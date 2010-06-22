@@ -3,11 +3,11 @@ package org.esa.beam.framework.ui.product.tree;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 
-class ProductNodeNode extends ProductTreeNode {
+class ProductNodeTN extends AbstractTN {
 
     private final ProductNode productNode;
 
-    ProductNodeNode(String name, ProductNode productNode, ProductTreeNode parent) {
+    ProductNodeTN(String name, ProductNode productNode, AbstractTN parent) {
         super(name, productNode, parent);
         this.productNode = productNode;
     }
@@ -17,11 +17,11 @@ class ProductNodeNode extends ProductTreeNode {
     }
 
     @Override
-    public ProductTreeNode getChildAt(int index) {
+    public AbstractTN getChildAt(int index) {
         if (productNode instanceof ProductNodeGroup) {
             ProductNodeGroup nodeGroup = (ProductNodeGroup) productNode;
             ProductNode node = nodeGroup.get(index);
-            return new ProductNodeNode(node.getName(), node, this);
+            return new ProductNodeTN(node.getName(), node, this);
         }
         throw new IndexOutOfBoundsException("node has no children");
     }
@@ -36,11 +36,11 @@ class ProductNodeNode extends ProductTreeNode {
     }
 
     @Override
-    protected int getIndex(ProductTreeNode child) {
+    protected int getIndex(AbstractTN child) {
         if (productNode instanceof ProductNodeGroup) {
             ProductNodeGroup nodeGroup = (ProductNodeGroup) productNode;
-            ProductNodeNode childNode = (ProductNodeNode) child;
-            return nodeGroup.indexOf(childNode.getProductNode().getName());
+            ProductNodeTN childNodeTN = (ProductNodeTN) child;
+            return nodeGroup.indexOf(childNodeTN.getProductNode().getName());
         }
         throw new IndexOutOfBoundsException("node has no children");
     }

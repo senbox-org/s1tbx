@@ -21,7 +21,7 @@ import org.esa.beam.framework.ui.product.ProductTree;
 import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
 import org.esa.beam.framework.ui.product.VectorDataLayer;
 import org.esa.beam.framework.ui.product.tree.ProductTreeModel;
-import org.esa.beam.framework.ui.product.tree.ProductTreeNode;
+import org.esa.beam.framework.ui.product.tree.AbstractTN;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
 import org.esa.beam.visat.internal.RasterDataNodeDeleter;
@@ -265,7 +265,7 @@ public class ProductsToolView extends AbstractToolView {
         
         private Object getSelectedObject() {
             TreePath treePath = (TreePath) getSelection().getSelectedValue();
-            return ((ProductTreeNode) treePath.getLastPathComponent()).getContent();
+            return ((AbstractTN) treePath.getLastPathComponent()).getContent();
         }
     }
 

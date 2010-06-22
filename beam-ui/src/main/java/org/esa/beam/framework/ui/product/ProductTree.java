@@ -34,8 +34,8 @@ import org.esa.beam.framework.ui.PopupMenuHandler;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandManager;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
+import org.esa.beam.framework.ui.product.tree.AbstractTN;
 import org.esa.beam.framework.ui.product.tree.ProductTreeModel;
-import org.esa.beam.framework.ui.product.tree.ProductTreeNode;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
@@ -262,7 +262,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         TreePath selPath = getPathForLocation(event.getX(), event.getY());
         if (selPath != null) {
             setSelectionPath(selPath);
-            ProductTreeNode node = (ProductTreeNode) getLastSelectedPathComponent();
+            AbstractTN node = (AbstractTN) getLastSelectedPathComponent();
             if (node != null) {
                 Object context = node.getContent();
                 if (context != null) {
@@ -338,7 +338,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             if (selRow >= 0) {
                 int clickCount = event.getClickCount();
                 TreePath selPath = getPathForLocation(event.getX(), event.getY());
-                ProductTreeNode node = (ProductTreeNode) selPath.getLastPathComponent();
+                AbstractTN node = (AbstractTN) selPath.getLastPathComponent();
                 fireNodeSelected(node.getContent(), clickCount);
             }
         }
@@ -348,7 +348,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
         @Override
         public void valueChanged(TreeSelectionEvent event) {
-            ProductTreeNode node = (ProductTreeNode) getLastSelectedPathComponent();
+            AbstractTN node = (AbstractTN) getLastSelectedPathComponent();
             if (node != null) {
                 fireNodeSelected(node.getContent(), 1);
             }
@@ -417,7 +417,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 boldFont = getFont().deriveFont(Font.BOLD);
             }
 
-            ProductTreeNode treeNode = (ProductTreeNode) value;
+            AbstractTN treeNode = (AbstractTN) value;
             value = treeNode.getContent();
 
             setFont(normalFont);
