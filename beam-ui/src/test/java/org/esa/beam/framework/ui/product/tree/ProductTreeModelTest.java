@@ -27,6 +27,44 @@ public class ProductTreeModelTest {
     }
 
     @Test
+    public void testAutoGrouping() {
+        
+        final Product product = new Product("A", "B", 10, 10);
+        product.addBand("chl_20100412T152322", ProductData.TYPE_FLOAT32);
+        product.addBand("chl_20100412T152443", ProductData.TYPE_FLOAT32);
+        product.addBand("chl_20100412T152512", ProductData.TYPE_FLOAT32);
+        product.addBand("chl_20100412T152615", ProductData.TYPE_FLOAT32);
+        product.addBand("chl_20100412T152715", ProductData.TYPE_FLOAT32);
+        product.addBand("tsm_20100412T152322", ProductData.TYPE_FLOAT32);
+        product.addBand("tsm_20100412T152443", ProductData.TYPE_FLOAT32);
+        product.addBand("tsm_20100412T152512", ProductData.TYPE_FLOAT32);
+        product.addBand("tsm_20100412T152615", ProductData.TYPE_FLOAT32);
+        product.addBand("tsm_20100412T152715", ProductData.TYPE_FLOAT32);
+        product.addBand("a_flags", ProductData.TYPE_INT16);
+        product.addBand("b_flags", ProductData.TYPE_INT16);
+
+        product.setBandSubGroupPaths(null);
+        productManager.addProduct(product);
+        assertEquals(1, treeModel.getRoot().getChildCount());
+        assertEquals(1, treeModel.getRoot().getChildAt(0).getChildCount());
+        assertEquals(12, treeModel.getRoot().getChildAt(0).getChildAt(0).getChildCount());
+
+        productManager.removeProduct(product);
+
+        product.setBandSubGroupPaths(new String[] {"chl", "tsm"});
+        productManager.addProduct(product);
+        assertEquals(1, treeModel.getRoot().getChildCount());
+        assertEquals(1, treeModel.getRoot().getChildAt(0).getChildCount());
+        assertEquals(4, treeModel.getRoot().getChildAt(0).getChildAt(0).getChildCount());
+        assertEquals("chl", treeModel.getRoot().getChildAt(0).getChildAt(0).getChildAt(0).getName());
+        assertEquals(5, treeModel.getRoot().getChildAt(0).getChildAt(0).getChildAt(0).getChildCount());
+        assertEquals("tsm", treeModel.getRoot().getChildAt(0).getChildAt(0).getChildAt(1).getName());
+        assertEquals(5, treeModel.getRoot().getChildAt(0).getChildAt(0).getChildAt(1).getChildCount());
+        assertEquals("a_flags", treeModel.getRoot().getChildAt(0).getChildAt(0).getChildAt(2).getName());
+        assertEquals("b_flags", treeModel.getRoot().getChildAt(0).getChildAt(0).getChildAt(3).getName());
+    }
+
+    @Test
     public void testEmptyManager() {
         assertSame(productManager, treeModel.getProductManager());
         final ProductManagerTN treeRoot = (ProductManagerTN) treeModel.getRoot();
