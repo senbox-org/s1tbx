@@ -53,6 +53,7 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.logging.Level;
 
 /**
  * The <code>DimapProductReader</code> class is an implementation of the <code>ProductReader</code> interface
@@ -184,7 +185,6 @@ public class DimapProductReader extends AbstractProductReader {
             }
             final File dataFile = bandDataFiles.get(band);
             if (dataFile == null || !dataFile.canRead()) {
-                product.removeBand(band);
                 BeamLogManager.getSystemLogger().warning(
                         "DimapProductReader: Unable to read file '" + dataFile + "' referenced by '" + band.getName() + "'.");
                 BeamLogManager.getSystemLogger().warning(
@@ -212,7 +212,8 @@ public class DimapProductReader extends AbstractProductReader {
                     tiePointGrid.setDiscontinuity(TiePointGrid.getDiscontinuity(floats));
                 }
             } catch (IOException e) {
-                throw new IOException(MessageFormat.format("I/O error while reading tie-point grid ''{0}''.", tiePointGridName), e);
+                throw new IOException(
+                        MessageFormat.format("I/O error while reading tie-point grid ''{0}''.", tiePointGridName), e);
             } finally {
                 if (inputStream != null) {
                     inputStream.close();
@@ -278,6 +279,7 @@ public class DimapProductReader extends AbstractProductReader {
      * @param destWidth     the width of region to be read given in the band's raster co-ordinates
      * @param destHeight    the height of region to be read given in the band's raster co-ordinates
      * @param pm            a monitor to inform the user about progress
+     *
      * @throws java.io.IOException if  an I/O error occurs
      * @see #getSubsetDef
      */
@@ -297,6 +299,9 @@ public class DimapProductReader extends AbstractProductReader {
 
         final File dataFile = bandDataFiles.get(destBand);
         final ImageInputStream inputStream = getOrCreateImageInputStream(destBand, dataFile);
+        if (inputStream == null) {
+            return;
+        }
 
         int destPos = 0;
 
@@ -353,7 +358,16 @@ public class DimapProductReader extends AbstractProductReader {
     private ImageInputStream getOrCreateImageInputStream(Band band, File file) throws IOException {
         ImageInputStream inputStream = getImageInputStream(band);
         if (inputStream == null) {
-            inputStream = new FileImageInputStream(file);
+            try {
+                inputStream = new FileImageInputStream(file);
+            } catch (IOException e) {
+                BeamLogManager.getSystemLogger().log(Level.WARNING,
+                                                     "DimapProductReader: Unable to read file '" + file + "' referenced by '" + band.getName() + "'.",
+                                                     e);
+            }
+            if (inputStream == null) {
+                return null;
+            }
             if (bandInputStreams == null) {
                 bandInputStreams = new Hashtable<Band, ImageInputStream>();
             }
@@ -370,7 +384,8 @@ public class DimapProductReader extends AbstractProductReader {
     }
 
     private void readVectorData() {
-        File dataDir = new File(inputDir, FileUtils.getFilenameWithoutExtension(inputFile) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION);
+        File dataDir = new File(inputDir, FileUtils.getFilenameWithoutExtension(
+                inputFile) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION);
         File vectorDataDir = new File(dataDir, "vector_data");
         if (vectorDataDir.exists()) {
             File[] vectorFiles = vectorDataDir.listFiles(new FilenameFilter() {
