@@ -23,7 +23,6 @@ import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.SymbolFactory;
-
 import org.esa.beam.framework.datamodel.AbstractBand;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -52,23 +51,21 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.io.File;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dialog;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class PropertyEditor {
 
@@ -291,7 +288,7 @@ public class PropertyEditor {
             }
             return true;
         }
-        
+
         private Product[] getCompatibleProducts(RasterDataNode rasterDataNode) {
             List<Product> compatibleProducts = new ArrayList<Product>(12);
             Product vbProduct = rasterDataNode.getProduct();
@@ -307,10 +304,10 @@ public class PropertyEditor {
             }
             return compatibleProducts.toArray(new Product[compatibleProducts.size()]);
         }
-        
+
         private float getGeolocationEps() {
             return (float) VisatApp.getApp().getPreferences().getPropertyDouble(VisatApp.PROPERTY_KEY_GEOLOCATION_EPS,
-                                                                       VisatApp.PROPERTY_DEFAULT_GEOLOCATION_EPS);
+                                                                                VisatApp.PROPERTY_DEFAULT_GEOLOCATION_EPS);
         }
 
         public void changeProperties() {
@@ -325,7 +322,7 @@ public class PropertyEditor {
                 _node.setDescription(_paramDescription.getValueAsText());
                 if (_product != null) {
                     _product.setProductType(_paramProductType.getValueAsText());
-                    _product.setBandSubGroupPaths(parseBandSubGroupPaths());
+                    _product.setAutoGrouping(_paramBandSubGroupPaths.getValueAsText());
                 }
                 if (_rasterDataNode != null) {
                     final boolean noDataValueUsed = ((Boolean) _paramNoDataValueUsed.getValue()).booleanValue();
@@ -352,19 +349,10 @@ public class PropertyEditor {
             }
         }
 
-        private String[] parseBandSubGroupPaths() {
-            final String pathsText = _paramBandSubGroupPaths.getValueAsText();
-            if (StringUtils.isNotNullAndNotEmpty(pathsText)) {
-                return StringUtils.toStringArray(pathsText, ":");
-            } else {
-                return null;
-            }
-        }
-
         private String formatBandSubGroupPaths() {
-            final String[] paths = _product.getBandSubGroupPaths();
-            if (paths != null && paths.length != 0) {
-                return StringUtils.arrayToString(paths, ":");
+            final Product.AutoGrouping autoGrouping = _product.getAutoGrouping();
+            if (autoGrouping != null) {
+                return autoGrouping.toString();
             } else {
                 return "";
             }
@@ -736,7 +724,7 @@ public class PropertyEditor {
         }
 
         @Override
-            protected boolean verifyUserInput() {
+        protected boolean verifyUserInput() {
             return editorContent.validateProperties();
         }
     }

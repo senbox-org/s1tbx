@@ -1425,18 +1425,16 @@ public class DimapProductHelpers {
         private void addBands(Product product) {
             final Element child = getRootElement().getChild(DimapProductConstants.TAG_IMAGE_INTERPRETATION);
             if (child != null) {
-                setBandGrouping(child, product);
                 addSpectralBands(child, product);
             }
         }
 
-        private static void setBandGrouping(final Element element, Product product) {
-            final String text = element.getChildTextTrim(DimapProductConstants.TAG_BAND_GROUPING);
+        private static void setAutoGrouping(final Element element, Product product) {
+            final String text = element.getChildTextTrim(DimapProductConstants.TAG_DATASET_AUTO_GROUPING);
             if (StringUtils.isNotNullAndNotEmpty(text)) {
-                final String[] bandGrouping = StringUtils.split(text, new char[]{':'}, true);
-                product.setBandSubGroupPaths(bandGrouping);
+                product.setAutoGrouping(text);
             } else {
-                product.setBandSubGroupPaths(null);
+                product.setAutoGrouping("");
             }
         }
 
@@ -1674,6 +1672,7 @@ public class DimapProductHelpers {
             Element child = getRootElement().getChild(DimapProductConstants.TAG_DATASET_USE);
             if (child != null) {
                 description = child.getChildTextTrim(DimapProductConstants.TAG_DATASET_COMMENTS);
+                setAutoGrouping(child, product);
             }
             if (description == null || description.length() == 0) {
                 child = getRootElement().getChild(DimapProductConstants.TAG_DATASET_ID);

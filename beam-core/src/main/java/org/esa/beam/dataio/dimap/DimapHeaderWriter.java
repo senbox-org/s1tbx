@@ -211,15 +211,10 @@ public final class DimapHeaderWriter extends XmlWriter {
 
     protected void writeImageInterpretationElements(int indent) {
         final Band[] bands = product.getBands();
-        final String[] bandGrouping = product.getBandSubGroupPaths();
-        final boolean hasBandGrouping = bandGrouping != null && bandGrouping.length > 0;
         final boolean hasBands = bands != null && bands.length > 0;
-        if (hasBands || hasBandGrouping) {
+        if (hasBands) {
             final String[] iiTags = createTags(indent, DimapProductConstants.TAG_IMAGE_INTERPRETATION);
             println(iiTags[0]);
-            if (hasBandGrouping) {
-                printLine(indent + 1, DimapProductConstants.TAG_BAND_GROUPING, StringUtils.arrayToString(bandGrouping, ":"));
-            }
             for (int i = 0; i < bands.length; i++) {
                 final Band band = bands[i];
                 if (band instanceof FilterBand) {
@@ -1005,6 +1000,10 @@ public final class DimapHeaderWriter extends XmlWriter {
             final String[] idTags = createTags(indent, DimapProductConstants.TAG_DATASET_USE);
             println(idTags[0]);
             printLine(indent + 1, DimapProductConstants.TAG_DATASET_COMMENTS, description);
+            final Product.AutoGrouping autoGrouping = product.getAutoGrouping();
+            if (autoGrouping != null) {
+                printLine(indent + 1, DimapProductConstants.TAG_DATASET_AUTO_GROUPING, autoGrouping.toString());
+            }
             println(idTags[1]);
         }
     }

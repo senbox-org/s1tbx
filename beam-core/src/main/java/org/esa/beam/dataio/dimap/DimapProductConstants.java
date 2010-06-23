@@ -498,6 +498,7 @@ public final class DimapProductConstants {
     public static final String TAG_DATASET_SERIES = "DATASET_SERIES";
     public static final String TAG_DATASET_NAME = "DATASET_NAME";
     public static final String TAG_DATASET_DESCRIPTION = "DATASET_DESCRIPTION";
+    public static final String TAG_DATASET_AUTO_GROUPING = "DATASET_AUTO_GROUPING";
     public static final String TAG_COPYRIGHT = "COPYRIGHT";
     public static final String TAG_COUNTRY_NAME = "COUNTRY_NAME";
     public static final String TAG_COUNTRY_CODE = "COUNTRY_CODE";
@@ -621,7 +622,6 @@ public final class DimapProductConstants {
     public static final String TAG_VALID_MASK_TERM = "VALID_MASK_TERM";
     public static final String TAG_NO_DATA_VALUE_USED = "NO_DATA_VALUE_USED";
     public static final String TAG_NO_DATA_VALUE = "NO_DATA_VALUE";
-    public static final String TAG_BAND_GROUPING = "BAND_GROUPING";
 
     //Virtual bands support
     public static final String TAG_VIRTUAL_BAND = "VIRTUAL_BAND";

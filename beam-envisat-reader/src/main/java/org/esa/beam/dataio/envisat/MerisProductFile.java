@@ -16,7 +16,6 @@
  */
 package org.esa.beam.dataio.envisat;
 
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
@@ -542,11 +541,11 @@ public class MerisProductFile extends ProductFile {
     }
 
     @Override
-    public String[] getBandSubGroupPaths() {
+    public String getAutoGroupingPattern() {
         if (getProductType().contains("_1")) {
-            return new String[] {"radiance"};
+            return "radiance";
         } else {
-            return new String[] {"reflec"};
+            return "reflec";
         }
     }
 

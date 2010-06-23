@@ -51,6 +51,7 @@ import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -158,7 +159,7 @@ public class Product extends ProductNode {
 
     private Dimension preferredTileSize;
     private TimeCoding timeCoding;
-    private String[] bandSubGroupPaths;
+    private AutoGrouping autoGrouping;
 
     /**
      * Creates a new product without any reader (in-memory product)
@@ -2817,28 +2818,171 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Gets the sub-group paths applicable to the bands contained in this product.
-     * An application may use this information to display a long list of bands as a tree of bands.
+     * Gets the auto-grouping applicable to product nodes contained in this product.
      *
-     * @return the array of sub-group paths or {@code null}.
+     * @return The auto-grouping or {@code null}.
      * @since BEAM 4.8
      */
-    public String[] getBandSubGroupPaths() {
-        return this.bandSubGroupPaths;
+    public AutoGrouping getAutoGrouping() {
+        return this.autoGrouping;
     }
 
     /**
-     * Gets the sub-group paths applicable to the bands contained in this product.
-     * An application may use this information to display a long list of bands as a tree of bands.
+     * Sets the auto-grouping applicable to product nodes contained in this product.
      *
-     * @param bandSubGroupPaths the array of sub-group paths or {@code null}.
+     * @param autoGrouping The auto-grouping or {@code null}.
      * @since BEAM 4.8
      */
-    public void setBandSubGroupPaths(String[] bandSubGroupPaths) {
-        String[] old = this.bandSubGroupPaths;
-        if (!ObjectUtils.equalObjects(old, bandSubGroupPaths)) {
-            this.bandSubGroupPaths = bandSubGroupPaths != null ? bandSubGroupPaths.clone() : null;
-            fireProductNodeChanged("bandSubGroupPaths", old, this.bandSubGroupPaths);
+    public void setAutoGrouping(AutoGrouping autoGrouping) {
+        AutoGrouping old = this.autoGrouping;
+        if (!ObjectUtils.equalObjects(old, autoGrouping)) {
+            this.autoGrouping = autoGrouping;
+            fireProductNodeChanged("autoGrouping", old, this.autoGrouping);
         }
     }
+
+    /**
+     * Sets the auto-grouping applicable to product nodes contained in this product.
+     * A given {@code pattern} parameter is a textual representation of the auto-grouping.
+     * The syntax for the pattern is:
+     * <pre>
+     * pattern    :=  &lt;groupPath&gt; {':' &lt;groupPath&gt;} | "" (empty string)
+     * groupPath  :=  &lt;groupName&gt; {'/' &lt;groupName&gt;}
+     * groupName  :=  any non-empty string without characters ':' and '/'
+     * </pre>
+     * An example for {@code pattern} applicable to Envisat AATSR data is
+     * <pre>
+     * nadir/reflec:nadir/btemp:fward/reflec:fward/btemp:nadir:fward
+     * </pre>
+     *
+     * @param pattern The auto-grouping pattern.
+     * @since BEAM 4.8
+     */
+    public void setAutoGrouping(String pattern) {
+        Assert.notNull(pattern, "text");
+        setAutoGrouping(AutoGroupingImpl.parse(pattern));
+    }
+
+    /**
+     * AutoGrouping can be used by an application to auto-group a long list of product nodes (e.g. bands)
+     * as a tree of product nodes.
+     */
+    public static interface AutoGrouping extends List<String[]> {
+        /**
+         * Gets the index of the first group path that matches the given name.
+         * @param name A product node name.
+         * @return The index of the group path or {@code -1} if no group path matches the given name.
+         */
+        int indexOf(String name);
+    }
+
+    private static class AutoGroupingImpl extends AbstractList<String[]> implements AutoGrouping {
+        private static final String GROUP_SEPARATOR = "/";
+        private static final String PATH_SEPARATOR = ":";
+
+        private final String[][] paths;
+
+        private AutoGroupingImpl(String[][] paths) {
+            this.paths = paths;
+        }
+
+        @Override
+        public int indexOf(String name) {
+            for (int i = 0, pathsLength = paths.length; i < pathsLength; i++) {
+                String[] path = paths[i];
+                if (nameMatchesGroupPath(name, path)) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        private boolean nameMatchesGroupPath(String name, String[] groupPath) {
+            for (String group : groupPath) {
+                if (!name.contains(group)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public String[] get(int index) {
+            return paths[index];
+        }
+
+        @Override
+        public int size() {
+            return paths.length;
+        }
+
+        public static AutoGrouping parse(String text) {
+            String[][] paths;
+            if (StringUtils.isNotNullAndNotEmpty(text)) {
+                String[] pathTexts = StringUtils.toStringArray(text, PATH_SEPARATOR);
+                paths = new String[pathTexts.length][];
+                for (int i = 0; i < paths.length; i++) {
+                    paths[i] = StringUtils.toStringArray(pathTexts[i], GROUP_SEPARATOR);
+                }
+                return new AutoGroupingImpl(paths);
+            } else {
+                return null;
+            }
+        }
+
+        public String format() {
+            if (paths.length > 0) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < paths.length; i++) {
+                    if (i > 0) {
+                        sb.append(PATH_SEPARATOR);
+                    }
+                    String[] path = paths[i];
+                    for (int j = 0; j < path.length; j++) {
+                        if (j > 0) {
+                            sb.append(GROUP_SEPARATOR);
+                        }
+                        sb.append(path[j]);
+                    }
+                }
+                return sb.toString();
+            } else {
+                return "";
+            }
+        }
+
+        @Override
+        public String toString() {
+            return format();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            } else if (o instanceof AutoGrouping) {
+                AutoGrouping other = (AutoGrouping) o;
+                for (int i = 0; i < paths.length; i++) {
+                    String[] path = paths[i];
+                    if (!ObjectUtils.equalObjects(path, other.get(i))) {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            int code = 0;
+            for (String[] path : paths) {
+                code += path.hashCode();
+            }
+            return code;
+        }
+    }
+
+
 }

@@ -43,7 +43,7 @@ public class ProductTreeModelTest {
         product.addBand("a_flags", ProductData.TYPE_INT16);
         product.addBand("b_flags", ProductData.TYPE_INT16);
 
-        product.setBandSubGroupPaths(null);
+        product.setAutoGrouping("");
         productManager.addProduct(product);
         assertEquals(1, treeModel.getRoot().getChildCount());
         assertEquals(1, treeModel.getRoot().getChildAt(0).getChildCount());
@@ -51,7 +51,7 @@ public class ProductTreeModelTest {
 
         productManager.removeProduct(product);
 
-        product.setBandSubGroupPaths(new String[] {"chl", "tsm"});
+        product.setAutoGrouping("chl:tsm");
         productManager.addProduct(product);
         assertEquals(1, treeModel.getRoot().getChildCount());
         assertEquals(1, treeModel.getRoot().getChildAt(0).getChildCount());

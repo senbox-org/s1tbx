@@ -711,15 +711,21 @@ public abstract class ProductFile {
     }
 
     /**
-     * Gets the sub-group paths applicable to the bands contained in this product.
-     * An application may use this information to display a long list of bands as a tree of bands.
-     * The default implementation returns {@code null}.
+     * Gets the auto-grouping applicable to the data sets contained in this product file.
+     * A given {@code pattern} parameter is a textual representation of the auto-grouping.
+     * The syntax for the pattern is:
+     * <pre>
+     * pattern    :=  &lt;groupPath&gt; {':' &lt;groupPath&gt;} | "" (empty string)
+     * groupPath  :=  &lt;groupName&gt; {'/' &lt;groupName&gt;}
+     * groupName  :=  any non-empty string without characters ':' and '/'
+     * </pre>
+     * The default implementation returns the empty string.
      *
-     * @return the array of sub-group paths or {@code null}.
+     * @return The auto-grouping pattern.
      * @since BEAM 4.8
      */
-    public String[] getBandSubGroupPaths() {
-        return null;
+    public String getAutoGroupingPattern() {
+        return "";
     }
 
     /**

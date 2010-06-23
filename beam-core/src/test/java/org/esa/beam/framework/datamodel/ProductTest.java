@@ -400,32 +400,33 @@ public class ProductTest extends TestCase {
         final MyProductNodeListener listener = new MyProductNodeListener();
         product.addProductNodeListener(listener);
         listener.pname = "";
-        final String[] uv = {"u", "v"};
-        product.setBandSubGroupPaths(uv);
-        final String[] value = product.getBandSubGroupPaths();
-        assertEquals("u", value[0]);
-        assertEquals("v", value[1]);
-        assertEquals("bandSubGroupPaths", listener.pname );
+        final String uv = "u:v";
+        product.setAutoGrouping(uv);
+        final Product.AutoGrouping autoGrouping = product.getAutoGrouping();
+        assertEquals(2, autoGrouping.size());
+        assertEquals("u", autoGrouping.get(0)[0]);
+        assertEquals("v", autoGrouping.get(1)[0]);
+        assertEquals("autoGrouping", listener.pname );
 
         listener.pname = "";
-        product.setBandSubGroupPaths(uv);
+        product.setAutoGrouping(uv);
         assertEquals("", listener.pname );
 
         listener.pname = "";
-        product.setBandSubGroupPaths(new String[] {"u", "v"});
+        product.setAutoGrouping("u:v");
         assertEquals("", listener.pname );
 
         listener.pname = "";
-        product.setBandSubGroupPaths(new String[] {"c"});
-        assertEquals("bandSubGroupPaths", listener.pname );
+        product.setAutoGrouping("c");
+        assertEquals("autoGrouping", listener.pname );
 
         listener.pname = "";
-        product.setBandSubGroupPaths(new String[] {""});
-        assertEquals("bandSubGroupPaths", listener.pname );
+        product.setAutoGrouping("");
+        assertEquals("autoGrouping", listener.pname );
 
         listener.pname = "";
-        product.setBandSubGroupPaths(null);
-        assertEquals("bandSubGroupPaths", listener.pname );
+        product.setAutoGrouping((Product.AutoGrouping) null);
+        assertEquals("", listener.pname );
     }
 
 

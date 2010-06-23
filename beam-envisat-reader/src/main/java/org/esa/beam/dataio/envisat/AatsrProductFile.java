@@ -342,11 +342,8 @@ public class AatsrProductFile extends ProductFile {
     }
 
     @Override
-    public String[] getBandSubGroupPaths() {
-        if (getProductType().contains("_1")) {
-            return new String[] {"btemp", "reflec"};
-        }
-        return null;
+    public String getAutoGroupingPattern() {
+        return "nadir/reflec:nadir/btemp:fward/reflec:fward/btemp:nadir:fward";
     }
 
     /**

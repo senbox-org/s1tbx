@@ -4,6 +4,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 
 import java.util.HashMap;
@@ -51,7 +52,12 @@ class ProductTN extends AbstractTN {
         if (hasTiePoints(product)) {
             childIndex++;
             if (childIndex == index) {
-                return new ProductNodeTN(TIE_POINT_GRIDS, product.getTiePointGridGroup(), this);
+                final Product.AutoGrouping autoGrouping = product.getAutoGrouping();
+                if (autoGrouping != null) {
+                    return new ProductNodeTN(TIE_POINT_GRIDS, group(product.getTiePointGridGroup(), autoGrouping), this);
+                } else {
+                    return new ProductNodeTN(TIE_POINT_GRIDS, product.getTiePointGridGroup(), this);
+                }
             }
         }
         if (hasVectorData(product)) {
@@ -63,10 +69,9 @@ class ProductTN extends AbstractTN {
         if (hasBands(product)) {
             childIndex++;
             if (childIndex == index) {
-                String[] groupNames = product.getBandSubGroupPaths();
-                boolean autoGrouping = groupNames != null;
-                if (autoGrouping) {
-                    return new ProductNodeTN(BANDS, group(product.getBandGroup(), groupNames), this);
+                final Product.AutoGrouping autoGrouping = product.getAutoGrouping();
+                if (autoGrouping != null) {
+                    return new ProductNodeTN(BANDS, group(product.getBandGroup(), autoGrouping), this);
                 } else {
                     return new ProductNodeTN(BANDS, product.getBandGroup(), this);
                 }
@@ -76,22 +81,24 @@ class ProductTN extends AbstractTN {
         throw new IndexOutOfBoundsException(String.format("No child for index <%d>.", index));
     }
 
-    private ProductNode group(ProductNodeGroup<Band> bandGroup, String[] groupNames) {
+    private ProductNode group(ProductNodeGroup<? extends RasterDataNode> bandGroup, Product.AutoGrouping autoGrouping) {
 
-        HashMap<String, ProductNodeGroup<Band>> subGroupMap = new HashMap<String, ProductNodeGroup<Band>>();
+        HashMap<String, ProductNodeGroup<ProductNode>> subGroupMap = new HashMap<String, ProductNodeGroup<ProductNode>>();
 
-        final ProductNodeGroup newGroup = new ProductNodeGroup(null, bandGroup.getName(), false);
+        ProductNodeGroup<ProductNode> newGroup = new ProductNodeGroup<ProductNode>(null, bandGroup.getName(), false);
         newGroup.setDescription(bandGroup.getDescription());
 
         final int count = bandGroup.getNodeCount();
         for (int i = 0; i < count; i++) {
-            final Band band = bandGroup.get(i);
-            final String bandName = band.getName();
-            String subGroupName = getGroupName(groupNames, bandName);
-            if (subGroupName != null) {
-                ProductNodeGroup<Band> subGroup = subGroupMap.get(subGroupName);
+            RasterDataNode band = bandGroup.get(i);
+            String bandName = band.getName();
+            int groupPathIndex = autoGrouping.indexOf(bandName);
+            if (groupPathIndex >= 0) {
+                // todo - this is still wrong, must support group separators ('/') for nested groups  (nf 20100622)
+                String subGroupName = createGroupName(autoGrouping.get(groupPathIndex));
+                ProductNodeGroup<ProductNode> subGroup = subGroupMap.get(subGroupName);
                 if (subGroup == null) {
-                    subGroup = new ProductNodeGroup<Band>(null, subGroupName, false);
+                    subGroup = new ProductNodeGroup<ProductNode>(null, subGroupName, false);
                     subGroupMap.put(subGroupName, subGroup);
                     newGroup.add(subGroup);
                 }
@@ -103,18 +110,22 @@ class ProductTN extends AbstractTN {
         return newGroup;
     }
 
-    private String getGroupName(String[] groupNames, String bandName) {
-        // todo - support path separators ('/') for nested groups  (nf 20100622)
-        // todo - use regexp here (nf 20100622)
-        for (String groupName : groupNames) {
-            if (bandName.length() > groupName.length()
-                    && bandName.contains(groupName)) {
-                return groupName;
-            }
-        }
-        return null;
-    }
+    // todo - this is a workaround  (nf 20100622)
+    private String createGroupName(String[] groupPath) {
+        if (groupPath.length == 1) {
+            return groupPath[0];
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < groupPath.length; i++) {
+                if (i > 0) {
+                    sb.append("_");
+                }
+                sb.append(groupPath[i]);
 
+            }
+            return sb.toString();
+        }
+    }
 
     @Override
     public int getChildCount() {
