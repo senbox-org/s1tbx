@@ -614,7 +614,10 @@ public class StringUtils {
         if (length == 0) {
             return "";
         }
-        final StringBuffer sb = new StringBuffer(length * 8);
+        if (length == 1) {
+            return Array.get(array, 0).toString();
+        }
+        final StringBuilder sb = new StringBuilder(length * 8);
         sb.append(Array.get(array, 0));
         for (int i = 1; i < length; i++) {
             sb.append(s);
@@ -718,7 +721,7 @@ public class StringUtils {
      * Returns a string representation of the given color value.
      */
     public static String formatColor(Color c) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(c.getRed());
         sb.append(',');
         sb.append(c.getGreen());
@@ -749,7 +752,7 @@ public class StringUtils {
             sortedValidChars = (char[]) validChars.clone();
         }
         Arrays.sort(sortedValidChars);
-        StringBuffer validName = new StringBuffer(name.length());
+        StringBuilder validName = new StringBuilder(name.length());
         for (int i = 0; i < name.length(); i++) {
             final char ch = name.charAt(i);
             if (Character.isLetterOrDigit(ch)) {
