@@ -2,7 +2,7 @@ package org.esa.beam.framework.ui.product.tree;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
 
-class MetadataTN extends AbstractTN {
+class MetadataTN extends ProductNodeTN {
     private MetadataElement metadataElement;
 
     MetadataTN(String name, MetadataElement element, AbstractTN parent) {
