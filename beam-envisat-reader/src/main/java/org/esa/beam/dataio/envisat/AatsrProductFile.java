@@ -343,7 +343,7 @@ public class AatsrProductFile extends ProductFile {
 
     @Override
     public String getAutoGroupingPattern() {
-        return "nadir/reflec:nadir/btemp:fward/reflec:fward/btemp:nadir:fward";
+        return "nadir:fward";
     }
 
     /**
