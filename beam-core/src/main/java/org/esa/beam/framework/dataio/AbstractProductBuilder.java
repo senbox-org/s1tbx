@@ -75,6 +75,7 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
             && product.containsBand(sourceProduct.getQuicklookBandName())) {
             product.setQuicklookBandName(sourceProduct.getQuicklookBandName());
         }
+        product.setAutoGrouping(sourceProduct.getAutoGrouping());
         product.setModified(true);
         return product;
     }

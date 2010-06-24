@@ -221,6 +221,7 @@ public class ReprojectionOp extends Operator {
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
         ProductUtils.copyRoiMasks(sourceProduct, targetProduct);
+        targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
     }
 
     @Override
