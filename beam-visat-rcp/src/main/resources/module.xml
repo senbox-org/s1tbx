@@ -315,7 +315,7 @@
             <title>Colour Manipulation</title>
             <mnemonic>C</mnemonic>
             <accelerator>ctrl alt C</accelerator>
-            <description>Image coulour manipulation and enhancements.</description>
+            <description>Image colour manipulation and enhancements.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/ContrastStretch16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/ContrastStretch24.gif</largeIcon>
             <helpId>showColorManipulationWnd</helpId>
