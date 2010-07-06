@@ -1475,8 +1475,8 @@
             <separatorAfter>false</separatorAfter>
             <shortDescr>Show Blue Marble overlay</shortDescr>
             <description>Show Blue Marble overlay for the selected image</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/WorldMap16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/WorldMap24.gif</largeIcon>
+            <smallIcon>icons/BlueMarbleOverlay16.png</smallIcon>
+            <largeIcon>icons/BlueMarbleOverlay24.png</largeIcon>
             <context>image</context>
             <helpId>showBlueMarbleOverlay</helpId>
         </action>
