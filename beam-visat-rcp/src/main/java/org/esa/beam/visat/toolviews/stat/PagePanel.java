@@ -74,7 +74,7 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
 
     void updateCurrentSelection() {
         final ProductNode selectedNode = VisatApp.getApp().getSelectedProductNode();
-        if(selectedNode != null) {
+        if (selectedNode != null) {
             setProduct(selectedNode.getProduct());
         }
 
@@ -341,12 +341,16 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
     }
 
     void invokeUpdateUI() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                updateUI();
-            }
-        });
+        if (SwingUtilities.isEventDispatchThread()) {
+            updateUI();
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    updateUI();
+                }
+            });
+        }
     }
 
     void handleLayerContentChanged() {
