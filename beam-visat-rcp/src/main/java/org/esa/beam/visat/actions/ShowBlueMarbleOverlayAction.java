@@ -2,6 +2,7 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.LayerUtils;
@@ -20,8 +21,8 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 public class ShowBlueMarbleOverlayAction extends AbstractShowOverlayAction {
 
-    private static final String TYPE_NAME = "BlueMarbleLayerType";
-    private static final String LAYER_ID = "org.esa.beam.worldmap.BlueMarble";
+    private static final String BLUE_MARBLE_LAYER_TYPE_NAME = "BlueMarbleLayerType";
+    private volatile LayerType blueMarbleLayerType;
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -29,7 +30,7 @@ public class ShowBlueMarbleOverlayAction extends AbstractShowOverlayAction {
 
         if (view != null) {
             Layer rootLayer = view.getRootLayer();
-            Layer blueMarbleLayer = LayerUtils.getChildLayerById(rootLayer, LAYER_ID);
+            Layer blueMarbleLayer = findBlueMarbleLayer(view);
             if (blueMarbleLayer == null) {
                 blueMarbleLayer = createBlueMarbleLayer();
                 rootLayer.getChildren().add(blueMarbleLayer);
@@ -39,11 +40,9 @@ public class ShowBlueMarbleOverlayAction extends AbstractShowOverlayAction {
     }
 
     private Layer createBlueMarbleLayer() {
-        final LayerType layerType = LayerTypeRegistry.getLayerType(TYPE_NAME);
+        final LayerType layerType = getBlueMarbleLayerType();
         final PropertySet template = layerType.createLayerConfig(null);
-        final Layer blueMarbleLayer = layerType.createLayer(null, template);
-        blueMarbleLayer.setId(LAYER_ID);
-        return blueMarbleLayer;
+        return layerType.createLayer(null, template);
     }
 
 
@@ -63,14 +62,35 @@ public class ShowBlueMarbleOverlayAction extends AbstractShowOverlayAction {
         } else if (geoCoding instanceof CrsGeoCoding) {
             isGeographic = CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
         }
-        LayerType blueMarbleLayerType = LayerTypeRegistry.getLayerType(TYPE_NAME);
+        LayerType blueMarbleLayerType = getBlueMarbleLayerType();
         setEnabled(isGeographic && blueMarbleLayerType != null);
     }
 
     @Override
     protected void updateSelectState(ProductSceneView view) {
-        Layer blueMarbleLayer = LayerUtils.getChildLayerById(view.getRootLayer(), LAYER_ID);
+        Layer blueMarbleLayer = findBlueMarbleLayer(view);
         setSelected(blueMarbleLayer != null && blueMarbleLayer.isVisible());
+    }
+
+    private LayerType getBlueMarbleLayerType() {
+        if (blueMarbleLayerType == null) {
+            synchronized (this) {
+                if (blueMarbleLayerType == null) {
+                    blueMarbleLayerType =  LayerTypeRegistry.getLayerType(BLUE_MARBLE_LAYER_TYPE_NAME);
+                }
+            }
+        }
+        return blueMarbleLayerType;
+    }
+
+    private Layer findBlueMarbleLayer(ProductSceneView view) {
+        final LayerType layerType = getBlueMarbleLayerType();
+        return LayerUtils.getChildLayer(view.getRootLayer(), LayerUtils.SearchMode.DEEP, new LayerFilter() {
+            @Override
+            public boolean accept(Layer layer) {
+                return layerType == layer.getLayerType();
+            }
+        });
     }
 
 }
