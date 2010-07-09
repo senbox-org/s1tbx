@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-landsat-reader</symbolicName>
-    <version>1.1.2</version>
+    <version>1.2-SNAPSHOT</version>
     <name>Landsat TM Product Reader</name>
     <description>
         A product reader for Landsat TM 5 FAST files.
@@ -14,6 +14,8 @@
 
     <changelog>
         <![CDATA[
+        From 1.1.2 to 1.2:<br/>
+            [BEAM-???] Add reader for Landsat 5 TM in GeoTIFF format<br/>
         From 1.1.1 to 1.1.2:<br/>
             [BEAM-945] Landsat reader does not consider the center information in header file<br/>
         From 1.1 to 1.1.1:<br/>
@@ -27,6 +29,9 @@
         <module>beam-core</module>
     </dependency>
     <dependency>
+        <module>beam-geotiff</module>
+    </dependency>
+    <dependency>
         <module>beam-visat</module>
         <optional>true</optional>
     </dependency>
@@ -38,7 +43,7 @@
             <id>importLandsatTMProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <parent>import</parent>
-            <text>Import LANDSAT 5 TM (FAST) Product...</text>
+            <text>Import Landsat 5 TM (FAST) Product...</text>
             <formatName>FAST L5</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>L</mnemonic>
@@ -46,6 +51,17 @@
             <description>Import a Landsat TM data product or product subset.</description>
             <helpId>importLandsatTMProduct</helpId>
             <placeAfter>importGeometry</placeAfter>
+        </action>
+        <action>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <id>importLandsatGeoTIFFProduct</id>
+            <helpId>importLandsatGeoTIFFProduct</helpId>
+            <formatName>LandsatGeoTIFF</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>Import Landsat 5 TM (GeoTIFF) Product...</text>
+            <mnemonic>G</mnemonic>
+            <shortDescr>Import a Landsat (GeoTIFF) data product or product subset.</shortDescr>
+            <description>Import a Landsat (in GeoTIFF format) data product or product subset.</description>
         </action>
     </extension>
 
@@ -62,6 +78,17 @@
             <green>radiance_3_red_30m</green>
             <blue>radiance_2_green_30m</blue>
         </rgbProfile>
+        <rgbProfile>
+            <name>LandsatTM5 3,2,1</name>
+            <red>radiance_3</red>
+            <green>radiance_2</green>
+            <blue>radiance_1</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>LandsatTM5 4,3,2</name>
+            <red>radiance_4</red>
+            <green>radiance_3</green>
+            <blue>radiance_2</blue>
+        </rgbProfile>
     </extension>
-
 </module>
