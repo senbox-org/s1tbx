@@ -16,8 +16,8 @@
  */
 package org.esa.beam.dataio.netcdf4.convention.beam;
 
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.dataio.netcdf4.convention.cf.CfGeocodingPart;
 import org.esa.beam.framework.dataio.ProductIOException;
@@ -28,6 +28,7 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.StringUtils;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriteable;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 
@@ -39,26 +40,39 @@ public class BeamGeocodingPart implements ModelPart {
     private final int latIndex = 1;
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
-        final Attribute tpCoordinatesAtt = rp.getNetcdfFile().findGlobalAttribute(TIEPOINT_COORDINATES);
+    public void read(Product p, Model model) throws IOException {
+        final Attribute tpCoordinatesAtt = model.getReaderParameters().getNetcdfFile().findGlobalAttribute(
+                TIEPOINT_COORDINATES);
+        GeoCoding geoCoding = null;
         if (tpCoordinatesAtt != null) {
             final String[] tpGridNames = tpCoordinatesAtt.getStringValue().split(" ");
             if (tpGridNames.length != 2
-                    || !p.containsTiePointGrid(tpGridNames[lonIndex])
-                    || !p.containsTiePointGrid(tpGridNames[latIndex])) {
+                || !p.containsTiePointGrid(tpGridNames[lonIndex])
+                || !p.containsTiePointGrid(tpGridNames[latIndex])) {
                 throw new ProductIOException("Illegal values in global attribute '" + TIEPOINT_COORDINATES + "'");
             }
             final TiePointGrid lon = p.getTiePointGrid(tpGridNames[lonIndex]);
             final TiePointGrid lat = p.getTiePointGrid(tpGridNames[latIndex]);
-            final TiePointGeoCoding tiePointGeoCoding = new TiePointGeoCoding(lat, lon);
-            p.setGeoCoding(tiePointGeoCoding);
+            geoCoding = new TiePointGeoCoding(lat, lon);
         } else {
-            CfGeocodingPart.readGeocoding(p, rp);
+            final Variable crsVar = model.getReaderParameters().getNetcdfFile().findTopVariable("crs");
+            if (crsVar != null) {
+                final Attribute wktAtt = crsVar.findAttribute("wkt");
+                if (wktAtt != null) {
+                    //TODO 
+//                    geoCoding = createGeoCodingFromWKT(p, model, wktAtt.getStringValue());
+                }
+            }
+        }
+        if (geoCoding != null) {
+            p.setGeoCoding(geoCoding);
+        } else {
+            CfGeocodingPart.readGeocoding(p, model);
         }
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
         final GeoCoding geoCoding = p.getGeoCoding();
         if (geoCoding instanceof TiePointGeoCoding) {
             final TiePointGeoCoding tpGC = (TiePointGeoCoding) geoCoding;
@@ -67,6 +81,8 @@ public class BeamGeocodingPart implements ModelPart {
             names[latIndex] = tpGC.getLatGrid().getName();
             final String value = StringUtils.arrayToString(names, " ");
             ncFile.addAttribute(null, new Attribute(TIEPOINT_COORDINATES, value));
+        } else {
+            new CfGeocodingPart().write(p, ncFile, hdw, model);
         }
     }
 }

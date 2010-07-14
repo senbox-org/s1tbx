@@ -14,24 +14,25 @@ public class Model {
     private InitialisationPart initialisationPart;
     private final List<ModelPart> modelParts = new ArrayList<ModelPart>();
     private final Nc4ReaderParameters readerParameters;
+    private boolean yFlipped;
 
     public Model(Nc4ReaderParameters readerParameters) {
         this.readerParameters = readerParameters;
     }
 
-    public Product readProduct(final String productName, Nc4ReaderParameters rp) throws IOException {
-        final Product product = initialisationPart.readProductBody(productName, rp);
+    public Product readProduct(final String productName) throws IOException {
+        final Product product = initialisationPart.readProductBody(productName, readerParameters);
         for (ModelPart modelPart : modelParts) {
-            modelPart.read(product, rp);
+            modelPart.read(product, this);
         }
         return product;
     }
 
-    public void writeProduct(final NetcdfFileWriteable writeable, final Product p) throws IOException {
+    public void writeProduct(final NetcdfFileWriteable writeable, final Product product) throws IOException {
         final HeaderDataWriter hdw = new HDW();
-        initialisationPart.writeProductBody(writeable, p);
+        initialisationPart.writeProductBody(writeable, product);
         for (ModelPart modelPart : modelParts) {
-            modelPart.write(p, writeable, hdw);
+            modelPart.write(product, writeable, hdw, this);
         }
         writeable.create();
         hdw.writeHeaderData();
@@ -47,6 +48,14 @@ public class Model {
 
     public Nc4ReaderParameters getReaderParameters() {
         return readerParameters;
+    }
+
+    public void setYFlipped(boolean yFlipped) {
+        this.yFlipped = yFlipped;
+    }
+
+    public boolean isYFlipped() {
+        return yFlipped;
     }
 
     public static class HDW implements HeaderDataWriter {

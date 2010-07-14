@@ -22,9 +22,17 @@ public class CfInitialisationPart implements InitialisationPart {
     }
 
     @Override
-    public void writeProductBody(NetcdfFileWriteable writeable, Product p) throws IOException {
-        writeable.addDimension("y", p.getSceneRasterHeight());
-        writeable.addDimension("x", p.getSceneRasterWidth());
+    public void writeProductBody(NetcdfFileWriteable writeable, Product product) throws IOException {
+        if (CfGeocodingPart.isGeographicLatLon(product.getGeoCoding())) {
+            addDimensions(writeable, product, "lat", "lon");
+        } else {
+            addDimensions(writeable, product, "y", "x");
+        }
+    }
+
+    private void addDimensions(NetcdfFileWriteable writeable, Product p, String dimY, String dimX) {
+        writeable.addDimension(dimY, p.getSceneRasterHeight());
+        writeable.addDimension(dimX, p.getSceneRasterWidth());
     }
 
     public static String getProductType(final Nc4ReaderParameters rv) {

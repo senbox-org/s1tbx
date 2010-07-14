@@ -21,21 +21,27 @@ import org.esa.beam.dataio.netcdf4.Nc4Constants;
 import org.esa.beam.dataio.netcdf4.Nc4Dim;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderUtils;
+import org.esa.beam.dataio.netcdf4.convention.HeaderDataJob;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.util.logging.BeamLogManager;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import ucar.ma2.Array;
+import ucar.ma2.DataType;
 import ucar.ma2.Index;
+import ucar.ma2.InvalidRangeException;
+import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
@@ -44,36 +50,138 @@ import java.io.IOException;
 public class CfGeocodingPart implements ModelPart {
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
-        readGeocoding(p, rp);
+    public void read(Product p, Model model) throws IOException {
+        readGeocoding(p, model);
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
-        //Todo change body of created method. Use File | Settings | File Templates to change
+    public void write(Product product, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws
+                                                                                                      IOException {
+        final GeoCoding geoCoding = product.getGeoCoding();
+        if (isGeographicLatLon(geoCoding)) {
+            GeoPos ul = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
+            GeoPos br = geoCoding.getGeoPos(
+                    new PixelPos(product.getSceneRasterWidth() - 0.5f, product.getSceneRasterHeight() - 0.5f), null);
+            addLatLonCoordVariables(ncFile, ul, br);
+            model.setYFlipped(true);
+        } else {
+            addXYCoordVariables(ncFile);
+            model.setYFlipped(true);
+            addLatLonBands(product, ncFile, hdw, model);
+        }
+        addWktAsVariable(ncFile, product.getGeoCoding().getGeoCRS().toWKT());
+
     }
 
-    public static void readGeocoding(Product p, Nc4ReaderParameters rp) throws IOException {
-        GeoCoding geoCoding = createConventionBasedMapGeoCoding(p, rp);
+    static boolean isGeographicLatLon(final GeoCoding geoCoding) {
+        if (geoCoding != null && geoCoding instanceof CrsGeoCoding) {
+            return CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
+        }
+        return false;
+    }
+
+    private void addLatLonCoordVariables(NetcdfFileWriteable ncFile, GeoPos ul, GeoPos br) {
+        final Variable latVar = ncFile.addVariable(null, "lat", DataType.FLOAT, "lat");
+        latVar.addAttribute(new Attribute("units", "degrees_north"));
+        latVar.addAttribute(new Attribute("long_name", "latitude coordinate"));
+        latVar.addAttribute(new Attribute("standard_name", "latitude"));
+        latVar.addAttribute(new Attribute(Nc4Constants.VALID_MIN_ATT_NAME, br.getLat()));
+        latVar.addAttribute(new Attribute(Nc4Constants.VALID_MAX_ATT_NAME, ul.getLat()));
+
+        final Variable lonVar = ncFile.addVariable(null, "lon", DataType.FLOAT, "lon");
+        lonVar.addAttribute(new Attribute("units", "degrees_east"));
+        lonVar.addAttribute(new Attribute("long_name", "longitude coordinate"));
+        lonVar.addAttribute(new Attribute("standard_name", "longitude"));
+        lonVar.addAttribute(new Attribute(Nc4Constants.VALID_MIN_ATT_NAME, ul.getLon()));
+        lonVar.addAttribute(new Attribute(Nc4Constants.VALID_MAX_ATT_NAME, br.getLon()));
+    }
+
+    private void addXYCoordVariables(NetcdfFileWriteable ncFile) {
+        final Variable yVar = ncFile.addVariable(null, "y", DataType.FLOAT, "y");
+        yVar.addAttribute(new Attribute("axis", "y"));
+        yVar.addAttribute(new Attribute("long_name", "y-coordinate in Cartesian system"));
+        yVar.addAttribute(new Attribute("units", "m"));             // todo check
+
+        final Variable xVar = ncFile.addVariable(null, "x", DataType.FLOAT, "x");
+        xVar.addAttribute(new Attribute("axis", "x"));
+        xVar.addAttribute(new Attribute("long_name", "x-coordinate in Cartesian system"));
+        xVar.addAttribute(new Attribute("units", "m"));             // todo check
+    }
+
+    private void addLatLonBands(final Product product, final NetcdfFileWriteable ncFile, HeaderDataWriter hdw,
+                                final Model model) {
+        final Variable latVar = ncFile.addVariable(null, "lat", DataType.FLOAT, "y x");
+        latVar.addAttribute(new Attribute("units", "degrees_north"));
+        latVar.addAttribute(new Attribute("long_name", "latitude coordinate"));
+        latVar.addAttribute(new Attribute("standard_name", "latitude"));
+
+        final Variable lonVar = ncFile.addVariable(null, "lon", DataType.FLOAT, "y x");
+        lonVar.addAttribute(new Attribute("units", "degrees_east"));
+        lonVar.addAttribute(new Attribute("long_name", "longitude coordinate"));
+        lonVar.addAttribute(new Attribute("standard_name", "longitude"));
+
+        hdw.registerHeaderDataJob(new HeaderDataJob() {
+            @Override
+            public void go() throws IOException {
+                try {
+                    final int h = product.getSceneRasterHeight();
+                    final int w = product.getSceneRasterWidth();
+                    final float[] lat = new float[w];
+                    final float[] lon = new float[w];
+                    PixelPos pixelPos = new PixelPos();
+                    GeoPos geoPos = new GeoPos();
+                    for (int y = 0; y < h; y++) {
+                        pixelPos.y = y + 0.5f;
+                        for (int x = 0; x < w; x++) {
+                            pixelPos.x = x + 0.5f;
+                            product.getGeoCoding().getGeoPos(pixelPos, geoPos);
+                            lat[x] = geoPos.getLat();
+                            lon[x] = geoPos.getLon();
+                        }
+                        int flippedY = model.isYFlipped() ? (h - 1) - y : y;
+                        final int[] shape = new int[]{1, w};
+                        final int[] origin = new int[]{flippedY, 0};
+                        ncFile.write("lat", origin, Array.factory(DataType.FLOAT, shape, lat));
+                        ncFile.write("lon", origin, Array.factory(DataType.FLOAT, shape, lon));
+                    }
+                } catch (InvalidRangeException e) {
+                    final ProductIOException productIOException = new ProductIOException(
+                            "Data not in the expected range");
+                    productIOException.initCause(e);
+                    throw productIOException;
+                }
+            }
+        });
+    }
+
+    private void addWktAsVariable(NetcdfFileWriteable ncFile, String wkt) {
+        final Variable crsVariable = ncFile.addVariable(null, "crs", DataType.INT, null);//todo null as dim ok??
+        crsVariable.addAttribute(new Attribute("wkt", wkt));
+    }
+
+
+    public static void readGeocoding(Product p, Model model) throws IOException {
+        GeoCoding geoCoding = createConventionBasedMapGeoCoding(p, model);
         if (geoCoding == null) {
-            geoCoding = createPixelGeoCoding(p);
+            geoCoding = createPixelGeoCoding(p, model);
         }
         if (geoCoding != null) {
             p.setGeoCoding(geoCoding);
         }
     }
 
-    public static MapGeoCoding createConventionBasedMapGeoCoding(Product product, Nc4ReaderParameters rp) {
-        final String[] coardsConvention_lonLatNames = new String[]{
-                Nc4Constants.LONGITUDE_VAR_NAME,
-                Nc4Constants.LATITUDE_VAR_NAME
-        };
+    public static GeoCoding createConventionBasedMapGeoCoding(Product product, Model model) {
         final String[] cfConvention_lonLatNames = new String[]{
                 Nc4Constants.LON_VAR_NAME,
                 Nc4Constants.LAT_VAR_NAME
         };
+        final String[] coardsConvention_lonLatNames = new String[]{
+                Nc4Constants.LONGITUDE_VAR_NAME,
+                Nc4Constants.LATITUDE_VAR_NAME
+        };
 
         Variable[] lonLat;
+        final Nc4ReaderParameters rp = model.getReaderParameters();
         lonLat = Nc4ReaderUtils.getVariables(rp.getGlobalVariables(), cfConvention_lonLatNames);
         if (lonLat == null) {
             lonLat = Nc4ReaderUtils.getVariables(rp.getGlobalVariables(), coardsConvention_lonLatNames);
@@ -85,16 +193,10 @@ public class CfGeocodingPart implements ModelPart {
             final Nc4Dim rasterDim = rp.getRasterDigest().getRasterDim();
             if (rasterDim.fitsTo(lonVariable, latVariable)) {
                 try {
-                    final MapInfoX mapInfoX =
-                            createMapInfoX(
-                                    lonVariable, latVariable,
-                                    product.getSceneRasterWidth(),
-                                    product.getSceneRasterHeight());
-                    if (mapInfoX != null) {
-                        rp.setYFlipped(mapInfoX.isYFlipped());
-                        return new MapGeoCoding(mapInfoX.getMapInfo());
-                    }
-                } catch (IOException e) {
+                    return createConventionBasedMapGeoCoding(lonVariable, latVariable,
+                                                             product.getSceneRasterWidth(),
+                                                             product.getSceneRasterHeight(), model);
+                } catch (Exception e) {
                     BeamLogManager.getSystemLogger().warning("Failed to create NetCDF geo-coding");
                 }
             }
@@ -102,10 +204,11 @@ public class CfGeocodingPart implements ModelPart {
         return null;
     }
 
-    private static MapInfoX createMapInfoX(final Variable lonVar,
-                                           final Variable latVar,
-                                           int sceneRasterWidth,
-                                           final int sceneRasterHeight) throws IOException {
+    private static GeoCoding createConventionBasedMapGeoCoding(Variable lonVar,
+                                                               Variable latVar,
+                                                               int sceneRasterWidth,
+                                                               int sceneRasterHeight,
+                                                               Model model) throws Exception {
         double pixelX;
         double pixelY;
         double easting;
@@ -115,26 +218,25 @@ public class CfGeocodingPart implements ModelPart {
 
         final Nc4AttributeMap lonAttrMap = Nc4AttributeMap.create(lonVar);
         final Number lonValidMin = lonAttrMap.getNumericValue(Nc4Constants.VALID_MIN_ATT_NAME);
-        final Number lonStep = lonAttrMap.getNumericValue(Nc4Constants.STEP_ATT_NAME);
+        final Number lonValidMax = lonAttrMap.getNumericValue(Nc4Constants.VALID_MAX_ATT_NAME);
 
         final Nc4AttributeMap latAttrMap = Nc4AttributeMap.create(latVar);
         final Number latValidMin = latAttrMap.getNumericValue(Nc4Constants.VALID_MIN_ATT_NAME);
-        final Number latStep = latAttrMap.getNumericValue(Nc4Constants.STEP_ATT_NAME);
+        final Number latValidMax = latAttrMap.getNumericValue(Nc4Constants.VALID_MAX_ATT_NAME);
 
         boolean yFlipped;
-        if (lonValidMin != null && lonStep != null && latValidMin != null && latStep != null) {
-            // COARDS convention uses 'valid_min' and 'step' attributes
+        if (lonValidMin != null && lonValidMax != null && latValidMin != null && latValidMax != null) {
+            // COARDS convention uses 'valid_min' and 'valid_max' attributes
             pixelX = 0.5;
             pixelY = (sceneRasterHeight - 1.0) + 0.5;
             easting = lonValidMin.doubleValue();
             northing = latValidMin.doubleValue();
-            pixelSizeX = lonStep.doubleValue();
-            pixelSizeY = latStep.doubleValue();
+            pixelSizeX = (lonValidMax.doubleValue() - lonValidMin.doubleValue()) / sceneRasterWidth;
+            pixelSizeY = (latValidMax.doubleValue() - latValidMin.doubleValue()) / sceneRasterHeight;
             // must flip
             yFlipped = true; // todo - check
         } else {
             // CF convention
-
             final Array lonData = lonVar.read();
             final Array latData = latVar.read();
 
@@ -165,19 +267,15 @@ public class CfGeocodingPart implements ModelPart {
         if (pixelSizeX <= 0 || pixelSizeY <= 0) {
             return null;
         }
-
-        final MapProjection projection = MapProjectionRegistry.getProjection(IdentityTransformDescriptor.NAME);
-        final MapInfo mapInfo = new MapInfo(projection,
-                                            (float) pixelX, (float) pixelY,
-                                            (float) easting, (float) northing,
-                                            (float) pixelSizeX, (float) pixelSizeY,
-                                            Datum.WGS_84);
-        mapInfo.setSceneWidth(sceneRasterWidth);
-        mapInfo.setSceneHeight(sceneRasterHeight);
-        return new MapInfoX(mapInfo, yFlipped);
+        model.setYFlipped(yFlipped);
+        return new CrsGeoCoding(DefaultGeographicCRS.WGS84,
+                                sceneRasterWidth, sceneRasterHeight,
+                                easting, northing,
+                                pixelSizeX, pixelSizeY,
+                                pixelX, pixelY);
     }
 
-    public static GeoCoding createPixelGeoCoding(Product product) throws IOException {
+    private static GeoCoding createPixelGeoCoding(Product product, Model model) throws IOException {
         Band lonBand = product.getBand(Nc4Constants.LON_VAR_NAME);
         if (lonBand == null) {
             lonBand = product.getBand(Nc4Constants.LONGITUDE_VAR_NAME);
@@ -187,32 +285,24 @@ public class CfGeocodingPart implements ModelPart {
             latBand = product.getBand(Nc4Constants.LATITUDE_VAR_NAME);
         }
         if (latBand != null && lonBand != null) {
+            final NetcdfFile netcdfFile = model.getReaderParameters().getNetcdfFile();
+            model.setYFlipped(detectFlipping(netcdfFile.findTopVariable(latBand.getName())));
             return new PixelGeoCoding(latBand, lonBand, latBand.getValidPixelExpression(), 5);
         }
         return null;
     }
 
-    /**
-     * Return type of the {@link CfGeocodingPart#createMapInfoX}()
-     * method. Comprises a {@link MapInfo} and a boolean indicating that the reader
-     * should flip data along the Y-axis.
-     */
-    private static class MapInfoX {
+    private static boolean detectFlipping(Variable latVar) throws IOException {
+        final Array latData = latVar.read();
+        final Index j0 = latData.getIndex().set(0);
+        final Index j1 = latData.getIndex().set(1);
+        double pixelSizeY = latData.getDouble(j1) - latData.getDouble(j0);
 
-        final MapInfo _mapInfo;
-        final boolean _yFlipped;
-
-        public MapInfoX(MapInfo mapInfo, boolean yFlipped) {
-            _mapInfo = mapInfo;
-            _yFlipped = yFlipped;
-        }
-
-        public MapInfo getMapInfo() {
-            return _mapInfo;
-        }
-
-        public boolean isYFlipped() {
-            return _yFlipped;
+        // this should be the 'normal' case
+        if (pixelSizeY < 0) {
+            return false;
+        } else {
+            return true;
         }
     }
 }

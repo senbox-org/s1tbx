@@ -19,6 +19,7 @@ package org.esa.beam.dataio.netcdf4.convention.beam;
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.dataio.netcdf4.convention.cf.CfFlagCodingPart;
 import org.esa.beam.framework.dataio.ProductIOException;
@@ -39,10 +40,10 @@ public class BeamFlagCodingPart implements ModelPart {
     public static final String DESCRIPTION_SEPARATOR = "\t";
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
+    public void read(Product p, Model model) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final FlagCoding flagCoding = readFlagCoding(band, rp);
+            final FlagCoding flagCoding = readFlagCoding(band, model.getReaderParameters());
             if (flagCoding != null) {
                 p.getFlagCodingGroup().add(flagCoding);
                 band.setSampleCoding(flagCoding);
@@ -51,7 +52,7 @@ public class BeamFlagCodingPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             writeFlagCoding(ncFile, band);

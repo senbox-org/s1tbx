@@ -20,6 +20,7 @@ import org.esa.beam.dataio.netcdf4.Nc4AttributeMap;
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -39,10 +40,10 @@ public class CfIndexCodingPart implements ModelPart {
 
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
+    public void read(Product p, Model model) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final IndexCoding indexCoding = readIndexCoding(band, rp);
+            final IndexCoding indexCoding = readIndexCoding(band, model.getReaderParameters());
             if (indexCoding != null) {
                 p.getIndexCodingGroup().add(indexCoding);
                 band.setSampleCoding(indexCoding);
@@ -51,7 +52,7 @@ public class CfIndexCodingPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             writeIndexCoding(ncFile, band);

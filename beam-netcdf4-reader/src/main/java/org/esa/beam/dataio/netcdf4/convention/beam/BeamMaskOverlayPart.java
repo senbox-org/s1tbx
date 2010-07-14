@@ -20,6 +20,7 @@ import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -52,13 +53,14 @@ public class BeamMaskOverlayPart implements ModelPart {
     public static final String SUFFIX_MASK = "_mask";
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
+    public void read(Product p, Model model) throws IOException {
+        final Nc4ReaderParameters rp = model.getReaderParameters();
         readMasksToProduct(p, rp);
         assignMasksToBands(p, rp);
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
         writeProductMasks(p, ncFile);
         writeOverlayNamesToBandVariables(p, ncFile);
     }

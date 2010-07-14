@@ -16,14 +16,14 @@ public class Nc4ReaderParameters {
     private final Nc4AttributeMap globalAttributes;
     private final Nc4RasterDigest rasterDigest;
     private NetcdfFile netcdfFile;
-    private boolean yFlipped;
 
     public Nc4ReaderParameters(NetcdfFile netcdfFile) {
         this(netcdfFile, Nc4RasterDigest.createRasterDigest(netcdfFile.getRootGroup()));
     }
 
     public Nc4ReaderParameters(NetcdfFile netcdfFile, Nc4RasterDigest rasterDigest) {
-         this(netcdfFile, rasterDigest, (rasterDigest != null ? new Nc4VariableMap(rasterDigest.getRasterVariables()) : null));
+        this(netcdfFile, rasterDigest,
+             (rasterDigest != null ? new Nc4VariableMap(rasterDigest.getRasterVariables()) : null));
     }
 
     public Nc4ReaderParameters(NetcdfFile netcdfFile, Nc4RasterDigest rasterDigest, Nc4VariableMap nc4VariableMap) {
@@ -50,15 +50,6 @@ public class Nc4ReaderParameters {
 
     public Nc4AttributeMap getGlobalAttributes() {
         return globalAttributes;
-    }
-
-
-    public boolean isYFlipped() {
-        return yFlipped;
-    }
-
-    public void setYFlipped(boolean yFlipped) {
-        this.yFlipped = yFlipped;
     }
 
     public Nc4RasterDigest getRasterDigest() {

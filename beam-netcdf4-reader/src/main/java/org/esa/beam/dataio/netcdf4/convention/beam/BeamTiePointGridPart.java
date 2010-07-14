@@ -16,9 +16,9 @@
  */
 package org.esa.beam.dataio.netcdf4.convention.beam;
 
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataJob;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.dataio.netcdf4.convention.cf.CfBandPart;
 import org.esa.beam.framework.dataio.ProductIOException;
@@ -44,8 +44,8 @@ public class BeamTiePointGridPart implements ModelPart {
     public final String SUBSAMPLING_Y = "subsampling_y";
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
-        final List<Variable> variables = rp.getGlobalVariables();
+    public void read(Product p, Model model) throws IOException {
+        final List<Variable> variables = model.getReaderParameters().getGlobalVariables();
         for (Variable variable : variables) {
             final List<Dimension> dimensions = variable.getDimensions();
             if (dimensions.size() != 2) {
@@ -62,7 +62,7 @@ public class BeamTiePointGridPart implements ModelPart {
                 final Attribute subSamplingX = variable.findAttributeIgnoreCase(SUBSAMPLING_X);
                 final Attribute subSamplingY = variable.findAttributeIgnoreCase(SUBSAMPLING_Y);
                 if (offsetX != null && offsetY != null &&
-                        subSamplingX != null && subSamplingY != null) {
+                    subSamplingX != null && subSamplingY != null) {
                     final Array array = variable.read();
                     final float[] data = new float[(int) array.getSize()];
                     for (int i = 0; i < data.length; i++) {
@@ -70,14 +70,14 @@ public class BeamTiePointGridPart implements ModelPart {
                     }
                     final boolean containsAngles = "lon".equalsIgnoreCase(name) || "lat".equalsIgnoreCase(name);
                     final TiePointGrid grid = new TiePointGrid(name,
-                                                           dimensionX.getLength(),
-                                                           dimensionY.getLength(),
-                                                           offsetX.getNumericValue().floatValue(),
-                                                           offsetY.getNumericValue().floatValue(),
-                                                           subSamplingX.getNumericValue().floatValue(),
-                                                           subSamplingY.getNumericValue().floatValue(),
-                                                           data,
-                                                           containsAngles);
+                                                               dimensionX.getLength(),
+                                                               dimensionY.getLength(),
+                                                               offsetX.getNumericValue().floatValue(),
+                                                               offsetY.getNumericValue().floatValue(),
+                                                               subSamplingX.getNumericValue().floatValue(),
+                                                               subSamplingY.getNumericValue().floatValue(),
+                                                               data,
+                                                               containsAngles);
                     CfBandPart.applyAttributes(grid, variable);
                     p.addTiePointGrid(grid);
                 }
@@ -86,7 +86,8 @@ public class BeamTiePointGridPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, final NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, final NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws
+                                                                                                      IOException {
         final TiePointGrid[] tiePointGrids = p.getTiePointGrids();
         final HashMap<String, Dimension[]> dimMap = new HashMap<String, Dimension[]>();
         for (TiePointGrid grid : tiePointGrids) {

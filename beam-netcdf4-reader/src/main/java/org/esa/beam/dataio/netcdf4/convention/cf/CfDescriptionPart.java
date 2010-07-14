@@ -4,6 +4,7 @@ import org.esa.beam.dataio.netcdf4.Nc4AttributeMap;
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.framework.datamodel.Product;
 import ucar.nc2.Attribute;
@@ -18,13 +19,13 @@ public class CfDescriptionPart implements ModelPart {
     public static final String COMMENT = "comment";
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
-        p.setDescription(getProductDescription(rp));
+    public void read(Product p, Model model) throws IOException {
+        p.setDescription(getProductDescription(model.getReaderParameters()));
 
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
         final String description = p.getDescription();
         if (description != null && description.trim().length() > 0) {
             ncFile.addAttribute(null, new Attribute(TITLE, description));

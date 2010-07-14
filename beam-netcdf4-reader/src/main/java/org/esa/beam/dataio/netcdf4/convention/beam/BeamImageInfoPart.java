@@ -17,8 +17,8 @@
 package org.esa.beam.dataio.netcdf4.convention.beam;
 
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -44,15 +44,15 @@ public class BeamImageInfoPart implements ModelPart {
     public static final String COLOR_TABLE_BLUE_VALUES = "color_table_blue_values";
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
-        final List<Variable> variableList = rp.getNetcdfFile().getVariables();
+    public void read(Product p, Model model) throws IOException {
+        final List<Variable> variableList = model.getReaderParameters().getNetcdfFile().getVariables();
         for (Variable variable : variableList) {
             readImageInfo(p, variable);
         }
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             writeImageInfo(ncFile, band);

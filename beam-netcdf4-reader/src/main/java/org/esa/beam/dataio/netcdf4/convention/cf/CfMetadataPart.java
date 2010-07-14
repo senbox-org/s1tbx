@@ -17,9 +17,9 @@
 package org.esa.beam.dataio.netcdf4.convention.cf;
 
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderUtils;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -40,12 +40,12 @@ import java.util.List;
 public class CfMetadataPart implements ModelPart {
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
-        transferMetadata(rp.getNetcdfFile(), p.getMetadataRoot());
+    public void read(Product p, Model model) throws IOException {
+        transferMetadata(model.getReaderParameters().getNetcdfFile(), p.getMetadataRoot());
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
 
     }
 
@@ -82,7 +82,7 @@ public class CfMetadataPart implements ModelPart {
     }
 
     public static MetadataElement createMetadataElementFromVariableList(final List<Variable> variableList,
-                                                                         String elementName) throws IOException {
+                                                                        String elementName) throws IOException {
         MetadataElement metadataElement = new MetadataElement(elementName);
         for (Variable variable : variableList) {
             metadataElement.addElement(createMetadataElement(variable));

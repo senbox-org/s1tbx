@@ -16,8 +16,8 @@
  */
 package org.esa.beam.dataio.netcdf4.convention.beam;
 
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.dataio.netcdf4.convention.cf.CfBandPart;
 import org.esa.beam.framework.datamodel.Band;
@@ -41,8 +41,8 @@ public class BeamBandPart implements ModelPart {
     public static final String VALID_PIXEL_EXPRESSION = "valid_pixel_expression";
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
-        final List<Variable> variables = rp.getGlobalVariables();
+    public void read(Product p, Model model) throws IOException {
+        final List<Variable> variables = model.getReaderParameters().getGlobalVariables();
         for (Variable variable : variables) {
             final List<Dimension> dimensions = variable.getDimensions();
             if (dimensions.size() != 2) {
@@ -60,11 +60,12 @@ public class BeamBandPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
         final Band[] bands = p.getBands();
+        final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : bands) {
             final DataType ncDataType = CfBandPart.getNcDataType(band);
-            final Variable variable = ncFile.addVariable(null, band.getName(), ncDataType, "y x");
+            final Variable variable = ncFile.addVariable(band.getName(), ncDataType, dimensions);
             addAttributes(variable, band);
         }
     }

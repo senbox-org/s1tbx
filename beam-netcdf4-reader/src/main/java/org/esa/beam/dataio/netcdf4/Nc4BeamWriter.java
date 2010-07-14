@@ -38,6 +38,7 @@ public class Nc4BeamWriter extends AbstractProductWriter {
 
     private NetcdfFileWriteable writeable;
     private HashMap<String, Variable> variableMap;
+    private Model model;
 
     public Nc4BeamWriter(ProductWriterPlugIn nc4BeamWriterPlugIn) {
         super(nc4BeamWriterPlugIn);
@@ -54,7 +55,8 @@ public class Nc4BeamWriter extends AbstractProductWriter {
     @Override
     protected void writeProductNodesImpl() throws IOException {
         writeable = NetcdfFileWriteable.createNew(getOutputString());
-        final Model model = new BeamModelFactory().createModel(null);
+        writeable.setLargeFile(true);
+        model = new BeamModelFactory().createModel(null);
         model.writeProduct(writeable, getSourceProduct());
     }
 
@@ -94,14 +96,14 @@ public class Nc4BeamWriter extends AbstractProductWriter {
     public void writeBandRasterData(Band sourceBand, int sourceOffsetX, int sourceOffsetY, int sourceWidth,
                                     int sourceHeight, ProductData sourceBuffer, ProgressMonitor pm) throws IOException {
 
-        final int xIndex = 1;
         final int yIndex = 0;
+        final int xIndex = 1;
         final String variableName = sourceBand.getName();
         final DataType dataType = getDataType(variableName);
-
+        final int sceneHeight = sourceBand.getProduct().getSceneRasterHeight();
         final int[] origin = new int[2];
         origin[xIndex] = sourceOffsetX;
-        origin[yIndex] = sourceOffsetY;
+        origin[yIndex] = model.isYFlipped() ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
         final int[] shape = new int[]{sourceHeight, sourceWidth};
         final Array dataArray = Array.factory(dataType, shape, sourceBuffer.getElems());
         try {
@@ -139,10 +141,14 @@ public class Nc4BeamWriter extends AbstractProductWriter {
      */
     @Override
     public void close() throws IOException {
-        writeable.close();
-        writeable = null;
-        variableMap.clear();
-        variableMap = null;
+        if (writeable != null) {
+            writeable.close();
+            writeable = null;
+        }
+        if (variableMap != null) {
+            variableMap.clear();
+            variableMap = null;
+        }
     }
 
     /**
