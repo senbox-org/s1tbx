@@ -6,6 +6,8 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -26,8 +28,13 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
         File[] files = dir.listFiles();
         for (File file : files) {
             if (isMetadataFile(file)) {
-                // TODO restrict ro Landsat 5
-                return DecodeQualification.INTENDED;
+                try {
+                    LandsatMetadata landsatMetadata = new LandsatMetadata(new FileReader(file));
+                    if (landsatMetadata.isLandsatTM()) {
+                        return DecodeQualification.INTENDED;
+                    }
+                } catch (IOException ignore) {
+                }
             }
         }
         return DecodeQualification.UNABLE;

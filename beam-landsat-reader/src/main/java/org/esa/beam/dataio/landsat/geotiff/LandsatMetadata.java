@@ -92,7 +92,7 @@ class LandsatMetadata {
     }
 
     private Dimension getDimension(String widthAttributeName, String heightAttributeName) {
-        MetadataElement metadata = root.getElement("PRODUCT_METADATA");
+        MetadataElement metadata = getProductMetadata();
         MetadataAttribute widthAttribute = metadata.getAttribute(widthAttributeName);
         MetadataAttribute heightAttribute = metadata.getAttribute(heightAttributeName);
         if (widthAttribute != null && heightAttribute != null) {
@@ -105,7 +105,11 @@ class LandsatMetadata {
     }
 
     String getProductType() {
-        return root.getElement("PRODUCT_METADATA").getAttribute("PRODUCT_TYPE").getData().getElemString();
+        return getProductMetadata().getAttribute("PRODUCT_TYPE").getData().getElemString();
+    }
+
+    MetadataElement getProductMetadata() {
+        return root.getElement("PRODUCT_METADATA");
     }
 
     double getScalingFactor(String bandId) {
@@ -138,5 +142,10 @@ class LandsatMetadata {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    boolean isLandsatTM() {
+        MetadataElement productMetadata = getProductMetadata();
+        return "TM".equals(productMetadata.getAttributeString("SENSOR_ID"));
     }
 }

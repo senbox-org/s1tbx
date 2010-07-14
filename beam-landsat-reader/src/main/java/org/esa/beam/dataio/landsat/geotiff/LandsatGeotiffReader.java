@@ -4,6 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.beam.framework.dataio.AbstractProductReader;
+import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
@@ -11,8 +12,18 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.gpf.operators.standard.reproject.ReprojectionOp;
+import org.esa.beam.util.ImageUtils;
 
+import javax.media.jai.BorderExtender;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.CropDescriptor;
+import javax.media.jai.operator.ScaleDescriptor;
 import java.awt.Dimension;
+import java.awt.RenderingHints;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -59,7 +70,6 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         File[] files = dir.listFiles();
         File mtlFile = null;
         for (File file : files) {
-            // TODO restrict ro Landsat 5
             if (LandsatGeotiffReaderPlugin.isMetadataFile(file)) {
                 mtlFile = file;
                 break;
@@ -72,6 +82,9 @@ public class LandsatGeotiffReader extends AbstractProductReader {
             throw new IOException("Can not read metadata file: "+ mtlFile.getAbsolutePath());
         }
         LandsatMetadata landsatMetadata = new LandsatMetadata(new FileReader(mtlFile));
+        if (!landsatMetadata.isLandsatTM()) {
+            throw new ProductIOException("Product is not a 'Landsat5' product.");
+        }
         Dimension refDim = landsatMetadata.getReflectanceDim();
         Dimension thmDim = landsatMetadata.getThermalDim();
         Dimension panDim = landsatMetadata.getPanchromaticDim();
@@ -108,7 +121,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
 
     private void addBands(Product product, LandsatMetadata landsatMetadata, File folder) throws IOException {
         GeoTiffProductReaderPlugIn plugIn = new GeoTiffProductReaderPlugIn();
-        MetadataAttribute[] productAttributes = landsatMetadata.getMetaDataElementRoot().getElement("PRODUCT_METADATA").getAttributes();
+        MetadataAttribute[] productAttributes = landsatMetadata.getProductMetadata().getAttributes();
         Pattern pattern = Pattern.compile("BAND(\\d{1,2})_FILE_NAME");
         bandProducts = new ArrayList<Product>();
         for (MetadataAttribute metadataAttribute : productAttributes) {
@@ -157,14 +170,20 @@ public class LandsatGeotiffReader extends AbstractProductReader {
                     product.getSceneRasterHeight() == bandProduct.getSceneRasterHeight()) {
                 band.setSourceImage(bandProduct.getBandAt(0).getSourceImage());
             } else {
-                ReprojectionOp op = new ReprojectionOp();
-                op.setSourceProduct(bandProduct);
-                op.setSourceProduct("collocateWith", product);
-                Product targetProduct = op.getTargetProduct();
-                MultiLevelImage image = targetProduct.getBandAt(0).getSourceImage();
+                PlanarImage image = createScaledImage(product.getSceneRasterWidth(), product.getSceneRasterHeight(),
+                        bandProduct.getSceneRasterWidth(), bandProduct.getSceneRasterHeight(),
+                        bandProduct.getBandAt(0).getSourceImage());
                 band.setSourceImage(image);
             }
         }
+    }
+
+    private static RenderedOp createScaledImage(int targetWidth, int targetHeight, int sourceWidth, int sourceHeight, RenderedImage srcImg) {
+        float xScale = (float) targetWidth / (float) sourceWidth;
+        float yScale = (float) targetHeight / (float) sourceHeight;
+        RenderedOp tempImg = ScaleDescriptor.create(srcImg, xScale, yScale, 0.5f, 0.5f,
+                                                    Interpolation.getInstance(Interpolation.INTERP_NEAREST), null);
+        return CropDescriptor.create(tempImg, 0f, 0f, (float) targetWidth, (float) targetHeight, null);
     }
 
     @Override

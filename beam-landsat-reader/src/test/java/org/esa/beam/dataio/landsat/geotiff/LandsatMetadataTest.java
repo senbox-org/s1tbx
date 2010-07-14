@@ -14,10 +14,12 @@ import static org.junit.Assert.*;
 public class LandsatMetadataTest {
 
     @Test
-    public void testfoo() throws IOException {
+    public void testMetadata() throws IOException {
         InputStream stream = LandsatMetadataTest.class.getResourceAsStream("test_MTL.txt");
         InputStreamReader reader = new InputStreamReader(stream);
-        MetadataElement element = new LandsatMetadata(reader).getMetaDataElementRoot();
+        LandsatMetadata landsatMetadata = new LandsatMetadata(reader);
+
+        MetadataElement element = landsatMetadata.getMetaDataElementRoot();
         assertNotNull(element);
         assertEquals("L1_METADATA_FILE", element.getName());
         MetadataElement[] childElements = element.getElements();
@@ -31,5 +33,7 @@ public class LandsatMetadataTest {
         assertEquals("ORIGIN", originAttr.getName());
         assertEquals(ProductData.TYPESTRING_ASCII, originAttr.getData().getTypeString());
         assertEquals("Image courtesy of the U.S. Geological Survey", originAttr.getData().getElemString());
+
+        assertTrue(landsatMetadata.isLandsatTM());
     }
 }
