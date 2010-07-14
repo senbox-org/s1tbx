@@ -35,5 +35,9 @@ public class LandsatMetadataTest {
         assertEquals("Image courtesy of the U.S. Geological Survey", originAttr.getData().getElemString());
 
         assertTrue(landsatMetadata.isLandsatTM());
+
+        ProductData.UTC cTime = landsatMetadata.getCenterTime();
+        assertNotNull(cTime);
+        assertEquals("14-SEP-2003 09:55:12.228000", cTime.format());
     }
 }

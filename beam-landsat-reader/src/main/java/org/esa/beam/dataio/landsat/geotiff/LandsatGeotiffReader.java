@@ -92,6 +92,11 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         product.setFileLocation(mtlFile);
 
         product.getMetadataRoot().addElement(metadataElement);
+
+        ProductData.UTC utcCenter = landsatMetadata.getCenterTime();
+        product.setStartTime(utcCenter);
+        product.setEndTime(utcCenter);
+
         addBands(product, landsatMetadata, mtlFile.getParentFile());
 
         return product;

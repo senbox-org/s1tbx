@@ -8,6 +8,9 @@ import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
 
 
 class LandsatMetadata {
@@ -147,5 +150,24 @@ class LandsatMetadata {
     boolean isLandsatTM() {
         MetadataElement productMetadata = getProductMetadata();
         return "TM".equals(productMetadata.getAttributeString("SENSOR_ID"));
+    }
+
+    public ProductData.UTC getCenterTime() {
+        MetadataElement productMetadata = getProductMetadata();
+        String dateString = productMetadata.getAttributeString("ACQUISITION_DATE");
+        String timeString = productMetadata.getAttributeString("SCENE_CENTER_SCAN_TIME");
+
+        try {
+            if  (dateString != null && timeString != null)  {
+                timeString = timeString.substring(0, 12);
+                final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                final Date date = dateFormat.parse(dateString + " " + timeString);
+                String milliSeconds = timeString.substring(timeString.length()-3);
+                return ProductData.UTC.create(date, Long.parseLong(milliSeconds)*1000);
+            }
+        } catch (ParseException ignored) {
+            // ignore
+        }
+        return null;
     }
 }
