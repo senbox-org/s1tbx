@@ -55,7 +55,7 @@
         <action>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <id>importLandsatGeoTIFFProduct</id>
-            <helpId>importLandsatGeoTIFFProduct</helpId>
+            <helpId>importLandsatTMProduct</helpId>
             <formatName>LandsatGeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>Import Landsat 5 TM (GeoTIFF) Product...</text>
