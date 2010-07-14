@@ -22,16 +22,16 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.bc.ceres.swing.binding.PropertyEditor;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 
 /**
  * An editor for file names using a file chooser dialog.
@@ -44,28 +44,32 @@ public class FileEditor extends PropertyEditor {
 
     @Override
     public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
-        return File.class.isAssignableFrom(propertyDescriptor.getType());
+        return File.class.isAssignableFrom(propertyDescriptor.getType())
+               && !Boolean.TRUE.equals(propertyDescriptor.getAttribute("directory"));
     }
-    
+
     @Override
     public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
-        JTextField textField = new JTextField();
-        ComponentAdapter adapter = new TextComponentAdapter(textField);
+        final JTextField textField = new JTextField();
+        final ComponentAdapter adapter = new TextComponentAdapter(textField);
         final Binding binding = bindingContext.bind(propertyDescriptor.getName(), adapter);
-        final JPanel subPanel = new JPanel(new BorderLayout(2, 2));
-        subPanel.add(textField, BorderLayout.CENTER);
-        JButton etcButton = new JButton("...");
+        final JPanel editorPanel = new JPanel(new BorderLayout(2, 2));
+        editorPanel.add(textField, BorderLayout.CENTER);
+        final JButton etcButton = new JButton("...");
+        final Dimension size = new Dimension(26, 16);
+        etcButton.setPreferredSize(size);
+        etcButton.setMinimumSize(size);
         etcButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                int i = fileChooser.showDialog(subPanel, "Select");
+                final JFileChooser fileChooser = new JFileChooser();
+                int i = fileChooser.showDialog(editorPanel, "Select");
                 if (i == JFileChooser.APPROVE_OPTION && fileChooser.getSelectedFile() != null) {
                     binding.setPropertyValue(fileChooser.getSelectedFile());
                 }
             }
         });
-        subPanel.add(etcButton, BorderLayout.EAST);
-        return subPanel;
+        editorPanel.add(etcButton, BorderLayout.EAST);
+        return editorPanel;
     }
 }
