@@ -8,6 +8,7 @@ import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import javax.media.jai.PlanarImage;
+import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
@@ -78,6 +79,22 @@ public class ImageManagerTest extends TestCase {
         assertEquals(0, dataBuffer.getElem(1));
         assertEquals(255, dataBuffer.getElem(2));
         assertEquals(0, dataBuffer.getElem(3));
+    }
+
+    public void testImageAndMaskSize() {
+        Product p = new Product("n", "t", 8501, 7651);
+        Band b = p.addBand("b", ProductData.TYPE_FLOAT32);
+        b.setNoDataValue(13);
+        b.setNoDataValueUsed(true);
+        b.setSourceImage(ConstantDescriptor.create((float) p.getSceneRasterWidth(),
+                                                          (float) p.getSceneRasterHeight(),
+                                                          new Float[]{42f}, null));
+        ImageManager imageManager = ImageManager.getInstance();
+        int levelCount = b.getSourceImage().getModel().getLevelCount();
+        PlanarImage sourceImage = imageManager.getSourceImage(b, levelCount - 1);
+        PlanarImage maskImage = imageManager.getValidMaskImage(b, levelCount - 1);
+        assertEquals(sourceImage.getWidth(), maskImage.getWidth());
+        assertEquals(sourceImage.getHeight(), maskImage.getHeight());
     }
 
     private Band createBand(double factor, double offset, boolean log10Scaled) {
