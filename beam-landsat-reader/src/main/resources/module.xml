@@ -68,24 +68,12 @@
     <extension point="beam-core:rgbProfiles">
         <rgbProfile>
             <name>LandsatTM 3,2,1</name>
-            <red>radiance_3_red_30m</red>
-            <green>radiance_2_green_30m</green>
-            <blue>radiance_1_blue_30m</blue>
-        </rgbProfile>
-        <rgbProfile>
-            <name>LandsatTM 4,3,2</name>
-            <red>radiance_4_nearir_30m</red>
-            <green>radiance_3_red_30m</green>
-            <blue>radiance_2_green_30m</blue>
-        </rgbProfile>
-        <rgbProfile>
-            <name>LandsatTM5 3,2,1</name>
             <red>radiance_3</red>
             <green>radiance_2</green>
             <blue>radiance_1</blue>
         </rgbProfile>
         <rgbProfile>
-            <name>LandsatTM5 4,3,2</name>
+            <name>LandsatTM 4,3,2</name>
             <red>radiance_4</red>
             <green>radiance_3</green>
             <blue>radiance_2</blue>
