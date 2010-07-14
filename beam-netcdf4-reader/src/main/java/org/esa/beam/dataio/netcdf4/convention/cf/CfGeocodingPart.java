@@ -69,8 +69,6 @@ public class CfGeocodingPart implements ModelPart {
             model.setYFlipped(true);
             addLatLonBands(product, ncFile, hdw, model);
         }
-        addWktAsVariable(ncFile, product.getGeoCoding().getGeoCRS().toWKT());
-
     }
 
     static boolean isGeographicLatLon(final GeoCoding geoCoding) {
@@ -153,12 +151,6 @@ public class CfGeocodingPart implements ModelPart {
             }
         });
     }
-
-    private void addWktAsVariable(NetcdfFileWriteable ncFile, String wkt) {
-        final Variable crsVariable = ncFile.addVariable(null, "crs", DataType.INT, null);//todo null as dim ok??
-        crsVariable.addAttribute(new Attribute("wkt", wkt));
-    }
-
 
     public static void readGeocoding(Product p, Model model) throws IOException {
         GeoCoding geoCoding = createConventionBasedMapGeoCoding(p, model);
