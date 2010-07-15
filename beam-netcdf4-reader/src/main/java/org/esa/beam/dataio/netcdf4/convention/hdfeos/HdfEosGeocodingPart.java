@@ -1,7 +1,7 @@
 package org.esa.beam.dataio.netcdf4.convention.hdfeos;
 
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -12,10 +12,9 @@ import org.opengis.referencing.operation.TransformException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
 
 
@@ -24,8 +23,8 @@ public class HdfEosGeocodingPart implements ModelPart {
     private static final double PIXEL_CENTER = 0.5;
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
-        NetcdfFile netcdfFile = rp.getNetcdfFile();
+    public void read(Product p, Model model) throws IOException {
+        NetcdfFile netcdfFile = model.getReaderParameters().getNetcdfFile();
         Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
         Element gridStructure = eosElement.getChild("GridStructure");
         Element gridElem = (Element) gridStructure.getChildren().get(0);
@@ -37,7 +36,7 @@ public class HdfEosGeocodingPart implements ModelPart {
         }
         String projection = projectionElem.getValue();
         if (!projection.equals("GCTP_GEO")) {
-                return;
+            return;
         }
         List<Element> ulList = ulPointElem.getChildren();
         String ulLon = ulList.get(0).getValue();
@@ -79,7 +78,7 @@ public class HdfEosGeocodingPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
         throw new IllegalStateException();
     }
 }

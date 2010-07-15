@@ -20,6 +20,7 @@ import org.esa.beam.dataio.netcdf4.Nc4Constants;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderUtils;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -31,12 +32,12 @@ import java.io.IOException;
 public class CfEndTimePart implements ModelPart {
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
-        p.setEndTime(getSceneRasterStopTime(rp));
+    public void read(Product p, Model model) throws IOException {
+        p.setEndTime(getSceneRasterStopTime(model.getReaderParameters()));
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
         final ProductData.UTC utc = p.getEndTime();
         if (utc != null) {
             ncFile.addAttribute(null, new Attribute(Nc4Constants.STOP_DATE_ATT_NAME, utc.format()));

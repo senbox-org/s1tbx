@@ -105,8 +105,7 @@ public class LandsatConstants {
 
                 // check if a band can be identified as a const landsat band
 
-                if (band.getName().contains(element.getDescription().toLowerCase()) && band.getName().contains(
-                        element.getBandIndex() + "")) {
+                if (band.getSpectralBandIndex() == element.getBandIndex()) {
                     return element;
                 }
             }

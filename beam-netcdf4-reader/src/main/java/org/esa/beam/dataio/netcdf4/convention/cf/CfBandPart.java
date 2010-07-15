@@ -20,9 +20,9 @@ import org.esa.beam.dataio.netcdf4.I_Nc4DataTypeWorkarounds;
 import org.esa.beam.dataio.netcdf4.Nc4AttributeMap;
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
 import org.esa.beam.dataio.netcdf4.Nc4DataTypeWorkarounds;
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderUtils;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
@@ -32,16 +32,18 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
+import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.List;
 
 public class CfBandPart implements ModelPart {
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
-        final Variable[] variables = rp.getRasterDigest().getRasterVariables();
+    public void read(Product p, Model model) throws IOException {
+        final Variable[] variables = model.getReaderParameters().getRasterDigest().getRasterVariables();
         for (Variable variable : variables) {
             final Nc4DataTypeWorkarounds dataTypeWorkarounds = Nc4DataTypeWorkarounds.getInstance();
             final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
@@ -52,10 +54,11 @@ public class CfBandPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
         final Band[] bands = p.getBands();
+        final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : bands) {
-            final Variable variable = ncFile.addVariable(null, band.getName(), getNcDataType(band), "y x");
+            final Variable variable = ncFile.addVariable(band.getName(), getNcDataType(band), dimensions);
             addAttributes(variable, band);
         }
     }
@@ -86,17 +89,17 @@ public class CfBandPart implements ModelPart {
     }
 
     public static void addAttributes(Variable variable, RasterDataNode rasterDataNode) {
-        final boolean unsigned = isUnsigned(rasterDataNode);
-        if (unsigned) {
-            variable.addAttribute(new Attribute("_Unsigned", String.valueOf(unsigned)));
-        }
         final String description = rasterDataNode.getDescription();
         if (description != null) {
-            variable.addAttribute(new Attribute("title", description));
+            variable.addAttribute(new Attribute("long_name", description));
         }
         final String unit = rasterDataNode.getUnit();
         if (unit != null) {
             variable.addAttribute(new Attribute("units", unit));
+        }
+        final boolean unsigned = isUnsigned(rasterDataNode);
+        if (unsigned) {
+            variable.addAttribute(new Attribute("_Unsigned", String.valueOf(unsigned)));
         }
         final double scalingFactor = rasterDataNode.getScalingFactor();
         if (scalingFactor != 1.0) {

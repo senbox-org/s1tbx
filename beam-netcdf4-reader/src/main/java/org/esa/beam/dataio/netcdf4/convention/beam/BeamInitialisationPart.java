@@ -21,9 +21,9 @@ public class BeamInitialisationPart implements InitialisationPart {
         Dimension y = null;
         for (Dimension dimension : rp.getNetcdfFile().getDimensions()) {
             final String name = dimension.getName();
-            if ("x".equalsIgnoreCase(name)) {
+            if ("x".equalsIgnoreCase(name) || "lon".equalsIgnoreCase(name)) {
                 x = dimension;
-            } else if ("y".equalsIgnoreCase(name)) {
+            } else if ("y".equalsIgnoreCase(name) || "lat".equalsIgnoreCase(name)) {
                 y = dimension;
             }
         }
@@ -40,8 +40,7 @@ public class BeamInitialisationPart implements InitialisationPart {
 
     @Override
     public void writeProductBody(NetcdfFileWriteable writeable, Product p) throws IOException {
-        writeable.addDimension(null, new Dimension("y", p.getSceneRasterHeight()));
-        writeable.addDimension(null, new Dimension("x", p.getSceneRasterWidth()));
+        new CfInitialisationPart().writeProductBody(writeable, p);
         writeable.addAttribute(null, new Attribute(PRODUCT_TYPE, p.getProductType()));
         writeable.addAttribute(null, new Attribute("metadata_profile", "beam"));
         writeable.addAttribute(null, new Attribute("metadata_version", "0.5"));

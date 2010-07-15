@@ -128,9 +128,9 @@ class OperatorImageTileStack extends OperatorImage {
         Assert.argument(tileRectangle.height == getTileHeight(), "rectangle");
         final int tileX = XToTileX(tileRectangle.x);
         final int tileY = YToTileY(tileRectangle.y);
-        Raster tileFromCache = getTileFromCache(tileX, tileY);
-        WritableRaster writableRaster;
-        if (tileFromCache != null) {
+        final Raster tileFromCache = getTileFromCache(tileX, tileY);
+        final WritableRaster writableRaster;
+        if (tileFromCache instanceof WritableRaster) {
             // we already have a WritableRaster in the cache
             writableRaster = (WritableRaster) tileFromCache;
         } else {

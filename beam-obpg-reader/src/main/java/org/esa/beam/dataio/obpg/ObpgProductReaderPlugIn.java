@@ -15,7 +15,9 @@ package org.esa.beam.dataio.obpg;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.io.FileUtils;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 
@@ -51,7 +53,9 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
         final File file = getInputFile(input);
         NetcdfFile ncfile = null;
         try {
-            if (file == null || !file.isFile()) {
+            final boolean knownFileExtension = StringUtils.contains(getDefaultFileExtensions(),
+                                                                    FileUtils.getExtension(file));
+            if (file == null || !file.isFile() || !knownFileExtension) {
                 return DecodeQualification.UNABLE;
             }
             if (NetcdfFile.canOpen(file.getPath())) {

@@ -124,7 +124,7 @@ public class HdfEosFactory extends AbstractModelFactory {
             if (!projection.equals("GCTP_GEO")) {
                 return DecodeQualification.UNABLE;
             }
-            return DecodeQualification.INTENDED;
+            return DecodeQualification.SUITABLE;
         } catch (Exception e) {
             return DecodeQualification.UNABLE;
         }

@@ -1,7 +1,7 @@
 package org.esa.beam.dataio.netcdf4.convention.hdfeos;
 
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
 import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
+import org.esa.beam.dataio.netcdf4.convention.Model;
 import org.esa.beam.dataio.netcdf4.convention.ModelPart;
 import org.esa.beam.dataio.netcdf4.convention.cf.CfMetadataPart;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
@@ -16,14 +16,18 @@ import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 public class HdfEosMetadata implements ModelPart {
 
     @Override
-    public void read(Product p, Nc4ReaderParameters rp) throws IOException {
-        NetcdfFile ncFile = rp.getNetcdfFile();
+    public void read(Product p, Model model) throws IOException {
+        NetcdfFile ncFile = model.getReaderParameters().getNetcdfFile();
         MetadataElement root = p.getMetadataRoot();
         root.addElement(CfMetadataPart.createMetadataElementFromAttributeList(ncFile.getGlobalAttributes(), "MPH"));
         MetadataElement eosElem = new MetadataElement("EOS");
@@ -42,8 +46,8 @@ public class HdfEosMetadata implements ModelPart {
             Variable variable = variableIterator.next();
             String varName = variable.getName();
             if (varName.startsWith(HdfEosUtils.STRUCT_METADATA) ||
-                    varName.startsWith(HdfEosUtils.CORE_METADATA) ||
-                    varName.startsWith(HdfEosUtils.ARCHIVE_METADATA)) {
+                varName.startsWith(HdfEosUtils.CORE_METADATA) ||
+                varName.startsWith(HdfEosUtils.ARCHIVE_METADATA)) {
                 variableIterator.remove();
             }
         }
@@ -57,7 +61,6 @@ public class HdfEosMetadata implements ModelPart {
             eosElem.addElement(metadataElement);
         }
     }
-
 
 
     private static void addDomToMetadata(Element parentDE, MetadataElement parentME) {
@@ -115,7 +118,7 @@ public class HdfEosMetadata implements ModelPart {
 
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw) throws IOException {
+    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
         throw new IllegalStateException();
     }
 }

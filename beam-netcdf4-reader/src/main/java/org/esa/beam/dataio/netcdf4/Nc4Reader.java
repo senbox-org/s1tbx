@@ -81,7 +81,7 @@ import java.io.IOException;
  */
 public class Nc4Reader extends AbstractProductReader {
 
-    private Nc4ReaderParameters rp;
+    private Model model;
 
     public Nc4Reader(final ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
@@ -109,17 +109,15 @@ public class Nc4Reader extends AbstractProductReader {
             netcdfFile.close();
             throw new IllegalFileFormatException("No convention factory found for netCDF.");
         }
-        final Model convention = modelFactory.createModel(netcdfFile);
-        rp = convention.getReaderParameters();
-
-        if (rp.getRasterDigest() == null) {
+        model = modelFactory.createModel(netcdfFile);
+        if (model.getReaderParameters().getRasterDigest() == null) {
             close();
             throw new IllegalFileFormatException("No netCDF variables found which could\n" +
                                                  "be interpreted as remote sensing bands.");  /*I18N*/
         }
 
         final String productName = fileLocation.getName();
-        final Product product = convention.readProduct(productName, rp);
+        final Product product = model.readProduct(productName);
         product.setFileLocation(fileLocation);
         product.setProductReader(this);
         product.setModified(false);
@@ -136,9 +134,9 @@ public class Nc4Reader extends AbstractProductReader {
         Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
 
         final int sceneHeight = destBand.getProduct().getSceneRasterHeight();
-        final int y0 = rp.isYFlipped() ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
+        final int y0 = model.isYFlipped() ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
 
-        final Variable variable = rp.getRasterVariableMap().get(destBand.getName());
+        final Variable variable = model.getReaderParameters().getRasterVariableMap().get(destBand.getName());
         final int rank = variable.getRank();
         final int[] origin = new int[rank];
         final int[] shape = new int[rank];
@@ -153,9 +151,9 @@ public class Nc4Reader extends AbstractProductReader {
         pm.beginTask("Reading data from band '" + destBand.getName() + "'", destHeight);
         try {
             for (int y = 0; y < destHeight; y++) {
-                origin[rank - 2] = rp.isYFlipped() ? y0 - y : y0 + y;
+                origin[rank - 2] = model.isYFlipped() ? y0 - y : y0 + y;
                 final Array array;
-                synchronized (rp.getNetcdfFile()) {
+                synchronized (model.getReaderParameters().getNetcdfFile()) {
                     array = variable.read(origin, shape);
                 }
                 final Object storage = array.getStorage();
@@ -189,7 +187,10 @@ public class Nc4Reader extends AbstractProductReader {
     @Override
     public void close() throws
                         IOException {
-        rp.close();
+        if (model != null) {
+            model.getReaderParameters().close();
+            model = null;
+        }
         super.close();
     }
 }

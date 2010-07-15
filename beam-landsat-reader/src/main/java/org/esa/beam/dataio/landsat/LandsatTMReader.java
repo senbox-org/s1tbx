@@ -114,8 +114,7 @@ final class LandsatTMReader extends AbstractProductReader {
         for (int i = 0; i < landsatHeader.getNumberOfBands(); i++) {
             final LandsatTMBand band = landsatTM.getBandAt(i);
 
-            final String bandName = "radiance_" + band.getIndex() + "_" + band.getBandDescription() + "_" + band.getResolution();
-            Band radBand = new Band(bandName.toLowerCase() + LandsatConstants.Unit.METER, dataType, width, height);
+            Band radBand = new Band("radiance_" + band.getIndex(), dataType, width, height);
             radBand.setDescription(formatName);
             radBand.setSpectralBandIndex(band.getIndex());
             radBand.setSpectralWavelength(band.getWavelength());

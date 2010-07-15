@@ -26,12 +26,14 @@ class MetadataTN extends ProductNodeTN {
 
     @Override
     protected int getIndex(AbstractTN child) {
-        MetadataTN metadataTN = (MetadataTN) child;
-        MetadataElement[] metadataElements = metadataElement.getElements();
-        for (int i = 0, metadataElementsLength = metadataElements.length; i < metadataElementsLength; i++) {
-            MetadataElement element = metadataElements[i];
-            if(element == metadataTN.getMetadataElement()) {
-                return i;
+        if (child instanceof MetadataTN) {
+            MetadataTN metadataTN = (MetadataTN) child;
+            MetadataElement[] metadataElements = metadataElement.getElements();
+            for (int i = 0, metadataElementsLength = metadataElements.length; i < metadataElementsLength; i++) {
+                MetadataElement element = metadataElements[i];
+                if(element == metadataTN.getMetadataElement()) {
+                    return i;
+                }
             }
         }
         return -1;

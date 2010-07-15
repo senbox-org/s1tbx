@@ -1466,6 +1466,22 @@
         </action>
 
         <action>
+            <id>showBlueMarbleOverlay</id>
+            <class>org.esa.beam.visat.actions.ShowBlueMarbleOverlayAction</class>
+            <placeAfter>showGcpOverlay</placeAfter>
+            <parent>view</parent>
+            <text>Show Blue Marble Overlay</text>
+            <toggle>true</toggle>
+            <separatorAfter>false</separatorAfter>
+            <shortDescr>Show Blue Marble overlay</shortDescr>
+            <description>Show Blue Marble overlay for the selected image</description>
+            <smallIcon>icons/BlueMarbleOverlay16.png</smallIcon>
+            <largeIcon>icons/BlueMarbleOverlay24.png</largeIcon>
+            <context>image</context>
+            <helpId>showBlueMarbleOverlay</helpId>
+        </action>
+
+        <action>
             <id>selectTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>com.bc.ceres.swing.figure.interactions.SelectionInteractor</interactor>
