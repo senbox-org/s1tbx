@@ -17,9 +17,8 @@
 package org.esa.beam.dataio.netcdf4.convention.beam;
 
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.convention.Profile;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
@@ -36,7 +35,7 @@ import java.util.List;
 
 import static org.esa.beam.dataio.netcdf4.Nc4ReaderUtils.*;
 
-public class BeamImageInfoPart implements ModelPart {
+public class BeamImageInfoPart extends ProfilePart {
 
     public static final String COLOR_TABLE_SAMPLE_VALUES = "color_table_sample_values";
     public static final String COLOR_TABLE_RED_VALUES = "color_table_red_values";
@@ -44,15 +43,15 @@ public class BeamImageInfoPart implements ModelPart {
     public static final String COLOR_TABLE_BLUE_VALUES = "color_table_blue_values";
 
     @Override
-    public void read(Product p, Model model) throws IOException {
-        final List<Variable> variableList = model.getReaderParameters().getNetcdfFile().getVariables();
+    public void read(Profile profile, Product p) throws IOException {
+        final List<Variable> variableList = profile.getFileInfo().getNetcdfFile().getVariables();
         for (Variable variable : variableList) {
             readImageInfo(p, variable);
         }
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
+    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             writeImageInfo(ncFile, band);

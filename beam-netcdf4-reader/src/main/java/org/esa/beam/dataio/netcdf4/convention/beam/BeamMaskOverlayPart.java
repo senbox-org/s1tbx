@@ -18,10 +18,9 @@ package org.esa.beam.dataio.netcdf4.convention.beam;
 
 import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.Nc4FileInfo;
+import org.esa.beam.dataio.netcdf4.convention.Profile;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
@@ -38,7 +37,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class BeamMaskOverlayPart implements ModelPart {
+public class BeamMaskOverlayPart extends ProfilePart {
 
     public static final String EXPRESSION = "expression";
     public static final String COLOR = "color";
@@ -53,19 +52,19 @@ public class BeamMaskOverlayPart implements ModelPart {
     public static final String SUFFIX_MASK = "_mask";
 
     @Override
-    public void read(Product p, Model model) throws IOException {
-        final Nc4ReaderParameters rp = model.getReaderParameters();
+    public void read(Profile profile, Product p) throws IOException {
+        final Nc4FileInfo rp = profile.getFileInfo();
         readMasksToProduct(p, rp);
         assignMasksToBands(p, rp);
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
+    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
         writeProductMasks(p, ncFile);
         writeOverlayNamesToBandVariables(p, ncFile);
     }
 
-    public static void readMasksToProduct(Product p, Nc4ReaderParameters rp) throws ProductIOException {
+    public static void readMasksToProduct(Product p, Nc4FileInfo rp) throws ProductIOException {
         final List<Variable> variables = rp.getGlobalVariables();
         for (Variable variable : variables) {
             if (variable.getRank() != 0 || !variable.getName().endsWith(SUFFIX_MASK)) {
@@ -110,7 +109,7 @@ public class BeamMaskOverlayPart implements ModelPart {
         }
     }
 
-    public static void assignMasksToBands(Product p, Nc4ReaderParameters rp) {
+    public static void assignMasksToBands(Product p, Nc4FileInfo rp) {
         final Band[] bands = p.getBands();
         final Map<String, Variable> variablesMap = rp.getGlobalVariablesMap();
         for (Band band : bands) {

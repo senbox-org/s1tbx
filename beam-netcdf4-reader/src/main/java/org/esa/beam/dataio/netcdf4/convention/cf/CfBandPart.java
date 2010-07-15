@@ -16,14 +16,12 @@
  */
 package org.esa.beam.dataio.netcdf4.convention.cf;
 
-import org.esa.beam.dataio.netcdf4.I_Nc4DataTypeWorkarounds;
 import org.esa.beam.dataio.netcdf4.Nc4AttributeMap;
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
 import org.esa.beam.dataio.netcdf4.Nc4DataTypeWorkarounds;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderUtils;
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.convention.Profile;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Product;
@@ -39,11 +37,11 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.util.List;
 
-public class CfBandPart implements ModelPart {
+public class CfBandPart extends ProfilePart {
 
     @Override
-    public void read(Product p, Model model) throws IOException {
-        final Variable[] variables = model.getReaderParameters().getRasterDigest().getRasterVariables();
+    public void read(Profile profile, Product p) throws IOException {
+        final Variable[] variables = profile.getFileInfo().getRasterDigest().getRasterVariables();
         for (Variable variable : variables) {
             final Nc4DataTypeWorkarounds dataTypeWorkarounds = Nc4DataTypeWorkarounds.getInstance();
             final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
@@ -54,7 +52,7 @@ public class CfBandPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
+    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
         final Band[] bands = p.getBands();
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : bands) {
@@ -138,7 +136,7 @@ public class CfBandPart implements ModelPart {
         return noDataValue;
     }
 
-    private static int getRasterDataType(Variable variable, I_Nc4DataTypeWorkarounds workarounds) {
+    private static int getRasterDataType(Variable variable, Nc4DataTypeWorkarounds workarounds) {
         if (workarounds != null && workarounds.hasWorkaroud(variable.getName(), variable.getDataType())) {
             return workarounds.getRasterDataType(variable.getName(), variable.getDataType());
         }

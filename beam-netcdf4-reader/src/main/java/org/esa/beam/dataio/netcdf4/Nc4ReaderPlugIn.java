@@ -1,6 +1,6 @@
 package org.esa.beam.dataio.netcdf4;
 
-import org.esa.beam.dataio.netcdf4.convention.ModelFactoryRegistry;
+import org.esa.beam.dataio.netcdf4.convention.ProfileSpiRegistry;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -37,7 +37,7 @@ public class Nc4ReaderPlugIn implements ProductReaderPlugIn {
             if (netcdfFile == null) {
                 return DecodeQualification.UNABLE;
             }
-            return ModelFactoryRegistry.getInstance().getDecodeQualification(netcdfFile);
+            return ProfileSpiRegistry.getInstance().getDecodeQualification(netcdfFile);
         } catch (Exception e) {
             return DecodeQualification.UNABLE;
         } finally {

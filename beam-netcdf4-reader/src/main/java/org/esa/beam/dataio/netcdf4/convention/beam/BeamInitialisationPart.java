@@ -1,7 +1,7 @@
 package org.esa.beam.dataio.netcdf4.convention.beam;
 
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
-import org.esa.beam.dataio.netcdf4.convention.InitialisationPart;
+import org.esa.beam.dataio.netcdf4.Nc4FileInfo;
+import org.esa.beam.dataio.netcdf4.convention.ProfileInitPart;
 import org.esa.beam.dataio.netcdf4.convention.cf.CfInitialisationPart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Product;
@@ -11,12 +11,12 @@ import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
 
-public class BeamInitialisationPart implements InitialisationPart {
+public class BeamInitialisationPart implements ProfileInitPart {
 
     public static final String PRODUCT_TYPE = "product_type";
 
     @Override
-    public Product readProductBody(String productName, Nc4ReaderParameters rp) throws ProductIOException {
+    public Product readProductBody(String productName, Nc4FileInfo rp) throws ProductIOException {
         Dimension x = null;
         Dimension y = null;
         for (Dimension dimension : rp.getNetcdfFile().getDimensions()) {
@@ -47,7 +47,7 @@ public class BeamInitialisationPart implements InitialisationPart {
         writeable.addAttribute(null, new Attribute("Conventions", "CF-1.4"));
     }
 
-    public static String getProductType(Nc4ReaderParameters rp) {
+    public static String getProductType(Nc4FileInfo rp) {
         final Attribute productTypeAtt = rp.getNetcdfFile().getRootGroup().findAttribute(PRODUCT_TYPE);
         if (productTypeAtt != null) {
             final String pt = productTypeAtt.getStringValue();

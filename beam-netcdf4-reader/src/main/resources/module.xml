@@ -2,9 +2,9 @@
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-netcdf4-reader</symbolicName>
     <version>1.0</version>
-    <name>NetCDF4 supported Product Reader</name>
+    <name>NetCDF Product Reader and Writer</name>
     <description>
-        A product reader for files which are supported by NetCDF4.
+        A product reader and writer for NetCDF files. It supports metadata profiles for CF, BEAM, HDF-EOS, ODESA.
     </description>
 
     <vendor>Brockmann Consult GmbH</vendor>
@@ -28,7 +28,7 @@
     <categories>Reader,NetCDF,HDF,CF,EOS</categories>
 
     <extension point="ceres-core:serviceProviders">
-        <serviceProvider>org.esa.beam.dataio.netcdf4.convention.AbstractModelFactory</serviceProvider>
+        <serviceProvider>org.esa.beam.dataio.netcdf4.convention.ProfileSpi</serviceProvider>
     </extension>
 
     <extension point="beam-ui:actions">

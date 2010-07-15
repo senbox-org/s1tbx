@@ -9,45 +9,44 @@ import ucar.nc2.NetcdfFile;
 import java.util.Set;
 
 /**
- * User: Thomas Storm
- * Date: 29.03.2010
- * Time: 14:38:56
+ * A registry for {@link ProfileSpi}s.
+ * @author Thomas Storm
  */
-public class ModelFactoryRegistry {
+public class ProfileSpiRegistry {
 
-    private ServiceRegistry<AbstractModelFactory> serviceRegistry;
+    private ServiceRegistry<ProfileSpi> serviceRegistry;
 
-    private ModelFactoryRegistry() {
+    private ProfileSpiRegistry() {
         ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
-        serviceRegistry = serviceRegistryManager.getServiceRegistry(AbstractModelFactory.class);
+        serviceRegistry = serviceRegistryManager.getServiceRegistry(ProfileSpi.class);
         if (!BeamCoreActivator.isStarted()) {
             BeamCoreActivator.loadServices(serviceRegistry);
         }
     }
 
-    public static ModelFactoryRegistry getInstance() {
+    public static ProfileSpiRegistry getInstance() {
         return Holder.instance;
     }
 
-    public AbstractModelFactory getModelFactory(NetcdfFile netcdfFile) {
-        final Set<AbstractModelFactory> modelFactories = serviceRegistry.getServices();
-        AbstractModelFactory selectedFactory = null;
-        for (AbstractModelFactory modelFactory : modelFactories) {
-            DecodeQualification qualification = modelFactory.getDecodeQualification(netcdfFile);
+    public ProfileSpi getProfileFactory(NetcdfFile netcdfFile) {
+        final Set<ProfileSpi> profileSpis = serviceRegistry.getServices();
+        ProfileSpi selectedSpi = null;
+        for (ProfileSpi profileSpi : profileSpis) {
+            DecodeQualification qualification = profileSpi.getDecodeQualification(netcdfFile);
             if (qualification == DecodeQualification.SUITABLE) {
-                selectedFactory = modelFactory;
+                selectedSpi = profileSpi;
             } else if (qualification == DecodeQualification.INTENDED) {
-                return modelFactory;
+                return profileSpi;
             }
         }
-        return selectedFactory;
+        return selectedSpi;
     }
 
     public DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
-        final Set<AbstractModelFactory> modelFactories = serviceRegistry.getServices();
+        final Set<ProfileSpi> profileSpis = serviceRegistry.getServices();
         DecodeQualification bestQualification = DecodeQualification.UNABLE;
-        for (AbstractModelFactory modelFactory : modelFactories) {
-            DecodeQualification qualification = modelFactory.getDecodeQualification(netcdfFile);
+        for (ProfileSpi profileSpi : profileSpis) {
+            DecodeQualification qualification = profileSpi.getDecodeQualification(netcdfFile);
             if (qualification == DecodeQualification.SUITABLE) {
                 bestQualification = qualification;
             } else if (qualification == DecodeQualification.INTENDED) {
@@ -59,6 +58,6 @@ public class ModelFactoryRegistry {
 
     private static class Holder {
 
-        private static ModelFactoryRegistry instance = new ModelFactoryRegistry();
+        private static ProfileSpiRegistry instance = new ProfileSpiRegistry();
     }
 }

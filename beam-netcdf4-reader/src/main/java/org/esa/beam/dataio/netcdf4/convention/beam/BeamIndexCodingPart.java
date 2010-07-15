@@ -17,10 +17,9 @@
 package org.esa.beam.dataio.netcdf4.convention.beam;
 
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.Nc4FileInfo;
+import org.esa.beam.dataio.netcdf4.convention.Profile;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.dataio.netcdf4.convention.cf.CfIndexCodingPart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -33,17 +32,17 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-public class BeamIndexCodingPart implements ModelPart {
+public class BeamIndexCodingPart extends ProfilePart {
 
     public static final String INDEX_DESCRIPTIONS = "index_descriptions";
     public static final String DESCRIPTION_SEPARATOR = "\t";
     public static final String INDEX_CODING_NAME = "index_coding_name";
 
     @Override
-    public void read(Product p, Model model) throws IOException {
+    public void read(Profile profile, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final IndexCoding indexCoding = readIndexCoding(band, model.getReaderParameters());
+            final IndexCoding indexCoding = readIndexCoding(band, profile.getFileInfo());
             if (indexCoding != null) {
                 p.getIndexCodingGroup().add(indexCoding);
                 band.setSampleCoding(indexCoding);
@@ -52,7 +51,7 @@ public class BeamIndexCodingPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
+    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             writeIndexCoding(ncFile, band);
@@ -84,7 +83,7 @@ public class BeamIndexCodingPart implements ModelPart {
         }
     }
 
-    public static IndexCoding readIndexCoding(Band band, Nc4ReaderParameters rp) throws ProductIOException {
+    public static IndexCoding readIndexCoding(Band band, Nc4FileInfo rp) throws ProductIOException {
         final IndexCoding indexCoding = CfIndexCodingPart.readIndexCoding(band, rp);
 
         if (indexCoding != null) {

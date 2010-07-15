@@ -1,9 +1,8 @@
 package org.esa.beam.dataio.netcdf4.convention.hdfeos;
 
 import org.esa.beam.dataio.netcdf4.Nc4ReaderUtils;
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.convention.Profile;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.framework.datamodel.Product;
 import org.jdom.Element;
 import ucar.nc2.NetcdfFileWriteable;
@@ -12,12 +11,12 @@ import java.io.IOException;
 import java.text.ParseException;
 
 
-public class HdfEosEndTimePart implements ModelPart {
+public class HdfEosEndTimePart extends ProfilePart {
 
     @Override
-    public void read(Product p, Model model) throws IOException {
+    public void read(Profile profile, Product p) throws IOException {
         Element element = HdfEosUtils.getEosElement(HdfEosUtils.CORE_METADATA,
-                                                    model.getReaderParameters().getNetcdfFile().getRootGroup());
+                                                    profile.getFileInfo().getNetcdfFile().getRootGroup());
         if (element != null) {
             String date = HdfEosUtils.getValue(element, "INVENTORYMETADATA", "MASTERGROUP", "RANGEDATETIME",
                                                "RANGEENDINGDATE", "VALUE");
@@ -33,7 +32,7 @@ public class HdfEosEndTimePart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
+    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
         throw new IllegalStateException();
     }
 }

@@ -1,9 +1,9 @@
 package org.esa.beam.dataio.netcdf4.convention.cf;
 
 import org.esa.beam.dataio.netcdf4.Nc4RasterDigest;
-import org.esa.beam.dataio.netcdf4.convention.AbstractModelFactory;
-import org.esa.beam.dataio.netcdf4.convention.InitialisationPart;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.convention.AbstractProfileSpi;
+import org.esa.beam.dataio.netcdf4.convention.ProfileInitPart;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.dataio.netcdf4.convention.beam.BeamImageInfoPart;
 import org.esa.beam.dataio.netcdf4.convention.beam.BeamMaskOverlayPart;
 import org.esa.beam.dataio.netcdf4.convention.beam.BeamStxPart;
@@ -13,79 +13,78 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 /**
- * User: Thomas Storm
- * Date: 29.03.2010
- * Time: 10:50:01
+ *  A profile used for reading/writing general NetCDF/CF files.
+ * @author Thomas Storm
  */
-public class CfModelFactory extends AbstractModelFactory {
+public class CfProfileSpi extends AbstractProfileSpi {
 
     @Override
-    public ModelPart getBandPart() {
+    public ProfilePart getBandPart() {
         return new CfBandPart();
     }
 
     @Override
-    public ModelPart getDescriptionPart() {
+    public ProfilePart getDescriptionPart() {
         return new CfDescriptionPart();
     }
 
     @Override
-    public ModelPart getEndTimePart() {
+    public ProfilePart getEndTimePart() {
         return new CfEndTimePart();
     }
 
     @Override
-    public ModelPart getFlagCodingPart() {
+    public ProfilePart getFlagCodingPart() {
         return new CfFlagCodingPart();
     }
 
     @Override
-    public ModelPart getGeocodingPart() {
+    public ProfilePart getGeocodingPart() {
         return new CfGeocodingPart();
     }
 
     @Override
-    public ModelPart getImageInfoPart() {
+    public ProfilePart getImageInfoPart() {
         return new BeamImageInfoPart();
     }
 
     @Override
-    public ModelPart getIndexCodingPart() {
+    public ProfilePart getIndexCodingPart() {
         return new CfIndexCodingPart();
     }
 
     @Override
-    public InitialisationPart getInitialisationPart() {
+    public ProfileInitPart getInitialisationPart() {
         return new CfInitialisationPart();
     }
 
     @Override
-    public ModelPart getMaskOverlayPart() {
+    public ProfilePart getMaskOverlayPart() {
         return new BeamMaskOverlayPart();
     }
 
     @Override
-    public ModelPart getMetadataPart() {
+    public ProfilePart getMetadataPart() {
         return new CfMetadataPart();
     }
 
     @Override
-    public ModelPart getStartTimePart() {
+    public ProfilePart getStartTimePart() {
         return new CfStartTimePart();
     }
 
     @Override
-    public ModelPart getStxPart() {
+    public ProfilePart getStxPart() {
         return new BeamStxPart();
     }
 
     @Override
-    public ModelPart getTiePointGridPart() {
+    public ProfilePart getTiePointGridPart() {
         return new BeamTiePointGridPart();
     }
 
     @Override
-    protected DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
+    public DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
         Variable hdfEosVariable = netcdfFile.getRootGroup().findVariable("StructMetadata.0");
         if (hdfEosVariable != null) {
             // we dont't want to handle HDF EOS here

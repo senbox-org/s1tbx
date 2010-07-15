@@ -11,6 +11,6 @@ public class Nc4BeamWriterTest {
 
     @Test
     public void testWriting() {
-        final Nc4BeamWriter writer = (Nc4BeamWriter) new Nc4BeamWriterPlugIn().createWriterInstance();
+        final Nc4Writer writer = (Nc4Writer) new Nc4BeamWriterPlugIn().createWriterInstance();
     }
 }

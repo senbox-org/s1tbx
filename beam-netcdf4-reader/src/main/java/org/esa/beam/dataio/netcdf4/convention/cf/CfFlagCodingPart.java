@@ -18,10 +18,9 @@ package org.esa.beam.dataio.netcdf4.convention.cf;
 
 import org.esa.beam.dataio.netcdf4.Nc4AttributeMap;
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.Nc4FileInfo;
+import org.esa.beam.dataio.netcdf4.convention.Profile;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -33,17 +32,17 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-public class CfFlagCodingPart implements ModelPart {
+public class CfFlagCodingPart extends ProfilePart {
 
     public static final String FLAG_MASKS = "flag_masks";
     public static final String FLAG_MEANINGS = "flag_meanings";
 
 
     @Override
-    public void read(Product p, Model model) throws IOException {
+    public void read(Profile profile, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final FlagCoding flagCoding = readFlagCoding(band, model.getReaderParameters());
+            final FlagCoding flagCoding = readFlagCoding(band, profile.getFileInfo());
             if (flagCoding != null) {
                 p.getFlagCodingGroup().add(flagCoding);
                 band.setSampleCoding(flagCoding);
@@ -52,7 +51,7 @@ public class CfFlagCodingPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
+    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             writeFlagCoding(ncFile, band);
@@ -79,7 +78,7 @@ public class CfFlagCodingPart implements ModelPart {
     }
 
 
-    public static FlagCoding readFlagCoding(Band band, Nc4ReaderParameters rp) throws ProductIOException {
+    public static FlagCoding readFlagCoding(Band band, Nc4FileInfo rp) throws ProductIOException {
         final Variable variable = rp.getGlobalVariablesMap().get(band.getName());
         final Nc4AttributeMap attMap = Nc4AttributeMap.create(variable);
         final String codingName = band.getName() + "_flag_coding";

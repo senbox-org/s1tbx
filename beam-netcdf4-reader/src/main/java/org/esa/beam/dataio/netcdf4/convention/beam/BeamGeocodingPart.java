@@ -16,9 +16,8 @@
  */
 package org.esa.beam.dataio.netcdf4.convention.beam;
 
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.convention.Profile;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.dataio.netcdf4.convention.cf.CfGeocodingPart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.*;
@@ -38,7 +37,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 
-public class BeamGeocodingPart implements ModelPart {
+public class BeamGeocodingPart extends ProfilePart {
 
     public static final String TIEPOINT_COORDINATES = "tiepoint_coordinates";
 
@@ -46,8 +45,8 @@ public class BeamGeocodingPart implements ModelPart {
     private final int latIndex = 1;
 
     @Override
-    public void read(Product p, Model model) throws IOException {
-        NetcdfFile netcdfFile = model.getReaderParameters().getNetcdfFile();
+    public void read(Profile profile, Product p) throws IOException {
+        NetcdfFile netcdfFile = profile.getFileInfo().getNetcdfFile();
         final Attribute tpCoordinatesAtt = netcdfFile.findGlobalAttribute(TIEPOINT_COORDINATES);
         GeoCoding geoCoding = null;
         if (tpCoordinatesAtt != null) {
@@ -73,7 +72,7 @@ public class BeamGeocodingPart implements ModelPart {
         if (geoCoding != null) {
             p.setGeoCoding(geoCoding);
         } else {
-            CfGeocodingPart.readGeocoding(p, model);
+            CfGeocodingPart.readGeocoding(p, profile);
         }
     }
 
@@ -95,7 +94,7 @@ public class BeamGeocodingPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
+    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
         final GeoCoding geoCoding = p.getGeoCoding();
         if (geoCoding instanceof TiePointGeoCoding) {
             final TiePointGeoCoding tpGC = (TiePointGeoCoding) geoCoding;
@@ -105,7 +104,7 @@ public class BeamGeocodingPart implements ModelPart {
             final String value = StringUtils.arrayToString(names, " ");
             ncFile.addAttribute(null, new Attribute(TIEPOINT_COORDINATES, value));
         } else {
-            new CfGeocodingPart().write(p, ncFile, hdw, model);
+            new CfGeocodingPart().define(ctx, p, ncFile);
             if (geoCoding instanceof CrsGeoCoding) {
                 addWktAsVariable(ncFile, geoCoding);
             }

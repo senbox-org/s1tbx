@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class Nc4ReaderParameters {
+public class Nc4FileInfo {
 
     private final Nc4VariableMap rasterVariableMap;
     private final List<Variable> globalVariables;
@@ -17,16 +17,16 @@ public class Nc4ReaderParameters {
     private final Nc4RasterDigest rasterDigest;
     private NetcdfFile netcdfFile;
 
-    public Nc4ReaderParameters(NetcdfFile netcdfFile) {
+    public Nc4FileInfo(NetcdfFile netcdfFile) {
         this(netcdfFile, Nc4RasterDigest.createRasterDigest(netcdfFile.getRootGroup()));
     }
 
-    public Nc4ReaderParameters(NetcdfFile netcdfFile, Nc4RasterDigest rasterDigest) {
+    public Nc4FileInfo(NetcdfFile netcdfFile, Nc4RasterDigest rasterDigest) {
         this(netcdfFile, rasterDigest,
              (rasterDigest != null ? new Nc4VariableMap(rasterDigest.getRasterVariables()) : null));
     }
 
-    public Nc4ReaderParameters(NetcdfFile netcdfFile, Nc4RasterDigest rasterDigest, Nc4VariableMap nc4VariableMap) {
+    public Nc4FileInfo(NetcdfFile netcdfFile, Nc4RasterDigest rasterDigest, Nc4VariableMap nc4VariableMap) {
         Assert.argument(netcdfFile != null, "netcdfFile != null");
         this.netcdfFile = netcdfFile;
         globalAttributes = Nc4AttributeMap.create(netcdfFile);

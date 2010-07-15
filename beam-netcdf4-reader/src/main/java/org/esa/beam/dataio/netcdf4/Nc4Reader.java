@@ -1,9 +1,9 @@
 package org.esa.beam.dataio.netcdf4;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.dataio.netcdf4.convention.AbstractModelFactory;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelFactoryRegistry;
+import org.esa.beam.dataio.netcdf4.convention.ProfileImpl;
+import org.esa.beam.dataio.netcdf4.convention.ProfileSpi;
+import org.esa.beam.dataio.netcdf4.convention.ProfileSpiRegistry;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -81,7 +81,7 @@ import java.io.IOException;
  */
 public class Nc4Reader extends AbstractProductReader {
 
-    private Model model;
+    private ProfileImpl profile;
 
     public Nc4Reader(final ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
@@ -104,20 +104,21 @@ public class Nc4Reader extends AbstractProductReader {
 
         System.out.println("netcdfFile = " + netcdfFile);
 
-        AbstractModelFactory modelFactory = ModelFactoryRegistry.getInstance().getModelFactory(netcdfFile);
-        if (modelFactory == null) {
+        ProfileSpi profileSpi = ProfileSpiRegistry.getInstance().getProfileFactory(netcdfFile);
+        if (profileSpi == null) {
             netcdfFile.close();
             throw new IllegalFileFormatException("No convention factory found for netCDF.");
         }
-        model = modelFactory.createModel(netcdfFile);
-        if (model.getReaderParameters().getRasterDigest() == null) {
+        profile = new ProfileImpl();
+        profileSpi.configureProfile(netcdfFile, profile);
+        if (profile.getFileInfo().getRasterDigest() == null) {
             close();
             throw new IllegalFileFormatException("No netCDF variables found which could\n" +
                                                  "be interpreted as remote sensing bands.");  /*I18N*/
         }
 
         final String productName = fileLocation.getName();
-        final Product product = model.readProduct(productName);
+        final Product product = profile.readProduct(productName);
         product.setFileLocation(fileLocation);
         product.setProductReader(this);
         product.setModified(false);
@@ -134,9 +135,9 @@ public class Nc4Reader extends AbstractProductReader {
         Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
 
         final int sceneHeight = destBand.getProduct().getSceneRasterHeight();
-        final int y0 = model.isYFlipped() ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
+        final int y0 = profile.isYFlipped() ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
 
-        final Variable variable = model.getReaderParameters().getRasterVariableMap().get(destBand.getName());
+        final Variable variable = profile.getFileInfo().getRasterVariableMap().get(destBand.getName());
         final int rank = variable.getRank();
         final int[] origin = new int[rank];
         final int[] shape = new int[rank];
@@ -151,9 +152,9 @@ public class Nc4Reader extends AbstractProductReader {
         pm.beginTask("Reading data from band '" + destBand.getName() + "'", destHeight);
         try {
             for (int y = 0; y < destHeight; y++) {
-                origin[rank - 2] = model.isYFlipped() ? y0 - y : y0 + y;
+                origin[rank - 2] = profile.isYFlipped() ? y0 - y : y0 + y;
                 final Array array;
-                synchronized (model.getReaderParameters().getNetcdfFile()) {
+                synchronized (profile.getFileInfo().getNetcdfFile()) {
                     array = variable.read(origin, shape);
                 }
                 final Object storage = array.getStorage();
@@ -187,9 +188,9 @@ public class Nc4Reader extends AbstractProductReader {
     @Override
     public void close() throws
                         IOException {
-        if (model != null) {
-            model.getReaderParameters().close();
-            model = null;
+        if (profile != null) {
+            profile.getFileInfo().close();
+            profile = null;
         }
         super.close();
     }

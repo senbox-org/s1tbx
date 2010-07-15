@@ -1,8 +1,7 @@
 package org.esa.beam.dataio.netcdf4.convention.hdfeos;
 
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.convention.Profile;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -18,13 +17,13 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class HdfEosGeocodingPart implements ModelPart {
+public class HdfEosGeocodingPart extends ProfilePart {
 
     private static final double PIXEL_CENTER = 0.5;
 
     @Override
-    public void read(Product p, Model model) throws IOException {
-        NetcdfFile netcdfFile = model.getReaderParameters().getNetcdfFile();
+    public void read(Profile profile, Product p) throws IOException {
+        NetcdfFile netcdfFile = profile.getFileInfo().getNetcdfFile();
         Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
         Element gridStructure = eosElement.getChild("GridStructure");
         Element gridElem = (Element) gridStructure.getChildren().get(0);
@@ -78,7 +77,7 @@ public class HdfEosGeocodingPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
+    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
         throw new IllegalStateException();
     }
 }

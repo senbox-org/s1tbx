@@ -16,9 +16,8 @@
  */
 package org.esa.beam.dataio.netcdf4.convention.beam;
 
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.convention.Profile;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.dataio.netcdf4.convention.cf.CfBandPart;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -34,15 +33,15 @@ import java.util.List;
 
 import static org.esa.beam.dataio.netcdf4.Nc4ReaderUtils.*;
 
-public class BeamBandPart implements ModelPart {
+public class BeamBandPart extends ProfilePart {
 
     public static final String BANDWIDTH = "bandwidth";
     public static final String WAVELENGTH = "wavelength";
     public static final String VALID_PIXEL_EXPRESSION = "valid_pixel_expression";
 
     @Override
-    public void read(Product p, Model model) throws IOException {
-        final List<Variable> variables = model.getReaderParameters().getGlobalVariables();
+    public void read(Profile profile, Product p) throws IOException {
+        final List<Variable> variables = profile.getFileInfo().getGlobalVariables();
         for (Variable variable : variables) {
             final List<Dimension> dimensions = variable.getDimensions();
             if (dimensions.size() != 2) {
@@ -60,7 +59,7 @@ public class BeamBandPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
+    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
         final Band[] bands = p.getBands();
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : bands) {

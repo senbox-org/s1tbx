@@ -17,9 +17,8 @@
 package org.esa.beam.dataio.netcdf4.convention.beam;
 
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.convention.Profile;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -32,7 +31,7 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.util.List;
 
-public class BeamStxPart implements ModelPart {
+public class BeamStxPart extends ProfilePart {
 
     public final String STATISTICS = "statistics";
     public final String SAMPLE_FREQUENCIES = "sample_frequencies";
@@ -42,8 +41,8 @@ public class BeamStxPart implements ModelPart {
     public final int INDEX_STANDARD_DEVIATION = 3;
 
     @Override
-    public void read(Product p, Model model) throws IOException {
-        final List<Variable> variableList = model.getReaderParameters().getNetcdfFile().getVariables();
+    public void read(Profile profile, Product p) throws IOException {
+        final List<Variable> variableList = profile.getFileInfo().getNetcdfFile().getVariables();
         for (Variable variable : variableList) {
             final Attribute statistics = variable.findAttributeIgnoreCase(STATISTICS);
             final Attribute sampleFrequencies = variable.findAttributeIgnoreCase(SAMPLE_FREQUENCIES);
@@ -85,7 +84,7 @@ public class BeamStxPart implements ModelPart {
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
+    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             if (band.isStxSet()) {

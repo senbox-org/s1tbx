@@ -23,7 +23,7 @@ import ucar.ma2.DataType;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Nc4DataTypeWorkarounds implements I_Nc4DataTypeWorkarounds {
+public class Nc4DataTypeWorkarounds {
 
     private Map<NameTypePair, Integer> workaroundMap;
 
@@ -38,7 +38,6 @@ public class Nc4DataTypeWorkarounds implements I_Nc4DataTypeWorkarounds {
         return Holder.instance;
     }
 
-    @Override
     public boolean hasWorkaroud(String variableName, DataType dataType) {
         if (StringUtils.isNullOrEmpty(variableName) || dataType == null) {
             return false;
@@ -47,7 +46,6 @@ public class Nc4DataTypeWorkarounds implements I_Nc4DataTypeWorkarounds {
         return workaroundMap.containsKey(nameTypePair);
     }
 
-    @Override
     public int getRasterDataType(String variableName, DataType dataType) {
         if (StringUtils.isNullOrEmpty(variableName) || dataType == null) {
             throw new IllegalArgumentException();
@@ -67,25 +65,23 @@ public class Nc4DataTypeWorkarounds implements I_Nc4DataTypeWorkarounds {
         }
 
         @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + dataType.hashCode();
-            result = prime * result + variableName.hashCode();
-            return result;
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            NameTypePair that = (NameTypePair) o;
+            return dataType == that.dataType && variableName.equals(that.variableName);
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            final NameTypePair other = (NameTypePair) obj;
-            if (dataType.equals(other.dataType)
-                && variableName.equals(other.variableName)) {
-                return true;
-            }
-            return false;
+        public int hashCode() {
+            int result = variableName.hashCode();
+            result = 31 * result + dataType.hashCode();
+            return result;
         }
     }
 

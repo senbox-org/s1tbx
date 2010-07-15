@@ -17,11 +17,10 @@
 package org.esa.beam.dataio.netcdf4.convention.cf;
 
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
+import org.esa.beam.dataio.netcdf4.Nc4FileInfo;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderUtils;
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.convention.Profile;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import ucar.nc2.Attribute;
@@ -29,22 +28,22 @@ import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
 
-public class CfEndTimePart implements ModelPart {
+public class CfEndTimePart extends ProfilePart {
 
     @Override
-    public void read(Product p, Model model) throws IOException {
-        p.setEndTime(getSceneRasterStopTime(model.getReaderParameters()));
+    public void read(Profile profile, Product p) throws IOException {
+        p.setEndTime(getSceneRasterStopTime(profile.getFileInfo()));
     }
 
     @Override
-    public void write(Product p, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws IOException {
+    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
         final ProductData.UTC utc = p.getEndTime();
         if (utc != null) {
             ncFile.addAttribute(null, new Attribute(Nc4Constants.STOP_DATE_ATT_NAME, utc.format()));
         }
     }
 
-    public static ProductData.UTC getSceneRasterStopTime(final Nc4ReaderParameters rv) {
+    public static ProductData.UTC getSceneRasterStopTime(final Nc4FileInfo rv) {
         return Nc4ReaderUtils.getSceneRasterTime(rv.getGlobalAttributes(),
                                                  Nc4Constants.STOP_DATE_ATT_NAME,
                                                  Nc4Constants.STOP_TIME_ATT_NAME);

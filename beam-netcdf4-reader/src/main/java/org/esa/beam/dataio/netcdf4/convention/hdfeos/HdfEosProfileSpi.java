@@ -1,11 +1,11 @@
 package org.esa.beam.dataio.netcdf4.convention.hdfeos;
 
 import org.esa.beam.dataio.netcdf4.Nc4RasterDigest;
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
+import org.esa.beam.dataio.netcdf4.Nc4FileInfo;
 import org.esa.beam.dataio.netcdf4.Nc4VariableMap;
-import org.esa.beam.dataio.netcdf4.convention.AbstractModelFactory;
-import org.esa.beam.dataio.netcdf4.convention.InitialisationPart;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.convention.AbstractProfileSpi;
+import org.esa.beam.dataio.netcdf4.convention.ProfileInitPart;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.dataio.netcdf4.convention.cf.CfInitialisationPart;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIOException;
@@ -17,75 +17,75 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 
 
-public class HdfEosFactory extends AbstractModelFactory {
+public class HdfEosProfileSpi extends AbstractProfileSpi {
 
     @Override
-    public ModelPart getBandPart() {
+    public ProfilePart getBandPart() {
         return new HdfEosBandPart();
     }
 
     @Override
-    public InitialisationPart getInitialisationPart() {
+    public ProfileInitPart getInitialisationPart() {
         return new CfInitialisationPart();
     }
 
     @Override
-    public ModelPart getFlagCodingPart() {
+    public ProfilePart getFlagCodingPart() {
         return null;
     }
 
     @Override
-    public ModelPart getGeocodingPart() {
+    public ProfilePart getGeocodingPart() {
         return new HdfEosGeocodingPart();
     }
 
     @Override
-    public ModelPart getImageInfoPart() {
+    public ProfilePart getImageInfoPart() {
         return null;
     }
 
     @Override
-    public ModelPart getIndexCodingPart() {
+    public ProfilePart getIndexCodingPart() {
         return null;
     }
 
     @Override
-    public ModelPart getMaskOverlayPart() {
+    public ProfilePart getMaskOverlayPart() {
         return null;
     }
 
     @Override
-    public ModelPart getStxPart() {
+    public ProfilePart getStxPart() {
         return null;
     }
 
     @Override
-    public ModelPart getTiePointGridPart() {
+    public ProfilePart getTiePointGridPart() {
         return null;
     }
 
     @Override
-    public ModelPart getStartTimePart() {
+    public ProfilePart getStartTimePart() {
         return new HdfEosStartTimePart();
     }
 
     @Override
-    public ModelPart getEndTimePart() {
+    public ProfilePart getEndTimePart() {
         return new HdfEosEndTimePart();
     }
 
     @Override
-    public ModelPart getDescriptionPart() {
+    public ProfilePart getDescriptionPart() {
         return new HdfEosDescriptionPart();
     }
 
     @Override
-    public ModelPart getMetadataPart() {
+    public ProfilePart getMetadataPart() {
         return new HdfEosMetadata();
     }
 
     @Override
-    protected Nc4ReaderParameters createReaderParameters(NetcdfFile netcdfFile) throws IOException {
+    protected Nc4FileInfo createFileInfo(NetcdfFile netcdfFile) throws IOException {
         Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
         String gridName = getGridName(eosElement);
         if (gridName == null || gridName.isEmpty()) {
@@ -101,11 +101,11 @@ public class HdfEosFactory extends AbstractModelFactory {
         for (Variable variable : rasterVariables) {
             nc4VariableMap.put(variable.getShortName(), variable);
         }
-        return new Nc4ReaderParameters(netcdfFile, rasterDigest, nc4VariableMap);
+        return new Nc4FileInfo(netcdfFile, rasterDigest, nc4VariableMap);
     }
 
     @Override
-    protected DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
+    public DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
         try {
             Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
             // check for GRID

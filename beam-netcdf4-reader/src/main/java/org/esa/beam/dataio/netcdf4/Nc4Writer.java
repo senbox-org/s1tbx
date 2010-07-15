@@ -17,8 +17,8 @@
 package org.esa.beam.dataio.netcdf4;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.beam.BeamModelFactory;
+import org.esa.beam.dataio.netcdf4.convention.ProfileImpl;
+import org.esa.beam.dataio.netcdf4.convention.beam.DefaultProfileSpi;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -34,13 +34,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class Nc4BeamWriter extends AbstractProductWriter {
+public class Nc4Writer extends AbstractProductWriter {
 
     private NetcdfFileWriteable writeable;
     private HashMap<String, Variable> variableMap;
-    private Model model;
+    private ProfileImpl profile;
 
-    public Nc4BeamWriter(ProductWriterPlugIn nc4BeamWriterPlugIn) {
+    public Nc4Writer(ProductWriterPlugIn nc4BeamWriterPlugIn) {
         super(nc4BeamWriterPlugIn);
         variableMap = new HashMap<String, Variable>();
     }
@@ -56,8 +56,10 @@ public class Nc4BeamWriter extends AbstractProductWriter {
     protected void writeProductNodesImpl() throws IOException {
         writeable = NetcdfFileWriteable.createNew(getOutputString());
         writeable.setLargeFile(true);
-        model = new BeamModelFactory().createModel(null);
-        model.writeProduct(writeable, getSourceProduct());
+        ProfileImpl profile1 = new ProfileImpl();
+        new DefaultProfileSpi().configureProfile(null, profile1);
+        profile = profile1;
+        profile.writeProduct(writeable, getSourceProduct());
     }
 
     /**
@@ -78,7 +80,7 @@ public class Nc4BeamWriter extends AbstractProductWriter {
      * source band's raster co-ordinates. These co-ordinates are identical with the destination raster co-ordinates
      * since product writers do not support spectral or spatial subsets.
      *
-     * @param sourceBand    the source band which identifies the data sink to which to write the sample values
+     * @param sourceBand    the source band which identifies the data sink to which to define the sample values
      * @param sourceOffsetX the X-offset in the band's raster co-ordinates
      * @param sourceOffsetY the Y-offset in the band's raster co-ordinates
      * @param sourceWidth   the width of region to be written given in the band's raster co-ordinates
@@ -103,7 +105,7 @@ public class Nc4BeamWriter extends AbstractProductWriter {
         final int sceneHeight = sourceBand.getProduct().getSceneRasterHeight();
         final int[] origin = new int[2];
         origin[xIndex] = sourceOffsetX;
-        origin[yIndex] = model.isYFlipped() ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
+        origin[yIndex] = profile.isYFlipped() ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
         final int[] shape = new int[]{sourceHeight, sourceWidth};
         final Array dataArray = Array.factory(dataType, shape, sourceBuffer.getElems());
         try {

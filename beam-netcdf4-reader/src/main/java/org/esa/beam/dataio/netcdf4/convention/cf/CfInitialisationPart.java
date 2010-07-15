@@ -1,18 +1,18 @@
 package org.esa.beam.dataio.netcdf4.convention.cf;
 
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
-import org.esa.beam.dataio.netcdf4.convention.InitialisationPart;
+import org.esa.beam.dataio.netcdf4.Nc4FileInfo;
+import org.esa.beam.dataio.netcdf4.convention.ProfileInitPart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Product;
 import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
 
-public class CfInitialisationPart implements InitialisationPart {
+public class CfInitialisationPart implements ProfileInitPart {
 
     @Override
-    public Product readProductBody(String productName, Nc4ReaderParameters rp) throws ProductIOException {
+    public Product readProductBody(String productName, Nc4FileInfo rp) throws ProductIOException {
         return new Product(
                 productName,
                 getProductType(rp),
@@ -35,7 +35,7 @@ public class CfInitialisationPart implements InitialisationPart {
         writeable.addDimension(dimX, p.getSceneRasterWidth());
     }
 
-    public static String getProductType(final Nc4ReaderParameters rv) {
+    public static String getProductType(final Nc4FileInfo rv) {
         String productType = rv.getGlobalAttributes().getStringValue("Conventions");
         if (productType == null) {
             productType = Nc4Constants.FORMAT_NAME;

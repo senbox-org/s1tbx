@@ -19,12 +19,10 @@ package org.esa.beam.dataio.netcdf4.convention.cf;
 import org.esa.beam.dataio.netcdf4.Nc4AttributeMap;
 import org.esa.beam.dataio.netcdf4.Nc4Constants;
 import org.esa.beam.dataio.netcdf4.Nc4Dim;
-import org.esa.beam.dataio.netcdf4.Nc4ReaderParameters;
+import org.esa.beam.dataio.netcdf4.Nc4FileInfo;
 import org.esa.beam.dataio.netcdf4.Nc4ReaderUtils;
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataJob;
-import org.esa.beam.dataio.netcdf4.convention.HeaderDataWriter;
-import org.esa.beam.dataio.netcdf4.convention.Model;
-import org.esa.beam.dataio.netcdf4.convention.ModelPart;
+import org.esa.beam.dataio.netcdf4.convention.Profile;
+import org.esa.beam.dataio.netcdf4.convention.ProfilePart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
@@ -47,35 +45,69 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-public class CfGeocodingPart implements ModelPart {
+public class CfGeocodingPart extends ProfilePart {
+    private boolean mustWriteLatLonDatasets;
 
     @Override
-    public void read(Product p, Model model) throws IOException {
-        readGeocoding(p, model);
+    public void read(Profile profile, Product p) throws IOException {
+        readGeocoding(p, profile);
     }
 
     @Override
-    public void write(Product product, NetcdfFileWriteable ncFile, HeaderDataWriter hdw, Model model) throws
-                                                                                                      IOException {
+    public void define(Profile ctx, Product product, NetcdfFileWriteable ncFile) throws
+            IOException {
         final GeoCoding geoCoding = product.getGeoCoding();
-        if (isGeographicLatLon(geoCoding)) {
+        mustWriteLatLonDatasets = !isGeographicLatLon(geoCoding);
+        if (mustWriteLatLonDatasets) {
+            addXYCoordVariables(ncFile);
+            ctx.setYFlipped(true);
+            addLatLonBands(ncFile);
+        } else {
             GeoPos ul = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
             GeoPos br = geoCoding.getGeoPos(
                     new PixelPos(product.getSceneRasterWidth() - 0.5f, product.getSceneRasterHeight() - 0.5f), null);
             addLatLonCoordVariables(ncFile, ul, br);
-            model.setYFlipped(true);
-        } else {
-            addXYCoordVariables(ncFile);
-            model.setYFlipped(true);
-            addLatLonBands(product, ncFile, hdw, model);
+            ctx.setYFlipped(true);
+        }
+    }
+
+    @Override
+    public void write(Profile profile, Product product, NetcdfFileWriteable ncFile) throws IOException {
+        if (!mustWriteLatLonDatasets) {
+            return;
+        }
+        try {
+            final int h = product.getSceneRasterHeight();
+            final int w = product.getSceneRasterWidth();
+            final float[] lat = new float[w];
+            final float[] lon = new float[w];
+            PixelPos pixelPos = new PixelPos();
+            GeoPos geoPos = new GeoPos();
+            for (int y = 0; y < h; y++) {
+                pixelPos.y = y + 0.5f;
+                for (int x = 0; x < w; x++) {
+                    pixelPos.x = x + 0.5f;
+                    product.getGeoCoding().getGeoPos(pixelPos, geoPos);
+                    lat[x] = geoPos.getLat();
+                    lon[x] = geoPos.getLon();
+                }
+                int flippedY = profile.isYFlipped() ? (h - 1) - y : y;
+                final int[] shape = new int[]{1, w};
+                final int[] origin = new int[]{flippedY, 0};
+                ncFile.write("lat", origin, Array.factory(DataType.FLOAT, shape, lat));
+                ncFile.write("lon", origin, Array.factory(DataType.FLOAT, shape, lon));
+            }
+        } catch (InvalidRangeException e) {
+            final ProductIOException productIOException = new ProductIOException(
+                    "Data not in the expected range");
+            productIOException.initCause(e);
+            throw productIOException;
         }
     }
 
     static boolean isGeographicLatLon(final GeoCoding geoCoding) {
-        if (geoCoding != null && geoCoding instanceof CrsGeoCoding) {
-            return CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
-        }
-        return false;
+        return geoCoding instanceof CrsGeoCoding
+                && CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
     }
 
     private void addLatLonCoordVariables(NetcdfFileWriteable ncFile, GeoPos ul, GeoPos br) {
@@ -106,8 +138,7 @@ public class CfGeocodingPart implements ModelPart {
         xVar.addAttribute(new Attribute("units", "m"));             // todo check
     }
 
-    private void addLatLonBands(final Product product, final NetcdfFileWriteable ncFile, HeaderDataWriter hdw,
-                                final Model model) {
+    private void addLatLonBands(final NetcdfFileWriteable ncFile) {
         final Variable latVar = ncFile.addVariable(null, "lat", DataType.FLOAT, "y x");
         latVar.addAttribute(new Attribute("units", "degrees_north"));
         latVar.addAttribute(new Attribute("long_name", "latitude coordinate"));
@@ -117,52 +148,19 @@ public class CfGeocodingPart implements ModelPart {
         lonVar.addAttribute(new Attribute("units", "degrees_east"));
         lonVar.addAttribute(new Attribute("long_name", "longitude coordinate"));
         lonVar.addAttribute(new Attribute("standard_name", "longitude"));
-
-        hdw.registerHeaderDataJob(new HeaderDataJob() {
-            @Override
-            public void go() throws IOException {
-                try {
-                    final int h = product.getSceneRasterHeight();
-                    final int w = product.getSceneRasterWidth();
-                    final float[] lat = new float[w];
-                    final float[] lon = new float[w];
-                    PixelPos pixelPos = new PixelPos();
-                    GeoPos geoPos = new GeoPos();
-                    for (int y = 0; y < h; y++) {
-                        pixelPos.y = y + 0.5f;
-                        for (int x = 0; x < w; x++) {
-                            pixelPos.x = x + 0.5f;
-                            product.getGeoCoding().getGeoPos(pixelPos, geoPos);
-                            lat[x] = geoPos.getLat();
-                            lon[x] = geoPos.getLon();
-                        }
-                        int flippedY = model.isYFlipped() ? (h - 1) - y : y;
-                        final int[] shape = new int[]{1, w};
-                        final int[] origin = new int[]{flippedY, 0};
-                        ncFile.write("lat", origin, Array.factory(DataType.FLOAT, shape, lat));
-                        ncFile.write("lon", origin, Array.factory(DataType.FLOAT, shape, lon));
-                    }
-                } catch (InvalidRangeException e) {
-                    final ProductIOException productIOException = new ProductIOException(
-                            "Data not in the expected range");
-                    productIOException.initCause(e);
-                    throw productIOException;
-                }
-            }
-        });
     }
 
-    public static void readGeocoding(Product p, Model model) throws IOException {
-        GeoCoding geoCoding = createConventionBasedMapGeoCoding(p, model);
+    public static void readGeocoding(Product p, Profile profile) throws IOException {
+        GeoCoding geoCoding = createConventionBasedMapGeoCoding(p, profile);
         if (geoCoding == null) {
-            geoCoding = createPixelGeoCoding(p, model);
+            geoCoding = createPixelGeoCoding(p, profile);
         }
         if (geoCoding != null) {
             p.setGeoCoding(geoCoding);
         }
     }
 
-    public static GeoCoding createConventionBasedMapGeoCoding(Product product, Model model) {
+    public static GeoCoding createConventionBasedMapGeoCoding(Product product, Profile profile) {
         final String[] cfConvention_lonLatNames = new String[]{
                 Nc4Constants.LON_VAR_NAME,
                 Nc4Constants.LAT_VAR_NAME
@@ -173,7 +171,7 @@ public class CfGeocodingPart implements ModelPart {
         };
 
         Variable[] lonLat;
-        final Nc4ReaderParameters rp = model.getReaderParameters();
+        final Nc4FileInfo rp = profile.getFileInfo();
         lonLat = Nc4ReaderUtils.getVariables(rp.getGlobalVariables(), cfConvention_lonLatNames);
         if (lonLat == null) {
             lonLat = Nc4ReaderUtils.getVariables(rp.getGlobalVariables(), coardsConvention_lonLatNames);
@@ -187,7 +185,7 @@ public class CfGeocodingPart implements ModelPart {
                 try {
                     return createConventionBasedMapGeoCoding(lonVariable, latVariable,
                                                              product.getSceneRasterWidth(),
-                                                             product.getSceneRasterHeight(), model);
+                                                             product.getSceneRasterHeight(), profile);
                 } catch (Exception e) {
                     BeamLogManager.getSystemLogger().warning("Failed to create NetCDF geo-coding");
                 }
@@ -200,7 +198,7 @@ public class CfGeocodingPart implements ModelPart {
                                                                Variable latVar,
                                                                int sceneRasterWidth,
                                                                int sceneRasterHeight,
-                                                               Model model) throws Exception {
+                                                               Profile profile) throws Exception {
         double pixelX;
         double pixelY;
         double easting;
@@ -259,7 +257,7 @@ public class CfGeocodingPart implements ModelPart {
         if (pixelSizeX <= 0 || pixelSizeY <= 0) {
             return null;
         }
-        model.setYFlipped(yFlipped);
+        profile.setYFlipped(yFlipped);
         return new CrsGeoCoding(DefaultGeographicCRS.WGS84,
                                 sceneRasterWidth, sceneRasterHeight,
                                 easting, northing,
@@ -267,7 +265,7 @@ public class CfGeocodingPart implements ModelPart {
                                 pixelX, pixelY);
     }
 
-    private static GeoCoding createPixelGeoCoding(Product product, Model model) throws IOException {
+    private static GeoCoding createPixelGeoCoding(Product product, Profile profile) throws IOException {
         Band lonBand = product.getBand(Nc4Constants.LON_VAR_NAME);
         if (lonBand == null) {
             lonBand = product.getBand(Nc4Constants.LONGITUDE_VAR_NAME);
@@ -277,8 +275,8 @@ public class CfGeocodingPart implements ModelPart {
             latBand = product.getBand(Nc4Constants.LATITUDE_VAR_NAME);
         }
         if (latBand != null && lonBand != null) {
-            final NetcdfFile netcdfFile = model.getReaderParameters().getNetcdfFile();
-            model.setYFlipped(detectFlipping(netcdfFile.findTopVariable(latBand.getName())));
+            final NetcdfFile netcdfFile = profile.getFileInfo().getNetcdfFile();
+            profile.setYFlipped(detectFlipping(netcdfFile.findTopVariable(latBand.getName())));
             return new PixelGeoCoding(latBand, lonBand, latBand.getValidPixelExpression(), 5);
         }
         return null;
@@ -291,10 +289,6 @@ public class CfGeocodingPart implements ModelPart {
         double pixelSizeY = latData.getDouble(j1) - latData.getDouble(j0);
 
         // this should be the 'normal' case
-        if (pixelSizeY < 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return pixelSizeY >= 0;
     }
 }

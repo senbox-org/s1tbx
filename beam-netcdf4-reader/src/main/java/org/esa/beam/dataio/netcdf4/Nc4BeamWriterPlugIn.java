@@ -38,7 +38,7 @@ public class Nc4BeamWriterPlugIn implements ProductWriterPlugIn {
      */
     @Override
     public ProductWriter createWriterInstance() {
-        return new Nc4BeamWriter(this);
+        return new Nc4Writer(this);
     }
 
     public BeamFileFilter getProductFileFilter() {
