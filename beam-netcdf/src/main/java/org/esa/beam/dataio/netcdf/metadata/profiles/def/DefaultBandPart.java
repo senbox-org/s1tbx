@@ -16,8 +16,9 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.def;
 
-import org.esa.beam.dataio.netcdf.metadata.Profile;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -40,8 +41,8 @@ public class DefaultBandPart extends ProfilePart {
     public static final String VALID_PIXEL_EXPRESSION = "valid_pixel_expression";
 
     @Override
-    public void read(Profile profile, Product p) throws IOException {
-        final List<Variable> variables = profile.getFileInfo().getGlobalVariables();
+    public void read(ProfileReadContext ctx, Product p) throws IOException {
+        final List<Variable> variables = ctx.getGlobalVariables();
         for (Variable variable : variables) {
             final List<Dimension> dimensions = variable.getDimensions();
             if (dimensions.size() != 2) {
@@ -59,8 +60,9 @@ public class DefaultBandPart extends ProfilePart {
     }
 
     @Override
-    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
+    public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
+        final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : bands) {
             final DataType ncDataType = CfBandPart.getNcDataType(band);

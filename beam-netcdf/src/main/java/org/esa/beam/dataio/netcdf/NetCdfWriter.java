@@ -18,7 +18,10 @@ package org.esa.beam.dataio.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.netcdf.metadata.ProfileImpl;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContextImpl;
 import org.esa.beam.dataio.netcdf.metadata.profiles.def.DefaultProfileSpi;
+import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -38,7 +41,7 @@ public class NetCdfWriter extends AbstractProductWriter {
 
     private NetcdfFileWriteable writeable;
     private HashMap<String, Variable> variableMap;
-    private ProfileImpl profile;
+    private boolean isYFlipped;
 
     public NetCdfWriter(ProductWriterPlugIn nc4BeamWriterPlugIn) {
         super(nc4BeamWriterPlugIn);
@@ -56,10 +59,14 @@ public class NetCdfWriter extends AbstractProductWriter {
     protected void writeProductNodesImpl() throws IOException {
         writeable = NetcdfFileWriteable.createNew(getOutputString());
         writeable.setLargeFile(true);
-        ProfileImpl profile1 = new ProfileImpl();
-        new DefaultProfileSpi().configureProfile(null, profile1);
-        profile = profile1;
-        profile.writeProduct(writeable, getSourceProduct());
+        ProfileImpl profile = new ProfileImpl();
+        new DefaultProfileSpi().configureProfile(null, profile);
+        ProfileWriteContext context = new ProfileWriteContextImpl(writeable);
+        profile.writeProduct(context, getSourceProduct());
+        final Object object = context.getProperty(Constants.Y_FLIPPED_PROPERTY_NAME);
+        if (object instanceof Boolean) {
+            isYFlipped = (Boolean) object;
+        }
     }
 
     /**
@@ -105,7 +112,7 @@ public class NetCdfWriter extends AbstractProductWriter {
         final int sceneHeight = sourceBand.getProduct().getSceneRasterHeight();
         final int[] origin = new int[2];
         origin[xIndex] = sourceOffsetX;
-        origin[yIndex] = profile.isYFlipped() ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
+        origin[yIndex] = isYFlipped ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
         final int[] shape = new int[]{sourceHeight, sourceWidth};
         final Array dataArray = Array.factory(dataType, shape, sourceBuffer.getElems());
         try {

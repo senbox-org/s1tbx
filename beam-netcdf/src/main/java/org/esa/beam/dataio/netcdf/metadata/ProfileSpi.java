@@ -14,11 +14,13 @@ import java.io.IOException;
  * derive from {@link AbstractProfileSpi}.
  */
 public interface ProfileSpi {
+
     /**
      * Configures a metadata profile for the given NetcDF file.
      *
      * @param netcdfFile The NetcDF file.
-     * @param profile The profile.
+     * @param profile    The profile.
+     *
      * @throws IOException If an I/O error occurs.
      */
     void configureProfile(NetcdfFile netcdfFile, Profile profile) throws IOException;
@@ -27,7 +29,10 @@ public interface ProfileSpi {
      * Detects whether a profile can be generated for the given NetCDF file.
      *
      * @param netcdfFile The NetcDF file.
+     *
      * @return A decode qualification.
      */
     DecodeQualification getDecodeQualification(NetcdfFile netcdfFile);
+
+    ProfileReadContext createReadContext(NetcdfFile netcdfFile) throws IOException;
 }

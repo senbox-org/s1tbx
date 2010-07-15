@@ -1,9 +1,7 @@
 package org.esa.beam.dataio.netcdf.metadata;
 
 import com.bc.ceres.core.Assert;
-import org.esa.beam.dataio.netcdf.util.FileInfo;
 import org.esa.beam.framework.datamodel.Product;
-import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,26 +14,26 @@ public final class ProfileImpl implements Profile {
 
     private ProfileInitPart profileInitPart;
     private final List<ProfilePart> profileParts = new ArrayList<ProfilePart>();
-    private FileInfo fileInfo;
-    private boolean yFlipped;
 
 
-    public Product readProduct(final String productName) throws IOException {
-        final Product product = profileInitPart.readProductBody(productName, fileInfo);
+    @Override
+    public Product readProduct(final ProfileReadContext ctx) throws IOException {
+        final Product product = profileInitPart.readProductBody(ctx);
         for (ProfilePart profilePart : profileParts) {
-            profilePart.read(this, product);
+            profilePart.read(ctx, product);
         }
         return product;
     }
 
-    public void writeProduct(final NetcdfFileWriteable writeable, final Product product) throws IOException {
-        profileInitPart.writeProductBody(writeable, product);
+    @Override
+    public void writeProduct(final ProfileWriteContext ctx, final Product product) throws IOException {
+        profileInitPart.writeProductBody(ctx.getNetcdfFileWriteable(), product);
         for (ProfilePart profilePart : profileParts) {
-            profilePart.define(this, product, writeable);
+            profilePart.define(ctx, product);
         }
-        writeable.create();
+        ctx.getNetcdfFileWriteable().create();
         for (ProfilePart profilePart : profileParts) {
-            profilePart.write(this, product, writeable);
+            profilePart.write(ctx, product);
         }
     }
 
@@ -50,25 +48,4 @@ public final class ProfileImpl implements Profile {
         this.profileInitPart = initPart;
     }
 
-    @Override
-    public void setFileInfo(FileInfo fileInfo) {
-        this.fileInfo = fileInfo;
-    }
-
-    @Override
-    public FileInfo getFileInfo() {
-        return fileInfo;
-    }
-
-    // todo - remove (e.g. prop in ctx)
-    @Override
-    public void setYFlipped(boolean yFlipped) {
-        this.yFlipped = yFlipped;
-    }
-
-    // todo - remove (e.g. prop in ctx)
-    @Override
-    public boolean isYFlipped() {
-        return yFlipped;
-    }
 }

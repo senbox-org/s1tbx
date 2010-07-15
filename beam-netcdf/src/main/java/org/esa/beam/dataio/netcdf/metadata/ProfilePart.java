@@ -1,7 +1,6 @@
 package org.esa.beam.dataio.netcdf.metadata;
 
 import org.esa.beam.framework.datamodel.Product;
-import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
 
@@ -10,10 +9,10 @@ import java.io.IOException;
  */
 public abstract class ProfilePart {
 
-    public abstract void read(Profile ctx, Product p) throws IOException;
+    public abstract void read(ProfileReadContext ctx, Product p) throws IOException;
 
-    public abstract void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException;
+    public abstract void define(ProfileWriteContext ctx, Product p) throws IOException;
 
-    public void write(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {        
+    public void write(ProfileWriteContext ctx, Product p) throws IOException {
     }
 }

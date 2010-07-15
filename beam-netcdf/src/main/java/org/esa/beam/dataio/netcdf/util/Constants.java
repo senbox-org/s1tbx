@@ -50,4 +50,9 @@ public interface Constants {
     String EM_INVALID_COLOR_TABLE = "Invalid Color Table";
     String EM_INVALID_STX_ATTRIBUTES = "Invalid STX Attributes";
     String EM_INVALID_MASK_ATTRIBUTES = "Invalid Mask Attributes";
+
+    // context properties
+    String Y_FLIPPED_PROPERTY_NAME = "yFlipped";
+    String PRODUCT_NAME_PROPERTY_NAME = "productName";
+
 }

@@ -16,11 +16,11 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.def;
 
-import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.util.FileInfo;
-import org.esa.beam.dataio.netcdf.metadata.Profile;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfIndexCodingPart;
+import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
@@ -39,10 +39,10 @@ public class DefaultIndexCodingPart extends ProfilePart {
     public static final String INDEX_CODING_NAME = "index_coding_name";
 
     @Override
-    public void read(Profile profile, Product p) throws IOException {
+    public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final IndexCoding indexCoding = readIndexCoding(band, profile.getFileInfo());
+            final IndexCoding indexCoding = readIndexCoding(band, ctx);
             if (indexCoding != null) {
                 p.getIndexCodingGroup().add(indexCoding);
                 band.setSampleCoding(indexCoding);
@@ -51,10 +51,10 @@ public class DefaultIndexCodingPart extends ProfilePart {
     }
 
     @Override
-    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
+    public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            writeIndexCoding(ncFile, band);
+            writeIndexCoding(ctx.getNetcdfFileWriteable(), band);
         }
     }
 
@@ -83,11 +83,11 @@ public class DefaultIndexCodingPart extends ProfilePart {
         }
     }
 
-    public static IndexCoding readIndexCoding(Band band, FileInfo rp) throws ProductIOException {
-        final IndexCoding indexCoding = CfIndexCodingPart.readIndexCoding(band, rp);
+    public static IndexCoding readIndexCoding(Band band, ProfileReadContext ctx) throws ProductIOException {
+        final IndexCoding indexCoding = CfIndexCodingPart.readIndexCoding(band, ctx);
 
         if (indexCoding != null) {
-            final Variable variable = rp.getGlobalVariablesMap().get(band.getName());
+            final Variable variable = ctx.getGlobalVariablesMap().get(band.getName());
 
             final Attribute descriptionsAtt = variable.findAttributeIgnoreCase(INDEX_DESCRIPTIONS);
             if (descriptionsAtt != null) {

@@ -1,7 +1,8 @@
 package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 
-import org.esa.beam.dataio.netcdf.metadata.Profile;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfMetadataPart;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -11,7 +12,6 @@ import org.jdom.Attribute;
 import org.jdom.Element;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
@@ -25,8 +25,8 @@ import java.util.Map;
 public class HdfEosMetadata extends ProfilePart {
 
     @Override
-    public void read(Profile profile, Product p) throws IOException {
-        NetcdfFile ncFile = profile.getFileInfo().getNetcdfFile();
+    public void read(ProfileReadContext ctx, Product p) throws IOException {
+        NetcdfFile ncFile = ctx.getNetcdfFile();
         MetadataElement root = p.getMetadataRoot();
         root.addElement(CfMetadataPart.createMetadataElementFromAttributeList(ncFile.getGlobalAttributes(), "MPH"));
         MetadataElement eosElem = new MetadataElement("EOS");
@@ -117,7 +117,7 @@ public class HdfEosMetadata extends ProfilePart {
 
 
     @Override
-    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
+    public void define(ProfileWriteContext ctx, Product p) throws IOException {
         throw new IllegalStateException();
     }
 }

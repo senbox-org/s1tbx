@@ -17,10 +17,10 @@
 package org.esa.beam.dataio.netcdf.metadata.profiles.def;
 
 import com.bc.ceres.binding.PropertyContainer;
-import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.util.FileInfo;
-import org.esa.beam.dataio.netcdf.metadata.Profile;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
@@ -52,20 +52,19 @@ public class DefaultMaskOverlayPart extends ProfilePart {
     public static final String SUFFIX_MASK = "_mask";
 
     @Override
-    public void read(Profile profile, Product p) throws IOException {
-        final FileInfo rp = profile.getFileInfo();
-        readMasksToProduct(p, rp);
-        assignMasksToBands(p, rp);
+    public void read(ProfileReadContext ctx, Product p) throws IOException {
+        readMasksToProduct(p, ctx);
+        assignMasksToBands(p, ctx);
     }
 
     @Override
-    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
-        writeProductMasks(p, ncFile);
-        writeOverlayNamesToBandVariables(p, ncFile);
+    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+        writeProductMasks(p, ctx.getNetcdfFileWriteable());
+        writeOverlayNamesToBandVariables(p, ctx.getNetcdfFileWriteable());
     }
 
-    public static void readMasksToProduct(Product p, FileInfo rp) throws ProductIOException {
-        final List<Variable> variables = rp.getGlobalVariables();
+    public static void readMasksToProduct(Product p, ProfileReadContext ctx) throws ProductIOException {
+        final List<Variable> variables = ctx.getGlobalVariables();
         for (Variable variable : variables) {
             if (variable.getRank() != 0 || !variable.getName().endsWith(SUFFIX_MASK)) {
                 continue;
@@ -109,9 +108,9 @@ public class DefaultMaskOverlayPart extends ProfilePart {
         }
     }
 
-    public static void assignMasksToBands(Product p, FileInfo rp) {
+    public static void assignMasksToBands(Product p, ProfileReadContext ctx) {
         final Band[] bands = p.getBands();
-        final Map<String, Variable> variablesMap = rp.getGlobalVariablesMap();
+        final Map<String, Variable> variablesMap = ctx.getGlobalVariablesMap();
         for (Band band : bands) {
             final Variable variable = variablesMap.get(band.getName());
             final Attribute attribute = variable.findAttribute(MASK_OVERLAYS);

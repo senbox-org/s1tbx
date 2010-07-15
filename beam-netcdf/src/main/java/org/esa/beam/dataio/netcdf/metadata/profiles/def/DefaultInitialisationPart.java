@@ -1,8 +1,9 @@
 package org.esa.beam.dataio.netcdf.metadata.profiles.def;
 
-import org.esa.beam.dataio.netcdf.util.FileInfo;
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfInitialisationPart;
+import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Product;
 import ucar.nc2.Attribute;
@@ -16,10 +17,10 @@ public class DefaultInitialisationPart implements ProfileInitPart {
     public static final String PRODUCT_TYPE = "product_type";
 
     @Override
-    public Product readProductBody(String productName, FileInfo rp) throws ProductIOException {
+    public Product readProductBody(ProfileReadContext ctx) throws ProductIOException {
         Dimension x = null;
         Dimension y = null;
-        for (Dimension dimension : rp.getNetcdfFile().getDimensions()) {
+        for (Dimension dimension : ctx.getNetcdfFile().getDimensions()) {
             final String name = dimension.getName();
             if ("x".equalsIgnoreCase(name) || "lon".equalsIgnoreCase(name)) {
                 x = dimension;
@@ -31,8 +32,8 @@ public class DefaultInitialisationPart implements ProfileInitPart {
             throw new ProductIOException("Illegal Dimensions: Dimensions named x and y expected.");
         }
         return new Product(
-                productName,
-                getProductType(rp),
+                (String) ctx.getProperty(Constants.PRODUCT_NAME_PROPERTY_NAME),
+                getProductType(ctx),
                 x.getLength(),
                 y.getLength()
         );
@@ -47,14 +48,14 @@ public class DefaultInitialisationPart implements ProfileInitPart {
         writeable.addAttribute(null, new Attribute("Conventions", "CF-1.4"));
     }
 
-    public static String getProductType(FileInfo rp) {
-        final Attribute productTypeAtt = rp.getNetcdfFile().getRootGroup().findAttribute(PRODUCT_TYPE);
+    public static String getProductType(ProfileReadContext ctx) {
+        final Attribute productTypeAtt = ctx.getNetcdfFile().getRootGroup().findAttribute(PRODUCT_TYPE);
         if (productTypeAtt != null) {
             final String pt = productTypeAtt.getStringValue();
             if (pt != null && pt.trim().length() > 0) {
                 return pt.trim();
             }
         }
-        return CfInitialisationPart.getProductType(rp);
+        return CfInitialisationPart.getProductType(ctx);
     }
 }

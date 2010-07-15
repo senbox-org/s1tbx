@@ -16,8 +16,9 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.def;
 
-import org.esa.beam.dataio.netcdf.metadata.Profile;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Product;
@@ -42,8 +43,8 @@ public class DefaultTiePointGridPart extends ProfilePart {
     public final String SUBSAMPLING_Y = "subsampling_y";
 
     @Override
-    public void read(Profile profile, Product p) throws IOException {
-        final List<Variable> variables = profile.getFileInfo().getGlobalVariables();
+    public void read(ProfileReadContext ctx, Product p) throws IOException {
+        final List<Variable> variables = ctx.getGlobalVariables();
         for (Variable variable : variables) {
             final List<Dimension> dimensions = variable.getDimensions();
             if (dimensions.size() != 2) {
@@ -52,7 +53,7 @@ public class DefaultTiePointGridPart extends ProfilePart {
             final Dimension dimensionY = dimensions.get(0);
             final Dimension dimensionX = dimensions.get(1);
             if (dimensionY.getLength() != p.getSceneRasterHeight()
-                    || dimensionX.getLength() != p.getSceneRasterWidth()) {
+                || dimensionX.getLength() != p.getSceneRasterWidth()) {
                 //maybe this is a tie point grid
                 final String name = variable.getName();
                 final Attribute offsetX = variable.findAttributeIgnoreCase(OFFSET_X);
@@ -60,7 +61,7 @@ public class DefaultTiePointGridPart extends ProfilePart {
                 final Attribute subSamplingX = variable.findAttributeIgnoreCase(SUBSAMPLING_X);
                 final Attribute subSamplingY = variable.findAttributeIgnoreCase(SUBSAMPLING_Y);
                 if (offsetX != null && offsetY != null &&
-                        subSamplingX != null && subSamplingY != null) {
+                    subSamplingX != null && subSamplingY != null) {
                     final Array array = variable.read();
                     final float[] data = new float[(int) array.getSize()];
                     for (int i = 0; i < data.length; i++) {
@@ -84,10 +85,11 @@ public class DefaultTiePointGridPart extends ProfilePart {
     }
 
     @Override
-    public void define(Profile ctx, Product p, final NetcdfFileWriteable ncFile) throws
-            IOException {
+    public void define(ProfileWriteContext ctx, Product p) throws
+                                                           IOException {
         final TiePointGrid[] tiePointGrids = p.getTiePointGrids();
         final HashMap<String, Dimension[]> dimMap = new HashMap<String, Dimension[]>();
+        final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         for (TiePointGrid grid : tiePointGrids) {
             final String key = "" + grid.getRasterHeight() + " " + grid.getRasterWidth();
             if (!dimMap.containsKey(key)) {
@@ -110,7 +112,7 @@ public class DefaultTiePointGridPart extends ProfilePart {
     }
 
     @Override
-    public void write(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
+    public void write(ProfileWriteContext ctx, Product p) throws IOException {
         final TiePointGrid[] tiePointGrids = p.getTiePointGrids();
         for (TiePointGrid tiePointGrid : tiePointGrids) {
             try {
@@ -118,7 +120,7 @@ public class DefaultTiePointGridPart extends ProfilePart {
                 final int x = tiePointGrid.getRasterWidth();
                 final int[] shape = new int[]{y, x};
                 final Array values = Array.factory(DataType.FLOAT, shape, tiePointGrid.getDataElems());
-                ncFile.write(tiePointGrid.getName(), values);
+                ctx.getNetcdfFileWriteable().write(tiePointGrid.getName(), values);
             } catch (InvalidRangeException e) {
                 throw new ProductIOException("TiePointData not in the expected range");
             }

@@ -16,11 +16,11 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.def;
 
-import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.util.FileInfo;
-import org.esa.beam.dataio.netcdf.metadata.Profile;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfFlagCodingPart;
+import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -39,10 +39,10 @@ public class DefaultFlagCodingPart extends ProfilePart {
     public static final String DESCRIPTION_SEPARATOR = "\t";
 
     @Override
-    public void read(Profile profile, Product p) throws IOException {
+    public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final FlagCoding flagCoding = readFlagCoding(band, profile.getFileInfo());
+            final FlagCoding flagCoding = readFlagCoding(band, ctx);
             if (flagCoding != null) {
                 p.getFlagCodingGroup().add(flagCoding);
                 band.setSampleCoding(flagCoding);
@@ -51,10 +51,10 @@ public class DefaultFlagCodingPart extends ProfilePart {
     }
 
     @Override
-    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
+    public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            writeFlagCoding(ncFile, band);
+            writeFlagCoding(ctx.getNetcdfFileWriteable(), band);
         }
     }
 
@@ -80,11 +80,11 @@ public class DefaultFlagCodingPart extends ProfilePart {
         }
     }
 
-    public static FlagCoding readFlagCoding(Band band, FileInfo rp) throws ProductIOException {
-        final FlagCoding flagCoding = CfFlagCodingPart.readFlagCoding(band, rp);
+    public static FlagCoding readFlagCoding(Band band, ProfileReadContext ctx) throws ProductIOException {
+        final FlagCoding flagCoding = CfFlagCodingPart.readFlagCoding(ctx, band);
 
         if (flagCoding != null) {
-            final Variable variable = rp.getGlobalVariablesMap().get(band.getName());
+            final Variable variable = ctx.getGlobalVariablesMap().get(band.getName());
 
             final Attribute descriptionsAtt = variable.findAttributeIgnoreCase(FLAG_DESCRIPTIONS);
             if (descriptionsAtt != null) {

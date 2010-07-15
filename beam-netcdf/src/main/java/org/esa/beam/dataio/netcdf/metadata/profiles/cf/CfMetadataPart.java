@@ -16,10 +16,11 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
+import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.dataio.netcdf.metadata.Profile;
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -29,7 +30,6 @@ import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Structure;
 import ucar.nc2.Variable;
 
@@ -39,12 +39,12 @@ import java.util.List;
 public class CfMetadataPart extends ProfilePart {
 
     @Override
-    public void read(Profile profile, Product p) throws IOException {
-        transferMetadata(profile.getFileInfo().getNetcdfFile(), p.getMetadataRoot());
+    public void read(ProfileReadContext ctx, Product p) throws IOException {
+        transferMetadata(ctx.getNetcdfFile(), p.getMetadataRoot());
     }
 
     @Override
-    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
+    public void define(ProfileWriteContext ctx, Product p) throws IOException {
 
     }
 
@@ -59,7 +59,7 @@ public class CfMetadataPart extends ProfilePart {
         MetadataElement metadataElement = new MetadataElement(elementName);
         for (Attribute attribute : attributeList) {
             final int productDataType = ReaderUtils.getEquivalentProductDataType(attribute.getDataType(), false,
-                                                                                    false);
+                                                                                 false);
             if (productDataType != -1) {
                 ProductData productData;
                 if (attribute.isString()) {

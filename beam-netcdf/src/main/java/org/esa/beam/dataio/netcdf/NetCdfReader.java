@@ -1,9 +1,13 @@
 package org.esa.beam.dataio.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.dataio.netcdf.metadata.Profile;
 import org.esa.beam.dataio.netcdf.metadata.ProfileImpl;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileSpi;
 import org.esa.beam.dataio.netcdf.metadata.ProfileSpiRegistry;
+import org.esa.beam.dataio.netcdf.util.Constants;
+import org.esa.beam.dataio.netcdf.util.VariableMap;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -11,6 +15,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.io.FileUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
@@ -81,7 +86,9 @@ import java.io.IOException;
  */
 public class NetCdfReader extends AbstractProductReader {
 
-    private ProfileImpl profile;
+    private NetcdfFile netcdfFile;
+    private boolean isYFlipped;
+    private VariableMap rasterVariableMap;
 
     public NetCdfReader(final ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
@@ -100,7 +107,7 @@ public class NetCdfReader extends AbstractProductReader {
                                              IOException {
 
         final File fileLocation = new File(getInput().toString());
-        NetcdfFile netcdfFile = NetcdfFile.open(fileLocation.getPath());
+        netcdfFile = NetcdfFile.open(fileLocation.getPath());
 
         System.out.println("netcdfFile = " + netcdfFile);
 
@@ -109,16 +116,22 @@ public class NetCdfReader extends AbstractProductReader {
             netcdfFile.close();
             throw new IllegalFileFormatException("No convention factory found for netCDF.");
         }
-        profile = new ProfileImpl();
-        profileSpi.configureProfile(netcdfFile, profile);
-        if (profile.getFileInfo().getRasterDigest() == null) {
+        final ProfileReadContext context = profileSpi.createReadContext(netcdfFile);
+        if (context.getRasterDigest() == null) {
             close();
             throw new IllegalFileFormatException("No netCDF variables found which could\n" +
                                                  "be interpreted as remote sensing bands.");  /*I18N*/
         }
-
-        final String productName = fileLocation.getName();
-        final Product product = profile.readProduct(productName);
+        Profile profile = new ProfileImpl();
+        profileSpi.configureProfile(netcdfFile, profile);
+        String productName = FileUtils.getFilenameWithoutExtension(fileLocation);
+        context.setProperty(Constants.PRODUCT_NAME_PROPERTY_NAME, productName);
+        final Product product = profile.readProduct(context);
+        final Object object = context.getProperty(Constants.Y_FLIPPED_PROPERTY_NAME);
+        if (object instanceof Boolean) {
+            isYFlipped = (Boolean) object;
+        }
+        rasterVariableMap = context.getRasterVariableMap();
         product.setFileLocation(fileLocation);
         product.setProductReader(this);
         product.setModified(false);
@@ -135,9 +148,9 @@ public class NetCdfReader extends AbstractProductReader {
         Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
 
         final int sceneHeight = destBand.getProduct().getSceneRasterHeight();
-        final int y0 = profile.isYFlipped() ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
+        final int y0 = isYFlipped ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
 
-        final Variable variable = profile.getFileInfo().getRasterVariableMap().get(destBand.getName());
+        final Variable variable = rasterVariableMap.get(destBand.getName());
         final int rank = variable.getRank();
         final int[] origin = new int[rank];
         final int[] shape = new int[rank];
@@ -152,9 +165,9 @@ public class NetCdfReader extends AbstractProductReader {
         pm.beginTask("Reading data from band '" + destBand.getName() + "'", destHeight);
         try {
             for (int y = 0; y < destHeight; y++) {
-                origin[rank - 2] = profile.isYFlipped() ? y0 - y : y0 + y;
+                origin[rank - 2] = isYFlipped ? y0 - y : y0 + y;
                 final Array array;
-                synchronized (profile.getFileInfo().getNetcdfFile()) {
+                synchronized (netcdfFile) {
                     array = variable.read(origin, shape);
                 }
                 final Object storage = array.getStorage();
@@ -186,11 +199,10 @@ public class NetCdfReader extends AbstractProductReader {
      * @throws java.io.IOException if an I/O error occurs
      */
     @Override
-    public void close() throws
-                        IOException {
-        if (profile != null) {
-            profile.getFileInfo().close();
-            profile = null;
+    public void close() throws IOException {
+        if (netcdfFile != null) {
+            netcdfFile.close();
+            netcdfFile = null;
         }
         super.close();
     }

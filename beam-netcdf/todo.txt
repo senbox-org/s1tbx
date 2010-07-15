@@ -11,11 +11,11 @@ AbstractProfileFactory.getX() --> .createX()  (/)
 classes Nc4* --> util.* (/)
 
 
-interface ProfileContext
-  NetcdfFile
-interface ProfileReadContext  extends   ProfileContext
-  Nc4FileInfo (aufgelöst)
-interface ProfileWriteContext   extends   ProfileContext
-  NetcdfFileWritable
+interface ProfileReadContext  |
+  NetcdfFile                  |
+  Nc4FileInfo (aufgelöst)     | ==> (/)
+interface ProfileWriteContext |
+  NetcdfFileWritable          |
 
+check cf convention about time information
 remove module  beam-netcdf-reader

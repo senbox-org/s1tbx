@@ -16,11 +16,16 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.def;
 
-import org.esa.beam.dataio.netcdf.metadata.Profile;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfGeocodingPart;
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.StringUtils;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
@@ -33,7 +38,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 
@@ -45,8 +50,8 @@ public class DefaultGeocodingPart extends ProfilePart {
     private final int latIndex = 1;
 
     @Override
-    public void read(Profile profile, Product p) throws IOException {
-        NetcdfFile netcdfFile = profile.getFileInfo().getNetcdfFile();
+    public void read(ProfileReadContext ctx, Product p) throws IOException {
+        NetcdfFile netcdfFile = ctx.getNetcdfFile();
         final Attribute tpCoordinatesAtt = netcdfFile.findGlobalAttribute(TIEPOINT_COORDINATES);
         GeoCoding geoCoding = null;
         if (tpCoordinatesAtt != null) {
@@ -72,7 +77,7 @@ public class DefaultGeocodingPart extends ProfilePart {
         if (geoCoding != null) {
             p.setGeoCoding(geoCoding);
         } else {
-            CfGeocodingPart.readGeocoding(p, profile);
+            CfGeocodingPart.readGeocoding(ctx, p);
         }
     }
 
@@ -94,7 +99,7 @@ public class DefaultGeocodingPart extends ProfilePart {
     }
 
     @Override
-    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
+    public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final GeoCoding geoCoding = p.getGeoCoding();
         if (geoCoding instanceof TiePointGeoCoding) {
             final TiePointGeoCoding tpGC = (TiePointGeoCoding) geoCoding;
@@ -102,11 +107,11 @@ public class DefaultGeocodingPart extends ProfilePart {
             names[lonIndex] = tpGC.getLonGrid().getName();
             names[latIndex] = tpGC.getLatGrid().getName();
             final String value = StringUtils.arrayToString(names, " ");
-            ncFile.addAttribute(null, new Attribute(TIEPOINT_COORDINATES, value));
+            ctx.getNetcdfFileWriteable().addAttribute(null, new Attribute(TIEPOINT_COORDINATES, value));
         } else {
-            new CfGeocodingPart().define(ctx, p, ncFile);
+            new CfGeocodingPart().define(ctx, p);
             if (geoCoding instanceof CrsGeoCoding) {
-                addWktAsVariable(ncFile, geoCoding);
+                addWktAsVariable(ctx.getNetcdfFileWriteable(), geoCoding);
             }
         }
     }

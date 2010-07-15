@@ -16,11 +16,11 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
+import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.AttributeMap;
 import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.util.FileInfo;
-import org.esa.beam.dataio.netcdf.metadata.Profile;
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -39,10 +39,10 @@ public class CfFlagCodingPart extends ProfilePart {
 
 
     @Override
-    public void read(Profile profile, Product p) throws IOException {
+    public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final FlagCoding flagCoding = readFlagCoding(band, profile.getFileInfo());
+            final FlagCoding flagCoding = readFlagCoding(ctx, band);
             if (flagCoding != null) {
                 p.getFlagCodingGroup().add(flagCoding);
                 band.setSampleCoding(flagCoding);
@@ -51,10 +51,10 @@ public class CfFlagCodingPart extends ProfilePart {
     }
 
     @Override
-    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
+    public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            writeFlagCoding(ncFile, band);
+            writeFlagCoding(ctx.getNetcdfFileWriteable(), band);
         }
     }
 
@@ -78,8 +78,8 @@ public class CfFlagCodingPart extends ProfilePart {
     }
 
 
-    public static FlagCoding readFlagCoding(Band band, FileInfo rp) throws ProductIOException {
-        final Variable variable = rp.getGlobalVariablesMap().get(band.getName());
+    public static FlagCoding readFlagCoding(ProfileReadContext ctx, Band band) throws ProductIOException {
+        final Variable variable = ctx.getGlobalVariablesMap().get(band.getName());
         final AttributeMap attMap = AttributeMap.create(variable);
         final String codingName = band.getName() + "_flag_coding";
         return createFlagCoding(attMap, codingName);

@@ -16,36 +16,32 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.util.FileInfo;
-import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.dataio.netcdf.metadata.Profile;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.util.Constants;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
 
 public class CfEndTimePart extends ProfilePart {
 
     @Override
-    public void read(Profile profile, Product p) throws IOException {
-        p.setEndTime(getSceneRasterStopTime(profile.getFileInfo()));
+    public void read(ProfileReadContext ctx, Product p) throws IOException {
+        p.setEndTime(ReaderUtils.getSceneRasterTime(ctx.getGlobalAttributes(),
+                                                    Constants.STOP_DATE_ATT_NAME,
+                                                    Constants.STOP_TIME_ATT_NAME));
     }
 
     @Override
-    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
+    public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final ProductData.UTC utc = p.getEndTime();
         if (utc != null) {
-            ncFile.addAttribute(null, new Attribute(Constants.STOP_DATE_ATT_NAME, utc.format()));
+            ctx.getNetcdfFileWriteable().addAttribute(null, new Attribute(Constants.STOP_DATE_ATT_NAME, utc.format()));
         }
     }
 
-    public static ProductData.UTC getSceneRasterStopTime(final FileInfo rv) {
-        return ReaderUtils.getSceneRasterTime(rv.getGlobalAttributes(),
-                                                 Constants.STOP_DATE_ATT_NAME,
-                                                 Constants.STOP_TIME_ATT_NAME);
-    }
 }

@@ -16,12 +16,13 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
+import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.AttributeMap;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.DataTypeWorkarounds;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.dataio.netcdf.metadata.Profile;
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Product;
@@ -40,8 +41,8 @@ import java.util.List;
 public class CfBandPart extends ProfilePart {
 
     @Override
-    public void read(Profile profile, Product p) throws IOException {
-        final Variable[] variables = profile.getFileInfo().getRasterDigest().getRasterVariables();
+    public void read(ProfileReadContext ctx, Product p) throws IOException {
+        final Variable[] variables = ctx.getRasterDigest().getRasterVariables();
         for (Variable variable : variables) {
             final DataTypeWorkarounds dataTypeWorkarounds = DataTypeWorkarounds.getInstance();
             final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
@@ -52,8 +53,9 @@ public class CfBandPart extends ProfilePart {
     }
 
     @Override
-    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
+    public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
+        final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : bands) {
             final Variable variable = ncFile.addVariable(band.getName(), getNcDataType(band), dimensions);

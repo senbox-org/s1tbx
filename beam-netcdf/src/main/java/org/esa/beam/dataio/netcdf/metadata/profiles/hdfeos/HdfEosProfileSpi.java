@@ -1,12 +1,13 @@
 package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 
-import org.esa.beam.dataio.netcdf.util.FileInfo;
-import org.esa.beam.dataio.netcdf.util.RasterDigest;
-import org.esa.beam.dataio.netcdf.util.VariableMap;
 import org.esa.beam.dataio.netcdf.metadata.AbstractProfileSpi;
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPart;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContextImpl;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfInitialisationPart;
+import org.esa.beam.dataio.netcdf.util.RasterDigest;
+import org.esa.beam.dataio.netcdf.util.VariableMap;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.jdom.Element;
@@ -85,7 +86,7 @@ public class HdfEosProfileSpi extends AbstractProfileSpi {
     }
 
     @Override
-    protected FileInfo createFileInfo(NetcdfFile netcdfFile) throws IOException {
+    public ProfileReadContext createReadContext(NetcdfFile netcdfFile) throws IOException {
         Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
         String gridName = getGridName(eosElement);
         if (gridName == null || gridName.isEmpty()) {
@@ -101,7 +102,7 @@ public class HdfEosProfileSpi extends AbstractProfileSpi {
         for (Variable variable : rasterVariables) {
             variableMap.put(variable.getShortName(), variable);
         }
-        return new FileInfo(netcdfFile, rasterDigest, variableMap);
+        return new ProfileReadContextImpl(netcdfFile, rasterDigest, variableMap);
     }
 
     @Override

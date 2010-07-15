@@ -16,9 +16,10 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.def;
 
-import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.metadata.Profile;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
@@ -43,18 +44,18 @@ public class DefaultImageInfoPart extends ProfilePart {
     public static final String COLOR_TABLE_BLUE_VALUES = "color_table_blue_values";
 
     @Override
-    public void read(Profile profile, Product p) throws IOException {
-        final List<Variable> variableList = profile.getFileInfo().getNetcdfFile().getVariables();
+    public void read(ProfileReadContext ctx, Product p) throws IOException {
+        final List<Variable> variableList = ctx.getNetcdfFile().getVariables();
         for (Variable variable : variableList) {
             readImageInfo(p, variable);
         }
     }
 
     @Override
-    public void define(Profile ctx, Product p, NetcdfFileWriteable ncFile) throws IOException {
+    public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            writeImageInfo(ncFile, band);
+            writeImageInfo(ctx.getNetcdfFileWriteable(), band);
         }
     }
 

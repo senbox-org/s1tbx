@@ -1,6 +1,7 @@
 package org.esa.beam.dataio.netcdf.metadata;
 
-import org.esa.beam.dataio.netcdf.util.FileInfo;
+import org.esa.beam.dataio.netcdf.util.RasterDigest;
+import org.esa.beam.dataio.netcdf.util.VariableMap;
 import ucar.nc2.NetcdfFile;
 
 import java.io.IOException;
@@ -43,29 +44,29 @@ public abstract class AbstractProfileSpi implements ProfileSpi {
 
     public abstract ProfilePart createDescriptionPart();
 
-    protected FileInfo createFileInfo(NetcdfFile netcdfFile) throws IOException {
-        FileInfo fileInfo = null;
-        if (netcdfFile != null) {
-            fileInfo = new FileInfo(netcdfFile);
-        }
-        return fileInfo;
+    @Override
+    public ProfileReadContext createReadContext(NetcdfFile netcdfFile) throws IOException {
+        final RasterDigest rasterDigest = RasterDigest.createRasterDigest(netcdfFile.getRootGroup());
+        final VariableMap variableMap = rasterDigest != null ? new VariableMap(
+                rasterDigest.getRasterVariables()) : null;
+        return new ProfileReadContextImpl(netcdfFile, rasterDigest, variableMap);
     }
 
     @Override
     public void configureProfile(NetcdfFile netcdfFile, Profile profile) throws IOException {
-         ProfileInitPart initPart;
-         ProfilePart bandPart;
-         ProfilePart flagCodingPart;
-         ProfilePart geocodingPart;
-         ProfilePart imageInfoPart;
-         ProfilePart indexCodingPart;
-         ProfilePart maskOverlayPart;
-         ProfilePart stxPart;
-         ProfilePart tiePointGridPart;
-         ProfilePart startTimePart;
-         ProfilePart endTimePart;
-         ProfilePart metaDataPart;
-         ProfilePart descriptionPart;
+        ProfileInitPart initPart;
+        ProfilePart bandPart;
+        ProfilePart flagCodingPart;
+        ProfilePart geocodingPart;
+        ProfilePart imageInfoPart;
+        ProfilePart indexCodingPart;
+        ProfilePart maskOverlayPart;
+        ProfilePart stxPart;
+        ProfilePart tiePointGridPart;
+        ProfilePart startTimePart;
+        ProfilePart endTimePart;
+        ProfilePart metaDataPart;
+        ProfilePart descriptionPart;
 
         metaDataPart = createMetadataPart();
         bandPart = createBandPart();
@@ -80,11 +81,6 @@ public abstract class AbstractProfileSpi implements ProfileSpi {
         startTimePart = createStartTimePart();
         endTimePart = createEndTimePart();
         descriptionPart = createDescriptionPart();
-
-        FileInfo fileInfo = createFileInfo(netcdfFile);
-        if (fileInfo != null) {
-            profile.setFileInfo(fileInfo);
-        }
 
         if (initPart != null) {
             profile.setInitialisationPart(initPart);
