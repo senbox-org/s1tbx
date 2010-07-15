@@ -3,8 +3,11 @@ package org.esa.beam.dataio.spot;
 import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.util.Debug;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Rectangle;
@@ -90,45 +93,169 @@ final class LogVolDescriptor {
     }
 
     public GeoCoding getGeoCoding() {
-        Double meridianOrigin = getValueDouble("MERIDIAN_ORIGIN");
-        if (meridianOrigin != null && meridianOrigin != 0.0) {
-            return null;
-        }
 
         String geodeticSystName = getValueString("GEODETIC_SYST_NAME");
-        if (geodeticSystName != null && !geodeticSystName.equals("WGS 1984")) {
+        if (geodeticSystName == null) {
             return null;
         }
 
-        String mapProjUnit = getValueString("MAP_PROJ_UNIT");
-        if (mapProjUnit != null && !mapProjUnit.equals("DEGREES")) {
-            return null;
-        }
+        if (geodeticSystName.equals("WGS 1984")) {
 
-        Rectangle imageBounds = getImageBounds();
-        if (imageBounds == null) {
-            return null;
-        }
+            String mapProjUnit = getValueString("MAP_PROJ_UNIT");
+            if (mapProjUnit != null && !mapProjUnit.equals("DEGREES")) {
+                return null;
+            }
 
-        Double pixelSize = getValueDouble("MAP_PROJ_RESOLUTION");
-        Double upperLeftLat = getValueDouble("GEO_UPPER_LEFT_LAT");
-        Double upperLeftLon = getValueDouble("GEO_UPPER_LEFT_LONG");
-        if (pixelSize != null
-                && upperLeftLat != null
-                && upperLeftLon != null) {
-            try {
+            Double meridianOrigin = getValueDouble("MERIDIAN_ORIGIN");
+            if (meridianOrigin != null && meridianOrigin != 0.0) {
+                return null;
+            }
+
+            Rectangle imageBounds = getImageBounds();
+            if (imageBounds == null) {
+                return null;
+            }
+
+            Double pixelSize = getValueDouble("MAP_PROJ_RESOLUTION");
+            Double upperLeftLat = getValueDouble("GEO_UPPER_LEFT_LAT");
+            Double upperLeftLon = getValueDouble("GEO_UPPER_LEFT_LONG");
+            if (pixelSize != null
+                    && upperLeftLat != null
+                    && upperLeftLon != null) {
+                try {
+                    AffineTransform transform = new AffineTransform();
+                    transform.translate(upperLeftLon, upperLeftLat);
+                    transform.scale(pixelSize, -pixelSize);
+                    transform.translate(-PIXEL_CENTER, -PIXEL_CENTER);
+                    return new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, transform);
+                } catch (TransformException e) {
+                    // ?
+                } catch (FactoryException e) {
+                    // ?
+                }
+            }
+
+        } else if (geodeticSystName.equals("UTM/UPS INTERNATIONAL 1909")) {
+
+            String mapProjUnit = getValueString("MAP_PROJ_UNIT");
+            if (mapProjUnit != null && !mapProjUnit.equals("METERS")) {
+                return null;
+            }
+
+            Double meridianOrigin = getValueDouble("MERIDIAN_ORIGIN");
+            if (meridianOrigin == null) {
+                meridianOrigin = 0.0;
+            }
+
+            String spheroidName = getValueString("SPHEROID_NAME");
+            if (spheroidName == null) {
+                spheroidName = "INTERNATIONAL HAYFORD 1909";   // ?
+            }
+
+            Double semiMajAxis = getValueDouble("SPHEROID_SEMI_MAJ_AXIS");
+            if (semiMajAxis == null) {
+                semiMajAxis = DefaultGeographicCRS.WGS84.getDatum().getEllipsoid().getSemiMajorAxis();
+            }
+
+            Double semiMinAxis = getValueDouble("SPHEROID_SEMI_MIN_AXIS");
+            if (semiMinAxis == null) {
+                semiMinAxis = DefaultGeographicCRS.WGS84.getDatum().getEllipsoid().getSemiMinorAxis();
+            }
+
+            Double longOrigin = getValueDouble("PROJ_LONG_ORIGIN");
+            if (longOrigin == null) {
+                longOrigin = 0.0;
+            }
+
+            Double scaleFactor = getValueDouble("PROJ_SCALE_FACTOR");
+            if (scaleFactor == null) {
+                scaleFactor = 1.0;
+            }
+
+            Double xOrigin = getValueDouble("PROJ_X_ORIGIN");
+            if (xOrigin == null) {
+                xOrigin = 0.0;
+            }
+
+            Double yOrigin = getValueDouble("PROJ_Y_ORIGIN");
+            if (yOrigin == null) {
+                yOrigin = 0.0;
+            }
+
+            Rectangle imageBounds = getImageBounds();
+            if (imageBounds == null) {
+                return null;
+            }
+
+            Double pixelSize = getValueDouble("MAP_PROJ_RESOLUTION");
+            Double upperLeftLon = getValueDouble("CARTO_UPPER_LEFT_X");
+            Double upperLeftLat = getValueDouble("CARTO_UPPER_LEFT_Y");
+            String projHemi = getValueString("PROJ_HEMI");
+            String meridianName = getValueString("MERIDIAN_NAME");
+            if (pixelSize != null
+                    && upperLeftLat != null
+                    && upperLeftLon != null
+                    && projHemi != null
+                    && meridianName != null) {
                 AffineTransform transform = new AffineTransform();
                 transform.translate(upperLeftLon, upperLeftLat);
                 transform.scale(pixelSize, -pixelSize);
                 transform.translate(-PIXEL_CENTER, -PIXEL_CENTER);
-                return new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, transform);
-            } catch (TransformException e) {
-                // ?
-            } catch (FactoryException e) {
-                // ?
+
+                double inverseFlattening = semiMajAxis / (semiMajAxis - semiMinAxis);
+
+                String projectionName;
+                double standardParallel;
+                if (projHemi.equalsIgnoreCase("SOUTH")) {
+                    projectionName = "Stereographic_South_Pole";
+                    standardParallel = -90.0;
+                } else {
+                    projectionName = "Stereographic_North_Pole";
+                    standardParallel = +90.0;
+                }
+
+                String upsWktPattern = "PROJCS[\"%s\", \n" +
+                        "  GEOGCS[\"%s\", \n" +
+                        "    DATUM[\"%s\", \n" +
+                        "      SPHEROID[\"%s\", %f, %f]], \n" +
+                        "    PRIMEM[\"%s\", %f], \n" +
+                        "    UNIT[\"degree\", 0.017453292519943295], \n" +
+                        "    AXIS[\"Geodetic longitude\", EAST], \n" +
+                        "    AXIS[\"Geodetic latitude\", NORTH]], \n" +
+                        "  PROJECTION[\"%s\"], \n" +
+                        "  PARAMETER[\"central_meridian\", %f], \n" +
+                        "  PARAMETER[\"standard_parallel_1\", %f], \n" +
+                        "  PARAMETER[\"scale_factor\", %f], \n" +
+                        "  PARAMETER[\"false_easting\", %f], \n" +
+                        "  PARAMETER[\"false_northing\", %f], \n" +
+                        "  UNIT[\"m\", 1.0], \n" +
+                        "  AXIS[\"Easting\", EAST], \n" +
+                        "  AXIS[\"Northing\", NORTH] \n" +
+                        "]";
+                String upsWkt = String.format(upsWktPattern,
+                                              geodeticSystName,
+                                              spheroidName,
+                                              spheroidName,
+                                              spheroidName,
+                                              semiMajAxis,
+                                              inverseFlattening,
+                                              meridianName,
+                                              meridianOrigin,
+                                              projectionName,
+                                              longOrigin,
+                                              standardParallel,
+                                              scaleFactor,
+                                              xOrigin,
+                                              yOrigin);
+                try {
+                    final CoordinateReferenceSystem crs = CRS.parseWKT(upsWkt);
+                    return new CrsGeoCoding(crs, imageBounds, transform);
+                } catch (Throwable t) {
+                    Debug.trace("upsWkt = " + upsWkt);
+                    Debug.trace(t);
+                }
             }
         }
-
         return null;
     }
 
@@ -157,9 +284,9 @@ final class LogVolDescriptor {
                 && upperLeftRow != null
                 && lowerRightCol != null
                 && lowerRightRow != null) {
-                return new Rectangle(upperLeftCol - 1, upperLeftRow - 1,
-                                                     lowerRightCol - upperLeftCol + 1,
-                                                     lowerRightRow - upperLeftRow + 1);
+            return new Rectangle(upperLeftCol - 1, upperLeftRow - 1,
+                                 lowerRightCol - upperLeftCol + 1,
+                                 lowerRightRow - upperLeftRow + 1);
         }
         return null;
     }
