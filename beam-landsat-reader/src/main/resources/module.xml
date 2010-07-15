@@ -1,10 +1,10 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-landsat-reader</symbolicName>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <name>Landsat TM Product Reader</name>
     <description>
-        A product reader for Landsat TM 5 FAST files.
+        A product reader for Landsat TM 5 (FAST and GeoTIFF) files.
     </description>
 
     <vendor>Christian Berwanger (ai0263@umwelt-campus.de)</vendor>
@@ -15,7 +15,7 @@
     <changelog>
         <![CDATA[
         From 1.1.2 to 1.2:<br/>
-            [BEAM-???] Add reader for Landsat 5 TM in GeoTIFF format<br/>
+            [BEAM-1167] The Landsat reader does not support products in GeoTIFF <br/>
         From 1.1.1 to 1.1.2:<br/>
             [BEAM-945] Landsat reader does not consider the center information in header file<br/>
         From 1.1 to 1.1.1:<br/>
@@ -47,8 +47,8 @@
             <formatName>FAST L5</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>L</mnemonic>
-            <shortDescr>Import a Landsat TM data product or product subset.</shortDescr>
-            <description>Import a Landsat TM data product or product subset.</description>
+            <shortDescr>Import a Landsat TM (Fast) data product or product subset.</shortDescr>
+            <description>Import a Landsat TM (in Fast format) data product or product subset.</description>
             <helpId>importLandsatTMProduct</helpId>
             <placeAfter>importGeometry</placeAfter>
         </action>
@@ -60,8 +60,8 @@
             <useAllFileFilter>true</useAllFileFilter>
             <text>Import Landsat 5 TM (GeoTIFF) Product...</text>
             <mnemonic>G</mnemonic>
-            <shortDescr>Import a Landsat (GeoTIFF) data product or product subset.</shortDescr>
-            <description>Import a Landsat (in GeoTIFF format) data product or product subset.</description>
+            <shortDescr>Import a Landsat TM (GeoTIFF) data product or product subset.</shortDescr>
+            <description>Import a Landsat TM (in GeoTIFF format) data product or product subset.</description>
         </action>
     </extension>
 
