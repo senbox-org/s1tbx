@@ -48,7 +48,7 @@ public class FormatNameTest extends TestCase {
         while (urlEnumeration.hasMoreElements()) {
             final URL url = (URL) urlEnumeration.nextElement();
             System.out.println("url = " + url);
-            if (url.toString().contains("beam-netcdf4-reader")) {
+            if (url.toString().contains("beam-netcdf")) {
                 stream = new FileInputStream(url.getFile());
                 System.out.println("  SELECTED");
                 break;

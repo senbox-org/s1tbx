@@ -1,6 +1,6 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-netcdf4-reader</symbolicName>
+    <symbolicName>beam-netcdf</symbolicName>
     <version>1.0</version>
     <name>NetCDF Product Reader and Writer</name>
     <description>
