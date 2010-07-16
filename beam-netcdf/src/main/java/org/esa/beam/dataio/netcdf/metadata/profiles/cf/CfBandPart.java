@@ -47,7 +47,6 @@ public class CfBandPart extends ProfilePart {
             final DataTypeWorkarounds dataTypeWorkarounds = DataTypeWorkarounds.getInstance();
             final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
             final Band band = p.addBand(variable.getName(), rasterDataType);
-
             applyAttributes(band, variable);
         }
     }
@@ -139,7 +138,7 @@ public class CfBandPart extends ProfilePart {
     }
 
     private static int getRasterDataType(Variable variable, DataTypeWorkarounds workarounds) {
-        if (workarounds != null && workarounds.hasWorkaroud(variable.getName(), variable.getDataType())) {
+        if (workarounds != null && workarounds.hasWorkaround(variable.getName(), variable.getDataType())) {
             return workarounds.getRasterDataType(variable.getName(), variable.getDataType());
         }
         return ReaderUtils.getRasterDataType(variable.getDataType(), variable.isUnsigned());

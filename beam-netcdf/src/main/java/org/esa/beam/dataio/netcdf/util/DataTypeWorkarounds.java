@@ -38,7 +38,7 @@ public class DataTypeWorkarounds {
         return Holder.INSTANCE;
     }
 
-    public boolean hasWorkaroud(String variableName, DataType dataType) {
+    public boolean hasWorkaround(String variableName, DataType dataType) {
         if (StringUtils.isNullOrEmpty(variableName) || dataType == null) {
             return false;
         }

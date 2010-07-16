@@ -28,6 +28,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
@@ -108,8 +109,10 @@ public class CfGeocodingPart extends ProfilePart {
     }
 
     static boolean isGeographicLatLon(final GeoCoding geoCoding) {
-        return geoCoding instanceof CrsGeoCoding
-               && CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
+        if (geoCoding instanceof CrsGeoCoding || geoCoding instanceof MapGeoCoding) {
+            return CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
+        }
+        return false;
     }
 
     private void addLatLonCoordVariables(NetcdfFileWriteable ncFile, GeoPos ul, GeoPos br) {
