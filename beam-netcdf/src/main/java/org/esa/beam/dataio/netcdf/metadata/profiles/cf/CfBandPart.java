@@ -73,17 +73,7 @@ public class CfBandPart extends ProfilePart {
         final Number noDataValue = getNoDataValue(attMap);
         if (noDataValue != null) {
             rasterDataNode.setNoDataValue(noDataValue.doubleValue());
-            int dataType = rasterDataNode.getDataType();
-            // TODO (mz, 2010-06-16) replace with normal noDataValue before BEAM 4.8 release
-            if (ProductData.isIntType(dataType)) {
-                double intNoDataValue = rasterDataNode.getNoDataValue();
-                String rawSymbol = rasterDataNode.getName() + ".raw";
-                String extName = BandArithmetic.createExternalName(rawSymbol);
-                String validExp = extName + " != " + intNoDataValue;
-                rasterDataNode.setValidPixelExpression(validExp);
-            } else {
-                rasterDataNode.setNoDataValueUsed(true);
-            }
+            rasterDataNode.setNoDataValueUsed(true);
         }
     }
 
