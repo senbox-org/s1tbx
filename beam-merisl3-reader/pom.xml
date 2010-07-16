@@ -23,9 +23,8 @@
             <artifactId>beam-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-netcdf-reader</artifactId>
-            <version>1.1</version>
+            <groupId>ucar.netcdf</groupId>
+            <artifactId>lib-netcdf</artifactId>
         </dependency>
     </dependencies>
 

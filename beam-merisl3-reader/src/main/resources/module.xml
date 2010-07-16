@@ -24,7 +24,7 @@
         <module>beam-core</module>
     </dependency>
     <dependency>
-        <module>beam-netcdf-reader</module>
+        <module>lib-netcdf</module>
     </dependency>
     <dependency>
         <module>beam-visat</module>
