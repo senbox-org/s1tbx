@@ -81,22 +81,23 @@ public class ImageManagerTest extends TestCase {
         assertEquals(0, dataBuffer.getElem(3));
     }
 
-    /** size of source image is calculated in
-    * {@code com.bc.ceres.glevel.support.DefaultMultiLevelSource#createImage(int)}
-     *
-     * size of mask image is calcualted in
+    /**
+     * size of source image is calculated in
+     * {@code com.bc.ceres.glevel.support.DefaultMultiLevelSource#createImage(int)}
+     * <p/>
+     * size of mask image is calculated in
      * {@code org.esa.beam.jai.ImageManager#createSingleBandedImageLayout(org.esa.beam.framework.datamodel.RasterDataNode)}
-     *
-     * they CAN produce different results. 
-    */
+     * <p/>
+     * they shall not produce different results.
+     */
     public void testImageAndMaskSize() {
         Product p = new Product("n", "t", 8501, 7651);
         Band b = p.addBand("b", ProductData.TYPE_FLOAT32);
         b.setNoDataValue(13);
         b.setNoDataValueUsed(true);
         b.setSourceImage(ConstantDescriptor.create((float) p.getSceneRasterWidth(),
-                                                          (float) p.getSceneRasterHeight(),
-                                                          new Float[]{42f}, null));
+                                                   (float) p.getSceneRasterHeight(),
+                                                   new Float[]{42f}, null));
         ImageManager imageManager = ImageManager.getInstance();
         int levelCount = b.getSourceImage().getModel().getLevelCount();
 

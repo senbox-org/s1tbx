@@ -67,7 +67,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
@@ -212,9 +211,11 @@ public class ImageManager {
             throw new IllegalArgumentException("sourceHeight");
         }
         Assert.notNull("level");
-        // todo - The knowledge of how width and height are computed should go either into AbstractMultiLevelSource or into the MultiLevelModel (nf 20090113)
-        int destWidth = (int) Math.floor(sourceWidth / level.getScale());
-        int destHeight = (int) Math.floor(sourceHeight / level.getScale());
+        final Dimension destDimension = AbstractMultiLevelSource.getImageDimension(sourceWidth,
+                                                                                   sourceHeight,
+                                                                                   level.getScale());
+        final int destWidth = destDimension.width;
+        final int destHeight = destDimension.height;
         tileSize = tileSize != null ? tileSize : JAIUtils.computePreferredTileSize(destWidth, destHeight, 1);
         SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType,
                                                                            tileSize.width, tileSize.height);
@@ -250,41 +251,41 @@ public class ImageManager {
 
     public static int getDataBufferType(int productDataType) {
         switch (productDataType) {
-        case ProductData.TYPE_INT8:
-        case ProductData.TYPE_UINT8:
-            return DataBuffer.TYPE_BYTE;
-        case ProductData.TYPE_INT16:
-            return DataBuffer.TYPE_SHORT;
-        case ProductData.TYPE_UINT16:
-            return DataBuffer.TYPE_USHORT;
-        case ProductData.TYPE_INT32:
-        case ProductData.TYPE_UINT32:
-            return DataBuffer.TYPE_INT;
-        case ProductData.TYPE_FLOAT32:
-            return DataBuffer.TYPE_FLOAT;
-        case ProductData.TYPE_FLOAT64:
-            return DataBuffer.TYPE_DOUBLE;
-        default:
-            throw new IllegalArgumentException("productDataType");
+            case ProductData.TYPE_INT8:
+            case ProductData.TYPE_UINT8:
+                return DataBuffer.TYPE_BYTE;
+            case ProductData.TYPE_INT16:
+                return DataBuffer.TYPE_SHORT;
+            case ProductData.TYPE_UINT16:
+                return DataBuffer.TYPE_USHORT;
+            case ProductData.TYPE_INT32:
+            case ProductData.TYPE_UINT32:
+                return DataBuffer.TYPE_INT;
+            case ProductData.TYPE_FLOAT32:
+                return DataBuffer.TYPE_FLOAT;
+            case ProductData.TYPE_FLOAT64:
+                return DataBuffer.TYPE_DOUBLE;
+            default:
+                throw new IllegalArgumentException("productDataType");
         }
     }
 
     public static int getProductDataType(int dataBufferType) {
         switch (dataBufferType) {
-        case DataBuffer.TYPE_BYTE:
-            return ProductData.TYPE_UINT8;
-        case DataBuffer.TYPE_SHORT:
-            return ProductData.TYPE_INT16;
-        case DataBuffer.TYPE_USHORT:
-            return ProductData.TYPE_UINT16;
-        case DataBuffer.TYPE_INT:
-            return ProductData.TYPE_INT32;
-        case DataBuffer.TYPE_FLOAT:
-            return ProductData.TYPE_FLOAT32;
-        case DataBuffer.TYPE_DOUBLE:
-            return ProductData.TYPE_FLOAT64;
-        default:
-            throw new IllegalArgumentException("dataBufferType");
+            case DataBuffer.TYPE_BYTE:
+                return ProductData.TYPE_UINT8;
+            case DataBuffer.TYPE_SHORT:
+                return ProductData.TYPE_INT16;
+            case DataBuffer.TYPE_USHORT:
+                return ProductData.TYPE_UINT16;
+            case DataBuffer.TYPE_INT:
+                return ProductData.TYPE_INT32;
+            case DataBuffer.TYPE_FLOAT:
+                return ProductData.TYPE_FLOAT32;
+            case DataBuffer.TYPE_DOUBLE:
+                return ProductData.TYPE_FLOAT64;
+            default:
+                throw new IllegalArgumentException("dataBufferType");
         }
     }
 
@@ -923,6 +924,8 @@ public class ImageManager {
     }
 
     // todo - signed byte type (-128...127) not correctly handled, see also [BEAM-1147] (nf - 20100527)
+
+    @Deprecated
     public static RenderedImage createRescaleOp(RenderedImage src, int dataType, double factor, double offset,
                                                 boolean log10Scaled) {
         RenderedImage image = createFormatOp(src, dataType);
