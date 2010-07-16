@@ -182,7 +182,7 @@ class CommandLineTool {
             String s = sourceFile.getPath();
             product = readProduct(s);
             if (product == null) {
-                throw new IOException("No approriate product reader found for " + sourceFile);
+                throw new IOException("No appropriate product reader found for " + sourceFile);
             }
             fileToProductMap.put(sourceFile, product);
         }
