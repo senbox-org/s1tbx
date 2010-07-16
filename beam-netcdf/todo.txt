@@ -1,0 +1,21 @@
+module beam-netcdf4-reader --> beam-netcdf (/)
+package convention --> metadata (/)
+package convention.beam --> metadata.profiles.default (/)
+package convention.hdfeos --> metadata.profiles.hdfeos (/)
+package convention.cf --> metadata.profiles.cf (/)
+
+classes Beam* --> Default* (/)
+dataio.netcdf4 --> dataio.netcdf (/)
+AbstractProfileFactory.getX() --> .createX()  (/)
+
+classes Nc4* --> util.* (/)
+
+
+interface ProfileReadContext  |
+  NetcdfFile                  |
+  Nc4FileInfo (aufgelöst)     | ==> (/)
+interface ProfileWriteContext |
+  NetcdfFileWritable          |
+
+check cf convention about time information
+remove module  beam-netcdf-reader

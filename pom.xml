@@ -146,7 +146,7 @@
         <module>beam-atsr-reader</module>
         <module>beam-alos-reader</module>
         <module>beam-netcdf-reader</module>
-        <module>beam-netcdf4-reader</module>
+        <module>beam-netcdf</module>
         <module>beam-merisl3-reader</module>
         <module>beam-getasse30-reader</module>
         <module>beam-envisat-reader</module>

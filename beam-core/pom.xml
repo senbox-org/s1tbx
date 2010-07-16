@@ -23,6 +23,11 @@
         </dependency>
         <dependency>
             <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-binio</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-glayer</artifactId>
         </dependency>
         <dependency>

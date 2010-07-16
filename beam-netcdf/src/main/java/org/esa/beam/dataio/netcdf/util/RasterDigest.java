@@ -1,0 +1,103 @@
+package org.esa.beam.dataio.netcdf.util;
+
+import ucar.nc2.Group;
+import ucar.nc2.Variable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Represents an extract of all variables that could be converted to bands.
+ */
+public class RasterDigest {
+
+    private final Dimension _rasterDim;
+    private final Variable[] _variables;
+
+
+    public RasterDigest(Dimension rasterDim, Variable[] variables) {
+        _rasterDim = rasterDim;
+        _variables = variables;
+    }
+
+    public Dimension getRasterDim() {
+        return _rasterDim;
+    }
+
+    public Variable[] getRasterVariables() {
+        return _variables;
+    }
+
+    public static RasterDigest createRasterDigest(final Group group) {
+        Map<Dimension, List<Variable>> variableListMap = getVariableListMap(group);
+        if (variableListMap.isEmpty()) {
+            return null;
+        }
+        final Dimension rasterDim = getBestRasterDim(variableListMap);
+        final Variable[] rasterVariables = getRasterVariables(variableListMap, rasterDim);
+        return new RasterDigest(rasterDim, rasterVariables);
+    }
+
+    static Variable[] getRasterVariables(Map<Dimension, List<Variable>> variableLists,
+                                         Dimension rasterDim) {
+        final List<Variable> list = variableLists.get(rasterDim);
+        return list.toArray(new Variable[list.size()]);
+    }
+
+    static Dimension getBestRasterDim(Map<Dimension, List<Variable>> variableListMap) {
+        final Set<Dimension> ncRasterDims = variableListMap.keySet();
+        if (ncRasterDims.size() == 0) {
+            return null;
+        }
+
+        Dimension bestRasterDim = null;
+        List<Variable> bestVarList = null;
+        for (Dimension rasterDim : ncRasterDims) {
+            if (rasterDim.isTypicalRasterDim()) {
+                return rasterDim;
+            }
+            // Otherwise, the best is the one which holds the most variables
+            //  todo se -- Why not that list with the bigest dimensions? Which cover the most pixels.? 
+            final List<Variable> varList = variableListMap.get(rasterDim);
+            if (bestVarList == null || varList.size() > bestVarList.size()) {
+                bestRasterDim = rasterDim;
+                bestVarList = varList;
+            }
+        }
+
+        return bestRasterDim;
+    }
+
+    static Map<Dimension, List<Variable>> getVariableListMap(final Group group) {
+        Map<Dimension, List<Variable>> variableLists = new HashMap<Dimension, List<Variable>>();
+        collectVariableLists(group, variableLists);
+        return variableLists;
+    }
+
+    static void collectVariableLists(Group group, Map<Dimension, List<Variable>> variableLists) {
+        final List<Variable> variables = group.getVariables();
+        for (final Variable variable : variables) {
+            final int rank = variable.getRank();
+            if (rank >= 2 && ReaderUtils.isValidRasterDataType(variable.getDataType())) {
+                final ucar.nc2.Dimension dimX = variable.getDimension(rank - 1);
+                final ucar.nc2.Dimension dimY = variable.getDimension(rank - 2);
+                if (dimX.getLength() > 1 && dimY.getLength() > 1) {
+                    Dimension rasterDim = new Dimension(new ucar.nc2.Dimension[]{dimX, dimY});
+                    List<Variable> list = variableLists.get(rasterDim);
+                    if (list == null) {
+                        list = new ArrayList<Variable>();
+                        variableLists.put(rasterDim, list);
+                    }
+                    list.add(variable);
+                }
+            }
+        }
+        final List<Group> subGroups = group.getGroups();
+        for (final Group subGroup : subGroups) {
+            collectVariableLists(subGroup, variableLists);
+        }
+    }
+}

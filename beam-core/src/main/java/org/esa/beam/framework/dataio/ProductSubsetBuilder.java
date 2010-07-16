@@ -411,6 +411,9 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             final double newStop = vPerLine * (regionHeight - 1) + newStart;
             product.setStartTime(new ProductData.UTC(newStart));
             product.setEndTime(new ProductData.UTC(newStop));
+        } else {
+            product.setStartTime(startTime);
+            product.setEndTime(stopTime);
         }
     }
 
