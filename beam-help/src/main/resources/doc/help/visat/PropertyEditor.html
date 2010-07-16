@@ -8,34 +8,79 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Property Editor </td>
-        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
+            Property Editor
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a></td>
     </tr>
 </table>
 
 <h3>Property Editor</h3>
 
-<p>The property editor can be used to edit the properties of a product, a tie-point grid or a (virtual) band.</p>
+<p>The property editor can be used to edit the properties of a selected object, e.g. a data product,
+    a tie-point grid or a (virtual) band.</p>
 
-<p>Depending on the kind of object for that the propery editor is invoked,
-    different kinds of properties can be edited. The name and the description can be changed in all cases.
-    Additionally following properties can be edited:
-
-    <ul>
-        <li>Products - the product type.</li>
-        <li>Tie point-grids and (virtual) bands - the geophysical unit, the no-data value, the valid pixel expression,
-            the spectral wavelength and spectral bandwidth.</li>
-        <li>Virtual bands - the virtual band expression.</li>
-
-        
-  <p align="center"><img src="images/PropertyEditor.jpg" width="347" height="289"></p>
-    </ul>
-</p>
+<p align="center"><img src="images/PropertyEditor.jpg"></p>
 
 <p>The property editor can be invoked from the context menu, where it is the top item.
-    The context menu is activated with a click on the rigth mouse button over the object that should be edited.</p>
+    The context menu is activated with a click on the rigth mouse button over the object that should be edited.
+</p>
 
-<p align="center"><img src="images/PropertyEditorContextMenu.jpg" width="223" height="122"></p>
+<p align="center"><img src="images/PropertyEditorContextMenu.jpg"></p>
+
+<p>The actual list of editable properties is determined by the type of the selected object.
+    The name and the description properties can be changed in all cases. Additionally following properties can be
+    edited:
+</p>
+
+<h4>Data Products</h4>
+
+<table border="0">
+    <tr>
+        <td>Product type:</td>
+        <td>A string identifying the product type.</td>
+    </tr>
+    <tr>
+        <td>Band grouping:</td>
+        <td>A colon (':') separated list of band name parts which are used to auto-create groups of bands in the
+            <a href="ProductBrowser.html">product browser</a>.
+        </td>
+    </tr>
+</table>
+
+
+<h4>Tie point-grids and Bands</h4>
+
+<table border="0">
+    <tr>
+        <td>Geophysical unit:</td>
+        <td>The unit of the geophysical quantity represented by a tie point-grid or band.</td>
+    </tr>
+    <tr>
+        <td>Use no-data value:</td>
+        <td>Check this, if a special 'no-data' value is occurs in the pixel values.</td>
+    </tr>
+    <tr>
+        <td>Valid pixel expression:</td>
+        <td>An arbitrary <a href="BandMaths.html">band-maths</a> expression determining valid pixel values.</td>
+    </tr>
+    <tr>
+        <td>Spectral wavelength:</td>
+        <td>The wavelength in nm of a spectral band. Default value is zero (= not a spectral band).</td>
+    </tr>
+    <tr>
+        <td>Spectral bandwidth:</td>
+        <td>The bandwidth in nm of a spectral band. Default value is zero (= not a spectral band).</td>
+    </tr>
+    <tr>
+        <td>Virtual band expression:</td>
+        <td>Virtual bands only: An arbitrary <a href="BandMaths.html">band-maths</a> expression
+            that is used tro compute the band's pixel values.
+        </td>
+    </tr>
+</table>
+
+<p/>
 
 <hr>
 
