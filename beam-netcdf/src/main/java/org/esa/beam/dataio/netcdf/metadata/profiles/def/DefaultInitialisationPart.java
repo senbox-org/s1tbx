@@ -29,7 +29,7 @@ public class DefaultInitialisationPart implements ProfileInitPart {
             }
         }
         if (x == null || y == null) {
-            throw new ProductIOException("Illegal Dimensions: Dimensions named x and y expected.");
+            throw new ProductIOException("Illegal Dimensions: Dimensions named (x,lon) and (y,lat) expected.");
         }
         return new Product(
                 (String) ctx.getProperty(Constants.PRODUCT_NAME_PROPERTY_NAME),

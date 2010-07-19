@@ -282,7 +282,7 @@ public class CfGeocodingPart extends ProfilePart {
             final NetcdfFile netcdfFile = ctx.getNetcdfFile();
             ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME,
                             detectFlipping(netcdfFile.findTopVariable(latBand.getName())));
-            return new PixelGeoCoding(latBand, lonBand, latBand.getValidPixelExpression(), 5);
+            return new PixelGeoCoding(latBand, lonBand, latBand.getValidMaskExpression(), 5);
         }
         return null;
     }
