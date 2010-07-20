@@ -3,6 +3,7 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.def;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -77,12 +78,12 @@ public class DefaultMetadataPart extends ProfilePart {
     }
 
     private ProductData extractValue(Attribute attribute) {
-        String stringValue = attribute.getStringValue();
         ProductData attributeValue;
-        if (stringValue != null) {
-            attributeValue = ProductData.createInstance(stringValue);
+        int productDataType = ReaderUtils.getEquivalentProductDataType(attribute.getDataType(), false, false);
+        if (productDataType == ProductData.TYPE_ASCII) {
+            attributeValue = ProductData.createInstance(attribute.getStringValue());
         } else {
-            attributeValue = ProductData.createInstance(attribute.getValues().toString());
+            attributeValue = ProductData.createInstance(productDataType, attribute.getValues().copyTo1DJavaArray());
         }
         return attributeValue;
     }
