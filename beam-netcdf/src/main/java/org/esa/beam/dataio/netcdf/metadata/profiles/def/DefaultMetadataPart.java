@@ -22,6 +22,8 @@ public class DefaultMetadataPart extends ProfilePart {
 
     private static final String SPLITTER = "/";
     private static final String METADATA_VARIABLE = "metadata";
+    private static final String DESCRIPTION_SUFFIX = ".descr";
+    private static final String UNIT_SUFFIX = ".unit";
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
@@ -70,10 +72,27 @@ public class DefaultMetadataPart extends ProfilePart {
             readMetaData(attribute, metadataElement, prefix + SPLITTER + temp);
         } else {
             // attribute is leaf, add attribute into subgroup
-            String newAttributeName = attribute.getName().replace(prefix, "").replace(SPLITTER, "");
-            ProductData attributeValue = extractValue(attribute);
-            MetadataAttribute newAttribute = new MetadataAttribute(newAttributeName, attributeValue, true);
-            metadataElement.addAttribute(newAttribute);
+            String newAttributeName = attribute.getName().replaceFirst(prefix, "").replace(SPLITTER, "");
+            if (newAttributeName.endsWith(UNIT_SUFFIX)) {
+                // setting the unit this way requires that it is written AFTER its attribute
+                MetadataAttribute anAttribute = metadataElement.getAttribute(newAttributeName.replace(UNIT_SUFFIX, ""));
+                String value = attribute.getStringValue();
+                if (value != null) {
+                    anAttribute.setUnit(value);
+                }
+            } else if (newAttributeName.endsWith(DESCRIPTION_SUFFIX)) {
+                // setting the description this way requires that it is written AFTER its attribute
+                MetadataAttribute anAttribute = metadataElement.getAttribute(newAttributeName.replace(
+                        DESCRIPTION_SUFFIX, ""));
+                String value = attribute.getStringValue();
+                if (value != null) {
+                    anAttribute.setDescription(value);
+                }
+            } else {
+                ProductData attributeValue = extractValue(attribute);
+                MetadataAttribute newAttribute = new MetadataAttribute(newAttributeName, attributeValue, true);
+                metadataElement.addAttribute(newAttribute);
+            }
         }
     }
 
@@ -121,11 +140,11 @@ public class DefaultMetadataPart extends ProfilePart {
         }
         if (metadataAttr.getUnit() != null) {
             var.addAttribute(
-                    new Attribute(prefix + SPLITTER + metadataAttr.getName() + ".unit", metadataAttr.getUnit()));
+                    new Attribute(prefix + SPLITTER + metadataAttr.getName() + UNIT_SUFFIX, metadataAttr.getUnit()));
         }
         if (metadataAttr.getDescription() != null) {
             var.addAttribute(
-                    new Attribute(prefix + SPLITTER + metadataAttr.getName() + ".descr",
+                    new Attribute(prefix + SPLITTER + metadataAttr.getName() + DESCRIPTION_SUFFIX,
                                   metadataAttr.getDescription()));
         }
     }
