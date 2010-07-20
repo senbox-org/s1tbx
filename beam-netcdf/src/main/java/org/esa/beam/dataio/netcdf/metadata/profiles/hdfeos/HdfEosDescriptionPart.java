@@ -13,8 +13,7 @@ public class HdfEosDescriptionPart extends ProfilePart {
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
-        Element element = HdfEosUtils.getEosElement(HdfEosUtils.ARCHIVE_METADATA,
-                                                    ctx.getNetcdfFile().getRootGroup());
+        Element element = (Element) ctx.getProperty(HdfEosUtils.ARCHIVE_METADATA);
         if (element != null) {
             p.setDescription(HdfEosUtils.getValue(element, "ARCHIVEDMETADATA", "MASTERGROUP", "LONGNAME", "VALUE"));
         }

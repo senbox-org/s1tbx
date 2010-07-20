@@ -14,8 +14,7 @@ public class HdfEosStartTimePart extends ProfilePart {
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
-        Element element = HdfEosUtils.getEosElement(HdfEosUtils.CORE_METADATA,
-                                                    ctx.getNetcdfFile().getRootGroup());
+        Element element = (Element) ctx.getProperty(HdfEosUtils.CORE_METADATA);
         if (element != null) {
             String date = HdfEosUtils.getValue(element, "INVENTORYMETADATA", "MASTERGROUP", "RANGEDATETIME",
                                                "RANGEBEGINNINGDATE", "VALUE");

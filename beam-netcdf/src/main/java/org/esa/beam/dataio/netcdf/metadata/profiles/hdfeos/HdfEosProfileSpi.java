@@ -87,12 +87,13 @@ public class HdfEosProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfileReadContext createReadContext(NetcdfFile netcdfFile) throws IOException {
-        Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
-        String gridName = getGridName(eosElement);
+        Group eosGroup = netcdfFile.getRootGroup();
+        Element eosStructElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, eosGroup);
+        String gridName = getGridName(eosStructElement);
         if (gridName == null || gridName.isEmpty()) {
             throw new ProductIOException("Could not find grid.");
         }
-        Group gridGroup = HdfEosUtils.findGroupNested(netcdfFile.getRootGroup(), gridName);
+        Group gridGroup = HdfEosUtils.findGroupNested(eosGroup, gridName);
         if (gridGroup == null) {
             throw new ProductIOException("Could not find grid group.");
         }
@@ -102,7 +103,11 @@ public class HdfEosProfileSpi extends AbstractProfileSpi {
         for (Variable variable : rasterVariables) {
             variableMap.put(variable.getShortName(), variable);
         }
-        return new ProfileReadContextImpl(netcdfFile, rasterDigest, variableMap);
+        ProfileReadContextImpl readContext = new ProfileReadContextImpl(netcdfFile, rasterDigest, variableMap);
+        readContext.setProperty(HdfEosUtils.STRUCT_METADATA, eosStructElement);
+        readContext.setProperty(HdfEosUtils.CORE_METADATA, HdfEosUtils.getEosElement(HdfEosUtils.CORE_METADATA, eosGroup));
+        readContext.setProperty(HdfEosUtils.ARCHIVE_METADATA, HdfEosUtils.getEosElement(HdfEosUtils.ARCHIVE_METADATA, eosGroup));
+        return readContext;
     }
 
     @Override

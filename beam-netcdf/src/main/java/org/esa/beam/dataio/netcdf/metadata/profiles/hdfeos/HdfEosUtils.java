@@ -10,7 +10,9 @@ import ucar.nc2.iosp.hdf4.ODLparser;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-
+/**
+ * Utility function to deal with the HDF-EOS products.
+ */
 class HdfEosUtils {
     static final String STRUCT_METADATA = "StructMetadata";
     static final String CORE_METADATA = "CoreMetadata";

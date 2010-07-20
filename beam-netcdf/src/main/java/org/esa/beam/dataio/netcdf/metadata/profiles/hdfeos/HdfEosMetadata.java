@@ -10,7 +10,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.jdom.Attribute;
 import org.jdom.Element;
-import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -30,9 +29,9 @@ public class HdfEosMetadata extends ProfilePart {
         MetadataElement root = p.getMetadataRoot();
         root.addElement(CfMetadataPart.createMetadataElementFromAttributeList(ncFile.getGlobalAttributes(), "MPH"));
         MetadataElement eosElem = new MetadataElement("EOS");
-        createMDE(HdfEosUtils.STRUCT_METADATA, ncFile.getRootGroup(), eosElem);
-        createMDE(HdfEosUtils.CORE_METADATA, ncFile.getRootGroup(), eosElem);
-        createMDE(HdfEosUtils.ARCHIVE_METADATA, ncFile.getRootGroup(), eosElem);
+        createMDE(HdfEosUtils.STRUCT_METADATA, ctx, eosElem);
+        createMDE(HdfEosUtils.CORE_METADATA, ctx, eosElem);
+        createMDE(HdfEosUtils.ARCHIVE_METADATA, ctx, eosElem);
         root.addElement(eosElem);
         List<Variable> ncVariables = ncFile.getVariables();
         filterVariableList(ncVariables);
@@ -52,15 +51,14 @@ public class HdfEosMetadata extends ProfilePart {
         }
     }
 
-    private static void createMDE(String name, Group eosGroup, MetadataElement eosElem) throws IOException {
-        Element element = HdfEosUtils.getEosElement(name, eosGroup);
+    private static void createMDE(String name, ProfileReadContext ctx, MetadataElement eosElem) throws IOException {
+        Element element = (Element) ctx.getProperty(name);
         if (element != null) {
             MetadataElement metadataElement = new MetadataElement(name);
             addDomToMetadata(element, metadataElement);
             eosElem.addElement(metadataElement);
         }
     }
-
 
     private static void addDomToMetadata(Element parentDE, MetadataElement parentME) {
         final HashMap<String, List<Element>> map = new HashMap<String, List<Element>>(25);

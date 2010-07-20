@@ -9,7 +9,6 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.jdom.Element;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
-import ucar.nc2.NetcdfFile;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -23,8 +22,7 @@ public class HdfEosGeocodingPart extends ProfilePart {
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
-        NetcdfFile netcdfFile = ctx.getNetcdfFile();
-        Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
+        Element eosElement = (Element) ctx.getProperty(HdfEosUtils.STRUCT_METADATA);
         Element gridStructure = eosElement.getChild("GridStructure");
         Element gridElem = (Element) gridStructure.getChildren().get(0);
         Element projectionElem = gridElem.getChild("Projection");
