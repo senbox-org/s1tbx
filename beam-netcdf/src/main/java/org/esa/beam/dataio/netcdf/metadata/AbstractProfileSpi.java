@@ -54,72 +54,24 @@ public abstract class AbstractProfileSpi implements ProfileSpi {
 
     @Override
     public void configureProfile(NetcdfFile netcdfFile, Profile profile) throws IOException {
-        ProfileInitPart initPart;
-        ProfilePart bandPart;
-        ProfilePart flagCodingPart;
-        ProfilePart geocodingPart;
-        ProfilePart imageInfoPart;
-        ProfilePart indexCodingPart;
-        ProfilePart maskOverlayPart;
-        ProfilePart stxPart;
-        ProfilePart tiePointGridPart;
-        ProfilePart startTimePart;
-        ProfilePart endTimePart;
-        ProfilePart metaDataPart;
-        ProfilePart descriptionPart;
+        profile.setInitialisationPart(createInitialisationPart());
+        addProfilePart(profile, createMetadataPart());
+        addProfilePart(profile, createBandPart());
+        addProfilePart(profile, createTiePointGridPart());
+        addProfilePart(profile, createFlagCodingPart());
+        addProfilePart(profile, createGeocodingPart());
+        addProfilePart(profile, createImageInfoPart());
+        addProfilePart(profile, createIndexCodingPart());
+        addProfilePart(profile, createMaskOverlayPart());
+        addProfilePart(profile, createStxPart());
+        addProfilePart(profile, createStartTimePart());
+        addProfilePart(profile, createEndTimePart());
+        addProfilePart(profile, createDescriptionPart());
+    }
 
-        metaDataPart = createMetadataPart();
-        bandPart = createBandPart();
-        initPart = createInitialisationPart();
-        flagCodingPart = createFlagCodingPart();
-        geocodingPart = createGeocodingPart();
-        imageInfoPart = createImageInfoPart();
-        indexCodingPart = createIndexCodingPart();
-        maskOverlayPart = createMaskOverlayPart();
-        stxPart = createStxPart();
-        tiePointGridPart = createTiePointGridPart();
-        startTimePart = createStartTimePart();
-        endTimePart = createEndTimePart();
-        descriptionPart = createDescriptionPart();
-
-        if (initPart != null) {
-            profile.setInitialisationPart(initPart);
-        }
-        if (metaDataPart != null) {
-            profile.addProfilePart(metaDataPart);
-        }
-        if (bandPart != null) {
-            profile.addProfilePart(bandPart);
-        }
-        if (tiePointGridPart != null) {
-            profile.addProfilePart(tiePointGridPart);
-        }
-        if (flagCodingPart != null) {
-            profile.addProfilePart(flagCodingPart);
-        }
-        if (geocodingPart != null) {
-            profile.addProfilePart(geocodingPart);
-        }
-        if (imageInfoPart != null) {
-            profile.addProfilePart(imageInfoPart);
-        }
-        if (indexCodingPart != null) {
-            profile.addProfilePart(indexCodingPart);
-        }
-        if (maskOverlayPart != null) {
-            profile.addProfilePart(maskOverlayPart);
-        }
-        if (stxPart != null) {
-            profile.addProfilePart(stxPart);
-        }
-        if (startTimePart != null) {
-            profile.addProfilePart(startTimePart);
-        }
-        if (endTimePart != null) {
-            profile.addProfilePart(endTimePart);
-        }
-        if (descriptionPart != null) {
-            profile.addProfilePart(descriptionPart);
+    protected void addProfilePart(Profile profile, ProfilePart profilePart) {
+        if (profilePart != null) {
+            profile.addProfilePart(profilePart);
         }
     }
 

@@ -45,6 +45,7 @@ public final class ProfileImpl implements Profile {
 
     @Override
     public void setInitialisationPart(ProfileInitPart initPart) {
+        Assert.notNull(initPart, "initPart");
         this.profileInitPart = initPart;
     }
 
