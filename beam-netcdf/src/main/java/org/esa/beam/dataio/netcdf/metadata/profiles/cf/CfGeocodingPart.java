@@ -19,7 +19,6 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
-import org.esa.beam.dataio.netcdf.util.AttributeMap;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.Dimension;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
@@ -210,23 +209,27 @@ public class CfGeocodingPart extends ProfilePart {
         double pixelSizeX;
         double pixelSizeY;
 
-        final AttributeMap lonAttrMap = AttributeMap.create(lonVar);
-        final Number lonValidMin = lonAttrMap.getNumericValue(Constants.VALID_MIN_ATT_NAME);
-        final Number lonValidMax = lonAttrMap.getNumericValue(Constants.VALID_MAX_ATT_NAME);
+        final Attribute lonValidMinAttr = lonVar.findAttribute(Constants.VALID_MIN_ATT_NAME);
+        final Attribute lonValidMaxAttr = lonVar.findAttribute(Constants.VALID_MAX_ATT_NAME);
 
-        final AttributeMap latAttrMap = AttributeMap.create(latVar);
-        final Number latValidMin = latAttrMap.getNumericValue(Constants.VALID_MIN_ATT_NAME);
-        final Number latValidMax = latAttrMap.getNumericValue(Constants.VALID_MAX_ATT_NAME);
+        final Attribute latValidMinAttr = latVar.findAttribute(Constants.VALID_MIN_ATT_NAME);
+        final Attribute latValidMaxAttr = latVar.findAttribute(Constants.VALID_MAX_ATT_NAME);
 
         boolean yFlipped;
-        if (lonValidMin != null && lonValidMax != null && latValidMin != null && latValidMax != null) {
+        if (lonValidMinAttr != null && lonValidMaxAttr != null && latValidMinAttr != null && latValidMaxAttr != null) {
             // COARDS convention uses 'valid_min' and 'valid_max' attributes
+
+            double lonValidMin = lonValidMinAttr.getNumericValue().doubleValue();
+            double latValidMin = latValidMinAttr.getNumericValue().doubleValue();
+            double lonValidMax = lonValidMaxAttr.getNumericValue().doubleValue();
+            double latValidMAx = latValidMaxAttr.getNumericValue().doubleValue();
+
             pixelX = 0.5;
             pixelY = (sceneRasterHeight - 1.0) + 0.5;
-            easting = lonValidMin.doubleValue();
-            northing = latValidMin.doubleValue();
-            pixelSizeX = (lonValidMax.doubleValue() - lonValidMin.doubleValue()) / sceneRasterWidth;
-            pixelSizeY = (latValidMax.doubleValue() - latValidMin.doubleValue()) / sceneRasterHeight;
+            easting = lonValidMin;
+            northing = latValidMin;
+            pixelSizeX = (lonValidMax - lonValidMin) / sceneRasterWidth;
+            pixelSizeY = (latValidMAx - latValidMin) / sceneRasterHeight;
             // must flip
             yFlipped = true; // todo - check
         } else {

@@ -5,6 +5,7 @@ import org.esa.beam.util.logging.BeamLogManager;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.text.ParseException;
@@ -56,12 +57,12 @@ public class ReaderUtils {
         return ProductData.createInstance(productDataType, data);
     }
 
-    public static ProductData.UTC getSceneRasterTime(AttributeMap globalAttributes,
-                                                     final String dateAttName,
-                                                     final String timeAttName) {
-        final String dateStr = globalAttributes.getStringValue(dateAttName);
-        final String timeStr = globalAttributes.getStringValue(timeAttName);
-        final String dateTimeStr = getDateTimeString(dateStr, timeStr);
+    public static ProductData.UTC getSceneRasterTime(NetcdfFile ncFile,
+                                                     final String dateAttrName,
+                                                     final String timeAttrName) {
+        final Attribute dateAttr = ncFile.findGlobalAttribute(dateAttrName);
+        final Attribute timeAttr = ncFile.findGlobalAttribute(timeAttrName);
+        final String dateTimeStr = getDateTimeString(dateAttr, timeAttr);
 
         if (dateTimeStr != null) {
             return parseDateTime(dateTimeStr);
@@ -70,21 +71,23 @@ public class ReaderUtils {
         return null;
     }
 
-    public static String getDateTimeString(String dateStr, String timeStr) {
-        if (dateStr != null && dateStr.endsWith("UTC")) {
-            dateStr = dateStr.substring(0, dateStr.length() - 3).trim();
+    public static String getDateTimeString(Attribute dateAttr, Attribute timeAttr) {
+        String date = dateAttr != null ? dateAttr.getStringValue() : null;
+        String time = timeAttr != null ? timeAttr.getStringValue() : null;
+        if (date != null && date.endsWith("UTC")) {
+            date = date.substring(0, date.length() - 3).trim();
         }
-        if (timeStr != null && timeStr.endsWith("UTC")) {
-            timeStr = timeStr.substring(0, timeStr.length() - 3).trim();
+        if (time != null && time.endsWith("UTC")) {
+            time = time.substring(0, time.length() - 3).trim();
         }
-        if (dateStr != null && timeStr != null) {
-            return dateStr + " " + timeStr;
+        if (date != null && time != null) {
+            return date + " " + time;
         }
-        if (dateStr != null) {
-            return dateStr + (dateStr.indexOf(':') == -1 ? " 00:00:00" : "");
+        if (date != null) {
+            return date + (date.indexOf(':') == -1 ? " 00:00:00" : "");
         }
-        if (timeStr != null) {
-            return timeStr + (timeStr.indexOf(':') == -1 ? " 00:00:00" : "");
+        if (time != null) {
+            return time + (time.indexOf(':') == -1 ? " 00:00:00" : "");
         }
         return null;
     }

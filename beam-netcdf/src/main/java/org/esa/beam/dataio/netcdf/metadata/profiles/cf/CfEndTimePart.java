@@ -31,7 +31,7 @@ public class CfEndTimePart extends ProfilePart {
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
-        p.setEndTime(ReaderUtils.getSceneRasterTime(ctx.getGlobalAttributes(),
+        p.setEndTime(ReaderUtils.getSceneRasterTime(ctx.getNetcdfFile(),
                                                     Constants.STOP_DATE_ATT_NAME,
                                                     Constants.STOP_TIME_ATT_NAME));
     }

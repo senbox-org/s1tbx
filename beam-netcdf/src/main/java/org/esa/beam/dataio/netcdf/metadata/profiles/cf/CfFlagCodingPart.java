@@ -19,7 +19,6 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
-import org.esa.beam.dataio.netcdf.util.AttributeMap;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -34,9 +33,8 @@ import java.io.IOException;
 
 public class CfFlagCodingPart extends ProfilePart {
 
-    public static final String FLAG_MASKS = "flag_masks";
-    public static final String FLAG_MEANINGS = "flag_meanings";
-
+    private static final String FLAG_MASKS = "flag_masks";
+    private static final String FLAG_MEANINGS = "flag_meanings";
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
@@ -80,14 +78,13 @@ public class CfFlagCodingPart extends ProfilePart {
 
     public static FlagCoding readFlagCoding(ProfileReadContext ctx, Band band) throws ProductIOException {
         final Variable variable = ctx.getGlobalVariablesMap().get(band.getName());
-        final AttributeMap attMap = AttributeMap.create(variable);
         final String codingName = band.getName() + "_flag_coding";
-        return createFlagCoding(attMap, codingName);
+        return createFlagCoding(variable, codingName);
     }
 
-    private static FlagCoding createFlagCoding(final AttributeMap attMap, final String codingName)
+    private static FlagCoding createFlagCoding(Variable variable, String codingName)
             throws ProductIOException {
-        final Attribute flagMasks = attMap.get(FLAG_MASKS);
+        final Attribute flagMasks = variable.findAttribute(FLAG_MASKS);
         final int[] maskValues;
         if (flagMasks != null) {
             maskValues = new int[flagMasks.getLength()];
@@ -98,10 +95,10 @@ public class CfFlagCodingPart extends ProfilePart {
             maskValues = null;
         }
 
-        final String flagMeanings = attMap.getStringValue(FLAG_MEANINGS);
+        final Attribute flagMeanings = variable.findAttribute(FLAG_MEANINGS);
         final String[] flagNames;
         if (flagMeanings != null) {
-            flagNames = flagMeanings.split(" ");
+            flagNames = flagMeanings.getStringValue().split(" ");
         } else {
             flagNames = null;
         }

@@ -19,7 +19,6 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
-import org.esa.beam.dataio.netcdf.util.AttributeMap;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.DataTypeWorkarounds;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
@@ -28,7 +27,6 @@ import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
@@ -66,11 +64,10 @@ public class CfBandPart extends ProfilePart {
         rasterDataNode.setDescription(variable.getDescription());
         rasterDataNode.setUnit(variable.getUnitsString());
 
-        final AttributeMap attMap = AttributeMap.create(variable);
-        rasterDataNode.setScalingFactor(getScalingFactor(attMap));
-        rasterDataNode.setScalingOffset(getAddOffset(attMap));
+        rasterDataNode.setScalingFactor(getScalingFactor(variable));
+        rasterDataNode.setScalingOffset(getAddOffset(variable));
 
-        final Number noDataValue = getNoDataValue(attMap);
+        final Number noDataValue = getNoDataValue(variable);
         if (noDataValue != null) {
             rasterDataNode.setNoDataValue(noDataValue.doubleValue());
             rasterDataNode.setNoDataValueUsed(true);
@@ -103,28 +100,28 @@ public class CfBandPart extends ProfilePart {
         }
     }
 
-    private static double getScalingFactor(AttributeMap attMap) {
-        Number numValue = attMap.getNumericValue(Constants.SCALE_FACTOR_ATT_NAME);
-        if (numValue == null) {
-            numValue = attMap.getNumericValue(Constants.SLOPE_ATT_NAME);
+    private static double getScalingFactor(Variable variable) {
+        Attribute attribute = variable.findAttribute(Constants.SCALE_FACTOR_ATT_NAME);
+        if (attribute == null) {
+            attribute = variable.findAttribute(Constants.SLOPE_ATT_NAME);
         }
-        return numValue != null ? numValue.doubleValue() : 1.0;
+        return attribute != null ? attribute.getNumericValue().doubleValue() : 1.0;
     }
 
-    private static double getAddOffset(AttributeMap attMap) {
-        Number numValue = attMap.getNumericValue(Constants.ADD_OFFSET_ATT_NAME);
-        if (numValue == null) {
-            numValue = attMap.getNumericValue(Constants.INTERCEPT_ATT_NAME);
+    private static double getAddOffset(Variable variable) {
+        Attribute attribute = variable.findAttribute(Constants.ADD_OFFSET_ATT_NAME);
+        if (attribute == null) {
+            attribute = variable.findAttribute(Constants.INTERCEPT_ATT_NAME);
         }
-        return numValue != null ? numValue.doubleValue() : 0.0;
+        return attribute != null ? attribute.getNumericValue().doubleValue() : 0.0;
     }
 
-    private static Number getNoDataValue(AttributeMap attMap) {
-        Number noDataValue = attMap.getNumericValue(Constants.FILL_VALUE_ATT_NAME);
-        if (noDataValue == null) {
-            noDataValue = attMap.getNumericValue(Constants.MISSING_VALUE_ATT_NAME);
+    private static Number getNoDataValue(Variable variable) {
+        Attribute attribute = variable.findAttribute(Constants.FILL_VALUE_ATT_NAME);
+        if (attribute == null) {
+            attribute = variable.findAttribute(Constants.MISSING_VALUE_ATT_NAME);
         }
-        return noDataValue;
+        return attribute != null ? attribute.getNumericValue().doubleValue() : null;
     }
 
     private static int getRasterDataType(Variable variable, DataTypeWorkarounds workarounds) {

@@ -1,6 +1,5 @@
 package org.esa.beam.dataio.netcdf.metadata;
 
-import org.esa.beam.dataio.netcdf.util.AttributeMap;
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import org.esa.beam.dataio.netcdf.util.VariableMap;
 import ucar.nc2.NetcdfFile;
@@ -23,8 +22,6 @@ public interface ProfileReadContext {
     public VariableMap getRasterVariableMap();
 
     public List<Variable> getGlobalVariables();
-
-    public AttributeMap getGlobalAttributes();
 
     public RasterDigest getRasterDigest();
 

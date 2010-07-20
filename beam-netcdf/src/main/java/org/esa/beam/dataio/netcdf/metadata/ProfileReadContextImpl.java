@@ -1,6 +1,5 @@
 package org.esa.beam.dataio.netcdf.metadata;
 
-import org.esa.beam.dataio.netcdf.util.AttributeMap;
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.dataio.netcdf.util.VariableMap;
@@ -23,14 +22,12 @@ public class ProfileReadContextImpl implements ProfileReadContext {
     private final VariableMap rasterVariableMap;
     private final List<Variable> globalVariables;
     private final Map<String, Variable> globalVariablesMap;
-    private final AttributeMap globalAttributes;
     private final RasterDigest rasterDigest;
 
     public ProfileReadContextImpl(NetcdfFile netcdfFile, RasterDigest rasterDigest, VariableMap variableMap) {
         this.netcdfFile = netcdfFile;
         this.propertyMap = new HashMap<String, Object>();
 
-        globalAttributes = AttributeMap.create(netcdfFile);
         globalVariables = Collections.unmodifiableList(netcdfFile.getVariables());
         globalVariablesMap = Collections.unmodifiableMap(ReaderUtils.createVariablesMap(globalVariables));
         this.rasterDigest = rasterDigest;
@@ -60,11 +57,6 @@ public class ProfileReadContextImpl implements ProfileReadContext {
     @Override
     public List<Variable> getGlobalVariables() {
         return globalVariables;
-    }
-
-    @Override
-    public AttributeMap getGlobalAttributes() {
-        return globalAttributes;
     }
 
     @Override

@@ -5,6 +5,7 @@ import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Product;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
@@ -36,10 +37,11 @@ public class CfInitialisationPart implements ProfileInitPart {
     }
 
     public static String getProductType(final ProfileReadContext ctx) {
-        String productType = ctx.getGlobalAttributes().getStringValue("Conventions");
-        if (productType == null) {
-            productType = Constants.FORMAT_NAME;
+        Attribute productType = ctx.getNetcdfFile().findGlobalAttribute("Conventions");
+        if (productType != null) {
+            return productType.getStringValue();
+        } else {
+            return Constants.FORMAT_NAME;
         }
-        return productType;
     }
 }

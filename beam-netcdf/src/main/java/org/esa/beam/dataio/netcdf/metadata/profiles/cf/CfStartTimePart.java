@@ -43,7 +43,7 @@ public class CfStartTimePart extends ProfilePart {
     }
 
     public static ProductData.UTC getSceneRasterStartTime(final ProfileReadContext ctx) {
-        return ReaderUtils.getSceneRasterTime(ctx.getGlobalAttributes(),
+        return ReaderUtils.getSceneRasterTime(ctx.getNetcdfFile(),
                                               Constants.START_DATE_ATT_NAME,
                                               Constants.START_TIME_ATT_NAME);
     }
