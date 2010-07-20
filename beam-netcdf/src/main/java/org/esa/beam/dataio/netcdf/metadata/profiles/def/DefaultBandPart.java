@@ -21,7 +21,6 @@ import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
@@ -74,24 +73,20 @@ public class DefaultBandPart extends ProfilePart {
     public static void applyAttributes(Band band, Variable variable) {
         CfBandPart.applyAttributes(band, variable);
 
-        final Product product = band.getProduct();
-        final MetadataElement dsd = product.getMetadataRoot().getElement("DSD");
-        final MetadataElement bandElem = dsd.getElement(band.getName());
-
         // todo se -- Log10 Scaling
         // todo se -- units for bandwidth and wavelength
 
-        final String attribNameBandwidth = BANDWIDTH;
-        if (bandElem.containsAttribute(attribNameBandwidth)) {
-            band.setSpectralBandwidth((float) bandElem.getAttributeDouble(attribNameBandwidth));
+        Attribute attribute = variable.findAttribute(BANDWIDTH);
+        if (attribute != null) {
+            band.setSpectralBandwidth((Float) attribute.getNumericValue());
         }
-        final String attribNameWavelength = WAVELENGTH;
-        if (bandElem.containsAttribute(attribNameWavelength)) {
-            band.setSpectralWavelength((float) bandElem.getAttributeDouble(attribNameWavelength));
+        attribute = variable.findAttribute(WAVELENGTH);
+        if (attribute != null) {
+            band.setSpectralWavelength((Float) attribute.getNumericValue());
         }
-        final String attribNameValidPixelExpression = VALID_PIXEL_EXPRESSION;
-        if (bandElem.containsAttribute(attribNameValidPixelExpression)) {
-            band.setValidPixelExpression(bandElem.getAttributeString(attribNameValidPixelExpression));
+        attribute = variable.findAttribute(VALID_PIXEL_EXPRESSION);
+        if (attribute != null) {
+            band.setValidPixelExpression(attribute.getStringValue());
         }
     }
 

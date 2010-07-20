@@ -5,7 +5,6 @@ import org.esa.beam.dataio.netcdf.metadata.ProfileInitPart;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfDescriptionPart;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfEndTimePart;
-import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfMetadataPart;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfStartTimePart;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import ucar.nc2.Attribute;
@@ -13,13 +12,15 @@ import ucar.nc2.NetcdfFile;
 
 /**
  * The default profile used for BEAM NetCDF/CF files.
+ *
  * @author Thomas Storm
  */
 public class DefaultProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfilePart createMetadataPart() {
-        return new CfMetadataPart();
+        return new DefaultMetadataPart();
+//        return new CfMetadataPart();
     }
 
     @Override
