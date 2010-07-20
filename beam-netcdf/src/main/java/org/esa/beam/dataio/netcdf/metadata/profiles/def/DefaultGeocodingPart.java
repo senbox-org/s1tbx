@@ -48,6 +48,7 @@ public class DefaultGeocodingPart extends ProfilePart {
 
     private final int lonIndex = 0;
     private final int latIndex = 1;
+    private CfGeocodingPart delegate = new CfGeocodingPart();
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
@@ -109,10 +110,18 @@ public class DefaultGeocodingPart extends ProfilePart {
             final String value = StringUtils.arrayToString(names, " ");
             ctx.getNetcdfFileWriteable().addAttribute(null, new Attribute(TIEPOINT_COORDINATES, value));
         } else {
-            new CfGeocodingPart().define(ctx, p);
+            delegate.define(ctx, p);
             if (geoCoding instanceof CrsGeoCoding) {
                 addWktAsVariable(ctx.getNetcdfFileWriteable(), geoCoding);
             }
+        }
+    }
+
+    @Override
+    public void write(ProfileWriteContext ctx, Product p) throws IOException {
+        final GeoCoding geoCoding = p.getGeoCoding();
+        if (!(geoCoding instanceof TiePointGeoCoding)) {
+            delegate.write(ctx, p);
         }
     }
 

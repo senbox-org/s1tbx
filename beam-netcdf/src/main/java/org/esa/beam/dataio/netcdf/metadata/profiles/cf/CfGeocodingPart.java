@@ -48,6 +48,7 @@ import java.io.IOException;
 public class CfGeocodingPart extends ProfilePart {
 
     private boolean usePixelGeoCoding;
+    private boolean latLonAlreadyPresent;
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
@@ -58,11 +59,16 @@ public class CfGeocodingPart extends ProfilePart {
     public void define(ProfileWriteContext ctx, Product product) throws
                                                                  IOException {
         final GeoCoding geoCoding = product.getGeoCoding();
+        if (geoCoding == null) {
+            // we don't need to add a geocoding if there is none present
+            return;
+        }
         usePixelGeoCoding = !isGeographicLatLon(geoCoding);
         final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         if (usePixelGeoCoding) {
             addXYCoordVariables(ncFile);
-            if (ncFile.findVariable("lat") == null && ncFile.findVariable("lon") == null) {
+            latLonAlreadyPresent = ncFile.findVariable("lat") != null && ncFile.findVariable("lon") != null;
+            if (!latLonAlreadyPresent) {
                 addLatLonBands(ncFile);
             }
         } else {
@@ -76,7 +82,7 @@ public class CfGeocodingPart extends ProfilePart {
 
     @Override
     public void write(ProfileWriteContext ctx, Product product) throws IOException {
-        if (!usePixelGeoCoding) {
+        if (!usePixelGeoCoding || !latLonAlreadyPresent) {
             return;
         }
         try {
