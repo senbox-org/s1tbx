@@ -21,12 +21,6 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.math.FXYSum;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class CombinedFXYGeoCodingTest extends TestCase {
 
     private CombinedFXYGeoCoding _srcGeoCoding;

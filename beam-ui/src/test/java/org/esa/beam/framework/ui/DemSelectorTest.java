@@ -16,13 +16,6 @@
 
 package org.esa.beam.framework.ui;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marco
- * Date: 15.03.2005
- * Time: 08:03:53
- */
-
 import junit.framework.TestCase;
 
 import org.esa.beam.framework.param.ParamChangeEvent;

@@ -28,12 +28,6 @@ import com.bc.jnn.Jnn;
 import com.bc.jnn.JnnException;
 import com.bc.jnn.JnnNet;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
 public class CloudAlgorithm {
 	private static final String PARAM_1_KEY = "param_1";
     private static final String PARAM_2_KEY = "param_2";

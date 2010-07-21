@@ -49,12 +49,6 @@ import java.awt.image.RenderedImage;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class ComputeMaskAreaAction extends ExecCommand {
 
     private static final String DIALOG_TITLE = "Compute Mask Area"; /*I18N*/

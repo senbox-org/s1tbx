@@ -21,12 +21,6 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 
 import java.util.Iterator;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class ReaderLoadedAsServiceTest extends TestCase {
 
     public void testReaderIsLoaded() {

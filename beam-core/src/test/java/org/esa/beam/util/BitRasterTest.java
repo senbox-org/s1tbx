@@ -18,13 +18,6 @@ package org.esa.beam.util;
 
 import junit.framework.TestCase;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Norman
- * Date: 20.08.2007
- * Time: 15:25:30
- * To change this template use File | Settings | File Templates.
- */
 public class BitRasterTest extends TestCase {
 
     public void testAccessors() {

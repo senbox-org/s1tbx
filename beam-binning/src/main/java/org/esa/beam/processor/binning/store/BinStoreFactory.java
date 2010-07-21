@@ -22,13 +22,7 @@ import java.io.IOException;
 import org.esa.beam.processor.binning.L3Context;
 import org.esa.beam.processor.binning.database.BinLocator;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 19.07.2005
- * Time: 17:59:34
- * To change this template use File | Settings | File Templates.
- */
+
 public class BinStoreFactory {
 
     /**

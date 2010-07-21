@@ -33,11 +33,6 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by IntelliJ IDEA. User: Tom Date: 29.04.2004 Time: 14:59:02 To change this template use File | Settings |
- * File Templates.
- */
-
-/**
  * Each satellite product is an object of the class </p><pre>org.esa.beam.framework.datamodel.Product</pre></p>
  * This class contains code snippets that show some possibilities and constraints in the usage of the product class.
  */

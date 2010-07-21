@@ -16,13 +16,6 @@
 
 package org.esa.beam.dataio.geotiff.internal;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marco
- * Date: 09.02.2005
- * Time: 09:04:55
- */
-
 import junit.framework.TestCase;
 
 public class TiffDirectoryEntrySetTest extends TestCase {

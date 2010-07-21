@@ -34,13 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: marco
- * Date: 05.09.2005
- * Time: 10:48:14
- */
-
-/**
  * The class RepositoryManager handels a list of repositories and a list of data provider.
  *
  * @author Marco Peters

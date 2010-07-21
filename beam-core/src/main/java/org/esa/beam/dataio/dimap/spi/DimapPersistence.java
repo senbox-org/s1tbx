@@ -20,12 +20,9 @@ import org.jdom.Element;
 import java.util.Iterator;
 
 /**
- * Created by Marco Peters.
- *
  * <p><i>Note that this class is not yet public API. Interface may change in future releases.</i></p>
  * 
  * @author Marco Peters
- * @version $Revision$ $Date$
  */
 public class DimapPersistence {
 

@@ -24,13 +24,7 @@ import javax.swing.filechooser.FileFilter;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 18.07.2005
- * Time: 10:09:19
- * To change this template use File | Settings | File Templates.
- */
+
 abstract public class AbstractBinDatabase implements BinDatabase {
 
     // some key values for the properties file

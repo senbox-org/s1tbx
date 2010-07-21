@@ -24,12 +24,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
- * Created by IntelliJ IDEA.
- * User: lveci
- * Date: Apr 29, 2008
- * To change this template use File | Settings | File Templates.
- */
 public class EnvisatOrbitReader extends EnvisatAuxReader {
 
     static class DateComparator implements Comparator<Date>

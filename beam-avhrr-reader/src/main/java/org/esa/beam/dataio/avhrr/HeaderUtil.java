@@ -20,13 +20,6 @@ import java.util.Calendar;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.ProductData;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 13.06.2005
- * Time: 11:04:50
- * To change this template use File | Settings | File Templates.
- */
 public class HeaderUtil {
 
     public static MetadataAttribute createAttribute(String name, int bitField, int field, String offValue, String onValue) {

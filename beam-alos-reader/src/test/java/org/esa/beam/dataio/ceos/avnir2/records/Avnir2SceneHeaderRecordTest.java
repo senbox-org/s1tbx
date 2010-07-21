@@ -25,12 +25,6 @@ import org.esa.beam.dataio.ceos.records.BaseSceneHeaderRecordTest;
 import javax.imageio.stream.ImageOutputStream;
 import java.io.IOException;
 
-/**
- * Created by marco.
- *
- * @author marco
- * @version $Revision$ $Date$
- */
 public class Avnir2SceneHeaderRecordTest extends BaseSceneHeaderRecordTest {
 
     @Override

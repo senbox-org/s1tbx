@@ -35,13 +35,7 @@ import org.esa.beam.processor.binning.database.BinLocator;
 import org.esa.beam.processor.binning.database.LatLonBinLocator;
 import org.esa.beam.processor.binning.database.SeaWiFSBinLocator;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 08.07.2005
- * Time: 15:48:48
- * To change this template use File | Settings | File Templates.
- */
+
 public class L3Context {
 
     private final static String _PROPERTY_KEY_BAND_NAME = L3Constants.BAND_NAME_PARAMETER_NAME;

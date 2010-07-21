@@ -22,12 +22,6 @@ import org.esa.beam.dataio.ceos.records.BaseImageFileDescriptorRecord;
 
 import java.io.IOException;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class Avnir2ImageFDR extends BaseImageFileDescriptorRecord {
 
     private String _locatorDummyPixel;

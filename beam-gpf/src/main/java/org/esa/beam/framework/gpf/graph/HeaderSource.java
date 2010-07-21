@@ -21,12 +21,6 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
 public class HeaderSource {
     private String name;
     private String location;

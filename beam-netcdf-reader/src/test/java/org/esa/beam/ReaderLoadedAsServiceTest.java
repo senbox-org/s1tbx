@@ -15,7 +15,6 @@
  */
 package org.esa.beam;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -23,12 +22,6 @@ import org.esa.beam.dataio.netcdf.NetcdfReaderPlugIn;
 
 import java.util.Iterator;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class ReaderLoadedAsServiceTest extends TestCase {
 
     public void testReaderIsLoaded() {

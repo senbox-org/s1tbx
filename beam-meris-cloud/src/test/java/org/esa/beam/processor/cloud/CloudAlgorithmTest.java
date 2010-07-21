@@ -20,12 +20,6 @@ import junit.framework.TestCase;
 import java.io.File;
 import java.net.URL;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
 public class CloudAlgorithmTest extends TestCase {
 
     private CloudAlgorithm testAlgorithm;

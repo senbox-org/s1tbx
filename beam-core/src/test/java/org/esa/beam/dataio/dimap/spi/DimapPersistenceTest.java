@@ -26,12 +26,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
-/**
- * Created by marco.
- *
- * @author marco
- * @version $Revision$ $Date$
- */
 public class DimapPersistenceTest extends TestCase {
 
     public void testGetPersistabelByElement() {

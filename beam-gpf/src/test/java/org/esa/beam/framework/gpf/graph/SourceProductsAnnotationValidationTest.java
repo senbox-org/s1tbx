@@ -26,12 +26,6 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision:$ $Date:$
- */
 public class SourceProductsAnnotationValidationTest extends TestCase {
 
     private OperatorSpi someOpSpi;

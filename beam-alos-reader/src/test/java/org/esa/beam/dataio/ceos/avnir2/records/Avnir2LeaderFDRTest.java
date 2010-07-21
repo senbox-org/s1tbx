@@ -25,12 +25,6 @@ import javax.imageio.stream.ImageOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-/**
- * Created by marco.
- *
- * @author marco
- * @version $Revision$ $Date$
- */
 public class Avnir2LeaderFDRTest extends BaseLeaderFileDescriptorRecordTest {
 
     @Override

@@ -25,12 +25,6 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-/**
- * Created by marco.
- *
- * @author marco
- * @version $Revision$ $Date$
- */
 public abstract class BaseLeaderFileDescriptorRecordTest extends TestCase {
 
     private ImageOutputStream _ios;

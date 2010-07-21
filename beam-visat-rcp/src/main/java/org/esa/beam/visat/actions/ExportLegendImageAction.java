@@ -41,12 +41,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class ExportLegendImageAction extends AbstractExportImageAction {
 
     private static final String HORIZONTAL_STR = "Horizontal";

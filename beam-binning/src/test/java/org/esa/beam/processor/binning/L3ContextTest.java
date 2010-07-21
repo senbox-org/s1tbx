@@ -24,13 +24,7 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.processor.binning.algorithm.AlgorithmFactory;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 12.07.2005
- * Time: 10:31:30
- * To change this template use File | Settings | File Templates.
- */
+
 public class L3ContextTest extends TestCase {
     private File databaseDir;
     private L3Context context;

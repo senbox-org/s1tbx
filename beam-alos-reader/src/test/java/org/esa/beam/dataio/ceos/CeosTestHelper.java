@@ -19,12 +19,6 @@ import javax.imageio.stream.ImageOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class CeosTestHelper {
 
     public static void writeBlanks(final ImageOutputStream ios, final int numBlanks) throws IOException {

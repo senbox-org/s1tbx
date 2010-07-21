@@ -26,13 +26,6 @@ import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 13.06.2005
- * Time: 13:46:42
- * To change this template use File | Settings | File Templates.
- */
 class GeneralInformationHeader {
     private static final String META_DATA_NAME = "GENERAL_INFORMATION";
     private static final int SUPPORTED_BLOCK_LENGTH = 15872;

@@ -27,13 +27,7 @@ import javax.imageio.stream.ImageOutputStream;
 import org.esa.beam.processor.binning.database.Bin;
 import org.esa.beam.processor.binning.database.BinLocator;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 15.07.2005
- * Time: 15:02:47
- * To change this template use File | Settings | File Templates.
- */
+
 public class SimpleBinStore extends AbstractLinearBinStore {
     // the number of floats to be written at once during initialization
     private static final int numInitFloats = 32768;

@@ -26,12 +26,6 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-/**
- * Created by Marco.
- *
- * @author Marco
- * @version $Revision$ $Date$
- */
 public abstract class BaseTrailerRecordTest extends TestCase {
 
     private String _prefix;

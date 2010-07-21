@@ -22,12 +22,6 @@ import org.esa.beam.dataio.ceos.records.BaseTrailerRecord;
 
 import java.io.IOException;
 
-/**
- * Created by Marco.
- *
- * @author Marco
- * @version $Revision$ $Date$
- */
 public class Avnir2TrailerRecord extends BaseTrailerRecord {
 
     private int[][] _bandHistograms;

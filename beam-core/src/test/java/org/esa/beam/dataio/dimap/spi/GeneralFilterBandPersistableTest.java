@@ -27,12 +27,6 @@ import org.jdom.Element;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class GeneralFilterBandPersistableTest extends TestCase {
 
     private GeneralFilterBandPersistable _generalFilterBandPersistable;

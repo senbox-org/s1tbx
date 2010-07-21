@@ -23,12 +23,6 @@ import org.esa.beam.util.Guardian;
 
 import java.util.Set;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class PointingFactoryRegistry {
 
     private static ServiceRegistry<PointingFactory> typeToFactoryMap;

@@ -35,10 +35,6 @@ import org.esa.beam.dataio.avhrr.calibration.ReflectanceFactorCalibrator;
 import org.esa.beam.dataio.avhrr.calibration.VisibleRadianceCalibrator;
 import org.esa.beam.framework.datamodel.ProductData;
 
-/**
- * Created by IntelliJ IDEA. User: marcoz Date: 14.06.2005 Time: 16:27:48 To
- * change this template use File | Settings | File Templates.
- */
 public class NoaaFile extends AvhrrFile implements AvhrrConstants {
 
 	private static final int BITFIELD_OFFSET = 12;

@@ -25,9 +25,6 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.io.FileUtils;
 
-/**
- * Created by IntelliJ IDEA. User: marco Date: 01.07.2005 Time: 08:26:16
- */
 public class RepositoryEntry {
 
     private final File _productFile;

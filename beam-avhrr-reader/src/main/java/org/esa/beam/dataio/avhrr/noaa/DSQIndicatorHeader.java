@@ -21,13 +21,6 @@ import java.io.InputStream;
 import org.esa.beam.dataio.avhrr.HeaderUtil;
 import org.esa.beam.framework.datamodel.MetadataElement;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 22.04.2005
- * Time: 10:35:24
- * To change this template use File | Settings | File Templates.
- */
 class DSQIndicatorHeader {
     private static final String META_DATA_NAME = "DATA_SET_QUALITY_INDICATORS";
 

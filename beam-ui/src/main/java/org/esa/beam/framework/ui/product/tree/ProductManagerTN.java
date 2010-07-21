@@ -19,10 +19,6 @@ package org.esa.beam.framework.ui.product.tree;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 
-/**
- * User: Marco
- * Date: 13.02.2010
- */
 class ProductManagerTN extends AbstractTN {
 
     private final ProductManager manager;

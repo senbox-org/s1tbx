@@ -15,12 +15,6 @@
  */
 
 package org.esa.beam.dataio.ceos;
-/**
- * Created by IntelliJ IDEA.
- * User: marco
- * Date: 07.12.2005
- * Time: 15:46:33
- */
 
 /**
  * Description of IllegalCeosFormatException

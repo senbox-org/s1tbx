@@ -31,12 +31,6 @@ import javax.swing.JPanel;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marco
- * Date: 11.03.2005
- * Time: 13:39:11
- */
 public class DemSelector extends JPanel {
 
     private Parameter _paramProductDem;

@@ -36,12 +36,6 @@ import org.esa.beam.util.StringUtils;
 
 import java.awt.Rectangle;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
 @OperatorMetadata(alias = "L3ToL1", internal = true)
 public class L3ToL1Op extends MerisBasisOp {
 

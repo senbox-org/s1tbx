@@ -31,12 +31,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 
-/**
- * Created by IntelliJ IDEA.
- * User: lveci
- * Date: Apr 16, 2008
- * To change this template use File | Settings | File Templates.
- */
+
 public class EnvisatAuxReader {
 
     /**

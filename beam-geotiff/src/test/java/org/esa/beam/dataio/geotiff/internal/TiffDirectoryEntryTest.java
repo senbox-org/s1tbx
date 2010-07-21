@@ -16,12 +16,6 @@
 
 package org.esa.beam.dataio.geotiff.internal;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marco
- * Date: 08.02.2005
- * Time: 15:27:25
- */
 
 import junit.framework.TestCase;
 

@@ -27,13 +27,7 @@ import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 21.07.2005
- * Time: 11:34:27
- * To change this template use File | Settings | File Templates.
- */
+
 public class QuadTreeBinStoreTest extends TestCase {
     private BinStore store;
     private Bin bin;

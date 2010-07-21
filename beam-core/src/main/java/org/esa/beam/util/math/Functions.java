@@ -14,13 +14,6 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-/**
- * Created by IntelliJ IDEA.
- * User: norman
- * Date: Nov 13, 2002
- * Time: 5:49:08 PM
- * To change this template use Options | File Templates.
- */
 package org.esa.beam.util.math;
 
 final class Functions {

@@ -27,13 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 21.07.2005
- * Time: 10:34:14
- * To change this template use File | Settings | File Templates.
- */
+
 public class SimpleBinStoreTest extends TestCase {
     private BinStore store;
     private Bin bin;

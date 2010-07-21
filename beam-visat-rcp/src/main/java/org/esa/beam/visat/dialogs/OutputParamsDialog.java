@@ -14,13 +14,6 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-/**
- * Created by IntelliJ IDEA.
- * User: administrator
- * Date: Nov 13, 2002
- * Time: 2:59:44 PM
- * To change this template use Options | File Templates.
- */
 package org.esa.beam.visat.dialogs;
 
 import org.esa.beam.framework.datamodel.Product;

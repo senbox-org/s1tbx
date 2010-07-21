@@ -22,12 +22,6 @@ import org.esa.beam.dataio.ceos.records.Ancillary2Record;
 
 import java.io.IOException;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class Avnir2Ancillary2Record extends Ancillary2Record {
 
     private long[] _bandExposureCoefficients;

@@ -23,12 +23,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
 public class CloudReader implements BandReader {
 
     private NoaaFile noaaFile;

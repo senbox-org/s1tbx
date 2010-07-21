@@ -19,12 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
 public class Header {
 
     //Metadata ???

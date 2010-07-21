@@ -22,12 +22,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Created by marco.
- *
- * @author marco
- * @version $Revision$ $Date$
- */
 public class DimapPersistableRegistryTest extends TestCase {
 
     private final static Class[] EXPECTED_SPIS = new Class[] {

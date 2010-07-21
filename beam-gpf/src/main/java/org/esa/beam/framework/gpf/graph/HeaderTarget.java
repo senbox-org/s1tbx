@@ -15,12 +15,6 @@
  */
 package org.esa.beam.framework.gpf.graph;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
 public class HeaderTarget {
     private String nodeId;
 

@@ -25,10 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by IntelliJ IDEA.
- *
  * @author Ralf Quast
- * @version $Revision$ $Date$
  */
 class CollocationDialog extends SingleTargetProductDialog {
 

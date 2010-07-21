@@ -26,12 +26,6 @@ import javax.swing.JSeparator;
 
 import org.esa.beam.util.TreeNode;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
 public class BarBuilder {
 	
 //	private final Map<String, TreeNodeM<Command>> mMap;

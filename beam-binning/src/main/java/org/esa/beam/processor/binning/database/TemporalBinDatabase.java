@@ -25,13 +25,7 @@ import java.awt.Point;
 import java.io.IOException;
 import java.util.Properties;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 15.07.2005
- * Time: 15:01:22
- * To change this template use File | Settings | File Templates.
- */
+
 public class TemporalBinDatabase extends AbstractBinDatabase {
 
     String dbName;

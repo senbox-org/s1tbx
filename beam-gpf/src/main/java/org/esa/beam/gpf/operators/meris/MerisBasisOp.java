@@ -22,12 +22,6 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.util.ProductUtils;
 
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
 public abstract class MerisBasisOp extends Operator {
 
     @Parameter(description="If set to 'false' only the lat and lon tie-points will be copied to the target product", defaultValue="false")

@@ -14,11 +14,6 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-/*
- * Created on: 	19.09.2005
- * Created by:	Marco Peters
- * File: 		ProductSizeProvider.java 
- */
 package org.esa.beam.visat.actions.pgrab.model.dataprovider;
 
 import java.awt.Component;

@@ -23,13 +23,6 @@ import org.esa.beam.dataio.avhrr.HeaderUtil;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 13.06.2005
- * Time: 09:31:46
- * To change this template use File | Settings | File Templates.
- */
 class NavigationHeader {
     private static final String META_DATA_NAME = "NAVIGATION";
     private static final int REFERENCE_ELIPSOID_LENGTH = 8;

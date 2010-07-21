@@ -23,13 +23,6 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 07.09.2005
- * Time: 11:13:08
- * To change this template use File | Settings | File Templates.
- */
 public class CentralWavelengthProviderTest extends TestCase {
 
     private static float DIFF = 0.000001f;

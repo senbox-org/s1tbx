@@ -27,10 +27,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.Map;
 
-/**
- * User: Marco
- * Date: 16.08.2009
- */
 class ReprojectionDialog extends SingleTargetProductDialog {
 
     private final ReprojectionForm form;

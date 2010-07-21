@@ -27,12 +27,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 
-/**
- * Created by marco.
- *
- * @author marco
- * @version $Revision$ $Date$
- */
 public abstract class BaseSceneHeaderRecordTest extends TestCase {
 
     private final int _level1A = 0;

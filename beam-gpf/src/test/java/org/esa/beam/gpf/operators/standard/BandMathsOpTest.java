@@ -32,12 +32,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
 public class BandMathsOpTest extends TestCase {
 
     private OperatorSpi spi;

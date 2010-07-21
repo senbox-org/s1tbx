@@ -21,13 +21,7 @@ import java.io.IOException;
 import org.esa.beam.processor.binning.database.Bin;
 import org.esa.beam.processor.binning.database.BinLocator;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 19.07.2005
- * Time: 15:14:37
- * To change this template use File | Settings | File Templates.
- */
+
 public class ArrayBinStore extends AbstractLinearBinStore {
     private int numVarsPerBin;
     private float[] tempBinContent;

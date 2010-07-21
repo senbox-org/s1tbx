@@ -24,13 +24,7 @@ import org.esa.beam.dataio.avhrr.AvhrrConstants;
 import org.esa.beam.dataio.avhrr.HeaderUtil;
 import org.esa.beam.framework.datamodel.MetadataElement;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 13.06.2005
- * Time: 12:00:17
- * To change this template use File | Settings | File Templates.
- */
+
 class ArsHeader {
     private static final String META_DATA_NAME = "ARCHIVE_RETRIEVAL_SYSTEM_HEADER";
 

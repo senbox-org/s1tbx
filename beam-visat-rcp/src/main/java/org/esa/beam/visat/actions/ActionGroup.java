@@ -17,12 +17,6 @@ package org.esa.beam.visat.actions;
 
 import org.esa.beam.framework.ui.command.CommandGroup;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class ActionGroup extends CommandGroup {
 
     public ActionGroup() {

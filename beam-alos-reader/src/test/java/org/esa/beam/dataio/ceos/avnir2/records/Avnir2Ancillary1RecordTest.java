@@ -24,12 +24,6 @@ import org.esa.beam.dataio.ceos.records.Ancillary1RecordTest;
 import javax.imageio.stream.ImageOutputStream;
 import java.io.IOException;
 
-/**
- * Created by marco.
- *
- * @author marco
- * @version $Revision$ $Date$
- */
 public class Avnir2Ancillary1RecordTest extends Ancillary1RecordTest {
 
     @Override

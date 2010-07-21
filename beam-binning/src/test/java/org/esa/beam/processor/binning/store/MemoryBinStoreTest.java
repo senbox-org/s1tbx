@@ -24,13 +24,7 @@ import junit.framework.TestCase;
 import org.esa.beam.processor.binning.database.Bin;
 import org.esa.beam.processor.binning.database.FloatArrayBin;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 19.07.2005
- * Time: 15:48:56
- * To change this template use File | Settings | File Templates.
- */
+
 public class MemoryBinStoreTest extends TestCase {
     private BinStore store;
     private Bin bin;

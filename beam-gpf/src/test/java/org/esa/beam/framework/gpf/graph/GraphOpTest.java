@@ -34,12 +34,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class GraphOpTest extends TestCase {
 
     private TestOps.Op1.Spi operatorSpi1 = new TestOps.Op1.Spi();

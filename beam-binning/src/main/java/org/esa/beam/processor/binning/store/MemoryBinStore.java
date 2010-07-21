@@ -22,13 +22,7 @@ import java.io.IOException;
 import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.processor.binning.database.Bin;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 18.07.2005
- * Time: 15:14:11
- * To change this template use File | Settings | File Templates.
- */
+
 public class MemoryBinStore implements BinStore {
     private float[][][] data;
 

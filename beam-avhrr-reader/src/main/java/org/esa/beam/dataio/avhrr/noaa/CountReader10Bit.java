@@ -22,13 +22,7 @@ import javax.imageio.stream.ImageInputStream;
 import org.esa.beam.dataio.avhrr.AvhrrConstants;
 import org.esa.beam.dataio.avhrr.calibration.Calibrator;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 14.06.2005
- * Time: 10:47:07
- * To change this template use File | Settings | File Templates.
- */
+
 class CountReader10Bit extends CountReader {
     public static final int DATA_RECORD_LENGTH = 15872;
 

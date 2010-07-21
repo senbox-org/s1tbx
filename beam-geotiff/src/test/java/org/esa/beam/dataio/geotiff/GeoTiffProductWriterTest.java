@@ -16,13 +16,6 @@
 
 package org.esa.beam.dataio.geotiff;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marco
- * Date: 16.02.2005
- * Time: 12:18:19
- */
-
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.dataio.geotiff.internal.TiffHeader;

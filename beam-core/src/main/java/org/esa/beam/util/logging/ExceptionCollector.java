@@ -20,12 +20,6 @@ import java.util.ArrayList;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marco
- * Date: 25.04.2005
- * Time: 15:57:11
- */
 
 /**
  * This handler collects all exceptions logged by the system logger.

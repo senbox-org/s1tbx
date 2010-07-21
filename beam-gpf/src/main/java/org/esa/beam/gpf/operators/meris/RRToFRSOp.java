@@ -33,12 +33,6 @@ import org.esa.beam.util.ProductUtils;
 
 import java.awt.Rectangle;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
 @OperatorMetadata(alias = "RRToFRS", internal = true)
 public class RRToFRSOp extends Operator {
 

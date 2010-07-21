@@ -26,12 +26,6 @@ import org.jdom.Element;
 
 import java.util.ArrayList;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class GeneralFilterBandPersistableSpiTest extends TestCase {
 
     private GeneralFilterBandPersistableSpi _persistableSpi;

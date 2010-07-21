@@ -19,13 +19,6 @@ package org.esa.beam.processor.binning.database;
 import java.awt.Point;
 import java.io.IOException;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 15.07.2005
- * Time: 15:01:50
- * To change this template use File | Settings | File Templates.
- */
 public interface BinDatabase {
 //    public void open() throws IOException;
     public void flush() throws IOException;

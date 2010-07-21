@@ -19,12 +19,6 @@ package org.esa.beam.framework.datamodel;
 import java.awt.Image;
 import java.awt.Point;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class GcpDescriptor implements PlacemarkDescriptor {
 
     public final static GcpDescriptor INSTANCE = new GcpDescriptor();

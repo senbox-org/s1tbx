@@ -23,12 +23,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision:$ $Date:$
- */
 public class TargetProductAnnotationValidationTest extends TestCase {
 
 

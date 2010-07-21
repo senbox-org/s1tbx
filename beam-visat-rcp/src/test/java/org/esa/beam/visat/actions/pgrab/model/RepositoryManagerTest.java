@@ -16,13 +16,6 @@
 
 package org.esa.beam.visat.actions.pgrab.model;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marco
- * Date: 05.09.2005
- * Time: 11:17:58
- */
-
 import java.io.File;
 import java.util.ArrayList;
 

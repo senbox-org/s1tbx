@@ -21,14 +21,6 @@ import org.esa.beam.util.Guardian;
 import java.awt.Rectangle;
 
 /**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 06.06.2005
- * Time: 10:17:31
- * To change this template use File | Settings | File Templates.
- */
-
-/**
  * <p><i><b>IMPORTANT NOTE:</b>
  * This class not an API.
  * It is not intended to be used by clients.</i>

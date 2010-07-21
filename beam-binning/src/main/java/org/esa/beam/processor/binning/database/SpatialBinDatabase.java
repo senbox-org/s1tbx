@@ -38,13 +38,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 15.07.2005
- * Time: 15:01:10
- * To change this template use File | Settings | File Templates.
- */
+
 public class SpatialBinDatabase extends AbstractBinDatabase {
 
     protected Product product;

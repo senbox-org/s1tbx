@@ -46,12 +46,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public abstract class AbstractExportImageAction extends ExecCommand {
 
     public static final String EXPORT_IMAGE_CMD_ID = "exportImageFile";

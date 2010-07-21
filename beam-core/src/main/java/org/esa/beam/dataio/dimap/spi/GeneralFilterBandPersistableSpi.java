@@ -21,12 +21,9 @@ import org.esa.beam.framework.datamodel.GeneralFilterBand;
 import org.jdom.Element;
 
 /**
- * Created by Marco Peters.
- *
  * <p><i>Note that this class is not yet public API. Interface may chhange in future releases.</i></p>
  *
  * @author Marco Peters
- * @version $Revision$ $Date$
  */
 public class GeneralFilterBandPersistableSpi implements DimapPersistableSpi {
 

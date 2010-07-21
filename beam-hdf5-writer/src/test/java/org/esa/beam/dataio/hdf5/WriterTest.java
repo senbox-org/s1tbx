@@ -17,12 +17,6 @@ package org.esa.beam.dataio.hdf5;
 
 import junit.framework.TestCase;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class WriterTest extends TestCase {
 
     public void testWriterIsLoadedAsService() {

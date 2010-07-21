@@ -18,13 +18,6 @@ package org.esa.beam.dataio.merisl3;
 
 import junit.framework.TestCase;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Norman
- * Date: 26.06.2007
- * Time: 17:05:05
- * To change this template use File | Settings | File Templates.
- */
 public class MerisL3FileFilterTest extends TestCase {
 
     public void testFilter() {

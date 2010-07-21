@@ -14,11 +14,6 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-/*
- * Created on: 	04.02.2005
- * Created by:	MyHTPC
- * File: 		TiffType.java
- */
 package org.esa.beam.dataio.geotiff.internal;
 
 import org.esa.beam.framework.datamodel.Band;

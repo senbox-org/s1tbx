@@ -20,13 +20,7 @@ import java.awt.Rectangle;
 
 import junit.framework.TestCase;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 06.06.2005
- * Time: 10:18:05
- * To change this template use File | Settings | File Templates.
- */
+
 public class LinebasedFrameSizeCalculatorTest extends TestCase {
     private FrameSizeCalculator frameSizeCalculator;
 

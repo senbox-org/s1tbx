@@ -27,12 +27,6 @@ import org.jdom.Element;
 
 import java.util.ArrayList;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class ConvolutionFilterBandPersistableSpiTest extends TestCase {
 
        private ConvolutionFilterBandPersistableSpi _persistableSpi;

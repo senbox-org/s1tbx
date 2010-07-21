@@ -22,12 +22,6 @@ import ucar.nc2.NetcdfFile;
 
 import java.io.IOException;
 
-/*
- * User: Thomas Storm
- * Date: 26.03.2010
- * Time: 14:48:07
- */
-
 /**
  * Abstract base class for factories which are able to create profiles for NetCDF4-IO. Subclasses allow to
  * dynamically add generic {@link ProfilePart}s to the model.

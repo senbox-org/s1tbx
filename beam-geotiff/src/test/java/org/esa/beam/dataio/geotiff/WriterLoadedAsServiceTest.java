@@ -22,12 +22,6 @@ import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 
 import java.util.Iterator;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class WriterLoadedAsServiceTest extends TestCase {
 
     public void testWriterIsLoaded() {

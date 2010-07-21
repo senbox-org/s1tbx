@@ -23,12 +23,6 @@ import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class ChrisProductReaderLoadedAsServiceTest {
 
     @Test

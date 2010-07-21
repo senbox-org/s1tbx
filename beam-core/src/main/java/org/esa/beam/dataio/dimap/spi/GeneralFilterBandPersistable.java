@@ -26,12 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Marco Peters.
- *
  * <p><i>Note that this class is not yet public API. Interface may chhange in future releases.</i></p>
  *
  * @author Marco Peters
- * @version $Revision$ $Date$
  */
 class GeneralFilterBandPersistable implements DimapPersistable {
     static final String VERSION_1_0 = "1.0";

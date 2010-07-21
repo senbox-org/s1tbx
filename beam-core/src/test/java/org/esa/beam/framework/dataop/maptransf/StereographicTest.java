@@ -21,12 +21,6 @@ import org.esa.beam.framework.datamodel.GeoPos;
 
 import java.awt.geom.Point2D;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marco
- * Date: 15.02.2006
- * Time: 12:15:01
- */
 
 /**
  * Description of StereographicTest

@@ -20,13 +20,7 @@ import junit.framework.TestCase;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 18.11.2005
- * Time: 12:31:04
- * To change this template use File | Settings | File Templates.
- */
+
 public class L3ProjectionRasterTest extends TestCase {
     private L3ProjectionRaster projectionRaster;
 

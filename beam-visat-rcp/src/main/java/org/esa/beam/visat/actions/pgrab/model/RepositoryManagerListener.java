@@ -16,15 +16,6 @@
 
 package org.esa.beam.visat.actions.pgrab.model;
 
-
-
-/**
- * Created by IntelliJ IDEA.
- * User: marco
- * Date: 05.09.2005
- * Time: 11:06:16
- */
-
 /**
  * Clients can implement <code>RepositoryManagerListener</code> to be informed
  * on changes of {@link RepositoryManager}.

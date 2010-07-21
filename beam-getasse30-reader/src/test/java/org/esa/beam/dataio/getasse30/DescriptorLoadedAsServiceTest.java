@@ -19,12 +19,6 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class DescriptorLoadedAsServiceTest extends TestCase {
 
     public void testDescriptorIsLoaded() {

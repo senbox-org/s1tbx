@@ -20,12 +20,6 @@ import org.esa.beam.framework.gpf.Operator;
 
 import java.util.Set;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision$ $Date$
- */
 public class OperatorConfiguration {
 
     private final DomElement configuration;

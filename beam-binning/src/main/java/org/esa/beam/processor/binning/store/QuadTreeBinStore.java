@@ -23,13 +23,7 @@ import java.io.IOException;
 import org.esa.beam.processor.binning.database.Bin;
 import org.esa.beam.util.Guardian;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 15.07.2005
- * Time: 15:02:59
- * To change this template use File | Settings | File Templates.
- */
+
 public class QuadTreeBinStore implements BinStore {
     // the maximum tile size (width and height) in bins
     private static final int TILE_SIZE = 64;

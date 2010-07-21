@@ -18,12 +18,6 @@ package org.esa.beam.visat.actions;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.VisatApp;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- */
 public class ExportActionGroup extends ActionGroup {
 
     @Override

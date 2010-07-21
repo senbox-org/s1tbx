@@ -30,10 +30,6 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * User: Marco
- * Date: 17.06.2009
- */
 public class WorldMapPaneDataModel {
 
     public static final String PROPERTY_LAYER = "layer";

@@ -24,13 +24,6 @@ import java.awt.Cursor;
 import java.io.IOException;
 
 /**
- * Created by IntelliJ IDEA.
- * User: marco
- * Date: 19.10.2005
- * Time: 13:31:52
- */
-
-/**
  * A pane within the statistics window which displays a co-oordinate list as a text table.
  *
  */

@@ -32,10 +32,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.Map;
 
-/**
- * User: Marco
- * Date: 16.08.2009
- */
 class MosaicDialog extends SingleTargetProductDialog {
 
     private final MosaicForm form;
