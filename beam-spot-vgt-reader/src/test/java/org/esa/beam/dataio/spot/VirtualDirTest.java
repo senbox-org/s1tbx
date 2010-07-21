@@ -5,6 +5,8 @@ import junit.framework.TestCase;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class VirtualDirTest extends TestCase {
 
@@ -32,11 +34,11 @@ public class VirtualDirTest extends TestCase {
             assertNotNull(virtualDir.getFile("dir1/File4"));
             assertNotNull(virtualDir.getFile("dir2"));
 
-            String[] dir1Names = virtualDir.list("dir1");
+            List<String> dir1Names = Arrays.asList(virtualDir.list("dir1"));
             assertNotNull(dir1Names);
-            assertEquals(2, dir1Names.length);
-            assertEquals("File3", dir1Names[0]);
-            assertEquals("File4", dir1Names[1]);
+            assertEquals(2, dir1Names.size());
+            assertTrue(dir1Names.contains("File3"));
+            assertTrue(dir1Names.contains("File4"));
 
             String[] dir2Names = virtualDir.list("dir2");
             assertNotNull(dir2Names);
