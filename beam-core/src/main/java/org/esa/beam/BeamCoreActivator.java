@@ -18,6 +18,7 @@ package org.esa.beam;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ServiceRegistry;
+import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.ceres.core.runtime.Activator;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import com.bc.ceres.core.runtime.Extension;
@@ -29,6 +30,9 @@ import com.bc.ceres.core.runtime.ModuleState;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RGBImageProfileManager;
 import org.esa.beam.util.SystemUtils;
+import org.geotools.factory.FactoryIteratorProvider;
+import org.geotools.factory.GeoTools;
+import org.geotools.referencing.operation.MathTransformProvider;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -49,6 +53,7 @@ import java.util.logging.LogRecord;
 public class BeamCoreActivator implements Activator {
 
     private static ModuleContext moduleContext;
+    private FactoryIteratorProvider geotoolsFactoryIteratorProvider;
 
     public static boolean isStarted() {
         return moduleContext != null;
@@ -77,12 +82,28 @@ public class BeamCoreActivator implements Activator {
         BeamCoreActivator.moduleContext = moduleContext;
         SystemUtils.init3rdPartyLibs(moduleContext.getModule().getClassLoader());
         registerRGBProfiles(moduleContext);
+        registerGeotoolsServices();
     }
 
     @Override
     public void stop(ModuleContext moduleContext) throws CoreException {
         BeamCoreActivator.moduleContext = null;
+        deregisterGeotoolsServices();
     }
+
+    private void registerGeotoolsServices() {
+        final ServiceRegistry<MathTransformProvider> serviceRegistry = ServiceRegistryManager.getInstance().getServiceRegistry(MathTransformProvider.class);
+        loadServices(serviceRegistry);
+        geotoolsFactoryIteratorProvider = new GeotoolsFactoryIteratorProvider(serviceRegistry);
+        GeoTools.addFactoryIteratorProvider(geotoolsFactoryIteratorProvider);
+    }
+
+    private void deregisterGeotoolsServices() {
+        if (geotoolsFactoryIteratorProvider != null) {
+            GeoTools.removeFactoryIteratorProvider(geotoolsFactoryIteratorProvider);
+        }
+    }
+
 
     private static void registerRGBProfiles(ModuleContext moduleContext) throws CoreException {
         ExtensionPoint rgbExtensionPoint = moduleContext.getModule().getExtensionPoint("rgbProfiles");
@@ -154,4 +175,21 @@ public class BeamCoreActivator implements Activator {
 //        }
 //        return executableExtensions;
 //    }
+
+    private static final class GeotoolsFactoryIteratorProvider implements FactoryIteratorProvider {
+        private final ServiceRegistry<MathTransformProvider> serviceRegistry;
+
+        private GeotoolsFactoryIteratorProvider(ServiceRegistry<MathTransformProvider> serviceRegistry) {
+            this.serviceRegistry = serviceRegistry;
+        }
+
+        @Override
+        public <T> Iterator<T> iterator(Class<T> category) {
+            if (category.equals(serviceRegistry.getServiceType()) ) {
+                return (Iterator<T>) serviceRegistry.getServices().iterator();
+            } else {
+                return null;
+            }
+        }
+    }
 }
