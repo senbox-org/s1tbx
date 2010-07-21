@@ -1,9 +1,26 @@
+/*
+ * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package com.bc.ceres.site.util;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.internal.ModuleImpl;
 import com.bc.ceres.core.runtime.internal.ModuleManifestParser;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
@@ -23,11 +40,6 @@ import java.util.List;
 
 import static junit.framework.Assert.*;
 
-/**
- * User: Thomas Storm
- * Date: 03.06.2010
- * Time: 12:13:27
- */
 public class ModuleUtilsTest {
 
     private List<Module> modules = new ArrayList<Module>();
@@ -42,6 +54,14 @@ public class ModuleUtilsTest {
         modules.add(module1);
         modules.add(module2);
         modules.add(module3);
+    }
+
+    @After
+    public void tearDown() {
+        final File exclusionList = new File(ExclusionListBuilder.EXCLUSION_LIST_FILENAME);
+        if (exclusionList.exists()) {
+            exclusionList.delete();
+        }
     }
 
     @Test
