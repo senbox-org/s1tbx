@@ -22,10 +22,12 @@ import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContextImpl;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfInitialisationPart;
+import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import org.esa.beam.dataio.netcdf.util.VariableMap;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.util.io.BeamFileFilter;
 import org.jdom.Element;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
@@ -102,6 +104,11 @@ public class HdfEosProfileSpi extends AbstractProfileSpi {
     }
 
     @Override
+    public BeamFileFilter getProductFileFilter() {
+        return new BeamFileFilter("HDF EOS", Constants.FILE_EXTENSIONS, "A HDF-EOS-product");
+    }
+
+    @Override
     public ProfileReadContext createReadContext(NetcdfFile netcdfFile) throws IOException {
         Group eosGroup = netcdfFile.getRootGroup();
         Element eosStructElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, eosGroup);
@@ -121,8 +128,10 @@ public class HdfEosProfileSpi extends AbstractProfileSpi {
         }
         ProfileReadContextImpl readContext = new ProfileReadContextImpl(netcdfFile, rasterDigest, variableMap);
         readContext.setProperty(HdfEosUtils.STRUCT_METADATA, eosStructElement);
-        readContext.setProperty(HdfEosUtils.CORE_METADATA, HdfEosUtils.getEosElement(HdfEosUtils.CORE_METADATA, eosGroup));
-        readContext.setProperty(HdfEosUtils.ARCHIVE_METADATA, HdfEosUtils.getEosElement(HdfEosUtils.ARCHIVE_METADATA, eosGroup));
+        readContext.setProperty(HdfEosUtils.CORE_METADATA,
+                                HdfEosUtils.getEosElement(HdfEosUtils.CORE_METADATA, eosGroup));
+        readContext.setProperty(HdfEosUtils.ARCHIVE_METADATA,
+                                HdfEosUtils.getEosElement(HdfEosUtils.ARCHIVE_METADATA, eosGroup));
         return readContext;
     }
 

@@ -20,12 +20,14 @@ import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.util.Guardian;
 import ucar.nc2.NetcdfFile;
 
 import java.util.Set;
 
 /**
  * A registry for {@link ProfileSpi}s.
+ *
  * @author Thomas Storm
  */
 public class ProfileSpiRegistry {
@@ -70,6 +72,17 @@ public class ProfileSpiRegistry {
             }
         }
         return bestQualification;
+    }
+
+    public ProfileSpi getProfileFactory(String profileName) {
+        Guardian.assertNotNullOrEmpty("profileName", profileName);
+        Set<ProfileSpi> services = serviceRegistry.getServices();
+        for (ProfileSpi profileSpi : services) {
+            if (profileName.equalsIgnoreCase(profileSpi.getClass().getName())) {
+                return profileSpi;
+            }
+        }
+        return null;
     }
 
     private static class Holder {

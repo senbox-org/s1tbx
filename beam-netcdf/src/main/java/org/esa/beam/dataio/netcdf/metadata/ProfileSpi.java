@@ -17,6 +17,7 @@
 package org.esa.beam.dataio.netcdf.metadata;
 
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.util.io.BeamFileFilter;
 import ucar.nc2.NetcdfFile;
 
 import java.io.IOException;
@@ -51,4 +52,11 @@ public interface ProfileSpi {
     DecodeQualification getDecodeQualification(NetcdfFile netcdfFile);
 
     ProfileReadContext createReadContext(NetcdfFile netcdfFile) throws IOException;
+
+    /**
+     * Gets an instance of {@link org.esa.beam.util.io.BeamFileFilter} for use in a {@link javax.swing.JFileChooser JFileChooser}.
+     *
+     * @return a file filter
+     */
+    BeamFileFilter getProductFileFilter();
 }

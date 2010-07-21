@@ -16,11 +16,13 @@
 
 package org.esa.beam.dataio.netcdf;
 
+import org.esa.beam.dataio.netcdf.metadata.ProfileSpi;
 import org.esa.beam.dataio.netcdf.metadata.ProfileSpiRegistry;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.ProfileReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 import ucar.nc2.NetcdfFile;
 
@@ -33,9 +35,15 @@ import java.util.Locale;
  *
  * @author Norman Fomferra
  */
-public class NetCdfReaderPlugIn implements ProductReaderPlugIn {
+public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlugIn {
+
+    private String profileClassName;
 
     public NetCdfReaderPlugIn() {
+    }
+
+    public NetCdfReaderPlugIn(String profileClassName) {
+        this.profileClassName = profileClassName;
     }
 
     /**
@@ -54,9 +62,16 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn {
             if (netcdfFile == null) {
                 return DecodeQualification.UNABLE;
             }
-            return ProfileSpiRegistry.getInstance().getDecodeQualification(netcdfFile);
-        } catch (Exception e) {
-            return DecodeQualification.UNABLE;
+            ProfileSpiRegistry profileSpiRegistry = ProfileSpiRegistry.getInstance();
+            if (profileClassName != null) {
+                ProfileSpi profileFactory = profileSpiRegistry.getProfileFactory(profileClassName);
+                if (profileFactory != null) {
+                    return profileFactory.getDecodeQualification(netcdfFile);
+                }
+            } else {
+                return profileSpiRegistry.getDecodeQualification(netcdfFile);
+            }
+        } catch (Exception ignore) {
         } finally {
             try {
                 if (netcdfFile != null) {
@@ -66,6 +81,7 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn {
                 // OK, ignored
             }
         }
+        return DecodeQualification.UNABLE;
     }
 
     /**
@@ -87,10 +103,20 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn {
      * @return a new reader instance, never <code>null</code>
      */
     public ProductReader createReaderInstance() {
-        return new NetCdfReader(this);
+        return new NetCdfReader(this, profileClassName);
     }
 
     public BeamFileFilter getProductFileFilter() {
+        if (profileClassName != null) {
+            ProfileSpiRegistry profileSpiRegistry = ProfileSpiRegistry.getInstance();
+            ProfileSpi profileFactory = profileSpiRegistry.getProfileFactory(profileClassName);
+            if (profileFactory != null) {
+                BeamFileFilter fileFilter = profileFactory.getProductFileFilter();
+                if (fileFilter != null) {
+                    return fileFilter;
+                }
+            }
+        }
         return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
     }
 
@@ -100,9 +126,7 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn {
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
     public String[] getFormatNames() {
-        return new String[]{
-                Constants.FORMAT_NAME
-        };
+        return new String[]{Constants.FORMAT_NAME};
     }
 
     /**
@@ -128,6 +152,11 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn {
      * @return a textual description of this product reader/writer
      */
     public String getDescription(final Locale locale) {
-        return Constants.FORMAT_DESCRIPTION;
+        return Constants.FORMAT_DESCRIPTION;  //TODO include profile
+    }
+
+    @Override
+    public ProductReaderPlugIn createProfileReaderPlugin(String profileClassName) {
+        return new NetCdfReaderPlugIn(profileClassName);
     }
 }

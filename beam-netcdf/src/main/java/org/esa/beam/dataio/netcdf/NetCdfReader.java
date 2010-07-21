@@ -102,12 +102,15 @@ import java.io.IOException;
  */
 public class NetCdfReader extends AbstractProductReader {
 
+    private final String profileClassName;
+
     private NetcdfFile netcdfFile;
     private boolean isYFlipped;
     private VariableMap rasterVariableMap;
 
-    public NetCdfReader(final ProductReaderPlugIn readerPlugIn) {
+    public NetCdfReader(ProductReaderPlugIn readerPlugIn, String profileClassName) {
         super(readerPlugIn);
+        this.profileClassName = profileClassName;
     }
 
     /**
@@ -127,10 +130,16 @@ public class NetCdfReader extends AbstractProductReader {
 
         System.out.println("netcdfFile = " + netcdfFile);
 
-        ProfileSpi profileSpi = ProfileSpiRegistry.getInstance().getProfileFactory(netcdfFile);
+        ProfileSpiRegistry profileSpiRegistry = ProfileSpiRegistry.getInstance();
+        ProfileSpi profileSpi;
+        if (profileClassName != null) {
+            profileSpi = profileSpiRegistry.getProfileFactory(profileClassName);
+        } else {
+            profileSpi = profileSpiRegistry.getProfileFactory(netcdfFile);
+        }
         if (profileSpi == null) {
             netcdfFile.close();
-            throw new IllegalFileFormatException("No convention factory found for netCDF.");
+            throw new IllegalFileFormatException("No convention factory found for netCDF."); // TODO profileName
         }
         final ProfileReadContext context = profileSpi.createReadContext(netcdfFile);
         if (context.getRasterDigest() == null) {

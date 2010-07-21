@@ -22,7 +22,9 @@ import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfDescriptionPart;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfEndTimePart;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfStartTimePart;
+import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.util.io.BeamFileFilter;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 
@@ -97,6 +99,11 @@ public class DefaultProfileSpi extends AbstractProfileSpi {
     @Override
     public ProfilePart createTiePointGridPart() {
         return new DefaultTiePointGridPart();
+    }
+
+    @Override
+    public BeamFileFilter getProductFileFilter() {
+        return new BeamFileFilter("BEAM", Constants.FILE_EXTENSIONS, "A BEAM-NetCDF-product");
     }
 
     @Override

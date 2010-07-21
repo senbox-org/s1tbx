@@ -16,7 +16,6 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import org.esa.beam.dataio.netcdf.metadata.AbstractProfileSpi;
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPart;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
@@ -24,12 +23,16 @@ import org.esa.beam.dataio.netcdf.metadata.profiles.def.DefaultImageInfoPart;
 import org.esa.beam.dataio.netcdf.metadata.profiles.def.DefaultMaskOverlayPart;
 import org.esa.beam.dataio.netcdf.metadata.profiles.def.DefaultStxPart;
 import org.esa.beam.dataio.netcdf.metadata.profiles.def.DefaultTiePointGridPart;
+import org.esa.beam.dataio.netcdf.util.Constants;
+import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.util.io.BeamFileFilter;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 /**
- *  A profile used for reading/writing general NetCDF/CF files.
+ * A profile used for reading/writing general NetCDF/CF files.
+ *
  * @author Thomas Storm
  */
 public class CfProfileSpi extends AbstractProfileSpi {
@@ -97,6 +100,11 @@ public class CfProfileSpi extends AbstractProfileSpi {
     @Override
     public ProfilePart createTiePointGridPart() {
         return new DefaultTiePointGridPart();
+    }
+
+    @Override
+    public BeamFileFilter getProductFileFilter() {
+        return new BeamFileFilter("CF 1.0", Constants.FILE_EXTENSIONS, "A product compliant to the CF-conventions 1.0");
     }
 
     @Override
