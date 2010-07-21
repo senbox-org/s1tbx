@@ -88,13 +88,8 @@ public class HdfEosProfileSpi extends AbstractProfileSpi {
     }
 
     @Override
-    public ProfilePart createStartTimePart() {
-        return new HdfEosStartTimePart();
-    }
-
-    @Override
-    public ProfilePart createEndTimePart() {
-        return new HdfEosEndTimePart();
+    public ProfilePart createTimePart() {
+        return new HdfEosTimePart();
     }
 
     @Override

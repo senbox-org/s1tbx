@@ -20,8 +20,7 @@ import org.esa.beam.dataio.netcdf.metadata.AbstractProfileSpi;
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPart;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfDescriptionPart;
-import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfEndTimePart;
-import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfStartTimePart;
+import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfTimePart;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
@@ -55,11 +54,6 @@ public class DefaultProfileSpi extends AbstractProfileSpi {
     }
 
     @Override
-    public ProfilePart createEndTimePart() {
-        return new CfEndTimePart();
-    }
-
-    @Override
     public ProfilePart createFlagCodingPart() {
         return new DefaultFlagCodingPart();
     }
@@ -90,8 +84,8 @@ public class DefaultProfileSpi extends AbstractProfileSpi {
     }
 
     @Override
-    public ProfilePart createStartTimePart() {
-        return new CfStartTimePart();
+    public ProfilePart createTimePart() {
+        return new CfTimePart();
     }
 
     @Override

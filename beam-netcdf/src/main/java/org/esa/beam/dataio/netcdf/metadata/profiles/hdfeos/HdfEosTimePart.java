@@ -13,34 +13,44 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
+
+package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
-import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import ucar.nc2.Attribute;
+import org.jdom.Element;
 
 import java.io.IOException;
 
-public class CfEndTimePart extends ProfilePart {
+
+public class HdfEosTimePart extends ProfilePart {
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
-        p.setEndTime(ReaderUtils.getSceneRasterTime(ctx.getNetcdfFile(),
-                                                    Constants.STOP_DATE_ATT_NAME,
-                                                    Constants.STOP_TIME_ATT_NAME));
+        Element element = (Element) ctx.getProperty(HdfEosUtils.CORE_METADATA);
+        if (element != null) {
+            p.setStartTime(readEosTime(element, "RANGEBEGINNINGDATE", "RANGEBEGINNINGTIME"));
+            p.setEndTime(readEosTime(element, "RANGEENDINGDATE", "RANGEENDINGTIME"));
+        }
+    }
+
+    private ProductData.UTC readEosTime(Element element, String dateElemName, String timeElemName) {
+        String date = HdfEosUtils.getValue(element, "INVENTORYMETADATA", "MASTERGROUP", "RANGEDATETIME",
+                dateElemName, "VALUE");
+        String time = HdfEosUtils.getValue(element, "INVENTORYMETADATA", "MASTERGROUP", "RANGEDATETIME",
+                timeElemName, "VALUE");
+        if (date != null && !date.isEmpty() && time != null && !time.isEmpty()) {
+            return ReaderUtils.parseDateTime(date + " " + time);
+        }
+        return null;
     }
 
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
-        final ProductData.UTC utc = p.getEndTime();
-        if (utc != null) {
-            ctx.getNetcdfFileWriteable().addAttribute(null, new Attribute(Constants.STOP_DATE_ATT_NAME, utc.format()));
-        }
+        throw new IllegalStateException();
     }
-
 }

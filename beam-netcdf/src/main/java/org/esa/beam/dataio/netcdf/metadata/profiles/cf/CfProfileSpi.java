@@ -32,8 +32,64 @@ import ucar.nc2.Variable;
 
 /**
  * A profile used for reading/writing general NetCDF/CF files.
+ * <p/>
+ * This reader tries to support the
+ * <a href="http://ferret.wrc.noaa.gov/noaa_coop/coop_cdf_profile.html">COARDS</a> profile and
+ * <a href="http://www.cgd.ucar.edu/cms/eaton/cf-metadata/CF-1.0.html">CF Conventions</a> to a maximum extend.
+ * <p/>
+ * The CF Conventions are supported for regular, lat/lon grids as follows.
+ * If the dimensions are
+ * <pre>
+ *    lon = <i>integer</i>
+ *    lat = <i>integer</i>
+ *    time = <i>integer</i> (currently assumed to be 1)
+ * </pre>
+ * then the following variables are expected
+ * <pre>
+ *    lon(lon)
+ *    lat(lat)
+ *    time(time)
+ *    <i>band-1</i>(time, lat, lon)
+ *    <i>band-2</i>(time, lat, lon)
+ *    ...
+ * </pre>
+ * <p/>
+ * The CF Conventions are supported for non-regular, lat/lon grids as follows:
+ * If the dimensions are
+ * <pre>
+ *    ni = <i>integer</i>
+ *    nj = <i>integer</i>
+ *    time = <i>integer</i> (currently assumed to be 1)
+ *    ...
+ * </pre>
+ * then the following variables are expected
+ * <pre>
+ *    lat(nj, ni)
+ *    lon(nj, ni)
+ *    time(time)
+ *    <i>band-1</i>(time, nj, ni)
+ *    <i>band-2</i>(time, nj, ni)
+ *    ...
+ * </pre>
+ * <p/>
+ * The COARDS profile is supported as follows:
+ * If the dimensions are
+ * <pre>
+ *    longitude = <i>integer</i>
+ *    latitude = <i>integer</i>
+ *    ...
+ * </pre>
+ * then the following variables are expected
+ * <pre>
+ *    longitude(longitude)
+ *    latitude(latitude)
+ *    <i>band-1</i>(latitude, longitude)
+ *    <i>band-2</i>(latitude, longitude)
+ *    ...
+ * </pre>
  *
  * @author Thomas Storm
+ * @author Norman Fomferra
  */
 public class CfProfileSpi extends AbstractProfileSpi {
 
@@ -45,11 +101,6 @@ public class CfProfileSpi extends AbstractProfileSpi {
     @Override
     public ProfilePart createDescriptionPart() {
         return new CfDescriptionPart();
-    }
-
-    @Override
-    public ProfilePart createEndTimePart() {
-        return new CfEndTimePart();
     }
 
     @Override
@@ -88,8 +139,8 @@ public class CfProfileSpi extends AbstractProfileSpi {
     }
 
     @Override
-    public ProfilePart createStartTimePart() {
-        return new CfStartTimePart();
+    public ProfilePart createTimePart() {
+        return new CfTimePart();
     }
 
     @Override

@@ -48,9 +48,7 @@ public abstract class AbstractProfileSpi implements ProfileSpi {
 
     public abstract ProfilePart createTiePointGridPart();
 
-    public abstract ProfilePart createStartTimePart();
-
-    public abstract ProfilePart createEndTimePart();
+    public abstract ProfilePart createTimePart();
 
     public abstract ProfilePart createDescriptionPart();
 
@@ -74,8 +72,7 @@ public abstract class AbstractProfileSpi implements ProfileSpi {
         addProfilePart(profile, createIndexCodingPart());
         addProfilePart(profile, createMaskOverlayPart());
         addProfilePart(profile, createStxPart());
-        addProfilePart(profile, createStartTimePart());
-        addProfilePart(profile, createEndTimePart());
+        addProfilePart(profile, createTimePart());
         addProfilePart(profile, createDescriptionPart());
     }
 
