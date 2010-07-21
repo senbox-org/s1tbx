@@ -32,7 +32,7 @@ public class CfInitialisationPart implements ProfileInitPart {
     public Product readProductBody(ProfileReadContext ctx) throws ProductIOException {
         return new Product(
                 (String) ctx.getProperty(Constants.PRODUCT_NAME_PROPERTY_NAME),
-                getProductType(ctx),
+                readProductType(ctx),
                 ctx.getRasterDigest().getRasterDim().getDimX().getLength(),
                 ctx.getRasterDigest().getRasterDim().getDimY().getLength()
         );
@@ -41,18 +41,18 @@ public class CfInitialisationPart implements ProfileInitPart {
     @Override
     public void writeProductBody(NetcdfFileWriteable writeable, Product product) throws IOException {
         if (CfGeocodingPart.isGeographicLatLon(product.getGeoCoding())) {
-            addDimensions(writeable, product, "lat", "lon");
+            writeDimensions(writeable, product, "lat", "lon");
         } else {
-            addDimensions(writeable, product, "y", "x");
+            writeDimensions(writeable, product, "y", "x");
         }
     }
 
-    private void addDimensions(NetcdfFileWriteable writeable, Product p, String dimY, String dimX) {
+    private void writeDimensions(NetcdfFileWriteable writeable, Product p, String dimY, String dimX) {
         writeable.addDimension(dimY, p.getSceneRasterHeight());
         writeable.addDimension(dimX, p.getSceneRasterWidth());
     }
 
-    public static String getProductType(final ProfileReadContext ctx) {
+    public String readProductType(final ProfileReadContext ctx) {
         Attribute productType = ctx.getNetcdfFile().findGlobalAttribute("Conventions");
         if (productType != null) {
             return productType.getStringValue();

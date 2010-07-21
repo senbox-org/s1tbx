@@ -19,7 +19,7 @@ import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.util.ReaderUtils;
+import org.esa.beam.dataio.netcdf.util.TimeUtils;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import ucar.nc2.Attribute;
@@ -33,11 +33,11 @@ public class CfTimePart extends ProfilePart {
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         NetcdfFile ncFile = ctx.getNetcdfFile();
-        p.setStartTime(ReaderUtils.getSceneRasterTime(ncFile,
+        p.setStartTime(TimeUtils.getSceneRasterTime(ncFile,
                 Constants.START_DATE_ATT_NAME,
                 Constants.START_TIME_ATT_NAME));
 
-        p.setEndTime(ReaderUtils.getSceneRasterTime(ncFile,
+        p.setEndTime(TimeUtils.getSceneRasterTime(ncFile,
                 Constants.STOP_DATE_ATT_NAME,
                 Constants.STOP_TIME_ATT_NAME));
     }

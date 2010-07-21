@@ -19,10 +19,6 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.metadata.AbstractProfileSpi;
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPart;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
-import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamImageInfoPart;
-import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamMaskOverlayPart;
-import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamStxPart;
-import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamTiePointGridPart;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import org.esa.beam.framework.dataio.DecodeQualification;
@@ -115,7 +111,7 @@ public class CfProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfilePart createImageInfoPart() {
-        return new BeamImageInfoPart();
+        return null;
     }
 
     @Override
@@ -130,7 +126,7 @@ public class CfProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfilePart createMaskOverlayPart() {
-        return new BeamMaskOverlayPart();
+        return null;
     }
 
     @Override
@@ -145,12 +141,12 @@ public class CfProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfilePart createStxPart() {
-        return new BeamStxPart();
+        return null;
     }
 
     @Override
     public ProfilePart createTiePointGridPart() {
-        return new BeamTiePointGridPart();
+        return null;
     }
 
     @Override

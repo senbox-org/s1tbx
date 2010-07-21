@@ -19,7 +19,7 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
-import org.esa.beam.dataio.netcdf.util.ReaderUtils;
+import org.esa.beam.dataio.netcdf.util.TimeUtils;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.jdom.Element;
@@ -44,7 +44,7 @@ public class HdfEosTimePart extends ProfilePart {
         String time = HdfEosUtils.getValue(element, "INVENTORYMETADATA", "MASTERGROUP", "RANGEDATETIME",
                 timeElemName, "VALUE");
         if (date != null && !date.isEmpty() && time != null && !time.isEmpty()) {
-            return ReaderUtils.parseDateTime(date + " " + time);
+            return TimeUtils.parseDateTime(date + " " + time);
         }
         return null;
     }

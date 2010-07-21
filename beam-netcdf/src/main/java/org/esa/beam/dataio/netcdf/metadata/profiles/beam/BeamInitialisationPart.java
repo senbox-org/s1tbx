@@ -16,7 +16,6 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfileInitPart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfInitialisationPart;
 import org.esa.beam.dataio.netcdf.util.Constants;
@@ -28,7 +27,7 @@ import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
 
-public class BeamInitialisationPart implements ProfileInitPart {
+public class BeamInitialisationPart extends CfInitialisationPart {
 
     public static final String PRODUCT_TYPE = "product_type";
 
@@ -49,7 +48,7 @@ public class BeamInitialisationPart implements ProfileInitPart {
         }
         return new Product(
                 (String) ctx.getProperty(Constants.PRODUCT_NAME_PROPERTY_NAME),
-                getProductType(ctx),
+                readProductType(ctx),
                 x.getLength(),
                 y.getLength()
         );
@@ -57,14 +56,14 @@ public class BeamInitialisationPart implements ProfileInitPart {
 
     @Override
     public void writeProductBody(NetcdfFileWriteable writeable, Product p) throws IOException {
-        new CfInitialisationPart().writeProductBody(writeable, p);
+        super.writeProductBody(writeable, p);
         writeable.addAttribute(null, new Attribute(PRODUCT_TYPE, p.getProductType()));
         writeable.addAttribute(null, new Attribute("metadata_profile", "beam"));
         writeable.addAttribute(null, new Attribute("metadata_version", "0.5"));
         writeable.addAttribute(null, new Attribute("Conventions", "CF-1.4"));
     }
 
-    public static String getProductType(ProfileReadContext ctx) {
+    public String readProductType(ProfileReadContext ctx) {
         final Attribute productTypeAtt = ctx.getNetcdfFile().getRootGroup().findAttribute(PRODUCT_TYPE);
         if (productTypeAtt != null) {
             final String pt = productTypeAtt.getStringValue();
@@ -72,6 +71,6 @@ public class BeamInitialisationPart implements ProfileInitPart {
                 return pt.trim();
             }
         }
-        return CfInitialisationPart.getProductType(ctx);
+        return super.readProductType(ctx);
     }
 }
