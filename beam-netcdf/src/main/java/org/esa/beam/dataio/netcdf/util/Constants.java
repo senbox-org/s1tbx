@@ -28,8 +28,13 @@ public interface Constants {
     String FORMAT_DESCRIPTION = "NetCDF supported Data Product";
     String FORMAT_DESCRIPTION_BEAM = "NetCDF supported BEAM Data Product";
     String FILE_EXTENSION_NC = ".nc";
+    String FILE_EXTENSION_NC_Z = ".nc.gz";
     String FILE_EXTENSION_HDF = ".hdf";
-    String[] FILE_EXTENSIONS = new String[]{FILE_EXTENSION_NC, FILE_EXTENSION_HDF};
+    String FILE_EXTENSION_HDF_Z = ".hdf.gz";
+    String[] FILE_EXTENSIONS = new String[]{
+            FILE_EXTENSION_NC, FILE_EXTENSION_NC_Z,
+            FILE_EXTENSION_HDF, FILE_EXTENSION_HDF_Z
+    };
     Class[] READER_INPUT_TYPES = new Class[]{
             String.class,
             File.class,

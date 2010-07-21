@@ -38,6 +38,10 @@ import java.io.IOException;
 
 public class HdfEosProfileSpi extends AbstractProfileSpi {
 
+    private static final String[] FILE_EXTENSIONS = new String[]{
+            Constants.FILE_EXTENSION_HDF, Constants.FILE_EXTENSION_HDF_Z
+    };
+
     @Override
     public ProfilePart createBandPart() {
         return new HdfEosBandPart();
@@ -105,7 +109,7 @@ public class HdfEosProfileSpi extends AbstractProfileSpi {
 
     @Override
     public BeamFileFilter getProductFileFilter() {
-        return new BeamFileFilter("HDF EOS", Constants.FILE_EXTENSIONS, "A HDF-EOS-product");
+        return new BeamFileFilter("HDF EOS", FILE_EXTENSIONS, "HDF-EOS products");
     }
 
     @Override

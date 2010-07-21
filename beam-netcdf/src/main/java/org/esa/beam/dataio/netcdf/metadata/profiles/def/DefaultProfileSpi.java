@@ -35,10 +35,13 @@ import ucar.nc2.NetcdfFile;
  */
 public class DefaultProfileSpi extends AbstractProfileSpi {
 
+    private static final String[] FILE_EXTENSIONS = new String[]{
+            Constants.FILE_EXTENSION_NC, Constants.FILE_EXTENSION_NC_Z
+    };
+
     @Override
     public ProfilePart createMetadataPart() {
         return new DefaultMetadataPart();
-//        return new CfMetadataPart();
     }
 
     @Override
@@ -103,7 +106,7 @@ public class DefaultProfileSpi extends AbstractProfileSpi {
 
     @Override
     public BeamFileFilter getProductFileFilter() {
-        return new BeamFileFilter("BEAM", Constants.FILE_EXTENSIONS, "A BEAM-NetCDF-product");
+        return new BeamFileFilter("BEAM", FILE_EXTENSIONS, "BEAM netCDF products");
     }
 
     @Override

@@ -104,7 +104,7 @@ public class CfProfileSpi extends AbstractProfileSpi {
 
     @Override
     public BeamFileFilter getProductFileFilter() {
-        return new BeamFileFilter("CF 1.0", Constants.FILE_EXTENSIONS, "A product compliant to the CF-conventions 1.0");
+        return new BeamFileFilter("netCDF/CF", Constants.FILE_EXTENSIONS, "netCDF/CF compliant products");
     }
 
     @Override
