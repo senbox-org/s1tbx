@@ -28,7 +28,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.TimeCoding;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.framework.ui.PixelInfoView.DisplayFilter;
 import org.esa.beam.framework.ui.PixelInfoView.DockablePaneKey;
@@ -354,23 +353,27 @@ class PixelInfoViewModelUpdater {
     }
 
     private void updateScanLineValues() {
-        final TimeCoding timeCoding = currentProduct.getTimeCoding();
-        String dateInfoText = "No date information";
-        String timeInfoText = "No time information";
-        if (timeCoding != null && isSampleValueAvailable(0, levelZeroY, true)) {
-            final float pX = levelZeroX + pixelInfoView.getPixelOffsetX();
-            final float pY = levelZeroY + pixelInfoView.getPixelOffsetY();
-            PixelPos pixelPos = new PixelPos(pX, pY);
+        final ProductData.UTC utcStartTime = currentProduct.getStartTime();
+        final ProductData.UTC utcEndTime = currentProduct.getEndTime();
 
-            final ProductData.UTC utc = timeCoding.getTime(pixelPos);
-            if (utc != null) {
-                Calendar currentTime = utc.getAsCalendar();
-                dateInfoText = String.format("%1$tF", currentTime);
-                timeInfoText = String.format("%1$tI:%1$tM:%1$tS:%1$tL %1$Tp", currentTime);
-            }
+        final double dStart = utcStartTime != null ? utcStartTime.getMJD() : 0;
+        final double dStop = utcEndTime != null ? utcEndTime.getMJD() : 0;
+        if (dStart == 0 || dStop == 0 || !isSampleValueAvailable(0, levelZeroY, true)) {
+            scanlineModel.updateValue("No date information", 0);
+            scanlineModel.updateValue("No time information", 1);
+        } else {
+            final double vPerLine = (dStop - dStart) / (currentProduct.getSceneRasterHeight() - 1);
+            final float pY = levelZeroY + pixelInfoView.getPixelOffsetY();
+            final double currentLine = vPerLine * pY + dStart;
+            final ProductData.UTC utcCurrentLine = new ProductData.UTC(currentLine);
+            final Calendar currentLineTime = utcCurrentLine.getAsCalendar();
+
+            final String dateString = String.format("%1$tF", currentLineTime);
+            final String timeString = String.format("%1$tI:%1$tM:%1$tS:%1$tL %1$Tp", currentLineTime);
+
+            scanlineModel.updateValue(dateString, 0);
+            scanlineModel.updateValue(timeString, 1);
         }
-        scanlineModel.updateValue(dateInfoText, 0);
-        scanlineModel.updateValue(timeInfoText, 1);
     }
 
     private void updateBandPixelValues() {
