@@ -39,7 +39,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceConfigurationError;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 /**
  * <p><i><b>IMPORTANT NOTE:</b>
