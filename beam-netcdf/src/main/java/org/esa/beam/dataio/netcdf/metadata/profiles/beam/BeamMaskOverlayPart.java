@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.dataio.netcdf.metadata.profiles.def;
+package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import com.bc.ceres.binding.PropertyContainer;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultMaskOverlayPart extends ProfilePart {
+public class BeamMaskOverlayPart extends ProfilePart {
 
     public static final String EXPRESSION = "expression";
     public static final String COLOR = "color";

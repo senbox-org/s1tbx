@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.netcdf.metadata.profiles.def;
+package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
@@ -28,7 +28,7 @@ import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
 
-public class DefaultInitialisationPart implements ProfileInitPart {
+public class BeamInitialisationPart implements ProfileInitPart {
 
     public static final String PRODUCT_TYPE = "product_type";
 

@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.netcdf.metadata.profiles.def;
+package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
@@ -34,7 +34,7 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.util.List;
 
-public class DefaultMetadataPart extends ProfilePart {
+public class BeamMetadataPart extends ProfilePart {
 
     private static final String SPLITTER = "/";
     private static final String METADATA_VARIABLE = "metadata";

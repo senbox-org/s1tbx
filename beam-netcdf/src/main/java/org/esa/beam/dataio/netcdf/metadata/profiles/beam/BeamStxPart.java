@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.dataio.netcdf.metadata.profiles.def;
+package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
@@ -30,7 +30,7 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.util.List;
 
-public class DefaultStxPart extends ProfilePart {
+public class BeamStxPart extends ProfilePart {
 
     public final String STATISTICS = "statistics";
     public final String SAMPLE_FREQUENCIES = "sample_frequencies";

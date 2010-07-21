@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.dataio.netcdf.metadata.profiles.def;
+package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
@@ -35,7 +35,7 @@ import java.util.List;
 
 import static org.esa.beam.dataio.netcdf.util.ReaderUtils.*;
 
-public class DefaultImageInfoPart extends ProfilePart {
+public class BeamImageInfoPart extends ProfilePart {
 
     public static final String COLOR_TABLE_SAMPLE_VALUES = "color_table_sample_values";
     public static final String COLOR_TABLE_RED_VALUES = "color_table_red_values";

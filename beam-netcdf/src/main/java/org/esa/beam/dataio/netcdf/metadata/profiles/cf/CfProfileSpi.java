@@ -19,10 +19,10 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.metadata.AbstractProfileSpi;
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPart;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
-import org.esa.beam.dataio.netcdf.metadata.profiles.def.DefaultImageInfoPart;
-import org.esa.beam.dataio.netcdf.metadata.profiles.def.DefaultMaskOverlayPart;
-import org.esa.beam.dataio.netcdf.metadata.profiles.def.DefaultStxPart;
-import org.esa.beam.dataio.netcdf.metadata.profiles.def.DefaultTiePointGridPart;
+import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamImageInfoPart;
+import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamMaskOverlayPart;
+import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamStxPart;
+import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamTiePointGridPart;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import org.esa.beam.framework.dataio.DecodeQualification;
@@ -115,7 +115,7 @@ public class CfProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfilePart createImageInfoPart() {
-        return new DefaultImageInfoPart();
+        return new BeamImageInfoPart();
     }
 
     @Override
@@ -130,7 +130,7 @@ public class CfProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfilePart createMaskOverlayPart() {
-        return new DefaultMaskOverlayPart();
+        return new BeamMaskOverlayPart();
     }
 
     @Override
@@ -145,12 +145,12 @@ public class CfProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfilePart createStxPart() {
-        return new DefaultStxPart();
+        return new BeamStxPart();
     }
 
     @Override
     public ProfilePart createTiePointGridPart() {
-        return new DefaultTiePointGridPart();
+        return new BeamTiePointGridPart();
     }
 
     @Override

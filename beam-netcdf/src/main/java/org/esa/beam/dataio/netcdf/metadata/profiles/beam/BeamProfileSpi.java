@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.netcdf.metadata.profiles.def;
+package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import org.esa.beam.dataio.netcdf.metadata.AbstractProfileSpi;
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPart;
@@ -32,7 +32,7 @@ import ucar.nc2.NetcdfFile;
  *
  * @author Thomas Storm
  */
-public class DefaultProfileSpi extends AbstractProfileSpi {
+public class BeamProfileSpi extends AbstractProfileSpi {
 
     private static final String[] FILE_EXTENSIONS = new String[]{
             Constants.FILE_EXTENSION_NC, Constants.FILE_EXTENSION_NC_Z
@@ -40,12 +40,12 @@ public class DefaultProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfilePart createMetadataPart() {
-        return new DefaultMetadataPart();
+        return new BeamMetadataPart();
     }
 
     @Override
     public ProfilePart createBandPart() {
-        return new DefaultBandPart();
+        return new BeamBandPart();
     }
 
     @Override
@@ -55,32 +55,32 @@ public class DefaultProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfilePart createFlagCodingPart() {
-        return new DefaultFlagCodingPart();
+        return new BeamFlagCodingPart();
     }
 
     @Override
     public ProfilePart createGeocodingPart() {
-        return new DefaultGeocodingPart();
+        return new BeamGeocodingPart();
     }
 
     @Override
     public ProfilePart createImageInfoPart() {
-        return new DefaultImageInfoPart();
+        return new BeamImageInfoPart();
     }
 
     @Override
     public ProfilePart createIndexCodingPart() {
-        return new DefaultIndexCodingPart();
+        return new BeamIndexCodingPart();
     }
 
     @Override
     public ProfileInitPart createInitialisationPart() {
-        return new DefaultInitialisationPart();
+        return new BeamInitialisationPart();
     }
 
     @Override
     public ProfilePart createMaskOverlayPart() {
-        return new DefaultMaskOverlayPart();
+        return new BeamMaskOverlayPart();
     }
 
     @Override
@@ -90,12 +90,12 @@ public class DefaultProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfilePart createStxPart() {
-        return new DefaultStxPart();
+        return new BeamStxPart();
     }
 
     @Override
     public ProfilePart createTiePointGridPart() {
-        return new DefaultTiePointGridPart();
+        return new BeamTiePointGridPart();
     }
 
     @Override

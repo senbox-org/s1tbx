@@ -19,7 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.netcdf.metadata.ProfileImpl;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContextImpl;
-import org.esa.beam.dataio.netcdf.metadata.profiles.def.DefaultProfileSpi;
+import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamProfileSpi;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductIOException;
@@ -59,7 +59,7 @@ public class NetCdfWriter extends AbstractProductWriter {
         writeable = NetcdfFileWriteable.createNew(getOutputString());
         writeable.setLargeFile(true);
         ProfileImpl profile = new ProfileImpl();
-        new DefaultProfileSpi().configureProfile(null, profile);
+        new BeamProfileSpi().configureProfile(null, profile);
         ProfileWriteContext context = new ProfileWriteContextImpl(writeable);
         profile.writeProduct(context, getSourceProduct());
         final Object object = context.getProperty(Constants.Y_FLIPPED_PROPERTY_NAME);

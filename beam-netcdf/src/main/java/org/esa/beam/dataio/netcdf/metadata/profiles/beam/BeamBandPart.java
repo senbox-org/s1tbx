@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.dataio.netcdf.metadata.profiles.def;
+package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
@@ -32,7 +32,7 @@ import java.util.List;
 
 import static org.esa.beam.dataio.netcdf.util.ReaderUtils.*;
 
-public class DefaultBandPart extends ProfilePart {
+public class BeamBandPart extends ProfilePart {
 
     public static final String BANDWIDTH = "bandwidth";
     public static final String WAVELENGTH = "wavelength";

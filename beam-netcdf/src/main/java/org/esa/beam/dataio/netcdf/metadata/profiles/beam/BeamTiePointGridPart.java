@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.dataio.netcdf.metadata.profiles.def;
+package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-public class DefaultTiePointGridPart extends ProfilePart {
+public class BeamTiePointGridPart extends ProfilePart {
 
     public final String OFFSET_X = "offset_x";
     public final String OFFSET_Y = "offset_y";

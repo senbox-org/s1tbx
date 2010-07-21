@@ -13,16 +13,16 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.dataio.netcdf.metadata.profiles.def;
+package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
-import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfFlagCodingPart;
+import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfIndexCodingPart;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.Product;
 import ucar.nc2.Attribute;
@@ -31,20 +31,20 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-public class DefaultFlagCodingPart extends ProfilePart {
+public class BeamIndexCodingPart extends ProfilePart {
 
-    public static final String FLAG_DESCRIPTIONS = "flag_descriptions";
-    public static final String FLAG_CODING_NAME = "flag_coding_name";
+    public static final String INDEX_DESCRIPTIONS = "index_descriptions";
     public static final String DESCRIPTION_SEPARATOR = "\t";
+    public static final String INDEX_CODING_NAME = "index_coding_name";
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final FlagCoding flagCoding = readFlagCoding(band, ctx);
-            if (flagCoding != null) {
-                p.getFlagCodingGroup().add(flagCoding);
-                band.setSampleCoding(flagCoding);
+            final IndexCoding indexCoding = readIndexCoding(band, ctx);
+            if (indexCoding != null) {
+                p.getIndexCodingGroup().add(indexCoding);
+                band.setSampleCoding(indexCoding);
             }
         }
     }
@@ -53,56 +53,58 @@ public class DefaultFlagCodingPart extends ProfilePart {
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            writeFlagCoding(ctx.getNetcdfFileWriteable(), band);
+            writeIndexCoding(ctx.getNetcdfFileWriteable(), band);
         }
     }
 
-    private void writeFlagCoding(NetcdfFileWriteable ncFile, Band band) {
-        CfFlagCodingPart.writeFlagCoding(ncFile, band);
+    private void writeIndexCoding(NetcdfFileWriteable ncFile, Band band) {
+        CfIndexCodingPart.writeIndexCoding(ncFile, band);
 
-        final FlagCoding flagCoding = band.getFlagCoding();
-        if (flagCoding != null) {
-            final String[] flagNames = flagCoding.getFlagNames();
+        final IndexCoding indexCoding = band.getIndexCoding();
+        if (indexCoding != null) {
+            final Variable variable = ncFile.findVariable(band.getName());
+
+            final String[] indexNames = indexCoding.getIndexNames();
             final StringBuffer descriptions = new StringBuffer();
-            for (String flagName : flagNames) {
-                final MetadataAttribute flag = flagCoding.getFlag(flagName);
-                if (flag != null) {
-                    final String description = flag.getDescription();
+            for (String indexName : indexNames) {
+                final MetadataAttribute index = indexCoding.getIndex(indexName);
+                if (index != null) {
+                    final String description = index.getDescription();
                     if (description != null) {
                         descriptions.append(description);
                     }
                 }
                 descriptions.append(DESCRIPTION_SEPARATOR);
             }
-            ncFile.addVariableAttribute(band.getName(), FLAG_CODING_NAME, flagCoding.getName());
-            ncFile.addVariableAttribute(band.getName(), FLAG_DESCRIPTIONS, descriptions.toString().trim());
+            variable.addAttribute(new Attribute(INDEX_DESCRIPTIONS, descriptions.toString().trim()));
+
+            variable.addAttribute(new Attribute(INDEX_CODING_NAME, indexCoding.getName()));
         }
     }
 
-    public static FlagCoding readFlagCoding(Band band, ProfileReadContext ctx) throws ProductIOException {
-        final FlagCoding flagCoding = CfFlagCodingPart.readFlagCoding(ctx, band);
+    public static IndexCoding readIndexCoding(Band band, ProfileReadContext ctx) throws ProductIOException {
+        final IndexCoding indexCoding = CfIndexCodingPart.readIndexCoding(band, ctx);
 
-        if (flagCoding != null) {
+        if (indexCoding != null) {
             final Variable variable = ctx.getGlobalVariablesMap().get(band.getName());
 
-            final Attribute descriptionsAtt = variable.findAttributeIgnoreCase(FLAG_DESCRIPTIONS);
+            final Attribute descriptionsAtt = variable.findAttributeIgnoreCase(INDEX_DESCRIPTIONS);
             if (descriptionsAtt != null) {
                 final String[] descriptions = descriptionsAtt.getStringValue().split(DESCRIPTION_SEPARATOR);
-                if (flagCoding.getNumAttributes() != descriptions.length) {
-                    throw new ProductIOException(Constants.EM_INVALID_FLAG_CODING);
+                if (indexCoding.getNumAttributes() != descriptions.length) {
+                    throw new ProductIOException(Constants.EM_INVALID_INDEX_CODING);
                 }
                 for (int i = 0; i < descriptions.length; i++) {
-                    flagCoding.getAttributeAt(i).setDescription(descriptions[i]);
+                    indexCoding.getAttributeAt(i).setDescription(descriptions[i]);
                 }
             }
 
-            final Attribute nameAtt = variable.findAttributeIgnoreCase(FLAG_CODING_NAME);
+            final Attribute nameAtt = variable.findAttributeIgnoreCase(INDEX_CODING_NAME);
             if (nameAtt != null) {
-                flagCoding.setName(nameAtt.getStringValue());
+                indexCoding.setName(nameAtt.getStringValue());
             }
         }
 
-        return flagCoding;
+        return indexCoding;
     }
-
 }
