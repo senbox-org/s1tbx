@@ -139,7 +139,11 @@ public class NetCdfReader extends AbstractProductReader {
         }
         if (profileSpi == null) {
             netcdfFile.close();
-            throw new IllegalFileFormatException("No convention factory found for netCDF."); // TODO profileName
+            String message = "No convention factory found for netCDF ";
+            if (profileClassName != null) {
+                message += "(profile = " + profileClassName + ")";
+            }
+            throw new IllegalFileFormatException(message);
         }
         final ProfileReadContext context = profileSpi.createReadContext(netcdfFile);
         if (context.getRasterDigest() == null) {

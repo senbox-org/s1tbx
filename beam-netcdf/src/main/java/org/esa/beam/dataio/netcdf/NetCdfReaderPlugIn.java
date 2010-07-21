@@ -152,7 +152,11 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      * @return a textual description of this product reader/writer
      */
     public String getDescription(final Locale locale) {
-        return Constants.FORMAT_DESCRIPTION;  //TODO include profile
+        if (profileClassName != null) {
+            return Constants.FORMAT_DESCRIPTION + " (" + profileClassName + ")";
+        } else {
+            return Constants.FORMAT_DESCRIPTION;
+        }
     }
 
     @Override
