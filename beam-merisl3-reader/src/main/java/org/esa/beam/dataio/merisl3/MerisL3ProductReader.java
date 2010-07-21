@@ -18,18 +18,16 @@ package org.esa.beam.dataio.merisl3;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.util.io.FileUtils;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -79,13 +77,9 @@ public class MerisL3ProductReader extends AbstractProductReader {
      * @throws java.io.IOException if an I/O error occurs
      */
     @Override
-    protected Product readProductNodesImpl() throws
-                                             IOException,
-                                             IllegalFileFormatException {
+    protected Product readProductNodesImpl() throws IOException {
         String path = getInput().toString();
-
         _netcdfFile = NetcdfFile.open(path);
-
         try {
             _grid = new ISINGrid(ISINGrid.detectRowCount(path));
             _sceneRasterWidth = _grid.getRowCount() * 2;
@@ -359,15 +353,24 @@ public class MerisL3ProductReader extends AbstractProductReader {
         return colIndexBand;
     }
 
-    private void initGeoCoding() {
-        MapInfo mapInfo = new MapInfo(MapProjectionRegistry.getProjection(IdentityTransformDescriptor.NAME),
-                                      0.0f, 0.0f, -180f, +90f,
-                                      360.0f / _sceneRasterWidth,
-                                      180.0f / _sceneRasterHeight,
-                                      Datum.WGS_84);
-        mapInfo.setSceneWidth(_sceneRasterWidth);
-        mapInfo.setSceneHeight(_sceneRasterHeight);
-        _product.setGeoCoding(new MapGeoCoding(mapInfo));
+    private void initGeoCoding() throws IOException {
+        float pixelX = 0.0f;
+        float pixelY = 0.0f;
+        float easting = -180f;
+        float northing = +90f;
+        float pixelSizeX = 360.0f / _sceneRasterWidth;
+        float pixelSizeY = 180.0f / _sceneRasterHeight;
+        try {
+            _product.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84,
+                    _sceneRasterWidth, _sceneRasterHeight,
+                    easting, northing,
+                    pixelSizeX, pixelSizeY,
+                    pixelX, pixelY));
+        } catch (FactoryException e) {
+            throw new IOException(e);
+        } catch (TransformException e) {
+            throw new IOException(e);
+        }
     }
 
     private void dispose() {
