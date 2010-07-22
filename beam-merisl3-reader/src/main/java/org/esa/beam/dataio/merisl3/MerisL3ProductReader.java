@@ -17,18 +17,16 @@
 package org.esa.beam.dataio.merisl3;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.dataio.netcdf.util.MetadataUtils;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
-import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
@@ -38,7 +36,6 @@ import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * The <code>MerisL3ProductReader</code> class is an implementation of the <code>ProductReader</code> interface
@@ -91,7 +88,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
                                    _sceneRasterHeight,
                                    this);
 
-            transferMetadata(_netcdfFile, _product.getMetadataRoot());
+            MetadataUtils.readNetcdfMetadata(_netcdfFile, _product.getMetadataRoot());
 
             // todo - traverse all variables and check if they can be converted into bands
             addBand("mean");
@@ -280,71 +277,6 @@ public class MerisL3ProductReader extends AbstractProductReader {
     /////////////////////////////////////////////////////////////////////////
     // private helpers
     /////////////////////////////////////////////////////////////////////////
-
-    private static void transferMetadata(NetcdfFile netcdfFile, MetadataElement root) {
-        root.addElement(createMetadataElementFromAttributeList(netcdfFile.getGlobalAttributes(), "MPH"));
-        root.addElement(createMetadataElementFromVariableList(netcdfFile.getVariables(), "DSD"));
-    }
-
-    private static MetadataElement createMetadataElementFromVariableList(final List<Variable> variableList,
-                                                                         String elementName) {
-        MetadataElement metadataElement = new MetadataElement(elementName);
-        for (Variable variable : variableList) {
-            metadataElement.addElement(createMetadataElement(variable));
-        }
-        return metadataElement;
-    }
-
-    private static MetadataElement createMetadataElement(Variable variable) {
-        return createMetadataElementFromAttributeList(variable.getAttributes(), variable.getName());
-    }
-
-    private static MetadataElement createMetadataElementFromAttributeList(final List<Attribute> attributeList,
-                                                                          String elementName) {
-        // todo - note that we still do not support NetCDF data type 'char' here!
-        MetadataElement metadataElement = new MetadataElement(elementName);
-        for (Attribute attribute : attributeList) {
-            final int productDataType = getProductDataType(attribute.getDataType(), false, false);
-            if (productDataType != -1) {
-                ProductData productData;
-                if (attribute.isString()) {
-                    productData = ProductData.createInstance(attribute.getStringValue());
-                } else if (attribute.isArray()) {
-                    productData = ProductData.createInstance(productDataType, attribute.getLength());
-                    productData.setElems(attribute.getValues().getStorage());
-                } else {
-                    productData = ProductData.createInstance(productDataType, 1);
-                    productData.setElems(attribute.getValues().getStorage());
-                }
-                MetadataAttribute metadataAttribute = new MetadataAttribute(attribute.getName(),
-                                                                            productData,
-                                                                            true);
-                metadataElement.addAttribute(metadataAttribute);
-            }
-        }
-        return metadataElement;
-    }
-
-    private static int getProductDataType(DataType dataType, boolean unsigned, boolean rasterDataOnly) {
-        if (dataType == DataType.BYTE) {
-            return unsigned ? ProductData.TYPE_UINT8 : ProductData.TYPE_INT8;
-        } else if (dataType == DataType.SHORT) {
-            return unsigned ? ProductData.TYPE_UINT16 : ProductData.TYPE_INT16;
-        } else if (dataType == DataType.INT) {
-            return unsigned ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
-        } else if (dataType == DataType.FLOAT) {
-            return ProductData.TYPE_FLOAT32;
-        } else if (dataType == DataType.DOUBLE) {
-            return ProductData.TYPE_FLOAT64;
-        } else if (!rasterDataOnly) {
-            if (dataType == DataType.CHAR) {
-                // return ProductData.TYPE_ASCII; todo - handle this case
-            } else if (dataType == DataType.STRING) {
-                return ProductData.TYPE_ASCII;
-            }
-        }
-        return -1;
-    }
 
     private Band createColumnIndexBand() {
         Band colIndexBand = new Band(COL_INDEX_BAND_NAME, ProductData.TYPE_UINT16, _sceneRasterWidth,

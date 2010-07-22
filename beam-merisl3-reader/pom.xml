@@ -23,8 +23,8 @@
             <artifactId>beam-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>ucar.netcdf</groupId>
-            <artifactId>lib-netcdf</artifactId>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-netcdf</artifactId>
         </dependency>
     </dependencies>
 
