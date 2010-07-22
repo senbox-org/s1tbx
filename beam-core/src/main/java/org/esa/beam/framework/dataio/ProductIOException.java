@@ -43,4 +43,15 @@ public class ProductIOException extends IOException {
     public ProductIOException(String message) {
         super(message);
     }
+
+    /**
+     * Constructs a new exception with the given error message and cause.
+     *
+     * @param message the error message
+     * @param cause the cause of the exception 
+     *
+     */
+    public ProductIOException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
