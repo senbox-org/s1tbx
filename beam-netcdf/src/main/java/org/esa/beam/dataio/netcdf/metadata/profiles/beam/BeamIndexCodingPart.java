@@ -40,7 +40,7 @@ public class BeamIndexCodingPart extends ProfilePart {
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final IndexCoding indexCoding = readIndexCoding(ctx, band);
+            final IndexCoding indexCoding = readIndexCoding(ctx, band.getName());
             if (indexCoding != null) {
                 p.getIndexCodingGroup().add(indexCoding);
                 band.setSampleCoding(indexCoding);
@@ -79,11 +79,11 @@ public class BeamIndexCodingPart extends ProfilePart {
         variable.addAttribute(new Attribute(INDEX_CODING_NAME, indexCoding.getName()));
     }
 
-    private static IndexCoding readIndexCoding(ProfileReadContext ctx, Band band) throws ProductIOException {
-        final IndexCoding indexCoding = CfIndexCodingPart.readIndexCoding(ctx, band);
+    private static IndexCoding readIndexCoding(ProfileReadContext ctx, String bandName) throws ProductIOException {
+        final IndexCoding indexCoding = CfIndexCodingPart.readIndexCoding(ctx, bandName);
 
         if (indexCoding != null) {
-            final Variable variable = ctx.getGlobalVariablesMap().get(band.getName());
+            final Variable variable = ctx.getGlobalVariablesMap().get(bandName);
 
             final Attribute descriptionsAtt = variable.findAttributeIgnoreCase(INDEX_DESCRIPTIONS);
             if (descriptionsAtt != null) {

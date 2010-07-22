@@ -18,8 +18,6 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
-import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -40,7 +38,7 @@ public class CfIndexCodingPart extends ProfilePart {
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final IndexCoding indexCoding = readIndexCoding(ctx, band);
+            final IndexCoding indexCoding = readIndexCoding(ctx, band.getName());
             if (indexCoding != null) {
                 p.getIndexCodingGroup().add(indexCoding);
                 band.setSampleCoding(indexCoding);
@@ -74,14 +72,13 @@ public class CfIndexCodingPart extends ProfilePart {
         variable.addAttribute(new Attribute(FLAG_VALUES, Array.factory(indexValues)));
     }
 
-    public static IndexCoding readIndexCoding(ProfileReadContext ctx, Band band) throws ProductIOException {
-        final Variable variable = ctx.getGlobalVariablesMap().get(band.getName());
-        final String codingName = band.getName() + "_index_coding";
+    public static IndexCoding readIndexCoding(ProfileReadContext ctx, String bandName) {
+        final Variable variable = ctx.getGlobalVariablesMap().get(bandName);
+        final String codingName = bandName + "_index_coding";
         return readIndexCoding(variable, codingName);
     }
 
-    private static IndexCoding readIndexCoding(Variable variable, String codingName)
-            throws ProductIOException {
+    public static IndexCoding readIndexCoding(Variable variable, String codingName) {
         final Attribute flagValuesAtt = variable.findAttribute(FLAG_VALUES);
         final int[] flagValues;
         if (flagValuesAtt != null) {
@@ -104,8 +101,7 @@ public class CfIndexCodingPart extends ProfilePart {
         return createIndexCoding(codingName, flagValues, flagNames);
     }
 
-    private static IndexCoding createIndexCoding(String codingName, int[] flagValues, String[] flagNames)
-            throws ProductIOException {
+    private static IndexCoding createIndexCoding(String codingName, int[] flagValues, String[] flagNames) {
         if (flagValues != null && flagNames != null && flagValues.length == flagNames.length) {
             final IndexCoding coding = new IndexCoding(codingName);
             for (int i = 0; i < flagValues.length; i++) {
