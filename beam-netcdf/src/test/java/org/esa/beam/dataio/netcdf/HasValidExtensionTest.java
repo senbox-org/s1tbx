@@ -28,7 +28,7 @@ public class HasValidExtensionTest extends TestCase {
     }
 
     public void testNumberOfExtensions() {
-        assertEquals(2, Constants.FILE_EXTENSIONS.length);
+        assertEquals(4, Constants.FILE_EXTENSIONS.length);
     }
 
     public void testInvalidExtension() {
