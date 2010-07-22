@@ -19,7 +19,7 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
-import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfMetadataPart;
+import org.esa.beam.dataio.netcdf.util.MetadataUtils;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -43,7 +43,7 @@ public class HdfEosMetadata extends ProfilePart {
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         NetcdfFile ncFile = ctx.getNetcdfFile();
         MetadataElement root = p.getMetadataRoot();
-        root.addElement(CfMetadataPart.createMetadataElementFromAttributeList(ncFile.getGlobalAttributes(), "MPH"));
+        root.addElement(MetadataUtils.readAttributeList(ncFile.getGlobalAttributes(), "MPH"));
         MetadataElement eosElem = new MetadataElement("EOS");
         createMDE(HdfEosUtils.STRUCT_METADATA, ctx, eosElem);
         createMDE(HdfEosUtils.CORE_METADATA, ctx, eosElem);
@@ -51,7 +51,7 @@ public class HdfEosMetadata extends ProfilePart {
         root.addElement(eosElem);
         List<Variable> ncVariables = ncFile.getVariables();
         filterVariableList(ncVariables);
-        root.addElement(CfMetadataPart.createMetadataElementFromVariableList(ncVariables, "DSD"));
+        root.addElement(MetadataUtils.readVariableDescriptions(ncVariables, "DSD"));
     }
 
     private void filterVariableList(List<Variable> ncVariables) {

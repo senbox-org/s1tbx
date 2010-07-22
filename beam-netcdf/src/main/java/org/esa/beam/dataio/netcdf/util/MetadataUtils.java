@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Structure;
 import ucar.nc2.Variable;
@@ -75,6 +76,14 @@ public class MetadataUtils {
             metadataElement.addElement(createMetadataElement(variable));
         }
         return metadataElement;
+    }
+
+    public static MetadataElement createMetadataElement(NetcdfFile netcdfFile) {
+        return readAttributeList(netcdfFile.getGlobalAttributes(), Constants.GLOBAL_ATTRIBUTES_NAME);
+    }
+
+    public static MetadataElement createMetadataElement(Group group) {
+        return readAttributeList(group.getAttributes(), group.getName());
     }
 
     private static MetadataElement createMetadataElement(Variable variable) throws IOException {
