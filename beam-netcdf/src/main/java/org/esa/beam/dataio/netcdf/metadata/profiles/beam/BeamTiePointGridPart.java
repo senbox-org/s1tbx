@@ -76,7 +76,7 @@ public class BeamTiePointGridPart extends ProfilePart {
                                                                subSamplingY.getNumericValue().floatValue(),
                                                                data,
                                                                containsAngles);
-                    CfBandPart.applyAttributes(grid, variable);
+                    CfBandPart.readCfBandAttributes(variable, grid);
                     p.addTiePointGrid(grid);
                 }
             }

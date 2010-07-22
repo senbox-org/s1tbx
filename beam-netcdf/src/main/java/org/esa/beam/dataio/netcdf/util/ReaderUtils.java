@@ -31,37 +31,6 @@ import java.util.Map;
  */
 public class ReaderUtils {
 
-    public static boolean isValidRasterDataType(final DataType dataType) {
-        final boolean unsigned = false;
-        return getRasterDataType(dataType, unsigned) != -1;
-    }
-
-    public static int getRasterDataType(final DataType dataType, boolean unsigned) {
-        final boolean rasterDataOnly = true;
-        return getEquivalentProductDataType(dataType, unsigned, rasterDataOnly);
-    }
-
-    public static int getEquivalentProductDataType(DataType dataType, boolean unsigned, boolean rasterDataOnly) {
-        if (dataType == DataType.BYTE) {
-            return unsigned ? ProductData.TYPE_UINT8 : ProductData.TYPE_INT8;
-        } else if (dataType == DataType.SHORT) {
-            return unsigned ? ProductData.TYPE_UINT16 : ProductData.TYPE_INT16;
-        } else if (dataType == DataType.INT) {
-            return unsigned ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
-        } else if (dataType == DataType.FLOAT) {
-            return ProductData.TYPE_FLOAT32;
-        } else if (dataType == DataType.DOUBLE) {
-            return ProductData.TYPE_FLOAT64;
-        } else if (!rasterDataOnly) {
-            if (dataType == DataType.CHAR) {
-                return ProductData.TYPE_ASCII;
-            } else if (dataType == DataType.STRING) {
-                return ProductData.TYPE_ASCII;
-            }
-        }
-        return -1;
-    }
-
     public static ProductData createProductData(int productDataType, Array values) {
         Object data = values.getStorage();
         if (data instanceof char[]) {
@@ -125,17 +94,16 @@ public class ReaderUtils {
     }
 
     public static boolean allAttributesAreNotNullAndHaveTheSameSize(final Attribute[] attributes) {
-        if (!allElementsAreNotNull(attributes)) {
-            return false;
-        } else {
+        if (allElementsAreNotNull(attributes)) {
             final Attribute prim = attributes[0];
             for (int i = 1; i < attributes.length; i++) {
                 if (prim.getLength() != attributes[i].getLength()) {
                     return false;
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 }
 

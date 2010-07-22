@@ -125,7 +125,7 @@ public class CfProfileSpi extends AbstractProfileSpi {
     }
 
     @Override
-    public ProfilePart createMaskOverlayPart() {
+    public ProfilePart createMaskPart() {
         return null;
     }
 

@@ -51,15 +51,20 @@ public class CfGeocodingPart extends ProfilePart {
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
-        readGeocoding(ctx, p);
+        GeoCoding geoCoding = readConventionBasedMapGeoCoding(ctx, p);
+        if (geoCoding == null) {
+            geoCoding = readPixelGeoCoding(ctx, p);
+        }
+        if (geoCoding != null) {
+            p.setGeoCoding(geoCoding);
+        }
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product product) throws
-                                                                 IOException {
+    public void define(ProfileWriteContext ctx, Product product) throws IOException {
         final GeoCoding geoCoding = product.getGeoCoding();
         if (geoCoding == null) {
-            // we don't need to add a geocoding if there is none present
+            // we don't need to write a geo coding if there is none present
             return;
         }
         usePixelGeoCoding = !isGeographicLatLon(geoCoding);
@@ -107,10 +112,7 @@ public class CfGeocodingPart extends ProfilePart {
                 ctx.getNetcdfFileWriteable().write("lon", origin, Array.factory(DataType.FLOAT, shape, lon));
             }
         } catch (InvalidRangeException e) {
-            final ProductIOException productIOException = new ProductIOException(
-                    "Data not in the expected range");
-            productIOException.initCause(e);
-            throw productIOException;
+            throw new ProductIOException("Data not in the expected range", e);
         }
     }
 
@@ -161,17 +163,7 @@ public class CfGeocodingPart extends ProfilePart {
         lonVar.addAttribute(new Attribute("standard_name", "longitude"));
     }
 
-    public static void readGeocoding(ProfileReadContext ctx, Product product) throws IOException {
-        GeoCoding geoCoding = createConventionBasedMapGeoCoding(ctx, product);
-        if (geoCoding == null) {
-            geoCoding = createPixelGeoCoding(ctx, product);
-        }
-        if (geoCoding != null) {
-            product.setGeoCoding(geoCoding);
-        }
-    }
-
-    public static GeoCoding createConventionBasedMapGeoCoding(ProfileReadContext ctx, Product product) {
+    private static GeoCoding readConventionBasedMapGeoCoding(ProfileReadContext ctx, Product product) {
         final String[] cfConvention_lonLatNames = new String[]{
                 Constants.LON_VAR_NAME,
                 Constants.LAT_VAR_NAME
@@ -279,7 +271,7 @@ public class CfGeocodingPart extends ProfilePart {
                                 pixelX, pixelY);
     }
 
-    private static GeoCoding createPixelGeoCoding(ProfileReadContext ctx, Product product) throws IOException {
+    private static GeoCoding readPixelGeoCoding(ProfileReadContext ctx, Product product) throws IOException {
         Band lonBand = product.getBand(Constants.LON_VAR_NAME);
         if (lonBand == null) {
             lonBand = product.getBand(Constants.LONGITUDE_VAR_NAME);

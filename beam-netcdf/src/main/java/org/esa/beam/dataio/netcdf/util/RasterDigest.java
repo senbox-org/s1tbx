@@ -97,7 +97,7 @@ public class RasterDigest {
         final List<Variable> variables = group.getVariables();
         for (final Variable variable : variables) {
             final int rank = variable.getRank();
-            if (rank >= 2 && ReaderUtils.isValidRasterDataType(variable.getDataType())) {
+            if (rank >= 2 && DataTypeUtils.isValidRasterDataType(variable.getDataType())) {
                 final ucar.nc2.Dimension dimX = variable.getDimension(rank - 1);
                 final ucar.nc2.Dimension dimY = variable.getDimension(rank - 2);
                 if (dimX.getLength() > 1 && dimY.getLength() > 1) {

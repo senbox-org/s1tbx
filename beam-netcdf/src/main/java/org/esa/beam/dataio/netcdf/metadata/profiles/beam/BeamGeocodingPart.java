@@ -15,11 +15,9 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfGeocodingPart;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -41,13 +39,12 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 
-public class BeamGeocodingPart extends ProfilePart {
+public class BeamGeocodingPart extends CfGeocodingPart {
 
     public static final String TIEPOINT_COORDINATES = "tiepoint_coordinates";
 
     private final int lonIndex = 0;
     private final int latIndex = 1;
-    private CfGeocodingPart delegate = new CfGeocodingPart();
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
@@ -56,14 +53,13 @@ public class BeamGeocodingPart extends ProfilePart {
         GeoCoding geoCoding = null;
         if (tpCoordinatesAtt != null) {
             final String[] tpGridNames = tpCoordinatesAtt.getStringValue().split(" ");
-            if (tpGridNames.length != 2
-                || !p.containsTiePointGrid(tpGridNames[lonIndex])
-                || !p.containsTiePointGrid(tpGridNames[latIndex])) {
-                throw new ProductIOException("Illegal values in global attribute '" + TIEPOINT_COORDINATES + "'");
+            if (tpGridNames.length == 2
+                    && p.containsTiePointGrid(tpGridNames[lonIndex])
+                    && p.containsTiePointGrid(tpGridNames[latIndex])) {
+                final TiePointGrid lon = p.getTiePointGrid(tpGridNames[lonIndex]);
+                final TiePointGrid lat = p.getTiePointGrid(tpGridNames[latIndex]);
+                geoCoding = new TiePointGeoCoding(lat, lon);
             }
-            final TiePointGrid lon = p.getTiePointGrid(tpGridNames[lonIndex]);
-            final TiePointGrid lat = p.getTiePointGrid(tpGridNames[latIndex]);
-            geoCoding = new TiePointGeoCoding(lat, lon);
         } else {
             final Variable crsVar = netcdfFile.findTopVariable("crs");
             if (crsVar != null) {
@@ -77,7 +73,7 @@ public class BeamGeocodingPart extends ProfilePart {
         if (geoCoding != null) {
             p.setGeoCoding(geoCoding);
         } else {
-            CfGeocodingPart.readGeocoding(ctx, p);
+            super.read(ctx, p);
         }
     }
 
@@ -109,7 +105,7 @@ public class BeamGeocodingPart extends ProfilePart {
             final String value = StringUtils.arrayToString(names, " ");
             ctx.getNetcdfFileWriteable().addAttribute(null, new Attribute(TIEPOINT_COORDINATES, value));
         } else {
-            delegate.define(ctx, p);
+            super.define(ctx, p);
             if (geoCoding instanceof CrsGeoCoding) {
                 addWktAsVariable(ctx.getNetcdfFileWriteable(), geoCoding);
             }
@@ -120,7 +116,7 @@ public class BeamGeocodingPart extends ProfilePart {
     public void write(ProfileWriteContext ctx, Product p) throws IOException {
         final GeoCoding geoCoding = p.getGeoCoding();
         if (!(geoCoding instanceof TiePointGeoCoding)) {
-            delegate.write(ctx, p);
+            super.write(ctx, p);
         }
     }
 

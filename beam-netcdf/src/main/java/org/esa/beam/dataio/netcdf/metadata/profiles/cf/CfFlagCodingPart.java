@@ -39,7 +39,7 @@ public class CfFlagCodingPart extends ProfilePart {
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final FlagCoding flagCoding = readFlagCoding(ctx, band);
+            final FlagCoding flagCoding = readFlagCoding(ctx, band.getName());
             if (flagCoding != null) {
                 p.getFlagCodingGroup().add(flagCoding);
                 band.setSampleCoding(flagCoding);
@@ -51,11 +51,11 @@ public class CfFlagCodingPart extends ProfilePart {
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            writeFlagCoding(ctx.getNetcdfFileWriteable(), band);
+            writeFlagCoding(band, ctx.getNetcdfFileWriteable());
         }
     }
 
-    public static void writeFlagCoding(NetcdfFileWriteable ncFile, Band band) {
+    public static void writeFlagCoding(Band band, NetcdfFileWriteable ncFile) {
         final FlagCoding flagCoding = band.getFlagCoding();
         if (flagCoding != null) {
             final String[] flagNames = flagCoding.getFlagNames();
@@ -74,14 +74,13 @@ public class CfFlagCodingPart extends ProfilePart {
         }
     }
 
-
-    public static FlagCoding readFlagCoding(ProfileReadContext ctx, Band band) throws ProductIOException {
-        final Variable variable = ctx.getGlobalVariablesMap().get(band.getName());
-        final String codingName = band.getName() + "_flag_coding";
-        return createFlagCoding(variable, codingName);
+    public static FlagCoding readFlagCoding(ProfileReadContext ctx, String bandName) throws ProductIOException {
+        final Variable variable = ctx.getGlobalVariablesMap().get(bandName);
+        final String codingName = bandName + "_flag_coding";
+        return readFlagCoding(variable, codingName);
     }
 
-    private static FlagCoding createFlagCoding(Variable variable, String codingName)
+    private static FlagCoding readFlagCoding(Variable variable, String codingName)
             throws ProductIOException {
         final Attribute flagMasks = variable.findAttribute(FLAG_MASKS);
         final int[] maskValues;
@@ -107,10 +106,7 @@ public class CfFlagCodingPart extends ProfilePart {
 
     private static FlagCoding createFlagCoding(String codingName, int[] maskValues, String[] flagNames)
             throws ProductIOException {
-        if (maskValues != null && flagNames != null) {
-            if (maskValues.length != flagNames.length) {
-                throw new ProductIOException(Constants.EM_INVALID_FLAG_CODING);
-            }
+        if (maskValues != null && flagNames != null && maskValues.length == flagNames.length) {
             final FlagCoding coding = new FlagCoding(codingName);
             for (int i = 0; i < maskValues.length; i++) {
                 final String sampleName = flagNames[i];

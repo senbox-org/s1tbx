@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class BeamMaskOverlayPart extends ProfilePart {
+public class BeamMaskPart extends ProfilePart {
 
     public static final String EXPRESSION = "expression";
     public static final String COLOR = "color";
@@ -52,27 +52,26 @@ public class BeamMaskOverlayPart extends ProfilePart {
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
-        readMasksToProduct(p, ctx);
-        assignMasksToBands(p, ctx);
+        readMasks(ctx, p);
+        readMaskOverlays(ctx, p);
     }
 
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
-        writeProductMasks(p, ctx.getNetcdfFileWriteable());
-        writeOverlayNamesToBandVariables(p, ctx.getNetcdfFileWriteable());
+        NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
+        writeMasks(p, ncFile);
+        writeMaskOverlays(p, ncFile);
     }
 
-    public static void readMasksToProduct(Product p, ProfileReadContext ctx) throws ProductIOException {
+    private static void readMasks(ProfileReadContext ctx, Product p) throws ProductIOException {
         final List<Variable> variables = ctx.getGlobalVariables();
         for (Variable variable : variables) {
             if (variable.getRank() != 0 || !variable.getName().endsWith(SUFFIX_MASK)) {
                 continue;
             }
             final Attribute expressionAttribute = variable.findAttribute(EXPRESSION);
-            final Attribute colorAttribute = variable.findAttribute(COLOR);
-            if (expressionAttribute == null || !expressionAttribute.isString()
-                || (colorAttribute != null && colorAttribute.getLength() < 3)) {
-                throw new ProductIOException(Constants.EM_INVALID_MASK_ATTRIBUTES);
+            if (expressionAttribute == null || !expressionAttribute.isString()) {
+                continue;
             }
             final String vName = variable.getName();
             final String maskName = vName.substring(0, vName.lastIndexOf(SUFFIX_MASK));
@@ -85,18 +84,10 @@ public class BeamMaskOverlayPart extends ProfilePart {
                 mask.setImageTransparency(transparencyAttribute.getNumericValue().doubleValue());
             }
 
-            if (colorAttribute != null) {
-                final int r = colorAttribute.getNumericValue(INDEX_RED).intValue();
-                final int g = colorAttribute.getNumericValue(INDEX_GREEN).intValue();
-                final int b = colorAttribute.getNumericValue(INDEX_BLUE).intValue();
-                final Color color;
-                if (colorAttribute.getLength() > 3) {
-                    final int a = colorAttribute.getNumericValue(INDEX_ALPHA).intValue();
-                    color = new Color(r, g, b, a);
-                } else {
-                    color = new Color(r, g, b);
-                }
-                mask.setImageColor(color);
+            final Attribute colorAttribute = variable.findAttribute(COLOR);
+            if (colorAttribute != null && colorAttribute.getLength() >= 3
+                    && colorAttribute.getLength() <= 4) {
+                mask.setImageColor(createColor(colorAttribute));
             }
 
             final PropertyContainer imageConfig = mask.getImageConfig();
@@ -107,7 +98,21 @@ public class BeamMaskOverlayPart extends ProfilePart {
         }
     }
 
-    public static void assignMasksToBands(Product p, ProfileReadContext ctx) {
+    private static Color createColor(Attribute colorAttribute) {
+        final int r = colorAttribute.getNumericValue(INDEX_RED).intValue();
+        final int g = colorAttribute.getNumericValue(INDEX_GREEN).intValue();
+        final int b = colorAttribute.getNumericValue(INDEX_BLUE).intValue();
+        final Color color;
+        if (colorAttribute.getLength() > 3) {
+            final int a = colorAttribute.getNumericValue(INDEX_ALPHA).intValue();
+            color = new Color(r, g, b, a);
+        } else {
+            color = new Color(r, g, b);
+        }
+        return color;
+    }
+
+    private static void readMaskOverlays(ProfileReadContext ctx, Product p) {
         final Band[] bands = p.getBands();
         final Map<String, Variable> variablesMap = ctx.getGlobalVariablesMap();
         for (Band band : bands) {
@@ -127,7 +132,7 @@ public class BeamMaskOverlayPart extends ProfilePart {
         }
     }
 
-    public static void writeProductMasks(Product p, NetcdfFileWriteable ncFile) {
+    private static void writeMasks(Product p, NetcdfFileWriteable ncFile) {
         final ProductNodeGroup<Mask> maskGroup = p.getMaskGroup();
         final String[] maskNames = maskGroup.getNodeNames();
         for (String maskName : maskNames) {
@@ -164,7 +169,7 @@ public class BeamMaskOverlayPart extends ProfilePart {
         }
     }
 
-    public static void writeOverlayNamesToBandVariables(Product p, NetcdfFileWriteable ncFile) {
+    private static void writeMaskOverlays(Product p, NetcdfFileWriteable ncFile) {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             final ProductNodeGroup<Mask> maskGroup = band.getOverlayMaskGroup();

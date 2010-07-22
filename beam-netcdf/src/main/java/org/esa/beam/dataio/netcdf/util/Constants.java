@@ -28,12 +28,12 @@ public interface Constants {
     String FORMAT_DESCRIPTION = "NetCDF supported Data Product";
     String FORMAT_DESCRIPTION_BEAM = "NetCDF supported BEAM Data Product";
     String FILE_EXTENSION_NC = ".nc";
-    String FILE_EXTENSION_NC_Z = ".nc.gz";
+    String FILE_EXTENSION_NC_GZ = ".nc.gz";
     String FILE_EXTENSION_HDF = ".hdf";
-    String FILE_EXTENSION_HDF_Z = ".hdf.gz";
+    String FILE_EXTENSION_HDF_GZ = ".hdf.gz";
     String[] FILE_EXTENSIONS = new String[]{
-            FILE_EXTENSION_NC, FILE_EXTENSION_NC_Z,
-            FILE_EXTENSION_HDF, FILE_EXTENSION_HDF_Z
+            FILE_EXTENSION_NC, FILE_EXTENSION_NC_GZ,
+            FILE_EXTENSION_HDF, FILE_EXTENSION_HDF_GZ
     };
     Class[] READER_INPUT_TYPES = new Class[]{
             String.class,
@@ -41,8 +41,6 @@ public interface Constants {
     };
 
     String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
-
-    String GLOBAL_ATTRIBUTES_NAME = "global_attributes";
 
     String SCALE_FACTOR_ATT_NAME = "scale_factor";
     String SLOPE_ATT_NAME = "slope";
@@ -62,15 +60,6 @@ public interface Constants {
     String LAT_VAR_NAME = "lat";
     String LONGITUDE_VAR_NAME = "longitude";
     String LATITUDE_VAR_NAME = "latitude";
-
-    // **********************
-    // * Exception messages *
-    // **********************
-    String EM_INVALID_FLAG_CODING = "Invalid Flag Coding";
-    String EM_INVALID_INDEX_CODING = "Invalid Index Coding";
-    String EM_INVALID_COLOR_TABLE = "Invalid Color Table";
-    String EM_INVALID_STX_ATTRIBUTES = "Invalid STX Attributes";
-    String EM_INVALID_MASK_ATTRIBUTES = "Invalid Mask Attributes";
 
     // context properties
     String Y_FLIPPED_PROPERTY_NAME = "yFlipped";

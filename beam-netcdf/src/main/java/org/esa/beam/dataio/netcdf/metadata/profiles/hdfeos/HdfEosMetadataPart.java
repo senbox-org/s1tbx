@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class HdfEosMetadata extends ProfilePart {
+public class HdfEosMetadataPart extends ProfilePart {
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {

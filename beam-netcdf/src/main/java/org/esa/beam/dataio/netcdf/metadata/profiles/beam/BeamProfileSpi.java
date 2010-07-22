@@ -35,7 +35,7 @@ import ucar.nc2.NetcdfFile;
 public class BeamProfileSpi extends AbstractProfileSpi {
 
     private static final String[] FILE_EXTENSIONS = new String[]{
-            Constants.FILE_EXTENSION_NC, Constants.FILE_EXTENSION_NC_Z
+            Constants.FILE_EXTENSION_NC, Constants.FILE_EXTENSION_NC_GZ
     };
 
     @Override
@@ -79,8 +79,8 @@ public class BeamProfileSpi extends AbstractProfileSpi {
     }
 
     @Override
-    public ProfilePart createMaskOverlayPart() {
-        return new BeamMaskOverlayPart();
+    public ProfilePart createMaskPart() {
+        return new BeamMaskPart();
     }
 
     @Override

@@ -42,7 +42,7 @@ public abstract class AbstractProfileSpi implements ProfileSpi {
 
     public abstract ProfilePart createIndexCodingPart();
 
-    public abstract ProfilePart createMaskOverlayPart();
+    public abstract ProfilePart createMaskPart();
 
     public abstract ProfilePart createStxPart();
 
@@ -70,7 +70,7 @@ public abstract class AbstractProfileSpi implements ProfileSpi {
         addProfilePart(profile, createGeocodingPart());
         addProfilePart(profile, createImageInfoPart());
         addProfilePart(profile, createIndexCodingPart());
-        addProfilePart(profile, createMaskOverlayPart());
+        addProfilePart(profile, createMaskPart());
         addProfilePart(profile, createStxPart());
         addProfilePart(profile, createTimePart());
         addProfilePart(profile, createDescriptionPart());

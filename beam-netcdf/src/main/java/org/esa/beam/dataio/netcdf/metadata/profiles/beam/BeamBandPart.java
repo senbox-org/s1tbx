@@ -19,6 +19,7 @@ import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
+import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import ucar.ma2.DataType;
@@ -29,8 +30,6 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.util.List;
-
-import static org.esa.beam.dataio.netcdf.util.ReaderUtils.*;
 
 public class BeamBandPart extends ProfilePart {
 
@@ -50,9 +49,10 @@ public class BeamBandPart extends ProfilePart {
             final int xDimIndex = 1;
             if (dimensions.get(yDimIndex).getLength() == p.getSceneRasterHeight()
                 && dimensions.get(xDimIndex).getLength() == p.getSceneRasterWidth()) {
-                final int rasterDataType = getRasterDataType(variable.getDataType(), variable.isUnsigned());
+                final int rasterDataType = DataTypeUtils.getRasterDataType(variable);
                 final Band band = p.addBand(variable.getName(), rasterDataType);
-                applyAttributes(band, variable);
+                CfBandPart.readCfBandAttributes(variable, band);
+                readBeamBandAttributes(variable, band);
             }
         }
     }
@@ -63,15 +63,14 @@ public class BeamBandPart extends ProfilePart {
         final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : bands) {
-            final DataType ncDataType = CfBandPart.getNcDataType(band);
+            final DataType ncDataType = DataTypeUtils.getNetcdfDataType(band);
             final Variable variable = ncFile.addVariable(band.getName(), ncDataType, dimensions);
-            addAttributes(variable, band);
+            CfBandPart.writeCfBandAttributes(band, variable);
+            writeBeamBandAttributes(band, variable);
         }
     }
 
-    public static void applyAttributes(Band band, Variable variable) {
-        CfBandPart.applyAttributes(band, variable);
-
+    private static void readBeamBandAttributes(Variable variable, Band band) {
         // todo se -- Log10 Scaling
         // todo se -- units for bandwidth and wavelength
 
@@ -89,9 +88,7 @@ public class BeamBandPart extends ProfilePart {
         }
     }
 
-    public static void addAttributes(Variable variable, Band band) {
-        CfBandPart.addAttributes(variable, band);
-
+    public static void writeBeamBandAttributes(Band band, Variable variable) {
         // todo se -- Log10 Scaling
         // todo se -- units for bandwidth and wavelength
 
@@ -108,5 +105,4 @@ public class BeamBandPart extends ProfilePart {
             variable.addAttribute(new Attribute(VALID_PIXEL_EXPRESSION, validPixelExpression));
         }
     }
-
 }

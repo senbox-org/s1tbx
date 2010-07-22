@@ -18,7 +18,6 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
-import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
@@ -46,63 +45,60 @@ public class BeamImageInfoPart extends ProfilePart {
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final List<Variable> variableList = ctx.getNetcdfFile().getVariables();
         for (Variable variable : variableList) {
-            readImageInfo(p, variable);
+            Band band = p.getBand(variable.getName());
+            readImageInfo(variable, band);
         }
     }
 
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
+        NetcdfFileWriteable fileWriteable = ctx.getNetcdfFileWriteable();
         for (Band band : bands) {
-            writeImageInfo(ctx.getNetcdfFileWriteable(), band);
-        }
-    }
-
-    public static void writeImageInfo(NetcdfFileWriteable ncFile, Band band) {
-        final ImageInfo imageInfo = band.getImageInfo();
-        if (imageInfo != null) {
-            final Variable variable = ncFile.getRootGroup().findVariable(band.getName());
-            final ColorPaletteDef.Point[] points = imageInfo.getColorPaletteDef().getPoints();
-            final double[] sampleValues = new double[points.length];
-            final int[] redValues = new int[points.length];
-            final int[] greenValues = new int[points.length];
-            final int[] blueValues = new int[points.length];
-            for (int i = 0; i < points.length; i++) {
-                ColorPaletteDef.Point point = points[i];
-                sampleValues[i] = point.getSample();
-                redValues[i] = point.getColor().getRed();
-                greenValues[i] = point.getColor().getGreen();
-                blueValues[i] = point.getColor().getBlue();
+            ImageInfo imageInfo = band.getImageInfo();
+            if (imageInfo != null) {
+                Variable variable = fileWriteable.findVariable(band.getName());
+                writeImageInfo(imageInfo.getColorPaletteDef().getPoints(), variable);
             }
-            variable.addAttribute(new Attribute(COLOR_TABLE_SAMPLE_VALUES, Array.factory(sampleValues)));
-            variable.addAttribute(new Attribute(COLOR_TABLE_RED_VALUES, Array.factory(redValues)));
-            variable.addAttribute(new Attribute(COLOR_TABLE_GREEN_VALUES, Array.factory(greenValues)));
-            variable.addAttribute(new Attribute(COLOR_TABLE_BLUE_VALUES, Array.factory(blueValues)));
         }
     }
 
-    public static void readImageInfo(Product p, Variable variable) throws ProductIOException {
+    private static void writeImageInfo(ColorPaletteDef.Point[] points, Variable variable) {
+        final double[] sampleValues = new double[points.length];
+        final int[] redValues = new int[points.length];
+        final int[] greenValues = new int[points.length];
+        final int[] blueValues = new int[points.length];
+        for (int i = 0; i < points.length; i++) {
+            ColorPaletteDef.Point point = points[i];
+            sampleValues[i] = point.getSample();
+            redValues[i] = point.getColor().getRed();
+            greenValues[i] = point.getColor().getGreen();
+            blueValues[i] = point.getColor().getBlue();
+        }
+        variable.addAttribute(new Attribute(COLOR_TABLE_SAMPLE_VALUES, Array.factory(sampleValues)));
+        variable.addAttribute(new Attribute(COLOR_TABLE_RED_VALUES, Array.factory(redValues)));
+        variable.addAttribute(new Attribute(COLOR_TABLE_GREEN_VALUES, Array.factory(greenValues)));
+        variable.addAttribute(new Attribute(COLOR_TABLE_BLUE_VALUES, Array.factory(blueValues)));
+    }
+
+    private static void readImageInfo(Variable variable, Band band) throws ProductIOException {
         final Attribute sampleValues = variable.findAttributeIgnoreCase(COLOR_TABLE_SAMPLE_VALUES);
         final Attribute redValues = variable.findAttributeIgnoreCase(COLOR_TABLE_RED_VALUES);
         final Attribute greenValues = variable.findAttributeIgnoreCase(COLOR_TABLE_GREEN_VALUES);
         final Attribute blueValues = variable.findAttributeIgnoreCase(COLOR_TABLE_BLUE_VALUES);
-        if (sampleValues == null && redValues == null && greenValues == null && blueValues == null) {
-            return;
-        }
         final Attribute[] attributes = {sampleValues, redValues, greenValues, blueValues};
-        if (!allAttributesAreNotNullAndHaveTheSameSize(attributes)) {
-            throw new ProductIOException(Constants.EM_INVALID_COLOR_TABLE);
-        }
-        final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[sampleValues.getLength()];
-        for (int i = 0; i < points.length; i++) {
-            final int red = redValues.getNumericValue(i).intValue();
-            final int green = greenValues.getNumericValue(i).intValue();
-            final int blue = blueValues.getNumericValue(i).intValue();
-            final Color color = new Color(red, green, blue);
-            points[i] = new ColorPaletteDef.Point(sampleValues.getNumericValue(i).doubleValue(), color);
 
+        if (allAttributesAreNotNullAndHaveTheSameSize(attributes)) {
+            final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[sampleValues.getLength()];
+            for (int i = 0; i < points.length; i++) {
+                final int red = redValues.getNumericValue(i).intValue();
+                final int green = greenValues.getNumericValue(i).intValue();
+                final int blue = blueValues.getNumericValue(i).intValue();
+                final Color color = new Color(red, green, blue);
+                points[i] = new ColorPaletteDef.Point(sampleValues.getNumericValue(i).doubleValue(), color);
+
+            }
+            band.setImageInfo(new ImageInfo(new ColorPaletteDef(points)));
         }
-        final Band band = p.getBand(variable.getName());
-        band.setImageInfo(new ImageInfo(new ColorPaletteDef(points)));
     }
 }

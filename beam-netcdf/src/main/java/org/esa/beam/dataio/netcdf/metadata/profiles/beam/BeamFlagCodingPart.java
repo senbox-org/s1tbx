@@ -41,7 +41,7 @@ public class BeamFlagCodingPart extends ProfilePart {
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final FlagCoding flagCoding = readFlagCoding(band, ctx);
+            final FlagCoding flagCoding = readFlagCoding(ctx, band.getName());
             if (flagCoding != null) {
                 p.getFlagCodingGroup().add(flagCoding);
                 band.setSampleCoding(flagCoding);
@@ -51,15 +51,15 @@ public class BeamFlagCodingPart extends ProfilePart {
 
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
+        NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            writeFlagCoding(ctx.getNetcdfFileWriteable(), band);
+            CfFlagCodingPart.writeFlagCoding(band, ncFile);
+            writeFlagCoding(band, ncFile);
         }
     }
 
-    private void writeFlagCoding(NetcdfFileWriteable ncFile, Band band) {
-        CfFlagCodingPart.writeFlagCoding(ncFile, band);
-
+    public void writeFlagCoding(Band band, NetcdfFileWriteable ncFile) {
         final FlagCoding flagCoding = band.getFlagCoding();
         if (flagCoding != null) {
             final String[] flagNames = flagCoding.getFlagNames();
@@ -79,20 +79,19 @@ public class BeamFlagCodingPart extends ProfilePart {
         }
     }
 
-    public static FlagCoding readFlagCoding(Band band, ProfileReadContext ctx) throws ProductIOException {
-        final FlagCoding flagCoding = CfFlagCodingPart.readFlagCoding(ctx, band);
+    public static FlagCoding readFlagCoding(ProfileReadContext ctx, String bandName) throws ProductIOException {
+        final FlagCoding flagCoding = CfFlagCodingPart.readFlagCoding(ctx, bandName);
 
         if (flagCoding != null) {
-            final Variable variable = ctx.getGlobalVariablesMap().get(band.getName());
+            final Variable variable = ctx.getGlobalVariablesMap().get(bandName);
 
             final Attribute descriptionsAtt = variable.findAttributeIgnoreCase(FLAG_DESCRIPTIONS);
             if (descriptionsAtt != null) {
                 final String[] descriptions = descriptionsAtt.getStringValue().split(DESCRIPTION_SEPARATOR);
-                if (flagCoding.getNumAttributes() != descriptions.length) {
-                    throw new ProductIOException(Constants.EM_INVALID_FLAG_CODING);
-                }
-                for (int i = 0; i < descriptions.length; i++) {
-                    flagCoding.getAttributeAt(i).setDescription(descriptions[i]);
+                if (flagCoding.getNumAttributes() == descriptions.length) {
+                    for (int i = 0; i < descriptions.length; i++) {
+                        flagCoding.getAttributeAt(i).setDescription(descriptions[i]);
+                    }
                 }
             }
 

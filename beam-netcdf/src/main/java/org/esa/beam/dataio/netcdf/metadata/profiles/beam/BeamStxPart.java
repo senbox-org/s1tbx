@@ -18,8 +18,6 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
-import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.Stx;
@@ -45,12 +43,8 @@ public class BeamStxPart extends ProfilePart {
         for (Variable variable : variableList) {
             final Attribute statistics = variable.findAttributeIgnoreCase(STATISTICS);
             final Attribute sampleFrequencies = variable.findAttributeIgnoreCase(SAMPLE_FREQUENCIES);
-            if (statistics == null && sampleFrequencies == null) {
-                continue;
-            }
-            if (statistics == null || sampleFrequencies == null || statistics.getLength() < 2) {
-                throw new ProductIOException(Constants.EM_INVALID_STX_ATTRIBUTES);
-            } else {
+
+            if (statistics != null && sampleFrequencies != null && statistics.getLength() >= 2) {
                 final Band band = p.getBand(variable.getName());
 
                 final double scaledMin = statistics.getNumericValue(INDEX_SCALED_MIN).doubleValue();
@@ -74,9 +68,7 @@ public class BeamStxPart extends ProfilePart {
                     final Number fNumber = sampleFrequencies.getNumericValue(i);
                     frequencies[i] = fNumber != null ? fNumber.intValue() : 0;
                 }
-
                 final int resolutionLevel = 0;
-
                 band.setStx(new Stx(min, max, mean, stdDev, intType, frequencies, resolutionLevel));
             }
         }

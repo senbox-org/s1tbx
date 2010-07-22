@@ -24,9 +24,8 @@ import ucar.nc2.NetcdfFile;
 import java.text.ParseException;
 
 public class TimeUtils {
-    public static ProductData.UTC getSceneRasterTime(NetcdfFile ncFile,
-                                                     final String dateAttrName,
-                                                     final String timeAttrName) {
+
+    public static ProductData.UTC getSceneRasterTime(NetcdfFile ncFile, String dateAttrName, String timeAttrName) {
         final Attribute dateAttr = ncFile.findGlobalAttribute(dateAttrName);
         final Attribute timeAttr = ncFile.findGlobalAttribute(timeAttrName);
         final String dateTimeStr = getDateTimeString(dateAttr, timeAttr);
@@ -34,7 +33,6 @@ public class TimeUtils {
         if (dateTimeStr != null) {
             return parseDateTime(dateTimeStr);
         }
-
         return null;
     }
 

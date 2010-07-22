@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.dataio.netcdf.util;
+package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
@@ -22,19 +22,15 @@ import ucar.ma2.DataType;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DataTypeWorkarounds {
+class DataTypeWorkarounds {
 
-    private Map<NameTypePair, Integer> workaroundMap;
+    private final Map<NameTypePair, Integer> workaroundMap;
 
-    private DataTypeWorkarounds() {
+    DataTypeWorkarounds() {
         workaroundMap = new HashMap<NameTypePair, Integer>();
         workaroundMap.put(new NameTypePair("fapar", DataType.BYTE), ProductData.TYPE_UINT8);
         workaroundMap.put(new NameTypePair("sd_spatial_fapar", DataType.BYTE), ProductData.TYPE_UINT8);
         workaroundMap.put(new NameTypePair("nb_spatial_fapar", DataType.SHORT), ProductData.TYPE_UINT16);
-    }
-
-    public static DataTypeWorkarounds getInstance() {
-        return Holder.INSTANCE;
     }
 
     public boolean hasWorkaround(String variableName, DataType dataType) {
@@ -82,11 +78,5 @@ public class DataTypeWorkarounds {
             result = 31 * result + dataType.hashCode();
             return result;
         }
-    }
-
-    // Initialization on demand holder idiom
-    private static class Holder {
-
-        private static final DataTypeWorkarounds INSTANCE = new DataTypeWorkarounds();
     }
 }

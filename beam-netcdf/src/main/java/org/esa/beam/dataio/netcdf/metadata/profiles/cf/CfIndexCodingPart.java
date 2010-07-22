@@ -40,7 +40,7 @@ public class CfIndexCodingPart extends ProfilePart {
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final IndexCoding indexCoding = readIndexCoding(band, ctx);
+            final IndexCoding indexCoding = readIndexCoding(ctx, band);
             if (indexCoding != null) {
                 p.getIndexCodingGroup().add(indexCoding);
                 band.setSampleCoding(indexCoding);
@@ -51,28 +51,30 @@ public class CfIndexCodingPart extends ProfilePart {
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
+        NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
         for (Band band : bands) {
-            writeIndexCoding(ctx.getNetcdfFileWriteable(), band);
-        }
-    }
-
-    public static void writeIndexCoding(NetcdfFileWriteable ncFile, Band band) {
-        final IndexCoding indexCoding = band.getIndexCoding();
-        if (indexCoding != null) {
-            final String[] indexNames = indexCoding.getIndexNames();
-            final int[] indexValues = new int[indexNames.length];
-            final StringBuffer meanings = new StringBuffer();
-            for (int i = 0; i < indexValues.length; i++) {
-                String name = indexNames[i];
-                meanings.append(name).append(" ");
-                indexValues[i] = indexCoding.getIndexValue(name);
+            IndexCoding indexCoding = band.getIndexCoding();
+            if (indexCoding != null) {
+                Variable variable = writeable.findVariable(band.getName());
+                writeIndexCoding(indexCoding, variable);
             }
-            ncFile.addVariableAttribute(band.getName(), new Attribute(FLAG_MEANINGS, meanings.toString().trim()));
-            ncFile.addVariableAttribute(band.getName(), new Attribute(FLAG_VALUES, Array.factory(indexValues)));
         }
     }
 
-    public static IndexCoding readIndexCoding(Band band, ProfileReadContext ctx) throws ProductIOException {
+    public static void writeIndexCoding(IndexCoding indexCoding, Variable variable) {
+        final String[] indexNames = indexCoding.getIndexNames();
+        final int[] indexValues = new int[indexNames.length];
+        final StringBuffer meanings = new StringBuffer();
+        for (int i = 0; i < indexValues.length; i++) {
+            String name = indexNames[i];
+            meanings.append(name).append(" ");
+            indexValues[i] = indexCoding.getIndexValue(name);
+        }
+        variable.addAttribute(new Attribute(FLAG_MEANINGS, meanings.toString().trim()));
+        variable.addAttribute(new Attribute(FLAG_VALUES, Array.factory(indexValues)));
+    }
+
+    public static IndexCoding readIndexCoding(ProfileReadContext ctx, Band band) throws ProductIOException {
         final Variable variable = ctx.getGlobalVariablesMap().get(band.getName());
         final String codingName = band.getName() + "_index_coding";
         return readIndexCoding(variable, codingName);
@@ -104,10 +106,7 @@ public class CfIndexCodingPart extends ProfilePart {
 
     private static IndexCoding createIndexCoding(String codingName, int[] flagValues, String[] flagNames)
             throws ProductIOException {
-        if (flagValues != null && flagNames != null) {
-            if (flagValues.length != flagNames.length) {
-                throw new ProductIOException(Constants.EM_INVALID_INDEX_CODING);
-            }
+        if (flagValues != null && flagNames != null && flagValues.length == flagNames.length) {
             final IndexCoding coding = new IndexCoding(codingName);
             for (int i = 0; i < flagValues.length; i++) {
                 final String sampleName = flagNames[i];

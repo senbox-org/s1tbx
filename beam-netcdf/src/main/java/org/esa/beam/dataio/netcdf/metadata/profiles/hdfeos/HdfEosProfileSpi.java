@@ -39,7 +39,7 @@ import java.io.IOException;
 public class HdfEosProfileSpi extends AbstractProfileSpi {
 
     private static final String[] FILE_EXTENSIONS = new String[]{
-            Constants.FILE_EXTENSION_HDF, Constants.FILE_EXTENSION_HDF_Z
+            Constants.FILE_EXTENSION_HDF, Constants.FILE_EXTENSION_HDF_GZ
     };
 
     @Override
@@ -73,7 +73,7 @@ public class HdfEosProfileSpi extends AbstractProfileSpi {
     }
 
     @Override
-    public ProfilePart createMaskOverlayPart() {
+    public ProfilePart createMaskPart() {
         return null;
     }
 
@@ -99,7 +99,7 @@ public class HdfEosProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfilePart createMetadataPart() {
-        return new HdfEosMetadata();
+        return new HdfEosMetadataPart();
     }
 
     @Override

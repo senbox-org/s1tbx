@@ -19,14 +19,12 @@ import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.util.DataTypeWorkarounds;
-import org.esa.beam.dataio.netcdf.util.ReaderUtils;
+import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFileWriteable;
@@ -37,14 +35,15 @@ import java.util.List;
 
 public class CfBandPart extends ProfilePart {
 
+    private static final DataTypeWorkarounds dataTypeWorkarounds = new DataTypeWorkarounds();
+
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Variable[] variables = ctx.getRasterDigest().getRasterVariables();
         for (Variable variable : variables) {
-            final DataTypeWorkarounds dataTypeWorkarounds = DataTypeWorkarounds.getInstance();
             final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
             final Band band = p.addBand(variable.getName(), rasterDataType);
-            applyAttributes(band, variable);
+            readCfBandAttributes(variable, band);
         }
     }
 
@@ -54,12 +53,12 @@ public class CfBandPart extends ProfilePart {
         final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : bands) {
-            final Variable variable = ncFile.addVariable(band.getName(), getNcDataType(band), dimensions);
-            addAttributes(variable, band);
+            final Variable variable = ncFile.addVariable(band.getName(), DataTypeUtils.getNetcdfDataType(band), dimensions);
+            writeCfBandAttributes(band, variable);
         }
     }
 
-    public static void applyAttributes(RasterDataNode rasterDataNode, Variable variable) {
+    public static void readCfBandAttributes(Variable variable, RasterDataNode rasterDataNode) {
         rasterDataNode.setDescription(variable.getDescription());
         rasterDataNode.setUnit(variable.getUnitsString());
 
@@ -73,7 +72,7 @@ public class CfBandPart extends ProfilePart {
         }
     }
 
-    public static void addAttributes(Variable variable, RasterDataNode rasterDataNode) {
+    public static void writeCfBandAttributes(RasterDataNode rasterDataNode, Variable variable) {
         final String description = rasterDataNode.getDescription();
         if (description != null) {
             variable.addAttribute(new Attribute("long_name", description));
@@ -127,31 +126,10 @@ public class CfBandPart extends ProfilePart {
         if (workarounds != null && workarounds.hasWorkaround(variable.getName(), variable.getDataType())) {
             return workarounds.getRasterDataType(variable.getName(), variable.getDataType());
         }
-        return ReaderUtils.getRasterDataType(variable.getDataType(), variable.isUnsigned());
+        return DataTypeUtils.getRasterDataType(variable);
     }
 
-    public static boolean isUnsigned(DataNode dataNode) {
+    private static boolean isUnsigned(DataNode dataNode) {
         return ProductData.isUIntType(dataNode.getDataType());
-    }
-
-    public static DataType getNcDataType(DataNode dataNode) {
-        final int nodeType = dataNode.getDataType();
-        if (nodeType == ProductData.TYPE_INT8 || nodeType == ProductData.TYPE_UINT8) {
-            return DataType.BYTE;
-        } else if (nodeType == ProductData.TYPE_INT16 || nodeType == ProductData.TYPE_UINT16) {
-            return DataType.SHORT;
-        } else if (nodeType == ProductData.TYPE_INT32 || nodeType == ProductData.TYPE_UINT32) {
-            return DataType.INT;
-        } else if (nodeType == ProductData.TYPE_FLOAT32) {
-            return DataType.FLOAT;
-        } else if (nodeType == ProductData.TYPE_FLOAT64) {
-            return DataType.DOUBLE;
-        } else if (nodeType == ProductData.TYPE_ASCII) {
-            return DataType.STRING;
-        } else if (nodeType == ProductData.TYPE_UTC) {
-            return DataType.STRING;
-        } else {
-            return null;
-        }
     }
 }

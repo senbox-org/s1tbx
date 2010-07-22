@@ -33,13 +33,8 @@ public class CfTimePart extends ProfilePart {
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         NetcdfFile ncFile = ctx.getNetcdfFile();
-        p.setStartTime(TimeUtils.getSceneRasterTime(ncFile,
-                Constants.START_DATE_ATT_NAME,
-                Constants.START_TIME_ATT_NAME));
-
-        p.setEndTime(TimeUtils.getSceneRasterTime(ncFile,
-                Constants.STOP_DATE_ATT_NAME,
-                Constants.STOP_TIME_ATT_NAME));
+        p.setStartTime(TimeUtils.getSceneRasterTime(ncFile, Constants.START_DATE_ATT_NAME, Constants.START_TIME_ATT_NAME));
+        p.setEndTime(TimeUtils.getSceneRasterTime(ncFile, Constants.STOP_DATE_ATT_NAME, Constants.STOP_TIME_ATT_NAME));
     }
 
     @Override

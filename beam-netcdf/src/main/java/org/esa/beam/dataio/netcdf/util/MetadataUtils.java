@@ -47,7 +47,7 @@ public class MetadataUtils {
         // todo - note that we still do not support NetCDF data type 'char' here!
         MetadataElement metadataElement = new MetadataElement(elementName);
         for (Attribute attribute : attributeList) {
-            final int productDataType = ReaderUtils.getEquivalentProductDataType(attribute.getDataType(), false,
+            final int productDataType = DataTypeUtils.getEquivalentProductDataType(attribute.getDataType(), false,
                     false);
             if (productDataType != -1) {
                 ProductData productData;
@@ -78,14 +78,6 @@ public class MetadataUtils {
         return metadataElement;
     }
 
-    public static MetadataElement createMetadataElement(NetcdfFile netcdfFile) {
-        return readAttributeList(netcdfFile.getGlobalAttributes(), Constants.GLOBAL_ATTRIBUTES_NAME);
-    }
-
-    public static MetadataElement createMetadataElement(Group group) {
-        return readAttributeList(group.getAttributes(), group.getName());
-    }
-
     private static MetadataElement createMetadataElement(Variable variable) throws IOException {
         final MetadataElement element = readAttributeList(variable.getAttributes(), variable.getName());
         if (variable.getRank() == 1) {
@@ -111,7 +103,7 @@ public class MetadataUtils {
         final DataType ncDataType = variable.getDataType();
         final boolean unsigned = variable.isUnsigned();
         final boolean rasterDataOnly = false;
-        final int productDataType = ReaderUtils.getEquivalentProductDataType(ncDataType, unsigned, rasterDataOnly);
+        final int productDataType = DataTypeUtils.getEquivalentProductDataType(ncDataType, unsigned, rasterDataOnly);
         final Array values = variable.read();
         final ProductData pd = ReaderUtils.createProductData(productDataType, values);
         final MetadataAttribute attribute = new MetadataAttribute("data", pd, true);
