@@ -24,7 +24,7 @@ import java.io.File;
 public interface Constants {
 
     String FORMAT_NAME = "NetCDF/CF";
-    String FORMAT_DESCRIPTION = "NetCDF/CF data product";
+    String FORMAT_DESCRIPTION = "NetCDF/CF Data Product";
     String FILE_EXTENSION_NC = ".nc";
     String FILE_EXTENSION_NC_GZ = ".nc.gz";
     String FILE_EXTENSION_HDF = ".hdf";

@@ -35,7 +35,7 @@
         <action>
             <id>importNetCdfCFProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <text>Import NetCDF/CF product...</text>
+            <text>Import NetCDF/CF Product...</text>
             <formatName>NetCDF/CF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>H</mnemonic>
@@ -45,7 +45,7 @@
         <action>
             <id>exportNetCdfCFProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
-            <text>Export NetCDF/CF product...</text>
+            <text>Export NetCDF/CF Product...</text>
             <formatName>NetCDF/CF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Writes a product in NetCDF/CF format</shortDescr>
