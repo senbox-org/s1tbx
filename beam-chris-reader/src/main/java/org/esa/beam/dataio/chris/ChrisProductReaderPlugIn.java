@@ -54,8 +54,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
                 if (isSensorTypeAttributeCorrect(ncFile)) {
                     return DecodeQualification.INTENDED;
                 }
-            } catch (Throwable e) {
-                e.printStackTrace();
+            } catch (Throwable ignore) {
                 // nothing to do, return value is already false
             } finally {
                 if (ncFile != null) {
