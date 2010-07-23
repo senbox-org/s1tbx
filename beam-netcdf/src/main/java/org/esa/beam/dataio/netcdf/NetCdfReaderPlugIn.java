@@ -153,7 +153,9 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      */
     public String getDescription(final Locale locale) {
         if (profileClassName != null) {
-            return Constants.FORMAT_DESCRIPTION + " (" + profileClassName + ")";
+            int lastDotIndex = profileClassName.lastIndexOf(".");
+            String shortName = profileClassName.substring(lastDotIndex+1);
+            return Constants.FORMAT_DESCRIPTION + " (" + shortName + ")";
         } else {
             return Constants.FORMAT_DESCRIPTION;
         }

@@ -23,10 +23,8 @@ import java.io.File;
  */
 public interface Constants {
 
-    String FORMAT_NAME = "NetCDF4_supported";
-    String FORMAT_NAME_BEAM = "NcBEAM";
-    String FORMAT_DESCRIPTION = "NetCDF supported Data Product";
-    String FORMAT_DESCRIPTION_BEAM = "NetCDF supported BEAM Data Product";
+    String FORMAT_NAME = "NetCDF/CF";
+    String FORMAT_DESCRIPTION = "NetCDF/CF data product";
     String FILE_EXTENSION_NC = ".nc";
     String FILE_EXTENSION_NC_GZ = ".nc.gz";
     String FILE_EXTENSION_HDF = ".hdf";

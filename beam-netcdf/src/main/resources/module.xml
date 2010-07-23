@@ -33,23 +33,23 @@
 
     <extension point="beam-ui:actions">
         <action>
-            <id>importNetcdf4SupportedProduct</id>
+            <id>importNetCdfCFProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <text>Import NetCDF4 supported File...</text>
-            <formatName>NetCDF4_supported</formatName>
+            <text>Import NetCDF/CF product...</text>
+            <formatName>NetCDF/CF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>H</mnemonic>
-            <shortDescr>Import a NetCDF4 supported file or file subset.</shortDescr>
-            <description>Import a NetCDF4 supported file or file subset.</description>
+            <shortDescr>Import a NetCDF/CF data product or product subset.</shortDescr>
+            <description>Import a NetCDF/CF data product or product subset.</description>
         </action>
         <action>
-            <id>exportNetcdf4SupportedBeamFormat</id>
+            <id>exportNetCdfCFProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
-            <text>Export NetCDF4 supported BEAM format...</text>
-            <formatName>NcBEAM</formatName>
+            <text>Export NetCDF/CF product...</text>
+            <formatName>NetCDF/CF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
-            <shortDescr>Writes a product in NetCDF4 supported BEAM format</shortDescr>
-            <description>Writes a product in NetCDF4 supported BEAM format</description>
+            <shortDescr>Writes a product in NetCDF/CF format</shortDescr>
+            <description>Writes a product in NetCDF/CF format</description>
         </action>
     </extension>
 

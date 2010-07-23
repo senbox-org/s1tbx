@@ -68,7 +68,7 @@ public class NetCdfWriterPlugIn implements ProductWriterPlugIn {
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
     public String[] getFormatNames() {
-        return new String[]{Constants.FORMAT_NAME_BEAM};
+        return new String[]{Constants.FORMAT_NAME};
     }
 
     /**
@@ -94,6 +94,6 @@ public class NetCdfWriterPlugIn implements ProductWriterPlugIn {
      * @return a textual description of this product reader/writer
      */
     public String getDescription(final Locale locale) {
-        return Constants.FORMAT_DESCRIPTION_BEAM;
+        return Constants.FORMAT_DESCRIPTION;
     }
 }
