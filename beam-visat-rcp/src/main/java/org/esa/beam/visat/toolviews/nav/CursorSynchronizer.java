@@ -17,6 +17,7 @@
 package org.esa.beam.visat.toolviews.nav;
 
 import com.bc.ceres.glayer.support.ImageLayer;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.ui.PixelPositionListener;
@@ -98,7 +99,6 @@ class CursorSynchronizer {
             Container contentPane = internalFrame.getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 ProductSceneView view = (ProductSceneView) contentPane;
-                psvOverlayMap.put(view, null);
                 addPPL(view);
             }
         }
@@ -114,15 +114,22 @@ class CursorSynchronizer {
     }
 
     private void addPPL(ProductSceneView view) {
-        ViewPPL ppl = new ViewPPL(view);
-        viewPplMap.put(view, ppl);
-        view.addPixelPositionListener(ppl);
+        GeoCoding geoCoding = view.getProduct().getGeoCoding();
+        if (geoCoding != null && geoCoding.canGetPixelPos()) {
+            psvOverlayMap.put(view, null);
+            ViewPPL ppl = new ViewPPL(view);
+            viewPplMap.put(view, ppl);
+            view.addPixelPositionListener(ppl);
+        }
     }
 
     private void removePPL(ProductSceneView view) {
-        ViewPPL ppl = viewPplMap.get(view);
-        viewPplMap.remove(view);
-        view.removePixelPositionListener(ppl);
+        GeoCoding geoCoding = view.getProduct().getGeoCoding();
+        if (geoCoding != null && geoCoding.canGetPixelPos()) {
+            ViewPPL ppl = viewPplMap.get(view);
+            viewPplMap.remove(view);
+            view.removePixelPositionListener(ppl);
+        }
     }
 
     private class PsvListUpdater extends InternalFrameAdapter {
@@ -132,19 +139,18 @@ class CursorSynchronizer {
             Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 ProductSceneView view = (ProductSceneView) contentPane;
-                psvOverlayMap.put(view, null);
-                addPPL(view);
+                    addPPL(view);
+                }
             }
-        }
 
         @Override
         public void internalFrameClosed(InternalFrameEvent e) {
             Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 ProductSceneView view = (ProductSceneView) contentPane;
-                removePPL(view);
+                    removePPL(view);
+                }
             }
-        }
 
     }
 

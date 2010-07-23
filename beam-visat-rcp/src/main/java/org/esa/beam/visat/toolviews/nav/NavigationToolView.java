@@ -688,7 +688,7 @@ public class NavigationToolView extends AbstractToolView {
                 final boolean showWindow = preferences.getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NAVIGATION,
                                                                        true);
                 if (showWindow) {
-                    ApplicationPage page = VisatApp.getApp().getPage();
+                    ApplicationPage page = VisatApp.getApp().getApplicationPage();
                     ToolView toolView = page.getToolView(NavigationToolView.ID);
                     if (toolView != null) {
                         page.showToolView(NavigationToolView.ID);
