@@ -2557,6 +2557,9 @@ public class ProductUtils {
         final int tileX = image.XToTileX(pixelX);
         final int tileY = image.YToTileY(pixelY);
         final Raster data = image.getTile(tileX, tileY);
+        if (data == null) {
+            return Double.NaN;
+        }
 
         final double sample;
         if (band.getDataType() == ProductData.TYPE_INT8) {
