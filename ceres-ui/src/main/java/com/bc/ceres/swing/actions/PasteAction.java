@@ -41,8 +41,12 @@ public class PasteAction extends AbstractSelectionAction implements FlavorListen
 
     @Override
     public boolean isExecutable() {
-        return super.isExecutable()
-                && getSelectionContext().canInsert(getClipboard().getContents(this));
+        try {
+            return super.isExecutable() && getSelectionContext().canInsert(getClipboard().getContents(this));
+        } catch (Exception ignore) {
+            // can happen if other applications block the system clipboard
+            return false;
+        }
     }
 
     @Override
