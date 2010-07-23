@@ -33,6 +33,7 @@ import org.esa.beam.framework.ui.application.ToolViewDescriptor.State;
 import org.esa.beam.framework.ui.application.support.AbstractApplicationPage;
 import org.esa.beam.framework.ui.application.support.DefaultToolViewPane;
 import org.esa.beam.framework.ui.command.CommandManager;
+import org.esa.beam.util.Debug;
 
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
@@ -145,7 +146,7 @@ public class VisatApplicationPage extends AbstractApplicationPage {
     @Override
     protected void setActiveComponent() {
         String activeFrameKey = dockingManager.getActiveFrameKey();
-        System.out.println("setActiveComponent: " + activeFrameKey);
+        Debug.trace("setActiveComponent: " + activeFrameKey);
 
         ToolView toolView = null;
         if (activeFrameKey != null) {
