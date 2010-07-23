@@ -63,6 +63,7 @@
                 <tocitem text="RGB-Image Profile" target="rgbImageProfile"/>
                 <tocitem text="No-Data Overlay" target="noDataOverlay"/>
                 <tocitem text="Geometry Management" target="geometryManagement"/>
+                <tocitem text="Mask and ROI Management" target="showMaskROIManagerWnd"/>
             </tocitem>
 
             <tocitem text="Analysis Tools">

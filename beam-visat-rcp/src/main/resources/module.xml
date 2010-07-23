@@ -381,7 +381,7 @@
             <description>Manage binary data masks and ROIs.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/MaskManager16.png</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/MaskManager24.png</largeIcon>
-            <helpId>showMaskManagerWnd</helpId>
+            <helpId>showMaskROIManagerWnd</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
