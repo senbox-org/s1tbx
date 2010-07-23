@@ -166,18 +166,18 @@ public final class Launcher {
     // do not delete, useful for debugging
 
     private void traceClassLoader(String name, ClassLoader classLoader) {
-        System.out.println("=============================================================================");
-        System.out.println(name + ".class = " + classLoader.getClass());
+        trace("=============================================================================");
+        trace(name + ".class = " + classLoader.getClass());
         if (classLoader instanceof URLClassLoader) {
             URL[] classpath = ((URLClassLoader) classLoader).getURLs();
             for (int i = 0; i < classpath.length; i++) {
-                System.out.println(name + ".url[" + i + "] = " + classpath[i]);
+                trace(name + ".url[" + i + "] = " + classpath[i]);
             }
         }
         if (classLoader.getParent() != null) {
             traceClassLoader(name + ".parent", classLoader.getParent());
         } else {
-            System.out.println(name + ".parent = null");
+            trace(name + ".parent = null");
         }
     }
 
