@@ -64,7 +64,11 @@ public class ProfileSpiRegistry {
         final Set<ProfileSpi> profileSpis = serviceRegistry.getServices();
         DecodeQualification bestQualification = DecodeQualification.UNABLE;
         for (ProfileSpi profileSpi : profileSpis) {
-            DecodeQualification qualification = profileSpi.getDecodeQualification(netcdfFile);
+            DecodeQualification qualification = DecodeQualification.UNABLE;
+            try {
+                qualification = profileSpi.getDecodeQualification(netcdfFile);
+            }catch (Exception ignore) {
+            }
             if (qualification == DecodeQualification.SUITABLE) {
                 bestQualification = qualification;
             } else if (qualification == DecodeQualification.INTENDED) {
