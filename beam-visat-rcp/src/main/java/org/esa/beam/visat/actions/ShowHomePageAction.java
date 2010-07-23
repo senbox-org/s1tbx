@@ -31,8 +31,12 @@ import java.io.IOException;
  * @version $Revision$ $Date$
  */
 public class ShowHomePageAction extends ExecCommand {
-    private static final String HOME_PAGE_URL_DEFAULT =
-            "http://www.brockmann-consult.de/beam/";
+    private static final String HOME_PAGE_URL_DEFAULT = "http://www.brockmann-consult.de/beam/";
+
+    @Override
+    public void updateState(final CommandEvent event) {
+        setEnabled(Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE));
+    }
 
     /**
      * Launches the default browser to display the BEAM Wiki.
@@ -43,9 +47,9 @@ public class ShowHomePageAction extends ExecCommand {
     @Override
     public void actionPerformed(CommandEvent event) {
         final String homePageUrl = System.getProperty("beam.homePageUrl", HOME_PAGE_URL_DEFAULT);
-        final Desktop desktop = Desktop.getDesktop();
 
         try {
+            final Desktop desktop = Desktop.getDesktop();
             desktop.browse(URI.create(homePageUrl));
         } catch (IOException e) {
             // TODO - handle

@@ -43,6 +43,11 @@ public class ShowDataSourcesAction extends ExecCommand {
     private static final String DATASOURCES_RESOURCE_PATH = "doc/help/general/BeamDataSources.html";
     private static final String DATASOURCES_PROPERTY_NAME = "beam.datasources.url";
 
+    @Override
+    public void updateState(final CommandEvent event) {
+        setEnabled(Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE));
+    }
+
     /**
      * Opens the default browser to display the BEAM data sources web page.
      * Invoked when a command action is performed.
@@ -59,6 +64,8 @@ public class ShowDataSourcesAction extends ExecCommand {
             VisatApp.getApp().showErrorDialog("Illegal resource URI:\n" + e.getMessage());
         } catch (IOException e) {
             VisatApp.getApp().showErrorDialog("An I/O error occured:\n" + e.getMessage());
+        } catch (UnsupportedOperationException e) {
+            VisatApp.getApp().showErrorDialog("The desktop command 'browse' is not supported.:\n" + e.getMessage());
         }
     }
 
