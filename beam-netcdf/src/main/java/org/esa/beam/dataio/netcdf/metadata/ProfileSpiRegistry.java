@@ -19,10 +19,13 @@ package org.esa.beam.dataio.netcdf.metadata;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.beam.BeamCoreActivator;
+import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfProfileSpi;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.Guardian;
 import ucar.nc2.NetcdfFile;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -46,22 +49,51 @@ public class ProfileSpiRegistry {
         return Holder.instance;
     }
 
+    /**
+     * Returns the  {@link ProfileSpi} that is best suitable for reading the given netCDf file.
+     * <p/>
+     * The {@link CfProfileSpi} is always checked as the last profile.
+     * This is to ensure that this very generic profile does not take precedence over other profiles.
+     *
+     * @return The best matching profile, or <code>null</code>, if no profile is able to read the given netCDF file.
+     */
     public ProfileSpi getProfileFactory(NetcdfFile netcdfFile) {
         final Set<ProfileSpi> profileSpis = serviceRegistry.getServices();
-        ProfileSpi selectedSpi = null;
+        ProfileSpi cfProfileSpi = serviceRegistry.getService(CfProfileSpi.class.getName());
+        profileSpis.remove(cfProfileSpi);
+
+        ProfileSpi bestProfileSpi = null;
         for (ProfileSpi profileSpi : profileSpis) {
             DecodeQualification qualification = profileSpi.getDecodeQualification(netcdfFile);
             if (qualification == DecodeQualification.SUITABLE) {
-                selectedSpi = profileSpi;
+                bestProfileSpi = profileSpi;
             } else if (qualification == DecodeQualification.INTENDED) {
                 return profileSpi;
             }
         }
-        return selectedSpi;
+        if (bestProfileSpi == null) {
+            // try CfProfile as last option to prevent it from overruling other profiles.
+            DecodeQualification decodeQualification = cfProfileSpi.getDecodeQualification(netcdfFile);
+            if (decodeQualification != DecodeQualification.UNABLE) {
+                bestProfileSpi = cfProfileSpi;
+            }
+        }
+        return bestProfileSpi;
     }
 
+    /**
+     * Returns the best {@link DecodeQualification} that all registered profiles can provide for the given netCDf file.
+     * <p/>
+     * The {@link CfProfileSpi} checked as the last profile, if no other is able to read the file.
+     * This is to ensure that this very generic profile does not take precedence over other profiles.
+     *
+     * @return The best decode qualification..
+     */
     public DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
         final Set<ProfileSpi> profileSpis = serviceRegistry.getServices();
+        ProfileSpi cfProfileSpi = serviceRegistry.getService(CfProfileSpi.class.getName());
+        profileSpis.remove(cfProfileSpi);
+
         DecodeQualification bestQualification = DecodeQualification.UNABLE;
         for (ProfileSpi profileSpi : profileSpis) {
             DecodeQualification qualification = DecodeQualification.UNABLE;
@@ -75,18 +107,15 @@ public class ProfileSpiRegistry {
                 return qualification;
             }
         }
+        if (bestQualification == DecodeQualification.UNABLE) {
+            bestQualification = cfProfileSpi.getDecodeQualification(netcdfFile);
+        }
         return bestQualification;
     }
 
     public ProfileSpi getProfileFactory(String profileName) {
         Guardian.assertNotNullOrEmpty("profileName", profileName);
-        Set<ProfileSpi> services = serviceRegistry.getServices();
-        for (ProfileSpi profileSpi : services) {
-            if (profileName.equalsIgnoreCase(profileSpi.getClass().getName())) {
-                return profileSpi;
-            }
-        }
-        return null;
+        return serviceRegistry.getService(profileName);
     }
 
     private static class Holder {

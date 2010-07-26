@@ -156,11 +156,6 @@ public class CfProfileSpi extends AbstractProfileSpi {
 
     @Override
     public DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
-        Variable hdfEosVariable = netcdfFile.getRootGroup().findVariable("StructMetadata.0");
-        if (hdfEosVariable != null) {
-            // we dont't want to handle HDF EOS here
-            return DecodeQualification.UNABLE;
-        }
         RasterDigest rasterDigest = RasterDigest.createRasterDigest(netcdfFile.getRootGroup());
         if (rasterDigest != null && rasterDigest.getRasterVariables().length > 0) {
             return DecodeQualification.SUITABLE;

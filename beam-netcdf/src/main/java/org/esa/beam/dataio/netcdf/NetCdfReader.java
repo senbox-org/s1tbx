@@ -73,8 +73,6 @@ public class NetCdfReader extends AbstractProductReader {
         final File fileLocation = new File(getInput().toString());
         netcdfFile = NetcdfFile.open(fileLocation.getPath());
 
-        System.out.println("netcdfFile = " + netcdfFile);
-
         ProfileSpiRegistry profileSpiRegistry = ProfileSpiRegistry.getInstance();
         ProfileSpi profileSpi;
         if (profileClassName != null) {
