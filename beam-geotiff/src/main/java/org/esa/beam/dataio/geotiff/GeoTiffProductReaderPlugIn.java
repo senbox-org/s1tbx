@@ -66,16 +66,6 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
             if (imageReader == null) {
                 return DecodeQualification.UNABLE;
             }
-
-            imageReader.setInput(stream);
-
-            final TIFFImageMetadata imageMetadata = (TIFFImageMetadata) imageReader.getImageMetadata(0);
-            final TIFFIFD ifd = imageMetadata.getRootIFD();
-            final TiffFileInfo info = new TiffFileInfo(ifd);
-
-            if (info.isGeotiff()) {
-                return DecodeQualification.INTENDED;
-            }
         } catch (Exception ignore) {
             return DecodeQualification.UNABLE;
         }

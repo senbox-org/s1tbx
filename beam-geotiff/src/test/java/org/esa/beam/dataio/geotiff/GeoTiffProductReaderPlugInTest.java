@@ -81,7 +81,7 @@ public class GeoTiffProductReaderPlugInTest {
         product.setGeoCoding(new MapGeoCoding(mapInfo));
         final ImageInputStream inputStream = writeToInputStream(product);
         final DecodeQualification decodeQualification = GeoTiffProductReaderPlugIn.getDecodeQualificationImpl(inputStream);
-        assertEquals(DecodeQualification.INTENDED, decodeQualification);
+        assertEquals(DecodeQualification.SUITABLE, decodeQualification);
     }
 
     @Test
