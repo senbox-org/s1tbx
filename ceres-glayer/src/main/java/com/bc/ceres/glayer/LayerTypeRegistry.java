@@ -44,6 +44,7 @@ public class LayerTypeRegistry {
      * Return the instance for the given layerType class name.
      *
      * @param name The name of the layer type.
+     *
      * @return the instance
      */
     public static LayerType getLayerType(String name) {
@@ -63,10 +64,20 @@ public class LayerTypeRegistry {
      * Return the instance for the given layerType class.
      *
      * @param layerTypeClass The class of the layer type.
+     *
      * @return the instance
      */
     public static <T extends LayerType> T getLayerType(Class<T> layerTypeClass) {
         return (T) getRegistry().getService(layerTypeClass.getName());
+    }
+
+    /**
+     * Returns a set of all available layerTypes.
+     *
+     * @return the set
+     */
+    public static Set<LayerType> getLayerTypes() {
+        return getRegistry().getServices();
     }
 
     private static ServiceRegistry<LayerType> getRegistry() {
@@ -96,7 +107,7 @@ public class LayerTypeRegistry {
             }
         }
     }
-    
+
     private void registerAliases(LayerType layerType) {
         String layerTypeClassName = layerType.getClass().getName();
         aliases.put(layerType.getName(), layerTypeClassName);
@@ -123,7 +134,9 @@ public class LayerTypeRegistry {
 
     // Initialization on demand holder idiom, see
     // http://en.wikipedia.org/wiki/Initialization_on_demand_holder_idiom
+
     private static class Holder {
+
         private static final LayerTypeRegistry instance = new LayerTypeRegistry();
     }
 }
