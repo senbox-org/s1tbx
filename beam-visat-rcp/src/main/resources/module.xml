@@ -356,22 +356,22 @@
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
-<!--
-        <toolView>
-            <id>org.esa.beam.visat.toolviews.mask.MaskViewerToolView</id>
-            <class>org.esa.beam.visat.toolviews.mask.MaskViewerToolView</class>
-            <title>Mask Overlays</title>
-            <mnemonic>B</mnemonic>
-            <accelerator>ctrl alt B</accelerator>
-            <description>Overlay binary data masks.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.png</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.png</largeIcon>
-            <helpId>showMaskOverlayWnd</helpId>
-            <initState>HIDDEN</initState>
-            <initSide>SOUTH</initSide>
-            <initIndex>0</initIndex>
-        </toolView>
--->
+        <!--
+                <toolView>
+                    <id>org.esa.beam.visat.toolviews.mask.MaskViewerToolView</id>
+                    <class>org.esa.beam.visat.toolviews.mask.MaskViewerToolView</class>
+                    <title>Mask Overlays</title>
+                    <mnemonic>B</mnemonic>
+                    <accelerator>ctrl alt B</accelerator>
+                    <description>Overlay binary data masks.</description>
+                    <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.png</smallIcon>
+                    <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.png</largeIcon>
+                    <helpId>showMaskOverlayWnd</helpId>
+                    <initState>HIDDEN</initState>
+                    <initSide>SOUTH</initSide>
+                    <initIndex>0</initIndex>
+                </toolView>
+        -->
         <toolView>
             <id>org.esa.beam.visat.toolviews.mask.MaskManagerToolView</id>
             <class>org.esa.beam.visat.toolviews.mask.MaskManagerToolView</class>
@@ -1467,19 +1467,19 @@
         </action>
 
         <action>
-            <id>showBlueMarbleOverlay</id>
-            <class>org.esa.beam.visat.actions.ShowBlueMarbleOverlayAction</class>
+            <id>showWorldMapOverlay</id>
+            <class>org.esa.beam.visat.actions.ShowWorldMapOverlayAction</class>
             <placeAfter>showGcpOverlay</placeAfter>
             <parent>view</parent>
-            <text>Show Blue Marble Overlay</text>
+            <text>Show World Map Overlay</text>
             <toggle>true</toggle>
             <separatorAfter>false</separatorAfter>
-            <shortDescr>Show Blue Marble overlay</shortDescr>
-            <description>Show Blue Marble overlay for the selected image</description>
-            <smallIcon>icons/BlueMarbleOverlay16.png</smallIcon>
-            <largeIcon>icons/BlueMarbleOverlay24.png</largeIcon>
+            <shortDescr>Show World Map overlay</shortDescr>
+            <description>Show World Map overlay for the selected image</description>
+            <smallIcon>icons/WorldMapOverlay16.png</smallIcon>
+            <largeIcon>icons/WorldMapOverlay24.png</largeIcon>
             <context>image</context>
-            <helpId>showBlueMarbleOverlay</helpId>
+            <helpId>showWorldMapOverlay</helpId>
         </action>
 
         <action>
@@ -1626,7 +1626,7 @@
             <context>image</context>
             <helpId>drawPolygonTool</helpId>
         </action>
-       <action>
+        <action>
             <id>rangeFinder</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
             <interactor>org.esa.beam.visat.actions.rangefinder.RangeFinderInteractor</interactor>
@@ -1675,51 +1675,51 @@
             <shortDescr>Reset to initial layout.</shortDescr>
         </action>
 
-<!--
-        <action>
-            <id>projection</id>
-            <class>org.esa.beam.visat.actions.ProjectionAction</class>
-            <parent>tools</parent>
-            <placeAfter>bandArithmetic</placeAfter>
-            <text>Map Projection...</text>
-            <shortDescr>Apply Map Projection</shortDescr>
-            <helpId>projectionDialog</helpId>
-        </action>
+        <!--
+                <action>
+                    <id>projection</id>
+                    <class>org.esa.beam.visat.actions.ProjectionAction</class>
+                    <parent>tools</parent>
+                    <placeAfter>bandArithmetic</placeAfter>
+                    <text>Map Projection...</text>
+                    <shortDescr>Apply Map Projection</shortDescr>
+                    <helpId>projectionDialog</helpId>
+                </action>
 
-        <action>
-            <id>orthorectification</id>
-            <class>org.esa.beam.visat.actions.OrthorectificationAction</class>
-            <parent>tools</parent>
-            <placeAfter>projection</placeAfter>
-            <text>Orthorectification...</text>
-            <shortDescr>Apply Orthorectification</shortDescr>
-            <helpId>orthorectification</helpId>
-        </action>
-        <action>
-            <id>createXYDisplacementBandsAction</id>
-            <class>org.esa.beam.visat.actions.CreateXYDisplacementBandsAction</class>
-            <text>Create X,Y Displacement Bands...</text>
-            <description>Creates X,Y displacement bands for a selected product</description>
-            <context>createXYDisplacementBandsAction</context>
-            <helpId>createXYDisplacementBandsAction</helpId>
-            <parent>tools</parent>
-            <placeAfter>createElevationBand</placeAfter>
-            <separatorAfter>false</separatorAfter>
-        </action>
-        <action>
-            <id>magicStickTool</id>
-            <class>org.esa.beam.visat.actions.ToolAction</class>
-            <tool>org.esa.beam.visat.actions.magic.MagicStickTool</tool>
-            <parent>tools</parent>
-            <placeAfter>selectTool</placeAfter>
-            <text>Magic Stick</text>
-            <shortDescr>Creates a ROI using a magic stick</shortDescr>
-            <largeIcon>icons/MagicStickTool24.gif</largeIcon>
-            <selected>false</selected>
-            <context>image</context>
-            <helpId>magicStickTool</helpId>
-        </action>
--->
+                <action>
+                    <id>orthorectification</id>
+                    <class>org.esa.beam.visat.actions.OrthorectificationAction</class>
+                    <parent>tools</parent>
+                    <placeAfter>projection</placeAfter>
+                    <text>Orthorectification...</text>
+                    <shortDescr>Apply Orthorectification</shortDescr>
+                    <helpId>orthorectification</helpId>
+                </action>
+                <action>
+                    <id>createXYDisplacementBandsAction</id>
+                    <class>org.esa.beam.visat.actions.CreateXYDisplacementBandsAction</class>
+                    <text>Create X,Y Displacement Bands...</text>
+                    <description>Creates X,Y displacement bands for a selected product</description>
+                    <context>createXYDisplacementBandsAction</context>
+                    <helpId>createXYDisplacementBandsAction</helpId>
+                    <parent>tools</parent>
+                    <placeAfter>createElevationBand</placeAfter>
+                    <separatorAfter>false</separatorAfter>
+                </action>
+                <action>
+                    <id>magicStickTool</id>
+                    <class>org.esa.beam.visat.actions.ToolAction</class>
+                    <tool>org.esa.beam.visat.actions.magic.MagicStickTool</tool>
+                    <parent>tools</parent>
+                    <placeAfter>selectTool</placeAfter>
+                    <text>Magic Stick</text>
+                    <shortDescr>Creates a ROI using a magic stick</shortDescr>
+                    <largeIcon>icons/MagicStickTool24.gif</largeIcon>
+                    <selected>false</selected>
+                    <context>image</context>
+                    <helpId>magicStickTool</helpId>
+                </action>
+        -->
 
     </extension>
 

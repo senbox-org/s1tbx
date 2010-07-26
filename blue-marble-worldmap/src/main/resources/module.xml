@@ -40,7 +40,7 @@
     <extension point="beam-ui:layerSources">
         <layerSource>
             <id>blue-marble-source</id>
-            <name>NASA Blue Marble</name>
+            <name>WorldMap (NASA Blue Marble)</name>
             <description>Adds NASA Blue Marble image layer to the background.</description>
             <layerType>org.esa.beam.worldmap.BlueMarbleLayerType</layerType>
         </layerSource>

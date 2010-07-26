@@ -30,15 +30,16 @@ import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.glayer.WorldMapLayerType;
 import org.esa.beam.visat.VisatApp;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 
-public class ShowBlueMarbleOverlayAction extends AbstractShowOverlayAction {
+public class ShowWorldMapOverlayAction extends AbstractShowOverlayAction {
 
-    private static final String BLUE_MARBLE_LAYER_TYPE_NAME = "BlueMarbleLayerType";
-    private volatile LayerType blueMarbleLayerType;
+    private static final String WORLDMAP_TYPE_PROPERTY_NAME = "worldmap.type";
+    private static final String GLOB_COVER_LAYER_TYPE = "GlobCoverLayerType";
 
     @Override
     public void actionPerformed(CommandEvent event) {
@@ -46,17 +47,21 @@ public class ShowBlueMarbleOverlayAction extends AbstractShowOverlayAction {
 
         if (view != null) {
             Layer rootLayer = view.getRootLayer();
-            Layer blueMarbleLayer = findBlueMarbleLayer(view);
-            if (blueMarbleLayer == null) {
-                blueMarbleLayer = createBlueMarbleLayer();
-                rootLayer.getChildren().add(blueMarbleLayer);
+            Layer worldMapLayer = findWorldMapLayer(view);
+            if (isSelected()) {
+                if (worldMapLayer == null) {
+                    worldMapLayer = createWorldMapLayer();
+                    rootLayer.getChildren().add(worldMapLayer);
+                }
+                worldMapLayer.setVisible(true);
+            } else {
+                worldMapLayer.getParent().getChildren().remove(worldMapLayer);
             }
-            blueMarbleLayer.setVisible(isSelected());
         }
     }
 
-    private Layer createBlueMarbleLayer() {
-        final LayerType layerType = getBlueMarbleLayerType();
+    private Layer createWorldMapLayer() {
+        final LayerType layerType = getWorldMapLayerType();
         final PropertySet template = layerType.createLayerConfig(null);
         return layerType.createLayer(null, template);
     }
@@ -66,45 +71,42 @@ public class ShowBlueMarbleOverlayAction extends AbstractShowOverlayAction {
     protected void updateEnableState(ProductSceneView view) {
         RasterDataNode raster = view.getRaster();
         GeoCoding geoCoding = raster.getGeoCoding();
-        boolean isGeographic = false;
+        setEnabled(isGeographicLatLon(geoCoding));
+    }
+
+    private boolean isGeographicLatLon(GeoCoding geoCoding) {
         if (geoCoding instanceof MapGeoCoding) {
             MapGeoCoding mapGeoCoding = (MapGeoCoding) geoCoding;
             MapTransformDescriptor transformDescriptor = mapGeoCoding.getMapInfo()
                     .getMapProjection().getMapTransform().getDescriptor();
             String typeID = transformDescriptor.getTypeID();
             if (typeID.equals(IdentityTransformDescriptor.TYPE_ID)) {
-                isGeographic = true;
+                return true;
             }
         } else if (geoCoding instanceof CrsGeoCoding) {
-            isGeographic = CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
+            return CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
         }
-        LayerType blueMarbleLayerType = getBlueMarbleLayerType();
-        setEnabled(isGeographic && blueMarbleLayerType != null);
+        return false;
     }
 
     @Override
     protected void updateSelectState(ProductSceneView view) {
-        Layer blueMarbleLayer = findBlueMarbleLayer(view);
+        Layer blueMarbleLayer = findWorldMapLayer(view);
         setSelected(blueMarbleLayer != null && blueMarbleLayer.isVisible());
     }
 
-    private LayerType getBlueMarbleLayerType() {
-        if (blueMarbleLayerType == null) {
-            synchronized (this) {
-                if (blueMarbleLayerType == null) {
-                    blueMarbleLayerType =  LayerTypeRegistry.getLayerType(BLUE_MARBLE_LAYER_TYPE_NAME);
-                }
-            }
-        }
-        return blueMarbleLayerType;
+    private LayerType getWorldMapLayerType() {
+        final VisatApp visatApp = VisatApp.getApp();
+        String layerTypeClassName = visatApp.getPreferences().getPropertyString(WORLDMAP_TYPE_PROPERTY_NAME,
+                                                                                GLOB_COVER_LAYER_TYPE);
+        return LayerTypeRegistry.getLayerType(layerTypeClassName);
     }
 
-    private Layer findBlueMarbleLayer(ProductSceneView view) {
-        final LayerType layerType = getBlueMarbleLayerType();
+    private Layer findWorldMapLayer(ProductSceneView view) {
         return LayerUtils.getChildLayer(view.getRootLayer(), LayerUtils.SearchMode.DEEP, new LayerFilter() {
             @Override
             public boolean accept(Layer layer) {
-                return layerType == layer.getLayerType();
+                return layer.getLayerType() instanceof WorldMapLayerType;
             }
         });
     }

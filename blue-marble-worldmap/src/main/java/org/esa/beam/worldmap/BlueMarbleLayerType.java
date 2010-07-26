@@ -22,6 +22,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
+import org.esa.beam.glayer.WorldMapLayerType;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -36,10 +37,11 @@ import java.net.URL;
  * @version $Revision: $ $Date: $
  * @since BEAM 4.6
  */
-public class BlueMarbleLayerType extends ImageLayer.Type {
+public class BlueMarbleLayerType extends WorldMapLayerType {
 
     private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.beam.worldImageDir";
     private static final String WORLD_MAP_LAYER_NAME = "World Map (NASA Blue Marble)";
+    private static final String WORLD_MAP_LABEL = "NASA Blue Marble";
     private static final String TYPE_NAME = "BlueMarbleLayerType";
     private static final String[] ALIASES = {"org.esa.beam.worldmap.BlueMarbleLayerType"};
 
@@ -49,7 +51,12 @@ public class BlueMarbleLayerType extends ImageLayer.Type {
     public String getName() {
         return TYPE_NAME;
     }
-    
+
+    @Override
+    public String getLabel() {
+        return WORLD_MAP_LABEL;
+    }
+
     @Override
     public String[] getAliases() {
         return ALIASES;

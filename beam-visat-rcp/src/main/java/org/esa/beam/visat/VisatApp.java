@@ -1960,7 +1960,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 "showGraticuleOverlay",
                 PinDescriptor.INSTANCE.getShowLayerCommandId(),
                 GcpDescriptor.INSTANCE.getShowLayerCommandId(),
-                "showBlueMarbleOverlay"
+                "showWorldMapOverlay"
         });
         return toolBar;
     }
