@@ -319,7 +319,10 @@ public class MerisL3ProductReader extends AbstractProductReader {
         final ISINGrid grid = _grid;
         final RowInfo[] binLines = new RowInfo[_sceneRasterHeight];
         final Variable idxVariable = _netcdfFile.getRootGroup().findVariable("idx");
-        final int[] idxValues = (int[]) idxVariable.read().getStorage();
+        final int[] idxValues;
+        synchronized (_netcdfFile) {
+            idxValues = (int[]) idxVariable.read().getStorage();
+        }
         final Point gridPoint = new Point();
         int lastBinIndex = -1;
         int lastRowIndex = -1;
