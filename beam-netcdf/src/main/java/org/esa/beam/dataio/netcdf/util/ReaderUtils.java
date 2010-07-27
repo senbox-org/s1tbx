@@ -17,10 +17,11 @@
 package org.esa.beam.dataio.netcdf.util;
 
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import ucar.ma2.Array;
-import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
+import ucar.nc2.iosp.netcdf3.N3iosp;
 
 import java.util.HashMap;
 import java.util.List;
@@ -82,28 +83,18 @@ public class ReaderUtils {
         return map;
     }
 
-    public static boolean allElementsAreNotNull(final Object[] array) {
-        if (array != null) {
-            for (Object o : array) {
-                if (o == null) {
-                    return false;
-                }
-            }
-        }
-        return true;
+    public static String getVariableName(RasterDataNode rasterDataNode) {
+        String name = N3iosp.createValidNetcdf3ObjectName(rasterDataNode.getName());
+        return name.replace( '.', '_' );
     }
 
-    public static boolean allAttributesAreNotNullAndHaveTheSameSize(final Attribute[] attributes) {
-        if (allElementsAreNotNull(attributes)) {
-            final Attribute prim = attributes[0];
-            for (int i = 1; i < attributes.length; i++) {
-                if (prim.getLength() != attributes[i].getLength()) {
-                    return false;
-                }
-            }
-            return true;
+    public static String getRasterName(Variable variable) {
+        Attribute attribute = variable.findAttribute(Constants.ORIG_NAME_ATT_NAME);
+        if (attribute != null) {
+            return attribute.getStringValue();
+        } else {
+            return variable.getName();
         }
-        return false;
     }
 }
 

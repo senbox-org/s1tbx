@@ -21,6 +21,7 @@ import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContextImpl;
 import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamProfileSpi;
 import org.esa.beam.dataio.netcdf.util.Constants;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -106,7 +107,7 @@ public class NetCdfWriter extends AbstractProductWriter {
 
         final int yIndex = 0;
         final int xIndex = 1;
-        final String variableName = sourceBand.getName();
+        final String variableName = ReaderUtils.getVariableName(sourceBand);
         final DataType dataType = getDataType(variableName);
         final int sceneHeight = sourceBand.getProduct().getSceneRasterHeight();
         final int[] origin = new int[2];
@@ -123,7 +124,7 @@ public class NetCdfWriter extends AbstractProductWriter {
 
     private DataType getDataType(String variableName) throws ProductIOException {
         if (!variableMap.containsKey(variableName)) {
-            final Variable variable = writeable.findVariable(variableName);
+            final Variable variable = writeable.getRootGroup().findVariable(variableName);
             if (variable == null) {
                 throw new ProductIOException("Nc raster data variable '" + variableName + "' not found");
             }

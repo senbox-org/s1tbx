@@ -19,6 +19,8 @@ import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
+import org.esa.beam.dataio.netcdf.util.Constants;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
@@ -54,7 +56,7 @@ public class BeamTiePointGridPart extends ProfilePart {
             if (dimensionY.getLength() != p.getSceneRasterHeight()
                 || dimensionX.getLength() != p.getSceneRasterWidth()) {
                 //maybe this is a tie point grid
-                final String name = variable.getName();
+                final String tpName = ReaderUtils.getRasterName(variable);
                 final Attribute offsetX = variable.findAttributeIgnoreCase(OFFSET_X);
                 final Attribute offsetY = variable.findAttributeIgnoreCase(OFFSET_Y);
                 final Attribute subSamplingX = variable.findAttributeIgnoreCase(SUBSAMPLING_X);
@@ -66,8 +68,11 @@ public class BeamTiePointGridPart extends ProfilePart {
                     for (int i = 0; i < data.length; i++) {
                         data[i] = array.getFloat(i);
                     }
-                    final boolean containsAngles = "lon".equalsIgnoreCase(name) || "lat".equalsIgnoreCase(name);
-                    final TiePointGrid grid = new TiePointGrid(name,
+                    final boolean containsAngles = Constants.LON_VAR_NAME.equalsIgnoreCase(tpName) ||
+                            Constants.LAT_VAR_NAME.equalsIgnoreCase(tpName) ||
+                            Constants.LONGITUDE_VAR_NAME.equalsIgnoreCase(tpName) ||
+                            Constants.LATITUDE_VAR_NAME.equalsIgnoreCase(tpName);
+                    final TiePointGrid grid = new TiePointGrid(tpName,
                                                                dimensionX.getLength(),
                                                                dimensionY.getLength(),
                                                                offsetX.getNumericValue().floatValue(),
@@ -84,42 +89,40 @@ public class BeamTiePointGridPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws
-                                                           IOException {
-        final TiePointGrid[] tiePointGrids = p.getTiePointGrids();
+    public void define(ProfileWriteContext ctx, Product p) throws IOException {
         final HashMap<String, Dimension[]> dimMap = new HashMap<String, Dimension[]>();
         final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
-        for (TiePointGrid grid : tiePointGrids) {
-            final String key = "" + grid.getRasterHeight() + " " + grid.getRasterWidth();
+
+        for (TiePointGrid tiePointGrid : p.getTiePointGrids()) {
+            final String key = "" + tiePointGrid.getRasterHeight() + " " + tiePointGrid.getRasterWidth();
             if (!dimMap.containsKey(key)) {
                 final int size = dimMap.size();
                 final String suffix = size > 0 ? "" + (size + 1) : "";
-                final Dimension[] dimensions = {
-                        new Dimension("tp_y" + suffix, grid.getRasterHeight()),
-                        new Dimension("tp_x" + suffix, grid.getRasterWidth())
-                };
-                dimMap.put(key, dimensions);
-                ncFile.addDimension(null, dimensions[0]);
-                ncFile.addDimension(null, dimensions[1]);
+                Dimension dimTpY = new Dimension("tp_y" + suffix, tiePointGrid.getRasterHeight());
+                Dimension dimTpX = new Dimension("tp_x" + suffix, tiePointGrid.getRasterWidth());
+                ncFile.addDimension(null, dimTpY);
+                ncFile.addDimension(null, dimTpX);
+                dimMap.put(key, new Dimension[]{ dimTpY, dimTpX});
             }
-            final Variable variable = ncFile.addVariable(grid.getName(), DataType.FLOAT, dimMap.get(key));
-            variable.addAttribute(new Attribute(OFFSET_X, grid.getOffsetX()));
-            variable.addAttribute(new Attribute(OFFSET_Y, grid.getOffsetY()));
-            variable.addAttribute(new Attribute(SUBSAMPLING_X, grid.getSubSamplingX()));
-            variable.addAttribute(new Attribute(SUBSAMPLING_Y, grid.getSubSamplingY()));
+            String variableName = ReaderUtils.getVariableName(tiePointGrid);
+            final Variable variable = ncFile.addVariable(variableName, DataType.FLOAT, dimMap.get(key));
+            variable.addAttribute(new Attribute(OFFSET_X, tiePointGrid.getOffsetX()));
+            variable.addAttribute(new Attribute(OFFSET_Y, tiePointGrid.getOffsetY()));
+            variable.addAttribute(new Attribute(SUBSAMPLING_X, tiePointGrid.getSubSamplingX()));
+            variable.addAttribute(new Attribute(SUBSAMPLING_Y, tiePointGrid.getSubSamplingY()));
         }
     }
 
     @Override
     public void write(ProfileWriteContext ctx, Product p) throws IOException {
-        final TiePointGrid[] tiePointGrids = p.getTiePointGrids();
-        for (TiePointGrid tiePointGrid : tiePointGrids) {
+        for (TiePointGrid tiePointGrid : p.getTiePointGrids()) {
             try {
                 final int y = tiePointGrid.getRasterHeight();
                 final int x = tiePointGrid.getRasterWidth();
                 final int[] shape = new int[]{y, x};
                 final Array values = Array.factory(DataType.FLOAT, shape, tiePointGrid.getDataElems());
-                ctx.getNetcdfFileWriteable().write(tiePointGrid.getName(), values);
+                String variableName = ReaderUtils.getVariableName(tiePointGrid);
+                ctx.getNetcdfFileWriteable().write(variableName, values);
             } catch (InvalidRangeException e) {
                 throw new ProductIOException("TiePointData not in the expected range");
             }

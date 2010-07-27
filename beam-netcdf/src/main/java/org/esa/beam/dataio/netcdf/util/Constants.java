@@ -46,6 +46,7 @@ public interface Constants {
     String INTERCEPT_ATT_NAME = "intercept";
     String FILL_VALUE_ATT_NAME = "_FillValue";
     String MISSING_VALUE_ATT_NAME = "missing_value";
+    String ORIG_NAME_ATT_NAME = "orig_name";
     String VALID_MIN_ATT_NAME = "valid_min";
     String VALID_MAX_ATT_NAME = "valid_max";
     String STEP_ATT_NAME = "step";

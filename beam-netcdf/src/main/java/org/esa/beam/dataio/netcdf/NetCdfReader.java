@@ -23,6 +23,7 @@ import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileSpi;
 import org.esa.beam.dataio.netcdf.metadata.ProfileSpiRegistry;
 import org.esa.beam.dataio.netcdf.util.Constants;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.dataio.netcdf.util.VariableMap;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
@@ -122,7 +123,8 @@ public class NetCdfReader extends AbstractProductReader {
         final int sceneHeight = destBand.getProduct().getSceneRasterHeight();
         final int y0 = isYFlipped ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
 
-        final Variable variable = rasterVariableMap.get(destBand.getName());
+        String variableName = ReaderUtils.getVariableName(destBand);
+        final Variable variable = rasterVariableMap.get(variableName);
         final int rank = variable.getRank();
         final int[] origin = new int[rank];
         final int[] shape = new int[rank];

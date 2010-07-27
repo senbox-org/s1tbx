@@ -44,7 +44,7 @@ public class BeamMetadataPart extends ProfilePart {
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final NetcdfFile netcdfFile = ctx.getNetcdfFile();
-        Variable metadata = netcdfFile.findVariable(METADATA_VARIABLE);
+        Variable metadata = netcdfFile.getRootGroup().findVariable(METADATA_VARIABLE);
         if (metadata != null) {
             final MetadataElement metadataRoot = p.getMetadataRoot();
             final List<Attribute> attributeList = metadata.getAttributes();

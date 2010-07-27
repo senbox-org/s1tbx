@@ -38,6 +38,7 @@ import ucar.ma2.DataType;
 import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
@@ -71,7 +72,8 @@ public class CfGeocodingPart extends ProfilePart {
         final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         if (usePixelGeoCoding) {
             addXYCoordVariables(ncFile);
-            latLonAlreadyPresent = ncFile.findVariable("lat") != null && ncFile.findVariable("lon") != null;
+            Group rootGroup = ncFile.getRootGroup();
+            latLonAlreadyPresent = rootGroup.findVariable("lat") != null && rootGroup.findVariable("lon") != null;
             if (!latLonAlreadyPresent) {
                 addLatLonBands(ncFile);
             }
@@ -283,7 +285,7 @@ public class CfGeocodingPart extends ProfilePart {
         if (latBand != null && lonBand != null) {
             final NetcdfFile netcdfFile = ctx.getNetcdfFile();
             ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME,
-                            detectFlipping(netcdfFile.findTopVariable(latBand.getName())));
+                            detectFlipping(netcdfFile.getRootGroup().findVariable(latBand.getName())));
             return new PixelGeoCoding(latBand, lonBand, latBand.getValidMaskExpression(), 5);
         }
         return null;

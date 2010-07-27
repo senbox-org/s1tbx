@@ -18,6 +18,7 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
@@ -25,14 +26,12 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.util.List;
-
-import static org.esa.beam.dataio.netcdf.util.ReaderUtils.*;
 
 public class BeamImageInfoPart extends ProfilePart {
 
@@ -43,21 +42,25 @@ public class BeamImageInfoPart extends ProfilePart {
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
-        final List<Variable> variableList = ctx.getNetcdfFile().getVariables();
-        for (Variable variable : variableList) {
-            Band band = p.getBand(variable.getName());
+        NetcdfFile netcdfFile = ctx.getNetcdfFile();
+        for (Band band : p.getBands()) {
+            String variableName = ReaderUtils.getVariableName(band);
+            Variable variable = netcdfFile.getRootGroup().findVariable(variableName);
             readImageInfo(variable, band);
         }
     }
 
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
-        final Band[] bands = p.getBands();
+        System.out.println("BeamImageInfoPart.define");
         NetcdfFileWriteable fileWriteable = ctx.getNetcdfFileWriteable();
-        for (Band band : bands) {
+        for (Band band : p.getBands()) {
+            System.out.println("band = " + band);
             ImageInfo imageInfo = band.getImageInfo();
             if (imageInfo != null) {
-                Variable variable = fileWriteable.findVariable(band.getName());
+                String variableName = ReaderUtils.getVariableName(band);
+                System.out.println("variableName = " + variableName);
+                Variable variable = fileWriteable.getRootGroup().findVariable(variableName);
                 writeImageInfo(imageInfo.getColorPaletteDef().getPoints(), variable);
             }
         }
@@ -100,5 +103,29 @@ public class BeamImageInfoPart extends ProfilePart {
             }
             band.setImageInfo(new ImageInfo(new ColorPaletteDef(points)));
         }
+    }
+
+    static boolean allElementsAreNotNull(final Object[] array) {
+        if (array != null) {
+            for (Object o : array) {
+                if (o == null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    static boolean allAttributesAreNotNullAndHaveTheSameSize(final Attribute[] attributes) {
+        if (allElementsAreNotNull(attributes)) {
+            final Attribute prim = attributes[0];
+            for (int i = 1; i < attributes.length; i++) {
+                if (prim.getLength() != attributes[i].getLength()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }

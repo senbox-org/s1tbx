@@ -20,6 +20,7 @@ import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfFlagCodingPart;
 import org.esa.beam.dataio.netcdf.util.Constants;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -41,7 +42,8 @@ public class BeamFlagCodingPart extends ProfilePart {
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final FlagCoding flagCoding = readFlagCoding(ctx, band.getName());
+            String variableName = ReaderUtils.getVariableName(band);
+            final FlagCoding flagCoding = readFlagCoding(ctx, variableName);
             if (flagCoding != null) {
                 p.getFlagCodingGroup().add(flagCoding);
                 band.setSampleCoding(flagCoding);
@@ -74,16 +76,17 @@ public class BeamFlagCodingPart extends ProfilePart {
                 }
                 descriptions.append(DESCRIPTION_SEPARATOR);
             }
-            ncFile.addVariableAttribute(band.getName(), FLAG_CODING_NAME, flagCoding.getName());
-            ncFile.addVariableAttribute(band.getName(), FLAG_DESCRIPTIONS, descriptions.toString().trim());
+            String variableName = ReaderUtils.getVariableName(band);
+            ncFile.addVariableAttribute(variableName, FLAG_CODING_NAME, flagCoding.getName());
+            ncFile.addVariableAttribute(variableName, FLAG_DESCRIPTIONS, descriptions.toString().trim());
         }
     }
 
-    public static FlagCoding readFlagCoding(ProfileReadContext ctx, String bandName) throws ProductIOException {
-        final FlagCoding flagCoding = CfFlagCodingPart.readFlagCoding(ctx, bandName);
+    public static FlagCoding readFlagCoding(ProfileReadContext ctx, String variableName) throws ProductIOException {
+        final FlagCoding flagCoding = CfFlagCodingPart.readFlagCoding(ctx, variableName);
 
         if (flagCoding != null) {
-            final Variable variable = ctx.getGlobalVariablesMap().get(bandName);
+            final Variable variable = ctx.getGlobalVariablesMap().get(variableName);
 
             final Attribute descriptionsAtt = variable.findAttributeIgnoreCase(FLAG_DESCRIPTIONS);
             if (descriptionsAtt != null) {

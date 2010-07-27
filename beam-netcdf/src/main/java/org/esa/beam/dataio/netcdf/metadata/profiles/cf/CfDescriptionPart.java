@@ -35,7 +35,7 @@ public class CfDescriptionPart extends ProfilePart {
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         for (String attribName : DESCRIPTION_ATTRIBUTE_NAMES) {
-            Attribute attribute = ctx.getNetcdfFile().findGlobalAttribute(attribName);
+            Attribute attribute = ctx.getNetcdfFile().getRootGroup().findAttribute(attribName);
             if (attribute != null) {
                 final String description = attribute.getStringValue();
                 if (description != null) {

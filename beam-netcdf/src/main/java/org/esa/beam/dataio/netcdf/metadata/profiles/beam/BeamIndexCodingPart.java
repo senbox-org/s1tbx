@@ -19,6 +19,7 @@ import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfIndexCodingPart;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
@@ -40,7 +41,9 @@ public class BeamIndexCodingPart extends ProfilePart {
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final IndexCoding indexCoding = readIndexCoding(ctx, band.getName());
+            String variableName = ReaderUtils.getVariableName(band);
+            final Variable variable = ctx.getNetcdfFile().getRootGroup().findVariable(variableName);
+            final IndexCoding indexCoding = readIndexCoding(variable, band.getName() + "_index_coding");
             if (indexCoding != null) {
                 p.getIndexCodingGroup().add(indexCoding);
                 band.setSampleCoding(indexCoding);
@@ -50,12 +53,12 @@ public class BeamIndexCodingPart extends ProfilePart {
 
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
-        final Band[] bands = p.getBands();
         NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
-        for (Band band : bands) {
+        for (Band band : p.getBands()) {
             IndexCoding indexCoding = band.getIndexCoding();
             if (indexCoding != null) {
-                Variable variable = writeable.findVariable(band.getName());
+                String variableName = ReaderUtils.getVariableName(band);
+                Variable variable = writeable.getRootGroup().findVariable(variableName);
                 writeIndexCoding(indexCoding, variable);
             }
         }
@@ -79,12 +82,10 @@ public class BeamIndexCodingPart extends ProfilePart {
         variable.addAttribute(new Attribute(INDEX_CODING_NAME, indexCoding.getName()));
     }
 
-    private static IndexCoding readIndexCoding(ProfileReadContext ctx, String bandName) throws ProductIOException {
-        final IndexCoding indexCoding = CfIndexCodingPart.readIndexCoding(ctx, bandName);
+    private static IndexCoding readIndexCoding(Variable variable, String indexCodingName) throws ProductIOException {
+        final IndexCoding indexCoding = CfIndexCodingPart.readIndexCoding(variable, indexCodingName);
 
         if (indexCoding != null) {
-            final Variable variable = ctx.getGlobalVariablesMap().get(bandName);
-
             final Attribute descriptionsAtt = variable.findAttributeIgnoreCase(INDEX_DESCRIPTIONS);
             if (descriptionsAtt != null) {
                 final String[] descriptions = descriptionsAtt.getStringValue().split(DESCRIPTION_SEPARATOR);
@@ -94,13 +95,11 @@ public class BeamIndexCodingPart extends ProfilePart {
                     }
                 }
             }
-
             final Attribute nameAtt = variable.findAttributeIgnoreCase(INDEX_CODING_NAME);
             if (nameAtt != null) {
                 indexCoding.setName(nameAtt.getStringValue());
             }
         }
-
         return indexCoding;
     }
 }

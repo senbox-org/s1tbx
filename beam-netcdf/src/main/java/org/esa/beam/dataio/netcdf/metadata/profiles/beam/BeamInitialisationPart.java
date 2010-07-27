@@ -64,7 +64,7 @@ public class BeamInitialisationPart extends CfInitialisationPart {
     }
 
     public String readProductType(ProfileReadContext ctx) {
-        final Attribute productTypeAtt = ctx.getNetcdfFile().getRootGroup().findAttribute(PRODUCT_TYPE);
+        final Attribute productTypeAtt = ctx.getNetcdfFile().findGlobalAttribute(PRODUCT_TYPE);
         if (productTypeAtt != null) {
             final String pt = productTypeAtt.getStringValue();
             if (pt != null && pt.trim().length() > 0) {

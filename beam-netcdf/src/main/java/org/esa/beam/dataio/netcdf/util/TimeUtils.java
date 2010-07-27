@@ -64,8 +64,7 @@ public class TimeUtils {
             try {
                 return ProductData.UTC.parse(dateTimeStr, Constants.DATE_TIME_PATTERN);
             } catch (ParseException ignore2) {
-                BeamLogManager.getSystemLogger().warning(
-                        "Failed to parse time string '" + dateTimeStr + "'");
+                BeamLogManager.getSystemLogger().warning("Failed to parse time string '" + dateTimeStr + "'");
                 return null;
             }
         }

@@ -24,8 +24,6 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.Guardian;
 import ucar.nc2.NetcdfFile;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**

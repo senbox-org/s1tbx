@@ -18,6 +18,7 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.Stx;
@@ -26,7 +27,6 @@ import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.util.List;
 
 public class BeamStxPart extends ProfilePart {
 
@@ -39,14 +39,14 @@ public class BeamStxPart extends ProfilePart {
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
-        final List<Variable> variableList = ctx.getNetcdfFile().getVariables();
-        for (Variable variable : variableList) {
+        for (Band band : p.getBands()) {
+            String variableName = ReaderUtils.getVariableName(band);
+            final Variable variable = ctx.getNetcdfFile().getRootGroup().findVariable(variableName);
+
             final Attribute statistics = variable.findAttributeIgnoreCase(STATISTICS);
             final Attribute sampleFrequencies = variable.findAttributeIgnoreCase(SAMPLE_FREQUENCIES);
 
             if (statistics != null && sampleFrequencies != null && statistics.getLength() >= 2) {
-                final Band band = p.getBand(variable.getName());
-
                 final double scaledMin = statistics.getNumericValue(INDEX_SCALED_MIN).doubleValue();
                 final double min = band.scaleInverse(scaledMin);
 
@@ -76,11 +76,11 @@ public class BeamStxPart extends ProfilePart {
 
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
-        final Band[] bands = p.getBands();
-        for (Band band : bands) {
+        for (Band band : p.getBands()) {
             if (band.isStxSet()) {
+                String variableName = ReaderUtils.getVariableName(band);
                 final Stx stx = band.getStx();
-                final Variable variable = ctx.getNetcdfFileWriteable().findVariable(band.getName());
+                final Variable variable = ctx.getNetcdfFileWriteable().getRootGroup().findVariable(variableName);
                 final double[] statistics = new double[4];
                 statistics[INDEX_SCALED_MIN] = stx.getMin();
                 statistics[INDEX_SCALED_MAX] = stx.getMax();

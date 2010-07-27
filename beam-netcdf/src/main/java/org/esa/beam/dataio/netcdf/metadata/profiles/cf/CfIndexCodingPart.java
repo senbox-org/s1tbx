@@ -18,6 +18,7 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -38,7 +39,8 @@ public class CfIndexCodingPart extends ProfilePart {
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            final IndexCoding indexCoding = readIndexCoding(ctx, band.getName());
+            Variable variable = ctx.getNetcdfFile().findVariable(band.getName());
+            final IndexCoding indexCoding = readIndexCoding(variable, band.getName());
             if (indexCoding != null) {
                 p.getIndexCodingGroup().add(indexCoding);
                 band.setSampleCoding(indexCoding);
@@ -48,12 +50,12 @@ public class CfIndexCodingPart extends ProfilePart {
 
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
-        final Band[] bands = p.getBands();
         NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
-        for (Band band : bands) {
+        for (Band band : p.getBands()) {
             IndexCoding indexCoding = band.getIndexCoding();
             if (indexCoding != null) {
-                Variable variable = writeable.findVariable(band.getName());
+                String variableName = ReaderUtils.getVariableName(band);
+                Variable variable = writeable.getRootGroup().findVariable(variableName);
                 writeIndexCoding(indexCoding, variable);
             }
         }
@@ -72,13 +74,7 @@ public class CfIndexCodingPart extends ProfilePart {
         variable.addAttribute(new Attribute(FLAG_VALUES, Array.factory(indexValues)));
     }
 
-    public static IndexCoding readIndexCoding(ProfileReadContext ctx, String bandName) {
-        final Variable variable = ctx.getGlobalVariablesMap().get(bandName);
-        final String codingName = bandName + "_index_coding";
-        return readIndexCoding(variable, codingName);
-    }
-
-    public static IndexCoding readIndexCoding(Variable variable, String codingName) {
+    public static IndexCoding readIndexCoding(Variable variable, String indexCodingName) {
         final Attribute flagValuesAtt = variable.findAttribute(FLAG_VALUES);
         final int[] flagValues;
         if (flagValuesAtt != null) {
@@ -98,12 +94,12 @@ public class CfIndexCodingPart extends ProfilePart {
             flagNames = null;
         }
 
-        return createIndexCoding(codingName, flagValues, flagNames);
+        return createIndexCoding(indexCodingName, flagValues, flagNames);
     }
 
-    private static IndexCoding createIndexCoding(String codingName, int[] flagValues, String[] flagNames) {
+    private static IndexCoding createIndexCoding(String indexCodingName, int[] flagValues, String[] flagNames) {
         if (flagValues != null && flagNames != null && flagValues.length == flagNames.length) {
-            final IndexCoding coding = new IndexCoding(codingName);
+            final IndexCoding coding = new IndexCoding(indexCodingName);
             for (int i = 0; i < flagValues.length; i++) {
                 final String sampleName = flagNames[i];
                 final int sampleValue = flagValues[i];

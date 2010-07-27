@@ -19,6 +19,7 @@ import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -69,14 +70,15 @@ public class CfFlagCodingPart extends ProfilePart {
                 meanings.append(name);
                 flagValues[i] = flagCoding.getFlagMask(name);
             }
-            ncFile.addVariableAttribute(band.getName(), new Attribute(FLAG_MEANINGS, meanings.toString()));
-            ncFile.addVariableAttribute(band.getName(), new Attribute(FLAG_MASKS, Array.factory(flagValues)));
+            String variableName = ReaderUtils.getVariableName(band);
+            ncFile.addVariableAttribute(variableName, new Attribute(FLAG_MEANINGS, meanings.toString()));
+            ncFile.addVariableAttribute(variableName, new Attribute(FLAG_MASKS, Array.factory(flagValues)));
         }
     }
 
-    public static FlagCoding readFlagCoding(ProfileReadContext ctx, String bandName) throws ProductIOException {
-        final Variable variable = ctx.getGlobalVariablesMap().get(bandName);
-        final String codingName = bandName + "_flag_coding";
+    public static FlagCoding readFlagCoding(ProfileReadContext ctx, String variableName) throws ProductIOException {
+        final Variable variable = ctx.getGlobalVariablesMap().get(variableName);
+        final String codingName = variableName + "_flag_coding";
         return readFlagCoding(variable, codingName);
     }
 

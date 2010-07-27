@@ -13,15 +13,15 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.dataio.netcdf;
+package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import junit.framework.TestCase;
+import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamImageInfoPart;
 import ucar.nc2.Attribute;
 
-import static org.esa.beam.dataio.netcdf.util.ReaderUtils.*;
 import static org.mockito.Mockito.*;
 
-public class Nc4ReaderUtils_hasSameSizes extends TestCase {
+public class BeamImageInfoPartTest extends TestCase {
 
     private Attribute a1;
     private Attribute a2;
@@ -45,7 +45,7 @@ public class Nc4ReaderUtils_hasSameSizes extends TestCase {
         when(a4.getLength()).thenReturn(4);
         final Attribute[] attributes = {a1, a2, a3, a4};
 
-        assertEquals(true, allAttributesAreNotNullAndHaveTheSameSize(attributes));
+        assertEquals(true, BeamImageInfoPart.allAttributesAreNotNullAndHaveTheSameSize(attributes));
     }
 
     public void testReturnFalse_FirstAttributeIsNull() {
@@ -54,7 +54,7 @@ public class Nc4ReaderUtils_hasSameSizes extends TestCase {
         when(a4.getLength()).thenReturn(4);
         final Attribute[] attributes = {null, a2, a3, a4};
 
-        assertEquals(false, allAttributesAreNotNullAndHaveTheSameSize(attributes));
+        assertEquals(false, BeamImageInfoPart.allAttributesAreNotNullAndHaveTheSameSize(attributes));
     }
 
     public void testReturnFalse_OneOfTheAttributesIsNull() {
@@ -64,7 +64,7 @@ public class Nc4ReaderUtils_hasSameSizes extends TestCase {
         when(a4.getLength()).thenReturn(4);
         final Attribute[] attributes = {a1, a2, null, a4};
 
-        assertEquals(false, allAttributesAreNotNullAndHaveTheSameSize(attributes));
+        assertEquals(false, BeamImageInfoPart.allAttributesAreNotNullAndHaveTheSameSize(attributes));
     }
 
     public void testReturnFalse_TheAttributesHaveDiffenentSizes() {
@@ -74,6 +74,6 @@ public class Nc4ReaderUtils_hasSameSizes extends TestCase {
         when(a4.getLength()).thenReturn(4);
         final Attribute[] attributes = {a1, a2, a3, a4};
 
-        assertEquals(false, allAttributesAreNotNullAndHaveTheSameSize(attributes));
+        assertEquals(false, BeamImageInfoPart.allAttributesAreNotNullAndHaveTheSameSize(attributes));
     }
 }

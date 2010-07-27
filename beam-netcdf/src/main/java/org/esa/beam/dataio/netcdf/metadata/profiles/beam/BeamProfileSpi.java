@@ -105,7 +105,7 @@ public class BeamProfileSpi extends AbstractProfileSpi {
 
     @Override
     public DecodeQualification getDecodeQualification(NetcdfFile netcdfFile) {
-        Attribute attribute = netcdfFile.findGlobalAttribute("metadata_profile");
+        Attribute attribute = netcdfFile.getRootGroup().findAttribute("metadata_profile");
         if (attribute != null) {
             String value = attribute.getStringValue();
             if (value != null && value.equals("beam")) {

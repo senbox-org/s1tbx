@@ -20,6 +20,7 @@ import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Product;
@@ -53,7 +54,8 @@ public class CfBandPart extends ProfilePart {
         final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : bands) {
-            final Variable variable = ncFile.addVariable(band.getName(), DataTypeUtils.getNetcdfDataType(band), dimensions);
+            String variableName = ReaderUtils.getVariableName(band);
+            final Variable variable = ncFile.addVariable(variableName, DataTypeUtils.getNetcdfDataType(band), dimensions);
             writeCfBandAttributes(band, variable);
         }
     }

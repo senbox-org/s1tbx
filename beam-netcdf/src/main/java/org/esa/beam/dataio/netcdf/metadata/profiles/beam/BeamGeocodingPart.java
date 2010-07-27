@@ -61,7 +61,7 @@ public class BeamGeocodingPart extends CfGeocodingPart {
                 geoCoding = new TiePointGeoCoding(lat, lon);
             }
         } else {
-            final Variable crsVar = netcdfFile.findTopVariable("crs");
+            final Variable crsVar = netcdfFile.getRootGroup().findVariable("crs");
             if (crsVar != null) {
                 final Attribute wktAtt = crsVar.findAttribute("wkt");
                 final Attribute i2mAtt = crsVar.findAttribute("i2m");

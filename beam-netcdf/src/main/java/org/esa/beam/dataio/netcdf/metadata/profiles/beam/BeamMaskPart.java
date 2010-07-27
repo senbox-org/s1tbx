@@ -20,6 +20,7 @@ import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
+import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
@@ -28,13 +29,12 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 public class BeamMaskPart extends ProfilePart {
 
@@ -64,8 +64,7 @@ public class BeamMaskPart extends ProfilePart {
     }
 
     private static void readMasks(ProfileReadContext ctx, Product p) throws ProductIOException {
-        final List<Variable> variables = ctx.getGlobalVariables();
-        for (Variable variable : variables) {
+        for (Variable variable : ctx.getGlobalVariables()) {
             if (variable.getRank() != 0 || !variable.getName().endsWith(SUFFIX_MASK)) {
                 continue;
             }
@@ -73,8 +72,14 @@ public class BeamMaskPart extends ProfilePart {
             if (expressionAttribute == null || !expressionAttribute.isString()) {
                 continue;
             }
-            final String vName = variable.getName();
-            final String maskName = vName.substring(0, vName.lastIndexOf(SUFFIX_MASK));
+            String maskName;
+            final Attribute nameAttribute = variable.findAttribute(Constants.ORIG_NAME_ATT_NAME);
+            if (nameAttribute != null) {
+                maskName = nameAttribute.getStringValue();
+            } else {
+                String variableName = variable.getName();
+                maskName = variableName.substring(0, variableName.lastIndexOf(SUFFIX_MASK));
+            }
             final Mask mask = new Mask(maskName, p.getSceneRasterWidth(), p.getSceneRasterHeight(),
                                        Mask.BandMathsType.INSTANCE);
             mask.setDescription(variable.getDescription());
@@ -113,20 +118,19 @@ public class BeamMaskPart extends ProfilePart {
     }
 
     private static void readMaskOverlays(ProfileReadContext ctx, Product p) {
-        final Band[] bands = p.getBands();
-        final Map<String, Variable> variablesMap = ctx.getGlobalVariablesMap();
-        for (Band band : bands) {
-            final Variable variable = variablesMap.get(band.getName());
+        NetcdfFile netcdfFile = ctx.getNetcdfFile();
+        for (Band band : p.getBands()) {
+            String variableName = ReaderUtils.getVariableName(band);
+            final Variable variable = netcdfFile.getRootGroup().findVariable(variableName);
             final Attribute attribute = variable.findAttribute(MASK_OVERLAYS);
-            if (attribute == null) {
-                continue;
-            }
-            final ProductNodeGroup<Mask> maskGroup = p.getMaskGroup();
-            final String[] maskNames = attribute.getStringValue().split(" ");
-            for (String maskName : maskNames) {
-                final Mask mask = maskGroup.get(maskName);
-                if (mask != null) {
-                    band.getOverlayMaskGroup().add(mask);
+            if (attribute != null) {
+                final ProductNodeGroup<Mask> maskGroup = p.getMaskGroup();
+                final String[] maskNames = attribute.getStringValue().split(" ");
+                for (String maskName : maskNames) {
+                    final Mask mask = maskGroup.get(maskName);
+                    if (mask != null) {
+                        band.getOverlayMaskGroup().add(mask);
+                    }
                 }
             }
         }
@@ -140,7 +144,11 @@ public class BeamMaskPart extends ProfilePart {
             if (Mask.BandMathsType.INSTANCE == mask.getImageType()) {
 
                 final String SCALAR = "";
-                final Variable variable = ncFile.addVariable(mask.getName() + SUFFIX_MASK, DataType.BYTE, SCALAR);
+                String variableName = ReaderUtils.getVariableName(mask);
+                final Variable variable = ncFile.addVariable(variableName + SUFFIX_MASK, DataType.BYTE, SCALAR);
+                if (!variableName.equals(maskName)) {
+                    variable.addAttribute(new Attribute(Constants.ORIG_NAME_ATT_NAME, maskName));
+                }
 
                 final String description = mask.getDescription();
                 if (description != null && description.trim().length() > 0) {
@@ -170,19 +178,18 @@ public class BeamMaskPart extends ProfilePart {
     }
 
     private static void writeMaskOverlays(Product p, NetcdfFileWriteable ncFile) {
-        final Band[] bands = p.getBands();
-        for (Band band : bands) {
+        for (Band band : p.getBands()) {
             final ProductNodeGroup<Mask> maskGroup = band.getOverlayMaskGroup();
-            if (maskGroup.getNodeCount() < 1) {
-                continue;
+            if (maskGroup.getNodeCount() >= 1) {
+                final String[] maskNames = maskGroup.getNodeNames();
+                final StringBuffer overlayNames = new StringBuffer();
+                for (String maskName : maskNames) {
+                    overlayNames.append(maskName).append(" ");
+                }
+                String variableName = ReaderUtils.getVariableName(band);
+                final Variable variable = ncFile.getRootGroup().findVariable(variableName);
+                variable.addAttribute(new Attribute(MASK_OVERLAYS, overlayNames.toString().trim()));
             }
-            final String[] maskNames = maskGroup.getNodeNames();
-            final StringBuffer overlayNames = new StringBuffer();
-            for (String maskName : maskNames) {
-                overlayNames.append(maskName).append(" ");
-            }
-            final Variable variable = ncFile.getRootGroup().findVariable(band.getName());
-            variable.addAttribute(new Attribute(MASK_OVERLAYS, overlayNames.toString().trim()));
         }
     }
 }
