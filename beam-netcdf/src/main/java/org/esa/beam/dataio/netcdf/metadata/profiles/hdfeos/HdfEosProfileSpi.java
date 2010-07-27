@@ -151,13 +151,12 @@ public class HdfEosProfileSpi extends AbstractProfileSpi {
                 return DecodeQualification.UNABLE;
             }
             String projection = projectionElem.getValue();
-            if (!projection.equals("GCTP_GEO")) {
-                return DecodeQualification.UNABLE;
+            if (projection.equals("GCTP_GEO") || projection.equals("GCTP_SNSOID")) {
+                return DecodeQualification.SUITABLE;
             }
-            return DecodeQualification.SUITABLE;
-        } catch (Exception e) {
-            return DecodeQualification.UNABLE;
+        } catch (Exception ignore) {
         }
+        return DecodeQualification.UNABLE;
     }
 
     private String getGridName(Element eosElement) throws IOException {

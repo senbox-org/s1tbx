@@ -21,9 +21,18 @@ import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
+import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.crs.DefaultProjectedCRS;
+import org.geotools.referencing.cs.DefaultCartesianCS;
+import org.geotools.referencing.datum.DefaultEllipsoid;
 import org.jdom.Element;
+import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchIdentifierException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Rectangle;
@@ -47,33 +56,18 @@ public class HdfEosGeocodingPart extends ProfilePart {
         if (projectionElem == null || ulPointElem == null || lrPointElem == null) {
             return;
         }
-        String projection = projectionElem.getValue();
-        if (!projection.equals("GCTP_GEO")) {
-            return;
-        }
+
         List<Element> ulList = ulPointElem.getChildren();
         String ulLon = ulList.get(0).getValue();
         String ulLat = ulList.get(1).getValue();
         double upperLeftLon = Double.parseDouble(ulLon);
-        if (upperLeftLon < -180 || upperLeftLon > 180) {
-            return;
-        }
         double upperLeftLat = Double.parseDouble(ulLat);
-        if (upperLeftLat < -90 || upperLeftLat > 90) {
-            return;
-        }
 
         List<Element> lrList = lrPointElem.getChildren();
         String lrLon = lrList.get(0).getValue();
         String lrLat = lrList.get(1).getValue();
         double lowerRightLon = Double.parseDouble(lrLon);
-        if (lowerRightLon < -180 || lowerRightLon > 180) {
-            return;
-        }
         double lowerRightLat = Double.parseDouble(lrLat);
-        if (lowerRightLat < -90 || lowerRightLat > 90) {
-            return;
-        }
 
         double pixelSizeX = (lowerRightLon - upperLeftLon) / p.getSceneRasterWidth();
         double pixelSizeY = (upperLeftLat - lowerRightLat) / p.getSceneRasterHeight();
@@ -83,11 +77,54 @@ public class HdfEosGeocodingPart extends ProfilePart {
         transform.scale(pixelSizeX, -pixelSizeY);
         transform.translate(-PIXEL_CENTER, -PIXEL_CENTER);
         Rectangle imageBounds = new Rectangle(p.getSceneRasterWidth(), p.getSceneRasterHeight());
-        try {
-            p.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, transform));
-        } catch (FactoryException ignore) {
-        } catch (TransformException ignore) {
+
+        String projection = projectionElem.getValue();
+        if (projection.equals("GCTP_GEO")) {
+            if (isValidLonValue(upperLeftLon) && isValidLatitude(upperLeftLat) &&
+                    isValidLonValue(lowerRightLon) && isValidLatitude(lowerRightLat)) {
+                try {
+                    p.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, transform));
+                } catch (FactoryException ignore) {
+                } catch (TransformException ignore) {
+                }
+            }
+        } else if (projection.equals("GCTP_SNSOID")) {
+            DefaultGeographicCRS base = DefaultGeographicCRS.WGS84;
+            final MathTransformFactory transformFactory = ReferencingFactoryFinder.getMathTransformFactory(null);
+            ParameterValueGroup parameters;
+            try {
+                parameters = transformFactory.getDefaultParameters("OGC:Sinusoidal");
+            } catch (NoSuchIdentifierException ignore) {
+                return;
+            }
+            DefaultEllipsoid ellipsoid = (DefaultEllipsoid) base.getDatum().getEllipsoid();
+            parameters.parameter("semi_major").setValue(ellipsoid.getSemiMajorAxis());
+            parameters.parameter("semi_minor").setValue(ellipsoid.getSemiMinorAxis());
+
+            MathTransform mathTransform;
+            try {
+                mathTransform = transformFactory.createParameterizedTransform(parameters);
+            } catch (Exception ignore) {
+                return;
+            }
+
+            CoordinateReferenceSystem modelCrs = new DefaultProjectedCRS("Sinusoidal", base, mathTransform,
+                    DefaultCartesianCS.PROJECTED);
+            try {
+                CrsGeoCoding geoCoding =new CrsGeoCoding(modelCrs, imageBounds, transform);
+
+                p.setGeoCoding(geoCoding);
+            } catch (Exception ignore) {
+            }
         }
+    }
+
+    private boolean isValidLonValue(double longitude) {
+        return (longitude >= -180 && longitude <= 180);
+    }
+
+    private boolean isValidLatitude(double latitude) {
+        return (latitude >= -90 && latitude <= 90);
     }
 
     @Override
