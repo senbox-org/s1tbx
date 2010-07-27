@@ -124,7 +124,10 @@ public class NetCdfReader extends AbstractProductReader {
         final int y0 = isYFlipped ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
 
         String variableName = ReaderUtils.getVariableName(destBand);
-        final Variable variable = rasterVariableMap.get(variableName);
+        Variable variable = rasterVariableMap.get(variableName);
+        if (variable == null) {
+            variable = rasterVariableMap.get(destBand.getName());
+        }
         final int rank = variable.getRank();
         final int[] origin = new int[rank];
         final int[] shape = new int[rank];
