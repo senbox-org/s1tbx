@@ -19,10 +19,10 @@ package org.esa.beam.dataio.netcdf.util;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.Debug;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
-import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Structure;
 import ucar.nc2.Variable;
@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class MetadataUtils {
 
-    public static void readNetcdfMetadata(NetcdfFile netcdfFile, MetadataElement root) throws IOException {
+    public static void readNetcdfMetadata(NetcdfFile netcdfFile, MetadataElement root) {
         root.addElement(readAttributeList(netcdfFile.getGlobalAttributes(), "MPH"));
         root.addElement(readVariableDescriptions(netcdfFile.getVariables(), "DSD"));
     }
@@ -70,7 +70,7 @@ public class MetadataUtils {
     }
 
     public static MetadataElement readVariableDescriptions(final List<Variable> variableList,
-                                                           String elementName) throws IOException {
+                                                           String elementName) {
         MetadataElement metadataElement = new MetadataElement(elementName);
         for (Variable variable : variableList) {
             metadataElement.addElement(createMetadataElement(variable));
@@ -78,7 +78,7 @@ public class MetadataUtils {
         return metadataElement;
     }
 
-    private static MetadataElement createMetadataElement(Variable variable) throws IOException {
+    private static MetadataElement createMetadataElement(Variable variable) {
         final MetadataElement element = readAttributeList(variable.getAttributes(), variable.getName());
         if (variable.getRank() == 1) {
             final MetadataElement valuesElem = new MetadataElement("Values");
@@ -99,14 +99,19 @@ public class MetadataUtils {
         return element;
     }
 
-    private static void addAttribute(Variable variable, MetadataElement valuesElem) throws IOException {
+    private static void addAttribute(Variable variable, MetadataElement valuesElem) {
         final DataType ncDataType = variable.getDataType();
         final boolean unsigned = variable.isUnsigned();
         final boolean rasterDataOnly = false;
         final int productDataType = DataTypeUtils.getEquivalentProductDataType(ncDataType, unsigned, rasterDataOnly);
-        final Array values = variable.read();
-        final ProductData pd = ReaderUtils.createProductData(productDataType, values);
-        final MetadataAttribute attribute = new MetadataAttribute("data", pd, true);
-        valuesElem.addAttribute(attribute);
+        final Array values;
+        try {
+            values = variable.read();
+            final ProductData pd = ReaderUtils.createProductData(productDataType, values);
+            final MetadataAttribute attribute = new MetadataAttribute("data", pd, true);
+            valuesElem.addAttribute(attribute);
+        } catch (IOException e) {
+            Debug.trace(e);
+        }
     }
 }
