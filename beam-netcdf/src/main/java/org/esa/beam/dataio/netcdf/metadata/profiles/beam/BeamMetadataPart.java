@@ -36,7 +36,7 @@ import java.util.List;
 
 public class BeamMetadataPart extends ProfilePart {
 
-    private static final String SPLITTER = "/";
+    private static final String SPLITTER = ":";
     private static final String METADATA_VARIABLE = "metadata";
     private static final String DESCRIPTION_SUFFIX = ".descr";
     private static final String UNIT_SUFFIX = ".unit";
@@ -47,8 +47,7 @@ public class BeamMetadataPart extends ProfilePart {
         Variable metadata = netcdfFile.getRootGroup().findVariable(METADATA_VARIABLE);
         if (metadata != null) {
             final MetadataElement metadataRoot = p.getMetadataRoot();
-            final List<Attribute> attributeList = metadata.getAttributes();
-            for (Attribute attribute : attributeList) {
+            for (Attribute attribute : metadata.getAttributes()) {
                 String attrName = attribute.getName();
                 if (attrName.startsWith(SPLITTER)) {
                     attrName = attrName.substring(1, attrName.length());
