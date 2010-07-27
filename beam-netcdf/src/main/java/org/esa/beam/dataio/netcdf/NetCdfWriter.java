@@ -110,15 +110,26 @@ public class NetCdfWriter extends AbstractProductWriter {
         final String variableName = ReaderUtils.getVariableName(sourceBand);
         final DataType dataType = getDataType(variableName);
         final int sceneHeight = sourceBand.getProduct().getSceneRasterHeight();
-        final int[] origin = new int[2];
-        origin[xIndex] = sourceOffsetX;
-        origin[yIndex] = isYFlipped ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
-        final int[] shape = new int[]{sourceHeight, sourceWidth};
-        final Array dataArray = Array.factory(dataType, shape, sourceBuffer.getElems());
-        try {
-            writeable.write(variableName, origin, dataArray);
-        } catch (InvalidRangeException ignored) {
-            //nothing to do
+        final int[] writeOrigin = new int[2];
+        writeOrigin[xIndex] = sourceOffsetX;
+
+        final int[] sourceShape = new int[]{sourceHeight, sourceWidth};
+        final Array sourceArray = Array.factory(dataType, sourceShape, sourceBuffer.getElems());
+
+        final int[] sourceOrigin = new int[2];
+        sourceOrigin[xIndex] = 0;
+        final int[] writeShape = new int[]{1, sourceWidth};
+        for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
+            writeOrigin[yIndex] = isYFlipped ? (sceneHeight - 1) - y : y;
+            sourceOrigin[yIndex] = y - sourceOffsetY;
+            Array dataArrayLine;
+            try {
+                dataArrayLine = sourceArray.sectionNoReduce(sourceOrigin, writeShape, null);
+                writeable.write(variableName, writeOrigin, dataArrayLine);
+            } catch (InvalidRangeException e) {
+                e.printStackTrace();
+                throw new IOException("Unable to write netCDF data.", e);
+            }
         }
     }
 

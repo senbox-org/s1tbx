@@ -18,6 +18,7 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfGeocodingPart;
+import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -67,6 +68,7 @@ public class BeamGeocodingPart extends CfGeocodingPart {
                 final Attribute i2mAtt = crsVar.findAttribute("i2m");
                 if (wktAtt != null && i2mAtt != null) {
                     geoCoding = createGeoCodingFromWKT(p, wktAtt.getStringValue(), i2mAtt.getStringValue());
+                    ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME, true);
                 }
             }
         }
