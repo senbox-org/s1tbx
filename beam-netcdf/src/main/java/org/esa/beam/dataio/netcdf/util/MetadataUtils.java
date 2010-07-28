@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
+import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Structure;
@@ -106,11 +107,19 @@ public class MetadataUtils {
         final int productDataType = DataTypeUtils.getEquivalentProductDataType(ncDataType, unsigned, rasterDataOnly);
         final Array values;
         try {
-            values = variable.read();
+            long variableSize = variable.getSize();
+            if (variable.getRank() == 1 && variableSize >= 100) {
+                values = variable.read(new int[]{0},new int[]{100});
+                valuesElem.setDescription("Showing 100 of " + variableSize + " values.");
+            } else {
+                values = variable.read();
+            }
             final ProductData pd = ReaderUtils.createProductData(productDataType, values);
             final MetadataAttribute attribute = new MetadataAttribute("data", pd, true);
             valuesElem.addAttribute(attribute);
         } catch (IOException e) {
+            Debug.trace(e);
+        } catch (InvalidRangeException e) {
             Debug.trace(e);
         }
     }
