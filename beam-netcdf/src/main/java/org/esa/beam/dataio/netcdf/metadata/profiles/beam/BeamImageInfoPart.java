@@ -52,14 +52,11 @@ public class BeamImageInfoPart extends ProfilePart {
 
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
-        System.out.println("BeamImageInfoPart.define");
         NetcdfFileWriteable fileWriteable = ctx.getNetcdfFileWriteable();
         for (Band band : p.getBands()) {
-            System.out.println("band = " + band);
             ImageInfo imageInfo = band.getImageInfo();
             if (imageInfo != null) {
                 String variableName = ReaderUtils.getVariableName(band);
-                System.out.println("variableName = " + variableName);
                 Variable variable = fileWriteable.getRootGroup().findVariable(variableName);
                 writeImageInfo(imageInfo.getColorPaletteDef().getPoints(), variable);
             }

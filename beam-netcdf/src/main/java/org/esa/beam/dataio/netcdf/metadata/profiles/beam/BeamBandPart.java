@@ -38,7 +38,7 @@ public class BeamBandPart extends ProfilePart {
     public static final String BANDWIDTH = "bandwidth";
     public static final String WAVELENGTH = "wavelength";
     public static final String VALID_PIXEL_EXPRESSION = "valid_pixel_expression";
-    
+
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
@@ -53,7 +53,8 @@ public class BeamBandPart extends ProfilePart {
             if (dimensions.get(yDimIndex).getLength() == p.getSceneRasterHeight()
                 && dimensions.get(xDimIndex).getLength() == p.getSceneRasterWidth()) {
                 final int rasterDataType = DataTypeUtils.getRasterDataType(variable);
-                final Band band = new Band(variable.getName(), rasterDataType, p.getSceneRasterWidth(), p.getSceneRasterHeight());
+                final Band band = new Band(variable.getName(), rasterDataType, p.getSceneRasterWidth(),
+                                           p.getSceneRasterHeight());
                 CfBandPart.readCfBandAttributes(variable, band);
                 readBeamBandAttributes(variable, band);
                 p.addBand(band);
@@ -63,14 +64,11 @@ public class BeamBandPart extends ProfilePart {
 
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
-        System.out.println("BeamBandPart.define");
         final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : p.getBands()) {
-            System.out.println("band = " + band);
             final DataType ncDataType = DataTypeUtils.getNetcdfDataType(band);
             String variableName = ReaderUtils.getVariableName(band);
-            System.out.println("variableName = " + variableName);
             final Variable variable = ncFile.addVariable(variableName, ncDataType, dimensions);
             CfBandPart.writeCfBandAttributes(band, variable);
             writeBeamBandAttributes(band, variable);
