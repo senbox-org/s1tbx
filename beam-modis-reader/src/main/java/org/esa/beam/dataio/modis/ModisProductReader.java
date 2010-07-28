@@ -248,8 +248,7 @@ public class ModisProductReader extends AbstractProductReader {
      *
      * @throws HDFException
      */
-    private void readGlobalMetaData(File inFile) throws HDFException,
-            ProductIOException {
+    private void readGlobalMetaData(File inFile) throws HDFException, ProductIOException {
         _globalHdfAttrs = HdfUtils.readAttributes(_sdStart);
 
         // check wheter daac or imapp

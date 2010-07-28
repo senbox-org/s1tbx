@@ -15,7 +15,12 @@
  */
 package org.esa.beam.dataio.modis;
 
+import ncsa.hdf.hdflib.HDFConstants;
+import ncsa.hdf.hdflib.HDFException;
+import org.esa.beam.dataio.modis.hdf.HdfAttributes;
+import org.esa.beam.dataio.modis.hdf.HdfUtils;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
+import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -52,28 +57,49 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
 
-        DecodeQualification bRet = DecodeQualification.UNABLE;
         File file = null;
-
         if (input instanceof String) {
             file = new File((String) input);
         } else if (input instanceof File) {
             file = (File) input;
         }
 
-        if ((file != null) && (file.exists()) && (file.isFile())) {
-            if (file.getPath().toLowerCase().endsWith(ModisConstants.DEFAULT_FILE_EXTENSION)) {
-                try {
-                    if (HDF.getWrap().Hishdf(file.getPath())) {
-                        bRet = DecodeQualification.SUITABLE;
+        if (file != null && file.exists() &&  file.isFile() && file.getPath().toLowerCase().endsWith(ModisConstants.DEFAULT_FILE_EXTENSION)) {
+            try {
+                String path = file.getPath();
+                if (HDF.getWrap().Hishdf(path)) {
+                    int fileId = HDFConstants.FAIL;
+                    int sdStart = HDFConstants.FAIL;
+                    try {
+                        fileId = HDF.getWrap().Hopen(path, HDFConstants.DFACC_RDONLY);
+                        sdStart = HDF.getWrap().SDstart(path, HDFConstants.DFACC_RDONLY);
+                        HdfAttributes globalAttrs = HdfUtils.readAttributes(sdStart);
+
+                        // check wheter daac or imapp
+                        ModisGlobalAttributes modisAttributes;
+                        if (globalAttrs.getStringAttributeValue(ModisConstants.STRUCT_META_KEY) == null) {
+                            modisAttributes = new ModisImappAttributes(file, sdStart, globalAttrs);
+                        } else {
+                            modisAttributes = new ModisDaacAttributes(globalAttrs);
+                        }
+                        final String productType = modisAttributes.getProductType();
+                        if (ModisProductDb.getInstance().isSupportedProduct(productType)) {
+                            return DecodeQualification.INTENDED;
+                        }
+                    } catch (HDFException ignore) {
+                    } finally {
+                        if (sdStart != HDFConstants.FAIL) {
+                            HDF.getWrap().Hclose(sdStart);
+                        }
+                        if (fileId != HDFConstants.FAIL) {
+                            HDF.getWrap().Hclose(fileId);
+                        }
                     }
-                } catch (Exception e) {
-                    // nothing to do, return value is already false
                 }
+            } catch (Exception ignore) {
             }
         }
-
-        return bRet;
+        return DecodeQualification.UNABLE;
     }
 
     /**
