@@ -37,9 +37,5 @@ public interface ProfileReadContext {
 
     public VariableMap getRasterVariableMap();
 
-    public List<Variable> getGlobalVariables();
-
     public RasterDigest getRasterDigest();
-
-    public Map<String, Variable> getGlobalVariablesMap();
 }

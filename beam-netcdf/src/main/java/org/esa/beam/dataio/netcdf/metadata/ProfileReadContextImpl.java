@@ -36,16 +36,11 @@ public class ProfileReadContextImpl implements ProfileReadContext {
     private final NetcdfFile netcdfFile;
 
     private final VariableMap rasterVariableMap;
-    private final List<Variable> globalVariables;
-    private final Map<String, Variable> globalVariablesMap;
     private final RasterDigest rasterDigest;
 
     public ProfileReadContextImpl(NetcdfFile netcdfFile, RasterDigest rasterDigest, VariableMap variableMap) {
         this.netcdfFile = netcdfFile;
         this.propertyMap = new HashMap<String, Object>();
-
-        globalVariables = Collections.unmodifiableList(netcdfFile.getVariables());
-        globalVariablesMap = Collections.unmodifiableMap(ReaderUtils.createVariablesMap(globalVariables));
         this.rasterDigest = rasterDigest;
         this.rasterVariableMap = variableMap;
     }
@@ -71,17 +66,7 @@ public class ProfileReadContextImpl implements ProfileReadContext {
     }
 
     @Override
-    public List<Variable> getGlobalVariables() {
-        return globalVariables;
-    }
-
-    @Override
     public RasterDigest getRasterDigest() {
         return rasterDigest;
-    }
-
-    @Override
-    public Map<String, Variable> getGlobalVariablesMap() {
-        return globalVariablesMap;
     }
 }

@@ -77,7 +77,7 @@ public class CfFlagCodingPart extends ProfilePart {
     }
 
     public static FlagCoding readFlagCoding(ProfileReadContext ctx, String variableName) throws ProductIOException {
-        final Variable variable = ctx.getGlobalVariablesMap().get(variableName);
+        final Variable variable = ctx.getNetcdfFile().getRootGroup().findVariable(variableName);
         final String codingName = variableName + "_flag_coding";
         return readFlagCoding(variable, codingName);
     }

@@ -45,7 +45,7 @@ public class BeamTiePointGridPart extends ProfilePart {
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
-        final List<Variable> variables = ctx.getGlobalVariables();
+        final List<Variable> variables = ctx.getNetcdfFile().getVariables();
         for (Variable variable : variables) {
             final List<Dimension> dimensions = variable.getDimensions();
             if (dimensions.size() != 2) {

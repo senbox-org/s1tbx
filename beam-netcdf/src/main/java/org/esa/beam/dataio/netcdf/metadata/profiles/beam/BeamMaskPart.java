@@ -64,7 +64,7 @@ public class BeamMaskPart extends ProfilePart {
     }
 
     private static void readMasks(ProfileReadContext ctx, Product p) throws ProductIOException {
-        for (Variable variable : ctx.getGlobalVariables()) {
+        for (Variable variable : ctx.getNetcdfFile().getVariables()) {
             if (variable.getRank() != 0 || !variable.getName().endsWith(SUFFIX_MASK)) {
                 continue;
             }

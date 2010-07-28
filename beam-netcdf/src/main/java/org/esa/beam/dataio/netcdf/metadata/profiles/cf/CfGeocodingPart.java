@@ -44,6 +44,7 @@ import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.List;
 
 public class CfGeocodingPart extends ProfilePart {
 
@@ -176,9 +177,10 @@ public class CfGeocodingPart extends ProfilePart {
         };
 
         Variable[] lonLat;
-        lonLat = ReaderUtils.getVariables(ctx.getGlobalVariables(), cfConvention_lonLatNames);
+        List<Variable> variableList = ctx.getNetcdfFile().getVariables();
+        lonLat = ReaderUtils.getVariables(variableList, cfConvention_lonLatNames);
         if (lonLat == null) {
-            lonLat = ReaderUtils.getVariables(ctx.getGlobalVariables(), coardsConvention_lonLatNames);
+            lonLat = ReaderUtils.getVariables(variableList, coardsConvention_lonLatNames);
         }
 
         if (lonLat != null) {

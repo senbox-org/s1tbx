@@ -86,8 +86,7 @@ public class BeamFlagCodingPart extends ProfilePart {
         final FlagCoding flagCoding = CfFlagCodingPart.readFlagCoding(ctx, variableName);
 
         if (flagCoding != null) {
-            final Variable variable = ctx.getGlobalVariablesMap().get(variableName);
-
+            final Variable variable = ctx.getNetcdfFile().getRootGroup().findVariable(variableName);
             final Attribute descriptionsAtt = variable.findAttributeIgnoreCase(FLAG_DESCRIPTIONS);
             if (descriptionsAtt != null) {
                 final String[] descriptions = descriptionsAtt.getStringValue().split(DESCRIPTION_SEPARATOR);
