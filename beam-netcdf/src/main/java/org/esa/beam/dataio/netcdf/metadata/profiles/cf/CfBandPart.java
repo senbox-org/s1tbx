@@ -40,8 +40,7 @@ public class CfBandPart extends ProfilePart {
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
-        final Variable[] variables = ctx.getRasterDigest().getRasterVariables();
-        for (Variable variable : variables) {
+        for (Variable variable : ctx.getRasterDigest().getRasterVariables()) {
             final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
             final Band band = p.addBand(variable.getName(), rasterDataType);
             readCfBandAttributes(variable, band);

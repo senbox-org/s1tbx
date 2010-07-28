@@ -23,9 +23,7 @@ import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 import ucar.nc2.iosp.netcdf3.N3iosp;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Provides some NetCDF related utility methods.
@@ -73,14 +71,6 @@ public class ReaderUtils {
             }
         }
         return result;
-    }
-
-    public static Map<String, Variable> createVariablesMap(List<Variable> globalVariables) {
-        final HashMap<String, Variable> map = new HashMap<String, Variable>();
-        for (Variable variable : globalVariables) {
-            map.put(variable.getName(), variable);
-        }
-        return map;
     }
 
     public static String getVariableName(RasterDataNode rasterDataNode) {
