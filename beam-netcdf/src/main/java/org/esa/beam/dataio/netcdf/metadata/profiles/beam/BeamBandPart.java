@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.Product;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
@@ -38,11 +39,14 @@ public class BeamBandPart extends ProfilePart {
     public static final String BANDWIDTH = "bandwidth";
     public static final String WAVELENGTH = "wavelength";
     public static final String VALID_PIXEL_EXPRESSION = "valid_pixel_expression";
+    public static final String AUTO_GROUPING = "auto_grouping";
+    public static final String QUICKLOOK_BAN_DNAME = "quicklook_band_name";
 
 
     @Override
     public void read(ProfileReadContext ctx, Product p) throws IOException {
-        final List<Variable> variables = ctx.getGlobalVariables();
+        NetcdfFile netcdfFile = ctx.getNetcdfFile();
+        final List<Variable> variables = netcdfFile.getVariables();
         for (Variable variable : variables) {
             final List<Dimension> dimensions = variable.getDimensions();
             if (dimensions.size() != 2) {
@@ -60,6 +64,20 @@ public class BeamBandPart extends ProfilePart {
                 p.addBand(band);
             }
         }
+        Attribute autoGroupingAttribute = netcdfFile.findGlobalAttribute(AUTO_GROUPING);
+        if (autoGroupingAttribute != null) {
+            String autoGrouping = autoGroupingAttribute.getStringValue();
+            if (autoGrouping != null) {
+                p.setAutoGrouping(autoGrouping);
+            }
+        }
+        Attribute quicklookBandNameAttribute = netcdfFile.findGlobalAttribute(QUICKLOOK_BAN_DNAME);
+        if (quicklookBandNameAttribute != null) {
+            String quicklookBandName = quicklookBandNameAttribute.getStringValue();
+            if (quicklookBandName != null) {
+                p.setQuicklookBandName(quicklookBandName);
+            }
+        }
     }
 
     @Override
@@ -72,6 +90,14 @@ public class BeamBandPart extends ProfilePart {
             final Variable variable = ncFile.addVariable(variableName, ncDataType, dimensions);
             CfBandPart.writeCfBandAttributes(band, variable);
             writeBeamBandAttributes(band, variable);
+        }
+        Product.AutoGrouping autoGrouping = p.getAutoGrouping();
+        if (autoGrouping != null) {
+            ncFile.addAttribute(null, new Attribute(AUTO_GROUPING, autoGrouping.toString()));
+        }
+        String quicklookBandName = p.getQuicklookBandName();
+        if (quicklookBandName != null && !quicklookBandName.isEmpty()) {
+            ncFile.addAttribute(null, new Attribute(QUICKLOOK_BAN_DNAME, quicklookBandName));
         }
     }
 
