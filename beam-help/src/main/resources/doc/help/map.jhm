@@ -18,7 +18,8 @@
     <mapID target="beamDimapFormat" url="general/BeamDimapFormat.html"/>
     <mapID target="pconvertTool" url="general/PConvertUsage.html"/>
     <mapID target="resamplingMethods" url="general/ResamplingMethods.html"/>
-    <mapID target="envisatProducts" url="general/envisat-products/index.html"/> <!-- todo -->
+    <mapID target="envisatProducts" url="general/envisat-products/index.html"/>
+    <!-- todo -->
 
     <mapID target="visat" url="visat/index.html"/>
     <mapID target="mainToolbar" url="visat/Toolbars.html"/>
@@ -50,8 +51,10 @@
     <mapID target="importNasaObpgProduct" url="visat/ImportNasaObpgHDF.html"/>
     <mapID target="importChrisProduct" url="visat/ImportChris.html"/>
     <mapID target="importPrismProduct" url="visat/ImportPRISM.html"/>
-    <mapID target="importNetCDF" url="visat/ImportNetCDF.html"/>
+    <mapID target="importNetCdfProduct" url="visat/ImportNetCdf.html"/>
+    <mapID target="importSpotVgtProduct" url="visat/ImportSpotVgt.html"/>
     <mapID target="exportDimapProduct" url="visat/ExportDimapProduct.html"/>
+    <mapID target="exportNetCdfProduct" url="visat/ExportNetCdfProduct.html"/>
     <mapID target="exportEnviGcpFile" url="visat/ExportEnviGcpFile.html"/>
     <mapID target="exportHdf5Product" url="visat/ExportHDF.html"/>
     <mapID target="exportProductMetadata" url="visat/ExportProductMetadata.html"/>

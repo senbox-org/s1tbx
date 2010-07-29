@@ -35,10 +35,12 @@
                 <tocitem text="Import ALOS/AVNIR-2 Data Product" target="importAvnir2Product"/>
                 <tocitem text="Import ALOS/PRISM Data Product" target="importPrismProduct"/>
                 <tocitem text="Import CHRIS Data Product" target="importChrisProduct"/>
-                <tocitem text="Import NetCDF Data Product" target="importNetCDF"/>
+                <tocitem text="Import NetCDF Data Product" target="importNetCdfProduct"/>
+                <tocitem text="Import SPOT VEGETATION Data Product" target="importSpotVgtProduct"/>
                 <tocitem text="Import GETASSE30 Tile" target="importGETASSE30"/>
 
                 <tocitem text="Export BEAM-DIMAP Data Product" target="exportDimapProduct"/>
+                <tocitem text="Export NetCDF/CF Data Product" target="exportNetCdfProduct"/>
                 <tocitem text="Export HDF-5 Data Product" target="exportHdf5Product"/>
                 <tocitem text="Export Product Metadata" target="exportProductMetadata"/>
                 <tocitem text="Export ENVI GCP File" target="exportEnviGcpFile"/>
