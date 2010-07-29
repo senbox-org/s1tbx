@@ -15,7 +15,7 @@
     <changelog>
         <![CDATA[
         From 1.1.2 to 1.2:<br/>
-            [BEAM-1167] The Landsat reader does not support products in GeoTIFF <br/>
+            [BEAM-1167] The Landsat reader should support products in GeoTIFF <br/>
         From 1.1.1 to 1.1.2:<br/>
             [BEAM-945] Landsat reader does not consider the center information in header file<br/>
         From 1.1 to 1.1.1:<br/>

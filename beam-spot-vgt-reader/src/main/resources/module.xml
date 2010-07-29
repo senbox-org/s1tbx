@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-spot-vgt-reader</symbolicName>
-    <version>0.5-20100517</version>
+    <version>1.0</version>
     <name>BEAM SPOT VGT Product Reader</name>
 
     <description>Enables BEAM to read SPOT VGT data products.</description>
@@ -14,7 +14,7 @@
 
     <changelog>
         <![CDATA[
-                Changes from 1.0-<?> to 1.0-20100517<br/>
+                Changes in 1.0:<br>
                 [BEAM-1144] SPOT-VGT reader to recognise different pixel sampling of P-products<br/>
                 [BEAM-1138] SPOT-VGT reader to set physical units and scaling of spectral bands<br/>
         ]]>

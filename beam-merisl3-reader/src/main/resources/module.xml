@@ -8,6 +8,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.1:<br>
+        Use beam-netcdf module.
         Changes in 1.0.100:<br>
         [BEAM-655] Fail to open MERIS L3 4.6 km sinusoidal grid<br>
         ]]>

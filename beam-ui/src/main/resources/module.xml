@@ -12,6 +12,7 @@
         <p>Changes in 4.8<br/>
         [BEAM-1159] Auto-group bands according to their names<br/>
         [BEAM-1147] Signed byte data type interpreted as unsigned byte<br/>
+        </p>
         <p>Changes in 4.7<br/>
         [BEAM-1007] Geo-location / Tie Point Grid consistency<br/>
         </p>

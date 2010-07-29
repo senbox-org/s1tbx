@@ -50,7 +50,9 @@ o The ESA GlobCover Land Cover Map is used as default world map layer now; howev
 New Features
 BEAM-1112 - GPF Operator API to provide better support for image filters and convolutions    
 BEAM-1114 - GPF Tile API to provide method to directly check sample validity
-BEAM-1167 - The Landsat reader does not support products in GeoTIFF
+BEAM-1159 - Auto-group bands according to their names
+BEAM-1160 - Auto-grouping of bands shall be controlled by data model
+BEAM-1167 - The Landsat reader should support products in GeoTIFF
 
 Improvements
 BEAM-1085 - Support reprocessed data by NASA OBPG  
@@ -58,6 +60,8 @@ BEAM-1110 - Don't show empty masks for pins and GCPs
 BEAM-1115 - Make lookup tables thread safe  
 BEAM-1116 - GPF Tile API and API-docs to better express difference between raw and physical samples    
 BEAM-1124 - GPF Tile API to provide method to directly access geo-physical data arrays
+BEAM-1138 - SPOT-VGT reader to set physical units and scaling of spectral bands
+BEAM-1144 - SPOT-VGT reader to recognise different pixel sampling of P-products
 BEAM-1157 - No-data masking can easily be optimized    
 BEAM-1162 - The Envisat reader should support refomatted / line-interleaved products
 BEAM-1168 - Add Sinusoidal and Mollweide map projection
@@ -76,17 +80,20 @@ BEAM-1099 - DefaultSingleTargetProductDialog without processing parameter leads 
 BEAM-1103 - Product outside of target area breaks processing of L3 binning
 BEAM-1105 - NullPointerException is thrown, if editor for geometry layer is visible    
 BEAM-1106 - ToolViews do not reflect the selected state correctly in all cases
-BEAM-1107 - METOP reader cannot open subset products
 BEAM-1108 - Import of Pins/GCPs fails  
 BEAM-1109 - Pixel Info View does not update if "Snap to selected pin" is clicked    
 BEAM-1111 - Placemarks are not correctly moved if multiple are selected
+BEAM-1118 - Deletion of masks
 BEAM-1121 - Range Finder Tool yields NaN values
 BEAM-1127 - GPF geo-physical Tile API doesn't consider the valid-pixel mask
+BEAM-1134 - Mosaic with polar stereographic projection
 BEAM-1144 - SPOT-VGT reader to recognise different pixel sampling of P-products    
 BEAM-1145 - Image information gets lost during subset creation
 BEAM-1146 - Images explicitly set on a Band have inappropriate image-to-model transformation  
 BEAM-1147 - Signed byte data type interpreted as unsigned byte      
 BEAM-1149 - OBPG reader causes Exception if used with GPF
+BEAM-1152 - Export View as Image - transformation error
+BEAM-1158 - External JAI operators are not registered
 BEAM-1169 - On KDE (linux) the Java Desktop-API is not supported  
 _____________________________________________________________________________
 
