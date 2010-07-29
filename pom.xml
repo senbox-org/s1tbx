@@ -6,7 +6,7 @@
 
     <groupId>com.bc.ceres</groupId>
     <artifactId>ceres</artifactId>
-    <version>0.11-SNAPSHOT</version>
+    <version>0.11</version>
     <name>Ceres</name>
     <url>http://www.brockmann-consult.de/</url>
 
@@ -45,18 +45,18 @@
 
     <repositories>
         <repository>
-              <id>bc-mvn-repo-http</id>
-              <name>Public Maven Repository at Brockmann Consult</name>
-              <url>http://www.brockmann-consult.de/mvn/os</url>
-              <releases>
-                  <enabled>true</enabled>
-                  <checksumPolicy>warn</checksumPolicy>
-              </releases>
-              <snapshots>
-                  <enabled>true</enabled>
-                  <checksumPolicy>warn</checksumPolicy>
-              </snapshots>
-          </repository>        
+            <id>bc-mvn-repo-http</id>
+            <name>Public Maven Repository at Brockmann Consult</name>
+            <url>http://www.brockmann-consult.de/mvn/os</url>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+        </repository>
     </repositories>
 
     <distributionManagement>
@@ -280,6 +280,15 @@
             <id>marcoz</id>
             <name>Marco Zühlke</name>
             <email>marco.zuehlke@brockmann-consult.de</email>
+            <organization>Brockmann Consult</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>thomas</id>
+            <name>Thomas Storm</name>
+            <email>thomas.storm@brockmann-consult.de</email>
             <organization>Brockmann Consult</organization>
             <roles>
                 <role>Java Developer</role>
