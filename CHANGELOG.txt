@@ -32,15 +32,15 @@ _____________________________________________________________________________
 
 1) New BEAM Features
 
-o Readers for SPOT VEGETATION products, Landsat products, HDF-EOS products,
+o Readers for SPOT VEGETATION products, Landsat TM products in GeoTIFF format, HDF-EOS products,
   and generic NetCDF/CF-products have been added.
 
 o A writer for generic NetCDF/CF-products has been added.
 
-o It is possible to apply "auto-grouping" in the product tree; that is, product
+o The possibility to apply "auto-grouping" in the product tree has benn added; that is, product
   nodes whose names begin equally are automatically put into a common group.
 
-o A button has been added to show the world map layer.
+o A toolbar button has been added to overlay the world map as a layer on geographic lat/lon projected products.
 
 o The ESA GlobCover Land Cover Map is used as default world map layer now; however, it is still possible to choose the
  NASA Blue Marble as world map layer instead. 
