@@ -374,8 +374,8 @@
             <!-- BC Neural Network Library ############################################# -->
 
             <dependency>
-                <groupId>com.bc</groupId>
-                <artifactId>bc-jnn</artifactId>
+                <groupId>com.bc.jnn</groupId>
+                <artifactId>jnn</artifactId>
                 <version>1.6</version>
             </dependency>
 

@@ -59,8 +59,8 @@
             <artifactId>jdom</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc</groupId>
-            <artifactId>bc-jnn</artifactId>
+            <groupId>com.bc.jnn</groupId>
+            <artifactId>jnn</artifactId>
         </dependency>
         <dependency>
             <groupId>Jama</groupId>
