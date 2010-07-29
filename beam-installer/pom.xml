@@ -8,13 +8,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.8-SNAPSHOT</version>
+        <version>4.8</version>
     </parent>
 
     <name>BEAM Installer Files</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-installer</artifactId>
-    <version>4.8-SNAPSHOT</version>
+    <version>4.8</version>
 
     <packaging>jar</packaging>
 
@@ -33,12 +33,12 @@
 
         <plugins>
             <plugin>
-               <artifactId>maven-deploy-plugin</artifactId>
-               <configuration>
-                 <skip>true</skip>
-              </configuration>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-template-plugin</artifactId>

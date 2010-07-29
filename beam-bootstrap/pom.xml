@@ -7,7 +7,7 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.8-SNAPSHOT</version>
+        <version>4.8</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -16,7 +16,7 @@
     <artifactId>beam-bootstrap</artifactId>
     <name>BEAM Bootstrap Classpath</name>
     <description>Provides the bootstrap classpath to launch VISAT from your favourite IDE.</description>
-    <version>4.8-SNAPSHOT</version>
+    <version>4.8</version>
 
     <dependencies>
         <dependency>

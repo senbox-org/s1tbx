@@ -10,7 +10,7 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.8-SNAPSHOT</version>
+        <version>4.8</version>
     </parent>
 
     <dependencies>
@@ -50,8 +50,8 @@
             <artifactId>jai-imageio</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.geotools</groupId>
-          <artifactId>gt-geotiff</artifactId>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-geotiff</artifactId>
         </dependency>
     </dependencies>
 

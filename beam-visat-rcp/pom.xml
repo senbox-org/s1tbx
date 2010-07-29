@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam</artifactId>
-        <version>4.8-SNAPSHOT</version>
+        <version>4.8</version>
     </parent>
 
     <groupId>org.esa.beam</groupId>
@@ -44,12 +44,12 @@
             <artifactId>gt-wms</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.geotools</groupId>
-          <artifactId>gt-shapefile</artifactId>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-shapefile</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.geotools</groupId>
-          <artifactId>gt-render</artifactId>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-render</artifactId>
         </dependency>
     </dependencies>
 </project>
