@@ -56,9 +56,10 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
         final File file = getInputFile(input);
         NetcdfFile ncfile = null;
         try {
-            final boolean knownFileExtension = StringUtils.contains(getDefaultFileExtensions(),
-                                                                    FileUtils.getExtension(file));
-            if (file == null || !file.isFile() || !knownFileExtension) {
+            if (file == null || !file.isFile()) {
+                return DecodeQualification.UNABLE;
+            }
+            if (!StringUtils.contains(getDefaultFileExtensions(), FileUtils.getExtension(file))) {
                 return DecodeQualification.UNABLE;
             }
             if (NetcdfFile.canOpen(file.getPath())) {
