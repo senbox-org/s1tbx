@@ -36,20 +36,34 @@
             <id>importNetCdfCFProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <text>Import NetCDF/CF Product...</text>
-            <formatName>NetCDF/CF</formatName>
+            <formatName>NetCDF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>H</mnemonic>
             <shortDescr>Import a NetCDF/CF data product or product subset.</shortDescr>
             <description>Import a NetCDF/CF data product or product subset.</description>
+            <helpId>importNetCdfProduct</helpId>
+        </action>
+        <action>
+            <id>importHdfEosProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <text>Import HDF-EOS Gridded Product...</text>
+            <formatName>NetCDF</formatName>
+            <profileClassName>org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosProfileSpi</profileClassName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>H</mnemonic>
+            <shortDescr>Import a gridded HDF-EOS data product or product subset.</shortDescr>
+            <description>Import a gridded HDF-EOS data product or product subset.</description>
+            <helpId>importNetCdfProduct</helpId>
         </action>
         <action>
             <id>exportNetCdfCFProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
             <text>Export NetCDF/CF Product...</text>
-            <formatName>NetCDF/CF</formatName>
+            <formatName>NetCDF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Writes a product in NetCDF/CF format</shortDescr>
             <description>Writes a product in NetCDF/CF format</description>
+            <helpId>exportNetCdfProduct</helpId>
         </action>
     </extension>
 

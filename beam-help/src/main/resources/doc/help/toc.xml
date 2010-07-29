@@ -36,6 +36,7 @@
                 <tocitem text="Import ALOS/PRISM Data Product" target="importPrismProduct"/>
                 <tocitem text="Import CHRIS Data Product" target="importChrisProduct"/>
                 <tocitem text="Import NetCDF Data Product" target="importNetCdfProduct"/>
+                <tocitem text="Import HDF-EOS Gridded Data Product" target="importNetCdfProduct"/>
                 <tocitem text="Import SPOT VEGETATION Data Product" target="importSpotVgtProduct"/>
                 <tocitem text="Import GETASSE30 Tile" target="importGETASSE30"/>
 
