@@ -45,7 +45,7 @@ o A button has been added to show the world map layer.
 o The ESA GlobCover Land Cover Map is used as default world map layer now; however, it is still possible to choose the
  NASA Blue Marble as world map layer instead. 
 
-2) Complete list of BEAM 4.7 bug fixes and improvements
+2) Complete list of BEAM 4.8 bug fixes and improvements
 
 New Features
 BEAM-1112 - GPF Operator API to provide better support for image filters and convolutions    
