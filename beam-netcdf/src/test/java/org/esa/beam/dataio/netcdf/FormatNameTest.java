@@ -45,7 +45,7 @@ public class FormatNameTest extends TestCase {
         final Enumeration<URL> urlEnumeration = ClassLoader.getSystemResources("module.xml");
         InputStream stream = null;
         while (urlEnumeration.hasMoreElements()) {
-            final URL url = (URL) urlEnumeration.nextElement();
+            final URL url = urlEnumeration.nextElement();
             System.out.println("url = " + url);
             if (url.toString().contains("beam-netcdf")) {
                 stream = new FileInputStream(url.getFile());
@@ -67,7 +67,7 @@ public class FormatNameTest extends TestCase {
             outputter.output(jDoc, System.out);
 
             final NodeList byTagName = document.getElementsByTagName("formatName");
-            assertEquals(2, byTagName.getLength());
+            assertEquals(3, byTagName.getLength());
             final Node node = byTagName.item(0);
             assertNotNull(node);
             assertEquals(Constants.FORMAT_NAME, node.getTextContent());
