@@ -39,8 +39,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 /**
  * Reader for CHRIS/Proba products.
@@ -302,6 +301,7 @@ public class ChrisProductReader extends AbstractProductReader {
 
             maskBands[i] = band;
         }
+        product.setAutoGrouping("radiance:mask");
     }
 
     private void addFlagCodingsAndMasks(final Product product) {
