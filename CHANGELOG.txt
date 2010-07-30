@@ -37,7 +37,7 @@ o Readers for SPOT VEGETATION products, Landsat TM products in GeoTIFF format, H
 
 o A writer for generic NetCDF/CF-products has been added.
 
-o The possibility to apply "auto-grouping" in the product tree has benn added; that is, product
+o The possibility to apply "auto-grouping" in the product tree has been added; that is, product
   nodes whose names begin equally are automatically put into a common group.
 
 o A toolbar button has been added to overlay the world map as a layer on geographic lat/lon projected products.
