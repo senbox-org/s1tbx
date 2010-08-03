@@ -163,6 +163,8 @@ class CommandLineTool {
     private Map<String, Object> getParameterMap(CommandLineArgs lineArgs) throws ValidationException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(lineArgs.getOperatorName(), parameters);
+        // explicitly set default values for putting them into the backing map 
+        container.setDefaultValues();
         Map<String, String> parameterMap = lineArgs.getParameterMap();
         for (Entry<String, String> entry : parameterMap.entrySet()) {
             String paramName = entry.getKey();

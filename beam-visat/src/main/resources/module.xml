@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-visat</symbolicName>
-    <version>4.8</version>
+    <version>4.9</version>
     <name>BEAM VISAT Application</name>
 
     <description>

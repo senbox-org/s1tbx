@@ -7,7 +7,7 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.8</version>
+        <version>4.9-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -16,7 +16,6 @@
     <artifactId>beam-help</artifactId>
     <name>BEAM Help</name>
     <description>Provides the software user manual.</description>
-    <version>4.8</version>
 
     <build>
         <plugins>

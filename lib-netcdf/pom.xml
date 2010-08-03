@@ -5,7 +5,7 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.8</version>
+        <version>4.9-SNAPSHOT</version>
     </parent>
 
     <groupId>ucar.netcdf</groupId>

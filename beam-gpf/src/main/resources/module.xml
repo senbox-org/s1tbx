@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-gpf</symbolicName>
-    <version>4.8</version>
+    <version>4.9</version>
     <name>BEAM Graph Processing Framework (GPF)</name>
 
     <description>The basic framework for processing using Operators and the GPT.</description>
@@ -14,6 +14,8 @@
 
     <changelog>
         <![CDATA[
+        <p>From 4.8 to 4.9:<br/>
+            [BEAM-1172] Boolean parameter values are overridden by default values<br/> 
         <p>From 4.7 to 4.8:<br/>
             [BEAM-1147] Signed byte data type interpreted as unsigned byte<br/>
             [BEAM-1134] Mosaic with polar stereographic projection<br/>
