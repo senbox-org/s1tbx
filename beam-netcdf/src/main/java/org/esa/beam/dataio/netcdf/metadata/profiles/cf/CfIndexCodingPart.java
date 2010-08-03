@@ -24,6 +24,7 @@ import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
 import ucar.ma2.Array;
 import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
@@ -39,7 +40,7 @@ public class CfIndexCodingPart extends ProfilePart {
     public void read(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            Variable variable = ctx.getNetcdfFile().findVariable(band.getName());
+            Variable variable = ctx.getNetcdfFile().findVariable(NetcdfFile.escapeName(band.getName()));
             final IndexCoding indexCoding = readIndexCoding(variable, band.getName());
             if (indexCoding != null) {
                 p.getIndexCodingGroup().add(indexCoding);

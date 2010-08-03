@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-netcdf</symbolicName>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <name>NetCDF Product Reader and Writer</name>
     <description>
         A product reader and writer for NetCDF files. It supports metadata profiles for CF, BEAM, HDF-EOS, ODESA.
@@ -13,6 +13,12 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
+    <changelog>
+        <![CDATA[
+        Changes in 1.2:<br/>
+        [BEAM-1171] - NetCDF file not readable if variable name contains '.' or '/'<br/>
+        ]]>
+    </changelog>
 
     <dependency>
         <module>beam-core</module>
