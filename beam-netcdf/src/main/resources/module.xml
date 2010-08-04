@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-netcdf</symbolicName>
-    <version>1.0.1</version>
+    <version>1.0.101</version>
     <name>NetCDF Product Reader and Writer</name>
     <description>
         A product reader and writer for NetCDF files. It supports metadata profiles for CF, BEAM, HDF-EOS, ODESA.
@@ -15,7 +15,7 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.2:<br/>
+        Changes in 1.101:<br/>
         [BEAM-1171] - NetCDF file not readable if variable name contains '.' or '/'<br/>
         ]]>
     </changelog>
