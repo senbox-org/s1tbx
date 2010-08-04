@@ -135,10 +135,11 @@ public class CommandLineToolOperatorTest extends TestCase {
 
         Map<String, Object> parameters = context.parameters;
         assertNotNull(parameters);
-        assertEquals(3, parameters.size());
+        assertEquals(4, parameters.size());
         assertEquals("log(1+radiance_13)", parameters.get("expression"));
         assertEquals(true, parameters.get("ignoreSign"));
         assertEquals(-0.025, parameters.get("factor"));
+        assertEquals("NN", parameters.get("interpolMethod"));
     }
 
     public void testFailureNoReaderFound() {
