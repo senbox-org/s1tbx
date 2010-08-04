@@ -42,9 +42,7 @@ public class HtmlTocGenerator implements HtmlGenerator {
     }
 
     public void generate(PrintWriter out, Module[] modules, String version) throws IOException {
-//        String version = SiteCreator.retrieveVersion( repositoryUrl );
         out.println("<a name=\"top\"></a>");
-        out.println("<h1>BEAM " + version + " modules</h1>");
-//        printTocTable(out, modules);
+        out.println("<h1>BEAM " + version + " plugins</h1>");
     }
 }

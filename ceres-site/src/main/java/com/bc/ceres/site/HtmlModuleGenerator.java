@@ -45,6 +45,9 @@ public class HtmlModuleGenerator implements HtmlGenerator {
 
     @Override
     public void generate(PrintWriter out, Module[] modules, String version) throws IOException {
+        if (modules == null) {
+            return;
+        }
         for (Module module : modules) {
             writerHeader(out, module);
 
