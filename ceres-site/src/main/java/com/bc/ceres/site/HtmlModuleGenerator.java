@@ -24,10 +24,8 @@ package com.bc.ceres.site;
 
 import com.bc.ceres.core.runtime.Dependency;
 import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.site.util.ExclusionListBuilder;
 import com.bc.ceres.site.util.ModuleUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -45,9 +43,8 @@ public class HtmlModuleGenerator implements HtmlGenerator {
     public HtmlModuleGenerator() {
     }
 
-    public void generate(PrintWriter out, Module[] allModules, String repositoryUrl) throws IOException {
-        File exclusionList = retrieveExclusionList(repositoryUrl);
-        Module[] modules = ModuleUtils.cleanModules(allModules, exclusionList);
+    @Override
+    public void generate(PrintWriter out, Module[] modules, String version) throws IOException {
         for (Module module : modules) {
             writerHeader(out, module);
 
@@ -64,17 +61,17 @@ public class HtmlModuleGenerator implements HtmlGenerator {
             for (Dependency dependency : dependencies) {
                 out.print("  <li>");
                 final String symbolicName = dependency.getModuleSymbolicName();
-                final String readableName = ModuleUtils.symbolicToReadableName(symbolicName, allModules);
-                final boolean dependencyIncl = !ModuleUtils.isExcluded(symbolicName, exclusionList);
-                if (dependencyIncl) {
-                    out.print("<a href=\"#" + readableName.replaceAll(" ", "") + "\">");
-                }
-                final String depVersion = dependency.getVersion();
-                String version = (depVersion != null) ? depVersion : "";
-                out.print(readableName + " " + version);
-                if (dependencyIncl) {
-                    out.print("</a>");
-                }
+                final String readableName = ModuleUtils.symbolicToReadableName(symbolicName, modules);
+//                final boolean dependencyIncl = !ModuleUtils.isExcluded(symbolicName, exclusionList);
+//                if (dependencyIncl) {
+//                    out.print("<a href=\"#" + readableName.replaceAll(" ", "") + "\">");
+//                }
+                String depVersion = dependency.getVersion();
+                depVersion = (depVersion != null) ? depVersion : "";
+                out.print(readableName + " " + depVersion);
+//                if (dependencyIncl) {
+//                    out.print("</a>");
+//                }
                 out.println("</li>");
             }
             out.println("</ul>");
@@ -120,13 +117,4 @@ public class HtmlModuleGenerator implements HtmlGenerator {
 
         out.println("<br/>");
     }
-
-    private static File retrieveExclusionList(String repositoryUrl) {
-        String sep = "";
-        if (!repositoryUrl.endsWith("/")) {
-            sep = "/";
-        }
-        return new File(repositoryUrl + sep + ExclusionListBuilder.EXCLUSION_LIST_FILENAME);
-    }
-
 }

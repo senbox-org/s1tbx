@@ -19,14 +19,12 @@ package com.bc.ceres.site.util;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.Version;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static com.bc.ceres.site.util.ExclusionListBuilder.*;
 
@@ -78,24 +76,17 @@ public class ModuleUtils {
     /**
      * Checks if a module is excluded on the given exclusion-list.
      *
-     * @param module        the module to check for
-     * @param exclusionList the list, given as csv without line breaks
+     * @param module          the module to check for
+     * @param excludedModules the list of excluded modules
      *
-     * @return true if the module is included
+     * @return true if the module is excluded
      */
-    public static boolean isExcluded(Module module, File exclusionList) {
-        try {
-            final InputStream stream = new FileInputStream(exclusionList);
-            final CsvReader csvReader = new CsvReader(new InputStreamReader(stream), CSV_SEPARATOR_ARRAY);
-            final String[] allowedModules = csvReader.readRecord();
-            if (allowedModules == null) {
-                return false;
-            }
-            return Arrays.asList(allowedModules).contains(module.getSymbolicName());
-        } catch (IOException e) {
-            // if there is no inclusion list, all modules are displayed 
-            return true;
+    public static boolean isExcluded(Module module, String[] excludedModules) {
+        if (excludedModules == null) {
+            return false;
         }
+        List<String> stringList = Arrays.asList(excludedModules);
+        return stringList.contains(module.getSymbolicName());
     }
 
     /**
@@ -140,18 +131,25 @@ public class ModuleUtils {
     /**
      * Excludes double modules and modules which are on the given exclusion list file; returns a sorted list
      *
-     * @param modules       the modules to clean up
-     * @param exclusionList the list containing modules to be excluded from the view
+     * @param modules             the modules to clean up
+     * @param exclusionListReader a reader on the list containing modules to be excluded from the view
      *
      * @return the cleaned-up list of modules
      */
-    public static Module[] cleanModules(Module[] modules, File exclusionList) {
-        if (!exclusionList.exists()) {
+    public static Module[] cleanModules(Module[] modules, Reader exclusionListReader) {
+        if (exclusionListReader == null) {
             return modules;
         }
         final ArrayList<Module> removeList = new ArrayList<Module>();
+        final CsvReader csvReader = new CsvReader(exclusionListReader, CSV_SEPARATOR_ARRAY);
+        final String[] excludedModules;
+        try {
+            excludedModules = csvReader.readRecord();
+        } catch (IOException e) {
+            return modules;
+        }
         for (Module module : modules) {
-            if (isExcluded(module, exclusionList)) {
+            if (isExcluded(module, excludedModules)) {
                 removeList.add(module);
             }
         }
@@ -165,20 +163,19 @@ public class ModuleUtils {
     /**
      * Tests if a module (given by its symbolic name) is listed on the exclusion list
      *
-     * @param module        the module to test, represented by its symbolic name
-     * @param exclusionList the list of exclusions
+     * @param module              the module to test, represented by its symbolic name
+     * @param exclusionListReader a reader on the list of exclusions
      *
      * @return true if the module is listed on the list
      */
-    public static boolean isExcluded(String module, File exclusionList) {
+    public static boolean isExcluded(String module, Reader exclusionListReader) {
         try {
-            final InputStream stream = new FileInputStream(exclusionList);
-            final CsvReader csvReader = new CsvReader(new InputStreamReader(stream), CSV_SEPARATOR_ARRAY);
+            final CsvReader csvReader = new CsvReader(exclusionListReader, CSV_SEPARATOR_ARRAY);
             final String[] allowedModules = csvReader.readRecord();
-            if (allowedModules == null) {
-                return false;
+            if (allowedModules != null) {
+                return Arrays.asList(allowedModules).contains(module);
             }
-            return Arrays.asList(allowedModules).contains(module);
+            return false;
         } catch (IOException e) {
             // if there is no inclusion list, all modules are displayed
             return true;

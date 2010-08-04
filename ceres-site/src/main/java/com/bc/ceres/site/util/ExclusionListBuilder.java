@@ -50,21 +50,30 @@ public class ExclusionListBuilder {
     private static final String MODULE_NAME = "module";
     private static final String MODULES_NODE = "modules";
 
-    public static final String EXCLUSION_LIST_FILENAME = "exclusion_list.csv";
+    public static final String EXCLUSION_LIST_FILENAME = "exclusion_list";
     public static final char CSV_SEPARATOR = ',';
     public static final char[] CSV_SEPARATOR_ARRAY = new char[]{CSV_SEPARATOR};
     public static final String POM_LIST_FILENAME = "pom_list";
 
+    /**
+     * Usage: ExclusionListBuilder [output_directory version pom_list_filename]
+     */
     public static void main(String[] args) {
         File exclusionList;
-        String pomListFileName = POM_LIST_FILENAME;
+        String pomListFileName;
+        String version;
         if (args.length < 1) {
-            exclusionList = new File(EXCLUSION_LIST_FILENAME);
+            version = "4.8";
+            exclusionList = new File(EXCLUSION_LIST_FILENAME + "_" + version + ".csv");
+            pomListFileName = POM_LIST_FILENAME;
+        } else if (args.length == 3) {
+            String outputDir = args[0];
+            version = args[1];
+            exclusionList = new File(outputDir + File.pathSeparator + EXCLUSION_LIST_FILENAME + "_" + version + ".csv");
+            pomListFileName = args[2];
         } else {
-            exclusionList = new File(args[0] + File.pathSeparator + EXCLUSION_LIST_FILENAME);
-        }
-        if (args.length > 1) {
-            pomListFileName = args[1];
+            throw new IllegalArgumentException(
+                    "Usage: ExclusionListBuilder [output_directory version pom_list_filename]");
         }
         try {
             generateExclusionList(exclusionList, ExclusionListBuilder.retrievePoms(pomListFileName));

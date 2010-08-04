@@ -30,18 +30,21 @@ import java.io.PrintWriter;
 /**
  * Generate a HTML view of a module repositories Table Of Content.
  * This is only a fragment, not a complete page.
+ *
  * @see PageDecoratorGenerator for information on how to create a complete HTML page
  */
 public class HtmlTocGenerator implements HtmlGenerator {
 
-    /** Creates a new instance of HtmlTocGenerator */
+    /**
+     * Creates a new instance of HtmlTocGenerator
+     */
     public HtmlTocGenerator() {
     }
 
-    public void generate(PrintWriter out, Module[] modules, String repositoryUrl) throws IOException {
-        String version = SiteCreator.retrieveVersion( repositoryUrl ); 
+    public void generate(PrintWriter out, Module[] modules, String version) throws IOException {
+//        String version = SiteCreator.retrieveVersion( repositoryUrl );
         out.println("<a name=\"top\"></a>");
-        out.println("<h1>BEAM " + version + ".x modules</h1>");
+        out.println("<h1>BEAM " + version + " modules</h1>");
 //        printTocTable(out, modules);
     }
 }

@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.bc.ceres.site.util.ExclusionListBuilder.*;
 import static junit.framework.Assert.*;
 
 public class ModuleUtilsTest {
@@ -99,9 +100,12 @@ public class ModuleUtilsTest {
         final File exclusionList = new File(ExclusionListBuilder.EXCLUSION_LIST_FILENAME);
         ExclusionListBuilder.generateExclusionList(exclusionList, pomList);
 
-        assertEquals(false, ModuleUtils.isExcluded(modules.get(0), exclusionList));
-        assertEquals(true, ModuleUtils.isExcluded(modules.get(1), exclusionList));
-        assertEquals(true, ModuleUtils.isExcluded(modules.get(2), exclusionList));
+        final CsvReader csvReader = new CsvReader(new FileReader(exclusionList), CSV_SEPARATOR_ARRAY);
+        final String[] excludedModules = csvReader.readRecord();
+
+        assertEquals(false, ModuleUtils.isExcluded(modules.get(0), excludedModules));
+        assertEquals(true, ModuleUtils.isExcluded(modules.get(1), excludedModules));
+        assertEquals(true, ModuleUtils.isExcluded(modules.get(2), excludedModules));
     }
 
     @Test
@@ -109,9 +113,12 @@ public class ModuleUtilsTest {
 
         final File inclusionList = new File(getClass().getResource(PLUGINS_LIST_CSV).toURI().getPath());
 
-        assertEquals(false, ModuleUtils.isExcluded(modules.get(0), inclusionList));
-        assertEquals(true, ModuleUtils.isExcluded(modules.get(1), inclusionList));
-        assertEquals(true, ModuleUtils.isExcluded(modules.get(2), inclusionList));
+        final CsvReader csvReader = new CsvReader(new FileReader(inclusionList), CSV_SEPARATOR_ARRAY);
+        final String[] includedModules = csvReader.readRecord();
+
+        assertEquals(false, ModuleUtils.isExcluded(modules.get(0), includedModules));
+        assertEquals(true, ModuleUtils.isExcluded(modules.get(1), includedModules));
+        assertEquals(true, ModuleUtils.isExcluded(modules.get(2), includedModules));
     }
 
     @Test
