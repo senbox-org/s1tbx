@@ -56,12 +56,12 @@ public class HtmlModuleGenerator implements HtmlGenerator {
             out.println("<div class=\"description\">");
             out.println(module.getDescription());
             out.println("</div>");
-            out.println("<p>");
 
             // dependencies
             final Dependency[] dependencies = module.getDeclaredDependencies();
             if (dependencies != null && dependencies.length > 0) {
 
+                out.println("<p>");
                 out.println(
                         "<a href=\"JavaScript:doMenu('main" + i + "');\" id=\"xmain" + i + "\">[+]</a> Depends on:<br>");
                 out.print("<div id=\"main" + i + "\" style=\"display:none\">");
@@ -74,6 +74,7 @@ public class HtmlModuleGenerator implements HtmlGenerator {
                 out.println("</ul>");
                 out.println("</div>");
 
+                out.println("</p>");
             }
             writeFooter(out, module);
         }
