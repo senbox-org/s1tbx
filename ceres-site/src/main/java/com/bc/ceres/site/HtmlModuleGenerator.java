@@ -48,43 +48,55 @@ public class HtmlModuleGenerator implements HtmlGenerator {
         if (modules == null) {
             return;
         }
-        for (Module module : modules) {
-            writerHeader(out, module);
+        for (int i = 0, modulesLength = modules.length; i < modulesLength; i++) {
+            Module module = modules[i];
+            writeHeader(out, module);
 
             // description
-            final Dependency[] dependencies = module.getDeclaredDependencies();
             out.println("<div class=\"description\">");
             out.println(module.getDescription());
             out.println("</div>");
             out.println("<p>");
 
-            out.print("<div class=\"dependencies\">");
-            out.println("Depends on:");
-            out.println("<ul>");
-            for (Dependency dependency : dependencies) {
-                out.print("  <li>");
-                final String symbolicName = dependency.getModuleSymbolicName();
-                final String readableName = ModuleUtils.symbolicToReadableName(symbolicName, modules);
-//                final boolean dependencyIncl = !ModuleUtils.isExcluded(symbolicName, exclusionList);
-//                if (dependencyIncl) {
-//                    out.print("<a href=\"#" + readableName.replaceAll(" ", "") + "\">");
-//                }
-                String depVersion = dependency.getVersion();
-                depVersion = (depVersion != null) ? depVersion : "";
-                out.print(readableName + " " + depVersion);
-//                if (dependencyIncl) {
-//                    out.print("</a>");
-//                }
-                out.println("</li>");
-            }
-            out.println("</ul>");
-            out.println("</div>");
+            // dependencies
+            final Dependency[] dependencies = module.getDeclaredDependencies();
+            if (dependencies != null && dependencies.length > 0) {
 
+                out.println(
+                        "<a href=\"JavaScript:doMenu('main" + i + "');\" id=\"xmain" + i + "\">[+]</a> Depends on:<br>");
+                out.print("<div id=\"main" + i + "\" style=\"display:none\">");
+//                out.println("Depends on:");
+                out.println("<ul>");
+
+                for (Dependency dependency : dependencies) {
+                    writeDependency(out, modules, dependency);
+                }
+                out.println("</ul>");
+                out.println("</div>");
+
+            }
             writeFooter(out, module);
         }
     }
 
-    private void writerHeader(PrintWriter out, Module module) {
+    private void writeDependency(PrintWriter out, Module[] modules, Dependency dependency) {
+        out.print("  <li>");
+        final String symbolicName = dependency.getModuleSymbolicName();
+        final String readableName = ModuleUtils.symbolicToReadableName(symbolicName, modules);
+//                final boolean dependencyIncl = !ModuleUtils.isExcluded(symbolicName, exclusionList);
+//                if (dependencyIncl) {
+//                    out.print("<a href=\"#" + readableName.replaceAll(" ", "") + "\">");
+//                }
+        String depVersion = dependency.getVersion();
+        depVersion = (depVersion != null) ? depVersion : "";
+        out.print(readableName + " " + depVersion);
+//                if (dependencyIncl) {
+//                    out.print("</a>");
+//                }
+        out.println("</li>");
+    }
+
+    private void writeHeader(PrintWriter out, Module module) {
         final String size = ModuleUtils.retrieveSize(module);
         final String moduleName = module.getName();
 
@@ -115,7 +127,6 @@ public class HtmlModuleGenerator implements HtmlGenerator {
         if (licenceUrl != null) {
             out.print("&nbsp;&#8226;&nbsp;<a href=\"" + licenceUrl + "\">Licence</a>");
         }
-        out.print("&nbsp;&#8226;&nbsp;<a href=\"#top\">top</a>");
         out.println("</div>");
 
         out.println("<br/>");

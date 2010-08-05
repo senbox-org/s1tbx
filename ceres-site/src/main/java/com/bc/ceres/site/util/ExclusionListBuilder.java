@@ -69,7 +69,7 @@ public class ExclusionListBuilder {
         } else if (args.length == 3) {
             String outputDir = args[0];
             version = args[1];
-            exclusionList = new File(outputDir + File.pathSeparator + EXCLUSION_LIST_FILENAME + "_" + version + ".csv");
+            exclusionList = new File(outputDir + File.separator + EXCLUSION_LIST_FILENAME + "_" + version + ".csv");
             pomListFileName = args[2];
         } else {
             throw new IllegalArgumentException(
