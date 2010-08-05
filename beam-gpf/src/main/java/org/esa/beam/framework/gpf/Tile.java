@@ -93,7 +93,7 @@ import java.util.Iterator;
  * (because {@link org.esa.beam.framework.datamodel.RasterDataNode#getDataType() getRasterDataNode().getDataType()}
  * returns {@link ProductData#TYPE_FLOAT32}).<br/>
  * The {@link #getDataBufferFloat()} and its derivatives all return arrays of raw, non-calibrated sample values.
- * Use the {@link #toGeoPhysical (float)} and {@link #toRaw(float)} to convert between physical and raw
+ * Use the {@link #toGeoPhysical(float)} and {@link #toRaw(float)} to convert between physical and raw
  * sample values.</p>
  *
  * @author Norman Fomferra
