@@ -40,7 +40,7 @@
             <parent>tools</parent>
             <text>Equalization (MERIS)...</text>
             <mnemonic>E</mnemonic>
-            <operatorName>Equalization</operatorName>
+            <operatorName>Equalize</operatorName>
             <dialogTitle>MERIS L1b Equalization</dialogTitle>
             <targetProductNameSuffix>_eq</targetProductNameSuffix>
         </action>
