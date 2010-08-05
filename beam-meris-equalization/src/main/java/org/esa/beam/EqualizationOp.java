@@ -18,11 +18,13 @@ package org.esa.beam;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.gpf.operators.meris.MerisBasisOp;
+import org.esa.beam.util.ProductUtils;
 
 @OperatorMetadata(alias = "Equalize",
                   description = "Performs removal of detector-to-detector systematic " +
@@ -51,5 +53,16 @@ public class EqualizationOp extends MerisBasisOp {
 
     @Override
     public void initialize() throws OperatorException {
+        targetProduct = createCompatibleProduct(sourceProduct, sourceProduct.getName() + "Equalized", sourceProduct.getProductType() + "_EQ");
+        ProductUtils.copyFlagBands(sourceProduct, targetProduct);
+
+    }
+
+    public static class Spi extends OperatorSpi {
+
+        public Spi() {
+            super(EqualizationOp.class);
+        }
+
     }
 }
