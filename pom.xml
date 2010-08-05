@@ -134,6 +134,7 @@
         <module>beam-meris-smile</module>
         <module>beam-meris-radtorefl</module>
         <module>beam-meris-ndvi</module>
+        <module>beam-meris-equalization</module>
         <module>beam-aatsr-sst</module>
         <module>beam-flhmci</module>
         <module>beam-mosaic</module>

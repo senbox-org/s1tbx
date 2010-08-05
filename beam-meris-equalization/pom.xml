@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>beam</artifactId>
+        <groupId>org.esa.beam</groupId>
+        <version>4.9-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>beam-meris-equalization</artifactId>
+    <name>BEAM MERIS Equalization</name>
+    
+    <description>
+        The BEAM MERIS Equalization aims to remove detector-to-detector systematic radiometric differences
+        in MERIS L1b data products.
+    </description>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-gpf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-envisat-reader</artifactId>
+        </dependency>
+    </dependencies>
+</project>
