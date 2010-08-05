@@ -92,6 +92,7 @@ class ValidationProductGenerator {
             ProductUtils.copySpectralBandProperties(templateProduct.getBand(String.format("radiance_%d", i)), band);
         }
 
+        // move l1_flags and detector_index bands at the end of the band list
         final Band flags = target.getBand("l1_flags");
         target.removeBand(flags);
         target.addBand(flags);
