@@ -255,7 +255,7 @@ public class Band extends AbstractBand {
     }
 
     /**
-     * Gets the solar flux in in <code>mW/(m^2 sr nm)</code> (milli-watts per square metre per ste-radian per nanometer)
+     * Gets the solar flux in <code>mW/(m^2 sr nm)</code> (milli-watts per square metre per ste-radian per nanometer)
      * units for the wavelength of this band.
      *
      * @return the solar flux for the wavelength of this band, or zero if this is not a spectral band or the solar flux
