@@ -18,6 +18,7 @@ package org.esa.beam;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
@@ -30,7 +31,9 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 @OperatorMetadata(alias = "Equalize",
@@ -57,11 +60,24 @@ public class EqualizationOp extends Operator {
     @TargetProduct(description = "The target product.")
     private Product targetProduct;
 
+    private static final String ELEM_NAME_MPH = "MPH";
+    private EqualizationLUT equalizationLUT;
+    private long date;
+
 
     @Override
     public void initialize() throws OperatorException {
-        // validate parameter
-        // todo
+        try {
+            equalizationLUT = new EqualizationLUT(getReprocessingVersion());
+        } catch (IOException e) {
+            throw new OperatorException("Not able to create LUT.", e);
+        }
+        // compute julian date
+        final Calendar calendar = sourceProduct.getStartTime().getAsCalendar();
+        long productJulianDate = (long) JulianDate.julianDate(calendar.get(Calendar.YEAR),
+                                                              calendar.get(Calendar.MONTH),
+                                                              calendar.get(Calendar.DAY_OF_MONTH));
+        date = productJulianDate - (long) JulianDate.julianDate(2002, 4, 1);
 
         // create the target product
         final int rasterWidth = sourceProduct.getSceneRasterWidth();
@@ -93,14 +109,70 @@ public class EqualizationOp extends Operator {
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        final Tile sourceTile = getSourceTile(sourceProduct.getRasterDataNode(targetBand.getName()),
-                                              targetTile.getRectangle(),
-                                              ProgressMonitor.NULL);
+        final Tile bandSourceTile = getSourceTile(sourceProduct.getRasterDataNode(targetBand.getName()),
+                                                  targetTile.getRectangle(),
+                                                  ProgressMonitor.NULL);
+        final Tile detectorSourceTile = getSourceTile(sourceProduct.getRasterDataNode("detector_index"),
+                                                      targetTile.getRectangle(),
+                                                      ProgressMonitor.NULL);
+        final int bandIndex = targetBand.getSpectralBandIndex();
+
         for (Tile.Pos pos : targetTile) {
-            // compute sample value...
-            float sample = sourceTile.getSampleFloat(pos.x, pos.y) * 5.0f;
-            targetTile.setSample(pos.x, pos.y, sample);
+            if (doSmile) {
+                // todo Smile correct value
+            }
+            if (doRad2Refl) {
+                // todo convert to reflectances
+            }
+
+            final int detectorIndex = detectorSourceTile.getSampleInt(pos.x, pos.y);
+            if (detectorIndex != -1) {
+                final double[] coefficients = equalizationLUT.getCoefficients(bandIndex, detectorIndex);
+                double sampleFactor = coefficients[0] +
+                                      coefficients[1] * date +
+                                      coefficients[2] * date * date;
+                double sample = bandSourceTile.getSampleFloat(pos.x, pos.y) * sampleFactor;
+                targetTile.setSample(pos.x, pos.y, sample);
+            }
         }
+    }
+
+    static int parseReprocessingVersion(String processorName, float processorVersion) {
+        if ("MERIS".equalsIgnoreCase(processorName)) {
+            if (processorVersion >= 5.02f && processorVersion <= 5.05f) {
+                return 2;
+            }
+        }
+        if ("MEGS-PC".equalsIgnoreCase(processorName)) {
+            if (processorVersion == 8.0f) { // todo (mp,ts): Also allow 8.x ?
+                return 3;
+            } else { //noinspection ConstantConditions
+                if (processorVersion == 7.4f || processorVersion == 7.41f) {
+                    return 2;
+                }
+            }
+        }
+
+        throw new OperatorException(String.format("Unknown reprocessing version %s.", processorVersion));
+    }
+
+    private int getReprocessingVersion() {
+        final MetadataElement mphElement = sourceProduct.getMetadataRoot().getElement(ELEM_NAME_MPH);
+        if (mphElement != null) {
+            final String softwareVer = mphElement.getAttributeString("SOFTWARE_VER");
+            if (softwareVer != null) {
+                final String[] strings = softwareVer.split("/");
+                final String processorName = strings[0];
+                final String processorVersion = strings[1];
+                final float version = Float.parseFloat(processorVersion);
+                return parseReprocessingVersion(processorName, version);
+            } else {
+                throw new OperatorException(String.format("Not able to detect reprocessing version.\n%s",
+                                                          "Metadata attribute 'MPH/SOFTWARE_VER' not found."));
+            }
+        }
+        throw new OperatorException(
+                String.format("Not able to detect reprocessing version.\n%s", "Metadata element 'MPH' not found."));
     }
 
     private void copyBand(String sourceBandName) {
