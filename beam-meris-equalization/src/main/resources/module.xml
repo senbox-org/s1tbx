@@ -26,6 +26,9 @@
         <module>beam-envisat-reader</module>
     </dependency>
     <dependency>
+        <module>beam-meris-smile</module>
+    </dependency>
+    <dependency>
         <module>beam-visat</module>
         <optional>true</optional>
     </dependency>
@@ -44,7 +47,17 @@
             <dialogTitle>MERIS L1b Equalization</dialogTitle>
             <targetProductNameSuffix>_eq</targetProductNameSuffix>
         </action>
-
+        <action>
+            <id>merisSmile</id>
+            <helpId>merisSmile</helpId>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <parent>tools</parent>
+            <text>NEW Smile correction (MERIS)...</text>
+            <mnemonic>S</mnemonic>
+            <operatorName>Smile</operatorName>
+            <dialogTitle>MERIS L1b Equalization</dialogTitle>
+            <targetProductNameSuffix>_eq</targetProductNameSuffix>
+        </action>
     </extension>
 
 

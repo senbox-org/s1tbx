@@ -25,6 +25,11 @@
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
+            <artifactId>beam-meris-smile</artifactId>
+            <version>1.2.101</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
         </dependency>
     </dependencies>
