@@ -16,9 +16,7 @@
 
 package org.esa.beam;
 
-import com.bc.ceres.core.NullProgressMonitor;
 import com.bc.ceres.core.ProgressMonitor;
-import com.sun.tools.internal.ws.processor.ProcessorException;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.processor.smile.SmileAuxData;
@@ -35,12 +33,10 @@ import java.util.Set;
 
 class SmileAlgorithm {
 
-    private final Product sourceProduct;
     private final File auxdataDir;
     private final SmileAuxData auxData;
 
     SmileAlgorithm(Product sourceProduct) throws IOException {
-        this.sourceProduct = sourceProduct;
         auxdataDir = installAuxdata();
         auxData = loadAuxdata(sourceProduct.getProductType());
     }
