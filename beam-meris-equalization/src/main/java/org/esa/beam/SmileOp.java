@@ -113,9 +113,9 @@ public class SmileOp extends MerisBasisOp {
 
         pm.beginTask("smile correction", requiredBands.length + 3 + targetTile.getHeight());
         try {
-            Tile[] radinaceTiles = new Tile[EnvisatConstants.MERIS_L1B_NUM_SPECTRAL_BANDS];
+            Tile[] radianceTiles = new Tile[EnvisatConstants.MERIS_L1B_NUM_SPECTRAL_BANDS];
             for (int index : requiredBands) {
-                radinaceTiles[index] = getSourceTile(sourceProduct.getBandAt(index), rect, ProgressMonitor.NULL);
+                radianceTiles[index] = getSourceTile(sourceProduct.getBandAt(index), rect, ProgressMonitor.NULL);
             }
 
             Tile detectorIndexTile = getSourceTile(sourceProduct.getRasterDataNode("detector_index"),
@@ -135,9 +135,9 @@ public class SmileOp extends MerisBasisOp {
 
                     double correctedValue;
                     if (correctionPossible) {
-                        correctedValue = smileAlgorithm.correct(x, y, bandIndex, detectorIndex, radinaceTiles, isLandTile.getSampleBoolean(x, y));
+                        correctedValue = smileAlgorithm.correct(x, y, bandIndex, detectorIndex, radianceTiles, isLandTile.getSampleBoolean(x, y));
                     } else {
-                        correctedValue = radinaceTiles[bandIndex].getSampleDouble(x, y);
+                        correctedValue = radianceTiles[bandIndex].getSampleDouble(x, y);
                     }
                     targetTile.setSample(x, y, correctedValue);
                 }
