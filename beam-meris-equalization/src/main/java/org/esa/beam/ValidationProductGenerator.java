@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 // This class is used to convert the provided validation data set into a product.
+
 // The Envisat product corresponding to the data set is used as template to create
 // the validation product.
 class ValidationProductGenerator {
@@ -47,7 +48,7 @@ class ValidationProductGenerator {
 
     public static void main(String[] args) throws IOException {
         if (args.length != 2) {
-            System.out.println("Too few arguments.");
+            System.out.println("Wrong number of arguments.");
             System.out.println("Use: <binaryFilePath> <templateProductFilePath>");
             System.exit(1);
         }
