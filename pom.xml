@@ -174,8 +174,8 @@
            -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <beam.version>4.8</beam.version>
-        <ceres.version>0.11</ceres.version>
+        <beam.version>4.9-SNAPSHOT</beam.version>
+        <ceres.version>0.12-SNAPSHOT</ceres.version>
         <geotools.version>2.6.1</geotools.version>
     </properties>
 
