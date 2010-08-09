@@ -17,6 +17,7 @@
 package org.esa.beam;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -89,6 +90,10 @@ public class SmileOp extends MerisBasisOp {
 
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
+        targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
+        ProductUtils.copyMasks(sourceProduct, targetProduct);
+        ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
+        ProductUtils.copyRoiMasks(sourceProduct, targetProduct);
 
         landMaskBand = createMask(SmileConstants.BITMASK_TERM_LAND);
         validMaskBand = createMask(SmileConstants.BITMASK_TERM_PROCESS);
@@ -115,19 +120,18 @@ public class SmileOp extends MerisBasisOp {
         try {
             Tile[] radianceTiles = new Tile[EnvisatConstants.MERIS_L1B_NUM_SPECTRAL_BANDS];
             for (int index : requiredBands) {
-                radianceTiles[index] = getSourceTile(sourceProduct.getBandAt(index), rect, ProgressMonitor.NULL);
+                radianceTiles[index] = getSourceTile(sourceProduct.getBandAt(index), rect, SubProgressMonitor.create(pm, 1));
             }
 
             Tile detectorIndexTile = getSourceTile(sourceProduct.getRasterDataNode("detector_index"),
-                    rect, ProgressMonitor.NULL);
-            Tile isLandTile = getSourceTile(landMaskBand, rect, ProgressMonitor.NULL);
-            Tile isValidTile = getSourceTile(validMaskBand, rect, ProgressMonitor.NULL);
+                    rect, SubProgressMonitor.create(pm, 1));
+            Tile isLandTile = getSourceTile(landMaskBand, rect, SubProgressMonitor.create(pm, 1));
+            Tile isValidTile = getSourceTile(validMaskBand, rect, SubProgressMonitor.create(pm, 1));
 
             int maxDetectorIndex = smileAlgorithm.getMaxDetectorIndex();
 
             for (int y = targetTile.getMinY(); y <= targetTile.getMaxY(); y++) {
                 for (int x = targetTile.getMinX(); x <= targetTile.getMaxX(); x++) {
-                    checkForCancellation(pm);
                     int detectorIndex = detectorIndexTile.getSampleInt(x, y);
                     boolean correctionPossible = detectorIndex >= 0 &&
                             detectorIndex < maxDetectorIndex &&
@@ -141,6 +145,8 @@ public class SmileOp extends MerisBasisOp {
                     }
                     targetTile.setSample(x, y, correctedValue);
                 }
+                checkForCancellation(pm);
+                pm.worked(1);
             }
         }finally {
             pm.done();

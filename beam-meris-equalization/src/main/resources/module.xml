@@ -55,8 +55,8 @@
             <text>NEW Smile correction (MERIS)...</text>
             <mnemonic>S</mnemonic>
             <operatorName>Smile</operatorName>
-            <dialogTitle>MERIS L1b Equalization</dialogTitle>
-            <targetProductNameSuffix>_eq</targetProductNameSuffix>
+            <dialogTitle>MERIS L1b Smile Correction</dialogTitle>
+            <targetProductNameSuffix>_smile</targetProductNameSuffix>
         </action>
     </extension>
 
