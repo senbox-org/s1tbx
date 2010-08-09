@@ -36,7 +36,7 @@ import static junit.framework.Assert.*;
 
 public class EqualizationOpTest {
     private static final String RADIANCE_TEST_INPUT = "MER_RR__1PPBCM20090112_ValidationInput_radiance.dim";
-    private static final String SMILE_TEST_INPUT = "MER_RR__1PPBCM20090112_ValidationInput_newSmile.dim";
+    private static final String SMILE_TEST_INPUT = "MER_RR__1PPBCM20090112_ValidationInput_smile.dim";
     private static final String EXPECTED_OUTPUT = "MER_RR__1PPBCM20090112_ValidationOutput.dim";
 
     private static EqualizationOp.Spi equalizationOpSpi = new EqualizationOp.Spi();

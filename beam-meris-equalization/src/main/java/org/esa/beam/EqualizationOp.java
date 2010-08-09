@@ -38,6 +38,7 @@ import org.esa.beam.util.math.RsMathUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
@@ -66,21 +67,27 @@ public class EqualizationOp extends Operator {
     private long date;
     private SmileAlgorithm smileAlgorithm;
     private Band landMaskBand;
+    private HashMap<String, String> bandNameMap;
 
 
     @Override
     public void initialize() throws OperatorException {
         Guardian.assertTrue("Source product must contain band '" + MERIS_DETECTOR_INDEX_DS_NAME + "'.",
                             sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME));
+        Guardian.assertTrue("Source product must contain band '" + MERIS_L1B_FLAGS_DS_NAME + "'.",
+                            sourceProduct.containsBand(MERIS_L1B_FLAGS_DS_NAME));
         Guardian.assertTrue("Source product must contain tie-point grid '" + MERIS_SUN_ZENITH_DS_NAME + "'.",
                             sourceProduct.containsTiePointGrid(MERIS_SUN_ZENITH_DS_NAME));
+        final ProductData.UTC startTime = sourceProduct.getStartTime();
+        Guardian.assertNotNull("Source product must have a start time", startTime);
+
         try {
             equalizationLUT = new EqualizationLUT(getReprocessingVersion());
         } catch (IOException e) {
             throw new OperatorException("Not able to create LUT.", e);
         }
         // compute julian date
-        final Calendar calendar = sourceProduct.getStartTime().getAsCalendar();
+        final Calendar calendar = startTime.getAsCalendar();
         long productJulianDate = (long) JulianDate.julianDate(calendar.get(Calendar.YEAR),
                                                               calendar.get(Calendar.MONTH),
                                                               calendar.get(Calendar.DAY_OF_MONTH));
@@ -105,10 +112,14 @@ public class EqualizationOp extends Operator {
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
 
-        String[] spectralBandNames = getSpectralBandNames(sourceProduct);
-        for (String spectralBandName : spectralBandNames) {
+        bandNameMap = new HashMap<String, String>();
+        String[] sourceSpectralBandNames = getSpectralBandNames(sourceProduct);
+        for (String spectralBandName : sourceSpectralBandNames) {
             final Band sourceBand = sourceProduct.getBand(spectralBandName);
-            final Band targetBand = targetProduct.addBand(spectralBandName, ProductData.TYPE_FLOAT32);
+            final String targetBandName = "reflec_" + sourceBand.getSpectralBandIndex();
+            final Band targetBand = targetProduct.addBand(targetBandName,
+                                                          ProductData.TYPE_FLOAT32);
+            bandNameMap.put(targetBandName, spectralBandName);
             targetBand.setDescription(sourceBand.getDescription());
             targetBand.setUnit(sourceBand.getUnit());
             targetBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
@@ -127,52 +138,61 @@ public class EqualizationOp extends Operator {
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         // todo progress
-        final Band sourceBand = sourceProduct.getBand(targetBand.getName());
-        final Tile sourceBandTile = getSourceTile(sourceBand,
-                                                  targetTile.getRectangle(),
-                                                  ProgressMonitor.NULL);
-        final RasterDataNode detectorIndexNode = sourceProduct.getRasterDataNode(
-                MERIS_DETECTOR_INDEX_DS_NAME);
-        final Tile detectorSourceTile = getSourceTile(detectorIndexNode,
-                                                      targetTile.getRectangle(),
-                                                      ProgressMonitor.NULL);
-        final RasterDataNode sunZenithGrid = sourceProduct.getRasterDataNode(MERIS_SUN_ZENITH_DS_NAME);
-        final Tile sunZenithTile = getSourceTile(sunZenithGrid,
-                                                 targetTile.getRectangle(),
-                                                 ProgressMonitor.NULL);
 
-        final int bandIndex = targetBand.getSpectralBandIndex();
+        pm.beginTask("Performing equalization...", doSmile ? 3 : 2);
+        try {
+            final Band sourceBand = sourceProduct.getBand(bandNameMap.get(targetBand.getName()));
+            final Tile sourceBandTile = getSourceTile(sourceBand, targetTile.getRectangle(), ProgressMonitor.NULL);
+            final RasterDataNode detectorNode = sourceProduct.getRasterDataNode(
+                    MERIS_DETECTOR_INDEX_DS_NAME);
+            final Tile detectorSourceTile = getSourceTile(detectorNode, targetTile.getRectangle(),
+                                                          ProgressMonitor.NULL);
+            final RasterDataNode sunZenithGrid = sourceProduct.getRasterDataNode(MERIS_SUN_ZENITH_DS_NAME);
+            final Tile sunZenithTile = getSourceTile(sunZenithGrid, targetTile.getRectangle(), ProgressMonitor.NULL);
 
-        final int[] requiredBandIndices = smileAlgorithm.computeRequiredBandIndexes(bandIndex);
-        Tile[] radianceTiles = new Tile[requiredBandIndices.length];
-        for (int requiredBandIndex : requiredBandIndices) {
-            radianceTiles[requiredBandIndex] = getSourceTile(sourceProduct.getBandAt(requiredBandIndex),
-                                                             targetTile.getRectangle(),
-                                                             ProgressMonitor.NULL);
-        }
+            final int bandIndex = targetBand.getSpectralBandIndex();
 
-        final Tile landMaskTile = getSourceTile(landMaskBand, targetTile.getRectangle(), ProgressMonitor.NULL);
-        for (Tile.Pos pos : targetTile) {
-
-            final int detectorIndex = detectorSourceTile.getSampleInt(pos.x, pos.y);
-            if (detectorIndex != -1) {
-                double sourceSample = sourceBandTile.getSampleDouble(pos.x, pos.y);
-                if (doSmile) {
-                    sourceSample = smileAlgorithm.correct(pos.x, pos.y, bandIndex, detectorIndex, radianceTiles,
-                                                          landMaskTile.getSampleBoolean(pos.x, pos.y));
-                }
-                final double sunZenithSample = sunZenithTile.getSampleDouble(pos.x, pos.y);
-                final double sourceReflectance = RsMathUtils.radianceToReflectance(sourceSample,
-                                                                                   sunZenithSample,
-                                                                                   sourceBand.getSolarFlux());
-
-                final double[] coefficients = equalizationLUT.getCoefficients(bandIndex, detectorIndex);
-                double cEq = coefficients[0] +
-                             coefficients[1] * date +
-                             coefficients[2] * date * date;
-                double sample = sourceReflectance / cEq;
-                targetTile.setSample(pos.x, pos.y, sample);
+            final int[] requiredBandIndices = smileAlgorithm.computeRequiredBandIndexes(bandIndex);
+            Tile[] radianceTiles = new Tile[requiredBandIndices.length];
+            for (int requiredBandIndex : requiredBandIndices) {
+                radianceTiles[requiredBandIndex] = getSourceTile(sourceProduct.getBandAt(requiredBandIndex),
+                                                                 targetTile.getRectangle(),
+                                                                 ProgressMonitor.NULL);
             }
+
+            final Tile landMaskTile = getSourceTile(landMaskBand, targetTile.getRectangle(), ProgressMonitor.NULL);
+
+            pm.worked(1);
+            for (int y = targetTile.getMinY(); y <= targetTile.getMaxY(); y++) {
+                for (int x = targetTile.getMinX(); x <= targetTile.getMaxX(); x++) {
+
+//            for (Tile.Pos pos : targetTile) {
+
+                    final int detectorIndex = detectorSourceTile.getSampleInt(x, y);
+                    if (detectorIndex != -1) {
+                        double sourceSample = sourceBandTile.getSampleDouble(x, y);
+                        if (doSmile) {
+                            sourceSample = smileAlgorithm.correct(x, y, bandIndex, detectorIndex, radianceTiles,
+                                                                  landMaskTile.getSampleBoolean(x, y));
+                        }
+                        final double sunZenithSample = sunZenithTile.getSampleDouble(x, y);
+                        final double sourceReflectance = RsMathUtils.radianceToReflectance(sourceSample,
+                                                                                           sunZenithSample,
+                                                                                           sourceBand.getSolarFlux());
+
+                        final double[] coefficients = equalizationLUT.getCoefficients(bandIndex, detectorIndex);
+                        double cEq = coefficients[0] +
+                                     coefficients[1] * date +
+                                     coefficients[2] * date * date;
+                        double sample = sourceReflectance / cEq;
+                        targetTile.setSample(x, y, sample);
+                    }
+                }
+            }
+            pm.worked(1);
+
+        } finally {
+            pm.done();
         }
     }
 
