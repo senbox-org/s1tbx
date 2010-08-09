@@ -29,18 +29,31 @@ import org.junit.Test;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import static junit.framework.Assert.*;
 
 public class EqualizationOpTest {
     private static final String RADIANCE_TEST_INPUT = "MER_RR__1PPBCM20090112_ValidationInput_radiance.dim";
+    private static final String SMILE_TEST_INPUT = "MER_RR__1PPBCM20090112_ValidationInput_newSmile.dim";
     private static final String EXPECTED_OUTPUT = "MER_RR__1PPBCM20090112_ValidationOutput.dim";
 
     private static EqualizationOp.Spi equalizationOpSpi = new EqualizationOp.Spi();
+    private static Product radianceSourceProduct;
+    private static Product smileSourceProduct;
+    private static Product expectedProduct;
 
     @BeforeClass
     public static void setUp() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(equalizationOpSpi);
+        final URL radianceProductUrl = EqualizationOpTest.class.getResource(RADIANCE_TEST_INPUT);
+        radianceSourceProduct = ProductIO.readProduct(radianceProductUrl.getFile());
+        final URL smileProductUrl = EqualizationOpTest.class.getResource(SMILE_TEST_INPUT);
+        smileSourceProduct = ProductIO.readProduct(smileProductUrl.getFile());
+        final URL expectedProductUrl = EqualizationOpTest.class.getResource(EXPECTED_OUTPUT);
+        expectedProduct = ProductIO.readProduct(expectedProductUrl.getFile());
+
     }
 
     @AfterClass
@@ -49,20 +62,44 @@ public class EqualizationOpTest {
     }
 
     @Test
-    public void testComputation() throws URISyntaxException, IOException {
+    public void testComputation_WithDefaultParameter() throws URISyntaxException, IOException {
         String operatorName = OperatorSpi.getOperatorAlias(EqualizationOp.class);
-        final URL smileReflProductUrl = getClass().getResource(RADIANCE_TEST_INPUT);
-        final Product sourceProduct = ProductIO.readProduct(smileReflProductUrl.getFile());
-        final Product targetProduct = GPF.createProduct(operatorName, GPF.NO_PARAMS, sourceProduct);
-
-        final URL expectedProductUrl = getClass().getResource(EXPECTED_OUTPUT);
-        final Product expectedProduct = ProductIO.readProduct(expectedProductUrl.getFile());
+        final Product targetProduct = GPF.createProduct(operatorName, GPF.NO_PARAMS,
+                                                        radianceSourceProduct);
 
         comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 10, 0);
         comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 20, 0);
         comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 3);
         comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 2);
 
+    }
+
+    @Test
+    public void testComputation_WithSmileOn() throws URISyntaxException, IOException {
+        String operatorName = OperatorSpi.getOperatorAlias(EqualizationOp.class);
+        final Map<String,Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("doSmile", true);
+        final Product targetProduct = GPF.createProduct(operatorName, parameterMap,
+                                                        radianceSourceProduct);
+
+        comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 10, 0);
+        comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 20, 0);
+        comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 3);
+        comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 2);
+    }
+
+    @Test
+    public void testComputation_WithSmileOff() throws URISyntaxException, IOException {
+        String operatorName = OperatorSpi.getOperatorAlias(EqualizationOp.class);
+        final Map<String,Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("doSmile", false);
+        final Product targetProduct = GPF.createProduct(operatorName, parameterMap,
+                                                        smileSourceProduct);
+
+        comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 10, 0);
+        comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 20, 0);
+        comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 3);
+        comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 2);
     }
 
     private void comparePixels(Band band, Band band1, int x, int y) {

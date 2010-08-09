@@ -1,7 +1,7 @@
 ENVI
 description = {Digital elevation model roughness - Unit: m}
 samples = 71
-lines = 20
+lines = 3
 bands = 1
 header offset = 0
 file type = ENVI Standard

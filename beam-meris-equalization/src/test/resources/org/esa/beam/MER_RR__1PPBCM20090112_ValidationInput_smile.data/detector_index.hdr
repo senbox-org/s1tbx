@@ -1,7 +1,7 @@
 ENVI
 description = {Detector index - Unit: 1}
 samples = 1121
-lines = 305
+lines = 6
 bands = 1
 header offset = 0
 file type = ENVI Standard

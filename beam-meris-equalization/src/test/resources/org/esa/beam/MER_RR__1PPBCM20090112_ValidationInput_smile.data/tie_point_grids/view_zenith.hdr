@@ -1,7 +1,7 @@
 ENVI
 description = {Viewing zenith angles - Unit: deg}
 samples = 71
-lines = 20
+lines = 3
 bands = 1
 header offset = 0
 file type = ENVI Standard

@@ -64,7 +64,7 @@
     </Flag_Coding>
     <Raster_Dimensions>
         <NCOLS>1121</NCOLS>
-        <NROWS>305</NROWS>
+        <NROWS>6</NROWS>
         <NBANDS>17</NBANDS>
     </Raster_Dimensions>
     <Data_Access>
@@ -132,11 +132,11 @@
             <BAND_INDEX>14</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_smile.data/l1_flags.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_smile.data/detector_index.hdr" />
             <BAND_INDEX>15</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_smile.data/detector_index.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_smile.data/l1_flags.hdr" />
             <BAND_INDEX>16</BAND_INDEX>
         </Data_File>
         <Tie_Point_Grid_File>
@@ -209,9 +209,9 @@
             <TIE_POINT_GRID_NAME>latitude</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>false</CYCLIC>
@@ -223,9 +223,9 @@
             <TIE_POINT_GRID_NAME>longitude</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>true</CYCLIC>
@@ -237,9 +237,9 @@
             <TIE_POINT_GRID_NAME>dem_alt</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>false</CYCLIC>
@@ -251,9 +251,9 @@
             <TIE_POINT_GRID_NAME>dem_rough</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>false</CYCLIC>
@@ -265,9 +265,9 @@
             <TIE_POINT_GRID_NAME>lat_corr</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>false</CYCLIC>
@@ -279,9 +279,9 @@
             <TIE_POINT_GRID_NAME>lon_corr</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>false</CYCLIC>
@@ -293,9 +293,9 @@
             <TIE_POINT_GRID_NAME>sun_zenith</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>false</CYCLIC>
@@ -307,9 +307,9 @@
             <TIE_POINT_GRID_NAME>sun_azimuth</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>true</CYCLIC>
@@ -321,9 +321,9 @@
             <TIE_POINT_GRID_NAME>view_zenith</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>false</CYCLIC>
@@ -335,9 +335,9 @@
             <TIE_POINT_GRID_NAME>view_azimuth</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>true</CYCLIC>
@@ -349,9 +349,9 @@
             <TIE_POINT_GRID_NAME>zonal_wind</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>false</CYCLIC>
@@ -363,9 +363,9 @@
             <TIE_POINT_GRID_NAME>merid_wind</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>false</CYCLIC>
@@ -377,9 +377,9 @@
             <TIE_POINT_GRID_NAME>atm_press</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>false</CYCLIC>
@@ -391,9 +391,9 @@
             <TIE_POINT_GRID_NAME>ozone</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>false</CYCLIC>
@@ -405,14 +405,34 @@
             <TIE_POINT_GRID_NAME>rel_hum</TIE_POINT_GRID_NAME>
             <DATA_TYPE>float32</DATA_TYPE>
             <NCOLS>71</NCOLS>
-            <NROWS>20</NROWS>
+            <NROWS>3</NROWS>
             <OFFSET_X>0.5</OFFSET_X>
-            <OFFSET_Y>0.5</OFFSET_Y>
+            <OFFSET_Y>-3.5</OFFSET_Y>
             <STEP_X>16.0</STEP_X>
             <STEP_Y>16.0</STEP_Y>
             <CYCLIC>false</CYCLIC>
         </Tie_Point_Grid_Info>
     </Tie_Point_Grids>
+    <Image_Display>
+        <Band_Statistics>
+            <BAND_INDEX>12</BAND_INDEX>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>100.64076807363381</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>120.51311851583523</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>140.38546895803665</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <NO_DATA_COLOR red="0" green="0" blue="0" alpha="0" />
+            <HISTOGRAM_MATCHING>None</HISTOGRAM_MATCHING>
+        </Band_Statistics>
+    </Image_Display>
     <Image_Interpretation>
         <Spectral_Band_Info>
             <BAND_INDEX>0</BAND_INDEX>
@@ -671,13 +691,12 @@
         </Spectral_Band_Info>
         <Spectral_Band_Info>
             <BAND_INDEX>15</BAND_INDEX>
-            <BAND_DESCRIPTION>Level 1b classification and quality flags</BAND_DESCRIPTION>
-            <BAND_NAME>l1_flags</BAND_NAME>
-            <DATA_TYPE>uint8</DATA_TYPE>
+            <BAND_DESCRIPTION>Detector index</BAND_DESCRIPTION>
+            <BAND_NAME>detector_index</BAND_NAME>
+            <DATA_TYPE>int16</DATA_TYPE>
             <SOLAR_FLUX>0.0</SOLAR_FLUX>
             <BAND_WAVELEN>0.0</BAND_WAVELEN>
             <BANDWIDTH>0.0</BANDWIDTH>
-            <FLAG_CODING_NAME>l1_flags</FLAG_CODING_NAME>
             <SCALING_FACTOR>1.0</SCALING_FACTOR>
             <SCALING_OFFSET>0.0</SCALING_OFFSET>
             <LOG10_SCALED>false</LOG10_SCALED>
@@ -686,12 +705,13 @@
         </Spectral_Band_Info>
         <Spectral_Band_Info>
             <BAND_INDEX>16</BAND_INDEX>
-            <BAND_DESCRIPTION>Detector index</BAND_DESCRIPTION>
-            <BAND_NAME>detector_index</BAND_NAME>
-            <DATA_TYPE>int16</DATA_TYPE>
+            <BAND_DESCRIPTION>Level 1b classification and quality flags</BAND_DESCRIPTION>
+            <BAND_NAME>l1_flags</BAND_NAME>
+            <DATA_TYPE>uint8</DATA_TYPE>
             <SOLAR_FLUX>0.0</SOLAR_FLUX>
             <BAND_WAVELEN>0.0</BAND_WAVELEN>
             <BANDWIDTH>0.0</BANDWIDTH>
+            <FLAG_CODING_NAME>l1_flags</FLAG_CODING_NAME>
             <SCALING_FACTOR>1.0</SCALING_FACTOR>
             <SCALING_OFFSET>0.0</SCALING_OFFSET>
             <LOG10_SCALED>false</LOG10_SCALED>
@@ -1026,6 +1046,68 @@
                     <MDATTR name="SIZE" type="uint32">0</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>
                     <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
+                </MDElem>
+            </MDElem>
+            <MDElem name="Processing_Graph">
+                <MDElem name="node.0">
+                    <MDATTR name="id" type="ascii" mode="rw">Smile$12A56C6C07B</MDATTR>
+                    <MDATTR name="operator" type="ascii" mode="rw">Smile</MDATTR>
+                    <MDElem name="sources">
+                        <MDATTR name="source" type="ascii" mode="rw">file:/C:/Dokumente%20und%20Einstellungen/Marco%20Peters/Eigene%20Dateien/EOData/Meris/Bouvet%20-%20equalization/MER_RR__1PPBCM20090112_235059_000000542075_00302_35927_0060.N1</MDATTR>
+                    </MDElem>
+                    <MDElem name="parameters">
+                        <MDATTR name="copyAllTiePoints" type="ascii">true</MDATTR>
+                    </MDElem>
+                </MDElem>
+            </MDElem>
+            <MDElem name="history">
+                <MDElem name="SubsetInfo">
+                    <MDATTR name="SourceProduct.name" type="ascii">MER_RR__1PPBCM20090112_235059_000000542075_00302_35927_0060.N1_eq</MDATTR>
+                    <MDATTR name="SubSampling.x" type="int32" mode="rw">1</MDATTR>
+                    <MDATTR name="SubSampling.y" type="int32" mode="rw">1</MDATTR>
+                    <MDATTR name="SubRegion.x" type="int32" mode="rw">0</MDATTR>
+                    <MDATTR name="SubRegion.y" type="int32" mode="rw">100</MDATTR>
+                    <MDATTR name="SubRegion.width" type="int32" mode="rw">1121</MDATTR>
+                    <MDATTR name="SubRegion.height" type="int32" mode="rw">6</MDATTR>
+                    <MDATTR name="ProductNodeName.1" type="ascii">radiance_1</MDATTR>
+                    <MDATTR name="ProductNodeName.2" type="ascii">radiance_2</MDATTR>
+                    <MDATTR name="ProductNodeName.3" type="ascii">radiance_3</MDATTR>
+                    <MDATTR name="ProductNodeName.4" type="ascii">radiance_4</MDATTR>
+                    <MDATTR name="ProductNodeName.5" type="ascii">radiance_5</MDATTR>
+                    <MDATTR name="ProductNodeName.6" type="ascii">radiance_6</MDATTR>
+                    <MDATTR name="ProductNodeName.7" type="ascii">radiance_7</MDATTR>
+                    <MDATTR name="ProductNodeName.8" type="ascii">radiance_8</MDATTR>
+                    <MDATTR name="ProductNodeName.9" type="ascii">radiance_9</MDATTR>
+                    <MDATTR name="ProductNodeName.10" type="ascii">radiance_10</MDATTR>
+                    <MDATTR name="ProductNodeName.11" type="ascii">radiance_11</MDATTR>
+                    <MDATTR name="ProductNodeName.12" type="ascii">radiance_12</MDATTR>
+                    <MDATTR name="ProductNodeName.13" type="ascii">radiance_13</MDATTR>
+                    <MDATTR name="ProductNodeName.14" type="ascii">radiance_14</MDATTR>
+                    <MDATTR name="ProductNodeName.15" type="ascii">radiance_15</MDATTR>
+                    <MDATTR name="ProductNodeName.16" type="ascii">detector_index</MDATTR>
+                    <MDATTR name="ProductNodeName.17" type="ascii">l1_flags</MDATTR>
+                    <MDATTR name="ProductNodeName.18" type="ascii">latitude</MDATTR>
+                    <MDATTR name="ProductNodeName.19" type="ascii">longitude</MDATTR>
+                    <MDATTR name="ProductNodeName.20" type="ascii">dem_alt</MDATTR>
+                    <MDATTR name="ProductNodeName.21" type="ascii">dem_rough</MDATTR>
+                    <MDATTR name="ProductNodeName.22" type="ascii">lat_corr</MDATTR>
+                    <MDATTR name="ProductNodeName.23" type="ascii">lon_corr</MDATTR>
+                    <MDATTR name="ProductNodeName.24" type="ascii">sun_zenith</MDATTR>
+                    <MDATTR name="ProductNodeName.25" type="ascii">sun_azimuth</MDATTR>
+                    <MDATTR name="ProductNodeName.26" type="ascii">view_zenith</MDATTR>
+                    <MDATTR name="ProductNodeName.27" type="ascii">view_azimuth</MDATTR>
+                    <MDATTR name="ProductNodeName.28" type="ascii">zonal_wind</MDATTR>
+                    <MDATTR name="ProductNodeName.29" type="ascii">merid_wind</MDATTR>
+                    <MDATTR name="ProductNodeName.30" type="ascii">atm_press</MDATTR>
+                    <MDATTR name="ProductNodeName.31" type="ascii">ozone</MDATTR>
+                    <MDATTR name="ProductNodeName.32" type="ascii">rel_hum</MDATTR>
+                    <MDATTR name="ProductNodeName.33" type="ascii">MPH</MDATTR>
+                    <MDATTR name="ProductNodeName.34" type="ascii">SPH</MDATTR>
+                    <MDATTR name="ProductNodeName.35" type="ascii">DSD</MDATTR>
+                    <MDATTR name="ProductNodeName.36" type="ascii">Quality_ADS</MDATTR>
+                    <MDATTR name="ProductNodeName.37" type="ascii">Scaling_Factor_GADS</MDATTR>
+                    <MDATTR name="ProductNodeName.38" type="ascii">Tie_points_ADS</MDATTR>
+                    <MDATTR name="ProductNodeName.39" type="ascii">Processing_Graph</MDATTR>
                 </MDElem>
             </MDElem>
         </MDElem>
