@@ -91,6 +91,7 @@ public class SmileOp extends MerisBasisOp {
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
+        targetProduct.setDescription(sourceProduct.getDescription());
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
         ProductUtils.copyRoiMasks(sourceProduct, targetProduct);
@@ -99,7 +100,7 @@ public class SmileOp extends MerisBasisOp {
         validMaskBand = createMask(SmileConstants.BITMASK_TERM_PROCESS);
 
         try {
-            smileAlgorithm = new SmileAlgorithm(sourceProduct);
+            smileAlgorithm = new SmileAlgorithm(sourceProduct.getProductType());
         } catch (IOException e) {
             throw new OperatorException("Could not load Smile auxdata.");
         }
@@ -114,12 +115,12 @@ public class SmileOp extends MerisBasisOp {
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         Rectangle rect = targetTile.getRectangle();
         int bandIndex = sourceProduct.getBandIndex(targetBand.getName());
-        int[] requiredBands = smileAlgorithm.computeRequiredBandIndexes(bandIndex);
+        int[] requiredSourceBands = smileAlgorithm.computeRequiredBandIndexes(bandIndex);
 
-        pm.beginTask("smile correction", requiredBands.length + 3 + targetTile.getHeight());
+        pm.beginTask("smile correction", requiredSourceBands.length + 3 + targetTile.getHeight());
         try {
             Tile[] radianceTiles = new Tile[EnvisatConstants.MERIS_L1B_NUM_SPECTRAL_BANDS];
-            for (int index : requiredBands) {
+            for (int index : requiredSourceBands) {
                 radianceTiles[index] = getSourceTile(sourceProduct.getBandAt(index), rect, SubProgressMonitor.create(pm, 1));
             }
 

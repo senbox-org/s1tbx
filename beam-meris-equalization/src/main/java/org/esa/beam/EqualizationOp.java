@@ -97,7 +97,7 @@ public class EqualizationOp extends Operator {
         date = productJulianDate - (long) JulianDate.julianDate(2002, 4, 1);
 
         try {
-            smileAlgorithm = new SmileAlgorithm(sourceProduct);
+            smileAlgorithm = new SmileAlgorithm(sourceProduct.getProductType());
         } catch (IOException e) {
             throw new OperatorException("Not able to initialise SMILE algorithm.", e);
         }

@@ -17,7 +17,6 @@
 package org.esa.beam;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.processor.smile.SmileAuxData;
 import org.esa.beam.processor.smile.SmileConstants;
@@ -36,9 +35,9 @@ class SmileAlgorithm {
     private final File auxdataDir;
     private final SmileAuxData auxData;
 
-    SmileAlgorithm(Product sourceProduct) throws IOException {
+    SmileAlgorithm(String productType) throws IOException {
         auxdataDir = installAuxdata();
-        auxData = loadAuxdata(sourceProduct.getProductType());
+        auxData = loadAuxdata(productType);
     }
 
     private SmileAuxData loadAuxdata(String productType) throws IOException {
@@ -66,7 +65,7 @@ class SmileAlgorithm {
         return auxData.getDetectorWavelengths().length;
     }
 
-    public double correct(int x, int y, int index, int detectorIndex, Tile[] radianceTiles, boolean isLand) {
+    public double correct(int x, int y, int bandIndex, int detectorIndex, Tile[] radianceTiles, boolean isLand) {
         boolean[] shouldCorrect;
         int[] lowerIndexes;
         int[] upperIndexes;
@@ -85,16 +84,16 @@ class SmileAlgorithm {
         double[] theoretE0s = auxData.getTheoreticalSunSpectralFluxes();
 
         // perform irradiance correction
-        double r0 = radianceTiles[index].getSampleDouble(x, y) / detectorE0s[index];
-        double rc = r0 * theoretE0s[index];
-        if (shouldCorrect[index]) {
+        double r0 = radianceTiles[bandIndex].getSampleDouble(x, y) / detectorE0s[bandIndex];
+        double rc = r0 * theoretE0s[bandIndex];
+        if (shouldCorrect[bandIndex]) {
             // perform reflectance correction
-            int lowerIndex = lowerIndexes[index];
-            int upperIndex = upperIndexes[index];
+            int lowerIndex = lowerIndexes[bandIndex];
+            int upperIndex = upperIndexes[bandIndex];
             double r1 = radianceTiles[lowerIndex].getSampleDouble(x, y) / detectorE0s[lowerIndex];
             double r2 = radianceTiles[upperIndex].getSampleDouble(x, y) / detectorE0s[upperIndex];
-            double dl = (theoretWLs[index] - detectorWLs[index]) / (detectorWLs[upperIndex] - detectorWLs[lowerIndex]);
-            double dr = (r2 - r1) * dl * theoretE0s[index];
+            double dl = (theoretWLs[bandIndex] - detectorWLs[bandIndex]) / (detectorWLs[upperIndex] - detectorWLs[lowerIndex]);
+            double dr = (r2 - r1) * dl * theoretE0s[bandIndex];
             rc += dr;
         }
         return rc;
