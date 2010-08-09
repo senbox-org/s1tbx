@@ -67,11 +67,10 @@ public class EqualizationOpTest {
         final Product targetProduct = GPF.createProduct(operatorName, GPF.NO_PARAMS,
                                                         radianceSourceProduct);
 
-        comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 10, 0);
-        comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 20, 0);
-        comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 3);
-        comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 2);
-
+        for (int i= 0; i < targetProduct.getBands().length - 2; i++) {
+            comparePixels(targetProduct.getBandAt(i), expectedProduct.getBandAt(i), 53, 4);
+            comparePixels(targetProduct.getBandAt(i), expectedProduct.getBandAt(i), 928, 3);
+        }
     }
 
     @Test
@@ -82,10 +81,10 @@ public class EqualizationOpTest {
         final Product targetProduct = GPF.createProduct(operatorName, parameterMap,
                                                         radianceSourceProduct);
 
-        comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 10, 0);
-        comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 20, 0);
-        comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 3);
-        comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 2);
+        for (int i= 0; i < targetProduct.getBands().length - 2; i++) {
+            comparePixels(targetProduct.getBandAt(i), expectedProduct.getBandAt(i), 53, 4);
+            comparePixels(targetProduct.getBandAt(i), expectedProduct.getBandAt(i), 928, 3);
+        }
     }
 
     @Test
@@ -96,16 +95,16 @@ public class EqualizationOpTest {
         final Product targetProduct = GPF.createProduct(operatorName, parameterMap,
                                                         smileSourceProduct);
 
-        comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 10, 0);
-        comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 20, 0);
-        comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 3);
-        comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 2);
+        for (int i= 0; i < targetProduct.getBands().length - 2; i++) {
+            comparePixels(targetProduct.getBandAt(i), expectedProduct.getBandAt(i), 53, 4);
+            comparePixels(targetProduct.getBandAt(i), expectedProduct.getBandAt(i), 928, 3);
+        }
     }
 
     private void comparePixels(Band band, Band band1, int x, int y) {
-        final double expectedValue = band1.getGeophysicalImage().getData().getSampleFloat(x, y, 0);
-        final double targetValue = band.getGeophysicalImage().getData().getSampleFloat(x, y, 0);
-        assertEquals(expectedValue, targetValue, 1.0e-4);
+        final double expectedValue = band1.getGeophysicalImage().getData().getSampleDouble(x, y, 0);
+        final double targetValue = band.getGeophysicalImage().getData().getSampleDouble(x, y, 0);
+        assertEquals(expectedValue, targetValue, 1.0e-3);
     }
 
 
