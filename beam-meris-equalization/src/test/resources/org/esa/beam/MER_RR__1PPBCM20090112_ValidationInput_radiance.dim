@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<Dimap_Document name="MER_RR__1PPBCM20090112_ValidationInput.dim">
+<Dimap_Document name="MER_RR__1PPBCM20090112_ValidationInput_radiance.dim">
     <Metadata_Id>
         <METADATA_FORMAT version="2.9.0">DIMAP</METADATA_FORMAT>
         <METADATA_PROFILE>BEAM-DATAMODEL-V1</METADATA_PROFILE>
     </Metadata_Id>
     <Dataset_Id>
         <DATASET_SERIES>BEAM-PRODUCT</DATASET_SERIES>
-        <DATASET_NAME>MER_RR__1PPBCM20090112_ValidationInput</DATASET_NAME>
+        <DATASET_NAME>MER_RR__1PPBCM20090112_ValidationInput_radiance</DATASET_NAME>
     </Dataset_Id>
     <Dataset_Use>
         <DATASET_COMMENTS>Input product for validation</DATASET_COMMENTS>
@@ -76,131 +76,131 @@
         <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>
         <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_1.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_1.hdr" />
             <BAND_INDEX>0</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_2.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_2.hdr" />
             <BAND_INDEX>1</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_3.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_3.hdr" />
             <BAND_INDEX>2</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_4.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_4.hdr" />
             <BAND_INDEX>3</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_5.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_5.hdr" />
             <BAND_INDEX>4</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_6.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_6.hdr" />
             <BAND_INDEX>5</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_7.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_7.hdr" />
             <BAND_INDEX>6</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_8.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_8.hdr" />
             <BAND_INDEX>7</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_9.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_9.hdr" />
             <BAND_INDEX>8</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_10.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_10.hdr" />
             <BAND_INDEX>9</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_11.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_11.hdr" />
             <BAND_INDEX>10</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_12.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_12.hdr" />
             <BAND_INDEX>11</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_13.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_13.hdr" />
             <BAND_INDEX>12</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_14.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_14.hdr" />
             <BAND_INDEX>13</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/radiance_15.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/radiance_15.hdr" />
             <BAND_INDEX>14</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/l1_flags.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/l1_flags.hdr" />
             <BAND_INDEX>15</BAND_INDEX>
         </Data_File>
         <Data_File>
-            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/detector_index.hdr" />
+            <DATA_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/detector_index.hdr" />
             <BAND_INDEX>16</BAND_INDEX>
         </Data_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/latitude.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/latitude.hdr" />
             <TIE_POINT_GRID_INDEX>0</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/longitude.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/longitude.hdr" />
             <TIE_POINT_GRID_INDEX>1</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/dem_alt.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/dem_alt.hdr" />
             <TIE_POINT_GRID_INDEX>2</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/dem_rough.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/dem_rough.hdr" />
             <TIE_POINT_GRID_INDEX>3</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/lat_corr.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/lat_corr.hdr" />
             <TIE_POINT_GRID_INDEX>4</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/lon_corr.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/lon_corr.hdr" />
             <TIE_POINT_GRID_INDEX>5</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/sun_zenith.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/sun_zenith.hdr" />
             <TIE_POINT_GRID_INDEX>6</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/sun_azimuth.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/sun_azimuth.hdr" />
             <TIE_POINT_GRID_INDEX>7</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/view_zenith.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/view_zenith.hdr" />
             <TIE_POINT_GRID_INDEX>8</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/view_azimuth.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/view_azimuth.hdr" />
             <TIE_POINT_GRID_INDEX>9</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/zonal_wind.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/zonal_wind.hdr" />
             <TIE_POINT_GRID_INDEX>10</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/merid_wind.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/merid_wind.hdr" />
             <TIE_POINT_GRID_INDEX>11</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/atm_press.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/atm_press.hdr" />
             <TIE_POINT_GRID_INDEX>12</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/ozone.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/ozone.hdr" />
             <TIE_POINT_GRID_INDEX>13</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
         <Tie_Point_Grid_File>
-            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput.data/tie_point_grids/rel_hum.hdr" />
+            <TIE_POINT_GRID_FILE_PATH href="MER_RR__1PPBCM20090112_ValidationInput_radiance.data/tie_point_grids/rel_hum.hdr" />
             <TIE_POINT_GRID_INDEX>14</TIE_POINT_GRID_INDEX>
         </Tie_Point_Grid_File>
     </Data_Access>
@@ -418,6 +418,30 @@
         </Tie_Point_Grid_Info>
     </Tie_Point_Grids>
     <Image_Display>
+        <Band_Statistics>
+            <BAND_INDEX>0</BAND_INDEX>
+            <STX_MIN>211.71527932863683</STX_MIN>
+            <STX_MAX>275.7462418572977</STX_MAX>
+            <STX_MEAN>245.6911317149461</STX_MEAN>
+            <STX_STD_DEV>15.585327251906673</STX_STD_DEV>
+            <STX_RES_LEVEL>0</STX_RES_LEVEL>
+            <HISTOGRAM>2,0,0,0,0,0,1,0,0,0,2,0,3,0,0,0,0,0,0,0,0,0,0,2,3,0,2,0,2,2,0,0,2,2,2,3,0,2,0,0,7,4,0,0,7,1,3,3,4,2,0,0,2,3,1,3,4,2,10,0,0,5,4,2,8,2,3,0,0,2,3,4,0,2,4,3,1,7,6,5,3,3,4,6,14,17,12,7,13,11,11,4,7,9,5,9,15,12,14,11,9,10,3,12,26,15,37,25,34,66,43,35,39,41,39,20,22,15,15,19,13,18,16,16,12,19,17,17,16,8,16,18,29,15,19,14,23,18,15,23,16,29,23,21,24,24,22,20,18,13,16,15,14,19,13,13,5,13,9,11,8,2,3,9,5,3,4,7,7,15,11,14,6,14,15,17,17,15,20,23,11,3,8,8,11,12,22,12,19,19,14,15,10,22,15,18,15,16,15,20,7,25,8,16,9,19,9,10,11,6,17,20,24,33,30,60,62,58,76,58,60,53,33,53,57,53,38,47,38,46,55,41,33,21,23,4,3,7,2,10,7,4,8,17,8,25,19,15,10,14,13,12,8,12,5,12,11,16,29,19,24,25,19,19,11,8,11,6,4,15,10,16,17,18,10,7,9,9,16,17,23,6,9,15,3,15,19,11,14,7,17,10,15,14,13,1,4,5,3,7,7,13,17,19,18,27,26,13,45,24,16,13,8,8,12,7,10,7,3,5,5,11,11,8,10,9,4,4,7,4,11,21,12,18,19,17,19,11,8,5,4,7,7,13,6,6,5,12,12,13,9,8,5,2,3,9,11,10,5,6,2,6,6,10,17,8,8,14,10,13,10,6,11,9,17,11,14,8,5,11,6,3,11,21,20,18,28,31,24,26,30,17,19,14,12,12,13,11,8,2,4,17,15,28,30,18,16,11,24,21,11,10,6,3,6,4,4,13,15,38,22,20,15,13,11,12,22,10,7,19,25,22,15,16,14,8,3,10,9,19,19,16,5,9,6,12,9,23,13,26,42,21,3,5,7,1,4,9,7,7,17,10,7,11,2,4,4,15,15,21,11,3,9,4,2,2,2,7,7,4,6,5,8,7,26,14,20,19,6,4,8,6,4,6,35,20,15,14,6,7,13,14,39,25,52,13,14,8,4,4,0,2</HISTOGRAM>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>218.59360538152032</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>246.1069095930543</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>273.6202138045883</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <NO_DATA_COLOR red="0" green="0" blue="0" alpha="0" />
+            <HISTOGRAM_MATCHING>None</HISTOGRAM_MATCHING>
+        </Band_Statistics>
         <Band_Statistics>
             <BAND_INDEX>12</BAND_INDEX>
             <NUM_COLORS>256</NUM_COLORS>
@@ -870,7 +894,6 @@
                 <MDElem name="DSD.1">
                     <MDATTR name="DATASET_NAME" type="ascii">Quality ADS</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">A</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">11189</MDATTR>
                     <MDATTR name="SIZE" type="uint32">99</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">3</MDATTR>
@@ -879,7 +902,6 @@
                 <MDElem name="DSD.2">
                     <MDATTR name="DATASET_NAME" type="ascii">Scaling Factor GADS</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">G</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">11288</MDATTR>
                     <MDATTR name="SIZE" type="uint32">292</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">1</MDATTR>
@@ -888,7 +910,6 @@
                 <MDElem name="DSD.3">
                     <MDATTR name="DATASET_NAME" type="ascii">Tie points ADS</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">A</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">11580</MDATTR>
                     <MDATTR name="SIZE" type="uint32">71260</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">20</MDATTR>
@@ -897,7 +918,6 @@
                 <MDElem name="DSD.4">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(1)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">82840</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -906,7 +926,6 @@
                 <MDElem name="DSD.5">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(2)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">770615</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -915,7 +934,6 @@
                 <MDElem name="DSD.6">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(3)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">1458390</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -924,7 +942,6 @@
                 <MDElem name="DSD.7">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(4)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">2146165</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -933,7 +950,6 @@
                 <MDElem name="DSD.8">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(5)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">2833940</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -942,7 +958,6 @@
                 <MDElem name="DSD.9">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(6)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">3521715</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -951,7 +966,6 @@
                 <MDElem name="DSD.10">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(7)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">4209490</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -960,7 +974,6 @@
                 <MDElem name="DSD.11">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(8)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">4897265</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -969,7 +982,6 @@
                 <MDElem name="DSD.12">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(9)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">5585040</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -978,7 +990,6 @@
                 <MDElem name="DSD.13">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(10)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">6272815</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -987,7 +998,6 @@
                 <MDElem name="DSD.14">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(11)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">6960590</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -996,7 +1006,6 @@
                 <MDElem name="DSD.15">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(12)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">7648365</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -1005,7 +1014,6 @@
                 <MDElem name="DSD.16">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(13)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">8336140</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -1014,7 +1022,6 @@
                 <MDElem name="DSD.17">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(14)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">9023915</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -1023,7 +1030,6 @@
                 <MDElem name="DSD.18">
                     <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(15)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">9711690</MDATTR>
                     <MDATTR name="SIZE" type="uint32">687775</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -1032,7 +1038,6 @@
                 <MDElem name="DSD.19">
                     <MDATTR name="DATASET_NAME" type="ascii">Flags MDS(16)</MDATTR>
                     <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">10399465</MDATTR>
                     <MDATTR name="SIZE" type="uint32">1029680</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">305</MDATTR>
@@ -1129,9 +1134,7 @@
                     <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
                 </MDElem>
                 <MDElem name="DSD.30">
-                    <MDATTR name="DATASET_NAME" type="ascii" />
                     <MDATTR name="DATASET_TYPE" type="ascii">?</MDATTR>
-                    <MDATTR name="FILE_NAME" type="ascii" />
                     <MDATTR name="OFFSET" type="uint32">0</MDATTR>
                     <MDATTR name="SIZE" type="uint32">0</MDATTR>
                     <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>

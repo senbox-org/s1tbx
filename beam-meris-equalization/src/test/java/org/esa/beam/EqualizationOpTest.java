@@ -16,12 +16,61 @@
 
 package org.esa.beam;
 
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import static junit.framework.Assert.*;
 
 public class EqualizationOpTest {
+    private static final String RADIANCE_TEST_INPUT = "MER_RR__1PPBCM20090112_ValidationInput_radiance.dim";
+    private static final String EXPECTED_OUTPUT = "MER_RR__1PPBCM20090112_ValidationOutput.dim";
+
+    private static EqualizationOp.Spi equalizationOpSpi = new EqualizationOp.Spi();
+
+    @BeforeClass
+    public static void setUp() throws Exception {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(equalizationOpSpi);
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(equalizationOpSpi);
+    }
+
+    @Test
+    public void testComputation() throws URISyntaxException, IOException {
+        String operatorName = OperatorSpi.getOperatorAlias(EqualizationOp.class);
+        final URL smileReflProductUrl = getClass().getResource(RADIANCE_TEST_INPUT);
+        final Product sourceProduct = ProductIO.readProduct(smileReflProductUrl.getFile());
+        final Product targetProduct = GPF.createProduct(operatorName, GPF.NO_PARAMS, sourceProduct);
+
+        final URL expectedProductUrl = getClass().getResource(EXPECTED_OUTPUT);
+        final Product expectedProduct = ProductIO.readProduct(expectedProductUrl.getFile());
+
+        comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 10, 0);
+        comparePixels(targetProduct.getBands()[0], expectedProduct.getBands()[0], 20, 0);
+        comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 3);
+        comparePixels(targetProduct.getBands()[1], expectedProduct.getBands()[1], 10, 2);
+
+    }
+
+    private void comparePixels(Band band, Band band1, int x, int y) {
+        final double expectedValue = band1.getGeophysicalImage().getData().getSampleFloat(x, y, 0);
+        final double targetValue = band.getGeophysicalImage().getData().getSampleFloat(x, y, 0);
+        assertEquals(expectedValue, targetValue, 1.0e-4);
+    }
+
 
     @Test(expected = OperatorException.class)
     public void testParseReproVersion_MERIS_Fails() {
