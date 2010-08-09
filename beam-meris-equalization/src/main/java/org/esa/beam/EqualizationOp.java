@@ -184,8 +184,8 @@ public class EqualizationOp extends Operator {
                                                                   landMaskTile.getSampleBoolean(x, y));
                         }
                         final double sunZenithSample = sunZenithTile.getSampleDouble(x, y);
-                        final double sourceReflectance = RsMathUtils.radianceToReflectance(sourceSample,
-                                                                                           sunZenithSample,
+                        final double sourceReflectance = RsMathUtils.radianceToReflectance((float)sourceSample,
+                                                                                           (float)sunZenithSample,
                                                                                            sourceBand.getSolarFlux());
 
                         final double[] coefficients = equalizationLUT.getCoefficients(targetBand.getSpectralBandIndex(),
