@@ -1388,7 +1388,7 @@ public class ProductUtils {
 
     public static void copyVectorData(Product sourceProduct, Product targetProduct) {
         ProductNodeGroup<VectorDataNode> vectorDataGroup = sourceProduct.getVectorDataGroup();
-        if (sourceProduct.getGeoCoding() == null || targetProduct.getGeoCoding() == null) {
+        if (sourceProduct.getGeoCoding() == null || targetProduct.getGeoCoding() == null || vectorDataGroup.getNodeCount() == 0) {
             return;
         }
         if (sourceProduct.isCompatibleProduct(targetProduct, 1.0e-3f)) {
