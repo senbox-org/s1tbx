@@ -995,11 +995,13 @@ public final class DimapHeaderWriter extends XmlWriter {
 
     protected void writeDatasetUse(int indent) {
         final String description = product.getDescription();
-        if (description != null && description.length() > 0) {
+        final Product.AutoGrouping autoGrouping = product.getAutoGrouping();
+        if ((description != null && description.length() > 0) || autoGrouping != null) {
             final String[] idTags = createTags(indent, DimapProductConstants.TAG_DATASET_USE);
             println(idTags[0]);
-            printLine(indent + 1, DimapProductConstants.TAG_DATASET_COMMENTS, description);
-            final Product.AutoGrouping autoGrouping = product.getAutoGrouping();
+            if (description != null && description.length() > 0) {
+                printLine(indent + 1, DimapProductConstants.TAG_DATASET_COMMENTS, description);
+            }
             if (autoGrouping != null) {
                 printLine(indent + 1, DimapProductConstants.TAG_DATASET_AUTO_GROUPING, autoGrouping.toString());
             }

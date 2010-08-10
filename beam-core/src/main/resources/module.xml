@@ -25,6 +25,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 4.9:<br/>
+        [BEAM-1174] DIMAP stores the band grouping only if a product has a description<br/>        
         <p>Changes in 4.8:<br/>
         [BEAM-1168] Add Sinusoidal and Mollweide map projection<br/>
         [BEAM-1160] Auto-grouping of bands shall be controlled by data model<br/>
