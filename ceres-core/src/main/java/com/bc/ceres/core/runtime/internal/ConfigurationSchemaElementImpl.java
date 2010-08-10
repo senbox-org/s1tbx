@@ -19,7 +19,6 @@ package com.bc.ceres.core.runtime.internal;
 import com.bc.ceres.core.runtime.ConfigurationShemaElement;
 import com.bc.ceres.core.runtime.ConfigurationSchemaElement;
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.annotations.Annotations;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 
 import java.util.HashSet;
@@ -73,7 +72,7 @@ public class ConfigurationSchemaElementImpl extends ConfigurationElementBaseImpl
             classesWithConfiguredAliases = new HashSet<Class>(4);
         }
         if (!classesWithConfiguredAliases.contains(someClass)) {
-            Annotations.configureAliases(xStream, someClass);
+            xStream.processAnnotations(someClass);
             classesWithConfiguredAliases.add(someClass);
         }
     }
