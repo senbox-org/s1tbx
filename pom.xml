@@ -177,6 +177,7 @@
         <beam.version>4.9-SNAPSHOT</beam.version>
         <ceres.version>0.12-SNAPSHOT</ceres.version>
         <geotools.version>2.6.1</geotools.version>
+        <jide.version>2.9.5</jide.version>
     </properties>
 
     <dependencyManagement>
@@ -410,27 +411,27 @@
             <dependency>
                 <groupId>com.jidesoft</groupId>
                 <artifactId>jide-dock</artifactId>
-                <version>2.7.7</version>
+                <version>${jide.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jidesoft</groupId>
                 <artifactId>jide-action</artifactId>
-                <version>2.7.7</version>
+                <version>${jide.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jidesoft</groupId>
                 <artifactId>jide-grids</artifactId>
-                <version>2.7.7</version>
+                <version>${jide.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jidesoft</groupId>
                 <artifactId>jide-components</artifactId>
-                <version>2.7.7</version>
+                <version>${jide.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jidesoft</groupId>
                 <artifactId>jide-common</artifactId>
-                <version>2.7.7</version>
+                <version>${jide.version}</version>
             </dependency>
 
             <!-- XStream Libraries ############################################# -->

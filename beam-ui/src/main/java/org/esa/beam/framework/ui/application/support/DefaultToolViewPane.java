@@ -18,8 +18,8 @@ package org.esa.beam.framework.ui.application.support;
 
 import com.jidesoft.docking.DockContext;
 import com.jidesoft.docking.DockableFrame;
+import com.jidesoft.docking.event.DockableFrameAdapter;
 import com.jidesoft.docking.event.DockableFrameEvent;
-import com.jidesoft.docking.event.DockableFrameListener;
 import org.esa.beam.framework.ui.application.PageComponent;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.util.Debug;
@@ -177,25 +177,29 @@ public class DefaultToolViewPane extends AbstractPageComponentPane {
         }
     }
 
-    private class DockableFrameHandler implements DockableFrameListener {
+    private class DockableFrameHandler extends DockableFrameAdapter {
 
         public DockableFrameHandler() {
         }
 
+        @Override
         public void dockableFrameAdded(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
         }
 
+        @Override
         public void dockableFrameRemoved(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
         }
 
+        @Override
         public void dockableFrameShown(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
             ensurePageComponentControlCreated();
             getPageComponent().componentShown();
         }
 
+        @Override
         public void dockableFrameHidden(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
             if (pageComponentControlCreated) {
@@ -203,46 +207,56 @@ public class DefaultToolViewPane extends AbstractPageComponentPane {
             }
         }
 
+        @Override
         public void dockableFrameActivated(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
             ensurePageComponentControlCreated();
         }
 
+        @Override
         public void dockableFrameDeactivated(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
         }
 
+        @Override
         public void dockableFrameDocked(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
         }
 
+        @Override
         public void dockableFrameFloating(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
             ensurePageComponentControlCreated();
         }
 
+        @Override
         public void dockableFrameAutohidden(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
         }
 
+        @Override
         public void dockableFrameAutohideShowing(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
             ensurePageComponentControlCreated();
         }
 
+        @Override
         public void dockableFrameTabShown(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
         }
 
+        @Override
         public void dockableFrameTabHidden(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
         }
 
+        @Override
         public void dockableFrameMaximized(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
             ensurePageComponentControlCreated();
         }
 
+        @Override
         public void dockableFrameRestored(DockableFrameEvent dockableFrameEvent) {
             Debug.trace("dockableFrameEvent = " + dockableFrameEvent);
             ensurePageComponentControlCreated();
