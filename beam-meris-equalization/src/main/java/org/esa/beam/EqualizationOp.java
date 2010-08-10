@@ -18,7 +18,6 @@ package org.esa.beam;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -32,11 +31,11 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.gpf.operators.standard.BandMathsOp;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.RsMathUtils;
 
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -65,22 +64,28 @@ public class EqualizationOp extends Operator {
     private Product targetProduct;
 
     private static final String ELEM_NAME_MPH = "MPH";
+    private static final String UNIT_DL = "dl";
+    private static final String TARGET_BAND_PREFIX = "reflec_";
+    private static final String INVALID_MASK_NAME = "invalid";
+    private static final String LAND_MASK_NAME = "land";
+
     private EqualizationLUT equalizationLUT;
-    private long date;
     private SmileAlgorithm smileAlgorithm;
-    private Band landMaskBand;
-    private Band validBand;
     private HashMap<String, String> bandNameMap;
+    private long date;
 
 
     @Override
     public void initialize() throws OperatorException {
-        Guardian.assertTrue("Source product must contain band '" + MERIS_DETECTOR_INDEX_DS_NAME + "'.",
+        Guardian.assertTrue(String.format("Source product must contain band '%s'.", MERIS_DETECTOR_INDEX_DS_NAME),
                             sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME));
-        Guardian.assertTrue("Source product must contain band '" + MERIS_L1B_FLAGS_DS_NAME + "'.",
+        Guardian.assertTrue(String.format("Source product must contain band '%s'.", MERIS_L1B_FLAGS_DS_NAME),
                             sourceProduct.containsBand(MERIS_L1B_FLAGS_DS_NAME));
-        Guardian.assertTrue("Source product must contain tie-point grid '" + MERIS_SUN_ZENITH_DS_NAME + "'.",
+        Guardian.assertTrue(String.format("Source product must contain tie-point grid '%s'.", MERIS_SUN_ZENITH_DS_NAME),
                             sourceProduct.containsTiePointGrid(MERIS_SUN_ZENITH_DS_NAME));
+        Guardian.assertTrue(String.format("Source product must be of type '%s'.", MERIS_RR_L1B_PRODUCT_TYPE_NAME),
+                            sourceProduct.getProductType().equals(MERIS_RR_L1B_PRODUCT_TYPE_NAME));
+        Guardian.assertTrue("Source product does not contain radiance bands.", containsRadianceBands(sourceProduct));
         final ProductData.UTC startTime = sourceProduct.getStartTime();
         Guardian.assertNotNull("Source product must have a start time", startTime);
 
@@ -102,12 +107,6 @@ public class EqualizationOp extends Operator {
             throw new OperatorException("Not able to initialise SMILE algorithm.", e);
         }
 
-        BandMathsOp landOceanMathsOp = BandMathsOp.createBooleanExpressionBand("l1_flags.LAND_OCEAN", sourceProduct);
-        landMaskBand = landOceanMathsOp.getTargetProduct().getBandAt(0);
-        BandMathsOp validMathsOp = BandMathsOp.createBooleanExpressionBand("not l1_flags.INVALID", sourceProduct);
-        validBand = validMathsOp.getTargetProduct().getBandAt(0);
-
-
         // create the target product
         final int rasterWidth = sourceProduct.getSceneRasterWidth();
         final int rasterHeight = sourceProduct.getSceneRasterHeight();
@@ -121,54 +120,56 @@ public class EqualizationOp extends Operator {
         String[] sourceSpectralBandNames = getSpectralBandNames(sourceProduct);
         for (String spectralBandName : sourceSpectralBandNames) {
             final Band sourceBand = sourceProduct.getBand(spectralBandName);
-            final String targetBandName = "reflec_" + (sourceBand.getSpectralBandIndex() + 1);
+            final int bandIndex = sourceBand.getSpectralBandIndex() + 1;
+            final String targetBandName = TARGET_BAND_PREFIX + bandIndex;
             final Band targetBand = targetProduct.addBand(targetBandName,
                                                           ProductData.TYPE_FLOAT32);
             bandNameMap.put(targetBandName, spectralBandName);
-            targetBand.setDescription(sourceBand.getDescription());
-            targetBand.setUnit(sourceBand.getUnit());
+            targetBand.setDescription("TOA reflectance band " + bandIndex);
+            targetBand.setUnit(UNIT_DL);
             targetBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
             ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
         }
 
-        copyBand("detector_index");
+        copyBand(MERIS_DETECTOR_INDEX_DS_NAME);
         ProductUtils.copyFlagBands(sourceProduct, targetProduct);
-        targetProduct.getBand("l1_flags").setSourceImage(sourceProduct.getBand("l1_flags").getSourceImage());
+        final Band sourceFlagBand = sourceProduct.getBand(MERIS_L1B_FLAGS_DS_NAME);
+        final Band targetFlagBand = targetProduct.getBand(MERIS_L1B_FLAGS_DS_NAME);
+        targetFlagBand.setSourceImage(sourceFlagBand.getSourceImage());
         ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
+    }
 
+    private boolean containsRadianceBands(Product product) {
+        for (String name : MERIS_L1B_SPECTRAL_BAND_NAMES) {
+            product.containsBand(name);
+            if (!product.containsBand(name)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         pm.beginTask("Performing equalization...", 7);
+        final Rectangle targetRegion = targetTile.getRectangle();
+        final int spectralIndex = targetBand.getSpectralBandIndex();
         try {
-            final Band sourceBand = sourceProduct.getBand(bandNameMap.get(targetBand.getName()));
-            final Tile sourceBandTile = getSourceTile(sourceBand, targetTile.getRectangle(),
-                                                      new SubProgressMonitor(pm, 1));
-            final RasterDataNode detectorNode = sourceProduct.getRasterDataNode(
-                    MERIS_DETECTOR_INDEX_DS_NAME);
-            final Tile detectorSourceTile = getSourceTile(detectorNode, targetTile.getRectangle(),
-                                                          new SubProgressMonitor(pm, 1));
-            final RasterDataNode sunZenithGrid = sourceProduct.getRasterDataNode(MERIS_SUN_ZENITH_DS_NAME);
-            final Tile sunZenithTile = getSourceTile(sunZenithGrid, targetTile.getRectangle(),
-                                                     new SubProgressMonitor(pm, 1));
-            Tile validMaskTile = getSourceTile(validBand, targetTile.getRectangle(), new SubProgressMonitor(pm, 1));
+            final String sourceBandName = bandNameMap.get(targetBand.getName());
+            final Band sourceBand = sourceProduct.getBand(sourceBandName);
+            final Tile sourceBandTile = loadSourceTile(sourceBandName, targetRegion, pm);
+            final Tile detectorSourceTile = loadSourceTile(MERIS_DETECTOR_INDEX_DS_NAME, targetRegion, pm);
+            final Tile sunZenithTile = loadSourceTile(MERIS_SUN_ZENITH_DS_NAME, targetRegion, pm);
 
             Tile[] radianceTiles = new Tile[0];
             Tile landMaskTile = null;
+            Tile invalidMaskTile = null;
             if (doSmile) {
-                final int[] requiredBandIndices = smileAlgorithm.computeRequiredBandIndexes(
-                        targetBand.getSpectralBandIndex());
-                radianceTiles = new Tile[EnvisatConstants.MERIS_L1B_NUM_SPECTRAL_BANDS];
-                for (int requiredBandIndex : requiredBandIndices) {
-                    radianceTiles[requiredBandIndex] = getSourceTile(sourceProduct.getBandAt(requiredBandIndex),
-                                                                     targetTile.getRectangle(),
-                                                                     new SubProgressMonitor(pm, 1));
-                }
-
-                landMaskTile = getSourceTile(landMaskBand, targetTile.getRectangle(), new SubProgressMonitor(pm, 1));
+                radianceTiles = loadRequiredRadianceTiles(spectralIndex, targetRegion, new SubProgressMonitor(pm, 1));
+                invalidMaskTile = loadSourceTile(INVALID_MASK_NAME, targetRegion, pm);
+                landMaskTile = loadSourceTile(LAND_MASK_NAME, targetRegion, pm);
             }
 
             for (int y = targetTile.getMinY(); y <= targetTile.getMaxY(); y++) {
@@ -178,23 +179,19 @@ public class EqualizationOp extends Operator {
                     final int detectorIndex = detectorSourceTile.getSampleInt(x, y);
                     if (detectorIndex != -1) {
                         double sourceSample = sourceBandTile.getSampleDouble(x, y);
-                        if (doSmile && validMaskTile.getSampleBoolean(x, y)) {
-                            sourceSample = smileAlgorithm.correct(x, y, targetBand.getSpectralBandIndex(),
+                        if (doSmile && !invalidMaskTile.getSampleBoolean(x, y)) {
+                            sourceSample = smileAlgorithm.correct(x, y, spectralIndex,
                                                                   detectorIndex, radianceTiles,
                                                                   landMaskTile.getSampleBoolean(x, y));
                         }
+                        final float solarFlux = sourceBand.getSolarFlux();
                         final double sunZenithSample = sunZenithTile.getSampleDouble(x, y);
-                        final double sourceReflectance = RsMathUtils.radianceToReflectance((float)sourceSample,
-                                                                                           (float)sunZenithSample,
-                                                                                           sourceBand.getSolarFlux());
+                        final double sourceReflectance = RsMathUtils.radianceToReflectance((float) sourceSample,
+                                                                                           (float) sunZenithSample,
+                                                                                           solarFlux);
 
-                        final double[] coefficients = equalizationLUT.getCoefficients(targetBand.getSpectralBandIndex(),
-                                                                                      detectorIndex);
-                        double cEq = coefficients[0] +
-                                     coefficients[1] * date +
-                                     coefficients[2] * date * date;
-                        double sample = sourceReflectance / cEq;
-                        targetTile.setSample(x, y, sample);
+                        double equalizedResult = performEqualization(spectralIndex, sourceReflectance, detectorIndex);
+                        targetTile.setSample(x, y, equalizedResult);
                     }
                 }
             }
@@ -202,6 +199,14 @@ public class EqualizationOp extends Operator {
         } finally {
             pm.done();
         }
+    }
+
+    private double performEqualization(int bandIndex, double reflectanceValue, int detectorIndex) {
+        final double[] coefficients = equalizationLUT.getCoefficients(bandIndex, detectorIndex);
+        double cEq = coefficients[0] +
+                     coefficients[1] * date +
+                     coefficients[2] * date * date;
+        return reflectanceValue / cEq;
     }
 
     static int parseReprocessingVersion(String processorName, float processorVersion) {
@@ -220,7 +225,9 @@ public class EqualizationOp extends Operator {
             }
         }
 
-        throw new OperatorException(String.format("Unknown reprocessing version %s.", processorVersion));
+        throw new OperatorException(
+                String.format("Unknown reprocessing version %s.\nProduct must be of reprocessing 2 or 3.",
+                              processorVersion));
     }
 
     private int getReprocessingVersion() {
@@ -234,12 +241,33 @@ public class EqualizationOp extends Operator {
                 final float version = Float.parseFloat(processorVersion);
                 return parseReprocessingVersion(processorName, version);
             } else {
-                throw new OperatorException(String.format("Not able to detect reprocessing version.\n%s",
-                                                          "Metadata attribute 'MPH/SOFTWARE_VER' not found."));
+                throw new OperatorException(
+                        String.format(
+                                "Not able to detect reprocessing version.\nMetadata attribute 'MPH/SOFTWARE_VER' not found."));
             }
         }
         throw new OperatorException(
-                String.format("Not able to detect reprocessing version.\n%s", "Metadata element 'MPH' not found."));
+                String.format("Not able to detect reprocessing version.\nMetadata element 'MPH' not found."));
+    }
+
+    private Tile[] loadRequiredRadianceTiles(int spectralBandIndex, Rectangle targetRectangle, ProgressMonitor pm) {
+        final int[] requiredBandIndices = smileAlgorithm.computeRequiredBandIndexes(spectralBandIndex);
+        Tile[] radianceTiles = new Tile[MERIS_L1B_NUM_SPECTRAL_BANDS];
+        pm.beginTask("Loading radiance tiles...", requiredBandIndices.length);
+        try {
+            for (int requiredBandIndex : requiredBandIndices) {
+                final Band band = sourceProduct.getBandAt(requiredBandIndex);
+                radianceTiles[requiredBandIndex] = getSourceTile(band, targetRectangle, new SubProgressMonitor(pm, 1));
+            }
+        } finally {
+            pm.done();
+        }
+        return radianceTiles;
+    }
+
+    private Tile loadSourceTile(String sourceNodeName, Rectangle rectangle, ProgressMonitor pm) {
+        final RasterDataNode sourceNode = sourceProduct.getRasterDataNode(sourceNodeName);
+        return getSourceTile(sourceNode, rectangle, new SubProgressMonitor(pm, 1));
     }
 
     private void copyBand(String sourceBandName) {
