@@ -79,18 +79,6 @@ public class RsMathUtils {
     }
 
     /**
-     * Converts a radiance value to a reflectance value for given solar spectral flux and sun zenith angle.
-     *
-     * @param rad the radiance in mW /(m^2 * sr * nm)
-     * @param sza the sun zenith angle in decimal degrees
-     * @param e0  the solar spectral flux in mW / (m^2 * sr * nm)
-     * @return the corresponding reflectance
-     */
-    public static double radianceToReflectance(double rad, double sza, double e0) {
-        return (rad * Math.PI) / (e0 * Math.cos(sza * RAD_PER_DEG));
-    }
-
-    /**
      * Converts an array of radiance values to an array of reflectance values for given solar spectral flux and sun
      * zenith angle.
      * <p/>
