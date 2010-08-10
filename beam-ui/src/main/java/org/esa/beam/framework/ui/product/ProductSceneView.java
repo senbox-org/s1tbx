@@ -179,12 +179,12 @@ public class ProductSceneView extends BasicView
      * Name of property of selected layer
      */
     public static final String PROPERTY_NAME_SELECTED_LAYER = "selectedLayer";
-    
+
     /**
      * Name of property of selected pin
      */
     public static final String PROPERTY_NAME_SELECTED_PIN = "selectedPin";
-    
+
     public static final Color DEFAULT_IMAGE_BACKGROUND_COLOR = new Color(51, 51, 51);
     public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
 
@@ -252,7 +252,7 @@ public class ProductSceneView extends BasicView
             @Override
             public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
                 for (Layer childLayer : childLayers) {
-                    if(childLayer == selectedLayer) {
+                    if (childLayer == selectedLayer) {
                         setSelectedLayer(null);
                         return;
                     }
@@ -262,7 +262,8 @@ public class ProductSceneView extends BasicView
         final boolean navControlShown = sceneImage.getConfiguration().getPropertyBool(
                 PROPERTY_KEY_IMAGE_NAV_CONTROL_SHOWN, true);
         this.layerCanvas.setNavControlShown(navControlShown);
-        this.layerCanvas.setAntialiasing(sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_GRAPHICS_ANTIALIASING, true));
+        this.layerCanvas.setAntialiasing(
+                sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_GRAPHICS_ANTIALIASING, true));
         this.layerCanvas.setPreferredSize(new Dimension(400, 400));
         this.layerCanvas.addOverlay(new LayerCanvas.Overlay() {
             @Override
@@ -666,6 +667,7 @@ public class ProductSceneView extends BasicView
     }
 
     // todo - replace by getCurrentGeometry() (nf)
+
     public ShapeFigure getCurrentShapeFigure() {
         FigureSelection figureSelection = getFigureEditor().getFigureSelection();
         if (figureSelection.getFigureCount() > 0) {
@@ -1357,6 +1359,9 @@ public class ProductSceneView extends BasicView
 
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
+            if (e.isAltDown() || e.isAltGraphDown() || e.isControlDown() || e.isShiftDown()) {
+                return;
+            }
             Viewport viewport = layerCanvas.getViewport();
             int wheelRotation = e.getWheelRotation();
             double oldZoomFactor = viewport.getZoomFactor();
@@ -1575,9 +1580,9 @@ public class ProductSceneView extends BasicView
             return layer instanceof VectorDataLayer && ((VectorDataLayer) layer).getVectorDataNode() == vectorDataNode;
         }
     }
-    
-    private class PinSelectionChangeListener extends  AbstractSelectionChangeListener {
-        
+
+    private class PinSelectionChangeListener extends AbstractSelectionChangeListener {
+
         private boolean firedNoPinSelected = false;
 
         @Override
