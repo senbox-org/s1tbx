@@ -17,7 +17,7 @@
 package com.bc.ceres.core.runtime.internal;
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.core.BaseException;
+import com.thoughtworks.xstream.XStreamException;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -58,7 +58,7 @@ class InstallInfo {
                 installInfo.items = new String[0];
             }
             return installInfo;
-        } catch (BaseException e) {
+        } catch (XStreamException e) {
             IOException ioe = new IOException("Failed to read install info.");
             ioe.initCause(e);
             throw ioe;
@@ -69,7 +69,7 @@ class InstallInfo {
         try {
             this.date = new Date();
             createXStream().toXML(this, writer);
-        } catch (BaseException e) {
+        } catch (XStreamException e) {
             IOException ioe = new IOException("Failed to write install info.");
             ioe.initCause(e);
             throw ioe;

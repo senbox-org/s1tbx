@@ -21,8 +21,8 @@ import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ModuleState;
 import com.bc.ceres.core.runtime.Version;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.*;
-import com.thoughtworks.xstream.core.BaseException;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
@@ -55,7 +55,7 @@ public class ModuleManifestParser {
             ModuleImpl module = (ModuleImpl) createXStream().fromXML(xml);
             postProcessModule(module);
             return module;
-        } catch (BaseException e) {
+        } catch (XStreamException e) {
             throw toCoreException(e);
         }
     }
@@ -66,7 +66,7 @@ public class ModuleManifestParser {
             ModuleImpl module = (ModuleImpl) createXStream().fromXML(stream);
             postProcessModule(module);
             return module;
-        } catch (BaseException e) {
+        } catch (XStreamException e) {
             throw toCoreException(e);
         } finally {
             try {
@@ -83,7 +83,7 @@ public class ModuleManifestParser {
             ModuleImpl module = (ModuleImpl) createXStream().fromXML(reader);
             postProcessModule(module);
             return module;
-        } catch (BaseException e) {
+        } catch (XStreamException e) {
             throw toCoreException(e);
         } finally {
             try {
@@ -230,7 +230,7 @@ public class ModuleManifestParser {
         return stringList.toArray(new String[stringList.size()]);
     }
 
-    private CoreException toCoreException(BaseException e) {
+    private CoreException toCoreException(XStreamException e) {
         return new CoreException("Failed to parse module manifest: " + e.getMessage(), e);
     }
 
