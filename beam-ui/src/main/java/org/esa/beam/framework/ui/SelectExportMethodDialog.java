@@ -55,7 +55,9 @@ public class SelectExportMethodDialog {
                                                        buttonRow,
                                                        copyToClipboardButton);
         final JDialog dialog = optionPane.createDialog(parentComponent, title);
-        HelpSys.enableHelpKey(optionPane, helpID);
+        if (helpID != null) {
+            HelpSys.enableHelpKey(optionPane, helpID);
+        }
 
         // Create action listener for all 3 buttons (as instance of an anonymous class)
         final ActionListener actionListener = new ActionListener() {
