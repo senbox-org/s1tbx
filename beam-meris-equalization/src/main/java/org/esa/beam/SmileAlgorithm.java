@@ -55,7 +55,7 @@ class SmileAlgorithm {
         String auxdataDirPath = System.getProperty(SmileConstants.AUXDATA_DIR_PROPERTY, defaultAuxdataInstallDir.getAbsolutePath());
         File auxdataDir = new File(auxdataDirPath);
 
-        URL sourceUrl = ResourceInstaller.getSourceUrl(getClass());
+        URL sourceUrl = ResourceInstaller.getSourceUrl(SmileAuxData.class);
         final ResourceInstaller resourceInstaller = new ResourceInstaller(sourceUrl, "auxdata/", auxdataDir);
         resourceInstaller.install(".*", ProgressMonitor.NULL);
         return auxdataDir;
