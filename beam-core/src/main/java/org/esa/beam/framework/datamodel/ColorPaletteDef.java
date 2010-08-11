@@ -15,6 +15,7 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
@@ -27,8 +28,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Vector;
 
-import com.bc.ceres.core.Assert;
-
 /**
  * The <code>ColorPaletteDef</code> class represents a curve that is used to transform the sample values of a
  * geo-physical band into color palette indexes.
@@ -37,7 +36,7 @@ import com.bc.ceres.core.Assert;
  * contained in the curve. This allows a better image interpretation because certain colors correspond to certain sample
  * values even if the curve points are used to create color gradient palettes.
  */
-public class ColorPaletteDef implements Cloneable{
+public class ColorPaletteDef implements Cloneable {
 
     private final static String _PROPERTY_KEY_NUM_POINTS = "numPoints";
     private final static String _PROPERTY_KEY_COLOR = "color";
@@ -144,6 +143,7 @@ public class ColorPaletteDef implements Cloneable{
      *
      * @param index   the index
      * @param scaling the scaling
+     *
      * @return true, if a point has been inserted
      */
     public boolean createPointAfter(int index, Scaling scaling) {
@@ -170,7 +170,9 @@ public class ColorPaletteDef implements Cloneable{
      *
      * @param p1 1st point
      * @param p2 2nd point
+     *
      * @return the center color
+     *
      * @deprecated since BEAM 4.2, use {@link #getCenterColor(java.awt.Color, java.awt.Color)}
      */
     @Deprecated
@@ -183,6 +185,7 @@ public class ColorPaletteDef implements Cloneable{
      *
      * @param c1 1st color
      * @param c2 2nd color
+     *
      * @return the center color
      */
     public static Color getCenterColor(Color c1, Color c2) {
@@ -247,7 +250,9 @@ public class ColorPaletteDef implements Cloneable{
      * Loads a color palette definition from the given file
      *
      * @param file the file
+     *
      * @return the color palette definition, never null
+     *
      * @throws IOException if an I/O error occurs
      */
     public static ColorPaletteDef loadColorPaletteDef(File file) throws IOException {
@@ -256,7 +261,7 @@ public class ColorPaletteDef implements Cloneable{
         final int numPoints = propertyMap.getPropertyInt(_PROPERTY_KEY_NUM_POINTS);
         if (numPoints < 2) {
             throw new IOException("The selected file contains less than\n" +
-                    "two colour points.");
+                                  "two colour points.");
         }
         final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[numPoints];
         double lastSample = 0;
@@ -282,6 +287,7 @@ public class ColorPaletteDef implements Cloneable{
      *
      * @param colorPaletteDef thje color palette definition
      * @param file            the file
+     *
      * @throws IOException if an I/O error occurs
      */
     public static void storeColorPaletteDef(ColorPaletteDef colorPaletteDef, File file) throws IOException {
@@ -354,7 +360,7 @@ public class ColorPaletteDef implements Cloneable{
     }
 
     public Color computeColor(final Scaling scaling, final double sample) {
-        return computeColorRaw(scaling, scaling.scaleInverse(sample));
+        return computeColorRaw(scaling, scaling.scaleInverse(sample), getMinDisplaySample(), getMaxDisplaySample());
     }
 
     private Color computeColorRaw(final Scaling scaling, final double rawSample) {
