@@ -44,6 +44,9 @@ import java.util.List;
 
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
+
+// todo (mp) - include radiometric recalibration (CB to provide algo)
+
 @OperatorMetadata(alias = "Equalize",
                   description = "Performs removal of detector-to-detector systematic " +
                                 "radiometric differences in MERIS L1b data products.",
