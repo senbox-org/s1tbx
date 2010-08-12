@@ -11,14 +11,14 @@
     <groupId>ucar.netcdf</groupId>
     <artifactId>lib-netcdf</artifactId>
     <name>NetCDF Library</name>
-    <version>4.0</version>
+    <version>4.1-SNAPSHOT</version>
     <url>http://www.unidata.ucar.edu/software/netcdf-java/</url>
 
     <dependencies>
         <dependency>
-            <groupId>ucar.netcdf</groupId>
+            <groupId>edu.ucar</groupId>
             <artifactId>netcdf</artifactId>
-            <version>4.0</version>
+            <version>4.1.18</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j.slf4j</groupId>
@@ -47,9 +47,9 @@
                             <stripVersion>false</stripVersion>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>ucar.netcdf</groupId>
+                                    <groupId>edu.ucar</groupId>
                                     <artifactId>netcdf</artifactId>
-                                    <version>4.0</version>
+                                    <version>4.1.18</version>
                                     <outputDirectory>src/main/resources/lib</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>

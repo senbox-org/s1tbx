@@ -271,7 +271,7 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-netcdf</artifactId>
-                <version>1.0</version>
+                <version>1.0.101-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -283,7 +283,7 @@
             <dependency>
                 <groupId>ucar.netcdf</groupId>
                 <artifactId>lib-netcdf</artifactId>
-                <version>4.0</version>
+                <version>4.1-SNAPSHOT</version>
             </dependency>
 
             <!-- GeoTools Libraries ############################################# -->

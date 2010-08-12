@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>lib-netcdf</symbolicName>
-    <version>4.0</version>
+    <version>4.1</version>
     <name>NetCDF Library</name>
 
 
@@ -23,6 +23,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 4.1:<br/>
+        Use new NetCDF 4.1.18 library<br/>
         <p>Changes in 4.0:<br/>
         [BEAM-1022] Use new NetCDF 4.0 library<br/>
         </p>
