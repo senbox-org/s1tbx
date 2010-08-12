@@ -176,7 +176,7 @@
 
         <beam.version>4.9-SNAPSHOT</beam.version>
         <ceres.version>0.12-SNAPSHOT</ceres.version>
-        <geotools.version>2.6.1</geotools.version>
+        <geotools.version>2.6.5</geotools.version>
         <jide.version>2.9.5</jide.version>
     </properties>
 

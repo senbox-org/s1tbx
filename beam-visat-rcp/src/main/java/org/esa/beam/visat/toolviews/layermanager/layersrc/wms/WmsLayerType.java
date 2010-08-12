@@ -16,9 +16,14 @@
 
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
+import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.dom.DefaultDomConverter;
+import com.bc.ceres.binding.dom.DomConverter;
+import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerTypeRegistry;
@@ -26,6 +31,8 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 import org.geotools.data.ows.CRSEnvelope;
@@ -34,6 +41,9 @@ import org.geotools.data.wms.WebMapServer;
 import org.geotools.data.wms.request.GetMapRequest;
 import org.geotools.data.wms.response.GetMapResponse;
 import org.geotools.ows.ServiceException;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
@@ -110,6 +120,7 @@ public class WmsLayerType extends ImageLayer.Type {
         template.addProperty(Property.create(PROPERTY_NAME_STYLE_NAME, String.class));
         template.addProperty(Property.create(PROPERTY_NAME_IMAGE_SIZE, Dimension.class));
         template.addProperty(Property.create(PROPERTY_NAME_CRS_ENVELOPE, CRSEnvelope.class));
+        template.getDescriptor(PROPERTY_NAME_CRS_ENVELOPE).setDomConverter(new CRSEnvelopeDomConverter());
 
         return template;
     }
@@ -176,4 +187,47 @@ public class WmsLayerType extends ImageLayer.Type {
         }
     }
 
+    private static class CRSEnvelopeDomConverter implements DomConverter {
+        private static final String SRS_NAME = "srsName";
+        private static final String MIN_X = "minX";
+        private static final String MIN_Y = "minY";
+        private static final String MAX_X = "maxX";
+        private static final String MAX_Y = "maxY";
+
+        @Override
+        public Class<?> getValueType() {
+            return CRSEnvelope.class;
+        }
+
+        @Override
+        public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
+                ValidationException {
+            try {
+                String srsName = parentElement.getChild(SRS_NAME).getValue();
+                double minX = Double.parseDouble(parentElement.getChild(MIN_X).getValue());
+                double minY = Double.parseDouble(parentElement.getChild(MIN_Y).getValue());
+                double maxX = Double.parseDouble(parentElement.getChild(MAX_X).getValue());
+                double maxY = Double.parseDouble(parentElement.getChild(MAX_Y).getValue());
+                value = new CRSEnvelope(srsName, minX, minY, maxX, maxY);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e);
+            }
+            return value;
+        }
+
+        @Override
+        public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
+            CRSEnvelope crsEnvelope = (CRSEnvelope) value;
+            DomElement srsName = parentElement.createChild(SRS_NAME);
+            srsName.setValue(crsEnvelope.getSRSName());
+            DomElement minX = parentElement.createChild(MIN_X);
+            minX.setValue(Double.toString(crsEnvelope.getMinX()));
+            DomElement minY = parentElement.createChild(MIN_Y);
+            minY.setValue(Double.toString(crsEnvelope.getMinY()));
+            DomElement maxX = parentElement.createChild(MAX_X);
+            maxX.setValue(Double.toString(crsEnvelope.getMaxX()));
+            DomElement maxY = parentElement.createChild(MAX_Y);
+            maxY.setValue(Double.toString(crsEnvelope.getMaxY()));
+        }
+    }
 }
