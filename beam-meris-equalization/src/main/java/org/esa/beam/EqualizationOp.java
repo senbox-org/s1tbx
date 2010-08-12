@@ -87,7 +87,7 @@ public class EqualizationOp extends Operator {
     private static final String ELEM_NAME_MPH = "MPH";
     private static final String ATTRIB_SOFTWARE_VER = "SOFTWARE_VER";
     private static final String UNIT_DL = "dl";
-    private static final String TARGET_BAND_PREFIX = "reflec_";
+    private static final String TARGET_BAND_PREFIX = "reflec";
     private static final String INVALID_MASK_NAME = "invalid";
     private static final String LAND_MASK_NAME = "land";
 
@@ -138,17 +138,18 @@ public class EqualizationOp extends Operator {
                                     rasterWidth, rasterHeight);
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-
+        targetProduct.setDescription("MERIS Equalized TOA Reflectance");
+        targetProduct.setAutoGrouping(TARGET_BAND_PREFIX);
         bandNameMap = new HashMap<String, String>();
         String[] sourceSpectralBandNames = getSpectralBandNames(sourceProduct);
         for (String spectralBandName : sourceSpectralBandNames) {
             final Band sourceBand = sourceProduct.getBand(spectralBandName);
             final int bandIndex = sourceBand.getSpectralBandIndex() + 1;
-            final String targetBandName = TARGET_BAND_PREFIX + bandIndex;
+            final String targetBandName = TARGET_BAND_PREFIX + "_" + bandIndex;
             final Band targetBand = targetProduct.addBand(targetBandName,
                                                           ProductData.TYPE_FLOAT32);
             bandNameMap.put(targetBandName, spectralBandName);
-            targetBand.setDescription("TOA reflectance band " + bandIndex);
+            targetBand.setDescription("Equalized TOA reflectance band " + bandIndex);
             targetBand.setUnit(UNIT_DL);
             targetBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
             ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
