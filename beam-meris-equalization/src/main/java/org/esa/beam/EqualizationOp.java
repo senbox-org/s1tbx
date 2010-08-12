@@ -140,6 +140,7 @@ public class EqualizationOp extends Operator {
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
         targetProduct.setDescription("MERIS Equalized TOA Reflectance");
         targetProduct.setAutoGrouping(TARGET_BAND_PREFIX);
+
         bandNameMap = new HashMap<String, String>();
         String[] sourceSpectralBandNames = getSpectralBandNames(sourceProduct);
         for (String spectralBandName : sourceSpectralBandNames) {
@@ -235,7 +236,7 @@ public class EqualizationOp extends Operator {
 
     static int parseReprocessingVersion(String processorName, float processorVersion) {
         if ("MERIS".equalsIgnoreCase(processorName)) {
-            if (processorVersion >= 5.02f && processorVersion <= 5.05f) {
+            if (processorVersion == 4.1f || (processorVersion >= 5.02f && processorVersion <= 5.05f)) {
                 return 2;
             }
         }
