@@ -60,13 +60,32 @@ public class EqualizationOp extends Operator {
                description = "Whether to perform Smile correction or not.")
     private boolean doSmile;
 
-    @SourceProduct(alias = "source", label = "Name", description = "The source product.")
+    @SourceProduct(alias = "source", label = "Name", description = "The source product.",
+                   bands = {
+                           MERIS_L1B_FLAGS_DS_NAME, MERIS_DETECTOR_INDEX_DS_NAME,
+                           MERIS_L1B_RADIANCE_1_BAND_NAME,
+                           MERIS_L1B_RADIANCE_2_BAND_NAME,
+                           MERIS_L1B_RADIANCE_3_BAND_NAME,
+                           MERIS_L1B_RADIANCE_4_BAND_NAME,
+                           MERIS_L1B_RADIANCE_5_BAND_NAME,
+                           MERIS_L1B_RADIANCE_6_BAND_NAME,
+                           MERIS_L1B_RADIANCE_7_BAND_NAME,
+                           MERIS_L1B_RADIANCE_8_BAND_NAME,
+                           MERIS_L1B_RADIANCE_9_BAND_NAME,
+                           MERIS_L1B_RADIANCE_10_BAND_NAME,
+                           MERIS_L1B_RADIANCE_11_BAND_NAME,
+                           MERIS_L1B_RADIANCE_12_BAND_NAME,
+                           MERIS_L1B_RADIANCE_13_BAND_NAME,
+                           MERIS_L1B_RADIANCE_14_BAND_NAME,
+                           MERIS_L1B_RADIANCE_15_BAND_NAME
+                   })
     private Product sourceProduct;
 
     @TargetProduct(description = "The target product.")
     private Product targetProduct;
 
     private static final String ELEM_NAME_MPH = "MPH";
+    private static final String ATTRIB_SOFTWARE_VER = "SOFTWARE_VER";
     private static final String UNIT_DL = "dl";
     private static final String TARGET_BAND_PREFIX = "reflec_";
     private static final String INVALID_MASK_NAME = "invalid";
@@ -86,14 +105,15 @@ public class EqualizationOp extends Operator {
                             sourceProduct.containsBand(MERIS_L1B_FLAGS_DS_NAME));
         Guardian.assertTrue(String.format("Source product must contain tie-point grid '%s'.", MERIS_SUN_ZENITH_DS_NAME),
                             sourceProduct.containsTiePointGrid(MERIS_SUN_ZENITH_DS_NAME));
-        Guardian.assertTrue(String.format("Source product must be of type '%s'.", MERIS_RR_L1B_PRODUCT_TYPE_NAME),
-                            sourceProduct.getProductType().equals(MERIS_RR_L1B_PRODUCT_TYPE_NAME));
+        Guardian.assertTrue("Source product must be of type MERIS L1b.",
+                            MERIS_L1_TYPE_PATTERN.matcher(sourceProduct.getProductType()).matches());
         Guardian.assertTrue("Source product does not contain radiance bands.", containsRadianceBands(sourceProduct));
         final ProductData.UTC startTime = sourceProduct.getStartTime();
         Guardian.assertNotNull("Source product must have a start time", startTime);
 
         try {
-            equalizationLUT = new EqualizationLUT(getReprocessingVersion());
+            final boolean isFullResolution = sourceProduct.getProductType().startsWith("MER_F");
+            equalizationLUT = new EqualizationLUT(getReprocessingVersion(), isFullResolution);
         } catch (IOException e) {
             throw new OperatorException("Not able to create LUT.", e);
         }
@@ -219,7 +239,7 @@ public class EqualizationOp extends Operator {
             }
         }
         if ("MEGS-PC".equalsIgnoreCase(processorName)) {
-            if (processorVersion == 8.0f) { // todo (mp,ts): Also allow 8.x ?
+            if (processorVersion == 8.0f) {
                 return 3;
             } else { //noinspection ConstantConditions
                 if (processorVersion == 7.4f || processorVersion == 7.41f) {
@@ -236,7 +256,7 @@ public class EqualizationOp extends Operator {
     private int getReprocessingVersion() {
         final MetadataElement mphElement = sourceProduct.getMetadataRoot().getElement(ELEM_NAME_MPH);
         if (mphElement != null) {
-            final String softwareVer = mphElement.getAttributeString("SOFTWARE_VER");
+            final String softwareVer = mphElement.getAttributeString(ATTRIB_SOFTWARE_VER);
             if (softwareVer != null) {
                 final String[] strings = softwareVer.split("/");
                 final String processorName = strings[0];
@@ -245,12 +265,10 @@ public class EqualizationOp extends Operator {
                 return parseReprocessingVersion(processorName, version);
             } else {
                 throw new OperatorException(
-                        String.format(
-                                "Not able to detect reprocessing version.\nMetadata attribute 'MPH/SOFTWARE_VER' not found."));
+                        "Not able to detect reprocessing version.\nMetadata attribute 'MPH/SOFTWARE_VER' not found.");
             }
         }
-        throw new OperatorException(
-                String.format("Not able to detect reprocessing version.\nMetadata element 'MPH' not found."));
+        throw new OperatorException("Not able to detect reprocessing version.\nMetadata element 'MPH' not found.");
     }
 
     private Tile[] loadRequiredRadianceTiles(int spectralBandIndex, Rectangle targetRectangle, ProgressMonitor pm) {

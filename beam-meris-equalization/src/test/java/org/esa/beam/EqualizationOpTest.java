@@ -18,6 +18,7 @@ package org.esa.beam;
 
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -35,78 +36,149 @@ import java.util.Map;
 import static junit.framework.Assert.*;
 
 public class EqualizationOpTest {
-    private static final String RADIANCE_TEST_INPUT = "MER_RR__1PPBCM20090112_ValidationInput_radiance.dim";
-    private static final String SMILE_TEST_INPUT = "MER_RR__1PPBCM20090112_ValidationInput_smile.dim";
-    private static final String EXPECTED_OUTPUT = "MER_RR__1PPBCM20090112_ValidationOutput.dim";
+    private static final String RR_TEST_INPUT_RAD = "MER_RR__1PNMAP20090112_TestInput_Rad.dim";
+    private static final String RR_TEST_INPUT_RAD_SMILE = "MER_RR__1PNMAP20090112_TestInput_Rad_Smile.dim";
+    private static final String RR_TEST_EXPECTED = "MER_RR__1PNMAP20090112_ExpectedOutput.dim";
+    private static final String FR_TEST_INPUT_RAD = "MER_FRS_1PNMAP20051130_TestInput_Rad.dim";
+    private static final String FR_TEST_INPUT_RAD_SMILE = "MER_FRS_1PNMAP20051130_TestInput_Rad_Smile.dim";
+    private static final String FR_TEST_EXPECTED = "MER_FRS_1PNMAP20051130_ExpectedOutput.dim";
 
     private static EqualizationOp.Spi equalizationOpSpi = new EqualizationOp.Spi();
-    private static Product radianceSourceProduct;
-    private static Product smileSourceProduct;
-    private static Product expectedProduct;
+    private static Product radianceSourceProductRR;
+    private static Product smileSourceProductRR;
+    private static Product expectedProductRR;
+    private static Product radianceSourceProductFR;
+    private static Product smileSourceProductFR;
+    private static Product expectedProductFR;
 
     @BeforeClass
     public static void setUp() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(equalizationOpSpi);
-        final URL radianceProductUrl = EqualizationOpTest.class.getResource(RADIANCE_TEST_INPUT);
-        radianceSourceProduct = ProductIO.readProduct(radianceProductUrl.getFile());
-        final URL smileProductUrl = EqualizationOpTest.class.getResource(SMILE_TEST_INPUT);
-        smileSourceProduct = ProductIO.readProduct(smileProductUrl.getFile());
-        final URL expectedProductUrl = EqualizationOpTest.class.getResource(EXPECTED_OUTPUT);
-        expectedProduct = ProductIO.readProduct(expectedProductUrl.getFile());
-
+        radianceSourceProductRR = readProduct(RR_TEST_INPUT_RAD);
+        smileSourceProductRR = readProduct(RR_TEST_INPUT_RAD_SMILE);
+        expectedProductRR = readProduct(RR_TEST_EXPECTED);
+        radianceSourceProductFR = readProduct(FR_TEST_INPUT_RAD);
+        smileSourceProductFR = readProduct(FR_TEST_INPUT_RAD_SMILE);
+        expectedProductFR = readProduct(FR_TEST_EXPECTED);
+        // todo - test product has wrong version number
+        // remove the following when clarified
+        adaptVersionToReprocessingTwo(radianceSourceProductFR);
+        adaptVersionToReprocessingTwo(smileSourceProductFR);
     }
+
 
     @AfterClass
     public static void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(equalizationOpSpi);
+        radianceSourceProductRR.dispose();
+        smileSourceProductRR.dispose();
+        expectedProductRR.dispose();
+        radianceSourceProductFR.dispose();
+        smileSourceProductFR.dispose();
+        expectedProductFR.dispose();
     }
 
     @Test
-    public void testComputation_WithDefaultParameter() throws URISyntaxException, IOException {
+    public void testComputation_RR_WithDefaultParameter() throws URISyntaxException, IOException {
         String operatorName = OperatorSpi.getOperatorAlias(EqualizationOp.class);
-        final Product targetProduct = GPF.createProduct(operatorName, GPF.NO_PARAMS,
-                                                        radianceSourceProduct);
+        final Product product = GPF.createProduct(operatorName, GPF.NO_PARAMS,
+                                                        radianceSourceProductRR);
 
-        for (int i= 0; i < targetProduct.getBands().length - 2; i++) {
-            comparePixels(targetProduct.getBandAt(i), expectedProduct.getBandAt(i), 53, 4);
-            comparePixels(targetProduct.getBandAt(i), expectedProduct.getBandAt(i), 928, 3);
+        for (int i= 0; i < product.getBands().length - 2; i++) {
+            comparePixels(product.getBandAt(i), expectedProductRR.getBandAt(i), 53, 4);
+            comparePixels(product.getBandAt(i), expectedProductRR.getBandAt(i), 928, 3);
         }
     }
 
     @Test
-    public void testComputation_WithSmileOn() throws URISyntaxException, IOException {
+    public void testComputation_FR_WithDefaultParameter() throws URISyntaxException, IOException {
+        String operatorName = OperatorSpi.getOperatorAlias(EqualizationOp.class);
+        final Product product = GPF.createProduct(operatorName, GPF.NO_PARAMS,
+                                                        radianceSourceProductFR);
+
+        for (int i= 0; i < product.getBands().length - 2; i++) {
+            // currently skip band 11
+            // no coefficients are provided for this band
+            if(i == 10) {
+                continue;
+            }
+            comparePixels(product.getBandAt(i), expectedProductFR.getBandAt(i), 53, 4);
+            comparePixels(product.getBandAt(i), expectedProductFR.getBandAt(i), 928, 3);
+            comparePixels(product.getBandAt(i), expectedProductFR.getBandAt(i), 2264, 3);
+            comparePixels(product.getBandAt(i), expectedProductFR.getBandAt(i), 4012, 3);
+        }
+    }
+
+    @Test
+    public void testComputation_RR_WithSmileOn() throws URISyntaxException, IOException {
         String operatorName = OperatorSpi.getOperatorAlias(EqualizationOp.class);
         final Map<String,Object> parameterMap = new HashMap<String, Object>();
         parameterMap.put("doSmile", true);
-        final Product targetProduct = GPF.createProduct(operatorName, parameterMap,
-                                                        radianceSourceProduct);
+        final Product product = GPF.createProduct(operatorName, parameterMap,
+                                                        radianceSourceProductRR);
 
-        for (int i= 0; i < targetProduct.getBands().length - 2; i++) {
-            comparePixels(targetProduct.getBandAt(i), expectedProduct.getBandAt(i), 53, 4);
-            comparePixels(targetProduct.getBandAt(i), expectedProduct.getBandAt(i), 928, 3);
+        for (int i= 0; i < product.getBands().length - 2; i++) {
+            comparePixels(product.getBandAt(i), expectedProductRR.getBandAt(i), 53, 4);
+            comparePixels(product.getBandAt(i), expectedProductRR.getBandAt(i), 928, 3);
         }
     }
 
     @Test
-    public void testComputation_WithSmileOff() throws URISyntaxException, IOException {
+    public void testComputation_FR_WithSmileOn() throws URISyntaxException, IOException {
         String operatorName = OperatorSpi.getOperatorAlias(EqualizationOp.class);
         final Map<String,Object> parameterMap = new HashMap<String, Object>();
-        parameterMap.put("doSmile", false);
-        final Product targetProduct = GPF.createProduct(operatorName, parameterMap,
-                                                        smileSourceProduct);
+        parameterMap.put("doSmile", true);
+        final Product product = GPF.createProduct(operatorName, parameterMap,
+                                                        radianceSourceProductFR);
 
-        for (int i= 0; i < targetProduct.getBands().length - 2; i++) {
-            comparePixels(targetProduct.getBandAt(i), expectedProduct.getBandAt(i), 53, 4);
-            comparePixels(targetProduct.getBandAt(i), expectedProduct.getBandAt(i), 928, 3);
+        for (int i= 0; i < product.getBands().length - 2; i++) {
+            // currently skip band 11
+            // no coefficients are provided for this band
+            if(i == 10) {
+                continue;
+            }
+            comparePixels(product.getBandAt(i), expectedProductFR.getBandAt(i), 53, 4);
+            comparePixels(product.getBandAt(i), expectedProductFR.getBandAt(i), 928, 3);
+            comparePixels(product.getBandAt(i), expectedProductFR.getBandAt(i), 2264, 3);
+            comparePixels(product.getBandAt(i), expectedProductFR.getBandAt(i), 4012, 3);
         }
     }
 
-    private void comparePixels(Band band, Band band1, int x, int y) {
-        final double expectedValue = band1.getGeophysicalImage().getData().getSampleDouble(x, y, 0);
-        final double targetValue = band.getGeophysicalImage().getData().getSampleDouble(x, y, 0);
-        assertEquals(expectedValue, targetValue, 1.0e-3);
+
+    @Test
+    public void testComputation_RR_WithSmileOff() throws URISyntaxException, IOException {
+        String operatorName = OperatorSpi.getOperatorAlias(EqualizationOp.class);
+        final Map<String,Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("doSmile", false);
+        final Product product = GPF.createProduct(operatorName, parameterMap,
+                                                        smileSourceProductRR);
+
+        for (int i= 0; i < product.getBands().length - 2; i++) {
+            comparePixels(product.getBandAt(i), expectedProductRR.getBandAt(i), 53, 4);
+            comparePixels(product.getBandAt(i), expectedProductRR.getBandAt(i), 928, 3);
+        }
     }
 
+    @Test
+    public void testComputation_FR_WithSmileOff() throws URISyntaxException, IOException {
+        String operatorName = OperatorSpi.getOperatorAlias(EqualizationOp.class);
+        final Map<String,Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("doSmile", false);
+        final Product product = GPF.createProduct(operatorName, parameterMap,
+                                                        smileSourceProductFR);
+
+        for (int i= 0; i < product.getBands().length - 2; i++) {
+            // currently skip band 11
+            // no coefficients are provided for this band
+            if(i == 10) {
+                continue;
+            }
+            comparePixels(product.getBandAt(i), expectedProductFR.getBandAt(i), 53, 4);
+            comparePixels(product.getBandAt(i), expectedProductFR.getBandAt(i), 928, 3);
+            comparePixels(product.getBandAt(i), expectedProductFR.getBandAt(i), 2264, 3);
+            comparePixels(product.getBandAt(i), expectedProductFR.getBandAt(i), 4012, 3);
+        }
+    }
 
     @Test(expected = OperatorException.class)
     public void testParseReproVersion_MERIS_Fails() {
@@ -134,6 +206,25 @@ public class EqualizationOpTest {
     public void testToJulianDay() {
         assertEquals(2455414, (long) JulianDate.julianDate(2010, 7, 6));
         assertEquals(2452365, (long) JulianDate.julianDate(2002, 3, 1));
-
     }
+
+    private static void comparePixels(Band actualBand, Band expectedBand, int x, int y) {
+        final double expectedValue = expectedBand.getGeophysicalImage().getData().getSampleDouble(x, y, 0);
+        final double targetValue = actualBand.getGeophysicalImage().getData().getSampleDouble(x, y, 0);
+        final String message = String.format("Error comparing pixel (%d, %d) of bands '%s' and '%s':\n", x, y,
+                                             actualBand.getName(), expectedBand.getName());
+        assertEquals(message, expectedValue, targetValue, 1.0e-3);
+    }
+
+
+    private static Product readProduct(String s) throws IOException {
+        final URL radianceProductUrl = EqualizationOpTest.class.getResource(s);
+        return ProductIO.readProduct(radianceProductUrl.getFile());
+    }
+
+    private static void adaptVersionToReprocessingTwo(Product product) {
+        final MetadataElement metadata = product.getMetadataRoot();
+        metadata.getElement("MPH").setAttributeString("SOFTWARE_VER", "MERIS/5.02");
+    }
+
 }

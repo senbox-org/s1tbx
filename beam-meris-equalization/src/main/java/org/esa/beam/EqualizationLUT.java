@@ -26,17 +26,19 @@ import java.util.Map;
 
 class EqualizationLUT {
 
-    private static final String COEF_FILE_PATTERN = "Equalization_coefficient_band_%02d_reprocessing_r%d.txt";
+    private static final String COEF_FILE_PATTERN = "Equalization_coefficient_band_%02d_reprocessing_r%d_%s.txt";
+    private static final String FR = "FR";
+    private static final String RR = "RR";
     private static final int BAND_COUNT = 15;
     private Map<Integer, Map<Integer, double[]>> bandMap;
 
 
-    EqualizationLUT(int reprocessingVersion) throws IOException {
+    EqualizationLUT(int reprocessingVersion, boolean isFullResolution) throws IOException {
         bandMap = new HashMap<Integer, Map<Integer, double[]>>(BAND_COUNT);
         for (int i = 1; i <= BAND_COUNT; i++) {
             final HashMap<Integer, double[]> coefMap = new HashMap<Integer, double[]>();
             final InputStream stream = getClass().getResourceAsStream(
-                    String.format(COEF_FILE_PATTERN, i, reprocessingVersion));
+                    String.format(COEF_FILE_PATTERN, i, reprocessingVersion, isFullResolution ? FR : RR));
             final CsvReader reader = new CsvReader(new InputStreamReader(stream), new char[]{' '});
             try {
                 double[] coefs = reader.readDoubleRecord();
