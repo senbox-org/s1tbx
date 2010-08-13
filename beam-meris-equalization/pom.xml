@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>beam-meris-equalization</artifactId>
-    <name>BEAM MERIS Equalization</name>
+    <name>BEAM MERIS Equalization Processor</name>
     <version>1.0-SNAPSHOT</version>
 
     
