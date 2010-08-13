@@ -18,7 +18,6 @@ package org.esa.beam;
 
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.GPF;
@@ -64,10 +63,6 @@ public class EqualizationOpTest {
         radianceSourceProductFR = readProduct(FR_TEST_INPUT_RAD);
         smileSourceProductFR = readProduct(FR_TEST_INPUT_RAD_SMILE);
         expectedProductFR = readProduct(FR_TEST_EXPECTED);
-        // todo - test product has wrong version number
-        // remove the following when clarified
-        adaptVersionToReprocessingTwo(radianceSourceProductFR);
-        adaptVersionToReprocessingTwo(smileSourceProductFR);
     }
 
 
@@ -192,14 +187,33 @@ public class EqualizationOpTest {
         }
     }
 
-    @Test(expected = OperatorException.class)
-    public void testParseReproVersion_MERIS_Fails() {
-        EqualizationOp.parseReprocessingVersion("MERIS", 3.67f);
-    }
+    @Test()
+    public void testParseReproVersion_Fails() {
+        try {
+            EqualizationOp.parseReprocessingVersion("MERIS", 3.67f);
+            fail("Version is not of reprocessing 2 or 3");
+        } catch (OperatorException ignored) {
+            // expected
+        }
+        try {
+            EqualizationOp.parseReprocessingVersion("MERIS", 5.1f);
+            fail("Version is not of reprocessing 2 or 3");
+        } catch (OperatorException ignored) {
+            // expected
+        }
 
-    @Test(expected = OperatorException.class)
-    public void testParseReproVersion_MEGS_Fails() {
-        EqualizationOp.parseReprocessingVersion("MEGS-PC", 8.1f);
+        try {
+            EqualizationOp.parseReprocessingVersion("MEGS-PC", 7.2f);
+            fail("Version is not of reprocessing 2 or 3");
+        } catch (OperatorException ignored) {
+            // expected
+        }
+        try {
+            EqualizationOp.parseReprocessingVersion("MEGS-PC", 9.0f);
+            fail("Version is not of reprocessing 2 or 3");
+        } catch (OperatorException ignored) {
+            // expected
+        }
     }
 
     @Test
@@ -209,16 +223,21 @@ public class EqualizationOpTest {
         assertEquals(2, EqualizationOp.parseReprocessingVersion("MERIS", 5.03f));
         assertEquals(2, EqualizationOp.parseReprocessingVersion("MERIS", 5.04f));
         assertEquals(2, EqualizationOp.parseReprocessingVersion("MERIS", 5.05f));
+        assertEquals(2, EqualizationOp.parseReprocessingVersion("MERIS", 5.06f));
+        
         assertEquals(2, EqualizationOp.parseReprocessingVersion("MEGS-PC", 7.4f));
         assertEquals(2, EqualizationOp.parseReprocessingVersion("MEGS-PC", 7.41f));
+        assertEquals(2, EqualizationOp.parseReprocessingVersion("MEGS-PC", 7.5f));
 
         assertEquals(3, EqualizationOp.parseReprocessingVersion("MEGS-PC", 8.0f));
+        assertEquals(3, EqualizationOp.parseReprocessingVersion("MEGS-PC", 8.1f));
+        assertEquals(3, EqualizationOp.parseReprocessingVersion("MEGS-PC", 8.9f));
     }
 
     @Test
     public void testToJulianDay() {
-        assertEquals(2455414, (long) JulianDate.julianDate(2010, 7, 6));
-        assertEquals(2452365, (long) JulianDate.julianDate(2002, 3, 1));
+        assertEquals(2455414, EqualizationOp.toJulianDay(2010, 7, 6));
+        assertEquals(2452365, EqualizationOp.toJulianDay(2002, 3, 1));
     }
 
     private static void comparePixels(Band actualBand, Band expectedBand, int x, int y, boolean convertExpectedToRefl) {
@@ -238,11 +257,6 @@ public class EqualizationOpTest {
     private static Product readProduct(String s) throws IOException {
         final URL radianceProductUrl = EqualizationOpTest.class.getResource(s);
         return ProductIO.readProduct(radianceProductUrl.getFile());
-    }
-
-    private static void adaptVersionToReprocessingTwo(Product product) {
-        final MetadataElement metadata = product.getMetadataRoot();
-        metadata.getElement("MPH").setAttributeString("SOFTWARE_VER", "MERIS/5.02");
     }
 
 }

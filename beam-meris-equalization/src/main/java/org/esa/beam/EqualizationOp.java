@@ -39,8 +39,10 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
@@ -119,10 +121,10 @@ public class EqualizationOp extends Operator {
         }
         // compute julian date
         final Calendar calendar = startTime.getAsCalendar();
-        long productJulianDate = (long) JulianDate.julianDate(calendar.get(Calendar.YEAR),
+        long productJulianDate = toJulianDay(calendar.get(Calendar.YEAR),
                                                               calendar.get(Calendar.MONTH),
                                                               calendar.get(Calendar.DAY_OF_MONTH));
-        date = productJulianDate - (long) JulianDate.julianDate(2002, 4, 1);
+        date = productJulianDate - toJulianDay(2002, 4, 1);
 
         try {
             smileAlgorithm = new SmileAlgorithm(sourceProduct.getProductType());
@@ -236,23 +238,35 @@ public class EqualizationOp extends Operator {
 
     static int parseReprocessingVersion(String processorName, float processorVersion) {
         if ("MERIS".equalsIgnoreCase(processorName)) {
-            if (processorVersion == 4.1f || (processorVersion >= 5.02f && processorVersion <= 5.05f)) {
+            if (processorVersion >= 4.1f && processorVersion <= 5.06f) {
                 return 2;
             }
         }
         if ("MEGS-PC".equalsIgnoreCase(processorName)) {
-            if (processorVersion == 8.0f) {
-                return 3;
-            } else { //noinspection ConstantConditions
-                if (processorVersion == 7.4f || processorVersion == 7.41f) {
+            if (processorVersion >= 7.4f && processorVersion <= 7.5f) {
                     return 2;
-                }
+            } else if (processorVersion >= 8.0f && processorVersion < 9.0f) {
+                return 3;
             }
         }
 
         throw new OperatorException(
-                String.format("Unknown reprocessing version %s.\nProduct must be of reprocessing 2 or 3.",
-                              processorVersion));
+                String.format("Unknown reprocessing version %s/%s.\nProduct must be of reprocessing 2 or 3.",
+                              processorName, processorVersion));
+    }
+
+    static long toJulianDay(int year, int month, int dayOfMonth) {
+        final double millisPerDay = 86400000.0;
+
+        // The epoch (days) for the Julian Date (JD) which corresponds to 4713-01-01 12:00 BC.
+        final double epochJulianDate = -2440587.5;
+
+        final GregorianCalendar utc = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        utc.clear();
+        utc.set(year, month, dayOfMonth, 0, 0, 0);
+        utc.set(Calendar.MILLISECOND, 0);
+
+        return (long) (utc.getTimeInMillis() / millisPerDay - epochJulianDate);
     }
 
     private int getReprocessingVersion() {
@@ -317,4 +331,5 @@ public class EqualizationOp extends Operator {
         }
 
     }
+
 }
