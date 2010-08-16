@@ -134,12 +134,6 @@
             <artifactId>gt-epsg-hsql</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
         <!--
                 <dependency>
                     <groupId>ncsa.hdf</groupId>
