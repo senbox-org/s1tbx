@@ -16,6 +16,7 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.swing.TreeCellExtender;
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -51,8 +52,18 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Rectangle;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -98,8 +109,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     public ProductTree(final boolean multipleSelect) {
         super((TreeModel) null);
         getSelectionModel().setSelectionMode(multipleSelect
-                ? TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION
-                : TreeSelectionModel.SINGLE_TREE_SELECTION);
+                                             ? TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION
+                                             : TreeSelectionModel.SINGLE_TREE_SELECTION);
         addTreeSelectionListener(new PTSelectionListener());
         addMouseListener(new PTMouseListener());
         setCellRenderer(new PTCellRenderer());
@@ -119,6 +130,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         productTreeModelListener = new ProductTreeModelListener(this);
 
         TreeCellExtender.equip(this);
+        this.setDropTarget(new DropTarget(this,
+                                          DnDConstants.ACTION_COPY_OR_MOVE,
+                                          new ProductTreeDropTarget()));
     }
 
     @Override
@@ -176,6 +190,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      * Notifies this product tree, that a product scene view has opened.
      *
      * @param view The view.
+     *
      * @deprecated since BEAM 4.7, use {@link #registerOpenedProductNodes(org.esa.beam.framework.datamodel.ProductNode...)} instead
      */
     @Deprecated
@@ -187,6 +202,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      * Notifies this product tree, that a product scene view has closed.
      *
      * @param view The view.
+     *
      * @deprecated since BEAM 4.7, use {@link #deregisterOpenedProductNodes(org.esa.beam.framework.datamodel.ProductNode...)} instead
      */
     @Deprecated
@@ -199,6 +215,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      * Opened product nodes may be differently displayed.
      *
      * @param nodes The products nodes which are in process.
+     *
      * @see #registerActiveProductNodes(org.esa.beam.framework.datamodel.ProductNode...)
      */
     public void registerOpenedProductNodes(ProductNode... nodes) {
@@ -217,6 +234,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      * Opened product nodes may be diffently displayed.
      *
      * @param nodes The products nodes which are in process.
+     *
      * @see #deregisterActiveProductNodes(org.esa.beam.framework.datamodel.ProductNode...)
      */
     public void deregisterOpenedProductNodes(ProductNode... nodes) {
@@ -276,6 +294,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      * Sets the products for this product tree component.
      *
      * @param products a <code>Product[]</code> with the products to be displayed, must not be null.
+     *
      * @deprecated since BEAM 4.7, no replacement. The <code>ProductTree</code> now detects the products automatically.
      */
     @Deprecated
@@ -323,6 +342,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
      * This method does not have any effect.
      *
      * @param exceptionHandler is ignored
+     *
      * @deprecated since BEAM 4.7, no replacement
      */
     @Deprecated
@@ -457,10 +477,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 } else if (productNode instanceof ProductNodeGroup) {
                     text = treeNode.getName();
                 } else if (productNode instanceof MetadataElement) {
-                    MetadataElement metadataElement =(MetadataElement) productNode;
+                    MetadataElement metadataElement = (MetadataElement) productNode;
                     if (metadataElement.getParentElement() != null || metadataElement instanceof SampleCoding) {
                         this.setIcon(metadataIcon);
-                    }else {
+                    } else {
                         text = treeNode.getName();
                     }
                 } else if (productNode instanceof Band) {
@@ -628,6 +648,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     }
 
     private class ProductManagerListener implements ProductManager.Listener {
+
         @Override
         public void productAdded(ProductManager.Event event) {
             fireProductAdded(event.getProduct());
@@ -646,7 +667,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
 // must have this listener and can not use the above ProductManagerListener, because of the order the listeners
 // are called. When the above listener is called the new product is not yet in the model. 
+
     private static class ProductTreeModelListener implements TreeModelListener {
+
         private ProductTree tree;
 
         private ProductTreeModelListener(ProductTree tree) {
@@ -668,7 +691,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         public void treeNodesRemoved(TreeModelEvent e) {
             int selectionRow = tree.getLeadSelectionRow();
             updateUi();
-            while(selectionRow >= tree.getRowCount()) {
+            while (selectionRow >= tree.getRowCount()) {
                 selectionRow -= 1;
             }
             if (selectionRow >= 0) {
@@ -687,6 +710,46 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             tree.updateUI();
         }
 
+    }
+
+    private class ProductTreeDropTarget extends DropTargetAdapter {
+
+        @Override
+        public void dragEnter(DropTargetDragEvent dtde) {
+            final int dropAction = dtde.getDropAction();
+            if ((dropAction & DnDConstants.ACTION_COPY_OR_MOVE) != 0 &&
+                dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
+            } else {
+                dtde.rejectDrag();
+            }
+        }
+
+        @Override
+        public void drop(DropTargetDropEvent dtde) {
+            dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+            boolean success = false;
+            try {
+                final Transferable transferable = dtde.getTransferable();
+                @SuppressWarnings({"unchecked"})
+                final List<File> fileList = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+                for (File file : fileList) {
+                    ProductManager productManager = getModel().getProductManager();
+                    final Product product = ProductIO.readProduct(file);
+                    if (product != null) {
+                        productManager.addProduct(product);
+                        success = true;
+                    }
+                }
+            } catch (UnsupportedFlavorException ignored) {
+            } catch (IOException ignored) {
+                // This can happen if the transferred object is not a real file on disk
+                // but a virtual file (e.g. email from Thunderbird or Outlook), see
+                // http://bugs.sun.com/view_bug.do?bug_id=6242241
+                // http://bugs.sun.com/view_bug.do?bug_id=4808793
+            }
+            dtde.dropComplete(success);
+        }
     }
 }
 

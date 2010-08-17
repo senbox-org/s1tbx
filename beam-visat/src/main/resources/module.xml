@@ -11,13 +11,16 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 4.9<br/>
+          [BEAM-1180] Allow dragging files into VISAT<br/>
+        </p>
         <p>Changes in 4.8:<br/>
           [BEAM-1159] Auto-group bands according to their names<br/>
           [BEAM-1152] Export View as Image - transformation error<br/>
           [BEAM-1121] Range Finder Tool yields NaN values<br/>
           [BEAM-1118] Deletion of masks<br/>
           [BEAM-1111] Placemarks are not correctly moved if multiple are selected<br/>
-          [BEAM-1110] Don't show empty masks for pins and GCPs<br/>  
+          [BEAM-1110] Don't show empty masks for pins and GCPs<br/>
           [BEAM-1109] Pixel Info View does not update if "Snap to selected pin" is clicked<br/>
           [BEAM-1108] Import of Pins/GCPs fails<br/>
           [BEAM-1106] ToolViews do not reflect the selected state correctly in all cases<br/>
