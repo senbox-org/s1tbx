@@ -54,6 +54,7 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      * <li>the netCDF file has variables which can be interpreted as bands.</li>
      * </ul>
      */
+    @Override
     public DecodeQualification getDecodeQualification(final Object input) {
 
         NetcdfFile netcdfFile = null;
@@ -71,13 +72,13 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
             } else {
                 return profileSpiRegistry.getDecodeQualification(netcdfFile);
             }
-        } catch (Exception ignore) {
+        } catch (Throwable ignored) {
         } finally {
             try {
                 if (netcdfFile != null) {
                     netcdfFile.close();
                 }
-            } catch (IOException e) {
+            } catch (IOException ignored) {
                 // OK, ignored
             }
         }
@@ -93,6 +94,7 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      *
      * @return an array containing valid input types, never <code>null</code>
      */
+    @Override
     public Class[] getInputTypes() {
         return Constants.READER_INPUT_TYPES;
     }
@@ -102,10 +104,12 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      *
      * @return a new reader instance, never <code>null</code>
      */
+    @Override
     public ProductReader createReaderInstance() {
         return new NetCdfReader(this, profileClassName);
     }
 
+    @Override
     public BeamFileFilter getProductFileFilter() {
         if (profileClassName != null) {
             ProfileSpiRegistry profileSpiRegistry = ProfileSpiRegistry.getInstance();
@@ -125,6 +129,7 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      *
      * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getFormatNames() {
         return new String[]{Constants.FORMAT_NAME};
     }
@@ -137,6 +142,7 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      *
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
+    @Override
     public String[] getDefaultFileExtensions() {
         return Constants.FILE_EXTENSIONS;
     }
@@ -151,9 +157,10 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      *
      * @return a textual description of this product reader/writer
      */
+    @Override
     public String getDescription(final Locale locale) {
         if (profileClassName != null) {
-            int lastDotIndex = profileClassName.lastIndexOf(".");
+            int lastDotIndex = profileClassName.lastIndexOf('.');
             String shortName = profileClassName.substring(lastDotIndex+1);
             return Constants.FORMAT_DESCRIPTION + " (" + shortName + ")";
         } else {
