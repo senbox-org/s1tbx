@@ -50,7 +50,9 @@ public abstract class VirtualDir {
      * Opens a reader for the given relative path.
      *
      * @param path The relative file path.
+     *
      * @return A reader for the specified relative path.
+     *
      * @throws IOException If the file does not exist or if it can't be opened for reading.
      */
     public Reader getReader(String path) throws IOException {
@@ -61,7 +63,9 @@ public abstract class VirtualDir {
      * Opens an input stream for the given relative file path.
      *
      * @param path The relative file path.
+     *
      * @return An input stream for the specified relative path.
+     *
      * @throws IOException If the file does not exist or if it can't be opened for reading.
      */
     public abstract InputStream getInputStream(String path) throws IOException;
@@ -70,7 +74,9 @@ public abstract class VirtualDir {
      * Gets the file for the given relative path.
      *
      * @param path The relative file or directory path.
+     *
      * @return Gets the file or directory for the specified file path.
+     *
      * @throws IOException If the file or directory does not exist or if it can't be extracted from a ZIP-file.
      */
     public abstract File getFile(String path) throws IOException;
@@ -84,9 +90,11 @@ public abstract class VirtualDir {
      * guaranteed to appear in alphabetical order.
      *
      * @param path The relative directory path.
+     *
      * @return An array of strings naming the files and directories in the
      *         directory denoted by the given relative directory path.
      *         The array will be empty if the directory is empty.
+     *
      * @throws IOException If the directory given by the relative path does not exists.
      */
     public abstract String[] list(String path) throws IOException;
@@ -100,6 +108,7 @@ public abstract class VirtualDir {
      * Creates an instance of a virtual directory object from a given directory or ZIP-file.
      *
      * @param file A directory or a ZIP-file.
+     *
      * @return The virtual directory instance, or {@code null} if {@code file} is not a directory or a ZIP-file or
      *         the ZIP-file could not be opened for read access..
      */
@@ -115,6 +124,7 @@ public abstract class VirtualDir {
     }
 
     private static class Dir extends VirtualDir {
+
         private final File dir;
 
         private Dir(File file) {
@@ -152,8 +162,9 @@ public abstract class VirtualDir {
     }
 
     private static class Zip extends VirtualDir {
+
         private static final int BUFFER_SIZE = 4 * 1024 * 1024;
-        
+
         private final ZipFile zipFile;
         private File tempZipFileDir;
 
@@ -177,7 +188,8 @@ public abstract class VirtualDir {
             ZipEntry zipEntry = getEntry(path);
 
             if (tempZipFileDir == null) {
-                tempZipFileDir = new File(getTempDir(), FileUtils.getFilenameWithoutExtension(new File(zipFile.getName())));
+                tempZipFileDir = new File(getTempDir(),
+                                          FileUtils.getFilenameWithoutExtension(new File(zipFile.getName())));
             }
 
             File tempFile = new File(tempZipFileDir, zipEntry.getName());
@@ -204,7 +216,7 @@ public abstract class VirtualDir {
                 ZipEntry zipEntry = enumeration.nextElement();
                 String name = zipEntry.getName();
                 if (name.startsWith(path)) {
-                    String entryName = name.substring(path.length() + 1);
+                    String entryName = name.substring(path.length() + ("".equals(path) ? 0 : 1));
                     if (!entryName.isEmpty()) {
                         names.add(entryName);
                     }
