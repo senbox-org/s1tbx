@@ -27,6 +27,18 @@ This file contains all significant changes for each BEAM release.
 
  _____________________________________________________________________________
 
+ Changes from 4.8 to 4.9
+_____________________________________________________________________________
+
+1) New BEAM Features
+
+2) Complete list of BEAM 4.9 bug fixes and improvements
+
+Bugs
+[BEAM-1179] Slightly wrong listing of files in VirtualDir$Zip in beam-spot-vgt-reader
+
+ _____________________________________________________________________________
+
  Changes from 4.7.1 to 4.8
 _____________________________________________________________________________
 

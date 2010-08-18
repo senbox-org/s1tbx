@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-spot-vgt-reader</symbolicName>
-    <version>1.0</version>
+    <version>1.1</version>
     <name>BEAM SPOT VGT Product Reader</name>
 
     <description>Enables BEAM to read SPOT VGT data products.</description>
@@ -14,6 +14,8 @@
 
     <changelog>
         <![CDATA[
+                Changes in 1.1:<br>
+                [BEAM-1179] Slightly wrong listing of files in VirtualDir$Zip in beam-spot-vgt-reader<br/>
                 Changes in 1.0:<br>
                 [BEAM-1144] SPOT-VGT reader to recognise different pixel sampling of P-products<br/>
                 [BEAM-1138] SPOT-VGT reader to set physical units and scaling of spectral bands<br/>
@@ -47,7 +49,7 @@
             <description>Import a SPOT VGT data product or product subset.</description>
         </action>
     </extension>
-          
+
     <extension point="beam-core:rgbProfiles">
         <rgbProfile>
             <name>SPOT VGT RGB-1</name>
