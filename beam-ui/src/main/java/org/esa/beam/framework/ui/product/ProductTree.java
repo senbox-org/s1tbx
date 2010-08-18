@@ -64,13 +64,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * A tree-view component for multiple <code>Product</code>s. Clients can register one or more
@@ -714,11 +717,21 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
     private class ProductTreeDropTarget extends DropTargetAdapter {
 
+        private DataFlavor uriListFlavor;
+
+        public ProductTreeDropTarget() {
+            try {
+                uriListFlavor = new DataFlavor("text/uri-list;class=java.lang.String");
+            } catch (ClassNotFoundException ignore) {
+            }
+        }
+
         @Override
         public void dragEnter(DropTargetDragEvent dtde) {
             final int dropAction = dtde.getDropAction();
             if ((dropAction & DnDConstants.ACTION_COPY_OR_MOVE) != 0 &&
-                dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)||
+                uriListFlavor != null && dtde.isDataFlavorSupported(uriListFlavor))) {
                 dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
             } else {
                 dtde.rejectDrag();
@@ -732,7 +745,17 @@ public class ProductTree extends JTree implements PopupMenuFactory {
             try {
                 final Transferable transferable = dtde.getTransferable();
                 @SuppressWarnings({"unchecked"})
-                final List<File> fileList = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+                final List<File> fileList;
+                if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                    fileList = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+                } else if (transferable.isDataFlavorSupported(uriListFlavor)) {
+                    // on Unix another mimetype is used, see
+                    // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4899516
+                    String data = (String)transferable.getTransferData(uriListFlavor);
+                    fileList = textURIListToFileList(data);
+                } else {
+                    fileList = Collections.emptyList();
+                }
                 for (File file : fileList) {
                     ProductManager productManager = getModel().getProductManager();
                     final Product product = ProductIO.readProduct(file);
@@ -749,6 +772,26 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 // http://bugs.sun.com/view_bug.do?bug_id=4808793
             }
             dtde.dropComplete(success);
+        }
+
+        private List<File> textURIListToFileList(String data) {
+            List<File> list = new ArrayList<File>(1);
+            StringTokenizer st = new StringTokenizer(data, "\r\n");
+            while(st.hasMoreTokens()) {
+                String token = st.nextToken();
+                if (token.startsWith("#")) {
+                    // the line is a comment (as per the RFC 2483)
+                    continue;
+                }
+                try {
+                    list.add(new File(new URI(token)));
+                } catch (java.net.URISyntaxException ignore) {
+                    // malformed URI
+                } catch (IllegalArgumentException ignore) {
+                    // the URI is not a valid 'file:' URI
+                }
+            }
+            return list;
         }
     }
 }
