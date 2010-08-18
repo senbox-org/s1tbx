@@ -107,11 +107,11 @@ public class BeamBandPart extends ProfilePart {
 
         Attribute attribute = variable.findAttribute(BANDWIDTH);
         if (attribute != null) {
-            band.setSpectralBandwidth((Float) attribute.getNumericValue());
+            band.setSpectralBandwidth(attribute.getNumericValue().floatValue());
         }
         attribute = variable.findAttribute(WAVELENGTH);
         if (attribute != null) {
-            band.setSpectralWavelength((Float) attribute.getNumericValue());
+            band.setSpectralWavelength(attribute.getNumericValue().floatValue());
         }
         attribute = variable.findAttribute(VALID_PIXEL_EXPRESSION);
         if (attribute != null) {
