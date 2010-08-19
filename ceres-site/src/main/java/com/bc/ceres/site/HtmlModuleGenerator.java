@@ -101,7 +101,7 @@ public class HtmlModuleGenerator implements HtmlGenerator {
         final String size = ModuleUtils.retrieveSize(module);
         final String moduleName = module.getName();
 
-        out.print("<h2 class=\"heading\">" + moduleName + " ");
+        out.print("<h3 class=\"heading\">" + moduleName + " ");
         out.println("<a name= " + moduleName.replaceAll(" ", "") + ">");
         out.print("<a href=\"" + module.getLocation().toExternalForm() + "\">");
         out.print(module.getVersion());
@@ -109,7 +109,7 @@ public class HtmlModuleGenerator implements HtmlGenerator {
             out.println("&nbsp;(" + size + ")");
         }
         out.print("</a>");
-        out.println("</h2>");
+        out.println("</h3>");
     }
 
     private void writeFooter(PrintWriter out, Module module) {
