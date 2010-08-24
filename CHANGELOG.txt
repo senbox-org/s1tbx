@@ -34,8 +34,15 @@ _____________________________________________________________________________
 
 2) Complete list of BEAM 4.9 bug fixes and improvements
 
+New Features
+[BEAM-1180] - Allow dragging files into VISAT  
+
 Bugs
-[BEAM-1179] Slightly wrong listing of files in VirtualDir$Zip in beam-spot-vgt-reader
+[BEAM-1186] - The Landsat GeoTIFF reader should handle invalid input gracefully
+[BEAM-1179] - Slightly wrong listing of files in VirtualDir$Zip in beam-spot-vgt-reader
+[BEAM-1174] - DIMAP stores the band grouping only if a product has a description
+[BEAM-1172] - Boolean parameter values are overridden by default values
+[BEAM-1171] - NetCDF file not readable if variable name contains '.' or '/'
 
  _____________________________________________________________________________
 
