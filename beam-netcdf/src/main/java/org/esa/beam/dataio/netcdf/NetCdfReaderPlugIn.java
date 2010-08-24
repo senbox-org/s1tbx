@@ -24,9 +24,12 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.dataio.ProfileReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.io.FileUtils;
 import ucar.nc2.NetcdfFile;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -39,6 +42,7 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
 
     private String profileClassName;
 
+    // needed for creation by SPI
     public NetCdfReaderPlugIn() {
     }
 
@@ -56,22 +60,32 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      */
     @Override
     public DecodeQualification getDecodeQualification(final Object input) {
-
+        if(input == null) {
+            return DecodeQualification.UNABLE;
+        }
         NetcdfFile netcdfFile = null;
         try {
-            netcdfFile = NetcdfFile.open(input.toString());
+            final String inputPath = input.toString();
+            final List<String> extensionList = Arrays.asList(getDefaultFileExtensions());
+            ProfileSpiRegistry profileSpiRegistry = ProfileSpiRegistry.getInstance();
+            ProfileSpi profileFactory = null;
+            if (profileClassName != null) {
+                profileFactory = profileSpiRegistry.getProfileFactory(profileClassName);
+                if(profileFactory != null) {
+                    profileFactory.getProductFileFilter().getExtensions();
+                }
+            }
+
+            if (extensionList.contains(FileUtils.getExtension(inputPath))) {
+                netcdfFile = NetcdfFile.open(inputPath);
+            }
             if (netcdfFile == null) {
                 return DecodeQualification.UNABLE;
             }
-            ProfileSpiRegistry profileSpiRegistry = ProfileSpiRegistry.getInstance();
-            if (profileClassName != null) {
-                ProfileSpi profileFactory = profileSpiRegistry.getProfileFactory(profileClassName);
-                if (profileFactory != null) {
-                    return profileFactory.getDecodeQualification(netcdfFile);
-                }
-            } else {
-                return profileSpiRegistry.getDecodeQualification(netcdfFile);
+            if (profileFactory != null) {
+                return profileFactory.getDecodeQualification(netcdfFile);
             }
+            return profileSpiRegistry.getDecodeQualification(netcdfFile);
         } catch (Throwable ignored) {
         } finally {
             try {
