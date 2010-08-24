@@ -63,6 +63,9 @@ public class MerisL3ProductReaderPlugIn implements ProductReaderPlugIn {
      *         data source.
      */
     public DecodeQualification getDecodeQualification(Object input) {
+        if (input == null) {
+            return DecodeQualification.UNABLE;
+        }
         final String path = input.toString();
         final String name = new File(path).getName();
         if (!MerisL3FileFilter.isMerisBinnedL3Name(name)) {
