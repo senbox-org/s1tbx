@@ -41,15 +41,30 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
         File dir = getFileInput(input);
+        if (dir == null) {
+            return DecodeQualification.UNABLE;
+        }
         File[] files = dir.listFiles();
+        if (files == null) {
+            return DecodeQualification.UNABLE;
+        }
         for (File file : files) {
             if (isMetadataFile(file)) {
+                FileReader fileReader = null;
                 try {
-                    LandsatMetadata landsatMetadata = new LandsatMetadata(new FileReader(file));
+                    fileReader = new FileReader(file);
+                    LandsatMetadata landsatMetadata = new LandsatMetadata(fileReader);
                     if (landsatMetadata.isLandsatTM()) {
                         return DecodeQualification.INTENDED;
                     }
                 } catch (IOException ignore) {
+                } finally {
+                    if (fileReader != null) {
+                        try {
+                            fileReader.close();
+                        } catch (IOException ignore) {
+                        }
+                    }
                 }
             }
         }

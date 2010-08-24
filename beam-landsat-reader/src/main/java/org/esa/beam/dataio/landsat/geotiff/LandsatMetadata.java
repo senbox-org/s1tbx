@@ -43,27 +43,31 @@ class LandsatMetadata {
         MetadataElement currentElement = null;
         BufferedReader reader = new BufferedReader(mtlReader);
         String line;
-        while ((line = reader.readLine()) != null) {
-            line = line.trim();
-            if (line.startsWith("GROUP")) {
-                int i = line.indexOf('=');
-                String groupName = line.substring(i+1).trim();
-                MetadataElement element = new MetadataElement(groupName);
-                if (base == null) {
-                    base = element;
-                    currentElement = element;
-                } else {
-                    currentElement.addElement(element);
-                    currentElement = element;
+        try {
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith("GROUP")) {
+                    int i = line.indexOf('=');
+                    String groupName = line.substring(i+1).trim();
+                    MetadataElement element = new MetadataElement(groupName);
+                    if (base == null) {
+                        base = element;
+                        currentElement = element;
+                    } else {
+                        currentElement.addElement(element);
+                        currentElement = element;
+                    }
+                } else if (line.startsWith("END_GROUP") && currentElement != null) {
+                    currentElement = currentElement.getParentElement();
+                } else if (line.equals("END")) {
+                    return base;
+                } else if (currentElement != null) {
+                    MetadataAttribute attribute = createAttribute(line);
+                    currentElement.addAttribute(attribute);
                 }
-            } else if (line.startsWith("END_GROUP") && currentElement != null) {
-                currentElement = currentElement.getParentElement();
-            } else if (line.equals("END")) {
-                return base;
-            } else if (currentElement != null) {
-                MetadataAttribute attribute = createAttribute(line);
-                currentElement.addAttribute(attribute);
             }
+        } finally {
+            reader.close();
         }
         return base;
     }

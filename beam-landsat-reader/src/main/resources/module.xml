@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-landsat-reader</symbolicName>
-    <version>1.2</version>
+    <version>1.2.100</version>
     <name>Landsat TM Product Reader</name>
     <description>
         A product reader for Landsat TM 5 (FAST and GeoTIFF) files.
@@ -14,8 +14,10 @@
 
     <changelog>
         <![CDATA[
+        From 1.2 to 1.2.100:<br/>
+            [BEAM-1186] The Landsat GeoTIFF reader should handle invalid input gracefully<br/>
         From 1.1.2 to 1.2:<br/>
-            [BEAM-1167] The Landsat reader should support products in GeoTIFF <br/>
+            [BEAM-1167] The Landsat reader should support products in GeoTIFF<br/>
         From 1.1.1 to 1.1.2:<br/>
             [BEAM-945] Landsat reader does not consider the center information in header file<br/>
         From 1.1 to 1.1.1:<br/>
