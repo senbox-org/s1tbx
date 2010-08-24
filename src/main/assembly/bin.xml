@@ -117,6 +117,9 @@
                             <exclude>org.esa.beam:beam-*</exclude>
                             <exclude>ncsa.hdf:*</exclude>
                             <exclude>ucar.netcdf:*</exclude>
+                            <exclude>edu.ucar:netcdf:*</exclude>
+                            <exclude>org.slf4j.slf4j:*</exclude> <!--logging from netcdf -->
+                            <exclude>javax.media:*</exclude> <!--jai from geotools, we have our own -->
                         </excludes>
                     </dependencySet>
                     <dependencySet>

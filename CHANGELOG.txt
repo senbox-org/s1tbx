@@ -38,7 +38,9 @@ New Features
 [BEAM-1180] - Allow dragging files into VISAT  
 
 Bugs
+[BEAM-1187] - Libraries of SLF4J are included in lib directory
 [BEAM-1186] - The Landsat GeoTIFF reader should handle invalid input gracefully
+[BEAM-1182] - Libraries of JAI are included twice
 [BEAM-1179] - Slightly wrong listing of files in VirtualDir$Zip in beam-spot-vgt-reader
 [BEAM-1174] - DIMAP stores the band grouping only if a product has a description
 [BEAM-1172] - Boolean parameter values are overridden by default values
