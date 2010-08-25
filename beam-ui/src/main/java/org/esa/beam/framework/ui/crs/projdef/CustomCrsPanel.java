@@ -35,7 +35,6 @@ import org.geotools.referencing.datum.DefaultGeodeticDatum;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.ParameterDescriptor;
-import org.opengis.parameter.ParameterNotFoundException;
 import org.opengis.parameter.ParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.AuthorityFactory;
@@ -89,6 +88,8 @@ public class CustomCrsPanel extends JPanel {
     private JComboBox operationComboBox;
     private JComboBox datumComboBox;
     private JButton paramButton;
+    private static final String SEMI_MAJOR_PARAM_NAME = "semi_major";
+    private static final String SEMI_MINOR_PARAM_NAME = "semi_minor";
 
     public CustomCrsPanel(Window parent) {
         this.parent = parent;
@@ -189,29 +190,58 @@ public class CustomCrsPanel extends JPanel {
             if (defaultDatum != null) {
                 vc.setValue(DATUM, defaultDatum);
             }
-            boolean hasParameters = model.operationWrapper.hasParameters();
-            if (hasParameters) {
-                vc.setValue(PARAMETERS, model.operationWrapper.getParameter());
+
+            Object oldParameterGroup;
+            if (model.operationWrapper.hasParameters()) {
+                oldParameterGroup = vc.getValue(PARAMETERS);
+                ParameterValueGroup newParameters = model.operationWrapper.getParameter();
+                if (oldParameterGroup instanceof ParameterValueGroup) {
+                    ParameterValueGroup oldParameters = (ParameterValueGroup) oldParameterGroup;
+                    List<GeneralParameterDescriptor> generalParameterDescriptors = newParameters.getDescriptor().descriptors();
+                    List<GeneralParameterValue> oldValues = oldParameters.values();
+                    for (GeneralParameterDescriptor newDescriptor : generalParameterDescriptors) {
+                        String parameterName = newDescriptor.getName().getCode();
+                        for (GeneralParameterValue oldParameterValue : oldValues) {
+                            if (AbstractIdentifiedObject.nameMatches(oldParameterValue.getDescriptor(), newDescriptor)) {
+                                Object old = ((ParameterValue)oldParameterValue).getValue();
+                                newParameters.parameter(parameterName).setValue(old);
+                            }
+                        }
+                    }
+                }
+                if (hasParameter(newParameters, SEMI_MAJOR_PARAM_NAME) && hasParameter(newParameters, SEMI_MINOR_PARAM_NAME)) {
+                    Ellipsoid ellipsoid = model.datum.getEllipsoid();
+                    ParameterValue<?> semiMajorParam = newParameters.parameter(SEMI_MAJOR_PARAM_NAME);
+                    if (semiMajorParam.getValue() == null) {
+                        semiMajorParam.setValue(ellipsoid.getSemiMajorAxis());
+                    }
+                    ParameterValue<?> semiMinorParam = newParameters.parameter(SEMI_MINOR_PARAM_NAME);
+                    if (semiMinorParam.getValue() == null) {
+                        semiMinorParam.setValue(ellipsoid.getSemiMinorAxis());
+                    }
+                }
+                vc.setValue(PARAMETERS, newParameters);
             }
         }
-        if (PARAMETERS.equals(propertyName) || DATUM.equals(propertyName)) {
-            if (model.datum != null && model.parameters != null && hasParameter("semi_major") && hasParameter("semi_minor")) {
+        if (DATUM.equals(propertyName)) {
+            if (model.datum != null && model.parameters != null && hasParameter(model.parameters, SEMI_MAJOR_PARAM_NAME) && hasParameter(model.parameters, SEMI_MINOR_PARAM_NAME)) {
                 Ellipsoid ellipsoid = model.datum.getEllipsoid();
-                model.parameters.parameter("semi_major").setValue(ellipsoid.getSemiMajorAxis());
-                model.parameters.parameter("semi_minor").setValue(ellipsoid.getSemiMinorAxis());
+                model.parameters.parameter(SEMI_MAJOR_PARAM_NAME).setValue(ellipsoid.getSemiMajorAxis());
+                model.parameters.parameter(SEMI_MINOR_PARAM_NAME).setValue(ellipsoid.getSemiMinorAxis());
             }
         }
         updateEnableState(true);
         firePropertyChange("crs", null, null);
     }
 
-    private boolean hasParameter(String name) {
-        try {
-            model.parameters.parameter(name);
-        } catch (ParameterNotFoundException ignored) {
-            return false;
+    private static boolean hasParameter(ParameterValueGroup parameterValueGroup, String name) {
+        List<GeneralParameterDescriptor> generalParameterDescriptors = parameterValueGroup.getDescriptor().descriptors();
+        for (GeneralParameterDescriptor descriptor : generalParameterDescriptors) {
+             if (AbstractIdentifiedObject.nameMatches(descriptor, name)) {
+                 return true;
+             }
         }
-        return true;
+        return false;
     }
 
     private class UpdateListener implements PropertyChangeListener {
