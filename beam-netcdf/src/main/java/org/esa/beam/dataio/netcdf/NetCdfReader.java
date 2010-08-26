@@ -23,20 +23,14 @@ import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileSpi;
 import org.esa.beam.dataio.netcdf.metadata.ProfileSpiRegistry;
 import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.dataio.netcdf.util.VariableMap;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.Guardian;
 import org.esa.beam.util.io.FileUtils;
-import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,10 +43,7 @@ import java.io.IOException;
 public class NetCdfReader extends AbstractProductReader {
 
     private final String profileClassName;
-
     private NetcdfFile netcdfFile;
-    private boolean isYFlipped;
-    private VariableMap rasterVariableMap;
 
     public NetCdfReader(ProductReaderPlugIn readerPlugIn, String profileClassName) {
         super(readerPlugIn);
@@ -68,8 +59,7 @@ public class NetCdfReader extends AbstractProductReader {
      * @throws java.io.IOException if an I/O error occurs
      */
     @Override
-    protected Product readProductNodesImpl() throws
-                                             IOException {
+    protected Product readProductNodesImpl() throws IOException {
 
         final File fileLocation = new File(getInput().toString());
         netcdfFile = NetcdfFile.open(fileLocation.getPath());
@@ -100,11 +90,6 @@ public class NetCdfReader extends AbstractProductReader {
         String productName = FileUtils.getFilenameWithoutExtension(fileLocation);
         context.setProperty(Constants.PRODUCT_NAME_PROPERTY_NAME, productName);
         final Product product = profile.readProduct(context);
-        final Object object = context.getProperty(Constants.Y_FLIPPED_PROPERTY_NAME);
-        if (object instanceof Boolean) {
-            isYFlipped = (Boolean) object;
-        }
-        rasterVariableMap = context.getRasterVariableMap();
         product.setFileLocation(fileLocation);
         product.setProductReader(this);
         product.setModified(false);
@@ -116,52 +101,7 @@ public class NetCdfReader extends AbstractProductReader {
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-        Guardian.assertTrue("sourceStepX == 1 && sourceStepY == 1", sourceStepX == 1 && sourceStepY == 1);
-        Guardian.assertTrue("sourceWidth == destWidth", sourceWidth == destWidth);
-        Guardian.assertTrue("sourceHeight == destHeight", sourceHeight == destHeight);
-
-        final int sceneHeight = destBand.getProduct().getSceneRasterHeight();
-        final int y0 = isYFlipped ? (sceneHeight - 1) - sourceOffsetY : sourceOffsetY;
-
-        String variableName = ReaderUtils.getVariableName(destBand);
-        Variable variable = rasterVariableMap.get(variableName);
-        if (variable == null) {
-            variable = rasterVariableMap.get(destBand.getName());
-        }
-        final int rank = variable.getRank();
-        final int[] origin = new int[rank];
-        final int[] shape = new int[rank];
-        for (int i = 0; i < rank; i++) {
-            shape[i] = 1;
-            origin[i] = 0;
-        }
-        shape[rank - 2] = 1;
-        shape[rank - 1] = destWidth;
-        origin[rank - 1] = sourceOffsetX;
-
-        pm.beginTask("Reading data from band '" + destBand.getName() + "'", destHeight);
-        try {
-            for (int y = 0; y < destHeight; y++) {
-                origin[rank - 2] = isYFlipped ? y0 - y : y0 + y;
-                final Array array;
-                synchronized (netcdfFile) {
-                    array = variable.read(origin, shape);
-                }
-                final Object storage = array.getStorage();
-                //noinspection SuspiciousSystemArraycopy
-                System.arraycopy(storage, 0, destBuffer.getElems(), y * destWidth, destWidth);
-                pm.worked(1);
-                if (pm.isCanceled()) {
-                    throw new IOException("Process terminated by user."); /*I18N*/
-                }
-            }
-        } catch (InvalidRangeException e) {
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
-        } finally {
-            pm.done();
-        }
+        throw new IllegalStateException("Data is provided by images");
     }
 
     /**

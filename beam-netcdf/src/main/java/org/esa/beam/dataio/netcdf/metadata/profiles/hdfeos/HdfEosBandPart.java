@@ -21,6 +21,7 @@ import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
+import org.esa.beam.dataio.netcdf.util.NetcdfMultiLevelImage;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import ucar.nc2.Variable;
@@ -37,6 +38,7 @@ public class HdfEosBandPart extends ProfilePart {
             final int rasterDataType = DataTypeUtils.getRasterDataType(variable);
             final Band band = p.addBand(variable.getShortName(), rasterDataType);
             CfBandPart.readCfBandAttributes(variable, band);
+            band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));
         }
     }
 

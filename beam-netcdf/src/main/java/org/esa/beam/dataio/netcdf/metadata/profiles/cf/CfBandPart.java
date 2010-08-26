@@ -15,17 +15,21 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
+import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
+import org.esa.beam.dataio.netcdf.util.NetcdfMultiLevelImage;
+import org.esa.beam.dataio.netcdf.util.NetcdfOpImage;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.jai.ImageManager;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFileWriteable;
@@ -44,6 +48,7 @@ public class CfBandPart extends ProfilePart {
             final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
             final Band band = p.addBand(variable.getName(), rasterDataType);
             readCfBandAttributes(variable, band);
+            band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));
         }
     }
 

@@ -21,6 +21,7 @@ import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
+import org.esa.beam.dataio.netcdf.util.NetcdfMultiLevelImage;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -61,6 +62,7 @@ public class BeamBandPart extends ProfilePart {
                                            p.getSceneRasterHeight());
                 CfBandPart.readCfBandAttributes(variable, band);
                 readBeamBandAttributes(variable, band);
+                band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));
                 p.addBand(band);
             }
         }
