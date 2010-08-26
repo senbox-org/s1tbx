@@ -2,6 +2,7 @@
 
 This file contains all significant changes for each BEAM release.
 
+    o xx.xx.2010: Version 4.9
     o 29.07.2010: Version 4.8
     o 29.04.2010: Version 4.7.1
     o 22.02.2010: Version 4.7
@@ -35,11 +36,15 @@ _____________________________________________________________________________
 2) Complete list of BEAM 4.9 bug fixes and improvements
 
 New Features
-[BEAM-1180] - Allow dragging files into VISAT  
+[BEAM-1180] - Allow dragging files into VISAT
+
+Improvements
+[BEAM-1183] - Improve reprojection UI usability 
 
 Bugs
 [BEAM-1187] - Libraries of SLF4J are included in lib directory
 [BEAM-1186] - The Landsat GeoTIFF reader should handle invalid input gracefully
+[BEAM-1184] - Reprojection dialog does not remember values ("Output Parameters")
 [BEAM-1182] - Libraries of JAI are included twice
 [BEAM-1179] - Slightly wrong listing of files in VirtualDir$Zip in beam-spot-vgt-reader
 [BEAM-1174] - DIMAP stores the band grouping only if a product has a description
