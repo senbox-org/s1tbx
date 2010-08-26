@@ -44,9 +44,10 @@ Improvements
 Bugs
 [BEAM-1187] - Libraries of SLF4J are included in lib directory
 [BEAM-1186] - The Landsat GeoTIFF reader should handle invalid input gracefully
-[BEAM-1184] - Reprojection dialog does not remember values ("Output Parameters")
+[BEAM-1184] - Reprojection dialog does not remember values
 [BEAM-1182] - Libraries of JAI are included twice
 [BEAM-1179] - Slightly wrong listing of files in VirtualDir$Zip in beam-spot-vgt-reader
+[BEAM-1177] - Index out of bounds for RGB View
 [BEAM-1174] - DIMAP stores the band grouping only if a product has a description
 [BEAM-1172] - Boolean parameter values are overridden by default values
 [BEAM-1171] - NetCDF file not readable if variable name contains '.' or '/'

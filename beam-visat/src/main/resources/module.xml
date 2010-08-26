@@ -12,9 +12,10 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.9<br/>
-          [BEAM-1184] Reprojection dialog does not remember values ("Output Parameters")<br/>
+          [BEAM-1184] Reprojection dialog does not remember values<br/>
           [BEAM-1183] Improve reprojection UI usability<br/>        
           [BEAM-1180] Allow dragging files into VISAT<br/>
+          [BEAM-1177] Index out of bounds for RGB View<br/>          
         </p>
         <p>Changes in 4.8:<br/>
           [BEAM-1169] On KDE (linux) the Java Desktop-API is not supported.<br/>        
