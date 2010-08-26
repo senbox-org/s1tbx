@@ -207,17 +207,9 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
 
         final Band[] availableBands = productSceneView.getProduct().getBands();
         channelSourcesList.clear();
-        channelSourcesList.addAll(Arrays.asList(availableBands));
-        for (int i = 0; i < initialChannelSources.length; i++) {
-            RasterDataNode channelSource = initialChannelSources[i];
-            channelSourcesList.remove(channelSource);
-            channelSourcesList.add(i, channelSource);
-        }
-        for (int i = 0; i < currentChannelSources.length; i++) {
-            RasterDataNode channelSource = currentChannelSources[i];
-            channelSourcesList.remove(channelSource);
-            channelSourcesList.add(i, channelSource);
-        }
+        appendToChannelSources(currentChannelSources);
+        appendToChannelSources(initialChannelSources);
+        appendToChannelSources(availableBands);
 
         final String[] sourceNames = new String[channelSourcesList.size()];
         for (int i = 0; i < channelSourcesList.size(); i++) {
@@ -227,6 +219,14 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         moreOptionsForm.getBindingContext().getPropertySet().getProperty(CHANNEL_SOURCE_NAME_PROPERTY).getDescriptor().setValueSet(new ValueSet(sourceNames));
 
         acknowledgeChannel();
+    }
+
+    private void appendToChannelSources(RasterDataNode[] rasterDataNodes) {
+        for (RasterDataNode channelSource : rasterDataNodes) {
+            if (!channelSourcesList.contains(channelSource)) {
+                channelSourcesList.add(channelSource);
+            }
+        }
     }
 
     @Override
