@@ -88,14 +88,14 @@ public class OutputGeometryForm extends JPanel {
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
         gbc.gridy = ++line;
-        components = createComponents("northing");
-        unitcomponent = createUnitComponent("northing");
+        components = createComponents("easting");
+        unitcomponent = createUnitComponent("easting");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc, "insets.top=12");
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
         gbc.gridy = ++line;
-        components = createComponents("easting");
-        unitcomponent = createUnitComponent("easting");
+        components = createComponents("northing");
+        unitcomponent = createUnitComponent("northing");
         GridBagUtils.addToPanel(dialogPane, components[1], gbc, "insets.top=3");
         GridBagUtils.addToPanel(dialogPane, components[0], gbc, "fill=HORIZONTAL,weightx=1");
         GridBagUtils.addToPanel(dialogPane, unitcomponent, gbc, "fill=NONE,weightx=0");
