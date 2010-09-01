@@ -27,8 +27,8 @@ import com.bc.ceres.binding.converters.ArrayConverter;
 import com.bc.ceres.binding.converters.DoubleConverter;
 import junit.framework.TestCase;
 
-public class ParameterDescriptorFactoryTest extends TestCase{
-    
+public class ParameterDescriptorFactoryTest extends TestCase {
+
     private PropertyContainer propertyContainer;
 
     @Override
@@ -37,7 +37,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
         TestPojo testPojo = new TestPojo();
         propertyContainer = PropertyContainer.createObjectBacked(testPojo, pdf);
     }
-    
+
     public void testPercentageField() throws Exception {
         final String PERCENTAGE = "percentage";
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(PERCENTAGE);
@@ -59,7 +59,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
         assertEquals(100.0, propertyDescriptor.getValueRange().getMax(), 0.000001);
         assertEquals(null, propertyDescriptor.getValueSet());
     }
-    
+
     public void testThresholdField() throws Exception {
         final String FIELD_NAME = "threshold";
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(FIELD_NAME);
@@ -89,15 +89,15 @@ public class ParameterDescriptorFactoryTest extends TestCase{
         assertNotNull(property);
         try {
             validator.validateValue(property, 42.0);
-        }catch (ValidationException e) {
-            fail("validation failed: "+e.getMessage());
+        } catch (ValidationException e) {
+            fail("validation failed: " + e.getMessage());
         }
     }
-    
+
     public void testThresholdArrayField() throws Exception {
-        final String FIELD_NAME = "thresholdArray";
-        PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(FIELD_NAME);
-        assertEquals(FIELD_NAME, propertyDescriptor.getName());
+        final String fieldName = "thresholdArray";
+        PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(fieldName);
+        assertEquals(fieldName, propertyDescriptor.getName());
         assertNull(propertyDescriptor.getAlias());
         assertEquals(null, propertyDescriptor.getDefaultValue());
         assertSame(ArrayConverter.class, propertyDescriptor.getConverter().getClass());
@@ -125,9 +125,21 @@ public class ParameterDescriptorFactoryTest extends TestCase{
         assertNotNull(property);
         try {
             validator.validateValue(property, new double[]{42.0});
-        }catch (ValidationException e) {
-            fail("validation failed: "+e.getMessage());
+        } catch (ValidationException e) {
+            fail("validation failed: " + e.getMessage());
         }
     }
 
+    public void testThresholdFail() {
+        PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor("threshold");
+        PropertyAccessor propertyAccessor = new DefaultPropertyAccessor();
+        Property property = new Property(propertyDescriptor, propertyAccessor);
+        Validator validator = property.getValidator();
+        try {
+            validator.validateValue(property, 10.0);
+            fail("validation should fail");
+        } catch (ValidationException ignored) {
+            // expected
+        }
+    }
 }
