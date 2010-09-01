@@ -43,6 +43,7 @@ Improvements
 
 Bugs
 [BEAM-1194] - Open RGB in image view leads to "Unknown band:" error
+[BEAM-1192] - Title in histogram does not adjust to current band
 [BEAM-1187] - Libraries of SLF4J are included in lib directory
 [BEAM-1186] - The Landsat GeoTIFF reader should handle invalid input gracefully
 [BEAM-1184] - Reprojection dialog does not remember values
@@ -52,6 +53,7 @@ Bugs
 [BEAM-1174] - DIMAP stores the band grouping only if a product has a description
 [BEAM-1172] - Boolean parameter values are overridden by default values
 [BEAM-1171] - NetCDF file not readable if variable name contains '.' or '/'
+[BEAM-1067] - Histogram title doesn't update when changing band
 
  _____________________________________________________________________________
 
