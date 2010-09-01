@@ -257,6 +257,7 @@ public class StatisticsToolView extends AbstractToolView {
         for (PagePanel panel : panels) {
             panel.selectionChanged(product, raster, vectorDataNode);
         }
+        updateUIState();
     }
 
 
