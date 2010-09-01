@@ -42,6 +42,7 @@ Improvements
 [BEAM-1183] - Improve reprojection UI usability 
 
 Bugs
+[BEAM-1194] - Open RGB in image view leads to "Unknown band:" error
 [BEAM-1187] - Libraries of SLF4J are included in lib directory
 [BEAM-1186] - The Landsat GeoTIFF reader should handle invalid input gracefully
 [BEAM-1184] - Reprojection dialog does not remember values
