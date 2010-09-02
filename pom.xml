@@ -142,6 +142,7 @@
         <module>beam-unmix</module>
         <module>beam-cluster-analysis</module>
         <module>beam-collocation</module>
+        <module>beam-pixel-extraction</module>
 
         <module>beam-avhrr-reader</module>
         <module>beam-atsr-reader</module>
