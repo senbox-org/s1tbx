@@ -66,7 +66,7 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         try {
             return createValueDescriptorImpl(field);
         } catch (ConversionException e) {
-            final String message = String.format("field [%s]: ", field.getName());
+            final String message = String.format("field [%s]", field.getName());
             throw new IllegalArgumentException(message, e);
         }
     }
