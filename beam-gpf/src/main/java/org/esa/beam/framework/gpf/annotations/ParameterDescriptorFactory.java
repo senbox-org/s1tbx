@@ -16,6 +16,16 @@
 
 package org.esa.beam.framework.gpf.annotations;
 
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConverterRegistry;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueRange;
+import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.dom.DomConverter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -30,17 +40,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.ConverterRegistry;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.PropertyDescriptorFactory;
-import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueRange;
-import com.bc.ceres.binding.ValueSet;
-import com.bc.ceres.binding.dom.DomConverter;
-
 public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
 
     private Map<String, Product> sourceProductMap;
@@ -49,8 +48,10 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         return createMapBackedOperatorPropertyContainer(operatorName, new HashMap<String, Object>());
     }
 
-    public static PropertyContainer createMapBackedOperatorPropertyContainer(String operatorName, Map<String, Object> operatorParameters) {
-        return PropertyContainer.createMapBacked(operatorParameters, getOpType(operatorName), new ParameterDescriptorFactory());
+    public static PropertyContainer createMapBackedOperatorPropertyContainer(String operatorName,
+                                                                             Map<String, Object> operatorParameters) {
+        return PropertyContainer.createMapBacked(operatorParameters, getOpType(operatorName),
+                                                 new ParameterDescriptorFactory());
     }
 
     public ParameterDescriptorFactory() {
@@ -65,7 +66,8 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         try {
             return createValueDescriptorImpl(field);
         } catch (ConversionException e) {
-            throw new IllegalArgumentException("field", e);
+            final String message = String.format("field [%s]: ", field.getName());
+            throw new IllegalArgumentException(message, e);
         }
     }
 
@@ -108,7 +110,7 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         }
         if (ParameterDescriptorFactory.isSet(parameter.label())) {
             propertyDescriptor.setDisplayName(parameter.label());
-        } 
+        }
         if (ParameterDescriptorFactory.isSet(parameter.alias())) {
             propertyDescriptor.setAlias(parameter.alias());
         }
@@ -158,7 +160,8 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
             propertyDescriptor.setAttribute(RasterDataNodeValues.ATTRIBUTE_NAME, rasterDataNodeType);
         }
         if (propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
-            Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
+            Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) propertyDescriptor.getAttribute(
+                    RasterDataNodeValues.ATTRIBUTE_NAME);
             String[] values = new String[0];
             if (sourceProductMap != null && sourceProductMap.size() > 0) {
                 Product firstProduct = sourceProductMap.values().iterator().next();
