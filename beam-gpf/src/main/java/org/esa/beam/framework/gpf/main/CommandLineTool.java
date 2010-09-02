@@ -27,6 +27,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
@@ -34,7 +36,6 @@ import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.framework.gpf.graph.NodeSource;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
-import org.esa.beam.util.SystemUtils;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;
@@ -104,7 +105,8 @@ class CommandLineTool {
         }
     }
 
-    private void run(CommandLineArgs lineArgs) throws ValidationException, ConversionException, IOException, GraphException {
+    private void run(CommandLineArgs lineArgs) throws ValidationException, ConversionException, IOException,
+                                                      GraphException {
         TileCache tileCache = JAI.getDefaultInstance().getTileCache();
         tileCache.setMemoryCapacity(lineArgs.getTileCacheCapacity());
 
@@ -113,9 +115,11 @@ class CommandLineTool {
             Map<String, Product> sourceProducts = getSourceProductMap(lineArgs);
             String opName = lineArgs.getOperatorName();
             Product targetProduct = createOpProduct(opName, parameters, sourceProducts);
-            String filePath = lineArgs.getTargetFilepath();
-            String formatName = lineArgs.getTargetFormatName();
-            writeProduct(targetProduct, filePath, formatName);
+            if (isTargetProductWritable(opName)) {
+                String filePath = lineArgs.getTargetFilepath();
+                String formatName = lineArgs.getTargetFormatName();
+                writeProduct(targetProduct, filePath, formatName);
+            }
         } else if (lineArgs.getGraphFilepath() != null) {
             Map<String, String> sourceNodeIdMap = getSourceNodeIdMap(lineArgs);
             Map<String, String> templateMap = new TreeMap<String, String>(sourceNodeIdMap);
@@ -142,8 +146,8 @@ class CommandLineTool {
                     graph.addNode(sourceNode);
                 }
             }
-            String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
-            if (!lastNode.getOperatorName().equals(writeOperatorAlias)) {
+            if (isTargetProductWritable(lastNode.getOperatorName())) {
+                String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
 
                 DomElement parameters = new DefaultDomElement("parameters");
                 parameters.createChild("file").setValue(lineArgs.getTargetFilepath());
@@ -160,9 +164,20 @@ class CommandLineTool {
         }
     }
 
+    private boolean isTargetProductWritable(String operatorName) {
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        final OperatorSpi operatorSpi = registry.getOperatorSpi(operatorName);
+        final OperatorMetadata operatorMetadata = operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class);
+        if (operatorMetadata != null) {
+            return operatorMetadata.isTargetProductWritable();
+        }
+        return true;
+    }
+
     private Map<String, Object> getParameterMap(CommandLineArgs lineArgs) throws ValidationException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
-        PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(lineArgs.getOperatorName(), parameters);
+        PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(
+                lineArgs.getOperatorName(), parameters);
         // explicitly set default values for putting them into the backing map 
         container.setDefaultValues();
         Map<String, String> parameterMap = lineArgs.getParameterMap();
@@ -173,8 +188,8 @@ class CommandLineTool {
             if (model != null) {
                 model.setValueFromText(paramValue);
             } else {
-               throw new RuntimeException(String.format(
-                       "Parameter '%s' is not known by operator '%s'", paramName, lineArgs.getOperatorName()));
+                throw new RuntimeException(String.format(
+                        "Parameter '%s' is not known by operator '%s'", paramName, lineArgs.getOperatorName()));
             }
         }
         return parameters;
@@ -250,7 +265,8 @@ class CommandLineTool {
         return commandLineContext.readParameterFile(propertiesFilepath);
     }
 
-    private Product createOpProduct(String opName, Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
+    private Product createOpProduct(String opName, Map<String, Object> parameters,
+                                    Map<String, Product> sourceProducts) throws OperatorException {
         return commandLineContext.createOpProduct(opName, parameters, sourceProducts);
     }
 }
