@@ -32,7 +32,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface OperatorMetadata {
-
     /**
      * @return An alias name for the operator.
      */
@@ -62,15 +61,10 @@ public @interface OperatorMetadata {
      */
     String description() default "";
 
+
     /**
      * @return If {@code true}, this operator is considered for internal use only and thus
      *         may not be exposed in user interfaces.
      */
     boolean internal() default false;
-
-    /**
-     * @return If {@code true}, the operator's target product is allowed to be written to disk.
-     *         The default value is {@code true}.
-     */
-    boolean isTargetProductWritable() default true;
 }

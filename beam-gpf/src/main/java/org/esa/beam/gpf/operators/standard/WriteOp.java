@@ -58,8 +58,7 @@ import java.util.Map;
                   version="1.2",
                   authors = "Marco Zuehlke, Norman Fomferra",
                   copyright = "(c) 2010 by Brockmann Consult",
-                  description = "Writes a product to a file.",
-                  isTargetProductWritable = false)
+                  description = "Writes a product to a file.")
 public class WriteOp extends Operator {
 
     @TargetProduct

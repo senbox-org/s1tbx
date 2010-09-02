@@ -237,26 +237,4 @@ public class TestOps {
             }
         }
     }
-    @OperatorMetadata(alias = "NonWritableOp", isTargetProductWritable = false)
-    public static class NonWritableOp extends Operator {
-
-        @SourceProduct
-        private Product input;
-        
-        @Override
-        public void initialize() {
-            setTargetProduct(new Product("dummy", "d", 10,10));
-        }
-
-        @Override
-        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
-        }
-
-        public static class Spi extends OperatorSpi {
-
-            public Spi() {
-                super(NonWritableOp.class);
-            }
-        }
-    }
 }
