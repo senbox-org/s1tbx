@@ -17,7 +17,6 @@
 package org.esa.beam.framework.gpf.main;
 
 import com.sun.media.jai.util.SunTileScheduler;
-
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -26,13 +25,12 @@ import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 
+import javax.media.jai.JAI;
+import javax.media.jai.TileScheduler;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.media.jai.JAI;
-import javax.media.jai.TileScheduler;
 
 public class CommandLineToolOperatorTest extends TestCase {
     private OpCommandLineContext context;
@@ -59,6 +57,7 @@ public class CommandLineToolOperatorTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP3_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP4_SPI);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP5_SPI);
         JAI.getDefaultInstance().setTileScheduler(jaiTileScheduler);
     }
@@ -173,26 +172,31 @@ public class CommandLineToolOperatorTest extends TestCase {
             logString = "";
         }
 
+        @Override
         public Product readProduct(String productFilepath) throws IOException {
             logString += "s" + readProductCounter + "=" + productFilepath + ";";
             readProductCounter++;
             return new Product("S", "ST", 10, 10);
         }
 
+        @Override
         public void writeProduct(Product targetProduct, String filePath, String formatName) throws IOException {
             logString += "t" + writeProductCounter + "=" + filePath + ";";
             writeProductCounter++;
         }
 
+        @Override
         public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException {
             fail("did not expect to come here");
             return null;
         }
 
+        @Override
         public void executeGraph(Graph graph) throws GraphException {
             fail("did not expect to come here");
         }
 
+        @Override
         public Map<String, String> readParameterFile(String propertiesFilepath) throws IOException {
             HashMap<String, String> hashMap = new HashMap<String, String>();
             hashMap.put("expression", "sqrt(x*x + y*y)");
@@ -200,6 +204,7 @@ public class CommandLineToolOperatorTest extends TestCase {
             return hashMap;
         }
 
+        @Override
         public Product createOpProduct(String opName, Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
             this.opName = opName;
             this.parameters = parameters;
@@ -208,6 +213,7 @@ public class CommandLineToolOperatorTest extends TestCase {
             return new Product("T", "TT", 10, 10);
         }
 
+        @Override
         public void print(String m) {
             this.output += m;
         }
