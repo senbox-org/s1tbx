@@ -57,7 +57,7 @@ public class PetOp extends Operator {
     private Object csv;
 
     @Parameter(description = "The path of the input product(s). May point to a single file or a directory.")
-    private File path;
+    private File inputPath;
 
     @Parameter(description = "Specifies if the given path shall be searched for data products recursively.",
                defaultValue = "false")
@@ -104,11 +104,11 @@ public class PetOp extends Operator {
         measurements = new ArrayList<Measurement>();
         if (sourceProducts != null) {
             for (Product product : sourceProducts) {
-                analyzeSingleProduct(product);
+                extractMeasurements(product);
             }
         }
-        if (path != null) {
-            analyzeProducts(path);
+        if (inputPath != null) {
+            extractMeasurements(inputPath);
         }
         if (outputFile != null) {
             writeOutput();
@@ -142,28 +142,29 @@ public class PetOp extends Operator {
         }
     }
 
-    private void analyzeProducts(File path) {
+    private void extractMeasurements(File path) {
         if (path.isDirectory()) {
             final File[] subFiles = path.listFiles();
             for (File file : subFiles) {
                 if (file.isFile() || recursive) {
-                    analyzeProducts(file);
+                    extractMeasurements(file);
                 }
             }
         } else {
-            analyzeSingleProduct(path);
+            Product product = null;
+            try {
+                product = ProductIO.readProduct(path);
+                extractMeasurements(product);
+            } catch (IOException ignore) {
+            }finally {
+                if(product != null) {
+                    product.dispose();
+                }
+            }
         }
     }
 
-    private void analyzeSingleProduct(File path) {
-        try {
-            final Product product = ProductIO.readProduct(path);
-            analyzeSingleProduct(product);
-        } catch (IOException ignore) {
-        }
-    }
-
-    private void analyzeSingleProduct(Product product) {
+    private void extractMeasurements(Product product) {
         if (!validator.validate(product)) {
             return;
         }
@@ -181,7 +182,7 @@ public class PetOp extends Operator {
 
                 for (RasterDataNode raster : rasters) {
                     try {
-                        collectMeasurements(geoPos, upperLeftPos, raster);
+                        readMeasurement(geoPos, upperLeftPos, raster);
                     } catch (IOException e) {
                         exceptions.add(e.getMessage());
                     }
@@ -193,13 +194,14 @@ public class PetOp extends Operator {
         }
     }
 
-    private void collectMeasurements(GeoPos geoPos, PixelPos pixelPos, RasterDataNode raster) throws IOException {
+    private void readMeasurement(GeoPos geoPos, PixelPos pixelPos, RasterDataNode raster) throws IOException {
         int x = MathUtils.floorInt(pixelPos.x);
         int y = MathUtils.floorInt(pixelPos.y);
         final double[] values = new double[squareSize * squareSize];
         raster.readPixels(x, y, squareSize, squareSize, values);
-        measurements.add(
-                new Measurement(raster.getName(), raster.getProduct().getStartTime(), geoPos, values));
+        final Measurement measure = new Measurement(raster.getName(), raster.getProduct().getStartTime(),
+                                                    geoPos, values);
+        measurements.add(measure);
     }
 
     private void logExceptions(List<String> exceptions) {
