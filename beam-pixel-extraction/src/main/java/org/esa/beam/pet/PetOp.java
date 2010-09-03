@@ -19,11 +19,14 @@ package org.esa.beam.pet;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
+import org.esa.beam.dataio.placemark.PlacemarkReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -41,9 +44,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
+@SuppressWarnings({
+        "IOResourceOpenedButNotSafelyClosed", "MismatchedReadAndWriteOfArray",
+        "FieldCanBeLocal", "UnusedDeclaration"
+})
 @OperatorMetadata(
         alias = "Pet",
         version = "1.0",
@@ -56,7 +64,7 @@ public class PetOp extends Operator {
     private Product[] sourceProducts;
 
     @TargetProperty()
-    private Object csv;
+    private Measurement[] measurements;
 
     @Parameter(description = "The path of the input product(s). May point to a single file or a directory.")
     private File inputPath;
@@ -72,10 +80,11 @@ public class PetOp extends Operator {
                description = "The raster names used for extractions. Bands, tie-point grids, and masks can be used.")
     private String[] rasterNames;
 
-    // todo load position list from file
-    @Parameter(itemAlias = "coordinate", description = "The geo-coordinates", notNull = true,
-               converter = GeoPosConverter.class)
+    @Parameter(itemAlias = "coordinate", description = "The geo-coordinates", converter = GeoPosConverter.class)
     private GeoPos[] coordinates;
+
+    @Parameter(description = "Path to a file containing geo-coordinates")
+    private File coordinatesFile;
 
     @Parameter(description = "Side length of surrounding square (uneven)", defaultValue = "1",
                validator = SquareSizeValidator.class)
@@ -85,17 +94,29 @@ public class PetOp extends Operator {
     private File outputFile;
 
     private ProductValidator validator;
+    private List<Coordinate> coordinateList;
+    private List<Measurement> measurementList;
 
-    private List<Measurement> measurements;
 
     @Override
     public void initialize() throws OperatorException {
-        if (outputFile != null && outputFile.isDirectory()) {
-            outputFile = new File(outputFile, "output.csv");
+        if (coordinatesFile == null && coordinates == null) {
+            throw new OperatorException("No coordinates specified.");
         }
-
+        if (outputFile != null && outputFile.isDirectory()) {
+            outputFile = new File(outputFile, "output.txt");
+        }
+        coordinateList = new ArrayList<Coordinate>();
+        if (coordinatesFile != null) {
+            coordinateList.addAll(extractGeoPositions(coordinatesFile));
+        }
+        if (coordinates != null) {
+            for (GeoPos coordinate : coordinates) {
+                coordinateList.add(new Coordinate(coordinateList.size(), " ", coordinate));
+            }
+        }
         validator = new ProductValidator();
-        measurements = new ArrayList<Measurement>();
+        measurementList = new ArrayList<Measurement>();
         if (sourceProducts != null) {
             for (Product product : sourceProducts) {
                 extractMeasurements(product);
@@ -108,7 +129,25 @@ public class PetOp extends Operator {
             writeOutput();
         }
 
+        measurements = measurementList.toArray(new Measurement[measurementList.size()]);
         setTargetProduct(createDummyProduct());
+    }
+
+    private List<Coordinate> extractGeoPositions(File coordinatesFile) {
+        final List<Coordinate> coordinateList = new ArrayList<Coordinate>();
+        try {
+            final Placemark[] pins = PlacemarkReader.readPlacemarks(coordinatesFile, null, PinDescriptor.INSTANCE);
+            for (Placemark pin : pins) {
+                final GeoPos geoPos = pin.getGeoPos();
+                if (geoPos != null) {
+                    final int id = coordinateList.size();
+                    coordinateList.add(new Coordinate(id, pin.getName(), geoPos));
+                }
+            }
+        } catch (IOException ignore) {
+            return Collections.emptyList();
+        }
+        return coordinateList;
     }
 
     private Product createDummyProduct() {
@@ -123,7 +162,7 @@ public class PetOp extends Operator {
         FileWriter writer = null;
         try {
             writer = new FileWriter(outputFile);
-            formatWriter.write(measurements, writer);
+            formatWriter.write(measurementList, writer);
         } catch (IOException e) {
             throw new OperatorException("Could not write to output file.", e);
         } finally {
@@ -165,21 +204,14 @@ public class PetOp extends Operator {
         final List<RasterDataNode> rasterList = getValidRasterList(product);
         int offset = MathUtils.floorInt(squareSize / 2);
 
-        for (GeoPos geoPos : coordinates) {
-            PixelPos centerPos = product.getGeoCoding().getPixelPos(geoPos, null);
+        for (Coordinate coordinate : coordinateList) {
+            PixelPos centerPos = product.getGeoCoding().getPixelPos(coordinate.getGeoPos(), null);
             if (product.containsPixel(centerPos)) {
                 PixelPos upperLeftPos = new PixelPos(centerPos.x - offset, centerPos.y - offset);
-                List<String> exceptions = new ArrayList<String>();
-
-                for (RasterDataNode raster : rasterList) {
-                    try {
-                        readMeasurement(geoPos, upperLeftPos, raster);
-                    } catch (IOException e) {
-                        exceptions.add(e.getMessage());
-                    }
-                }
-                if (!exceptions.isEmpty()) {
-                    logExceptions(exceptions);
+                try {
+                    readMeasurement(coordinate, upperLeftPos, rasterList);
+                } catch (IOException e) {
+                    getLogger().warning(e.getMessage());
                 }
             }
         }
@@ -202,18 +234,28 @@ public class PetOp extends Operator {
         return validRasterList;
     }
 
-    private void readMeasurement(GeoPos geoPos, PixelPos pixelPos, RasterDataNode raster) throws IOException {
+    private void readMeasurement(Coordinate coordinate, PixelPos pixelPos, List<RasterDataNode> rasters) throws IOException {
         int x = MathUtils.floorInt(pixelPos.x);
         int y = MathUtils.floorInt(pixelPos.y);
-        final double[] values = new double[squareSize * squareSize];
-        raster.readPixels(x, y, squareSize, squareSize, values);
-        final Measurement measure = new Measurement(raster.getName(), raster.getProduct().getStartTime(),
-                                                    geoPos, values);
-        measurements.add(measure);
-    }
-
-    private void logExceptions(List<String> exceptions) {
-        // todo implement
+        final double[] values = new double[rasters.size()];
+        final int numPixels = squareSize * squareSize;
+        final List<String> names = new ArrayList<String>();
+        for (RasterDataNode raster : rasters) {
+            names.add(raster.getName());
+        }
+        for (int n = 0; n < numPixels; n++) {
+            x += n % squareSize;
+            y += n / squareSize;
+            for (int i = 0; i < rasters.size(); i++) {
+                double[] temp = new double[1];
+                rasters.get(i).readPixels(x, y, 1, 1, temp);
+                values[i] = temp[0];
+            }
+            GeoPos currentGeoPos = rasters.get(0).getProduct().getGeoCoding().getGeoPos( new PixelPos(x, y), null );
+            final Measurement measure = new Measurement(coordinate.getId(), coordinate.getName(), names, rasters.get(0).getProduct().getStartTime(),
+                                                        currentGeoPos, values);
+            measurementList.add(measure);
+        }
     }
 
     public static class SquareSizeValidator implements Validator {
@@ -245,7 +287,7 @@ public class PetOp extends Operator {
                 logger.warning(String.format(msgPattern, product.getFileLocation()));
                 return false;
             }
-            if(!geoCoding.canGetPixelPos()) {
+            if (!geoCoding.canGetPixelPos()) {
                 final String msgPattern = "Product [%s] refused. Cause:\nPixel position can not be determined.";
                 logger.warning(String.format(msgPattern, product.getFileLocation()));
                 return false;

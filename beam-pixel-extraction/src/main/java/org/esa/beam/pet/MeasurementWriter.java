@@ -32,22 +32,22 @@ class MeasurementWriter {
             return;
         }
         PrintWriter printWriter = new PrintWriter(writer);
-        printWriter.append("Lat\tLon\tRaster\tDate(yyyy-MM-dd)\tTime(hh:mm:ss AM/PM)\tCenter_Value\t");
-        for (int i = 0; i < measurementList.get(0).getValues().length; i++) {
-            printWriter.append(String.format("Value_%d\t", (i + 1)));
+        printWriter.append("CoordinateID\tName\tLatitude\tLongitude\tDate(yyyy-MM-dd)\tTime(hh:mm:ss AM/PM)\t");
+        final List<String> nameList = measurementList.get(0).getRasterNames();
+        for (String name : nameList) {
+            printWriter.append(String.format("%s\t", name));
         }
         printWriter.append("\n");
         for (Measurement measurement : measurementList) {
             final double[] values = measurement.getValues();
-            double centerValue = values[values.length / 2];
+            final int id = measurement.getCoordinateID();
             final float lat = measurement.getLat();
             final float lon = measurement.getLon();
             final ProductData.UTC time = measurement.getStartTime();
             SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd\thh:mm:ss a", Locale.ENGLISH );
             String timeString = sdf.format( time.getAsDate() );
 
-            printWriter.append(String.format("%s\t%s\t%s\t%s\t%s\t", lat, lon, measurement.getRasterName(),
-                                             timeString, centerValue));
+            printWriter.append(String.format("%d\t%s\t%s\t%s\t%s\t", id, measurement.getCoordinateName(), lat, lon, timeString));
             for (double value : values) {
                 printWriter.append(String.format("%s\t", value));
             }

@@ -21,7 +21,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.jidesoft.grid.SortableTable;
-import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.dataio.placemark.PlacemarkReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -54,10 +54,6 @@ import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.DOMBuilder;
-import org.xml.sax.SAXException;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
@@ -87,10 +83,6 @@ import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -104,13 +96,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
@@ -118,7 +107,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * A dialog used to manage the list of pins or ground control points associated
@@ -127,23 +115,12 @@ import java.util.List;
 public class PlacemarkManagerToolView extends AbstractToolView {
 
     public static final String PROPERTY_KEY_IO_DIR = "pin.io.dir";
-    public static final String NAME_COL_NAME = "Name";
-    public static final String LABEL_COL_NAME = "Label";
-    public static final String DESC_COL_NAME = "Desc";
-    public static final String LON_COL_NAME = "Lon";
-    public static final String LAT_COL_NAME = "Lat";
 
     private static final String FILE_EXTENSION_FLAT_OLD = ".pnf";
     private static final String FILE_EXTENSION_XML_OLD = ".pnx";
 
     private static final String FILE_EXTENSION_FLAT_TEXT = ".txt";
     private static final String FILE_EXTENSION_PLACEMARK = ".placemark";
-
-    private static final int INDEX_FOR_NAME = 0;
-    private static final int INDEX_FOR_LON = 1;
-    private static final int INDEX_FOR_LAT = 2;
-    private static final int INDEX_FOR_DESC = 3;
-    private static final int INDEX_FOR_LABEL = 4;
 
     private final PlacemarkDescriptor placemarkDescriptor;
 
@@ -703,7 +680,11 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             File file = fileChooser.getSelectedFile();
             if (file != null) {
                 setIODir(file.getAbsoluteFile().getParentFile());
-                placemarks = readPlacemarksFromFile(file);
+                GeoCoding geoCoding = null;
+                if (product != null) {
+                    geoCoding = product.getGeoCoding();
+                }
+                placemarks = PlacemarkReader.readPlacemarks(file, geoCoding, placemarkDescriptor);
             }
         }
         return placemarks;
@@ -731,26 +712,20 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 if (!StringUtils.contains(beamFileFilter.getExtensions(), FileUtils.getExtension(file))) {
                     file = FileUtils.ensureExtension(file, beamFileFilter.getDefaultExtension());
                 }
-                Writer writer = null;
                 try {
                     if (beamFileFilter.getFormatName().equals(getPlacemarkFileFilter().getFormatName())) {
                         writePlacemarksFile(file);
                     } else {
-                        writer = new FileWriter(file);
-                        writePlacemarkDataTableText(writer);
-                        writer.close();
+                        Writer writer = new FileWriter(file);
+                        try {
+                            writePlacemarkDataTableText(writer);
+                        } finally {
+                            writer.close();
+                        }
                     }
                 } catch (IOException ignored) {
                     showErrorDialog(
                             "I/O Error.\n   Failed to export " + placemarkDescriptor.getRoleLabel() + "s.");    /*I18N*/
-                } finally {
-                    if (writer != null) {
-                        try {
-                            writer.close();
-                        } catch (IOException ignored) {
-                            // ignore
-                        }
-                    }
                 }
             }
         }
@@ -780,9 +755,12 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 setIODir(file.getAbsoluteFile().getParentFile());
                 file = FileUtils.ensureExtension(file, FILE_EXTENSION_FLAT_TEXT);
                 try {
-                    final Writer writer = new FileWriter(file);
-                    writePlacemarkDataTableText(writer);
-                    writer.close();
+                    Writer writer = new FileWriter(file);
+                    try {
+                        writePlacemarkDataTableText(writer);
+                    } finally {
+                        writer.close();
+                    }
                 } catch (IOException ignored) {
                     showErrorDialog("I/O Error.\nFailed to export " + roleLabel + " data table."); /*I18N*/
                 }
@@ -791,49 +769,53 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     }
 
     private void writePlacemarkDataTableText(final Writer writer) {
-        final PrintWriter pw = new PrintWriter(writer);
 
-        final int columnCountMin = placemarkTableModel.getStandardColumnNames().length;
+        final String[] standardColumnNames = placemarkTableModel.getStandardColumnNames();
+        final int columnCountMin = standardColumnNames.length;
         final int columnCount = placemarkTable.getColumnCount();
 
-        // Write file header
-        pw.println("# BEAM " + placemarkDescriptor.getRoleLabel() + " export table");
-        pw.println("#");
-        pw.println("# Product:\t" + product.getName());
-        pw.println("# Created on:\t" + new Date());
-        pw.println();
+        final PrintWriter pw = new PrintWriter(writer);
+        try {
+            // Write file header
+            pw.println("# BEAM " + placemarkDescriptor.getRoleLabel() + " export table");
+            pw.println("#");
+            pw.println("# Product:\t" + product.getName());
+            pw.println("# Created on:\t" + new Date());
+            pw.println();
 
-        // Write header columns
-        pw.print(NAME_COL_NAME + "\t");
-        for (String name : placemarkTableModel.getStandardColumnNames()) {
-            pw.print(name + "\t");
-        }
-        pw.print(DESC_COL_NAME + "\t");
-        for (int i = columnCountMin; i < columnCount; i++) {
-            pw.print(placemarkTableModel.getColumnName(i) + "\t");
-        }
-        pw.println();
-
-        for (int sortedRow = 0; sortedRow < placemarkTable.getRowCount(); ++sortedRow) {
-            if (placemarkTable.getSelectionModel().isSelectedIndex(sortedRow)) {
-                final int modelRow = placemarkTable.getActualRowAt(sortedRow);
-                final Placemark placemark = placemarkTableModel.getPlacemarkAt(modelRow);
-
-                pw.print(placemark.getName() + "\t");
-                for (int col = 0; col < columnCountMin; col++) {
-
-                    final Object value = placemarkTableModel.getValueAt(modelRow, col);
-                    pw.print(value.toString() + "\t");
-                }
-                pw.print(placemark.getDescription() + "\t");
-                for (int col = columnCountMin; col < columnCount; col++) {
-                    final Object value = placemarkTableModel.getValueAt(modelRow, col);
-                    pw.print(value.toString() + "\t");
-                }
-                pw.println();
+            // Write header columns
+            pw.print(PlacemarkReader.NAME_COL_NAME + "\t");
+            for (String name : standardColumnNames) {
+                pw.print(name + "\t");
             }
+            pw.print(PlacemarkReader.DESC_COL_NAME + "\t");
+            for (int i = columnCountMin; i < columnCount; i++) {
+                pw.print(placemarkTableModel.getColumnName(i) + "\t");
+            }
+            pw.println();
+
+            for (int sortedRow = 0; sortedRow < placemarkTable.getRowCount(); ++sortedRow) {
+                if (placemarkTable.getSelectionModel().isSelectedIndex(sortedRow)) {
+                    final int modelRow = placemarkTable.getActualRowAt(sortedRow);
+                    final Placemark placemark = placemarkTableModel.getPlacemarkAt(modelRow);
+
+                    pw.print(placemark.getName() + "\t");
+                    for (int col = 0; col < columnCountMin; col++) {
+
+                        final Object value = placemarkTableModel.getValueAt(modelRow, col);
+                        pw.print(value.toString() + "\t");
+                    }
+                    pw.print(placemark.getDescription() + "\t");
+                    for (int col = columnCountMin; col < columnCount; col++) {
+                        final Object value = placemarkTableModel.getValueAt(modelRow, col);
+                        pw.print(value.toString() + "\t");
+                    }
+                    pw.println();
+                }
+            }
+        } finally {
+            pw.close();
         }
-        pw.close();
     }
 
     private void writePlacemarksFile(File outputFile) throws IOException {
@@ -849,144 +831,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
         writer.println(tags[1]);
         writer.close();
-    }
-
-    private Placemark[] readPlacemarksFromFile(File inputFile) throws IOException {
-        final DataInputStream dataInputStream = new DataInputStream(new FileInputStream(inputFile));
-        final byte[] magicBytes = new byte[5];
-        try {
-            //noinspection ResultOfMethodCallIgnored
-            dataInputStream.read(magicBytes);  // todo - BAD PRACTICE HERE!!!
-        } finally {
-            dataInputStream.close();
-        }
-        if (XmlWriter.XML_HEADER_LINE.startsWith(new String(magicBytes))) {
-            return readPlacemarksFromXMLFile(inputFile);
-        } else {
-            return readPlacemarksFromFlatFile(inputFile);
-        }
-    }
-
-    private Placemark[] readPlacemarksFromFlatFile(File inputFile) throws IOException {
-        assert inputFile != null;
-        int[] columnIndexes = null;
-        int biggestIndex = 0;
-        ArrayList<Placemark> placemarks = new ArrayList<Placemark>();
-
-        final RandomAccessFile file = new RandomAccessFile(inputFile, "r");
-        int row = 0;
-        while (true) {
-            String line = file.readLine();
-            if (line == null) {
-                break;
-            }
-            line = line.trim(); // cut \n and \r from the end of the line
-            if (line.equals("") || line.startsWith("#")) {
-                continue;
-            }
-            String[] strings = StringUtils.toStringArray(line, "\t");
-            if (columnIndexes == null) {
-                int nameIndex = StringUtils.indexOf(strings, NAME_COL_NAME);
-                int lonIndex = StringUtils.indexOf(strings, LON_COL_NAME);
-                int latIndex = StringUtils.indexOf(strings, LAT_COL_NAME);
-                int descIndex = StringUtils.indexOf(strings, DESC_COL_NAME);
-                int labelIndex = StringUtils.indexOf(strings, LABEL_COL_NAME);
-                if (nameIndex == -1 || lonIndex == -1 || latIndex == -1) {
-                    throw new IOException("Invalid placemark file format:\n" +
-                                          "at least the columns 'Name', 'Lon' and 'Lat' must be given.");
-                }
-                biggestIndex = biggestIndex > nameIndex ? biggestIndex : nameIndex;
-                biggestIndex = biggestIndex > lonIndex ? biggestIndex : lonIndex;
-                biggestIndex = biggestIndex > latIndex ? biggestIndex : latIndex;
-                columnIndexes = new int[5];
-                columnIndexes[INDEX_FOR_NAME] = nameIndex;
-                columnIndexes[INDEX_FOR_LON] = lonIndex;
-                columnIndexes[INDEX_FOR_LAT] = latIndex;
-                columnIndexes[INDEX_FOR_DESC] = descIndex;
-                columnIndexes[INDEX_FOR_LABEL] = labelIndex;
-            } else {
-                row++;
-                if (strings.length > biggestIndex) {
-                    String name = strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_NAME]];
-                    float lon;
-                    try {
-                        lon = Float.parseFloat(strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LON]]);
-                    } catch (NumberFormatException ignored) {
-                        throw new IOException("Invalid placemark file format:\n" +
-                                              "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
-                    }
-                    float lat;
-                    try {
-                        lat = Float.parseFloat(strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LAT]]);
-                    } catch (NumberFormatException ignored) {
-                        throw new IOException("Invalid placemark file format:\n" +
-                                              "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
-                    }
-                    String desc = null;
-                    if (columnIndexes[PlacemarkManagerToolView.INDEX_FOR_DESC] >= 0 && strings.length > columnIndexes[PlacemarkManagerToolView.INDEX_FOR_DESC]) {
-                        desc = strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_DESC]];
-                    }
-                    String label = name;
-                    if (columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LABEL] >= 0 && strings.length > columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LABEL]) {
-                        label = strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LABEL]];
-                    }
-                    GeoCoding geoCoding = null;
-                    if (product != null) {
-                        geoCoding = product.getGeoCoding();
-                    }
-                    Placemark placemark = new Placemark(name, label, "", null, new GeoPos(lat, lon),
-                                                        placemarkDescriptor, geoCoding);
-                    if (desc != null) {
-                        placemark.setDescription(desc);
-                    }
-                    placemarks.add(placemark);
-                } else {
-                    throw new IOException("Invalid placemark file format:\n" +
-                                          "data row " + row + ": values for 'Name', 'Lon' and 'Lat' must be given.");   /*I18N*/
-                }
-            }
-        }
-        file.close();
-
-        return placemarks.toArray(new Placemark[placemarks.size()]);
-    }
-
-    private Placemark[] readPlacemarksFromXMLFile(File inputFile) throws IOException {
-        assert inputFile != null;
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            org.w3c.dom.Document w3cDocument = builder.parse(inputFile);
-            Document document = new DOMBuilder().build(w3cDocument);
-            final Element rootElement = document.getRootElement();
-            List children = rootElement.getChildren(DimapProductConstants.TAG_PLACEMARK);
-            if (children.isEmpty()) {
-                // support for old pin XML format (.pnx)
-                children = rootElement.getChildren(DimapProductConstants.TAG_PIN);
-            }
-            final ArrayList<Placemark> placemarks = new ArrayList<Placemark>(children.size());
-            for (Object child : children) {
-                final Element element = (Element) child;
-                try {
-                    GeoCoding geoCoding = null;
-                    if (product != null) {
-                        geoCoding = product.getGeoCoding();
-                    }
-                    final Placemark placemark = Placemark.createPlacemark(element, placemarkDescriptor, geoCoding);
-                    placemarks.add(placemark);
-                } catch (IllegalArgumentException ignored) {
-                }
-            }
-            return placemarks.toArray(new Placemark[placemarks.size()]);
-        } catch (FactoryConfigurationError error) {
-            throw new IOException(error.toString());
-        } catch (ParserConfigurationException e) {
-            throw new IOException(e.toString(), e);
-        } catch (SAXException e) {
-            throw new IOException(e.toString(), e);
-        } catch (IOException e) {
-            throw new IOException(e.toString(), e);
-        }
     }
 
     private BeamFileFilter getTextFileFilter() {
