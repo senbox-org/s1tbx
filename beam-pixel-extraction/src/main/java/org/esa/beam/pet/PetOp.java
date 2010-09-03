@@ -22,6 +22,7 @@ import com.bc.ceres.binding.Validator;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -66,19 +67,14 @@ public class PetOp extends Operator {
     @Parameter(description = "Specifies the allowed product type.", notNull = true, notEmpty = true)
     private String productType;
 
-
-//    @Parameter(alias = "Latitude", description = "The latitude coordinate", notNull = true, interval = "[-90.0, 90.0]")
-//    private Float lat;
-//
-//    @Parameter(alias = "Longitude", description = "The longitude coordinate", notNull = true,
-//               interval = "[-180.0, 180.0]")
-//    private Float lon;
-
+    @Parameter(alias = "rasters", itemAlias = "name",
+               description = "The raster names used for extractions. Bands, tie-point grids, and masks can be used.")
+    private String[] rasterNames;
 
     // todo load position list from file
-    @Parameter(itemAlias = "coordinate", description = "The geo-coordinates", notNull = true, converter = GeoPosConverter.class)
+    @Parameter(itemAlias = "coordinate", description = "The geo-coordinates", notNull = true,
+               converter = GeoPosConverter.class)
     private GeoPos[] coordinates;
-
 
     @Parameter(description = "Side length of surrounding square (uneven)", defaultValue = "1",
                validator = SquareSizeValidator.class)
@@ -87,16 +83,13 @@ public class PetOp extends Operator {
     @Parameter(description = "The output file.")
     private File outputFile;
 
-    // todo bandNames
-    private String[] bandNames;
-
     private ProductValidator validator;
 
     private List<Measurement> measurements;
 
     @Override
     public void initialize() throws OperatorException {
-        if(outputFile != null && outputFile.isDirectory()) {
+        if (outputFile != null && outputFile.isDirectory()) {
             outputFile = new File(outputFile, "output.csv");
         }
 
@@ -113,7 +106,7 @@ public class PetOp extends Operator {
         if (outputFile != null) {
             writeOutput();
         }
-        
+
         setTargetProduct(createDummyProduct());
     }
 
@@ -156,8 +149,8 @@ public class PetOp extends Operator {
                 product = ProductIO.readProduct(path);
                 extractMeasurements(product);
             } catch (IOException ignore) {
-            }finally {
-                if(product != null) {
+            } finally {
+                if (product != null) {
                     product.dispose();
                 }
             }
@@ -168,10 +161,7 @@ public class PetOp extends Operator {
         if (!validator.validate(product)) {
             return;
         }
-        final List<RasterDataNode> rasters = new ArrayList<RasterDataNode>();
-        rasters.addAll(Arrays.asList(product.getTiePointGrids()));
-        rasters.addAll(Arrays.asList(product.getBands()));
-
+        final List<RasterDataNode> rasterList = getValidRasterList(product);
         int offset = MathUtils.floorInt(squareSize / 2);
 
         for (GeoPos geoPos : coordinates) {
@@ -180,7 +170,7 @@ public class PetOp extends Operator {
                 PixelPos upperLeftPos = new PixelPos(centerPos.x - offset, centerPos.y - offset);
                 List<String> exceptions = new ArrayList<String>();
 
-                for (RasterDataNode raster : rasters) {
+                for (RasterDataNode raster : rasterList) {
                     try {
                         readMeasurement(geoPos, upperLeftPos, raster);
                     } catch (IOException e) {
@@ -192,6 +182,23 @@ public class PetOp extends Operator {
                 }
             }
         }
+    }
+
+    private List<RasterDataNode> getValidRasterList(Product product) {
+        final List<RasterDataNode> allRasterList = new ArrayList<RasterDataNode>();
+        allRasterList.addAll(Arrays.asList(product.getTiePointGrids()));
+        allRasterList.addAll(Arrays.asList(product.getBands()));
+        allRasterList.addAll(Arrays.asList(product.getMaskGroup().toArray(new Mask[0])));
+        final List<RasterDataNode> validRasterList = new ArrayList<RasterDataNode>();
+        if (rasterNames != null && rasterNames.length > 0) {
+            final List<String> rasterNameList = Arrays.asList(rasterNames);
+            for (RasterDataNode raster : allRasterList) {
+                if (rasterNameList.contains(raster.getName())) {
+                    validRasterList.add(raster);
+                }
+            }
+        }
+        return validRasterList;
     }
 
     private void readMeasurement(GeoPos geoPos, PixelPos pixelPos, RasterDataNode raster) throws IOException {
