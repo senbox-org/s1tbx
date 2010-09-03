@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @OperatorMetadata(
         alias = "Pet",
@@ -228,15 +230,28 @@ public class PetOp extends Operator {
     private class ProductValidator {
 
         public boolean validate(Product product) {
-            // todo log why a product is refused
+            final Logger logger = getLogger();
             if (product == null) {
                 return false;
             }
-            if (!productType.equalsIgnoreCase(product.getProductType())) {
+            final String type = product.getProductType();
+            if (!productType.equalsIgnoreCase(type)) {
+                final String msgPattern = "Product [%s] refused. Cause:\nType [%s] does not match specified product type [%s].";
+                logger.log(Level.WARNING, String.format(msgPattern, product.getFileLocation(), type, productType));
                 return false;
             }
             final GeoCoding geoCoding = product.getGeoCoding();
-            return !(geoCoding == null || !geoCoding.canGetGeoPos());
+            if (geoCoding == null) {
+                final String msgPattern = "Product [%s] refused. Cause:\nProduct is not geo-coded.";
+                logger.log(Level.WARNING, String.format(msgPattern, product.getFileLocation()));
+                return false;
+            }
+            if(!geoCoding.canGetPixelPos()) {
+                final String msgPattern = "Product [%s] refused. Cause:\nPixel position can not be determined.";
+                logger.log(Level.WARNING, String.format(msgPattern, product.getFileLocation()));
+                return false;
+            }
+            return true;
         }
     }
 
