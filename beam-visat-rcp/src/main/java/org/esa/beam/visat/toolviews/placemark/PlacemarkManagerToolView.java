@@ -21,7 +21,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
 import com.jidesoft.grid.SortableTable;
-import org.esa.beam.dataio.placemark.PlacemarkReader;
+import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -49,7 +49,6 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.XmlWriter;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
@@ -97,16 +96,17 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * A dialog used to manage the list of pins or ground control points associated
@@ -372,7 +372,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     void copyActivePlacemark() {
         Guardian.assertNotNull("product", product);
-        Placemark activePlacemark = getSelectedPlacemarkFromTable();
+        Placemark activePlacemark = getSelectedPlacemark();
         Guardian.assertNotNull("activePlacemark", activePlacemark);
         Placemark newPlacemark = new Placemark("copy_of_" + activePlacemark.getName(),
                                                activePlacemark.getLabel(),
@@ -421,7 +421,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     void editActivePin() {
         Guardian.assertNotNull("product", product);
-        Placemark activePlacemark = getSelectedPlacemarkFromTable();
+        Placemark activePlacemark = getSelectedPlacemark();
         Guardian.assertNotNull("activePlacemark", activePlacemark);
         if (PlacemarkDialog.showEditPlacemarkDialog(getPaneWindow(), product, activePlacemark,
                                                     placemarkDescriptor)) {
@@ -431,11 +431,11 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     }
 
     void removeSelectedPins() {
-        final Placemark[] placemarks = getSelectedNodesFromTable();
+        final List<Placemark> placemarks = getSelectedPlacemarks();
         int i = JOptionPane.showConfirmDialog(getPaneWindow(),
                                               MessageFormat.format(
                                                       "Do you really want to remove {0} selected{1}(s)?\nThis action can not be undone.",
-                                                      placemarks.length, placemarkDescriptor.getRoleLabel()),
+                                                      placemarks.size(), placemarkDescriptor.getRoleLabel()),
                                               MessageFormat.format("{0} - Remove {1}s", getDescriptor().getTitle(),
                                                                    placemarkDescriptor.getRoleLabel()),
                                               JOptionPane.OK_CANCEL_OPTION);
@@ -454,12 +454,12 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private int getNumSelectedNodesFromTable() {
+    private int getNumSelectedPlacemarks() {
         int[] rowIndexes = placemarkTable.getSelectedRows();
         return rowIndexes != null ? rowIndexes.length : 0;
     }
 
-    private Placemark getSelectedPlacemarkFromTable() {
+    private Placemark getSelectedPlacemark() {
         int rowIndex = placemarkTable.getSelectedRow();
         if (rowIndex >= 0) {
             return placemarkTableModel.getPlacemarkAt(placemarkTable.getActualRowAt(rowIndex));
@@ -467,23 +467,21 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         return null;
     }
 
-    private Placemark[] getSelectedNodesFromTable() {
-        int[] rowIndexes = placemarkTable.getSelectedRows();
-        if (rowIndexes != null) {
-            Placemark[] pins = new Placemark[rowIndexes.length];
-            for (int i = 0; i < rowIndexes.length; i++) {
-                int rowIndex = placemarkTable.getActualRowAt(rowIndexes[i]);
-                pins[i] = placemarkTableModel.getPlacemarkAt(rowIndex);
+    private List<Placemark> getSelectedPlacemarks() {
+        List<Placemark> placemarkList = new ArrayList<Placemark>();
+        int[] sortedRowIndexes = placemarkTable.getSelectedRows();
+        if (sortedRowIndexes != null) {
+            for (int rowIndex : sortedRowIndexes) {
+                int modelRowIndex = placemarkTable.getActualRowAt(rowIndex);
+                placemarkList.add(placemarkTableModel.getPlacemarkAt(modelRowIndex));
             }
-            return pins;
-        } else {
-            return new Placemark[0];
         }
+        return placemarkList;
     }
 
     void zoomToActivePin() {
         Guardian.assertNotNull("product", product);
-        Placemark activePlacemark = getSelectedPlacemarkFromTable();
+        Placemark activePlacemark = getSelectedPlacemark();
         Guardian.assertNotNull("activePlacemark", activePlacemark);
         final ProductSceneView view = getSceneView();
         final PixelPos imagePos = activePlacemark.getPixelPos();  // in image coordinates on Level 0, can be null
@@ -524,7 +522,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         int numSelectedPins = 0;
         if (productSelected) {
             updatePlacemarkTableSelectionFromView();
-            numSelectedPins = getNumSelectedNodesFromTable();
+            numSelectedPins = getNumSelectedPlacemarks();
             getDescriptor().setTitle(prefixTitle + " - " + product.getDisplayName());
         } else {
             getDescriptor().setTitle(prefixTitle);
@@ -565,15 +563,16 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     }
 
     void importPlacemarks(boolean allPlacemarks) {
-        Placemark[] placemarks;
+        List<Placemark> placemarks;
         try {
             placemarks = loadPlacemarksFromFile();
         } catch (IOException e) {
+            e.printStackTrace();
             showErrorDialog(
                     "I/O error, failed to import " + placemarkDescriptor.getRoleLabel() + "s:\n" + e.getMessage());    /*I18N*/
             return;
         }
-        if (placemarks.length == 0) {
+        if (placemarks.isEmpty()) {
             return;
         }
         int numPinsOutOfBounds = 0;
@@ -622,7 +621,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     placemarkDescriptor.getRoleLabel())); /*I18N*/
         }
         if (numPinsOutOfBounds > 0) {
-            if (numPinsOutOfBounds == placemarks.length) {
+            if (numPinsOutOfBounds == placemarks.size()) {
                 showErrorDialog(
                         MessageFormat.format(
                                 "No {0}s have been imported, because their pixel\npositions are outside the product''s bounds.",
@@ -666,7 +665,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         return false;
     }
 
-    private Placemark[] loadPlacemarksFromFile() throws IOException {
+    private List<Placemark> loadPlacemarksFromFile() throws IOException {
         final BeamFileChooser fileChooser = new BeamFileChooser();
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
         fileChooser.setDialogTitle("Import " + roleLabel + "s"); /*I18N*/
@@ -675,7 +674,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         fileChooser.setFileFilter(getPlacemarkFileFilter());
         fileChooser.setCurrentDirectory(getIODir());
         int result = fileChooser.showOpenDialog(getPaneWindow());
-        Placemark[] placemarks = new Placemark[0];
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             if (file != null) {
@@ -684,10 +682,10 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 if (product != null) {
                     geoCoding = product.getGeoCoding();
                 }
-                placemarks = PlacemarkReader.readPlacemarks(file, geoCoding, placemarkDescriptor);
+                return PlacemarkIO.readPlacemarks(new FileReader(file), geoCoding, placemarkDescriptor);
             }
         }
-        return placemarks;
+        return Collections.emptyList();
     }
 
     void exportSelectedPlacemarks() {
@@ -714,7 +712,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 }
                 try {
                     if (beamFileFilter.getFormatName().equals(getPlacemarkFileFilter().getFormatName())) {
-                        writePlacemarksFile(file);
+                        PlacemarkIO.writePlacemarksFile(new FileWriter(file), getSelectedPlacemarks());
                     } else {
                         Writer writer = new FileWriter(file);
                         try {
@@ -770,67 +768,34 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private void writePlacemarkDataTableText(final Writer writer) {
 
+        String roleLabel = placemarkDescriptor.getRoleLabel();
+        String productName = product.getName();
         final String[] standardColumnNames = placemarkTableModel.getStandardColumnNames();
         final int columnCountMin = standardColumnNames.length;
-        final int columnCount = placemarkTable.getColumnCount();
+        final int columnCount = placemarkTableModel.getColumnCount();
+        String[] additionalColumnNames = new String[columnCount-columnCountMin];
+        for (int i = 0; i < additionalColumnNames.length; i++) {
+            additionalColumnNames[i] = placemarkTableModel.getColumnName(columnCountMin + i);
+        }
 
-        final PrintWriter pw = new PrintWriter(writer);
-        try {
-            // Write file header
-            pw.println("# BEAM " + placemarkDescriptor.getRoleLabel() + " export table");
-            pw.println("#");
-            pw.println("# Product:\t" + product.getName());
-            pw.println("# Created on:\t" + new Date());
-            pw.println();
-
-            // Write header columns
-            pw.print(PlacemarkReader.NAME_COL_NAME + "\t");
-            for (String name : standardColumnNames) {
-                pw.print(name + "\t");
-            }
-            pw.print(PlacemarkReader.DESC_COL_NAME + "\t");
-            for (int i = columnCountMin; i < columnCount; i++) {
-                pw.print(placemarkTableModel.getColumnName(i) + "\t");
-            }
-            pw.println();
-
-            for (int sortedRow = 0; sortedRow < placemarkTable.getRowCount(); ++sortedRow) {
-                if (placemarkTable.getSelectionModel().isSelectedIndex(sortedRow)) {
-                    final int modelRow = placemarkTable.getActualRowAt(sortedRow);
-                    final Placemark placemark = placemarkTableModel.getPlacemarkAt(modelRow);
-
-                    pw.print(placemark.getName() + "\t");
-                    for (int col = 0; col < columnCountMin; col++) {
-
-                        final Object value = placemarkTableModel.getValueAt(modelRow, col);
-                        pw.print(value.toString() + "\t");
-                    }
-                    pw.print(placemark.getDescription() + "\t");
-                    for (int col = columnCountMin; col < columnCount; col++) {
-                        final Object value = placemarkTableModel.getValueAt(modelRow, col);
-                        pw.print(value.toString() + "\t");
-                    }
-                    pw.println();
+        List<Placemark> placemarkList = new ArrayList<Placemark>();
+        List<Object[]> valueList = new ArrayList<Object[]>();
+        for (int sortedRow = 0; sortedRow < placemarkTable.getRowCount(); ++sortedRow) {
+            if (placemarkTable.getSelectionModel().isSelectedIndex(sortedRow)) {
+                final int modelRow = placemarkTable.getActualRowAt(sortedRow);
+                placemarkList.add(sortedRow, placemarkTableModel.getPlacemarkAt(modelRow));
+                Object[] values = new Object[columnCount];
+                for (int col = 0; col < columnCount; col++) {
+                    values[col] = placemarkTableModel.getValueAt(modelRow, col);
                 }
-            }
-        } finally {
-            pw.close();
-        }
-    }
-
-    private void writePlacemarksFile(File outputFile) throws IOException {
-        assert outputFile != null;
-
-        XmlWriter writer = new XmlWriter(outputFile);
-        final String[] tags = XmlWriter.createTags(0, "Placemarks");
-        writer.println(tags[0]);
-        for (Placemark placemark : getSelectedNodesFromTable()) {
-            if (placemark != null) {
-                placemark.writeXML(writer, 1);
+                valueList.add(sortedRow, values);
             }
         }
-        writer.println(tags[1]);
-        writer.close();
+
+        PlacemarkIO.writePlacemarksWithAdditionalData(writer, roleLabel, productName,
+                                                      placemarkList, valueList,
+                                                      standardColumnNames,
+                                                      additionalColumnNames);
     }
 
     private BeamFileFilter getTextFileFilter() {
@@ -1005,7 +970,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         private void action(MouseEvent e) {
             if (e.isPopupTrigger()) {
 
-                if (getNumSelectedNodesFromTable() > 0) {
+                if (getNumSelectedPlacemarks() > 0) {
                     final JPopupMenu popupMenu = new JPopupMenu();
                     final JMenuItem menuItem;
                     menuItem = new JMenuItem("Copy selected data to clipboard");

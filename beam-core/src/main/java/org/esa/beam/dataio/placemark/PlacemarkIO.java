@@ -26,21 +26,24 @@ import org.esa.beam.util.XmlWriter;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.PrintWriter;
+import java.io.PushbackReader;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class PlacemarkReader {
+public class PlacemarkIO {
 
     private static final int INDEX_FOR_NAME = 0;
     private static final int INDEX_FOR_LON = 1;
@@ -51,40 +54,39 @@ public class PlacemarkReader {
     private static final String LABEL_COL_NAME = "Label";
     private static final String LON_COL_NAME = "Lon";
     private static final String LAT_COL_NAME = "Lat";
-    public static final String NAME_COL_NAME = "Name";
-    public static final String DESC_COL_NAME = "Desc";
+    private static final String NAME_COL_NAME = "Name";
+    private static final String DESC_COL_NAME = "Desc";
 
-    private PlacemarkReader() {
+    private PlacemarkIO() {
     }
 
-    public static Placemark[] readPlacemarks(File inputFile, GeoCoding geoCoding,
-                                             PlacemarkDescriptor placemarkDescriptor) throws IOException {
-        final byte[] magicBytes = new byte[5];
-        final DataInputStream dataInputStream = new DataInputStream(new FileInputStream(inputFile));
+    public static List<Placemark> readPlacemarks(Reader reader, GeoCoding geoCoding,
+                                                 PlacemarkDescriptor placemarkDescriptor) throws IOException {
+        final char[] magicBytes = new char[5];
+        PushbackReader inputReader = new PushbackReader(reader, magicBytes.length);
         try {
-            //noinspection ResultOfMethodCallIgnored
-            dataInputStream.read(magicBytes);  // todo - BAD PRACTICE HERE!!!
+            inputReader.read(magicBytes); // todo - BAD PRACTICE HERE!!!
+            inputReader.unread(magicBytes);
+            if (XmlWriter.XML_HEADER_LINE.startsWith(new String(magicBytes))) {
+                return readPlacemarksFromXMLFile(inputReader, geoCoding, placemarkDescriptor);
+            } else {
+                return readPlacemarksFromFlatFile(inputReader, geoCoding, placemarkDescriptor);
+            }
         } finally {
-            dataInputStream.close();
-        }
-        if (XmlWriter.XML_HEADER_LINE.startsWith(new String(magicBytes))) {
-            return readPlacemarksFromXMLFile(inputFile, geoCoding, placemarkDescriptor);
-        } else {
-            return readPlacemarksFromFlatFile(inputFile, geoCoding, placemarkDescriptor);
+            inputReader.close();
         }
     }
 
-    static Placemark[] readPlacemarksFromFlatFile(File inputFile, GeoCoding geoCoding,
-                                                  PlacemarkDescriptor placemarkDescriptor) throws IOException {
-        assert inputFile != null;
+    private static List<Placemark> readPlacemarksFromFlatFile(Reader reader, GeoCoding geoCoding,
+                                                              PlacemarkDescriptor placemarkDescriptor) throws IOException {
         ArrayList<Placemark> placemarks = new ArrayList<Placemark>();
-        final RandomAccessFile file = new RandomAccessFile(inputFile, "r");
+        BufferedReader lineReader = new BufferedReader(reader);
         try {
             int row = 0;
             int[] columnIndexes = null;
             int biggestIndex = 0;
             while (true) {
-                String line = file.readLine();
+                String line = lineReader.readLine();
                 if (line == null) {
                     break;
                 }
@@ -151,19 +153,18 @@ public class PlacemarkReader {
                 }
             }
         } finally {
-            file.close();
+            lineReader.close();
         }
 
-        return placemarks.toArray(new Placemark[placemarks.size()]);
+        return placemarks;
     }
 
-    static Placemark[] readPlacemarksFromXMLFile(File inputFile, GeoCoding geoCoding,
-                                                 PlacemarkDescriptor placemarkDescriptor) throws IOException {
-        assert inputFile != null;
+    private static List<Placemark> readPlacemarksFromXMLFile(Reader reader, GeoCoding geoCoding,
+                                                             PlacemarkDescriptor placemarkDescriptor) throws IOException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            org.w3c.dom.Document w3cDocument = builder.parse(inputFile);
+            org.w3c.dom.Document w3cDocument = builder.parse(new InputSource(reader));
             Document document = new DOMBuilder().build(w3cDocument);
             final Element rootElement = document.getRootElement();
             List children = rootElement.getChildren(DimapProductConstants.TAG_PLACEMARK);
@@ -180,7 +181,7 @@ public class PlacemarkReader {
                 } catch (IllegalArgumentException ignored) {
                 }
             }
-            return placemarks.toArray(new Placemark[placemarks.size()]);
+            return placemarks;
         } catch (FactoryConfigurationError e) {
             throw new IOException(e.toString(), e);
         } catch (ParserConfigurationException e) {
@@ -191,4 +192,65 @@ public class PlacemarkReader {
             throw new IOException(e.toString(), e);
         }
     }
+
+    public static void writePlacemarksWithAdditionalData(Writer writer,
+                                                         String roleLabel, String productName,
+                                                         List<Placemark> placemarkList, List<Object[]> valueList,
+                                                         String[] standardColumnNames, String[] additionalColumnNames) {
+        int columnCountMin = standardColumnNames.length;
+        int columnCount = columnCountMin + additionalColumnNames.length;
+        final PrintWriter pw = new PrintWriter(writer);
+        try {
+            // Write file header
+            pw.println("# BEAM " + roleLabel + " export table");
+            pw.println("#");
+            pw.println("# Product:\t" + productName);
+            pw.println("# Created on:\t" + new Date());
+            pw.println();
+
+            // Write header columns
+            pw.print(NAME_COL_NAME + "\t");
+            for (String name : standardColumnNames) {
+                pw.print(name + "\t");
+            }
+            pw.print(DESC_COL_NAME + "\t");
+            for (String additionalColumnName : additionalColumnNames) {
+                pw.print(additionalColumnName + "\t");
+
+            }
+            pw.println();
+
+            for (int i = 0; i < placemarkList.size(); i++) {
+                Placemark placemark = placemarkList.get(i);
+                Object[] values = valueList.get(i);
+                pw.print(placemark.getName() + "\t");
+                for (int col = 0; col < columnCountMin; col++) {
+                    pw.print(values[col].toString() + "\t");
+                }
+                pw.print(placemark.getDescription() + "\t");
+                for (int col = columnCountMin; col < columnCount; col++) {
+                    pw.print(values[col].toString() + "\t");
+                }
+                pw.println();
+
+            }
+        } finally {
+            pw.close();
+        }
+    }
+
+    public static void writePlacemarksFile(Writer writer, List<Placemark> placemarks) throws IOException {
+
+        XmlWriter xmlWriter = new XmlWriter(writer, true);
+        final String[] tags = XmlWriter.createTags(0, "Placemarks");
+        xmlWriter.println(tags[0]);
+        for (Placemark placemark : placemarks) {
+            if (placemark != null) {
+                placemark.writeXML(xmlWriter, 1);
+            }
+        }
+        xmlWriter.println(tags[1]);
+        xmlWriter.close();
+    }
+
 }

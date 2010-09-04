@@ -19,7 +19,7 @@ package org.esa.beam.pet;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
-import org.esa.beam.dataio.placemark.PlacemarkReader;
+import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -40,6 +40,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProperty;
 import org.esa.beam.util.math.MathUtils;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -136,7 +137,9 @@ public class PetOp extends Operator {
     private List<Coordinate> extractGeoPositions(File coordinatesFile) {
         final List<Coordinate> coordinateList = new ArrayList<Coordinate>();
         try {
-            final Placemark[] pins = PlacemarkReader.readPlacemarks(coordinatesFile, null, PinDescriptor.INSTANCE);
+            final List<Placemark> pins = PlacemarkIO.readPlacemarks(new FileReader(coordinatesFile),
+                                                                null, // no GeoCoding needed
+                                                                PinDescriptor.INSTANCE);
             for (Placemark pin : pins) {
                 final GeoPos geoPos = pin.getGeoPos();
                 if (geoPos != null) {
@@ -251,7 +254,7 @@ public class PetOp extends Operator {
                 rasters.get(i).readPixels(x, y, 1, 1, temp);
                 values[i] = temp[0];
             }
-            GeoPos currentGeoPos = rasters.get(0).getProduct().getGeoCoding().getGeoPos( new PixelPos(x, y), null );
+            GeoPos currentGeoPos = rasters.get(0).getProduct().getGeoCoding().getGeoPos(new PixelPos(x, y), null);
             final Measurement measure = new Measurement(coordinate.getId(), coordinate.getName(), names, rasters.get(0).getProduct().getStartTime(),
                                                         currentGeoPos, values);
             measurementList.add(measure);
