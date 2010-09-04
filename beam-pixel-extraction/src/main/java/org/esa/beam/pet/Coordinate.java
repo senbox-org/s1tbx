@@ -24,6 +24,10 @@ public class Coordinate {
     private GeoPos geoPos;
     private int id;
 
+    public Coordinate(int id, GeoPos geoPos) {
+        this(id, " ", geoPos);
+    }
+
     public Coordinate(int id, String name, GeoPos geoPos) {
         this.id = id;
         this.name = name;

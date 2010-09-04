@@ -16,36 +16,24 @@
 
 package org.esa.beam.pet;
 
-import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ProductData;
 
-import java.util.ArrayList;
-import java.util.List;
-
 class Measurement {
 
-    private final List<String> rasterNames;
     private final ProductData.UTC startTime;
     private GeoPos geoPos;
     private final double[] values;
     private int coordinateID;
     private String coordinateName;
 
-    Measurement(int coordinateID, String name, List<String> rasterNames, ProductData.UTC time, GeoPos geoPos,
-                double[] values) {
-        Assert.argument( rasterNames.size() == values.length, "rasterNames.size() == values.length required." );
+    Measurement(int coordinateID, String name, ProductData.UTC time, GeoPos geoPos, double[] values) {
         this.coordinateID = coordinateID;
         coordinateName = name;
-        this.rasterNames = new ArrayList<String>( rasterNames );
         this.startTime = time;
         this.geoPos = geoPos;
         this.values = new double[values.length];
         System.arraycopy(values, 0, this.values, 0, values.length);
-    }
-
-    public List<String> getRasterNames() {
-        return rasterNames;
     }
 
     public ProductData.UTC getStartTime() {

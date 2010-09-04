@@ -26,15 +26,19 @@ import java.util.Locale;
 
 @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
 class MeasurementWriter {
+    private String[] rasterNames;
+
+    MeasurementWriter(String[] rasterNames) {
+        this.rasterNames = rasterNames;
+    }
 
     void write(List<Measurement> measurementList, Writer writer) {
         if( measurementList.isEmpty() ) {
             return;
         }
         PrintWriter printWriter = new PrintWriter(writer);
-        printWriter.append("CoordinateID\tName\tLatitude\tLongitude\tDate(yyyy-MM-dd)\tTime(hh:mm:ss AM/PM)\t");
-        final List<String> nameList = measurementList.get(0).getRasterNames();
-        for (String name : nameList) {
+        printWriter.append("CoordinateID\tName\tLatitude\tLongitude\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)\t");
+        for (String name : rasterNames) {
             printWriter.append(String.format("%s\t", name));
         }
         printWriter.append("\n");
@@ -44,8 +48,13 @@ class MeasurementWriter {
             final float lat = measurement.getLat();
             final float lon = measurement.getLon();
             final ProductData.UTC time = measurement.getStartTime();
-            SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd\thh:mm:ss a", Locale.ENGLISH );
-            String timeString = sdf.format( time.getAsDate() );
+            String timeString;
+            if (time != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd\tHH:mm:ss", Locale.ENGLISH );
+                timeString = sdf.format( time.getAsDate() );
+            }else {
+                timeString = " \t ";
+            }
 
             printWriter.append(String.format("%d\t%s\t%s\t%s\t%s\t", id, measurement.getCoordinateName(), lat, lon, timeString));
             for (double value : values) {

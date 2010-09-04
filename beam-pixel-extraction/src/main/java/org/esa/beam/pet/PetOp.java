@@ -79,7 +79,7 @@ public class PetOp extends Operator {
 
     @Parameter(alias = "rasters", itemAlias = "name",
                description = "The raster names used for extractions. Bands, tie-point grids, and masks can be used.")
-    private String[] rasterNames;
+    String[] rasterNames;
 
     @Parameter(itemAlias = "coordinate", description = "The geo-coordinates", converter = GeoPosConverter.class)
     private GeoPos[] coordinates;
@@ -89,10 +89,12 @@ public class PetOp extends Operator {
 
     @Parameter(description = "Side length of surrounding square (uneven)", defaultValue = "1",
                validator = SquareSizeValidator.class)
-    private Integer squareSize;
+    Integer squareSize;
 
     @Parameter(description = "The output file.")
     private File outputFile;
+
+    private static final String DEFAULT_OUTPUT_FILE_NAME = "output.txt";
 
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
@@ -105,15 +107,15 @@ public class PetOp extends Operator {
             throw new OperatorException("No coordinates specified.");
         }
         if (outputFile != null && outputFile.isDirectory()) {
-            outputFile = new File(outputFile, "output.txt");
+            outputFile = new File(outputFile, DEFAULT_OUTPUT_FILE_NAME);
         }
         coordinateList = new ArrayList<Coordinate>();
         if (coordinatesFile != null) {
             coordinateList.addAll(extractGeoPositions(coordinatesFile));
         }
         if (coordinates != null) {
-            for (GeoPos coordinate : coordinates) {
-                coordinateList.add(new Coordinate(coordinateList.size(), " ", coordinate));
+            for (GeoPos geoPos : coordinates) {
+                coordinateList.add(new Coordinate(coordinateList.size(), geoPos));
             }
         }
         validator = new ProductValidator();
@@ -138,8 +140,8 @@ public class PetOp extends Operator {
         final List<Coordinate> coordinateList = new ArrayList<Coordinate>();
         try {
             final List<Placemark> pins = PlacemarkIO.readPlacemarks(new FileReader(coordinatesFile),
-                                                                null, // no GeoCoding needed
-                                                                PinDescriptor.INSTANCE);
+                                                                    null, // no GeoCoding needed
+                                                                    PinDescriptor.INSTANCE);
             for (Placemark pin : pins) {
                 final GeoPos geoPos = pin.getGeoPos();
                 if (geoPos != null) {
@@ -161,10 +163,11 @@ public class PetOp extends Operator {
 
     @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
     private void writeOutput() {
-        final MeasurementWriter formatWriter = new MeasurementWriter();
         FileWriter writer = null;
         try {
             writer = new FileWriter(outputFile);
+
+            MeasurementWriter formatWriter = new MeasurementWriter(rasterNames);
             formatWriter.write(measurementList, writer);
         } catch (IOException e) {
             throw new OperatorException("Could not write to output file.", e);
@@ -204,61 +207,59 @@ public class PetOp extends Operator {
         if (!validator.validate(product)) {
             return;
         }
-        final List<RasterDataNode> rasterList = getValidRasterList(product);
-        int offset = MathUtils.floorInt(squareSize / 2);
+        if (rasterNames == null || rasterNames.length == 0) {
+            rasterNames = getAllRasterNames(product);
+        }
 
         for (Coordinate coordinate : coordinateList) {
-            PixelPos centerPos = product.getGeoCoding().getPixelPos(coordinate.getGeoPos(), null);
-            if (product.containsPixel(centerPos)) {
-                PixelPos upperLeftPos = new PixelPos(centerPos.x - offset, centerPos.y - offset);
-                try {
-                    readMeasurement(coordinate, upperLeftPos, rasterList);
-                } catch (IOException e) {
-                    getLogger().warning(e.getMessage());
-                }
+            try {
+                readMeasurement(product, coordinate, measurementList);
+            } catch (IOException e) {
+                getLogger().warning(e.getMessage());
             }
         }
     }
 
-    private List<RasterDataNode> getValidRasterList(Product product) {
+
+    void readMeasurement(Product product, Coordinate coordinate, List<Measurement> measurementList) throws IOException {
+        PixelPos centerPos = product.getGeoCoding().getPixelPos(coordinate.getGeoPos(), null);
+        if (!product.containsPixel(centerPos)) {
+            return;
+        }
+        int offset = MathUtils.floorInt(squareSize / 2);
+        int upperLeftX = MathUtils.floorInt(centerPos.x - offset);
+        int upperLeftY = MathUtils.floorInt(centerPos.y - offset);
+        final double[] values = new double[rasterNames.length];
+        Arrays.fill(values, Double.NaN);
+        final int numPixels = squareSize * squareSize;
+        for (int n = 0; n < numPixels; n++) {
+            int x = upperLeftX + n % squareSize;
+            int y = upperLeftY + n / squareSize;
+            for (int i = 0; i < rasterNames.length; i++) {
+                RasterDataNode raster = product.getRasterDataNode(rasterNames[i]);
+                if (raster != null && product.containsPixel(x, y)) {
+                    double[] temp = new double[1];
+                    raster.readPixels(x, y, 1, 1, temp);
+                    values[i] = temp[0];
+                }
+            }
+            GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
+            final Measurement measure = new Measurement(coordinate.getId(), coordinate.getName(),
+                                                        product.getStartTime(), currentGeoPos, values);
+            measurementList.add(measure);
+        }
+    }
+
+    private String[] getAllRasterNames(Product product) {
         final List<RasterDataNode> allRasterList = new ArrayList<RasterDataNode>();
         allRasterList.addAll(Arrays.asList(product.getTiePointGrids()));
         allRasterList.addAll(Arrays.asList(product.getBands()));
         allRasterList.addAll(Arrays.asList(product.getMaskGroup().toArray(new Mask[0])));
-        final List<RasterDataNode> validRasterList = new ArrayList<RasterDataNode>();
-        if (rasterNames != null && rasterNames.length > 0) {
-            final List<String> rasterNameList = Arrays.asList(rasterNames);
-            for (RasterDataNode raster : allRasterList) {
-                if (rasterNameList.contains(raster.getName())) {
-                    validRasterList.add(raster);
-                }
-            }
+        String[] allRasterNames = new String[allRasterList.size()];
+        for (int i = 0; i < allRasterList.size(); i++) {
+            allRasterNames[i] = allRasterList.get(i).getName();
         }
-        return validRasterList;
-    }
-
-    private void readMeasurement(Coordinate coordinate, PixelPos pixelPos, List<RasterDataNode> rasters) throws IOException {
-        int x = MathUtils.floorInt(pixelPos.x);
-        int y = MathUtils.floorInt(pixelPos.y);
-        final double[] values = new double[rasters.size()];
-        final int numPixels = squareSize * squareSize;
-        final List<String> names = new ArrayList<String>();
-        for (RasterDataNode raster : rasters) {
-            names.add(raster.getName());
-        }
-        for (int n = 0; n < numPixels; n++) {
-            x += n % squareSize;
-            y += n / squareSize;
-            for (int i = 0; i < rasters.size(); i++) {
-                double[] temp = new double[1];
-                rasters.get(i).readPixels(x, y, 1, 1, temp);
-                values[i] = temp[0];
-            }
-            GeoPos currentGeoPos = rasters.get(0).getProduct().getGeoCoding().getGeoPos(new PixelPos(x, y), null);
-            final Measurement measure = new Measurement(coordinate.getId(), coordinate.getName(), names, rasters.get(0).getProduct().getStartTime(),
-                                                        currentGeoPos, values);
-            measurementList.add(measure);
-        }
+        return allRasterNames;
     }
 
     public static class SquareSizeValidator implements Validator {
