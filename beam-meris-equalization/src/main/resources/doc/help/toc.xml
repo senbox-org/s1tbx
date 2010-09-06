@@ -5,7 +5,11 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="Data Processors">
-        <tocitem text="MERIS L1b Equalization" target="merisEqualization"/>
+        <tocitem text="MERIS L1b Equalization" target="merisEqualization">
+            <tocitem text="Overview" target="merisEqualization"/>
+            <tocitem text="Algorithm Specification" target="merisEqualizationAlgorithmSpecification"/>
+            <tocitem text="Processor Description" target="merisEqualizationProcessorDescription"/>
+        </tocitem>
     </tocitem>
 
 </toc>

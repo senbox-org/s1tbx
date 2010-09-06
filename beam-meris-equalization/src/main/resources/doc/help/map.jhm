@@ -22,5 +22,7 @@
 <map version="2.0">
 
     <mapID target="merisEqualization" url="equalization/MerisEqualization.html"/>
-
+    <mapID target="merisEqualizationAlgorithmSpecification" url="equalization/MerisEqualizationAlgorithmSpecification.html"/>
+    <mapID target="merisEqualizationProcessorDescription" url="equalization/MerisEqualizationProcessorDescription.html"/>
+    
 </map>
