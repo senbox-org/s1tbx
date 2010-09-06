@@ -21,11 +21,6 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.jidesoft.swing.FolderChooser;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.io.FileArrayEditor;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -36,18 +31,9 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingWorker;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class PixelExtractionDialogForm {
 
@@ -64,11 +50,9 @@ public class PixelExtractionDialogForm {
             "ATS_NR__2P"
     };
 
-    private static final String INPUT_PRODUCT_DIR_KEY = "gpf.petop.input.product.dir";
-
     private JPanel panel;
 
-    public PixelExtractionDialogForm(AppContext appContext, PropertyContainer container) {
+    public PixelExtractionDialogForm(PropertyContainer container) {
 
         final TableLayout tableLayout = createLayout();
 
@@ -80,13 +64,7 @@ public class PixelExtractionDialogForm {
         panel.add(createProductTypeEditor(bindingContext));
         panel.add(tableLayout.createHorizontalSpacer());
 
-        final FileArrayEditor editor = createSourceProductEditor(appContext, bindingContext, container);
-        panel.add(new JLabel("Source Products"), new TableLayout.Cell(1, 0, 2, 1));
-        panel.add(editor.createFileArrayComponent(), new TableLayout.Cell(1, 1, 2, 1));
-        panel.add(editor.createAddFileButton());
-        panel.add(editor.createRemoveFileButton(), new TableLayout.Cell(2, 2));
-
-        panel.add(new JLabel("Products path"));
+        panel.add(new JLabel("Input paths"));
         panel.add(createInputFolderChooser(bindingContext));
         panel.add(createInputButton(bindingContext));
 
@@ -97,20 +75,21 @@ public class PixelExtractionDialogForm {
 
     private JTextField createInputFolderChooser(BindingContext bindingContext) {
         final JTextField textField = new JTextField();
-        bindingContext.bind("inputPath", textField);
+        bindingContext.bind("inputPaths", textField);
         return textField;
     }
 
     private JButton createInputButton(BindingContext bindingContext) {
-        final Binding binding = bindingContext.getBinding("inputPath");
-        final JButton etcButton = new JButton("...");
+        final Binding binding = bindingContext.getBinding("inputPaths");
+        final JButton etcButton = new JButton("+");
         final Dimension size = new Dimension(26, 16);
         etcButton.setPreferredSize(size);
         etcButton.setMinimumSize(size);
         etcButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final JFileChooser fileChooser = new FolderChooser();
+                final JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setMultiSelectionEnabled(true);
                 int i = fileChooser.showDialog(panel, "Select");
                 if (i == JFileChooser.APPROVE_OPTION && fileChooser.getSelectedFile() != null) {
                     binding.setPropertyValue(fileChooser.getSelectedFile());
@@ -129,15 +108,6 @@ public class PixelExtractionDialogForm {
         tableLayout.setColumnWeightX(1, 1.0);
         tableLayout.setTableWeightY(0.0);
         return tableLayout;
-    }
-
-    private FileArrayEditor createSourceProductEditor(final AppContext appContext, final BindingContext binding,
-                                                      final PropertyContainer container) {
-        final FileArrayEditor.EditorParent context = new FileArrayEditorContext(appContext);
-        final FileArrayEditor editor = new FileArrayEditor(context, "Source products");
-        final FileArrayEditor.FileArrayEditorListener listener = new MyFileArrayEditorListener(container, appContext);
-        editor.setListener(listener);
-        return editor;
     }
 
     private JComponent createProductTypeEditor(BindingContext binding) {
@@ -160,95 +130,4 @@ public class PixelExtractionDialogForm {
         return panel;
     }
 
-    private static class FileArrayEditorContext implements FileArrayEditor.EditorParent {
-
-        private final AppContext applicationContext;
-
-        private FileArrayEditorContext(AppContext applicationContext) {
-
-            this.applicationContext = applicationContext;
-        }
-
-        @Override
-        public File getUserInputDir() {
-            final String path = applicationContext.getPreferences().getPropertyString(INPUT_PRODUCT_DIR_KEY);
-            final File inputProductDir;
-            if (path != null) {
-                inputProductDir = new File(path);
-            } else {
-                inputProductDir = null;
-            }
-            return inputProductDir;
-        }
-
-        @Override
-        public void setUserInputDir(File newDir) {
-            applicationContext.getPreferences().setPropertyString(INPUT_PRODUCT_DIR_KEY,
-                                                                  newDir.getAbsolutePath());
-        }
-
-    }
-
-    private static class MyFileArrayEditorListener implements FileArrayEditor.FileArrayEditorListener {
-
-        private final PropertyContainer container;
-        private final AppContext appContext;
-        private HashMap<File, Product> map;
-
-        private MyFileArrayEditorListener(PropertyContainer container, AppContext appContext) {
-            this.container = container;
-            this.appContext = appContext;
-            map = new HashMap<File, Product>(31);
-        }
-
-        @Override
-        public void updatedList(final File[] files) {
-            final SwingWorker worker = new SwingWorker() {
-                @Override
-                protected Object doInBackground() throws Exception {
-                    mapSourceProducts( files );
-                    final Collection<Product> products = map.values();
-                    container.getProperty("sourceProducts").setValue(products.toArray(new Product[products.size()]));
-                    return null;
-                }
-
-                @Override
-                protected void done() {
-                    try {
-                        get();
-                    } catch (Exception e) {
-                        final String msg = String.format("Cannot display source products.\n%s", e.getMessage());
-                        appContext.handleError(msg, e);
-                    }
-                }
-            };
-            worker.execute();
-        }
-
-        void mapSourceProducts(File[] files) throws IOException {
-            final List<File> fileList = Arrays.asList(files);
-            final Iterator<Map.Entry<File, Product>> iterator = map.entrySet().iterator();
-            while (iterator.hasNext()) {
-                final Map.Entry<File, Product> entry = iterator.next();
-                if (!fileList.contains(entry.getKey())) {
-                    final Product product = entry.getValue();
-                    iterator.remove();
-                    product.dispose();
-                }
-            }
-            for (final File file : files) {
-                Product product = map.get(file);
-                if (product == null) {
-                    product = ProductIO.readProduct(file);
-                    map.put(file, product);
-                }
-//                final int refNo = i + 1;
-//                if (product.getRefNo() != refNo) {
-//                    product.resetRefNo();
-//                    product.setRefNo(refNo);
-//                }
-            }
-        }
-
-    }
 }

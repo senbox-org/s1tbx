@@ -58,8 +58,8 @@ class PixelExtractionDialog extends ModelessDialog {
 
         parameterMap = new HashMap<String, Object>();
         final PropertyContainer propertyContainer = createParameterMap(parameterMap);
-        propertyContainer.addProperty( Property.create( "sourceProducts", Product[].class ) );
-        final PixelExtractionDialogForm form = new PixelExtractionDialogForm(appContext, propertyContainer);
+        propertyContainer.addProperty(Property.create("sourceProducts", Product[].class));
+        final PixelExtractionDialogForm form = new PixelExtractionDialogForm(propertyContainer);
         setContent(form.getPanel());
     }
 
