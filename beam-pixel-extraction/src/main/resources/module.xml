@@ -46,21 +46,21 @@
 
     <categories>VISAT,Processing</categories>
 
-    <!--<extension point="beam-ui:actions">-->
-        <!--<action>-->
-            <!--<class>org.esa.beam.unmixing.visat.SpectralUnmixingAction</class>-->
-            <!--<id>spectralUnmixing</id>-->
-            <!--<helpId>spectralUnmixing</helpId>-->
-            <!--<parent>imageAnalysis</parent>-->
-            <!--<text>Spectral Unmixing...</text>-->
-            <!--<mnemonic>U</mnemonic>-->
-        <!--</action>-->
-    <!--</extension>-->
+    <extension point="beam-ui:actions">
+        <action>
+            <class>org.esa.beam.pet.visat.PixelExtractionAction</class>
+            <id>pixelExtraction</id>
+            <helpId>pixelExtraction</helpId>
+            <parent>processing</parent>
+            <text>Pixel Extraction...</text>
+            <mnemonic>P</mnemonic>
+        </action>
+    </extension>
 
     <!--<extension point="beam-ui:helpSets">-->
         <!--<helpSet>-->
             <!--<parent>beam-help</parent>-->
-            <!--<path>doc/help/unmixing.hs</path>-->
+            <!--<path>doc/help/pixelExtraction.hs</path>-->
         <!--</helpSet>-->
     <!--</extension>-->
 
