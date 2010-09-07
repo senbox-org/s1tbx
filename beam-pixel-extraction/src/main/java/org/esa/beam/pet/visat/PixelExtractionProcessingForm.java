@@ -24,6 +24,7 @@ import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
@@ -48,7 +49,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PixelExtractionProcessingForm {
@@ -97,7 +100,7 @@ public class PixelExtractionProcessingForm {
         panel.add(rasterComponents[1]);
 
         panel.add(new JLabel("Coordinates:"));
-        final JComponent[] coordinatesComponents = createCoordinatesComponents();
+        final JComponent[] coordinatesComponents = createCoordinatesComponents(container);
         panel.add(coordinatesComponents[0]);
         panel.add(coordinatesComponents[1]);
 
@@ -137,7 +140,8 @@ public class PixelExtractionProcessingForm {
     }
 
     private JComponent[] createRasterComponents(PropertyContainer container) {
-        final RasterListModel listModel = new RasterListModel(container.getProperty("rasters"));
+
+        final GenericListModel<String> listModel = new GenericListModel<String>(container.getProperty("rasters"));
         final JList rasterList = new JList(listModel);
         rasterList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         final JScrollPane rasterScrollPane = new JScrollPane(rasterList);
@@ -149,7 +153,7 @@ public class PixelExtractionProcessingForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    listModel.addRaster(JOptionPane.showInputDialog("Enter raster name"));
+                    listModel.addElement(JOptionPane.showInputDialog("Enter raster name"));
                 } catch (ValidationException ve) {
                     appContext.handleError("Invalid raster name", ve);
                 }
@@ -160,7 +164,9 @@ public class PixelExtractionProcessingForm {
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                listModel.removeRasters(rasterList.getSelectedValues());
+                final Object[] objects = rasterList.getSelectedValues();
+                final String[] strings = Arrays.copyOf(objects, objects.length, String[].class);
+                listModel.removeElements(strings);
             }
         });
         final JPanel buttonPanel = new JPanel();
@@ -171,8 +177,8 @@ public class PixelExtractionProcessingForm {
         return new JComponent[]{rasterScrollPane, buttonPanel};
     }
 
-    private JComponent[] createCoordinatesComponents() {
-        JList coordinateList = new JList(new String[]{"40.5,12.67", "35.8,25.7"});
+    private JComponent[] createCoordinatesComponents(PropertyContainer container) {
+        JList coordinateList = new JList(new GenericListModel<GeoPos>(container.getProperty("coordinates")));
         coordinateList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         final JScrollPane rasterScrollPane = new JScrollPane(coordinateList);
         setScrollbarPolicy(rasterScrollPane);
@@ -221,38 +227,37 @@ public class PixelExtractionProcessingForm {
         return panel;
     }
 
-    private static class RasterListModel extends AbstractListModel {
-
-        private List<String> nameList;
+    private static class GenericListModel<T> extends AbstractListModel {
+        private List<T> elementList;
         private Property property;
 
-        private RasterListModel(Property property) {
+        private GenericListModel(Property property) {
             this.property = property;
-            nameList = new ArrayList<String>();
+            elementList = new ArrayList<T>();
         }
 
         @Override
         public int getSize() {
-            return nameList.size();
+            return elementList.size();
         }
 
         @Override
         public Object getElementAt(int index) {
-            return nameList.get(index);
+            return elementList.get(index);
         }
 
-        public void addRaster(String name) throws ValidationException {
-            if (!nameList.contains(name)) {
-                if (nameList.add(name)) {
+        public void addElement(T element) throws ValidationException {
+            if (!elementList.contains(element)) {
+                if (elementList.add(element)) {
                     fireIntervalAdded(this, 0, getSize());
                     updateProperty();
                 }
             }
         }
 
-        public void removeRasters(Object... names) {
-            for (Object name : names) {
-                if (nameList.remove(name)) {
+        public void removeElements(T... elements) {
+            for (T elem : elements) {
+                if (elementList.remove(elem)) {
                     fireIntervalRemoved(this, 0, getSize());
                     try {
                         updateProperty();
@@ -262,8 +267,10 @@ public class PixelExtractionProcessingForm {
             }
         }
 
+        @SuppressWarnings({"unchecked"})
         private void updateProperty() throws ValidationException {
-            property.setValue(nameList.toArray(new String[nameList.size()]));
+            final T[] array = (T[])Array.newInstance(property.getType().getComponentType(), elementList.size());
+            property.setValue(elementList.toArray(array));
         }
     }
 }
