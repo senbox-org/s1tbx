@@ -30,6 +30,7 @@ import org.esa.beam.util.SystemUtils;
 
 import javax.swing.AbstractButton;
 import javax.swing.JDialog;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import java.util.HashMap;
@@ -59,8 +60,13 @@ class PixelExtractionDialog extends ModelessDialog {
         parameterMap = new HashMap<String, Object>();
         final PropertyContainer propertyContainer = createParameterMap(parameterMap);
         propertyContainer.addProperty(Property.create("sourceProducts", Product[].class));
-        final PixelExtractionDialogForm form = new PixelExtractionDialogForm(appContext, propertyContainer);
-        setContent(form.getPanel());
+        final PixelExtractionIOForm ioForm = new PixelExtractionIOForm(appContext, propertyContainer);
+        final PixelExtractionProcessingForm processingForm = new PixelExtractionProcessingForm(appContext, propertyContainer);
+        JTabbedPane tabbedPanel = new JTabbedPane();
+        tabbedPanel.addTab("I/O Parameters", ioForm.getPanel());
+        tabbedPanel.addTab("Processing Parameters", processingForm.getPanel());
+
+        setContent(tabbedPanel);
     }
 
     private PropertyContainer createParameterMap(Map<String, Object> map) {

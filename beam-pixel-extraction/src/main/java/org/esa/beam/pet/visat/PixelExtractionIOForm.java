@@ -58,7 +58,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class PixelExtractionDialogForm {
+public class PixelExtractionIOForm {
 
     private static final String BEAM_PET_OP_FILE_LAST_OPEN_DIR = "beam.petOp.file.lastOpenDir";
 
@@ -80,7 +80,7 @@ public class PixelExtractionDialogForm {
     private AppContext appContext;
     private JList inputPathsList;
 
-    public PixelExtractionDialogForm(AppContext appContext, PropertyContainer container) {
+    public PixelExtractionIOForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
 
         panel = new JPanel(createLayout());
