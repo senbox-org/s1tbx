@@ -47,8 +47,6 @@ import java.util.TimeZone;
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
 
-// todo (mp) - include radiometric recalibration (CB to provide algo)
-
 @OperatorMetadata(alias = "Equalize",
                   description = "Performs removal of detector-to-detector systematic " +
                                 "radiometric differences in MERIS L1b data products.",
@@ -58,8 +56,8 @@ import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 public class EqualizationOp extends Operator {
 
     @Parameter(defaultValue = "true",
-               label = "Perform Smile correction",
-               description = "Whether to perform Smile correction or not.")
+               label = "Perform SMILE correction",
+               description = "Whether to perform SMILE correction or not.")
     private boolean doSmile;
 
     @SourceProduct(alias = "source", label = "Name", description = "The source product.",

@@ -34,6 +34,88 @@
 </table>
 
 <h3>Processor Description</h3>
+
+<p>
+    The MERIS Equalization tool can be invoked from the VISAT tools menu by selecting
+    the <b>Equalization (MERIS)</b> command. In the command line it is
+    available by means of the Graph Processing Tool <code>gpt</code> which is located in the BEAM <code>bin</code>
+    directory. Please type <code>gpt Equalize -h</code> for further information.
+</p>
+
+<p>
+    Selecting the <b>Equalization (MERIS)</b> command from the VISAT tool menu pops up the
+    following dialog:
+</p>
+
+<p align="center">
+    <img src="images/equalization-io-parameters.png" alt="MERIS Equalization Dialog"/>
+</p>
+
+<h4>I/O Parameter</h4>
+<h5>Source Product Group</h5>
+
+<p class="i1">
+    <b>Name:</b>
+    Here the user specifies the name of the source product. The combo box presents
+    a list of all products open in VISAT. The user may select one of these
+    or, by clicking on the button next to the combo box, choose a product
+    from the file system.
+</p>
+
+<h5>Target Product Group</h5>
+
+<p class="i1">
+    <b>Name:</b>
+    Used to specify the name of the target product.
+</p>
+
+<p class="i1">
+    <b>Save as:</b>
+    Used to specify whether the target product should be saved to the file system. The
+    combo box presents a list of output file formats currently supported by BEAM.
+    The text field allows to specify a target directory.
+</p>
+
+<p class="i1">
+    <b>Open in VISAT:</b>
+    Used to specify whether the target product should be opened in VISAT. When the
+    the target product is not saved, it is opened in VISAT automatically.
+</p>
+
+<h4>Processing Parameter</h4>
+
+<p align="center">
+    <img src="images/equalization-proc-parameters.png" alt="MERIS Equalization Dialog"/>
+</p>
+
+<h5>Parameter Panel</h5>
+
+<p class="i1">
+    <b>Perform SMILE correction:</b>
+    Specifies if the SMILE correction shall be performed or not. If the selected source product is already SMILE
+    corrected this option should be disabled.
+</p>
+
+
+<h4>Button Group</h4>
+
+<p class="i1">
+    <b>Run</b>
+    Creates the target product. The processing is actually deferred until its band data is accessed, either by
+    writing the product to a file or by viewing the band data. If the <b>Save as</b> option is checked, the processing
+    is triggered automatically.
+</p>
+
+<p class="i1">
+    <b>Close</b>
+    Closes the dialog.
+</p>
+
+<p class="i1">
+    <b>Help</b>
+    Displays this page in VISAT Help.
+</p>
+
 <hr>
 </body>
 </html>
