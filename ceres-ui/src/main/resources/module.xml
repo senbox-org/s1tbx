@@ -22,6 +22,9 @@
     
     <changelog>
         <![CDATA[
+        <p>Changes in 0.12<br/>
+        [CERES-49] TableLayout yields wrong results if spacer is used<br/>
+        </p>
         <p>Changes in 0.11<br/>
         [CERES-47] Figures are not correctly moved if multiple are selected<br/>
         </p>

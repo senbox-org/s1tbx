@@ -245,14 +245,14 @@ public class TableLayout implements LayoutManager2 {
 
     public Component createVerticalSpacer() {
         setCellColspan(currentCell.row, 0, columnCount);
-        setRowFill(currentCell.row, Fill.BOTH);
-        setRowWeightY(currentCell.row, 1.0);
+        setCellFill(currentCell.row, currentCell.col, Fill.BOTH);
+        setCellWeightY(currentCell.row, currentCell.col, 1.0);
         return new JPanel();
     }
 
     public Component createHorizontalSpacer() {
-        setColumnFill(currentCell.col, Fill.BOTH);
-        setColumnWeightX(currentCell.col, 1.0);
+        setCellFill(currentCell.row, currentCell.col, Fill.BOTH);
+        setCellWeightX(currentCell.row, currentCell.col, 1.0);
         return new JPanel();
     }
 
