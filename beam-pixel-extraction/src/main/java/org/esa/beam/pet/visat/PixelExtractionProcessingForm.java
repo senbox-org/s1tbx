@@ -24,7 +24,11 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
+import javax.swing.AbstractButton;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -79,16 +83,14 @@ public class PixelExtractionProcessingForm {
         panel.add(new JLabel());
 
         panel.add(new JLabel("Rasters:"));
-        final JScrollPane rasterScrollPane = new JScrollPane(createRasterEditor());
-        setScrollbarPolicy(rasterScrollPane);
-        panel.add(rasterScrollPane);
-        panel.add(new JLabel());
+        final JComponent[] rasterComponents = createRasterComponents();
+        panel.add(rasterComponents[0]);
+        panel.add(rasterComponents[1]);
 
         panel.add(new JLabel("Coordinates:"));
-        final JScrollPane coordScrollPane = new JScrollPane(createCoordinatesEditor());
-        setScrollbarPolicy(coordScrollPane);
-        panel.add(coordScrollPane);
-        panel.add(new JLabel());
+        final JComponent[] coordinatesComponents = createCoordinatesComponents();
+        panel.add(coordinatesComponents[0]);
+        panel.add(coordinatesComponents[1]);
 
         panel.add(new JLabel("Pin file:"));
         final JComponent[] pinFileComponents = createPinFileComponents(bindingContext);
@@ -125,16 +127,40 @@ public class PixelExtractionProcessingForm {
         return new JComponent[]{textField, ellipsesButton};
     }
 
-    private JComponent createRasterEditor() {
+    private JComponent[] createRasterComponents() {
         JList rasterList = new JList(new String[]{"radiance_1", "radiance_2"});
         rasterList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        return rasterList;
+        final JScrollPane rasterScrollPane = new JScrollPane(rasterList);
+        setScrollbarPolicy(rasterScrollPane);
+
+        final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"),
+                                                                        false);
+        final AbstractButton removeButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Minus24.gif"),
+                                                                           false);
+        final JPanel buttonPanel = new JPanel();
+        final BoxLayout layout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
+        buttonPanel.setLayout(layout);
+        buttonPanel.add(addButton);
+        buttonPanel.add(removeButton);
+        return new JComponent[]{rasterList, buttonPanel};
     }
 
-    private JComponent createCoordinatesEditor() {
-        JList rasterList = new JList(new String[]{"40.5,12.67", "35.8,25.7"});
-        rasterList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        return rasterList;
+    private JComponent[] createCoordinatesComponents() {
+        JList coordinateList = new JList(new String[]{"40.5,12.67", "35.8,25.7"});
+        coordinateList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        final JScrollPane rasterScrollPane = new JScrollPane(coordinateList);
+        setScrollbarPolicy(rasterScrollPane);
+
+        final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"),
+                                                                        false);
+        final AbstractButton removeButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Minus24.gif"),
+                                                                           false);
+        final JPanel buttonPanel = new JPanel();
+        final BoxLayout layout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
+        buttonPanel.setLayout(layout);
+        buttonPanel.add(addButton);
+        buttonPanel.add(removeButton);
+        return new JComponent[]{coordinateList, buttonPanel};
     }
 
     private JComponent createProductTypeEditor(BindingContext bindingContext) {
