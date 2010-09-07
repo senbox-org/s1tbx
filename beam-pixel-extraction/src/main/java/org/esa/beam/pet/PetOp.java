@@ -70,10 +70,6 @@ public class PetOp extends Operator {
     @Parameter(description = "The paths to be scanned for input products. May point to a single file or a directory.")
     private File[] inputPaths;
 
-    @Parameter(description = "Specifies if the given path shall be searched for data products recursively.",
-               defaultValue = "false")
-    private Boolean recursive;
-
     @Parameter(description = "Specifies the allowed product type.", notNull = true, notEmpty = true)
     private String productType;
 
@@ -182,36 +178,32 @@ public class PetOp extends Operator {
         }
     }
 
-    private void extractMeasurements(File[] paths) {
-        for (File path : paths) {
-            if (path.isDirectory()) {
-                final File[] subFiles = path.listFiles();
-                for (File file : subFiles) {
-                    if (file.isFile() || recursive) {
-                        extractMeasurements(new File[]{file});
+    private void extractMeasurements(File[] files) {
+        for (File file : files) {
+            if (file.isDirectory()) {
+                final File[] subFiles = file.listFiles();
+                for (File subFile : subFiles) {
+                    if (subFile.isFile()) {
+                        extractMeasurements(subFile);
                     }
                 }
             } else {
-                Product product = null;
-                try {
-                    product = ProductIO.readProduct(path);
-                    extractMeasurements(product);
-                } catch (IOException ignore) {
-                } finally {
-                    if (product != null) {
-                        product.dispose();
-                    }
-                }
+                extractMeasurements(file);
             }
         }
     }
 
-    private static File[] cleanPathNames(File[] paths) {
-        for (int i = 0; i < paths.length; i++) {
-            File path = paths[i];
-            paths[i] = new File( path.getPath().trim() );
+    private void extractMeasurements(File file) {
+        Product product = null;
+        try {
+            product = ProductIO.readProduct(file);
+            extractMeasurements(product);
+        } catch (IOException ignore) {
+        } finally {
+            if (product != null) {
+                product.dispose();
+            }
         }
-        return paths;
     }
 
     private void extractMeasurements(Product product) {
@@ -229,6 +221,14 @@ public class PetOp extends Operator {
                 getLogger().warning(e.getMessage());
             }
         }
+    }
+
+    private static File[] cleanPathNames(File[] paths) {
+        for (int i = 0; i < paths.length; i++) {
+            File path = paths[i];
+            paths[i] = new File( path.getPath().trim() );
+        }
+        return paths;
     }
 
 
