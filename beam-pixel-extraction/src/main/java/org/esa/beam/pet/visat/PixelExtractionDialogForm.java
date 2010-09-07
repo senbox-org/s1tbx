@@ -108,12 +108,13 @@ public class PixelExtractionDialogForm {
     private static TableLayout createLayout() {
         final TableLayout tableLayout = new TableLayout(3);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
-        tableLayout.setTableFill(TableLayout.Fill.BOTH);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayout.setTablePadding(4, 4);
         tableLayout.setTableWeightX(0.0);
         tableLayout.setTableWeightY(0.0);
         tableLayout.setColumnWeightX(1, 1.0);
         tableLayout.setCellWeightY(1, 1, 1.0);
+        tableLayout.setCellFill(1, 1, TableLayout.Fill.BOTH);
         return tableLayout;
     }
 
