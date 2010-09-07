@@ -24,6 +24,7 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.PropertyMap;
@@ -35,7 +36,7 @@ import org.esa.beam.visat.VisatApp;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.AbstractListModel;
-import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -45,9 +46,9 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.filechooser.FileFilter;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -76,38 +77,56 @@ public class PixelExtractionDialogForm {
 
     private JPanel panel;
     private MyListModel listModel;
+    private AppContext appContext;
+    private JList inputPathsList;
 
-    public PixelExtractionDialogForm(PropertyContainer container) {
+    public PixelExtractionDialogForm(AppContext appContext, PropertyContainer container) {
+        this.appContext = appContext;
 
-        final TableLayout tableLayout = createLayout();
-
-        panel = new JPanel();
-        panel.setLayout(tableLayout);
+        panel = new JPanel(createLayout());
         final BindingContext bindingContext = new BindingContext(container);
 
         panel.add(new JLabel("Product Type"));
         panel.add(createProductTypeEditor(bindingContext));
-        panel.add(tableLayout.createHorizontalSpacer());
+        panel.add(new JLabel(""));
 
-        JList inputPathsList = createInputPathsList(container.getProperty("inputPaths"));
-        panel.add(new JLabel("Input paths"));
+        inputPathsList = createInputPathsList(container.getProperty("inputPaths"));
+        panel.add(new JLabel("Input paths") );
         panel.add(new JScrollPane(inputPathsList));
-        panel.add(createInputButton());
+        final JPanel buttonPanel = new JPanel();
+        final BoxLayout layout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
+        buttonPanel.setLayout(layout);
+        buttonPanel.add(createAddInputButton());
+        buttonPanel.add(createRemoveInputButton());
+        panel.add( buttonPanel );
 
         panel.add(new JLabel("Square size"));
         panel.add(createSquareSizeEditor(container, bindingContext));
-        panel.add(tableLayout.createHorizontalSpacer());
+        panel.add(new JLabel(""));
+    }
+
+    private static TableLayout createLayout() {
+        final TableLayout tableLayout = new TableLayout(3);
+        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        tableLayout.setTableFill(TableLayout.Fill.BOTH);
+        tableLayout.setTablePadding(4, 4);
+        tableLayout.setTableWeightX(0.0);
+        tableLayout.setTableWeightY(0.0);
+        tableLayout.setColumnWeightX(1, 1.0);
+        tableLayout.setCellWeightY(1, 1, 1.0);
+        return tableLayout;
     }
 
     private JList createInputPathsList(Property property) {
         listModel = new MyListModel(property);
         JList inputPathsList = new JList(listModel);
-        inputPathsList.setPreferredSize(new Dimension(200, 10));
-        inputPathsList.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        inputPathsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        inputPathsList.setPreferredSize(new Dimension(200, 150));
+        inputPathsList.setMinimumSize(new Dimension(100, 50));
         return inputPathsList;
     }
 
-    private AbstractButton createInputButton() {
+    private AbstractButton createAddInputButton() {
         final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"),
                                                                         false);
         addButton.addActionListener(new ActionListener() {
@@ -124,15 +143,16 @@ public class PixelExtractionDialogForm {
         return addButton;
     }
 
-    private static TableLayout createLayout() {
-        final TableLayout tableLayout = new TableLayout(3);
-        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
-        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        tableLayout.setTablePadding(4, 4);
-        tableLayout.setTableWeightX(0.0);
-        tableLayout.setColumnWeightX(1, 1.0);
-        tableLayout.setTableWeightY(0.0);
-        return tableLayout;
+    private AbstractButton createRemoveInputButton() {
+        final AbstractButton removeButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Minus24.gif"),
+                                                                           false);
+        removeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                listModel.removeElement(inputPathsList.getSelectedValues());
+            }
+        });
+        return removeButton;
     }
 
     private JComponent createProductTypeEditor(BindingContext binding) {
@@ -172,16 +192,13 @@ public class PixelExtractionDialogForm {
         public void actionPerformed(ActionEvent e) {
             final FolderChooser folderChooser = new FolderChooser();
 
-            // todo commented out solely for testing; main method will not run if commented in
-
-/*            final VisatApp visatApp = VisatApp.getApp();
-            final PropertyMap preferences = visatApp.getPreferences();
+            final PropertyMap preferences = appContext.getPreferences();
             String lastDir = preferences.getPropertyString(BEAM_PET_OP_FILE_LAST_OPEN_DIR,
                                                            SystemUtils.getUserHomeDir().getPath());
-            if( lastDir != null ) {
+            if (lastDir != null) {
                 folderChooser.setCurrentDirectory(new File(lastDir));
             }
-*/
+
             final int result = folderChooser.showOpenDialog(panel);
             if (result != JFileChooser.APPROVE_OPTION) {
                 return;
@@ -190,19 +207,20 @@ public class PixelExtractionDialogForm {
             File currentDir = folderChooser.getSelectedFolder();
 
             if (!recursive) {
-//                container.addProperty(Property.create( "inputFiles", new File[]{currentDir} ));
-                listModel.addElement(currentDir.getAbsolutePath());
-                System.out.println("PixelExtractionDialogForm$AddDirectoryAction.actionPerformed");
+                try {
+                    listModel.addElement(currentDir.getAbsolutePath());
+                } catch (ValidationException ve) {
+                    appContext.handleError("Invalid input path", ve);
+                }
             } else {
                 // todo handle recursive case
             }
 
-            // todo commented out solely for testing; main method will not run if commented in
 
-/*            if (currentDir != null) {
+            if (currentDir != null) {
                 preferences.setPropertyString(BEAM_PET_OP_FILE_LAST_OPEN_DIR, currentDir.getAbsolutePath());
             }
-*/
+
         }
     }
 
@@ -214,8 +232,7 @@ public class PixelExtractionDialogForm {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            final VisatApp visatApp = VisatApp.getApp();
-            final PropertyMap preferences = visatApp.getPreferences();
+            final PropertyMap preferences = appContext.getPreferences();
             String lastDir = preferences.getPropertyString(BEAM_PET_OP_FILE_LAST_OPEN_DIR,
                                                            SystemUtils.getUserHomeDir().getPath());
             String lastFormat = preferences.getPropertyString(VisatApp.PROPERTY_KEY_APP_LAST_OPEN_FORMAT,
@@ -239,7 +256,7 @@ public class PixelExtractionDialogForm {
             }
             fileChooser.setFileFilter(actualFileFilter);
 
-            int result = fileChooser.showDialog(visatApp.getMainFrame(), "Open Product");    /*I18N*/
+            int result = fileChooser.showDialog(appContext.getApplicationWindow(), "Open Product");    /*I18N*/
             if (result != JFileChooser.APPROVE_OPTION) {
                 return;
             }
@@ -265,7 +282,7 @@ public class PixelExtractionDialogForm {
 
     private class MyListModel extends AbstractListModel {
 
-        private List<String> list = new ArrayList<String>();
+        private List<Object> list = new ArrayList<Object>();
         private Property property;
 
         public MyListModel(Property property) {
@@ -282,30 +299,33 @@ public class PixelExtractionDialogForm {
             return list.size();
         }
 
-        public void addElement(String... elements) {
-            for (String element : elements) {
+        public void addElement(Object... elements) throws ValidationException {
+            for (Object element : elements) {
                 if (!list.contains(element)) {
                     list.add(element);
                 }
             }
-            try {
-                File[] files = new File[list.size()];
-                for (int i = 0; i < list.size(); i++) {
-                    String path = list.get(i);
-                    files[i] = new File(path);
-                }
-                property.setValue(files);
-                fireContentsChanged(this, 0, list.size());
-            } catch (ValidationException ignore) {
-            }
+            updateProperty();
+            fireIntervalAdded(this, 0, list.size());
         }
 
-        public void removeElement(String... elements) {
-            for (String element : elements) {
-                if (list.remove(element)) {
-                    fireIntervalRemoved(this, 0, list.size() + 1);
-                }
+        private void updateProperty() throws ValidationException {
+            File[] files = new File[list.size()];
+            for (int i = 0; i < list.size(); i++) {
+                files[i] = new File(String.valueOf(list.get(i)));
             }
+            property.setValue(files);
+        }
+
+        public void removeElement(Object... elements) {
+            for (Object element : elements) {
+                list.remove(element);
+            }
+            try {
+                updateProperty();
+            } catch (ValidationException ignored) {
+            }
+            fireIntervalRemoved(this, 0, list.size());
         }
     }
 }
