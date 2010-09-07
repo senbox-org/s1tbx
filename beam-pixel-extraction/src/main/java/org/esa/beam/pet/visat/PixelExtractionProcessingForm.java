@@ -178,15 +178,35 @@ public class PixelExtractionProcessingForm {
     }
 
     private JComponent[] createCoordinatesComponents(PropertyContainer container) {
-        JList coordinateList = new JList(new GenericListModel<GeoPos>(container.getProperty("coordinates")));
+        final GenericListModel<GeoPos> listModel = new GenericListModel<GeoPos>(container.getProperty("coordinates"));
+        final JList coordinateList = new JList(listModel);
         coordinateList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         final JScrollPane rasterScrollPane = new JScrollPane(coordinateList);
         setScrollbarPolicy(rasterScrollPane);
 
         final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"),
                                                                         false);
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String result = JOptionPane.showInputDialog("Specify geo position", "00.0000; 00.0000");
+                String[] positions = result.split(";");
+                Float x = Float.parseFloat(positions[0].trim());
+                Float y = Float.parseFloat(positions[1].trim());
+                try {
+                    listModel.addElement(new GeoPos(x, y));
+                } catch (ValidationException ignored) {
+                }
+            }
+        });
         final AbstractButton removeButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Minus24.gif"),
                                                                            false);
+        removeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                listModel.removeElements((GeoPos[]) coordinateList.getSelectedValues());
+            }
+        });
         final JPanel buttonPanel = new JPanel();
         final BoxLayout layout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
         buttonPanel.setLayout(layout);
@@ -228,6 +248,7 @@ public class PixelExtractionProcessingForm {
     }
 
     private static class GenericListModel<T> extends AbstractListModel {
+
         private List<T> elementList;
         private Property property;
 
@@ -269,7 +290,7 @@ public class PixelExtractionProcessingForm {
 
         @SuppressWarnings({"unchecked"})
         private void updateProperty() throws ValidationException {
-            final T[] array = (T[])Array.newInstance(property.getType().getComponentType(), elementList.size());
+            final T[] array = (T[]) Array.newInstance(property.getType().getComponentType(), elementList.size());
             property.setValue(elementList.toArray(array));
         }
     }
