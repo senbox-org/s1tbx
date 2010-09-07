@@ -18,6 +18,7 @@ package org.esa.beam.pet.visat;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
@@ -28,6 +29,7 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
 import javax.swing.AbstractButton;
+import javax.swing.AbstractListModel;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -35,6 +37,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -45,6 +48,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PixelExtractionProcessingForm {
 
@@ -62,8 +67,10 @@ public class PixelExtractionProcessingForm {
     };
 
     private JPanel panel;
+    private AppContext appContext;
 
     public PixelExtractionProcessingForm(AppContext appContext, PropertyContainer container) {
+        this.appContext = appContext;
 
         final TableLayout tableLayout = new TableLayout(3);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
@@ -85,7 +92,7 @@ public class PixelExtractionProcessingForm {
         panel.add(new JLabel());
 
         panel.add(new JLabel("Rasters:"));
-        final JComponent[] rasterComponents = createRasterComponents();
+        final JComponent[] rasterComponents = createRasterComponents(container);
         panel.add(rasterComponents[0]);
         panel.add(rasterComponents[1]);
 
@@ -129,16 +136,33 @@ public class PixelExtractionProcessingForm {
         return new JComponent[]{textField, ellipsesButton};
     }
 
-    private JComponent[] createRasterComponents() {
-        JList rasterList = new JList(new String[]{"radiance_1", "radiance_2"});
+    private JComponent[] createRasterComponents(PropertyContainer container) {
+        final RasterListModel listModel = new RasterListModel(container.getProperty("rasters"));
+        final JList rasterList = new JList(listModel);
         rasterList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         final JScrollPane rasterScrollPane = new JScrollPane(rasterList);
         setScrollbarPolicy(rasterScrollPane);
 
         final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"),
                                                                         false);
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    listModel.addRaster(JOptionPane.showInputDialog("Enter raster name"));
+                } catch (ValidationException ve) {
+                    appContext.handleError("Invalid raster name", ve);
+                }
+            }
+        });
         final AbstractButton removeButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Minus24.gif"),
                                                                            false);
+        removeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                listModel.removeRasters(rasterList.getSelectedValues());
+            }
+        });
         final JPanel buttonPanel = new JPanel();
         final BoxLayout layout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
         buttonPanel.setLayout(layout);
@@ -182,8 +206,8 @@ public class PixelExtractionProcessingForm {
             public void stateChanged(ChangeEvent e) {
                 final Object value = spinner.getValue();
                 if (value instanceof Integer) {
-                    int intValue = (Integer)value;
-                    if(intValue % 2 == 0) {
+                    int intValue = (Integer) value;
+                    if (intValue % 2 == 0) {
                         spinner.setValue(intValue + 1);
                     }
                 }
@@ -197,4 +221,49 @@ public class PixelExtractionProcessingForm {
         return panel;
     }
 
+    private static class RasterListModel extends AbstractListModel {
+
+        private List<String> nameList;
+        private Property property;
+
+        private RasterListModel(Property property) {
+            this.property = property;
+            nameList = new ArrayList<String>();
+        }
+
+        @Override
+        public int getSize() {
+            return nameList.size();
+        }
+
+        @Override
+        public Object getElementAt(int index) {
+            return nameList.get(index);
+        }
+
+        public void addRaster(String name) throws ValidationException {
+            if (!nameList.contains(name)) {
+                if (nameList.add(name)) {
+                    fireIntervalAdded(this, 0, getSize());
+                    updateProperty();
+                }
+            }
+        }
+
+        public void removeRasters(Object... names) {
+            for (Object name : names) {
+                if (nameList.remove(name)) {
+                    fireIntervalRemoved(this, 0, getSize());
+                    try {
+                        updateProperty();
+                    } catch (ValidationException ignored) {
+                    }
+                }
+            }
+        }
+
+        private void updateProperty() throws ValidationException {
+            property.setValue(nameList.toArray(new String[nameList.size()]));
+        }
+    }
 }
