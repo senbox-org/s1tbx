@@ -58,7 +58,7 @@ public class PixelExtractionIOForm {
         panel = new JPanel(createLayout());
 
         inputPathsList = createInputPathsList(container.getProperty("inputPaths"));
-        panel.add(new JLabel("Input paths"));
+        panel.add(new JLabel("Input paths:"));
         panel.add(new JScrollPane(inputPathsList));
         final JPanel buttonPanel = new JPanel();
         final BoxLayout layout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
@@ -67,7 +67,7 @@ public class PixelExtractionIOForm {
         buttonPanel.add(createRemoveInputButton());
         panel.add(buttonPanel);
 
-        panel.add(new JLabel("Output file"));
+        panel.add(new JLabel("Output file:"));
         outputFileTextField = new JTextField();
         panel.add(outputFileTextField);
         panel.add(createFileChooserButton(container.getProperty("outputFile")));

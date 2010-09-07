@@ -41,6 +41,8 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -142,7 +144,7 @@ public class PixelExtractionProcessingForm {
         buttonPanel.setLayout(layout);
         buttonPanel.add(addButton);
         buttonPanel.add(removeButton);
-        return new JComponent[]{rasterList, buttonPanel};
+        return new JComponent[]{rasterScrollPane, buttonPanel};
     }
 
     private JComponent[] createCoordinatesComponents() {
@@ -160,7 +162,7 @@ public class PixelExtractionProcessingForm {
         buttonPanel.setLayout(layout);
         buttonPanel.add(addButton);
         buttonPanel.add(removeButton);
-        return new JComponent[]{coordinateList, buttonPanel};
+        return new JComponent[]{rasterScrollPane, buttonPanel};
     }
 
     private JComponent createProductTypeEditor(BindingContext bindingContext) {
@@ -175,6 +177,18 @@ public class PixelExtractionProcessingForm {
         final Property squareSizeProperty = container.getProperty("squareSize");
         final Number defaultValue = (Number) squareSizeProperty.getDescriptor().getDefaultValue();
         final JSpinner spinner = new JSpinner(new SpinnerNumberModel(defaultValue, 1, null, 2));
+        spinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                final Object value = spinner.getValue();
+                if (value instanceof Integer) {
+                    int intValue = (Integer)value;
+                    if(intValue % 2 == 0) {
+                        spinner.setValue(intValue + 1);
+                    }
+                }
+            }
+        });
         bindingContext.bind("squareSize", spinner);
         return spinner;
     }
