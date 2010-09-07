@@ -91,14 +91,14 @@ public class PixelExtractionDialogForm {
         panel.add(new JLabel(""));
 
         inputPathsList = createInputPathsList(container.getProperty("inputPaths"));
-        panel.add(new JLabel("Input paths") );
+        panel.add(new JLabel("Input paths"));
         panel.add(new JScrollPane(inputPathsList));
         final JPanel buttonPanel = new JPanel();
         final BoxLayout layout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
         buttonPanel.setLayout(layout);
         buttonPanel.add(createAddInputButton());
         buttonPanel.add(createRemoveInputButton());
-        panel.add( buttonPanel );
+        panel.add(buttonPanel);
 
         panel.add(new JLabel("Square size"));
         panel.add(createSquareSizeEditor(container, bindingContext));
@@ -210,17 +210,32 @@ public class PixelExtractionDialogForm {
                 try {
                     listModel.addElement(currentDir.getAbsolutePath());
                 } catch (ValidationException ve) {
+                    // todo check if this is ok; probably it's not because we do not want a message window for each
+                    // validation fail
                     appContext.handleError("Invalid input path", ve);
                 }
             } else {
-                // todo handle recursive case
+                try {
+                    listModel.addElement(currentDir.getAbsolutePath());
+                    addFiles(currentDir.listFiles());
+                } catch (ValidationException ve) {
+                    // todo check if this is ok; probably it's not because we do not want a message window for each
+                    // validation fail
+                    appContext.handleError("Invalid input path", ve);
+                }
             }
 
+            preferences.setPropertyString(BEAM_PET_OP_FILE_LAST_OPEN_DIR, currentDir.getAbsolutePath());
 
-            if (currentDir != null) {
-                preferences.setPropertyString(BEAM_PET_OP_FILE_LAST_OPEN_DIR, currentDir.getAbsolutePath());
+        }
+
+        private void addFiles(File[] files) throws ValidationException {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    listModel.addElement(file.getAbsolutePath());
+                    addFiles(file.listFiles());
+                }
             }
-
         }
     }
 
@@ -280,12 +295,12 @@ public class PixelExtractionDialogForm {
         }
     }
 
-    private class MyListModel extends AbstractListModel {
+    private static class MyListModel extends AbstractListModel {
 
         private List<Object> list = new ArrayList<Object>();
         private Property property;
 
-        public MyListModel(Property property) {
+        MyListModel(Property property) {
             this.property = property;
         }
 
