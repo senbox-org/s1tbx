@@ -25,6 +25,9 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.ui.AbstractDialog;
+import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
@@ -38,7 +41,6 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -49,8 +51,11 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,8 +65,11 @@ public class PixelExtractionProcessingForm {
     private JPanel panel;
     private JLabel windowLabel;
     private JSpinner windowSpinner;
+    private AppContext appContext;
 
-    public PixelExtractionProcessingForm(PropertyContainer container) {
+    public PixelExtractionProcessingForm(AppContext appContext, PropertyContainer container) {
+
+        this.appContext = appContext;
 
         final TableLayout tableLayout = new TableLayout(3);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
@@ -154,12 +162,14 @@ public class PixelExtractionProcessingForm {
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String result = JOptionPane.showInputDialog("Specify geo position", "00.0000; 00.0000");
-                String[] positions = result.split(";");
-                Float x = Float.parseFloat(positions[0].trim());
-                Float y = Float.parseFloat(positions[1].trim());
+                GeoPosDialog dialog = createGeoPosDialog();
+                if (dialog.show() != AbstractDialog.ID_OK) {
+                    return;
+                }
+                Float lat = dialog.getLat();
+                Float lon = dialog.getLon();
                 try {
-                    listModel.addElement(new GeoPos(x, y));
+                    listModel.addElement(new GeoPos(lat, lon));
                 } catch (ValidationException ignored) {
                 }
             }
@@ -183,6 +193,51 @@ public class PixelExtractionProcessingForm {
         buttonPanel.add(addButton);
         buttonPanel.add(removeButton);
         return new JComponent[]{rasterScrollPane, buttonPanel};
+    }
+
+    private GeoPosDialog createGeoPosDialog() {
+        final GeoPosDialog dialog = new GeoPosDialog(appContext.getApplicationWindow(), "Specify geo position",
+                                                     ModalDialog.ID_OK_CANCEL, null);
+        TableLayout layout = new TableLayout(2);
+        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        layout.setTableWeightX(0.0);
+        layout.setTableWeightY(0.0);
+        layout.setColumnWeightX(0, 0.0);
+        layout.setColumnWeightX(1, 1.0);
+        JPanel dialogPanel = new JPanel(layout);
+
+        dialogPanel.add(new JLabel("Latitude"));
+        final JTextField latField = new JTextField("00.0000");
+        latField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                try {
+                    dialog.setLat(Float.parseFloat(latField.getText()));
+                } catch (NumberFormatException nfe) {
+                    latField.setText("00.0000");
+                    dialog.setLat(00.0000f);
+                }
+            }
+        });
+        dialogPanel.add(latField);
+
+        dialogPanel.add(new JLabel("Longitude"));
+        final JTextField lonField = new JTextField("00.0000");
+        lonField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                try {
+                    dialog.setLon(Float.parseFloat(lonField.getText()));
+                } catch (NumberFormatException nfe) {
+                    lonField.setText("00.0000");
+                    dialog.setLon(00.0000f);
+                }
+            }
+        });
+        dialogPanel.add(lonField);
+
+        dialog.setContent(dialogPanel);
+        return dialog;
     }
 
     private JSpinner createWindowSizeEditor(BindingContext bindingContext) {
@@ -257,6 +312,32 @@ public class PixelExtractionProcessingForm {
         }
 
 
+    }
+
+    private static class GeoPosDialog extends ModalDialog {
+
+        private float lat;
+        private float lon;
+
+        GeoPosDialog(Window parent, String title, int buttonMask, String helpID) {
+            super(parent, title, buttonMask, helpID);
+        }
+
+        public float getLat() {
+            return lat;
+        }
+
+        public void setLat(float lat) {
+            this.lat = lat;
+        }
+
+        public float getLon() {
+            return lon;
+        }
+
+        public void setLon(float lon) {
+            this.lon = lon;
+        }
     }
 
     private static class GeoPosListCellRenderer extends DefaultListCellRenderer {
