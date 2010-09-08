@@ -89,7 +89,7 @@ public class PixelExtractionProcessingForm {
         panel.add(coordinatesComponents[0]);
         panel.add(coordinatesComponents[1]);
 
-        panel.add(new JLabel("Pin file:"));
+        panel.add(new JLabel("Placemark file:"));
         final JComponent[] pinFileComponents = createPinFileComponents(bindingContext);
         panel.add(pinFileComponents[0]);
         panel.add(pinFileComponents[1]);
