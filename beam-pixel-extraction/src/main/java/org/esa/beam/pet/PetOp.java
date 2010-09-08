@@ -68,17 +68,9 @@ public class PetOp extends Operator {
 
     @TargetProperty()
     private Map<String, List<Measurement>> measurements;
-    //    private Measurement[] measurements;
 
     @Parameter(description = "The paths to be scanned for input products. May point to a single file or a directory.")
     private File[] inputPaths;
-
-//    @Parameter(description = "Specifies the allowed product type.", notNull = true, notEmpty = true)
-//    private String productType;
-
-//    @Parameter(alias = "rasters", itemAlias = "name",
-//               description = "The raster names used for extractions. Bands, tie-point grids, and masks can be used.")
-//    private String[] rasterNames;
 
     @Parameter(description = "Specifies if tie-points are to be exported", defaultValue = "true")
     private Boolean exportTiePoints;
@@ -105,7 +97,6 @@ public class PetOp extends Operator {
     String[] rasterNames;
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
-//    private List<Measurement> measurementList;
 
     @Override
     public void initialize() throws OperatorException {
@@ -139,7 +130,6 @@ public class PetOp extends Operator {
             writeOutput();
         }
 
-//        measurements = measurementList.toArray(new Measurement[measurementList.size()]);
         setTargetProduct(createDummyProduct());
     }
 
@@ -318,12 +308,6 @@ public class PetOp extends Operator {
             if (product == null) {
                 return false;
             }
-//            final String type = product.getProductType();
-//            if (!productType.equalsIgnoreCase(type)) {
-//                final String msgPattern = "Product [%s] refused. Cause:\nType [%s] does not match specified product type [%s].";
-//                logger.warning(String.format(msgPattern, product.getFileLocation(), type, productType));
-//                return false;
-//            }
             final GeoCoding geoCoding = product.getGeoCoding();
             if (geoCoding == null) {
                 final String msgPattern = "Product [%s] refused. Cause:\nProduct is not geo-coded.";
