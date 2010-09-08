@@ -13,8 +13,10 @@ import org.opengis.referencing.operation.TransformException;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -31,12 +33,17 @@ public class PetOpTest {
         op.rasterNames = bandNames;
         op.squareSize = 3;
         Product product = createTestProduct(bandNames);
-        ArrayList<Measurement> measurementList = new ArrayList<Measurement>();
+        Map<String, List<Measurement>> measurements = new HashMap<String, List<Measurement>>();
         GeoPos geoPos = new GeoPos(20, 10);
-        op.readMeasurement(product, new Coordinate(1, geoPos), measurementList);
-        assertEquals(3 * 3, measurementList.size());
+        op.readMeasurement(product, new Coordinate(1, geoPos), measurements);
         geoPos = new GeoPos(21, 9);
+
+        List<Measurement> measurementList = measurements.get(product.getProductType());
+        assertNotNull(measurementList);
+        assertTrue(measurementList.size() > 0);
+
         for (int i = 0; i < measurementList.size(); i++) {
+            assertEquals(3 * 3, measurementList.size());
             Measurement measurement = measurementList.get(i);
             assertEquals(1, measurement.getCoordinateID());
             assertEquals(geoPos.lat - i / 3, measurement.getLat(), 1.0e-4);

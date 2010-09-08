@@ -46,7 +46,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @SuppressWarnings({
@@ -65,17 +67,27 @@ public class PetOp extends Operator {
     private Product[] sourceProducts;
 
     @TargetProperty()
-    private Measurement[] measurements;
+    private Map<String, List<Measurement>> measurements;
+    //    private Measurement[] measurements;
 
     @Parameter(description = "The paths to be scanned for input products. May point to a single file or a directory.")
     private File[] inputPaths;
 
-    @Parameter(description = "Specifies the allowed product type.", notNull = true, notEmpty = true)
-    private String productType;
+//    @Parameter(description = "Specifies the allowed product type.", notNull = true, notEmpty = true)
+//    private String productType;
 
-    @Parameter(alias = "rasters", itemAlias = "name",
-               description = "The raster names used for extractions. Bands, tie-point grids, and masks can be used.")
-    String[] rasterNames;
+//    @Parameter(alias = "rasters", itemAlias = "name",
+//               description = "The raster names used for extractions. Bands, tie-point grids, and masks can be used.")
+//    private String[] rasterNames;
+
+    @Parameter(description = "Specifies if tie-points are to be exported", defaultValue = "true")
+    private Boolean exportTiePoints;
+
+    @Parameter(description = "Specifies if bands are to be exported", defaultValue = "true")
+    private Boolean exportBands;
+
+    @Parameter(description = "Specifies if masks are to be exported", defaultValue = "true")
+    private Boolean exportMasks;
 
     @Parameter(itemAlias = "coordinate", description = "The geo-coordinates", converter = GeoPosConverter.class)
     private GeoPos[] coordinates;
@@ -87,23 +99,21 @@ public class PetOp extends Operator {
                validator = SquareSizeValidator.class)
     Integer squareSize;
 
-    @Parameter(description = "The output file.")
-    private File outputFile;
+    @Parameter(description = "The output directory.")
+    private File outputDir;
 
-    private static final String DEFAULT_OUTPUT_FILE_NAME = "output.txt";
-
+    String[] rasterNames;
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
-    private List<Measurement> measurementList;
-
+//    private List<Measurement> measurementList;
 
     @Override
     public void initialize() throws OperatorException {
         if (coordinatesFile == null && coordinates == null) {
             throw new OperatorException("No coordinates specified.");
         }
-        if (outputFile != null && outputFile.isDirectory()) {
-            outputFile = new File(outputFile, DEFAULT_OUTPUT_FILE_NAME);
+        if (outputDir != null && outputDir.isFile()) {
+            outputDir = new File(outputDir.getParent());
         }
         coordinateList = new ArrayList<Coordinate>();
         if (coordinatesFile != null) {
@@ -115,7 +125,7 @@ public class PetOp extends Operator {
             }
         }
         validator = new ProductValidator();
-        measurementList = new ArrayList<Measurement>();
+        measurements = new HashMap<String, List<Measurement>>();
         if (sourceProducts != null) {
             for (Product product : sourceProducts) {
                 extractMeasurements(product);
@@ -125,11 +135,11 @@ public class PetOp extends Operator {
             inputPaths = cleanPathNames(inputPaths);
             extractMeasurements(inputPaths);
         }
-        if (outputFile != null) {
+        if (outputDir != null) {
             writeOutput();
         }
 
-        measurements = measurementList.toArray(new Measurement[measurementList.size()]);
+//        measurements = measurementList.toArray(new Measurement[measurementList.size()]);
         setTargetProduct(createDummyProduct());
     }
 
@@ -156,26 +166,6 @@ public class PetOp extends Operator {
         final Product product = new Product("dummy", "dummy", 2, 2);
         product.addBand("dummy", ProductData.TYPE_INT8);
         return product;
-    }
-
-    @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
-    private void writeOutput() {
-        FileWriter writer = null;
-        try {
-            writer = new FileWriter(outputFile);
-
-            MeasurementWriter formatWriter = new MeasurementWriter(rasterNames);
-            formatWriter.write(measurementList, writer);
-        } catch (IOException e) {
-            throw new OperatorException("Could not write to output file.", e);
-        } finally {
-            try {
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (IOException ignored) {
-            }
-        }
     }
 
     private void extractMeasurements(File[] files) {
@@ -210,13 +200,15 @@ public class PetOp extends Operator {
         if (!validator.validate(product)) {
             return;
         }
-        if (rasterNames == null || rasterNames.length == 0) {
-            rasterNames = getAllRasterNames(product);
+
+        rasterNames = getAllRasterNames(product);
+        if (rasterNames.length == 0) {
+            return;
         }
 
         for (Coordinate coordinate : coordinateList) {
             try {
-                readMeasurement(product, coordinate, measurementList);
+                readMeasurement(product, coordinate, measurements);
             } catch (IOException e) {
                 getLogger().warning(e.getMessage());
             }
@@ -226,13 +218,14 @@ public class PetOp extends Operator {
     private static File[] cleanPathNames(File[] paths) {
         for (int i = 0; i < paths.length; i++) {
             File path = paths[i];
-            paths[i] = new File( path.getPath().trim() );
+            paths[i] = new File(path.getPath().trim());
         }
         return paths;
     }
 
 
-    void readMeasurement(Product product, Coordinate coordinate, List<Measurement> measurementList) throws IOException {
+    void readMeasurement(Product product, Coordinate coordinate, Map<String, List<Measurement>> measurements) throws
+                                                                                                              IOException {
         PixelPos centerPos = product.getGeoCoding().getPixelPos(coordinate.getGeoPos(), null);
         if (!product.containsPixel(centerPos)) {
             return;
@@ -257,20 +250,55 @@ public class PetOp extends Operator {
             GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
             final Measurement measure = new Measurement(coordinate.getId(), coordinate.getName(),
                                                         product.getStartTime(), currentGeoPos, values);
+            String productType = product.getProductType();
+            List<Measurement> measurementList = measurements.get(productType);
+            if (measurementList == null) {
+                measurementList = new ArrayList<Measurement>();
+                measurements.put(productType, measurementList);
+            }
             measurementList.add(measure);
         }
     }
 
     private String[] getAllRasterNames(Product product) {
         final List<RasterDataNode> allRasterList = new ArrayList<RasterDataNode>();
-        allRasterList.addAll(Arrays.asList(product.getTiePointGrids()));
-        allRasterList.addAll(Arrays.asList(product.getBands()));
-        allRasterList.addAll(Arrays.asList(product.getMaskGroup().toArray(new Mask[0])));
+        if (exportBands) {
+            allRasterList.addAll(Arrays.asList(product.getBands()));
+        }
+        if (exportTiePoints) {
+            allRasterList.addAll(Arrays.asList(product.getTiePointGrids()));
+        }
+        if (exportMasks) {
+            allRasterList.addAll(Arrays.asList(product.getMaskGroup().toArray(new Mask[0])));
+        }
         String[] allRasterNames = new String[allRasterList.size()];
         for (int i = 0; i < allRasterList.size(); i++) {
             allRasterNames[i] = allRasterList.get(i).getName();
         }
         return allRasterNames;
+    }
+
+    @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
+    private void writeOutput() {
+        FileWriter writer = null;
+
+        for (String productType : measurements.keySet()) {
+            List<Measurement> measurementList = measurements.get(productType);
+            try {
+                writer = new FileWriter(new File(outputDir.getAbsolutePath(), "expix_" + productType + ".txt"));
+                MeasurementWriter formatWriter = new MeasurementWriter(rasterNames);
+                formatWriter.write(measurementList, writer);
+            } catch (IOException e) {
+                throw new OperatorException("Could not write to output file.", e);
+            } finally {
+                try {
+                    if (writer != null) {
+                        writer.close();
+                    }
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 
     public static class SquareSizeValidator implements Validator {
@@ -290,12 +318,12 @@ public class PetOp extends Operator {
             if (product == null) {
                 return false;
             }
-            final String type = product.getProductType();
-            if (!productType.equalsIgnoreCase(type)) {
-                final String msgPattern = "Product [%s] refused. Cause:\nType [%s] does not match specified product type [%s].";
-                logger.warning(String.format(msgPattern, product.getFileLocation(), type, productType));
-                return false;
-            }
+//            final String type = product.getProductType();
+//            if (!productType.equalsIgnoreCase(type)) {
+//                final String msgPattern = "Product [%s] refused. Cause:\nType [%s] does not match specified product type [%s].";
+//                logger.warning(String.format(msgPattern, product.getFileLocation(), type, productType));
+//                return false;
+//            }
             final GeoCoding geoCoding = product.getGeoCoding();
             if (geoCoding == null) {
                 final String msgPattern = "Product [%s] refused. Cause:\nProduct is not geo-coded.";
