@@ -36,10 +36,20 @@
 <h3>Introduction</h3>
 
 <p>
-    The MERIS equalization module performs a radiometric equalisation of the MERIS L1b products (RR, FR and FRS). It
+    The MERIS equalization module performs a radiometric equalization of the MERIS L1b products (RR, FR and FRS). It
     reduces detector-to-detector and camera-to-camera systematic radiometric differences and results into a diminution
     of the vertical stripping observed on MERIS L1b products.
 </p>
+
+<p class="inote">
+    <b>Note: Processing MERIS FR and FRS data products</b><br>
+    The Look-Up-Tables used by the equalization algorithm for MERIS FR and FRS data products are currently in a
+    preliminary state. The LUTs are currently simply obtained by linear interpolation of the RR LUTs.
+    This results in an equalization of the FR product only at a max RR spatial frequency and consequently, not all
+    the FR detector-to-detector systematic variations are corrected for. A future version will include newly generated LUTs
+    to allow equalization at maximum FR spatial frequency.
+</p>
+
 <p><a href="MerisEqualizationAlgorithmSpecification.html">MERIS Equalization Algorithm Specification</a></p>
 
 <p><a href="MerisEqualizationProcessorDescription.html">MERIS Equalization Processor Documentation</a></p>

@@ -47,17 +47,17 @@
             <dialogTitle>MERIS L1b Equalization</dialogTitle>
             <targetProductNameSuffix>_eq</targetProductNameSuffix>
         </action>
-        <action>
-            <id>merisSmile</id>
-            <helpId>merisSmile</helpId>
-            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <parent>tools</parent>
-            <text>NEW Smile correction (MERIS)...</text>
-            <mnemonic>S</mnemonic>
-            <operatorName>Smile</operatorName>
-            <dialogTitle>MERIS L1b Smile Correction</dialogTitle>
-            <targetProductNameSuffix>_smile</targetProductNameSuffix>
-        </action>
+        <!--<action>-->
+            <!--<id>merisSmile</id>-->
+            <!--<helpId>merisSmile</helpId>-->
+            <!--<class>org.esa.beam.visat.actions.DefaultOperatorAction</class>-->
+            <!--<parent>tools</parent>-->
+            <!--<text>NEW SMILE correction (MERIS)...</text>-->
+            <!--<mnemonic>S</mnemonic>-->
+            <!--<operatorName>SmileCorr</operatorName>-->
+            <!--<dialogTitle>MERIS L1b SMILE Correction</dialogTitle>-->
+            <!--<targetProductNameSuffix>_smile</targetProductNameSuffix>-->
+        <!--</action>-->
     </extension>
 
 

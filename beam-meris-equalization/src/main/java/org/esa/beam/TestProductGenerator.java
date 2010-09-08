@@ -76,11 +76,11 @@ class TestProductGenerator {
 
     private static void createSmiledTestSubset(Product testInputProduct, File outputDir) throws IOException {
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        final SmileOp.Spi smileOpSpi = new SmileOp.Spi();
+        final SmileCorrectionOp.Spi smileOpSpi = new SmileCorrectionOp.Spi();
         registry.addOperatorSpi(smileOpSpi);
 
         try {
-            final Product testInputSmileProduct = GPF.createProduct("Smile", GPF.NO_PARAMS, testInputProduct);
+            final Product testInputSmileProduct = GPF.createProduct("SmileCorr", GPF.NO_PARAMS, testInputProduct);
             final MetadataElement metadataRoot = testInputSmileProduct.getMetadataRoot();
             metadataRoot.removeElement(metadataRoot.getElement("Processing_Graph"));
             final File outFile = new File(outputDir, String.format("%s.dim", testInputSmileProduct.getName()));

@@ -1,2 +1,2 @@
 org.esa.beam.EqualizationOp$Spi
-org.esa.beam.SmileOp$Spi
+org.esa.beam.SmileCorrectionOp$Spi

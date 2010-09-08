@@ -243,7 +243,7 @@ public class EqualizationOp extends Operator {
         if ("MEGS-PC".equalsIgnoreCase(processorName)) {
             if (processorVersion >= 7.4f && processorVersion <= 7.5f) {
                     return 2;
-            } else if (processorVersion >= 8.0f && processorVersion < 9.0f) {
+            } else if (processorVersion >= 8.0f) {
                 return 3;
             }
         }

@@ -35,13 +35,13 @@ import org.esa.beam.util.ProductUtils;
 import java.awt.Rectangle;
 import java.io.IOException;
 
-@OperatorMetadata(alias = "Smile",
+@OperatorMetadata(alias = "SmileCorr",
                   version = "1.0",
                   authors = "Marco Zühlke",
                   copyright = "(c) 2010 by Brockmann Consult",
-                  description = "Smile correction.",
+                  description = "Performs a SMILE correction of MERIS L1b products.",
                   internal = false)
-public class SmileOp extends MerisBasisOp {
+public class SmileCorrectionOp extends MerisBasisOp {
 
     private static final double SPECTRAL_BAND_SF_FACTOR = 1.1;
 
@@ -156,7 +156,7 @@ public class SmileOp extends MerisBasisOp {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(SmileOp.class);
+            super(SmileCorrectionOp.class);
         }
     }    
 }

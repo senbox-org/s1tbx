@@ -40,13 +40,21 @@
     (corresponding to 185 mean detectors in RR). This results into 3700 detectors imaging the swath of MERIS FRS product
     (925 in RR). The response of each one of these detectors is calibrated during the routine operation of the
     instrument. Residual uncertainties in the calibration process result into detector-to-detector and camera-to-camera
-    systematic radiometric differences. The equalisation corrects for these radiometric differences via set of detector
+    systematic radiometric differences. The equalization corrects for these radiometric differences via set of detector
     dependant coefficients correcting for the residual uncertainties in the calibration process. These coefficients are
     retrieved via a methodology described in <a href="#R-1">[R-1]</a> based on observations of the Antarctica plateau
-    spread out throughout
-    the MERIS mission lifetime.</p>
+    spread out throughout the MERIS mission lifetime.</p>
 
-<p>The equalisation proceeds in the following way:</p>
+<p>
+    The equalization algorithm supports data from the 2nd or 3rd reprocessing.
+    The only difference lies in the LUTs used. Depending on the value of the field <i>software_ver</i> in
+    the MPH of the MERIS product the appropriate LUT is chosen to retrieve the coefficients.<br>
+    If the <i>software_ver</i> is between <b>MERIS/4.1</b> and <b>MERIS/5.06</b> or between
+    <b>MEGS-PC/7.4</b> and <b>MEGS-PC/7.5</b> the product is considered to be from the 2nd reprocessing. <br>
+    If the software_ver is above <b>MEGS-PC/8.0</b> the product is considered to be from the 3nd reprocessing.
+</p>
+
+<p>The equalization proceeds in the following way:</p>
 
 <h4>1) Smile correction:</h4>
 
@@ -101,25 +109,25 @@
 
 <p>where the detector_index is the MERIS L1b band of the same name.
 
-    Further details on the retrieval of the equalisation coefficients and their application to L1b products can be found
+    Further details on the retrieval of the equalization coefficients and their application to L1b products can be found
     in <a href="#R-1">[R-1]</a>.
 </p>
 <br>
 
 <p>
-    <b>N.B.1: equalisation of band 11</b><br>
-    As explained in [R-1], the equalisation coefficient retrieval is not valid for the band 11. All equalisation
+    <b>N.B.1: Equalization of band 11</b><br>
+    As explained in [R-1], the equalization coefficient retrieval is not valid for the band 11. All equalisation
     coefficients for band 11 have thus been forced to a values of 1 (no modification of the original L1b product for
     this band)
 </p>
 
 <p>
-    <b>N.B.2: correction of the FR data is still only temporary</b><br>
-    The FR equalisation coefficients are currently simply obtained by linear interpolation of the RR equalisation
+    <b>N.B.2: Correction of the FR data is still only temporary</b><br>
+    The FR equalization coefficients are currently simply obtained by linear interpolation of the RR equalisation
     coefficients.<br>
-    This results in an equalisation of the FR product only at a max RR spatial frequency and consequently, not all the
+    This results in an equalization of the FR product only at a max RR spatial frequency and consequently, not all the
     FR detector-to-detector systematic variations are corrected for. Hopefully, a future version of the FR equalisation
-    coefficient LUT will be generated that allow equalisation at maximum FR spatial frequency</p>
+    coefficient LUT will be generated that allow equalization at maximum FR spatial frequency</p>
 
 
 <h3>Referenced Documents</h3>
