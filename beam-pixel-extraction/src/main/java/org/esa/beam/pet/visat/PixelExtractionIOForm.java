@@ -45,7 +45,9 @@ import java.io.IOException;
 
 public class PixelExtractionIOForm {
 
-    static final String BEAM_PET_OP_LAST_OPEN_DIR = "beam.petOp.lastOpenDir";
+    static final String LAST_OPEN_INPUT_DIR = "beam.petOp.lastOpenInputDir";
+    static final String LAST_OPEN_OUTPUT_DIR = "beam.petOp.lastOpenOutputDir";
+    static final String LAST_OPEN_FORMAT = "beam.petOp.lastOpenFormat";
 
     private JPanel panel;
     private InputFilesListModel listModel;
@@ -76,18 +78,22 @@ public class PixelExtractionIOForm {
         String path = getOutputPath(appContext);
         outputDirTextField.setText(path);
         panel.add(outputDirTextField);
-        panel.add(createFileChooserButton(container.getProperty("outputDir"), new File(path)));
+        panel.add(createFileChooserButton(container.getProperty("outputDir")));
     }
 
     private String getOutputPath(AppContext appContext) {
         final Property dirProperty = container.getProperty("outputDir");
         final Object value = dirProperty.getDescriptor().getDefaultValue();
-        String lastDir = appContext.getPreferences().getPropertyString(BEAM_PET_OP_LAST_OPEN_DIR, value.toString());
+        String lastDir = appContext.getPreferences().getPropertyString(LAST_OPEN_OUTPUT_DIR, value.toString());
         String path;
         try {
             path = new File(lastDir).getCanonicalPath();
         } catch (IOException ignored) {
             path = SystemUtils.getUserHomeDir().getPath();
+        }
+        try {
+            dirProperty.setValue(new File(path));
+        } catch (ValidationException ignore) {
         }
         return path;
     }
@@ -105,7 +111,7 @@ public class PixelExtractionIOForm {
         return tableLayout;
     }
 
-    private AbstractButton createFileChooserButton(final Property outputFileProperty, final File outputDir) {
+    private AbstractButton createFileChooserButton(final Property outputFileProperty) {
         AbstractButton button = new JButton("...");
         button.addActionListener(new ActionListener() {
             @Override
@@ -122,7 +128,7 @@ public class PixelExtractionIOForm {
                 outputDirTextField.setText(selectedFile.getAbsolutePath());
                 try {
                     outputFileProperty.setValue(selectedFile);
-                    appContext.getPreferences().setPropertyString(BEAM_PET_OP_LAST_OPEN_DIR,
+                    appContext.getPreferences().setPropertyString(LAST_OPEN_OUTPUT_DIR,
                                                                   selectedFile.getAbsolutePath());
 
                 } catch (ValidationException ve) {

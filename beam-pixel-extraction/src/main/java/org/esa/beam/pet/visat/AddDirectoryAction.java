@@ -58,7 +58,7 @@ class AddDirectoryAction extends AbstractAction {
         final FolderChooser folderChooser = new FolderChooser();
 
         final PropertyMap preferences = appContext.getPreferences();
-        String lastDir = preferences.getPropertyString(PixelExtractionIOForm.BEAM_PET_OP_LAST_OPEN_DIR,
+        String lastDir = preferences.getPropertyString(PixelExtractionIOForm.LAST_OPEN_INPUT_DIR,
                                                        SystemUtils.getUserHomeDir().getPath());
         if (lastDir != null) {
             folderChooser.setCurrentDirectory(new File(lastDir));
@@ -82,7 +82,7 @@ class AddDirectoryAction extends AbstractAction {
             new MyProgressMonitorSwingWorker(currentDir).executeWithBlocking();
         }
 
-        preferences.setPropertyString(PixelExtractionIOForm.BEAM_PET_OP_LAST_OPEN_DIR,
+        preferences.setPropertyString(PixelExtractionIOForm.LAST_OPEN_INPUT_DIR,
                                       currentDir.getAbsolutePath());
 
     }

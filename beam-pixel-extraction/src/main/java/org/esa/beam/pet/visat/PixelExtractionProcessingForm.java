@@ -30,6 +30,8 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.SystemUtils;
 
 import javax.swing.AbstractButton;
 import javax.swing.AbstractListModel;
@@ -56,6 +58,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +69,8 @@ public class PixelExtractionProcessingForm {
     private JLabel windowLabel;
     private JSpinner windowSpinner;
     private AppContext appContext;
+
+    static final String LAST_OPEN_PIN_DIR = "beam.petOp.lastOpenPinDir";
 
     public PixelExtractionProcessingForm(AppContext appContext, PropertyContainer container) {
 
@@ -129,10 +134,16 @@ public class PixelExtractionProcessingForm {
         ellipsesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                PropertyMap preferences = appContext.getPreferences();
+                String lastDir = preferences.getPropertyString(LAST_OPEN_PIN_DIR,
+                                                               SystemUtils.getUserHomeDir().getPath());
                 final JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setCurrentDirectory(new File(lastDir));
                 int i = fileChooser.showDialog(panel, "Select");
-                if (i == JFileChooser.APPROVE_OPTION && fileChooser.getSelectedFile() != null) {
-                    binding.setPropertyValue(fileChooser.getSelectedFile());
+                File selectedFile = fileChooser.getSelectedFile();
+                if (i == JFileChooser.APPROVE_OPTION && selectedFile != null) {
+                    binding.setPropertyValue(selectedFile);
+                    preferences.setPropertyString(LAST_OPEN_PIN_DIR, selectedFile.getParent());
                 }
             }
         });
@@ -210,31 +221,24 @@ public class PixelExtractionProcessingForm {
         final JTextField latField = new JTextField("00.0000");
         latField.addFocusListener(new FocusAdapter() {
             @Override
-            public void focusLost(FocusEvent e) {
-                try {
-                    dialog.lat = Float.parseFloat(latField.getText());
-                } catch (NumberFormatException nfe) {
-                    latField.setText("00.0000");
-                    dialog.lat = 00.0000f;
-                }
+            public void focusGained(FocusEvent e) {
+                latField.selectAll();
             }
         });
+        latField.selectAll();
         dialogPanel.add(latField);
+        dialog.latField = latField;
 
         dialogPanel.add(new JLabel("Longitude"));
         final JTextField lonField = new JTextField("00.0000");
         lonField.addFocusListener(new FocusAdapter() {
             @Override
-            public void focusLost(FocusEvent e) {
-                try {
-                    dialog.lon = Float.parseFloat(lonField.getText());
-                } catch (NumberFormatException nfe) {
-                    lonField.setText("00.0000");
-                    dialog.lon = 00.0000f;
-                }
+            public void focusGained(FocusEvent e) {
+                lonField.selectAll();
             }
         });
         dialogPanel.add(lonField);
+        dialog.lonField = lonField;
 
         dialog.setContent(dialogPanel);
         return dialog;
@@ -319,10 +323,27 @@ public class PixelExtractionProcessingForm {
         private float lat;
         private float lon;
 
+        private JTextField lonField;
+        private JTextField latField;
+
         GeoPosDialog(Window parent, String title, int buttonMask, String helpID) {
             super(parent, title, buttonMask, helpID);
         }
 
+        @Override
+        protected void onOK() {
+            try {
+                lon = Float.parseFloat(lonField.getText());
+            } catch (NumberFormatException nfe) {
+                lon = 00.0000f;
+            }
+            try {
+                lat = Float.parseFloat(latField.getText());
+            } catch (NumberFormatException nfe) {
+                lat = 00.0000f;
+            }
+            super.onOK();
+        }
     }
 
     private static class GeoPosListCellRenderer extends DefaultListCellRenderer {
