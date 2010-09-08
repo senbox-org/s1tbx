@@ -275,7 +275,13 @@ public class EqualizationOp extends Operator {
                 final String[] strings = softwareVer.split("/");
                 final String processorName = strings[0];
                 final String processorVersion = strings[1];
-                final float version = Float.parseFloat(processorVersion);
+                final float version;
+                try {
+                    version = Float.parseFloat(processorVersion);
+                } catch (NumberFormatException e) {
+                    final String msgPattern = "Not able to detect reprocessing version. Metadata attribute 'MPH/SOFTWARE_VER' [%s] is invalid.";
+                    throw new OperatorException(String.format(msgPattern, softwareVer), e);
+                }
                 return parseReprocessingVersion(processorName, version);
             } else {
                 throw new OperatorException(
