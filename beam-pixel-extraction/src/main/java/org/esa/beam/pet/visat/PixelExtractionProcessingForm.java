@@ -32,6 +32,7 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import javax.swing.AbstractButton;
 import javax.swing.AbstractListModel;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -47,6 +48,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Array;
@@ -180,6 +182,7 @@ public class PixelExtractionProcessingForm {
     private JComponent[] createCoordinatesComponents(PropertyContainer container) {
         final GenericListModel<GeoPos> listModel = new GenericListModel<GeoPos>(container.getProperty("coordinates"));
         final JList coordinateList = new JList(listModel);
+        coordinateList.setCellRenderer(new GeoPosListCellRenderer());
         coordinateList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         final JScrollPane rasterScrollPane = new JScrollPane(coordinateList);
         setScrollbarPolicy(rasterScrollPane);
@@ -204,7 +207,12 @@ public class PixelExtractionProcessingForm {
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                listModel.removeElements((GeoPos[]) coordinateList.getSelectedValues());
+                Object[] selectedValues = coordinateList.getSelectedValues();
+                GeoPos[] geoPositions = new GeoPos[selectedValues.length];
+                for (int i = 0; i < selectedValues.length; i++) {
+                    geoPositions[i] = (GeoPos) selectedValues[i];
+                }
+                listModel.removeElements(geoPositions);
             }
         });
         final JPanel buttonPanel = new JPanel();
@@ -267,7 +275,7 @@ public class PixelExtractionProcessingForm {
             return elementList.get(index);
         }
 
-        public void addElement(T element) throws ValidationException {
+        void addElement(T element) throws ValidationException {
             if (!elementList.contains(element)) {
                 if (elementList.add(element)) {
                     fireIntervalAdded(this, 0, getSize());
@@ -276,7 +284,7 @@ public class PixelExtractionProcessingForm {
             }
         }
 
-        public void removeElements(T... elements) {
+        void removeElements(T... elements) {
             for (T elem : elements) {
                 if (elementList.remove(elem)) {
                     fireIntervalRemoved(this, 0, getSize());
@@ -293,5 +301,20 @@ public class PixelExtractionProcessingForm {
             final T[] array = (T[]) Array.newInstance(property.getType().getComponentType(), elementList.size());
             property.setValue(elementList.toArray(array));
         }
+
+
+    }
+
+    private static class GeoPosListCellRenderer extends DefaultListCellRenderer {
+
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+                                                      boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            GeoPos pos = (GeoPos) value;
+            label.setText(pos.getLat() + ", " + pos.getLon());
+            return label;
+        }
+
     }
 }
