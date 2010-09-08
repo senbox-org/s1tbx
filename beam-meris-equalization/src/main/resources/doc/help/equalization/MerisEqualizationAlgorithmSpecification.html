@@ -45,15 +45,6 @@
     retrieved via a methodology described in <a href="#R-1">[R-1]</a> based on observations of the Antarctica plateau
     spread out throughout the MERIS mission lifetime.</p>
 
-<p>
-    The equalization algorithm supports data from the 2nd or 3rd reprocessing.
-    The only difference lies in the LUTs used. Depending on the value of the field <i>software_ver</i> in
-    the MPH of the MERIS product the appropriate LUT is chosen to retrieve the coefficients.<br>
-    If the <i>software_ver</i> is between <b>MERIS/4.1</b> and <b>MERIS/5.06</b> or between
-    <b>MEGS-PC/7.4</b> and <b>MEGS-PC/7.5</b> the product is considered to be from the 2nd reprocessing. <br>
-    If the software_ver is above <b>MEGS-PC/8.0</b> the product is considered to be from the 3nd reprocessing.
-</p>
-
 <p>The equalization proceeds in the following way:</p>
 
 <h4>1) Smile correction:</h4>

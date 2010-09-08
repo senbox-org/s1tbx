@@ -190,20 +190,20 @@ public class EqualizationOpTest {
     @Test()
     public void testParseReproVersion_Fails() {
         try {
-            EqualizationOp.parseReprocessingVersion("MERIS", 3.67f);
+            EqualizationOp.detectReprocessingVersion("MERIS", 3.67f);
             fail("Version is not of reprocessing 2 or 3");
         } catch (OperatorException ignored) {
             // expected
         }
         try {
-            EqualizationOp.parseReprocessingVersion("MERIS", 5.1f);
+            EqualizationOp.detectReprocessingVersion("MERIS", 5.1f);
             fail("Version is not of reprocessing 2 or 3");
         } catch (OperatorException ignored) {
             // expected
         }
 
         try {
-            EqualizationOp.parseReprocessingVersion("MEGS-PC", 7.2f);
+            EqualizationOp.detectReprocessingVersion("MEGS-PC", 7.2f);
             fail("Version is not of reprocessing 2 or 3");
         } catch (OperatorException ignored) {
             // expected
@@ -212,20 +212,28 @@ public class EqualizationOpTest {
 
     @Test
     public void testParseReprocessingVersion() {
-        assertEquals(2, EqualizationOp.parseReprocessingVersion("MERIS", 4.1f));
-        assertEquals(2, EqualizationOp.parseReprocessingVersion("MERIS", 5.02f));
-        assertEquals(2, EqualizationOp.parseReprocessingVersion("MERIS", 5.03f));
-        assertEquals(2, EqualizationOp.parseReprocessingVersion("MERIS", 5.04f));
-        assertEquals(2, EqualizationOp.parseReprocessingVersion("MERIS", 5.05f));
-        assertEquals(2, EqualizationOp.parseReprocessingVersion("MERIS", 5.06f));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", 4.1f));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", 5.02f));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", 5.03f));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", 5.04f));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", 5.05f));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", 5.06f));
         
-        assertEquals(2, EqualizationOp.parseReprocessingVersion("MEGS-PC", 7.4f));
-        assertEquals(2, EqualizationOp.parseReprocessingVersion("MEGS-PC", 7.41f));
-        assertEquals(2, EqualizationOp.parseReprocessingVersion("MEGS-PC", 7.5f));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MEGS-PC", 7.4f));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MEGS-PC", 7.41f));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MEGS-PC", 7.5f));
 
-        assertEquals(3, EqualizationOp.parseReprocessingVersion("MEGS-PC", 8.0f));
-        assertEquals(3, EqualizationOp.parseReprocessingVersion("MEGS-PC", 8.1f));
-        assertEquals(3, EqualizationOp.parseReprocessingVersion("MEGS-PC", 8.9f));
+        assertEquals(3, EqualizationOp.detectReprocessingVersion("MEGS-PC", 8.0f));
+        assertEquals(3, EqualizationOp.detectReprocessingVersion("MEGS-PC", 8.1f));
+        assertEquals(3, EqualizationOp.detectReprocessingVersion("MEGS-PC", 8.9f));
+    }
+
+    @Test
+    public void testVersionToFloat() {
+        assertEquals(4.1f, EqualizationOp.versionToFloat("4.1"), 0.0f);
+        assertEquals(4.12f, EqualizationOp.versionToFloat("4.1.2"), 0.0f);
+        assertEquals(41.6f, EqualizationOp.versionToFloat("41.6"), 0.0f);
+        assertEquals(1234.0f, EqualizationOp.versionToFloat("1234"), 0.0f);
     }
 
     @Test

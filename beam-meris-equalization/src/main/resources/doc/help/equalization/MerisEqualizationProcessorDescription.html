@@ -91,6 +91,20 @@
 <h5>Parameter Panel</h5>
 
 <p class="i1">
+    <b>Reprocessing version:</b>
+    Specifies the version of the reprocessing the product comes from. Depending on version different LUTs are used.
+    If set to AUTO_DETECT the processor tries to detect the reprocessing version. This is the default value.
+</p>
+
+<p> The equalization algorithm supports data from the 2nd or 3rd reprocessing.
+    The only difference lies in the LUTs used. Depending on the value of the field <i>software_ver</i> in
+    the MPH of the MERIS product the appropriate LUT is chosen to retrieve the coefficients (if AUTO_DETECT is selected).<br>
+    If the <i>software_ver</i> is between <b>MERIS/4.1</b> and <b>MERIS/5.06</b> or between
+    <b>MEGS-PC/7.4</b> and <b>MEGS-PC/7.5</b> the product is considered to be from the 2nd reprocessing. <br>
+    If the software_ver is above <b>MEGS-PC/8.0</b> the product is considered to be from the 3nd reprocessing.
+</p>
+
+<p class="i1">
     <b>Perform SMILE correction:</b>
     Specifies if the SMILE correction shall be performed or not. If the selected source product is already SMILE
     corrected this option should be disabled.

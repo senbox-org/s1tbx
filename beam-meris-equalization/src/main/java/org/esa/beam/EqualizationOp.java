@@ -55,6 +55,10 @@ import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
                   version = "1.0")
 public class EqualizationOp extends Operator {
 
+    @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT","REPROCESSING_2","REPROCESSING_3"}, defaultValue = "AUTO_DETECT",
+               description = "The version of the reprocessing the product comes from.")
+    private REPROCESSING_VERSION reproVersion;
+
     @Parameter(defaultValue = "true",
                label = "Perform SMILE correction",
                description = "Whether to perform SMILE correction or not.")
@@ -114,7 +118,13 @@ public class EqualizationOp extends Operator {
 
         try {
             final boolean isFullResolution = sourceProduct.getProductType().startsWith("MER_F");
-            equalizationLUT = new EqualizationLUT(getReprocessingVersion(), isFullResolution);
+            int reprocessingVersion;
+            if(REPROCESSING_VERSION.AUTO_DETECT.equals(reproVersion)) {
+                reprocessingVersion = autoDetectReprocessingVersion();
+            }else {
+                reprocessingVersion = reproVersion.getVersion();
+            }
+            equalizationLUT = new EqualizationLUT(reprocessingVersion, isFullResolution);
         } catch (IOException e) {
             throw new OperatorException("Not able to create LUT.", e);
         }
@@ -235,25 +245,6 @@ public class EqualizationOp extends Operator {
         return reflectanceValue / cEq;
     }
 
-    static int parseReprocessingVersion(String processorName, float processorVersion) {
-        if ("MERIS".equalsIgnoreCase(processorName)) {
-            if (processorVersion >= 4.1f && processorVersion <= 5.06f) {
-                return 2;
-            }
-        }
-        if ("MEGS-PC".equalsIgnoreCase(processorName)) {
-            if (processorVersion >= 7.4f && processorVersion <= 7.5f) {
-                return 2;
-            } else if (processorVersion >= 8.0f) {
-                return 3;
-            }
-        }
-
-        throw new OperatorException(
-                String.format("Unknown reprocessing version %s/%s.\nProduct must be of reprocessing 2 or 3.",
-                              processorName, processorVersion));
-    }
-
     static long toJulianDay(int year, int month, int dayOfMonth) {
         final double millisPerDay = 86400000.0;
 
@@ -268,28 +259,65 @@ public class EqualizationOp extends Operator {
         return (long) (utc.getTimeInMillis() / millisPerDay - epochJulianDate);
     }
 
-    private int getReprocessingVersion() {
+    private int autoDetectReprocessingVersion() {
         final MetadataElement mphElement = sourceProduct.getMetadataRoot().getElement(ELEM_NAME_MPH);
         if (mphElement != null) {
             final String softwareVer = mphElement.getAttributeString(ATTRIB_SOFTWARE_VER);
             if (softwareVer != null) {
                 final String[] strings = softwareVer.split("/");
                 final String processorName = strings[0];
-                final String processorVersion = strings[1];
+                final int maxLength = Math.min(strings[1].length(), 5); // first 5 characters
+                final String processorVersion = strings[1].substring(0, maxLength).trim();
                 final float version;
                 try {
-                    version = Float.parseFloat(processorVersion);
+                    version = versionToFloat(processorVersion);
                 } catch (NumberFormatException e) {
                     final String msgPattern = "Not able to detect reprocessing version. Metadata attribute 'MPH/SOFTWARE_VER' [%s] is invalid.";
                     throw new OperatorException(String.format(msgPattern, softwareVer), e);
                 }
-                return parseReprocessingVersion(processorName, version);
+                return detectReprocessingVersion(processorName, version);
             } else {
                 throw new OperatorException(
                         "Not able to detect reprocessing version.\nMetadata attribute 'MPH/SOFTWARE_VER' not found.");
             }
         }
         throw new OperatorException("Not able to detect reprocessing version.\nMetadata element 'MPH' not found.");
+    }
+
+    static int detectReprocessingVersion(String processorName, float processorVersion) {
+        if ("MERIS".equalsIgnoreCase(processorName)) {
+            if (processorVersion >= 4.1f && processorVersion <= 5.06f) {
+                return 2;
+            }
+        }
+        if ("MEGS-PC".equalsIgnoreCase(processorName)) {
+            if (processorVersion >= 7.4f && processorVersion <= 7.5f) {
+                return 2;
+            } else if (processorVersion >= 8.0f) {
+                return 3;
+            }
+        }
+
+        throw new OperatorException(
+                String.format("Unknown reprocessing version (%s/%s).\nProduct must be of reprocessing 2 or 3.",
+                              processorName, processorVersion));
+    }
+
+    static float versionToFloat(String processorVersion) {
+        final String[] values = processorVersion.split("\\.");
+        float version = 0.0f;
+        for (int i = 0; i < values.length; i++) {
+            String value = values[i];
+            final int integer = Integer.parseInt(value);
+            int leadingZeros = 0;
+            for (int j = 0; j < value.length(); j++) {
+                if(value.charAt(j) == '0') {
+                    leadingZeros++;
+                }
+            }
+            version += integer / Math.pow(10, i+leadingZeros);
+        }
+        return version;
     }
 
     private Tile[] loadRequiredRadianceTiles(int spectralBandIndex, Rectangle targetRectangle, ProgressMonitor pm) {
