@@ -208,12 +208,6 @@ public class EqualizationOpTest {
         } catch (OperatorException ignored) {
             // expected
         }
-        try {
-            EqualizationOp.parseReprocessingVersion("MEGS-PC", 9.0f);
-            fail("Version is not of reprocessing 2 or 3");
-        } catch (OperatorException ignored) {
-            // expected
-        }
     }
 
     @Test
