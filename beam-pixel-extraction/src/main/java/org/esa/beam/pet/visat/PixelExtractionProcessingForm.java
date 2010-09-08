@@ -25,7 +25,6 @@ import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
@@ -34,7 +33,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -46,6 +45,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
@@ -53,29 +53,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class PixelExtractionProcessingForm {
 
-    private static final String[] PRODUCT_TYPES = new String[]{
-            "MER_FR__1P",
-            "MER_RR__1P",
-            "MER_FRS_1P",
-            "MER_FSG_1P",
-            "MER_FRG_1P",
-            "MER_FR__2P",
-            "MER_RR__2P",
-            "MER_FRS_2P",
-            "ATS_TOA_1P",
-            "ATS_NR__2P"
-    };
-
     private JPanel panel;
-    private AppContext appContext;
+    private JLabel windowLabel;
+    private JSpinner windowSpinner;
 
-    public PixelExtractionProcessingForm(AppContext appContext, PropertyContainer container) {
-        this.appContext = appContext;
+    public PixelExtractionProcessingForm(PropertyContainer container) {
 
         final TableLayout tableLayout = new TableLayout(3);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
@@ -83,23 +69,20 @@ public class PixelExtractionProcessingForm {
         tableLayout.setTablePadding(4, 4);
         tableLayout.setTableWeightX(0.0);
         tableLayout.setTableWeightY(0.0);
-        tableLayout.setCellWeightY(1, 1, 1.0);
+        tableLayout.setCellColspan(0, 0, 3);
+        tableLayout.setCellColspan(1, 0, 3);
+        tableLayout.setCellColspan(2, 0, 3);
         tableLayout.setCellFill(1, 1, TableLayout.Fill.BOTH);
-        tableLayout.setCellWeightY(2, 1, 1.0);
-        tableLayout.setCellFill(2, 1, TableLayout.Fill.BOTH);
+        tableLayout.setCellWeightY(3, 1, 1.0);
+        tableLayout.setCellFill(3, 1, TableLayout.Fill.BOTH);
         tableLayout.setColumnWeightX(1, 1.0);
 
         panel = new JPanel(tableLayout);
         final BindingContext bindingContext = new BindingContext(container);
 
-        panel.add(new JLabel("Product type:"));
-        panel.add(createProductTypeEditor(bindingContext));
-        panel.add(new JLabel());
-
-        panel.add(new JLabel("Rasters:"));
-        final JComponent[] rasterComponents = createRasterComponents(container);
-        panel.add(rasterComponents[0]);
-        panel.add(rasterComponents[1]);
+        panel.add(createIncludeCheckbox(bindingContext, "Export bands", "exportBands"));
+        panel.add(createIncludeCheckbox(bindingContext, "Export tie-point grids", "exportTiePoints"));
+        panel.add(createIncludeCheckbox(bindingContext, "Export masks", "exportMasks"));
 
         panel.add(new JLabel("Coordinates:"));
         final JComponent[] coordinatesComponents = createCoordinatesComponents(container);
@@ -111,16 +94,23 @@ public class PixelExtractionProcessingForm {
         panel.add(pinFileComponents[0]);
         panel.add(pinFileComponents[1]);
 
-        panel.add(new JLabel("Square size:"));
-        panel.add(createSquareSizeEditor(container, bindingContext));
-        panel.add(new JLabel());
-
-        panel.add(tableLayout.createVerticalSpacer());
+        panel.add(new JLabel("Window size:"));
+        windowSpinner = createWindowSizeEditor(bindingContext);
+        panel.add(windowSpinner);
+        windowLabel = new JLabel();
+        windowLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        windowSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                updateWindowLabel();
+            }
+        });
+        updateWindowLabel();
+        panel.add(windowLabel);
     }
 
-    private void setScrollbarPolicy(JScrollPane scrollPane) {
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+    private void updateWindowLabel() {
+        windowLabel.setText(String.format("%1$d x %1$d", (Integer) windowSpinner.getValue()));
     }
 
     private JComponent[] createPinFileComponents(BindingContext bindingContext) {
@@ -141,51 +131,23 @@ public class PixelExtractionProcessingForm {
         return new JComponent[]{textField, ellipsesButton};
     }
 
-    private JComponent[] createRasterComponents(PropertyContainer container) {
-
-        final GenericListModel<String> listModel = new GenericListModel<String>(container.getProperty("rasters"));
-        final JList rasterList = new JList(listModel);
-        rasterList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        final JScrollPane rasterScrollPane = new JScrollPane(rasterList);
-        setScrollbarPolicy(rasterScrollPane);
-
-        final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"),
-                                                                        false);
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    listModel.addElement(JOptionPane.showInputDialog("Enter raster name"));
-                } catch (ValidationException ve) {
-                    appContext.handleError("Invalid raster name", ve);
-                }
-            }
-        });
-        final AbstractButton removeButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Minus24.gif"),
-                                                                           false);
-        removeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final Object[] objects = rasterList.getSelectedValues();
-                final String[] strings = Arrays.copyOf(objects, objects.length, String[].class);
-                listModel.removeElements(strings);
-            }
-        });
-        final JPanel buttonPanel = new JPanel();
-        final BoxLayout layout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
-        buttonPanel.setLayout(layout);
-        buttonPanel.add(addButton);
-        buttonPanel.add(removeButton);
-        return new JComponent[]{rasterScrollPane, buttonPanel};
+    private JCheckBox createIncludeCheckbox(BindingContext bindingContext, String labelText, String propertyName) {
+        final Property squareSizeProperty = bindingContext.getPropertySet().getProperty(propertyName);
+        final Boolean defaultValue = (Boolean) squareSizeProperty.getDescriptor().getDefaultValue();
+        final JCheckBox checkbox = new JCheckBox(labelText, defaultValue);
+        bindingContext.bind(propertyName, checkbox);
+        return checkbox;
     }
 
     private JComponent[] createCoordinatesComponents(PropertyContainer container) {
         final GenericListModel<GeoPos> listModel = new GenericListModel<GeoPos>(container.getProperty("coordinates"));
         final JList coordinateList = new JList(listModel);
+        coordinateList.setVisibleRowCount(5);
         coordinateList.setCellRenderer(new GeoPosListCellRenderer());
         coordinateList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         final JScrollPane rasterScrollPane = new JScrollPane(coordinateList);
-        setScrollbarPolicy(rasterScrollPane);
+        rasterScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        rasterScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"),
                                                                         false);
@@ -223,16 +185,8 @@ public class PixelExtractionProcessingForm {
         return new JComponent[]{rasterScrollPane, buttonPanel};
     }
 
-    private JComponent createProductTypeEditor(BindingContext bindingContext) {
-        final JComboBox productTypesBox = new JComboBox(PRODUCT_TYPES);
-        productTypesBox.setEditable(true);
-        bindingContext.bind("productType", productTypesBox);
-        productTypesBox.setSelectedIndex(0);
-        return productTypesBox;
-    }
-
-    private JComponent createSquareSizeEditor(PropertyContainer container, BindingContext bindingContext) {
-        final Property squareSizeProperty = container.getProperty("squareSize");
+    private JSpinner createWindowSizeEditor(BindingContext bindingContext) {
+        final Property squareSizeProperty = bindingContext.getPropertySet().getProperty("windowSize");
         final Number defaultValue = (Number) squareSizeProperty.getDescriptor().getDefaultValue();
         final JSpinner spinner = new JSpinner(new SpinnerNumberModel(defaultValue, 1, null, 2));
         spinner.addChangeListener(new ChangeListener() {
@@ -247,7 +201,7 @@ public class PixelExtractionProcessingForm {
                 }
             }
         });
-        bindingContext.bind("squareSize", spinner);
+        bindingContext.bind("windowSize", spinner);
         return spinner;
     }
 

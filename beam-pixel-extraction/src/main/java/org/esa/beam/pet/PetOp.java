@@ -72,11 +72,11 @@ public class PetOp extends Operator {
     @Parameter(description = "The paths to be scanned for input products. May point to a single file or a directory.")
     private File[] inputPaths;
 
-    @Parameter(description = "Specifies if tie-points are to be exported", defaultValue = "true")
-    private Boolean exportTiePoints;
-
     @Parameter(description = "Specifies if bands are to be exported", defaultValue = "true")
     private Boolean exportBands;
+
+    @Parameter(description = "Specifies if tie-points are to be exported", defaultValue = "true")
+    private Boolean exportTiePoints;
 
     @Parameter(description = "Specifies if masks are to be exported", defaultValue = "true")
     private Boolean exportMasks;
@@ -87,14 +87,14 @@ public class PetOp extends Operator {
     @Parameter(description = "Path to a file containing geo-coordinates")
     private File coordinatesFile;
 
-    @Parameter(description = "Side length of surrounding square (uneven)", defaultValue = "1",
-               validator = SquareSizeValidator.class)
-    Integer squareSize;
+    @Parameter(description = "Side length of surrounding window (uneven)", defaultValue = "1",
+               validator = WindowSizeValidator.class)
+    private Integer windowSize;
 
-    @Parameter(description = "The output directory.")
+    @Parameter(description = "The output directory.", defaultValue = ".")
     private File outputDir;
 
-    String[] rasterNames;
+    private String[] rasterNames;
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
 
@@ -131,6 +131,22 @@ public class PetOp extends Operator {
         }
 
         setTargetProduct(createDummyProduct());
+    }
+
+    Integer getWindowSize() {
+        return windowSize;
+    }
+
+    void setWindowSize(Integer windowSize) {
+        this.windowSize = windowSize;
+    }
+
+    String[] getRasterNames() {
+        return rasterNames;
+    }
+
+    void setRasterNames(String[] rasterNames) {
+        this.rasterNames = rasterNames.clone();
     }
 
     private List<Coordinate> extractGeoPositions(File coordinatesFile) {
@@ -220,15 +236,15 @@ public class PetOp extends Operator {
         if (!product.containsPixel(centerPos)) {
             return;
         }
-        int offset = MathUtils.floorInt(squareSize / 2);
+        int offset = MathUtils.floorInt(windowSize / 2);
         int upperLeftX = MathUtils.floorInt(centerPos.x - offset);
         int upperLeftY = MathUtils.floorInt(centerPos.y - offset);
         final double[] values = new double[rasterNames.length];
         Arrays.fill(values, Double.NaN);
-        final int numPixels = squareSize * squareSize;
+        final int numPixels = windowSize * windowSize;
         for (int n = 0; n < numPixels; n++) {
-            int x = upperLeftX + n % squareSize;
-            int y = upperLeftY + n / squareSize;
+            int x = upperLeftX + n % windowSize;
+            int y = upperLeftY + n / windowSize;
             for (int i = 0; i < rasterNames.length; i++) {
                 RasterDataNode raster = product.getRasterDataNode(rasterNames[i]);
                 if (raster != null && product.containsPixel(x, y)) {
@@ -291,7 +307,7 @@ public class PetOp extends Operator {
         }
     }
 
-    public static class SquareSizeValidator implements Validator {
+    public static class WindowSizeValidator implements Validator {
 
         @Override
         public void validateValue(Property property, Object value) throws ValidationException {

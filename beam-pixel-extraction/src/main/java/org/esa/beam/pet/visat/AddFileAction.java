@@ -43,7 +43,7 @@ class AddFileAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         final PropertyMap preferences = appContext.getPreferences();
-        String lastDir = preferences.getPropertyString(PixelExtractionIOForm.BEAM_PET_OP_FILE_LAST_OPEN_DIR,
+        String lastDir = preferences.getPropertyString(PixelExtractionIOForm.BEAM_PET_OP_LAST_OPEN_DIR,
                                                        SystemUtils.getUserHomeDir().getPath());
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(lastDir));
@@ -55,7 +55,7 @@ class AddFileAction extends AbstractAction {
             return;
         }
 
-        preferences.setPropertyString(PixelExtractionIOForm.BEAM_PET_OP_FILE_LAST_OPEN_DIR,
+        preferences.setPropertyString(PixelExtractionIOForm.BEAM_PET_OP_LAST_OPEN_DIR,
                                       fileChooser.getCurrentDirectory().getAbsolutePath());
 
         final File[] selectedFiles = fileChooser.getSelectedFiles();

@@ -20,10 +20,10 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.TableLayout;
+import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 
 import javax.swing.AbstractButton;
@@ -41,19 +41,22 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 
 public class PixelExtractionIOForm {
 
-    static final String BEAM_PET_OP_FILE_LAST_OPEN_DIR = "beam.petOp.file.lastOpenDir";
+    static final String BEAM_PET_OP_LAST_OPEN_DIR = "beam.petOp.lastOpenDir";
 
     private JPanel panel;
     private InputFilesListModel listModel;
     private AppContext appContext;
     private JList inputPathsList;
-    private JTextField outputFileTextField;
+    private JTextField outputDirTextField;
+    private PropertyContainer container;
 
     public PixelExtractionIOForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
+        this.container = container;
 
         panel = new JPanel(createLayout());
 
@@ -67,10 +70,26 @@ public class PixelExtractionIOForm {
         buttonPanel.add(createRemoveInputButton());
         panel.add(buttonPanel);
 
-        panel.add(new JLabel("Output file:"));
-        outputFileTextField = new JTextField();
-        panel.add(outputFileTextField);
-        panel.add(createFileChooserButton(container.getProperty("outputFile")));
+        panel.add(new JLabel("Output directory:"));
+        outputDirTextField = new JTextField();
+        outputDirTextField.setEditable(false);
+        String path = getOutputPath(appContext);
+        outputDirTextField.setText(path);
+        panel.add(outputDirTextField);
+        panel.add(createFileChooserButton(container.getProperty("outputDir"), new File(path)));
+    }
+
+    private String getOutputPath(AppContext appContext) {
+        final Property dirProperty = container.getProperty("outputDir");
+        final Object value = dirProperty.getDescriptor().getDefaultValue();
+        String lastDir = appContext.getPreferences().getPropertyString(BEAM_PET_OP_LAST_OPEN_DIR, value.toString());
+        String path;
+        try {
+            path = new File(lastDir).getCanonicalPath();
+        } catch (IOException ignored) {
+            path = SystemUtils.getUserHomeDir().getPath();
+        }
+        return path;
     }
 
     private static TableLayout createLayout() {
@@ -86,27 +105,26 @@ public class PixelExtractionIOForm {
         return tableLayout;
     }
 
-    private AbstractButton createFileChooserButton(final Property outputFileProperty) {
+    private AbstractButton createFileChooserButton(final Property outputFileProperty, final File outputDir) {
         AbstractButton button = new JButton("...");
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final PropertyMap preferences = appContext.getPreferences();
-                String lastDir = preferences.getPropertyString(BEAM_PET_OP_FILE_LAST_OPEN_DIR,
-                                                               SystemUtils.getUserHomeDir().getPath());
-
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setCurrentDirectory(new File(lastDir));
-                fileChooser.setDialogTitle("Select output file");
-                fileChooser.setMultiSelectionEnabled(false);
-                int result = fileChooser.showDialog(appContext.getApplicationWindow(), "Select");    /*I18N*/
+                FolderChooser folderChooser = new FolderChooser();
+                folderChooser.setCurrentDirectory(new File(getOutputPath(appContext)));
+                folderChooser.setDialogTitle("Select output directory");
+                folderChooser.setMultiSelectionEnabled(false);
+                int result = folderChooser.showDialog(appContext.getApplicationWindow(), "Select");    /*I18N*/
                 if (result != JFileChooser.APPROVE_OPTION) {
                     return;
                 }
-                File selectedFile = fileChooser.getSelectedFile();
-                outputFileTextField.setText(selectedFile.getAbsolutePath());
+                File selectedFile = folderChooser.getSelectedFile();
+                outputDirTextField.setText(selectedFile.getAbsolutePath());
                 try {
                     outputFileProperty.setValue(selectedFile);
+                    appContext.getPreferences().setPropertyString(BEAM_PET_OP_LAST_OPEN_DIR,
+                                                                  selectedFile.getAbsolutePath());
+
                 } catch (ValidationException ve) {
                     // not expected to ever come here
                     appContext.handleError("Invalid input path", ve);

@@ -30,8 +30,8 @@ public class PetOpTest {
     public void testReadMeasurement() throws TransformException, FactoryException, IOException {
         PetOp op = new PetOp();
         String[] bandNames = {"band_1", "band_2", "band_3"};
-        op.rasterNames = bandNames;
-        op.squareSize = 3;
+        op.setRasterNames(bandNames);
+        op.setWindowSize(3);
         Product product = createTestProduct(bandNames);
         Map<String, List<Measurement>> measurements = new HashMap<String, List<Measurement>>();
         GeoPos geoPos = new GeoPos(20, 10);
@@ -40,7 +40,7 @@ public class PetOpTest {
 
         List<Measurement> measurementList = measurements.get(product.getProductType());
         assertNotNull(measurementList);
-        assertTrue(measurementList.size() > 0);
+        assertTrue(!measurementList.isEmpty());
 
         for (int i = 0; i < measurementList.size(); i++) {
             assertEquals(3 * 3, measurementList.size());

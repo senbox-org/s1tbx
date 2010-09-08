@@ -23,10 +23,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.pet.PetOp;
-import org.esa.beam.util.SystemUtils;
 
 import javax.swing.AbstractButton;
 import javax.swing.JDialog;
@@ -38,7 +36,6 @@ import java.util.Map;
 
 class PixelExtractionDialog extends ModelessDialog {
 
-    private AppContext appContext;
     private Map<String, Object> parameterMap;
 
     PixelExtractionDialog(AppContext appContext) {
@@ -48,10 +45,6 @@ class PixelExtractionDialog extends ModelessDialog {
 
     PixelExtractionDialog(AppContext appContext, String title) {
         super(appContext.getApplicationWindow(), title, ID_APPLY_CLOSE_HELP, "pixelExtraction");
-        this.appContext = appContext;
-        String homeDirPath = SystemUtils.getUserHomeDir().getPath();
-        String saveDir = appContext.getPreferences().getPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR,
-                                                                       homeDirPath);
 
         AbstractButton button = getButton(ID_APPLY);
         button.setText("Run");
@@ -61,7 +54,7 @@ class PixelExtractionDialog extends ModelessDialog {
         final PropertyContainer propertyContainer = createParameterMap(parameterMap);
         propertyContainer.addProperty(Property.create("sourceProducts", Product[].class));
         final PixelExtractionIOForm ioForm = new PixelExtractionIOForm(appContext, propertyContainer);
-        final PixelExtractionProcessingForm processingForm = new PixelExtractionProcessingForm(appContext, propertyContainer);
+        final PixelExtractionProcessingForm processingForm = new PixelExtractionProcessingForm(propertyContainer);
         JTabbedPane tabbedPanel = new JTabbedPane();
         tabbedPanel.addTab("I/O Parameters", ioForm.getPanel());
         tabbedPanel.addTab("Processing Parameters", processingForm.getPanel());
