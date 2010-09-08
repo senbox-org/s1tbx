@@ -230,9 +230,10 @@ public class EqualizationOpTest {
 
     @Test
     public void testVersionToFloat() {
-        assertEquals(4.1f, EqualizationOp.versionToFloat("4.1"), 0.0f);
-        assertEquals(4.12f, EqualizationOp.versionToFloat("4.1.2"), 0.0f);
-        assertEquals(41.6f, EqualizationOp.versionToFloat("41.6"), 0.0f);
+        assertEquals(4.1f, EqualizationOp.versionToFloat("4.1   "), 0.0f);
+        assertEquals(4.12f, EqualizationOp.versionToFloat("  4.1.2"), 0.0f);
+        assertEquals(41.6f, EqualizationOp.versionToFloat("41.6 "), 0.0f);
+        assertEquals(41.06f, EqualizationOp.versionToFloat("41.06"), 0.0f);
         assertEquals(1234.0f, EqualizationOp.versionToFloat("1234"), 0.0f);
     }
 

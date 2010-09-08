@@ -276,7 +276,7 @@ public class EqualizationOp extends Operator {
                 final String[] strings = softwareVer.split("/");
                 final String processorName = strings[0];
                 final int maxLength = Math.min(strings[1].length(), 5); // first 5 characters
-                final String processorVersion = strings[1].substring(0, maxLength).trim();
+                final String processorVersion = strings[1].substring(0, maxLength);
                 final float version;
                 try {
                     version = versionToFloat(processorVersion);
@@ -313,7 +313,7 @@ public class EqualizationOp extends Operator {
     }
 
     static float versionToFloat(String processorVersion) {
-        final String[] values = processorVersion.split("\\.");
+        final String[] values = processorVersion.trim().split("\\.");
         float version = 0.0f;
         for (int i = 0; i < values.length; i++) {
             String value = values[i];
