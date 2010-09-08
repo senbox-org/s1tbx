@@ -166,8 +166,8 @@ public class PixelExtractionProcessingForm {
                 if (dialog.show() != AbstractDialog.ID_OK) {
                     return;
                 }
-                Float lat = dialog.getLat();
-                Float lon = dialog.getLon();
+                Float lat = dialog.lat;
+                Float lon = dialog.lon;
                 try {
                     listModel.addElement(new GeoPos(lat, lon));
                 } catch (ValidationException ignored) {
@@ -212,10 +212,10 @@ public class PixelExtractionProcessingForm {
             @Override
             public void focusLost(FocusEvent e) {
                 try {
-                    dialog.setLat(Float.parseFloat(latField.getText()));
+                    dialog.lat = Float.parseFloat(latField.getText());
                 } catch (NumberFormatException nfe) {
                     latField.setText("00.0000");
-                    dialog.setLat(00.0000f);
+                    dialog.lat = 00.0000f;
                 }
             }
         });
@@ -227,10 +227,10 @@ public class PixelExtractionProcessingForm {
             @Override
             public void focusLost(FocusEvent e) {
                 try {
-                    dialog.setLon(Float.parseFloat(lonField.getText()));
+                    dialog.lon = Float.parseFloat(lonField.getText());
                 } catch (NumberFormatException nfe) {
                     lonField.setText("00.0000");
-                    dialog.setLon(00.0000f);
+                    dialog.lon = 00.0000f;
                 }
             }
         });
@@ -323,21 +323,6 @@ public class PixelExtractionProcessingForm {
             super(parent, title, buttonMask, helpID);
         }
 
-        public float getLat() {
-            return lat;
-        }
-
-        public void setLat(float lat) {
-            this.lat = lat;
-        }
-
-        public float getLon() {
-            return lon;
-        }
-
-        public void setLon(float lon) {
-            this.lon = lon;
-        }
     }
 
     private static class GeoPosListCellRenderer extends DefaultListCellRenderer {
