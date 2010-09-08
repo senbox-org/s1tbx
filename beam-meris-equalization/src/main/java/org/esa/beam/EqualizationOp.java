@@ -99,12 +99,13 @@ public class EqualizationOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        Guardian.assertTrue(String.format("Source product must contain band '%s'.", MERIS_DETECTOR_INDEX_DS_NAME),
+        final String msgPattern = "Source product must contain '%s'.";
+        Guardian.assertTrue(String.format(msgPattern, MERIS_DETECTOR_INDEX_DS_NAME),
                             sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME));
-        Guardian.assertTrue(String.format("Source product must contain band '%s'.", MERIS_L1B_FLAGS_DS_NAME),
+        Guardian.assertTrue(String.format(msgPattern, MERIS_L1B_FLAGS_DS_NAME),
                             sourceProduct.containsBand(MERIS_L1B_FLAGS_DS_NAME));
-        Guardian.assertTrue(String.format("Source product must contain tie-point grid '%s'.", MERIS_SUN_ZENITH_DS_NAME),
-                            sourceProduct.containsTiePointGrid(MERIS_SUN_ZENITH_DS_NAME));
+        Guardian.assertTrue(String.format(msgPattern, MERIS_SUN_ZENITH_DS_NAME),
+                            sourceProduct.containsRasterDataNode(MERIS_SUN_ZENITH_DS_NAME));
         Guardian.assertTrue("Source product must be of type MERIS L1b.",
                             MERIS_L1_TYPE_PATTERN.matcher(sourceProduct.getProductType()).matches());
         Guardian.assertTrue("Source product does not contain radiance bands.", containsRadianceBands(sourceProduct));
@@ -120,8 +121,8 @@ public class EqualizationOp extends Operator {
         // compute julian date
         final Calendar calendar = startTime.getAsCalendar();
         long productJulianDate = toJulianDay(calendar.get(Calendar.YEAR),
-                                                              calendar.get(Calendar.MONTH),
-                                                              calendar.get(Calendar.DAY_OF_MONTH));
+                                             calendar.get(Calendar.MONTH),
+                                             calendar.get(Calendar.DAY_OF_MONTH));
         date = productJulianDate - toJulianDay(2002, 4, 1);
 
         try {
@@ -242,7 +243,7 @@ public class EqualizationOp extends Operator {
         }
         if ("MEGS-PC".equalsIgnoreCase(processorName)) {
             if (processorVersion >= 7.4f && processorVersion <= 7.5f) {
-                    return 2;
+                return 2;
             } else if (processorVersion >= 8.0f) {
                 return 3;
             }
