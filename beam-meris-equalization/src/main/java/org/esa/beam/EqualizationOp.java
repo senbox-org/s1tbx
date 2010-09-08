@@ -153,7 +153,7 @@ public class EqualizationOp extends Operator {
         targetProduct.setAutoGrouping(TARGET_BAND_PREFIX);
 
         bandNameMap = new HashMap<String, String>();
-        String[] sourceSpectralBandNames = getSpectralBandNames(sourceProduct);
+        List<String> sourceSpectralBandNames = getSpectralBandNames(sourceProduct);
         for (String spectralBandName : sourceSpectralBandNames) {
             final Band sourceBand = sourceProduct.getBand(spectralBandName);
             final int bandIndex = sourceBand.getSpectralBandIndex() + 1;
@@ -171,10 +171,19 @@ public class EqualizationOp extends Operator {
         ProductUtils.copyFlagBands(sourceProduct, targetProduct);
         final Band sourceFlagBand = sourceProduct.getBand(MERIS_L1B_FLAGS_DS_NAME);
         final Band targetFlagBand = targetProduct.getBand(MERIS_L1B_FLAGS_DS_NAME);
+
         targetFlagBand.setSourceImage(sourceFlagBand.getSourceImage());
         ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
+
+        // copy all bands not yet considered
+        final String[] bandNames = sourceProduct.getBandNames();
+        for (String bandName : bandNames) {
+            if(!targetProduct.containsBand(bandName) && !sourceSpectralBandNames.contains(bandName)) {
+                copyBand(bandName);
+            }
+        }
     }
 
     private boolean containsRadianceBands(Product product) {
@@ -346,7 +355,7 @@ public class EqualizationOp extends Operator {
         destBand.setSourceImage(srcBand.getSourceImage());
     }
 
-    private String[] getSpectralBandNames(Product sourceProduct) {
+    private List<String> getSpectralBandNames(Product sourceProduct) {
         final Band[] bands = sourceProduct.getBands();
         final List<String> spectralBandNames = new ArrayList<String>(bands.length);
         for (Band band : bands) {
@@ -354,7 +363,7 @@ public class EqualizationOp extends Operator {
                 spectralBandNames.add(band.getName());
             }
         }
-        return spectralBandNames.toArray(new String[spectralBandNames.size()]);
+        return spectralBandNames;
     }
 
     public static class Spi extends OperatorSpi {
