@@ -94,9 +94,10 @@ public class PetOp extends Operator {
     @Parameter(description = "The output directory.", defaultValue = ".")
     private File outputDir;
 
-    private String[] rasterNames;
+    private Map<String, String[]> rasterNamesMap = new HashMap<String, String[]>(37);
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
+    private boolean isTargetProductInitialized = false;
 
     @Override
     public void initialize() throws OperatorException {
@@ -129,8 +130,15 @@ public class PetOp extends Operator {
         if (outputDir != null) {
             writeOutput();
         }
+        if (!isTargetProductInitialized) {
+            setDummyProduct();
+        }
+    }
 
-        setTargetProduct(createDummyProduct());
+    private void setDummyProduct() {
+        final Product product = new Product("dummy", "dummy", 2, 2);
+        product.addBand("dummy", ProductData.TYPE_INT8);
+        setTargetProduct(product);
     }
 
     Integer getWindowSize() {
@@ -141,12 +149,12 @@ public class PetOp extends Operator {
         this.windowSize = windowSize;
     }
 
-    String[] getRasterNames() {
-        return rasterNames;
+    Map<String, String[]> getRasterNamesMap() {
+        return rasterNamesMap;
     }
 
-    void setRasterNames(String[] rasterNames) {
-        this.rasterNames = rasterNames.clone();
+    void setRasterNamesMap(Map<String, String[]> rasterNamesMap) {
+        this.rasterNamesMap = rasterNamesMap;
     }
 
     private List<Coordinate> extractGeoPositions(File coordinatesFile) {
@@ -166,12 +174,6 @@ public class PetOp extends Operator {
             return Collections.emptyList();
         }
         return coordinateList;
-    }
-
-    private Product createDummyProduct() {
-        final Product product = new Product("dummy", "dummy", 2, 2);
-        product.addBand("dummy", ProductData.TYPE_INT8);
-        return product;
     }
 
     private void extractMeasurements(File[] files) {
@@ -197,7 +199,12 @@ public class PetOp extends Operator {
         } catch (IOException ignore) {
         } finally {
             if (product != null) {
-                product.dispose();
+                if (isTargetProductInitialized) {
+                    product.dispose();
+                } else {
+                    setTargetProduct(product);
+                    isTargetProductInitialized = true;
+                }
             }
         }
     }
@@ -207,9 +214,8 @@ public class PetOp extends Operator {
             return;
         }
 
-        rasterNames = getAllRasterNames(product);
-        if (rasterNames.length == 0) {
-            return;
+        if (!rasterNamesMap.containsKey(product.getProductType())) {
+            rasterNamesMap.put(product.getProductType(), getAllRasterNames(product));
         }
 
         for (Coordinate coordinate : coordinateList) {
@@ -236,6 +242,8 @@ public class PetOp extends Operator {
         if (!product.containsPixel(centerPos)) {
             return;
         }
+        String productType = product.getProductType();
+        String[] rasterNames = rasterNamesMap.get(productType);
         int offset = MathUtils.floorInt(windowSize / 2);
         int upperLeftX = MathUtils.floorInt(centerPos.x - offset);
         int upperLeftY = MathUtils.floorInt(centerPos.y - offset);
@@ -256,7 +264,6 @@ public class PetOp extends Operator {
             GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
             final Measurement measure = new Measurement(coordinate.getId(), coordinate.getName(),
                                                         product.getStartTime(), currentGeoPos, values);
-            String productType = product.getProductType();
             List<Measurement> measurementList = measurements.get(productType);
             if (measurementList == null) {
                 measurementList = new ArrayList<Measurement>();
@@ -291,6 +298,7 @@ public class PetOp extends Operator {
         for (String productType : measurements.keySet()) {
             List<Measurement> measurementList = measurements.get(productType);
             try {
+                String[] rasterNames = rasterNamesMap.get(productType);
                 writer = new FileWriter(new File(outputDir.getAbsolutePath(), "expix_" + productType + ".txt"));
                 MeasurementWriter formatWriter = new MeasurementWriter(rasterNames);
                 formatWriter.write(measurementList, writer);
@@ -326,12 +334,12 @@ public class PetOp extends Operator {
             }
             final GeoCoding geoCoding = product.getGeoCoding();
             if (geoCoding == null) {
-                final String msgPattern = "Product [%s] refused. Cause:\nProduct is not geo-coded.";
+                final String msgPattern = "Product [%s] refused. Cause: Product is not geo-coded.";
                 logger.warning(String.format(msgPattern, product.getFileLocation()));
                 return false;
             }
             if (!geoCoding.canGetPixelPos()) {
-                final String msgPattern = "Product [%s] refused. Cause:\nPixel position can not be determined.";
+                final String msgPattern = "Product [%s] refused. Cause: Pixel position can not be determined.";
                 logger.warning(String.format(msgPattern, product.getFileLocation()));
                 return false;
             }

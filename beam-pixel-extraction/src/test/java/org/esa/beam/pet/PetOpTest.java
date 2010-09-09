@@ -20,25 +20,24 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-/**
- * User: Marco
- * Date: 04.09.2010
- */
 public class PetOpTest {
 
     @Test
     public void testReadMeasurement() throws TransformException, FactoryException, IOException {
         PetOp op = new PetOp();
         String[] bandNames = {"band_1", "band_2", "band_3"};
-        op.setRasterNames(bandNames);
-        op.setWindowSize(3);
         Product product = createTestProduct(bandNames);
+        String productType = product.getProductType();
+        HashMap<String, String[]> bandNamesMap = new HashMap<String, String[]>();
+        bandNamesMap.put(productType, bandNames);
+        op.setRasterNamesMap(bandNamesMap);
+        op.setWindowSize(3);
         Map<String, List<Measurement>> measurements = new HashMap<String, List<Measurement>>();
         GeoPos geoPos = new GeoPos(20, 10);
         op.readMeasurement(product, new Coordinate(1, geoPos), measurements);
         geoPos = new GeoPos(21, 9);
 
-        List<Measurement> measurementList = measurements.get(product.getProductType());
+        List<Measurement> measurementList = measurements.get(productType);
         assertNotNull(measurementList);
         assertTrue(!measurementList.isEmpty());
 

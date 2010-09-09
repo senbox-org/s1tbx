@@ -55,7 +55,8 @@ import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
                   version = "1.0")
 public class EqualizationOp extends Operator {
 
-    @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT","REPROCESSING_2","REPROCESSING_3"}, defaultValue = "AUTO_DETECT",
+    @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT", "REPROCESSING_2", "REPROCESSING_3"},
+               defaultValue = "AUTO_DETECT",
                description = "The version of the reprocessing the product comes from.")
     private REPROCESSING_VERSION reproVersion;
 
@@ -119,9 +120,9 @@ public class EqualizationOp extends Operator {
         try {
             final boolean isFullResolution = sourceProduct.getProductType().startsWith("MER_F");
             int reprocessingVersion;
-            if(REPROCESSING_VERSION.AUTO_DETECT.equals(reproVersion)) {
+            if (REPROCESSING_VERSION.AUTO_DETECT.equals(reproVersion)) {
                 reprocessingVersion = autoDetectReprocessingVersion();
-            }else {
+            } else {
                 reprocessingVersion = reproVersion.getVersion();
             }
             equalizationLUT = new EqualizationLUT(reprocessingVersion, isFullResolution);
@@ -180,7 +181,7 @@ public class EqualizationOp extends Operator {
         // copy all bands not yet considered
         final String[] bandNames = sourceProduct.getBandNames();
         for (String bandName : bandNames) {
-            if(!targetProduct.containsBand(bandName) && !sourceSpectralBandNames.contains(bandName)) {
+            if (!targetProduct.containsBand(bandName) && !sourceSpectralBandNames.contains(bandName)) {
                 copyBand(bandName);
             }
         }
@@ -277,54 +278,55 @@ public class EqualizationOp extends Operator {
                 final String processorName = strings[0];
                 final int maxLength = Math.min(strings[1].length(), 5); // first 5 characters
                 final String processorVersion = strings[1].substring(0, maxLength);
-                final float version;
                 try {
-                    version = versionToFloat(processorVersion);
-                } catch (NumberFormatException e) {
-                    final String msgPattern = "Not able to detect reprocessing version. Metadata attribute 'MPH/SOFTWARE_VER' [%s] is invalid.";
-                    throw new OperatorException(String.format(msgPattern, softwareVer), e);
+                    return detectReprocessingVersion(processorName, processorVersion);
+                } catch (Exception e) {
+                    final String msgPattern = String.format("Not able to detect reprocessing version [%s=%s]. \n"+
+                                              "Please specify reprocessing version manually.", ATTRIB_SOFTWARE_VER, softwareVer);
+                    throw new OperatorException(msgPattern, e);
                 }
-                return detectReprocessingVersion(processorName, version);
-            } else {
-                throw new OperatorException(
-                        "Not able to detect reprocessing version.\nMetadata attribute 'MPH/SOFTWARE_VER' not found.");
             }
         }
-        throw new OperatorException("Not able to detect reprocessing version.\nMetadata element 'MPH' not found.");
+        throw new OperatorException(
+                "Not able to detect reprocessing version.\nMetadata attribute 'MPH/SOFTWARE_VER' not found.");
     }
 
-    static int detectReprocessingVersion(String processorName, float processorVersion) {
+    static int detectReprocessingVersion(String processorName, String processorVersion) throws Exception {
+        final float version;
+        version = versionToFloat(processorVersion);
         if ("MERIS".equalsIgnoreCase(processorName)) {
-            if (processorVersion >= 4.1f && processorVersion <= 5.06f) {
+            if (version >= 4.1f && version <= 5.06f) {
                 return 2;
             }
         }
         if ("MEGS-PC".equalsIgnoreCase(processorName)) {
-            if (processorVersion >= 7.4f && processorVersion <= 7.5f) {
+            if (version >= 7.4f && version <= 7.5f) {
                 return 2;
-            } else if (processorVersion >= 8.0f) {
+            } else if (version >= 8.0f) {
                 return 3;
             }
         }
 
-        throw new OperatorException(
-                String.format("Unknown reprocessing version (%s/%s).\nProduct must be of reprocessing 2 or 3.",
-                              processorName, processorVersion));
+        throw new Exception("Unknown reprocessing version.");
     }
 
-    static float versionToFloat(String processorVersion) {
+    static float versionToFloat(String processorVersion) throws Exception {
         final String[] values = processorVersion.trim().split("\\.");
         float version = 0.0f;
-        for (int i = 0; i < values.length; i++) {
-            String value = values[i];
-            final int integer = Integer.parseInt(value);
-            int leadingZeros = 0;
-            for (int j = 0; j < value.length(); j++) {
-                if(value.charAt(j) == '0') {
-                    leadingZeros++;
+        try {
+            for (int i = 0; i < values.length; i++) {
+                String value = values[i];
+                final int integer = Integer.parseInt(value);
+                int leadingZeros = 0;
+                for (int j = 0; j < value.length(); j++) {
+                    if(value.charAt(j) == '0') {
+                        leadingZeros++;
+                    }
                 }
+                version += integer / Math.pow(10, i+leadingZeros);
             }
-            version += integer / Math.pow(10, i+leadingZeros);
+        } catch (NumberFormatException nfe) {
+            throw new Exception(String.format("Could not parse version [%s]", processorVersion), nfe);
         }
         return version;
     }

@@ -20,12 +20,13 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 
 public class PixelExtractionAction extends AbstractVisatAction {
+
     private PixelExtractionDialog dialog;
 
     @Override
     public void actionPerformed(final CommandEvent event) {
         if (dialog == null) {
-            dialog = new PixelExtractionDialog(getAppContext());
+            dialog = new PixelExtractionDialog(getAppContext(), "Pixel Extraction");
         }
         dialog.show();
     }
