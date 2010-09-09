@@ -17,13 +17,20 @@
 package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import static org.junit.Assert.*;
+import org.geotools.referencing.cs.DefaultEllipsoidalCS;
 import org.junit.Before;
 import org.junit.Test;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.Ellipsoid;
+import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+
+import static org.junit.Assert.*;
 
 public class CrsGeoCodingTest {
 
@@ -116,10 +123,10 @@ public class CrsGeoCodingTest {
         assertEquals(srcGeoCoding.getMapCRS(), destGeoCoding.getMapCRS());
         assertEquals(srcGeoCoding.getGeoCRS(), destGeoCoding.getGeoCRS());
 
-        comparePixelPos(destGeoCoding, new PixelPos( 2, 2), new PixelPos(0, 0));
+        comparePixelPos(destGeoCoding, new PixelPos(2, 2), new PixelPos(0, 0));
         comparePixelPos(destGeoCoding, new PixelPos(10, 2), new PixelPos(4, 0));
-        comparePixelPos(destGeoCoding, new PixelPos(10,10), new PixelPos(4, 4));
-        comparePixelPos(destGeoCoding, new PixelPos( 2,10), new PixelPos(0, 4));
+        comparePixelPos(destGeoCoding, new PixelPos(10, 10), new PixelPos(4, 4));
+        comparePixelPos(destGeoCoding, new PixelPos(2, 10), new PixelPos(0, 4));
     }
 
     @Test
@@ -156,13 +163,67 @@ public class CrsGeoCodingTest {
         assertFalse(srcGeoCoding.isCrossingMeridianAt180());
     }
 
+    @Test
+    public void testCustomSpheroidDatum() throws TransformException, FactoryException {
+        String wkt = "PROJCS[\"MODIS_Sinusoidal\", \n" +
+                     "  GEOGCS[\"Unknown datum based upon the custom spheroid\", \n" +
+                     "    DATUM[\"Not specified (based on custom spheroid)\", \n" +
+                     "      SPHEROID[\"Custom spheroid\", 6371007.181, 0.0]], \n" +
+                     "    PRIMEM[\"Greenwich\", 0.0], \n" +
+                     "    UNIT[\"degree\", 0.017453292519943295], \n" +
+                     "    AXIS[\"Longitude\", EAST], \n" +
+                     "    AXIS[\"Latitude\", NORTH]], \n" +
+                     "  PROJECTION[\"Sinusoidal\"], \n" +
+                     "  PARAMETER[\"central_meridian\", 0.0], \n" +
+                     "  PARAMETER[\"scale_factor\", 1.0], \n" +
+                     "  PARAMETER[\"false_easting\", 0.0], \n" +
+                     "  PARAMETER[\"false_northing\", 0.0], \n" +
+                     "  UNIT[\"m\", 1.0], \n" +
+                     "  AXIS[\"x\", EAST], \n" +
+                     "  AXIS[\"y\", NORTH]]";
+        CoordinateReferenceSystem crs = CRS.parseWKT(wkt);
+        CrsGeoCoding geoCoding = new CrsGeoCoding(crs, new Rectangle(10, 10, 10, 10), new AffineTransform());
+        DefaultGeographicCRS defaultCrs = (DefaultGeographicCRS) geoCoding.getGeoCRS();
+        Ellipsoid wgs84Spheroid = DefaultGeographicCRS.WGS84.getDatum().getEllipsoid();
+        Ellipsoid customSpheroid = defaultCrs.getDatum().getEllipsoid();
+
+        assertNotSame(DefaultGeographicCRS.WGS84, defaultCrs);
+        assertTrue(wgs84Spheroid.getSemiMinorAxis() != customSpheroid.getSemiMinorAxis());
+        assertTrue(wgs84Spheroid.getSemiMajorAxis() != customSpheroid.getSemiMajorAxis());
+        assertSame(DefaultEllipsoidalCS.GEODETIC_2D, defaultCrs.getCoordinateSystem());
+    }
+
+    @Test
+    public void testWgs84() throws TransformException, FactoryException {
+        String testedWkt = "GEOGCS[\"WGS 84\",\n" +
+                           "    DATUM[\"WGS_1984\",\n" +
+                           "        SPHEROID[\"WGS 84\",6378137,298.257223563,\n" +
+                           "            AUTHORITY[\"EPSG\",\"7030\"]],\n" +
+                           "        AUTHORITY[\"EPSG\",\"6326\"]],\n" +
+                           "    PRIMEM[\"Greenwich\",0,\n" +
+                           "        AUTHORITY[\"EPSG\",\"8901\"]],\n" +
+                           "    UNIT[\"degree\",0.01745329251994328,\n" +
+                           "        AUTHORITY[\"EPSG\",\"9122\"]],\n" +
+                           "    AUTHORITY[\"EPSG\",\"4326\"]]";
+
+        CoordinateReferenceSystem testedCrs = CRS.parseWKT(testedWkt);
+        GeoCoding geoCoding = new CrsGeoCoding(testedCrs, new Rectangle(10, 10, 10, 10), new AffineTransform());
+        DefaultGeographicCRS testedDefaultCrs = (DefaultGeographicCRS) geoCoding.getGeoCRS();
+        Ellipsoid testedSpheroid = testedDefaultCrs.getDatum().getEllipsoid();
+        Ellipsoid wgs84Spheroid = DefaultGeographicCRS.WGS84.getDatum().getEllipsoid();
+
+        assertTrue(wgs84Spheroid.getSemiMinorAxis() == testedSpheroid.getSemiMinorAxis());
+        assertTrue(wgs84Spheroid.getSemiMajorAxis() == testedSpheroid.getSemiMajorAxis());
+        assertSame(DefaultGeographicCRS.WGS84.getCoordinateSystem(), testedDefaultCrs.getCoordinateSystem());
+    }
+
     private void comparePixelPos(GeoCoding destGeoCoding, PixelPos pixelPos, PixelPos pixelPos1) {
         GeoPos srcPos = srcGeoCoding.getGeoPos(pixelPos, null);
         GeoPos destPos = destGeoCoding.getGeoPos(pixelPos1, null);
         assertEquals(srcPos, destPos);
     }
 
-    private CrsGeoCoding createCrsGeoCoding(Rectangle imageBounds) throws Exception{
+    private CrsGeoCoding createCrsGeoCoding(Rectangle imageBounds) throws Exception {
         AffineTransform i2m = new AffineTransform();
         final int northing = 60;
         final int easting = 5;
@@ -183,13 +244,13 @@ public class CrsGeoCodingTest {
         i2m.scale(scaleX, -scaleY);
         return new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, i2m);
     }
-    
+
     private CrsGeoCoding createCrsGeoCodingCoveringWholeWorld(Rectangle imageBounds) throws Exception {
         AffineTransform i2m = new AffineTransform();
         final int northing = 60;
         final int easting = -180;
         i2m.translate(easting, northing);
-        final double scaleX = 360/imageBounds.getWidth();
+        final double scaleX = 360 / imageBounds.getWidth();
         final double scaleY = 1.0;
         i2m.scale(scaleX, -scaleY);
         return new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, i2m);

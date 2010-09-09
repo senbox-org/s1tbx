@@ -26,6 +26,8 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.cs.DefaultCoordinateSystemAxis;
+import org.geotools.referencing.cs.DefaultEllipsoidalCS;
 import org.geotools.referencing.operation.AbstractCoordinateOperationFactory;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.resources.CRSUtilities;
@@ -33,6 +35,8 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.DerivedCRS;
+import org.opengis.referencing.cs.EllipsoidalCS;
+import org.opengis.referencing.datum.GeodeticDatum;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransformFactory;
@@ -130,14 +134,14 @@ public class CrsGeoCoding extends AbstractGeoCoding {
 
         MathTransform i2m = new AffineTransform2D(imageToMap);
 
-        //TODO - is this ok ?
-        // yes for the if branch, because a map CRS is always based on a geographic CRS
-        // the else branch is only a fallback
         if (mapCRS instanceof DerivedCRS) {
             DerivedCRS derivedCRS = (DerivedCRS) mapCRS;
             CoordinateReferenceSystem baseCRS = derivedCRS.getBaseCRS();
             setGeoCRS(baseCRS);
+        } else if (gtDatum instanceof GeodeticDatum) {
+            setGeoCRS(new DefaultGeographicCRS((GeodeticDatum) gtDatum, DefaultEllipsoidalCS.GEODETIC_2D));
         } else {
+            // Fallback
             setGeoCRS(DefaultGeographicCRS.WGS84);
         }
 
