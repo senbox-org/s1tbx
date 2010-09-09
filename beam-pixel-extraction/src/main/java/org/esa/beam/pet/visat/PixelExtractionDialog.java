@@ -123,7 +123,6 @@ class PixelExtractionDialog extends ModelessDialog {
         protected Void doInBackground(ProgressMonitor pm) throws Exception {
             pm.beginTask("Computing pixel values...", 1);
             try {
-
                 GPF.createProduct("Pet", parameterMap);
                 pm.worked(1);
             } finally {

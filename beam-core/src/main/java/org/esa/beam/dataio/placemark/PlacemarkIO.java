@@ -23,6 +23,7 @@ import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.XmlWriter;
+import org.esa.beam.util.io.BeamFileFilter;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
@@ -44,6 +45,11 @@ import java.util.Date;
 import java.util.List;
 
 public class PlacemarkIO {
+
+    public static final String FILE_EXTENSION_FLAT_OLD = ".pnf";
+    public static final String FILE_EXTENSION_XML_OLD = ".pnx";
+    public static final String FILE_EXTENSION_FLAT_TEXT = ".txt";
+    public static final String FILE_EXTENSION_PLACEMARK = ".placemark";
 
     private static final int INDEX_FOR_NAME = 0;
     private static final int INDEX_FOR_LON = 1;
@@ -78,7 +84,8 @@ public class PlacemarkIO {
     }
 
     private static List<Placemark> readPlacemarksFromFlatFile(Reader reader, GeoCoding geoCoding,
-                                                              PlacemarkDescriptor placemarkDescriptor) throws IOException {
+                                                              PlacemarkDescriptor placemarkDescriptor) throws
+                                                                                                       IOException {
         ArrayList<Placemark> placemarks = new ArrayList<Placemark>();
         BufferedReader lineReader = new BufferedReader(reader);
         try {
@@ -160,7 +167,8 @@ public class PlacemarkIO {
     }
 
     private static List<Placemark> readPlacemarksFromXMLFile(Reader reader, GeoCoding geoCoding,
-                                                             PlacemarkDescriptor placemarkDescriptor) throws IOException {
+                                                             PlacemarkDescriptor placemarkDescriptor) throws
+                                                                                                      IOException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -253,4 +261,15 @@ public class PlacemarkIO {
         xmlWriter.close();
     }
 
+    public static BeamFileFilter createTextFileFilter() {
+        return new BeamFileFilter("PLACEMARK_TEXT_FILE",
+                                  new String[]{FILE_EXTENSION_FLAT_TEXT, FILE_EXTENSION_FLAT_OLD},
+                                  "Placemark files - flat text format");
+    }
+
+    public static BeamFileFilter createPlacemarkFileFilter() {
+        return new BeamFileFilter("PLACEMARK_XML_FILE",
+                                  new String[]{FILE_EXTENSION_PLACEMARK, FILE_EXTENSION_XML_OLD},
+                                  "Placemark files - XML format");
+    }
 }

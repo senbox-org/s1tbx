@@ -24,6 +24,7 @@ import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
+import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.AppContext;
@@ -50,14 +51,12 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -70,7 +69,7 @@ public class PixelExtractionProcessingForm {
     private JSpinner windowSpinner;
     private AppContext appContext;
 
-    static final String LAST_OPEN_PIN_DIR = "beam.petOp.lastOpenPinDir";
+    static final String LAST_OPEN_PLACEMARK_DIR = "beam.petOp.lastOpenPlacemarkDir";
 
     public PixelExtractionProcessingForm(AppContext appContext, PropertyContainer container) {
 
@@ -103,9 +102,9 @@ public class PixelExtractionProcessingForm {
         panel.add(coordinatesComponents[1]);
 
         panel.add(new JLabel("Placemark file:"));
-        final JComponent[] pinFileComponents = createPinFileComponents(bindingContext);
-        panel.add(pinFileComponents[0]);
-        panel.add(pinFileComponents[1]);
+        final JComponent[] placemarkFileComponents = createPlacemarkFileComponents(bindingContext);
+        panel.add(placemarkFileComponents[0]);
+        panel.add(placemarkFileComponents[1]);
 
         panel.add(new JLabel("Window size:"));
         windowSpinner = createWindowSizeEditor(bindingContext);
@@ -126,26 +125,31 @@ public class PixelExtractionProcessingForm {
         windowLabel.setText(String.format("%1$d x %1$d", (Integer) windowSpinner.getValue()));
     }
 
-    private JComponent[] createPinFileComponents(BindingContext bindingContext) {
+    private JComponent[] createPlacemarkFileComponents(BindingContext bindingContext) {
         final JTextField textField = new JTextField();
         final ComponentAdapter adapter = new TextComponentAdapter(textField);
         final Binding binding = bindingContext.bind("coordinatesFile", adapter);
         final JButton ellipsesButton = new JButton("...");
         ellipsesButton.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 PropertyMap preferences = appContext.getPreferences();
-                String lastDir = preferences.getPropertyString(LAST_OPEN_PIN_DIR,
+                String lastDir = preferences.getPropertyString(LAST_OPEN_PLACEMARK_DIR,
                                                                SystemUtils.getUserHomeDir().getPath());
                 final JFileChooser fileChooser = new JFileChooser();
+                fileChooser.addChoosableFileFilter(PlacemarkIO.createPlacemarkFileFilter());
+                fileChooser.setFileFilter(PlacemarkIO.createTextFileFilter());
+
                 fileChooser.setCurrentDirectory(new File(lastDir));
                 int i = fileChooser.showDialog(panel, "Select");
                 File selectedFile = fileChooser.getSelectedFile();
                 if (i == JFileChooser.APPROVE_OPTION && selectedFile != null) {
                     binding.setPropertyValue(selectedFile);
-                    preferences.setPropertyString(LAST_OPEN_PIN_DIR, selectedFile.getParent());
+                    preferences.setPropertyString(LAST_OPEN_PLACEMARK_DIR, selectedFile.getParent());
                 }
             }
+
         });
         return new JComponent[]{textField, ellipsesButton};
     }
@@ -173,12 +177,14 @@ public class PixelExtractionProcessingForm {
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                GeoPosDialog dialog = createGeoPosDialog();
+                GeoPosInputDialog dialog = new GeoPosInputDialog(SwingUtilities.getWindowAncestor(panel),
+                                                                 "Specify geo position", ModalDialog.ID_OK_CANCEL,
+                                                                 null);
                 if (dialog.show() != AbstractDialog.ID_OK) {
                     return;
                 }
-                Float lat = dialog.lat;
-                Float lon = dialog.lon;
+                Float lat = dialog.getLat();
+                Float lon = dialog.getLon();
                 try {
                     listModel.addElement(new GeoPos(lat, lon));
                 } catch (ValidationException ignored) {
@@ -204,44 +210,6 @@ public class PixelExtractionProcessingForm {
         buttonPanel.add(addButton);
         buttonPanel.add(removeButton);
         return new JComponent[]{rasterScrollPane, buttonPanel};
-    }
-
-    private GeoPosDialog createGeoPosDialog() {
-        final GeoPosDialog dialog = new GeoPosDialog(appContext.getApplicationWindow(), "Specify geo position",
-                                                     ModalDialog.ID_OK_CANCEL, null);
-        TableLayout layout = new TableLayout(2);
-        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        layout.setTableWeightX(0.0);
-        layout.setTableWeightY(0.0);
-        layout.setColumnWeightX(0, 0.0);
-        layout.setColumnWeightX(1, 1.0);
-        JPanel dialogPanel = new JPanel(layout);
-
-        dialogPanel.add(new JLabel("Latitude"));
-        final JTextField latField = new JTextField("00.0000");
-        latField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                latField.selectAll();
-            }
-        });
-        latField.selectAll();
-        dialogPanel.add(latField);
-        dialog.latField = latField;
-
-        dialogPanel.add(new JLabel("Longitude"));
-        final JTextField lonField = new JTextField("00.0000");
-        lonField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                lonField.selectAll();
-            }
-        });
-        dialogPanel.add(lonField);
-        dialog.lonField = lonField;
-
-        dialog.setContent(dialogPanel);
-        return dialog;
     }
 
     private JSpinner createWindowSizeEditor(BindingContext bindingContext) {
@@ -291,7 +259,8 @@ public class PixelExtractionProcessingForm {
         void addElement(T element) throws ValidationException {
             if (!elementList.contains(element)) {
                 if (elementList.add(element)) {
-                    fireIntervalAdded(this, 0, getSize());
+                    final int elemIndex = elementList.indexOf(element);
+                    fireIntervalAdded(this, elemIndex, elemIndex);
                     updateProperty();
                 }
             }
@@ -299,8 +268,10 @@ public class PixelExtractionProcessingForm {
 
         void removeElements(T... elements) {
             for (T elem : elements) {
-                if (elementList.remove(elem)) {
-                    fireIntervalRemoved(this, 0, getSize());
+                final int elemIndex = elementList.indexOf(elem);
+                if (elemIndex != -1) {
+                    elementList.remove(elemIndex);
+                    fireIntervalRemoved(this, elemIndex, elemIndex);
                     try {
                         updateProperty();
                     } catch (ValidationException ignored) {
@@ -316,34 +287,6 @@ public class PixelExtractionProcessingForm {
         }
 
 
-    }
-
-    private static class GeoPosDialog extends ModalDialog {
-
-        private float lat;
-        private float lon;
-
-        private JTextField lonField;
-        private JTextField latField;
-
-        GeoPosDialog(Window parent, String title, int buttonMask, String helpID) {
-            super(parent, title, buttonMask, helpID);
-        }
-
-        @Override
-        protected void onOK() {
-            try {
-                lon = Float.parseFloat(lonField.getText());
-            } catch (NumberFormatException nfe) {
-                lon = 00.0000f;
-            }
-            try {
-                lat = Float.parseFloat(latField.getText());
-            } catch (NumberFormatException nfe) {
-                lat = 00.0000f;
-            }
-            super.onOK();
-        }
     }
 
     private static class GeoPosListCellRenderer extends DefaultListCellRenderer {

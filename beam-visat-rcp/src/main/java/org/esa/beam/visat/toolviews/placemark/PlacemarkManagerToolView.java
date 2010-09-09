@@ -116,12 +116,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     public static final String PROPERTY_KEY_IO_DIR = "pin.io.dir";
 
-    private static final String FILE_EXTENSION_FLAT_OLD = ".pnf";
-    private static final String FILE_EXTENSION_XML_OLD = ".pnx";
-
-    private static final String FILE_EXTENSION_FLAT_TEXT = ".txt";
-    private static final String FILE_EXTENSION_PLACEMARK = ".placemark";
-
     private final PlacemarkDescriptor placemarkDescriptor;
 
     private VisatApp visatApp;
@@ -132,8 +126,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     private Product product;
     private SortableTable placemarkTable;
     private PlacemarkListener placemarkListener;
-    private BeamFileFilter pinPlacemarkFileFilter;
-    private BeamFileFilter pinTextFileFilter;
     private Band[] selectedBands;
     private TiePointGrid[] selectedGrids;
     private boolean synchronizingPlacemarkSelectedState;
@@ -670,8 +662,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
         fileChooser.setDialogTitle("Import " + roleLabel + "s"); /*I18N*/
         setComponentName(fileChooser, "Import");
-        fileChooser.addChoosableFileFilter(getTextFileFilter());
-        fileChooser.setFileFilter(getPlacemarkFileFilter());
+        fileChooser.addChoosableFileFilter(PlacemarkIO.createTextFileFilter());
+        fileChooser.setFileFilter(PlacemarkIO.createPlacemarkFileFilter());
         fileChooser.setCurrentDirectory(getIODir());
         int result = fileChooser.showOpenDialog(getPaneWindow());
         if (result == JFileChooser.APPROVE_OPTION) {
@@ -693,8 +685,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
         fileChooser.setDialogTitle("Export Selected " + roleLabel + "s");   /*I18N*/
         setComponentName(fileChooser, "Export_Selected");
-        fileChooser.addChoosableFileFilter(getTextFileFilter());
-        fileChooser.setFileFilter(getPlacemarkFileFilter());
+        fileChooser.addChoosableFileFilter(PlacemarkIO.createTextFileFilter());
+        fileChooser.setFileFilter(PlacemarkIO.createPlacemarkFileFilter());
         final File ioDir = getIODir();
         fileChooser.setCurrentDirectory(ioDir);
         fileChooser.setSelectedFile(new File(ioDir, placemarkDescriptor.getRoleName()));
@@ -711,7 +703,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     file = FileUtils.ensureExtension(file, beamFileFilter.getDefaultExtension());
                 }
                 try {
-                    if (beamFileFilter.getFormatName().equals(getPlacemarkFileFilter().getFormatName())) {
+                    if (beamFileFilter.getFormatName().equals(PlacemarkIO.createPlacemarkFileFilter().getFormatName())) {
                         PlacemarkIO.writePlacemarksFile(new FileWriter(file), getSelectedPlacemarks());
                     } else {
                         Writer writer = new FileWriter(file);
@@ -738,7 +730,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
         fileChooser.setDialogTitle("Export " + roleLabel + " Data Table");/*I18N*/
         setComponentName(fileChooser, "Export_Data_Table");
-        fileChooser.setFileFilter(getTextFileFilter());
+        fileChooser.setFileFilter(PlacemarkIO.createTextFileFilter());
         final File ioDir = getIODir();
         fileChooser.setCurrentDirectory(ioDir);
         fileChooser.setSelectedFile(new File(ioDir, "Data"));
@@ -751,7 +743,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     return;
                 }
                 setIODir(file.getAbsoluteFile().getParentFile());
-                file = FileUtils.ensureExtension(file, FILE_EXTENSION_FLAT_TEXT);
+                file = FileUtils.ensureExtension(file, PlacemarkIO.FILE_EXTENSION_FLAT_TEXT);
                 try {
                     Writer writer = new FileWriter(file);
                     try {
@@ -773,7 +765,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         final String[] standardColumnNames = placemarkTableModel.getStandardColumnNames();
         final int columnCountMin = standardColumnNames.length;
         final int columnCount = placemarkTableModel.getColumnCount();
-        String[] additionalColumnNames = new String[columnCount-columnCountMin];
+        String[] additionalColumnNames = new String[columnCount - columnCountMin];
         for (int i = 0; i < additionalColumnNames.length; i++) {
             additionalColumnNames[i] = placemarkTableModel.getColumnName(columnCountMin + i);
         }
@@ -796,24 +788,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                                                       placemarkList, valueList,
                                                       standardColumnNames,
                                                       additionalColumnNames);
-    }
-
-    private BeamFileFilter getTextFileFilter() {
-        if (pinTextFileFilter == null) {
-            pinTextFileFilter = new BeamFileFilter("PLACEMARK_TEXT_FILE",
-                                                   new String[]{FILE_EXTENSION_FLAT_TEXT, FILE_EXTENSION_FLAT_OLD},
-                                                   "Placemark files - flat text format");
-        }
-        return pinTextFileFilter;
-    }
-
-    private BeamFileFilter getPlacemarkFileFilter() {
-        if (pinPlacemarkFileFilter == null) {
-            pinPlacemarkFileFilter = new BeamFileFilter("PLACEMARK_XML_FILE",
-                                                        new String[]{FILE_EXTENSION_PLACEMARK, FILE_EXTENSION_XML_OLD},
-                                                        "Placemark files - XML format");
-        }
-        return pinPlacemarkFileFilter;
     }
 
     private void setIODir(File dir) {
