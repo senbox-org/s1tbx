@@ -23,6 +23,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.ui.AppContext;
@@ -70,12 +71,9 @@ class PixelExtractionDialog extends ModelessDialog {
     @Override
     protected void onApply() {
         ProgressMonitorSwingWorker worker = new MyProgressMonitorSwingWorker(getParent(), "Creating output file(s)...");
-
-        try {
-            worker.execute();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        AbstractButton runButton = getButton(ID_APPLY);
+        runButton.setEnabled(false);
+        worker.execute();
     }
 
     private PropertyContainer createParameterMap(Map<String, Object> map) {
@@ -96,7 +94,9 @@ class PixelExtractionDialog extends ModelessDialog {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         final DefaultAppContext context = new DefaultAppContext("dev0");
-
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.addOperatorSpi(new PetOp.Spi());
+        
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -104,7 +104,6 @@ class PixelExtractionDialog extends ModelessDialog {
                     @Override
                     protected void onClose() {
                         System.exit(0);
-
                     }
                 };
                 dialog.getJDialog().setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -124,6 +123,7 @@ class PixelExtractionDialog extends ModelessDialog {
         protected Void doInBackground(ProgressMonitor pm) throws Exception {
             pm.beginTask("Computing pixel values...", 1);
             try {
+
                 GPF.createProduct("Pet", parameterMap);
                 pm.worked(1);
             } finally {
@@ -143,6 +143,9 @@ class PixelExtractionDialog extends ModelessDialog {
             } catch (InterruptedException ignore) {
             } catch (ExecutionException e) {
                 appContext.handleError(e.getMessage(), e);
+            }finally {
+                AbstractButton runButton = getButton(ID_APPLY);
+                runButton.setEnabled(true);
             }
         }
     }
