@@ -37,7 +37,7 @@ class MeasurementWriter {
             return;
         }
         PrintWriter printWriter = new PrintWriter(writer);
-        printWriter.append("CoordinateID\tName\tLatitude\tLongitude\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)\t");
+        printWriter.append("ID\tName\tLatitude\tLongitude\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)\t");
         for (String name : rasterNames) {
             printWriter.append(String.format("%s\t", name));
         }
