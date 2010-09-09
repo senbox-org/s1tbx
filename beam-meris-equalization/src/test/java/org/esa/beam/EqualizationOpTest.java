@@ -21,7 +21,6 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.util.math.RsMathUtils;
 import org.junit.AfterClass;
@@ -188,52 +187,51 @@ public class EqualizationOpTest {
     }
 
     @Test()
-    public void testParseReproVersion_Fails() {
+    public void testParseReproVersion_Fails() throws Exception {
         try {
-            EqualizationOp.detectReprocessingVersion("MERIS", 3.67f);
+            EqualizationOp.detectReprocessingVersion("MERIS", "3.67");
             fail("Version is not of reprocessing 2 or 3");
-        } catch (OperatorException ignored) {
+        } catch (Exception ignored) {
             // expected
         }
         try {
-            EqualizationOp.detectReprocessingVersion("MERIS", 5.1f);
+            EqualizationOp.detectReprocessingVersion("MERIS", "5.1");
             fail("Version is not of reprocessing 2 or 3");
-        } catch (OperatorException ignored) {
+        } catch (Exception ignored) {
             // expected
         }
 
         try {
-            EqualizationOp.detectReprocessingVersion("MEGS-PC", 7.2f);
+            EqualizationOp.detectReprocessingVersion("MEGS-PC", "7.2");
             fail("Version is not of reprocessing 2 or 3");
-        } catch (OperatorException ignored) {
+        } catch (Exception ignored) {
             // expected
         }
     }
 
     @Test
-    public void testParseReprocessingVersion() {
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", 4.1f));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", 5.02f));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", 5.03f));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", 5.04f));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", 5.05f));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", 5.06f));
+    public void testParseReprocessingVersion() throws Exception {
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", "4.1"));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", "5.02"));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", "5.03"));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", "5.04"));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", "5.05"));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", "5.06"));
         
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MEGS-PC", 7.4f));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MEGS-PC", 7.41f));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MEGS-PC", 7.5f));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MEGS-PC", "7.4"));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MEGS-PC", "7.4.1"));
+        assertEquals(2, EqualizationOp.detectReprocessingVersion("MEGS-PC", "7.5"));
 
-        assertEquals(3, EqualizationOp.detectReprocessingVersion("MEGS-PC", 8.0f));
-        assertEquals(3, EqualizationOp.detectReprocessingVersion("MEGS-PC", 8.1f));
-        assertEquals(3, EqualizationOp.detectReprocessingVersion("MEGS-PC", 8.9f));
+        assertEquals(3, EqualizationOp.detectReprocessingVersion("MEGS-PC", "8.0"));
+        assertEquals(3, EqualizationOp.detectReprocessingVersion("MEGS-PC", "8.1"));
+        assertEquals(3, EqualizationOp.detectReprocessingVersion("MEGS-PC", "8.9"));
     }
 
     @Test
-    public void testVersionToFloat() {
+    public void testVersionToFloat() throws Exception {
         assertEquals(4.1f, EqualizationOp.versionToFloat("4.1   "), 0.0f);
         assertEquals(4.12f, EqualizationOp.versionToFloat("  4.1.2"), 0.0f);
-        assertEquals(41.6f, EqualizationOp.versionToFloat("41.6 "), 0.0f);
-        assertEquals(41.06f, EqualizationOp.versionToFloat("41.06"), 0.0f);
+        assertEquals(8.6f, EqualizationOp.versionToFloat("8.6 "), 0.0f);
         assertEquals(1234.0f, EqualizationOp.versionToFloat("1234"), 0.0f);
     }
 
