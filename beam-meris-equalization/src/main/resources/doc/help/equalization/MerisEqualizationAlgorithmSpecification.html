@@ -47,18 +47,23 @@
 
 <p>The equalization proceeds in the following way:</p>
 
-<h4>1) Smile correction:</h4>
+<h4>1) Smile correction (optional):</h4>
 
 <p>First of all the L1b bands should be smile corrected. The can be done using the SMILE Correction processor of BEAM as
     a preceding step or the build in option of the MERIS Equalization processor can be used.</p>
 
-<h4>2) Radiance to reflectance conversion:</h4>
+<h4>2) Radiance to reflectance conversion (optional):</h4>
 
 <p>The smile corrected radiance bands are converted to reflectances via the BEAM radiance-to-reflectance
     conversion.<br>
     We thus have:<br>
     rho_TOA_smile_corrected[band, x, y] with band=[1..15] and<br>
     x=[0..max pixel number] and y=[0..max number of frame in product]</p>
+
+<p class="inote"><b>NOTE:</b><br>
+    If step two is omitted the result of the equalization processor can be used like a standard MERIS L1b
+    product for further processing.
+</p>
 
 <h4>3) The equalization coefficients and the equalization</h4>
 

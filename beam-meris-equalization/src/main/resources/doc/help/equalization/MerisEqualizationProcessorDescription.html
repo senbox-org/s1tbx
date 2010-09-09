@@ -55,7 +55,7 @@
 <h5>Source Product Group</h5>
 
 <p class="i1">
-    <b>Name:</b>
+    <b>Name:</b><br>
     Here the user specifies the name of the source product. The combo box presents
     a list of all products open in VISAT. The user may select one of these
     or, by clicking on the button next to the combo box, choose a product
@@ -65,19 +65,19 @@
 <h5>Target Product Group</h5>
 
 <p class="i1">
-    <b>Name:</b>
+    <b>Name:</b><br>
     Used to specify the name of the target product.
 </p>
 
 <p class="i1">
-    <b>Save as:</b>
+    <b>Save as:</b><br>
     Used to specify whether the target product should be saved to the file system. The
     combo box presents a list of output file formats currently supported by BEAM.
     The text field allows to specify a target directory.
 </p>
 
 <p class="i1">
-    <b>Open in VISAT:</b>
+    <b>Open in VISAT:</b><br>
     Used to specify whether the target product should be opened in VISAT. When the
     the target product is not saved, it is opened in VISAT automatically.
 </p>
@@ -91,42 +91,48 @@
 <h5>Parameter Panel</h5>
 
 <p class="i1">
-    <b>Reprocessing version:</b>
+    <b>Reprocessing version:</b><br>
     Specifies the version of the reprocessing the product comes from. Depending on version different LUTs are used.
     If set to AUTO_DETECT the processor tries to detect the reprocessing version. This is the default value.
-</p>
-
-<p> The equalization algorithm supports data from the 2nd or 3rd reprocessing.
+    The equalization algorithm supports data from the 2nd or 3rd reprocessing.<br>
     The only difference lies in the LUTs used. Depending on the value of the field <i>software_ver</i> in
-    the MPH of the MERIS product the appropriate LUT is chosen to retrieve the coefficients (if AUTO_DETECT is selected).<br>
+    the MPH of the MERIS product the appropriate LUT is chosen to retrieve the coefficients (if AUTO_DETECT is
+    selected).<br>
     If the <i>software_ver</i> is between <b>MERIS/4.1</b> and <b>MERIS/5.06</b> or between
     <b>MEGS-PC/7.4</b> and <b>MEGS-PC/7.5</b> the product is considered to be from the 2nd reprocessing. <br>
     If the software_ver is above <b>MEGS-PC/8.0</b> the product is considered to be from the 3nd reprocessing.
 </p>
 
 <p class="i1">
-    <b>Perform SMILE correction:</b>
-    Specifies if the SMILE correction shall be performed or not. If the selected source product is already SMILE
-    corrected this option should be disabled.
+    <b>Perform SMILE correction:</b><br>
+    Specifies if the SMILE correction shall be performed or not. this option should be disabled, if the selected source
+    product is already SMILE corrected or if a subsequent processing step does it.
+</p>
+
+<p class="i1">
+    <b>Perform radiance-to-reflectance conversion:</b><br>
+    Specifies if the input TOA radiance values shall be converted to TOA reflectances.
+    If the conversion is omitted the result of the equalization processor can be used like a standard MERIS L1b
+    product for further processing.
 </p>
 
 
 <h4>Button Group</h4>
 
 <p class="i1">
-    <b>Run</b>
+    <b>Run:</b><br>
     Creates the target product. The processing is actually deferred until its band data is accessed, either by
     writing the product to a file or by viewing the band data. If the <b>Save as</b> option is checked, the processing
     is triggered automatically.
 </p>
 
 <p class="i1">
-    <b>Close</b>
+    <b>Close:</b><br>
     Closes the dialog.
 </p>
 
 <p class="i1">
-    <b>Help</b>
+    <b>Help:</b><br>
     Displays this page in VISAT Help.
 </p>
 

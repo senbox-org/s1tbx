@@ -65,6 +65,11 @@ public class EqualizationOp extends Operator {
                description = "Whether to perform SMILE correction or not.")
     private boolean doSmile;
 
+    @Parameter(defaultValue = "true",
+               label = "Perform radiance-to-reflectance conversion",
+               description = "Whether to perform radiance-to-reflectance conversion or not.")
+    private boolean doRadToRefl;
+
     @SourceProduct(alias = "source", label = "Name", description = "The source product.",
                    bands = {
                            MERIS_L1B_FLAGS_DS_NAME, MERIS_DETECTOR_INDEX_DS_NAME,
@@ -92,7 +97,6 @@ public class EqualizationOp extends Operator {
     private static final String ELEM_NAME_MPH = "MPH";
     private static final String ATTRIB_SOFTWARE_VER = "SOFTWARE_VER";
     private static final String UNIT_DL = "dl";
-    private static final String TARGET_BAND_PREFIX = "reflec";
     private static final String INVALID_MASK_NAME = "invalid";
     private static final String LAND_MASK_NAME = "land";
 
@@ -143,26 +147,42 @@ public class EqualizationOp extends Operator {
         }
 
         // create the target product
+        final String productType;
+        final String productDescription;
+        final String targetBandPrefix;
+        final String bandDescriptionPrefix;
+        if (doRadToRefl) {
+            productType = String.format("%s_EQ", sourceProduct.getProductType());
+            productDescription = "MERIS Equalized TOA Reflectance";
+            targetBandPrefix = "reflec";
+            bandDescriptionPrefix = "Equalized TOA reflectance band";
+        } else {
+            productType = sourceProduct.getProductType();
+            productDescription = "MERIS Equalized TOA Radiance";
+            targetBandPrefix = "radiance";
+            bandDescriptionPrefix = "Equalized TOA radiance band";
+        }
+
         final int rasterWidth = sourceProduct.getSceneRasterWidth();
         final int rasterHeight = sourceProduct.getSceneRasterHeight();
-        targetProduct = new Product(String.format("%s_Equalized", sourceProduct.getName()),
-                                    String.format("%s_EQ", sourceProduct.getProductType()),
+        targetProduct = new Product(String.format("%s_Equalized", sourceProduct.getName()), productType,
                                     rasterWidth, rasterHeight);
+        targetProduct.setDescription(productDescription);
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-        targetProduct.setDescription("MERIS Equalized TOA Reflectance");
-        targetProduct.setAutoGrouping(TARGET_BAND_PREFIX);
+
+
+        targetProduct.setAutoGrouping(targetBandPrefix);
 
         bandNameMap = new HashMap<String, String>();
         List<String> sourceSpectralBandNames = getSpectralBandNames(sourceProduct);
         for (String spectralBandName : sourceSpectralBandNames) {
             final Band sourceBand = sourceProduct.getBand(spectralBandName);
             final int bandIndex = sourceBand.getSpectralBandIndex() + 1;
-            final String targetBandName = TARGET_BAND_PREFIX + "_" + bandIndex;
-            final Band targetBand = targetProduct.addBand(targetBandName,
-                                                          ProductData.TYPE_FLOAT32);
+            final String targetBandName = String.format("%s_%d", targetBandPrefix, bandIndex);
+            final Band targetBand = targetProduct.addBand(targetBandName, ProductData.TYPE_FLOAT32);
             bandNameMap.put(targetBandName, spectralBandName);
-            targetBand.setDescription("Equalized TOA reflectance band " + bandIndex);
+            targetBand.setDescription(String.format("%s %d", bandDescriptionPrefix, bandIndex));
             targetBand.setUnit(UNIT_DL);
             targetBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
             ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
@@ -230,13 +250,14 @@ public class EqualizationOp extends Operator {
                                                                   detectorIndex, radianceTiles,
                                                                   landMaskTile.getSampleBoolean(x, y));
                         }
-                        final float solarFlux = sourceBand.getSolarFlux();
-                        final double sunZenithSample = sunZenithTile.getSampleDouble(x, y);
-                        final double sourceReflectance = RsMathUtils.radianceToReflectance((float) sourceSample,
-                                                                                           (float) sunZenithSample,
-                                                                                           solarFlux);
-
-                        double equalizedResult = performEqualization(spectralIndex, sourceReflectance, detectorIndex);
+                        if (doRadToRefl) {
+                            final float solarFlux = sourceBand.getSolarFlux();
+                            final double sunZenithSample = sunZenithTile.getSampleDouble(x, y);
+                            sourceSample = RsMathUtils.radianceToReflectance((float) sourceSample,
+                                                                             (float) sunZenithSample,
+                                                                             solarFlux);
+                        }
+                        double equalizedResult = performEqualization(spectralIndex, sourceSample, detectorIndex);
                         targetTile.setSample(x, y, equalizedResult);
                     }
                 }
@@ -281,8 +302,9 @@ public class EqualizationOp extends Operator {
                 try {
                     return detectReprocessingVersion(processorName, processorVersion);
                 } catch (Exception e) {
-                    final String msgPattern = String.format("Not able to detect reprocessing version [%s=%s]. \n"+
-                                              "Please specify reprocessing version manually.", ATTRIB_SOFTWARE_VER, softwareVer);
+                    final String msgPattern = String.format("Not able to detect reprocessing version [%s=%s]. \n" +
+                                                            "Please specify reprocessing version manually.",
+                                                            ATTRIB_SOFTWARE_VER, softwareVer);
                     throw new OperatorException(msgPattern, e);
                 }
             }
@@ -319,11 +341,11 @@ public class EqualizationOp extends Operator {
                 final int integer = Integer.parseInt(value);
                 int leadingZeros = 0;
                 for (int j = 0; j < value.length(); j++) {
-                    if(value.charAt(j) == '0') {
+                    if (value.charAt(j) == '0') {
                         leadingZeros++;
                     }
                 }
-                version += integer / Math.pow(10, i+leadingZeros);
+                version += integer / Math.pow(10, i + leadingZeros);
             }
         } catch (NumberFormatException nfe) {
             throw new Exception(String.format("Could not parse version [%s]", processorVersion), nfe);
