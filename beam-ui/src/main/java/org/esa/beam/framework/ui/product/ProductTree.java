@@ -719,7 +719,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
         private DataFlavor uriListFlavor;
 
-        public ProductTreeDropTarget() {
+        private ProductTreeDropTarget() {
             try {
                 uriListFlavor = new DataFlavor("text/uri-list;class=java.lang.String");
             } catch (ClassNotFoundException ignore) {
@@ -730,8 +730,8 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         public void dragEnter(DropTargetDragEvent dtde) {
             final int dropAction = dtde.getDropAction();
             if ((dropAction & DnDConstants.ACTION_COPY_OR_MOVE) != 0 &&
-                (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)||
-                uriListFlavor != null && dtde.isDataFlavorSupported(uriListFlavor))) {
+                (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor) ||
+                 uriListFlavor != null && dtde.isDataFlavorSupported(uriListFlavor))) {
                 dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
             } else {
                 dtde.rejectDrag();
@@ -751,7 +751,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 } else if (transferable.isDataFlavorSupported(uriListFlavor)) {
                     // on Unix another mimetype is used, see
                     // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4899516
-                    String data = (String)transferable.getTransferData(uriListFlavor);
+                    String data = (String) transferable.getTransferData(uriListFlavor);
                     fileList = textURIListToFileList(data);
                 } else {
                     fileList = Collections.emptyList();
@@ -760,8 +760,10 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     ProductManager productManager = getModel().getProductManager();
                     final Product product = ProductIO.readProduct(file);
                     if (product != null) {
-                        productManager.addProduct(product);
-                        success = true;
+                        if (!productManager.contains(product)) {
+                            productManager.addProduct(product);
+                            success = true;
+                        }
                     }
                 }
             } catch (UnsupportedFlavorException ignored) {
@@ -777,7 +779,7 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         private List<File> textURIListToFileList(String data) {
             List<File> list = new ArrayList<File>(1);
             StringTokenizer st = new StringTokenizer(data, "\r\n");
-            while(st.hasMoreTokens()) {
+            while (st.hasMoreTokens()) {
                 String token = st.nextToken();
                 if (token.startsWith("#")) {
                     // the line is a comment (as per the RFC 2483)
