@@ -51,7 +51,7 @@
             <mnemonic>E</mnemonic>
             <operatorName>Equalize</operatorName>
             <dialogTitle>MERIS L1b Equalization</dialogTitle>
-            <targetProductNameSuffix>_eq</targetProductNameSuffix>
+            <targetProductNameSuffix>_Equalized</targetProductNameSuffix>
         </action>
         <!--<action>-->
             <!--<id>merisSmile</id>-->
