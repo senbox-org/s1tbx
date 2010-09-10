@@ -379,22 +379,22 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
     private class PTCellRenderer extends DefaultTreeCellRenderer {
 
-        ImageIcon productIcon;
-        ImageIcon metadataIcon;
-        ImageIcon tiePointGridVisibleIcon;
-        ImageIcon tiePointGridInvisibleIcon;
-        ImageIcon bandVisibleIcon;
-        ImageIcon bandInvisibleIcon;
-        ImageIcon bandVirtualVisibleIcon;
-        ImageIcon bandVirtualInvisibleIcon;
-        ImageIcon bandFlagsVisibleIcon;
-        ImageIcon bandFlagsInvisibleIcon;
-        ImageIcon bandIndexedVisibleIcon;
-        ImageIcon bandIndexedInvisibleIcon;
-        ImageIcon vectorDataIcon;
+        private ImageIcon productIcon;
+        private ImageIcon metadataIcon;
+        private ImageIcon tiePointGridVisibleIcon;
+        private ImageIcon tiePointGridInvisibleIcon;
+        private ImageIcon bandVisibleIcon;
+        private ImageIcon bandInvisibleIcon;
+        private ImageIcon bandVirtualVisibleIcon;
+        private ImageIcon bandVirtualInvisibleIcon;
+        private ImageIcon bandFlagsVisibleIcon;
+        private ImageIcon bandFlagsInvisibleIcon;
+        private ImageIcon bandIndexedVisibleIcon;
+        private ImageIcon bandIndexedInvisibleIcon;
+        private ImageIcon vectorDataIcon;
 
-        Font normalFont;
-        Font boldFont;
+        private Font normalFont;
+        private Font boldFont;
 
         // Uncomment for debugging masks:
         // ImageIcon maskIcon;
@@ -758,9 +758,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 }
                 for (File file : fileList) {
                     ProductManager productManager = getModel().getProductManager();
-                    final Product product = ProductIO.readProduct(file);
-                    if (product != null) {
-                        if (!productManager.contains(product)) {
+                    if (!isProductAlreadyOpen(file, productManager)) {
+                        final Product product = ProductIO.readProduct(file);
+                        if (product != null) {
                             productManager.addProduct(product);
                             success = true;
                         }
@@ -774,6 +774,17 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 // http://bugs.sun.com/view_bug.do?bug_id=4808793
             }
             dtde.dropComplete(success);
+        }
+
+        private boolean isProductAlreadyOpen(File file, ProductManager productManager ) {
+            for (int i = 0; i < productManager.getProductCount(); i++) {
+                final Product product = productManager.getProduct(i);
+                final File productFile = product.getFileLocation();
+                if (file.equals(productFile)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private List<File> textURIListToFileList(String data) {
