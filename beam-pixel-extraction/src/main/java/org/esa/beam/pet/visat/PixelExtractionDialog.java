@@ -52,8 +52,8 @@ class PixelExtractionDialog extends ModelessDialog {
         this.appContext = appContext;
 
         AbstractButton button = getButton(ID_APPLY);
-        button.setText("Run");
-        button.setMnemonic('R');
+        button.setText("Extract");
+        button.setMnemonic('E');
 
         parameterMap = new HashMap<String, Object>();
         final PropertyContainer propertyContainer = createParameterMap(parameterMap);
