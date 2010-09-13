@@ -74,4 +74,12 @@ class InputFilesListModel extends AbstractListModel {
         }
         property.setValue(files);
     }
+
+    public void clear() {
+        list.clear();
+        try {
+            updateProperty();
+        } catch (ValidationException ignored) {
+        }
+    }
 }

@@ -49,14 +49,15 @@ public class PixelExtractionIOForm {
     static final String LAST_OPEN_OUTPUT_DIR = "beam.petOp.lastOpenOutputDir";
     static final String LAST_OPEN_FORMAT = "beam.petOp.lastOpenFormat";
 
+    private final AppContext appContext;
+
     private JPanel panel;
     private InputFilesListModel listModel;
-    private AppContext appContext;
     private JList inputPathsList;
     private JTextField outputDirTextField;
     private PropertyContainer container;
 
-    public PixelExtractionIOForm(AppContext appContext, PropertyContainer container) {
+    public PixelExtractionIOForm(final AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
         this.container = container;
 
@@ -143,6 +144,16 @@ public class PixelExtractionIOForm {
     private JList createInputPathsList(Property property) {
         listModel = new InputFilesListModel(property);
         JList list = new JList(listModel);
+        if (appContext.getSelectedProduct() != null) {
+            File fileLocation = appContext.getSelectedProduct().getFileLocation();
+            if (fileLocation != null) {
+                try {
+                    listModel.addElement(fileLocation);
+                } catch (ValidationException ignore) {
+                    ignore.printStackTrace();
+                }
+            }
+        }
         list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         return list;
     }
@@ -155,9 +166,10 @@ public class PixelExtractionIOForm {
             public void actionPerformed(ActionEvent e) {
                 final JPopupMenu popup = new JPopupMenu("Add");
                 final Rectangle buttonBounds = addButton.getBounds();
+                popup.add(new AddProductAction(appContext, listModel));
+                popup.add(new AddFileAction(appContext, listModel));
                 popup.add(new AddDirectoryAction(appContext, listModel, false));
                 popup.add(new AddDirectoryAction(appContext, listModel, true));
-                popup.add(new AddFileAction(appContext, listModel));
                 popup.show(addButton, 1, buttonBounds.height + 1);
             }
         });
@@ -180,4 +192,8 @@ public class PixelExtractionIOForm {
         return panel;
     }
 
+    public void clear() {
+        listModel.clear();
+        outputDirTextField.setText("");
+    }
 }

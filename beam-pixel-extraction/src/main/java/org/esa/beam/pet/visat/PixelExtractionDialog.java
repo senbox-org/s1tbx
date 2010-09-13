@@ -45,6 +45,7 @@ class PixelExtractionDialog extends ModelessDialog {
 
     private Map<String, Object> parameterMap;
     private final AppContext appContext;
+    private final PixelExtractionIOForm ioForm;
 
     PixelExtractionDialog(AppContext appContext, String title) {
         super(appContext.getApplicationWindow(), title, ID_APPLY_CLOSE_HELP, "pixelExtraction");
@@ -58,8 +59,8 @@ class PixelExtractionDialog extends ModelessDialog {
         parameterMap = new HashMap<String, Object>();
         final PropertyContainer propertyContainer = createParameterMap(parameterMap);
         propertyContainer.addProperty(Property.create("sourceProducts", Product[].class));
-        final PixelExtractionIOForm ioForm = new PixelExtractionIOForm(appContext, propertyContainer);
-        final PixelExtractionParametersForm parametersForm = new PixelExtractionParametersForm(appContext,
+        ioForm = new PixelExtractionIOForm(appContext, propertyContainer);
+        final PixelExtractionProcessingForm parametersForm = new PixelExtractionProcessingForm(appContext,
                                                                                                propertyContainer);
         JTabbedPane tabbedPanel = new JTabbedPane();
         tabbedPanel.addTab("Input/Output", ioForm.getPanel());
@@ -74,6 +75,12 @@ class PixelExtractionDialog extends ModelessDialog {
         AbstractButton runButton = getButton(ID_APPLY);
         runButton.setEnabled(false);
         worker.execute();
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        ioForm.clear();
     }
 
     private PropertyContainer createParameterMap(Map<String, Object> map) {
@@ -96,7 +103,7 @@ class PixelExtractionDialog extends ModelessDialog {
         final DefaultAppContext context = new DefaultAppContext("dev0");
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         registry.addOperatorSpi(new PetOp.Spi());
-        
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -142,7 +149,7 @@ class PixelExtractionDialog extends ModelessDialog {
             } catch (InterruptedException ignore) {
             } catch (ExecutionException e) {
                 appContext.handleError(e.getMessage(), e);
-            }finally {
+            } finally {
                 AbstractButton runButton = getButton(ID_APPLY);
                 runButton.setEnabled(true);
             }
