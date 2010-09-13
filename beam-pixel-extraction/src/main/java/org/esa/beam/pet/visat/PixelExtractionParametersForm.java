@@ -62,7 +62,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PixelExtractionProcessingForm {
+public class PixelExtractionParametersForm {
 
     private JPanel panel;
     private JLabel windowLabel;
@@ -71,7 +71,7 @@ public class PixelExtractionProcessingForm {
 
     static final String LAST_OPEN_PLACEMARK_DIR = "beam.petOp.lastOpenPlacemarkDir";
 
-    public PixelExtractionProcessingForm(AppContext appContext, PropertyContainer container) {
+    public PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
 
         this.appContext = appContext;
 
