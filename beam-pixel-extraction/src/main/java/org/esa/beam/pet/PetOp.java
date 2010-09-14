@@ -74,13 +74,13 @@ public class PetOp extends Operator {
     @Parameter(description = "The paths to be scanned for input products. May point to a single file or a directory.")
     private File[] inputPaths;
 
-    @Parameter(description = "Specifies if bands are to be exported", defaultValue = "true")
+    @Parameter(description = "Specifies if bands are to be exported", defaultValue = "false")
     private Boolean exportBands;
 
-    @Parameter(description = "Specifies if tie-points are to be exported", defaultValue = "true")
+    @Parameter(description = "Specifies if tie-points are to be exported", defaultValue = "false")
     private Boolean exportTiePoints;
 
-    @Parameter(description = "Specifies if masks are to be exported", defaultValue = "true")
+    @Parameter(description = "Specifies if masks are to be exported", defaultValue = "false")
     private Boolean exportMasks;
 
     @Parameter(description = "The geo-coordinates")
