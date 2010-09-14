@@ -96,6 +96,13 @@ public class PetOp extends Operator {
     @Parameter(description = "The output directory.")
     private File outputDir;
 
+    @Parameter(description = "Band maths expression (optional)")
+    private String expression;
+
+    @Parameter(description = "If true, the expression result is exported, otherwise the expression is used as filter.",
+               defaultValue = "true")
+    private Boolean exportExpressionResult;
+
     private Map<String, String[]> rasterNamesMap = new HashMap<String, String[]>(37);
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
@@ -149,9 +156,7 @@ public class PetOp extends Operator {
     }
 
     void readMeasurement(Product product, Coordinate coordinate, int coordinateID,
-                         Map<String, List<Measurement>> measurements
-    ) throws
-      IOException {
+                         Map<String, List<Measurement>> measurements) throws IOException {
         PixelPos centerPos = product.getGeoCoding().getPixelPos(coordinate.getGeoPos(), null);
         if (!product.containsPixel(centerPos)) {
             return;
@@ -165,6 +170,7 @@ public class PetOp extends Operator {
         Arrays.fill(values, Double.NaN);
         final int numPixels = windowSize * windowSize;
         for (int n = 0; n < numPixels; n++) {
+            boolean isValid = false;
             int x = upperLeftX + n % windowSize;
             int y = upperLeftY + n / windowSize;
             for (int i = 0; i < rasterNames.length; i++) {
@@ -173,11 +179,13 @@ public class PetOp extends Operator {
                     double[] temp = new double[1];
                     raster.readPixels(x, y, 1, 1, temp);
                     values[i] = temp[0];
+                    raster.setValidPixelExpression(expression);
+                    isValid |= raster.isPixelValid(x, y);
                 }
             }
             GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
             final Measurement measure = new Measurement(coordinateID, coordinate.getName(),
-                                                        product.getStartTime(), currentGeoPos, values);
+                                                        product.getStartTime(), currentGeoPos, values, isValid);
             List<Measurement> measurementList = measurements.get(productType);
             if (measurementList == null) {
                 measurementList = new ArrayList<Measurement>();
@@ -301,8 +309,7 @@ public class PetOp extends Operator {
             try {
                 String[] rasterNames = rasterNamesMap.get(productType);
                 writer = new FileWriter(new File(outputDir.getAbsolutePath(), "expix_" + productType + ".txt"));
-                MeasurementWriter formatWriter = new MeasurementWriter(rasterNames);
-                formatWriter.write(measurementList, writer);
+                MeasurementWriter.write(measurementList, writer, rasterNames, expression, exportExpressionResult);
             } catch (IOException e) {
                 throw new OperatorException("Could not write to output file.", e);
             } finally {
@@ -322,8 +329,7 @@ public class PetOp extends Operator {
             List<Measurement> measurementList = measurements.get(productType);
             try {
                 String[] rasterNames = rasterNamesMap.get(productType);
-                MeasurementWriter formatWriter = new MeasurementWriter(rasterNames);
-                formatWriter.write(measurementList, stringWriter);
+                MeasurementWriter.write(measurementList, stringWriter, rasterNames, expression, exportExpressionResult);
                 stringWriter.append("\n\n");
             } finally {
                 try {

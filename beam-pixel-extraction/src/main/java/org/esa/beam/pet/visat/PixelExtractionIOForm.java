@@ -46,7 +46,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
-public class PixelExtractionIOForm {
+class PixelExtractionIOForm {
 
     static final String LAST_OPEN_INPUT_DIR = "beam.petOp.lastOpenInputDir";
     static final String LAST_OPEN_OUTPUT_DIR = "beam.petOp.lastOpenOutputDir";
@@ -62,7 +62,7 @@ public class PixelExtractionIOForm {
     private AbstractButton fileChooserButton;
     private final JLabel outputDirLabel;
 
-    public PixelExtractionIOForm(final AppContext appContext, PropertyContainer container) {
+    PixelExtractionIOForm(final AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
         this.container = container;
 

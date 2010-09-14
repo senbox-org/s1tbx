@@ -26,37 +26,43 @@ class Measurement {
     private final double[] values;
     private int coordinateID;
     private String coordinateName;
+    private boolean isValid;
 
-    Measurement(int coordinateID, String name, ProductData.UTC time, GeoPos geoPos, double[] values) {
+    Measurement(int coordinateID, String name, ProductData.UTC time, GeoPos geoPos, double[] values, boolean isValid) {
         this.coordinateID = coordinateID;
         coordinateName = name;
         this.startTime = time;
         this.geoPos = geoPos;
         this.values = new double[values.length];
+        this.isValid = isValid;
         System.arraycopy(values, 0, this.values, 0, values.length);
     }
 
-    public ProductData.UTC getStartTime() {
+    ProductData.UTC getStartTime() {
         return startTime;
     }
 
-    public double[] getValues() {
+    double[] getValues() {
         return values;
     }
 
-    public float getLat() {
+    float getLat() {
         return geoPos.lat;
     }
 
-    public float getLon() {
+    float getLon() {
         return geoPos.lon;
     }
 
-    public int getCoordinateID() {
+    int getCoordinateID() {
         return coordinateID;
     }
 
-    public String getCoordinateName() {
+    String getCoordinateName() {
         return coordinateName;
+    }
+
+    boolean isValid() {
+        return isValid;
     }
 }

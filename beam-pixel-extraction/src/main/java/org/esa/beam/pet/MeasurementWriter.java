@@ -26,41 +26,47 @@ import java.util.Locale;
 
 @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
 class MeasurementWriter {
-    private String[] rasterNames;
 
-    MeasurementWriter(String[] rasterNames) {
-        this.rasterNames = rasterNames;
-    }
-
-    void write(List<Measurement> measurementList, Writer writer) {
-        if( measurementList.isEmpty() ) {
+    static void write(List<Measurement> measurementList, Writer writer, String[] rasterNames, String expression,
+                      boolean exportExpressionResult) {
+        if (measurementList.isEmpty()) {
             return;
         }
         PrintWriter printWriter = new PrintWriter(writer);
+        if (expression != null && exportExpressionResult) {
+            printWriter.append("Expression result\t");
+        }
         printWriter.append("ID\tName\tLatitude\tLongitude\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)\t");
         for (String name : rasterNames) {
             printWriter.append(String.format("%s\t", name));
         }
         printWriter.append("\n");
         for (Measurement measurement : measurementList) {
-            final double[] values = measurement.getValues();
-            final int id = measurement.getCoordinateID();
-            final float lat = measurement.getLat();
-            final float lon = measurement.getLon();
-            final ProductData.UTC time = measurement.getStartTime();
-            String timeString;
-            if (time != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd\tHH:mm:ss", Locale.ENGLISH );
-                timeString = sdf.format( time.getAsDate() );
-            }else {
-                timeString = " \t ";
-            }
+            if (expression == null || exportExpressionResult || measurement.isValid()) {
+                final double[] values = measurement.getValues();
+                final int id = measurement.getCoordinateID();
+                final float lat = measurement.getLat();
+                final float lon = measurement.getLon();
+                final ProductData.UTC time = measurement.getStartTime();
+                String timeString;
+                if (time != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd\tHH:mm:ss", Locale.ENGLISH);
+                    timeString = sdf.format(time.getAsDate());
+                } else {
+                    timeString = " \t ";
+                }
 
-            printWriter.append(String.format("%d\t%s\t%s\t%s\t%s\t", id, measurement.getCoordinateName(), lat, lon, timeString));
-            for (double value : values) {
-                printWriter.append(String.format("%s\t", value));
+                if (expression != null && exportExpressionResult) {
+                    printWriter.append(String.format("%s\t", String.valueOf(measurement.isValid())));
+                }
+
+                printWriter.append(String.format("%d\t%s\t%s\t%s\t%s\t", id, measurement.getCoordinateName(), lat, lon,
+                                                 timeString));
+                for (double value : values) {
+                    printWriter.append(String.format("%s\t", value));
+                }
+                printWriter.append("\n");
             }
-            printWriter.append("\n");
         }
     }
 
