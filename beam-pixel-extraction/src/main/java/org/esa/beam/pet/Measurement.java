@@ -26,13 +26,15 @@ class Measurement {
     private final double[] values;
     private int coordinateID;
     private String coordinateName;
+    private boolean isValid;
 
-    Measurement(int coordinateID, String name, ProductData.UTC time, GeoPos geoPos, double[] values) {
+    Measurement(int coordinateID, String name, ProductData.UTC time, GeoPos geoPos, double[] values, boolean isValid) {
         this.coordinateID = coordinateID;
         coordinateName = name;
         this.startTime = time;
         this.geoPos = geoPos;
         this.values = new double[values.length];
+        this.isValid = isValid;
         System.arraycopy(values, 0, this.values, 0, values.length);
     }
 
@@ -58,5 +60,9 @@ class Measurement {
 
     public String getCoordinateName() {
         return coordinateName;
+    }
+
+    public boolean isValid() {
+        return isValid;
     }
 }
