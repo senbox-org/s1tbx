@@ -83,8 +83,8 @@ public class PetOp extends Operator {
     @Parameter(description = "Specifies if masks are to be exported", defaultValue = "true")
     private Boolean exportMasks;
 
-    @Parameter(itemAlias = "coordinate", description = "The geo-coordinates", converter = GeoPosConverter.class)
-    private GeoPos[] coordinates;
+    @Parameter(description = "The geo-coordinates")
+    private Coordinate[] coordinates;
 
     @Parameter(description = "Path to a file containing geo-coordinates")
     private File coordinatesFile;
@@ -109,15 +109,8 @@ public class PetOp extends Operator {
         if (outputDir != null && outputDir.isFile()) {
             outputDir = new File(outputDir.getParent());
         }
-        coordinateList = new ArrayList<Coordinate>();
-        if (coordinatesFile != null) {
-            coordinateList.addAll(extractGeoPositions(coordinatesFile));
-        }
-        if (coordinates != null) {
-            for (GeoPos geoPos : coordinates) {
-                coordinateList.add(new Coordinate(coordinateList.size(), geoPos));
-            }
-        }
+        coordinateList = initCoordinateList();
+
         validator = new ProductValidator();
         measurements = new HashMap<String, List<Measurement>>();
         if (sourceProducts != null) {
@@ -155,8 +148,10 @@ public class PetOp extends Operator {
         this.rasterNamesMap = rasterNamesMap;
     }
 
-    void readMeasurement(Product product, Coordinate coordinate, Map<String, List<Measurement>> measurements) throws
-                                                                                                              IOException {
+    void readMeasurement(Product product, Coordinate coordinate, int coordinateID,
+                         Map<String, List<Measurement>> measurements
+    ) throws
+      IOException {
         PixelPos centerPos = product.getGeoCoding().getPixelPos(coordinate.getGeoPos(), null);
         if (!product.containsPixel(centerPos)) {
             return;
@@ -181,7 +176,7 @@ public class PetOp extends Operator {
                 }
             }
             GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
-            final Measurement measure = new Measurement(coordinate.getId(), coordinate.getName(),
+            final Measurement measure = new Measurement(coordinateID, coordinate.getName(),
                                                         product.getStartTime(), currentGeoPos, values);
             List<Measurement> measurementList = measurements.get(productType);
             if (measurementList == null) {
@@ -190,6 +185,17 @@ public class PetOp extends Operator {
             }
             measurementList.add(measure);
         }
+    }
+
+    private List<Coordinate> initCoordinateList() {
+        List<Coordinate> list = new ArrayList<Coordinate>();
+        if (coordinatesFile != null) {
+            list.addAll(extractGeoPositions(coordinatesFile));
+        }
+        if (coordinates != null) {
+            list.addAll(Arrays.asList(coordinates));
+        }
+        return list;
     }
 
     private List<Coordinate> extractGeoPositions(File coordinatesFile) {
@@ -201,8 +207,7 @@ public class PetOp extends Operator {
             for (Placemark pin : pins) {
                 final GeoPos geoPos = pin.getGeoPos();
                 if (geoPos != null) {
-                    final int id = coordinateList.size();
-                    coordinateList.add(new Coordinate(id, pin.getName(), geoPos));
+                    coordinateList.add(new Coordinate(pin.getName(), geoPos));
                 }
             }
         } catch (IOException ignore) {
@@ -253,9 +258,10 @@ public class PetOp extends Operator {
             rasterNamesMap.put(product.getProductType(), getAllRasterNames(product));
         }
 
-        for (Coordinate coordinate : coordinateList) {
+        for (int i = 0, coordinateListSize = coordinateList.size(); i < coordinateListSize; i++) {
+            Coordinate coordinate = coordinateList.get(i);
             try {
-                readMeasurement(product, coordinate, measurements);
+                readMeasurement(product, coordinate, i + 1, measurements);
             } catch (IOException e) {
                 getLogger().warning(e.getMessage());
             }

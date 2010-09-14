@@ -17,19 +17,20 @@
 package org.esa.beam.pet;
 
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 
 public class Coordinate {
-
+    @Parameter(pattern = "[a-zA-Z_0-9]*")
     private String name;
+    @Parameter(alias = "position", converter = GeoPosConverter.class)
     private GeoPos geoPos;
-    private int id;
 
-    public Coordinate(int id, GeoPos geoPos) {
-        this(id, " ", geoPos);
+    @SuppressWarnings({"UnusedDeclaration"})
+    public Coordinate() {
+        // needed for serialize/de-serialize
     }
 
-    public Coordinate(int id, String name, GeoPos geoPos) {
-        this.id = id;
+    public Coordinate(String name, GeoPos geoPos) {
         this.name = name;
         this.geoPos = geoPos;
     }
@@ -40,9 +41,5 @@ public class Coordinate {
 
     public GeoPos getGeoPos() {
         return geoPos;
-    }
-
-    public int getId() {
-        return id;
     }
 }

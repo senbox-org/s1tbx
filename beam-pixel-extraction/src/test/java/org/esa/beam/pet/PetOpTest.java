@@ -34,7 +34,7 @@ public class PetOpTest {
         op.setWindowSize(3);
         Map<String, List<Measurement>> measurements = new HashMap<String, List<Measurement>>();
         GeoPos geoPos = new GeoPos(20, 10);
-        op.readMeasurement(product, new Coordinate(1, geoPos), measurements);
+        op.readMeasurement(product, new Coordinate("Coord_1", geoPos), 1, measurements);
         geoPos = new GeoPos(21, 9);
 
         List<Measurement> measurementList = measurements.get(productType);
@@ -47,7 +47,7 @@ public class PetOpTest {
             assertEquals(1, measurement.getCoordinateID());
             assertEquals(geoPos.lat - i / 3, measurement.getLat(), 1.0e-4);
             assertEquals(geoPos.lon + i % 3, measurement.getLon(), 1.0e-4);
-            assertEquals(" ", measurement.getCoordinateName());
+            assertEquals("Coord_1", measurement.getCoordinateName());
             assertNull(measurement.getStartTime());
             double[] values = measurement.getValues();
             assertEquals(bandNames.length, values.length);
