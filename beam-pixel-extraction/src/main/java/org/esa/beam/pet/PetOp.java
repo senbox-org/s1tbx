@@ -37,12 +37,14 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -91,7 +93,7 @@ public class PetOp extends Operator {
                validator = WindowSizeValidator.class)
     private Integer windowSize;
 
-    @Parameter(description = "The output directory.", defaultValue = ".")
+    @Parameter(description = "The output directory.")
     private File outputDir;
 
     private Map<String, String[]> rasterNamesMap = new HashMap<String, String[]>(37);
@@ -128,17 +130,13 @@ public class PetOp extends Operator {
             extractMeasurements(inputPaths);
         }
         if (outputDir != null) {
-            writeOutput();
+            writeOutputToFile();
+        } else {
+            writeOutputToClipboard();
         }
         if (!isTargetProductInitialized) {
             setDummyProduct();
         }
-    }
-
-    private void setDummyProduct() {
-        final Product product = new Product("dummy", "dummy", 2, 2);
-        product.addBand("dummy", ProductData.TYPE_INT8);
-        setTargetProduct(product);
     }
 
     Integer getWindowSize() {
@@ -155,6 +153,43 @@ public class PetOp extends Operator {
 
     void setRasterNamesMap(Map<String, String[]> rasterNamesMap) {
         this.rasterNamesMap = rasterNamesMap;
+    }
+
+    void readMeasurement(Product product, Coordinate coordinate, Map<String, List<Measurement>> measurements) throws
+                                                                                                              IOException {
+        PixelPos centerPos = product.getGeoCoding().getPixelPos(coordinate.getGeoPos(), null);
+        if (!product.containsPixel(centerPos)) {
+            return;
+        }
+        String productType = product.getProductType();
+        String[] rasterNames = rasterNamesMap.get(productType);
+        int offset = MathUtils.floorInt(windowSize / 2);
+        int upperLeftX = MathUtils.floorInt(centerPos.x - offset);
+        int upperLeftY = MathUtils.floorInt(centerPos.y - offset);
+        final double[] values = new double[rasterNames.length];
+        Arrays.fill(values, Double.NaN);
+        final int numPixels = windowSize * windowSize;
+        for (int n = 0; n < numPixels; n++) {
+            int x = upperLeftX + n % windowSize;
+            int y = upperLeftY + n / windowSize;
+            for (int i = 0; i < rasterNames.length; i++) {
+                RasterDataNode raster = product.getRasterDataNode(rasterNames[i]);
+                if (raster != null && product.containsPixel(x, y)) {
+                    double[] temp = new double[1];
+                    raster.readPixels(x, y, 1, 1, temp);
+                    values[i] = temp[0];
+                }
+            }
+            GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
+            final Measurement measure = new Measurement(coordinate.getId(), coordinate.getName(),
+                                                        product.getStartTime(), currentGeoPos, values);
+            List<Measurement> measurementList = measurements.get(productType);
+            if (measurementList == null) {
+                measurementList = new ArrayList<Measurement>();
+                measurements.put(productType, measurementList);
+            }
+            measurementList.add(measure);
+        }
     }
 
     private List<Coordinate> extractGeoPositions(File coordinatesFile) {
@@ -227,52 +262,6 @@ public class PetOp extends Operator {
         }
     }
 
-    private static File[] cleanPathNames(File[] paths) {
-        for (int i = 0; i < paths.length; i++) {
-            File path = paths[i];
-            paths[i] = new File(path.getPath().trim());
-        }
-        return paths;
-    }
-
-
-    void readMeasurement(Product product, Coordinate coordinate, Map<String, List<Measurement>> measurements) throws
-                                                                                                              IOException {
-        PixelPos centerPos = product.getGeoCoding().getPixelPos(coordinate.getGeoPos(), null);
-        if (!product.containsPixel(centerPos)) {
-            return;
-        }
-        String productType = product.getProductType();
-        String[] rasterNames = rasterNamesMap.get(productType);
-        int offset = MathUtils.floorInt(windowSize / 2);
-        int upperLeftX = MathUtils.floorInt(centerPos.x - offset);
-        int upperLeftY = MathUtils.floorInt(centerPos.y - offset);
-        final double[] values = new double[rasterNames.length];
-        Arrays.fill(values, Double.NaN);
-        final int numPixels = windowSize * windowSize;
-        for (int n = 0; n < numPixels; n++) {
-            int x = upperLeftX + n % windowSize;
-            int y = upperLeftY + n / windowSize;
-            for (int i = 0; i < rasterNames.length; i++) {
-                RasterDataNode raster = product.getRasterDataNode(rasterNames[i]);
-                if (raster != null && product.containsPixel(x, y)) {
-                    double[] temp = new double[1];
-                    raster.readPixels(x, y, 1, 1, temp);
-                    values[i] = temp[0];
-                }
-            }
-            GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
-            final Measurement measure = new Measurement(coordinate.getId(), coordinate.getName(),
-                                                        product.getStartTime(), currentGeoPos, values);
-            List<Measurement> measurementList = measurements.get(productType);
-            if (measurementList == null) {
-                measurementList = new ArrayList<Measurement>();
-                measurements.put(productType, measurementList);
-            }
-            measurementList.add(measure);
-        }
-    }
-
     private String[] getAllRasterNames(Product product) {
         final List<RasterDataNode> allRasterList = new ArrayList<RasterDataNode>();
         if (exportBands) {
@@ -291,8 +280,14 @@ public class PetOp extends Operator {
         return allRasterNames;
     }
 
+    private void setDummyProduct() {
+        final Product product = new Product("dummy", "dummy", 2, 2);
+        product.addBand("dummy", ProductData.TYPE_INT8);
+        setTargetProduct(product);
+    }
+
     @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
-    private void writeOutput() {
+    private void writeOutputToFile() {
         FileWriter writer = null;
 
         for (String productType : measurements.keySet()) {
@@ -315,14 +310,32 @@ public class PetOp extends Operator {
         }
     }
 
-    public static class WindowSizeValidator implements Validator {
-
-        @Override
-        public void validateValue(Property property, Object value) throws ValidationException {
-            if (((Integer) value) % 2 == 0) {
-                throw new ValidationException("Value of squareSize must be uneven");
+    private void writeOutputToClipboard() {
+        StringWriter stringWriter = new StringWriter();
+        for (String productType : measurements.keySet()) {
+            List<Measurement> measurementList = measurements.get(productType);
+            try {
+                String[] rasterNames = rasterNamesMap.get(productType);
+                MeasurementWriter formatWriter = new MeasurementWriter(rasterNames);
+                formatWriter.write(measurementList, stringWriter);
+                stringWriter.append("\n\n");
+            } finally {
+                try {
+                    stringWriter.close();
+                } catch (IOException ignore) {
+                }
             }
         }
+
+        SystemUtils.copyToClipboard(stringWriter.toString());
+    }
+
+    private static File[] cleanPathNames(File[] paths) {
+        for (int i = 0; i < paths.length; i++) {
+            File path = paths[i];
+            paths[i] = new File(path.getPath().trim());
+        }
+        return paths;
     }
 
     private class ProductValidator {
@@ -355,6 +368,16 @@ public class PetOp extends Operator {
 
         public Spi() {
             super(PetOp.class);
+        }
+    }
+
+    public static class WindowSizeValidator implements Validator {
+
+        @Override
+        public void validateValue(Property property, Object value) throws ValidationException {
+            if (((Integer) value) % 2 == 0) {
+                throw new ValidationException("Value of squareSize must be uneven");
+            }
         }
     }
 

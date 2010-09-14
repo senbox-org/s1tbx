@@ -45,8 +45,6 @@ class PixelExtractionDialog extends ModelessDialog {
     private final AppContext appContext;
     private final PixelExtractionIOForm ioForm;
 
-    static final String EXPORT_TO_FILE_PROPERTY = "exportToFile";
-
     PixelExtractionDialog(AppContext appContext, String title) {
         super(appContext.getApplicationWindow(), title, ID_APPLY_CLOSE_HELP, "pixelExtraction");
 
@@ -124,9 +122,16 @@ class PixelExtractionDialog extends ModelessDialog {
         protected void done() {
             try {
                 get();
-                String message = String.format(
-                        "The pixel extraction tool has run successfully and written the result file(s) to %s.",
-                        parameterMap.get("outputDir").toString());
+                Object outputDir = parameterMap.get("outputDir");
+                String message = "";
+                if (outputDir != null) {
+                    message = String.format(
+                            "The pixel extraction tool has run successfully and written the result file(s) to %s.",
+                            outputDir.toString());
+                } else {
+                    message = "The pixel extraction tool has run successfully and written the result file to the clipboard.";
+                }
+
                 JOptionPane.showMessageDialog(getJDialog(), message);
             } catch (InterruptedException ignore) {
             } catch (ExecutionException e) {

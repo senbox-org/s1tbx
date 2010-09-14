@@ -150,8 +150,7 @@ public class PixelExtractionIOForm {
 
     private String getOutputPath(AppContext appContext) {
         final Property dirProperty = container.getProperty("outputDir");
-        final Object value = dirProperty.getDescriptor().getDefaultValue();
-        String lastDir = appContext.getPreferences().getPropertyString(LAST_OPEN_OUTPUT_DIR, value.toString());
+        String lastDir = appContext.getPreferences().getPropertyString(LAST_OPEN_OUTPUT_DIR, ".");
         String path;
         try {
             path = new File(lastDir).getCanonicalPath();
