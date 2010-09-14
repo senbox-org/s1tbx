@@ -155,6 +155,8 @@ public class PixelExtractionParametersForm {
                 tableModel.addPlacemark(pinGroup.get(i));
             }
         }
+
+        // todo replace listener by gettter method used in Dialog.onApply()
         tableModel.addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {

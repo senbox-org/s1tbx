@@ -25,7 +25,7 @@ import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.ModelessDialog;
+import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.pet.PetOp;
 
 import javax.swing.AbstractButton;
@@ -39,18 +39,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-class PixelExtractionDialog extends ModelessDialog {
+class PixelExtractionDialog extends ModalDialog {
 
     private final Map<String, Object> parameterMap;
     private final AppContext appContext;
     private final PixelExtractionIOForm ioForm;
 
     PixelExtractionDialog(AppContext appContext, String title) {
-        super(appContext.getApplicationWindow(), title, ID_APPLY_CLOSE_HELP, "pixelExtraction");
+        super(appContext.getApplicationWindow(), title, ID_OK | ID_CLOSE | ID_HELP , "pixelExtraction");
 
         this.appContext = appContext;
 
-        AbstractButton button = getButton(ID_APPLY);
+        AbstractButton button = getButton(ID_OK);
         button.setText("Extract");
         button.setMnemonic('E');
 
@@ -68,9 +68,9 @@ class PixelExtractionDialog extends ModelessDialog {
     }
 
     @Override
-    protected void onApply() {
+    protected void onOK() {
         ProgressMonitorSwingWorker worker = new MyProgressMonitorSwingWorker(getParent(), "Creating output file(s)...");
-        AbstractButton runButton = getButton(ID_APPLY);
+        AbstractButton runButton = getButton(ID_OK);
         runButton.setEnabled(false);
         worker.execute();
     }
@@ -137,7 +137,7 @@ class PixelExtractionDialog extends ModelessDialog {
             } catch (ExecutionException e) {
                 appContext.handleError(e.getMessage(), e);
             } finally {
-                AbstractButton runButton = getButton(ID_APPLY);
+                AbstractButton runButton = getButton(ID_OK);
                 runButton.setEnabled(true);
             }
         }

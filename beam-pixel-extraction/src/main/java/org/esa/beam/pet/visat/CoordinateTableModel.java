@@ -55,16 +55,17 @@ public class CoordinateTableModel extends AbstractPlacemarkTableModel {
         switch (columnIndex) {
             case 0:
                 placemark.setName((String) value);
-                return;
+                break;
             case 1:
                 setGeoPosLat(value, placemark);
-                return;
+                break;
             case 2:
                 setGeoPosLon(value, placemark);
-                return;
+                break;
             default:
                 throw new IllegalArgumentException(String.format("Invalid columnIndex = %d", columnIndex));
         }
+        fireTableCellUpdated(rowIndex, columnIndex);
     }
 
     @Override
