@@ -37,6 +37,8 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.help.HelpSys;
+import org.esa.beam.framework.ui.FloatCellEditor;
+import org.esa.beam.framework.ui.FloatTableCellRenderer;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.command.CommandManager;
@@ -55,7 +57,6 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -67,11 +68,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -162,6 +160,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         placemarkTable.addMouseListener(toolTipSetter);
         placemarkTable.addMouseListener(new PopupListener());
         placemarkTable.setModel(placemarkTableModel);
+        placemarkTable.setDefaultCellRenderer(new RightAlignmentTableCellRenderer());
         placemarkTable.setDefaultRenderer(Float.class, new FloatTableCellRenderer(new DecimalFormat("0.000")));
         placemarkTable.getSelectionModel().addListSelectionListener(new PlacemarkTableSelectionHandler());
         updateTableModel();
@@ -300,11 +299,11 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     }
 
     protected void addCellEditor(TableColumnModel columnModel) {
-        final PinCellEditor pixelCellEditor = new PinCellEditor();
+        final FloatCellEditor pixelCellEditor = new FloatCellEditor();
         columnModel.getColumn(0).setCellEditor(pixelCellEditor);
         columnModel.getColumn(1).setCellEditor(pixelCellEditor);
-        columnModel.getColumn(2).setCellEditor(new PinLonCellEditor());
-        columnModel.getColumn(3).setCellEditor(new PinLatCellEditor());
+        columnModel.getColumn(2).setCellEditor(new FloatCellEditor(-180, 180));
+        columnModel.getColumn(3).setCellEditor(new FloatCellEditor(-90, 90));
     }
 
     private ProductSceneView getSceneView() {
@@ -703,7 +702,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     file = FileUtils.ensureExtension(file, beamFileFilter.getDefaultExtension());
                 }
                 try {
-                    if (beamFileFilter.getFormatName().equals(PlacemarkIO.createPlacemarkFileFilter().getFormatName())) {
+                    if (beamFileFilter.getFormatName().equals(
+                            PlacemarkIO.createPlacemarkFileFilter().getFormatName())) {
                         PlacemarkIO.writePlacemarksFile(new FileWriter(file), getSelectedPlacemarks());
                     } else {
                         Writer writer = new FileWriter(file);
@@ -864,7 +864,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         private int _rowIndex;
 
-        public ToolTipSetter() {
+        private ToolTipSetter() {
             _rowIndex = -1;
         }
 
@@ -993,107 +993,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     }
 
-    public static class FloatTableCellRenderer extends DefaultTableCellRenderer {
-
-        private DecimalFormat format;
-
-        public FloatTableCellRenderer(DecimalFormat format) {
-            this.format = format;
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-                                                       int row, int column) {
-            Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if (comp instanceof JLabel) {
-                JLabel label = (JLabel) comp;
-                if (value instanceof Float && !Float.isNaN((Float) value)) {
-                    label.setText(format.format(value));
-                } else {
-                    label.setText("n/a");
-                }
-            }
-            return comp;
-        }
-    }
-
-    private class PinCellEditor extends DefaultCellEditor {
-
-        private Border defaultBorder;
-
-        protected PinCellEditor() {
-            super(new JTextField());
-            JTextField textField = (JTextField) getComponent();
-            defaultBorder = textField.getBorder();
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-                                                     int column) {
-            JComponent component = (JComponent) super.getTableCellEditorComponent(table, value, isSelected, row,
-                                                                                  column);
-            component.setBorder(defaultBorder);
-            return component;
-        }
-
-        @Override
-        public boolean stopCellEditing() {
-            JTextField textField = (JTextField) getComponent();
-            float value;
-            try {
-                value = Float.parseFloat(textField.getText());
-            } catch (NumberFormatException ignored) {
-                ((JComponent) getComponent()).setBorder(new LineBorder(Color.red));
-                return false;
-            }
-
-
-            Product product = PlacemarkManagerToolView.this.getPlacemarkGroup().getProduct();
-            boolean validValue = validateValue(product, value);
-            if (!validValue) {
-                ((JComponent) getComponent()).setBorder(new LineBorder(Color.red));
-                return false;
-            }
-
-            if (!super.stopCellEditing()) {
-                ((JComponent) getComponent()).setBorder(new LineBorder(Color.red));
-                return false;
-            }
-
-            return true;
-        }
-
-        protected boolean validateValue(Product product, float value) {
-            return true;
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            JTextField textField = (JTextField) getComponent();
-            try {
-                return Float.parseFloat(textField.getText());
-            } catch (NumberFormatException ignored) {
-                return Float.NaN;
-            }
-        }
-    }
-
-    private class PinLatCellEditor extends PinCellEditor {
-
-        @Override
-        protected boolean validateValue(Product product, float lat) {
-            return !(lat < -90.0 || lat > 90.0);
-        }
-    }
-
-    private class PinLonCellEditor extends PinCellEditor {
-
-        @Override
-        protected boolean validateValue(Product product, float lon) {
-            return !(lon < -180.0 || lon > 180.0);
-        }
-    }
-
     private class ProductSelectionListener extends ProductTreeListenerAdapter {
 
         @Override
@@ -1170,6 +1069,21 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         @Override
         public void selectionContextChanged(SelectionChangeEvent event) {
+        }
+    }
+
+    private static class RightAlignmentTableCellRenderer extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                       boolean hasFocus,
+                                                       int row, int column) {
+            final JLabel label = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
+                                                                            column);
+            label.setHorizontalAlignment(JLabel.RIGHT);
+            return label;
+
+
         }
     }
 }

@@ -45,7 +45,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     private final PlacemarkListener placemarkListener;
     private final ArrayList<Placemark> placemarkList;
 
-    public AbstractPlacemarkTableModel(PlacemarkDescriptor placemarkDescriptor, Product product, Band[] selectedBands,
+    protected AbstractPlacemarkTableModel(PlacemarkDescriptor placemarkDescriptor, Product product, Band[] selectedBands,
                                        TiePointGrid[] selectedGrids) {
         this.placemarkDescriptor = placemarkDescriptor;
         this.product = product;
@@ -113,23 +113,29 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     }
 
     public boolean addPlacemark(Placemark placemark) {
-        if (getProduct() != null && placemarkList.add(placemark)) {
-            fireTableDataChanged();
+        if (placemarkList.add(placemark)) {
+            final int insertedRowIndex = placemarkList.indexOf(placemark);
+            fireTableRowsInserted(insertedRowIndex, insertedRowIndex);
             return true;
         }
         return false;
     }
 
     public boolean removePlacemark(Placemark placemark) {
-        if (getProduct() != null && placemarkList.remove(placemark)) {
-            fireTableDataChanged();
+        final int index = placemarkList.indexOf(placemark);
+        if (index != -1) {
+            placemarkList.remove(placemark);
+            fireTableRowsDeleted(index, index);
             return true;
         }
         return false;
     }
 
     public void removePlacemarkAt(int index) {
-        placemarkList.remove(index);
+        if (placemarkList.size() > index) {
+            final Placemark placemark = placemarkList.get(index);
+            removePlacemark(placemark);
+        }
     }
 
     public abstract String[] getStandardColumnNames();
@@ -185,51 +191,51 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        if (columnIndex < getStandardColumnNames().length) {
+            return getStandardColumnValueAt(rowIndex, columnIndex);
+        }
+
+        final Placemark placemark = placemarkList.get(rowIndex);
+        int index = columnIndex - getStandardColumnNames().length;
+        PixelPos pixelPos = placemark.getPixelPos();
+        if (pixelPos == null) {
+            return "No-data";
+        }
+
+        final int x = MathUtils.floorInt(pixelPos.getX());
+        final int y = MathUtils.floorInt(pixelPos.getY());
         if (product != null) {
-            if (columnIndex < getStandardColumnNames().length) {
-                return getStandardColumnValueAt(rowIndex, columnIndex);
-            } else {
-                final Placemark placemark = placemarkList.get(rowIndex);
-                int index = columnIndex - getStandardColumnNames().length;
-                PixelPos pixelPos = placemark.getPixelPos();
-                if (pixelPos == null) {
-                    return "No-data";
-                }
+            final int width = product.getSceneRasterWidth();
+            final int height = product.getSceneRasterHeight();
 
-                final int x = MathUtils.floorInt(pixelPos.getX());
-                final int y = MathUtils.floorInt(pixelPos.getY());
-                final int width = product.getSceneRasterWidth();
-                final int height = product.getSceneRasterHeight();
+            if (x < 0 || x >= width || y < 0 || y >= height) {
+                return "No-data";
+            }
+        }
 
-                if (x < 0 || x >= width || y < 0 || y >= height) {
-                    return "No-data";
-                }
-
-                if (index < getNumSelectedBands()) {
-                    final Band band = selectedBands[index];
-                    if (band.isPixelValid(x, y)) {
-                        float[] value = null;
-                        try {
-                            value = band.readPixels(x, y, 1, 1, value, ProgressMonitor.NULL);
-                            return value[0];
-                        } catch (IOException e) {
-                            return "I/O-error";
-                        }
-                    } else {
-                        return "NaN";
-                    }
-                }
-                index -= getNumSelectedBands();
-                if (index < selectedGrids.length) {
-                    final TiePointGrid grid = selectedGrids[index];
+        if (index < getNumSelectedBands()) {
+            final Band band = selectedBands[index];
+            if (band.isPixelValid(x, y)) {
+                try {
                     float[] value = null;
-                    try {
-                        value = grid.readPixels(x, y, 1, 1, value, ProgressMonitor.NULL);
-                        return value[0];
-                    } catch (IOException e) {
-                        return "I/O-error";
-                    }
+                    value = band.readPixels(x, y, 1, 1, value, ProgressMonitor.NULL);
+                    return value[0];
+                } catch (IOException ignored) {
+                    return "I/O-error";
                 }
+            } else {
+                return "NaN";
+            }
+        }
+        index -= getNumSelectedBands();
+        if (index < selectedGrids.length) {
+            final TiePointGrid grid = selectedGrids[index];
+            try {
+                float[] value = null;
+                value = grid.readPixels(x, y, 1, 1, value, ProgressMonitor.NULL);
+                return value[0];
+            } catch (IOException ignored) {
+                return "I/O-error";
             }
         }
 
@@ -244,45 +250,13 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         if (columnIndex < getStandardColumnNames().length) {
             Placemark placemark = placemarkList.get(rowIndex);
             if (columnIndex == 0) {
-                if (value instanceof Float) {
-                    float pixelY;
-                    if (placemark.getPixelPos() == null) {
-                        pixelY = -1;
-                    } else {
-                        pixelY = placemark.getPixelPos().y;
-                    }
-                    placemark.setPixelPos(new PixelPos((Float) value, pixelY));
-                }
+                setPixelPosX(value, placemark);
             } else if (columnIndex == 1) {
-                if (value instanceof Float) {
-                    float pixelX;
-                    if (placemark.getPixelPos() == null) {
-                        pixelX = -1;
-                    } else {
-                        pixelX = placemark.getPixelPos().x;
-                    }
-                    placemark.setPixelPos(new PixelPos(pixelX, (Float) value));
-                }
+                setPixelPosY(value, placemark);
             } else if (columnIndex == 2) {
-                if (value instanceof Float) {
-                    float lat;
-                    if (placemark.getGeoPos() == null) {
-                        lat = Float.NaN;
-                    } else {
-                        lat = placemark.getGeoPos().lat;
-                    }
-                    placemark.setGeoPos(new GeoPos(lat, (Float) value));
-                }
+                this.setGeoPosLon(value, placemark);
             } else if (columnIndex == 3) {
-                if (value instanceof Float) {
-                    float lon;
-                    if (placemark.getGeoPos() == null) {
-                        lon = Float.NaN;
-                    } else {
-                        lon = placemark.getGeoPos().lon;
-                    }
-                    placemark.setGeoPos(new GeoPos((Float) value, lon));
-                }
+                setGeoPosLat(value, placemark);
             } else if (columnIndex == getStandardColumnNames().length - 1) {
                 String strValue = value.toString();
                 placemark.setLabel(strValue);
@@ -300,6 +274,54 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         selectedBands = null;
         selectedGrids = null;
         placemarkList.clear();
+    }
+
+    protected void setGeoPosLat(Object value, Placemark placemark) {
+        if (value instanceof Float) {
+            float lon;
+            if (placemark.getGeoPos() == null) {
+                lon = Float.NaN;
+            } else {
+                lon = placemark.getGeoPos().lon;
+            }
+            placemark.setGeoPos(new GeoPos((Float) value, lon));
+        }
+    }
+
+    protected void setGeoPosLon(Object value, Placemark placemark) {
+        if (value instanceof Float) {
+            float lat;
+            if (placemark.getGeoPos() == null) {
+                lat = Float.NaN;
+            } else {
+                lat = placemark.getGeoPos().lat;
+            }
+            placemark.setGeoPos(new GeoPos(lat, (Float) value));
+        }
+    }
+
+    protected void setPixelPosY(Object value, Placemark placemark) {
+        if (value instanceof Float) {
+            float pixelX;
+            if (placemark.getPixelPos() == null) {
+                pixelX = -1;
+            } else {
+                pixelX = placemark.getPixelPos().x;
+            }
+            placemark.setPixelPos(new PixelPos(pixelX, (Float) value));
+        }
+    }
+
+    protected void setPixelPosX(Object value, Placemark placemark) {
+        if (value instanceof Float) {
+            float pixelY;
+            if (placemark.getPixelPos() == null) {
+                pixelY = -1;
+            } else {
+                pixelY = placemark.getPixelPos().y;
+            }
+            placemark.setPixelPos(new PixelPos((Float) value, pixelY));
+        }
     }
 
     private void initSelectedBands(Band[] selectedBands) {

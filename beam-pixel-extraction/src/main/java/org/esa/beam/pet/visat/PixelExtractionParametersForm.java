@@ -18,48 +18,51 @@ package org.esa.beam.pet.visat;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.TableLayout;
-import com.bc.ceres.swing.binding.Binding;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.bc.ceres.swing.binding.ComponentAdapter;
-import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
 import org.esa.beam.dataio.placemark.PlacemarkIO;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.ui.AbstractDialog;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkGroup;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.FloatCellEditor;
+import org.esa.beam.framework.ui.FloatTableCellRenderer;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.pet.Coordinate;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
-import javax.swing.AbstractListModel;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.Component;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class PixelExtractionParametersForm {
@@ -70,6 +73,7 @@ public class PixelExtractionParametersForm {
     private AppContext appContext;
 
     static final String LAST_OPEN_PLACEMARK_DIR = "beam.petOp.lastOpenPlacemarkDir";
+    private CoordinateTableModel tableModel;
 
     public PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
 
@@ -81,30 +85,23 @@ public class PixelExtractionParametersForm {
         tableLayout.setTablePadding(4, 4);
         tableLayout.setTableWeightX(0.0);
         tableLayout.setTableWeightY(0.0);
-        tableLayout.setCellColspan(0, 0, 3);
-        tableLayout.setCellColspan(1, 0, 3);
-        tableLayout.setCellColspan(2, 0, 3);
-        tableLayout.setCellFill(1, 1, TableLayout.Fill.BOTH);
-        tableLayout.setCellWeightY(3, 1, 1.0);
-        tableLayout.setCellFill(3, 1, TableLayout.Fill.BOTH);
+        tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH);
+        tableLayout.setCellWeightY(0, 1, 1.0);
+        tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH);
         tableLayout.setColumnWeightX(1, 1.0);
 
         panel = new JPanel(tableLayout);
         final BindingContext bindingContext = new BindingContext(container);
-
-        panel.add(createIncludeCheckbox(bindingContext, "Export bands", "exportBands"));
-        panel.add(createIncludeCheckbox(bindingContext, "Export tie-point grids", "exportTiePoints"));
-        panel.add(createIncludeCheckbox(bindingContext, "Export masks", "exportMasks"));
 
         panel.add(new JLabel("Coordinates:"));
         final JComponent[] coordinatesComponents = createCoordinatesComponents(container);
         panel.add(coordinatesComponents[0]);
         panel.add(coordinatesComponents[1]);
 
-        panel.add(new JLabel("Placemark file:"));
-        final JComponent[] placemarkFileComponents = createPlacemarkFileComponents(bindingContext);
-        panel.add(placemarkFileComponents[0]);
-        panel.add(placemarkFileComponents[1]);
+        panel.add(new JLabel("Export:"));
+        final JPanel exportPanel = createExportPanel(bindingContext);
+        panel.add(exportPanel);
+        panel.add(new JLabel());
 
         panel.add(new JLabel("Window size:"));
         windowSpinner = createWindowSizeEditor(bindingContext);
@@ -121,37 +118,24 @@ public class PixelExtractionParametersForm {
         panel.add(windowLabel);
     }
 
-    private void updateWindowLabel() {
-        windowLabel.setText(String.format("%1$d x %1$d", (Integer) windowSpinner.getValue()));
+    private JPanel createExportPanel(BindingContext bindingContext) {
+        final TableLayout tableLayout = new TableLayout(4);
+        tableLayout.setTablePadding(4, 0);
+        tableLayout.setTableFill(TableLayout.Fill.VERTICAL);
+        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        tableLayout.setColumnWeightX(3, 1.0);
+        tableLayout.setTableWeightY(1.0);
+        final JPanel exportPanel = new JPanel(tableLayout);
+
+        exportPanel.add(createIncludeCheckbox(bindingContext, "Bands", "exportBands"));
+        exportPanel.add(createIncludeCheckbox(bindingContext, "Tie-point grids", "exportTiePoints"));
+        exportPanel.add(createIncludeCheckbox(bindingContext, "Masks", "exportMasks"));
+        exportPanel.add(tableLayout.createHorizontalSpacer());
+        return exportPanel;
     }
 
-    private JComponent[] createPlacemarkFileComponents(BindingContext bindingContext) {
-        final JTextField textField = new JTextField();
-        final ComponentAdapter adapter = new TextComponentAdapter(textField);
-        final Binding binding = bindingContext.bind("coordinatesFile", adapter);
-        final JButton ellipsesButton = new JButton("...");
-        ellipsesButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                PropertyMap preferences = appContext.getPreferences();
-                String lastDir = preferences.getPropertyString(LAST_OPEN_PLACEMARK_DIR,
-                                                               SystemUtils.getUserHomeDir().getPath());
-                final JFileChooser fileChooser = new JFileChooser();
-                fileChooser.addChoosableFileFilter(PlacemarkIO.createPlacemarkFileFilter());
-                fileChooser.setFileFilter(PlacemarkIO.createTextFileFilter());
-
-                fileChooser.setCurrentDirectory(new File(lastDir));
-                int i = fileChooser.showDialog(panel, "Select");
-                File selectedFile = fileChooser.getSelectedFile();
-                if (i == JFileChooser.APPROVE_OPTION && selectedFile != null) {
-                    binding.setPropertyValue(selectedFile);
-                    preferences.setPropertyString(LAST_OPEN_PLACEMARK_DIR, selectedFile.getParent());
-                }
-            }
-
-        });
-        return new JComponent[]{textField, ellipsesButton};
+    private void updateWindowLabel() {
+        windowLabel.setText(String.format("%1$d x %1$d", (Integer) windowSpinner.getValue()));
     }
 
     private JCheckBox createIncludeCheckbox(BindingContext bindingContext, String labelText, String propertyName) {
@@ -162,13 +146,37 @@ public class PixelExtractionParametersForm {
         return checkbox;
     }
 
-    private JComponent[] createCoordinatesComponents(PropertyContainer container) {
-        final GenericListModel<GeoPos> listModel = new GenericListModel<GeoPos>(container.getProperty("coordinates"));
-        final JList coordinateList = new JList(listModel);
-        coordinateList.setVisibleRowCount(5);
-        coordinateList.setCellRenderer(new GeoPosListCellRenderer());
-        coordinateList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        final JScrollPane rasterScrollPane = new JScrollPane(coordinateList);
+    private JComponent[] createCoordinatesComponents(final PropertyContainer container) {
+        tableModel = new CoordinateTableModel();
+        Product selectedProduct = appContext.getSelectedProduct();
+        if (selectedProduct != null) {
+            final PlacemarkGroup pinGroup = selectedProduct.getPinGroup();
+            for (int i = 0; i < pinGroup.getNodeCount(); i++) {
+                tableModel.addPlacemark(pinGroup.get(i));
+            }
+        }
+        tableModel.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                Coordinate[] coords = new Coordinate[tableModel.getRowCount()];
+                for (int i = 0; i < tableModel.getRowCount(); i++) {
+                    final Placemark placemark = tableModel.getPlacemarkAt(i);
+                    coords[i] = new Coordinate(placemark.getName(), placemark.getGeoPos());
+                }
+                container.setValue("coordinates", coords);
+            }
+        });
+        final JTable coordinateTable = new JTable(tableModel);
+        coordinateTable.setName("coordinateTable");
+        coordinateTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        coordinateTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        coordinateTable.setRowSelectionAllowed(true);
+        coordinateTable.getTableHeader().setReorderingAllowed(false);
+        coordinateTable.setDefaultRenderer(Float.class, new FloatTableCellRenderer(new DecimalFormat("0.0000")));
+        coordinateTable.setPreferredScrollableViewportSize(new Dimension(300, 200));
+        coordinateTable.getColumnModel().getColumn(1).setCellEditor(new FloatCellEditor(-90, 90));
+        coordinateTable.getColumnModel().getColumn(2).setCellEditor(new FloatCellEditor(-180, 180));
+        final JScrollPane rasterScrollPane = new JScrollPane(coordinateTable);
         rasterScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         rasterScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
@@ -177,18 +185,11 @@ public class PixelExtractionParametersForm {
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                GeoPosInputDialog dialog = new GeoPosInputDialog(SwingUtilities.getWindowAncestor(panel),
-                                                                 "Specify geo position", ModalDialog.ID_OK_CANCEL,
-                                                                 null);
-                if (dialog.show() != AbstractDialog.ID_OK) {
-                    return;
-                }
-                Float lat = dialog.getLat();
-                Float lon = dialog.getLon();
-                try {
-                    listModel.addElement(new GeoPos(lat, lon));
-                } catch (ValidationException ignored) {
-                }
+                final JPopupMenu popup = new JPopupMenu("Add");
+                final Rectangle buttonBounds = addButton.getBounds();
+                popup.add(new AddCoordinateAction());
+                popup.add(new AddPlacemarkFileAction());
+                popup.show(addButton, 1, buttonBounds.height + 1);
             }
         });
         final AbstractButton removeButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Minus24.gif"),
@@ -196,12 +197,10 @@ public class PixelExtractionParametersForm {
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Object[] selectedValues = coordinateList.getSelectedValues();
-                GeoPos[] geoPositions = new GeoPos[selectedValues.length];
-                for (int i = 0; i < selectedValues.length; i++) {
-                    geoPositions[i] = (GeoPos) selectedValues[i];
+                int[] selectedRows = coordinateTable.getSelectedRows();
+                for (int selectedRow : selectedRows) {
+                    tableModel.removePlacemarkAt(selectedRow);
                 }
-                listModel.removeElements(geoPositions);
             }
         });
         final JPanel buttonPanel = new JPanel();
@@ -236,69 +235,60 @@ public class PixelExtractionParametersForm {
         return panel;
     }
 
-    private static class GenericListModel<T> extends AbstractListModel {
+    private class AddCoordinateAction extends AbstractAction {
 
-        private List<T> elementList;
-        private Property property;
-
-        private GenericListModel(Property property) {
-            this.property = property;
-            elementList = new ArrayList<T>();
+        private AddCoordinateAction() {
+            super("Add coordinate");
         }
 
         @Override
-        public int getSize() {
-            return elementList.size();
+        public void actionPerformed(ActionEvent e) {
+            final Placemark placemark = new Placemark("Coord_" + tableModel.getRowCount(), "", "",
+                                                      new PixelPos(), new GeoPos(0, 0),
+                                                      PinDescriptor.INSTANCE, null);
+            tableModel.addPlacemark(placemark);
+        }
+    }
+
+    private class AddPlacemarkFileAction extends AbstractAction {
+
+        private AddPlacemarkFileAction() {
+            super("Add coordinates from file");
         }
 
         @Override
-        public Object getElementAt(int index) {
-            return elementList.get(index);
-        }
+        public void actionPerformed(ActionEvent e) {
+            PropertyMap preferences = appContext.getPreferences();
+            String lastDir = preferences.getPropertyString(LAST_OPEN_PLACEMARK_DIR,
+                                                           SystemUtils.getUserHomeDir().getPath());
+            final JFileChooser fileChooser = new JFileChooser();
+            fileChooser.addChoosableFileFilter(PlacemarkIO.createPlacemarkFileFilter());
+            fileChooser.setFileFilter(PlacemarkIO.createTextFileFilter());
 
-        void addElement(T element) throws ValidationException {
-            if (!elementList.contains(element)) {
-                if (elementList.add(element)) {
-                    final int elemIndex = elementList.indexOf(element);
-                    fireIntervalAdded(this, elemIndex, elemIndex);
-                    updateProperty();
-                }
-            }
-        }
-
-        void removeElements(T... elements) {
-            for (T elem : elements) {
-                final int elemIndex = elementList.indexOf(elem);
-                if (elemIndex != -1) {
-                    elementList.remove(elemIndex);
-                    fireIntervalRemoved(this, elemIndex, elemIndex);
-                    try {
-                        updateProperty();
-                    } catch (ValidationException ignored) {
+            fileChooser.setCurrentDirectory(new File(lastDir));
+            int answer = fileChooser.showDialog(panel, "Select");
+            if (answer == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                preferences.setPropertyString(LAST_OPEN_PLACEMARK_DIR, selectedFile.getParent());
+                FileReader reader = null;
+                try {
+                    reader = new FileReader(selectedFile);
+                    final List<Placemark> placemarks = PlacemarkIO.readPlacemarks(reader, null, PinDescriptor.INSTANCE);
+                    for (Placemark placemark : placemarks) {
+                        tableModel.addPlacemark(placemark);
+                    }
+                } catch (IOException ioe) {
+                    appContext.handleError(String.format("Error occurred while reading file: %s", selectedFile), ioe);
+                } finally {
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException ignored) {
+                        }
                     }
                 }
             }
+
         }
-
-        @SuppressWarnings({"unchecked"})
-        private void updateProperty() throws ValidationException {
-            final T[] array = (T[]) Array.newInstance(property.getType().getComponentType(), elementList.size());
-            property.setValue(elementList.toArray(array));
-        }
-
-
-    }
-
-    private static class GeoPosListCellRenderer extends DefaultListCellRenderer {
-
-        @Override
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
-                                                      boolean cellHasFocus) {
-            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            GeoPos pos = (GeoPos) value;
-            label.setText(pos.getLat() + ", " + pos.getLon());
-            return label;
-        }
-
     }
 }

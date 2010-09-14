@@ -23,6 +23,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.ui.FloatTableCellRenderer;
 import org.esa.beam.visat.toolviews.placemark.AbstractPlacemarkTableModel;
 import org.esa.beam.visat.toolviews.placemark.PlacemarkManagerToolView;
 import org.esa.beam.visat.toolviews.placemark.TableModelFactory;
