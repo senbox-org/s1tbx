@@ -60,7 +60,7 @@ class PixelExtractionDialog extends ModelessDialog {
         final PropertyContainer propertyContainer = createParameterMap(parameterMap);
         propertyContainer.addProperty(Property.create("sourceProducts", Product[].class));
         ioForm = new PixelExtractionIOForm(appContext, propertyContainer);
-        final PixelExtractionProcessingForm parametersForm = new PixelExtractionProcessingForm(appContext,
+        final PixelExtractionParametersForm parametersForm = new PixelExtractionParametersForm(appContext,
                                                                                                propertyContainer);
         JTabbedPane tabbedPanel = new JTabbedPane();
         tabbedPanel.addTab("Input/Output", ioForm.getPanel());
