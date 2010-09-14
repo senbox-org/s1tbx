@@ -29,7 +29,7 @@ import java.util.List;
  */
 class InputFilesListModel extends AbstractListModel {
 
-    private List<Object> list = new ArrayList<Object>();
+    private List<File> list = new ArrayList<File>();
     private Property property;
 
     InputFilesListModel(Property property) {
@@ -37,7 +37,7 @@ class InputFilesListModel extends AbstractListModel {
     }
 
     @Override
-    public Object getElementAt(int index) {
+    public File getElementAt(int index) {
         return list.get(index);
     }
 
@@ -46,8 +46,8 @@ class InputFilesListModel extends AbstractListModel {
         return list.size();
     }
 
-    void addElement(Object... elements) throws ValidationException {
-        for (Object element : elements) {
+    void addElement(File... elements) throws ValidationException {
+        for (File element : elements) {
             if (!list.contains(element)) {
                 list.add(element);
             }
@@ -56,8 +56,8 @@ class InputFilesListModel extends AbstractListModel {
         fireIntervalAdded(this, 0, list.size());
     }
 
-    void removeElement(Object... elements) {
-        for (Object element : elements) {
+    void removeElement(File... elements) {
+        for (File element : elements) {
             list.remove(element);
         }
         try {
@@ -70,16 +70,30 @@ class InputFilesListModel extends AbstractListModel {
     private void updateProperty() throws ValidationException {
         File[] files = new File[list.size()];
         for (int i = 0; i < list.size(); i++) {
-            files[i] = new File(String.valueOf(list.get(i)));
+            files[i] = list.get(i);
         }
         property.setValue(files);
     }
 
-    public void clear() {
+    void clear() {
         list.clear();
         try {
             updateProperty();
         } catch (ValidationException ignored) {
         }
+    }
+
+    void removeElementsAt(int[] selectedIndices) {
+        List<File> toRemove = new ArrayList<File>();
+        for (int selectedIndex : selectedIndices) {
+            toRemove.add(list.get(selectedIndex));
+        }
+        list.removeAll(toRemove);
+
+        try {
+            updateProperty();
+        } catch (ValidationException ignored) {
+        }
+        fireIntervalRemoved(this, 0, list.size());
     }
 }

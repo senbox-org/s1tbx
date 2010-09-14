@@ -17,43 +17,118 @@
 package org.esa.beam.pet.visat;
 
 import com.bc.ceres.swing.TableLayout;
+import com.jidesoft.swing.CheckBoxList;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Thomas Storm
  */
-public class ProductChooser extends ModalDialog {
+class ProductChooser extends ModalDialog {
 
-    private final DefaultListModel listModel;
+    private CheckBoxList productsList;
 
-    public ProductChooser(Window parent, String title, int buttonMask, String helpID, Product[] products) {
+    ProductChooser(Window parent, String title, int buttonMask, String helpID, Product[] products) {
         super(parent, title, buttonMask, helpID);
 
-        TableLayout layout = new TableLayout(2);
+        TableLayout layout = new TableLayout(1);
+        layout.setTableFill(TableLayout.Fill.BOTH);
+        layout.setRowWeightY(0, 1.0);
+        layout.setRowWeightY(1, 0.0);
+        layout.setTableWeightX(1.0);
         JPanel panel = new JPanel(layout);
-        listModel = new DefaultListModel();
-        panel.add(new JScrollPane(new JList(listModel)));
 
+        DefaultListModel listModel = new MyDefaultListModel();
+        productsList = new CheckBoxList(listModel);
+        productsList.setCellRenderer(new ProductListCellRenderer());
         for (Product product : products) {
             listModel.addElement(product);
         }
 
+        panel.add(new JScrollPane(productsList));
+        panel.add(createButtonsPanel());
+
         setContent(panel);
     }
 
-    public Product[] getSelectedProducts() {
-        Product[] result = new Product[listModel.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = (Product) listModel.get(i);
-
+    List<Product> getSelectedProducts() {
+        List<Product> selectedProducts = new ArrayList<Product>();
+        for (int i = 0; i < productsList.getModel().getSize(); i++) {
+            if (productsList.getCheckBoxListSelectionModel().isSelectedIndex(i)) {
+                selectedProducts.add((Product) productsList.getModel().getElementAt(i));
+            }
         }
-        return result;
+        return selectedProducts;
     }
+
+    private JPanel createButtonsPanel() {
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        final JCheckBox selectAll = new JCheckBox("Select all");
+        final JCheckBox selectNone = new JCheckBox("Select none");
+        selectAll.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectAll.setEnabled(false);
+                selectNone.setEnabled(true);
+                selectNone.setSelected(false);
+                productsList.getCheckBoxListSelectionModel().setSelectionInterval(0, productsList.getModel().getSize());
+            }
+        });
+        selectNone.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectNone.setEnabled(false);
+                selectAll.setEnabled(true);
+                selectAll.setSelected(false);
+                productsList.getCheckBoxListSelectionModel().clearSelection();
+            }
+        });
+        buttonsPanel.add(selectAll);
+        buttonsPanel.add(selectNone);
+        return buttonsPanel;
+    }
+
+    private static class ProductListCellRenderer extends DefaultListCellRenderer {
+
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+                                                      boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            Product product = (Product) value;
+            label.setText(product.getName());
+            return label;
+        }
+
+    }
+
+    private static class MyDefaultListModel extends DefaultListModel {
+
+        @Override
+        public void addElement(Object obj) {
+            boolean alreadyContained = false;
+            for (int i = 0; i < getSize(); i++) {
+                alreadyContained |= ((Product) get(i)).getName().equals(((Product) obj).getName());
+            }
+            if (!alreadyContained) {
+                super.addElement(obj);
+            }
+        }
+    }
+
+
 }

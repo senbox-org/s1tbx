@@ -16,22 +16,24 @@
 
 package org.esa.beam.pet.visat;
 
+import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
 
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 /**
  * @author Thomas Storm
  */
-public class AddProductAction extends AbstractAction {
+class AddProductAction extends AbstractAction {
 
     private final AppContext appContext;
     private final InputFilesListModel listModel;
 
-    public AddProductAction(AppContext appContext, InputFilesListModel listModel) {
+    AddProductAction(AppContext appContext, InputFilesListModel listModel) {
         super("Add product(s)");
         this.appContext = appContext;
         this.listModel = listModel;
@@ -40,14 +42,18 @@ public class AddProductAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         ProductChooser productChooser = new ProductChooser(appContext.getApplicationWindow(), "Add product",
-                                                           ModalDialog.ID_OK_CANCEL, "",
+                                                           ModalDialog.ID_OK_CANCEL, "noHelpAvailable",
                                                            appContext.getProductManager().getProducts());
         if (productChooser.show() != ModalDialog.ID_OK) {
             return;
         }
-        Product[] selectedProducts = productChooser.getSelectedProducts();
-        for (Product selectedProduct : selectedProducts) {
-            System.out.println("selectedProduct = " + selectedProduct.getName());
+        try {
+            List<Product> selectedProducts = productChooser.getSelectedProducts();
+            for (Product selectedProduct : selectedProducts) {
+                listModel.addElement(selectedProduct.getFileLocation());
+            }
+        } catch (ValidationException ignore) {
+            // do nothing
         }
     }
 }

@@ -85,7 +85,7 @@ class AddFileAction extends AbstractAction {
 
         final File[] selectedFiles = fileChooser.getSelectedFiles();
         try {
-            listModel.addElement((Object[]) selectedFiles);
+            listModel.addElement(selectedFiles);
         } catch (ValidationException ve) {
             // not expected to ever come here
             appContext.handleError("Invalid input path", ve);

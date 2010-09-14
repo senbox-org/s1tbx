@@ -73,7 +73,7 @@ class AddDirectoryAction extends AbstractAction {
 
         if (!recursive) {
             try {
-                listModel.addElement(currentDir.getAbsolutePath());
+                listModel.addElement(currentDir);
             } catch (ValidationException ve) {
                 // not expected to ever come here
                 appContext.handleError("Invalid input path", ve);
@@ -90,7 +90,7 @@ class AddDirectoryAction extends AbstractAction {
     private void addFiles(File[] files) throws ValidationException {
         for (File file : files) {
             if (file.isDirectory()) {
-                listModel.addElement(file.getAbsolutePath());
+                listModel.addElement(file);
                 addFiles(file.listFiles());
             }
         }
@@ -108,7 +108,7 @@ class AddDirectoryAction extends AbstractAction {
         @Override
         protected Void doInBackground(ProgressMonitor pm) throws Exception {
             pm.beginTask("Collecting source directories", 1);
-            listModel.addElement(currentDir.getAbsolutePath());
+            listModel.addElement(currentDir);
             addFiles(currentDir.listFiles());
             pm.done();
             return null;

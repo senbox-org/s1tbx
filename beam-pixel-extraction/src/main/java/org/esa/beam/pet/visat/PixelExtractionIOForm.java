@@ -28,15 +28,18 @@ import org.esa.beam.util.SystemUtils;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -56,30 +59,83 @@ public class PixelExtractionIOForm {
     private JList inputPathsList;
     private JTextField outputDirTextField;
     private PropertyContainer container;
+    private AbstractButton fileChooserButton;
+    private final JLabel outputDirLabel;
 
     public PixelExtractionIOForm(final AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
         this.container = container;
 
-        panel = new JPanel(createLayout());
+        final TableLayout tableLayout = new TableLayout(3);
+        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTablePadding(4, 4);
+        tableLayout.setTableWeightX(0.0);
+        tableLayout.setTableWeightY(0.0);
+        tableLayout.setColumnWeightX(1, 1.0);
+        tableLayout.setCellWeightY(0, 1, 1.0);
+        tableLayout.setCellColspan(1, 0, 3);
+        tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH);
+        panel = new JPanel(tableLayout);
 
         inputPathsList = createInputPathsList(container.getProperty("inputPaths"));
         panel.add(new JLabel("Input paths:"));
         panel.add(new JScrollPane(inputPathsList));
-        final JPanel buttonPanel = new JPanel();
-        final BoxLayout layout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
-        buttonPanel.setLayout(layout);
-        buttonPanel.add(createAddInputButton());
-        buttonPanel.add(createRemoveInputButton());
-        panel.add(buttonPanel);
+        final JPanel addRemoveButtonPanel = new JPanel();
+        final BoxLayout layout = new BoxLayout(addRemoveButtonPanel, BoxLayout.Y_AXIS);
+        addRemoveButtonPanel.setLayout(layout);
+        addRemoveButtonPanel.add(createAddInputButton());
+        addRemoveButtonPanel.add(createRemoveInputButton());
+        panel.add(addRemoveButtonPanel);
 
-        panel.add(new JLabel("Output directory:"));
+        panel.add(createRadioButtonPanel());
+
+        outputDirLabel = new JLabel("Output directory:");
+        panel.add(outputDirLabel);
         outputDirTextField = new JTextField();
         outputDirTextField.setEditable(false);
         String path = getOutputPath(appContext);
         outputDirTextField.setText(path);
         panel.add(outputDirTextField);
-        panel.add(createFileChooserButton(container.getProperty("outputDir")));
+        fileChooserButton = createFileChooserButton(container.getProperty("outputDir"));
+        panel.add(fileChooserButton);
+    }
+
+    private JPanel createRadioButtonPanel() {
+        final JRadioButton exportButton = new JRadioButton("Export to output directory");
+        final JRadioButton clipboardButton = new JRadioButton("Copy to clipboard");
+        exportButton.setSelected(true);
+        container.setValue(PixelExtractionDialog.EXPORT_TO_FILE_PROPERTY, true);
+
+        exportButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setOutputUiEnabled(exportButton.isSelected());
+            }
+        });
+
+        clipboardButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setOutputUiEnabled(!clipboardButton.isSelected());
+            }
+        });
+
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(exportButton);
+        buttonGroup.add(clipboardButton);
+
+        JPanel radioButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        radioButtonPanel.add(exportButton);
+        radioButtonPanel.add(clipboardButton);
+        return radioButtonPanel;
+    }
+
+    private void setOutputUiEnabled(boolean enable) {
+        outputDirLabel.setEnabled(enable);
+        outputDirTextField.setEnabled(enable);
+        fileChooserButton.setEnabled(enable);
+        container.setValue(PixelExtractionDialog.EXPORT_TO_FILE_PROPERTY, enable);
     }
 
     private String getOutputPath(AppContext appContext) {
@@ -97,19 +153,6 @@ public class PixelExtractionIOForm {
         } catch (ValidationException ignore) {
         }
         return path;
-    }
-
-    private static TableLayout createLayout() {
-        final TableLayout tableLayout = new TableLayout(3);
-        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
-        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        tableLayout.setTablePadding(4, 4);
-        tableLayout.setTableWeightX(0.0);
-        tableLayout.setTableWeightY(0.0);
-        tableLayout.setColumnWeightX(1, 1.0);
-        tableLayout.setCellWeightY(0, 1, 1.0);
-        tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH);
-        return tableLayout;
     }
 
     private AbstractButton createFileChooserButton(final Property outputFileProperty) {
@@ -144,16 +187,6 @@ public class PixelExtractionIOForm {
     private JList createInputPathsList(Property property) {
         listModel = new InputFilesListModel(property);
         JList list = new JList(listModel);
-        if (appContext.getSelectedProduct() != null) {
-            File fileLocation = appContext.getSelectedProduct().getFileLocation();
-            if (fileLocation != null) {
-                try {
-                    listModel.addElement(fileLocation);
-                } catch (ValidationException ignore) {
-                    ignore.printStackTrace();
-                }
-            }
-        }
         list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         return list;
     }
@@ -182,7 +215,7 @@ public class PixelExtractionIOForm {
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                listModel.removeElement(inputPathsList.getSelectedValues());
+                listModel.removeElementsAt(inputPathsList.getSelectedIndices());
             }
         });
         return removeButton;
@@ -195,5 +228,17 @@ public class PixelExtractionIOForm {
     public void clear() {
         listModel.clear();
         outputDirTextField.setText("");
+    }
+
+    public void setSelectedProduct() {
+        if (appContext.getSelectedProduct() != null) {
+            File fileLocation = appContext.getSelectedProduct().getFileLocation();
+            if (fileLocation != null) {
+                try {
+                    listModel.addElement(fileLocation);
+                } catch (ValidationException ignore) {
+                }
+            }
+        }
     }
 }

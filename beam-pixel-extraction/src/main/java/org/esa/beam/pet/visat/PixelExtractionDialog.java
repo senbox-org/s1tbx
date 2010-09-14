@@ -47,6 +47,8 @@ class PixelExtractionDialog extends ModelessDialog {
     private final AppContext appContext;
     private final PixelExtractionIOForm ioForm;
 
+    static final String EXPORT_TO_FILE_PROPERTY = "exportToFile";
+
     PixelExtractionDialog(AppContext appContext, String title) {
         super(appContext.getApplicationWindow(), title, ID_APPLY_CLOSE_HELP, "pixelExtraction");
 
@@ -59,6 +61,8 @@ class PixelExtractionDialog extends ModelessDialog {
         parameterMap = new HashMap<String, Object>();
         final PropertyContainer propertyContainer = createParameterMap(parameterMap);
         propertyContainer.addProperty(Property.create("sourceProducts", Product[].class));
+        propertyContainer.addProperty(Property.create(EXPORT_TO_FILE_PROPERTY, Boolean.class));
+
         ioForm = new PixelExtractionIOForm(appContext, propertyContainer);
         final PixelExtractionParametersForm parametersForm = new PixelExtractionParametersForm(appContext,
                                                                                                propertyContainer);
@@ -83,6 +87,12 @@ class PixelExtractionDialog extends ModelessDialog {
         ioForm.clear();
     }
 
+    @Override
+    public int show() {
+        ioForm.setSelectedProduct();
+        return super.show();
+    }
+
     private PropertyContainer createParameterMap(Map<String, Object> map) {
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
         final PropertyContainer propertyContainer = PropertyContainer.createMapBacked(map,
@@ -95,29 +105,6 @@ class PixelExtractionDialog extends ModelessDialog {
             showErrorDialog(e.getMessage());
         }
         return propertyContainer;
-    }
-
-    public static void main(String[] args) throws Exception {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
-        final DefaultAppContext context = new DefaultAppContext("dev0");
-        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        registry.addOperatorSpi(new PetOp.Spi());
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                final PixelExtractionDialog dialog = new PixelExtractionDialog(context, "Pixel Extraction") {
-                    @Override
-                    protected void onClose() {
-                        System.exit(0);
-                    }
-                };
-                dialog.getJDialog().setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-                dialog.show();
-            }
-        });
-
     }
 
     private class MyProgressMonitorSwingWorker extends ProgressMonitorSwingWorker<Void, Void> {
@@ -155,4 +142,27 @@ class PixelExtractionDialog extends ModelessDialog {
             }
         }
     }
+
+    public static void main(String[] args) throws Exception {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+        final DefaultAppContext context = new DefaultAppContext("dev0");
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.addOperatorSpi(new PetOp.Spi());
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                final PixelExtractionDialog dialog = new PixelExtractionDialog(context, "Pixel Extraction") {
+                    @Override
+                    protected void onClose() {
+                        System.exit(0);
+                    }
+                };
+                dialog.getJDialog().setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                dialog.show();
+            }
+        });
+    }
+
 }
