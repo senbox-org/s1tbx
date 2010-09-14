@@ -23,9 +23,9 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.visat.toolviews.placemark.AbstractPlacemarkTableModel;
 import org.esa.beam.visat.toolviews.placemark.PlacemarkManagerToolView;
 import org.esa.beam.visat.toolviews.placemark.TableModelFactory;
-import org.esa.beam.visat.toolviews.placemark.AbstractPlacemarkTableModel;
 
 import javax.swing.table.TableColumnModel;
 import java.awt.Component;
@@ -42,6 +42,7 @@ public class GcpManagerToolView extends PlacemarkManagerToolView {
 
     public GcpManagerToolView() {
         super(GcpDescriptor.INSTANCE, new TableModelFactory() {
+            @Override
             public AbstractPlacemarkTableModel createTableModel(PlacemarkDescriptor placemarkDescriptor,
                                                                 Product product,
                                                                 Band[] selectedBands, TiePointGrid[] selectedGrids) {
