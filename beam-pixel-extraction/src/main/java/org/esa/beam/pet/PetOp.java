@@ -37,9 +37,15 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.jai.ResolutionLevel;
+import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
+import javax.media.jai.operator.ConstantDescriptor;
+import java.awt.Rectangle;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -169,8 +175,17 @@ public class PetOp extends Operator {
         final double[] values = new double[rasterNames.length];
         Arrays.fill(values, Double.NaN);
         final int numPixels = windowSize * windowSize;
+        final RenderedImage expressionImage;
+        if (expression != null) {
+            expressionImage = VirtualBandOpImage.create(expression, ProductData.TYPE_UINT8, 0,
+                                                        product, ResolutionLevel.MAXRES);
+        } else {
+            expressionImage = ConstantDescriptor.create((float) product.getSceneRasterWidth(),
+                                                        (float) product.getSceneRasterHeight(),
+                                                        new Byte[]{-1}, null);
+        }
+        final Raster validData = expressionImage.getData(new Rectangle(upperLeftX, upperLeftY, windowSize, windowSize));
         for (int n = 0; n < numPixels; n++) {
-            boolean isValid = false;
             int x = upperLeftX + n % windowSize;
             int y = upperLeftY + n / windowSize;
             for (int i = 0; i < rasterNames.length; i++) {
@@ -179,11 +194,10 @@ public class PetOp extends Operator {
                     double[] temp = new double[1];
                     raster.readPixels(x, y, 1, 1, temp);
                     values[i] = temp[0];
-                    raster.setValidPixelExpression(expression);
-                    isValid |= raster.isPixelValid(x, y);
                 }
             }
             GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
+            boolean isValid = validData.getSample(x,y, 0) != 0;
             final Measurement measure = new Measurement(coordinateID, coordinate.getName(),
                                                         product.getStartTime(), currentGeoPos, values, isValid);
             List<Measurement> measurementList = measurements.get(productType);
