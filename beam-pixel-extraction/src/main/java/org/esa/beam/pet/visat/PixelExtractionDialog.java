@@ -16,12 +16,10 @@
 
 package org.esa.beam.pet.visat;
 
-import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
@@ -43,7 +41,7 @@ import java.util.concurrent.ExecutionException;
 
 class PixelExtractionDialog extends ModelessDialog {
 
-    private Map<String, Object> parameterMap;
+    private final Map<String, Object> parameterMap;
     private final AppContext appContext;
     private final PixelExtractionIOForm ioForm;
 
@@ -60,8 +58,6 @@ class PixelExtractionDialog extends ModelessDialog {
 
         parameterMap = new HashMap<String, Object>();
         final PropertyContainer propertyContainer = createParameterMap(parameterMap);
-        propertyContainer.addProperty(Property.create("sourceProducts", Product[].class));
-        propertyContainer.addProperty(Property.create(EXPORT_TO_FILE_PROPERTY, Boolean.class));
 
         ioForm = new PixelExtractionIOForm(appContext, propertyContainer);
         final PixelExtractionParametersForm parametersForm = new PixelExtractionParametersForm(appContext,
@@ -95,16 +91,15 @@ class PixelExtractionDialog extends ModelessDialog {
 
     private PropertyContainer createParameterMap(Map<String, Object> map) {
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
-        final PropertyContainer propertyContainer = PropertyContainer.createMapBacked(map,
-                                                                                      PetOp.class,
-                                                                                      parameterDescriptorFactory);
+        final PropertyContainer container = PropertyContainer.createMapBacked(map, PetOp.class,
+                                                                              parameterDescriptorFactory);
         try {
-            propertyContainer.setDefaultValues();
+            container.setDefaultValues();
         } catch (ValidationException e) {
             e.printStackTrace();
             showErrorDialog(e.getMessage());
         }
-        return propertyContainer;
+        return container;
     }
 
     private class MyProgressMonitorSwingWorker extends ProgressMonitorSwingWorker<Void, Void> {

@@ -105,12 +105,17 @@ public class PixelExtractionIOForm {
         final JRadioButton exportButton = new JRadioButton("Export to output directory");
         final JRadioButton clipboardButton = new JRadioButton("Copy to clipboard");
         exportButton.setSelected(true);
-        container.setValue(PixelExtractionDialog.EXPORT_TO_FILE_PROPERTY, true);
 
         exportButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setOutputUiEnabled(exportButton.isSelected());
+                try {
+                    container.getProperty("outputDir").setValue(new File(outputDirTextField.getText()));
+                } catch (ValidationException e1) {
+                    //todo do this more smart
+                    e1.printStackTrace();
+                }
             }
         });
 
@@ -118,6 +123,12 @@ public class PixelExtractionIOForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setOutputUiEnabled(!clipboardButton.isSelected());
+                try {
+                    container.getProperty("outputDir").setValue(null);
+                } catch (ValidationException e1) {
+                    //todo do this more smart
+                    e1.printStackTrace();
+                }
             }
         });
 
@@ -135,7 +146,6 @@ public class PixelExtractionIOForm {
         outputDirLabel.setEnabled(enable);
         outputDirTextField.setEnabled(enable);
         fileChooserButton.setEnabled(enable);
-        container.setValue(PixelExtractionDialog.EXPORT_TO_FILE_PROPERTY, enable);
     }
 
     private String getOutputPath(AppContext appContext) {
