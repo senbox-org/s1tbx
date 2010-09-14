@@ -156,9 +156,7 @@ public class PetOp extends Operator {
     }
 
     void readMeasurement(Product product, Coordinate coordinate, int coordinateID,
-                         Map<String, List<Measurement>> measurements
-    ) throws
-      IOException {
+                         Map<String, List<Measurement>> measurements) throws IOException {
         PixelPos centerPos = product.getGeoCoding().getPixelPos(coordinate.getGeoPos(), null);
         if (!product.containsPixel(centerPos)) {
             return;

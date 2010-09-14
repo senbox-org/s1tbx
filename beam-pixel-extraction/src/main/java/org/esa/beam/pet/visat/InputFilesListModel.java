@@ -67,14 +67,6 @@ class InputFilesListModel extends AbstractListModel {
         fireIntervalRemoved(this, 0, list.size());
     }
 
-    private void updateProperty() throws ValidationException {
-        File[] files = new File[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            files[i] = list.get(i);
-        }
-        property.setValue(files);
-    }
-
     void clear() {
         list.clear();
         try {
@@ -95,5 +87,13 @@ class InputFilesListModel extends AbstractListModel {
         } catch (ValidationException ignored) {
         }
         fireIntervalRemoved(this, 0, list.size());
+    }
+
+    private void updateProperty() throws ValidationException {
+        File[] files = new File[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            files[i] = list.get(i);
+        }
+        property.setValue(files);
     }
 }

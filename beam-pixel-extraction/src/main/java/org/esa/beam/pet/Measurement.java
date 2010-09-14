@@ -38,31 +38,31 @@ class Measurement {
         System.arraycopy(values, 0, this.values, 0, values.length);
     }
 
-    public ProductData.UTC getStartTime() {
+    ProductData.UTC getStartTime() {
         return startTime;
     }
 
-    public double[] getValues() {
+    double[] getValues() {
         return values;
     }
 
-    public float getLat() {
+    float getLat() {
         return geoPos.lat;
     }
 
-    public float getLon() {
+    float getLon() {
         return geoPos.lon;
     }
 
-    public int getCoordinateID() {
+    int getCoordinateID() {
         return coordinateID;
     }
 
-    public String getCoordinateName() {
+    String getCoordinateName() {
         return coordinateName;
     }
 
-    public boolean isValid() {
+    boolean isValid() {
         return isValid;
     }
 }
