@@ -21,14 +21,17 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.TableLayout;
 import com.jidesoft.swing.FolderChooser;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -39,6 +42,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -99,6 +103,30 @@ class PixelExtractionIOForm {
         panel.add(outputDirTextField);
         fileChooserButton = createFileChooserButton(container.getProperty("outputDir"));
         panel.add(fileChooserButton);
+    }
+
+    JPanel getPanel() {
+        return panel;
+    }
+
+    void clear() {
+        listModel.clear();
+        outputDirTextField.setText("");
+    }
+
+    void setSelectedProduct() {
+        if (appContext.getSelectedProduct() != null) {
+            Product selectedProduct = appContext.getSelectedProduct();
+            try {
+                listModel.addElements(selectedProduct);
+            } catch (ValidationException ve) {
+                Debug.trace(ve);
+            }
+        }
+    }
+
+    Product[] getSourceProducts() {
+        return listModel.getSourceProducts();
     }
 
     private JPanel createRadioButtonPanel() {
@@ -193,9 +221,10 @@ class PixelExtractionIOForm {
         return button;
     }
 
-    private JList createInputPathsList(Property property) {
-        listModel = new InputFilesListModel(property);
+    private JList createInputPathsList(Property inputPaths) {
+        listModel = new InputFilesListModel(inputPaths);
         JList list = new JList(listModel);
+        list.setCellRenderer(new MyDefaultListCellRenderer());
         list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         return list;
     }
@@ -230,24 +259,20 @@ class PixelExtractionIOForm {
         return removeButton;
     }
 
-    public JPanel getPanel() {
-        return panel;
-    }
+    private class MyDefaultListCellRenderer extends DefaultListCellRenderer {
 
-    public void clear() {
-        listModel.clear();
-        outputDirTextField.setText("");
-    }
-
-    public void setSelectedProduct() {
-        if (appContext.getSelectedProduct() != null) {
-            File fileLocation = appContext.getSelectedProduct().getFileLocation();
-            if (fileLocation != null) {
-                try {
-                    listModel.addElement(fileLocation);
-                } catch (ValidationException ignore) {
-                }
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+                                                      boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            if (value instanceof File) {
+                label.setText(((File) value).getAbsolutePath());
+            } else if (value instanceof Product) {
+                Product product = (Product) value;
+                label.setText("[" + product.getRefNo() + "] " + product.getName());
             }
+
+            return label;
         }
     }
 }

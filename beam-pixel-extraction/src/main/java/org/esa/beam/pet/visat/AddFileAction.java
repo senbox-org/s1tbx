@@ -22,6 +22,7 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
@@ -83,26 +84,31 @@ class AddFileAction extends AbstractAction {
         preferences.setPropertyString(PixelExtractionIOForm.LAST_OPEN_INPUT_DIR,
                                       fileChooser.getCurrentDirectory().getAbsolutePath());
 
-        final File[] selectedFiles = fileChooser.getSelectedFiles();
+        final Object[] selectedProducts = fileChooser.getSelectedFiles();
         try {
-            listModel.addElement(selectedFiles);
+            listModel.addElements(selectedProducts);
         } catch (ValidationException ve) {
             // not expected to ever come here
             appContext.handleError("Invalid input path", ve);
         }
 
-        setLastOpenedFormat(preferences, selectedFiles);
+        setLastOpenedFormat(preferences, selectedProducts);
     }
 
-    private static void setLastOpenedFormat(PropertyMap preferences, File[] selectedFiles) {
+    private static void setLastOpenedFormat(PropertyMap preferences, Object[] selectedProducts) {
         String lastOpenedFormat = DimapProductConstants.DIMAP_FORMAT_NAME;
-        if (selectedFiles.length > 0) {
-            File lastSelectedFile = selectedFiles[selectedFiles.length - 1];
-            ProductReader productReader = ProductIO.getProductReaderForFile(lastSelectedFile);
+        if (selectedProducts.length > 0) {
+            Object lastSelectedProduct = selectedProducts[selectedProducts.length - 1];
+            ProductReader productReader = null;
+            if (lastSelectedProduct instanceof File) {
+                productReader = ProductIO.getProductReaderForFile((File) lastSelectedProduct);
+            } else if (lastSelectedProduct instanceof Product) {
+                productReader = ((Product) lastSelectedProduct).getProductReader();
+            }
             if (productReader != null) {
                 String[] formatNames = productReader.getReaderPlugIn().getFormatNames();
                 if (formatNames.length > 0) {
-                    lastOpenedFormat = formatNames[0];
+                    lastOpenedFormat = formatNames[formatNames.length - 1];
                 }
             }
 

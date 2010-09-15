@@ -17,13 +17,12 @@
 package org.esa.beam.pet.visat;
 
 import com.bc.ceres.binding.ValidationException;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.util.Debug;
 
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
-import java.util.List;
 
 /**
  * @author Thomas Storm
@@ -48,12 +47,9 @@ class AddProductAction extends AbstractAction {
             return;
         }
         try {
-            List<Product> selectedProducts = productChooser.getSelectedProducts();
-            for (Product selectedProduct : selectedProducts) {
-                listModel.addElement(selectedProduct.getFileLocation());
-            }
-        } catch (ValidationException ignore) {
-            // do nothing
+            listModel.addElements(productChooser.getSelectedProducts().toArray());
+        } catch (ValidationException ve) {
+            Debug.trace(ve);
         }
     }
 }
