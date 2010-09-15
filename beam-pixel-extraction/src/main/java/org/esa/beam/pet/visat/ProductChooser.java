@@ -53,7 +53,7 @@ class ProductChooser extends ModalDialog {
         layout.setTableWeightX(1.0);
         JPanel panel = new JPanel(layout);
 
-        DefaultListModel listModel = new MyDefaultListModel();
+        DefaultListModel listModel = new ProductListModel();
         productsList = new CheckBoxList(listModel);
         productsList.setCellRenderer(new ProductListCellRenderer());
         for (Product product : products) {
@@ -116,14 +116,21 @@ class ProductChooser extends ModalDialog {
 
     }
 
-    private static class MyDefaultListModel extends DefaultListModel {
+    private static class ProductListModel extends DefaultListModel {
 
         @Override
         public void addElement(Object obj) {
+            if (!(obj instanceof Product)) {
+                throw new IllegalArgumentException(
+                        "Only elements of type org.esa.beam.framework.datamodel.Product allowed.");
+            }
             boolean alreadyContained = false;
             for (int i = 0; i < getSize(); i++) {
-                alreadyContained |= ((Product) get(i)).getName().equals(((Product) obj).getName());
+                String currentProductName = ((Product) get(i)).getName();
+                String newProductName = ((Product) obj).getName();
+                alreadyContained |= currentProductName.equals(newProductName);
             }
+
             if (!alreadyContained) {
                 super.addElement(obj);
             }

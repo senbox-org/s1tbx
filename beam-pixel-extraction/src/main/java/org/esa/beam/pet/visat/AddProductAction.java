@@ -17,12 +17,16 @@
 package org.esa.beam.pet.visat;
 
 import com.bc.ceres.binding.ValidationException;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.Debug;
 
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Thomas Storm
@@ -42,7 +46,7 @@ class AddProductAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         ProductChooser productChooser = new ProductChooser(appContext.getApplicationWindow(), "Add product",
                                                            ModalDialog.ID_OK_CANCEL, "noHelpAvailable",
-                                                           appContext.getProductManager().getProducts());
+                                                           filterProducts());
         if (productChooser.show() != ModalDialog.ID_OK) {
             return;
         }
@@ -52,4 +56,17 @@ class AddProductAction extends AbstractAction {
             Debug.trace(ve);
         }
     }
+
+    private Product[] filterProducts() {
+        List<Product> currentlyOpenedProducts = Arrays.asList(listModel.getSourceProducts());
+        List<Product> productManagerProducts = Arrays.asList(appContext.getProductManager().getProducts());
+        ArrayList<Product> result = new ArrayList<Product>();
+        for (Product product : productManagerProducts) {
+            if (!currentlyOpenedProducts.contains(product)) {
+                result.add(product);
+            }
+        }
+        return result.toArray(new Product[result.size()]);
+    }
+
 }
