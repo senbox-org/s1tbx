@@ -47,7 +47,7 @@ class PixelExtractionDialog extends ModalDialog {
     private PixelExtractionParametersForm parametersForm;
 
     PixelExtractionDialog(AppContext appContext, String title) {
-        super(appContext.getApplicationWindow(), title, ID_OK | ID_CLOSE | ID_HELP , "pixelExtraction");
+        super(appContext.getApplicationWindow(), title, ID_OK | ID_CLOSE | ID_HELP, "pixelExtraction");
 
         this.appContext = appContext;
 
@@ -111,7 +111,7 @@ class PixelExtractionDialog extends ModalDialog {
         protected Void doInBackground(ProgressMonitor pm) throws Exception {
             pm.beginTask("Computing pixel values...", 1);
             try {
-                GPF.createProduct("Pet", parameterMap);
+                GPF.createProduct("Pet", parameterMap, ioForm.getSourceProducts());
                 pm.worked(1);
             } finally {
                 pm.done();
@@ -124,7 +124,7 @@ class PixelExtractionDialog extends ModalDialog {
             try {
                 get();
                 Object outputDir = parameterMap.get("outputDir");
-                String message = "";
+                String message;
                 if (outputDir != null) {
                     message = String.format(
                             "The pixel extraction tool has run successfully and written the result file(s) to %s.",

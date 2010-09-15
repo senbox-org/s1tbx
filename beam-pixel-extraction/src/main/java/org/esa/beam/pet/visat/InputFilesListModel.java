@@ -18,6 +18,7 @@ package org.esa.beam.pet.visat;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
+import org.esa.beam.framework.datamodel.Product;
 
 import javax.swing.AbstractListModel;
 import java.io.File;
@@ -29,15 +30,16 @@ import java.util.List;
  */
 class InputFilesListModel extends AbstractListModel {
 
-    private List<File> list = new ArrayList<File>();
-    private Property property;
+    private List<Object> list = new ArrayList<Object>();
+    private List<Product> sourceProducts = new ArrayList<Product>();
+    private Property inputPaths;
 
-    InputFilesListModel(Property property) {
-        this.property = property;
+    InputFilesListModel(Property inputPaths) {
+        this.inputPaths = inputPaths;
     }
 
     @Override
-    public File getElementAt(int index) {
+    public Object getElementAt(int index) {
         return list.get(index);
     }
 
@@ -46,25 +48,22 @@ class InputFilesListModel extends AbstractListModel {
         return list.size();
     }
 
-    void addElement(File... elements) throws ValidationException {
-        for (File element : elements) {
+    Product[] getSourceProducts() {
+        return sourceProducts.toArray(new Product[sourceProducts.size()]);
+    }
+
+    void addElements(Object... elements) throws ValidationException {
+        for (Object element : elements) {
+            if (!(element instanceof File || element instanceof Product)) {
+                throw new IllegalStateException(
+                        "Only java.io.File or org.esa.beam.framework.datamodel.Product allowed.");
+            }
             if (!list.contains(element)) {
                 list.add(element);
             }
         }
         updateProperty();
         fireIntervalAdded(this, 0, list.size());
-    }
-
-    void removeElement(File... elements) {
-        for (File element : elements) {
-            list.remove(element);
-        }
-        try {
-            updateProperty();
-        } catch (ValidationException ignored) {
-        }
-        fireIntervalRemoved(this, 0, list.size());
     }
 
     void clear() {
@@ -76,7 +75,7 @@ class InputFilesListModel extends AbstractListModel {
     }
 
     void removeElementsAt(int[] selectedIndices) {
-        List<File> toRemove = new ArrayList<File>();
+        List<Object> toRemove = new ArrayList<Object>();
         for (int selectedIndex : selectedIndices) {
             toRemove.add(list.get(selectedIndex));
         }
@@ -90,10 +89,17 @@ class InputFilesListModel extends AbstractListModel {
     }
 
     private void updateProperty() throws ValidationException {
-        File[] files = new File[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            files[i] = list.get(i);
+        List<File> files = new ArrayList<File>();
+        List<Product> products = new ArrayList<Product>();
+        for (Object element : list) {
+            if (element instanceof File) {
+                files.add((File) element);
+            } else if (element instanceof Product) {
+                products.add((Product) element);
+
+            }
         }
-        property.setValue(files);
+        inputPaths.setValue(files.toArray(new File[files.size()]));
+        sourceProducts = products;
     }
 }
