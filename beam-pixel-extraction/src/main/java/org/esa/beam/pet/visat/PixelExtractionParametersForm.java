@@ -27,6 +27,7 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.FloatCellEditor;
 import org.esa.beam.framework.ui.FloatTableCellRenderer;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.pet.Coordinate;
 
@@ -81,6 +82,10 @@ class PixelExtractionParametersForm {
         updateUi();
     }
 
+    public JPanel getPanel() {
+        return mainPanel;
+    }
+
     public Coordinate[] getCoordinates() {
         Coordinate[] coordinates = new Coordinate[coordinateTableModel.getRowCount()];
         for (int i = 0; i < coordinateTableModel.getRowCount(); i++) {
@@ -88,6 +93,18 @@ class PixelExtractionParametersForm {
             coordinates[i] = new Coordinate(placemark.getName(), placemark.getGeoPos());
         }
         return coordinates;
+    }
+
+    public String getExpression() {
+        if (useExpressionCheckBox.isSelected()) {
+            return expressionArea.getText();
+        } else {
+            return null;
+        }
+    }
+
+    public boolean isExportExpressionResultSelected() {
+        return exportExpressionResultButton.isSelected();
     }
 
     private void createUi(PropertyContainer container) {
@@ -138,7 +155,8 @@ class PixelExtractionParametersForm {
     }
 
     private void updateExpressionComponentsEnableState() {
-        editExpressionButton.setEnabled(useExpressionCheckBox.isSelected());
+        final Product product = appContext.getSelectedProduct();
+        editExpressionButton.setEnabled(useExpressionCheckBox.isSelected() && product != null);
         expressionArea.setEnabled(useExpressionCheckBox.isSelected());
         expressionAsFilterButton.setEnabled(useExpressionCheckBox.isSelected());
         exportExpressionResultButton.setEnabled(useExpressionCheckBox.isSelected());
@@ -166,8 +184,8 @@ class PixelExtractionParametersForm {
 
 
     private JCheckBox createIncludeCheckbox(BindingContext bindingContext, String labelText, String propertyName) {
-        final Property squareSizeProperty = bindingContext.getPropertySet().getProperty(propertyName);
-        final Boolean defaultValue = (Boolean) squareSizeProperty.getDescriptor().getDefaultValue();
+        final Property windowProperty = bindingContext.getPropertySet().getProperty(propertyName);
+        final Boolean defaultValue = (Boolean) windowProperty.getDescriptor().getDefaultValue();
         final JCheckBox checkbox = new JCheckBox(labelText, defaultValue);
         bindingContext.bind(propertyName, checkbox);
         return checkbox;
@@ -192,6 +210,16 @@ class PixelExtractionParametersForm {
             }
         });
         editExpressionButton = new JButton("Edit Expression...");
+        editExpressionButton.setToolTipText("Editor can only be used with a selected product.");
+        editExpressionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // todo how to handle products???
+                final Product product = appContext.getSelectedProduct();
+                ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product,
+                                                                  appContext.getPreferences());
+            }
+        });
         panel.add(useExpressionCheckBox);
         panel.add(editExpressionButton);
         expressionArea = new JTextArea();
@@ -200,11 +228,14 @@ class PixelExtractionParametersForm {
         expressionArea.setRows(3);
         panel.add(new JScrollPane(expressionArea));
         final ButtonGroup buttonGroup = new ButtonGroup();
-        expressionAsFilterButton = new JRadioButton("Use expression as filter");
+        expressionAsFilterButton = new JRadioButton("Use expression as filter",true);
         buttonGroup.add(expressionAsFilterButton);
         exportExpressionResultButton = new JRadioButton("Export expression result");
         buttonGroup.add(exportExpressionResultButton);
-
+        final Property exportResultProperty = bindingContext.getPropertySet().getProperty("exportExpressionResult");
+        final Boolean defaultValue = (Boolean) exportResultProperty.getDescriptor().getDefaultValue();
+        exportExpressionResultButton.setSelected(defaultValue);
+        expressionAsFilterButton.setSelected(!defaultValue);
         final TableLayout buttonTableLayout = new TableLayout(3);
         buttonTableLayout.setTablePadding(4, 0);
         buttonTableLayout.setTableFill(TableLayout.Fill.VERTICAL);
@@ -272,10 +303,6 @@ class PixelExtractionParametersForm {
         });
         bindingContext.bind("windowSize", spinner);
         return spinner;
-    }
-
-    public JPanel getPanel() {
-        return mainPanel;
     }
 
     private class AddPopupListener implements ActionListener {
