@@ -20,10 +20,6 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
-import org.esa.beam.dataio.placemark.PlacemarkIO;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.datamodel.Product;
@@ -33,15 +29,12 @@ import org.esa.beam.framework.ui.FloatTableCellRenderer;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.pet.Coordinate;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.SystemUtils;
 
-import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -53,17 +46,14 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.List;
 
-public class PixelExtractionParametersForm {
+class PixelExtractionParametersForm {
 
     private JPanel panel;
     private JLabel windowLabel;
@@ -71,9 +61,11 @@ public class PixelExtractionParametersForm {
     private AppContext appContext;
 
     static final String LAST_OPEN_PLACEMARK_DIR = "beam.petOp.lastOpenPlacemarkDir";
-    private CoordinateTableModel tableModel;
+    private CoordinateTableModel coordinateTableModel;
+    private static final ImageIcon ADD_ICON = UIUtils.loadImageIcon("icons/Plus24.gif");
+    private static final ImageIcon REMOVE_ICON = UIUtils.loadImageIcon("icons/Minus24.gif");
 
-    public PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
+    PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
 
         this.appContext = appContext;
 
@@ -89,16 +81,16 @@ public class PixelExtractionParametersForm {
         tableLayout.setColumnWeightX(1, 1.0);
 
         panel = new JPanel(tableLayout);
-        final BindingContext bindingContext = new BindingContext(container);
 
         panel.add(new JLabel("Coordinates:"));
         final JComponent[] coordinatesComponents = createCoordinatesComponents();
         panel.add(coordinatesComponents[0]);
         panel.add(coordinatesComponents[1]);
 
+        final BindingContext bindingContext = new BindingContext(container);
+
         panel.add(new JLabel("Export:"));
-        final JPanel exportPanel = createExportPanel(bindingContext);
-        panel.add(exportPanel);
+        panel.add(createExportPanel(bindingContext));
         panel.add(new JLabel());
 
         panel.add(new JLabel("Window size:"));
@@ -117,9 +109,9 @@ public class PixelExtractionParametersForm {
     }
 
     public Coordinate[] getCoordinates() {
-        Coordinate[] coordinates = new Coordinate[tableModel.getRowCount()];
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            final Placemark placemark = tableModel.getPlacemarkAt(i);
+        Coordinate[] coordinates = new Coordinate[coordinateTableModel.getRowCount()];
+        for (int i = 0; i < coordinateTableModel.getRowCount(); i++) {
+            final Placemark placemark = coordinateTableModel.getPlacemarkAt(i);
             coordinates[i] = new Coordinate(placemark.getName(), placemark.getGeoPos());
         }
         return coordinates;
@@ -154,16 +146,16 @@ public class PixelExtractionParametersForm {
     }
 
     private JComponent[] createCoordinatesComponents() {
-        tableModel = new CoordinateTableModel();
+        coordinateTableModel = new CoordinateTableModel();
         Product selectedProduct = appContext.getSelectedProduct();
         if (selectedProduct != null) {
             final PlacemarkGroup pinGroup = selectedProduct.getPinGroup();
             for (int i = 0; i < pinGroup.getNodeCount(); i++) {
-                tableModel.addPlacemark(pinGroup.get(i));
+                coordinateTableModel.addPlacemark(pinGroup.get(i));
             }
         }
 
-        final JTable coordinateTable = new JTable(tableModel);
+        final JTable coordinateTable = new JTable(coordinateTableModel);
         coordinateTable.setName("coordinateTable");
         coordinateTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         coordinateTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -177,29 +169,10 @@ public class PixelExtractionParametersForm {
         rasterScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         rasterScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"),
-                                                                        false);
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final JPopupMenu popup = new JPopupMenu("Add");
-                final Rectangle buttonBounds = addButton.getBounds();
-                popup.add(new AddCoordinateAction());
-                popup.add(new AddPlacemarkFileAction());
-                popup.show(addButton, 1, buttonBounds.height + 1);
-            }
-        });
-        final AbstractButton removeButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Minus24.gif"),
-                                                                           false);
-        removeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int[] selectedRows = coordinateTable.getSelectedRows();
-                for (int selectedRow : selectedRows) {
-                    tableModel.removePlacemarkAt(selectedRow);
-                }
-            }
-        });
+        final AbstractButton addButton = ToolButtonFactory.createButton(ADD_ICON, false);
+        addButton.addActionListener(new AddPopupListener());
+        final AbstractButton removeButton = ToolButtonFactory.createButton(REMOVE_ICON, false);
+        removeButton.addActionListener(new RemovePlacemarksListener(coordinateTable, coordinateTableModel));
         final JPanel buttonPanel = new JPanel();
         final BoxLayout layout = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
         buttonPanel.setLayout(layout);
@@ -232,60 +205,42 @@ public class PixelExtractionParametersForm {
         return panel;
     }
 
-    private class AddCoordinateAction extends AbstractAction {
-
-        private AddCoordinateAction() {
-            super("Add coordinate");
-        }
+    private class AddPopupListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            final Placemark placemark = new Placemark("Coord_" + tableModel.getRowCount(), "", "",
-                                                      new PixelPos(), new GeoPos(0, 0),
-                                                      PinDescriptor.INSTANCE, null);
-            tableModel.addPlacemark(placemark);
+            final JPopupMenu popup = new JPopupMenu("Add");
+            final Object source = e.getSource();
+            if (source instanceof Component) {
+                final Component component = (Component) source;
+                final Rectangle buttonBounds = component.getBounds();
+                popup.add(new AddCoordinateAction(coordinateTableModel));
+                popup.add(new AddPlacemarkFileAction(appContext, coordinateTableModel, panel));
+                popup.show(component, 1, buttonBounds.height + 1);
+            }
         }
     }
 
-    private class AddPlacemarkFileAction extends AbstractAction {
+    private static class RemovePlacemarksListener implements ActionListener {
 
-        private AddPlacemarkFileAction() {
-            super("Add coordinates from file");
+        private final JTable coordinateTable;
+        private final CoordinateTableModel tableModel;
+
+        private RemovePlacemarksListener(JTable coordinateTable, CoordinateTableModel tableModel) {
+            this.coordinateTable = coordinateTable;
+            this.tableModel = tableModel;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            PropertyMap preferences = appContext.getPreferences();
-            String lastDir = preferences.getPropertyString(LAST_OPEN_PLACEMARK_DIR,
-                                                           SystemUtils.getUserHomeDir().getPath());
-            final JFileChooser fileChooser = new JFileChooser();
-            fileChooser.addChoosableFileFilter(PlacemarkIO.createPlacemarkFileFilter());
-            fileChooser.setFileFilter(PlacemarkIO.createTextFileFilter());
-
-            fileChooser.setCurrentDirectory(new File(lastDir));
-            int answer = fileChooser.showDialog(panel, "Select");
-            if (answer == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                preferences.setPropertyString(LAST_OPEN_PLACEMARK_DIR, selectedFile.getParent());
-                FileReader reader = null;
-                try {
-                    reader = new FileReader(selectedFile);
-                    final List<Placemark> placemarks = PlacemarkIO.readPlacemarks(reader, null, PinDescriptor.INSTANCE);
-                    for (Placemark placemark : placemarks) {
-                        tableModel.addPlacemark(placemark);
-                    }
-                } catch (IOException ioe) {
-                    appContext.handleError(String.format("Error occurred while reading file: %s", selectedFile), ioe);
-                } finally {
-                    if (reader != null) {
-                        try {
-                            reader.close();
-                        } catch (IOException ignored) {
-                        }
-                    }
-                }
+            int[] selectedRows = coordinateTable.getSelectedRows();
+            Placemark[] toRemove = new Placemark[selectedRows.length];
+            for (int i = 0; i < selectedRows.length; i++) {
+                toRemove[i] = tableModel.getPlacemarkAt(selectedRows[i]);
             }
-
+            for (Placemark placemark : toRemove) {
+                tableModel.removePlacemark(placemark);
+            }
         }
     }
 }

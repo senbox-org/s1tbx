@@ -20,9 +20,9 @@ import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.visat.toolviews.placemark.AbstractPlacemarkTableModel;
 
-public class CoordinateTableModel extends AbstractPlacemarkTableModel {
+class CoordinateTableModel extends AbstractPlacemarkTableModel {
 
-    public CoordinateTableModel() {
+    CoordinateTableModel() {
         super(PinDescriptor.INSTANCE, null, null, null);
     }
 
