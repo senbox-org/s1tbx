@@ -1,5 +1,7 @@
 package org.esa.beam.pet;
 
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -7,6 +9,12 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.graph.Graph;
+import org.esa.beam.framework.gpf.graph.GraphContext;
+import org.esa.beam.framework.gpf.graph.GraphException;
+import org.esa.beam.framework.gpf.graph.GraphIO;
+import org.esa.beam.framework.gpf.graph.GraphProcessor;
+import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.After;
 import org.junit.Before;
@@ -20,7 +28,9 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.AffineTransform;
+import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,13 +55,78 @@ public class PetOpTest {
     }
 
     @Test
+    public void testUsingGraph() throws GraphException, IOException, UnsupportedFlavorException {
+
+        String parentDir = new File(getClass().getResource("dummy.dummy").getFile()).getParent();
+        int windowSize = 11;
+        Coordinate[] coordinates = new Coordinate[]{
+                new Coordinate("carlCoordinate", 60.1f, 3.0f),
+                new Coordinate("cassandraCoordinate", 59.1f, 0.5f)
+        };
+        String graphOpXml =
+                "<graph id=\"someGraphId\">\n" +
+                "    <version>1.0</version>\n" +
+                "    <node id=\"someNodeId\">\n" +
+                "      <operator>Pet</operator>\n" +
+                "      <parameters>\n" +
+                "        <inputPaths>\n" +
+                "           " + parentDir +
+                "        </inputPaths>\n" +
+                "        <exportTiePoints>false</exportTiePoints>\n" +
+                "        <exportBands>true</exportBands>\n" +
+                "        <exportMasks>false</exportMasks>                \n" +
+                "        <coordinates>\n" +
+                "          <coordinate>\n" +
+                "            <latitude>" + coordinates[0].getLat() + "</latitude>\n" +
+                "            <longitude>" + coordinates[0].getLon() + "</longitude>\n" +
+                "            <name>" + coordinates[0].getName() + "</name>\n" +
+                "          </coordinate>\n" +
+                "          <coordinate>\n" +
+                "            <latitude>" + coordinates[1].getLat() + "</latitude>\n" +
+                "            <longitude>" + coordinates[1].getLon() + "</longitude>\n" +
+                "            <name>" + coordinates[1].getName() + "</name>\n" +
+                "          </coordinate>\n" +
+                "        </coordinates>\n" +
+                "        <windowSize>" + windowSize + "</windowSize>\n" +
+                "      </parameters>\n" +
+                "    </node>\n" +
+                "  </graph>";
+        StringReader reader = new StringReader(graphOpXml);
+        Graph graph = GraphIO.read(reader);
+
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new PetOp.Spi());
+
+        GraphProcessor processor = new GraphProcessor();
+        GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+        processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
+        Product[] outputProducts = graphContext.getOutputProducts();
+        outputProducts[0].dispose();
+
+        List<Product> sourceProducts = new ArrayList<Product>();
+        File[] files = new File(parentDir).listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                continue;
+            }
+            if (FileUtils.getExtension(file).equalsIgnoreCase(".dim")) {
+                sourceProducts.add(ProductIO.readProduct(file));
+            }
+        }
+
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        String data = String.valueOf(clipboard.getData(clipboard.getAvailableDataFlavors()[0]));
+        checkData(data.split("\n"), sourceProducts.toArray(new Product[sourceProducts.size()]), coordinates,
+                  windowSize);
+    }
+
+    @Test
     public void testSingleProduct() throws Exception {
 
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", new GeoPos(10.0f, 10.0f)),
-                new Coordinate("coord2", new GeoPos(20.0f, 20.0f))
+                new Coordinate("coord1", 10.0f, 10.0f),
+                new Coordinate("coord2", 20.0f, 20.0f)
         };
         int windowSize = 3;
 
@@ -73,9 +148,9 @@ public class PetOpTest {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", new GeoPos(10.0f, 10.0f)),
-                new Coordinate("coord2", new GeoPos(20.0f, 20.0f)),
-                new Coordinate("coord3", new GeoPos(0.5f, 0.5f))
+                new Coordinate("coord1", 10.0f, 10.0f),
+                new Coordinate("coord2", 20.0f, 20.0f),
+                new Coordinate("coord3", 0.5f, 0.5f)
         };
         int windowSize = 5;
 
@@ -101,8 +176,8 @@ public class PetOpTest {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", new GeoPos(10.0f, 10.0f)),
-                new Coordinate("coord3", new GeoPos(0.5f, 0.5f))
+                new Coordinate("coord1", 10.0f, 10.0f),
+                new Coordinate("coord3", 0.5f, 0.5f)
         };
         int windowSize = 1;
 
@@ -130,9 +205,9 @@ public class PetOpTest {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", new GeoPos(10.0f, 10.0f)),
-                new Coordinate("coord2", new GeoPos(20.0f, 20.0f)),
-                new Coordinate("coord3", new GeoPos(0.5f, 0.5f))
+                new Coordinate("coord1", 10.0f, 10.0f),
+                new Coordinate("coord2", 20.0f, 20.0f),
+                new Coordinate("coord3", 0.5f, 0.5f)
         };
         int windowSize = 5;
 
@@ -159,10 +234,10 @@ public class PetOpTest {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", new GeoPos(10.0f, 10.0f)),
-                new Coordinate("coord2", new GeoPos(8.0f, 8.0f)),
-                new Coordinate("coord3", new GeoPos(2.5f, 1.0f)),
-                new Coordinate("coord4", new GeoPos(0.5f, 0.5f))
+                new Coordinate("coord1", 10.0f, 10.0f),
+                new Coordinate("coord2", 8.0f, 8.0f),
+                new Coordinate("coord3", 2.5f, 1.0f),
+                new Coordinate("coord4", 0.5f, 0.5f)
         };
         int windowSize = 13;
 
@@ -188,7 +263,7 @@ public class PetOpTest {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", new GeoPos(10.0f, 10.0f))
+                new Coordinate("coord1", 10.0f, 10.0f)
         };
         int windowSize = 2; // not allowed !!
 
@@ -214,7 +289,7 @@ public class PetOpTest {
         op.setWindowSize(3);
         Map<String, List<Measurement>> measurements = new HashMap<String, List<Measurement>>();
         GeoPos geoPos = new GeoPos(20, 10);
-        op.readMeasurement(product, new Coordinate("Coord_1", geoPos), 1, measurements);
+        op.readMeasurement(product, new Coordinate("Coord_1", geoPos.lat, geoPos.lon), 1, measurements);
         geoPos = new GeoPos(21, 9);
 
         List<Measurement> measurementList = measurements.get(productType);
@@ -248,8 +323,8 @@ public class PetOpTest {
         return data.split("\n");
     }
 
-    private Product createTestProduct(String name, String type, String[] bandNames) throws FactoryException,
-                                                                                           TransformException {
+    static Product createTestProduct(String name, String type, String[] bandNames) throws FactoryException,
+                                                                                          TransformException {
         Rectangle bounds = new Rectangle(360, 180);
         Product product = new Product(name, type, bounds.width, bounds.height);
         AffineTransform i2mTransform = new AffineTransform();
@@ -268,7 +343,7 @@ public class PetOpTest {
         return product;
     }
 
-    private float[] generateData(Rectangle bounds, int val) {
+    private static float[] generateData(Rectangle bounds, int val) {
         float[] floats = new float[bounds.width * bounds.height];
         Arrays.fill(floats, val);
         return floats;

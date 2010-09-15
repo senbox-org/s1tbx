@@ -20,6 +20,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.datamodel.Product;
@@ -90,7 +91,8 @@ class PixelExtractionParametersForm {
         Coordinate[] coordinates = new Coordinate[coordinateTableModel.getRowCount()];
         for (int i = 0; i < coordinateTableModel.getRowCount(); i++) {
             final Placemark placemark = coordinateTableModel.getPlacemarkAt(i);
-            coordinates[i] = new Coordinate(placemark.getName(), placemark.getGeoPos());
+            GeoPos geoPos = placemark.getGeoPos();
+            coordinates[i] = new Coordinate(placemark.getName(), geoPos.lat, geoPos.lon);
         }
         return coordinates;
     }
@@ -228,7 +230,7 @@ class PixelExtractionParametersForm {
         expressionArea.setRows(3);
         panel.add(new JScrollPane(expressionArea));
         final ButtonGroup buttonGroup = new ButtonGroup();
-        expressionAsFilterButton = new JRadioButton("Use expression as filter",true);
+        expressionAsFilterButton = new JRadioButton("Use expression as filter", true);
         buttonGroup.add(expressionAsFilterButton);
         exportExpressionResultButton = new JRadioButton("Export expression result");
         buttonGroup.add(exportExpressionResultButton);

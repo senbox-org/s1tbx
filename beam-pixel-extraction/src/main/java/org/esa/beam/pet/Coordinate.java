@@ -16,30 +16,37 @@
 
 package org.esa.beam.pet;
 
-import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 
 public class Coordinate {
+
     @Parameter(pattern = "[a-zA-Z_0-9]*")
     private String name;
-    @Parameter(alias = "position", converter = GeoPosConverter.class)
-    private GeoPos geoPos;
+    @Parameter(alias = "latitude")
+    private Float lat;
+    @Parameter(alias = "longitude")
+    private Float lon;
 
     @SuppressWarnings({"UnusedDeclaration"})
     public Coordinate() {
         // needed for serialize/de-serialize
     }
 
-    public Coordinate(String name, GeoPos geoPos) {
+    public Coordinate(String name, Float lat, Float lon) {
         this.name = name;
-        this.geoPos = geoPos;
+        this.lat = lat;
+        this.lon = lon;
     }
 
     public String getName() {
         return name;
     }
 
-    public GeoPos getGeoPos() {
-        return geoPos;
+    public Float getLat() {
+        return lat;
+    }
+
+    public Float getLon() {
+        return lon;
     }
 }

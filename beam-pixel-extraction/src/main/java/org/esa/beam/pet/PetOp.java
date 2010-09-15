@@ -155,7 +155,8 @@ public class PetOp extends Operator {
 
     void readMeasurement(Product product, Coordinate coordinate, int coordinateID,
                          Map<String, List<Measurement>> measurements) throws IOException {
-        PixelPos centerPos = product.getGeoCoding().getPixelPos(coordinate.getGeoPos(), null);
+        PixelPos centerPos = product.getGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()),
+                                                                null);
         if (!product.containsPixel(centerPos)) {
             return;
         }
@@ -221,7 +222,7 @@ public class PetOp extends Operator {
             for (Placemark pin : pins) {
                 final GeoPos geoPos = pin.getGeoPos();
                 if (geoPos != null) {
-                    coordinateList.add(new Coordinate(pin.getName(), geoPos));
+                    coordinateList.add(new Coordinate(pin.getName(), geoPos.lat, geoPos.lon));
                 }
             }
         } catch (IOException ignore) {
