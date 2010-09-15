@@ -55,20 +55,32 @@ import java.text.DecimalFormat;
 
 class PixelExtractionParametersForm {
 
+    private static final ImageIcon ADD_ICON = UIUtils.loadImageIcon("icons/Plus24.gif");
+    private static final ImageIcon REMOVE_ICON = UIUtils.loadImageIcon("icons/Minus24.gif");
+
     private JPanel panel;
     private JLabel windowLabel;
     private JSpinner windowSpinner;
     private AppContext appContext;
 
-    static final String LAST_OPEN_PLACEMARK_DIR = "beam.petOp.lastOpenPlacemarkDir";
-    private CoordinateTableModel coordinateTableModel;
-    private static final ImageIcon ADD_ICON = UIUtils.loadImageIcon("icons/Plus24.gif");
-    private static final ImageIcon REMOVE_ICON = UIUtils.loadImageIcon("icons/Minus24.gif");
+    private final CoordinateTableModel coordinateTableModel;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
-
         this.appContext = appContext;
+        coordinateTableModel = new CoordinateTableModel();
+        createUi(container);
+    }
 
+    public Coordinate[] getCoordinates() {
+        Coordinate[] coordinates = new Coordinate[coordinateTableModel.getRowCount()];
+        for (int i = 0; i < coordinateTableModel.getRowCount(); i++) {
+            final Placemark placemark = coordinateTableModel.getPlacemarkAt(i);
+            coordinates[i] = new Coordinate(placemark.getName(), placemark.getGeoPos());
+        }
+        return coordinates;
+    }
+
+    private void createUi(PropertyContainer container) {
         final TableLayout tableLayout = new TableLayout(3);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
@@ -108,15 +120,6 @@ class PixelExtractionParametersForm {
         panel.add(windowLabel);
     }
 
-    public Coordinate[] getCoordinates() {
-        Coordinate[] coordinates = new Coordinate[coordinateTableModel.getRowCount()];
-        for (int i = 0; i < coordinateTableModel.getRowCount(); i++) {
-            final Placemark placemark = coordinateTableModel.getPlacemarkAt(i);
-            coordinates[i] = new Coordinate(placemark.getName(), placemark.getGeoPos());
-        }
-        return coordinates;
-    }
-
     private JPanel createExportPanel(BindingContext bindingContext) {
         final TableLayout tableLayout = new TableLayout(4);
         tableLayout.setTablePadding(4, 0);
@@ -146,7 +149,6 @@ class PixelExtractionParametersForm {
     }
 
     private JComponent[] createCoordinatesComponents() {
-        coordinateTableModel = new CoordinateTableModel();
         Product selectedProduct = appContext.getSelectedProduct();
         if (selectedProduct != null) {
             final PlacemarkGroup pinGroup = selectedProduct.getPinGroup();

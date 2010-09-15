@@ -35,6 +35,8 @@ import java.util.List;
 
 class AddPlacemarkFileAction extends AbstractAction {
 
+    private static final String LAST_OPEN_PLACEMARK_DIR = "beam.petOp.lastOpenPlacemarkDir";
+
     private final CoordinateTableModel tableModel;
     private final AppContext appContext;
     private final JComponent parentComponent;
@@ -49,7 +51,7 @@ class AddPlacemarkFileAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         PropertyMap preferences = appContext.getPreferences();
-        String lastDir = preferences.getPropertyString(PixelExtractionParametersForm.LAST_OPEN_PLACEMARK_DIR,
+        String lastDir = preferences.getPropertyString(LAST_OPEN_PLACEMARK_DIR,
                                                        SystemUtils.getUserHomeDir().getPath());
         final JFileChooser fileChooser = new JFileChooser();
         fileChooser.addChoosableFileFilter(PlacemarkIO.createPlacemarkFileFilter());
@@ -59,7 +61,7 @@ class AddPlacemarkFileAction extends AbstractAction {
         int answer = fileChooser.showDialog(parentComponent, "Select");
         if (answer == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            preferences.setPropertyString(PixelExtractionParametersForm.LAST_OPEN_PLACEMARK_DIR, selectedFile.getParent());
+            preferences.setPropertyString(LAST_OPEN_PLACEMARK_DIR, selectedFile.getParent());
             FileReader reader = null;
             try {
                 reader = new FileReader(selectedFile);
