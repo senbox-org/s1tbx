@@ -32,15 +32,19 @@ import org.esa.beam.pet.Coordinate;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
@@ -58,17 +62,23 @@ class PixelExtractionParametersForm {
     private static final ImageIcon ADD_ICON = UIUtils.loadImageIcon("icons/Plus24.gif");
     private static final ImageIcon REMOVE_ICON = UIUtils.loadImageIcon("icons/Minus24.gif");
 
-    private JPanel panel;
+    private JPanel mainPanel;
     private JLabel windowLabel;
     private JSpinner windowSpinner;
     private AppContext appContext;
 
     private final CoordinateTableModel coordinateTableModel;
+    private JButton editExpressionButton;
+    private JCheckBox useExpressionCheckBox;
+    private JTextArea expressionArea;
+    private JRadioButton expressionAsFilterButton;
+    private JRadioButton exportExpressionResultButton;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
         coordinateTableModel = new CoordinateTableModel();
         createUi(container);
+        updateUi();
     }
 
     public Coordinate[] getCoordinates() {
@@ -87,27 +97,28 @@ class PixelExtractionParametersForm {
         tableLayout.setTablePadding(4, 4);
         tableLayout.setTableWeightX(0.0);
         tableLayout.setTableWeightY(0.0);
-        tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH);
-        tableLayout.setCellWeightY(0, 1, 1.0);
-        tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH);
         tableLayout.setColumnWeightX(1, 1.0);
+        tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH); // coordinate table
+        tableLayout.setCellWeightY(0, 1, 1.0);
+        tableLayout.setCellFill(3, 0, TableLayout.Fill.BOTH); // expression panel
+        tableLayout.setCellColspan(3, 0, 3);
 
-        panel = new JPanel(tableLayout);
+        mainPanel = new JPanel(tableLayout);
 
-        panel.add(new JLabel("Coordinates:"));
+        mainPanel.add(new JLabel("Coordinates:"));
         final JComponent[] coordinatesComponents = createCoordinatesComponents();
-        panel.add(coordinatesComponents[0]);
-        panel.add(coordinatesComponents[1]);
+        mainPanel.add(coordinatesComponents[0]);
+        mainPanel.add(coordinatesComponents[1]);
 
         final BindingContext bindingContext = new BindingContext(container);
 
-        panel.add(new JLabel("Export:"));
-        panel.add(createExportPanel(bindingContext));
-        panel.add(new JLabel());
+        mainPanel.add(new JLabel("Export:"));
+        mainPanel.add(createExportPanel(bindingContext));
+        mainPanel.add(new JLabel());
 
-        panel.add(new JLabel("Window size:"));
+        mainPanel.add(new JLabel("Window size:"));
         windowSpinner = createWindowSizeEditor(bindingContext);
-        panel.add(windowSpinner);
+        mainPanel.add(windowSpinner);
         windowLabel = new JLabel();
         windowLabel.setHorizontalAlignment(SwingConstants.CENTER);
         windowSpinner.addChangeListener(new ChangeListener() {
@@ -116,8 +127,25 @@ class PixelExtractionParametersForm {
                 updateWindowLabel();
             }
         });
+        mainPanel.add(windowLabel);
+
+        mainPanel.add(createExpressionPanel(bindingContext));
+    }
+
+    private void updateUi() {
         updateWindowLabel();
-        panel.add(windowLabel);
+        updateExpressionComponentsEnableState();
+    }
+
+    private void updateExpressionComponentsEnableState() {
+        editExpressionButton.setEnabled(useExpressionCheckBox.isSelected());
+        expressionArea.setEnabled(useExpressionCheckBox.isSelected());
+        expressionAsFilterButton.setEnabled(useExpressionCheckBox.isSelected());
+        exportExpressionResultButton.setEnabled(useExpressionCheckBox.isSelected());
+    }
+
+    private void updateWindowLabel() {
+        windowLabel.setText(String.format("%1$d x %1$d", (Integer) windowSpinner.getValue()));
     }
 
     private JPanel createExportPanel(BindingContext bindingContext) {
@@ -136,9 +164,6 @@ class PixelExtractionParametersForm {
         return exportPanel;
     }
 
-    private void updateWindowLabel() {
-        windowLabel.setText(String.format("%1$d x %1$d", (Integer) windowSpinner.getValue()));
-    }
 
     private JCheckBox createIncludeCheckbox(BindingContext bindingContext, String labelText, String propertyName) {
         final Property squareSizeProperty = bindingContext.getPropertySet().getProperty(propertyName);
@@ -146,6 +171,52 @@ class PixelExtractionParametersForm {
         final JCheckBox checkbox = new JCheckBox(labelText, defaultValue);
         bindingContext.bind(propertyName, checkbox);
         return checkbox;
+    }
+
+    private JPanel createExpressionPanel(BindingContext bindingContext) {
+        final TableLayout tableLayout = new TableLayout(2);
+        tableLayout.setTablePadding(4, 4);
+        tableLayout.setTableFill(TableLayout.Fill.VERTICAL);
+        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        tableLayout.setCellAnchor(0, 1, TableLayout.Anchor.NORTHEAST); // edit expression button
+        tableLayout.setCellFill(1, 0, TableLayout.Fill.BOTH); // expression text area
+        tableLayout.setCellColspan(1, 0, 2);
+        tableLayout.setCellColspan(2, 0, 2); // radio button group
+        final JPanel panel = new JPanel(tableLayout);
+
+        useExpressionCheckBox = new JCheckBox("Use band maths expression");
+        useExpressionCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateExpressionComponentsEnableState();
+            }
+        });
+        editExpressionButton = new JButton("Edit Expression...");
+        panel.add(useExpressionCheckBox);
+        panel.add(editExpressionButton);
+        expressionArea = new JTextArea();
+        expressionArea.setLineWrap(true);
+        expressionArea.setColumns(50);
+        expressionArea.setRows(3);
+        panel.add(new JScrollPane(expressionArea));
+        final ButtonGroup buttonGroup = new ButtonGroup();
+        expressionAsFilterButton = new JRadioButton("Use expression as filter");
+        buttonGroup.add(expressionAsFilterButton);
+        exportExpressionResultButton = new JRadioButton("Export expression result");
+        buttonGroup.add(exportExpressionResultButton);
+
+        final TableLayout buttonTableLayout = new TableLayout(3);
+        buttonTableLayout.setTablePadding(4, 0);
+        buttonTableLayout.setTableFill(TableLayout.Fill.VERTICAL);
+        buttonTableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        buttonTableLayout.setColumnWeightX(2, 1.0);
+        buttonTableLayout.setTableWeightY(1.0);
+        final JPanel expressionButtonPanel = new JPanel(buttonTableLayout);
+        expressionButtonPanel.add(expressionAsFilterButton);
+        expressionButtonPanel.add(exportExpressionResultButton);
+        expressionButtonPanel.add(buttonTableLayout.createHorizontalSpacer());
+        panel.add(expressionButtonPanel);
+        return panel;
     }
 
     private JComponent[] createCoordinatesComponents() {
@@ -204,7 +275,7 @@ class PixelExtractionParametersForm {
     }
 
     public JPanel getPanel() {
-        return panel;
+        return mainPanel;
     }
 
     private class AddPopupListener implements ActionListener {
@@ -217,7 +288,7 @@ class PixelExtractionParametersForm {
                 final Component component = (Component) source;
                 final Rectangle buttonBounds = component.getBounds();
                 popup.add(new AddCoordinateAction(coordinateTableModel));
-                popup.add(new AddPlacemarkFileAction(appContext, coordinateTableModel, panel));
+                popup.add(new AddPlacemarkFileAction(appContext, coordinateTableModel, mainPanel));
                 popup.show(component, 1, buttonBounds.height + 1);
             }
         }
