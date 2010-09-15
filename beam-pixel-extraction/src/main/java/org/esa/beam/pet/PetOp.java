@@ -89,7 +89,7 @@ public class PetOp extends Operator {
     @Parameter(description = "Specifies if masks are to be exported", defaultValue = "true")
     private Boolean exportMasks;
 
-    @Parameter(description = "The geo-coordinates")
+    @Parameter(description = "The geo-coordinates", itemAlias = "coordinate")
     private Coordinate[] coordinates;
 
     @Parameter(description = "Path to a file containing geo-coordinates")
