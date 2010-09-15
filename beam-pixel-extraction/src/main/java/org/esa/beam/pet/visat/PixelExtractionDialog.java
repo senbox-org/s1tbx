@@ -44,6 +44,7 @@ class PixelExtractionDialog extends ModalDialog {
     private final Map<String, Object> parameterMap;
     private final AppContext appContext;
     private final PixelExtractionIOForm ioForm;
+    private PixelExtractionParametersForm parametersForm;
 
     PixelExtractionDialog(AppContext appContext, String title) {
         super(appContext.getApplicationWindow(), title, ID_OK | ID_CLOSE | ID_HELP , "pixelExtraction");
@@ -58,8 +59,7 @@ class PixelExtractionDialog extends ModalDialog {
         final PropertyContainer propertyContainer = createParameterMap(parameterMap);
 
         ioForm = new PixelExtractionIOForm(appContext, propertyContainer);
-        final PixelExtractionParametersForm parametersForm = new PixelExtractionParametersForm(appContext,
-                                                                                               propertyContainer);
+        parametersForm = new PixelExtractionParametersForm(appContext, propertyContainer);
         JTabbedPane tabbedPanel = new JTabbedPane();
         tabbedPanel.addTab("Input/Output", ioForm.getPanel());
         tabbedPanel.addTab("Parameters", parametersForm.getPanel());
@@ -69,6 +69,7 @@ class PixelExtractionDialog extends ModalDialog {
 
     @Override
     protected void onOK() {
+        parameterMap.put("coordinates", parametersForm.getCoordinates());
         ProgressMonitorSwingWorker worker = new MyProgressMonitorSwingWorker(getParent(), "Creating output file(s)...");
         AbstractButton runButton = getButton(ID_OK);
         runButton.setEnabled(false);

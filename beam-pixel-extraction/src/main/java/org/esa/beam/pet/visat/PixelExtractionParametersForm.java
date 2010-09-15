@@ -53,8 +53,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -94,7 +92,7 @@ public class PixelExtractionParametersForm {
         final BindingContext bindingContext = new BindingContext(container);
 
         panel.add(new JLabel("Coordinates:"));
-        final JComponent[] coordinatesComponents = createCoordinatesComponents(container);
+        final JComponent[] coordinatesComponents = createCoordinatesComponents();
         panel.add(coordinatesComponents[0]);
         panel.add(coordinatesComponents[1]);
 
@@ -116,6 +114,15 @@ public class PixelExtractionParametersForm {
         });
         updateWindowLabel();
         panel.add(windowLabel);
+    }
+
+    public Coordinate[] getCoordinates() {
+        Coordinate[] coordinates = new Coordinate[tableModel.getRowCount()];
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            final Placemark placemark = tableModel.getPlacemarkAt(i);
+            coordinates[i] = new Coordinate(placemark.getName(), placemark.getGeoPos());
+        }
+        return coordinates;
     }
 
     private JPanel createExportPanel(BindingContext bindingContext) {
@@ -146,7 +153,7 @@ public class PixelExtractionParametersForm {
         return checkbox;
     }
 
-    private JComponent[] createCoordinatesComponents(final PropertyContainer container) {
+    private JComponent[] createCoordinatesComponents() {
         tableModel = new CoordinateTableModel();
         Product selectedProduct = appContext.getSelectedProduct();
         if (selectedProduct != null) {
@@ -156,18 +163,6 @@ public class PixelExtractionParametersForm {
             }
         }
 
-        // todo replace listener by gettter method used in Dialog.onApply()
-        tableModel.addTableModelListener(new TableModelListener() {
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                Coordinate[] coords = new Coordinate[tableModel.getRowCount()];
-                for (int i = 0; i < tableModel.getRowCount(); i++) {
-                    final Placemark placemark = tableModel.getPlacemarkAt(i);
-                    coords[i] = new Coordinate(placemark.getName(), placemark.getGeoPos());
-                }
-                container.setValue("coordinates", coords);
-            }
-        });
         final JTable coordinateTable = new JTable(tableModel);
         coordinateTable.setName("coordinateTable");
         coordinateTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
