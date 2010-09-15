@@ -6,8 +6,9 @@
 
     <description>
         <![CDATA[
-        The BEAM MERIS Equalization aims to remove detector-to-detector systematic radiometric
-        differences in MERIS L1b data products.
+        The MERIS equalization module performs a radiometric equalization of the MERIS L1b products (RR, FR and FRS). It
+        reduces detector-to-detector and camera-to-camera systematic radiometric differences and results into a diminution
+        of the vertical stripping observed on MERIS L1b products.<br/>
          <p>Documentation:</p>
         <ul>
             <li><a href="http://org.esa.beam.s3.amazonaws.com/docs/beam/beam-meris-equalization/Bouvet_TN_MERIS_equalization_2nd_reprocessing_v1.3.pdf">Bouvet M., Ramoino F. (2010): Equalization of MERIS L1b products from the 2nd reprocessing, ESA TN TEC-EEP/2009.521/MB</a></li>
