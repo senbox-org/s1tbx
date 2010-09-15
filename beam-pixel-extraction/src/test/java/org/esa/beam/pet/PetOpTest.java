@@ -9,6 +9,7 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -16,7 +17,7 @@ import org.opengis.referencing.operation.TransformException;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
@@ -29,6 +30,19 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 public class PetOpTest {
+
+    private Transferable clipboardContents;
+
+
+    @Before
+    public void before() {
+        clipboardContents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+    }
+
+    @After
+    public void tearDown() {
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(clipboardContents, null);
+    }
 
     @Test
     public void testSingleProduct() throws Exception {
@@ -302,12 +316,6 @@ public class PetOpTest {
             assertTrue(lines[headerLine].startsWith(header));
             assertTrue(containsBandNames);
         }
-    }
-
-    @After
-    public void tearDown() {
-        StringSelection contents = new StringSelection("");
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(contents, contents);
     }
 
 }
