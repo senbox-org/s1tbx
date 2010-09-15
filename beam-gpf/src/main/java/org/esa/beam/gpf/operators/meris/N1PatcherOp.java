@@ -100,10 +100,6 @@ public class N1PatcherOp extends MerisBasisOp {
 
     private static final int DSR_HEADER_SIZE = 13;
 
-    private byte[] mph;
-
-    private byte[] sph;
-
     private int dsd_size; // Size of a dataset descriptor
 
     private int num_dsd; // Number of dataset descriptors
@@ -114,42 +110,46 @@ public class N1PatcherOp extends MerisBasisOp {
 
     private ImageInputStream inputStream;
     private ImageOutputStream outputStream;
+    private final Object syncObject = new Object();
 
     @Parameter(description = "The file to which the patched L1b product is written.")
     private File patchedFile = null;
-    
+
     @SourceProduct(alias = "n1")
     private Product n1Product;
     @SourceProduct(alias = "input")
     private Product sourceProduct;
-    
+
     @TargetProduct
     private Product targetProduct;
+
 
     @Override
     public void initialize() throws OperatorException {
         targetProduct = createCompatibleProduct(n1Product, "n1Product", "MER_L1");
         for (String bandName : n1Product.getBandNames()) {
-            if(!bandName.equals("l1_flags")) {
+            if (!"l1_flags".equals(bandName)) {
                 ProductUtils.copyBand(bandName, n1Product, targetProduct);
             }
         }
         ProductUtils.copyFlagBands(n1Product, targetProduct);
         try {
             File originalFileLocation = n1Product.getFileLocation();
-            inputStream = new FileImageInputStream(originalFileLocation);
-            outputStream = new FileImageOutputStream(patchedFile);
 
-            parseMPH();
-            parseSPH();
-            copyHeader();
+            synchronized (syncObject) {
+                inputStream = new FileImageInputStream(originalFileLocation);
+                outputStream = new FileImageOutputStream(patchedFile);
+                byte[] mph = parseMPH();
+                byte[] sph = parseSPH();
+                copyHeader(mph, sph);
+            }
         } catch (IOException e) {
             throw new OperatorException(e);
         }
     }
 
-    private void parseMPH() throws IOException {
-        mph = new byte[MPH_SIZE];
+    private byte[] parseMPH() throws IOException {
+        byte[] mph = new byte[MPH_SIZE];
 
         // read complete MPH
         inputStream.seek(0);
@@ -161,10 +161,11 @@ public class N1PatcherOp extends MerisBasisOp {
                                                MPH_SPH_SIZE_LENGTH));
         dsd_size = Integer.parseInt(new String(mph, MPH_DSD_SIZE_OFFSET,
                                                MPH_DSD_SIZE_LENGTH));
+        return mph;
     }
 
-    private void parseSPH() throws IOException {
-        sph = new byte[sph_size];
+    private byte[] parseSPH() throws IOException {
+        byte[] sph = new byte[sph_size];
 
         // read complete SPH
         inputStream.seek(MPH_SIZE);
@@ -186,7 +187,7 @@ public class N1PatcherOp extends MerisBasisOp {
 
                 dsd.dsType = readCharBuf(sph, dsdPtr + DSD_DS_TYPE_OFFSET);
                 dsd.dsOffset = readIntBuf(sph, dsdPtr + DSD_DS_OFFSET_OFFSET
-                        + 1, DSD_DS_OFFSET_LENGTH - 1);
+                                               + 1, DSD_DS_OFFSET_LENGTH - 1);
                 dsd.dsSize = readIntBuf(sph, dsdPtr + DSD_DS_SIZE_OFFSET + 1,
                                         DSD_DS_SIZE_LENGTH - 1);
                 dsd.numDsr = readIntBuf(sph, dsdPtr + DSD_NUM_DSR_OFFSET + 1,
@@ -199,9 +200,10 @@ public class N1PatcherOp extends MerisBasisOp {
             dsDescriptors[i] = dsd;
             dsdPtr += dsd_size;
         }
+        return sph;
     }
 
-    private void copyHeader() throws IOException {
+    private void copyHeader(byte[] mph, byte[] sph) throws IOException {
         outputStream.seek(0);
         outputStream.write(mph);
         outputStream.write(sph);
@@ -244,44 +246,47 @@ public class N1PatcherOp extends MerisBasisOp {
                     targetTile.setSample(x, y, srcTile.getSampleDouble(x, y));
                 }
             }
-            if (band.getName().startsWith("radiance")) {
-                DatasetDescriptor descriptor = getDatasetDescriptorForBand(band);
-                if (descriptor != null) {
-                    short[] data = (short[]) srcTile.getRawSamples().getElems();
+            synchronized (syncObject) {
+                if (band.getName().startsWith("radiance")) {
+                    DatasetDescriptor descriptor = getDatasetDescriptorForBand(band);
+                    if (descriptor != null) {
+                        short[] data = (short[]) srcTile.getRawSamples().getElems();
 
-                    byte[] buf = new byte[rectangle.height * descriptor.dsrSize];
-                    final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
-                    inputStream.seek(dsrOffset);
-                    inputStream.read(buf);
-                    outputStream.seek(dsrOffset);
-                    for (int y = 0; y < rectangle.height; y++) {
-                        outputStream.write(buf, y * descriptor.dsrSize, DSR_HEADER_SIZE);
-                        outputStream.skipBytes((targetProduct.getSceneRasterWidth() - rectangle.width - rectangle.x) * 2);
-                        for (int x = rectangle.width - 1; x >= 0; x--) {
-                            outputStream.writeShort(data[x + y * rectangle.width]);
+                        byte[] buf = new byte[rectangle.height * descriptor.dsrSize];
+                        final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
+                        inputStream.seek(dsrOffset);
+                        inputStream.read(buf);
+                        outputStream.seek(dsrOffset);
+                        for (int y = 0; y < rectangle.height; y++) {
+                            outputStream.write(buf, y * descriptor.dsrSize, DSR_HEADER_SIZE);
+                            outputStream.skipBytes(
+                                    (targetProduct.getSceneRasterWidth() - rectangle.width - rectangle.x) * 2);
+                            for (int x = rectangle.width - 1; x >= 0; x--) {
+                                outputStream.writeShort(data[x + y * rectangle.width]);
+                            }
+                            outputStream.skipBytes((rectangle.x) * 2);
+                            checkForCancellation(pm);
+                            pm.worked(1);
                         }
-                        outputStream.skipBytes((rectangle.x) * 2);
-                        checkForCancellation(pm);
-                        pm.worked(1);
                     }
-                }
-            } else if (band.getName().equals("l1_flags")) {
-                DatasetDescriptor descriptor = getDatasetDescriptorForFlagBand();
-                if (descriptor != null) {
-                    byte[] data = (byte[]) srcTile.getRawSamples().getElems();
+                } else if ("l1_flags".equals(band.getName())) {
+                    DatasetDescriptor descriptor = getDatasetDescriptorForFlagBand();
+                    if (descriptor != null) {
+                        byte[] data = (byte[]) srcTile.getRawSamples().getElems();
 
-                    final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
-                    outputStream.seek(dsrOffset);
-                    for (int y = 0; y < rectangle.height; y++) {
-                        outputStream.skipBytes(DSR_HEADER_SIZE);
-                        outputStream.skipBytes(targetProduct.getSceneRasterWidth() - rectangle.width - rectangle.x);
-                        for (int x = rectangle.width - 1; x >= 0; x--) {
-                            outputStream.writeByte(data[x + y * rectangle.width]);
+                        final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
+                        outputStream.seek(dsrOffset);
+                        for (int y = 0; y < rectangle.height; y++) {
+                            outputStream.skipBytes(DSR_HEADER_SIZE);
+                            outputStream.skipBytes(targetProduct.getSceneRasterWidth() - rectangle.width - rectangle.x);
+                            for (int x = rectangle.width - 1; x >= 0; x--) {
+                                outputStream.writeByte(data[x + y * rectangle.width]);
+                            }
+                            outputStream.skipBytes(rectangle.x);
+                            outputStream.skipBytes(targetProduct.getSceneRasterWidth() * 2);
+                            checkForCancellation(pm);
+                            pm.worked(1);
                         }
-                        outputStream.skipBytes(rectangle.x);
-                        outputStream.skipBytes(targetProduct.getSceneRasterWidth()*2);
-                        checkForCancellation(pm);
-                        pm.worked(1);
                     }
                 }
             }
@@ -291,11 +296,10 @@ public class N1PatcherOp extends MerisBasisOp {
             pm.done();
         }
     }
-    
+
     private DatasetDescriptor getDatasetDescriptorForFlagBand() {
-        DatasetDescriptor descriptor;
         for (DatasetDescriptor dsDescriptor : dsDescriptors) {
-            descriptor = dsDescriptor;
+            DatasetDescriptor descriptor = dsDescriptor;
             final String dsName = descriptor.dsName;
             if (dsName != null && dsName.startsWith("Flag")) {
                 return descriptor;
@@ -305,9 +309,8 @@ public class N1PatcherOp extends MerisBasisOp {
     }
 
     private DatasetDescriptor getDatasetDescriptorForBand(Band band) {
-        DatasetDescriptor descriptor;
         for (DatasetDescriptor dsDescriptor : dsDescriptors) {
-            descriptor = dsDescriptor;
+            DatasetDescriptor descriptor = dsDescriptor;
             final String dsName = descriptor.dsName;
             if (dsName != null && dsName.startsWith("Radiance")) {
                 int beginIndex = dsName.indexOf('(');
@@ -325,37 +328,40 @@ public class N1PatcherOp extends MerisBasisOp {
     @Override
     public void dispose() {
         try {
-            targetProduct.closeIO();
-            inputStream.close();
-            outputStream.close();
+            synchronized (syncObject) {
+                targetProduct.closeIO();
+                inputStream.close();
+                outputStream.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    final private static class DatasetDescriptor {
+    private static final class DatasetDescriptor {
 
         // true, if descriptor is empty
-        boolean isSpare = false;
+        private boolean isSpare = false;
 
-        char dsType;
+        private char dsType;
 
-        int dsSize;
+        private int dsSize;
 
-        long dsOffset;
+        private long dsOffset;
 
-        long dsdPtr;
+        private long dsdPtr;
 
         // num records
-        int numDsr;
+        private int numDsr;
 
         // record size
-        int dsrSize;
+        private int dsrSize;
 
-        String dsName;
+        private String dsName;
     }
 
     public static class Spi extends OperatorSpi {
+
         public Spi() {
             super(N1PatcherOp.class);
         }
