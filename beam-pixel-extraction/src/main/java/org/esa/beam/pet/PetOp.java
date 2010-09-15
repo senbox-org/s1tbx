@@ -145,16 +145,8 @@ public class PetOp extends Operator {
         }
     }
 
-    Integer getWindowSize() {
-        return windowSize;
-    }
-
     void setWindowSize(Integer windowSize) {
         this.windowSize = windowSize;
-    }
-
-    Map<String, String[]> getRasterNamesMap() {
-        return rasterNamesMap;
     }
 
     void setRasterNamesMap(Map<String, String[]> rasterNamesMap) {
@@ -197,7 +189,7 @@ public class PetOp extends Operator {
                 }
             }
             GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
-            boolean isValid = validData.getSample(x,y, 0) != 0;
+            boolean isValid = validData.getSample(x, y, 0) != 0;
             final Measurement measure = new Measurement(coordinateID, coordinate.getName(),
                                                         product.getStartTime(), currentGeoPos, values, isValid);
             List<Measurement> measurementList = measurements.get(productType);
@@ -344,7 +336,7 @@ public class PetOp extends Operator {
             try {
                 String[] rasterNames = rasterNamesMap.get(productType);
                 MeasurementWriter.write(measurementList, stringWriter, rasterNames, expression, exportExpressionResult);
-                stringWriter.append("\n\n");
+                stringWriter.append("\n");
             } finally {
                 try {
                     stringWriter.close();
