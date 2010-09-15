@@ -16,6 +16,7 @@
 
 package org.esa.beam;
 
+@SuppressWarnings({"UnusedDeclaration"})
 enum REPROCESSING_VERSION {
     AUTO_DETECT(-1),
     REPROCESSING_2(2),

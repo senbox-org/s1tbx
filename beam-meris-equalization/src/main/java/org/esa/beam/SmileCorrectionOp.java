@@ -48,6 +48,7 @@ public class SmileCorrectionOp extends MerisBasisOp {
     @SourceProduct(alias = "source", label = "Name", description = "The source product.")
     private Product sourceProduct;
 
+    @SuppressWarnings({"FieldCanBeLocal"})
     @TargetProduct(description = "The target product.")
     private Product targetProduct;
 
@@ -101,8 +102,8 @@ public class SmileCorrectionOp extends MerisBasisOp {
 
         try {
             smileAlgorithm = new SmileAlgorithm(sourceProduct.getProductType());
-        } catch (IOException e) {
-            throw new OperatorException("Could not load Smile auxdata.");
+        } catch (IOException ioe) {
+            throw new OperatorException("Could not load Smile auxdata.", ioe);
         }
     }
 
@@ -121,11 +122,12 @@ public class SmileCorrectionOp extends MerisBasisOp {
         try {
             Tile[] radianceTiles = new Tile[EnvisatConstants.MERIS_L1B_NUM_SPECTRAL_BANDS];
             for (int index : requiredSourceBands) {
-                radianceTiles[index] = getSourceTile(sourceProduct.getBandAt(index), rect, SubProgressMonitor.create(pm, 1));
+                radianceTiles[index] = getSourceTile(sourceProduct.getBandAt(index), rect,
+                                                     SubProgressMonitor.create(pm, 1));
             }
 
             Tile detectorIndexTile = getSourceTile(sourceProduct.getRasterDataNode("detector_index"),
-                    rect, SubProgressMonitor.create(pm, 1));
+                                                   rect, SubProgressMonitor.create(pm, 1));
             Tile isLandTile = getSourceTile(landMaskBand, rect, SubProgressMonitor.create(pm, 1));
             Tile isValidTile = getSourceTile(validMaskBand, rect, SubProgressMonitor.create(pm, 1));
 
@@ -135,12 +137,13 @@ public class SmileCorrectionOp extends MerisBasisOp {
                 for (int x = targetTile.getMinX(); x <= targetTile.getMaxX(); x++) {
                     int detectorIndex = detectorIndexTile.getSampleInt(x, y);
                     boolean correctionPossible = detectorIndex >= 0 &&
-                            detectorIndex < maxDetectorIndex &&
-                            isValidTile.getSampleBoolean(x, y);
+                                                 detectorIndex < maxDetectorIndex &&
+                                                 isValidTile.getSampleBoolean(x, y);
 
                     double correctedValue;
                     if (correctionPossible) {
-                        correctedValue = smileAlgorithm.correct(x, y, bandIndex, detectorIndex, radianceTiles, isLandTile.getSampleBoolean(x, y));
+                        correctedValue = smileAlgorithm.correct(x, y, bandIndex, detectorIndex, radianceTiles,
+                                                                isLandTile.getSampleBoolean(x, y));
                     } else {
                         correctedValue = radianceTiles[bandIndex].getSampleDouble(x, y);
                     }
@@ -149,14 +152,15 @@ public class SmileCorrectionOp extends MerisBasisOp {
                 checkForCancellation(pm);
                 pm.worked(1);
             }
-        }finally {
+        } finally {
             pm.done();
         }
     }
 
     public static class Spi extends OperatorSpi {
+
         public Spi() {
             super(SmileCorrectionOp.class);
         }
-    }    
+    }
 }
