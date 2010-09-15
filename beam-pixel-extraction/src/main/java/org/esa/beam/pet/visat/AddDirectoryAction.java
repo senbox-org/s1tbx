@@ -36,9 +36,9 @@ class AddDirectoryAction extends AbstractAction {
 
     private boolean recursive;
     private AppContext appContext;
-    private InputFilesListModel listModel;
+    private InputListModel listModel;
 
-    AddDirectoryAction(AppContext appContext, InputFilesListModel listModel, boolean recursive) {
+    AddDirectoryAction(AppContext appContext, InputListModel listModel, boolean recursive) {
         this(recursive);
         this.appContext = appContext;
         this.listModel = listModel;

@@ -20,6 +20,7 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
@@ -34,6 +35,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.Component;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,6 +62,17 @@ class PixelExtractionDialog extends ModalDialog {
         final PropertyContainer propertyContainer = createParameterMap(parameterMap);
 
         ioForm = new PixelExtractionIOForm(appContext, propertyContainer);
+        ioForm.setInputChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                final Product[] sourceProducts = ioForm.getSourceProducts();
+                if (sourceProducts.length > 0) {
+                    parametersForm.setActiveProduct(sourceProducts[0]);
+                } else {
+                    parametersForm.setActiveProduct(null);
+                }
+            }
+        });
         parametersForm = new PixelExtractionParametersForm(appContext, propertyContainer);
         JTabbedPane tabbedPanel = new JTabbedPane();
         tabbedPanel.addTab("Input/Output", ioForm.getPanel());
@@ -73,8 +87,6 @@ class PixelExtractionDialog extends ModalDialog {
         parameterMap.put("expression", parametersForm.getExpression());
         parameterMap.put("exportExpressionResult", parametersForm.isExportExpressionResultSelected());
         ProgressMonitorSwingWorker worker = new MyProgressMonitorSwingWorker(getParent(), "Creating output file(s)...");
-        AbstractButton runButton = getButton(ID_OK);
-        runButton.setEnabled(false);
         worker.execute();
     }
 
@@ -112,6 +124,8 @@ class PixelExtractionDialog extends ModalDialog {
         @Override
         protected Void doInBackground(ProgressMonitor pm) throws Exception {
             pm.beginTask("Computing pixel values...", 1);
+            AbstractButton runButton = getButton(ID_OK);
+            runButton.setEnabled(false);
             try {
                 GPF.createProduct("Pet", parameterMap, ioForm.getSourceProducts());
                 pm.worked(1);

@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.FloatCellEditor;
 import org.esa.beam.framework.ui.FloatTableCellRenderer;
+import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
@@ -50,11 +51,13 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
@@ -75,6 +78,7 @@ class PixelExtractionParametersForm {
     private JTextArea expressionArea;
     private JRadioButton expressionAsFilterButton;
     private JRadioButton exportExpressionResultButton;
+    private Product activeProduct;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -120,6 +124,7 @@ class PixelExtractionParametersForm {
         tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH); // coordinate table
         tableLayout.setCellWeightY(0, 1, 1.0);
         tableLayout.setCellFill(3, 0, TableLayout.Fill.BOTH); // expression panel
+        tableLayout.setRowWeightX(3, 1.0);
         tableLayout.setCellColspan(3, 0, 3);
 
         mainPanel = new JPanel(tableLayout);
@@ -153,12 +158,17 @@ class PixelExtractionParametersForm {
 
     private void updateUi() {
         updateWindowLabel();
-        updateExpressionComponentsEnableState();
+        updateExpressionComponents();
     }
 
-    private void updateExpressionComponentsEnableState() {
-        final Product product = appContext.getSelectedProduct();
-        editExpressionButton.setEnabled(useExpressionCheckBox.isSelected() && product != null);
+    private void updateExpressionComponents() {
+        editExpressionButton.setEnabled(useExpressionCheckBox.isSelected() && activeProduct != null);
+        String toolTip = null;
+        if (activeProduct == null) {
+            toolTip = String.format("Editor can only be used with a product opened in %s.",
+                                    appContext.getApplicationName());
+        }
+        editExpressionButton.setToolTipText(toolTip);
         expressionArea.setEnabled(useExpressionCheckBox.isSelected());
         expressionAsFilterButton.setEnabled(useExpressionCheckBox.isSelected());
         exportExpressionResultButton.setEnabled(useExpressionCheckBox.isSelected());
@@ -196,10 +206,14 @@ class PixelExtractionParametersForm {
     private JPanel createExpressionPanel(BindingContext bindingContext) {
         final TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTablePadding(4, 4);
-        tableLayout.setTableFill(TableLayout.Fill.VERTICAL);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTableWeightX(1.0);
+        tableLayout.setTableWeightY(0.0);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         tableLayout.setCellAnchor(0, 1, TableLayout.Anchor.NORTHEAST); // edit expression button
+        tableLayout.setCellFill(0, 1, TableLayout.Fill.VERTICAL);
         tableLayout.setCellFill(1, 0, TableLayout.Fill.BOTH); // expression text area
+        tableLayout.setCellWeightY(1, 0, 1.0);
         tableLayout.setCellColspan(1, 0, 2);
         tableLayout.setCellColspan(2, 0, 2); // radio button group
         final JPanel panel = new JPanel(tableLayout);
@@ -208,20 +222,12 @@ class PixelExtractionParametersForm {
         useExpressionCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateExpressionComponentsEnableState();
+                updateExpressionComponents();
             }
         });
         editExpressionButton = new JButton("Edit Expression...");
-        editExpressionButton.setToolTipText("Editor can only be used with a selected product.");
-        editExpressionButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // todo how to handle products???
-                final Product product = appContext.getSelectedProduct();
-                ProductExpressionPane.createBooleanExpressionPane(new Product[]{product}, product,
-                                                                  appContext.getPreferences());
-            }
-        });
+        final Window parentWindow = SwingUtilities.getWindowAncestor(panel);
+        editExpressionButton.addActionListener(new EditExpressionActionListener(parentWindow));
         panel.add(useExpressionCheckBox);
         panel.add(editExpressionButton);
         expressionArea = new JTextArea();
@@ -307,6 +313,11 @@ class PixelExtractionParametersForm {
         return spinner;
     }
 
+    public void setActiveProduct(Product product) {
+        activeProduct = product;
+        updateExpressionComponents();
+    }
+
     private class AddPopupListener implements ActionListener {
 
         @Override
@@ -343,6 +354,28 @@ class PixelExtractionParametersForm {
             for (Placemark placemark : toRemove) {
                 tableModel.removePlacemark(placemark);
             }
+        }
+    }
+
+    private class EditExpressionActionListener implements ActionListener {
+
+        private Window parentWindow;
+
+        private EditExpressionActionListener(Window parentWindow) {
+            this.parentWindow = parentWindow;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            ProductExpressionPane pep = ProductExpressionPane.createBooleanExpressionPane(new Product[]{activeProduct},
+                                                                                          activeProduct,
+                                                                                          appContext.getPreferences());
+            pep.setCode(expressionArea.getText());
+            final int i = pep.showModalDialog(parentWindow, "Expression Editor");
+            if (i == ModalDialog.ID_OK) {
+                expressionArea.setText(pep.getCode());
+            }
+
         }
     }
 }

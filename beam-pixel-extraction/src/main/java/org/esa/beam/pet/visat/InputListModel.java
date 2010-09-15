@@ -28,13 +28,13 @@ import java.util.List;
 /**
  * @author Thomas Storm
  */
-class InputFilesListModel extends AbstractListModel {
+class InputListModel extends AbstractListModel {
 
     private List<Object> list = new ArrayList<Object>();
     private List<Product> sourceProducts = new ArrayList<Product>();
     private Property inputPaths;
 
-    InputFilesListModel(Property inputPaths) {
+    InputListModel(Property inputPaths) {
         this.inputPaths = inputPaths;
     }
 

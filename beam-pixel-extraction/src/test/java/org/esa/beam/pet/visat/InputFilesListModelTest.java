@@ -32,13 +32,13 @@ import static junit.framework.Assert.*;
  */
 public class InputFilesListModelTest {
 
-    private InputFilesListModel listModel;
+    private InputListModel listModel;
     private Property inputPaths;
 
     @Before
     public void setUp() {
         inputPaths = Property.create("inputPaths", File[].class);
-        listModel = new InputFilesListModel(inputPaths);
+        listModel = new InputListModel(inputPaths);
     }
 
 

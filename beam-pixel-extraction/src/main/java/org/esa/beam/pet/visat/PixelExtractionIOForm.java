@@ -42,6 +42,10 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
@@ -58,13 +62,15 @@ class PixelExtractionIOForm {
 
     private final AppContext appContext;
 
-    private JPanel panel;
-    private InputFilesListModel listModel;
-    private JList inputPathsList;
-    private JTextField outputDirTextField;
-    private PropertyContainer container;
-    private AbstractButton fileChooserButton;
+    private ChangeListener inputChangeListener;
+
+    private final JPanel panel;
     private final JLabel outputDirLabel;
+    private final JList inputPathsList;
+    private final JTextField outputDirTextField;
+    private final PropertyContainer container;
+    private final AbstractButton fileChooserButton;
+    private InputListModel listModel;
 
     PixelExtractionIOForm(final AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -82,7 +88,9 @@ class PixelExtractionIOForm {
         tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH);
         panel = new JPanel(tableLayout);
 
-        inputPathsList = createInputPathsList(container.getProperty("inputPaths"));
+        listModel = new InputListModel(container.getProperty("inputPaths"));
+        listModel.addListDataListener(new MyListDataListener());
+        inputPathsList = createInputPathsList(listModel);
         panel.add(new JLabel("Input paths:"));
         panel.add(new JScrollPane(inputPathsList));
         final JPanel addRemoveButtonPanel = new JPanel();
@@ -221,9 +229,8 @@ class PixelExtractionIOForm {
         return button;
     }
 
-    private JList createInputPathsList(Property inputPaths) {
-        listModel = new InputFilesListModel(inputPaths);
-        JList list = new JList(listModel);
+    private JList createInputPathsList(InputListModel inputListModel) {
+        JList list = new JList(inputListModel);
         list.setCellRenderer(new MyDefaultListCellRenderer());
         list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         return list;
@@ -259,7 +266,11 @@ class PixelExtractionIOForm {
         return removeButton;
     }
 
-    private class MyDefaultListCellRenderer extends DefaultListCellRenderer {
+    public void setInputChangeListener(ChangeListener changeListener) {
+        inputChangeListener = changeListener;
+    }
+
+    private static class MyDefaultListCellRenderer extends DefaultListCellRenderer {
 
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
@@ -274,5 +285,29 @@ class PixelExtractionIOForm {
 
             return label;
         }
+    }
+
+    private class MyListDataListener implements ListDataListener {
+
+        @Override
+        public void intervalAdded(ListDataEvent e) {
+            delegateToChangeListener();
+        }
+
+        @Override
+        public void intervalRemoved(ListDataEvent e) {
+            delegateToChangeListener();
+        }
+
+        @Override
+        public void contentsChanged(ListDataEvent e) {
+        }
+
+        private void delegateToChangeListener() {
+            if (inputChangeListener != null) {
+                inputChangeListener.stateChanged(new ChangeEvent(this));
+            }
+        }
+
     }
 }

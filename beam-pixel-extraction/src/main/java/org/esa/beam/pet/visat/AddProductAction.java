@@ -34,9 +34,9 @@ import java.util.List;
 class AddProductAction extends AbstractAction {
 
     private final AppContext appContext;
-    private final InputFilesListModel listModel;
+    private final InputListModel listModel;
 
-    AddProductAction(AppContext appContext, InputFilesListModel listModel) {
+    AddProductAction(AppContext appContext, InputListModel listModel) {
         super("Add product(s)");
         this.appContext = appContext;
         this.listModel = listModel;
