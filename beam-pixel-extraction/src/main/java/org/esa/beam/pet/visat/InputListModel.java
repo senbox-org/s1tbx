@@ -162,7 +162,4 @@ class InputListModel extends AbstractListModel {
 
         return true;
     }
-
-    // todo check for double input paths, too
-
 }
