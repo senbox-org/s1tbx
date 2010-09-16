@@ -285,12 +285,10 @@ class PixelExtractionParametersForm {
         coordinateTable.setRowSelectionAllowed(true);
         coordinateTable.getTableHeader().setReorderingAllowed(false);
         coordinateTable.setDefaultRenderer(Float.class, new FloatTableCellRenderer(new DecimalFormat("0.0000")));
-        coordinateTable.setPreferredScrollableViewportSize(new Dimension(300, 200));
+        coordinateTable.setPreferredScrollableViewportSize(new Dimension(150, 100));
         coordinateTable.getColumnModel().getColumn(1).setCellEditor(new FloatCellEditor(-90, 90));
         coordinateTable.getColumnModel().getColumn(2).setCellEditor(new FloatCellEditor(-180, 180));
         final JScrollPane rasterScrollPane = new JScrollPane(coordinateTable);
-        rasterScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        rasterScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         final AbstractButton addButton = ToolButtonFactory.createButton(ADD_ICON, false);
         addButton.addActionListener(new AddPopupListener());
