@@ -22,6 +22,7 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.TableLayout;
 import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
@@ -266,13 +267,15 @@ class PixelExtractionIOForm {
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
                                                       boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            String text;
             if (value instanceof File) {
-                label.setText(((File) value).getAbsolutePath());
-            } else if (value instanceof Product) {
-                Product product = (Product) value;
-                label.setText("[" + product.getRefNo() + "] " + product.getName());
+                text = ((File) value).getAbsolutePath();
+            } else {
+                text = ((ProductNode) value).getDisplayName();
             }
 
+            label.setText(text);
+            label.setToolTipText(text);
             return label;
         }
     }
