@@ -51,9 +51,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,6 +115,8 @@ public class PetOp extends Operator {
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
     private boolean isTargetProductInitialized = false;
+    private Map<Product, Integer> productIdMap = new HashMap<Product, Integer>(37);
+    private Integer productId = 0;
 
     @Override
     public void initialize() throws OperatorException {
@@ -191,8 +195,8 @@ public class PetOp extends Operator {
             }
             GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
             boolean isValid = validData.getSample(x, y, 0) != 0;
-            final Measurement measure = new Measurement(coordinateID, coordinate.getName(),
-                                                        product.getStartTime(), currentGeoPos, values, isValid);
+            final Measurement measure = new Measurement(coordinateID, coordinate.getName(), product.getRefNo(),
+                                                        x, y, product.getStartTime(), currentGeoPos, values, isValid);
             List<Measurement> measurementList = measurements.get(productType);
             if (measurementList == null) {
                 measurementList = new ArrayList<Measurement>();
@@ -214,7 +218,7 @@ public class PetOp extends Operator {
     }
 
     private List<Coordinate> extractGeoPositions(File coordinatesFile) {
-        final List<Coordinate> coordinateList = new ArrayList<Coordinate>();
+        final List<Coordinate> extractedCoordinates = new ArrayList<Coordinate>();
         try {
             final List<Placemark> pins = PlacemarkIO.readPlacemarks(new FileReader(coordinatesFile),
                                                                     null, // no GeoCoding needed
@@ -222,13 +226,13 @@ public class PetOp extends Operator {
             for (Placemark pin : pins) {
                 final GeoPos geoPos = pin.getGeoPos();
                 if (geoPos != null) {
-                    coordinateList.add(new Coordinate(pin.getName(), geoPos.lat, geoPos.lon));
+                    extractedCoordinates.add(new Coordinate(pin.getName(), geoPos.lat, geoPos.lon));
                 }
             }
         } catch (IOException ignore) {
             return Collections.emptyList();
         }
-        return coordinateList;
+        return extractedCoordinates;
     }
 
     private void extractMeasurements(File[] files) {
@@ -271,6 +275,11 @@ public class PetOp extends Operator {
 
         if (!rasterNamesMap.containsKey(product.getProductType())) {
             rasterNamesMap.put(product.getProductType(), getAllRasterNames(product));
+        }
+
+        if (!productIdMap.containsKey(product)) {
+            productIdMap.put(product, productId);
+            productId++;
         }
 
         for (int i = 0, coordinateListSize = coordinateList.size(); i < coordinateListSize; i++) {
@@ -316,6 +325,7 @@ public class PetOp extends Operator {
             try {
                 String[] rasterNames = rasterNamesMap.get(productType);
                 writer = new FileWriter(new File(outputDir.getAbsolutePath(), "expix_" + productType + ".txt"));
+                writer.write(createHeader());
                 MeasurementWriter.write(measurementList, writer, rasterNames, expression, exportExpressionResult);
             } catch (IOException e) {
                 throw new OperatorException("Could not write to output file.", e);
@@ -328,10 +338,22 @@ public class PetOp extends Operator {
                 }
             }
         }
+
+        try {
+            writer = new FileWriter(new File(outputDir.getAbsolutePath(), "expix_productIDs.txt"));
+            try {
+                writer.write(writeProductIdMap());
+            } finally {
+                writer.close();
+            }
+        } catch (IOException e) {
+            throw new OperatorException("Could not write to output file.", e);
+        }
     }
 
     private void writeOutputToClipboard() {
         StringWriter stringWriter = new StringWriter();
+        stringWriter.append(createHeader());
         for (String productType : measurements.keySet()) {
             List<Measurement> measurementList = measurements.get(productType);
             try {
@@ -345,8 +367,38 @@ public class PetOp extends Operator {
                 }
             }
         }
+        stringWriter.append(writeProductIdMap());
 
         SystemUtils.copyToClipboard(stringWriter.toString());
+    }
+
+    private String createHeader() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("# BEAM pixel extraction export table\n");
+        builder.append("#\n");
+        builder.append(String.format("# Window size: %d\n", windowSize));
+        if (expression != null) {
+            builder.append(String.format("# Expression: \n%s", expression));
+        }
+        builder.append(
+                String.format("# Created on:\t%s\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+        builder.append("\n");
+
+        return builder.toString();
+    }
+
+    private String writeProductIdMap() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("# Product ID Map\n");
+        builder.append("\n");
+        builder.append("Product ID\tProduct name\n");
+        for (Product product : productIdMap.keySet()) {
+            Integer id = productIdMap.get(product);
+            builder.append(String.format("%d\t", id));
+            builder.append(String.format("%s", product.getName()));
+            builder.append("\n");
+        }
+        return builder.toString();
     }
 
     private static File[] cleanPathNames(File[] paths) {

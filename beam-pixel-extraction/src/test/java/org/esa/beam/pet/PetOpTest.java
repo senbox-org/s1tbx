@@ -116,8 +116,8 @@ public class PetOpTest {
 
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         String data = String.valueOf(clipboard.getData(clipboard.getAvailableDataFlavors()[0]));
-        checkData(data.split("\n"), sourceProducts.toArray(new Product[sourceProducts.size()]), coordinates,
-                  windowSize);
+        checkClipboardData(data.split("\n"), sourceProducts.toArray(new Product[sourceProducts.size()]), coordinates,
+                           windowSize, null);
     }
 
     @Test
@@ -140,7 +140,7 @@ public class PetOpTest {
         Product[] sourceProduct = {createTestProduct("andi", "level1", bandNames)};
         String[] lines = computeData(parameterMap, sourceProduct);
 
-        checkData(lines, sourceProduct, coordinates, windowSize);
+        checkClipboardData(lines, sourceProduct, coordinates, windowSize, null);
     }
 
     @Test
@@ -168,7 +168,7 @@ public class PetOpTest {
         };
 
         String[] lines = computeData(parameterMap, products);
-        checkData(lines, products, coordinates, windowSize);
+        checkClipboardData(lines, products, coordinates, windowSize, null);
     }
 
     @Test
@@ -197,7 +197,7 @@ public class PetOpTest {
         Product[] products = productList.toArray(new Product[productList.size()]);
 
         String[] lines = computeData(parameterMap, products);
-        checkData(lines, products, coordinates, windowSize);
+        checkClipboardData(lines, products, coordinates, windowSize, null);
     }
 
     @Test
@@ -226,7 +226,7 @@ public class PetOpTest {
         };
 
         String[] lines = computeData(parameterMap, products);
-        checkData(lines, products, coordinates, windowSize);
+        checkClipboardData(lines, products, coordinates, windowSize, null);
     }
 
     @Test
@@ -255,7 +255,7 @@ public class PetOpTest {
         Product[] products = productList.toArray(new Product[productList.size()]);
 
         String[] lines = computeData(parameterMap, products);
-        checkData(lines, products, coordinates, windowSize);
+        checkClipboardData(lines, products, coordinates, windowSize, null);
     }
 
     @Test(expected = OperatorException.class)
@@ -275,7 +275,7 @@ public class PetOpTest {
         Product[] sourceProduct = {createTestProduct("werner", "level1", bandNames)};
         String[] lines = computeData(parameterMap, sourceProduct);
 
-        checkData(lines, sourceProduct, coordinates, windowSize);
+        checkClipboardData(lines, sourceProduct, coordinates, windowSize, null);
     }
 
     @Test
@@ -350,7 +350,8 @@ public class PetOpTest {
         return floats;
     }
 
-    private void checkData(String[] lines, Product[] products, Coordinate[] coordinates, int windowSize) {
+    private void checkClipboardData(String[] lines, Product[] products, Coordinate[] coordinates, int windowSize,
+                                    String expression) {
 
         List<String> productTypes = new ArrayList<String>();
         for (Product product : products) {
@@ -359,19 +360,23 @@ public class PetOpTest {
                 productTypes.add(productType);
             }
         }
-
+        int mainHeaderLength = expression != null ? 6 : 5;
+        int productIdMapLength = 4 + products.length;
         int lineCount = windowSize * windowSize * coordinates.length * products.length;
+        lineCount += mainHeaderLength; // add offset for the main header
+        lineCount += productIdMapLength;
         lineCount += productTypes.size(); // add a line for each header
         lineCount += productTypes.size() > 1 ? productTypes.size() : 0; // if more than one product type is present, add a line for each
         lineCount -= productTypes.size() > 1 ? 1 : 0; // if more than one product type is present, the last productType has no line break
 
         assertEquals(lineCount, lines.length);
 
-        String header = "ID\tName\tLatitude\tLongitude\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)\t";
+        String header = "ProdID\tCoordID\tName\tLatitude\tLongitude\tPixelX\tPixelY\tDate(yyyy-MM-dd)\tTime(HH:mm:ss)\t";
 
         List<Integer> headerLines = new ArrayList<Integer>();
         for (int i = 0; i < productTypes.size(); i++) {
-            headerLines.add(i * (windowSize * windowSize * coordinates.length + 2));
+            int headerLineIndex = i * (windowSize * windowSize * coordinates.length + 2);
+            headerLines.add(headerLineIndex + mainHeaderLength);
         }
 
         for (int headerLine : headerLines) {
