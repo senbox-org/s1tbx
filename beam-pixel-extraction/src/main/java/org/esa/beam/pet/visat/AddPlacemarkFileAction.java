@@ -42,7 +42,7 @@ class AddPlacemarkFileAction extends AbstractAction {
     private final JComponent parentComponent;
 
     AddPlacemarkFileAction(AppContext appContext, CoordinateTableModel tableModel, JPanel parentComponent) {
-        super("Add coordinates from file");
+        super("Add coordinates from file...");
         this.tableModel = tableModel;
         this.appContext = appContext;
         this.parentComponent = parentComponent;

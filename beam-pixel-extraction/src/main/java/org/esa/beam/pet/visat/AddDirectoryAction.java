@@ -45,7 +45,7 @@ class AddDirectoryAction extends AbstractAction {
     }
 
     private AddDirectoryAction(boolean recursive) {
-        this("Add directory" + (recursive ? " recursively" : ""));
+        this("Add directory" + (recursive ? " recursively" : "") + "...");
         this.recursive = recursive;
     }
 

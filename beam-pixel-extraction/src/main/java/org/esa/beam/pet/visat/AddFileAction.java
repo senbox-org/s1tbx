@@ -45,7 +45,7 @@ class AddFileAction extends AbstractAction {
     private InputListModel listModel;
 
     AddFileAction(AppContext appContext, InputListModel listModel) {
-        super("Add product file(s)");
+        super("Add product file(s)...");
         this.appContext = appContext;
         this.listModel = listModel;
     }

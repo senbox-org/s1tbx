@@ -37,7 +37,7 @@ class AddProductAction extends AbstractAction {
     private final InputListModel listModel;
 
     AddProductAction(AppContext appContext, InputListModel listModel) {
-        super("Add product(s)");
+        super("Add product(s)...");
         this.appContext = appContext;
         this.listModel = listModel;
     }
