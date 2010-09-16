@@ -98,6 +98,8 @@ class ProductChooser extends ModalDialog {
                 productsList.getCheckBoxListSelectionModel().clearSelection();
             }
         });
+        selectAll.setMnemonic('a');
+        selectNone.setMnemonic('n');
         buttonsPanel.add(selectAll);
         buttonsPanel.add(selectNone);
         return buttonsPanel;
@@ -110,7 +112,7 @@ class ProductChooser extends ModalDialog {
                                                       boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             Product product = (Product) value;
-            label.setText(product.getName());
+            label.setText("[" + product.getRefNo() + "] " + product.getName());
             return label;
         }
 
