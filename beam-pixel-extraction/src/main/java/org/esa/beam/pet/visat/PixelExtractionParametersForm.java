@@ -79,6 +79,7 @@ class PixelExtractionParametersForm {
     private JRadioButton expressionAsFilterButton;
     private JRadioButton exportExpressionResultButton;
     private Product activeProduct;
+    private JLabel expressionNoteLabel;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -162,16 +163,18 @@ class PixelExtractionParametersForm {
     }
 
     private void updateExpressionComponents() {
-        editExpressionButton.setEnabled(useExpressionCheckBox.isSelected() && activeProduct != null);
+        final boolean useExpressionSelected = useExpressionCheckBox.isSelected();
+        editExpressionButton.setEnabled(useExpressionSelected && activeProduct != null);
         String toolTip = null;
         if (activeProduct == null) {
             toolTip = String.format("Editor can only be used with a product opened in %s.",
                                     appContext.getApplicationName());
         }
         editExpressionButton.setToolTipText(toolTip);
-        expressionArea.setEnabled(useExpressionCheckBox.isSelected());
-        expressionAsFilterButton.setEnabled(useExpressionCheckBox.isSelected());
-        exportExpressionResultButton.setEnabled(useExpressionCheckBox.isSelected());
+        expressionArea.setEnabled(useExpressionSelected);
+        expressionNoteLabel.setEnabled(useExpressionSelected);
+        expressionAsFilterButton.setEnabled(useExpressionSelected);
+        exportExpressionResultButton.setEnabled(useExpressionSelected);
     }
 
     private void updateWindowLabel() {
@@ -215,8 +218,9 @@ class PixelExtractionParametersForm {
         tableLayout.setCellFill(1, 0, TableLayout.Fill.BOTH); // expression text area
         tableLayout.setRowWeightY(0, 0.0);
         tableLayout.setCellColspan(1, 0, 2);
-        tableLayout.setCellColspan(2, 0, 2); // radio button group
-        tableLayout.setCellFill(2, 0, TableLayout.Fill.BOTH); // expression text area
+        tableLayout.setCellColspan(2, 0, 2); // expression note
+        tableLayout.setCellColspan(3, 0, 2); // radio button group
+        tableLayout.setCellFill(3, 0, TableLayout.Fill.BOTH);
         final JPanel panel = new JPanel(tableLayout);
 
         useExpressionCheckBox = new JCheckBox("Use band maths expression");
@@ -236,6 +240,12 @@ class PixelExtractionParametersForm {
         expressionArea.setColumns(50);
         expressionArea.setRows(3);
         panel.add(new JScrollPane(expressionArea));
+
+        expressionNoteLabel = new JLabel(
+                "<html><p><b>Note:</b> The expression might not be applicable to all product.<br/>" +
+                "The expression is ignored if it can not be evaluated on a product.</p>");
+        panel.add(expressionNoteLabel);
+
         final ButtonGroup buttonGroup = new ButtonGroup();
         expressionAsFilterButton = new JRadioButton("Use expression as filter", true);
         buttonGroup.add(expressionAsFilterButton);
