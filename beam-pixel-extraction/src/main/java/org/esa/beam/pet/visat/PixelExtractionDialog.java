@@ -87,7 +87,7 @@ class PixelExtractionDialog extends ModalDialog {
         parameterMap.put("expression", parametersForm.getExpression());
         parameterMap.put("exportExpressionResult", parametersForm.isExportExpressionResultSelected());
         ProgressMonitorSwingWorker worker = new MyProgressMonitorSwingWorker(getParent(), "Creating output file(s)...");
-        worker.execute();
+        worker.executeWithBlocking();
     }
 
     @Override
@@ -123,7 +123,7 @@ class PixelExtractionDialog extends ModalDialog {
 
         @Override
         protected Void doInBackground(ProgressMonitor pm) throws Exception {
-            pm.beginTask("Computing pixel values...", 1);
+            pm.beginTask("Computing pixel values...", -1);
             AbstractButton runButton = getButton(ID_OK);
             runButton.setEnabled(false);
             try {
