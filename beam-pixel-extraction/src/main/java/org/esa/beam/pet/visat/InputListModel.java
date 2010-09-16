@@ -18,10 +18,12 @@ package org.esa.beam.pet.visat;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 
 import javax.swing.AbstractListModel;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +60,7 @@ class InputListModel extends AbstractListModel {
                 throw new IllegalStateException(
                         "Only java.io.File or org.esa.beam.framework.datamodel.Product allowed.");
             }
-            if (!list.contains(element)) {
+            if (mayAdd(element)) {
                 list.add(element);
             }
         }
@@ -102,4 +104,65 @@ class InputListModel extends AbstractListModel {
         inputPaths.setValue(files.toArray(new File[files.size()]));
         sourceProducts = products;
     }
+
+    private boolean mayAdd(Object element) {
+        if (list.contains(element)) {
+            return false;
+        }
+
+        if (element instanceof Product) {
+            return true;
+        }
+
+        File file = (File) element;
+        if (file.isDirectory()) {
+            return true;
+        }
+        Product product;
+        try {
+            product = ProductIO.readProduct(file);
+        } catch (IOException e) {
+            return false;
+        }
+        return product != null && !alreadyContained(product);
+    }
+
+    private boolean alreadyContained(Product product) {
+        if (sourceProducts.contains(product)) {
+            return true;
+        }
+
+        boolean isContained = false;
+        for (Product sourceProduct : sourceProducts) {
+            isContained |= areFairlyEqual(sourceProduct, product);
+        }
+        return isContained;
+    }
+
+    private boolean areFairlyEqual(Product product, Product sourceProduct) {
+        if (!sourceProduct.getProductType().equals(product.getProductType())) {
+            return false;
+        }
+        if (!sourceProduct.getName().equals(product.getName())) {
+            return false;
+        }
+        if (sourceProduct.getSceneRasterHeight() != product.getSceneRasterHeight()) {
+            return false;
+        }
+        if (sourceProduct.getSceneRasterWidth() != product.getSceneRasterWidth()) {
+            return false;
+        }
+        String[] sourceBandNames = sourceProduct.getBandNames();
+        String[] newBandNames = product.getBandNames();
+        for (int i = 0; i < sourceBandNames.length; i++) {
+            if (!sourceBandNames[i].equals(newBandNames[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // todo check for double input paths, too
+
 }
