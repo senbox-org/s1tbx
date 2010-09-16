@@ -25,16 +25,32 @@ import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.Component;
 
+/**
+ * A {@code FloatCellEditor} which is able to validate the entered value.
+ * If the value is not valid the cell is marked with a red border and the value is rejected.
+ * The cell value is right aligned.
+ */
 public class FloatCellEditor extends DefaultCellEditor {
 
     private Border defaultBorder;
     private float minValue;
     private float maxValue;
 
+    /**
+     * Creates a new editor. The bounds of the valid value range are set
+     * to {@link Float#MIN_VALUE} and {@link Float#MAX_VALUE}
+     */
     public FloatCellEditor() {
         this(Float.MIN_VALUE, Float.MAX_VALUE);
     }
 
+    /**
+     * Creates a new editor. The bounds of the valid value range are set
+     * to specified {@code minValue} and {@code maxValue}
+     *
+     * @param minValue the minimum value of the valid range
+     * @param maxValue the maximum value of the valid range
+     */
     public FloatCellEditor(float minValue, float maxValue) {
         super(new JTextField());
         this.minValue = minValue;

@@ -23,7 +23,9 @@ import java.awt.Component;
 import java.text.DecimalFormat;
 
 /**
- * TableCellRenderer which renders {@link Float float} and {@link Double double} values with the given {@link DecimalFormat format}.
+ * TableCellRenderer which renders {@link Float float} and {@link Double double}
+ * values with the given {@link DecimalFormat format}.
+ * The cell value is right aligned.
  */
 public class DecimalTableCellRenderer extends DefaultTableCellRenderer {
 
