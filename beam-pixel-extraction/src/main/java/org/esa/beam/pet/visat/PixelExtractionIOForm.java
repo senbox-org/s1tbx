@@ -146,12 +146,7 @@ class PixelExtractionIOForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setOutputUiEnabled(exportButton.isSelected());
-                try {
-                    container.getProperty("outputDir").setValue(new File(outputDirTextField.getText()));
-                } catch (ValidationException e1) {
-                    //todo do this more smart
-                    e1.printStackTrace();
-                }
+                container.setValue("outputDir", new File(outputDirTextField.getText()));
             }
         });
 
@@ -159,12 +154,7 @@ class PixelExtractionIOForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setOutputUiEnabled(!clipboardButton.isSelected());
-                try {
-                    container.getProperty("outputDir").setValue(null);
-                } catch (ValidationException e1) {
-                    //todo do this more smart
-                    e1.printStackTrace();
-                }
+                container.setValue("outputDir", null);
             }
         });
 
