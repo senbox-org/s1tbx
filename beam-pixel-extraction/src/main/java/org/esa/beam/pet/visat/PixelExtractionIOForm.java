@@ -123,9 +123,8 @@ class PixelExtractionIOForm {
         outputDirTextField.setText("");
     }
 
-    void setSelectedProduct() {
-        if (appContext.getSelectedProduct() != null) {
-            Product selectedProduct = appContext.getSelectedProduct();
+    void setSelectedProduct(Product selectedProduct) {
+        if (selectedProduct != null) {
             try {
                 listModel.addElements(selectedProduct);
             } catch (ValidationException ve) {

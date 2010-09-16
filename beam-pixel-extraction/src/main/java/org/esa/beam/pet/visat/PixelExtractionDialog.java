@@ -105,7 +105,7 @@ class PixelExtractionDialog extends ModalDialog {
 
     @Override
     public int show() {
-        ioForm.setSelectedProduct();
+        ioForm.setSelectedProduct(appContext.getSelectedProduct());
         return super.show();
     }
 
