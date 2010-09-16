@@ -45,7 +45,7 @@ class AddProductAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         ProductChooser productChooser = new ProductChooser(appContext.getApplicationWindow(), "Add product",
-                                                           ModalDialog.ID_OK_CANCEL, "noHelpAvailable",
+                                                           ModalDialog.ID_OK_CANCEL, null,
                                                            filterProducts());
         if (productChooser.show() != ModalDialog.ID_OK) {
             return;

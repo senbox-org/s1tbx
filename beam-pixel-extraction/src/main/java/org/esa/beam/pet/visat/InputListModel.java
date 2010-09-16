@@ -53,6 +53,7 @@ class InputListModel extends AbstractListModel {
     }
 
     void addElements(Object... elements) throws ValidationException {
+        final int startIndex = list.size();
         for (Object element : elements) {
             if (!(element instanceof File || element instanceof Product)) {
                 throw new IllegalStateException(
@@ -63,29 +64,35 @@ class InputListModel extends AbstractListModel {
             }
         }
         updateProperty();
-        fireIntervalAdded(this, 0, list.size());
+        fireIntervalAdded(this, startIndex, list.size() - 1);
     }
 
     void clear() {
+        final int endIndex = list.size() - 1;
         list.clear();
         try {
             updateProperty();
         } catch (ValidationException ignored) {
         }
+        fireIntervalRemoved(this, 0, endIndex);
     }
 
     void removeElementsAt(int[] selectedIndices) {
         List<Object> toRemove = new ArrayList<Object>();
+        int startIndex = Integer.MAX_VALUE;
+        int endIndex = Integer.MIN_VALUE;
         for (int selectedIndex : selectedIndices) {
+            startIndex = Math.min(startIndex, selectedIndex);
+            endIndex = Math.max(endIndex, selectedIndex);
             toRemove.add(list.get(selectedIndex));
         }
-        list.removeAll(toRemove);
-
-        try {
-            updateProperty();
-        } catch (ValidationException ignored) {
+        if (list.removeAll(toRemove)) {
+            try {
+                updateProperty();
+            } catch (ValidationException ignored) {
+            }
+            fireIntervalRemoved(this, startIndex, endIndex);
         }
-        fireIntervalRemoved(this, 0, list.size());
     }
 
     private void updateProperty() throws ValidationException {

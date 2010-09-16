@@ -28,6 +28,8 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Window;
@@ -42,6 +44,8 @@ import java.util.List;
 class ProductChooser extends ModalDialog {
 
     private CheckBoxList productsList;
+    private JCheckBox selectAll;
+    private JCheckBox selectNone;
 
     ProductChooser(Window parent, String title, int buttonMask, String helpID, Product[] products) {
         super(parent, title, buttonMask, helpID);
@@ -54,8 +58,26 @@ class ProductChooser extends ModalDialog {
         JPanel panel = new JPanel(layout);
 
         DefaultListModel listModel = new ProductListModel();
+        selectAll = new JCheckBox("Select all");
+        selectNone = new JCheckBox("Select none", true);
+
         productsList = new CheckBoxList(listModel);
         productsList.setCellRenderer(new ProductListCellRenderer());
+        productsList.getCheckBoxListSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                final int length = productsList.getCheckBoxListSelectedIndices().length;
+                if (length == 0) {
+                    selectNone.setSelected(true);
+                } else if (length == productsList.getModel().getSize()) {
+                    selectAll.setSelected(true);
+                } else {
+                    selectNone.setSelected(false);
+                    selectAll.setSelected(false);
+                }
+            }
+        });
         for (Product product : products) {
             listModel.addElement(product);
         }
@@ -78,22 +100,17 @@ class ProductChooser extends ModalDialog {
 
     private JPanel createButtonsPanel() {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        final JCheckBox selectAll = new JCheckBox("Select all");
-        final JCheckBox selectNone = new JCheckBox("Select none");
         selectAll.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selectAll.setEnabled(false);
-                selectNone.setEnabled(true);
                 selectNone.setSelected(false);
-                productsList.getCheckBoxListSelectionModel().setSelectionInterval(0, productsList.getModel().getSize());
+                productsList.getCheckBoxListSelectionModel().setSelectionInterval(0,
+                                                                                  productsList.getModel().getSize() - 1);
             }
         });
         selectNone.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selectNone.setEnabled(false);
-                selectAll.setEnabled(true);
                 selectAll.setSelected(false);
                 productsList.getCheckBoxListSelectionModel().clearSelection();
             }
@@ -112,7 +129,7 @@ class ProductChooser extends ModalDialog {
                                                       boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             Product product = (Product) value;
-            label.setText("[" + product.getRefNo() + "] " + product.getName());
+            label.setText(product.getDisplayName());
             return label;
         }
 
