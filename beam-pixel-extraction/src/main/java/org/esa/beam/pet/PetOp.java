@@ -174,9 +174,7 @@ public class PetOp extends Operator {
         final int numPixels = windowSize * windowSize;
         final RenderedImage expressionImage;
 
-        boolean productCanParseExpression = product.isCompatibleBandArithmeticExpression(expression);
-
-        if (expression != null && productCanParseExpression) {
+        if (expression != null && product.isCompatibleBandArithmeticExpression(expression)) {
             expressionImage = VirtualBandOpImage.create(expression, ProductData.TYPE_UINT8, 0,
                                                         product, ResolutionLevel.MAXRES);
         } else {
