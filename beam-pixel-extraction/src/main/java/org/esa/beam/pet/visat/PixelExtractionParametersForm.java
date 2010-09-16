@@ -206,16 +206,17 @@ class PixelExtractionParametersForm {
     private JPanel createExpressionPanel(BindingContext bindingContext) {
         final TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTablePadding(4, 4);
-        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTableFill(TableLayout.Fill.BOTH);
         tableLayout.setTableWeightX(1.0);
-        tableLayout.setTableWeightY(0.0);
+        tableLayout.setTableWeightY(1.0);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         tableLayout.setCellAnchor(0, 1, TableLayout.Anchor.NORTHEAST); // edit expression button
-        tableLayout.setCellFill(0, 1, TableLayout.Fill.VERTICAL);
+        tableLayout.setRowFill(0, TableLayout.Fill.VERTICAL);
         tableLayout.setCellFill(1, 0, TableLayout.Fill.BOTH); // expression text area
-        tableLayout.setCellWeightY(1, 0, 1.0);
+        tableLayout.setRowWeightY(0, 0.0);
         tableLayout.setCellColspan(1, 0, 2);
         tableLayout.setCellColspan(2, 0, 2); // radio button group
+        tableLayout.setCellFill(2, 0, TableLayout.Fill.BOTH); // expression text area
         final JPanel panel = new JPanel(tableLayout);
 
         useExpressionCheckBox = new JCheckBox("Use band maths expression");
