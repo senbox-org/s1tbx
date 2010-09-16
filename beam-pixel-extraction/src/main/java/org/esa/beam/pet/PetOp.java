@@ -173,7 +173,10 @@ public class PetOp extends Operator {
         Arrays.fill(values, Double.NaN);
         final int numPixels = windowSize * windowSize;
         final RenderedImage expressionImage;
-        if (expression != null) {
+
+        boolean productCanParseExpression = product.isCompatibleBandArithmeticExpression(expression);
+
+        if (expression != null && productCanParseExpression) {
             expressionImage = VirtualBandOpImage.create(expression, ProductData.TYPE_UINT8, 0,
                                                         product, ResolutionLevel.MAXRES);
         } else {
@@ -195,7 +198,7 @@ public class PetOp extends Operator {
             }
             GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
             boolean isValid = validData.getSample(x, y, 0) != 0;
-            final Measurement measure = new Measurement(coordinateID, coordinate.getName(), product.getRefNo(),
+            final Measurement measure = new Measurement(coordinateID, coordinate.getName(), productIdMap.get(product),
                                                         x, y, product.getStartTime(), currentGeoPos, values, isValid);
             List<Measurement> measurementList = measurements.get(productType);
             if (measurementList == null) {
