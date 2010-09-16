@@ -18,12 +18,10 @@ package org.esa.beam.pet.visat;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
-import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 
 import javax.swing.AbstractListModel;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,51 +113,16 @@ class InputListModel extends AbstractListModel {
         }
 
         File file = (File) element;
-        if (file.isDirectory()) {
-            return true;
-        }
-        Product product;
-        try {
-            product = ProductIO.readProduct(file);
-        } catch (IOException e) {
-            return false;
-        }
-        return product != null && !alreadyContained(product);
+        return file.isDirectory() || !alreadyContained(file);
     }
 
-    private boolean alreadyContained(Product product) {
-        if (sourceProducts.contains(product)) {
-            return true;
-        }
-
-        boolean isContained = false;
+    private boolean alreadyContained(File file) {
         for (Product sourceProduct : sourceProducts) {
-            isContained |= areFairlyEqual(sourceProduct, product);
-        }
-        return isContained;
-    }
-
-    private boolean areFairlyEqual(Product product, Product sourceProduct) {
-        if (!sourceProduct.getProductType().equals(product.getProductType())) {
-            return false;
-        }
-        if (!sourceProduct.getName().equals(product.getName())) {
-            return false;
-        }
-        if (sourceProduct.getSceneRasterHeight() != product.getSceneRasterHeight()) {
-            return false;
-        }
-        if (sourceProduct.getSceneRasterWidth() != product.getSceneRasterWidth()) {
-            return false;
-        }
-        String[] sourceBandNames = sourceProduct.getBandNames();
-        String[] newBandNames = product.getBandNames();
-        for (int i = 0; i < sourceBandNames.length; i++) {
-            if (!sourceBandNames[i].equals(newBandNames[i])) {
-                return false;
+            File fileLocation = sourceProduct.getFileLocation();
+            if (fileLocation != null && fileLocation.getAbsolutePath().equals(file.getAbsolutePath())) {
+                return true;
             }
         }
-
-        return true;
+        return false;
     }
 }
