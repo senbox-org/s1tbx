@@ -99,7 +99,7 @@ public class PetOp extends Operator {
                validator = WindowSizeValidator.class)
     private Integer windowSize;
 
-    @Parameter(description = "The output directory.")
+    @Parameter(description = "The output directory. If not specified the output is written to the clipboard.")
     private File outputDir;
 
     @Parameter(description = "Band maths expression (optional)")
