@@ -32,9 +32,11 @@ import org.esa.beam.pet.PetOp;
 import javax.swing.AbstractButton;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
@@ -75,8 +77,13 @@ class PixelExtractionDialog extends ModalDialog {
         });
         parametersForm = new PixelExtractionParametersForm(appContext, propertyContainer);
         JTabbedPane tabbedPanel = new JTabbedPane();
-        tabbedPanel.addTab("Input/Output", ioForm.getPanel());
-        tabbedPanel.addTab("Parameters", parametersForm.getPanel());
+        final JPanel ioPanel = ioForm.getPanel();
+        ioPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
+        final JPanel parametersPanel = parametersForm.getPanel();
+        parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
+
+        tabbedPanel.addTab("Input/Output", ioPanel);
+        tabbedPanel.addTab("Parameters", parametersPanel);
 
         setContent(tabbedPanel);
     }

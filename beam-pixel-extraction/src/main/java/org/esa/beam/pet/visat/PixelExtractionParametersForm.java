@@ -20,6 +20,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.jidesoft.swing.StyledLabelBuilder;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
@@ -56,6 +57,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -79,7 +81,8 @@ class PixelExtractionParametersForm {
     private JRadioButton expressionAsFilterButton;
     private JRadioButton exportExpressionResultButton;
     private Product activeProduct;
-    private JLabel expressionNoteLabel;
+    private JLabel expressionNoteLabel1;
+    private JLabel expressionNoteLabel2;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -124,12 +127,13 @@ class PixelExtractionParametersForm {
         tableLayout.setColumnWeightX(1, 1.0);
         tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH); // coordinate table
         tableLayout.setCellWeightY(0, 1, 1.0);
+        tableLayout.setRowFill(2, TableLayout.Fill.BOTH); // windowSize
         tableLayout.setCellFill(3, 0, TableLayout.Fill.BOTH); // expression panel
+        tableLayout.setCellPadding(3, 0, new Insets(0, 0, 0, 0));
         tableLayout.setRowWeightX(3, 1.0);
         tableLayout.setCellColspan(3, 0, 3);
 
         mainPanel = new JPanel(tableLayout);
-
         mainPanel.add(new JLabel("Coordinates:"));
         final JComponent[] coordinatesComponents = createCoordinatesComponents();
         mainPanel.add(coordinatesComponents[0]);
@@ -143,7 +147,7 @@ class PixelExtractionParametersForm {
 
         mainPanel.add(new JLabel("Window size:"));
         windowSpinner = createWindowSizeEditor(bindingContext);
-        mainPanel.add(windowSpinner);
+        windowSpinner.setPreferredSize(new Dimension(windowSpinner.getPreferredSize().width, 18));
         windowLabel = new JLabel();
         windowLabel.setHorizontalAlignment(SwingConstants.CENTER);
         windowSpinner.addChangeListener(new ChangeListener() {
@@ -152,6 +156,7 @@ class PixelExtractionParametersForm {
                 updateWindowLabel();
             }
         });
+        mainPanel.add(windowSpinner);
         mainPanel.add(windowLabel);
 
         mainPanel.add(createExpressionPanel(bindingContext));
@@ -172,7 +177,8 @@ class PixelExtractionParametersForm {
         }
         editExpressionButton.setToolTipText(toolTip);
         expressionArea.setEnabled(useExpressionSelected);
-        expressionNoteLabel.setEnabled(useExpressionSelected);
+        expressionNoteLabel1.setEnabled(useExpressionSelected);
+        expressionNoteLabel2.setEnabled(useExpressionSelected);
         expressionAsFilterButton.setEnabled(useExpressionSelected);
         exportExpressionResultButton.setEnabled(useExpressionSelected);
     }
@@ -209,6 +215,7 @@ class PixelExtractionParametersForm {
     private JPanel createExpressionPanel(BindingContext bindingContext) {
         final TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTablePadding(4, 4);
+        tableLayout.setTablePadding(new Insets(0, 0, 0, 0));
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
         tableLayout.setTableWeightX(1.0);
         tableLayout.setTableWeightY(1.0);
@@ -218,9 +225,12 @@ class PixelExtractionParametersForm {
         tableLayout.setCellFill(1, 0, TableLayout.Fill.BOTH); // expression text area
         tableLayout.setRowWeightY(0, 0.0);
         tableLayout.setCellColspan(1, 0, 2);
-        tableLayout.setCellColspan(2, 0, 2); // expression note
-        tableLayout.setCellColspan(3, 0, 2); // radio button group
-        tableLayout.setCellFill(3, 0, TableLayout.Fill.BOTH);
+        tableLayout.setCellColspan(2, 0, 2); // expression note line 1
+        tableLayout.setCellPadding(2, 0, new Insets(0, 4, 0, 4)); // expression note line 1
+        tableLayout.setCellColspan(3, 0, 2); // expression note line 2
+        tableLayout.setCellPadding(3, 0, new Insets(0, 4, 0, 4)); // expression note line 2
+        tableLayout.setCellColspan(4, 0, 2); // radio button group
+        tableLayout.setCellFill(4, 0, TableLayout.Fill.BOTH);
         final JPanel panel = new JPanel(tableLayout);
 
         useExpressionCheckBox = new JCheckBox("Use band maths expression");
@@ -241,10 +251,12 @@ class PixelExtractionParametersForm {
         expressionArea.setRows(3);
         panel.add(new JScrollPane(expressionArea));
 
-        expressionNoteLabel = new JLabel(
-                "<html><p><b>Note:</b> The expression might not be applicable to all products.<br/>" +
-                "The expression is ignored if it can not be evaluated on a product.</p>");
-        panel.add(expressionNoteLabel);
+        expressionNoteLabel1 = StyledLabelBuilder.createStyledLabel(
+                "{Note\\::b} The expression might not be applicable to all products.");
+        expressionNoteLabel2 = StyledLabelBuilder.createStyledLabel(
+                "The expression is ignored if it can not be evaluated on a product.");
+        panel.add(expressionNoteLabel1);
+        panel.add(expressionNoteLabel2);
 
         final ButtonGroup buttonGroup = new ButtonGroup();
         expressionAsFilterButton = new JRadioButton("Use expression as filter", true);
@@ -303,8 +315,8 @@ class PixelExtractionParametersForm {
     }
 
     private JSpinner createWindowSizeEditor(BindingContext bindingContext) {
-        final Property squareSizeProperty = bindingContext.getPropertySet().getProperty("windowSize");
-        final Number defaultValue = (Number) squareSizeProperty.getDescriptor().getDefaultValue();
+        final Property windowSizeProperty = bindingContext.getPropertySet().getProperty("windowSize");
+        final Number defaultValue = (Number) windowSizeProperty.getDescriptor().getDefaultValue();
         final JSpinner spinner = new JSpinner(new SpinnerNumberModel(defaultValue, 1, null, 2));
         spinner.addChangeListener(new ChangeListener() {
             @Override
