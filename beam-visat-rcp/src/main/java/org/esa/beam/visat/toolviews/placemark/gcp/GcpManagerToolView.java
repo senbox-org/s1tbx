@@ -23,7 +23,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.ui.FloatTableCellRenderer;
+import org.esa.beam.framework.ui.DecimalTableCellRenderer;
 import org.esa.beam.visat.toolviews.placemark.AbstractPlacemarkTableModel;
 import org.esa.beam.visat.toolviews.placemark.PlacemarkManagerToolView;
 import org.esa.beam.visat.toolviews.placemark.TableModelFactory;
@@ -75,7 +75,7 @@ public class GcpManagerToolView extends PlacemarkManagerToolView {
             if (oldProduct != null) {
                 oldProduct.removeProductNodeListener(geoCodinglistener);
             }
-            if(product != null) {
+            if (product != null) {
                 product.addProductNodeListener(geoCodinglistener);
             }
         }
@@ -85,8 +85,8 @@ public class GcpManagerToolView extends PlacemarkManagerToolView {
     @Override
     protected void addCellRenderer(TableColumnModel columnModel) {
         super.addCellRenderer(columnModel);
-        columnModel.getColumn(4).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000000")));
-        columnModel.getColumn(5).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000000")));
+        columnModel.getColumn(4).setCellRenderer(new DecimalTableCellRenderer(new DecimalFormat("0.000000")));
+        columnModel.getColumn(5).setCellRenderer(new DecimalTableCellRenderer(new DecimalFormat("0.000000")));
     }
 
     @Override

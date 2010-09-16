@@ -37,8 +37,8 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.help.HelpSys;
+import org.esa.beam.framework.ui.DecimalTableCellRenderer;
 import org.esa.beam.framework.ui.FloatCellEditor;
-import org.esa.beam.framework.ui.FloatTableCellRenderer;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.command.CommandManager;
@@ -161,7 +161,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         placemarkTable.addMouseListener(new PopupListener());
         placemarkTable.setModel(placemarkTableModel);
         placemarkTable.setDefaultCellRenderer(new RightAlignmentTableCellRenderer());
-        placemarkTable.setDefaultRenderer(Float.class, new FloatTableCellRenderer(new DecimalFormat("0.000")));
+        placemarkTable.setDefaultRenderer(Float.class, new DecimalTableCellRenderer(new DecimalFormat("0.000")));
         placemarkTable.getSelectionModel().addListSelectionListener(new PlacemarkTableSelectionHandler());
         updateTableModel();
 
@@ -292,10 +292,10 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     }
 
     protected void addCellRenderer(TableColumnModel columnModel) {
-        columnModel.getColumn(0).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000")));
-        columnModel.getColumn(1).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000")));
-        columnModel.getColumn(2).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000000")));
-        columnModel.getColumn(3).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000000")));
+        columnModel.getColumn(0).setCellRenderer(new DecimalTableCellRenderer(new DecimalFormat("0.000")));
+        columnModel.getColumn(1).setCellRenderer(new DecimalTableCellRenderer(new DecimalFormat("0.000")));
+        columnModel.getColumn(2).setCellRenderer(new DecimalTableCellRenderer(new DecimalFormat("0.000000")));
+        columnModel.getColumn(3).setCellRenderer(new DecimalTableCellRenderer(new DecimalFormat("0.000000")));
     }
 
     protected void addCellEditor(TableColumnModel columnModel) {
@@ -1078,8 +1078,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                                                        boolean hasFocus,
                                                        int row, int column) {
-            final JLabel label = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
-                                                                            column);
+            final JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
+                                                                              column);
             label.setHorizontalAlignment(JLabel.RIGHT);
             return label;
 

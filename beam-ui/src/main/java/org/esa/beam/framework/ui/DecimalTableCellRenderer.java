@@ -22,11 +22,21 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.Component;
 import java.text.DecimalFormat;
 
-public class FloatTableCellRenderer extends DefaultTableCellRenderer {
+/**
+ * TableCellRenderer which renders {@link Float float} and {@link Double double} values with the given {@link DecimalFormat format}.
+ */
+public class DecimalTableCellRenderer extends DefaultTableCellRenderer {
 
     private DecimalFormat format;
 
-    public FloatTableCellRenderer(DecimalFormat format) {
+    /**
+     * Creates a new TableCellRenderer with the given format
+     *
+     * @param format the format in which the cell values shall be rendered.
+     *
+     * @see DecimalFormat
+     */
+    public DecimalTableCellRenderer(DecimalFormat format) {
         this.format = format;
     }
 
@@ -37,7 +47,8 @@ public class FloatTableCellRenderer extends DefaultTableCellRenderer {
         if (comp instanceof JLabel) {
             JLabel label = (JLabel) comp;
             label.setHorizontalAlignment(JLabel.RIGHT);
-            if (value instanceof Float && !Float.isNaN((Float) value)) {
+            if (value instanceof Float && !Float.isNaN((Float) value) ||
+                value instanceof Double && !Double.isNaN((Double) value)) {
                 label.setText(format.format(value));
             } else {
                 label.setText("n/a");
