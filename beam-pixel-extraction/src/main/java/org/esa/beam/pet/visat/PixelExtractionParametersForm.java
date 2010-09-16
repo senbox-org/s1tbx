@@ -242,7 +242,7 @@ class PixelExtractionParametersForm {
         panel.add(new JScrollPane(expressionArea));
 
         expressionNoteLabel = new JLabel(
-                "<html><p><b>Note:</b> The expression might not be applicable to all product.<br/>" +
+                "<html><p><b>Note:</b> The expression might not be applicable to all products.<br/>" +
                 "The expression is ignored if it can not be evaluated on a product.</p>");
         panel.add(expressionNoteLabel);
 
