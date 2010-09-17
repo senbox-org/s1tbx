@@ -61,7 +61,6 @@
     <mapID target="exportImageFile" url="visat/ExportImage.html"/>
     <mapID target="exportKml" url="visat/ExportKml.html"/>
     <mapID target="exportMaskPixels" url="visat/ExportMaskPixels.html"/>
-    <mapID target="exportPinPixels" url="visat/ExportPinPixels.html"/>
     <mapID target="exportTransectPixels" url="visat/ExportTransectPixels.html"/>
     <mapID target="exportShapefile" url="visat/ExportShapefile.html"/>
     <mapID target="exportLegendImageFile" url="visat/ExportColorLegend.html"/>
