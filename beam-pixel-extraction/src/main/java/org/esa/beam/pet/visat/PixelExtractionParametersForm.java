@@ -20,7 +20,6 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.jidesoft.swing.StyledLabelBuilder;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
@@ -81,8 +80,7 @@ class PixelExtractionParametersForm {
     private JRadioButton expressionAsFilterButton;
     private JRadioButton exportExpressionResultButton;
     private Product activeProduct;
-    private JLabel expressionNoteLabel1;
-    private JLabel expressionNoteLabel2;
+    private JLabel expressionNoteLabel;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -177,8 +175,7 @@ class PixelExtractionParametersForm {
         }
         editExpressionButton.setToolTipText(toolTip);
         expressionArea.setEnabled(useExpressionSelected);
-        expressionNoteLabel1.setEnabled(useExpressionSelected);
-        expressionNoteLabel2.setEnabled(useExpressionSelected);
+        expressionNoteLabel.setEnabled(useExpressionSelected);
         expressionAsFilterButton.setEnabled(useExpressionSelected);
         exportExpressionResultButton.setEnabled(useExpressionSelected);
     }
@@ -215,7 +212,6 @@ class PixelExtractionParametersForm {
     private JPanel createExpressionPanel(BindingContext bindingContext) {
         final TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTablePadding(4, 4);
-        tableLayout.setTablePadding(new Insets(0, 0, 0, 0));
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
         tableLayout.setTableWeightX(1.0);
         tableLayout.setTableWeightY(1.0);
@@ -226,11 +222,8 @@ class PixelExtractionParametersForm {
         tableLayout.setRowWeightY(0, 0.0);
         tableLayout.setCellColspan(1, 0, 2);
         tableLayout.setCellColspan(2, 0, 2); // expression note line 1
-        tableLayout.setCellPadding(2, 0, new Insets(0, 4, 0, 4)); // expression note line 1
-        tableLayout.setCellColspan(3, 0, 2); // expression note line 2
-        tableLayout.setCellPadding(3, 0, new Insets(0, 4, 0, 4)); // expression note line 2
-        tableLayout.setCellColspan(4, 0, 2); // radio button group
-        tableLayout.setCellFill(4, 0, TableLayout.Fill.BOTH);
+        tableLayout.setCellColspan(3, 0, 2); // radio button group
+        tableLayout.setCellFill(3, 0, TableLayout.Fill.BOTH);
         final JPanel panel = new JPanel(tableLayout);
 
         useExpressionCheckBox = new JCheckBox("Use band maths expression");
@@ -251,12 +244,8 @@ class PixelExtractionParametersForm {
         expressionArea.setRows(3);
         panel.add(new JScrollPane(expressionArea));
 
-        expressionNoteLabel1 = StyledLabelBuilder.createStyledLabel(
-                "{Note\\::b} The expression might not be applicable to all products.");
-        expressionNoteLabel2 = StyledLabelBuilder.createStyledLabel(
-                "If the expression can not be evaluated on a product it is treated as it has not been set.");
-        panel.add(expressionNoteLabel1);
-        panel.add(expressionNoteLabel2);
+        expressionNoteLabel = new JLabel("Note: The expression might not be applicable to all products.");
+        panel.add(expressionNoteLabel);
 
         final ButtonGroup buttonGroup = new ButtonGroup();
         expressionAsFilterButton = new JRadioButton("Use expression as filter", true);
@@ -267,6 +256,7 @@ class PixelExtractionParametersForm {
         final Boolean defaultValue = (Boolean) exportResultProperty.getDescriptor().getDefaultValue();
         exportExpressionResultButton.setSelected(defaultValue);
         expressionAsFilterButton.setSelected(!defaultValue);
+
         final TableLayout buttonTableLayout = new TableLayout(3);
         buttonTableLayout.setTablePadding(4, 0);
         buttonTableLayout.setTableFill(TableLayout.Fill.VERTICAL);
