@@ -14,7 +14,6 @@ import org.esa.beam.framework.gpf.graph.GraphContext;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
-import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.After;
 import org.junit.Before;
@@ -31,6 +30,7 @@ import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,6 +40,9 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 public class PetOpTest {
+
+    private static final String DUMMY_PRODUCT1 = "dummyProduct1.dim";
+    private static final String DUMMY_PRODUCT2 = "dummyProduct2.dim";
 
     private Transferable clipboardContents;
 
@@ -57,7 +60,7 @@ public class PetOpTest {
     @Test
     public void testUsingGraph() throws GraphException, IOException, UnsupportedFlavorException {
 
-        String parentDir = new File(getClass().getResource("dummy.dummy").getFile()).getParent();
+        String parentDir = new File(getClass().getResource("dummyProduct1.dim").getFile()).getParent();
         int windowSize = 11;
         Coordinate[] coordinates = new Coordinate[]{
                 new Coordinate("carlCoordinate", 60.1f, 3.0f),
@@ -103,15 +106,9 @@ public class PetOpTest {
         outputProducts[0].dispose();
 
         List<Product> sourceProducts = new ArrayList<Product>();
-        File[] files = new File(parentDir).listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                continue;
-            }
-            if (FileUtils.getExtension(file).equalsIgnoreCase(".dim")) {
-                sourceProducts.add(ProductIO.readProduct(file));
-            }
-        }
+        sourceProducts.add(readProduct(DUMMY_PRODUCT1));
+        sourceProducts.add(readProduct(DUMMY_PRODUCT2));
+
 
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         String data = String.valueOf(clipboard.getData(clipboard.getAvailableDataFlavors()[0]));
@@ -312,6 +309,11 @@ public class PetOpTest {
         }
     }
 
+    private static Product readProduct(String s) throws IOException {
+        final URL radianceProductUrl = PetOpTest.class.getResource(s);
+        return ProductIO.readProduct(radianceProductUrl.getFile());
+    }
+
     private static String[] computeData(Map<String, Object> parameterMap, Product[] sourceProducts) throws
                                                                                                     UnsupportedFlavorException,
                                                                                                     IOException {
@@ -364,7 +366,7 @@ public class PetOpTest {
         int lineCount = windowSize * windowSize * coordinates.length * products.length;
         lineCount += mainHeaderLength; // add offset for the main header
         lineCount += productIdMapLength;
-        lineCount += productTypes.size(); // add a line for each header
+        lineCount += productTypes.size() * 2; // add two lines for each header
         lineCount += productTypes.size() > 1 ? productTypes.size() : 0; // if more than one product type is present, add a line for each
         lineCount -= productTypes.size() > 1 ? 1 : 0; // if more than one product type is present, the last productType has no line break
 
@@ -374,7 +376,7 @@ public class PetOpTest {
 
         List<Integer> headerLines = new ArrayList<Integer>();
         for (int i = 0; i < productTypes.size(); i++) {
-            int headerLineIndex = i * (windowSize * windowSize * coordinates.length + 2);
+            int headerLineIndex = i * (windowSize * windowSize * coordinates.length + 2) + (1 + i);
             headerLines.add(headerLineIndex + mainHeaderLength);
         }
 

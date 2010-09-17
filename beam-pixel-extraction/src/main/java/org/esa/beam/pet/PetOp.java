@@ -115,7 +115,7 @@ public class PetOp extends Operator {
     private ProductValidator validator;
     private List<Coordinate> coordinateList;
     private boolean isTargetProductInitialized = false;
-    private Map<Product, Integer> productIdMap = new HashMap<Product, Integer>(37);
+    private List<ProductDescription> productLocationList = new ArrayList<ProductDescription>();
     private Integer productId = 0;
 
     @Override
@@ -165,6 +165,7 @@ public class PetOp extends Operator {
             return;
         }
         String productType = product.getProductType();
+        int id = getProductId(product);
         String[] rasterNames = rasterNamesMap.get(productType);
         int offset = MathUtils.floorInt(windowSize / 2);
         int upperLeftX = MathUtils.floorInt(centerPos.x - offset);
@@ -196,7 +197,7 @@ public class PetOp extends Operator {
             }
             GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
             boolean isValid = validData.getSample(x, y, 0) != 0;
-            final Measurement measure = new Measurement(coordinateID, coordinate.getName(), productIdMap.get(product),
+            final Measurement measure = new Measurement(coordinateID, coordinate.getName(), id,
                                                         x, y, product.getStartTime(), currentGeoPos, values, isValid);
             List<Measurement> measurementList = measurements.get(productType);
             if (measurementList == null) {
@@ -205,6 +206,15 @@ public class PetOp extends Operator {
             }
             measurementList.add(measure);
         }
+    }
+
+    private Integer getProductId(Product product) {
+
+        final ProductDescription productDescription = ProductDescription.create(product);
+        if (!productLocationList.contains(productDescription)) {
+            productLocationList.add(productDescription);
+        }
+        return productLocationList.indexOf(productDescription);
     }
 
     private List<Coordinate> initCoordinateList() {
@@ -276,11 +286,6 @@ public class PetOp extends Operator {
 
         if (!rasterNamesMap.containsKey(product.getProductType())) {
             rasterNamesMap.put(product.getProductType(), getAllRasterNames(product));
-        }
-
-        if (!productIdMap.containsKey(product)) {
-            productIdMap.put(product, productId);
-            productId++;
         }
 
         for (int i = 0, coordinateListSize = coordinateList.size(); i < coordinateListSize; i++) {
@@ -359,6 +364,7 @@ public class PetOp extends Operator {
             List<Measurement> measurementList = measurements.get(productType);
             try {
                 String[] rasterNames = rasterNamesMap.get(productType);
+                stringWriter.append(String.format("# %s\n", productType));
                 MeasurementWriter.write(measurementList, stringWriter, rasterNames, expression, exportExpressionResult);
                 stringWriter.append("\n");
             } finally {
@@ -392,12 +398,12 @@ public class PetOp extends Operator {
         StringBuilder builder = new StringBuilder();
         builder.append("# Product ID Map\n");
         builder.append("\n");
-        builder.append("Product ID\tProduct name\n");
-        for (Product product : productIdMap.keySet()) {
-            Integer id = productIdMap.get(product);
+        builder.append("ProductID\tProductType\tProductLocation\n");
+        for (int id = 0; id < productLocationList.size(); id++) {
+            ProductDescription productDescription = productLocationList.get(id);
             builder.append(String.format("%d\t", id));
-            builder.append(String.format("%s", product.getName()));
-            builder.append("\n");
+            builder.append(String.format("%s\t", productDescription.getProductType()));
+            builder.append(String.format("%s\n", productDescription.getProductLocation()));
         }
         return builder.toString();
     }
@@ -450,6 +456,67 @@ public class PetOp extends Operator {
             if (((Integer) value) % 2 == 0) {
                 throw new ValidationException("Value of squareSize must be uneven");
             }
+        }
+    }
+
+    private static class ProductDescription {
+
+        private final String productType;
+        private final String productLocation;
+
+        static ProductDescription create(Product product) {
+            String location = getProductLocation(product);
+            return new ProductDescription(product.getProductType(), location);
+        }
+
+        private static String getProductLocation(Product product) {
+            final File fileLocation = product.getFileLocation();
+            if (fileLocation != null) {
+                return fileLocation.getAbsolutePath();
+            } else {
+                return String.format("Not saved to disk [%s]", product.getName());
+            }
+        }
+
+        private ProductDescription(String productType, String productLocation) {
+            this.productType = productType;
+            this.productLocation = productLocation;
+        }
+
+        public String getProductType() {
+            return productType;
+        }
+
+        public String getProductLocation() {
+            return productLocation;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            ProductDescription that = (ProductDescription) o;
+
+            if (!productLocation.equals(that.productLocation)) {
+                return false;
+            }
+            if (!productType.equals(that.productType)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = productType.hashCode();
+            result = 31 * result + productLocation.hashCode();
+            return result;
         }
     }
 
