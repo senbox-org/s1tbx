@@ -35,8 +35,62 @@
 
 <h3>Introduction</h3>
 
+<p>
+    Basically, the Pixel Extraction Tool allows to extract the pixel values given by a user-specified list of
+    geographic coordinates from a given list of data products. However, a number of additional parameters may be passed
+    to the tool, for example the size of the area around the geographic coordinate which is to be considered.
+</p>
 
-<hr>
+<h4>The Input/Output Pane</h4>
+
+<p>
+    The Input/Output Pane allows to specify the input products and the output mode.
+</p>
+
+<div class="image">
+    <img src="../images/ioform.png" alt="ioform">
+
+    <div align="center"><font size="2">Screenshot 1 - The Input/Output Pane</font></div>
+</div>
+
+<p>
+    Screenshot 1 shows the Input/Output Pane of the Pixel Extraction Tool.
+</p>
+
+<p>
+    The list of input paths contains data products already chosen for extraction as well as paths to be searched for
+    data products. By default, the product selected in VISAT (if there is any) appears in the list. Using the
+    <img src="../images/plus.png" alt="plusbutton">-Button, data products can be added to the list in multiple ways: by
+    choosing a product already opened in VISAT, by choosing a product from the file system, or by specifying a
+    directory on the file system which is to be searched for data products (optionally recursively).
+</p>
+
+<h4>The Output Modes</h4>
+
+<p>
+    The radio button below the list containing the input paths allows to specify the output mode: the extracted pixel
+    values may either be saved in a directory (which may be specified using the box below) or be copied to the
+    clipboard, allowing the user to paste them into another tool, typically a spreadsheet program.
+</p>
+
+<p>
+    The output formats slightly differ: when saving extracted pixel values to disk, a file for each product type is
+    created, plus an additional file storing a mapping from product ids used in the output tables to data products.
+    When, however, using the clipboard, all values are copied at once.
+</p>
+
+<h4>The Control Buttons</h4>
+
+<p>
+    The "Extract"-button starts the extraction process, the "Close"-button discards the specified values and closes the
+    dialog. Lastly, the "Help"-button opens this help.
+</p>
+
+
+<p>&nbsp;</p>
+<hr/>
+
+<p><i>Copyright &copy; 2010 by Brockmann Consult (beam-issues@brockmann-consult.de). All rights reserved.</i></p>
 
 </body>
 </html>
