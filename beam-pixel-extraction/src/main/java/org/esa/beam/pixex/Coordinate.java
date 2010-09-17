@@ -14,18 +14,39 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.pet.visat;
+package org.esa.beam.pixex;
 
-import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.visat.actions.AbstractVisatAction;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 
-public class PixelExtractionAction extends AbstractVisatAction {
+public class Coordinate {
 
+    @Parameter(pattern = "[a-zA-Z_0-9]*")
+    private String name;
+    @Parameter(alias = "latitude")
+    private Float lat;
+    @Parameter(alias = "longitude")
+    private Float lon;
 
-    @Override
-    public void actionPerformed(final CommandEvent event) {
-        new PixelExtractionDialog(getAppContext(), "Pixel Extraction").show();
+    @SuppressWarnings({"UnusedDeclaration"})
+    public Coordinate() {
+        // needed for serialize/de-serialize
     }
 
+    public Coordinate(String name, Float lat, Float lon) {
+        this.name = name;
+        this.lat = lat;
+        this.lon = lon;
+    }
 
+    public String getName() {
+        return name;
+    }
+
+    public Float getLat() {
+        return lat;
+    }
+
+    public Float getLon() {
+        return lon;
+    }
 }

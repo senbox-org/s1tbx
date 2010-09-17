@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.pet.visat;
+package org.esa.beam.pixex.visat;
 
 import com.bc.ceres.swing.TableLayout;
 import com.jidesoft.swing.CheckBoxList;

@@ -1,4 +1,4 @@
-package org.esa.beam.pet;
+package org.esa.beam.pixex;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -39,7 +39,7 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-public class PetOpTest {
+public class PixExOpTest {
 
     private static final String DUMMY_PRODUCT1 = "dummyProduct1.dim";
     private static final String DUMMY_PRODUCT2 = "dummyProduct2.dim";
@@ -70,7 +70,7 @@ public class PetOpTest {
                 "<graph id=\"someGraphId\">\n" +
                 "    <version>1.0</version>\n" +
                 "    <node id=\"someNodeId\">\n" +
-                "      <operator>Pet</operator>\n" +
+                "      <operator>PixEx</operator>\n" +
                 "      <parameters>\n" +
                 "        <inputPaths>\n" +
                 "           " + parentDir +
@@ -97,7 +97,7 @@ public class PetOpTest {
         StringReader reader = new StringReader(graphOpXml);
         Graph graph = GraphIO.read(reader);
 
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new PetOp.Spi());
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new PixExOp.Spi());
 
         GraphProcessor processor = new GraphProcessor();
         GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
@@ -276,7 +276,7 @@ public class PetOpTest {
 
     @Test
     public void testReadMeasurement() throws TransformException, FactoryException, IOException {
-        PetOp op = new PetOp();
+        PixExOp op = new PixExOp();
         String[] bandNames = {"band_1", "band_2", "band_3"};
         Product product = createTestProduct("horst", "horse", bandNames);
         String productType = product.getProductType();
@@ -310,15 +310,15 @@ public class PetOpTest {
     }
 
     private static Product readProduct(String s) throws IOException {
-        final URL radianceProductUrl = PetOpTest.class.getResource(s);
+        final URL radianceProductUrl = PixExOpTest.class.getResource(s);
         return ProductIO.readProduct(radianceProductUrl.getFile());
     }
 
     private static String[] computeData(Map<String, Object> parameterMap, Product[] sourceProducts) throws
                                                                                                     UnsupportedFlavorException,
                                                                                                     IOException {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new PetOp.Spi());
-        GPF.createProduct("Pet", parameterMap, sourceProducts);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new PixExOp.Spi());
+        GPF.createProduct("PixEx", parameterMap, sourceProducts);
 
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         String data = String.valueOf(clipboard.getData(clipboard.getAvailableDataFlavors()[0]));

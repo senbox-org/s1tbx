@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.pet.visat;
+package org.esa.beam.pixex.visat;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
@@ -27,7 +27,7 @@ import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.pet.PetOp;
+import org.esa.beam.pixex.PixExOp;
 
 import javax.swing.AbstractButton;
 import javax.swing.JDialog;
@@ -111,7 +111,7 @@ class PixelExtractionDialog extends ModalDialog {
 
     private PropertyContainer createParameterMap(Map<String, Object> map) {
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
-        final PropertyContainer container = PropertyContainer.createMapBacked(map, PetOp.class,
+        final PropertyContainer container = PropertyContainer.createMapBacked(map, PixExOp.class,
                                                                               parameterDescriptorFactory);
         try {
             container.setDefaultValues();
@@ -172,7 +172,7 @@ class PixelExtractionDialog extends ModalDialog {
 
         final DefaultAppContext context = new DefaultAppContext("dev0");
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        registry.addOperatorSpi(new PetOp.Spi());
+        registry.addOperatorSpi(new PixExOp.Spi());
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override

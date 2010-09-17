@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.pet;
+package org.esa.beam.pixex;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
@@ -66,12 +66,12 @@ import java.util.logging.Logger;
         "FieldCanBeLocal", "UnusedDeclaration"
 })
 @OperatorMetadata(
-        alias = "Pet",
+        alias = "PixEx",
         version = "1.0",
         authors = "Marco Peters, Thomas Storm",
         copyright = "(c) 2010 by Brockmann Consult",
         description = "Generates a CSV file from a given pixel location and source products.")
-public class PetOp extends Operator {
+public class PixExOp extends Operator {
 
     @SourceProducts()
     private Product[] sourceProducts;
@@ -450,7 +450,7 @@ public class PetOp extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(PetOp.class);
+            super(PixExOp.class);
         }
     }
 

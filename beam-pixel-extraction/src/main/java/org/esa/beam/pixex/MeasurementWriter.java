@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.pet;
+package org.esa.beam.pixex;
 
 import org.esa.beam.framework.datamodel.ProductData;
 

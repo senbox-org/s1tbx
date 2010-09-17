@@ -50,7 +50,7 @@
         <action>
             <parent>export</parent>
             <id>pixelExtraction</id>
-            <class>org.esa.beam.pet.visat.PixelExtractionAction</class>
+            <class>org.esa.beam.pixex.visat.PixelExtractionAction</class>
             <helpId>pixelExtraction</helpId>
             <text>Export Pixels...</text>
             <description>Exports the pixels of a given list of coordinates.</description>
