@@ -668,7 +668,7 @@
             <parent>file</parent>
             <placeAfter>import</placeAfter>
             <id>export</id>
-            <class>org.esa.beam.visat.actions.ExportActionGroup</class>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Export</text>
             <mnemonic>I</mnemonic>
             <separatorAfter>true</separatorAfter>
@@ -763,16 +763,6 @@
 
         <action>
             <parent>export</parent>
-            <id>exportPinPixels</id>
-            <class>org.esa.beam.visat.actions.pin.ExportPinPixelsAction</class>
-            <text>Export Pin Pixels...</text>
-            <shortDescr>Export Pin Pixels</shortDescr>
-            <longDescr>Export Pin Pixels</longDescr>
-            <context>image</context>
-        </action>
-
-        <action>
-            <parent>export</parent>
             <id>exportLegendImageFile</id>
             <class>org.esa.beam.visat.actions.ExportLegendImageAction</class>
             <text>Export Colour Legend as Image...</text>
@@ -803,7 +793,6 @@
             <mnemonic>R</mnemonic>
             <shortDescr>Export the pixels of a Mask.</shortDescr>
             <description>Export the pixels of a mask as tab-separated text.</description>
-            <accelerator>shift control P</accelerator>
             <context>image</context>
             <helpId>exportMaskPixels</helpId>
         </action>
