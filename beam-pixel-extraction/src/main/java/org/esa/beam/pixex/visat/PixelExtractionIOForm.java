@@ -72,7 +72,9 @@ class PixelExtractionIOForm {
     private final JList inputPathsList;
     private final JTextField outputDirTextField;
     private final PropertyContainer container;
-    private final AbstractButton fileChooserButton;
+    private final AbstractButton outputDirChooserButton;
+    private final JLabel filePrefixLabel;
+    private final JTextField filePrefixField;
     private InputListModel listModel;
 
     PixelExtractionIOForm(final AppContext appContext, PropertyContainer container) {
@@ -116,11 +118,11 @@ class PixelExtractionIOForm {
         String path = getDefaultOutputPath(appContext);
         setOutputDirPath(path);
         panel.add(outputDirTextField);
-        fileChooserButton = createOutputDirChooserButton(container.getProperty("outputDir"));
-        panel.add(fileChooserButton);
+        outputDirChooserButton = createOutputDirChooserButton(container.getProperty("outputDir"));
+        panel.add(outputDirChooserButton);
 
-        final JLabel filePrefixLabel = new JLabel("File prefix:");
-        final JTextField filePrefixField = createFilePrefixField(container.getProperty("outputFilePrefix"));
+        filePrefixLabel = new JLabel("File prefix:");
+        filePrefixField = createFilePrefixField(container.getProperty("outputFilePrefix"));
         panel.add(filePrefixLabel);
         panel.add(filePrefixField);
     }
@@ -182,7 +184,9 @@ class PixelExtractionIOForm {
     private void setOutputUiEnabled(boolean enable) {
         outputDirLabel.setEnabled(enable);
         outputDirTextField.setEnabled(enable);
-        fileChooserButton.setEnabled(enable);
+        outputDirChooserButton.setEnabled(enable);
+        filePrefixField.setEnabled(enable);
+        filePrefixLabel.setEnabled(enable);
     }
 
     private String getDefaultOutputPath(AppContext appContext) {
