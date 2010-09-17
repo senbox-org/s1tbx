@@ -124,12 +124,13 @@ class PixelExtractionParametersForm {
         tableLayout.setTableWeightY(0.0);
         tableLayout.setColumnWeightX(1, 1.0);
         tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH); // coordinate table
-        tableLayout.setCellWeightY(0, 1, 1.0);
+        tableLayout.setCellWeightY(0, 1, 7.0);
         tableLayout.setRowFill(2, TableLayout.Fill.BOTH); // windowSize
-        tableLayout.setCellFill(3, 0, TableLayout.Fill.BOTH); // expression panel
-        tableLayout.setCellPadding(3, 0, new Insets(0, 0, 0, 0));
-        tableLayout.setRowWeightX(3, 1.0);
-        tableLayout.setCellColspan(3, 0, 3);
+        tableLayout.setCellPadding(3, 0, new Insets(8, 4, 4, 4)); //expression label
+        tableLayout.setCellFill(3, 1, TableLayout.Fill.BOTH); // expression panel
+        tableLayout.setCellPadding(3, 1, new Insets(0, 0, 0, 0));
+        tableLayout.setCellWeightX(3, 1, 1.0);
+        tableLayout.setCellWeightY(3, 1, 3.0);
 
         mainPanel = new JPanel(tableLayout);
         mainPanel.add(new JLabel("Coordinates:"));
@@ -157,7 +158,9 @@ class PixelExtractionParametersForm {
         mainPanel.add(windowSpinner);
         mainPanel.add(windowLabel);
 
+        mainPanel.add(new JLabel("Expression:"));
         mainPanel.add(createExpressionPanel(bindingContext));
+        mainPanel.add(new JLabel());
     }
 
     private void updateUi() {
@@ -214,19 +217,19 @@ class PixelExtractionParametersForm {
         tableLayout.setTablePadding(4, 4);
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
         tableLayout.setTableWeightX(1.0);
-        tableLayout.setTableWeightY(1.0);
+        tableLayout.setTableWeightY(0.0);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         tableLayout.setCellAnchor(0, 1, TableLayout.Anchor.NORTHEAST); // edit expression button
         tableLayout.setRowFill(0, TableLayout.Fill.VERTICAL);
         tableLayout.setCellFill(1, 0, TableLayout.Fill.BOTH); // expression text area
-        tableLayout.setRowWeightY(0, 0.0);
+        tableLayout.setCellWeightY(1, 0, 1.0);
         tableLayout.setCellColspan(1, 0, 2);
         tableLayout.setCellColspan(2, 0, 2); // expression note line 1
         tableLayout.setCellColspan(3, 0, 2); // radio button group
         tableLayout.setCellFill(3, 0, TableLayout.Fill.BOTH);
         final JPanel panel = new JPanel(tableLayout);
 
-        useExpressionCheckBox = new JCheckBox("Use band maths expression");
+        useExpressionCheckBox = new JCheckBox("Use band maths");
         useExpressionCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -238,10 +241,8 @@ class PixelExtractionParametersForm {
         editExpressionButton.addActionListener(new EditExpressionActionListener(parentWindow));
         panel.add(useExpressionCheckBox);
         panel.add(editExpressionButton);
-        expressionArea = new JTextArea();
+        expressionArea = new JTextArea(3, 50);
         expressionArea.setLineWrap(true);
-        expressionArea.setColumns(50);
-        expressionArea.setRows(3);
         panel.add(new JScrollPane(expressionArea));
 
         expressionNoteLabel = new JLabel("Note: The expression might not be applicable to all products.");
