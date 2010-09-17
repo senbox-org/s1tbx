@@ -58,7 +58,7 @@ public class EqualizationOp extends Operator {
     @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT", "REPROCESSING_2", "REPROCESSING_3"},
                defaultValue = "AUTO_DETECT",
                description = "The version of the reprocessing the product comes from.")
-    private REPROCESSING_VERSION reproVersion;
+    private ReprocessingVersion reproVersion;
 
     @Parameter(defaultValue = "true",
                label = "Perform SMILE correction",
@@ -124,7 +124,7 @@ public class EqualizationOp extends Operator {
         try {
             final boolean isFullResolution = sourceProduct.getProductType().startsWith("MER_F");
             int reprocessingVersion;
-            if (REPROCESSING_VERSION.AUTO_DETECT.equals(reproVersion)) {
+            if (ReprocessingVersion.AUTO_DETECT.equals(reproVersion)) {
                 reprocessingVersion = autoDetectReprocessingVersion();
             } else {
                 reprocessingVersion = reproVersion.getVersion();

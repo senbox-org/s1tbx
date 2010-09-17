@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-equalization</symbolicName>
-    <version>1.0</version>
+    <version>1.1</version>
     <name>MERIS L1b Equalization</name>
 
     <description>
@@ -55,15 +55,15 @@
             <targetProductNameSuffix>_Equalized</targetProductNameSuffix>
         </action>
         <!--<action>-->
-            <!--<id>merisSmile</id>-->
-            <!--<helpId>merisSmile</helpId>-->
-            <!--<class>org.esa.beam.visat.actions.DefaultOperatorAction</class>-->
-            <!--<parent>tools</parent>-->
-            <!--<text>NEW SMILE correction (MERIS)...</text>-->
-            <!--<mnemonic>S</mnemonic>-->
-            <!--<operatorName>SmileCorr</operatorName>-->
-            <!--<dialogTitle>MERIS L1b SMILE Correction</dialogTitle>-->
-            <!--<targetProductNameSuffix>_smile</targetProductNameSuffix>-->
+        <!--<id>merisSmile</id>-->
+        <!--<helpId>merisSmile</helpId>-->
+        <!--<class>org.esa.beam.visat.actions.DefaultOperatorAction</class>-->
+        <!--<parent>tools</parent>-->
+        <!--<text>NEW SMILE correction (MERIS)...</text>-->
+        <!--<mnemonic>S</mnemonic>-->
+        <!--<operatorName>SmileCorr</operatorName>-->
+        <!--<dialogTitle>MERIS L1b SMILE Correction</dialogTitle>-->
+        <!--<targetProductNameSuffix>_smile</targetProductNameSuffix>-->
         <!--</action>-->
     </extension>
 

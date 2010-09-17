@@ -17,14 +17,15 @@
 package org.esa.beam;
 
 @SuppressWarnings({"UnusedDeclaration"})
-enum REPROCESSING_VERSION {
+enum ReprocessingVersion {
+
     AUTO_DETECT(-1),
     REPROCESSING_2(2),
     REPROCESSING_3(3);
 
     private int version;
 
-    REPROCESSING_VERSION(int version) {
+    ReprocessingVersion(int version) {
         this.version = version;
     }
 
