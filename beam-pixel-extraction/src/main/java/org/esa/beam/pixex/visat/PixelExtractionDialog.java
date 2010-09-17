@@ -134,7 +134,7 @@ class PixelExtractionDialog extends ModalDialog {
             AbstractButton runButton = getButton(ID_OK);
             runButton.setEnabled(false);
             try {
-                GPF.createProduct("Pet", parameterMap, ioForm.getSourceProducts());
+                GPF.createProduct("PixEx", parameterMap, ioForm.getSourceProducts());
                 pm.worked(1);
             } finally {
                 pm.done();
