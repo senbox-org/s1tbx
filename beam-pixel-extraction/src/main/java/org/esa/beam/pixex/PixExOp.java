@@ -94,7 +94,7 @@ public class PixExOp extends Operator {
     @Parameter(description = "The geo-coordinates", itemAlias = "coordinate")
     private Coordinate[] coordinates;
 
-    @Parameter(description = "Path to a file containing geo-coordinates")
+    @Parameter(description = "Path to a file containing geo-coordinates. Can be one of BEAM's placemark files.")
     private File coordinatesFile;
 
     @Parameter(description = "Side length of surrounding window (uneven)", defaultValue = "1",
