@@ -44,7 +44,148 @@
 <h3>The Output Format</h3>
 
 <p>
-    The output format looks like this: pixelvaluebla.
+    The Pixel Extraction Tool generates output in the widely used and very general CSV-format, using tabstops as
+    separators.<br/>
+    It writes a file for each product type it has found within its input products (such as MER_FRS), each starting with
+    a header looking like this:<br/><br/>
+    <code>
+        # BEAM pixel extraction export table<br/>
+        #<br/>
+        # Window size: 1<br/>
+        # Expression: l1_flags.LAND_OCEAN<br/>
+        # Created on: 2010-09-17 14:53:21<br/>
+    </code><br/>
+    The header is followed by the table with the actual data; it might exemplarily look like this:<br/><br/>
+<table>
+    <tbody>
+    <tr>
+        <td>Expression result</td>
+        <td>ProdID</td>
+        <td>CoordID</td>
+        <td>Name</td>
+        <td>Latitude</td>
+        <td>Longitude</td>
+        <td>PixelX</td>
+        <td>PixelY</td>
+        <td>Date(yyyy-MM-dd)</td>
+        <td>Time(HH:mm:ss)</td>
+        <td>radiance_1</td>
+        <td>radiance_2</td>
+    </tr>
+    <tr>
+        <td>true</td>
+        <td>0</td>
+        <td>1</td>
+        <td>pin_1</td>
+        <td>41.31899</td>
+        <td>2.1386652</td>
+        <td>459.0</td>
+        <td>853.0</td>
+        <td>2003-08-09</td>
+        <td>12:14:16</td>
+        <td>157.6424</td>
+        <td>163.6796</td>
+    </tr>
+    <tr>
+        <td>true</td>
+        <td>1</td>
+        <td>1</td>
+        <td>pin_1</td>
+        <td>41.31899</td>
+        <td>2.1386652</td>
+        <td>459.0</td>
+        <td>853.0</td>
+        <td>2005-08-09</td>
+        <td>18:15:26</td>
+        <td>234.534</td>
+        <td>143.423</td>
+    </tr>
+    <tr>
+        <td>false</td>
+        <td>3</td>
+        <td>2</td>
+        <td>pin_2</td>
+        <td>43.3452</td>
+        <td>12.1232</td>
+        <td>539.0</td>
+        <td>533.0</td>
+        <td>2001-07-05</td>
+        <td>12:07:86</td>
+        <td>423.522194</td>
+        <td>156.625496</td>
+    </tr>
+    </tbody>
+</table>
+
+<p>
+    In the following table, the entries are explained in detail.
+</p>
+
+<table>
+    <thead>
+    <tr>
+        <th>Field</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Expression result</td>
+        <td>True if the value matches the expression, false otherwise. Is omitted when expression is used for
+            filtering.
+        </td>
+    </tr>
+    <tr>
+        <td>ProdID</td>
+        <td>An ID for the product with relevance within the extracted data.</td>
+    </tr>
+    <tr>
+        <td>CoordID</td>
+        <td>An ID for the coordinate with relevance within the extracted data.</td>
+    </tr>
+    <tr>
+        <td>Name</td>
+        <td>The coordinate's name, if available.</td>
+    </tr>
+    <tr>
+        <td>Latitude</td>
+        <td>The coordinate's latitude value.</td>
+    </tr>
+    <tr>
+        <td>Longitude</td>
+        <td>The coordinate's longitude value.</td>
+    </tr>
+    <tr>
+        <td>PixelX</td>
+        <td>The data product's pixel value in x direction corresponding to the latitude value.</td>
+    </tr>
+    <tr>
+        <td>PixelY</td>
+        <td>The data product's pixel value in y direction corresponding to the longitude value.</td>
+    </tr>
+    <tr>
+        <td>Date(yyyy-MM-dd)</td>
+        <td>The data product's sensing date.</td>
+    </tr>
+    <tr>
+        <td>Time(HH:mm:ss)</td>
+        <td>The data product's sensing time.</td>
+    </tr>
+    <tr>
+        <td>radiance_1</td>
+        <td>Exemplarily: the first of the bands considered for value extracting.</td>
+    </tr>
+    <tr>
+        <td>radiance_2</td>
+        <td>Exemplarily: the second of the bands considered for value extracting.</td>
+    </tr>
+    </tbody>
+</table>
+
+<p>
+    Note that the two output formats slightly differ: when saving to disk, a file for each product type is
+    created, plus an additional file storing a mapping from product ids used in the output tables to data products.
+    When, however, using the clipboard, all values are copied at once.
 </p>
 
 <h3>The User Interface</h3>
@@ -81,9 +222,7 @@
 </p>
 
 <p>
-    The output formats slightly differ: when saving extracted pixel values to disk, a file for each product type is
-    created, plus an additional file storing a mapping from product ids used in the output tables to data products.
-    When, however, using the clipboard, all values are copied at once.
+    Lastly, a filename prefix may be specified if the values are to be written into files on disk.
 </p>
 
 <h4>The Parameters Pane</h4>
