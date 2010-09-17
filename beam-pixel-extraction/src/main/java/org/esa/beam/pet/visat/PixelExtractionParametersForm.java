@@ -56,6 +56,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Window;
@@ -258,16 +259,9 @@ class PixelExtractionParametersForm {
         exportExpressionResultButton.setSelected(defaultValue);
         expressionAsFilterButton.setSelected(!defaultValue);
 
-        final TableLayout buttonTableLayout = new TableLayout(3);
-        buttonTableLayout.setTablePadding(4, 0);
-        buttonTableLayout.setTableFill(TableLayout.Fill.VERTICAL);
-        buttonTableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
-        buttonTableLayout.setColumnWeightX(2, 1.0);
-        buttonTableLayout.setTableWeightY(1.0);
-        final JPanel expressionButtonPanel = new JPanel(buttonTableLayout);
+        final JPanel expressionButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         expressionButtonPanel.add(expressionAsFilterButton);
         expressionButtonPanel.add(exportExpressionResultButton);
-        expressionButtonPanel.add(buttonTableLayout.createHorizontalSpacer());
         panel.add(expressionButtonPanel);
         return panel;
     }
