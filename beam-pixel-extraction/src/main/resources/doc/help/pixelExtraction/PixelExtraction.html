@@ -41,20 +41,29 @@
     to the tool, for example the size of the area around the geographic coordinate which is to be considered.
 </p>
 
+<h3>The Output Format</h3>
+
+<p>
+    The output format looks like this: pixelvaluebla.
+</p>
+
+<h3>The User Interface</h3>
+
+<p>
+    The user interface of the Pixel Extraction Tool mainly consists of the Input/Output-pane and the
+    Parameters-pane, as well as three buttons to start the extraction process, close the
+    dialog, and open this help.
+</p>
+
 <h4>The Input/Output Pane</h4>
 
 <p>
     The Input/Output Pane allows to specify the input products and the output mode.
 </p>
 
-<div class="image">
-    <img src="../images/ioform.png" alt="ioform">
-
-    <div align="center"><font size="2">Screenshot 1 - The Input/Output Pane</font></div>
-</div>
-
-<p>
-    Screenshot 1 shows the Input/Output Pane of the Pixel Extraction Tool.
+<p align="center">
+    <img src="../images/ioform.png" alt="ioform"/><br/>
+    <font size="2">Screenshot 1 - The Input/Output Pane</font>
 </p>
 
 <p>
@@ -64,8 +73,6 @@
     choosing a product already opened in VISAT, by choosing a product from the file system, or by specifying a
     directory on the file system which is to be searched for data products (optionally recursively).
 </p>
-
-<h4>The Output Modes</h4>
 
 <p>
     The radio button below the list containing the input paths allows to specify the output mode: the extracted pixel
@@ -79,13 +86,44 @@
     When, however, using the clipboard, all values are copied at once.
 </p>
 
-<h4>The Control Buttons</h4>
+<h4>The Parameters Pane</h4>
 
 <p>
-    The "Extract"-button starts the extraction process, the "Close"-button discards the specified values and closes the
-    dialog. Lastly, the "Help"-button opens this help.
+    The Parameters Pane allows to specify several parameters used for the extraction.
 </p>
 
+<p align="center">
+    <img src="../images/parametersform.png" alt="parametersform"/><br/>
+    <font size="2">Screenshot 2 - The Parameters Pane</font>
+</p>
+
+<p>
+    The coordinates table shows the user-specified geographic coordinates which are used to extract the values. They
+    consist of a name and their latitude/longitude-values. Initially, the table is filled with the pins of the product
+    currently selected in VISAT; additional coordinates may be added either by newly creating them or by reading them
+    from an exported pin file.
+</p>
+
+<p>
+    The considered export sources may be delimited using three checkboxes, one each for bands, tie-point grids, and
+    masks.
+</p>
+
+<p>
+    The window size specifies the number of pixels surrounding the pixels derived from the given geographic coordinates
+    to be exported. That is, when setting the window size to 3, the values for 9 pixels will be extracted. The window
+    size always is odd.
+</p>
+
+<p>
+    A band maths expression can be specified to filter the values to output. The "Edit Expression..."-button opens
+    the expression editor, which can be used for easily editing an expression. It is only available if the
+    input product list of the "Input/Output"-pane contains at least one data product; however, in any case an expression
+    may manually be declared.<br>
+    There are two options of how to use the expression: either the expression is used to filter the values to output,
+    that is, values which do not satisfy the expression are ignored. In the other case, the information if the value met
+    the expression is added to the output.
+</p>
 
 <p>&nbsp;</p>
 <hr/>
