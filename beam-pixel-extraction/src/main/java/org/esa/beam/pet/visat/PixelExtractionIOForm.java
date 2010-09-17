@@ -88,6 +88,7 @@ class PixelExtractionIOForm {
         tableLayout.setCellWeightY(0, 1, 1.0);
         tableLayout.setCellColspan(1, 0, 3);
         tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH);
+        tableLayout.setCellWeightX(2, 1, 0.0); // output dir path field
         panel = new JPanel(tableLayout);
 
         listModel = new InputListModel(container.getProperty("inputPaths"));
@@ -110,9 +111,9 @@ class PixelExtractionIOForm {
         panel.add(outputDirLabel);
         outputDirTextField = new JTextField();
         outputDirTextField.setEditable(false);
+        outputDirTextField.setPreferredSize(new Dimension(80, outputDirTextField.getPreferredSize().height));
         String path = getDefaultOutputPath(appContext);
         setOutputDirPath(path);
-        outputDirTextField.setPreferredSize(new Dimension(120, outputDirTextField.getPreferredSize().height));
         panel.add(outputDirTextField);
         fileChooserButton = createFileChooserButton(container.getProperty("outputDir"));
         panel.add(fileChooserButton);

@@ -241,7 +241,7 @@ class PixelExtractionParametersForm {
         editExpressionButton.addActionListener(new EditExpressionActionListener(parentWindow));
         panel.add(useExpressionCheckBox);
         panel.add(editExpressionButton);
-        expressionArea = new JTextArea(3, 50);
+        expressionArea = new JTextArea(3, 40);
         expressionArea.setLineWrap(true);
         panel.add(new JScrollPane(expressionArea));
 
