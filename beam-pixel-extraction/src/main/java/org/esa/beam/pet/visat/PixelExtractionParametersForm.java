@@ -254,7 +254,7 @@ class PixelExtractionParametersForm {
         expressionNoteLabel1 = StyledLabelBuilder.createStyledLabel(
                 "{Note\\::b} The expression might not be applicable to all products.");
         expressionNoteLabel2 = StyledLabelBuilder.createStyledLabel(
-                "The expression is ignored if it can not be evaluated on a product.");
+                "If the expression can not be evaluated on a product it is treated as it has not been set.");
         panel.add(expressionNoteLabel1);
         panel.add(expressionNoteLabel2);
 
