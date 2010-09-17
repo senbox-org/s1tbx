@@ -58,11 +58,11 @@
         </action>
     </extension>
 
-    <!--<extension point="beam-ui:helpSets">-->
-    <!--<helpSet>-->
-    <!--<parent>beam-help</parent>-->
-    <!--<path>doc/help/pixelExtraction.hs</path>-->
-    <!--</helpSet>-->
-    <!--</extension>-->
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/pixelExtraction.hs</path>
+        </helpSet>
+    </extension>
 
 </module>

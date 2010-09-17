@@ -68,13 +68,15 @@ class InputListModel extends AbstractListModel {
     }
 
     void clear() {
-        final int endIndex = list.size() - 1;
-        list.clear();
-        try {
-            updateProperty();
-        } catch (ValidationException ignored) {
+        if (!list.isEmpty()) {
+            final int endIndex = list.size() - 1;
+            list.clear();
+            try {
+                updateProperty();
+            } catch (ValidationException ignored) {
+            }
+            fireIntervalRemoved(this, 0, endIndex);
         }
-        fireIntervalRemoved(this, 0, endIndex);
     }
 
     void removeElementsAt(int[] selectedIndices) {
