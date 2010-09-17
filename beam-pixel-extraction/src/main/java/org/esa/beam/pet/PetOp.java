@@ -385,7 +385,7 @@ public class PetOp extends Operator {
         builder.append("#\n");
         builder.append(String.format("# Window size: %d\n", windowSize));
         if (expression != null) {
-            builder.append(String.format("# Expression: \n%s", expression));
+            builder.append(String.format("# Expression: %s\n", expression));
         }
         builder.append(
                 String.format("# Created on:\t%s\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
