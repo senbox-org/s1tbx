@@ -20,6 +20,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.TableLayout;
+import com.bc.ceres.swing.binding.BindingContext;
 import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
@@ -115,8 +116,13 @@ class PixelExtractionIOForm {
         String path = getDefaultOutputPath(appContext);
         setOutputDirPath(path);
         panel.add(outputDirTextField);
-        fileChooserButton = createFileChooserButton(container.getProperty("outputDir"));
+        fileChooserButton = createOutputDirChooserButton(container.getProperty("outputDir"));
         panel.add(fileChooserButton);
+
+        final JLabel filePrefixLabel = new JLabel("File prefix:");
+        final JTextField filePrefixField = createFilePrefixField(container.getProperty("outputFilePrefix"));
+        panel.add(filePrefixLabel);
+        panel.add(filePrefixField);
     }
 
     JPanel getPanel() {
@@ -200,7 +206,7 @@ class PixelExtractionIOForm {
         outputDirTextField.setToolTipText(path);
     }
 
-    private AbstractButton createFileChooserButton(final Property outputFileProperty) {
+    private AbstractButton createOutputDirChooserButton(final Property outputFileProperty) {
         AbstractButton button = new JButton("...");
         button.addActionListener(new ActionListener() {
             @Override
@@ -227,6 +233,13 @@ class PixelExtractionIOForm {
             }
         });
         return button;
+    }
+
+    private JTextField createFilePrefixField(Property property) {
+        final BindingContext context = new BindingContext(container);
+        final JTextField textField = new JTextField();
+        context.bind(property.getName(), textField);
+        return textField;
     }
 
     private JList createInputPathsList(InputListModel inputListModel) {

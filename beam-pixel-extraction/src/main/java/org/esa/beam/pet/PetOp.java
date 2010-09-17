@@ -70,7 +70,7 @@ import java.util.logging.Logger;
         version = "1.0",
         authors = "Marco Peters, Thomas Storm",
         copyright = "(c) 2010 by Brockmann Consult",
-        description = "Generates a CSV file from a given pixel location of source products.")
+        description = "Generates a CSV file from a given pixel location and source products.")
 public class PetOp extends Operator {
 
     @SourceProducts()
@@ -103,6 +103,9 @@ public class PetOp extends Operator {
 
     @Parameter(description = "The output directory. If not specified the output is written to the clipboard.")
     private File outputDir;
+
+    @Parameter(description = "The prefix is used to name the output files.", defaultValue = "pixEx")
+    private String outputFilePrefix;
 
     @Parameter(description = "Band maths expression (optional)")
     private String expression;
@@ -330,7 +333,8 @@ public class PetOp extends Operator {
             List<Measurement> measurementList = measurements.get(productType);
             try {
                 String[] rasterNames = rasterNamesMap.get(productType);
-                writer = new FileWriter(new File(outputDir.getAbsolutePath(), "expix_" + productType + ".txt"));
+                writer = new FileWriter(new File(outputDir.getAbsolutePath(),
+                                                 String.format("%s_%s.txt", outputFilePrefix, productType)));
                 writer.write(createHeader());
                 MeasurementWriter.write(measurementList, writer, rasterNames, expression, exportExpressionResult);
             } catch (IOException e) {
@@ -346,7 +350,8 @@ public class PetOp extends Operator {
         }
 
         try {
-            writer = new FileWriter(new File(outputDir.getAbsolutePath(), "expix_productIDs.txt"));
+            writer = new FileWriter(new File(outputDir.getAbsolutePath(),
+                                             String.format("%s_productIdMap.txt", outputFilePrefix)));
             try {
                 writer.write(writeProductIdMap());
             } finally {
