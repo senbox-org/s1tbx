@@ -18,6 +18,10 @@ package org.esa.beam.visat.actions;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.VisatApp;
 
+/**
+ * @deprecated since BEAM 4.9, no replacement
+ */
+@Deprecated
 public class ExportActionGroup extends ActionGroup {
 
     @Override
