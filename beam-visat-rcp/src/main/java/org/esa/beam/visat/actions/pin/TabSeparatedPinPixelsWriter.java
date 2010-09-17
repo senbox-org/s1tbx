@@ -20,8 +20,8 @@ import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.util.Guardian;
 
 import java.awt.Point;
@@ -36,16 +36,19 @@ import java.util.Map;
  *
  * @author Maximilian Aulinger
  * @version Revision 1.3.1
+ * @deprecated since BEAM 4.9, replaced by module beam-pixel-extraction
  */
+@Deprecated
 class TabSeparatedPinPixelsWriter {
 
     private Band[] bands;
     private GeoCoding geoCoding;
     private PrintWriter printWriter;
 
-    /**
+    /*
      * Initialises a new instance of this class.
      */
+
     TabSeparatedPinPixelsWriter(final Writer writer, final Band[] bands, final GeoCoding geoCoding) {
         Guardian.assertNotNull("writer", writer);
         Guardian.assertNotNull("rasters", bands);
@@ -55,11 +58,13 @@ class TabSeparatedPinPixelsWriter {
         this.geoCoding = geoCoding;
     }
 
-    /**
+    /*
      * Writes the pixel values an annotation data into the output stream.
      */
-    boolean writePlacemarkPixels(final int size, final String expression, final Map<Placemark, Object[]> pixelMap, ProgressMonitor pm) throws
-                                                                                                                IOException {
+
+    boolean writePlacemarkPixels(final int size, final String expression, final Map<Placemark, Object[]> pixelMap,
+                                 ProgressMonitor pm) throws
+                                                     IOException {
         boolean success = true;
         Point[] pixels;
         Boolean[] pixelRelevanceInformation = null;

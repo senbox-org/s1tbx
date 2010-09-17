@@ -42,8 +42,9 @@ import java.awt.event.ActionListener;
  *
  * @author Maximilian Aulinger
  * @version Revision 1.3.1
+ * @deprecated since BEAM 4.9, replaced by module beam-pixel-extraction
  */
-
+@Deprecated
 class ExportPinPixelsDialog extends ModalDialog {
 
     private static final String _PARAM_NAME_USE_ARTIHMETIC_EXPRESSION = "useArithmeticExpr";
@@ -280,8 +281,8 @@ class ExportPinPixelsDialog extends ModalDialog {
     /**
      * Shows the ExportPinPixels dialog window.
      *
-     * @param selectedProduct  the selected product
-     * 
+     * @param selectedProduct the selected product
+     *
      * @return the int value associated with the button the user has pressed. See org.esa.beam.framework.ui.ModalDialog
      */
     public int show(final Product selectedProduct) {
@@ -312,6 +313,7 @@ class ExportPinPixelsDialog extends ModalDialog {
      * Defines an array with all possible region sizes (used as pulldown menu).
      *
      * @param maxRegionSize the maximum height/width for the quadratic region around the pin
+     *
      * @return the array with the possible options
      */
     private String[] defineRegionSelection(final int maxRegionSize) {

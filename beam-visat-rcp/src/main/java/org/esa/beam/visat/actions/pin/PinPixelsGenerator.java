@@ -28,7 +28,9 @@ import java.util.ArrayList;
 
 /**
  * @author Maximilian Aulinger
+ * @deprecated since BEAM 4.9, replaced by module beam-pixel-extraction
  */
+@Deprecated
 class PinPixelsGenerator {
 
     private Product product;
@@ -132,10 +134,12 @@ class PinPixelsGenerator {
 
         if (expression != null) {
             t = product.parseExpression(expression);
-            loop = new RasterDataLoop(points[0].x, points[0].y, regionWidth, regionHeight, new Term[]{t}, ProgressMonitor.NULL);
+            loop = new RasterDataLoop(points[0].x, points[0].y, regionWidth, regionHeight, new Term[]{t},
+                                      ProgressMonitor.NULL);
         } else {
             t = null;
-            loop = new RasterDataLoop(points[0].x, points[0].y, regionWidth, regionHeight, new Term[]{}, ProgressMonitor.NULL);
+            loop = new RasterDataLoop(points[0].x, points[0].y, regionWidth, regionHeight, new Term[]{},
+                                      ProgressMonitor.NULL);
         }
 
         loop.forEachPixel(new RasterDataLoop.Body() {

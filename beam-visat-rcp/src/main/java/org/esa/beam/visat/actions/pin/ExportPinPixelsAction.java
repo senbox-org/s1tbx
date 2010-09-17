@@ -52,10 +52,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Marco Peters
  * @version $Revision$ $Date$
+ * @deprecated since BEAM 4.9, replaced by module beam-pixel-extraction
  */
+@Deprecated
 public class ExportPinPixelsAction extends ExecCommand {
 
-    private class PTL extends ProductTreeListenerAdapter{
+    private class PTL extends ProductTreeListenerAdapter {
 
         @Override
         public void productRemoved(final Product product) {
@@ -65,7 +67,7 @@ public class ExportPinPixelsAction extends ExecCommand {
             }
         }
     }
-    
+
     private class PNL implements ProductNodeListener {
 
         @Override
@@ -88,7 +90,7 @@ public class ExportPinPixelsAction extends ExecCommand {
             checkEnabledState();
         }
     }
-    
+
 
     private static final String ERR_MSG_BASE = "Pin pixels cannot be exported:\n";
     private static final String COMMAND_NAME = "Export Pin Pixels";
@@ -109,7 +111,7 @@ public class ExportPinPixelsAction extends ExecCommand {
             pnl = new PNL();
             VisatApp.getApp().getProductTree().addProductTreeListener(new PTL());
         }
-        
+
         final Product product = getSelectedProduct();
         if (selectedProduct != product) {
             if (selectedProduct != null) {
@@ -122,7 +124,7 @@ public class ExportPinPixelsAction extends ExecCommand {
         }
         checkEnabledState();
     }
-    
+
     private void checkEnabledState() {
         boolean enabled = false;
         if (selectedProduct != null) {
@@ -141,7 +143,8 @@ public class ExportPinPixelsAction extends ExecCommand {
 
     /**
      * Performs the "Export Pin Pixels" command.
-     * @param product 
+     *
+     * @param product
      */
     private void exportPinPixels(Product product) {
         VisatApp visatApp = VisatApp.getApp();
@@ -257,7 +260,8 @@ public class ExportPinPixelsAction extends ExecCommand {
     /**
      * Creates the export Data. Can be <code>null</code> if an error occures while reading the
      * product data or user input.
-     * @param product 
+     *
+     * @param product
      */
     private Map<Placemark, Object[]> assignControllParameters(Product product) {
 
@@ -290,7 +294,8 @@ public class ExportPinPixelsAction extends ExecCommand {
         }
     }
 
-    private SwingWorker createWorkerInstance(final Map<Placemark, Object[]> regions, final TabSeparatedPinPixelsWriter regionWriter,
+    private SwingWorker createWorkerInstance(final Map<Placemark, Object[]> regions,
+                                             final TabSeparatedPinPixelsWriter regionWriter,
                                              final Writer out, final ProgressMonitor pm) {
         // Create a progress monitor and adds them to the progress controller pool in order to show
         // export progress
@@ -378,7 +383,8 @@ public class ExportPinPixelsAction extends ExecCommand {
      * @throws com.bc.jexp.ParseException
      */
     private Map<Placemark, Object[]> generateOutputData(final int size, final String expression, final Placemark[] pins,
-                                       final boolean useExpressionAsFilter, final Product product) throws IOException, ParseException {
+                                                        final boolean useExpressionAsFilter,
+                                                        final Product product) throws IOException, ParseException {
         Map<Placemark, Object[]> outputData = new HashMap<Placemark, Object[]>();
         for (int i = 0; i < pins.length; i++) {
             Point actualPin = new Point((int) pins[i].getPixelPos().x, (int) pins[i].getPixelPos().y);
@@ -405,7 +411,7 @@ public class ExportPinPixelsAction extends ExecCommand {
      */
     private static int getNumPixelsToExport(final Map<Placemark, Object[]> pinPixels) {
         int numPixels = 0;
-        for (Map.Entry<Placemark, Object[]> entry: pinPixels.entrySet()) {
+        for (Map.Entry<Placemark, Object[]> entry : pinPixels.entrySet()) {
             Object[] pixelData = entry.getValue();
             if (pixelData != null && pixelData instanceof Point[]) {
                 Point[] pixels = (Point[]) pixelData;
