@@ -98,7 +98,6 @@ public class PetOpTest {
 
         GraphProcessor processor = new GraphProcessor();
         GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
-//        graphContext.getGraph().removeNode()
         processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
         Product[] outputProducts = graphContext.getOutputProducts();
         outputProducts[0].dispose();

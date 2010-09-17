@@ -48,6 +48,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -93,7 +94,9 @@ class PixelExtractionIOForm {
         listModel.addListDataListener(new MyListDataListener());
         inputPathsList = createInputPathsList(listModel);
         panel.add(new JLabel("Input paths:"));
-        panel.add(new JScrollPane(inputPathsList));
+        final JScrollPane scrollPane = new JScrollPane(inputPathsList);
+        scrollPane.setPreferredSize(new Dimension(100, 50));
+        panel.add(scrollPane);
         final JPanel addRemoveButtonPanel = new JPanel();
         final BoxLayout layout = new BoxLayout(addRemoveButtonPanel, BoxLayout.Y_AXIS);
         addRemoveButtonPanel.setLayout(layout);
@@ -107,8 +110,9 @@ class PixelExtractionIOForm {
         panel.add(outputDirLabel);
         outputDirTextField = new JTextField();
         outputDirTextField.setEditable(false);
-        String path = getOutputPath(appContext);
-        outputDirTextField.setText(path);
+        String path = getDefaultOutputPath(appContext);
+        setOutputDirPath(path);
+        outputDirTextField.setPreferredSize(new Dimension(120, outputDirTextField.getPreferredSize().height));
         panel.add(outputDirTextField);
         fileChooserButton = createFileChooserButton(container.getProperty("outputDir"));
         panel.add(fileChooserButton);
@@ -120,7 +124,7 @@ class PixelExtractionIOForm {
 
     void clear() {
         listModel.clear();
-        outputDirTextField.setText("");
+        setOutputDirPath("");
     }
 
     void setSelectedProduct(Product selectedProduct) {
@@ -174,7 +178,7 @@ class PixelExtractionIOForm {
         fileChooserButton.setEnabled(enable);
     }
 
-    private String getOutputPath(AppContext appContext) {
+    private String getDefaultOutputPath(AppContext appContext) {
         final Property dirProperty = container.getProperty("outputDir");
         String lastDir = appContext.getPreferences().getPropertyString(LAST_OPEN_OUTPUT_DIR, ".");
         String path;
@@ -190,13 +194,18 @@ class PixelExtractionIOForm {
         return path;
     }
 
+    private void setOutputDirPath(String path) {
+        outputDirTextField.setText(path);
+        outputDirTextField.setToolTipText(path);
+    }
+
     private AbstractButton createFileChooserButton(final Property outputFileProperty) {
         AbstractButton button = new JButton("...");
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 FolderChooser folderChooser = new FolderChooser();
-                folderChooser.setCurrentDirectory(new File(getOutputPath(appContext)));
+                folderChooser.setCurrentDirectory(new File(getDefaultOutputPath(appContext)));
                 folderChooser.setDialogTitle("Select output directory");
                 folderChooser.setMultiSelectionEnabled(false);
                 int result = folderChooser.showDialog(appContext.getApplicationWindow(), "Select");    /*I18N*/
@@ -204,7 +213,7 @@ class PixelExtractionIOForm {
                     return;
                 }
                 File selectedFile = folderChooser.getSelectedFile();
-                outputDirTextField.setText(selectedFile.getAbsolutePath());
+                setOutputDirPath(selectedFile.getAbsolutePath());
                 try {
                     outputFileProperty.setValue(selectedFile);
                     appContext.getPreferences().setPropertyString(LAST_OPEN_OUTPUT_DIR,
