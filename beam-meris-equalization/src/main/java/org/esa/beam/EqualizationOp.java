@@ -268,12 +268,12 @@ public class EqualizationOp extends Operator {
         }
     }
 
-    private double performEqualization(int bandIndex, double reflectanceValue, int detectorIndex) {
+    private double performEqualization(int bandIndex, double sampleValue, int detectorIndex) {
         final double[] coefficients = equalizationLUT.getCoefficients(bandIndex, detectorIndex);
         double cEq = coefficients[0] +
                      coefficients[1] * date +
                      coefficients[2] * date * date;
-        return reflectanceValue / cEq;
+        return sampleValue / cEq;
     }
 
     static long toJulianDay(int year, int month, int dayOfMonth) {
