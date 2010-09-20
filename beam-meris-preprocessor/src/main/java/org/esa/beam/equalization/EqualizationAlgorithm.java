@@ -14,8 +14,9 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam;
+package org.esa.beam.equalization;
 
+import org.esa.beam.ReprocessingVersion;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -49,7 +50,7 @@ public class EqualizationAlgorithm {
         try {
             equalizationLUT = new EqualizationLUT(reprocessingVersion, fullResolution);
         } catch (IOException e) {
-            throw new OperatorException("Not able to create LUT.", e);
+            throw new IllegalStateException("Not able to create LUT.", e);
         }
     }
 

@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam;
+package org.esa.beam.equalization;
 
 import com.bc.ceres.core.Assert;
 import org.esa.beam.util.io.CsvReader;

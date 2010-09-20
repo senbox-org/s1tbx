@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam;
+package org.esa.beam.equalization;
 
 import org.junit.Test;
 
@@ -57,6 +57,7 @@ public class EqualizationLUTTest {
         expected = new double[]{1.000137686729431E+00, -4.982850896340096E-07, 8.730229039688453E-11};
         compare(expected, lut.getCoefficients(14, 111));
     }
+
     @Test
     public void testGetCoefficientsReproTwoFR() throws IOException {
         final EqualizationLUT lut = new EqualizationLUT(2, true);
@@ -70,7 +71,7 @@ public class EqualizationLUTTest {
         expected = new double[]{1.000398039817810E+00, 6.662139639956877E-07, -8.196916756464390E-11};
         compare(expected, lut.getCoefficients(0, 3698));
 
-        expected = new double[]{1.000996947288513E+00,-2.004364603180875E-07,2.039348204196934E-11};
+        expected = new double[]{1.000996947288513E+00, -2.004364603180875E-07, 2.039348204196934E-11};
         compare(expected, lut.getCoefficients(0, 14));
     }
 

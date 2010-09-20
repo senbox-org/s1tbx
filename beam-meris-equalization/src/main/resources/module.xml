@@ -36,6 +36,9 @@
         <module>beam-meris-smile</module>
     </dependency>
     <dependency>
+        <module>beam-meris-preprocessor</module>
+    </dependency>
+    <dependency>
         <module>beam-visat</module>
         <optional>true</optional>
     </dependency>
