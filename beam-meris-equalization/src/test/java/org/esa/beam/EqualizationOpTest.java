@@ -186,61 +186,6 @@ public class EqualizationOpTest {
         }
     }
 
-    @Test()
-    public void testParseReproVersion_Fails() throws Exception {
-        try {
-            EqualizationOp.detectReprocessingVersion("MERIS", "3.67");
-            fail("Version is not of reprocessing 2 or 3");
-        } catch (Exception ignored) {
-            // expected
-        }
-        try {
-            EqualizationOp.detectReprocessingVersion("MERIS", "5.1");
-            fail("Version is not of reprocessing 2 or 3");
-        } catch (Exception ignored) {
-            // expected
-        }
-
-        try {
-            EqualizationOp.detectReprocessingVersion("MEGS-PC", "7.2");
-            fail("Version is not of reprocessing 2 or 3");
-        } catch (Exception ignored) {
-            // expected
-        }
-    }
-
-    @Test
-    public void testParseReprocessingVersion() throws Exception {
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", "4.1"));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", "5.02"));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", "5.03"));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", "5.04"));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", "5.05"));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MERIS", "5.06"));
-        
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MEGS-PC", "7.4"));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MEGS-PC", "7.4.1"));
-        assertEquals(2, EqualizationOp.detectReprocessingVersion("MEGS-PC", "7.5"));
-
-        assertEquals(3, EqualizationOp.detectReprocessingVersion("MEGS-PC", "8.0"));
-        assertEquals(3, EqualizationOp.detectReprocessingVersion("MEGS-PC", "8.1"));
-        assertEquals(3, EqualizationOp.detectReprocessingVersion("MEGS-PC", "8.9"));
-    }
-
-    @Test
-    public void testVersionToFloat() throws Exception {
-        assertEquals(4.1f, EqualizationOp.versionToFloat("4.1   "), 0.0f);
-        assertEquals(4.12f, EqualizationOp.versionToFloat("  4.1.2"), 0.0f);
-        assertEquals(8.6f, EqualizationOp.versionToFloat("8.6 "), 0.0f);
-        assertEquals(1234.0f, EqualizationOp.versionToFloat("1234"), 0.0f);
-    }
-
-    @Test
-    public void testToJulianDay() {
-        assertEquals(2455414, EqualizationOp.toJulianDay(2010, 7, 6));
-        assertEquals(2452365, EqualizationOp.toJulianDay(2002, 3, 1));
-    }
-
     private static void comparePixels(Band actualBand, Band expectedBand, int x, int y, boolean convertExpectedToRefl) {
         float expectedValue = expectedBand.getGeophysicalImage().getData().getSampleFloat(x, y, 0);
         final float actualValue = actualBand.getGeophysicalImage().getData().getSampleFloat(x, y, 0);

@@ -19,7 +19,6 @@ package org.esa.beam;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -38,11 +37,8 @@ import org.esa.beam.util.math.RsMathUtils;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TimeZone;
 
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
@@ -94,16 +90,13 @@ public class EqualizationOp extends Operator {
     @TargetProduct(description = "The target product.")
     private Product targetProduct;
 
-    private static final String ELEM_NAME_MPH = "MPH";
-    private static final String ATTRIB_SOFTWARE_VER = "SOFTWARE_VER";
     private static final String UNIT_DL = "dl";
     private static final String INVALID_MASK_NAME = "invalid";
     private static final String LAND_MASK_NAME = "land";
 
-    private EqualizationLUT equalizationLUT;
     private SmileAlgorithm smileAlgorithm;
     private HashMap<String, String> bandNameMap;
-    private long date;
+    private EqualizationAlgorithm equalizationAlgorithm;
 
 
     @Override
@@ -121,24 +114,8 @@ public class EqualizationOp extends Operator {
         final ProductData.UTC startTime = sourceProduct.getStartTime();
         Guardian.assertNotNull("Source product must have a start time", startTime);
 
-        try {
-            final boolean isFullResolution = sourceProduct.getProductType().startsWith("MER_F");
-            int reprocessingVersion;
-            if (ReprocessingVersion.AUTO_DETECT.equals(reproVersion)) {
-                reprocessingVersion = autoDetectReprocessingVersion();
-            } else {
-                reprocessingVersion = reproVersion.getVersion();
-            }
-            equalizationLUT = new EqualizationLUT(reprocessingVersion, isFullResolution);
-        } catch (IOException e) {
-            throw new OperatorException("Not able to create LUT.", e);
-        }
-        // compute julian date
-        final Calendar calendar = startTime.getAsCalendar();
-        long productJulianDate = toJulianDay(calendar.get(Calendar.YEAR),
-                                             calendar.get(Calendar.MONTH),
-                                             calendar.get(Calendar.DAY_OF_MONTH));
-        date = productJulianDate - toJulianDay(2002, 4, 1);
+
+        equalizationAlgorithm = new EqualizationAlgorithm(sourceProduct, reproVersion);
 
         try {
             smileAlgorithm = new SmileAlgorithm(sourceProduct.getProductType());
@@ -257,7 +234,8 @@ public class EqualizationOp extends Operator {
                                                                              (float) sunZenithSample,
                                                                              solarFlux);
                         }
-                        double equalizedResult = performEqualization(spectralIndex, sourceSample, detectorIndex);
+                        double equalizedResult = equalizationAlgorithm.performEqualization(sourceSample, spectralIndex,
+                                                                                           detectorIndex);
                         targetTile.setSample(x, y, equalizedResult);
                     }
                 }
@@ -268,90 +246,6 @@ public class EqualizationOp extends Operator {
         }
     }
 
-    private double performEqualization(int bandIndex, double sampleValue, int detectorIndex) {
-        final double[] coefficients = equalizationLUT.getCoefficients(bandIndex, detectorIndex);
-        double cEq = coefficients[0] +
-                     coefficients[1] * date +
-                     coefficients[2] * date * date;
-        return sampleValue / cEq;
-    }
-
-    static long toJulianDay(int year, int month, int dayOfMonth) {
-        final double millisPerDay = 86400000.0;
-
-        // The epoch (days) for the Julian Date (JD) which corresponds to 4713-01-01 12:00 BC.
-        final double epochJulianDate = -2440587.5;
-
-        final GregorianCalendar utc = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-        utc.clear();
-        utc.set(year, month, dayOfMonth, 0, 0, 0);
-        utc.set(Calendar.MILLISECOND, 0);
-
-        return (long) (utc.getTimeInMillis() / millisPerDay - epochJulianDate);
-    }
-
-    private int autoDetectReprocessingVersion() {
-        final MetadataElement mphElement = sourceProduct.getMetadataRoot().getElement(ELEM_NAME_MPH);
-        if (mphElement != null) {
-            final String softwareVer = mphElement.getAttributeString(ATTRIB_SOFTWARE_VER);
-            if (softwareVer != null) {
-                final String[] strings = softwareVer.split("/");
-                final String processorName = strings[0];
-                final int maxLength = Math.min(strings[1].length(), 5); // first 5 characters
-                final String processorVersion = strings[1].substring(0, maxLength);
-                try {
-                    return detectReprocessingVersion(processorName, processorVersion);
-                } catch (Exception e) {
-                    final String msgPattern = String.format("Not able to detect reprocessing version [%s=%s]. \n" +
-                                                            "Please specify reprocessing version manually.",
-                                                            ATTRIB_SOFTWARE_VER, softwareVer);
-                    throw new OperatorException(msgPattern, e);
-                }
-            }
-        }
-        throw new OperatorException(
-                "Not able to detect reprocessing version.\nMetadata attribute 'MPH/SOFTWARE_VER' not found.");
-    }
-
-    static int detectReprocessingVersion(String processorName, String processorVersion) throws Exception {
-        final float version;
-        version = versionToFloat(processorVersion);
-        if ("MERIS".equalsIgnoreCase(processorName)) {
-            if (version >= 4.1f && version <= 5.06f) {
-                return 2;
-            }
-        }
-        if ("MEGS-PC".equalsIgnoreCase(processorName)) {
-            if (version >= 7.4f && version <= 7.5f) {
-                return 2;
-            } else if (version >= 8.0f) {
-                return 3;
-            }
-        }
-
-        throw new Exception("Unknown reprocessing version.");
-    }
-
-    static float versionToFloat(String processorVersion) throws Exception {
-        final String[] values = processorVersion.trim().split("\\.");
-        float version = 0.0f;
-        try {
-            for (int i = 0; i < values.length; i++) {
-                String value = values[i];
-                final int integer = Integer.parseInt(value);
-                int leadingZeros = 0;
-                for (int j = 0; j < value.length(); j++) {
-                    if (value.charAt(j) == '0') {
-                        leadingZeros++;
-                    }
-                }
-                version += integer / Math.pow(10, i + leadingZeros);
-            }
-        } catch (NumberFormatException nfe) {
-            throw new Exception(String.format("Could not parse version [%s]", processorVersion), nfe);
-        }
-        return version;
-    }
 
     private Tile[] loadRequiredRadianceTiles(int spectralBandIndex, Rectangle targetRectangle, ProgressMonitor pm) {
         final int[] requiredBandIndices = smileAlgorithm.computeRequiredBandIndexes(spectralBandIndex);

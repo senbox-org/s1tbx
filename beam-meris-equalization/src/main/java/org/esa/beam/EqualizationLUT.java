@@ -16,6 +16,7 @@
 
 package org.esa.beam;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.util.io.CsvReader;
 
 import java.io.IOException;
@@ -34,6 +35,8 @@ class EqualizationLUT {
 
 
     EqualizationLUT(int reprocessingVersion, boolean isFullResolution) throws IOException {
+        Assert.argument(reprocessingVersion == 2 || reprocessingVersion == 3,
+                        "Value of reprocessingVersion must be 2 or 3");
         bandMap = new HashMap<Integer, Map<Integer, double[]>>(BAND_COUNT);
         for (int i = 1; i <= BAND_COUNT; i++) {
             final HashMap<Integer, double[]> coefMap = new HashMap<Integer, double[]>();
@@ -57,6 +60,7 @@ class EqualizationLUT {
     // the given detectorIndex.
     // bandIndex and detectorIndex are zero-based
     double[] getCoefficients(int bandIndex, int detectorIndex) {
+        Assert.argument(bandIndex >= 0 && bandIndex <= 14, "bandIndex must be between 0 and 14");
         final Map<Integer, double[]> coefMap = bandMap.get(bandIndex + 1);
         return coefMap.get(detectorIndex);
     }
