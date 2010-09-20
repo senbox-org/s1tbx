@@ -306,27 +306,28 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
     }
 
     private Product createProduct() {
-        Debug.assertNotNull(getSourceProduct());
+        Product sourceProduct = getSourceProduct();
+        Debug.assertNotNull(sourceProduct);
         Debug.assertTrue(getSceneRasterWidth() > 0);
         Debug.assertTrue(getSceneRasterHeight() > 0);
         final String newProductName;
         if (this.newProductName == null || this.newProductName.length() == 0) {
-            newProductName = getSourceProduct().getName();
+            newProductName = sourceProduct.getName();
         } else {
             newProductName = this.newProductName;
         }
-        final Product product = new Product(newProductName, getSourceProduct().getProductType(),
+        final Product product = new Product(newProductName, sourceProduct.getProductType(),
                                             getSceneRasterWidth(),
                                             getSceneRasterHeight(),
                                             this);
-        product.setPointingFactory(getSourceProduct().getPointingFactory());
+        product.setPointingFactory(sourceProduct.getPointingFactory());
         if (newProductDesc == null || newProductDesc.length() == 0) {
-            product.setDescription(getSourceProduct().getDescription());
+            product.setDescription(sourceProduct.getDescription());
         } else {
             product.setDescription(newProductDesc);
         }
         if (!isMetadataIgnored()) {
-            addMetadataToProduct(product);
+            ProductUtils.copyMetadata(sourceProduct, product);
             addTiePointGridsToProduct(product);
             addFlagCodingsToProduct(product);
             addIndexCodingsToProduct(product);
@@ -335,10 +336,10 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         if (!isMetadataIgnored()) {
             addGeoCodingToProduct(product);
         }
-        ProductUtils.copyVectorData(getSourceProduct(), product);
-        ProductUtils.copyMasks(getSourceProduct(), product);
-        ProductUtils.copyOverlayMasks(getSourceProduct(), product);
-        ProductUtils.copyRoiMasks(getSourceProduct(), product);
+        ProductUtils.copyVectorData(sourceProduct, product);
+        ProductUtils.copyMasks(sourceProduct, product);
+        ProductUtils.copyOverlayMasks(sourceProduct, product);
+        ProductUtils.copyRoiMasks(sourceProduct, product);
         setSceneRasterStartAndStopTime(product);
         addSubsetInfoMetadata(product);
         addPlacemarks(product);
