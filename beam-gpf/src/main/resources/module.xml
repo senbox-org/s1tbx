@@ -15,6 +15,7 @@
     <changelog>
         <![CDATA[
         <p>From 4.8 to 4.9:<br/>
+            [BEAM-1156] SubsetOp does not copy metadata<br/> 
             [BEAM-1197] GPF N1 patcher is not thread safe<br/>
             [BEAM-1172] Boolean parameter values are overridden by default values<br/> 
         <p>From 4.7 to 4.8:<br/>

@@ -21,6 +21,7 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
@@ -34,6 +35,8 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 import java.awt.Rectangle;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @OperatorMetadata(alias = "Subset",
                   authors = "Marco Zuehlke",
@@ -63,7 +66,6 @@ public class SubsetOp extends Operator {
     private ProductSubsetDef subsetDef;
 
     public SubsetOp() {
-        super();
         subSamplingX = 1;
         subSamplingY = 1;
     }
@@ -122,7 +124,9 @@ public class SubsetOp extends Operator {
             subsetDef.setRegion(region);
         }
         subsetDef.setSubSampling(subSamplingX, subSamplingY);
-        subsetDef.setIgnoreMetadata(!copyMetadata);
+        if (copyMetadata) {
+            addMetadataNodes();
+        }
 
         try {
             targetProduct = subsetReader.readProductNodes(sourceProduct, subsetDef);
@@ -148,6 +152,23 @@ public class SubsetOp extends Operator {
         }
     }
 
+    private void addMetadataNodes() {
+        subsetDef.setIgnoreMetadata(false);
+        List<String> nodeNames = new ArrayList<String>();
+        final MetadataElement metadataRoot = sourceProduct.getMetadataRoot();
+        getElementNames(metadataRoot, nodeNames);
+        subsetDef.addNodeNames(nodeNames.toArray(new String[nodeNames.size()]));
+    }
+
+    private void getElementNames(MetadataElement metadataRoot, List<String> nodeNames) {
+        final MetadataElement[] metadataElements = metadataRoot.getElements();
+        for (MetadataElement metadataElement : metadataElements) {
+            nodeNames.add(metadataElement.getName());
+            if (metadataElement.getElements().length > 0) {
+                getElementNames(metadataElement, nodeNames);
+            }
+        }
+    }
 
     public static class Spi extends OperatorSpi {
 

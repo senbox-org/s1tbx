@@ -17,6 +17,8 @@ package org.esa.beam.gpf.operators.standard;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 
@@ -43,6 +45,57 @@ public class SubsetOpTest extends TestCase {
         assertNotNull(tp.getBand("radiance_1"));
         assertNull(tp.getBand("radiance_2"));
         assertNotNull(tp.getBand("radiance_3"));
+    }
+
+    public void testCopyMetadata() throws Exception {
+        final Product sp = createTestProduct(100, 100);
+        addMetadata(sp);
+        final String[] bandNames = {"radiance_1", "radiance_3"};
+
+        SubsetOp op = new SubsetOp();
+        op.setSourceProduct(sp);
+        op.setBandNames(bandNames);
+        op.setCopyMetadata(true);
+
+        assertSame(sp, op.getSourceProduct());
+        assertNotSame(bandNames, op.getBandNames());
+
+        Product tp = op.getTargetProduct();
+
+        assertEquals(2, tp.getNumBands());
+        assertNotNull(tp.getBand("radiance_1"));
+        assertNull(tp.getBand("radiance_2"));
+        assertNotNull(tp.getBand("radiance_3"));
+
+        final MetadataElement root = tp.getMetadataRoot();
+        assertNotNull(root);
+        final MetadataAttribute attribRoot = root.getAttribute("attribRoot");
+        assertNotNull(attribRoot);
+        assertEquals("rootValue", attribRoot.getData().getElemString());
+        assertTrue(root.containsElement("meta1"));
+        final MetadataAttribute attrib1 = root.getElement("meta1").getAttribute("attrib1");
+        assertNotNull(attrib1);
+        assertEquals("value", attrib1.getData().getElemString());
+        final MetadataElement meta2 = root.getElement("meta2");
+        assertNotNull(meta2);
+        final MetadataElement meta2_1 = meta2.getElement("meta2_1");
+        assertNotNull(meta2_1);
+        final MetadataAttribute attrib2_1 = meta2_1.getAttribute("attrib2_1");
+        assertEquals("meta2_1_value", attrib2_1.getData().getElemString());
+    }
+
+    private void addMetadata(Product sp) {
+        final MetadataElement meta1 = new MetadataElement("meta1");
+        meta1.addAttribute(new MetadataAttribute("attrib1", ProductData.createInstance("value"), true));
+        final MetadataElement meta2 = new MetadataElement("meta2");
+        final MetadataElement meta2_1 = new MetadataElement("meta2_1");
+        meta2_1.addAttribute(new MetadataAttribute("attrib2_1", ProductData.createInstance("meta2_1_value"), true));
+        meta2.addElement(meta2_1);
+
+        final MetadataElement metadataRoot = sp.getMetadataRoot();
+        metadataRoot.addAttribute(new MetadataAttribute("attribRoot", ProductData.createInstance("rootValue"), true));
+        metadataRoot.addElement(meta1);
+        metadataRoot.addElement(meta2);
     }
 
     private Product createTestProduct(int w, int h) {

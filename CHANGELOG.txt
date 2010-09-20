@@ -39,6 +39,7 @@ New Features
 [BEAM-1180] - Allow dragging files into VISAT
 
 Improvements
+[BEAM-1156] - SubsetOp does not copy metadata
 [BEAM-1183] - Improve reprojection UI usability 
 
 Bugs
