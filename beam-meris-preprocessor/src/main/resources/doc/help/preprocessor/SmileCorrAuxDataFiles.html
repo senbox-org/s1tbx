@@ -1,0 +1,132 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>MERIS Level 1 Preprocessor - MERIS Smile Correction Algorithm Specification</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            MERIS Level 1 Preprocessor - MERIS Smile Correction Algorithm Specification
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a>
+        </td>
+    </tr>
+</table>
+
+<h3>Auxiliary Data Files</h3>
+
+<p>
+    The BEAM Smile Correction processor uses three different sets of auxiliary data files for processing.
+    All of them are flat text files:
+<ol>
+    <li>For all MERIS L1b products: <b>band_info.txt</b></li>
+    <li>For MERIS L1b full resolution products: <b>central_wavelen_fr.txt</b>, <b>sun_spectral_flux_fr.txt</b></li>
+    <li>For MERIS L1b reduced resolution products:<b>central_wavelen_rr.txt</b>, <b>sun_spectral_flux_rr.txt</b></li>
+</ol>
+
+<h4>band_info.txt</h4>
+
+<p>This file contains a header line followed by 15 lines associated with each MERIS band.
+    The header line explains the parameters contained in this file. The columns are
+<table border="1">
+    <tr>
+        <td>1</td>
+        <td><code>band</code></td>
+        <td>the one-based band index (ignored)</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td><code>switch_land</code></td>
+        <td>whether or not to perform reflectance correction over
+            land
+        </td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td><code>lower_land</code></td>
+        <td>lower, one-based band index to be used for correction over
+            land
+        </td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td><code>upper_land</code></td>
+        <td>upper, one-based band index to be used for correction over
+            land
+        </td>
+    </tr>
+    <tr>
+        <td>5</td>
+        <td><code>switch_water</code></td>
+        <td>whether or not to perform reflectance correction over
+            water
+        </td>
+    </tr>
+    <tr>
+        <td>6</td>
+        <td><code>lower_water</code></td>
+        <td>lower, one-based band index to be used for correction over
+            water
+        </td>
+    </tr>
+    <tr>
+        <td>7</td>
+        <td><code>upper_water</code></td>
+        <td>upper, one-based band index to be used for correction over
+            water
+        </td>
+    </tr>
+    <tr>
+        <td>8</td>
+        <td><code>lam_theo</code></td>
+        <td></td>
+        theoretical band wavelength in nm
+    </tr>
+    <tr>
+        <td>9</td>
+        <td><code>E0_theo</code></td>
+        <td></td>
+        solar spectral flux in LU for the theoretical band
+        wavelength
+    </tr>
+</table>
+The Smile Correction Processor always ignores the header line and the first column.</p>
+
+<h4>central_wavelen_fr.txt / central_wavelen_rr.txt</h4>
+
+<p>This files contain a header line followed by 3700 (FR) resp. 925 (RR) lines associated with each detector
+    containing the zero-based detector index in the first column and the central wavelengths (in nm)
+    for each MERIS band.<br>
+    The Smile Correction Processor always ignores the header line and the first column.</p>
+
+<h4>sun_spectral_flux_fr.txt / sun_spectral_flux_rr.txt</h4>
+
+<p>This files contain a header line followed by 3700 (FR) resp. 925 (RR) lines associated with each detector
+    containing the zero-based detector index in the first column and the solar spectral fluxes (in LU)
+    for each wavelength for each MERIS band.<br>
+    The Smile Correction Processor always ignores the header line and the first column.</p>
+
+
+<hr>
+</body>
+</html>
