@@ -230,6 +230,7 @@ public class ReprojectionOp extends Operator {
         if (elevationModel != null) {
             elevationModel.dispose();
         }
+        super.dispose();
     }
 
     private ElevationModel createElevationModel() throws OperatorException {

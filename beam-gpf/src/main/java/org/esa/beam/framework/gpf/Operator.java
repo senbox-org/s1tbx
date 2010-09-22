@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 
 /**
  * The abstract base class for all operators intended to be extended by clients.
- * <p>The following methods are intended to be implemented or overidden:
+ * <p>The following methods are intended to be implemented or overridden:
  * <ld>
  * <li>{@link #initialize()}: must be implemented in order to initialise the operator and create the target
  * product.</li>
@@ -40,7 +40,7 @@ import java.util.logging.Logger;
  * for a single band.</li>
  * <li>{@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor)}: implemented to compute the tiles
  * for multiple bands.</li>
- * <li>{@link #dispose()}: can be overidden in order to free all resources previously allocated by the operator.</li>
+ * <li>{@link #dispose()}: can be overridden in order to free all resources previously allocated by the operator.</li>
  * </ld>
  * </p>
  * <p>Generally, only one {@code computeTile} method needs to be implemented. It depends on the type of algorithm which
@@ -49,7 +49,7 @@ import java.util.logging.Logger;
  * <li>If bands can be computed independently of each other, then it is
  * beneficial to implement the {@code computeTile()} method. This is the case for sub-sampling, map-projections,
  * band arithmetic, band filtering and statistic analyses.</li>
- * <li>{@code computeTileStack()} should be overriden in cases where the bands of a product cannot be computed independently, e.g.
+ * <li>{@code computeTileStack()} should be overridden in cases where the bands of a product cannot be computed independently, e.g.
  * because they are a simultaneous output. This is often the case for algorithms based on neural network, cluster analyses,
  * model inversion methods or spectral unmixing.</li>
  * </ol>
@@ -86,6 +86,16 @@ public abstract class Operator {
     protected Operator() {
         context = new OperatorContext(this);
         context.injectParameterDefaultValues();
+    }
+
+    /**
+     * Overridden in order to force a call to {@link #dispose()}, if not already done.
+     * @throws Throwable The <code>Exception</code> raised by this method
+     */
+    @Override
+    protected final void finalize() throws Throwable {
+        context.dispose();
+        super.finalize();
     }
 
     /**
@@ -149,6 +159,8 @@ public abstract class Operator {
     /**
      * Releases the resources the operator has acquired during its lifetime.
      * The default implementation does nothing.
+     * <p/>
+     * Overrides should make sure to call {@code super.dispose()} as well.
      */
     public void dispose() {
     }

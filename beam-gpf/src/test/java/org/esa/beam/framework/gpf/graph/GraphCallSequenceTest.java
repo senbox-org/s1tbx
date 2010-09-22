@@ -373,6 +373,7 @@ public class GraphCallSequenceTest extends TestCase {
         @Override
         public void dispose() {
             recordCall(getOpName(this), "Operator.dispose");
+            super.dispose();
         }
     }
 

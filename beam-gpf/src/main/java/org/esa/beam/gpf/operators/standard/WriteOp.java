@@ -274,6 +274,7 @@ public class WriteOp extends Operator {
         writableBands.clear();
         todoLists.clear();
         writeCache.clear();
+        super.dispose();
     }
 
     public static class Spi extends OperatorSpi {

@@ -315,6 +315,7 @@ public class CollocateOp extends Operator {
     @Override
     public void dispose() {
         sourceRasterMap = null;
+        super.dispose();
     }
 
     private void collocateSourceBand(RasterDataNode sourceBand, Rectangle sourceRectangle, PixelPos[] sourcePixelPositions,

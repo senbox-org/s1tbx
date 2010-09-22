@@ -160,7 +160,7 @@ public class ClucovClusterOp extends Operator {
 
     @Override
     public void dispose() {
-        // todo - add any clean-up code here
+        super.dispose();
         clucov = null;
     }
 

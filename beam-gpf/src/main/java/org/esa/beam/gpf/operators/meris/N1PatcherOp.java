@@ -336,6 +336,7 @@ public class N1PatcherOp extends MerisBasisOp {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        super.dispose();
     }
 
     private static final class DatasetDescriptor {

@@ -111,6 +111,7 @@ public class WriteRGBOp extends Operator {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        super.dispose();
     }
 
     private void writeImage() throws IOException {
