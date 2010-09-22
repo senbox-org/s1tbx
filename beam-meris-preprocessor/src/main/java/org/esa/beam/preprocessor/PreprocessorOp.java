@@ -32,6 +32,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.preprocessor.equalization.EqualizationAlgorithm;
+import org.esa.beam.preprocessor.equalization.ReprocessingVersion;
 import org.esa.beam.preprocessor.smilecorr.SmileCorrectionAlgorithm;
 import org.esa.beam.preprocessor.smilecorr.SmileCorrectionAuxdata;
 import org.esa.beam.util.ProductUtils;
@@ -55,12 +56,6 @@ import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
                   version = "1.0")
 public class PreprocessorOp extends Operator {
 
-    @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT", "REPROCESSING_2", "REPROCESSING_3"},
-               defaultValue = "AUTO_DETECT",
-               description = "The version of the reprocessing the product comes from. Used only in case that " +
-                             "equalisation is to be performed.")
-    private ReprocessingVersion reproVersion;
-
     @Parameter(defaultValue = "true",
                label = "Perform SMILE correction",
                description = "Whether to perform SMILE correction.")
@@ -72,9 +67,16 @@ public class PreprocessorOp extends Operator {
     private boolean doRadToRefl;
 
     @Parameter(defaultValue = "true",
-               label = "Perform removal of detector-to-detector systematic radiometric differences in MERIS L1b data products",
-               description = "Whether to perform equalisation.")
+               label = "Perform equalization",
+               description = "Perform removal of detector-to-detector systematic radiometric differences in MERIS L1b data products")
     private boolean doEqualization;
+
+    @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT", "REPROCESSING_2", "REPROCESSING_3"},
+               defaultValue = "AUTO_DETECT",
+               description = "The version of the reprocessing the product comes from. Used only in case that " +
+                             "equalisation is to be performed.")
+    private ReprocessingVersion reproVersion;
+
 
     @Parameter(defaultValue = "true",
                label = "Perform radiometric calibration",
