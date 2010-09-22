@@ -58,7 +58,7 @@ import java.util.Map;
                   version="1.2",
                   authors = "Marco Zuehlke, Norman Fomferra",
                   copyright = "(c) 2010 by Brockmann Consult",
-                  description = "Writes a product to a file.")
+                  description = "Writes a data product to a file.")
 public class WriteOp extends Operator {
 
     @TargetProduct
@@ -72,7 +72,7 @@ public class WriteOp extends Operator {
                description = "The name of the output file format.")
     private String formatName;
     @Parameter(defaultValue = "true",
-               description = "If true, all output files are deleted when the write operation has failed.")
+               description = "If true, all output files are deleted after a failed write operation.")
     private boolean deleteOutputOnFailure;
     @Parameter(defaultValue = "true",
                description = "If true, the write operation waits until all tiles in a row have been computed before writing.")
@@ -108,7 +108,7 @@ public class WriteOp extends Operator {
         targetProduct = sourceProduct;
         productWriter = ProductIO.getProductWriter(formatName);
         if (productWriter == null) {
-            throw new OperatorException("No product writer for the '" + formatName + "' format available");
+            throw new OperatorException("No data product writer for the '" + formatName + "' format available");
         }
         productWriter.setIncrementalMode(false);
         targetProduct.setProductWriter(productWriter);
