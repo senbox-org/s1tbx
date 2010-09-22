@@ -251,7 +251,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      *   }
      * </pre>
      * <p/>
-     * <p>If the absolute x,y pixel coordinates are not required, the following construct may be a bit more
+     * <p>If the absolute x,y pixel coordinates are not required, the following construct maybe more
      * readable:</p>
      * <pre>
      *   int lineStride = tile.{@link #getScanlineStride()};
