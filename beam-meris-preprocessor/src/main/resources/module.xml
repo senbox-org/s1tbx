@@ -24,12 +24,6 @@
         <module>beam-envisat-reader</module>
     </dependency>
     <dependency>
-        <module>beam-meris-smile</module>
-    </dependency>
-    <dependency>
-        <module>beam-meris-equalization</module>
-    </dependency>
-    <dependency>
         <module>beam-visat</module>
         <optional>true</optional>
     </dependency>
