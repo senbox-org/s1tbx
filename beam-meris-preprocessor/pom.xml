@@ -31,11 +31,6 @@
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
-            <artifactId>beam-meris-equalization</artifactId>
-            <version>1.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
         </dependency>
     </dependencies>
