@@ -14,13 +14,13 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.equalization;
+package org.esa.beam.preprocessor.equalization;
 
-import org.esa.beam.ReprocessingVersion;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.preprocessor.ReprocessingVersion;
 
 import java.io.IOException;
 import java.util.Calendar;

@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.smilecorr;
+package org.esa.beam.preprocessor.smilecorr;
 
 import org.esa.beam.framework.gpf.Tile;
 

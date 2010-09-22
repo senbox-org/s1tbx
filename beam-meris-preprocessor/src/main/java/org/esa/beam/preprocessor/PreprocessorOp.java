@@ -14,12 +14,11 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam;
+package org.esa.beam.preprocessor;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.equalization.EqualizationAlgorithm;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -32,8 +31,9 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.smilecorr.SmileCorrectionAlgorithm;
-import org.esa.beam.smilecorr.SmileCorrectionAuxdata;
+import org.esa.beam.preprocessor.equalization.EqualizationAlgorithm;
+import org.esa.beam.preprocessor.smilecorr.SmileCorrectionAlgorithm;
+import org.esa.beam.preprocessor.smilecorr.SmileCorrectionAuxdata;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.RsMathUtils;
 
@@ -57,7 +57,7 @@ public class PreprocessorOp extends Operator {
 
     @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT", "REPROCESSING_2", "REPROCESSING_3"},
                defaultValue = "AUTO_DETECT",
-               description = "The version of the reprocessing the product comes from. Mandatory only in case that " +
+               description = "The version of the reprocessing the product comes from. Used only in case that " +
                              "equalisation is to be performed.")
     private ReprocessingVersion reproVersion;
 
@@ -108,6 +108,8 @@ public class PreprocessorOp extends Operator {
     private static final String UNIT_DL = "dl";
     private static final String INVALID_MASK_NAME = "invalid";
     private static final String LAND_MASK_NAME = "land";
+
+//    private List<Algorithm>
 
     private EqualizationAlgorithm equalizationAlgorithm;
     private SmileCorrectionAlgorithm smileCorrectionAlgorithm;
