@@ -228,7 +228,7 @@ public class SmileCorrectionAuxdata {
         File auxdataDirectory = new File(auxdataDirPath);
 
         URL sourceUrl = ResourceInstaller.getSourceUrl(SmileCorrectionAuxdata.class);
-        final ResourceInstaller resourceInstaller = new ResourceInstaller(sourceUrl, "auxdata/", auxdataDirectory);
+        final ResourceInstaller resourceInstaller = new ResourceInstaller(sourceUrl, "auxdata/smile", auxdataDirectory);
         resourceInstaller.install(".*", ProgressMonitor.NULL);
         return auxdataDirectory;
     }
