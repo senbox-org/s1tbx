@@ -113,7 +113,7 @@ public class EqualizationAlgorithmTest {
         for (int i = 0; i < expectedValues.length; i++) {
             double expected = expectedValues[i];
             final double actual = actualValues[i];
-            if (!MathUtils.equalValues(expected, actual, 1.0e-4)) {
+            if (!MathUtils.equalValues(expected, actual, 1.0e-3)) {
                 fail(String.format("Error at index: %d\nexpected:<%s> but was: <%s>", i,
                                    Arrays.toString(expectedValues), Arrays.toString(actualValues)));
             }
