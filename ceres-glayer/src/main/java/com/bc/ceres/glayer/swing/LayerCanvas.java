@@ -42,6 +42,8 @@ import java.util.ArrayList;
  */
 public class LayerCanvas extends JPanel implements AdjustableView {
 
+    private static final boolean DEBUG = Boolean.getBoolean("ceres.renderer.debug");
+
     private LayerCanvasModel model;
     private CanvasRendering canvasRendering;
 
@@ -62,7 +64,6 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     private boolean antialiasing;
 
-    private boolean debug = false;
     private LayerFilter layerFilter;
 
     public LayerCanvas() {
@@ -265,7 +266,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
             defaultZoomFactor = minZoomFactor;
             maxZoomFactor = 1000.0 * minZoomFactor;
         }
-        if (debug) {
+        if (DEBUG) {
             System.out.println("LayerCanvas.updateAdjustableViewProperties():");
             System.out.println("  zoomFactor            = " + getViewport().getZoomFactor());
             System.out.println("  minZoomFactor         = " + minZoomFactor);
@@ -352,7 +353,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
 
     @Override
     protected void paintComponent(Graphics g) {
-        long t0 = debug ? System.nanoTime() : 0L;
+        long t0 = DEBUG ? System.nanoTime() : 0L;
 
         if (initiallyZoomingAll && !zoomedAll && maxVisibleModelBounds != null && !maxVisibleModelBounds.isEmpty()) {
             zoomedAll = true;
@@ -387,7 +388,7 @@ public class LayerCanvas extends JPanel implements AdjustableView {
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, textAntiAliasing);
         }
 
-        if (debug) {
+        if (DEBUG) {
             double dt = (System.nanoTime() - t0) / (1000.0 * 1000.0);
             System.out.println("LayerCanvas.paintComponent() took " + dt + " ms");
         }

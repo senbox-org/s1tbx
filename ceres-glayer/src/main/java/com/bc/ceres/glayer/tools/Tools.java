@@ -66,7 +66,7 @@ public class Tools {
         JAI.getDefaultInstance().setImagingListener(new ImagingListener() {
             @Override
             public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable) throws
-                                                                                                              RuntimeException {
+                    RuntimeException {
                 System.out.println("JAI error occured: " + message);
                 return false;
             }
@@ -152,8 +152,7 @@ public class Tools {
     public static void displayImage(File location,
                                     String extension,
                                     AffineTransform imageToModelTransform,
-                                    int levelCount,
-                                    boolean concurrent) {
+                                    int levelCount) {
         final LayerCanvas layerCanvas = new LayerCanvas();
         installLayerCanvasNavigation(layerCanvas);
         final Layer collectionLayer = layerCanvas.getLayer();
@@ -171,25 +170,21 @@ public class Tools {
     public static void displayImage(String title,
                                     RenderedImage image,
                                     AffineTransform imageToModelTransform,
-                                    int levelCount,
-                                    boolean concurrent) {
+                                    int levelCount) {
         displayImages(title,
                       new RenderedImage[]{image},
                       new AffineTransform[]{imageToModelTransform},
-                      levelCount,
-                      concurrent);
+                      levelCount);
     }
 
     public static void displayImages(String title, RenderedImage[] images,
                                      AffineTransform[] imageToModelTransforms,
-                                     int levelCount,
-                                     boolean concurrent) {
+                                     int levelCount) {
         final LayerCanvas layerCanvas = new LayerCanvas();
         installLayerCanvasNavigation(layerCanvas);
         final Layer collectionLayer = layerCanvas.getLayer();
         for (int i = 0; i < images.length; i++) {
             final ImageLayer layer = new ImageLayer(images[i], imageToModelTransforms[i], levelCount);
-            layer.setDebug(true);
             collectionLayer.getChildren().add(layer);
         }
 
@@ -219,16 +214,6 @@ public class Tools {
     }
 
     public static void storeTiffPyramid(RenderedImage sourceImage, String targetBaseName, int maxLevel) {
-        ImageMIPMap imageMIPMap = new ImageMIPMap(sourceImage, AffineTransform.getScaleInstance(0.5, 0.5),
-                                                  Interpolation.getInstance(Interpolation.INTERP_NEAREST));
-        for (int level = 0; level <= maxLevel; level++) {
-            final RenderedImage scaledImage = imageMIPMap.getImage(level);
-            storeTiledTiff(scaledImage, targetBaseName + "." + level + ".tif");
-        }
-    }
-
-    public static void storeImagePyramid(RenderedImage sourceImage, String targetBaseName, int maxLevel,
-                                         String format) {
         ImageMIPMap imageMIPMap = new ImageMIPMap(sourceImage, AffineTransform.getScaleInstance(0.5, 0.5),
                                                   Interpolation.getInstance(Interpolation.INTERP_NEAREST));
         for (int level = 0; level <= maxLevel; level++) {

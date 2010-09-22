@@ -79,7 +79,7 @@ public class TransparencyTest {
                                     new AffineTransform(),
                                     AffineTransform.getTranslateInstance(16, 16)
                             },
-                            8, true);
+                            8);
 
     }
 

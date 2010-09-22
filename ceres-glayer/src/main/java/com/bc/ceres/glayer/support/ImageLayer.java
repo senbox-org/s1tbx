@@ -74,7 +74,6 @@ public class ImageLayer extends Layer {
     private MultiLevelSource multiLevelSource;
 
     private MultiLevelRenderer multiLevelRenderer;
-    private boolean debug;
 
     /**
      * Constructs a single-resolution-level image layer.
@@ -168,14 +167,6 @@ public class ImageLayer extends Layer {
 
     public AffineTransform getModelToImageTransform(int level) {
         return multiLevelSource.getModel().getModelToImageTransform(level);
-    }
-
-    public boolean isDebug() {
-        return debug;
-    }
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
     }
 
     public int getLevel(Viewport vp) {

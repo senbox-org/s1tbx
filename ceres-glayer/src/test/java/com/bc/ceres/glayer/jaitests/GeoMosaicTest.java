@@ -77,7 +77,7 @@ public class GeoMosaicTest {
             sourceImages[i] = Tools.transformImage(imageFeatures[i].image, transform);
         }
         RenderedOp image = Tools.createMosaic(sourceImages);
-        Tools.displayImage("GeoMosaicTest", image, new AffineTransform(), 8, true);
+        Tools.displayImage("GeoMosaicTest", image, new AffineTransform(), 8);
 
         //Tools.storeTiffPyramid(image, "geomosaic", 8);
     }

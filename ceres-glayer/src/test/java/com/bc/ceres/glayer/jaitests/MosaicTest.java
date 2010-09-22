@@ -36,7 +36,7 @@ public class MosaicTest {
                 Tools.transformImage(image, 600f, 6000f, (float) Math.toRadians(20), 1.0f),
                 Tools.transformImage(image, 1000f, 1000f, (float) Math.toRadians(30), 1.5f),
         });
-        Tools.displayImage("MosaicTest", image, new AffineTransform(), 0, true);
+        Tools.displayImage("MosaicTest", image, new AffineTransform(), 0);
     }
 
 }

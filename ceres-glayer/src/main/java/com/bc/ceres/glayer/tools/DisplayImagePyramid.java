@@ -27,7 +27,7 @@ public class DisplayImagePyramid {
         boolean concurrent = Boolean.parseBoolean(args[3]);
 
         Tools.configureJAI();
-        Tools.displayImage(location, extension, new AffineTransform(), levelCount, concurrent);
+        Tools.displayImage(location, extension, new AffineTransform(), levelCount);
     }
 
 }

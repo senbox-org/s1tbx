@@ -28,7 +28,7 @@ public class DisplayImage {
         Tools.configureJAI();
         RenderedImage image = Tools.loadImage(imageFilePath);
 //        Tools.dumpImageInfo(image);
-        Tools.displayImage(imageFilePath, image, new AffineTransform(), levelCount, concurrent);
+        Tools.displayImage(imageFilePath, image, new AffineTransform(), levelCount);
     }
 
 }
