@@ -32,15 +32,16 @@ import java.util.List;
 
 public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
+    private final static boolean DEBUG = Boolean.getBoolean("ceres.renderer.debug");
+
     private final Map<TileIndex, TileRequest> scheduledTileRequests;
     private final TileImageCache localTileCache;
-    private boolean debug;
 
     public ConcurrentMultiLevelRenderer() {
         scheduledTileRequests = Collections.synchronizedMap(new HashMap<TileIndex, TileRequest>(37));
         localTileCache = new TileImageCache();
 
-        if (debug) {
+        if (DEBUG) {
             final TileCache tileCache = JAI.getDefaultInstance().getTileCache();
             final TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
             System.out.println("jai.tileScheduler.priority = " + tileScheduler.getPriority());
@@ -50,14 +51,6 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             System.out.println("jai.tileCache.memoryCapacity = " + tileCache.getMemoryCapacity());
             System.out.println("jai.tileCache.memoryThreshold = " + tileCache.getMemoryThreshold());
         }
-    }
-
-    public boolean isDebug() {
-        return debug;
-    }
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
     }
 
     @Override
@@ -70,7 +63,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
     public void renderImage(Rendering rendering, MultiLevelSource multiLevelSource, int currentLevel) {
         final long t0 = System.nanoTime();
         renderImpl((InteractiveRendering) rendering, multiLevelSource, currentLevel);
-        if (debug) {
+        if (DEBUG) {
             final long t1 = System.nanoTime();
             double time = (t1 - t0) / (1000.0 * 1000.0);
             System.out.printf("ConcurrentMultiLevelRenderer: render: time=%f ms, clip=%s\n", time, rendering.getGraphics().getClip());
@@ -141,7 +134,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             drawTileImage(graphics, viewport, tileImage);
         }
 
-        if (debug) {
+        if (DEBUG) {
             // Draw tile frames
             final AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(currentLevel);
             drawTileFrames(graphics, viewport, planarImage, missingTileIndexList, i2m, Color.RED);
@@ -425,7 +418,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             }
 
 // Uncomment for debugging
-//            if (debug) {
+//            if (DEBUG) {
 //                try {
 //                    Thread.sleep(100);
 //                } catch (InterruptedException e) {
@@ -458,7 +451,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                                   int tileX, int tileY) {
             TileIndex tileIndex = new TileIndex(tileX, tileY, level);
             dropTile(tileIndex);
-            if (debug) {
+            if (DEBUG) {
                 System.out.printf("ConcurrentMultiLevelRenderer: tileCancelled: %s\n", tileIndex);
             }
         }
@@ -472,7 +465,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                                            Throwable error) {
             TileIndex tileIndex = new TileIndex(tileX, tileY, level);
             dropTile(tileIndex);
-            if (debug) {
+            if (DEBUG) {
                 System.out.printf("ConcurrentMultiLevelRenderer: tileComputationFailure: %s\n", tileIndex);
                 error.printStackTrace();
             }
@@ -519,7 +512,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                 size -= oldTileImage.size;
             }
             size += tileImage.size;
-            if (debug) {
+            if (DEBUG) {
                 System.out.printf("ConcurrentMultiLevelRenderer$TileImageCache: add: tileIndex=%s, size=%d\n", tileImage.tileIndex, size);
             }
         }
@@ -528,7 +521,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
             final TileImage oldTileImage = cache.remove(tileIndex);
             if (oldTileImage != null) {
                 size -= oldTileImage.size;
-                if (debug) {
+                if (DEBUG) {
                     System.out.printf("ConcurrentMultiLevelRenderer$TileImageCache: remove: tileIndex=%s, size=%d\n", tileIndex, size);
                 }
             }
