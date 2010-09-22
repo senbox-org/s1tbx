@@ -1,0 +1,12 @@
+ENVI
+description = {Detector index - Unit: 1}
+samples = 1121
+lines = 6
+bands = 1
+header offset = 0
+file type = ENVI Standard
+data type = 2
+interleave = bsq
+byte order = 1
+data gain values = {1.0}
+data offset values = {0.0}
