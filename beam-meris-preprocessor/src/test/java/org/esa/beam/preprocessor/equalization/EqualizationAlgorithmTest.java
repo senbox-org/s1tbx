@@ -17,41 +17,39 @@
 package org.esa.beam.preprocessor.equalization;
 
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.math.MathUtils;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.text.ParseException;
 import java.util.Date;
 
 import static junit.framework.Assert.*;
 
 public class EqualizationAlgorithmTest {
 
-    private static final double[] EXPECTED_RR_REPRO2_VALUES = new double[]{
-            23.3939, 23.4582, 23.3923, 23.4541,
-            120.1749, 120.5050, 120.1665, 120.4841
-    };
-    private static final double[] EXPECTED_RR_REPRO3_VALUES = new double[]{
-            23.4242, 23.4401, 23.4179, 23.4286,
-            120.3305, 120.4123, 120.2979, 120.3532
-    };
-    private static final double[] EXPECTED_FR_REPRO2_VALUES = new double[]{
-            23.4618, 23.4465, 23.4424, 23.4466,
-            120.5233, 120.4450, 120.4237, 120.4455
-    };
-    private static final double[] EXPECTED_FR_REPRO3_VALUES = new double[]{
-            23.4392, 23.4261, 23.4366, 23.4290,
-            120.4075, 120.3400, 120.3941, 120.3550
-    };
-
     @Test
     public void testPerformEqualization() throws Exception {
 
         ProductData.UTC utc = ProductData.UTC.create(new Date(), 0);
-        checkValues(EXPECTED_RR_REPRO2_VALUES, generateActualValues(new EqualizationAlgorithm(2, false, utc)));
-        checkValues(EXPECTED_RR_REPRO3_VALUES, generateActualValues(new EqualizationAlgorithm(3, false, utc)));
-        checkValues(EXPECTED_FR_REPRO2_VALUES, generateActualValues(new EqualizationAlgorithm(2, true, utc)));
-        checkValues(EXPECTED_FR_REPRO3_VALUES, generateActualValues(new EqualizationAlgorithm(3, true, utc)));
+        Reader[] readers = new Reader[]{
+                new StringReader("1.0 2.0 3.0\n4.0 5.0 6.0"),
+                new StringReader("0.1 0.2 0.3\n0.4 0.5 0.6")
+        };
+
+        EqualizationAlgorithm algorithm = new EqualizationAlgorithm(utc, new EqualizationLUT(readers));
+        long date = algorithm.getJulianDate();
+        double sample = 100.0;
+        final long squareDate = date * date;
+        assertEquals(sample / (1.0 + 2.0 * date + 3.0 * squareDate),
+                     algorithm.performEqualization(sample, 0, 0), 1.0e-6);
+        assertEquals(sample / (4.0 + 5.0 * date + 6.0 * squareDate),
+                     algorithm.performEqualization(sample, 0, 1), 1.0e-6);
+        assertEquals(sample / (0.1 + 0.2 * date + 0.3 * squareDate),
+                     algorithm.performEqualization(sample, 1, 0), 1.0e-6);
+        assertEquals(sample / (0.4 + 0.5 * date + 0.6 * squareDate),
+                     algorithm.performEqualization(sample, 1, 1), 1.0e-6);
     }
 
     @Test()
@@ -104,34 +102,18 @@ public class EqualizationAlgorithmTest {
     }
 
     @Test
+    public void testGetJulianDate() throws ParseException, IOException {
+        ProductData.UTC utc = ProductData.UTC.parse("12-10-2006", "dd-MM-yyyy");
+        EqualizationAlgorithm algorithm = new EqualizationAlgorithm(utc, new EqualizationLUT(new Reader[0]));
+        long expectedJD = EqualizationAlgorithm.toJulianDay(2006, 9, 12) - EqualizationAlgorithm.toJulianDay(2002, 4,
+                                                                                                             1);
+        assertEquals(expectedJD, algorithm.getJulianDate());
+    }
+
+    @Test
     public void testToJulianDay() {
         assertEquals(2455414, EqualizationAlgorithm.toJulianDay(2010, 7, 6));
         assertEquals(2452365, EqualizationAlgorithm.toJulianDay(2002, 3, 1));
-    }
-
-    private void checkValues(double[] expectedValues, double[] actualValues) {
-        for (int i = 0; i < expectedValues.length; i++) {
-            double expected = expectedValues[i];
-            final double actual = actualValues[i];
-            if (!MathUtils.equalValues(expected, actual, 1.0e-3)) {
-                fail(String.format("Error at index: %d\nexpected:<%s> but was: <%s>", i,
-                                   Arrays.toString(expectedValues), Arrays.toString(actualValues)));
-            }
-        }
-    }
-
-    private double[] generateActualValues(EqualizationAlgorithm equalizationAlgorithm) {
-        final double[] doubles = new double[8];
-
-        doubles[0] = equalizationAlgorithm.performEqualization(23.43, 2, 325);
-        doubles[1] = equalizationAlgorithm.performEqualization(23.43, 2, 489);
-        doubles[2] = equalizationAlgorithm.performEqualization(23.43, 3, 325);
-        doubles[3] = equalizationAlgorithm.performEqualization(23.43, 3, 489);
-        doubles[4] = equalizationAlgorithm.performEqualization(120.36, 2, 325);
-        doubles[5] = equalizationAlgorithm.performEqualization(120.36, 2, 489);
-        doubles[6] = equalizationAlgorithm.performEqualization(120.36, 3, 325);
-        doubles[7] = equalizationAlgorithm.performEqualization(120.36, 3, 489);
-        return doubles;
     }
 
 }
