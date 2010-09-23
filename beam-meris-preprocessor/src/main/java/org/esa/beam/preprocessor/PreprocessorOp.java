@@ -18,7 +18,6 @@ package org.esa.beam.preprocessor;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -32,13 +31,13 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.preprocessor.equalization.EqualizationAlgorithm;
+import org.esa.beam.preprocessor.equalization.ReprocessingVersion;
 import org.esa.beam.preprocessor.smilecorr.SmileCorrectionAlgorithm;
 import org.esa.beam.preprocessor.smilecorr.SmileCorrectionAuxdata;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.RsMathUtils;
 
 import java.awt.Rectangle;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +54,16 @@ import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
                   version = "1.0")
 public class PreprocessorOp extends Operator {
 
+    @Parameter(defaultValue = "true",
+               label = "Perform SMILE correction",
+               description = "Whether to perform SMILE correction.")
+    private boolean doSmile;
+
+    @Parameter(defaultValue = "true",
+               label = "Perform equalization",
+               description = "Perform removal of detector-to-detector systematic radiometric differences in MERIS L1b data products")
+    private boolean doEqualization;
+
     @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT", "REPROCESSING_2", "REPROCESSING_3"},
                defaultValue = "AUTO_DETECT",
                description = "The version of the reprocessing the product comes from. Used only in case that " +
@@ -62,24 +71,14 @@ public class PreprocessorOp extends Operator {
     private ReprocessingVersion reproVersion;
 
     @Parameter(defaultValue = "true",
-               label = "Perform SMILE correction",
-               description = "Whether to perform SMILE correction.")
-    private boolean doSmile;
+               label = "Perform radiometric calibration",
+               description = "Whether to perform radiometric calibration.")
+    private boolean doRadiometricRecalibration;
 
     @Parameter(defaultValue = "true",
                label = "Perform radiance-to-reflectance conversion",
                description = "Whether to perform radiance-to-reflectance conversion.")
     private boolean doRadToRefl;
-
-    @Parameter(defaultValue = "true",
-               label = "Perform removal of detector-to-detector systematic radiometric differences in MERIS L1b data products",
-               description = "Whether to perform equalisation.")
-    private boolean doEqualization;
-
-    @Parameter(defaultValue = "true",
-               label = "Perform radiometric calibration",
-               description = "Whether to perform radiometric calibration.")
-    private boolean doRadiometricRecalibration;
 
     @SourceProduct(alias = "source", label = "Name", description = "The source product.",
                    bands = {
@@ -109,12 +108,8 @@ public class PreprocessorOp extends Operator {
     private static final String INVALID_MASK_NAME = "invalid";
     private static final String LAND_MASK_NAME = "land";
 
-//    private List<Algorithm>
-
     private EqualizationAlgorithm equalizationAlgorithm;
     private SmileCorrectionAlgorithm smileCorrectionAlgorithm;
-    // todo when radiometric calibration algorithm is implemented, uncomment
-    //    private RadioCalAlgorithm radioCalAlgorithm;
     private HashMap<String, String> bandNameMap;
 
     @Override
@@ -126,35 +121,31 @@ public class PreprocessorOp extends Operator {
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        int workload = 4; // for loading the source tiles
-        if (doSmile) {
-            workload += 3;
-        }
-        pm.beginTask("Performing MERIS preprocessing...", workload);
         final Rectangle targetRegion = targetTile.getRectangle();
         final int spectralIndex = targetBand.getSpectralBandIndex();
+        final String sourceBandName = bandNameMap.get(targetBand.getName());
+        final Band sourceBand = sourceProduct.getBand(sourceBandName);
+        final Tile sourceBandTile = loadSourceTile(sourceBandName, targetRegion);
+        Tile detectorSourceTile = null;
+        if (doSmile || doEqualization) {
+            detectorSourceTile = loadSourceTile(MERIS_DETECTOR_INDEX_DS_NAME, targetRegion);
+        }
+        Tile sunZenithTile = null;
+        if (doRadToRefl) {
+            sunZenithTile = loadSourceTile(MERIS_SUN_ZENITH_DS_NAME, targetRegion);
+        }
+
+        Tile[] radianceTiles = new Tile[0];
+        Tile landMaskTile = null;
+        Tile invalidMaskTile = null;
+        if (doSmile) {
+            radianceTiles = loadRequiredRadianceTiles(spectralIndex, targetRegion);
+            invalidMaskTile = loadSourceTile(INVALID_MASK_NAME, targetRegion);
+            landMaskTile = loadSourceTile(LAND_MASK_NAME, targetRegion);
+        }
+
+        pm.beginTask("Performing MERIS preprocessing...", targetTile.getHeight());
         try {
-            final String sourceBandName = bandNameMap.get(targetBand.getName());
-            final Band sourceBand = sourceProduct.getBand(sourceBandName);
-            final Tile sourceBandTile = loadSourceTile(sourceBandName, targetRegion, pm);
-            Tile detectorSourceTile = null;
-            if (doSmile || doEqualization) {
-                detectorSourceTile = loadSourceTile(MERIS_DETECTOR_INDEX_DS_NAME, targetRegion, pm);
-            }
-            Tile sunZenithTile = null;
-            if (doRadToRefl) {
-                sunZenithTile = loadSourceTile(MERIS_SUN_ZENITH_DS_NAME, targetRegion, pm);
-            }
-
-            Tile[] radianceTiles = new Tile[0];
-            Tile landMaskTile = null;
-            Tile invalidMaskTile = null;
-            if (doSmile) {
-                radianceTiles = loadRequiredRadianceTiles(spectralIndex, targetRegion, new SubProgressMonitor(pm, 1));
-                invalidMaskTile = loadSourceTile(INVALID_MASK_NAME, targetRegion, pm);
-                landMaskTile = loadSourceTile(LAND_MASK_NAME, targetRegion, pm);
-            }
-
             for (int y = targetTile.getMinY(); y <= targetTile.getMaxY(); y++) {
                 checkForCancellation(pm);
                 for (int x = targetTile.getMinX(); x <= targetTile.getMaxX(); x++) {
@@ -176,14 +167,10 @@ public class PreprocessorOp extends Operator {
                     if (doEqualization && detectorIndex != -1) {
                         sample = equalizationAlgorithm.performEqualization(sample, spectralIndex, detectorIndex);
                     }
-                    if (doRadiometricRecalibration) {
-                        // todo implement
-                    }
-
                     targetTile.setSample(x, y, sample);
                 }
+                pm.worked(1);
             }
-            pm.worked(1);
         } finally {
             pm.done();
         }
@@ -251,24 +238,16 @@ public class PreprocessorOp extends Operator {
             try {
                 smileCorrectionAlgorithm = new SmileCorrectionAlgorithm(SmileCorrectionAuxdata.loadAuxdata(
                         sourceProduct.getProductType()));
-            } catch (IOException e) {
-                throw new OperatorException("Not able to initialise SMILE algorithm.", e);
+            } catch (Exception e) {
+                throw new OperatorException(e);
             }
         }
         if (doEqualization) {
             try {
                 equalizationAlgorithm = new EqualizationAlgorithm(sourceProduct, reproVersion);
             } catch (Exception e) {
-                throw new OperatorException("Not able to initialise MERIS equalisation algorithm.", e);
+                throw new OperatorException(e);
             }
-        }
-        if (doRadiometricRecalibration) {
-            // todo when radiometric calibration algorithm is implemented, uncomment:
-//            try {
-//                radioCalAlgorithm = new RadioCalAlgorithm();
-//            } catch( Exception e ) {
-//                throw new OperatorException( "Not able to initialise Radiometric Calibration algorithm.", e );
-//            }
         }
     }
 
@@ -293,29 +272,21 @@ public class PreprocessorOp extends Operator {
             Assert.state(sourceProduct.containsRasterDataNode(MERIS_SUN_ZENITH_DS_NAME),
                          String.format(msgPattern, MERIS_SUN_ZENITH_DS_NAME));
         }
-        if (doRadiometricRecalibration) {
-            // todo implement
-        }
     }
 
-    private Tile[] loadRequiredRadianceTiles(int spectralBandIndex, Rectangle targetRectangle, ProgressMonitor pm) {
+    private Tile[] loadRequiredRadianceTiles(int spectralBandIndex, Rectangle targetRectangle) {
         final int[] requiredBandIndices = smileCorrectionAlgorithm.computeRequiredBandIndexes(spectralBandIndex);
         Tile[] radianceTiles = new Tile[MERIS_L1B_NUM_SPECTRAL_BANDS];
-        pm.beginTask("Loading radiance tiles...", requiredBandIndices.length);
-        try {
-            for (int requiredBandIndex : requiredBandIndices) {
-                final Band band = sourceProduct.getBandAt(requiredBandIndex);
-                radianceTiles[requiredBandIndex] = getSourceTile(band, targetRectangle, new SubProgressMonitor(pm, 1));
-            }
-        } finally {
-            pm.done();
+        for (int requiredBandIndex : requiredBandIndices) {
+            final Band band = sourceProduct.getBandAt(requiredBandIndex);
+            radianceTiles[requiredBandIndex] = getSourceTile(band, targetRectangle, ProgressMonitor.NULL);
         }
         return radianceTiles;
     }
 
-    private Tile loadSourceTile(String sourceNodeName, Rectangle rectangle, ProgressMonitor pm) {
+    private Tile loadSourceTile(String sourceNodeName, Rectangle rectangle) {
         final RasterDataNode sourceNode = sourceProduct.getRasterDataNode(sourceNodeName);
-        return getSourceTile(sourceNode, rectangle, new SubProgressMonitor(pm, 1));
+        return getSourceTile(sourceNode, rectangle, ProgressMonitor.NULL);
     }
 
     private void copyBand(String sourceBandName) {

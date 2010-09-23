@@ -16,43 +16,35 @@
 
 package org.esa.beam.preprocessor.equalization;
 
-import com.bc.ceres.core.Assert;
 import org.esa.beam.util.io.CsvReader;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class EqualizationLUT {
 
-    private static final String COEF_FILE_PATTERN = "Equalization_coefficient_band_%02d_reprocessing_r%d_%s.txt";
-    private static final String FR = "FR";
-    private static final String RR = "RR";
-    private static final int BAND_COUNT = 15;
-    private Map<Integer, Map<Integer, double[]>> bandMap;
+    private List<Map<Integer, double[]>> coefficientsMapList;
 
-
-    EqualizationLUT(int reprocessingVersion, boolean isFullResolution) throws IOException {
-        Assert.argument(reprocessingVersion == 2 || reprocessingVersion == 3,
-                        "Value of reprocessingVersion must be 2 or 3");
-        bandMap = new HashMap<Integer, Map<Integer, double[]>>(BAND_COUNT);
-        for (int i = 1; i <= BAND_COUNT; i++) {
+    EqualizationLUT(Reader[] bandCoefficientReaders) throws IOException {
+        coefficientsMapList = new ArrayList<Map<Integer, double[]>>(bandCoefficientReaders.length);
+        for (Reader bandCoefficientReader : bandCoefficientReaders) {
             final HashMap<Integer, double[]> coefMap = new HashMap<Integer, double[]>();
-            final InputStream stream = getClass().getResourceAsStream(
-                    String.format(COEF_FILE_PATTERN, i, reprocessingVersion, isFullResolution ? FR : RR));
-            final CsvReader reader = new CsvReader(new InputStreamReader(stream), new char[]{' '});
+            final CsvReader csvReader = new CsvReader(bandCoefficientReader, new char[]{' '});
             try {
-                double[] coefs = reader.readDoubleRecord();
+                double[] coefs = csvReader.readDoubleRecord();
                 while (coefs != null) {
-                    coefMap.put(reader.getLineNumber() - 1, coefs);
-                    coefs = reader.readDoubleRecord();
+                    coefMap.put(csvReader.getLineNumber() - 1, coefs);
+                    coefs = csvReader.readDoubleRecord();
                 }
             } finally {
-                reader.close();
+                csvReader.close();
             }
-            bandMap.put(i, coefMap);
+            coefficientsMapList.add(coefMap);
+
         }
     }
 
@@ -60,8 +52,7 @@ class EqualizationLUT {
     // the given detectorIndex.
     // bandIndex and detectorIndex are zero-based
     double[] getCoefficients(int bandIndex, int detectorIndex) {
-        Assert.argument(bandIndex >= 0 && bandIndex <= 14, "bandIndex must be between 0 and 14");
-        final Map<Integer, double[]> coefMap = bandMap.get(bandIndex + 1);
+        final Map<Integer, double[]> coefMap = coefficientsMapList.get(bandIndex);
         return coefMap.get(detectorIndex);
     }
 }

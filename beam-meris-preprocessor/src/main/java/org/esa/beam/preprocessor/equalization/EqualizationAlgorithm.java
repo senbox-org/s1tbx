@@ -20,11 +20,15 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.preprocessor.ReprocessingVersion;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.TimeZone;
 
 public class EqualizationAlgorithm {
@@ -36,10 +40,10 @@ public class EqualizationAlgorithm {
     private long julianDate;
 
     public EqualizationAlgorithm(Product product, ReprocessingVersion version) {
-        this(getReprocessingVersion(product, version), isFullResolution(product), product.getStartTime());
+        this(product.getStartTime(), createLut(getReprocessingVersion(product, version), isFullResolution(product)));
     }
 
-    public EqualizationAlgorithm(int reprocessingVersion, boolean fullResolution, ProductData.UTC utc) {
+    public EqualizationAlgorithm(ProductData.UTC utc, EqualizationLUT equalizationLUT) {
         // compute julian date
         final Calendar calendar = utc.getAsCalendar();
         long productJulianDate = toJulianDay(calendar.get(Calendar.YEAR),
@@ -47,11 +51,11 @@ public class EqualizationAlgorithm {
                                              calendar.get(Calendar.DAY_OF_MONTH));
         julianDate = productJulianDate - toJulianDay(2002, 4, 1);
 
-        try {
-            equalizationLUT = new EqualizationLUT(reprocessingVersion, fullResolution);
-        } catch (IOException e) {
-            throw new IllegalStateException("Not able to create LUT.", e);
-        }
+        this.equalizationLUT = equalizationLUT;
+    }
+
+    long getJulianDate() {
+        return julianDate;
     }
 
     /**
@@ -161,4 +165,27 @@ public class EqualizationAlgorithm {
         return version;
     }
 
+    private static EqualizationLUT createLut(int reprocessingVersion, boolean fullResolution) {
+        EqualizationLUT lut;
+        try {
+            List<Reader> readerList = getCoefficientsReaders(reprocessingVersion, fullResolution);
+            Reader[] readers = readerList.toArray(new Reader[readerList.size()]);
+            lut = new EqualizationLUT(readers);
+        } catch (IOException e) {
+            throw new IllegalStateException("Not able to create LUT.", e);
+        }
+        return lut;
+    }
+
+    private static List<Reader> getCoefficientsReaders(int reprocessingVersion, boolean fullResolution) {
+        final String coefFilePattern = "Equalization_coefficient_band_%02d_reprocessing_r%d_%s.txt";
+        final int bandCount = 15;
+        List<Reader> readerList = new ArrayList<Reader>();
+        for (int i = 1; i <= bandCount; i++) {
+            final InputStream stream = EqualizationLUT.class.getResourceAsStream(
+                    String.format(coefFilePattern, i, reprocessingVersion, fullResolution ? "FR" : "RR"));
+            readerList.add(new InputStreamReader(stream));
+        }
+        return readerList;
+    }
 }

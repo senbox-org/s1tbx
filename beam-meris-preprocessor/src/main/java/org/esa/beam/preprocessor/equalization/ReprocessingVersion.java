@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.preprocessor;
+package org.esa.beam.preprocessor.equalization;
 
 @SuppressWarnings({"UnusedDeclaration"})
 public enum ReprocessingVersion {

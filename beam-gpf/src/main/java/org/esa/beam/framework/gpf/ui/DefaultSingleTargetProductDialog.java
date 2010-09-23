@@ -127,12 +127,13 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                         rdnTypeProperties.add(parameterDescriptor);
                     }
                 }
-                rasterDataNodeTypeProperties = rdnTypeProperties.toArray(new PropertyDescriptor[rdnTypeProperties.size()]);
+                rasterDataNodeTypeProperties = rdnTypeProperties.toArray(
+                        new PropertyDescriptor[rdnTypeProperties.size()]);
             }
             PropertyPane parametersPane = new PropertyPane(propertyContainer);
-            final JPanel paremetersPanel = parametersPane.createPanel();
-            paremetersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
-            this.form.add("Processing Parameters", new JScrollPane(paremetersPanel));
+            final JPanel parametersPanel = parametersPane.createPanel();
+            parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
+            this.form.add("Processing Parameters", new JScrollPane(parametersPanel));
         }
         if (!sourceProductSelectorList.isEmpty()) {
             productChangedHandler = new ProductChangedHandler();
