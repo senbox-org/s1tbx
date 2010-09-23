@@ -44,38 +44,4 @@
     </dependency>
 
     <categories>Processing,MERIS</categories>
-
-    <extension point="beam-ui:actions">
-        <action>
-            <id>merisEqualization</id>
-            <helpId>merisEqualization</helpId>
-            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <parent>tools</parent>
-            <text>Equalization (MERIS)...</text>
-            <mnemonic>E</mnemonic>
-            <operatorName>Equalize</operatorName>
-            <dialogTitle>MERIS L1b Equalization</dialogTitle>
-            <targetProductNameSuffix>_Equalized</targetProductNameSuffix>
-        </action>
-        <!--<action>-->
-        <!--<id>merisSmile</id>-->
-        <!--<helpId>merisSmile</helpId>-->
-        <!--<class>org.esa.beam.visat.actions.DefaultOperatorAction</class>-->
-        <!--<parent>tools</parent>-->
-        <!--<text>NEW SMILE correction (MERIS)...</text>-->
-        <!--<mnemonic>S</mnemonic>-->
-        <!--<operatorName>SmileCorr</operatorName>-->
-        <!--<dialogTitle>MERIS L1b SMILE Correction</dialogTitle>-->
-        <!--<targetProductNameSuffix>_smile</targetProductNameSuffix>-->
-        <!--</action>-->
-    </extension>
-
-
-    <extension point="beam-ui:helpSets">
-        <helpSet>
-            <parent>beam-help</parent>
-            <path>doc/help/equalization.hs</path>
-        </helpSet>
-    </extension>
-
 </module>

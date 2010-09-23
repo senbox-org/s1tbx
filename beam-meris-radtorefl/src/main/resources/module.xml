@@ -13,7 +13,7 @@
     <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-    
+
     <dependency>
         <module>beam-processing</module>
     </dependency>
@@ -40,26 +40,5 @@
 
     <categories>Application,Processor,MERIS</categories>
 
-    <extension point="beam-ui:actions">
-        <action>
-            <id>radtoreflScientificTool</id>
-            <class>org.esa.beam.visat.actions.ProcessorAction</class>
-            <processor>org.esa.beam.processor.radtorefl.RadToReflProcessor</processor>
-            <text>Radiance-To-Reflectance Processor (MERIS)....</text>
-            <shortDescr>Invoke the BEAM MERIS Radiance-To-Reflectance Conversion Processor.</shortDescr>
-            <mnemonic>R</mnemonic>
-            <parent>tools</parent>
-            <helpId>radtoreflScientificTool</helpId>
-            <placeAfter>cloudScientificTool</placeAfter>
-        </action>
-    </extension>
-
-
-    <extension point="beam-ui:helpSets">
-        <helpSet>
-            <parent>beam-help</parent>
-            <path>doc/help/radToRefl.hs</path>
-        </helpSet>
-    </extension>
 
 </module>

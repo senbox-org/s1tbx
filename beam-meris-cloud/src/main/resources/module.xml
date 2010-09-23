@@ -5,7 +5,7 @@
     <name>MERIS Cloud Probability Processor</name>
 
     <description>
-        The MERIS Cloud Probability Processor calculates a cloud probability for MERIS L1b pixels.        
+        The MERIS Cloud Probability Processor calculates a cloud probability for MERIS L1b pixels.
     </description>
     <changelog>
         <![CDATA[
@@ -51,7 +51,7 @@
             <mnemonic>C</mnemonic>
             <parent>tools</parent>
             <helpId>cloudScientificTool</helpId>
-            <placeAfter>flhMciScientificTool</placeAfter>
+            <placeAfter>merisPreprocessor</placeAfter>
         </action>
     </extension>
 

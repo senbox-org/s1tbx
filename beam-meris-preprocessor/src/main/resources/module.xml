@@ -38,6 +38,8 @@
             <parent>tools</parent>
             <text>Preprocessor (MERIS)...</text>
             <mnemonic>E</mnemonic>
+            <placeAfter>flhMciScientificTool</placeAfter>
+            <placeBefore>cloudScientificTool</placeBefore>
             <operatorName>Preprocess</operatorName>
             <dialogTitle>MERIS L1b Preprocessor</dialogTitle>
             <targetProductNameSuffix>_preprocessed</targetProductNameSuffix>

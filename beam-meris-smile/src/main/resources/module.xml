@@ -44,26 +44,5 @@
 
     <categories>Application,Processor,MERIS</categories>
 
-    <extension point="beam-ui:actions">
-        <action>
-            <id>smileScientificToolPlugIn</id>
-            <class>org.esa.beam.visat.actions.ProcessorAction</class>
-            <processor>org.esa.beam.processor.smile.SmileProcessor</processor>
-            <text>Smile Correction Processor (MERIS)...</text>
-            <shortDescr>Invoke the MERIS Smile Correction Processor.</shortDescr>
-            <mnemonic>M</mnemonic>
-            <parent>tools</parent>
-            <helpId>smileScientificToolPlugIn</helpId>
-            <placeAfter>radtoreflScientificTool</placeAfter>
-        </action>
-    </extension>
-
-
-    <extension point="beam-ui:helpSets">
-        <helpSet>
-            <parent>beam-help</parent>
-            <path>doc/help/smile.hs</path>
-        </helpSet>
-    </extension>
 
 </module>
