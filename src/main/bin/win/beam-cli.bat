@@ -11,9 +11,7 @@ echo.
 @echo   binning.bat        - General level 3 binning processor
 @echo   mosaic.bat         - General level 3 mosaicing processor
 @echo   flhmci.bat         - General FLH / MCI processor
-@echo   meris-rad2refl.bat - Envisat/MERIS radiiance to reflectance processor
 @echo   meris-smac.bat     - Envisat/MERIS atmospheric correction (SMAC)
-@echo   meris-smac.bat     - Envisat/MERIS radiance to reflectance processor
 @echo   aatsr-sst.bat      - Envisat/AATSR sea surface temperaure processor
 @echo   visat-d.bat        - VISAT application launcher for debugging
 @echo Typing the name of the tool will output its usage information.
