@@ -220,7 +220,7 @@ public class SmileCorrectionAuxdata {
         }
     }
 
-    private static File installAuxdata() throws IOException {
+    static File installAuxdata() throws IOException {
         File defaultAuxdataInstallDir = new File(SystemUtils.getApplicationDataDir(),
                                                  "beam-meris-preprocessor/smile-correction/auxdata");
         String auxdataDirPath = System.getProperty(AUXDATA_DIR_PROPERTY,
