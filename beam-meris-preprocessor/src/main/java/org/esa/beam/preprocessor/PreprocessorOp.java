@@ -60,11 +60,6 @@ public class PreprocessorOp extends Operator {
     private boolean doSmile;
 
     @Parameter(defaultValue = "true",
-               label = "Perform radiance-to-reflectance conversion",
-               description = "Whether to perform radiance-to-reflectance conversion.")
-    private boolean doRadToRefl;
-
-    @Parameter(defaultValue = "true",
                label = "Perform equalization",
                description = "Perform removal of detector-to-detector systematic radiometric differences in MERIS L1b data products")
     private boolean doEqualization;
@@ -75,11 +70,15 @@ public class PreprocessorOp extends Operator {
                              "equalisation is to be performed.")
     private ReprocessingVersion reproVersion;
 
-
     @Parameter(defaultValue = "true",
                label = "Perform radiometric calibration",
                description = "Whether to perform radiometric calibration.")
     private boolean doRadiometricRecalibration;
+
+    @Parameter(defaultValue = "true",
+               label = "Perform radiance-to-reflectance conversion",
+               description = "Whether to perform radiance-to-reflectance conversion.")
+    private boolean doRadToRefl;
 
     @SourceProduct(alias = "source", label = "Name", description = "The source product.",
                    bands = {
