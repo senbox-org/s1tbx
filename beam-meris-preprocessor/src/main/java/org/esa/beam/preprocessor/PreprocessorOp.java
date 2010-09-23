@@ -39,7 +39,6 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.RsMathUtils;
 
 import java.awt.Rectangle;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -111,12 +110,8 @@ public class PreprocessorOp extends Operator {
     private static final String INVALID_MASK_NAME = "invalid";
     private static final String LAND_MASK_NAME = "land";
 
-//    private List<Algorithm>
-
     private EqualizationAlgorithm equalizationAlgorithm;
     private SmileCorrectionAlgorithm smileCorrectionAlgorithm;
-    // todo when radiometric calibration algorithm is implemented, uncomment
-    //    private RadioCalAlgorithm radioCalAlgorithm;
     private HashMap<String, String> bandNameMap;
 
     @Override
@@ -178,10 +173,6 @@ public class PreprocessorOp extends Operator {
                     if (doEqualization && detectorIndex != -1) {
                         sample = equalizationAlgorithm.performEqualization(sample, spectralIndex, detectorIndex);
                     }
-                    if (doRadiometricRecalibration) {
-                        // todo implement
-                    }
-
                     targetTile.setSample(x, y, sample);
                 }
             }
@@ -253,24 +244,16 @@ public class PreprocessorOp extends Operator {
             try {
                 smileCorrectionAlgorithm = new SmileCorrectionAlgorithm(SmileCorrectionAuxdata.loadAuxdata(
                         sourceProduct.getProductType()));
-            } catch (IOException e) {
-                throw new OperatorException("Not able to initialise SMILE algorithm.", e);
+            } catch (Exception e) {
+                throw new OperatorException(e);
             }
         }
         if (doEqualization) {
             try {
                 equalizationAlgorithm = new EqualizationAlgorithm(sourceProduct, reproVersion);
             } catch (Exception e) {
-                throw new OperatorException("Not able to initialise MERIS equalisation algorithm.", e);
+                throw new OperatorException(e);
             }
-        }
-        if (doRadiometricRecalibration) {
-            // todo when radiometric calibration algorithm is implemented, uncomment:
-//            try {
-//                radioCalAlgorithm = new RadioCalAlgorithm();
-//            } catch( Exception e ) {
-//                throw new OperatorException( "Not able to initialise Radiometric Calibration algorithm.", e );
-//            }
         }
     }
 
@@ -294,9 +277,6 @@ public class PreprocessorOp extends Operator {
         if (doRadToRefl) {
             Assert.state(sourceProduct.containsRasterDataNode(MERIS_SUN_ZENITH_DS_NAME),
                          String.format(msgPattern, MERIS_SUN_ZENITH_DS_NAME));
-        }
-        if (doRadiometricRecalibration) {
-            // todo implement
         }
     }
 
