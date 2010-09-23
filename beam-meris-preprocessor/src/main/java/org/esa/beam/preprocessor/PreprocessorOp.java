@@ -18,7 +18,6 @@ package org.esa.beam.preprocessor;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -123,35 +122,31 @@ public class PreprocessorOp extends Operator {
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        int workload = 4; // for loading the source tiles
-        if (doSmile) {
-            workload += 3;
-        }
-        pm.beginTask("Performing MERIS preprocessing...", workload);
         final Rectangle targetRegion = targetTile.getRectangle();
         final int spectralIndex = targetBand.getSpectralBandIndex();
+        final String sourceBandName = bandNameMap.get(targetBand.getName());
+        final Band sourceBand = sourceProduct.getBand(sourceBandName);
+        final Tile sourceBandTile = loadSourceTile(sourceBandName, targetRegion);
+        Tile detectorSourceTile = null;
+        if (doSmile || doEqualization) {
+            detectorSourceTile = loadSourceTile(MERIS_DETECTOR_INDEX_DS_NAME, targetRegion);
+        }
+        Tile sunZenithTile = null;
+        if (doRadToRefl) {
+            sunZenithTile = loadSourceTile(MERIS_SUN_ZENITH_DS_NAME, targetRegion);
+        }
+
+        Tile[] radianceTiles = new Tile[0];
+        Tile landMaskTile = null;
+        Tile invalidMaskTile = null;
+        if (doSmile) {
+            radianceTiles = loadRequiredRadianceTiles(spectralIndex, targetRegion);
+            invalidMaskTile = loadSourceTile(INVALID_MASK_NAME, targetRegion);
+            landMaskTile = loadSourceTile(LAND_MASK_NAME, targetRegion);
+        }
+
+        pm.beginTask("Performing MERIS preprocessing...", targetTile.getHeight());
         try {
-            final String sourceBandName = bandNameMap.get(targetBand.getName());
-            final Band sourceBand = sourceProduct.getBand(sourceBandName);
-            final Tile sourceBandTile = loadSourceTile(sourceBandName, targetRegion, pm);
-            Tile detectorSourceTile = null;
-            if (doSmile || doEqualization) {
-                detectorSourceTile = loadSourceTile(MERIS_DETECTOR_INDEX_DS_NAME, targetRegion, pm);
-            }
-            Tile sunZenithTile = null;
-            if (doRadToRefl) {
-                sunZenithTile = loadSourceTile(MERIS_SUN_ZENITH_DS_NAME, targetRegion, pm);
-            }
-
-            Tile[] radianceTiles = new Tile[0];
-            Tile landMaskTile = null;
-            Tile invalidMaskTile = null;
-            if (doSmile) {
-                radianceTiles = loadRequiredRadianceTiles(spectralIndex, targetRegion, new SubProgressMonitor(pm, 1));
-                invalidMaskTile = loadSourceTile(INVALID_MASK_NAME, targetRegion, pm);
-                landMaskTile = loadSourceTile(LAND_MASK_NAME, targetRegion, pm);
-            }
-
             for (int y = targetTile.getMinY(); y <= targetTile.getMaxY(); y++) {
                 checkForCancellation(pm);
                 for (int x = targetTile.getMinX(); x <= targetTile.getMaxX(); x++) {
@@ -175,8 +170,8 @@ public class PreprocessorOp extends Operator {
                     }
                     targetTile.setSample(x, y, sample);
                 }
+                pm.worked(1);
             }
-            pm.worked(1);
         } finally {
             pm.done();
         }
@@ -280,24 +275,19 @@ public class PreprocessorOp extends Operator {
         }
     }
 
-    private Tile[] loadRequiredRadianceTiles(int spectralBandIndex, Rectangle targetRectangle, ProgressMonitor pm) {
+    private Tile[] loadRequiredRadianceTiles(int spectralBandIndex, Rectangle targetRectangle) {
         final int[] requiredBandIndices = smileCorrectionAlgorithm.computeRequiredBandIndexes(spectralBandIndex);
         Tile[] radianceTiles = new Tile[MERIS_L1B_NUM_SPECTRAL_BANDS];
-        pm.beginTask("Loading radiance tiles...", requiredBandIndices.length);
-        try {
-            for (int requiredBandIndex : requiredBandIndices) {
-                final Band band = sourceProduct.getBandAt(requiredBandIndex);
-                radianceTiles[requiredBandIndex] = getSourceTile(band, targetRectangle, new SubProgressMonitor(pm, 1));
-            }
-        } finally {
-            pm.done();
+        for (int requiredBandIndex : requiredBandIndices) {
+            final Band band = sourceProduct.getBandAt(requiredBandIndex);
+            radianceTiles[requiredBandIndex] = getSourceTile(band, targetRectangle, ProgressMonitor.NULL);
         }
         return radianceTiles;
     }
 
-    private Tile loadSourceTile(String sourceNodeName, Rectangle rectangle, ProgressMonitor pm) {
+    private Tile loadSourceTile(String sourceNodeName, Rectangle rectangle) {
         final RasterDataNode sourceNode = sourceProduct.getRasterDataNode(sourceNodeName);
-        return getSourceTile(sourceNode, rectangle, new SubProgressMonitor(pm, 1));
+        return getSourceTile(sourceNode, rectangle, ProgressMonitor.NULL);
     }
 
     private void copyBand(String sourceBandName) {
