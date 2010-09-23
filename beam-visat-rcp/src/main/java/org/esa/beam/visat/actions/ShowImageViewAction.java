@@ -60,33 +60,15 @@ public class ShowImageViewAction extends ExecCommand {
     }
 
     public void openProductSceneView(final RasterDataNode selectedProductNode) {
-        final VisatApp visatApp = VisatApp.getApp();
-        visatApp.setStatusBarMessage("Creating image view...");
-        UIUtils.setRootFrameWaitCursor(visatApp.getMainFrame());
-        final ArrayList<String> expressionList = new ArrayList<String>();
-        expressionList.add(selectedProductNode.getValidPixelExpression());
-        if (selectedProductNode instanceof VirtualBand) {
-            expressionList.add(((VirtualBand) selectedProductNode).getExpression());
-        }
-        for (String expression : expressionList) {
-            if (expression != null) {
-                final ProductManager productManager = visatApp.getProductManager();
-                final int productIndex = productManager.getProductIndex(selectedProductNode.getProduct());
-                final Product[] products = productManager.getProducts();
-                try {
-                    BandArithmetic.parseExpression(expression, products, productIndex);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                    VisatApp.getApp().showErrorDialog(MessageFormat.format("Failed to create image view.\n " +
-                                                                           "The expression ''{0}'' is invalid:\n\n{1}",
-                                                                           expression, e.getMessage()));
-                    return;
-                }
-            }
-        }
+        VisatApp.getApp().setStatusBarMessage("Opening image view...");
+        UIUtils.setRootFrameWaitCursor(VisatApp.getApp().getMainFrame());
 
-        final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(visatApp.getMainFrame(),
-                                                                                             visatApp.getAppName() + " - Creating image for '" + selectedProductNode.getName() + "'") {
+        String progressMonitorTitle = MessageFormat.format("{0} - Creating image for ''{1}''",
+                                                           VisatApp.getApp().getAppName(),
+                                                           selectedProductNode.getName());
+
+        SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(VisatApp.getApp().getMainFrame(),
+                                                                                       progressMonitorTitle) {
 
             @Override
             protected ProductSceneImage doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
@@ -101,20 +83,20 @@ public class ShowImageViewAction extends ExecCommand {
 
             @Override
             public void done() {
-                UIUtils.setRootFrameDefaultCursor(visatApp.getMainFrame());
-                visatApp.clearStatusBarMessage();
-
+                UIUtils.setRootFrameDefaultCursor(VisatApp.getApp().getMainFrame());
+                VisatApp.getApp().clearStatusBarMessage();
                 try {
                     ProductSceneView view = new ProductSceneView(get());
                     openInternalFrame(view);
                 } catch (OutOfMemoryError ignored) {
-                    visatApp.showOutOfMemoryErrorDialog("The image view could not be created.");
+                    VisatApp.getApp().showOutOfMemoryErrorDialog("Failed to open image view.");
                 } catch (Exception e) {
-                    visatApp.handleUnknownException(e);
+                    VisatApp.getApp().showErrorDialog(MessageFormat.format("Failed to open image view.\n\n{0}", e.getMessage()));
                 }
             }
         };
-        visatApp.getExecutorService().submit(worker);
+
+        VisatApp.getApp().getExecutorService().submit(worker);
     }
 
     public JInternalFrame openInternalFrame(final ProductSceneView view) {
@@ -136,7 +118,7 @@ public class ShowImageViewAction extends ExecCommand {
             @Override
             public void nodeChanged(final ProductNodeEvent event1) {
                 if (event1.getSourceNode() == selectedProductNode &&
-                    event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                        event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
                     internalFrame.setTitle(createInternalFrameTitle(selectedProductNode));
                 }
             }
@@ -166,25 +148,26 @@ public class ShowImageViewAction extends ExecCommand {
     private ProductSceneImage createProductSceneImage(final RasterDataNode raster, ProgressMonitor pm) {
         Debug.assertNotNull(raster);
         Debug.assertNotNull(pm);
-        final VisatApp app = VisatApp.getApp();
 
-        ProductSceneImage sceneImage = null;
         try {
             pm.beginTask("Creating image...", 1);
-            final JInternalFrame[] frames = app.findInternalFrames(raster, 1);
+            JInternalFrame[] frames = VisatApp.getApp().findInternalFrames(raster, 1);
+            ProductSceneImage sceneImage;
             if (frames.length > 0) {
-                final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
+                ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
                 sceneImage = new ProductSceneImage(raster, view);
             } else {
-                sceneImage = new ProductSceneImage(raster, app.getPreferences(), SubProgressMonitor.create(pm, 1));
+                sceneImage = new ProductSceneImage(raster,
+                                                   VisatApp.getApp().getPreferences(),
+                                                   SubProgressMonitor.create(pm, 1));
             }
             sceneImage.initVectorDataCollectionLayer();
             sceneImage.initMaskCollectionLayer();
+            return sceneImage;
         } finally {
             pm.done();
         }
 
-        return sceneImage;
     }
 
     @Override
