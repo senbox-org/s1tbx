@@ -24,7 +24,6 @@ import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -51,11 +50,36 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This write operator stores the source product to the specified file location on the hard disc.
- * <br/>
- * When using GPT with a graph-file, instances of <code>WriteOp</code> are appended to leaf nodes.
- * This means, that it is not necessary to include nodes for writing in a graph.
- * But it can be used, to store results of non-leaf nodes.
+ * This standard operator is used to store a data product to a specified file location.
+ * <p/>
+ * It is used by the framework, e.g. the {@code gpt} command line tool, to write target products.
+ * <p/>
+ * It may also be used by clients to write out break-point product files. This is done by placing
+ * a {@code WriteOp} node after any node in a processing graph:
+ *
+ * <pre>
+ * &lt;node id="anyNodeId"&gt;
+ *     &lt;operator&gt;Write&lt;/operator&gt;
+ *     &lt;sources&gt;
+ *         &lt;source&gt;${anySourceNodeId}&lt;/source&gt;
+ *     &lt;/sources&gt;
+ *     &lt;parameters&gt;
+ *         &lt;file&gt;/home/norman/eo-data/output/test.nc&lt;/file&gt;
+ *         &lt;formatName&gt;NetCDF&lt;/formatName&gt;
+ *         &lt;deleteOutputOnFailure&gt;true&lt;/deleteOutputOnFailure&gt;
+ *         &lt;writeEntireTileRows&gt;true&lt;/writeEntireTileRows&gt;
+ *         &lt;clearCacheAfterRowWrite&gt;true&lt;/clearCacheAfterRowWrite&gt;
+ *     &lt;/parameters&gt;
+ * &lt;/node&gt;
+ * </pre>
+ *
+ * Clients may also use this operator in a programmatic way:
+ * <pre>
+ *   WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
+ *   writeOp.setDeleteOutputOnFailure(true);
+ *   writeOp.setWriteEntireTileRows(true);
+ *   writeOp.writeProduct(progressMonitor);
+ * </pre>
  */
 @OperatorMetadata(alias = "Write",
                   version = "1.3",
@@ -163,10 +187,10 @@ public class WriteOp extends Operator {
 
     /**
      * Writes the source product.
+     *
      * @param pm A progress monitor.
      */
     public void writeProduct(ProgressMonitor pm) {
-        setWriteEntireTileRows(true);
         OperatorExecutor operatorExecutor = OperatorExecutor.create(this);
         try {
             operatorExecutor.execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
@@ -357,6 +381,7 @@ public class WriteOp extends Operator {
     @Deprecated
     public static void writeProduct(Product sourceProduct, File file, String formatName, ProgressMonitor pm) {
         WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
+        writeOp.setWriteEntireTileRows(true);
         writeOp.writeProduct(pm);
     }
 
