@@ -248,7 +248,7 @@ public class CommandLineToolGraphTest extends TestCase {
         }
 
         @Override
-        public void writeProduct(Product targetProduct, String filePath, String formatName) throws IOException {
+        public void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException {
             logString += "t" + writeProductCounter + "=" + filePath + ";";
             writeProductCounter++;
         }

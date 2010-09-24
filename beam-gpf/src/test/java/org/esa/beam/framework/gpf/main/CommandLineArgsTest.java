@@ -35,12 +35,12 @@ public class CommandLineArgsTest extends TestCase {
     private static final int M = 1024 * 1024;
 
     public void testArgsCloned() throws Exception {
-        String[] args = new String[]{"MapProj", "ProjTarget.dim", "UnProjSource.dim"};
+        String[] args = new String[]{"Reproject", "ProjTarget.dim", "UnProjSource.dim"};
         CommandLineArgs lineArgs = new CommandLineArgs(args);
         assertNotNull(lineArgs.getArgs());
         assertTrue(args != lineArgs.getArgs());
         assertEquals(3, lineArgs.getArgs().length);
-        assertEquals("MapProj", lineArgs.getArgs()[0]);
+        assertEquals("Reproject", lineArgs.getArgs()[0]);
     }
 
     public void testNoArgsRequestsHelp() throws Exception {
@@ -50,10 +50,10 @@ public class CommandLineArgsTest extends TestCase {
     }
 
     public void testHelpOption() throws Exception {
-        CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"MapProj", "-h"});
+        CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"Reproject", "-h"});
         lineArgs.parseArguments();
         assertEquals(true, lineArgs.isHelpRequested());
-        assertEquals("MapProj", lineArgs.getOperatorName());
+        assertEquals("Reproject", lineArgs.getOperatorName());
         assertEquals(null, lineArgs.getGraphFilepath());
         assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
@@ -63,10 +63,10 @@ public class CommandLineArgsTest extends TestCase {
     }
 
     public void testOpOnly() throws Exception {
-        CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"MapProj"});
+        CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"Reproject"});
         lineArgs.parseArguments();
         assertEquals(false, lineArgs.isHelpRequested());
-        assertEquals("MapProj", lineArgs.getOperatorName());
+        assertEquals("Reproject", lineArgs.getOperatorName());
         assertEquals(null, lineArgs.getGraphFilepath());
         assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
@@ -76,9 +76,9 @@ public class CommandLineArgsTest extends TestCase {
     }
 
     public void testOpWithSource() throws Exception {
-        CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"MapProj", "source.dim"});
+        CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"Reproject", "source.dim"});
         lineArgs.parseArguments();
-        assertEquals("MapProj", lineArgs.getOperatorName());
+        assertEquals("Reproject", lineArgs.getOperatorName());
         assertEquals(null, lineArgs.getGraphFilepath());
         assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
@@ -90,9 +90,9 @@ public class CommandLineArgsTest extends TestCase {
     }
 
     public void testOpWithTargetAndSource() throws Exception {
-        CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"MapProj", "-t", "output.dim", "source.dim"});
+        CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"Reproject", "-t", "output.dim", "source.dim"});
         lineArgs.parseArguments();
-        assertEquals("MapProj", lineArgs.getOperatorName());
+        assertEquals("Reproject", lineArgs.getOperatorName());
         assertEquals(null, lineArgs.getGraphFilepath());
         assertEquals("output.dim", lineArgs.getTargetFilepath());
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
@@ -129,23 +129,23 @@ public class CommandLineArgsTest extends TestCase {
     }
 
     public void testFormatDetection() throws Exception {
-        CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"MapProj", "-t", "target.dim", "source.dim"});
+        CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"Reproject", "-t", "target.dim", "source.dim"});
         lineArgs.parseArguments();
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
-        lineArgs = new CommandLineArgs(new String[]{"MapProj", "source.dim"});
+        lineArgs = new CommandLineArgs(new String[]{"Reproject", "source.dim"});
         lineArgs.parseArguments();
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
     }
 
     public void testFormatOption() throws Exception {
         CommandLineArgs lineArgs;
-        lineArgs = new CommandLineArgs(new String[]{"MapProj", "-t", "target.h5", "-f", "HDF-5", "source.dim"});
+        lineArgs = new CommandLineArgs(new String[]{"Reproject", "-t", "target.h5", "-f", "HDF-5", "source.dim"});
         lineArgs.parseArguments();
         assertEquals("HDF-5", lineArgs.getTargetFormatName());
-        lineArgs = new CommandLineArgs(new String[]{"MapProj", "-f", "GeoTIFF", "-t", "target.tif", "source.dim"});
+        lineArgs = new CommandLineArgs(new String[]{"Reproject", "-f", "GeoTIFF", "-t", "target.tif", "source.dim"});
         lineArgs.parseArguments();
         assertEquals("GeoTIFF", lineArgs.getTargetFormatName());
-        lineArgs = new CommandLineArgs(new String[]{"MapProj", "-f", "BEAM-DIMAP", "-t", "target.dim", "source.dim"});
+        lineArgs = new CommandLineArgs(new String[]{"Reproject", "-f", "BEAM-DIMAP", "-t", "target.dim", "source.dim"});
         lineArgs.parseArguments();
         assertEquals("BEAM-DIMAP", lineArgs.getTargetFormatName());
     }
@@ -153,7 +153,7 @@ public class CommandLineArgsTest extends TestCase {
 
     public void testParameterOptions() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{
-                "MapProj",
+                "Reproject",
                 "-PpixelSizeX=0.02",
                 "-PpixelSizeY=0.03",
                 "-PpixelOffsetX=0.5",
@@ -170,7 +170,7 @@ public class CommandLineArgsTest extends TestCase {
 
     public void testParameterFileOption() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{
-                "MapProj",
+                "Reproject",
                 "source.dim",
                 "-p",
                 "param.properties",
@@ -179,21 +179,33 @@ public class CommandLineArgsTest extends TestCase {
         assertEquals("param.properties", lineArgs.getParameterFilepath());
     }
 
-    public void testTileCacheOption() throws Exception {
+    public void testClearCacheAfterRowWrite() throws Exception {
         CommandLineArgs lineArgs;
-        final long maxMem = Runtime.getRuntime().maxMemory();
 
         // test default value
         lineArgs = new CommandLineArgs(new String[]{
-                "MapProj",
+                "Reproject",
+                "-x",
+        });
+        
+        lineArgs.parseArguments();
+        assertEquals(true, lineArgs.isClearCacheAfterRowWrite());
+    }
+    
+    public void testTileCacheOption() throws Exception {
+        CommandLineArgs lineArgs;
+
+        // test default value
+        lineArgs = new CommandLineArgs(new String[]{
+                "Reproject",
                 "source.dim",
         });
         lineArgs.parseArguments();
-        assertEquals(Math.max(512 * M, maxMem / (2 * M)), lineArgs.getTileCacheCapacity());
+        assertEquals(512 * M, lineArgs.getTileCacheCapacity());
 
         // test some valid value
         lineArgs = new CommandLineArgs(new String[]{
-                "MapProj",
+                "Reproject",
                 "source.dim",
                 "-c",
                 "16M",
@@ -203,7 +215,7 @@ public class CommandLineArgsTest extends TestCase {
 
         // test some valid value
         lineArgs = new CommandLineArgs(new String[]{
-                "MapProj",
+                "Reproject",
                 "source.dim",
                 "-c",
                 "16000K",
@@ -213,48 +225,36 @@ public class CommandLineArgsTest extends TestCase {
 
         // test some valid value
         lineArgs = new CommandLineArgs(new String[]{
-                "MapProj",
+                "Reproject",
                 "source.dim",
                 "-c",
-                "16000000",
+                "16000002",
         });
         lineArgs.parseArguments();
-        assertEquals(16000000, lineArgs.getTileCacheCapacity());
+        assertEquals(16000002, lineArgs.getTileCacheCapacity());
 
-        // test 100% is within range
+        // test zero
         lineArgs = new CommandLineArgs(new String[]{
-                "MapProj",
+                "Reproject",
                 "source.dim",
                 "-c",
-                (maxMem / M) + "",
+                "0",
         });
         lineArgs.parseArguments();
-        assertEquals(maxMem / M, lineArgs.getTileCacheCapacity());
+        assertEquals(0, lineArgs.getTileCacheCapacity());
 
-        // test min value
+        // test zero or less
         try {
-            CommandLineArgs commandLineArgs = new CommandLineArgs(new String[]{
-                    "MapProj",
+            lineArgs = new CommandLineArgs(new String[]{
+                    "Reproject",
                     "source.dim",
                     "-c",
-                    "0",
+                    "-6",
             });
-            commandLineArgs.parseArguments();
-            fail("Exception expected (interval?)");
+            lineArgs.parseArguments();
+            fail("Exception expected");
         } catch (Exception e) {
-        }
-
-        // test max value exceeded
-        try {
-            CommandLineArgs commandLineArgs = new CommandLineArgs(new String[]{
-                    "MapProj",
-                    "source.dim",
-                    "-c",
-                    (maxMem / M + 1) + "M",
-            });
-            commandLineArgs.parseArguments();
-            fail("Exception expected, (interval?)");
-        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("negative"));
         }
     }
 
@@ -280,7 +280,7 @@ public class CommandLineArgsTest extends TestCase {
 
     public void testSourceOptions() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{
-                "MapProj",
+                "Reproject",
                 "-SndviProduct=./inp/NDVI.dim",
                 "-ScloudProduct=./inp/cloud-mask.dim",
                 "-Pthreshold=5.0",
@@ -295,7 +295,7 @@ public class CommandLineArgsTest extends TestCase {
 
     public void testMultiSourceOptions() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{
-                "MapProj",
+                "Reproject",
                 "-Sndvi=./inp/NDVI.dim",
                 "./inp/cloud-mask.dim",
                 "source.dim",
@@ -364,13 +364,13 @@ public class CommandLineArgsTest extends TestCase {
     }
 
     public void testFailures() {
-        testFailure(new String[]{"MapProj", "-p"}, "Option argument missing");
-        testFailure(new String[]{"MapProj", "-f"}, "Option argument missing");
-        testFailure(new String[]{"MapProj", "-t", "out.tammomat"}, "Output format unknown");
-        testFailure(new String[]{"MapProj", "-ö"}, "Unknown option '-ö'");
-        testFailure(new String[]{"MapProj", "-P=9"}, "Empty identifier");
-        testFailure(new String[]{"MapProj", "-Pobelix10"}, "Missing '='");
-        testFailure(new String[]{"MapProj", "-Tsubset=subset.dim",}, "Only valid with a given graph XML");
+        testFailure(new String[]{"Reproject", "-p"}, "Option argument missing");
+        testFailure(new String[]{"Reproject", "-f"}, "Option argument missing");
+        testFailure(new String[]{"Reproject", "-t", "out.tammomat"}, "Output format unknown");
+        testFailure(new String[]{"Reproject", "-ö"}, "Unknown option '-ö'");
+        testFailure(new String[]{"Reproject", "-P=9"}, "Empty identifier");
+        testFailure(new String[]{"Reproject", "-Pobelix10"}, "Missing '='");
+        testFailure(new String[]{"Reproject", "-Tsubset=subset.dim",}, "Only valid with a given graph XML");
     }
 
     private void testFailure(String[] args, String reason) {

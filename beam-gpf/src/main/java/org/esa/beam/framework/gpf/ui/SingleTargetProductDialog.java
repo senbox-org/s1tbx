@@ -285,9 +285,11 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             Product product = null;
             try {
                 long t0 = System.currentTimeMillis();
-                WriteOp.writeProduct(targetProduct,
-                                     model.getProductFile(),
-                                     model.getFormatName(), SubProgressMonitor.create(pm, 95));
+                WriteOp writeOp = new WriteOp(targetProduct, model.getProductFile(), model.getFormatName());
+                writeOp.setDeleteOutputOnFailure(true);
+                writeOp.setWriteEntireTileRows(true);
+                writeOp.setClearCacheAfterRowWrite(false);
+                writeOp.writeProduct(SubProgressMonitor.create(pm, 95));
                 saveTime = System.currentTimeMillis() - t0;
                 if (model.isOpenInAppSelected()) {
                     product = ProductIO.readProduct(model.getProductFile());

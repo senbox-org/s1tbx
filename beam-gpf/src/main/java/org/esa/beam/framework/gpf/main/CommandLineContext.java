@@ -27,7 +27,7 @@ import java.util.Map;
 interface CommandLineContext {
     Product readProduct(String productFilepath) throws IOException;
 
-    void writeProduct(Product targetProduct, String filePath, String formatName) throws IOException;
+    void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException;
 
     Graph readGraph(String filepath, Map<String, String> parameterMap) throws GraphException, IOException;
 

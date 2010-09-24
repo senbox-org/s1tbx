@@ -16,7 +16,6 @@
 
 package org.esa.beam.framework.gpf.main;
 
-import com.bc.ceres.binding.ValueRange;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -44,6 +43,7 @@ class CommandLineArgs {
     private TreeMap<String, String> targetFilepathMap;
     private boolean helpRequested;
     private boolean stackTraceDump;
+    private boolean clearCacheAfterRowWrite;
     private long tileCacheCapacity;
     private static final int K = 1024;
     private static final int M = K * 1024;
@@ -58,11 +58,11 @@ class CommandLineArgs {
         sourceFilepathMap = new TreeMap<String, String>();
         targetFilepathMap = new TreeMap<String, String>();
         parameterMap = new TreeMap<String, String>();
-        tileCacheCapacity = Math.max(512 * M, Runtime.getRuntime().maxMemory() / (2 * M));
+        tileCacheCapacity = CommandLineTool.DEFAULT_TILE_CACHE_SIZE_IN_M * M;
         
         // look for "-e" early do enable verbose error reports 
-        for (int i = 0; i < this.args.length; i++) {
-            if (this.args[i].equals("-e")) {
+        for (String arg : this.args) {
+            if (arg.equals("-e")) {
                 stackTraceDump = true;
             }
         }
@@ -84,6 +84,8 @@ class CommandLineArgs {
                     targetFilepathMap.put(pair[0], pair[1]);
                 } else if (arg.equals("-h")) {
                     helpRequested = true;
+                } else if (arg.equals("-x")) {
+                    clearCacheAfterRowWrite = true;
                 } else if (arg.equals("-e")) {
                     // already parsed
                 } else if (arg.equals("-t")) {
@@ -96,9 +98,7 @@ class CommandLineArgs {
                     parameterFilepath = parseOptionArgument(arg, i);
                     i++;
                 } else if (arg.equals("-c")) {
-                    final long maxMem = (Runtime.getRuntime().maxMemory() / M) * M;
-                    final String intervalString = "(0, " + maxMem + "]";
-                    tileCacheCapacity = parseOptionArgumentBytes(arg, i, ValueRange.parseValueRange(intervalString));
+                    tileCacheCapacity = parseOptionArgumentBytes(arg, i);
                     i++;
                 } else {
                     throw error("Unknown option '" + arg + "'");
@@ -175,6 +175,10 @@ class CommandLineArgs {
         return tileCacheCapacity;
     }
 
+    public boolean isClearCacheAfterRowWrite() {
+        return clearCacheAfterRowWrite;
+    }
+
     public SortedMap<String, String> getParameterMap() {
         return parameterMap;
     }
@@ -203,9 +207,9 @@ class CommandLineArgs {
         }
     }
 
-    private int parseOptionArgumentBytes(String arg, int index, ValueRange valueRange) throws Exception {
+    private long parseOptionArgumentBytes(String arg, int index) throws Exception {
         String valueString = parseOptionArgument(arg, index);
-        int factor;
+        long factor = 1;
         if (valueString.toUpperCase().endsWith("K")) {
             factor = K;
             valueString = valueString.substring(0, valueString.length() - 1);
@@ -215,15 +219,13 @@ class CommandLineArgs {
         } else if (valueString.toUpperCase().endsWith("G")) {
             factor = G;
             valueString = valueString.substring(0, valueString.length() - 1);
-        } else {
-            factor = 1;
         }
 
-        final int value = Integer.parseInt(valueString) * factor;
-        if (!valueRange.contains(value)) {
-            throw new Exception(MessageFormat.format("Value ''{0}'' for ''{1}'' is not in the interval {2}", String.valueOf(value), arg, valueRange));
+        long value = Long.parseLong(valueString);
+        if (value < 0L) {
+            throw error(MessageFormat.format("Value for ''{0}'' must not be negative", arg));
         }
-        return value;
+        return factor * value;
     }
 
     private String[] parseNameValuePair(String arg) throws Exception {
