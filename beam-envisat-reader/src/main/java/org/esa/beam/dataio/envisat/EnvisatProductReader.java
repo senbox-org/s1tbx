@@ -60,8 +60,11 @@ import java.util.logging.Logger;
  */
 public class EnvisatProductReader extends AbstractProductReader {
 
+    /** @since BEAM 4.9 */
     private static final String SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING = "beam.envisat.usePixelGeoCoding";
+    /** @since BEAM 4.9 */
     private static final String SYSPROP_ENVISAT_TILE_WIDTH = "beam.envisat.tileWidth";
+    /** @since BEAM 4.9 */
     private static final String SYSPROP_ENVISAT_TILE_HEIGHT = "beam.envisat.tileHeight";
 
     @Deprecated
