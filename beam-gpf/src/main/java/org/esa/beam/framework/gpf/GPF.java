@@ -89,6 +89,7 @@ public class GPF {
     public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
 
     private static GPF defaultInstance = new GPF();
+
     private OperatorSpiRegistry spiRegistry;
 
     protected GPF() {
@@ -200,8 +201,8 @@ public class GPF {
         if (sourceProducts.length > 0) {
             sourceProductMap = new HashMap<String, Product>(sourceProducts.length);
             OperatorSpi operatorSpi = GPF.getDefaultInstance().spiRegistry.getOperatorSpi(operatorName);
-            if(operatorSpi == null) {
-                throw new OperatorException(String.format("Operator for '%s' not found. Maybe OperatorSpi is not loaded.", operatorName));
+            if (operatorSpi == null) {
+                throw new OperatorException(String.format("Unknown operator '%s'. Note that operator aliases are case sensitive.", operatorName));
             }
             Field[] declaredFields = operatorSpi.getOperatorClass().getDeclaredFields();
             for (Field declaredField : declaredFields) {
