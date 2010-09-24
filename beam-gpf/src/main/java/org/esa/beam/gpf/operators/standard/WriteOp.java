@@ -37,6 +37,8 @@ import org.esa.beam.framework.gpf.internal.OperatorExecutor.ExecutionOrder;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.math.MathUtils;
 
+import javax.media.jai.JAI;
+import javax.media.jai.TileCache;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -48,14 +50,39 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This write operator stores the source product to the specified file location on the hard disc.
- * <br/>
- * When using GPT with a graph-file, instances of <code>WriteOp</code> are appended to leaf nodes.
- * This means, that it is not necessary to include nodes for writing in a graph.
- * But it can be used, to store results of non-leaf nodes.
+ * This standard operator is used to store a data product to a specified file location.
+ * <p/>
+ * It is used by the framework, e.g. the {@code gpt} command line tool, to write target products.
+ * <p/>
+ * It may also be used by clients to write out break-point product files. This is done by placing
+ * a {@code WriteOp} node after any node in a processing graph:
+ *
+ * <pre>
+ * &lt;node id="anyNodeId"&gt;
+ *     &lt;operator&gt;Write&lt;/operator&gt;
+ *     &lt;sources&gt;
+ *         &lt;source&gt;${anySourceNodeId}&lt;/source&gt;
+ *     &lt;/sources&gt;
+ *     &lt;parameters&gt;
+ *         &lt;file&gt;/home/norman/eo-data/output/test.nc&lt;/file&gt;
+ *         &lt;formatName&gt;NetCDF&lt;/formatName&gt;
+ *         &lt;deleteOutputOnFailure&gt;true&lt;/deleteOutputOnFailure&gt;
+ *         &lt;writeEntireTileRows&gt;true&lt;/writeEntireTileRows&gt;
+ *         &lt;clearCacheAfterRowWrite&gt;true&lt;/clearCacheAfterRowWrite&gt;
+ *     &lt;/parameters&gt;
+ * &lt;/node&gt;
+ * </pre>
+ *
+ * Clients may also use this operator in a programmatic way:
+ * <pre>
+ *   WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
+ *   writeOp.setDeleteOutputOnFailure(true);
+ *   writeOp.setWriteEntireTileRows(true);
+ *   writeOp.writeProduct(progressMonitor);
+ * </pre>
  */
 @OperatorMetadata(alias = "Write",
-                  version="1.2",
+                  version = "1.3",
                   authors = "Marco Zuehlke, Norman Fomferra",
                   copyright = "(c) 2010 by Brockmann Consult",
                   description = "Writes a data product to a file.")
@@ -63,20 +90,31 @@ public class WriteOp extends Operator {
 
     @TargetProduct
     private Product targetProduct;
+
     @SourceProduct(alias = "source", description = "The source product to be written.")
     private Product sourceProduct;
 
     @Parameter(description = "The output file to which the data product is written.")
     private File file;
+
     @Parameter(defaultValue = ProductIO.DEFAULT_FORMAT_NAME,
                description = "The name of the output file format.")
     private String formatName;
+
     @Parameter(defaultValue = "true",
                description = "If true, all output files are deleted after a failed write operation.")
     private boolean deleteOutputOnFailure;
+
     @Parameter(defaultValue = "true",
-               description = "If true, the write operation waits until all tiles in a row have been computed before writing.")
+               description = "If true, the write operation waits until an entire tile row is computed.")
     private boolean writeEntireTileRows;
+
+    /**
+     * @since BEAM 4.9
+     */
+    @Parameter(defaultValue = "false",
+               description = "If true, the internal tile cache is cleared after a tile row has been written. Ignored if writeEntireTileRows=false.")
+    private boolean clearCacheAfterRowWrite;
 
     private final Map<MultiLevelImage, List<Point>> todoLists = new HashMap<MultiLevelImage, List<Point>>();
     private final Map<Row, Tile[]> writeCache = new HashMap<Row, Tile[]>();
@@ -92,15 +130,81 @@ public class WriteOp extends Operator {
     }
 
     public WriteOp(Product sourceProduct, File file, String formatName) {
-        this(sourceProduct, file, formatName, true);
-    }
-
-    public WriteOp(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure) {
         this();
         this.sourceProduct = sourceProduct;
         this.file = file;
         this.formatName = formatName;
+    }
+
+    /**
+     * @deprecated since BEAM 4.9
+     */
+    @Deprecated
+    public WriteOp(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure) {
+        this(sourceProduct, file, formatName);
         this.deleteOutputOnFailure = deleteOutputOnFailure;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
+
+    public String getFormatName() {
+        return formatName;
+    }
+
+    public void setFormatName(String formatName) {
+        this.formatName = formatName;
+    }
+
+    public boolean isDeleteOutputOnFailure() {
+        return deleteOutputOnFailure;
+    }
+
+    public void setDeleteOutputOnFailure(boolean deleteOutputOnFailure) {
+        this.deleteOutputOnFailure = deleteOutputOnFailure;
+    }
+
+    public boolean isWriteEntireTileRows() {
+        return writeEntireTileRows;
+    }
+
+    public void setWriteEntireTileRows(boolean writeEntireTileRows) {
+        this.writeEntireTileRows = writeEntireTileRows;
+    }
+
+    public boolean isClearCacheAfterRowWrite() {
+        return clearCacheAfterRowWrite;
+    }
+
+    public void setClearCacheAfterRowWrite(boolean clearCacheAfterRowWrite) {
+        this.clearCacheAfterRowWrite = clearCacheAfterRowWrite;
+    }
+
+    /**
+     * Writes the source product.
+     *
+     * @param pm A progress monitor.
+     */
+    public void writeProduct(ProgressMonitor pm) {
+        OperatorExecutor operatorExecutor = OperatorExecutor.create(this);
+        try {
+            operatorExecutor.execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
+        } catch (OperatorException e) {
+            try {
+                productWriter.deleteOutput();
+            } catch (Exception e2) {
+                getLogger().warning("Failed to delete output after failure: " + e2.getMessage());
+            }
+            throw e;
+        } finally {
+            logPerformanceAnalysis();
+            dispose();
+        }
     }
 
     @Override
@@ -214,6 +318,12 @@ public class WriteOp extends Operator {
                 }
                 productWriter.writeBandRasterData(band, 0, y, sceneWidth, 1, sampleLine, ProgressMonitor.NULL);
             }
+            if (clearCacheAfterRowWrite) {
+                TileCache tileCache = JAI.getDefaultInstance().getTileCache();
+                if (tileCache != null) {
+                    tileCache.flush();
+                }
+            }
         }
     }
 
@@ -265,6 +375,48 @@ public class WriteOp extends Operator {
         return todoList;
     }
 
+    /**
+     * @deprecated since BEAM 4.9
+     */
+    @Deprecated
+    public static void writeProduct(Product sourceProduct, File file, String formatName, ProgressMonitor pm) {
+        WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
+        writeOp.setWriteEntireTileRows(true);
+        writeOp.writeProduct(pm);
+    }
+
+    /**
+     * @deprecated since BEAM 4.9
+     */
+    @Deprecated
+    public static void writeProduct(Product sourceProduct,
+                                    File file,
+                                    String formatName,
+                                    boolean deleteOutputOnFailure,
+                                    ProgressMonitor pm) {
+        WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
+        writeOp.setDeleteOutputOnFailure(deleteOutputOnFailure);
+        writeOp.setWriteEntireTileRows(true);
+        writeOp.writeProduct(pm);
+    }
+
+    /**
+     * @deprecated since BEAM 4.9
+     */
+    @Deprecated
+    public static void writeProduct(Product sourceProduct,
+                                    File file,
+                                    String formatName,
+                                    boolean deleteOutputOnFailure,
+                                    boolean writeEntireTileRows,
+                                    ExecutionOrder executionOrder,
+                                    ProgressMonitor pm) {
+        WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
+        writeOp.setDeleteOutputOnFailure(deleteOutputOnFailure);
+        writeOp.setWriteEntireTileRows(writeEntireTileRows);
+        writeOp.writeProduct(pm);
+    }
+
     @Override
     public void dispose() {
         try {
@@ -281,46 +433,6 @@ public class WriteOp extends Operator {
 
         public Spi() {
             super(WriteOp.class);
-        }
-    }
-
-    public static void writeProduct(Product sourceProduct, File file, String formatName, ProgressMonitor pm) {
-        writeProduct(sourceProduct, file, formatName, true, pm);
-    }
-
-    public static void writeProduct(Product sourceProduct,
-                                    File file,
-                                    String formatName,
-                                    boolean deleteOutputOnFailure,
-                                    ProgressMonitor pm) {
-        boolean writeEntireTileRows = true;
-        ExecutionOrder executionOrder = ExecutionOrder.ROW_BAND_COLUMN;
-        writeProduct(sourceProduct, file, formatName, deleteOutputOnFailure, writeEntireTileRows, executionOrder, pm);
-    }
-        
-    public static void writeProduct(Product sourceProduct,
-                                        File file,
-                                        String formatName,
-                                        boolean deleteOutputOnFailure,
-                                        boolean writeEntireTileRows,
-                                        ExecutionOrder executionOrder, ProgressMonitor pm) {
-
-        final WriteOp writeOp = new WriteOp(sourceProduct, file, formatName, deleteOutputOnFailure);
-        writeOp.writeEntireTileRows = writeEntireTileRows;
-        OperatorExecutor operatorExecutor = OperatorExecutor.create(writeOp);
-        try {
-            operatorExecutor.execute(executionOrder, pm);
-        } catch (OperatorException e) {
-            if (deleteOutputOnFailure) {
-                try {
-                    writeOp.productWriter.deleteOutput();
-                } catch (IOException ignored) {
-                }
-            }
-            throw e;
-        } finally {
-            writeOp.logPerformanceAnalysis();
-            writeOp.dispose();
         }
     }
 
@@ -356,4 +468,5 @@ public class WriteOp extends Operator {
 
 
     }
+
 }

@@ -2,45 +2,50 @@ Usage:
   {0} <op>|<graph-file> [options] [<source-file-1> <source-file-2> ...]
 
 Description:
-  This tool is used to execute BEAM raster data operators in batch-mode.
-  The operators can be used stand-alone or combined as a directed acyclic
-  graph (DAG). Processing graphs are represented using XML. More info
-  about processing graphs, the operator API, and the graph XML format can
-  be found in the BEAM documentation.
+  This tool is used to execute BEAM raster data operators in batch-mode. The
+  operators can be used stand-alone or combined as a directed acyclic graph
+  (DAG). Processing graphs are represented using XML. More info about
+  processing graphs, the operator API, and the graph XML format can be found
+  in the BEAM documentation.
 
 Arguments:
   <op>               Name of an operator. See below for the list of <op>s.
   <graph-file>       Operator graph file (XML format).
-  <source-file-i>    The <i>th source product file. The actual number of
-                     source file arguments is specified by <op>. May be
-                     optional for operators which use the '-S' option.
+  <source-file-i>    The <i>th source product file. The actual number of source
+                     file arguments is specified by <op>. May be optional for
+                     operators which use the '-S' option.
 
 Options:
   -h                 Displays command usage. If <op> is given, the specific
                      operator usage is displayed.
+  -e                 Displays more detailed error messages. Displays a stack
+                     trace, if an exception occurs.
   -t <file>          The target file. Default value is ''{1}''.
-  -c <cache-size>    Sets the tile cache size in bytes. Must be greater zero
-                     and less than maximum available heap space.
-                     Value can be suffixed with ''K'', ''M'' and ''G''.
   -f <format>        Output file format, e.g. ''GeoTIFF'', ''HDF5'',
-                     ''BEAM-DIMAP''. If not specified, format will be
-                     derived from the target filename extension, if any,
-                     otherwise the default format is ''{2}''.
+                     ''BEAM-DIMAP''. If not specified, format will be derived
+                     from the target filename extension, if any, otherwise the
+                     default format is ''{2}''.
   -p <file>          A (Java Properties) file containing processing
                      parameters in the form <name>=<value>.
-  -T<target>=<file>  Defines a target product. Valid for graphs only.
-                     <target> must be the identifier of a node in the graph.
-                     The node''s output will be written to <file>.
-  -S<source>=<file>  Defines a source product. <source> is specified by
-                     the operator or the graph. In an XML graph, all
-                     occurences of $'{<source>'} will be replaced with
-                     references to a source product located at <file>.
-  -P<name>=<value>   Defines a processing parameter, <name> is specified by
-                     the operator or the graph. In an XML graph, all
-                     occurences of $'{<name>'} will be replaced with <value>.
-                     Overwrites parameter values specified by the ''-p''
-                     option.
-  -e                 Displays Java stack trace, if an error occurs.
+  -c <cache-size>    Sets the tile cache size in bytes. Value can be suffixed
+                     with ''K'', ''M'' and ''G''. Must be less than maximum
+                     available heap space. If equal to or less than zero, tile
+                     caching will be completely disabled. The default tile
+                     cache size is ''{3}M''.
+  -x                 Clears the internal tile cache after writing a complete
+                     row of tiles to the target product file. This option may
+                     be useful if you run into memory problems.
+  -T<target>=<file>  Defines a target product. Valid for graphs only. <target>
+                     must be the identifier of a node in the graph. The node''s
+                     output will be written to <file>.
+  -S<source>=<file>  Defines a source product. <source> is specified by the
+                     operator or the graph. In an XML graph, all occurences of
+                     $'{<source>'} will be replaced with references to a source
+                     product located at <file>.
+  -P<name>=<value>   Defines a processing parameter, <name> is specified by the
+                     operator or the graph. In an XML graph, all occurences of
+                     $'{<name>'} will be replaced with <value>. Overwrites
+                     parameter values specified by the ''-p'' option.
 
 Operators:
-{3}
+{4}

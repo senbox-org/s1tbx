@@ -36,7 +36,6 @@ import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 
 import javax.media.jai.JAI;
-import javax.media.jai.TileCache;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -51,10 +50,12 @@ import java.util.TreeMap;
  */
 class CommandLineTool {
 
-    private final CommandLineContext commandLineContext;
     static final String TOOL_NAME = "gpt";
     static final String DEFAULT_TARGET_FILEPATH = "./target.dim";
     static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
+    static final int DEFAULT_TILE_CACHE_SIZE_IN_M = 512;
+
+    private final CommandLineContext commandLineContext;
 
     static {
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
@@ -104,8 +105,14 @@ class CommandLineTool {
     }
 
     private void run(CommandLineArgs lineArgs) throws ValidationException, ConversionException, IOException, GraphException {
-        TileCache tileCache = JAI.getDefaultInstance().getTileCache();
-        tileCache.setMemoryCapacity(lineArgs.getTileCacheCapacity());
+        long memoryCapacity = lineArgs.getTileCacheCapacity();
+        if (memoryCapacity > 0) {
+            JAI.enableDefaultTileCache();
+            JAI.getDefaultInstance().getTileCache().setMemoryCapacity(memoryCapacity);
+        } else {
+            JAI.getDefaultInstance().getTileCache().setMemoryCapacity(0L);
+            JAI.disableDefaultTileCache();
+        }
 
         if (lineArgs.getOperatorName() != null) {
             Map<String, Object> parameters = getParameterMap(lineArgs);
@@ -114,7 +121,7 @@ class CommandLineTool {
             Product targetProduct = createOpProduct(opName, parameters, sourceProducts);
             String filePath = lineArgs.getTargetFilepath();
             String formatName = lineArgs.getTargetFormatName();
-            writeProduct(targetProduct, filePath, formatName);
+            writeProduct(targetProduct, filePath, formatName, lineArgs.isClearCacheAfterRowWrite());
         } else if (lineArgs.getGraphFilepath() != null) {
             Map<String, String> sourceNodeIdMap = getSourceNodeIdMap(lineArgs);
             Map<String, String> templateMap = new TreeMap<String, String>(sourceNodeIdMap);
@@ -147,6 +154,7 @@ class CommandLineTool {
                 DomElement parameters = new DefaultDomElement("parameters");
                 parameters.createChild("file").setValue(lineArgs.getTargetFilepath());
                 parameters.createChild("formatName").setValue(lineArgs.getTargetFormatName());
+                parameters.createChild("clearCacheAfterRowWrite").setValue(Boolean.toString(lineArgs.isClearCacheAfterRowWrite()));
 
                 Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
                 targetNode.addSource(new NodeSource("source", lastNode.getId()));
@@ -172,8 +180,8 @@ class CommandLineTool {
             if (model != null) {
                 model.setValueFromText(paramValue);
             } else {
-               throw new RuntimeException(String.format(
-                       "Parameter '%s' is not known by operator '%s'", paramName, lineArgs.getOperatorName()));
+                throw new RuntimeException(String.format(
+                        "Parameter '%s' is not known by operator '%s'", paramName, lineArgs.getOperatorName()));
             }
         }
         return parameters;
@@ -229,23 +237,23 @@ class CommandLineTool {
         return nodeId;
     }
 
-    public Product readProduct(String productFilepath) throws IOException {
+    Product readProduct(String productFilepath) throws IOException {
         return commandLineContext.readProduct(productFilepath);
     }
 
-    public void writeProduct(Product targetProduct, String filePath, String formatName) throws IOException {
-        commandLineContext.writeProduct(targetProduct, filePath, formatName);
+    void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException {
+        commandLineContext.writeProduct(targetProduct, filePath, formatName, clearCacheAfterRowWrite);
     }
 
-    public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException, GraphException {
+    Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException, GraphException {
         return commandLineContext.readGraph(filepath, parameterMap);
     }
 
-    public void executeGraph(Graph graph) throws GraphException {
+    void executeGraph(Graph graph) throws GraphException {
         commandLineContext.executeGraph(graph);
     }
 
-    public Map<String, String> readParameterFile(String propertiesFilepath) throws IOException {
+    Map<String, String> readParameterFile(String propertiesFilepath) throws IOException {
         return commandLineContext.readParameterFile(propertiesFilepath);
     }
 

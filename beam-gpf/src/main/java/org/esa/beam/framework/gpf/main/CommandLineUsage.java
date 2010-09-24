@@ -78,10 +78,11 @@ class CommandLineUsage {
         StringBuilder opListText = new StringBuilder(1024);
         appendDocElementList(opListText, docElementList);
         return MessageFormat.format(usagePattern,
-                CommandLineTool.TOOL_NAME,
-                CommandLineTool.DEFAULT_TARGET_FILEPATH,
-                CommandLineTool.DEFAULT_FORMAT_NAME,
-                opListText.toString());
+                                    CommandLineTool.TOOL_NAME,
+                                    CommandLineTool.DEFAULT_TARGET_FILEPATH,
+                                    CommandLineTool.DEFAULT_FORMAT_NAME,
+                                    CommandLineTool.DEFAULT_TILE_CACHE_SIZE_IN_M,
+                                    opListText.toString());
     }
 
     private static String getUsagePattern() {
@@ -116,7 +117,7 @@ class CommandLineUsage {
         } catch (IOException e) {
             return e.getMessage();
         }
-        
+
         final StringBuilder usageText = new StringBuilder(1024);
         final Header header = graph.getHeader();
 
@@ -170,8 +171,8 @@ class CommandLineUsage {
             descriptionLines.add(description);
         } else {
             descriptionLines.add(MessageFormat.format("Sets parameter ''{0}'' to <{1}>.",
-                    parameter.getName(),
-                    parameter.getType()));
+                                                      parameter.getName(),
+                                                      parameter.getType()));
         }
         final String interval = parameter.getInterval();
         if (!(interval == null || interval.isEmpty())) {
@@ -287,7 +288,7 @@ class CommandLineUsage {
             usageText.append("<source-file-1> <source-file-2> <source-file-3>");
         } else if (productsDescriptor.count() > 3) {
             usageText.append(MessageFormat.format("<source-file-1> <source-file-2> ... <source-file-{0}>",
-                    productsDescriptor.count()));
+                                                  productsDescriptor.count()));
         }
     }
 
@@ -338,8 +339,8 @@ class CommandLineUsage {
             descriptionLines.add(parameter.description());
         } else {
             descriptionLines.add(MessageFormat.format("Sets parameter ''{0}'' to <{1}>.",
-                    getParameterName(paramField, parameter),
-                    getTypeName(paramField.getType())));
+                                                      getParameterName(paramField, parameter),
+                                                      getTypeName(paramField.getType())));
         }
         if (!parameter.interval().isEmpty()) {
             descriptionLines.add(MessageFormat.format("Valid interval is {0}.", parameter.interval()));
@@ -452,7 +453,7 @@ class CommandLineUsage {
         for (Field sourceField : operatorClassDescriptor.getSourceProductMap().keySet()) {
             convertSourceProductFieldToDom(sourceField, sourcesElem);
         }
-        if(operatorClassDescriptor.getSourceProducts() != null){
+        if (operatorClassDescriptor.getSourceProducts() != null) {
             final DomElement child = sourcesElem.createChild("sourceProducts");
             child.setValue("${sourceProducts}");
         }

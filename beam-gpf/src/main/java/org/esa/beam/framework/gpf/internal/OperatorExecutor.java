@@ -50,13 +50,13 @@ import javax.media.jai.util.ImagingListener;
 public class OperatorExecutor {
 
     public static OperatorExecutor create(Operator op) {
-        OperatorContext operatorContext = initOperatorContext(op);
-        final Product targetProduct = op.getTargetProduct();
-        final Dimension tileSize = targetProduct.getPreferredTileSize();
+        OperatorContext operatorContext = getOperatorContext(op);
+        Product targetProduct = op.getTargetProduct();
+        Dimension tileSize = targetProduct.getPreferredTileSize();
 
-        final int rasterHeight = targetProduct.getSceneRasterHeight();
-        final int rasterWidth = targetProduct.getSceneRasterWidth();
-        final Rectangle boundary = new Rectangle(rasterWidth, rasterHeight);
+        int rasterHeight = targetProduct.getSceneRasterHeight();
+        int rasterWidth = targetProduct.getSceneRasterWidth();
+        Rectangle boundary = new Rectangle(rasterWidth, rasterHeight);
         int tileCountX = MathUtils.ceilInt(boundary.width / (double) tileSize.width);
         int tileCountY = MathUtils.ceilInt(boundary.height / (double) tileSize.height);
         Band[] targetBands = targetProduct.getBands();
@@ -182,7 +182,7 @@ public class OperatorExecutor {
         }
     }
 
-    private static OperatorContext initOperatorContext(Operator operator) {
+    private static OperatorContext getOperatorContext(Operator operator) {
         try {
             Field field = Operator.class.getDeclaredField("context");
             field.setAccessible(true);

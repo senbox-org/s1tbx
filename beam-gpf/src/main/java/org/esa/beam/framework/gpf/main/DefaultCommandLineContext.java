@@ -46,8 +46,12 @@ class DefaultCommandLineContext implements CommandLineContext {
     }
 
     @Override
-    public void writeProduct(Product targetProduct, String filePath, String formatName) throws IOException {
-        WriteOp.writeProduct(targetProduct, new File(filePath), formatName, ProgressMonitor.NULL);
+    public void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException {
+        WriteOp writeOp = new WriteOp(targetProduct, new File(filePath), formatName);
+        writeOp.setDeleteOutputOnFailure(true);
+        writeOp.setWriteEntireTileRows(true);
+        writeOp.setClearCacheAfterRowWrite(clearCacheAfterRowWrite);
+        writeOp.writeProduct(ProgressMonitor.NULL);
     }
 
     @Override

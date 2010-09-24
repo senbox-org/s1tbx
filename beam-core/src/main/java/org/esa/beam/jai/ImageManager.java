@@ -72,6 +72,7 @@ import javax.media.jai.operator.LookupDescriptor;
 import javax.media.jai.operator.MatchCDFDescriptor;
 import javax.media.jai.operator.MaxDescriptor;
 import javax.media.jai.operator.MinDescriptor;
+import javax.media.jai.operator.MultiplyConstDescriptor;
 import javax.media.jai.operator.RescaleDescriptor;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -103,7 +104,7 @@ import java.util.Set;
  */
 public class ImageManager {
 
-    private static final String CACHE_INTERMEDIATE_TILES_PROPERTY = "beam.imageManager.enableIntermediateTileCaching";
+    private static final boolean CACHE_INTERMEDIATE_TILES = Boolean.getBoolean("beam.imageManager.enableIntermediateTileCaching");
 
     private final Map<MaskKey, MultiLevelImage> maskImageMap = new HashMap<MaskKey, MultiLevelImage>(101);
     private final ProductNodeListener rasterDataChangeListener;
@@ -323,8 +324,8 @@ public class ImageManager {
         Assert.notNull(rasterDataNodes,
                        "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
-                     || rasterDataNodes.length == 3
-                     || rasterDataNodes.length == 4,
+                || rasterDataNodes.length == 3
+                || rasterDataNodes.length == 4,
                      "invalid number of bands");
 
         prepareImageInfos(rasterDataNodes, ProgressMonitor.NULL);
@@ -414,17 +415,35 @@ public class ImageManager {
         if (gamma != 0.0 && gamma != 1.0) {
             byte[] gammaCurve = MathUtils.createGammaCurve(gamma, new byte[256]);
             LookupTableJAI lookupTable = new LookupTableJAI(gammaCurve);
-            image = LookupDescriptor.create(image, lookupTable, createDefaultRenderingHints());
+            image = LookupDescriptor.create(image, lookupTable, createDefaultRenderingHints(image, null));
         }
         return image;
     }
 
-    private static RenderingHints createDefaultRenderingHints() {
-        boolean cacheIntermediateTiles = Boolean.getBoolean(CACHE_INTERMEDIATE_TILES_PROPERTY);
-        if (!cacheIntermediateTiles) {
-            return new RenderingHints(JAI.KEY_TILE_CACHE, null);
+    private static RenderingHints createDefaultRenderingHints(RenderedImage sourceImage, ImageLayout targetImageLayout) {
+        Map<RenderingHints.Key, Object> map = new HashMap<RenderingHints.Key, Object>(7);
+        if (!CACHE_INTERMEDIATE_TILES) {
+            map.put(JAI.KEY_TILE_CACHE, null);
         }
-        return new RenderingHints(null);
+        if (sourceImage != null) {
+            if (targetImageLayout == null) {
+                targetImageLayout = new ImageLayout();
+            }
+            if (!targetImageLayout.isValid(ImageLayout.TILE_GRID_X_OFFSET_MASK)) {
+                targetImageLayout.setTileGridXOffset(sourceImage.getTileGridXOffset());
+            }
+            if (!targetImageLayout.isValid(ImageLayout.TILE_GRID_Y_OFFSET_MASK)) {
+                targetImageLayout.setTileGridYOffset(sourceImage.getTileGridYOffset());
+            }
+            if (!targetImageLayout.isValid(ImageLayout.TILE_WIDTH_MASK)) {
+                targetImageLayout.setTileWidth(sourceImage.getTileWidth());
+            }
+            if (!targetImageLayout.isValid(ImageLayout.TILE_HEIGHT_MASK)) {
+                targetImageLayout.setTileHeight(sourceImage.getTileHeight());
+            }
+            map.put(JAI.KEY_IMAGE_LAYOUT, targetImageLayout);
+        }
+        return new RenderingHints(map);
     }
 
     private static PlanarImage createIndexedImage(RenderedImage sourceImage, IntMap intMap, int undefinedIndex) {
@@ -470,7 +489,7 @@ public class ImageManager {
             table[table.length - 1] = undefinedIndex;
             lookup = new LookupTableJAI(table, keyMin - 1);
         }
-        RenderingHints hints = createDefaultRenderingHints();
+        RenderingHints hints = createDefaultRenderingHints(sourceImage, null);
         sourceImage = ClampDescriptor.create(sourceImage,
                                              new double[]{keyMin - 1},
                                              new double[]{keyMax + 1},
@@ -482,7 +501,7 @@ public class ImageManager {
                                                  RenderedImage[] maskOpImages,
                                                  ImageInfo.HistogramMatching histogramMatching,
                                                  Stx[] stxs) {
-        RenderingHints hints = createDefaultRenderingHints();
+        RenderingHints hints = createDefaultRenderingHints(sourceImages[0], null);
 
         if (histogramMatching == ImageInfo.HistogramMatching.None) {
             ParameterBlock pb = new ParameterBlock();
@@ -519,7 +538,7 @@ public class ImageManager {
     }
 
     private static RenderedImage createMapOp(RenderedImage[] maskOpImages) {
-        RenderingHints hints = createDefaultRenderingHints();
+        RenderingHints hints = createDefaultRenderingHints(maskOpImages.length > 0 ? maskOpImages[0] : null, null);
         RenderedImage alpha = null;
         for (RenderedImage maskOpImage : maskOpImages) {
             if (maskOpImage != null) {
@@ -556,7 +575,7 @@ public class ImageManager {
         PlanarImage image = createLookupOp(sourceImage, lutData);
         if (maskImage != null) {
             // add mask image as alpha channel so that no-data becomes fully transparent
-            image = BandMergeDescriptor.create(image, maskImage, createDefaultRenderingHints());
+            image = BandMergeDescriptor.create(image, maskImage, createDefaultRenderingHints(sourceImage, null));
         }
         return image;
     }
@@ -593,7 +612,7 @@ public class ImageManager {
                 eqCDF[b][i] = (float) (i + 1) / (float) binCount;
             }
         }
-        return MatchCDFDescriptor.create(sourceImage, eqCDF, createDefaultRenderingHints());
+        return MatchCDFDescriptor.create(sourceImage, eqCDF, createDefaultRenderingHints(sourceImage, null));
     }
 
     private static Histogram createHistogram(PlanarImage sourceImage, Stx[] stxs) {
@@ -642,7 +661,7 @@ public class ImageManager {
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 
@@ -654,7 +673,7 @@ public class ImageManager {
             }
         }
 
-        return MatchCDFDescriptor.create(sourceImage, normCDF, createDefaultRenderingHints());
+        return MatchCDFDescriptor.create(sourceImage, normCDF, createDefaultRenderingHints(sourceImage, null));
     }
 
     private static PlanarImage getLevelImage(MultiLevelImage levelZeroImage, int level) {
@@ -795,15 +814,23 @@ public class ImageManager {
     }
 
     public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage, boolean invertAlpha) {
-        return createColoredMaskImage(color, invertAlpha ? InvertDescriptor.create(alphaImage, null) : alphaImage);
+        RenderingHints hints = createDefaultRenderingHints(alphaImage, null);
+        return createColoredMaskImage(color, invertAlpha ? InvertDescriptor.create(alphaImage, hints) : alphaImage, hints);
     }
 
+    public static PlanarImage createColoredMaskImage(RenderedImage maskImage, Color color, double opacity) {
+        RenderingHints hints = createDefaultRenderingHints(maskImage, null);
+        RenderedImage alphaImage = MultiplyConstDescriptor.create(maskImage, new double[]{opacity}, hints);
+        return createColoredMaskImage(color, alphaImage, hints);
+    }
+
+    @Deprecated
     public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage) {
-        final ImageLayout imageLayout = new ImageLayout();
-        imageLayout.setTileWidth(alphaImage.getTileWidth());
-        imageLayout.setTileHeight(alphaImage.getTileHeight());
-        final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
-        final RenderedOp colorImage =
+        return createColoredMaskImage(color, alphaImage, createDefaultRenderingHints(alphaImage, null));
+    }
+
+    public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage, RenderingHints hints) {
+        RenderedOp colorImage =
                 ConstantDescriptor.create(
                         (float) alphaImage.getWidth(),
                         (float) alphaImage.getHeight(),
@@ -821,9 +848,7 @@ public class ImageManager {
      * @param rasterDataNode the band
      * @param color          the color
      * @param level          the level
-     *
      * @return the image, or null if the band has no valid ROI definition
-     *
      * @deprecated since BEAM 4.7, no replacement.
      */
     @Deprecated
@@ -840,9 +865,7 @@ public class ImageManager {
      *
      * @param rasterDataNode the band
      * @param level          the level
-     *
      * @return the ROI, or null if the band has no valid ROI definition
-     *
      * @deprecated since BEAM 4.7, no replacement.
      */
     @Deprecated
@@ -864,7 +887,7 @@ public class ImageManager {
         if (roiDefinition.isValueRangeEnabled()) {
             final String escapedName = BandArithmetic.createExternalName(rasterDataNode.getName());
             String rangeExpr = escapedName + " >= " + roiDefinition.getValueRangeMin() + " && "
-                               + escapedName + " <= " + roiDefinition.getValueRangeMax();
+                    + escapedName + " <= " + roiDefinition.getValueRangeMax();
             final String validMaskExpression = rasterDataNode.getValidMaskExpression();
             if (validMaskExpression != null) {
                 rangeExpr += " && " + validMaskExpression;
@@ -926,7 +949,7 @@ public class ImageManager {
         }
         return FormatDescriptor.create(image,
                                        dataType,
-                                       createDefaultRenderingHints());
+                                       createDefaultRenderingHints(image, null));
     }
 
     private static PlanarImage createRescaleOp(RenderedImage src, double factor, double offset) {
@@ -936,7 +959,7 @@ public class ImageManager {
         return RescaleDescriptor.create(src,
                                         new double[]{factor},
                                         new double[]{offset},
-                                        createDefaultRenderingHints());
+                                        createDefaultRenderingHints(src, null));
     }
 
     // todo - signed byte type (-128...127) not correctly handled, see also [BEAM-1147] (nf - 20100527)
@@ -955,12 +978,12 @@ public class ImageManager {
     }
 
     private static PlanarImage createExpOp(RenderedImage image) {
-        return ExpDescriptor.create(image, createDefaultRenderingHints());
+        return ExpDescriptor.create(image, createDefaultRenderingHints(image, null));
     }
 
     private static PlanarImage createLookupOp(RenderedImage src, byte[][] lookupTable) {
         LookupTableJAI lookup = new LookupTableJAI(lookupTable);
-        return LookupDescriptor.create(src, lookup, createDefaultRenderingHints());
+        return LookupDescriptor.create(src, lookup, createDefaultRenderingHints(src, null));
     }
 
     private static PlanarImage createByteFormatOp(RenderedImage src) {
@@ -969,10 +992,7 @@ public class ImageManager {
         ImageLayout layout = new ImageLayout(src);
         layout.setColorModel(cm);
         layout.setSampleModel(sm);
-
-        RenderingHints rh = createDefaultRenderingHints();
-        rh.put(JAI.KEY_IMAGE_LAYOUT, layout);
-        return FormatDescriptor.create(src, DataBuffer.TYPE_BYTE, rh);
+        return FormatDescriptor.create(src, DataBuffer.TYPE_BYTE, createDefaultRenderingHints(src, layout));
     }
 
     private static class MaskKey {
