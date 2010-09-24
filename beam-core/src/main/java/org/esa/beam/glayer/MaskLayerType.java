@@ -28,8 +28,6 @@ import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 
-import javax.media.jai.operator.MultiplyConstDescriptor;
-import java.awt.Color;
 import java.awt.image.RenderedImage;
 
 
@@ -92,20 +90,11 @@ public class MaskLayerType extends ImageLayer.Type {
         return new AbstractMultiLevelSource(mask.getSourceImage().getModel()) {
             @Override
             protected RenderedImage createImage(int level) {
-                final Color color = mask.getImageColor();
-                final double opacity = 1.0 - mask.getImageTransparency();
-                final RenderedImage levelImage = mask.getSourceImage().getImage(level);
-                final RenderedImage alphaImage = createAlphaImage(levelImage, opacity);
-
-                return ImageManager.createColoredMaskImage(color, alphaImage);
+                return ImageManager.createColoredMaskImage(mask.getSourceImage().getImage(level), mask.getImageColor(), 1.0 - mask.getImageTransparency());
             }
 
-            private RenderedImage createAlphaImage(RenderedImage levelImage, double opacity) {
-                return MultiplyConstDescriptor.create(levelImage, new double[]{opacity}, null);
-            }
         };
     }
-
 
     @Override
     public PropertySet createLayerConfig(LayerContext ctx) {

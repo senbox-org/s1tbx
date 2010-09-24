@@ -72,6 +72,7 @@ import javax.media.jai.operator.LookupDescriptor;
 import javax.media.jai.operator.MatchCDFDescriptor;
 import javax.media.jai.operator.MaxDescriptor;
 import javax.media.jai.operator.MinDescriptor;
+import javax.media.jai.operator.MultiplyConstDescriptor;
 import javax.media.jai.operator.RescaleDescriptor;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -813,15 +814,23 @@ public class ImageManager {
     }
 
     public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage, boolean invertAlpha) {
-        return createColoredMaskImage(color, invertAlpha ? InvertDescriptor.create(alphaImage, null) : alphaImage);
+        RenderingHints hints = createDefaultRenderingHints(alphaImage, null);
+        return createColoredMaskImage(color, invertAlpha ? InvertDescriptor.create(alphaImage, hints) : alphaImage, hints);
     }
 
+    public static PlanarImage createColoredMaskImage(RenderedImage maskImage, Color color, double opacity) {
+        RenderingHints hints = createDefaultRenderingHints(maskImage, null);
+        RenderedImage alphaImage = MultiplyConstDescriptor.create(maskImage, new double[]{opacity}, hints);
+        return createColoredMaskImage(color, alphaImage, hints);
+    }
+
+    @Deprecated
     public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage) {
-        final ImageLayout imageLayout = new ImageLayout();
-        imageLayout.setTileWidth(alphaImage.getTileWidth());
-        imageLayout.setTileHeight(alphaImage.getTileHeight());
-        final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
-        final RenderedOp colorImage =
+        return createColoredMaskImage(color, alphaImage, createDefaultRenderingHints(alphaImage, null));
+    }
+
+    public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage, RenderingHints hints) {
+        RenderedOp colorImage =
                 ConstantDescriptor.create(
                         (float) alphaImage.getWidth(),
                         (float) alphaImage.getHeight(),
@@ -983,8 +992,7 @@ public class ImageManager {
         ImageLayout layout = new ImageLayout(src);
         layout.setColorModel(cm);
         layout.setSampleModel(sm);
-        RenderingHints rh = createDefaultRenderingHints(src, layout);
-        return FormatDescriptor.create(src, DataBuffer.TYPE_BYTE, rh);
+        return FormatDescriptor.create(src, DataBuffer.TYPE_BYTE, createDefaultRenderingHints(src, layout));
     }
 
     private static class MaskKey {
