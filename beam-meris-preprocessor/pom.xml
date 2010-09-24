@@ -16,7 +16,7 @@
 
 
     <description>
-        The BEAM MERIS Preprocessor aims ?????????????????? in MERIS L1b data products.
+        The BEAM MERIS Preprocessor performs multiple pre-processing steps on MERIS L1b data products.
     </description>
 
     <dependencies>
