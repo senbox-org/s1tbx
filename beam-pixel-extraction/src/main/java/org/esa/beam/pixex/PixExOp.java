@@ -126,8 +126,8 @@ public class PixExOp extends Operator {
         if (coordinatesFile == null && coordinates == null) {
             throw new OperatorException("No coordinates specified.");
         }
-        if (outputDir != null && outputDir.isFile()) {
-            outputDir = new File(outputDir.getParent());
+        if (outputDir != null && !outputDir.exists() && !outputDir.mkdirs()) {
+            throw new OperatorException("Output directory does not exist and could not be created.");
         }
         coordinateList = initCoordinateList();
 
