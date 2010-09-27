@@ -16,12 +16,11 @@
 
 package org.esa.beam.framework.gpf.graph;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.gpf.internal.ApplicationData;
 
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a directed acyclic graph (DAG) of {@link Node}s.
@@ -60,19 +59,19 @@ public class Graph {
     public String getId() {
         return id;
     }
-    
+
     /**
-     * Gets the graph's version 
-     * 
+     * Gets the graph's version
+     *
      * @return the version of the graph
      */
     public String getVersion() {
         return version;
     }
-    
+
     /**
      * Gets the graph's header
-     * 
+     *
      * @return the header of the graph
      */
     public Header getHeader() {
@@ -92,6 +91,7 @@ public class Graph {
      * Adds a <code>Node</code> to the graph
      *
      * @param node a node
+     *
      * @throws IllegalArgumentException if the id of the given node is already in use
      */
     public void addNode(Node node) {
@@ -105,7 +105,8 @@ public class Graph {
      * Removes the {@link Node} with the given {@code id} from this graph if present.
      *
      * @param id the id of the {@link Node} to be removed
-     * @return {@code true<} if the graph contains a {@link Node} with the given {@code id}. Else {@code false}.
+     *
+     * @return {@code true} if the graph contains a {@link Node} with the given {@code id}. Else {@code false}.
      */
     public boolean removeNode(String id) {
         return nodeList.remove(getNode(id));
@@ -115,6 +116,7 @@ public class Graph {
      * Gets the {@link Node} at the given index.
      *
      * @param index the index
+     *
      * @return the node at the given index
      */
     public Node getNode(int index) {
@@ -126,6 +128,7 @@ public class Graph {
      * {@code null} if the graph contains no respective {@link Node}.
      *
      * @param id the id of the Node to be removed
+     *
      * @return {@code true} if the graph contains a {@link Node} with the given {@code id}. Else {@code false}.
      */
     public Node getNode(String id) {
@@ -145,12 +148,13 @@ public class Graph {
     public Node[] getNodes() {
         return nodeList.toArray(new Node[nodeList.size()]);
     }
-    
+
     /**
      * Returns the Application data for the given application ID or null,
      * if for this id no application is available.
-     * 
+     *
      * @param appId the application ID
+     *
      * @return the application data as an Xpp3Dom
      */
     public Xpp3Dom getApplicationData(String appId) {
@@ -161,11 +165,11 @@ public class Graph {
         }
         return null;
     }
-    
+
     /**
      * Sets the application data for the given ID
-     * 
-     * @param id The application ID.
+     *
+     * @param id   The application ID.
      * @param data The application data as Xpp3Dom.
      */
     public void setAppData(String id, Xpp3Dom data) {

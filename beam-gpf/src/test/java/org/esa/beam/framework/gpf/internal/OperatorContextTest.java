@@ -17,13 +17,15 @@
 package org.esa.beam.framework.gpf.internal;
 
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import static org.junit.Assert.*;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 @SuppressWarnings({"PackageVisibleField"})
 public class OperatorContextTest {
@@ -53,6 +55,50 @@ public class OperatorContextTest {
         assertSame(testOp.p2, productP2Bert);
         assertNotNull(testOp.products);
         assertEquals(3, testOp.products.length);
+
+        assertEquals(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + 1, opContext.getSourceProductId(products[0]));
+        assertEquals(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + 2, opContext.getSourceProductId(products[1]));
+        assertEquals("sourceProduct", opContext.getSourceProductId(productUnnamed));
+        assertEquals("bibo", opContext.getSourceProductId(productP1Bibo));
+        assertEquals("p2", opContext.getSourceProductId(productP2Bert));
+    }
+
+    @Test
+    public void testWithSourceProductsAleadySet() {
+        final TestOperator testOp = new TestOperator();
+        Product[] products = new Product[]{
+                new Product("John Doe", "T", 10, 10),
+                new Product("Jane Doe", "T", 10, 10)
+        };
+        testOp.products = products;
+
+        final OperatorContext opContext = new OperatorContext(testOp);
+
+        final Product productP1Bibo = new Product("p1-bibo", "T", 10, 10);
+        final Product productP2Bert = new Product("p2-bert", "T", 10, 10);
+        final Product productUnnamed = new Product("unnamed", "T", 10, 10);
+        opContext.setSourceProduct("bibo", productP1Bibo);
+        opContext.setSourceProduct("p2", productP2Bert);
+        opContext.setSourceProduct("sourceProduct", productUnnamed);
+
+        opContext.getTargetProduct();
+
+        assertNotNull(testOp.p1);
+        assertSame(testOp.p1, productP1Bibo);
+        assertNotNull(testOp.p2);
+        assertSame(testOp.p2, productP2Bert);
+        assertNotNull(testOp.products);
+        assertEquals(3, testOp.products.length);
+
+        assertEquals(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + 1, opContext.getSourceProductId(products[0]));
+        assertEquals(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + 2, opContext.getSourceProductId(products[1]));
+        assertSame(products[0], opContext.getSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + 1));
+        assertSame(products[1], opContext.getSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + 2));
+        assertSame(products[0], opContext.getSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + 1));
+        assertSame(products[1], opContext.getSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + 2));
+        assertEquals("bibo", opContext.getSourceProductId(productP1Bibo));
+        assertEquals("p2", opContext.getSourceProductId(productP2Bert));
+        assertEquals("sourceProduct", opContext.getSourceProductId(productUnnamed));
 
     }
 

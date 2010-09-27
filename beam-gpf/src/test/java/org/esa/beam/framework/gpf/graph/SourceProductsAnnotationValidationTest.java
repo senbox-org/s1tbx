@@ -21,7 +21,12 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -79,8 +84,8 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
 
         graph = createTestGraph(opName);
         outputNode = graph.getNode("output");
-        outputNode.addSource(new NodeSource("dummy", "input1"));
-        outputNode.addSource(new NodeSource("dummy", "input2"));
+        outputNode.addSource(new NodeSource("dummy1", "input1"));
+        outputNode.addSource(new NodeSource("dummy2", "input2"));
         try {
             new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
         } catch (GraphException ge) {
@@ -89,9 +94,9 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
 
         graph = createTestGraph(opName);
         outputNode = graph.getNode("output");
-        outputNode.addSource(new NodeSource("dummy", "input1"));
-        outputNode.addSource(new NodeSource("dummy", "input2"));
-        outputNode.addSource(new NodeSource("dummy", "input3"));
+        outputNode.addSource(new NodeSource("dummy1", "input1"));
+        outputNode.addSource(new NodeSource("dummy2", "input2"));
+        outputNode.addSource(new NodeSource("dummy3", "input3"));
         try {
             new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
             fail("GraphException expected, need exactly 2 sources");
@@ -113,9 +118,9 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
 
         graph = createTestGraph(opName);
         outputNode = graph.getNode("output");
-        outputNode.addSource(new NodeSource("dummy", "input1"));
-        outputNode.addSource(new NodeSource("dummy", "input2"));
-        outputNode.addSource(new NodeSource("dummy", "input3"));
+        outputNode.addSource(new NodeSource("dummy1", "input1"));
+        outputNode.addSource(new NodeSource("dummy2", "input2"));
+        outputNode.addSource(new NodeSource("dummy3", "input3"));
         try {
             new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
         } catch (GraphException ge) {
@@ -137,9 +142,9 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
 
         graph = createTestGraph(opName);
         outputNode = graph.getNode("output");
-        outputNode.addSource(new NodeSource("dummy", "input1"));
-        outputNode.addSource(new NodeSource("dummy", "input2"));
-        outputNode.addSource(new NodeSource("dummy", "input3"));
+        outputNode.addSource(new NodeSource("dummy1", "input1"));
+        outputNode.addSource(new NodeSource("dummy2", "input2"));
+        outputNode.addSource(new NodeSource("dummy3", "input3"));
         try {
             new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
         } catch (GraphException ge) {
@@ -163,9 +168,10 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
 
     @OperatorMetadata(alias = "InputOp")
     public static class InputOp extends Operator {
+
         @TargetProduct
         private Product targetProduct;
-        
+
         @Override
         public void initialize() throws OperatorException {
             targetProduct = new Product("input", "inputType", 1, 1);
@@ -204,6 +210,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         }
 
         public static class Spi extends OperatorSpi {
+
             public Spi() {
                 super(TwoSourcesOp.class);
             }
@@ -241,7 +248,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
 
         @SourceProducts
         // count=0
-        Product[] inputs;
+                Product[] inputs;
 
         @TargetProduct
         Product output;

@@ -63,6 +63,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -161,7 +162,11 @@ public class OperatorContext {
         sourceProductMap.clear();
         for (int i = 0; i < products.length; i++) {
             Product product = products[i];
-            setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + (i + 1), product);
+            final int productIndex = i + 1;
+            setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + productIndex, product);
+            // kept for backward compatibility
+            // since BEAM 4.9 the pattern above is preferred
+            setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + productIndex, product);
         }
     }
 
@@ -176,12 +181,22 @@ public class OperatorContext {
 
     public String getSourceProductId(Product product) {
         Set<Map.Entry<String, Product>> entrySet = sourceProductMap.entrySet();
+        List<String> mappedIds = new ArrayList<String>();
         for (Map.Entry<String, Product> entry : entrySet) {
             if (entry.getValue() == product) {
-                return entry.getKey();
+                mappedIds.add(entry.getKey());
             }
         }
-        return null;
+        if (mappedIds.isEmpty()) {
+            return null;
+        }
+        String id = mappedIds.get(0);
+        for (String mappedId : mappedIds) {
+            if (mappedId.contains(".")) {
+                id = mappedId;
+            }
+        }
+        return id;
     }
 
     public Product getTargetProduct() throws OperatorException {
@@ -457,8 +472,9 @@ public class OperatorContext {
         targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(opId), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
         final MetadataElement targetSourcesME = new MetadataElement("sources");
-        for (String sourceId : context.sourceProductMap.keySet()) {
-            final Product sourceProduct = context.sourceProductMap.get(sourceId);
+
+        for (Product sourceProduct : context.sourceProductList) {
+            final String sourceId = context.getSourceProductId(sourceProduct);
             final String sourceNodeId;
             if (sourceProduct.getFileLocation() != null) {
                 sourceNodeId = sourceProduct.getFileLocation().toURI().toASCIIString();
@@ -737,9 +753,11 @@ public class OperatorContext {
     private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws
                                                                                                        OperatorException {
         if (declaredField.getType().equals(Product.class)) {
-            Product sourceProduct = getSourceProduct(declaredField.getName());
+            String productMapName = declaredField.getName();
+            Product sourceProduct = getSourceProduct(productMapName);
             if (sourceProduct == null) {
-                sourceProduct = getSourceProduct(sourceProductAnnotation.alias());
+                productMapName = sourceProductAnnotation.alias();
+                sourceProduct = getSourceProduct(productMapName);
             }
             if (sourceProduct != null) {
                 validateSourceProduct(declaredField.getName(),
@@ -747,6 +765,7 @@ public class OperatorContext {
                                       sourceProductAnnotation.type(),
                                       sourceProductAnnotation.bands());
                 setSourceProductFieldValue(declaredField, sourceProduct);
+                setSourceProduct(productMapName, sourceProduct);
             } else {
                 sourceProduct = getSourceProductFieldValue(declaredField);
                 if (sourceProduct != null) {
@@ -767,18 +786,19 @@ public class OperatorContext {
     private void processSourceProductsField(Field declaredField, SourceProducts sourceProductsAnnotation) throws
                                                                                                           OperatorException {
         if (declaredField.getType().equals(Product[].class)) {
-            Product[] sourceProducts = getSourceProducts();
+            Product[] sourceProducts = getSourceProductsFieldValue(declaredField);
+            if (sourceProducts != null) {
+                for (int i = 0; i < sourceProducts.length; i++) {
+                    Product sourceProduct = sourceProducts[i];
+                    setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + (i + 1), sourceProduct);
+                    // kept for backward compatibility
+                    // since BEAM 4.9 the pattern above is preferred
+                    setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + (i + 1), sourceProduct);
+                }
+            }
+            sourceProducts = getSourceProducts();
             if (sourceProducts.length > 0) {
                 setSourceProductsFieldValue(declaredField, getUnnamedProducts());
-            } else {
-                sourceProducts = getSourceProductsFieldValue(declaredField);
-                if (sourceProducts != null) {
-                    for (int i = 0; i < sourceProducts.length; i++) {
-                        Product sourceProduct = sourceProducts[i];
-                        setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + i, sourceProduct);
-                    }
-                }
-                sourceProducts = getSourceProducts();
             }
             if (sourceProductsAnnotation.count() < 0) {
                 if (sourceProducts.length == 0) {
@@ -813,8 +833,8 @@ public class OperatorContext {
             map.remove(sourceProductField.getName());
             map.remove(annotation.alias());
         }
-        final Collection<Product> unnamedProductList = map.values();
-        return unnamedProductList.toArray(new Product[unnamedProductList.size()]);
+        Set<Product> productSet = new HashSet<Product>(map.values());
+        return productSet.toArray(new Product[productSet.size()]);
     }
 
     private Field[] getAnnotatedSourceProductFields(Operator operator1) {

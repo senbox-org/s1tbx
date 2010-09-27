@@ -84,9 +84,10 @@ public class CommandLineArgsTest extends TestCase {
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
         assertNotNull(sourceMap);
-        assertEquals(2, sourceMap.size());
+        assertEquals(3, sourceMap.size());
         assertEquals("source.dim", sourceMap.get("sourceProduct"));
-        assertEquals("source.dim", sourceMap.get("sourceProduct1"));
+        assertEquals("source.dim", sourceMap.get("sourceProduct.1"));
+        assertEquals("source.dim", sourceMap.get("sourceProduct1")); // test for backward compatibility
     }
 
     public void testOpWithTargetAndSource() throws Exception {
@@ -98,9 +99,10 @@ public class CommandLineArgsTest extends TestCase {
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
         assertNotNull(sourceMap);
-        assertEquals(2, sourceMap.size());
+        assertEquals(3, sourceMap.size());
         assertEquals("source.dim", sourceMap.get("sourceProduct"));
-        assertEquals("source.dim", sourceMap.get("sourceProduct1"));
+        assertEquals("source.dim", sourceMap.get("sourceProduct.1"));
+        assertEquals("source.dim", sourceMap.get("sourceProduct1")); // test for backward compatibility
     }
 
     public void testMinimumGraph() throws Exception {
@@ -113,7 +115,8 @@ public class CommandLineArgsTest extends TestCase {
         SortedMap<String, String> map = lineArgs.getSourceFilepathMap();
         assertNotNull(map);
         assertEquals("source.dim", map.get("sourceProduct"));
-        assertEquals("source.dim", map.get("sourceProduct1"));
+        assertEquals("source.dim", map.get("sourceProduct.1"));
+        assertEquals("source.dim", map.get("sourceProduct1")); // test for backward compatibility
     }
 
     public void testGraphOnly() throws Exception {
@@ -187,11 +190,11 @@ public class CommandLineArgsTest extends TestCase {
                 "Reproject",
                 "-x",
         });
-        
+
         lineArgs.parseArguments();
         assertEquals(true, lineArgs.isClearCacheAfterRowWrite());
     }
-    
+
     public void testTileCacheOption() throws Exception {
         CommandLineArgs lineArgs;
 
@@ -273,9 +276,10 @@ public class CommandLineArgsTest extends TestCase {
         assertEquals("./out/snowMask.dim", targetMap.get("snow"));
         assertEquals(null, lineArgs.getTargetFilepath());
         SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
-        assertEquals(2, sourceMap.size());
+        assertEquals(3, sourceMap.size());
         assertEquals("source.dim", sourceMap.get("sourceProduct"));
-        assertEquals("source.dim", sourceMap.get("sourceProduct1"));
+        assertEquals("source.dim", sourceMap.get("sourceProduct.1"));
+        assertEquals("source.dim", sourceMap.get("sourceProduct1")); // test for backward compatibility
     }
 
     public void testSourceOptions() throws Exception {
@@ -305,10 +309,13 @@ public class CommandLineArgsTest extends TestCase {
         SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
         assertNotNull(sourceMap);
         assertEquals("./inp/cloud-mask.dim", sourceMap.get("sourceProduct"));
-        assertEquals("./inp/cloud-mask.dim", sourceMap.get("sourceProduct1"));
-        assertEquals("source.dim", sourceMap.get("sourceProduct2"));
-        assertEquals("input.dim", sourceMap.get("sourceProduct3"));
-        assertEquals("./inp/NDVI.dim" ,sourceMap.get("ndvi"));
+        assertEquals("./inp/cloud-mask.dim", sourceMap.get("sourceProduct.1"));
+        assertEquals("./inp/cloud-mask.dim", sourceMap.get("sourceProduct1")); // test for backward compatibility
+        assertEquals("source.dim", sourceMap.get("sourceProduct.2"));
+        assertEquals("source.dim", sourceMap.get("sourceProduct2")); // test for backward compatibility
+        assertEquals("input.dim", sourceMap.get("sourceProduct.3"));
+        assertEquals("input.dim", sourceMap.get("sourceProduct3")); // test for backward compatibility
+        assertEquals("./inp/NDVI.dim", sourceMap.get("ndvi"));
     }
 
     public void testUsageText() throws Exception {
