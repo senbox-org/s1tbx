@@ -174,7 +174,7 @@ public class BandMathsOpTest extends TestCase {
         Product sourceProduct2 = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
-        bandDescriptors[0] = createBandDescription("aBandName", "$sourceProduct.0.band1 + $sourceProduct.1.band2",
+        bandDescriptors[0] = createBandDescription("aBandName", "$sourceProduct.1.band1 + $sourceProduct.2.band2",
                                                    ProductData.TYPESTRING_FLOAT32);
         parameters.put("targetBands", bandDescriptors);
 
