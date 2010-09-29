@@ -1,5 +1,7 @@
 package org.esa.beam.framework.gpf.experimental;
 
+import org.junit.Ignore;
+
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
@@ -8,11 +10,14 @@ import javax.media.jai.TileComputationListener;
 import javax.media.jai.TileRequest;
 import javax.media.jai.TileScheduler;
 import javax.media.jai.operator.ConstantDescriptor;
-import java.awt.*;
+import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.image.Raster;
 
 
+@Ignore
 public class JaiTileSchedulerTest {
+
     public static void main(String[] args) {
         scheduleTiles(0);
         scheduleTiles(1);
@@ -46,7 +51,7 @@ public class JaiTileSchedulerTest {
         }
 
         sleep(100);
-        System.out.println("scheduleTiles(sleepTime = "+sleepTime+"):");
+        System.out.println("scheduleTiles(sleepTime = " + sleepTime + "):");
         System.out.println("  Tiles computed: " + listener.computed);
         System.out.println("  Tiles cancelled: " + listener.cancelled);
         System.out.println("  Tile computation failures: " + listener.computationFailures);
@@ -61,11 +66,13 @@ public class JaiTileSchedulerTest {
     }
 
     private static class MyTileComputationListener implements TileComputationListener {
+
         int computed;
         int cancelled;
         int computationFailures;
 
-        public void tileComputed(Object o, TileRequest[] tileRequests, PlanarImage planarImage, int i, int i1, Raster raster) {
+        public void tileComputed(Object o, TileRequest[] tileRequests, PlanarImage planarImage, int i, int i1,
+                                 Raster raster) {
             computed++;
         }
 
@@ -73,7 +80,8 @@ public class JaiTileSchedulerTest {
             cancelled++;
         }
 
-        public void tileComputationFailure(Object o, TileRequest[] tileRequests, PlanarImage planarImage, int i, int i1, Throwable throwable) {
+        public void tileComputationFailure(Object o, TileRequest[] tileRequests, PlanarImage planarImage, int i, int i1,
+                                           Throwable throwable) {
             computationFailures++;
         }
     }
