@@ -90,7 +90,7 @@ public class OperatorProductReader implements ProductReader {
         try {
             /////////////////////////////////////////////////////////////////////
             //
-            // GPF pull-processing is triggered here!!!
+            // Note: GPF pull-processing is triggered here!!!
             //
             Raster data = image.getData(new Rectangle(destOffsetX,
                                                       destOffsetY,

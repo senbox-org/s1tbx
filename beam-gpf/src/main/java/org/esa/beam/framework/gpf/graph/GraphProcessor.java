@@ -303,7 +303,7 @@ public class GraphProcessor {
                                              TileScheduler tileScheduler, TileComputationListener[] listeners, int parallelism) {
         /////////////////////////////////////////////////////////////////////
         //
-        // GPF pull-processing is triggered here!!!
+        // Note: GPF pull-processing is triggered here!!!
         //
         Point[] points = new Point[] {new Point(tileX, tileY)};
         acquirePermits(semaphore, 1);

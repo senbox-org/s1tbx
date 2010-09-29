@@ -16,7 +16,6 @@
 package org.esa.beam.gpf.operators.standard;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.sun.media.jai.util.SunTileScheduler;
 import junit.framework.TestCase;
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -56,7 +55,7 @@ public class WriteOpTest extends TestCase {
     private AlgoOp.Spi algoSpi = new AlgoOp.Spi();
     private WriteOp.Spi writeSpi = new WriteOp.Spi();
     private File outputFile;
-    private TileScheduler jaiTileScheduler;
+    private int oldParallelism;
 
     @Override
     protected void setUp() throws Exception {
@@ -64,11 +63,10 @@ public class WriteOpTest extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(writeSpi);
         outputFile = GlobalTestConfig.getBeamTestDataOutputFile("WriteOpTest/writtenProduct.dim");
         outputFile.getParentFile().mkdirs();
-        JAI jai = JAI.getDefaultInstance();
-        jaiTileScheduler = jai.getTileScheduler();
-        SunTileScheduler tileScheduler = new SunTileScheduler();
+
+        TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
+        oldParallelism = tileScheduler.getParallelism();
         tileScheduler.setParallelism(Runtime.getRuntime().availableProcessors());
-        jai.setTileScheduler(tileScheduler);
     }
 
     @Override
@@ -77,7 +75,9 @@ public class WriteOpTest extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(writeSpi);
         File parentFile = outputFile.getParentFile();
         SystemUtils.deleteFileTree(parentFile);
-        JAI.getDefaultInstance().setTileScheduler(jaiTileScheduler);
+
+        TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
+        tileScheduler.setParallelism(oldParallelism);
     }
 
     public void testWrite() throws Exception {
