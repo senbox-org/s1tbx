@@ -54,7 +54,7 @@ class MeasurementWriter {
                 final float lat = measurement.getLat();
                 final float lon = measurement.getLon();
                 final ProductData.UTC time = measurement.getStartTime();
-                final double[] values = measurement.getValues();
+                final Object[] values = measurement.getValues();
                 String timeString;
                 if (time != null) {
                     timeString = sdf.format(time.getAsDate());
@@ -69,7 +69,7 @@ class MeasurementWriter {
                                                  productId != null ? productId : -1, coordinateID,
                                                  measurement.getCoordinateName(), lat, lon, pixelX, pixelY,
                                                  timeString));
-                for (double value : values) {
+                for (Object value : values) {
                     printWriter.append(String.format("%s\t", value));
                 }
                 printWriter.append("\n");

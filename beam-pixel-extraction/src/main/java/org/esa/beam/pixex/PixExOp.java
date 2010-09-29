@@ -173,7 +173,7 @@ public class PixExOp extends Operator {
         int offset = MathUtils.floorInt(windowSize / 2);
         int upperLeftX = MathUtils.floorInt(centerPos.x - offset);
         int upperLeftY = MathUtils.floorInt(centerPos.y - offset);
-        final double[] values = new double[rasterNames.length];
+        final Object[] values = new Object[rasterNames.length];
         Arrays.fill(values, Double.NaN);
         final int numPixels = windowSize * windowSize;
         final RenderedImage expressionImage;
@@ -193,9 +193,20 @@ public class PixExOp extends Operator {
             for (int i = 0; i < rasterNames.length; i++) {
                 RasterDataNode raster = product.getRasterDataNode(rasterNames[i]);
                 if (raster != null && product.containsPixel(x, y)) {
-                    double[] temp = new double[1];
-                    raster.readPixels(x, y, 1, 1, temp);
-                    values[i] = temp[0];
+                    final int type = raster.getDataType();
+                    if (raster.isFloatingPointType()) {
+                        double[] temp = new double[1];
+                        raster.readPixels(x, y, 1, 1, temp);
+                        values[i] = temp[0];
+                    } else {
+                        int[] temp = new int[1];
+                        raster.readPixels(x, y, 1, 1, temp);
+                        if (raster instanceof Mask) {
+                            values[i] = temp[0] == 0 ? 0 : 1; // normalize to 0 for false and 1 for true
+                        } else {
+                            values[i] = temp[0];
+                        }
+                    }
                 }
             }
             GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);

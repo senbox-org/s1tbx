@@ -23,7 +23,7 @@ class Measurement {
 
     private final ProductData.UTC startTime;
     private GeoPos geoPos;
-    private final double[] values;
+    private final Object[] values;
     private int coordinateID;
     private final Integer productId;
     private final float pixelX;
@@ -32,7 +32,7 @@ class Measurement {
     private boolean isValid;
 
     Measurement(int coordinateID, String name, Integer productId, float pixelX, float pixelY, ProductData.UTC time,
-                GeoPos geoPos, double[] values, boolean isValid) {
+                GeoPos geoPos, Object[] values, boolean isValid) {
         this.coordinateID = coordinateID;
         this.productId = productId;
         this.pixelX = pixelX;
@@ -40,7 +40,7 @@ class Measurement {
         coordinateName = name;
         this.startTime = time;
         this.geoPos = geoPos;
-        this.values = new double[values.length];
+        this.values = new Object[values.length];
         this.isValid = isValid;
         System.arraycopy(values, 0, this.values, 0, values.length);
     }
@@ -49,7 +49,7 @@ class Measurement {
         return startTime;
     }
 
-    double[] getValues() {
+    Object[] getValues() {
         return values;
     }
 

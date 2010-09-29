@@ -5,6 +5,7 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
@@ -14,6 +15,7 @@ import org.esa.beam.framework.gpf.graph.GraphContext;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
+import org.esa.beam.util.StringUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.After;
 import org.junit.Before;
@@ -21,6 +23,7 @@ import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -280,9 +283,14 @@ public class PixExOpTest {
         PixExOp op = new PixExOp();
         String[] bandNames = {"band_1", "band_2", "band_3"};
         Product product = createTestProduct("horst", "horse", bandNames);
+        final Mask mask = Mask.BandMathsType.create("mask_0", "", product.getSceneRasterWidth(),
+                                                    product.getSceneRasterHeight(),
+                                                    "band_1 == 0", Color.RED, 0.0);
+        product.getMaskGroup().add(mask);
+
         String productType = product.getProductType();
         HashMap<String, String[]> bandNamesMap = new HashMap<String, String[]>();
-        bandNamesMap.put(productType, bandNames);
+        bandNamesMap.put(productType, StringUtils.addArrays(bandNames, new String[]{"mask_0"}));
         op.setRasterNamesMap(bandNamesMap);
         op.setWindowSize(3);
         Map<String, List<Measurement>> measurements = new HashMap<String, List<Measurement>>();
@@ -302,11 +310,13 @@ public class PixExOpTest {
             assertEquals(geoPos.lon + i % 3, measurement.getLon(), 1.0e-4);
             assertEquals("Coord_1", measurement.getCoordinateName());
             assertNull(measurement.getStartTime());
-            double[] values = measurement.getValues();
-            assertEquals(bandNames.length, values.length);
-            assertEquals(0, values[0], 1.0e-4);
-            assertEquals(1, values[1], 1.0e-4);
-            assertEquals(2, values[2], 1.0e-4);
+            Object[] values = measurement.getValues();
+            assertEquals(bandNames.length + 1, values.length);
+            assertEquals(0.0, (Double) values[0], 1.0e-4);
+            assertEquals(1.0, (Double) values[1], 1.0e-4);
+            assertEquals(2.0, (Double) values[2], 1.0e-4);
+            final int maskValue = (Integer) values[3];
+            assertEquals(1, maskValue);
         }
     }
 
