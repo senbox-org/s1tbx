@@ -46,8 +46,7 @@ import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
 
 @OperatorMetadata(alias = "Preprocess",
-                  description = "Performs removal of detector-to-detector systematic " +
-                                "radiometric differences in MERIS L1b data products.",
+                  description = "Performs radiometric corrections on MERIS L1b data products.",
                   authors = "Marc Bouvet (ESTEC), Marco Peters (Brockmann Consult), Marco Zuehlke (Brockmann Consult)," +
                             "Thomas Storm (Brockmann Consult)",
                   copyright = "(c) 2010 by Brockmann Consult",
