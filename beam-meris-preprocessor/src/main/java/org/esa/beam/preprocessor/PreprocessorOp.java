@@ -208,7 +208,11 @@ public class PreprocessorOp extends Operator {
             final Band targetBand = targetProduct.addBand(targetBandName, ProductData.TYPE_FLOAT32);
             bandNameMap.put(targetBandName, spectralBandName);
             targetBand.setDescription(String.format("%s %d", bandDescriptionPrefix, bandIndex));
-            targetBand.setUnit(UNIT_DL);
+            if (doRadToRefl) {
+                targetBand.setUnit(UNIT_DL);
+            } else {
+                targetBand.setUnit(sourceBand.getUnit());
+            }
             targetBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
             ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
         }
