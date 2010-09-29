@@ -310,7 +310,7 @@ public class PixExOpTest {
             assertEquals(geoPos.lon + i % 3, measurement.getLon(), 1.0e-4);
             assertEquals("Coord_1", measurement.getCoordinateName());
             assertNull(measurement.getStartTime());
-            Object[] values = measurement.getValues();
+            Number[] values = measurement.getValues();
             assertEquals(bandNames.length + 1, values.length);
             assertEquals(0.0, (Double) values[0], 1.0e-4);
             assertEquals(1.0, (Double) values[1], 1.0e-4);

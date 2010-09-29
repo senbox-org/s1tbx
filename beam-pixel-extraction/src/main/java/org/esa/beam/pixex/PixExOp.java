@@ -173,7 +173,7 @@ public class PixExOp extends Operator {
         int offset = MathUtils.floorInt(windowSize / 2);
         int upperLeftX = MathUtils.floorInt(centerPos.x - offset);
         int upperLeftY = MathUtils.floorInt(centerPos.y - offset);
-        final Object[] values = new Object[rasterNames.length];
+        final Number[] values = new Number[rasterNames.length];
         Arrays.fill(values, Double.NaN);
         final int numPixels = windowSize * windowSize;
         final RenderedImage expressionImage;
@@ -204,7 +204,11 @@ public class PixExOp extends Operator {
                         if (raster instanceof Mask) {
                             values[i] = temp[0] == 0 ? 0 : 1; // normalize to 0 for false and 1 for true
                         } else {
-                            values[i] = temp[0];
+                            if (raster.getDataType() == ProductData.TYPE_UINT32) {
+                                values[i] = temp[0] & 0xffffL;
+                            } else {
+                                values[i] = temp[0];
+                            }
                         }
                     }
                 }
