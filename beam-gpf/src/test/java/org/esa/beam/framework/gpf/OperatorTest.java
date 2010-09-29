@@ -17,19 +17,21 @@
 package org.esa.beam.framework.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.gpf.operators.standard.PassThroughOp;
+import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.*;
 
-public class OperatorTest extends TestCase {
 
+public class OperatorTest {
 
+    @Test
     public void testBasicOperatorStates() throws OperatorException, IOException {
         final FooOp op = new FooOp();
         assertNotNull(op.getSpi());
@@ -45,6 +47,7 @@ public class OperatorTest extends TestCase {
         assertTrue(op.computeTileCalled);
     }
 
+    @Test
     public void testThatGetTargetProductMustNotBeCalledFromInitialize() {
         Operator op = new Operator() {
             @Override
@@ -55,13 +58,14 @@ public class OperatorTest extends TestCase {
         try {
             op.getTargetProduct();
             fail("RuntimeException expected: Operator shall not allow calling getTargetProduct() from within initialize().");
-        } catch (OperatorException e) {
+        } catch (OperatorException ignored) {
             fail("RuntimeException expected: Operator shall not allow calling getTargetProduct() from within initialize().");
-        } catch (RuntimeException e) {
+        } catch (RuntimeException ignored) {
             // ok, passed
         }
     }
 
+    @Test
     public void testPassThroughDetection() throws OperatorException, IOException {
         Product sourceProduct = createFooProduct();
         final Operator op = new PassThroughOp(sourceProduct);
@@ -72,6 +76,7 @@ public class OperatorTest extends TestCase {
         assertTrue(op.context.isPassThrough());
     }
 
+    @Test
     public void testSourceProducts() throws IOException, OperatorException {
         final Operator operator = new Operator() {
             @Override
@@ -114,12 +119,15 @@ public class OperatorTest extends TestCase {
         assertSame(sp3, products[0]);
         assertSame(sp2, products[1]);
         assertSame(sp1, products[2]);
+        assertSame(sp3, operator.getSourceProduct("sourceProduct.1"));
         assertSame(sp3, operator.getSourceProduct("sourceProduct1"));
+        assertSame(sp2, operator.getSourceProduct("sourceProduct.2"));
         assertSame(sp2, operator.getSourceProduct("sourceProduct2"));
+        assertSame(sp1, operator.getSourceProduct("sourceProduct.3"));
         assertSame(sp1, operator.getSourceProduct("sourceProduct3"));
-        assertEquals("sourceProduct3", operator.getSourceProductId(sp1));
-        assertEquals("sourceProduct2", operator.getSourceProductId(sp2));
-        assertEquals("sourceProduct1", operator.getSourceProductId(sp3));
+        assertEquals("sourceProduct.3", operator.getSourceProductId(sp1));
+        assertEquals("sourceProduct.2", operator.getSourceProductId(sp2));
+        assertEquals("sourceProduct.1", operator.getSourceProductId(sp3));
 
 
         operator.setSourceProducts(new Product[]{sp1, sp2, sp1});
@@ -128,11 +136,14 @@ public class OperatorTest extends TestCase {
         assertEquals(2, products.length);
         assertSame(sp1, products[0]);
         assertSame(sp2, products[1]);
+        assertSame(sp1, operator.getSourceProduct("sourceProduct.1"));
         assertSame(sp1, operator.getSourceProduct("sourceProduct1"));
+        assertSame(sp2, operator.getSourceProduct("sourceProduct.2"));
         assertSame(sp2, operator.getSourceProduct("sourceProduct2"));
+        assertSame(sp1, operator.getSourceProduct("sourceProduct.3"));
         assertSame(sp1, operator.getSourceProduct("sourceProduct3"));
-        assertEquals("sourceProduct1", operator.getSourceProductId(sp1));
-        assertEquals("sourceProduct2", operator.getSourceProductId(sp2));
+        assertEquals("sourceProduct.1", operator.getSourceProductId(sp1));
+        assertEquals("sourceProduct.2", operator.getSourceProductId(sp2));
         assertNull(operator.getSourceProductId(sp3));
     }
 
@@ -143,6 +154,7 @@ public class OperatorTest extends TestCase {
     }
 
     private static class FooOp extends Operator {
+
         private boolean initializeCalled;
         private boolean computeTileCalled;
         @TargetProduct

@@ -59,7 +59,7 @@ class CommandLineArgs {
         targetFilepathMap = new TreeMap<String, String>();
         parameterMap = new TreeMap<String, String>();
         tileCacheCapacity = CommandLineTool.DEFAULT_TILE_CACHE_SIZE_IN_M * M;
-        
+
         // look for "-e" early do enable verbose error reports 
         for (String arg : this.args) {
             if (arg.equals("-e")) {
@@ -67,7 +67,7 @@ class CommandLineArgs {
             }
         }
     }
-    
+
     public void parseArguments() throws Exception {
         int argCount = 0;
         for (int i = 0; i < this.args.length; i++) {
@@ -112,25 +112,25 @@ class CommandLineArgs {
                     }
                 } else {
                     int index = argCount - 1;
-                    // todo - agree on naming convention:  (nf - 19.12.2007)
-                    // todo - isn't it better to use Java property syntax, e.g. "sourceProducts.0", "sourceProducts.1", ...
-                    // see also OperatorContext.setSourceProducts()
                     if (index == 0) {
                         sourceFilepathMap.put(GPF.SOURCE_PRODUCT_FIELD_NAME, arg);
                     }
+                    sourceFilepathMap.put(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + (index + 1), arg);
+                    // kept for backward compatibility
+                    // since BEAM 4.9 the pattern above is preferred
                     sourceFilepathMap.put(GPF.SOURCE_PRODUCT_FIELD_NAME + (index + 1), arg);
                 }
                 argCount++;
             }
         }
-   
+
         if (operatorName == null && graphFilepath == null && !helpRequested) {
             throw error("Either operator name or graph XML file must be given");
         }
-        if (graphFilepath == null && targetFilepathMap.size() != 0) {
+        if (graphFilepath == null && !targetFilepathMap.isEmpty()) {
             throw error("Defined target products only valid for graph XML");
         }
-        if (targetFilepath == null && targetFilepathMap.size() == 0) {
+        if (targetFilepath == null && targetFilepathMap.isEmpty()) {
             targetFilepath = CommandLineTool.DEFAULT_TARGET_FILEPATH;
         }
         if (targetFormatName == null && targetFilepath != null) {

@@ -63,6 +63,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -161,7 +162,11 @@ public class OperatorContext {
         sourceProductMap.clear();
         for (int i = 0; i < products.length; i++) {
             Product product = products[i];
-            setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + (i + 1), product);
+            final int productIndex = i + 1;
+            setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + productIndex, product);
+            // kept for backward compatibility
+            // since BEAM 4.9 the pattern above is preferred
+            setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + productIndex, product);
         }
     }
 
@@ -176,12 +181,22 @@ public class OperatorContext {
 
     public String getSourceProductId(Product product) {
         Set<Map.Entry<String, Product>> entrySet = sourceProductMap.entrySet();
+        List<String> mappedIds = new ArrayList<String>();
         for (Map.Entry<String, Product> entry : entrySet) {
             if (entry.getValue() == product) {
-                return entry.getKey();
+                mappedIds.add(entry.getKey());
             }
         }
-        return null;
+        if (mappedIds.isEmpty()) {
+            return null;
+        }
+        String id = mappedIds.get(0);
+        for (String mappedId : mappedIds) {
+            if (mappedId.contains(".")) {
+                id = mappedId;
+            }
+        }
+        return id;
     }
 
     public Product getTargetProduct() throws OperatorException {
@@ -294,7 +309,8 @@ public class OperatorContext {
         return getSourceTile(rasterDataNode, region, null, pm);
     }
 
-    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender, ProgressMonitor pm) {
+    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender,
+                              ProgressMonitor pm) {
         MultiLevelImage image = rasterDataNode.getSourceImage();
         ProgressMonitor oldPm = OperatorImage.setProgressMonitor(image, pm);
         try {
@@ -365,7 +381,7 @@ public class OperatorContext {
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
         while (true) {
             if (Operator.class.equals(aClass)
-                    || !Operator.class.isAssignableFrom(aClass)) {
+                || !Operator.class.isAssignableFrom(aClass)) {
                 return false;
             }
             try {
@@ -456,8 +472,9 @@ public class OperatorContext {
         targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(opId), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
         final MetadataElement targetSourcesME = new MetadataElement("sources");
-        for (String sourceId : context.sourceProductMap.keySet()) {
-            final Product sourceProduct = context.sourceProductMap.get(sourceId);
+
+        for (Product sourceProduct : context.sourceProductList) {
+            final String sourceId = context.getSourceProductId(sourceProduct);
             final String sourceNodeId;
             if (sourceProduct.getFileLocation() != null) {
                 sourceNodeId = sourceProduct.getFileLocation().toURI().toASCIIString();
@@ -622,8 +639,8 @@ public class OperatorContext {
         Dimension tileSize = null;
         for (final Product sourceProduct : sourceProductList) {
             if (sourceProduct.getPreferredTileSize() != null &&
-                    sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                    sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
+                sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
                 tileSize = sourceProduct.getPreferredTileSize();
                 break;
             }
@@ -733,11 +750,14 @@ public class OperatorContext {
         }
     }
 
-    private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws OperatorException {
+    private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws
+                                                                                                       OperatorException {
         if (declaredField.getType().equals(Product.class)) {
-            Product sourceProduct = getSourceProduct(declaredField.getName());
+            String productMapName = declaredField.getName();
+            Product sourceProduct = getSourceProduct(productMapName);
             if (sourceProduct == null) {
-                sourceProduct = getSourceProduct(sourceProductAnnotation.alias());
+                productMapName = sourceProductAnnotation.alias();
+                sourceProduct = getSourceProduct(productMapName);
             }
             if (sourceProduct != null) {
                 validateSourceProduct(declaredField.getName(),
@@ -745,6 +765,7 @@ public class OperatorContext {
                                       sourceProductAnnotation.type(),
                                       sourceProductAnnotation.bands());
                 setSourceProductFieldValue(declaredField, sourceProduct);
+                setSourceProduct(productMapName, sourceProduct);
             } else {
                 sourceProduct = getSourceProductFieldValue(declaredField);
                 if (sourceProduct != null) {
@@ -763,20 +784,21 @@ public class OperatorContext {
     }
 
     private void processSourceProductsField(Field declaredField, SourceProducts sourceProductsAnnotation) throws
-            OperatorException {
+                                                                                                          OperatorException {
         if (declaredField.getType().equals(Product[].class)) {
-            Product[] sourceProducts = getSourceProducts();
+            Product[] sourceProducts = getSourceProductsFieldValue(declaredField);
+            if (sourceProducts != null) {
+                for (int i = 0; i < sourceProducts.length; i++) {
+                    Product sourceProduct = sourceProducts[i];
+                    setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + "." + (i + 1), sourceProduct);
+                    // kept for backward compatibility
+                    // since BEAM 4.9 the pattern above is preferred
+                    setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + (i + 1), sourceProduct);
+                }
+            }
+            sourceProducts = getSourceProducts();
             if (sourceProducts.length > 0) {
                 setSourceProductsFieldValue(declaredField, getUnnamedProducts());
-            } else {
-                sourceProducts = getSourceProductsFieldValue(declaredField);
-                if (sourceProducts != null) {
-                    for (int i = 0; i < sourceProducts.length; i++) {
-                        Product sourceProduct = sourceProducts[i];
-                        setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + i, sourceProduct);
-                    }
-                }
-                sourceProducts = getSourceProducts();
             }
             if (sourceProductsAnnotation.count() < 0) {
                 if (sourceProducts.length == 0) {
@@ -811,8 +833,8 @@ public class OperatorContext {
             map.remove(sourceProductField.getName());
             map.remove(annotation.alias());
         }
-        final Collection<Product> unnamedProductList = map.values();
-        return unnamedProductList.toArray(new Product[unnamedProductList.size()]);
+        Set<Product> productSet = new HashSet<Product>(map.values());
+        return productSet.toArray(new Product[productSet.size()]);
     }
 
     private Field[] getAnnotatedSourceProductFields(Operator operator1) {
@@ -912,12 +934,13 @@ public class OperatorContext {
     }
 
     private void configureOperator(Operator operator, OperatorConfiguration operatorConfiguration) throws
-            ValidationException,
-            ConversionException {
+                                                                                                   ValidationException,
+                                                                                                   ConversionException {
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
         DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), parameterDescriptorFactory);
         domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), operator);
-        PropertyContainer propertyContainer = PropertyContainer.createObjectBacked(operator, parameterDescriptorFactory);
+        PropertyContainer propertyContainer = PropertyContainer.createObjectBacked(operator,
+                                                                                   parameterDescriptorFactory);
         Set<Reference> referenceSet = operatorConfiguration.getReferenceSet();
         for (Reference reference : referenceSet) {
             Property property = propertyContainer.getProperty(reference.getParameterName());
@@ -945,7 +968,7 @@ public class OperatorContext {
                     if (descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
                         Product sourceProduct = sourceProductList.get(0);
                         if (sourceProduct == null) {
-                            throw new OperatorException(formatExceptionMessage("No source produt."));
+                            throw new OperatorException(formatExceptionMessage("No source product."));
                         }
                         Object object = descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
                         Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
@@ -986,6 +1009,7 @@ public class OperatorContext {
 
     /**
      * @param product The product.
+     *
      * @return The operator context for the given product, or null.
      */
     static OperatorContext getOperatorContext(Product product) {

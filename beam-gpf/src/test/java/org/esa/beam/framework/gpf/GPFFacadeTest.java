@@ -27,13 +27,14 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
+import java.awt.Dimension;
+import java.awt.RenderingHints;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.awt.*;
 
 public class GPFFacadeTest extends TestCase {
 
@@ -132,7 +133,7 @@ public class GPFFacadeTest extends TestCase {
         assertNotNull(sourceElement);
         assertEquals(2, sourceElement.getNumAttributes());
         assertEquals("sourceProduct.1", sourceElement.getAttributeAt(0).getName());
-        assertEquals("sourceProduct.0", sourceElement.getAttributeAt(1).getName());
+        assertEquals("sourceProduct.2", sourceElement.getAttributeAt(1).getName());
 
     }
 
@@ -163,6 +164,7 @@ public class GPFFacadeTest extends TestCase {
 
     @OperatorMetadata(alias = "Foo")
     public static class FooOp extends Operator {
+
         @TargetProduct
         Product targetProduct;
         @SourceProduct
@@ -170,7 +172,8 @@ public class GPFFacadeTest extends TestCase {
 
         @Override
         public void initialize() throws OperatorException {
-            targetProduct = new Product("X", "Y", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+            targetProduct = new Product("X", "Y", sourceProduct.getSceneRasterWidth(),
+                                        sourceProduct.getSceneRasterHeight());
             String[] bandNames = sourceProduct.getBandNames();
             for (String s : bandNames) {
                 targetProduct.addBand(s, ProductData.TYPE_FLOAT32);
@@ -203,6 +206,7 @@ public class GPFFacadeTest extends TestCase {
     }
 
     public static class FooOpSpi extends OperatorSpi {
+
         public FooOpSpi() {
             super(FooOp.class);
         }
@@ -210,6 +214,7 @@ public class GPFFacadeTest extends TestCase {
 
     @OperatorMetadata(alias = "Foos")
     public static class FoosOp extends Operator {
+
         @TargetProduct
         Product targetProduct;
         @SourceProducts
@@ -217,7 +222,8 @@ public class GPFFacadeTest extends TestCase {
 
         @Override
         public void initialize() throws OperatorException {
-            targetProduct = new Product("X", "Y", sourceProducts[0].getSceneRasterWidth(), sourceProducts[0].getSceneRasterHeight());
+            targetProduct = new Product("X", "Y", sourceProducts[0].getSceneRasterWidth(),
+                                        sourceProducts[0].getSceneRasterHeight());
             String[] bandNames = sourceProducts[0].getBandNames();
             for (String s : bandNames) {
                 targetProduct.addBand(s, ProductData.TYPE_FLOAT32);
@@ -237,6 +243,7 @@ public class GPFFacadeTest extends TestCase {
     }
 
     public static class FoosOpSpi extends OperatorSpi {
+
         public FoosOpSpi() {
             super(FoosOp.class);
         }

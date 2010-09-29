@@ -28,10 +28,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.gpf.operators.standard.MosaicOp;
 import org.geotools.referencing.CRS;
 import org.junit.AfterClass;
-import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
@@ -45,6 +43,8 @@ import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.io.IOException;
 import java.util.Arrays;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Marco Peters
@@ -208,7 +208,7 @@ public class MosaicOpTest {
         assertEquals(2, mosaicSourcesElement.getNumAttributes());
         for (int i = 0; i < mosaicSourcesElement.getAttributes().length; i++) {
             MetadataAttribute attribute = mosaicSourcesElement.getAttributes()[i];
-            assertEquals("sourceProduct" + (1 + i), attribute.getName());
+            assertEquals("sourceProduct." + (1 + i), attribute.getName());
         }
 
         Band b1Band;
@@ -240,7 +240,7 @@ public class MosaicOpTest {
         assertEquals(3, updateSourcesElement.getNumAttributes());
         for (int i = 0; i < updateSourcesElement.getAttributes().length; i++) {
             MetadataAttribute attribute = updateSourcesElement.getAttributes()[i];
-            assertEquals("sourceProduct" + (1 + i), attribute.getName());
+            assertEquals("sourceProduct." + (1 + i), attribute.getName());
         }
 
         b1Band = product.getBand("b1");

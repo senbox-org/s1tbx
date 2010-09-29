@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CommandLineToolOperatorTest extends TestCase {
+
     private OpCommandLineContext context;
     private CommandLineTool clTool;
     private static final TestOps.Op3.Spi OP3_SPI = new TestOps.Op3.Spi();
@@ -66,44 +67,41 @@ public class CommandLineToolOperatorTest extends TestCase {
         assertTrue(context.output.length() == 0);
         clTool.run(new String[]{"-h"});
         assertTrue(context.output.startsWith("Usage:\n  gpt <op>|<graph-file> [options] "));
-
-//        System.out.println("\n" + context.output + "\n");
     }
 
     public void testPrintOp3Usage() throws Exception {
         assertTrue(context.output.length() == 0);
         clTool.run(new String[]{"Op3", "-h"});
         assertTrue(context.output.startsWith("Usage:\n  gpt Op3 [options] "));
-
-//        System.out.println("\n" + context.output + "\n");
     }
 
     public void testPrintOp4Usage() throws Exception {
         assertTrue(context.output.length() == 0);
         clTool.run(new String[]{"Op4", "-h"});
-//        System.out.println("\n" + context.output + "\n");
         assertTrue(context.output.startsWith(
                 "Usage:\n" +
                 "  gpt Op4 [options] \n" +
-        		"\n" +
-        		"Computed Properties:\n" +
+                "\n" +
+                "Computed Properties:\n" +
                 "String[] names\n" +
                 "double PI         The ratio of any circle's circumference to its diameter"
-                ));
+        ));
 
     }
 
     public void testOperatorSingleSource() throws Exception {
         clTool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim"});
-        assertEquals("s0=" + new File("vercingetorix.dim").getCanonicalPath() + ";o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";", context.logString);
+        assertEquals("s0=" + new File(
+                "vercingetorix.dim").getCanonicalPath() + ";o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";",
+                     context.logString);
         assertEquals("Op3", context.opName);
     }
 
     public void testOperatorTwoSources() throws Exception {
         clTool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim", "-Sinput2=asterix.N1"});
         String expectedLog = "s0=" + new File("vercingetorix.dim").getCanonicalPath() + ";" +
-                "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
-                "o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
+                             "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
+                             "o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
         assertEquals(expectedLog, context.logString);
         assertEquals("Op3", context.opName);
         assertNotNull(context.parameters);
@@ -112,9 +110,9 @@ public class CommandLineToolOperatorTest extends TestCase {
     public void testOperatorMultiSources() throws Exception {
         clTool.run(new String[]{"Op5", "-SVincent=vincent.dim", "asterix.N1", "obelix.nc"});
         String expectedLog = "s0=" + new File("vincent.dim").getCanonicalPath() + ";" +
-                "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
-                "s2=" + new File("obelix.nc").getCanonicalPath() + ";" +
-                "o=Op5;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
+                             "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
+                             "s2=" + new File("obelix.nc").getCanonicalPath() + ";" +
+                             "o=Op5;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
         assertEquals(expectedLog, context.logString);
         assertEquals("Op5", context.opName);
         assertNotNull(context.parameters);
@@ -147,10 +145,10 @@ public class CommandLineToolOperatorTest extends TestCase {
             public Product readProduct(String productFilepath) throws IOException {
                 return null;  // returning null to simulate an error
             }
-
         });
+
         try {
-            tool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim", "-Sinput2=asterix.N1", "-e"});
+            tool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim", "-Sinput2=asterix.N1"});
             fail("Exception expected for reason: " + "No reader found");
         } catch (Exception e) {
             // expected
@@ -160,7 +158,8 @@ public class CommandLineToolOperatorTest extends TestCase {
 
 
     private static class OpCommandLineContext implements CommandLineContext {
-        public String logString;
+
+        private String logString;
         private int readProductCounter;
         private int writeProductCounter;
         private String opName;
@@ -168,7 +167,7 @@ public class CommandLineToolOperatorTest extends TestCase {
         private Map<String, Product> sourceProducts;
         private String output = "";
 
-        public OpCommandLineContext() {
+        private OpCommandLineContext() {
             logString = "";
         }
 
@@ -180,7 +179,8 @@ public class CommandLineToolOperatorTest extends TestCase {
         }
 
         @Override
-        public void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException {
+        public void writeProduct(Product targetProduct, String filePath, String formatName,
+                                 boolean clearCacheAfterRowWrite) throws IOException {
             logString += "t" + writeProductCounter + "=" + filePath + ";";
             writeProductCounter++;
         }
@@ -205,7 +205,8 @@ public class CommandLineToolOperatorTest extends TestCase {
         }
 
         @Override
-        public Product createOpProduct(String opName, Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
+        public Product createOpProduct(String opName, Map<String, Object> parameters,
+                                       Map<String, Product> sourceProducts) throws OperatorException {
             this.opName = opName;
             this.parameters = parameters;
             this.sourceProducts = sourceProducts;
