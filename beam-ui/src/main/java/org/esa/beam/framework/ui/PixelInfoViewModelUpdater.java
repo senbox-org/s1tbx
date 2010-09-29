@@ -347,7 +347,7 @@ class PixelInfoViewModelUpdater {
                     Point2D mapPoint = mapTransform.forward(geoPos, null);
                     tmx = String.valueOf(MathUtils.round(mapPoint.getX(), 10000.0));
                     tmy = String.valueOf(MathUtils.round(mapPoint.getY(), 10000.0));
-                }else if (geoCoding instanceof CrsGeoCoding) {
+                } else if (geoCoding instanceof CrsGeoCoding) {
                     MathTransform transform = geoCoding.getImageToMapTransform();
                     try {
                         DirectPosition position = transform.transform(new DirectPosition2D(pX, pY), null);
@@ -376,16 +376,12 @@ class PixelInfoViewModelUpdater {
         final ProductData.UTC utcStartTime = currentProduct.getStartTime();
         final ProductData.UTC utcEndTime = currentProduct.getEndTime();
 
-        final double dStart = utcStartTime != null ? utcStartTime.getMJD() : 0;
-        final double dStop = utcEndTime != null ? utcEndTime.getMJD() : 0;
-        if (dStart == 0 || dStop == 0 || !isSampleValueAvailable(0, levelZeroY, true)) {
+        if (utcStartTime == null || utcEndTime == null || !isSampleValueAvailable(0, levelZeroY, true)) {
             scanlineModel.updateValue("No date information", 0);
             scanlineModel.updateValue("No time information", 1);
         } else {
-            final double vPerLine = (dStop - dStart) / (currentProduct.getSceneRasterHeight() - 1);
             final float pY = levelZeroY + pixelInfoView.getPixelOffsetY();
-            final double currentLine = vPerLine * pY + dStart;
-            final ProductData.UTC utcCurrentLine = new ProductData.UTC(currentLine);
+            final ProductData.UTC utcCurrentLine = ProductUtils.getScanLineTime(currentProduct, pY);
             final Calendar currentLineTime = utcCurrentLine.getAsCalendar();
 
             final String dateString = String.format("%1$tF", currentLineTime);

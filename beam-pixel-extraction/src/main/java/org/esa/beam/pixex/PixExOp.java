@@ -39,6 +39,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
@@ -213,10 +214,14 @@ public class PixExOp extends Operator {
                     }
                 }
             }
-            GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(new PixelPos(x, y), null);
+            final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
+            GeoPos currentGeoPos = product.getGeoCoding().getGeoPos(pixelPos, null);
             boolean isValid = validData.getSample(x, y, 0) != 0;
+            final ProductData.UTC utcCurrentLine = ProductUtils.getScanLineTime(product, pixelPos.y);
+
             final Measurement measure = new Measurement(coordinateID, coordinate.getName(), id,
-                                                        x, y, product.getStartTime(), currentGeoPos, values, isValid);
+                                                        pixelPos.x, pixelPos.y, utcCurrentLine, currentGeoPos, values,
+                                                        isValid);
             List<Measurement> measurementList = measurements.get(productType);
             if (measurementList == null) {
                 measurementList = new ArrayList<Measurement>();

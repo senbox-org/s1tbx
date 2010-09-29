@@ -53,7 +53,7 @@ class MeasurementWriter {
                 final int coordinateID = measurement.getCoordinateID();
                 final float lat = measurement.getLat();
                 final float lon = measurement.getLon();
-                final ProductData.UTC time = measurement.getStartTime();
+                final ProductData.UTC time = measurement.getTime();
                 final Number[] values = measurement.getValues();
                 String timeString;
                 if (time != null) {

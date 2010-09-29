@@ -294,9 +294,9 @@ public class PixExOpTest {
         op.setRasterNamesMap(bandNamesMap);
         op.setWindowSize(3);
         Map<String, List<Measurement>> measurements = new HashMap<String, List<Measurement>>();
-        GeoPos geoPos = new GeoPos(20, 10);
+        GeoPos geoPos = new GeoPos(20.5f, 10.5f);
         op.readMeasurement(product, new Coordinate("Coord_1", geoPos.lat, geoPos.lon), 1, measurements);
-        geoPos = new GeoPos(21, 9);
+        geoPos = new GeoPos(21.5f, 9.5f);
 
         List<Measurement> measurementList = measurements.get(productType);
         assertNotNull(measurementList);
@@ -309,7 +309,7 @@ public class PixExOpTest {
             assertEquals(geoPos.lat - i / 3, measurement.getLat(), 1.0e-4);
             assertEquals(geoPos.lon + i % 3, measurement.getLon(), 1.0e-4);
             assertEquals("Coord_1", measurement.getCoordinateName());
-            assertNull(measurement.getStartTime());
+            assertNull(measurement.getTime());
             Number[] values = measurement.getValues();
             assertEquals(bandNames.length + 1, values.length);
             assertEquals(0.0, (Double) values[0], 1.0e-4);

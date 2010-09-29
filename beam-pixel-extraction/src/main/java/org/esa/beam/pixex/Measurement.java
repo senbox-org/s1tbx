@@ -21,7 +21,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 
 class Measurement {
 
-    private final ProductData.UTC startTime;
+    private final ProductData.UTC time;
     private GeoPos geoPos;
     private final Number[] values;
     private int coordinateID;
@@ -38,15 +38,15 @@ class Measurement {
         this.pixelX = pixelX;
         this.pixelY = pixelY;
         coordinateName = name;
-        this.startTime = time;
+        this.time = time;
         this.geoPos = geoPos;
         this.values = new Number[values.length];
         this.isValid = isValid;
         System.arraycopy(values, 0, this.values, 0, values.length);
     }
 
-    ProductData.UTC getStartTime() {
-        return startTime;
+    ProductData.UTC getTime() {
+        return time;
     }
 
     Number[] getValues() {

@@ -1413,7 +1413,7 @@ public class ProductUtils {
             } catch (Exception e) {
                 return;
             }
-        
+
             CoordinateReferenceSystem srcModelCrs = ImageManager.getModelCrs(sourceProduct.getGeoCoding());
             CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
 
@@ -1556,7 +1556,8 @@ public class ProductUtils {
         return image;
     }
 
-    private static BufferedImage getcompatibleBufferedImageForScatterPlot(BufferedImage image, int width, int height, Color background) {
+    private static BufferedImage getcompatibleBufferedImageForScatterPlot(BufferedImage image, int width, int height,
+                                                                          Color background) {
         if (image == null
             || image.getWidth() != width
             || image.getHeight() != height
@@ -2521,6 +2522,27 @@ public class ProductUtils {
             }
         }
         return pathList;
+    }
+
+    public static ProductData.UTC getScanLineTime(Product product, double y) {
+        final ProductData.UTC utcStartTime = product.getStartTime();
+        final ProductData.UTC utcEndTime = product.getEndTime();
+
+        if (utcStartTime == null && utcEndTime == null) {
+            return null;
+        }
+        if (utcStartTime == null) {
+            return utcEndTime;
+        }
+        if (utcEndTime == null) {
+            return utcStartTime;
+        }
+        final double start = utcStartTime.getMJD();
+        final double stop = utcEndTime.getMJD();
+
+        final double timePerLine = (stop - start) / (product.getSceneRasterHeight() - 1);
+        final double currentLine = timePerLine * y + start;
+        return new ProductData.UTC(currentLine);
     }
 
 /////////////////////////////////////////////////////////////////////////
