@@ -65,8 +65,8 @@ public class PreprocessorOp extends Operator {
 
     @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT", "REPROCESSING_2", "REPROCESSING_3"},
                defaultValue = "AUTO_DETECT",
-               description = "The version of the reprocessing the product comes from. Used only in case that " +
-                             "equalisation is to be performed.")
+               description = "The version of the reprocessing the product comes from. Is only used if " +
+                             "equalisation is enabled.")
     private ReprocessingVersion reproVersion;
 
     @Parameter(defaultValue = "true",
