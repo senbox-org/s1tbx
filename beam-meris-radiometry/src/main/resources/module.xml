@@ -1,10 +1,11 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-meris-preprocessor</symbolicName>
+    <symbolicName>beam-meris-radiometry</symbolicName>
     <version>1.0</version>
-    <name>MERIS L1b Preprocessor</name>
+    <name>MERIS L1b Radiometry Processor</name>
 
     <description>
+        Performs radiometric corrections on MERIS L1b data products.
     </description>
 
     <changelog>
@@ -32,17 +33,17 @@
 
     <extension point="beam-ui:actions">
         <action>
-            <id>merisPreprocessor</id>
-            <helpId>merisPreprocessor</helpId>
+            <id>merisRadiometryCorrection</id>
+            <helpId>merisRadiometryCorrection</helpId>
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
             <parent>tools</parent>
-            <text>Preprocessor (MERIS)...</text>
+            <text>Radiometry Correction (MERIS)...</text>
             <mnemonic>E</mnemonic>
             <placeAfter>flhMciScientificTool</placeAfter>
             <placeBefore>cloudScientificTool</placeBefore>
-            <operatorName>Preprocess</operatorName>
-            <dialogTitle>MERIS L1b Preprocessor</dialogTitle>
-            <targetProductNameSuffix>_preprocessed</targetProductNameSuffix>
+            <operatorName>CorrectMerisRadiometry</operatorName>
+            <dialogTitle>MERIS L1b Radiometry Correction</dialogTitle>
+            <targetProductNameSuffix>_radiometry</targetProductNameSuffix>
         </action>
     </extension>
 
@@ -50,7 +51,7 @@
     <extension point="beam-ui:helpSets">
         <helpSet>
             <parent>beam-help</parent>
-            <path>doc/help/preprocessor.hs</path>
+            <path>doc/help/radiometryCorrection.hs</path>
         </helpSet>
     </extension>
 

@@ -132,7 +132,7 @@
         <module>beam-meris-cloud</module>
         <module>beam-meris-smac</module>
         <module>beam-meris-ndvi</module>
-        <module>beam-meris-preprocessor</module>
+        <module>beam-meris-radiometry</module>
         <module>beam-aatsr-sst</module>
         <module>beam-flhmci</module>
         <module>beam-mosaic</module>

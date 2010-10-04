@@ -10,13 +10,13 @@
         <version>4.9-SNAPSHOT</version>
     </parent>
 
-    <artifactId>beam-meris-preprocessor</artifactId>
-    <name>BEAM MERIS Preprocessor</name>
+    <artifactId>beam-meris-radiometry</artifactId>
+    <name>BEAM MERIS Radiometry Processor</name>
     <version>1.0-SNAPSHOT</version>
 
 
     <description>
-        The BEAM MERIS Preprocessor performs multiple pre-processing steps on MERIS L1b data products.
+        The BEAM MERIS Radiometry Processor module performs multiple radiometric corrections on MERIS L1b data products.
     </description>
 
     <dependencies>

@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>MERIS Level 1 Preprocessor - MERIS Smile Correction Algorithm Specification </title>
+    <title>MERIS Level 1 Radiometry Processor - MERIS Smile Correction Algorithm Specification </title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -25,7 +25,7 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            MERIS Level 1 Preprocessor - MERIS Smile Correction Algorithm Specification
+            MERIS Level 1 Radiometry Processor - MERIS Smile Correction Algorithm Specification
         </td>
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
                                                                                      border=0></a>
@@ -35,20 +35,20 @@
 
 <p>Algorithm Specification</p>
 
-<p> MERIS is measuring the reflected sun light using CCD technquie. A CCD is measuring
+<p> MERIS is measuring the reflected sun light using CCD technique. A CCD is measuring
     in one of its dimensions one image line, and in the other dimension the spectrally
-    dispersed radiance for each pixel along the image line. I.e., the spectral measurements
-    of each pixel along an image line is made by it's own set of sensors of the
+    dispersed radiance for each pixel along the image line. I.e., the spectral measurement
+    of each pixel along an image line is made by its own set of sensors of the
     CCD. This causes small variations of the spectral wavelength of each pixel along
     the image. This is called the &quot;smile effect&quot;.</p>
 
-<p>The MERIS instrument is composed of 5 cameras, each equipped with it's own
+<p>The MERIS instrument is composed of 5 cameras, each equipped with its own
     CCD sensor. The variation of the wavelength per pixel are in order of 1nm from
     one camera to another, while they are in the order of 0.1nm within one camera.
 </p>
 
 <p>Even though this variation is small compared to the spectral bandwidth of a
-    band, which is typicall 10nm, and can hardly be seen in an image, it can cause
+    band, which is typically 10nm, and can hardly be seen in an image, it can cause
     disturbances in processing algorithms which require very precise measurements,
     for example the retrieval of chlorophyll in the ocean. These disturbances can
     result in visual artefact (&quot;camera borders&quot;) or reduced accuracy of
@@ -64,7 +64,7 @@
     1b products. While the Level 1b product provides the radiance measurement for
     individual wavelengths within one spectral band, the smile corrected product
     has normalised the wavelengths within one spectral band to one reference wavelength.
-    Table 1 provides the reference wavengths and the reference solar irradiance
+    Table 1 provides the reference wavelengths and the reference solar irradiance
     for this band. Please note that the reference solar irradiance is not corrected
     for the daily variation. </p>
 

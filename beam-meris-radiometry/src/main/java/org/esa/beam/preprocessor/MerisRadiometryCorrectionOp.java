@@ -45,13 +45,13 @@ import java.util.List;
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
 
-@OperatorMetadata(alias = "Preprocess",
+@OperatorMetadata(alias = "CorrectMerisRadiometry",
                   description = "Performs radiometric corrections on MERIS L1b data products.",
                   authors = "Marc Bouvet (ESTEC), Marco Peters (Brockmann Consult), Marco Zuehlke (Brockmann Consult)," +
                             "Thomas Storm (Brockmann Consult)",
                   copyright = "(c) 2010 by Brockmann Consult",
                   version = "1.0")
-public class PreprocessorOp extends Operator {
+public class MerisRadiometryCorrectionOp extends Operator {
 
     @Parameter(defaultValue = "true",
                label = "Perform SMILE correction",
@@ -312,7 +312,7 @@ public class PreprocessorOp extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(PreprocessorOp.class);
+            super(MerisRadiometryCorrectionOp.class);
         }
 
     }

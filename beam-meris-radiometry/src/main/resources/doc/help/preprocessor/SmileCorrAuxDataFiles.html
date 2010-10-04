@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>MERIS Level 1 Preprocessor - MERIS Smile Correction Algorithm Specification</title>
+    <title>MERIS Level 1 Radiometry Processor - MERIS Smile Correction Algorithm Specification</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -25,7 +25,7 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            MERIS Level 1 Preprocessor - MERIS Smile Correction Algorithm Specification
+            MERIS Level 1 Radiometry Processor - MERIS Smile Correction Algorithm Specification
         </td>
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
                                                                                      border=0></a>
@@ -36,7 +36,7 @@
 <h3>Auxiliary Data Files</h3>
 
 <p>
-    The BEAM Smile Correction processor uses three different sets of auxiliary data files for processing.
+    The BEAM Smile Correction uses three different sets of auxiliary data files for processing.
     All of them are flat text files:
 <ol>
     <li>For all MERIS L1b products: <b>band_info.txt</b></li>
@@ -110,21 +110,21 @@
         wavelength
     </tr>
 </table>
-The Smile Correction Processor always ignores the header line and the first column.</p>
+The Smile Correction always ignores the header line and the first column.</p>
 
 <h4>central_wavelen_fr.txt / central_wavelen_rr.txt</h4>
 
 <p>This files contain a header line followed by 3700 (FR) resp. 925 (RR) lines associated with each detector
     containing the zero-based detector index in the first column and the central wavelengths (in nm)
     for each MERIS band.<br>
-    The Smile Correction Processor always ignores the header line and the first column.</p>
+    The Smile Correction always ignores the header line and the first column.</p>
 
 <h4>sun_spectral_flux_fr.txt / sun_spectral_flux_rr.txt</h4>
 
 <p>This files contain a header line followed by 3700 (FR) resp. 925 (RR) lines associated with each detector
     containing the zero-based detector index in the first column and the solar spectral fluxes (in LU)
     for each wavelength for each MERIS band.<br>
-    The Smile Correction Processor always ignores the header line and the first column.</p>
+    The Smile Correction always ignores the header line and the first column.</p>
 
 
 <hr>

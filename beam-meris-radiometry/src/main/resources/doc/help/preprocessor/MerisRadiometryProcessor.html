@@ -16,16 +16,16 @@
 
 <html>
 <head>
-    <title>MERIS Level 1 Preprocessor - Radiance-To-Reflectance Conversion Algorithm Specification</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <title>MERIS Level 1 Radiometry Processor</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 
 <body>
+
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            MERIS Level 1 Preprocessor - Radiance-To-Reflectance Conversion Algorithm Specification
+            MERIS Level 1 Radiometry Processor
         </td>
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
                                                                                      border=0></a>
@@ -33,24 +33,33 @@
     </tr>
 </table>
 
-<h3>Algorithm Specification</h3>
+<h3>Introduction</h3>
 
 <p>
-    The conversion from TOA radiance (<i>L</i><sub>TOA</sub>) to TOA reflectances (<i>R</i><sub>TOA</sub>) done by the
-    following equation:
+    The MERIS Level 1 Radiometry Processor offers the ability to preprocessor MERIS L1 data products. One or all of the
+    following algorithms can be performed on the MERIS Level 1 source product:
+<ul>
+    <li>SMILE Correction</li>
+    <li>Equalization</li>
+    <li>Radiometric Recalibration</li>
+    <li>Radiance to Reflectance Conversion</li>
+</ul>
+
+
+<p><a href="SmileCorrectionAlgorithmSpecification.html">SMILE Correction Algorithm Specification</a></p>
+
+<p><a href="MerisEqualizationAlgorithmSpecification.html">Equalization Algorithm Specification</a></p>
+
+<p><a href="RadioRecalibrationAlgorithmSpecification.html">Radiometric Recalibration Algorithm Specification</a>
 </p>
 
-<p align="center">
-    <img src="images/RadToReflEquation.png" border="0">
+<p><a href="RadToReflAlgorithmSpecification.html">Radiance to Reflectance Conversion Algorithm Specification</a>
 </p>
 
-<p>
-    where <i>E</i><sub>0</sub> and &theta; are the solar spectral
-    irradiance and the sun zenith angle, respectively. Currently, only MERIS
-    Level 1b products are supported.
-</p>
+<p><a href="MerisRadiometryProcessorDescription.html">MERIS Level 1 Radiometry Processor Documentation</a></p>
 
 
 <hr>
+
 </body>
 </html>

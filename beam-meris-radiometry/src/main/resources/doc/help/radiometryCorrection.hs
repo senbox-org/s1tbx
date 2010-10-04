@@ -4,7 +4,7 @@
         "http://java.sun.com/products/javahelp/helpset_2_0.dtd">
 
 <helpset version="2.0">
-    <title>MERIS L1b Equalization Help</title>
+    <title>MERIS L1b Radiometry Correction Help</title>
     <maps>
         <homeID>top</homeID>
         <mapref location="map.jhm"/>
