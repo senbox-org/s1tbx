@@ -70,11 +70,6 @@ public class MerisRadiometryCorrectionOp extends Operator {
     private ReprocessingVersion reproVersion;
 
     @Parameter(defaultValue = "true",
-               label = "Perform radiometric calibration",
-               description = "Whether to perform radiometric calibration.")
-    private boolean doRadiometricRecalibration;
-
-    @Parameter(defaultValue = "true",
                label = "Perform radiance-to-reflectance conversion",
                description = "Whether to perform radiance-to-reflectance conversion.")
     private boolean doRadToRefl;
