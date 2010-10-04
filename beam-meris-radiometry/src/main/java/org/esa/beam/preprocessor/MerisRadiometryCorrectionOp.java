@@ -138,7 +138,7 @@ public class MerisRadiometryCorrectionOp extends Operator {
             landMaskTile = loadSourceTile(LAND_MASK_NAME, targetRegion);
         }
 
-        pm.beginTask("Performing MERIS preprocessing...", targetTile.getHeight());
+        pm.beginTask("Performing MERIS radiometric correction...", targetTile.getHeight());
         try {
             for (int y = targetTile.getMinY(); y <= targetTile.getMaxY(); y++) {
                 checkForCancellation(pm);
@@ -171,22 +171,23 @@ public class MerisRadiometryCorrectionOp extends Operator {
     }
 
     private void createTargetProduct() {
-        final String productType = String.format("%s_Preprocessed", sourceProduct.getProductType());
-        final String productDescription = "MERIS L1b Preprocessed";
+        final String productDescription = "MERIS L1b Radiometric Corrected";
+        final String productType;
         final String targetBandPrefix;
         final String bandDescriptionPrefix;
         if (doRadToRefl) {
+            productType = String.format("%s_REFL", sourceProduct.getProductType());
             targetBandPrefix = "reflec";
-            bandDescriptionPrefix = "Preprocessed TOA reflectance band";
+            bandDescriptionPrefix = "Radiometric corrected TOA reflectance band";
         } else {
+            productType = sourceProduct.getProductType();
             targetBandPrefix = "radiance";
-            bandDescriptionPrefix = "Preprocessed TOA radiance band";
+            bandDescriptionPrefix = "Radiometric corrected TOA radiance band";
         }
 
         final int rasterWidth = sourceProduct.getSceneRasterWidth();
         final int rasterHeight = sourceProduct.getSceneRasterHeight();
-        targetProduct = new Product(String.format("%s_Preprocessed", sourceProduct.getName()), productType,
-                                    rasterWidth, rasterHeight);
+        targetProduct = new Product(sourceProduct.getName(), productType, rasterWidth, rasterHeight);
         targetProduct.setDescription(productDescription);
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
