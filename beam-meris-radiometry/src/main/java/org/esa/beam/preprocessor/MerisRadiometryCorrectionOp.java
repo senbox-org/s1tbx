@@ -45,7 +45,7 @@ import java.util.List;
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
 
-@OperatorMetadata(alias = "CorrectMerisRadiometry",
+@OperatorMetadata(alias = "Meris.CorrectRadiometry",
                   description = "Performs radiometric corrections on MERIS L1b data products.",
                   authors = "Marc Bouvet (ESTEC), Marco Peters (Brockmann Consult), Marco Zuehlke (Brockmann Consult)," +
                             "Thomas Storm (Brockmann Consult)",
@@ -191,7 +191,6 @@ public class MerisRadiometryCorrectionOp extends Operator {
         targetProduct.setDescription(productDescription);
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-
 
         targetProduct.setAutoGrouping(targetBandPrefix);
 
