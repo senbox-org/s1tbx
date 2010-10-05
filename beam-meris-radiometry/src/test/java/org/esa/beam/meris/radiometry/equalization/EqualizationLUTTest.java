@@ -16,7 +16,6 @@
 
 package org.esa.beam.meris.radiometry.equalization;
 
-import org.esa.beam.preprocessor.equalization.EqualizationLUT;
 import org.junit.Test;
 
 import java.io.IOException;
