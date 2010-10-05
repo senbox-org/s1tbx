@@ -41,7 +41,7 @@
             <mnemonic>E</mnemonic>
             <placeAfter>flhMciScientificTool</placeAfter>
             <placeBefore>cloudScientificTool</placeBefore>
-            <operatorName>CorrectMerisRadiometry</operatorName>
+            <operatorName>Meris.CorrectRadiometry</operatorName>
             <dialogTitle>MERIS L1b Radiometry Correction</dialogTitle>
             <targetProductNameSuffix>_radiometry</targetProductNameSuffix>
         </action>
