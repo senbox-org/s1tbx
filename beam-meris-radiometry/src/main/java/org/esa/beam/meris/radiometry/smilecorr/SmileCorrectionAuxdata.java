@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.preprocessor.smilecorr;
+package org.esa.beam.meris.radiometry.smilecorr;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
@@ -222,7 +222,7 @@ public class SmileCorrectionAuxdata {
 
     static File installAuxdata() throws IOException {
         File defaultAuxdataInstallDir = new File(SystemUtils.getApplicationDataDir(),
-                                                 "beam-meris-preprocessor/smile-correction/auxdata");
+                                                 "beam-meris-radiometry/smile-correction/auxdata");
         String auxdataDirPath = System.getProperty(AUXDATA_DIR_PROPERTY,
                                                    defaultAuxdataInstallDir.getAbsolutePath());
         File auxdataDirectory = new File(auxdataDirPath);

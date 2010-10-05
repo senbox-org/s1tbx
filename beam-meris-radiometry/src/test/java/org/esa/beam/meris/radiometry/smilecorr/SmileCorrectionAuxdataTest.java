@@ -15,7 +15,7 @@
  */
 
 
-package org.esa.beam.preprocessor.smilecorr;
+package org.esa.beam.meris.radiometry.smilecorr;
 
 import org.junit.BeforeClass;
 import org.junit.Test;

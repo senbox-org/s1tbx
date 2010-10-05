@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.preprocessor;
+package org.esa.beam.meris.radiometry;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
@@ -30,10 +30,10 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.preprocessor.equalization.EqualizationAlgorithm;
-import org.esa.beam.preprocessor.equalization.ReprocessingVersion;
-import org.esa.beam.preprocessor.smilecorr.SmileCorrectionAlgorithm;
-import org.esa.beam.preprocessor.smilecorr.SmileCorrectionAuxdata;
+import org.esa.beam.meris.radiometry.equalization.EqualizationAlgorithm;
+import org.esa.beam.meris.radiometry.equalization.ReprocessingVersion;
+import org.esa.beam.meris.radiometry.smilecorr.SmileCorrectionAlgorithm;
+import org.esa.beam.meris.radiometry.smilecorr.SmileCorrectionAuxdata;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.RsMathUtils;
 

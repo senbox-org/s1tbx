@@ -14,8 +14,9 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.preprocessor.equalization;
+package org.esa.beam.meris.radiometry.equalization;
 
+import org.esa.beam.preprocessor.equalization.EqualizationLUT;
 import org.junit.Test;
 
 import java.io.IOException;
