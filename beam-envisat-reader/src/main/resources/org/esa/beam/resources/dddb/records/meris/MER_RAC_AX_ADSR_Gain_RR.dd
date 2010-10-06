@@ -1,0 +1,3 @@
+MER_RAC_AX_ADSR_Gain_RR|Radiometric Calibration - ADS of the Gain RR|*
+#
+gain |Float |* |4 |5 |185 |Inverse absolute radiometric gain RR |1

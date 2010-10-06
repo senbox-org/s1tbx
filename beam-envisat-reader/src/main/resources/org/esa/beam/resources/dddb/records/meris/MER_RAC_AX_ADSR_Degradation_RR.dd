@@ -1,0 +1,6 @@
+MER_RAC_AX_ADSR_Degradation_RR|Radiometric Calibration - ADS of the Degradation RR|*
+#
+dsr_time |@/types/UTC.dd |MJD |12 |1 |*   |Start time of the Data Set Record |1
+beta     |Float          |*   | 4 |5 |185 |beta                              |2
+gamma    |Float          |*   | 4 |5 |185 |gamma                             |3
+delta    |Float          |*   | 4 |5 |185 |delta                             |4
