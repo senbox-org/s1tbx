@@ -104,9 +104,10 @@ public class AuxiliaryDataTest {
                         assertFalse(
                                 MessageFormat.format("Expected valid value, actual value of ''{0}[{1}]'' is infinite",
                                                      field.getName(), k), Float.isInfinite(value));
+                        // range of fields is not specified, but test runs 'green' with (0, 1] 
                         assertTrue(
-                                MessageFormat.format("Expected positive value, actual value of ''{0}[{1}]'' is {2}",
-                                                     field.getName(), k, value), value > 0.0f);
+                                MessageFormat.format("Expected value in (0, 1], actual value of ''{0}[{1}]'' is {2}",
+                                                     field.getName(), k, value), value > 0.0f && value <= 1.0f);
                     }
                 }
             }
