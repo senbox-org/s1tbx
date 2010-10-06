@@ -15,16 +15,16 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Tests that the auxiliary data needed for the radiometric calibration adhere
  * to the specification and can be read.
- *
+ * <p/>
  * The auxiliary data format is specified in MERIS ESL Document PO-TN-MEL-GS-0003, pp. 6.6-1 - 6.6-7.
  *
  * @author Ralf Quast
@@ -95,6 +95,20 @@ public class AuxiliaryDataTest {
                 final Field field = record.getField(fieldNames[i]);
                 assertNotNull(field);
                 assertEquals(fieldElementCounts[i], field.getNumElems());
+                if (!field.isIntType()) {
+                    for (int k = 0; k < fieldElementCounts[i]; k++) {
+                        final float value = field.getElemFloat(k);
+                        assertFalse(
+                                MessageFormat.format("Expected valid value, actual value of ''{0}[{1}]'' is NaN",
+                                                     field.getName(), k), Float.isNaN(value));
+                        assertFalse(
+                                MessageFormat.format("Expected valid value, actual value of ''{0}[{1}]'' is infinite",
+                                                     field.getName(), k), Float.isInfinite(value));
+                        assertTrue(
+                                MessageFormat.format("Expected positive value, actual value of ''{0}[{1}]'' is {2}",
+                                                     field.getName(), k, value), value > 0.0f);
+                    }
+                }
             }
         }
     }
