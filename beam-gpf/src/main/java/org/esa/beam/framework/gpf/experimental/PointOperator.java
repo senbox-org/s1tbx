@@ -34,7 +34,7 @@ public abstract class PointOperator extends Operator {
     }
 
     protected Product createTargetProduct() {
-        Product sourceProduct = getSourceProducts()[0]; // todo - using getSourceProduct() throws NPE 
+        Product sourceProduct = getSourceProducts()[0]; // pitfall: using getSourceProduct() throws NPE 
         Product targetProduct = new Product(getId(),
                                             getClass().getName(),
                                             sourceProduct.getSceneRasterWidth(),
@@ -426,7 +426,7 @@ public abstract class PointOperator extends Operator {
 
         @Override
         public void defineSample(int index, String name) {
-            defineSample(index, name, getSourceProducts()[0]); // todo - using getSourceProduct() throws NPE
+            defineSample(index, name, getSourceProducts()[0]); // pitfall - using getSourceProduct() throws NPE
         }
     }
 
