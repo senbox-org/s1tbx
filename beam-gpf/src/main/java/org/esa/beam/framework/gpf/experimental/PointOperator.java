@@ -34,7 +34,7 @@ public abstract class PointOperator extends Operator {
     }
 
     protected Product createTargetProduct() {
-        Product sourceProduct = getSourceProduct();
+        Product sourceProduct = getSourceProducts()[0]; // todo - using getSourceProduct() throws NPE 
         Product targetProduct = new Product(getId(),
                                             getClass().getName(),
                                             sourceProduct.getSceneRasterWidth(),
@@ -114,16 +114,19 @@ public abstract class PointOperator extends Operator {
     }
 
     static WritableSample createWritableSample(int index, RasterDataNode node) {
-        if (node.getGeophysicalDataType() == ProductData.TYPE_INT16) {
-            return new ShortSample(index, node);
-        } else if (node.getGeophysicalDataType() == ProductData.TYPE_INT32) {
-            return new IntSample(index, node);
-        } else if (node.getGeophysicalDataType() == ProductData.TYPE_FLOAT32) {
-            return new FloatSample(index, node);
-        } else if (node.getGeophysicalDataType() == ProductData.TYPE_FLOAT64) {
-            return new DoubleSample(index, node);
-        } else {
-            throw new IllegalStateException(); // todo - add message
+        switch (node.getGeophysicalDataType()) {
+            case ProductData.TYPE_UINT8:
+                return new ByteSample(index, node);
+            case ProductData.TYPE_INT16:
+                return new ShortSample(index, node);
+            case ProductData.TYPE_INT32:
+                return new IntSample(index, node);
+            case ProductData.TYPE_FLOAT32:
+                return new FloatSample(index, node);
+            case ProductData.TYPE_FLOAT64:
+                return new DoubleSample(index, node);
+            default:
+                throw new IllegalStateException(); // todo - add message
         }
     }
 
@@ -197,6 +200,45 @@ public abstract class PointOperator extends Operator {
         @Override
         public final void set(boolean v) {
             set(v ? 1 : 0);
+        }
+    }
+
+    private static final class ByteSample extends AbstractWritableSample {
+
+        private byte value;
+
+        private ByteSample(int index, RasterDataNode node) {
+            super(index, node);
+        }
+
+        @Override
+        public int getInt() {
+            return value & 0xff;
+        }
+
+        @Override
+        public float getFloat() {
+            return value & 0xff;
+        }
+
+        @Override
+        public double getDouble() {
+            return value & 0xff;
+        }
+
+        @Override
+        public void set(int v) {
+            value = (byte) v;
+        }
+
+        @Override
+        public void set(float v) {
+            value = (byte) Math.floor(v + 0.5f);
+        }
+
+        @Override
+        public void set(double v) {
+            value = (byte) Math.floor(v + 0.5);
         }
     }
 
@@ -384,7 +426,7 @@ public abstract class PointOperator extends Operator {
 
         @Override
         public void defineSample(int index, String name) {
-            defineSample(index, name, getSourceProduct());
+            defineSample(index, name, getSourceProducts()[0]); // todo - using getSourceProduct() throws NPE
         }
     }
 
