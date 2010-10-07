@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class PointOperator extends Operator {
+
     private transient RasterDataNode[] sourceNodes;
     private transient RasterDataNode[] targetNodes;
 
@@ -127,17 +128,21 @@ public abstract class PointOperator extends Operator {
     }
 
     public static interface Configurator {
+
         void defineSample(int index, String name);
 
         void defineSample(int index, String name, Product sourceProduct);
     }
 
     public static interface Sample {
+
         RasterDataNode getNode();
 
         int getIndex();
 
         int getDataType();
+
+        boolean getBoolean();
 
         int getInt();
 
@@ -147,6 +152,9 @@ public abstract class PointOperator extends Operator {
     }
 
     public static interface WritableSample extends Sample {
+
+        void set(boolean v);
+
         void set(int v);
 
         void set(float v);
@@ -155,6 +163,7 @@ public abstract class PointOperator extends Operator {
     }
 
     private static abstract class AbstractWritableSample implements WritableSample {
+
         private final int index;
         private final RasterDataNode node;
         private final int dataType;
@@ -165,142 +174,183 @@ public abstract class PointOperator extends Operator {
             this.dataType = node.getGeophysicalDataType();
         }
 
+        @Override
         public final int getIndex() {
             return index;
         }
 
+        @Override
         public final RasterDataNode getNode() {
             return node;
         }
 
+        @Override
         public final int getDataType() {
             return dataType;
+        }
+
+        @Override
+        public final boolean getBoolean() {
+            return getInt() != 0;
+        }
+
+        @Override
+        public final void set(boolean v) {
+            set(v ? 1 : 0);
         }
     }
 
     private static final class ShortSample extends AbstractWritableSample {
+
         private short value;
 
         private ShortSample(int index, RasterDataNode node) {
             super(index, node);
         }
 
+        @Override
         public int getInt() {
             return value;
         }
 
+        @Override
         public float getFloat() {
             return value;
         }
 
+        @Override
         public double getDouble() {
             return value;
         }
 
+        @Override
         public void set(int v) {
             value = (short) v;
         }
 
+        @Override
         public void set(float v) {
             value = (short) Math.floor(v + 0.5f);
         }
 
+        @Override
         public void set(double v) {
             value = (short) Math.floor(v + 0.5);
         }
     }
 
     private static final class IntSample extends AbstractWritableSample {
+
         private int value;
 
         private IntSample(int index, RasterDataNode node) {
             super(index, node);
         }
 
+        @Override
         public int getInt() {
             return value;
         }
 
+        @Override
         public float getFloat() {
             return value;
         }
 
+        @Override
         public double getDouble() {
             return value;
         }
 
+        @Override
         public void set(int v) {
             value = v;
         }
 
+        @Override
         public void set(float v) {
             value = (int) Math.floor(v + 0.5f);
         }
 
+        @Override
         public void set(double v) {
             value = (int) Math.floor(v + 0.5);
         }
     }
 
     private static final class FloatSample extends AbstractWritableSample {
+
         private float value;
 
         private FloatSample(int index, RasterDataNode node) {
             super(index, node);
         }
 
+        @Override
         public int getInt() {
             return (int) Math.floor(value + 0.5f);
         }
 
+        @Override
         public float getFloat() {
             return value;
         }
 
+        @Override
         public double getDouble() {
             return value;
         }
 
+        @Override
         public void set(int v) {
             value = v;
         }
 
+        @Override
         public void set(float v) {
             value = v;
         }
 
+        @Override
         public void set(double v) {
             value = (float) v;
         }
     }
 
     private static final class DoubleSample extends AbstractWritableSample {
+
         private double value;
 
         private DoubleSample(int index, RasterDataNode node) {
             super(index, node);
         }
 
+        @Override
         public int getInt() {
             return (int) value;
         }
 
+        @Override
         public float getFloat() {
             return (float) value;
         }
 
+        @Override
         public double getDouble() {
             return value;
         }
 
+        @Override
         public void set(int v) {
             value = v;
         }
 
+        @Override
         public void set(float v) {
             value = v;
         }
 
+        @Override
         public void set(double v) {
             value = v;
         }
@@ -310,6 +360,7 @@ public abstract class PointOperator extends Operator {
 
         final List<RasterDataNode> nodes = new ArrayList<RasterDataNode>();
 
+        @Override
         public void defineSample(int index, String name, Product product) {
             addNode(index, product.getRasterDataNode(name), nodes);
         }
@@ -320,7 +371,7 @@ public abstract class PointOperator extends Operator {
             } else if (index == nodes.size()) {
                 nodes.add(node);
             } else {
-                while (index < nodes.size()) {
+                while (index > nodes.size()) {
                     nodes.add(null);
                 }
                 nodes.add(node);
@@ -330,12 +381,16 @@ public abstract class PointOperator extends Operator {
     }
 
     private class SourceConfigurator extends AbstractConfigurator {
+
+        @Override
         public void defineSample(int index, String name) {
             defineSample(index, name, getSourceProduct());
         }
     }
 
     private class TargetConfigurator extends AbstractConfigurator {
+
+        @Override
         public void defineSample(int index, String name) {
             defineSample(index, name, getTargetProduct());
         }
