@@ -17,6 +17,7 @@
 package org.esa.beam.meris.radiometry.smilecorr;
 
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.experimental.PointOperator;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,8 +31,8 @@ public class SmileCorrectionAlgorithm {
         this.auxdata = auxdata;
     }
 
-    public double correct(int x, int y, int bandIndex, int detectorIndex, Tile[] radianceTiles, boolean isLand) {
-        double originalValue = radianceTiles[bandIndex].getSampleDouble(x, y);
+    public double correct(int bandIndex, int detectorIndex, PointOperator.Sample[] radianceSamples, boolean isLand) {
+        double originalValue = radianceSamples[bandIndex].getDouble();
         if (detectorIndex < 0 || detectorIndex >= auxdata.getDetectorWavelengths().length) {
             return originalValue;
         }
@@ -60,8 +61,8 @@ public class SmileCorrectionAlgorithm {
             // perform reflectance correction
             int lowerIndex = lowerIndexes[bandIndex];
             int upperIndex = upperIndexes[bandIndex];
-            double r1 = radianceTiles[lowerIndex].getSampleDouble(x, y) / detectorE0s[lowerIndex];
-            double r2 = radianceTiles[upperIndex].getSampleDouble(x, y) / detectorE0s[upperIndex];
+            double r1 = radianceSamples[lowerIndex].getDouble() / detectorE0s[lowerIndex];
+            double r2 = radianceSamples[upperIndex].getDouble() / detectorE0s[upperIndex];
             double dl = (theoretWLs[bandIndex] - detectorWLs[bandIndex]) / (detectorWLs[upperIndex] - detectorWLs[lowerIndex]);
             double dr = (r2 - r1) * dl * theoretE0s[bandIndex];
             rc += dr;
