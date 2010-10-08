@@ -226,7 +226,15 @@ public abstract class Operator {
      * @since BEAM 4.2
      */
     public Product getSourceProduct() {
-        return getSourceProduct("sourceProduct");
+        Product product = getSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME);
+        if (product != null) {
+            return product;
+        }
+        Product[] products = getSourceProducts();
+        if (products.length > 0) {
+            return products[0];
+        }
+        return null;
     }
 
     /**
@@ -238,7 +246,7 @@ public abstract class Operator {
      * @since BEAM 4.2
      */
     public void setSourceProduct(Product sourceProduct) {
-        setSourceProduct("sourceProduct", sourceProduct);
+        setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME, sourceProduct);
     }
 
     /**

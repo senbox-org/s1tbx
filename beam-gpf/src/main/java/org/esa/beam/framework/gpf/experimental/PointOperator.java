@@ -34,7 +34,7 @@ public abstract class PointOperator extends Operator {
     }
 
     protected Product createTargetProduct() {
-        Product sourceProduct = getSourceProducts()[0]; // pitfall: using getSourceProduct() throws NPE 
+        Product sourceProduct = getSourceProduct();
         Product targetProduct = new Product(getId(),
                                             getClass().getName(),
                                             sourceProduct.getSceneRasterWidth(),

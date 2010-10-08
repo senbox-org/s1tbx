@@ -79,7 +79,7 @@ public class OperatorContextTest {
         final Product productUnnamed = new Product("unnamed", "T", 10, 10);
         opContext.setSourceProduct("bibo", productP1Bibo);
         opContext.setSourceProduct("p2", productP2Bert);
-        opContext.setSourceProduct("sourceProduct", productUnnamed);
+        opContext.setSourceProduct("xyz", productUnnamed);
 
         opContext.getTargetProduct();
 
@@ -98,7 +98,7 @@ public class OperatorContextTest {
         assertSame(products[1], opContext.getSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + 2));
         assertEquals("bibo", opContext.getSourceProductId(productP1Bibo));
         assertEquals("p2", opContext.getSourceProductId(productP2Bert));
-        assertEquals("sourceProduct", opContext.getSourceProductId(productUnnamed));
+        assertEquals("xyz", opContext.getSourceProductId(productUnnamed));
 
     }
 
