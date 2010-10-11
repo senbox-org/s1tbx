@@ -55,7 +55,9 @@ public abstract class PointOperator extends Operator {
         for (int i = 0; i < sourceSamples.length; i++) {
             final WritableSample sourceSample = sourceSamples[i];
             final Tile sourceTile = sourceTiles[i];
-            sourceSample.set(sourceTile.getSampleDouble(x, y));
+            if (sourceTile != null) {
+                sourceSample.set(sourceTile.getSampleDouble(x, y));
+            }
         }
     }
 
@@ -70,7 +72,9 @@ public abstract class PointOperator extends Operator {
     Tile[] getSourceTiles(Rectangle region) {
         final Tile[] sourceTiles = new Tile[sourceNodes.length];
         for (int i = 0; i < sourceTiles.length; i++) {
-            sourceTiles[i] = getSourceTile(sourceNodes[i], region, ProgressMonitor.NULL);
+            if (sourceNodes[i] != null) {
+                sourceTiles[i] = getSourceTile(sourceNodes[i], region, ProgressMonitor.NULL);
+            }
         }
         return sourceTiles;
     }
@@ -108,7 +112,9 @@ public abstract class PointOperator extends Operator {
     WritableSample[] createWritableSamples(RasterDataNode[] nodes) {
         WritableSample[] samples = new WritableSample[nodes.length];
         for (int i = 0; i < nodes.length; i++) {
-            samples[i] = createWritableSample(i, nodes[i]);
+            if (nodes[i] != null) {
+                samples[i] = createWritableSample(i, nodes[i]);
+            }
         }
         return samples;
     }
