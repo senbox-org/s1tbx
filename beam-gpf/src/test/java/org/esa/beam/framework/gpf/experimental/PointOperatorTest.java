@@ -1,5 +1,6 @@
 package org.esa.beam.framework.gpf.experimental;
 
+import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -7,17 +8,23 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.util.ProductUtils;
 
 import javax.media.jai.JAI;
 import javax.media.jai.operator.ConstantDescriptor;
+import java.awt.Rectangle;
 import java.awt.image.Raster;
+import java.util.Map;
 
 public class PointOperatorTest extends TestCase {
+
     private static final int M = 1024 * 1024;
 
 
     private static final int W = 1121;
-    private static final int H = 1121 * 2; 
+    private static final int H = 1121 * 2;
     // private static final int H = 14000; Avg #scans/orbit in Envisat MERIS
 
     private static final long[] CACHE_SIZES = {
@@ -28,7 +35,8 @@ public class PointOperatorTest extends TestCase {
             128 * M,
             256 * M,
             512 * M,
-            (Runtime.getRuntime().maxMemory() / M) * M};
+            (Runtime.getRuntime().maxMemory() / M) * M
+    };
 
     public static void main(String[] args) {
         new PointOperatorTest().runTestsWithDifferentTileCacheCapacities();
@@ -36,7 +44,13 @@ public class PointOperatorTest extends TestCase {
 
     private void runTestsWithDifferentTileCacheCapacities() {
         for (long cacheSize : CACHE_SIZES) {
+            testPointOp(new NdviTileOp(), cacheSize);
+        }
+        for (long cacheSize : CACHE_SIZES) {
             testPointOp(new NdviSampleOp(), cacheSize);
+        }
+        for (long cacheSize : CACHE_SIZES) {
+            testPointOp(new NdviTileStackOp(), cacheSize);
         }
         for (long cacheSize : CACHE_SIZES) {
             testPointOp(new NdviPixelOp(), cacheSize);
@@ -49,6 +63,14 @@ public class PointOperatorTest extends TestCase {
 
     public void testNdviPixelOp() {
         testPointOp(new NdviPixelOp(), 128 * M);
+    }
+
+    public void testNdviTileOp() {
+        testPointOp(new NdviTileOp(), 128 * M);
+    }
+
+    public void testNdviTileSackOp() {
+        testPointOp(new NdviTileStackOp(), 128 * M);
     }
 
     private void testPointOp(Operator op, long cacheSize) {
@@ -171,6 +193,86 @@ public class PointOperatorTest extends TestCase {
             int ndviFlags = (ndvi < 0 ? 1 : 0) | (ndvi > 1 ? 2 : 0);
             targetSamples[0].set(ndvi);
             targetSamples[1].set(ndviFlags);
+        }
+
+    }
+
+    public static class NdviStdOp extends Operator {
+
+        @Override
+        public void initialize() throws OperatorException {
+            final Product inputProduct = getSourceProduct();
+            final int sceneWidth = inputProduct.getSceneRasterWidth();
+            final int sceneHeight = getSourceProduct().getSceneRasterHeight();
+            Product targetProduct = new Product("ndvi", "NDVI_TYPE", sceneWidth, sceneHeight);
+
+            ProductUtils.copyTiePointGrids(inputProduct, targetProduct);
+            ProductUtils.copyGeoCoding(inputProduct, targetProduct);
+
+            // create and add the NDVI band
+            Band ndviOutputBand = new Band("ndvi", ProductData.TYPE_FLOAT32, sceneWidth,
+                                           sceneHeight);
+            targetProduct.addBand(ndviOutputBand);
+
+            // create and add the NDVI flags band
+            Band ndviFlagsOutputBand = new Band("ndvi_flags", ProductData.TYPE_INT16,
+                                                sceneWidth, sceneHeight);
+            ndviFlagsOutputBand.setDescription("NDVI specific flags");
+            targetProduct.addBand(ndviFlagsOutputBand);
+            setTargetProduct(targetProduct);
+        }
+    }
+
+    public static class NdviTileStackOp extends NdviStdOp {
+
+        @Override
+        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle,
+                                     ProgressMonitor pm) throws
+                                                         OperatorException {
+
+            final Product product = getSourceProduct();
+            Tile sourceTile1 = getSourceTile(product.getBand("radiance_10"), targetRectangle, ProgressMonitor.NULL);
+            Tile sourceTile2 = getSourceTile(product.getBand("radiance_8"), targetRectangle, ProgressMonitor.NULL);
+            final Tile ndviTile = targetTiles.get(getTargetProduct().getBand("ndvi"));
+            final Tile ndviFlagsTile = targetTiles.get(getTargetProduct().getBand("ndvi_flags"));
+
+            for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; y++) {
+                for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; x++) {
+                    final float upper = sourceTile1.getSampleFloat(x, y);
+                    final float lower = sourceTile2.getSampleFloat(x, y);
+                    float ndviValue = (upper - lower) / (upper + lower);
+                    int ndviFlags = (ndviValue < 0 ? 1 : 0) | (ndviValue > 1 ? 2 : 0);
+                    ndviTile.setSample(x, y, ndviValue);
+                    ndviFlagsTile.setSample(x, y, ndviFlags);
+                }
+            }
+
+        }
+    }
+
+    public static class NdviTileOp extends NdviStdOp {
+
+        @Override
+        public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+            final Product product = getSourceProduct();
+            final Rectangle targetRectangle = targetTile.getRectangle();
+            Tile sourceTile1 = getSourceTile(product.getBand("radiance_10"), targetRectangle, ProgressMonitor.NULL);
+            Tile sourceTile2 = getSourceTile(product.getBand("radiance_8"), targetRectangle, ProgressMonitor.NULL);
+
+            for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; y++) {
+                for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; x++) {
+                    final float upper = sourceTile1.getSampleFloat(x, y);
+                    final float lower = sourceTile2.getSampleFloat(x, y);
+                    float ndviValue = (upper - lower) / (upper + lower);
+                    if ("ndvi".equals(targetBand.getName())) {
+                        targetTile.setSample(x, y, ndviValue);
+                    } else if ("ndvi_flags".equals(targetBand.getName())) {
+                        int ndviFlags = (ndviValue < 0 ? 1 : 0) | (ndviValue > 1 ? 2 : 0);
+                        targetTile.setSample(x, y, ndviFlags);
+                    }
+                }
+            }
+
         }
 
     }
