@@ -27,12 +27,16 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.experimental.SampleOperator;
+import org.esa.beam.meris.radiometry.calibration.CalibrationAlgorithm;
+import org.esa.beam.meris.radiometry.calibration.Resolution;
 import org.esa.beam.meris.radiometry.equalization.EqualizationAlgorithm;
 import org.esa.beam.meris.radiometry.equalization.ReprocessingVersion;
 import org.esa.beam.meris.radiometry.smilecorr.SmileCorrectionAlgorithm;
 import org.esa.beam.meris.radiometry.smilecorr.SmileCorrectionAuxdata;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.RsMathUtils;
+
+import java.io.File;
 
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
@@ -47,6 +51,21 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private static final String UNIT_DL = "dl";
     private static final String INVALID_MASK_NAME = "invalid";
     private static final String LAND_MASK_NAME = "land";
+
+    @Parameter(defaultValue = "true",
+               label = "Perform calibration",
+               description = "Whether to perform the calibration.")
+    private boolean doCalibration;
+
+    @Parameter(label = "Source radiometric correction file",
+               description = "The radiometric correction auxiliary file for the source product",
+               notNull = true)
+    private File sourceRacFile;
+
+    @Parameter(label = "Target radiometric correction file",
+               description = "The radiometric correction auxiliary file for the target product",
+               notNull = true)
+    private File targetRacFile;
 
     @Parameter(defaultValue = "true",
                label = "Perform SMILE correction",
@@ -93,6 +112,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     @TargetProduct(description = "The target product.")
     private Product targetProduct;
 
+    private transient CalibrationAlgorithm calibrationAlgorithm;
     private transient EqualizationAlgorithm equalizationAlgorithm;
     private transient SmileCorrectionAlgorithm smileCorrectionAlgorithm;
 
@@ -117,7 +137,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             }
         }
         detectorIndexSampleIndex = i + 1;
-        if (doSmile || doEqualization) {
+        if (doCalibration || doSmile || doEqualization) {
             c.defineSample(detectorIndexSampleIndex, MERIS_DETECTOR_INDEX_DS_NAME);
         }
         sunZenithAngleSampleIndex = i + 2;
@@ -197,17 +217,22 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     @Override
     protected void computeSample(int x, int y, Sample[] sourceSamples, WritableSample targetSample) {
-        final int targetSampleIndex = targetSample.getIndex();
-        final Sample sourceRadiance = sourceSamples[targetSampleIndex];
+        final int bandIndex = targetSample.getIndex();
+        final Sample sourceRadiance = sourceSamples[bandIndex];
         int detectorIndex = -1;
-        if (doSmile || doEqualization) {
+        if (doCalibration || doSmile || doEqualization) {
             detectorIndex = sourceSamples[detectorIndexSampleIndex].getInt();
         }
         double value = sourceRadiance.getDouble();
-        final boolean invalid = sourceSamples[invalidMaskSampleIndex].getBoolean();
-        if (doSmile && !invalid && detectorIndex != -1) {
-            final boolean land = sourceSamples[landMaskSampleIndex].getBoolean();
-            value = smileCorrectionAlgorithm.correct(targetSampleIndex, detectorIndex, sourceSamples, land);
+        if (doCalibration && detectorIndex != -1 && value < sourceRadiance.getNode().scale(65435.0)) {
+            value = calibrationAlgorithm.calibrate(bandIndex, detectorIndex, value);
+        }
+        if (doSmile) {
+            final boolean invalid = sourceSamples[invalidMaskSampleIndex].getBoolean();
+            if (!invalid && detectorIndex != -1) {
+                final boolean land = sourceSamples[landMaskSampleIndex].getBoolean();
+                value = smileCorrectionAlgorithm.correct(bandIndex, detectorIndex, sourceSamples, land);
+            }
         }
         if (doRadToRefl) {
             final float solarFlux = ((Band) sourceRadiance.getNode()).getSolarFlux();
@@ -215,16 +240,27 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             value = RsMathUtils.radianceToReflectance((float) value, sunZenithSample, solarFlux);
         }
         if (doEqualization && detectorIndex != -1) {
-            value = equalizationAlgorithm.performEqualization(value, targetSampleIndex, detectorIndex);
+            value = equalizationAlgorithm.performEqualization(value, bandIndex, detectorIndex);
         }
         targetSample.set(value);
     }
 
     private void initAlgorithms() {
+        if (doCalibration) {
+            try {
+                calibrationAlgorithm = new CalibrationAlgorithm(
+                        sourceProduct.getProductType().contains("RR") ? Resolution.RR : Resolution.FR,
+                        0.5 * (sourceProduct.getStartTime().getMJD() + sourceProduct.getEndTime().getMJD()),
+                        sourceRacFile,
+                        targetRacFile);
+            } catch (Exception e) {
+                throw new OperatorException(e);
+            }
+        }
         if (doSmile) {
             try {
-                smileCorrectionAlgorithm = new SmileCorrectionAlgorithm(SmileCorrectionAuxdata.loadAuxdata(
-                        sourceProduct.getProductType()));
+                smileCorrectionAlgorithm = new SmileCorrectionAlgorithm(
+                        SmileCorrectionAuxdata.loadAuxdata(sourceProduct.getProductType()));
             } catch (Exception e) {
                 throw new OperatorException(e);
             }
