@@ -72,6 +72,9 @@ public class EqualizationAlgorithm {
         double cEq = coefficients[0] +
                      coefficients[1] * julianDate +
                      coefficients[2] * julianDate * julianDate;
+        if (cEq == 0.0) {
+            return value;
+        }
         return value / cEq;
 
     }
