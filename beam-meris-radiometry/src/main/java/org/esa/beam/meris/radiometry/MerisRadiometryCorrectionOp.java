@@ -52,19 +52,19 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private static final String INVALID_MASK_NAME = "invalid";
     private static final String LAND_MASK_NAME = "land";
 
-    @Parameter(defaultValue = "true",
+    @Parameter(defaultValue = "false",
                label = "Perform calibration",
                description = "Whether to perform the calibration.")
     private boolean doCalibration;
 
-    @Parameter(label = "Source radiometric correction file",
-               description = "The radiometric correction auxiliary file for the source product",
-               notNull = true)
+    @Parameter(defaultValue = "MER_RAC_AXVIEC20050708_135553_20021224_121445_20041213_220000",
+               label = "Source radiometric correction file",
+               description = "The radiometric correction auxiliary file for the source product")
     private File sourceRacFile;
 
-    @Parameter(label = "Target radiometric correction file",
-               description = "The radiometric correction auxiliary file for the target product",
-               notNull = true)
+    @Parameter(defaultValue = "MER_RAC_AXVACR20091016_154511_20021224_121445_20041213_220000",
+               label = "Target radiometric correction file",
+               description = "The radiometric correction auxiliary file for the target product")
     private File targetRacFile;
 
     @Parameter(defaultValue = "true",
