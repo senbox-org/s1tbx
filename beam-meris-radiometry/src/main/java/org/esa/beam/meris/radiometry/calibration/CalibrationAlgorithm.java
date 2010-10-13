@@ -9,9 +9,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.MessageFormat;
 
 public class CalibrationAlgorithm {
