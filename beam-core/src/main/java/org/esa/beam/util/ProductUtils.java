@@ -1215,8 +1215,6 @@ public class ProductUtils {
         Guardian.assertNotNull("target", targetProduct);
         if (sourceProduct.getFlagCodingGroup().getNodeCount() > 0) {
             copyFlagCodings(sourceProduct, targetProduct);
-            copyMasks(sourceProduct, targetProduct);
-            copyOverlayMasks(sourceProduct, targetProduct);
 
 // loop over bands and check if they have a flags coding attached
             for (int i = 0; i < sourceProduct.getNumBands(); i++) {
@@ -1228,6 +1226,12 @@ public class ProductUtils {
                     targetBand.setSampleCoding(targetProduct.getFlagCodingGroup().get(coding.getName()));
                 }
             }
+
+            // first the bands have to be copied and then the masks
+            // other wise the referenced bands, e.g. flag band, is not contained in the target product
+            // and the mask is not copied
+            copyMasks(sourceProduct, targetProduct);
+            copyOverlayMasks(sourceProduct, targetProduct);
         }
     }
 

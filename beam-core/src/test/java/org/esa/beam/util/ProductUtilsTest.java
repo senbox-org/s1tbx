@@ -16,56 +16,51 @@
 
 package org.esa.beam.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ProductUtilsTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class ProductUtilsTest {
 
     private static final float EPS = 1.0e-6f;
 
-
-    public ProductUtilsTest(String testName) {
-        super(testName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ProductUtilsTest.class);
-    }
-
+    @Test
     public void testGetAngleSum() {
         double angleSum;
 
         angleSum = ProductUtils.getAngleSum(createPositiveRotationGeoPolygon(0));
-        assertEquals(Math.PI * 2, angleSum, 1e-6);
+        assertEquals(Math.PI * 2, angleSum, 1.0e-6);
 
         angleSum = ProductUtils.getAngleSum(createNegativeRotationGeoPolygon(0));
-        assertEquals(Math.PI * 2 * -1, angleSum, 1e-6);
+        assertEquals(Math.PI * 2 * -1, angleSum, 1.0e-6);
     }
 
+    @Test
     public void testGetRotationDirection() {
         int rotationDirection;
 
@@ -76,6 +71,7 @@ public class ProductUtilsTest extends TestCase {
         assertEquals(-1, rotationDirection);
     }
 
+    @Test
     public void testNormalizeGeoBoundary() {
         GeoPos[] boundary;
         GeoPos[] expected;
@@ -136,66 +132,68 @@ public class ProductUtilsTest extends TestCase {
         assertNormalizing(boundary, expectedNormalizing, expected);
     }
 
+    @Test
     public void testDenormalizeGeoPos() {
         final GeoPos geoPos = new GeoPos();
 
         geoPos.lon = -678.2f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(-678.2f + 720.f, geoPos.lon, 1e-8);
+        assertEquals(-678.2f + 720.0f, geoPos.lon, 1.0e-8);
 
         geoPos.lon = -540.108f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(-540.108f + 720.f, geoPos.lon, 1e-8);
+        assertEquals(-540.108f + 720.0f, geoPos.lon, 1.0e-8);
 
         geoPos.lon = -539.67f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(-539.67f + 360.f, geoPos.lon, 1e-8);
+        assertEquals(-539.67f + 360.0f, geoPos.lon, 1.0e-8);
 
         geoPos.lon = -256.98f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(-256.98f + 360.f, geoPos.lon, 1e-8);
+        assertEquals(-256.98f + 360.0f, geoPos.lon, 1.0e-8);
 
         geoPos.lon = -180.3f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(-180.3f + 360.f, geoPos.lon, 1e-8);
+        assertEquals(-180.3f + 360.0f, geoPos.lon, 1.0e-8);
 
         geoPos.lon = -179.4f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(-179.4f, geoPos.lon, 1e-8);
+        assertEquals(-179.4f, geoPos.lon, 1.0e-8);
 
         geoPos.lon = -34;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(-34, geoPos.lon, 1e-8);
+        assertEquals(-34, geoPos.lon, 1.0e-8);
 
         geoPos.lon = 0.34f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(0.34f, geoPos.lon, 1e-8);
+        assertEquals(0.34f, geoPos.lon, 1.0e-8);
 
         geoPos.lon = 114.9f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(114.9f, geoPos.lon, 1e-8);
+        assertEquals(114.9f, geoPos.lon, 1.0e-8);
 
         geoPos.lon = 184.4f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(184.4f - 360.f, geoPos.lon, 1e-8);
+        assertEquals(184.4f - 360.0f, geoPos.lon, 1.0e-8);
 
         geoPos.lon = 245.7f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(245.7f - 360.f, geoPos.lon, 1e-8);
+        assertEquals(245.7f - 360.0f, geoPos.lon, 1.0e-8);
 
         geoPos.lon = 536.9f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(536.9f - 360.f, geoPos.lon, 1e-8);
+        assertEquals(536.9f - 360.0f, geoPos.lon, 1.0e-8);
 
         geoPos.lon = 541.5f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(541.5f - 720.f, geoPos.lon, 1e-8);
+        assertEquals(541.5f - 720.0f, geoPos.lon, 1.0e-8);
 
         geoPos.lon = 722.5f;
         ProductUtils.denormalizeGeoPos(geoPos);
-        assertEquals(722.5f - 720.f, geoPos.lon, 1e-8);
+        assertEquals(722.5f - 720.0f, geoPos.lon, 1.0e-8);
     }
 
+    @Test
     public void testNormalizing_crossingMeridianTwice() {
         GeoPos[] expected = createPositiveRotationDualMeridianGeoPolygon();
         GeoPos[] converted = createPositiveRotationDualMeridianGeoPolygon();
@@ -208,89 +206,7 @@ public class ProductUtilsTest extends TestCase {
         }
     }
 
-    private void assertNormalizing(final GeoPos[] boundary, final int expectedNormalizing,
-                                   final GeoPos[] expected) {
-        final int normalized = ProductUtils.normalizeGeoPolygon(boundary);
-        assertEquals(expectedNormalizing, normalized);
-        for (int i = 0; i < expected.length; i++) {
-            assertEquals("at index " + i, expected[i], boundary[i]);
-        }
-    }
-
-    private static GeoPos[] createPositiveRotationGeoPolygon(int lonOffset) {
-        return new GeoPos[]{
-                new GeoPos(-60, -40 + lonOffset),
-                new GeoPos(-80, +20 + lonOffset),
-                new GeoPos(-40, +60 + lonOffset),
-                new GeoPos(+20, +120 + lonOffset),
-                new GeoPos(+60, +40 + lonOffset),
-                new GeoPos(+80, -20 + lonOffset),
-                new GeoPos(+40, -60 + lonOffset),
-                new GeoPos(-20, -120 + lonOffset)
-        };
-    }
-
-    private static GeoPos[] createNegativeRotationGeoPolygon(int lonOffset) {
-        return new GeoPos[]{
-                new GeoPos(-60, -40 + lonOffset),
-                new GeoPos(-20, -120 + lonOffset),
-                new GeoPos(+40, -60 + lonOffset),
-                new GeoPos(+80, -20 + lonOffset),
-                new GeoPos(+60, +40 + lonOffset),
-                new GeoPos(+20, +120 + lonOffset),
-                new GeoPos(-40, +60 + lonOffset),
-                new GeoPos(-80, +20 + lonOffset)
-        };
-    }
-
-    private static GeoPos[] createPositiveRotationDualMeridianGeoPolygon() {
-        return new GeoPos[]{
-                new GeoPos(20, -160),
-                new GeoPos(30, -180),
-                new GeoPos(30, 178),
-                new GeoPos(40, 10),
-                new GeoPos(50, -70),
-                new GeoPos(70, -170),
-                new GeoPos(80, 150),
-                new GeoPos(60, 150),
-                new GeoPos(57, 170),
-                new GeoPos(50, -140),
-                new GeoPos(30, 30),
-                new GeoPos(25, 170),
-                new GeoPos(10, -165),
-        };
-    }
-
-    private void shiftGeoPolygon(final GeoPos[] geoPositions, final int lonOffset) {
-        for (final GeoPos geoPosition : geoPositions) {
-            geoPosition.lon += lonOffset;
-        }
-    }
-
-    public static boolean printVectors(GeoPos[] positions) {
-        final int length = positions.length;
-        double angleSum = 0;
-        for (int i = 0; i < length; i++) {
-            GeoPos p1 = positions[i];
-            GeoPos p2 = positions[(i + 1) % length];
-            GeoPos p3 = positions[(i + 2) % length];
-            double ax = p2.lon - p1.lon;
-            double ay = p2.lat - p1.lat;
-            double bx = p3.lon - p2.lon;
-            double by = p3.lat - p2.lat;
-            double a = Math.sqrt(ax * ax + ay * ay);
-            double b = Math.sqrt(bx * bx + by * by);
-            double cosAB = (ax * bx + ay * by) / (a * b);  // Skalarproduct geteilt durch Betragsprodukt
-            double sinAB = (ax * by - ay * bx) / (a * b);  // Vektorproduct geteilt durch Betragsprodukt
-            final double angle = Math.round(180 * Math.atan2(sinAB, cosAB) / Math.PI * 100) / 100;
-            angleSum += angle;
-//            System.out.println(
-//                    "  P" + (i + 1) + ": cosAB = " + cosAB + ", sinAB = " + sinAB + ", r = " + r + ", angle = " + angle);
-        }
-        System.out.println("  angleSum = " + angleSum);
-        return false;  // todo - change body of created method
-    }
-
+    @Test
     public void testCopyTiePointGrids() {
         final Product sourceProduct = new Product("p1n", "p1t", 20, 20);
 
@@ -324,39 +240,67 @@ public class ProductUtilsTest extends TestCase {
         assertEquals("tpg1n", sourceProduct.getTiePointGridAt(0).getName());
         assertEquals(5, sourceProduct.getTiePointGridAt(0).getRasterWidth());
         assertEquals(4, sourceProduct.getTiePointGridAt(0).getRasterHeight());
-        assertEquals(2.0f, sourceProduct.getTiePointGridAt(0).getOffsetX(), 1e-5);
-        assertEquals(3.0f, sourceProduct.getTiePointGridAt(0).getOffsetY(), 1e-5);
-        assertEquals(4.0f, sourceProduct.getTiePointGridAt(0).getSubSamplingX(), 1e-5);
-        assertEquals(5.0f, sourceProduct.getTiePointGridAt(0).getSubSamplingY(), 1e-5);
+        assertEquals(2.0f, sourceProduct.getTiePointGridAt(0).getOffsetX(), 1.0e-5);
+        assertEquals(3.0f, sourceProduct.getTiePointGridAt(0).getOffsetY(), 1.0e-5);
+        assertEquals(4.0f, sourceProduct.getTiePointGridAt(0).getSubSamplingX(), 1.0e-5);
+        assertEquals(5.0f, sourceProduct.getTiePointGridAt(0).getSubSamplingY(), 1.0e-5);
         assertEquals(tpg1tp, sourceProduct.getTiePointGridAt(0).getDataElems());
         assertEquals("tpg2n", sourceProduct.getTiePointGridAt(1).getName());
         assertEquals(4, sourceProduct.getTiePointGridAt(1).getRasterWidth());
         assertEquals(5, sourceProduct.getTiePointGridAt(1).getRasterHeight());
-        assertEquals(1.2f, sourceProduct.getTiePointGridAt(1).getOffsetX(), 1e-5);
-        assertEquals(1.4f, sourceProduct.getTiePointGridAt(1).getOffsetY(), 1e-5);
-        assertEquals(5.0f, sourceProduct.getTiePointGridAt(1).getSubSamplingX(), 1e-5);
-        assertEquals(4.0f, sourceProduct.getTiePointGridAt(1).getSubSamplingY(), 1e-5);
+        assertEquals(1.2f, sourceProduct.getTiePointGridAt(1).getOffsetX(), 1.0e-5);
+        assertEquals(1.4f, sourceProduct.getTiePointGridAt(1).getOffsetY(), 1.0e-5);
+        assertEquals(5.0f, sourceProduct.getTiePointGridAt(1).getSubSamplingX(), 1.0e-5);
+        assertEquals(4.0f, sourceProduct.getTiePointGridAt(1).getSubSamplingY(), 1.0e-5);
         assertEquals(tpg2tp, sourceProduct.getTiePointGridAt(1).getDataElems());
 
         assertEquals(2, targetProduct.getNumTiePointGrids());
         assertEquals("tpg1n", targetProduct.getTiePointGridAt(0).getName());
         assertEquals(5, targetProduct.getTiePointGridAt(0).getRasterWidth());
         assertEquals(4, targetProduct.getTiePointGridAt(0).getRasterHeight());
-        assertEquals(2.0f, targetProduct.getTiePointGridAt(0).getOffsetX(), 1e-5);
-        assertEquals(3.0f, targetProduct.getTiePointGridAt(0).getOffsetY(), 1e-5);
-        assertEquals(4.0f, targetProduct.getTiePointGridAt(0).getSubSamplingX(), 1e-5);
-        assertEquals(5.0f, targetProduct.getTiePointGridAt(0).getSubSamplingY(), 1e-5);
+        assertEquals(2.0f, targetProduct.getTiePointGridAt(0).getOffsetX(), 1.0e-5);
+        assertEquals(3.0f, targetProduct.getTiePointGridAt(0).getOffsetY(), 1.0e-5);
+        assertEquals(4.0f, targetProduct.getTiePointGridAt(0).getSubSamplingX(), 1.0e-5);
+        assertEquals(5.0f, targetProduct.getTiePointGridAt(0).getSubSamplingY(), 1.0e-5);
         assertTrue(Arrays.equals(tpg1tp, (float[]) targetProduct.getTiePointGridAt(0).getDataElems()));
         assertEquals("tpg2n", targetProduct.getTiePointGridAt(1).getName());
         assertEquals(4, targetProduct.getTiePointGridAt(1).getRasterWidth());
         assertEquals(5, targetProduct.getTiePointGridAt(1).getRasterHeight());
-        assertEquals(1.2f, targetProduct.getTiePointGridAt(1).getOffsetX(), 1e-5);
-        assertEquals(1.4f, targetProduct.getTiePointGridAt(1).getOffsetY(), 1e-5);
-        assertEquals(5.0f, targetProduct.getTiePointGridAt(1).getSubSamplingX(), 1e-5);
-        assertEquals(4.0f, targetProduct.getTiePointGridAt(1).getSubSamplingY(), 1e-5);
+        assertEquals(1.2f, targetProduct.getTiePointGridAt(1).getOffsetX(), 1.0e-5);
+        assertEquals(1.4f, targetProduct.getTiePointGridAt(1).getOffsetY(), 1.0e-5);
+        assertEquals(5.0f, targetProduct.getTiePointGridAt(1).getSubSamplingX(), 1.0e-5);
+        assertEquals(4.0f, targetProduct.getTiePointGridAt(1).getSubSamplingY(), 1.0e-5);
         assertTrue(Arrays.equals(tpg2tp, (float[]) targetProduct.getTiePointGridAt(1).getDataElems()));
     }
 
+    @Test
+    public void testCopyFlagBands() {
+        final int size = 10;
+        final Product source = new Product("source", "test", size, size);
+        final Band flagBand = source.addBand("flag", ProductData.TYPE_INT8);
+        final FlagCoding originalFlagCoding = new FlagCoding("flagCoding");
+        originalFlagCoding.addFlag("erni", 1, "erni flag");
+        originalFlagCoding.addFlag("bert", 2, "bert flag");
+        originalFlagCoding.addFlag("bibo", 4, "bert flag");
+        flagBand.setSampleCoding(originalFlagCoding);
+        source.getFlagCodingGroup().add(originalFlagCoding);
+        final String maskName = "erni_mask";
+        final Mask mask = Mask.BandMathsType.create(maskName, "erni detected", size, size, "flag.erni",
+                                                    Color.WHITE, 0.6f);
+        source.getMaskGroup().add(mask);
+
+        final Product target = new Product("target", "T", size, size);
+        ProductUtils.copyFlagBands(source, target);
+
+        assertEquals(1, target.getFlagCodingGroup().getNodeCount());
+        final Band targetFlagBand = target.getBand("flag");
+        assertTrue(targetFlagBand != null);
+        assertTrue(targetFlagBand.isFlagBand());
+        assertTrue(target.getMaskGroup().contains(maskName));
+
+    }
+
+    @Test
     public void testCopyBandsForGeomTransform() {
         final int sourceWidth = 100;
         final int sourceHeight = 200;
@@ -415,6 +359,7 @@ public class ProductUtilsTest extends TestCase {
     }
 
 
+    @Test
     public void testComputeSourcePixelCoordinates() {
         final PixelPos[] pixelCoords = ProductUtils.computeSourcePixelCoordinates(new ProductUtilsTest.SGeoCoding(),
                                                                                   2, 2,
@@ -431,19 +376,13 @@ public class ProductUtilsTest extends TestCase {
         assertNull(pixelCoords[5]);
     }
 
-    private void testCoord(final PixelPos[] pixelCoords, final int i, final float x, final float y) {
-        assertNotNull(pixelCoords[i]);
-        assertEquals(x, pixelCoords[i].x, EPS);
-        assertEquals(y, pixelCoords[i].y, EPS);
-    }
-
-
+    @Test
     public void testComputeMinMaxY() {
         // call with null
         try {
             ProductUtils.computeMinMaxY(null);
             fail();
-        } catch (IllegalArgumentException expected) {
+        } catch (IllegalArgumentException ignored) {
         }
 
         // call with pixel positions array width null elements
@@ -469,6 +408,156 @@ public class ProductUtilsTest extends TestCase {
         assertEquals(2, minMax.length);
         assertEquals(3.34f, minMax[0], 1.0e-5f);
         assertEquals(6.36f, minMax[1], 1.0e-5f);
+    }
+
+    @Test
+    public void testCreateRectBoundary_usePixelCenter_false() {
+        final boolean notUsePixelCenter = false;
+        final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7,
+                                                                        notUsePixelCenter);
+        assertEquals(12, rectBoundary.length);
+        assertEquals(new PixelPos(2, 3), rectBoundary[0]);
+        assertEquals(new PixelPos(9, 3), rectBoundary[1]);
+        assertEquals(new PixelPos(16, 3), rectBoundary[2]);
+        assertEquals(new PixelPos(17, 3), rectBoundary[3]);
+        assertEquals(new PixelPos(17, 10), rectBoundary[4]);
+        assertEquals(new PixelPos(17, 17), rectBoundary[5]);
+        assertEquals(new PixelPos(17, 23), rectBoundary[6]);
+        assertEquals(new PixelPos(16, 23), rectBoundary[7]);
+        assertEquals(new PixelPos(9, 23), rectBoundary[8]);
+        assertEquals(new PixelPos(2, 23), rectBoundary[9]);
+        assertEquals(new PixelPos(2, 17), rectBoundary[10]);
+        assertEquals(new PixelPos(2, 10), rectBoundary[11]);
+    }
+
+    @Test
+    public void testCreateRectBoundary_usePixelCenter_true() {
+        final boolean usePixelCenter = true;
+        final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7, usePixelCenter);
+        assertEquals(10, rectBoundary.length);
+        assertEquals(new PixelPos(2.5f, 3.5f), rectBoundary[0]);
+        assertEquals(new PixelPos(9.5f, 3.5f), rectBoundary[1]);
+        assertEquals(new PixelPos(16.5f, 3.5f), rectBoundary[2]);
+        assertEquals(new PixelPos(16.5f, 10.5f), rectBoundary[3]);
+        assertEquals(new PixelPos(16.5f, 17.5f), rectBoundary[4]);
+        assertEquals(new PixelPos(16.5f, 22.5f), rectBoundary[5]);
+        assertEquals(new PixelPos(9.5f, 22.5f), rectBoundary[6]);
+        assertEquals(new PixelPos(2.5f, 22.5f), rectBoundary[7]);
+        assertEquals(new PixelPos(2.5f, 17.5f), rectBoundary[8]);
+        assertEquals(new PixelPos(2.5f, 10.5f), rectBoundary[9]);
+    }
+
+    @Test
+    public void testCreateRectBoundary_without_usePixelCenter_Parameter() {
+        final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7);
+        assertEquals(10, rectBoundary.length);
+        assertEquals(new PixelPos(2.5f, 3.5f), rectBoundary[0]);
+        assertEquals(new PixelPos(9.5f, 3.5f), rectBoundary[1]);
+        assertEquals(new PixelPos(16.5f, 3.5f), rectBoundary[2]);
+        assertEquals(new PixelPos(16.5f, 10.5f), rectBoundary[3]);
+        assertEquals(new PixelPos(16.5f, 17.5f), rectBoundary[4]);
+        assertEquals(new PixelPos(16.5f, 22.5f), rectBoundary[5]);
+        assertEquals(new PixelPos(9.5f, 22.5f), rectBoundary[6]);
+        assertEquals(new PixelPos(2.5f, 22.5f), rectBoundary[7]);
+        assertEquals(new PixelPos(2.5f, 17.5f), rectBoundary[8]);
+        assertEquals(new PixelPos(2.5f, 10.5f), rectBoundary[9]);
+    }
+
+    @Test
+    public void testCopyFlagCoding() {
+        final FlagCoding originalFlagCoding = new FlagCoding("sesame street character flags");
+        originalFlagCoding.addFlag("erni", 1, "erni flag");
+        originalFlagCoding.addFlag("bert", 2, "bert flag");
+        originalFlagCoding.addFlag("bibo", 4, "bert flag");
+
+        final Product product = new Product("S", "S", 0, 0);
+        ProductUtils.copyFlagCoding(originalFlagCoding, product);
+
+        final ProductNodeGroup<FlagCoding> flagCodingGroup = product.getFlagCodingGroup();
+        assertNotNull(flagCodingGroup);
+
+        final FlagCoding actualFlagCoding = flagCodingGroup.get("sesame street character flags");
+        assertNotNull(actualFlagCoding);
+        assertNotSame(originalFlagCoding, actualFlagCoding);
+
+        assertMetadataAttributeEqualityInt(originalFlagCoding.getFlag("erni"), actualFlagCoding.getFlag("erni"));
+        assertMetadataAttributeEqualityInt(originalFlagCoding.getFlag("bert"), actualFlagCoding.getFlag("bert"));
+        assertMetadataAttributeEqualityInt(originalFlagCoding.getFlag("bibo"), actualFlagCoding.getFlag("bibo"));
+    }
+
+    @Test
+    public void testCopyIndexCoding() {
+        final IndexCoding originalIndexCoding = new IndexCoding("sesame street characters");
+        originalIndexCoding.addIndex("erni", 0, "erni character");
+        originalIndexCoding.addIndex("bert", 1, "bert character");
+
+        final Product product = new Product("S", "S", 0, 0);
+        ProductUtils.copyIndexCoding(originalIndexCoding, product);
+
+        final ProductNodeGroup<IndexCoding> indexCodingGroup = product.getIndexCodingGroup();
+        assertNotNull(indexCodingGroup);
+
+        final IndexCoding actualIndexCoding = indexCodingGroup.get("sesame street characters");
+        assertNotNull(actualIndexCoding);
+        assertNotSame(originalIndexCoding, actualIndexCoding);
+
+        assertMetadataAttributeEqualityInt(originalIndexCoding.getIndex("erni"), actualIndexCoding.getIndex("erni"));
+        assertMetadataAttributeEqualityInt(originalIndexCoding.getIndex("bert"), actualIndexCoding.getIndex("bert"));
+    }
+
+    @Test
+    public void testCopyMetadata() {
+        try {
+            ProductUtils.copyMetadata((Product) null, null);
+            fail();
+        } catch (NullPointerException ignored) {
+        }
+        try {
+            ProductUtils.copyMetadata((MetadataElement) null, null);
+            fail();
+        } catch (NullPointerException ignored) {
+        }
+        try {
+            ProductUtils.copyMetadata(new MetadataElement("source"), null);
+            fail();
+        } catch (NullPointerException ignored) {
+        }
+        try {
+            ProductUtils.copyMetadata(null, new MetadataElement("target"));
+            fail();
+        } catch (NullPointerException ignored) {
+        }
+
+        final MetadataElement source = new MetadataElement("source");
+        final FlagCoding sourceChild = new FlagCoding("child");
+        sourceChild.addFlag("a", 1, "condition a is true");
+        sourceChild.addFlag("b", 2, "condition b is true");
+        source.addElement(sourceChild);
+
+        final MetadataElement target = new MetadataElement("target");
+        ProductUtils.copyMetadata(source, target);
+
+        final MetadataElement targetChild = target.getElement("child");
+        assertNotSame(sourceChild, targetChild);
+        assertNotSame(sourceChild.getAttribute("a"), targetChild.getAttribute("a"));
+        assertNotSame(sourceChild.getAttribute("b"), targetChild.getAttribute("b"));
+        assertNotSame(sourceChild.getAttribute("a").getData(), targetChild.getAttribute("a").getData());
+        assertNotSame(sourceChild.getAttribute("b").getData(), targetChild.getAttribute("b").getData());
+
+        assertNotNull(targetChild.getAttribute("a"));
+        assertNotNull(targetChild.getAttribute("b"));
+
+        assertMetadataAttributeEqualityInt(sourceChild.getFlag("a"), targetChild.getAttribute("a"));
+        assertMetadataAttributeEqualityInt(sourceChild.getFlag("b"), targetChild.getAttribute("b"));
+    }
+
+    @Test
+    public void testCreateGeoBoundary() {
+        final GeoPos[] geoPoses = ProductUtils.createGeoBoundary(createTestProduct(), null, 20, false);
+        for (int i = 0; i < geoPoses.length; i++) {
+            GeoPos geoPos = geoPoses[i];
+            assertTrue(String.format("geoPos at <%d> is invalid", i), geoPos.isValid());
+        }
     }
 
     public static class SGeoCoding implements GeoCoding {
@@ -625,155 +714,76 @@ public class ProductUtilsTest extends TestCase {
         }
     }
 
-    public void testCreateRectBoundary_usePixelCenter_false() {
-        final boolean notUsePixelCenter = false;
-        final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7,
-                                                                        notUsePixelCenter);
-        assertEquals(12, rectBoundary.length);
-        assertEquals(new PixelPos(2, 3), rectBoundary[0]);
-        assertEquals(new PixelPos(9, 3), rectBoundary[1]);
-        assertEquals(new PixelPos(16, 3), rectBoundary[2]);
-        assertEquals(new PixelPos(17, 3), rectBoundary[3]);
-        assertEquals(new PixelPos(17, 10), rectBoundary[4]);
-        assertEquals(new PixelPos(17, 17), rectBoundary[5]);
-        assertEquals(new PixelPos(17, 23), rectBoundary[6]);
-        assertEquals(new PixelPos(16, 23), rectBoundary[7]);
-        assertEquals(new PixelPos(9, 23), rectBoundary[8]);
-        assertEquals(new PixelPos(2, 23), rectBoundary[9]);
-        assertEquals(new PixelPos(2, 17), rectBoundary[10]);
-        assertEquals(new PixelPos(2, 10), rectBoundary[11]);
-    }
-
-    public void testCreateRectBoundary_usePixelCenter_true() {
-        final boolean usePixelCenter = true;
-        final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7, usePixelCenter);
-        assertEquals(10, rectBoundary.length);
-        assertEquals(new PixelPos(2.5f, 3.5f), rectBoundary[0]);
-        assertEquals(new PixelPos(9.5f, 3.5f), rectBoundary[1]);
-        assertEquals(new PixelPos(16.5f, 3.5f), rectBoundary[2]);
-        assertEquals(new PixelPos(16.5f, 10.5f), rectBoundary[3]);
-        assertEquals(new PixelPos(16.5f, 17.5f), rectBoundary[4]);
-        assertEquals(new PixelPos(16.5f, 22.5f), rectBoundary[5]);
-        assertEquals(new PixelPos(9.5f, 22.5f), rectBoundary[6]);
-        assertEquals(new PixelPos(2.5f, 22.5f), rectBoundary[7]);
-        assertEquals(new PixelPos(2.5f, 17.5f), rectBoundary[8]);
-        assertEquals(new PixelPos(2.5f, 10.5f), rectBoundary[9]);
-    }
-
-    public void testCreateRectBoundary_without_usePixelCenter_Parameter() {
-        final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7);
-        assertEquals(10, rectBoundary.length);
-        assertEquals(new PixelPos(2.5f, 3.5f), rectBoundary[0]);
-        assertEquals(new PixelPos(9.5f, 3.5f), rectBoundary[1]);
-        assertEquals(new PixelPos(16.5f, 3.5f), rectBoundary[2]);
-        assertEquals(new PixelPos(16.5f, 10.5f), rectBoundary[3]);
-        assertEquals(new PixelPos(16.5f, 17.5f), rectBoundary[4]);
-        assertEquals(new PixelPos(16.5f, 22.5f), rectBoundary[5]);
-        assertEquals(new PixelPos(9.5f, 22.5f), rectBoundary[6]);
-        assertEquals(new PixelPos(2.5f, 22.5f), rectBoundary[7]);
-        assertEquals(new PixelPos(2.5f, 17.5f), rectBoundary[8]);
-        assertEquals(new PixelPos(2.5f, 10.5f), rectBoundary[9]);
-    }
-
-    public void testCopyFlagCoding() {
-        final FlagCoding originalFlagCoding = new FlagCoding("sesame street character flags");
-        originalFlagCoding.addFlag("erni", 1, "erni flag");
-        originalFlagCoding.addFlag("bert", 2, "bert flag");
-        originalFlagCoding.addFlag("bibo", 4, "bert flag");
-
-        final Product product = new Product("S", "S", 0, 0);
-        ProductUtils.copyFlagCoding(originalFlagCoding, product);
-
-        final ProductNodeGroup<FlagCoding> flagCodingGroup = product.getFlagCodingGroup();
-        assertNotNull(flagCodingGroup);
-
-        final FlagCoding actualFlagCoding = flagCodingGroup.get("sesame street character flags");
-        assertNotNull(actualFlagCoding);
-        assertNotSame(originalFlagCoding, actualFlagCoding);
-
-        assertMetadataAttributeEqualityInt(originalFlagCoding.getFlag("erni"), actualFlagCoding.getFlag("erni"));
-        assertMetadataAttributeEqualityInt(originalFlagCoding.getFlag("bert"), actualFlagCoding.getFlag("bert"));
-        assertMetadataAttributeEqualityInt(originalFlagCoding.getFlag("bibo"), actualFlagCoding.getFlag("bibo"));
-    }
-
-    public void testCopyIndexCoding() {
-        final IndexCoding originalIndexCoding = new IndexCoding("sesame street characters");
-        originalIndexCoding.addIndex("erni", 0, "erni character");
-        originalIndexCoding.addIndex("bert", 1, "bert character");
-
-        final Product product = new Product("S", "S", 0, 0);
-        ProductUtils.copyIndexCoding(originalIndexCoding, product);
-
-        final ProductNodeGroup<IndexCoding> indexCodingGroup = product.getIndexCodingGroup();
-        assertNotNull(indexCodingGroup);
-
-        final IndexCoding actualIndexCoding = indexCodingGroup.get("sesame street characters");
-        assertNotNull(actualIndexCoding);
-        assertNotSame(originalIndexCoding, actualIndexCoding);
-
-        assertMetadataAttributeEqualityInt(originalIndexCoding.getIndex("erni"), actualIndexCoding.getIndex("erni"));
-        assertMetadataAttributeEqualityInt(originalIndexCoding.getIndex("bert"), actualIndexCoding.getIndex("bert"));
-    }
-
-    public void testCopyMetadata() {
-        try {
-            ProductUtils.copyMetadata((Product) null, null);
-            fail();
-        } catch (NullPointerException expected) {
-        }
-        try {
-            ProductUtils.copyMetadata((MetadataElement) null, null);
-            fail();
-        } catch (NullPointerException expected) {
-        }
-        try {
-            ProductUtils.copyMetadata(new MetadataElement("source"), null);
-            fail();
-        } catch (NullPointerException expected) {
-        }
-        try {
-            ProductUtils.copyMetadata(null, new MetadataElement("target"));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        final MetadataElement source = new MetadataElement("source");
-        final FlagCoding sourceChild = new FlagCoding("child");
-        sourceChild.addFlag("a", 1, "condition a is true");
-        sourceChild.addFlag("b", 2, "condition b is true");
-        source.addElement(sourceChild);
-
-        final MetadataElement target = new MetadataElement("target");
-        ProductUtils.copyMetadata(source, target);
-
-        final MetadataElement targetChild = target.getElement("child");
-        assertNotSame(sourceChild, targetChild);
-        assertNotSame(sourceChild.getAttribute("a"), targetChild.getAttribute("a"));
-        assertNotSame(sourceChild.getAttribute("b"), targetChild.getAttribute("b"));
-        assertNotSame(sourceChild.getAttribute("a").getData(), targetChild.getAttribute("a").getData());
-        assertNotSame(sourceChild.getAttribute("b").getData(), targetChild.getAttribute("b").getData());
-
-        assertNotNull(targetChild.getAttribute("a"));
-        assertNotNull(targetChild.getAttribute("b"));
-
-        assertMetadataAttributeEqualityInt(sourceChild.getFlag("a"), targetChild.getAttribute("a"));
-        assertMetadataAttributeEqualityInt(sourceChild.getFlag("b"), targetChild.getAttribute("b"));
-    }
-
     private static void assertMetadataAttributeEqualityInt(MetadataAttribute expected, MetadataAttribute actual) {
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getData().getElemInt(), actual.getData().getElemInt());
         assertEquals(expected.getDescription(), actual.getDescription());
     }
 
-    public void testCreateGeoBoundary() {
-        final GeoPos[] geoPoses = ProductUtils.createGeoBoundary(createTestProduct(), null, 20, false);
-        for (int i = 0; i < geoPoses.length; i++) {
-            GeoPos geoPos = geoPoses[i];
-            assertTrue(String.format("geoPos at <%d> is invalid", i), geoPos.isValid());
+    private static void testCoord(final PixelPos[] pixelCoords, final int i, final float x, final float y) {
+        assertNotNull(pixelCoords[i]);
+        assertEquals(x, pixelCoords[i].x, EPS);
+        assertEquals(y, pixelCoords[i].y, EPS);
+    }
+
+    private void assertNormalizing(final GeoPos[] boundary, final int expectedNormalizing,
+                                   final GeoPos[] expected) {
+        final int normalized = ProductUtils.normalizeGeoPolygon(boundary);
+        assertEquals(expectedNormalizing, normalized);
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals("at index " + i, expected[i], boundary[i]);
         }
     }
 
+    private static GeoPos[] createPositiveRotationGeoPolygon(int lonOffset) {
+        return new GeoPos[]{
+                new GeoPos(-60, -40 + lonOffset),
+                new GeoPos(-80, +20 + lonOffset),
+                new GeoPos(-40, +60 + lonOffset),
+                new GeoPos(+20, +120 + lonOffset),
+                new GeoPos(+60, +40 + lonOffset),
+                new GeoPos(+80, -20 + lonOffset),
+                new GeoPos(+40, -60 + lonOffset),
+                new GeoPos(-20, -120 + lonOffset)
+        };
+    }
+
+    private static GeoPos[] createNegativeRotationGeoPolygon(int lonOffset) {
+        return new GeoPos[]{
+                new GeoPos(-60, -40 + lonOffset),
+                new GeoPos(-20, -120 + lonOffset),
+                new GeoPos(+40, -60 + lonOffset),
+                new GeoPos(+80, -20 + lonOffset),
+                new GeoPos(+60, +40 + lonOffset),
+                new GeoPos(+20, +120 + lonOffset),
+                new GeoPos(-40, +60 + lonOffset),
+                new GeoPos(-80, +20 + lonOffset)
+        };
+    }
+
+    private static GeoPos[] createPositiveRotationDualMeridianGeoPolygon() {
+        return new GeoPos[]{
+                new GeoPos(20, -160),
+                new GeoPos(30, -180),
+                new GeoPos(30, 178),
+                new GeoPos(40, 10),
+                new GeoPos(50, -70),
+                new GeoPos(70, -170),
+                new GeoPos(80, 150),
+                new GeoPos(60, 150),
+                new GeoPos(57, 170),
+                new GeoPos(50, -140),
+                new GeoPos(30, 30),
+                new GeoPos(25, 170),
+                new GeoPos(10, -165),
+        };
+    }
+
+    private void shiftGeoPolygon(final GeoPos[] geoPositions, final int lonOffset) {
+        for (final GeoPos geoPosition : geoPositions) {
+            geoPosition.lon += lonOffset;
+        }
+    }
 
     private static Product createTestProduct() {
         final float[] longitudes = new float[]{
