@@ -15,12 +15,11 @@ public abstract class PixelOperator extends PointOperator {
                                          WritableSample[] targetSamples);
 
     @Override
-    public final void computeTileStack(Map<Band, Tile> targetTileStack, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+    public final void computeTileStack(Map<Band, Tile> targetTileStack, Rectangle targetRectangle,
+                                       ProgressMonitor pm) throws OperatorException {
 
-        final Tile[] sourceTiles = getSourceTiles(targetRectangle);
-        final Tile[] targetTiles = getTargetTiles(targetTileStack);
-        final WritableSample[] sourceSamples = createSourceSamples();
-        final WritableSample[] targetSamples = createTargetSamples();
+        final DefaultSample[] sourceSamples = createSourceSamples(targetRectangle);
+        final DefaultSample[] targetSamples = createTargetSamples(targetTileStack);
 
         final int x1 = targetRectangle.x;
         final int y1 = targetRectangle.y;
@@ -31,9 +30,9 @@ public abstract class PixelOperator extends PointOperator {
             pm.beginTask(getId(), targetRectangle.height);
             for (int y = y1; y <= y2; y++) {
                 for (int x = x1; x <= x2; x++) {
-                    loadSourceSamples(x, y, sourceTiles, sourceSamples);
+                    setSampleLocations(x, y, sourceSamples);
+                    setSampleLocations(x, y, targetSamples);
                     computePixel(x, y, sourceSamples, targetSamples);
-                    storeTargetSamples(x, y, targetSamples, targetTiles);
                 }
                 pm.worked(1);
             }
@@ -41,5 +40,4 @@ public abstract class PixelOperator extends PointOperator {
             pm.done();
         }
     }
-
 }

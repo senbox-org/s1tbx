@@ -29,12 +29,12 @@ public class PointOperatorTest extends TestCase {
 
     private static final long[] CACHE_SIZES = {
             0L,
-            16 * M,
-            32 * M,
-            64 * M,
-            128 * M,
-            256 * M,
-            512 * M,
+            16L * M,
+            32L * M,
+            64L * M,
+            128L * M,
+            256L * M,
+            512L * M,
             (Runtime.getRuntime().maxMemory() / M) * M
     };
 
@@ -58,19 +58,11 @@ public class PointOperatorTest extends TestCase {
     }
 
     public void testNdviSampleOp() {
-        testPointOp(new NdviSampleOp(), 128 * M);
+        testPointOp(new NdviSampleOp(), 128L * M);
     }
 
     public void testNdviPixelOp() {
-        testPointOp(new NdviPixelOp(), 128 * M);
-    }
-
-    public void testNdviTileOp() {
-        testPointOp(new NdviTileOp(), 128 * M);
-    }
-
-    public void testNdviTileSackOp() {
-        testPointOp(new NdviTileStackOp(), 128 * M);
+        testPointOp(new NdviPixelOp(), 128L * M);
     }
 
     private void testPointOp(Operator op, long cacheSize) {
@@ -105,10 +97,10 @@ public class PointOperatorTest extends TestCase {
         System.out.println("  Total time: " + time + " s");
         System.out.println("  Throughput: " + mpixels + " mega-pixels/s");
 
-        assertEquals((30f - 20f) / (30f + 20f), ndviData.getSampleFloat(0, 0, 0));
-        assertEquals((30f - 20f) / (30f + 20f), ndviData.getSampleFloat(0, 1, 0));
-        assertEquals((30f - 20f) / (30f + 20f), ndviData.getSampleFloat(1, 0, 0));
-        assertEquals((30f - 20f) / (30f + 20f), ndviData.getSampleFloat(1, 1, 0));
+        assertEquals((30.0f - 20.0f) / (30.0f + 20.0f), ndviData.getSampleFloat(0, 0, 0));
+        assertEquals((30.0f - 20.0f) / (30.0f + 20.0f), ndviData.getSampleFloat(0, 1, 0));
+        assertEquals((30.0f - 20.0f) / (30.0f + 20.0f), ndviData.getSampleFloat(1, 0, 0));
+        assertEquals((30.0f - 20.0f) / (30.0f + 20.0f), ndviData.getSampleFloat(1, 1, 0));
         assertEquals(0, ndviFlagsData.getSample(0, 0, 0));
         assertEquals(0, ndviFlagsData.getSample(0, 1, 0));
         assertEquals(0, ndviFlagsData.getSample(1, 0, 0));
@@ -119,8 +111,8 @@ public class PointOperatorTest extends TestCase {
         Product sourceProduct = new Product("TEST.N1", "MER_RR__1P", w, h);
         Band rad08 = sourceProduct.addBand("radiance_8", ProductData.TYPE_INT16);
         Band rad10 = sourceProduct.addBand("radiance_10", ProductData.TYPE_INT16);
-        rad08.setSourceImage(ConstantDescriptor.create(1f * w, 1f * h, new Short[]{2000}, null));
-        rad10.setSourceImage(ConstantDescriptor.create(1f * w, 1f * h, new Short[]{3000}, null));
+        rad08.setSourceImage(ConstantDescriptor.create(1.0f * w, 1.0f * h, new Short[]{2000}, null));
+        rad10.setSourceImage(ConstantDescriptor.create(1.0f * w, 1.0f * h, new Short[]{3000}, null));
         rad08.setScalingFactor(0.01);
         rad10.setScalingFactor(0.01);
         TiePointGrid lat = new TiePointGrid("latitude", w, h, 0, 0, 1, 1, new float[w * h]);
@@ -140,15 +132,15 @@ public class PointOperatorTest extends TestCase {
         }
 
         @Override
-        protected void configureSourceSamples(Configurator c) {
-            c.defineSample(0, "radiance_10");
-            c.defineSample(1, "radiance_8");
+        protected void configureSourceSamples(Configurator configurator) {
+            configurator.defineSample(0, "radiance_10");
+            configurator.defineSample(1, "radiance_8");
         }
 
         @Override
-        public void configureTargetSamples(Configurator c) {
-            c.defineSample(0, "ndvi");
-            c.defineSample(1, "ndvi_flags");
+        public void configureTargetSamples(Configurator configurator) {
+            configurator.defineSample(0, "ndvi");
+            configurator.defineSample(1, "ndvi_flags");
         }
 
         @Override
@@ -174,15 +166,15 @@ public class PointOperatorTest extends TestCase {
         }
 
         @Override
-        protected void configureSourceSamples(Configurator c) {
-            c.defineSample(0, "radiance_10");
-            c.defineSample(1, "radiance_8");
+        protected void configureSourceSamples(Configurator configurator) {
+            configurator.defineSample(0, "radiance_10");
+            configurator.defineSample(1, "radiance_8");
         }
 
         @Override
-        public void configureTargetSamples(Configurator c) {
-            c.defineSample(0, "ndvi");
-            c.defineSample(1, "ndvi_flags");
+        public void configureTargetSamples(Configurator configurator) {
+            configurator.defineSample(0, "ndvi");
+            configurator.defineSample(1, "ndvi_flags");
         }
 
         @Override

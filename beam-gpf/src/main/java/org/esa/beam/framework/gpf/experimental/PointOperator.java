@@ -3,7 +3,6 @@ package org.esa.beam.framework.gpf.experimental;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -47,29 +46,40 @@ public abstract class PointOperator extends Operator {
 
     protected abstract void configureTargetProduct(Product product);
 
-    protected abstract void configureSourceSamples(Configurator c);
+    protected abstract void configureSourceSamples(Configurator configurator);
 
-    protected abstract void configureTargetSamples(Configurator c);
+    protected abstract void configureTargetSamples(Configurator configurator);
 
-    static void loadSourceSamples(int x, int y, Tile[] sourceTiles, WritableSample[] sourceSamples) {
-        for (int i = 0; i < sourceSamples.length; i++) {
-            final WritableSample sourceSample = sourceSamples[i];
-            final Tile sourceTile = sourceTiles[i];
-            if (sourceTile != null) {
-                sourceSample.set(sourceTile.getSampleDouble(x, y));
+    static void setSampleLocations(int x, int y, DefaultSample... sourceSamples) {
+        for (final DefaultSample sourceSample : sourceSamples) {
+            if (sourceSample != null) {
+                sourceSample.setPixel(x, y);
             }
         }
     }
 
-    static void storeTargetSamples(int x, int y, Sample[] targetSamples, Tile[] targetTiles) {
-        for (int i = 0; i < targetSamples.length; i++) {
-            final Sample targetSample = targetSamples[i];
-            final Tile targetTile = targetTiles[i];
-            targetTile.setSample(x, y, targetSample.getDouble());
-        }
+    DefaultSample[] createSourceSamples(Rectangle targetRectangle) {
+        final Tile[] sourceTiles = getSourceTiles(targetRectangle);
+        return createDefaultSamples(sourceNodes, sourceTiles);
     }
 
-    Tile[] getSourceTiles(Rectangle region) {
+    DefaultSample[] createTargetSamples(Map<Band, Tile> targetTileStack) {
+        final Tile[] targetTiles = getTargetTiles(targetTileStack);
+        return createDefaultSamples(targetNodes, targetTiles);
+    }
+
+    DefaultSample createTargetSample(Tile targetTile) {
+        final RasterDataNode targetNode = targetTile.getRasterDataNode();
+        for (int i = 0; i < targetNodes.length; i++) {
+            if (targetNode == targetNodes[i]) {
+                return new DefaultSample(i, targetTile);
+            }
+        }
+        final String msgPattern = "Could not create target sample for band '%s'.";
+        throw new IllegalStateException(String.format(msgPattern, targetNode.getName()));
+    }
+
+    private Tile[] getSourceTiles(Rectangle region) {
         final Tile[] sourceTiles = new Tile[sourceNodes.length];
         for (int i = 0; i < sourceTiles.length; i++) {
             if (sourceNodes[i] != null) {
@@ -79,77 +89,45 @@ public abstract class PointOperator extends Operator {
         return sourceTiles;
     }
 
-    Tile[] getTargetTiles(Map<Band, Tile> targetTileStack) {
+    private Tile[] getTargetTiles(Map<Band, Tile> targetTileStack) {
         final Tile[] targetTiles = new Tile[targetNodes.length];
         for (int i = 0; i < targetTiles.length; i++) {
             Tile targetTile = targetTileStack.get(targetNodes[i]);
             if (targetTile == null) {
-                throw new IllegalStateException(); // todo - add message
+                final String msgPattern = "Could not find tile for defined target node '%s'.";
+                throw new IllegalStateException(String.format(msgPattern, targetNodes[i].getName()));
             }
             targetTiles[i] = targetTile;
         }
         return targetTiles;
     }
 
-    WritableSample[] createSourceSamples() {
-        return createWritableSamples(sourceNodes);
-    }
-
-    WritableSample[] createTargetSamples() {
-        return createWritableSamples(targetNodes);
-    }
-
-    WritableSample createTargetSample(Band targetBand) {
-        for (int i = 0; i < targetNodes.length; i++) {
-            if (targetBand == targetNodes[i]) {
-                return createWritableSample(i, targetBand);
-            }
-        }
-        throw new IllegalStateException(); // todo - add message
-    }
-
-
-    WritableSample[] createWritableSamples(RasterDataNode[] nodes) {
-        WritableSample[] samples = new WritableSample[nodes.length];
+    private static DefaultSample[] createDefaultSamples(RasterDataNode[] nodes, Tile[] tiles) {
+        DefaultSample[] samples = new DefaultSample[nodes.length];
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
-                samples[i] = createWritableSample(i, nodes[i]);
+                samples[i] = new DefaultSample(i, tiles[i]);
             }
         }
         return samples;
     }
 
-    static WritableSample createWritableSample(int index, RasterDataNode node) {
-        switch (node.getGeophysicalDataType()) {
-            case ProductData.TYPE_UINT8:
-                return new ByteSample(index, node);
-            case ProductData.TYPE_INT16:
-                return new ShortSample(index, node);
-            case ProductData.TYPE_INT32:
-                return new IntSample(index, node);
-            case ProductData.TYPE_FLOAT32:
-                return new FloatSample(index, node);
-            case ProductData.TYPE_FLOAT64:
-                return new DoubleSample(index, node);
-            default:
-                throw new IllegalStateException(); // todo - add message
-        }
-    }
-
-    public static interface Configurator {
+    public interface Configurator {
 
         void defineSample(int index, String name);
 
         void defineSample(int index, String name, Product sourceProduct);
     }
 
-    public static interface Sample {
+    public interface Sample {
 
         RasterDataNode getNode();
 
         int getIndex();
 
         int getDataType();
+
+        boolean getBit(int bitIndex);
 
         boolean getBoolean();
 
@@ -160,7 +138,9 @@ public abstract class PointOperator extends Operator {
         double getDouble();
     }
 
-    public static interface WritableSample extends Sample {
+    public interface WritableSample extends Sample {
+
+        void set(int bitIndex, boolean v);
 
         void set(boolean v);
 
@@ -171,242 +151,96 @@ public abstract class PointOperator extends Operator {
         void set(double v);
     }
 
-    private static abstract class AbstractWritableSample implements WritableSample {
+    public static class DefaultSample implements WritableSample {
 
-        private final int index;
-        private final RasterDataNode node;
-        private final int dataType;
+        private int index;
+        private RasterDataNode node;
+        private int dataType;
+        private int pixelX;
+        private int pixelY;
+        private Tile tile;
 
-        protected AbstractWritableSample(int index, RasterDataNode node) {
+        protected DefaultSample(int index, Tile tile) {
             this.index = index;
-            this.node = node;
-            this.dataType = node.getGeophysicalDataType();
+            this.node = tile.getRasterDataNode();
+            this.dataType = this.node.getGeophysicalDataType();
+            this.tile = tile;
+        }
+
+        void setPixel(int x, int y) {
+            pixelX = x;
+            pixelY = y;
         }
 
         @Override
-        public final int getIndex() {
-            return index;
-        }
-
-        @Override
-        public final RasterDataNode getNode() {
+        public RasterDataNode getNode() {
             return node;
         }
 
         @Override
-        public final int getDataType() {
+        public int getIndex() {
+            return index;
+        }
+
+        @Override
+        public int getDataType() {
             return dataType;
         }
 
         @Override
-        public final boolean getBoolean() {
-            return getInt() != 0;
+        public boolean getBit(int bitIndex) {
+            return tile.getSampleBit(pixelX, pixelY, bitIndex);
         }
 
         @Override
-        public final void set(boolean v) {
-            set(v ? 1 : 0);
-        }
-    }
-
-    private static final class ByteSample extends AbstractWritableSample {
-
-        private byte value;
-
-        private ByteSample(int index, RasterDataNode node) {
-            super(index, node);
+        public boolean getBoolean() {
+            return tile.getSampleBoolean(pixelX, pixelY);
         }
 
         @Override
         public int getInt() {
-            return value & 0xff;
+            return tile.getSampleInt(pixelX, pixelY);
         }
 
         @Override
         public float getFloat() {
-            return value & 0xff;
+            return tile.getSampleFloat(pixelX, pixelY);
         }
 
         @Override
         public double getDouble() {
-            return value & 0xff;
+            return tile.getSampleDouble(pixelX, pixelY);
+        }
+
+        @Override
+        public void set(int bitIndex, boolean v) {
+            tile.setSample(pixelX, pixelY, bitIndex, v);
+        }
+
+        @Override
+        public void set(boolean v) {
+            tile.setSample(pixelX, pixelY, v);
         }
 
         @Override
         public void set(int v) {
-            value = (byte) v;
+            tile.setSample(pixelX, pixelY, v);
         }
 
         @Override
         public void set(float v) {
-            value = (byte) Math.floor(v + 0.5f);
+            tile.setSample(pixelX, pixelY, v);
         }
 
         @Override
         public void set(double v) {
-            value = (byte) Math.floor(v + 0.5);
+            tile.setSample(pixelX, pixelY, v);
         }
     }
 
-    private static final class ShortSample extends AbstractWritableSample {
+    private abstract static class AbstractConfigurator implements Configurator {
 
-        private short value;
-
-        private ShortSample(int index, RasterDataNode node) {
-            super(index, node);
-        }
-
-        @Override
-        public int getInt() {
-            return value;
-        }
-
-        @Override
-        public float getFloat() {
-            return value;
-        }
-
-        @Override
-        public double getDouble() {
-            return value;
-        }
-
-        @Override
-        public void set(int v) {
-            value = (short) v;
-        }
-
-        @Override
-        public void set(float v) {
-            value = (short) Math.floor(v + 0.5f);
-        }
-
-        @Override
-        public void set(double v) {
-            value = (short) Math.floor(v + 0.5);
-        }
-    }
-
-    private static final class IntSample extends AbstractWritableSample {
-
-        private int value;
-
-        private IntSample(int index, RasterDataNode node) {
-            super(index, node);
-        }
-
-        @Override
-        public int getInt() {
-            return value;
-        }
-
-        @Override
-        public float getFloat() {
-            return value;
-        }
-
-        @Override
-        public double getDouble() {
-            return value;
-        }
-
-        @Override
-        public void set(int v) {
-            value = v;
-        }
-
-        @Override
-        public void set(float v) {
-            value = (int) Math.floor(v + 0.5f);
-        }
-
-        @Override
-        public void set(double v) {
-            value = (int) Math.floor(v + 0.5);
-        }
-    }
-
-    private static final class FloatSample extends AbstractWritableSample {
-
-        private float value;
-
-        private FloatSample(int index, RasterDataNode node) {
-            super(index, node);
-        }
-
-        @Override
-        public int getInt() {
-            return (int) Math.floor(value + 0.5f);
-        }
-
-        @Override
-        public float getFloat() {
-            return value;
-        }
-
-        @Override
-        public double getDouble() {
-            return value;
-        }
-
-        @Override
-        public void set(int v) {
-            value = v;
-        }
-
-        @Override
-        public void set(float v) {
-            value = v;
-        }
-
-        @Override
-        public void set(double v) {
-            value = (float) v;
-        }
-    }
-
-    private static final class DoubleSample extends AbstractWritableSample {
-
-        private double value;
-
-        private DoubleSample(int index, RasterDataNode node) {
-            super(index, node);
-        }
-
-        @Override
-        public int getInt() {
-            return (int) value;
-        }
-
-        @Override
-        public float getFloat() {
-            return (float) value;
-        }
-
-        @Override
-        public double getDouble() {
-            return value;
-        }
-
-        @Override
-        public void set(int v) {
-            value = v;
-        }
-
-        @Override
-        public void set(float v) {
-            value = v;
-        }
-
-        @Override
-        public void set(double v) {
-            value = v;
-        }
-    }
-
-    private abstract class AbstractConfigurator implements Configurator {
-
-        final List<RasterDataNode> nodes = new ArrayList<RasterDataNode>();
+        private final List<RasterDataNode> nodes = new ArrayList<RasterDataNode>();
 
         @Override
         public void defineSample(int index, String name, Product product) {
@@ -432,7 +266,7 @@ public abstract class PointOperator extends Operator {
 
         @Override
         public void defineSample(int index, String name) {
-            defineSample(index, name, getSourceProducts()[0]); // pitfall - using getSourceProduct() throws NPE
+            defineSample(index, name, getSourceProduct());
         }
     }
 
