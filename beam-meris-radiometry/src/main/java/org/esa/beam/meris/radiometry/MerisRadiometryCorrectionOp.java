@@ -36,6 +36,10 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.RsMathUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
@@ -51,19 +55,19 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private static final String INVALID_MASK_NAME = "invalid";
     private static final String LAND_MASK_NAME = "land";
     private static final double RAW_SATURATION_THRESHOLD = 65435.0;
+    private static final String DEFAULT_SOURCE_RAC_RESOURCE = "MER_RAC_AXVIEC20050708_135553_20021224_121445_20041213_220000";
+    private static final String DEFAULT_TARGET_RAC_RESOURCE = "MER_RAC_AXVACR20091016_154511_20021224_121445_20041213_220000";
 
-    @Parameter(defaultValue = "false",
+    @Parameter(defaultValue = "true",
                label = "Perform calibration",
                description = "Whether to perform the calibration.")
     private boolean doCalibration;
 
-    @Parameter(defaultValue = "MER_RAC_AXVIEC20050708_135553_20021224_121445_20041213_220000",
-               label = "Source radiometric correction file",
-               description = "The radiometric correction auxiliary file for the source product")
+    @Parameter(label = "Source radiometric correction file (optional)",
+               description = "The radiometric correction auxiliary file for the source product.")
     private File sourceRacFile;
 
-    @Parameter(defaultValue = "MER_RAC_AXVACR20091016_154511_20021224_121445_20041213_220000",
-               label = "Target radiometric correction file",
+    @Parameter(label = "Target radiometric correction file (optional)",
                description = "The radiometric correction auxiliary file for the target product")
     private File targetRacFile;
 
@@ -244,14 +248,27 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     private void initAlgorithms() {
         if (doCalibration) {
+            InputStream sourceRacStream = null;
+            InputStream targetRacStream = null;
             try {
-                calibrationAlgorithm = new CalibrationAlgorithm(
-                        sourceProduct.getProductType().contains("RR") ? Resolution.RR : Resolution.FR,
-                        0.5 * (sourceProduct.getStartTime().getMJD() + sourceProduct.getEndTime().getMJD()),
-                        sourceRacFile,
-                        targetRacFile);
-            } catch (Exception e) {
+                sourceRacStream = openStream(sourceRacFile, DEFAULT_SOURCE_RAC_RESOURCE);
+                targetRacStream = openStream(targetRacFile, DEFAULT_TARGET_RAC_RESOURCE);
+                final double cntJD = 0.5 * (sourceProduct.getStartTime().getMJD() + sourceProduct.getEndTime().getMJD());
+                final Resolution resolution = sourceProduct.getProductType().contains(
+                        "RR") ? Resolution.RR : Resolution.FR;
+                calibrationAlgorithm = new CalibrationAlgorithm(resolution, cntJD, sourceRacStream, targetRacStream);
+            } catch (IOException e) {
                 throw new OperatorException(e);
+            } finally {
+                try {
+                    if (sourceRacStream != null) {
+                        sourceRacStream.close();
+                    }
+                    if (targetRacStream != null) {
+                        targetRacStream.close();
+                    }
+                } catch (IOException ignore) {
+                }
             }
             // If calibration is performed the equalization  has to use the LUTs of Reprocessing 3
             reproVersion = ReprocessingVersion.REPROCESSING_3;
@@ -270,6 +287,14 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             } catch (Exception e) {
                 throw new OperatorException(e);
             }
+        }
+    }
+
+    private InputStream openStream(File racFile, String defaultRacResource) throws FileNotFoundException {
+        if (racFile == null) {
+            return CalibrationAlgorithm.class.getResourceAsStream(defaultRacResource);
+        } else {
+            return new FileInputStream(racFile);
         }
     }
 

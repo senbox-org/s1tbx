@@ -11,12 +11,12 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class AuxiliaryDataTest {
 
     private static final int FR_ELEMENT_COUNT = 5 * 740;
     private static final int RR_ELEMENT_COUNT = 5 * 185;
-    private static final String[] PRODUCT_FILE_NAMES = new String[]{
+    private static final String[] PRODUCT_RESOURCE_NAMES = new String[]{
             // new files from ACRI
             "MER_RAC_AXVACR20091016_154511_20021224_121445_20041213_220000",
             "MER_RAC_AXVACR20091023_105043_20020429_041400_20021224_121445",
@@ -148,7 +148,6 @@ public class AuxiliaryDataTest {
     private void assertValidity(String datasetName, int recordCountExpected,
                                 String[] fieldNames, int[] fieldElementCountsExpected) throws IOException {
         for (final ProductFile productFile : productFileList) {
-            System.out.println("productFile = " + productFile.getFile().getName());
 
             final DSD dsd = productFile.getDSD(datasetName);
             assertNotNull(dsd);
@@ -227,11 +226,9 @@ public class AuxiliaryDataTest {
     @Before
     public void initProductFiles() throws URISyntaxException, IOException {
         productFileList = new ArrayList<ProductFile>(6);
-        for (final String productFileName : PRODUCT_FILE_NAMES) {
-            final URL url = getClass().getResource(productFileName);
-            final URI uri = url.toURI();
-            final File file = new File(uri);
-            final ProductFile productFile = new MerisRacProductFile(file);
+        for (final String productFileName : PRODUCT_RESOURCE_NAMES) {
+            final InputStream stream = getClass().getResourceAsStream(productFileName);
+            final ProductFile productFile = new MerisRacProductFile(new MemoryCacheImageInputStream(stream));
             productFileList.add(productFile);
         }
     }

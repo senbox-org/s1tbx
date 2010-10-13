@@ -7,9 +7,10 @@ import org.esa.beam.dataio.envisat.Record;
 import org.esa.beam.dataio.envisat.RecordReader;
 import org.esa.beam.framework.datamodel.ProductData;
 
-import java.io.File;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.IOException;
-import java.text.MessageFormat;
+import java.io.InputStream;
 
 public class CalibrationAlgorithm {
 
@@ -22,22 +23,22 @@ public class CalibrationAlgorithm {
     private final double[][] newGains;
 
     public CalibrationAlgorithm(Resolution resolution, double cntJD,
-                                File oldRacFile, File newRacFile) throws IOException {
+                                InputStream sourceRacStream, InputStream targetRacStream) throws IOException {
         this.resolution = resolution;
         this.cntJD = cntJD;
 
         oldGains = new double[B][resolution.getPixelCount()];
         newGains = new double[B][resolution.getPixelCount()];
 
-        initGains(oldRacFile, oldGains);
-        initGains(newRacFile, newGains);
+        initGains(new MemoryCacheImageInputStream(sourceRacStream), oldGains);
+        initGains(new MemoryCacheImageInputStream(targetRacStream), newGains);
     }
 
     public double calibrate(int bandIndex, int detectorIndex, double radiance) {
         return newGains[bandIndex][detectorIndex] / oldGains[bandIndex][detectorIndex] * radiance;
     }
 
-    private void initGains(File racFile, double[][] gains) throws IOException {
+    private void initGains(ImageInputStream inputStream, double[][] gains) throws IOException {
         final double[][] betas = new double[B][resolution.getPixelCount()];
         final double[][] gammas = new double[B][resolution.getPixelCount()];
         final double[][] deltas = new double[B][resolution.getPixelCount()];
@@ -45,16 +46,14 @@ public class CalibrationAlgorithm {
 
         ProductFile productFile = null;
         try {
-            productFile = new MerisRacProductFile(racFile);
+            productFile = new MerisRacProductFile(inputStream);
             read(productFile, "Gain", "gain", gains);
             read(productFile, "Degradation", "beta", betas);
             read(productFile, "Degradation", "gamma", gammas);
             read(productFile, "Degradation", "delta", deltas);
             readJD(productFile, "Degradation", "dsr_time", refJDs);
         } catch (Exception e) {
-            throw new IOException(
-                    MessageFormat.format("Cannot read auxiliary file ''{0}'': {1}", racFile,
-                                         e.getMessage()), e);
+            throw new IOException("Cannot read auxiliary data", e);
         } finally {
             if (productFile != null) {
                 productFile.close();
