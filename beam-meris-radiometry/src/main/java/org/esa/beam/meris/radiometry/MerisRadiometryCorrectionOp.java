@@ -115,7 +115,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     private transient CalibrationAlgorithm calibrationAlgorithm;
     private transient EqualizationAlgorithm equalizationAlgorithm;
-    private transient SmileCorrectionAlgorithm smileCorrectionAlgorithm;
+    private transient SmileCorrectionAlgorithm smileCorrAlgorithm;
 
     private transient int detectorIndexSampleIndex;
     private transient int sunZenithAngleSampleIndex;
@@ -232,7 +232,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             final boolean invalid = sourceSamples[invalidMaskSampleIndex].getBoolean();
             if (!invalid && detectorIndex != -1) {
                 final boolean land = sourceSamples[landMaskSampleIndex].getBoolean();
-                value = smileCorrectionAlgorithm.correct(bandIndex, detectorIndex, sourceSamples, land);
+                value = smileCorrAlgorithm.correct(bandIndex, detectorIndex, sourceSamples, land);
             }
         }
         if (doRadToRefl) {
@@ -247,6 +247,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     }
 
     private void initAlgorithms() {
+        final String productType = sourceProduct.getProductType();
         if (doCalibration) {
             InputStream sourceRacStream = null;
             InputStream targetRacStream = null;
@@ -254,8 +255,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
                 sourceRacStream = openStream(sourceRacFile, DEFAULT_SOURCE_RAC_RESOURCE);
                 targetRacStream = openStream(targetRacFile, DEFAULT_TARGET_RAC_RESOURCE);
                 final double cntJD = 0.5 * (sourceProduct.getStartTime().getMJD() + sourceProduct.getEndTime().getMJD());
-                final Resolution resolution = sourceProduct.getProductType().contains(
-                        "RR") ? Resolution.RR : Resolution.FR;
+                final Resolution resolution = productType.contains("RR") ? Resolution.RR : Resolution.FR;
                 calibrationAlgorithm = new CalibrationAlgorithm(resolution, cntJD, sourceRacStream, targetRacStream);
             } catch (IOException e) {
                 throw new OperatorException(e);
@@ -275,8 +275,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
         }
         if (doSmile) {
             try {
-                smileCorrectionAlgorithm = new SmileCorrectionAlgorithm(
-                        SmileCorrectionAuxdata.loadAuxdata(sourceProduct.getProductType()));
+                smileCorrAlgorithm = new SmileCorrectionAlgorithm(SmileCorrectionAuxdata.loadAuxdata(productType));
             } catch (Exception e) {
                 throw new OperatorException(e);
             }
