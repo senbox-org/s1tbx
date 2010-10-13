@@ -1214,22 +1214,17 @@ public class ProductUtils {
         Guardian.assertNotNull("source", sourceProduct);
         Guardian.assertNotNull("target", targetProduct);
         if (sourceProduct.getFlagCodingGroup().getNodeCount() > 0) {
-            Band sourceBand;
-            Band targetBand;
-            FlagCoding coding;
-
             copyFlagCodings(sourceProduct, targetProduct);
             copyMasks(sourceProduct, targetProduct);
             copyOverlayMasks(sourceProduct, targetProduct);
 
-
 // loop over bands and check if they have a flags coding attached
             for (int i = 0; i < sourceProduct.getNumBands(); i++) {
-                sourceBand = sourceProduct.getBandAt(i);
+                Band sourceBand = sourceProduct.getBandAt(i);
                 String bandName = sourceBand.getName();
-                coding = sourceBand.getFlagCoding();
+                FlagCoding coding = sourceBand.getFlagCoding();
                 if (coding != null) {
-                    targetBand = copyBand(bandName, sourceProduct, targetProduct);
+                    Band targetBand = copyBand(bandName, sourceProduct, targetProduct);
                     targetBand.setSampleCoding(targetProduct.getFlagCodingGroup().get(coding.getName()));
                 }
             }
