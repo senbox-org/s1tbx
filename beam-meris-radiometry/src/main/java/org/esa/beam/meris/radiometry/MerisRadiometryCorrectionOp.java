@@ -256,6 +256,8 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             } catch (Exception e) {
                 throw new OperatorException(e);
             }
+            // If calibration is performed the equalization  has to use the LUTs of Reprocessing 3
+            reproVersion = ReprocessingVersion.REPROCESSING_3;
         }
         if (doSmile) {
             try {
