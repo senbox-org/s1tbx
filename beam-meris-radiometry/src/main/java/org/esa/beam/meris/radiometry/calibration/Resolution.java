@@ -8,7 +8,7 @@ public enum Resolution {
 
     private final int pixelCount;
 
-    private Resolution(int pixelCount) {
+    Resolution(int pixelCount) {
         this.pixelCount = pixelCount;
     }
 
