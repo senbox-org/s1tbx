@@ -25,7 +25,6 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.experimental.SampleOperator;
 import org.esa.beam.meris.radiometry.calibration.CalibrationAlgorithm;
 import org.esa.beam.meris.radiometry.calibration.Resolution;
@@ -108,9 +107,6 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
                            MERIS_L1B_RADIANCE_15_BAND_NAME
                    })
     private Product sourceProduct;
-
-    @TargetProduct(description = "The target product.")
-    private Product targetProduct;
 
     private transient CalibrationAlgorithm calibrationAlgorithm;
     private transient EqualizationAlgorithm equalizationAlgorithm;
