@@ -1,6 +1,6 @@
 package org.esa.beam.dataio.envisat;
 
-import java.io.File;
+import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 /**
@@ -11,8 +11,8 @@ import java.io.IOException;
  */
 public class MerisRacProductFile extends ForwardingProductFile {
 
-    public MerisRacProductFile(File file) throws IOException {
-        super(file);
+    public MerisRacProductFile(ImageInputStream inputStream) throws IOException {
+        super(null, inputStream);
     }
 
     @Override
