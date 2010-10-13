@@ -122,7 +122,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private transient int landMaskSampleIndex;
 
     @Override
-    protected void configureSourceSamples(Configurator c) {
+    protected void configureSourceSamples(Configurator configurator) {
         initAlgorithms();
         validateSourceProduct();
         int i = -1;
@@ -130,7 +130,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
         for (final Band band : sourceProduct.getBands()) {
             final int spectralBandIndex = band.getSpectralBandIndex();
             if (spectralBandIndex != -1) {
-                c.defineSample(spectralBandIndex, band.getName());
+                configurator.defineSample(spectralBandIndex, band.getName());
                 if (spectralBandIndex > i) {
                     i = spectralBandIndex;
                 }
@@ -138,27 +138,27 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
         }
         detectorIndexSampleIndex = i + 1;
         if (doCalibration || doSmile || doEqualization) {
-            c.defineSample(detectorIndexSampleIndex, MERIS_DETECTOR_INDEX_DS_NAME);
+            configurator.defineSample(detectorIndexSampleIndex, MERIS_DETECTOR_INDEX_DS_NAME);
         }
         sunZenithAngleSampleIndex = i + 2;
         if (doRadToRefl) {
-            c.defineSample(sunZenithAngleSampleIndex, MERIS_SUN_ZENITH_DS_NAME);
+            configurator.defineSample(sunZenithAngleSampleIndex, MERIS_SUN_ZENITH_DS_NAME);
         }
         invalidMaskSampleIndex = i + 3;
         landMaskSampleIndex = i + 4;
         if (doSmile) {
-            c.defineSample(invalidMaskSampleIndex, INVALID_MASK_NAME);
-            c.defineSample(landMaskSampleIndex, LAND_MASK_NAME);
+            configurator.defineSample(invalidMaskSampleIndex, INVALID_MASK_NAME);
+            configurator.defineSample(landMaskSampleIndex, LAND_MASK_NAME);
         }
     }
 
     @Override
-    protected void configureTargetSamples(Configurator c) {
+    protected void configureTargetSamples(Configurator configurator) {
         // define samples corresponding to spectral bands, using the spectral band index as sample index
         for (final Band band : getTargetProduct().getBands()) { // pitfall: using targetProduct field here throws NPE
             final int spectralBandIndex = band.getSpectralBandIndex();
             if (spectralBandIndex != -1) {
-                c.defineSample(spectralBandIndex, band.getName());
+                configurator.defineSample(spectralBandIndex, band.getName());
             }
         }
     }
