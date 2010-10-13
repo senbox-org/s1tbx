@@ -120,6 +120,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private transient int sunZenithAngleSampleIndex;
     private transient int invalidMaskSampleIndex;
     private transient int landMaskSampleIndex;
+    private static final double RAW_SATURATION_THRESHOLD = 65435.0;
 
     @Override
     protected void configureSourceSamples(Configurator configurator) {
@@ -224,7 +225,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             detectorIndex = sourceSamples[detectorIndexSampleIndex].getInt();
         }
         double value = sourceRadiance.getDouble();
-        if (doCalibration && detectorIndex != -1 && value < sourceRadiance.getNode().scale(65435.0)) {
+        if (doCalibration && detectorIndex != -1 && value < sourceRadiance.getNode().scale(RAW_SATURATION_THRESHOLD)) {
             value = calibrationAlgorithm.calibrate(bandIndex, detectorIndex, value);
         }
         if (doSmile) {
