@@ -50,6 +50,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private static final String UNIT_DL = "dl";
     private static final String INVALID_MASK_NAME = "invalid";
     private static final String LAND_MASK_NAME = "land";
+    private static final double RAW_SATURATION_THRESHOLD = 65435.0;
 
     @Parameter(defaultValue = "false",
                label = "Perform calibration",
@@ -116,7 +117,6 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private transient int sunZenithAngleSampleIndex;
     private transient int invalidMaskSampleIndex;
     private transient int landMaskSampleIndex;
-    private static final double RAW_SATURATION_THRESHOLD = 65435.0;
 
     @Override
     protected void configureSourceSamples(Configurator configurator) {
