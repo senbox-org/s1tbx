@@ -61,7 +61,7 @@ import java.util.Locale;
 public class PConvertMain {
 
     private static final String EXE_NAME = "pconvert";
-    private static final String EXE_VERSION = "1.3";
+    private static final String EXE_VERSION = "1.4";
     private static final int[] DEFAULT_RGB_BAND_INDICES = new int[]{8, 5, 2};
     private static final double[] DEFAULT_HISTO_SKIP_PERCENTAGE = new double[]{1, 4};
     private static final String DEFAULT_FORMAT_EXT = "dim";
