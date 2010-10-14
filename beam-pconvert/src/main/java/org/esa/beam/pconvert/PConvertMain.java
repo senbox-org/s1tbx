@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * This class represents the BEAM Product Converter Tool. It is designed as a simple command line tool. The executable
@@ -194,6 +195,7 @@ public class PConvertMain {
     /////////////////////////////////////////////////////////////////////////
 
     public static void main(String[] args){
+        Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
         new PConvertMain(args).run();
     }
 
