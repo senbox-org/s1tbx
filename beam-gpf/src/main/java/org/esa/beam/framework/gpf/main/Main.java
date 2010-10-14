@@ -19,6 +19,8 @@ package org.esa.beam.framework.gpf.main;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
+import java.util.Locale;
+
 /**
  * The entry point for the GPF command-line tool.
  * For usage, see {@link org/esa/beam/framework/gpf/main/CommandLineUsage.txt}
@@ -28,6 +30,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         try {
+            Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
             BeamLogManager.removeRootLoggerHandlers();
             SystemUtils.init3rdPartyLibs(Main.class.getClassLoader());
             new CommandLineTool().run(args);
