@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * This class represents the BEAM Product Converter Tool. It is designed as a simple command line tool. The executable
@@ -60,7 +61,7 @@ import java.util.List;
 public class PConvertMain {
 
     private static final String EXE_NAME = "pconvert";
-    private static final String EXE_VERSION = "1.3";
+    private static final String EXE_VERSION = "1.4";
     private static final int[] DEFAULT_RGB_BAND_INDICES = new int[]{8, 5, 2};
     private static final double[] DEFAULT_HISTO_SKIP_PERCENTAGE = new double[]{1, 4};
     private static final String DEFAULT_FORMAT_EXT = "dim";
@@ -194,6 +195,7 @@ public class PConvertMain {
     /////////////////////////////////////////////////////////////////////////
 
     public static void main(String[] args){
+        Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
         new PConvertMain(args).run();
     }
 

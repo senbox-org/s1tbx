@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-pconvert</symbolicName>
-    <version>1.3.101</version>
+    <version>1.4</version>
     <name>Product Conversion Tool</name>
 
 
@@ -15,6 +15,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 1.4:<br/>
+          [BEAM-1202] PConvert does use the user LOCAL instead of ENGLISH<br/>
         <p>Changes in 1.3.101:<br/>
           [BEAM-1037] PConvert does not consider histo-skip option<br/>
         <p>Changes in 1.3:<br/>
