@@ -61,8 +61,7 @@ public class GraphProcessingObserverTest extends TestCase {
         Graph graph = new Graph("test-graph");
         graph.addNode(new Node("a", OpMock.Spi.class.getName()));
 
-        GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
-        processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
+        processor.executeGraph(graph, ProgressMonitor.NULL);
 
         assertEquals(6, observerMock.entries.size());
         assertEquals("graph [test-graph] started", observerMock.entries.get(0));

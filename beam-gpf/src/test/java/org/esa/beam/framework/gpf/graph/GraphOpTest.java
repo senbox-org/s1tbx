@@ -158,7 +158,7 @@ public class GraphOpTest extends TestCase {
         assertEquals(66.0, op2.threshold, 0.00001);
     }
 
-    public void notWorkingYetTestGraphEmbeded() throws Exception {
+    public void notYetWorking_testGraphEmbedded() throws Exception {
 
         VerbousTileCache.setVerbous(true);
 
@@ -184,7 +184,7 @@ public class GraphOpTest extends TestCase {
         assertNotNull(chainOut);
         assertEquals("Op2Name", chainOut.getName());
 
-        processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
+        processor.executeGraph(graphContext, ProgressMonitor.NULL);
         // - Op3 requires the two bands of Op2
         // - Op2 computes all bands
         // --> Op2 should only be called once

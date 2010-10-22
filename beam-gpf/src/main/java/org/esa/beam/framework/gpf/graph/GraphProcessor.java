@@ -18,13 +18,18 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
 
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.TileComputationListener;
+import javax.media.jai.TileRequest;
+import javax.media.jai.TileScheduler;
+import javax.media.jai.util.ImagingListener;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -40,13 +45,6 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.TileComputationListener;
-import javax.media.jai.TileRequest;
-import javax.media.jai.TileScheduler;
-import javax.media.jai.util.ImagingListener;
-
 /**
  * The <code>GraphProcessor</code> is responsible for executing processing
  * graphs.
@@ -54,6 +52,7 @@ import javax.media.jai.util.ImagingListener;
  * @author Maximilian Aulinger
  * @author Norman Fomferra
  * @author Marco Peters
+ * @author Marco Zuehlke
  * @since 4.1
  */
 public class GraphProcessor {
@@ -110,18 +109,20 @@ public class GraphProcessor {
     }
 
     /**
-     * Executes the given {@link Graph}.
+     * Executes the graph given by {@link GraphContext}.
+     * New graph context are created using the
+     * {@link #createGraphContext(Graph, com.bc.ceres.core.ProgressMonitor)} method.
      *
      * @param graph the {@link Graph}
      * @param pm    a progress monitor. Can be used to signal progress.
-     * @throws GraphException if any error occrues during execution
+     * @throws GraphException if any error occurs during execution
      */
     public void executeGraph(Graph graph, ProgressMonitor pm) throws GraphException {
         GraphContext graphContext;
         try {
             pm.beginTask("Executing processing graph", 100);
             graphContext = createGraphContext(graph, SubProgressMonitor.create(pm, 10));
-            executeGraphContext(graphContext, SubProgressMonitor.create(pm, 90));
+            executeGraph(graphContext, SubProgressMonitor.create(pm, 90));
             disposeGraphContext(graphContext);
         } finally {
             pm.done();
@@ -168,12 +169,15 @@ public class GraphProcessor {
     }
 
     /**
-     * Executes the given {@link GraphContext}.
+     * Executes the graph given by {@link GraphContext}.
+     * New graph context are created using the
+     * {@link #createGraphContext(Graph, com.bc.ceres.core.ProgressMonitor)} method.
      *
      * @param graphContext the {@link GraphContext} to execute
      * @param pm           a progress monitor. Can be used to signal progress.
+     * @return the output products of the executed graph
      */
-    public void executeGraphContext(GraphContext graphContext, ProgressMonitor pm) {
+    public Product[] executeGraph(GraphContext graphContext, ProgressMonitor pm) {
         fireProcessingStarted(graphContext);
 
         //Header header = graphContext.getGraph().getHeader();
@@ -196,15 +200,15 @@ public class GraphProcessor {
         for (Dimension dimension : dimList) {
             numPmTicks += dimension.width * dimension.height * tileDimMap.get(dimension).size();
         }
-        
+
         ImagingListener imagingListener = JAI.getDefaultInstance().getImagingListener();
         JAI.getDefaultInstance().setImagingListener(new GPFImagingListener());
-        
+
         final TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
         final int parallelism = tileScheduler.getParallelism();
-        final Semaphore semaphore = new Semaphore(parallelism , true);
+        final Semaphore semaphore = new Semaphore(parallelism, true);
         final TileComputationListener tcl = new GraphTileComputationListener(semaphore, parallelism);
-        final TileComputationListener[] listeners = new TileComputationListener[] { tcl };
+        final TileComputationListener[] listeners = new TileComputationListener[]{tcl};
 
         try {
             pm.beginTask("Computing raster data...", numPmTicks);
@@ -216,7 +220,8 @@ public class GraphProcessor {
                 for (int tileY = 0; tileY < numYTiles; tileY++) {
                     for (int tileX = 0; tileX < numXTiles; tileX++) {
                         if (pm.isCanceled()) {
-                            return;
+                            // todo - check: throw exception here? (nf, 2010.10.21)
+                            return graphContext.getOutputProducts();
                         }
                         Rectangle tileRectangle = new Rectangle(tileX * tileSize.width,
                                                                 tileY * tileSize.height,
@@ -278,6 +283,8 @@ public class GraphProcessor {
             JAI.getDefaultInstance().setImagingListener(imagingListener);
             fireProcessingStopped(graphContext);
         }
+
+        return graphContext.getOutputProducts();
     }
 
     private Map<Dimension, List<NodeContext>> buildTileDimensionMap(NodeContext[] outputNodeContexts) {
@@ -300,23 +307,22 @@ public class GraphProcessor {
     }
 
     private void forceTileComputation(PlanarImage image, int tileX, int tileY, Semaphore semaphore,
-                                             TileScheduler tileScheduler, TileComputationListener[] listeners, int parallelism) {
-        /////////////////////////////////////////////////////////////////////
-        //
-        // Note: GPF pull-processing is triggered here!!!
-        //
-        Point[] points = new Point[] {new Point(tileX, tileY)};
+                                      TileScheduler tileScheduler, TileComputationListener[] listeners, int parallelism) {
+        Point[] points = new Point[]{new Point(tileX, tileY)};
         acquirePermits(semaphore, 1);
         if (error != null) {
             semaphore.release(parallelism);
             throw error;
         }
+        /////////////////////////////////////////////////////////////////////
+        //
+        // Note: GPF pull-processing is triggered here!!!
+        //
         tileScheduler.scheduleTiles(image, points, listeners);
-        
         //
         /////////////////////////////////////////////////////////////////////
     }
-    
+
     private static void acquirePermits(Semaphore semaphore, int permits) {
         try {
             semaphore.acquire(permits);
@@ -449,17 +455,32 @@ public class GraphProcessor {
             semaphore.release(parallelism);
         }
     }
-    
+
     private class GPFImagingListener implements ImagingListener {
 
         @Override
         public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable)
-                                                                                                         throws RuntimeException {
+                throws RuntimeException {
             if (error == null && !thrown.getClass().getSimpleName().equals("MediaLibLoadException")) {
                 error = new OperatorException(thrown);
             }
             return false;
         }
+    }
+
+    //////////////////////////////////////////////////////////
+    // Deprecated API
+
+    /**
+     * Executes the given {@link GraphContext}.
+     *
+     * @param graphContext the {@link GraphContext} to execute
+     * @param pm           a progress monitor. Can be used to signal progress.
+     * @deprecated since BEAM 4.9, use {@link #executeGraph(GraphContext, com.bc.ceres.core.ProgressMonitor)}  instead
+     */
+    @Deprecated
+    public void executeGraphContext(GraphContext graphContext, ProgressMonitor pm) {
+        executeGraph(graphContext, pm);
     }
 
 }

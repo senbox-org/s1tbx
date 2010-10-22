@@ -170,7 +170,13 @@ public class OperatorExecutor {
             throw error;
         }
         Point[] points = new Point[] { new Point(tileX, tileY) };
+        /////////////////////////////////////////////////////////////////////
+        //
+        // Note: GPF pull-processing is triggered here!!!
+        //
         tileScheduler.scheduleTiles(image, points, listeners);
+        //
+        /////////////////////////////////////////////////////////////////////
         pm.worked(1);
     }
 
@@ -220,7 +226,13 @@ public class OperatorExecutor {
             for (final PlanarImage image : images) {
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     checkForCancelation(pm);
+                    /////////////////////////////////////////////////////////////////////
+                    //
+                    // Note: GPF pull-processing is triggered here!!!
+                    //
                     image.getTile(tileX, tileY);
+                    //
+                    /////////////////////////////////////////////////////////////////////
                     pm.worked(1);
                 }
             }
@@ -231,8 +243,8 @@ public class OperatorExecutor {
 
         private final Semaphore semaphore;
 
-        OperatorTileComputationListener(Semaphore scheduledTiles) {
-            this.semaphore = scheduledTiles;
+        OperatorTileComputationListener(Semaphore semaphore) {
+            this.semaphore = semaphore;
         }
 
         @Override

@@ -29,7 +29,7 @@ import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 
-class OperatorImage extends SourcelessOpImage {
+public class OperatorImage extends SourcelessOpImage {
 
     private static final String DISABLE_TILE_CACHING_PROPERTY = "beam.gpf.disableOperatorTileCaching";
 
@@ -37,7 +37,7 @@ class OperatorImage extends SourcelessOpImage {
     private Band targetBand;
     private ProgressMonitor progressMonitor;
 
-    OperatorImage(Band targetBand, OperatorContext operatorContext) {
+    public OperatorImage(Band targetBand, OperatorContext operatorContext) {
         this(targetBand, operatorContext, ImageManager.createSingleBandedImageLayout(targetBand));
     }
 

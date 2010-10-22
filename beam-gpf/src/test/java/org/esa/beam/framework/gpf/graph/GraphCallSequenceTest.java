@@ -102,8 +102,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         GraphProcessor processor = new GraphProcessor();
         GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
-        processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
-        Product[] targetProducts = graphContext.getOutputProducts();
+        Product[] targetProducts = processor.executeGraph(graphContext, ProgressMonitor.NULL);
 
         assertNotNull(targetProducts);
         assertEquals(1, targetProducts.length);
@@ -156,8 +155,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         GraphProcessor processor = new GraphProcessor();
         GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
-        processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
-        Product[] targetProducts = graphContext.getOutputProducts();
+        Product[] targetProducts = processor.executeGraph(graphContext, ProgressMonitor.NULL);
 
         assertNotNull(targetProducts);
         assertEquals(1, targetProducts.length);
@@ -222,8 +220,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         GraphProcessor processor = new GraphProcessor();
         GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
-        processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
-        Product[] outputProducts = graphContext.getOutputProducts();
+        Product[] outputProducts = processor.executeGraph(graphContext, ProgressMonitor.NULL);
 
         assertNotNull(outputProducts);
         assertEquals(3, outputProducts.length);
@@ -306,8 +303,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         GraphProcessor processor = new GraphProcessor();
         GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
-        processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
-        Product[] outputProducts = graphContext.getOutputProducts();
+        Product[] outputProducts = processor.executeGraph(graphContext, ProgressMonitor.NULL);
 
         assertNotNull(outputProducts);
         assertEquals(2, outputProducts.length);

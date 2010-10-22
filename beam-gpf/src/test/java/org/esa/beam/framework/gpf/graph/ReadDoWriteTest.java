@@ -109,10 +109,7 @@ public class ReadDoWriteTest {
         Graph graph = GraphIO.read(reader);
 
         GraphProcessor processor = new GraphProcessor();
-        GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
-        processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
-        Product[] outputProducts = graphContext.getOutputProducts();
-        outputProducts[0].dispose();
+        processor.executeGraph(graph, ProgressMonitor.NULL);
 
         Product productOnDisk = ProductIO.readProduct(outputFile);
         assertNotNull(productOnDisk);

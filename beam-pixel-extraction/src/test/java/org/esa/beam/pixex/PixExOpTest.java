@@ -103,11 +103,7 @@ public class PixExOpTest {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new PixExOp.Spi());
 
         GraphProcessor processor = new GraphProcessor();
-        GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
-        graphContext.getGraph().removeNode("WriteProduct$someNodeId"); // remove write node
-        processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
-        Product[] outputProducts = graphContext.getOutputProducts();
-        outputProducts[0].dispose();
+        processor.executeGraph(graph, ProgressMonitor.NULL);
 
         List<Product> sourceProducts = new ArrayList<Product>();
         sourceProducts.add(readProduct(DUMMY_PRODUCT1));

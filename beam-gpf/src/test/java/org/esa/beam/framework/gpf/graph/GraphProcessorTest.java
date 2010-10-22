@@ -142,14 +142,13 @@ public class GraphProcessorTest extends TestCase {
 
         graph.addNode(node1);
         graph.addNode(node2);
-        GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
 
-        Product chainOut = graphContext.getOutputProducts()[0];
+        GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+        Product chainOut = processor.executeGraph(graphContext, ProgressMonitor.NULL)[0];
 
         assertNotNull(chainOut);
         assertEquals("Op2Name", chainOut.getName());
 
-        processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
         assertEquals("Op1;Op2;", TestOps.getCalls());
         TestOps.clearCalls();
     }
@@ -185,7 +184,7 @@ public class GraphProcessorTest extends TestCase {
         assertNotNull(chainOut);
         assertEquals("Op3Name", chainOut.getName());
 
-        processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
+        processor.executeGraph(graphContext, ProgressMonitor.NULL);
         // - Op3 requires the two bands of Op2
         // - Op2 computes all bands
         // --> Op2 should only be called once
