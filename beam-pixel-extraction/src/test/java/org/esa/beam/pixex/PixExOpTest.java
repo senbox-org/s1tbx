@@ -11,7 +11,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.graph.Graph;
-import org.esa.beam.framework.gpf.graph.GraphContext;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
@@ -30,8 +29,10 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.AffineTransform;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -48,16 +49,20 @@ public class PixExOpTest {
     private static final String DUMMY_PRODUCT2 = "dummyProduct2.dim";
 
     private Transferable clipboardContents;
+    private PrintStream defaultOutStream;
 
 
     @Before
     public void before() {
         clipboardContents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+        defaultOutStream = System.out;
+        System.setOut(new PrintStream(new ByteArrayOutputStream(100))); // suppressing output to std.out
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(clipboardContents, null);
+        System.setOut(defaultOutStream);
     }
 
     @Test
@@ -94,6 +99,7 @@ public class PixExOpTest {
                 "          </coordinate>\n" +
                 "        </coordinates>\n" +
                 "        <windowSize>" + windowSize + "</windowSize>\n" +
+                "        <copyToClipboard>true</copyToClipboard>\n" +
                 "      </parameters>\n" +
                 "    </node>\n" +
                 "  </graph>";
@@ -131,11 +137,13 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
+        parameterMap.put("copyToClipboard", true);
 
         String[] bandNames = {"rad_1", "rad_2"};
         Product[] sourceProduct = {createTestProduct("andi", "level1", bandNames)};
-        String[] lines = computeData(parameterMap, sourceProduct);
 
+        computeData(parameterMap, sourceProduct);
+        final String[] lines = getDataFromClipboard();
         checkClipboardData(lines, sourceProduct, coordinates, windowSize, null);
     }
 
@@ -155,6 +163,7 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
+        parameterMap.put("copyToClipboard", true);
 
         String[] bandNames = {"rad_1", "rad_2"};
 
@@ -163,7 +172,8 @@ public class PixExOpTest {
                 createTestProduct("keek", "level1", bandNames)
         };
 
-        String[] lines = computeData(parameterMap, products);
+        computeData(parameterMap, products);
+        final String[] lines = getDataFromClipboard();
         checkClipboardData(lines, products, coordinates, windowSize, null);
     }
 
@@ -182,6 +192,7 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
+        parameterMap.put("copyToClipboard", true);
 
         String[] bandNames = {"rad_1", "rad_2, radiance_3"};
 
@@ -192,7 +203,8 @@ public class PixExOpTest {
 
         Product[] products = productList.toArray(new Product[productList.size()]);
 
-        String[] lines = computeData(parameterMap, products);
+        computeData(parameterMap, products);
+        final String[] lines = getDataFromClipboard();
         checkClipboardData(lines, products, coordinates, windowSize, null);
     }
 
@@ -212,6 +224,7 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
+        parameterMap.put("copyToClipboard", true);
 
         String[] bandNames = {"rad_1", "rad_2"};
         String[] bandNames2 = {"refl_1", "refl_2"};
@@ -221,7 +234,8 @@ public class PixExOpTest {
                 createTestProduct("keek", "level2", bandNames2)
         };
 
-        String[] lines = computeData(parameterMap, products);
+        computeData(parameterMap, products);
+        final String[] lines = getDataFromClipboard();
         checkClipboardData(lines, products, coordinates, windowSize, null);
     }
 
@@ -242,6 +256,7 @@ public class PixExOpTest {
         parameterMap.put("exportMasks", false);
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
+        parameterMap.put("copyToClipboard", true);
 
         List<Product> productList = new ArrayList<Product>();
         for (int i = 0; i < 20; i++) {
@@ -250,7 +265,8 @@ public class PixExOpTest {
 
         Product[] products = productList.toArray(new Product[productList.size()]);
 
-        String[] lines = computeData(parameterMap, products);
+        computeData(parameterMap, products);
+        final String[] lines = getDataFromClipboard();
         checkClipboardData(lines, products, coordinates, windowSize, null);
     }
 
@@ -269,8 +285,9 @@ public class PixExOpTest {
 
         String[] bandNames = {"rad_1", "rad_2"};
         Product[] sourceProduct = {createTestProduct("werner", "level1", bandNames)};
-        String[] lines = computeData(parameterMap, sourceProduct);
+        computeData(parameterMap, sourceProduct);
 
+        final String[] lines = getDataFromClipboard();
         checkClipboardData(lines, sourceProduct, coordinates, windowSize, null);
     }
 
@@ -321,12 +338,14 @@ public class PixExOpTest {
         return ProductIO.readProduct(radianceProductUrl.getFile());
     }
 
-    private static String[] computeData(Map<String, Object> parameterMap, Product[] sourceProducts) throws
-                                                                                                    UnsupportedFlavorException,
-                                                                                                    IOException {
+    private static void computeData(Map<String, Object> parameterMap, Product[] sourceProducts) throws
+                                                                                                UnsupportedFlavorException,
+                                                                                                IOException {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new PixExOp.Spi());
         GPF.createProduct("PixEx", parameterMap, sourceProducts);
+    }
 
+    private static String[] getDataFromClipboard() throws UnsupportedFlavorException, IOException {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         String data = String.valueOf(clipboard.getData(clipboard.getAvailableDataFlavors()[0]));
         return data.split("\n");

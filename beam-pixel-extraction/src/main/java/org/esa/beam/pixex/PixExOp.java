@@ -52,6 +52,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +60,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -102,7 +104,11 @@ public class PixExOp extends Operator {
                validator = WindowSizeValidator.class)
     private Integer windowSize;
 
-    @Parameter(description = "The output directory. If not specified the output is written to the clipboard.")
+    @Parameter(description = "Specifies if the output should be copied to the system clipboard.",
+               defaultValue = "false")
+    private boolean copyToClipboard;
+
+    @Parameter(description = "The output directory. If not specified the output is written to std.out.")
     private File outputDir;
 
     @Parameter(description = "The prefix is used to name the output files.", defaultValue = "pixEx")
@@ -143,11 +149,22 @@ public class PixExOp extends Operator {
             inputPaths = cleanPathNames(inputPaths);
             extractMeasurements(inputPaths);
         }
-        if (outputDir != null) {
-            writeOutputToFile();
-        } else {
-            writeOutputToClipboard();
+        try {
+            if (outputDir != null) {
+                writeOutputToFile();
+            }
+            StringWriter writer = new StringWriter();
+            writeOutputToWriter(writer);
+            if (outputDir == null) {
+                System.out.println(writer.toString());
+            }
+            if (copyToClipboard) {
+                SystemUtils.copyToClipboard(writer.toString());
+            }
+        } catch (IOException e) {
+            throw new OperatorException("Could not write output.", e);
         }
+
         if (!isTargetProductInitialized) {
             setDummyProduct();
         }
@@ -346,45 +363,35 @@ public class PixExOp extends Operator {
     }
 
     @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
-    private void writeOutputToFile() {
+    private void writeOutputToFile() throws IOException {
         FileWriter writer = null;
 
         for (String productType : measurements.keySet()) {
             List<Measurement> measurementList = measurements.get(productType);
             try {
+                final String fileName = String.format("%s_%s.txt", outputFilePrefix, productType);
+                writer = new FileWriter(new File(outputDir.getAbsolutePath(), fileName));
                 String[] rasterNames = rasterNamesMap.get(productType);
-                writer = new FileWriter(new File(outputDir.getAbsolutePath(),
-                                                 String.format("%s_%s.txt", outputFilePrefix, productType)));
-                writer.write(createHeader());
+                writeHeader(writer);
                 MeasurementWriter.write(measurementList, writer, rasterNames, expression, exportExpressionResult);
-            } catch (IOException e) {
-                throw new OperatorException("Could not write to output file.", e);
             } finally {
-                try {
-                    if (writer != null) {
-                        writer.close();
-                    }
-                } catch (IOException ignored) {
+                if (writer != null) {
+                    writer.close();
                 }
             }
         }
 
+        final String fileName = String.format("%s_productIdMap.txt", outputFilePrefix);
+        writer = new FileWriter(new File(outputDir.getAbsolutePath(), fileName));
         try {
-            writer = new FileWriter(new File(outputDir.getAbsolutePath(),
-                                             String.format("%s_productIdMap.txt", outputFilePrefix)));
-            try {
-                writer.write(writeProductIdMap());
-            } finally {
-                writer.close();
-            }
-        } catch (IOException e) {
-            throw new OperatorException("Could not write to output file.", e);
+            writeProductIdMap(writer);
+        } finally {
+            writer.close();
         }
     }
 
-    private void writeOutputToClipboard() {
-        StringWriter stringWriter = new StringWriter();
-        stringWriter.append(createHeader());
+    private void writeOutputToWriter(Writer stringWriter) throws IOException {
+        writeHeader(stringWriter);
         for (String productType : measurements.keySet()) {
             List<Measurement> measurementList = measurements.get(productType);
             try {
@@ -399,38 +406,31 @@ public class PixExOp extends Operator {
                 }
             }
         }
-        stringWriter.append(writeProductIdMap());
-
-        SystemUtils.copyToClipboard(stringWriter.toString());
+        writeProductIdMap(stringWriter);
     }
 
-    private String createHeader() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("# BEAM pixel extraction export table\n");
-        builder.append("#\n");
-        builder.append(String.format("# Window size: %d\n", windowSize));
+    private void writeHeader(Writer writer) throws IOException {
+        writer.append("# BEAM pixel extraction export table\n");
+        writer.append("#\n");
+        writer.append(String.format("# Window size: %d\n", windowSize));
         if (expression != null) {
-            builder.append(String.format("# Expression: %s\n", expression));
+            writer.append(String.format("# Expression: %s\n", expression));
         }
-        builder.append(
-                String.format("# Created on:\t%s\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
-        builder.append("\n");
-
-        return builder.toString();
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        writer.append(String.format("# Created on:\t%s\n", dateFormat.format(new Date())));
+        writer.append("\n");
     }
 
-    private String writeProductIdMap() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("# Product ID Map\n");
-        builder.append("\n");
-        builder.append("ProductID\tProductType\tProductLocation\n");
+    private void writeProductIdMap(Writer writer) throws IOException {
+        writer.append("# Product ID Map\n");
+        writer.append("\n");
+        writer.append("ProductID\tProductType\tProductLocation\n");
         for (int id = 0; id < productLocationList.size(); id++) {
             ProductDescription productDescription = productLocationList.get(id);
-            builder.append(String.format("%d\t", id));
-            builder.append(String.format("%s\t", productDescription.getProductType()));
-            builder.append(String.format("%s\n", productDescription.getProductLocation()));
+            writer.append(String.format("%d\t", id));
+            writer.append(String.format("%s\t", productDescription.getProductType()));
+            writer.append(String.format("%s\n", productDescription.getProductLocation()));
         }
-        return builder.toString();
     }
 
     private static File[] cleanPathNames(File[] paths) {

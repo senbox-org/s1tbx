@@ -32,15 +32,15 @@ import org.esa.beam.util.SystemUtils;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
@@ -50,7 +50,6 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -76,10 +75,12 @@ class PixelExtractionIOForm {
     private final JLabel filePrefixLabel;
     private final JTextField filePrefixField;
     private InputListModel listModel;
+    private BindingContext context;
 
     PixelExtractionIOForm(final AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
         this.container = container;
+        context = new BindingContext(container);
 
         final TableLayout tableLayout = new TableLayout(3);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
@@ -108,7 +109,7 @@ class PixelExtractionIOForm {
         addRemoveButtonPanel.add(createRemoveInputButton());
         panel.add(addRemoveButtonPanel);
 
-        panel.add(createRadioButtonPanel());
+        panel.add(createClipboardCheckbox());
 
         outputDirLabel = new JLabel("Output directory:");
         panel.add(outputDirLabel);
@@ -150,43 +151,10 @@ class PixelExtractionIOForm {
         return listModel.getSourceProducts();
     }
 
-    private JPanel createRadioButtonPanel() {
-        final JRadioButton exportButton = new JRadioButton("Export to output directory");
-        final JRadioButton clipboardButton = new JRadioButton("Copy to clipboard");
-        exportButton.setSelected(true);
-
-        exportButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setOutputUiEnabled(exportButton.isSelected());
-                container.setValue("outputDir", new File(outputDirTextField.getText()));
-            }
-        });
-
-        clipboardButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setOutputUiEnabled(!clipboardButton.isSelected());
-                container.setValue("outputDir", null);
-            }
-        });
-
-        ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(exportButton);
-        buttonGroup.add(clipboardButton);
-
-        JPanel radioButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        radioButtonPanel.add(exportButton);
-        radioButtonPanel.add(clipboardButton);
-        return radioButtonPanel;
-    }
-
-    private void setOutputUiEnabled(boolean enable) {
-        outputDirLabel.setEnabled(enable);
-        outputDirTextField.setEnabled(enable);
-        outputDirChooserButton.setEnabled(enable);
-        filePrefixField.setEnabled(enable);
-        filePrefixLabel.setEnabled(enable);
+    private JComponent createClipboardCheckbox() {
+        final JCheckBox clipboardButton = new JCheckBox("Copy output to system clipboard");
+        context.bind("copyToClipboard", clipboardButton);
+        return clipboardButton;
     }
 
     private String getDefaultOutputPath(AppContext appContext) {
@@ -240,7 +208,6 @@ class PixelExtractionIOForm {
     }
 
     private JTextField createFilePrefixField(Property property) {
-        final BindingContext context = new BindingContext(container);
         final JTextField textField = new JTextField();
         context.bind(property.getName(), textField);
         return textField;
