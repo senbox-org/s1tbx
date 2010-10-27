@@ -37,6 +37,7 @@ import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,10 +51,13 @@ public class PixExOpTest {
 
     private Transferable clipboardContents;
     private PrintStream defaultOutStream;
+    private PixExOp.Spi pixExOpSpi;
 
 
     @Before
     public void before() {
+        pixExOpSpi = new PixExOp.Spi();
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(pixExOpSpi);
         clipboardContents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
         defaultOutStream = System.out;
         System.setOut(new PrintStream(new ByteArrayOutputStream(100))); // suppressing output to std.out
@@ -63,6 +67,8 @@ public class PixExOpTest {
     public void tearDown() throws IOException {
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(clipboardContents, null);
         System.setOut(defaultOutStream);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(pixExOpSpi);
+
     }
 
     @Test
@@ -71,8 +77,8 @@ public class PixExOpTest {
         String parentDir = new File(getClass().getResource("dummyProduct1.dim").getFile()).getParent();
         int windowSize = 11;
         Coordinate[] coordinates = new Coordinate[]{
-                new Coordinate("carlCoordinate", 60.1f, 3.0f),
-                new Coordinate("cassandraCoordinate", 59.1f, 0.5f)
+                new Coordinate("carlCoordinate", 60.1f, 3.0f, null),
+                new Coordinate("cassandraCoordinate", 59.1f, 0.5f, null)
         };
         String graphOpXml =
                 "<graph id=\"someGraphId\">\n" +
@@ -128,8 +134,8 @@ public class PixExOpTest {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", 10.0f, 10.0f),
-                new Coordinate("coord2", 20.0f, 20.0f)
+                new Coordinate("coord1", 10.0f, 10.0f, null),
+                new Coordinate("coord2", 20.0f, 20.0f, null)
         };
         int windowSize = 3;
 
@@ -153,9 +159,9 @@ public class PixExOpTest {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", 10.0f, 10.0f),
-                new Coordinate("coord2", 20.0f, 20.0f),
-                new Coordinate("coord3", 0.5f, 0.5f)
+                new Coordinate("coord1", 10.0f, 10.0f, null),
+                new Coordinate("coord2", 20.0f, 20.0f, null),
+                new Coordinate("coord3", 0.5f, 0.5f, null)
         };
         int windowSize = 5;
 
@@ -183,8 +189,8 @@ public class PixExOpTest {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", 10.0f, 10.0f),
-                new Coordinate("coord3", 0.5f, 0.5f)
+                new Coordinate("coord1", 10.0f, 10.0f, null),
+                new Coordinate("coord3", 0.5f, 0.5f, null)
         };
         int windowSize = 1;
 
@@ -214,9 +220,9 @@ public class PixExOpTest {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", 10.0f, 10.0f),
-                new Coordinate("coord2", 20.0f, 20.0f),
-                new Coordinate("coord3", 0.5f, 0.5f)
+                new Coordinate("coord1", 10.0f, 10.0f, null),
+                new Coordinate("coord2", 20.0f, 20.0f, null),
+                new Coordinate("coord3", 0.5f, 0.5f, null)
         };
         int windowSize = 5;
 
@@ -240,15 +246,63 @@ public class PixExOpTest {
     }
 
     @Test
+    public void testTwoProductsWithTimeConstraints() throws Exception {
+
+        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+
+        final Calendar calInP1 = Calendar.getInstance();
+        calInP1.set(2005, 2, 1, 12, 30, 0);
+        final Calendar calInP2 = Calendar.getInstance();
+        calInP2.set(2006, 0, 1, 6, 0, 0);
+        final Calendar calOutsideBoth = Calendar.getInstance();
+        calOutsideBoth.set(2010, 0, 1, 0, 0, 0);
+        Coordinate[] coordinates = {
+                new Coordinate("coord1", 10.0f, 10.0f, calInP1.getTime()),
+                new Coordinate("coord2", 20.0f, 20.0f, calInP2.getTime()),
+                new Coordinate("coord3", 0.5f, 0.5f, calOutsideBoth.getTime())
+        };
+        int windowSize = 1;
+
+        parameterMap.put("exportTiePoints", false);
+        parameterMap.put("exportMasks", false);
+        parameterMap.put("coordinates", coordinates);
+        parameterMap.put("windowSize", windowSize);
+        parameterMap.put("copyToClipboard", false);
+        parameterMap.put("timeDelta", "1D");
+
+        String[] bandNames = {"rad_1", "rad_2"};
+        String[] bandNames2 = {"refl_1", "refl_2"};
+
+        final Product p1 = createTestProduct("kallegrabowski", "level1", bandNames);
+        p1.setStartTime(ProductData.UTC.parse("01-MAR-2005 12:00:00"));
+        p1.setEndTime(ProductData.UTC.parse("01-MAR-2005 13:00:00"));
+        final Product p2 = createTestProduct("keek", "level1", bandNames2);
+        p2.setStartTime(ProductData.UTC.parse("01-Jan-2006 0:00:00"));
+        p2.setEndTime(ProductData.UTC.parse("01-Jan-2006 12:00:00"));
+        final Map<String, Product> productMap = new HashMap<String, Product>();
+        productMap.put("sourceProduct.0", p1);
+        productMap.put("sourceProduct.1", p2);
+
+        PixExOp pixEx = (PixExOp) pixExOpSpi.createOperator(parameterMap, productMap, null);
+        pixEx.getTargetProduct(); // trigger computation
+        final Map<String, List<Measurement>> map = pixEx.getMeasurements();
+
+        assertEquals(1, map.size()); // one product type
+        final List<Measurement> measurementList = map.get("level1");
+        assertEquals(2, measurementList.size());
+        final Measurement measurement = measurementList.get(0);
+    }
+
+    @Test
     public void testTwentyProductsWithDifferentTypes() throws Exception {
 
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", 10.0f, 10.0f),
-                new Coordinate("coord2", 8.0f, 8.0f),
-                new Coordinate("coord3", 2.5f, 1.0f),
-                new Coordinate("coord4", 0.5f, 0.5f)
+                new Coordinate("coord1", 10.0f, 10.0f, null),
+                new Coordinate("coord2", 8.0f, 8.0f, null),
+                new Coordinate("coord3", 2.5f, 1.0f, null),
+                new Coordinate("coord4", 0.5f, 0.5f, null)
         };
         int windowSize = 13;
 
@@ -276,7 +330,7 @@ public class PixExOpTest {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", 10.0f, 10.0f)
+                new Coordinate("coord1", 10.0f, 10.0f, null)
         };
         int windowSize = 2; // not allowed !!
 
@@ -308,7 +362,7 @@ public class PixExOpTest {
         op.setWindowSize(3);
         Map<String, List<Measurement>> measurements = new HashMap<String, List<Measurement>>();
         GeoPos geoPos = new GeoPos(20.5f, 10.5f);
-        op.readMeasurement(product, new Coordinate("Coord_1", geoPos.lat, geoPos.lon), 1, measurements);
+        op.readMeasurement(product, new Coordinate("Coord_1", geoPos.lat, geoPos.lon, null), 1, measurements);
         geoPos = new GeoPos(21.5f, 9.5f);
 
         List<Measurement> measurementList = measurements.get(productType);
@@ -333,15 +387,35 @@ public class PixExOpTest {
         }
     }
 
+    @Test
+    public void testTimeDeltaParsing() throws Exception {
+        final PixExOp op = new PixExOp();
+        op.parseTimeDelta("2D");
+        assertEquals(2, op.getTimeDelta());
+        assertEquals(Calendar.DATE, op.getCalendarField());
+        op.parseTimeDelta("30m");
+        assertEquals(30, op.getTimeDelta());
+        assertEquals(Calendar.MINUTE, op.getCalendarField());
+        op.parseTimeDelta("12H");
+        assertEquals(12, op.getTimeDelta());
+        assertEquals(Calendar.HOUR, op.getCalendarField());
+        op.parseTimeDelta("480M");
+        assertEquals(480, op.getTimeDelta());
+        assertEquals(Calendar.MINUTE, op.getCalendarField());
+        op.parseTimeDelta("31d");
+        assertEquals(31, op.getTimeDelta());
+        assertEquals(Calendar.DATE, op.getCalendarField());
+        op.parseTimeDelta("1h");
+        assertEquals(1, op.getTimeDelta());
+        assertEquals(Calendar.HOUR, op.getCalendarField());
+    }
+
     private static Product readProduct(String s) throws IOException {
         final URL radianceProductUrl = PixExOpTest.class.getResource(s);
         return ProductIO.readProduct(radianceProductUrl.getFile());
     }
 
-    private static void computeData(Map<String, Object> parameterMap, Product[] sourceProducts) throws
-                                                                                                UnsupportedFlavorException,
-                                                                                                IOException {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new PixExOp.Spi());
+    private static void computeData(Map<String, Object> parameterMap, Product[] sourceProducts) {
         GPF.createProduct("PixEx", parameterMap, sourceProducts);
     }
 

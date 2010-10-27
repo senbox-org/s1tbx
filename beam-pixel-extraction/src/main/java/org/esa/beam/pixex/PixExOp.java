@@ -56,6 +56,7 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -97,7 +98,11 @@ public class PixExOp extends Operator {
     @Parameter(description = "The geo-coordinates", itemAlias = "coordinate")
     private Coordinate[] coordinates;
 
-    @Parameter(description = "Path to a file containing geo-coordinates. Can be one of BEAM's placemark files.")
+    @Parameter(description = "The acceptable time difference compared to the time given for a coordinate.",
+               defaultValue = "1D")
+    private String timeDifference;
+
+    @Parameter(description = "Path to a file containing geo-coordinates. BEAM's placemark files can be used.")
     private File coordinatesFile;
 
     @Parameter(description = "Side length of surrounding window (uneven)", defaultValue = "1",
@@ -127,6 +132,21 @@ public class PixExOp extends Operator {
     private boolean isTargetProductInitialized = false;
     private List<ProductDescription> productLocationList = new ArrayList<ProductDescription>();
     private Integer productId = 0;
+    private int timeDelta = 0;
+    private int calendarField = -1;
+
+
+    int getTimeDelta() {
+        return timeDelta;
+    }
+
+    int getCalendarField() {
+        return calendarField;
+    }
+
+    Map<String, List<Measurement>> getMeasurements() {
+        return measurements;
+    }
 
     @Override
     public void initialize() throws OperatorException {
@@ -137,6 +157,8 @@ public class PixExOp extends Operator {
             throw new OperatorException("Output directory does not exist and could not be created.");
         }
         coordinateList = initCoordinateList();
+
+        parseTimeDelta(timeDifference);
 
         validator = new ProductValidator();
         measurements = new HashMap<String, List<Measurement>>();
@@ -185,6 +207,12 @@ public class PixExOp extends Operator {
         if (!product.containsPixel(centerPos)) {
             return;
         }
+        if (coordinate.getDateTime() != null) {
+            if (!isPixelInTimeSpan(product, centerPos, coordinate, timeDelta, calendarField)) {
+                return;
+            }
+        }
+
         String productType = product.getProductType();
         int id = getProductId(product);
         String[] rasterNames = rasterNamesMap.get(productType);
@@ -208,6 +236,7 @@ public class PixExOp extends Operator {
         for (int n = 0; n < numPixels; n++) {
             int x = upperLeftX + n % windowSize;
             int y = upperLeftY + n / windowSize;
+
             for (int i = 0; i < rasterNames.length; i++) {
                 RasterDataNode raster = product.getRasterDataNode(rasterNames[i]);
                 if (raster != null && product.containsPixel(x, y)) {
@@ -248,6 +277,37 @@ public class PixExOp extends Operator {
         }
     }
 
+    private boolean isPixelInTimeSpan(Product product, PixelPos pixelPos, Coordinate coordinate, int timeDiff,
+                                      int calendarField) {
+        final ProductData.UTC utcCurrentLine = ProductUtils.getScanLineTime(product, pixelPos.y);
+        final Calendar currentDate = utcCurrentLine.getAsCalendar();
+
+        final Calendar lowerTimeBound = (Calendar) currentDate.clone();
+        lowerTimeBound.add(calendarField, -timeDiff);
+        final Calendar upperTimeBound = (Calendar) currentDate.clone();
+        upperTimeBound.add(calendarField, timeDiff);
+
+        Calendar coordinateCal = Calendar.getInstance();
+        coordinateCal.setTime(coordinate.getDateTime());
+
+        return lowerTimeBound.compareTo(coordinateCal) <= 0 && upperTimeBound.compareTo(coordinateCal) >= 0;
+    }
+
+    void parseTimeDelta(String timeDelta) {
+        this.timeDelta = Integer.parseInt(timeDelta.substring(0, timeDelta.length() - 1));
+        final String s = timeDelta.substring(timeDelta.length() - 1).toUpperCase();
+        if ("D".equals(s)) {
+            calendarField = Calendar.DATE;
+        } else if ("H".equals(s)) {
+            calendarField = Calendar.HOUR;
+        } else if ("M".equals(s)) {
+            calendarField = Calendar.MINUTE;
+        } else {
+            calendarField = Calendar.DATE;
+        }
+
+    }
+
     private Integer getProductId(Product product) {
 
         final ProductDescription productDescription = ProductDescription.create(product);
@@ -260,7 +320,7 @@ public class PixExOp extends Operator {
     private List<Coordinate> initCoordinateList() {
         List<Coordinate> list = new ArrayList<Coordinate>();
         if (coordinatesFile != null) {
-            list.addAll(extractGeoPositions(coordinatesFile));
+            list.addAll(extractCoordinates(coordinatesFile));
         }
         if (coordinates != null) {
             list.addAll(Arrays.asList(coordinates));
@@ -268,7 +328,7 @@ public class PixExOp extends Operator {
         return list;
     }
 
-    private List<Coordinate> extractGeoPositions(File coordinatesFile) {
+    private List<Coordinate> extractCoordinates(File coordinatesFile) {
         final List<Coordinate> extractedCoordinates = new ArrayList<Coordinate>();
         try {
             final List<Placemark> pins = PlacemarkIO.readPlacemarks(new FileReader(coordinatesFile),
@@ -277,7 +337,9 @@ public class PixExOp extends Operator {
             for (Placemark pin : pins) {
                 final GeoPos geoPos = pin.getGeoPos();
                 if (geoPos != null) {
-                    extractedCoordinates.add(new Coordinate(pin.getName(), geoPos.lat, geoPos.lon));
+                    final Date dateTimeValue = (Date) pin.getFeature().getAttribute(Placemark.PROPERTY_NAME_DATETIME);
+                    final Coordinate coordinate = new Coordinate(pin.getName(), geoPos.lat, geoPos.lon, dateTimeValue);
+                    extractedCoordinates.add(coordinate);
                 }
             }
         } catch (IOException ignore) {

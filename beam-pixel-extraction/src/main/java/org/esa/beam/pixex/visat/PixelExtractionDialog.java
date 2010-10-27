@@ -92,6 +92,7 @@ class PixelExtractionDialog extends ModalDialog {
     protected void onOK() {
         parameterMap.put("coordinates", parametersForm.getCoordinates());
         parameterMap.put("expression", parametersForm.getExpression());
+        parameterMap.put("timeDifference", parametersForm.getAllowedTimeDifference());
         parameterMap.put("exportExpressionResult", parametersForm.isExportExpressionResultSelected());
         ProgressMonitorSwingWorker worker = new MyProgressMonitorSwingWorker(getParent(), "Creating output file(s)...");
         worker.executeWithBlocking();

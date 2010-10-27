@@ -45,7 +45,7 @@ class AddDirectoryAction extends AbstractAction {
     }
 
     private AddDirectoryAction(boolean recursive) {
-        this("Add directory" + (recursive ? " recursively" : "") + "...");
+        this("Add directory(s)" + (recursive ? " recursively" : "") + "...");
         this.recursive = recursive;
     }
 
@@ -63,27 +63,32 @@ class AddDirectoryAction extends AbstractAction {
         if (lastDir != null) {
             folderChooser.setCurrentDirectory(new File(lastDir));
         }
+        folderChooser.setMultiSelectionEnabled(!recursive);
 
         final int result = folderChooser.showOpenDialog(appContext.getApplicationWindow());
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
 
-        File currentDir = folderChooser.getSelectedFolder();
 
         if (!recursive) {
+            File[] selectedDirs = folderChooser.getSelectedFiles();
             try {
-                listModel.addElements(currentDir);
+                listModel.addElements(selectedDirs);
+                preferences.setPropertyString(PixelExtractionIOForm.LAST_OPEN_INPUT_DIR,
+                                              selectedDirs[0].getAbsolutePath());
+
             } catch (ValidationException ve) {
                 // not expected to ever come here
                 appContext.handleError("Invalid input path", ve);
             }
         } else {
-            new MyProgressMonitorSwingWorker(currentDir).executeWithBlocking();
+            File selectedDir = folderChooser.getSelectedFolder();
+            preferences.setPropertyString(PixelExtractionIOForm.LAST_OPEN_INPUT_DIR,
+                                          selectedDir.getAbsolutePath());
+            new MyProgressMonitorSwingWorker(selectedDir).executeWithBlocking();
         }
 
-        preferences.setPropertyString(PixelExtractionIOForm.LAST_OPEN_INPUT_DIR,
-                                      currentDir.getAbsolutePath());
 
     }
 
