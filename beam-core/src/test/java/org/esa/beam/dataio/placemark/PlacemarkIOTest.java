@@ -23,6 +23,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -32,9 +33,10 @@ import static org.junit.Assert.*;
  * Date: 03.09.2010
  */
 public class PlacemarkIOTest {
-    private static int WRITER_INITIAL_SIZE = 200;
+
+    private static final int WRITER_INITIAL_SIZE = 200;
     private static final int NUM_PLACEMARKS = 5;
-    private static Rectangle DATA_BOUNDS = new Rectangle(100, 100);
+    private static final Rectangle DATA_BOUNDS = new Rectangle(100, 100);
     private static CrsGeoCoding GEO_CODING;
 
     @BeforeClass
@@ -89,7 +91,8 @@ public class PlacemarkIOTest {
                                                       expectedPlacemarks, valuesList, stdColumnName, addColumnName);
         String output = writer.toString();
 
-        List<Placemark> actualPlacemarks = PlacemarkIO.readPlacemarks(new StringReader(output), GEO_CODING, pinDescriptor);
+        List<Placemark> actualPlacemarks = PlacemarkIO.readPlacemarks(new StringReader(output), GEO_CODING,
+                                                                      pinDescriptor);
 
         testReadStandardResult(expectedPlacemarks, actualPlacemarks, pinDescriptor);
         CsvReader csvReader = new CsvReader(new StringReader(output), new char[]{'\t'}, true, "#");
@@ -100,9 +103,8 @@ public class PlacemarkIOTest {
         assertEquals("Desc", header[stdColumnName.length + 1]);
         String[] actualAddColNames = Arrays.copyOfRange(header, stdColumnName.length + 2, header.length);
         assertArrayEquals(addColumnName, actualAddColNames);
-        String[] record;
         for (Object[] values : valuesList) {
-            record = csvReader.readRecord();
+            String[] record = csvReader.readRecord();
             String[] actualAddValues = Arrays.copyOfRange(record, stdColumnName.length + 2, header.length);
             Object[] expectedValues = Arrays.copyOfRange(values, stdColumnName.length, values.length);
             for (int i = 0; i < expectedValues.length; i++) {
@@ -110,6 +112,42 @@ public class PlacemarkIOTest {
             }
         }
         assertNull(csvReader.readRecord()); // assert all records read
+    }
+
+    @Test
+    public void testReadPlacemarkTextFileWithDateTime() throws Exception {
+        StringWriter writer = new StringWriter(WRITER_INITIAL_SIZE);
+        PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+        List<Placemark> expectedPlacemarks = createPlacemarks(pinDescriptor, GEO_CODING, DATA_BOUNDS);
+        String[] stdColumnName = {"X", "Y", "Lon", "Lat", "Label"};
+        String[] addColumnName = {"DateTime"};
+        List<Object[]> valuesList = new ArrayList<Object[]>();
+        for (Placemark expectedPlacemark : expectedPlacemarks) {
+            Object[] values = new Object[stdColumnName.length + addColumnName.length];
+            values[0] = expectedPlacemark.getPixelPos().x;
+            values[1] = expectedPlacemark.getPixelPos().y;
+            values[2] = expectedPlacemark.getGeoPos().lon;
+            values[3] = expectedPlacemark.getGeoPos().lat;
+            values[4] = expectedPlacemark.getLabel();
+            long dateInMillis = (long) (Math.random() * Long.MAX_VALUE);
+            dateInMillis -= dateInMillis % 1000; // only second accuracy
+            values[5] = new Date(dateInMillis);
+
+            valuesList.add(values);
+        }
+        PlacemarkIO.writePlacemarksWithAdditionalData(writer, pinDescriptor.getRoleLabel(), "ProductName",
+                                                      expectedPlacemarks, valuesList, stdColumnName, addColumnName);
+        String output = writer.toString();
+
+        List<Placemark> actualPlacemarks = PlacemarkIO.readPlacemarks(new StringReader(output), GEO_CODING,
+                                                                      pinDescriptor);
+
+        for (int i = 0; i < actualPlacemarks.size(); i++) {
+            final Placemark actualPlacemark = actualPlacemarks.get(i);
+            final Object expectedDateTimeAttribute = valuesList.get(i)[5];
+            final Object actualDateTimeAttribute = actualPlacemark.getFeature().getAttribute("dateTime");
+            assertEquals(expectedDateTimeAttribute, actualDateTimeAttribute);
+        }
     }
 
     private void testReadWritePlacemarkXmlFile(PlacemarkDescriptor descriptorInstance) throws IOException {
@@ -135,7 +173,8 @@ public class PlacemarkIOTest {
         }
     }
 
-    private void testReadStandardResult(List<Placemark> expectedPlacemarks, List<Placemark> actualPlacemarks, PlacemarkDescriptor descriptorInstance) {
+    private void testReadStandardResult(List<Placemark> expectedPlacemarks, List<Placemark> actualPlacemarks,
+                                        PlacemarkDescriptor descriptorInstance) {
         for (int i = 0; i < actualPlacemarks.size(); i++) {
             Placemark actualPlacemark = actualPlacemarks.get(i);
             Placemark expectedPlacemark = expectedPlacemarks.get(i);
@@ -150,7 +189,8 @@ public class PlacemarkIOTest {
         }
     }
 
-    private List<Placemark> createPlacemarks(PlacemarkDescriptor descriptor, CrsGeoCoding geoCoding, Rectangle data_bounds) {
+    private List<Placemark> createPlacemarks(PlacemarkDescriptor descriptor, CrsGeoCoding geoCoding,
+                                             Rectangle data_bounds) {
         ArrayList<Placemark> placemarkList = new ArrayList<Placemark>();
         for (int i = 0; i < NUM_PLACEMARKS; i++) {
             PixelPos pixelPos = new PixelPos((float) Math.random() * data_bounds.width,
