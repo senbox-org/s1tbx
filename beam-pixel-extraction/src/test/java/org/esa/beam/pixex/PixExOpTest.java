@@ -268,7 +268,7 @@ public class PixExOpTest {
         parameterMap.put("coordinates", coordinates);
         parameterMap.put("windowSize", windowSize);
         parameterMap.put("copyToClipboard", false);
-        parameterMap.put("timeDelta", "1D");
+        parameterMap.put("timeDifference", "1D");
 
         String[] bandNames = {"rad_1", "rad_2"};
         String[] bandNames2 = {"refl_1", "refl_2"};
