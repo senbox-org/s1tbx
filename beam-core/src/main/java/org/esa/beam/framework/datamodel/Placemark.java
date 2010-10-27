@@ -37,6 +37,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,9 +56,12 @@ public class Placemark extends ProductNode {
 
     public static final String PLACEMARK_FEATURE_TYPE_NAME = "Placemark";
 
+    // feature properties
     public static final String PROPERTY_NAME_LABEL = "label";
     public static final String PROPERTY_NAME_PIXELPOS = "pixelPos";
     public static final String PROPERTY_NAME_GEOPOS = "geoPos";
+    public static final String PROPERTY_NAME_DATETIME = "dateTime";
+
     public static final String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
 
     private SimpleFeature feature;
@@ -531,10 +535,11 @@ public class Placemark extends ProductNode {
             builder.add(descriptor);
         }
         builder.setName(name);
-        builder.add(Placemark.PROPERTY_NAME_LABEL, String.class);
-        builder.add(Placemark.PROPERTY_NAME_PIXELPOS, Point.class);
-        builder.add(Placemark.PROPERTY_NAME_GEOPOS, Point.class);
+        builder.add(PROPERTY_NAME_LABEL, String.class);
+        builder.add(PROPERTY_NAME_PIXELPOS, Point.class);
+        builder.add(PROPERTY_NAME_GEOPOS, Point.class);
         builder.add("symbol", PlacemarkSymbol.class);
+        builder.add(PROPERTY_NAME_DATETIME, Date.class);
 
         return builder.buildFeatureType();
     }
