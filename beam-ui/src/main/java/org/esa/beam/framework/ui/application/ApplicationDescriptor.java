@@ -17,7 +17,7 @@
 package org.esa.beam.framework.ui.application;
 
 /**
- * Provides descriptive informtion for applications.
+ * Provides descriptive information for applications.
  * @see org.esa.beam.framework.ui.BasicApp
  */
 public interface ApplicationDescriptor {
