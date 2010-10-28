@@ -8,6 +8,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 0.12<br/>
+        [CERES-050] Launcher returns with exit code zero in error case<br/>
         Changes in 0.11<br/>
         [CERES-048] All zip files are appended to classpath using GPT<br/>
         [CERES-046] The module resolver treats all zip files inside a dir-module as implicit libraries<br/>
