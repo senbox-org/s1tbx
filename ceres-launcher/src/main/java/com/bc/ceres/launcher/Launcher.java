@@ -57,6 +57,7 @@ public final class Launcher {
         } catch (Throwable e) {
             System.err.println("Error: " + e.getMessage());
             e.printStackTrace(System.err);
+            System.exit(1);
         }
     }
 
