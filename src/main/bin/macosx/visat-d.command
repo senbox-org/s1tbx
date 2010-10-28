@@ -18,6 +18,6 @@ java \
     "-Dbeam.home=$BEAM4_HOME" \
     -jar "$BEAM4_HOME/bin/ceres-launcher.jar" "$@"
 
-exit 0
+exit $?
 
 
