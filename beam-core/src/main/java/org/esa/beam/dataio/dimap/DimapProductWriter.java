@@ -43,7 +43,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -114,7 +113,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     /**
      * Initializes all the internal file and directory elements from the given output file. This method only must be
      * called if the product writer should write the given data to raw data files without calling of writeProductNodes.
-     * This may be at the time when a dimap product was opened and the data shold be continously changed in the same
+     * This may be at the time when a dimap product was opened and the data should be continuously changed in the same
      * product file without an previous call to the saveProductNodes to this product writer.
      *
      * @param outputFile the dimap header file location.
@@ -278,6 +277,7 @@ public class DimapProductWriter extends AbstractProductWriter {
      * Returns the data output stream associated with the given <code>Band</code>. If no stream exists, one is created
      * and fed into the hash map
      */
+
     private synchronized ImageOutputStream getOrCreateImageOutputStream(Band band) throws IOException {
         ImageOutputStream outputStream = getImageOutputStream(band);
         if (outputStream == null) {
@@ -302,6 +302,7 @@ public class DimapProductWriter extends AbstractProductWriter {
      * right size. Also ensures a recreate if the file not exists or the file have a different file size. A new envi
      * header file was written every call.
      */
+
     private File getValidImageFile(Band band) throws IOException {
         writeEnviHeader(band); // always (re-)write ENVI header
         final File file = getImageFile(band);
