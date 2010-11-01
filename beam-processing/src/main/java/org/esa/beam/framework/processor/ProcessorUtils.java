@@ -256,7 +256,7 @@ public class ProcessorUtils {
             fileFormat = DimapProductConstants.DIMAP_FORMAT_NAME;
         }
 
-        String[] extensions = ProductIO.getProducWritertExtensions(fileFormat);
+        String[] extensions = ProductIO.getProductWriterExtensions(fileFormat);
         final String ensuredFilePath = FileUtils.ensureExtension(filePath, extensions[0]);
 
         return new ProductRef(new File(ensuredFilePath), fileFormat, null);

@@ -78,8 +78,21 @@ public class ProductIO {
      * @param formatName the format name
      *
      * @return an array of extensions or null if the format does not exist
+     * @deprecated since BEAM 4.9 due to typo in name, use {@link #getProductWriterExtensions(String)} instead.
      */
+    @Deprecated
     public static String[] getProducWritertExtensions(String formatName) {
+        return getProductWriterExtensions(formatName);
+    }
+
+    /**
+     * Gets an array of writer product file extensions for the given format name.
+     *
+     * @param formatName the format name
+     *
+     * @return an array of extensions or null if the format does not exist
+     */
+    public static String[] getProductWriterExtensions(String formatName) {
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         Iterator<ProductWriterPlugIn> it = registry.getWriterPlugIns(formatName);
         if (it.hasNext()) {
