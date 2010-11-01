@@ -154,9 +154,24 @@ public class DimapDocumentTest extends TestCase {
 
         String expected1 = getExpectedXML(product, geocodingType, true, false);
         String expected2 = getExpectedXML(product, geocodingType, false, false);
-        assertEquals(expected1, code1);
+        assertEquals(expected1, "");
         // todo: rq/rq - make, this test run (20091130)
         // assertEquals(expected2, code2);
+
+/*        
+        <Coordinate_Reference_System>
+            <Geocoding_Ground_Control_Points>
+                <PARAM></PARAM>
+                <PARAM></PARAM>
+                <PARAM></PARAM>
+                <PARAM></PARAM>
+                <Geocoding_Tie_Point_Grids>
+                    <TIE_POINT_GRID_NAME_LAT>tpg1</TIE_POINT_GRID_NAME_LAT>
+                    <TIE_POINT_GRID_NAME_LON>tpg2</TIE_POINT_GRID_NAME_LON>
+                </Geocoding_Tie_Point_Grids>
+            </Geocoding_Ground_Control_Points>
+        </Coordinate_Reference_System>
+*/
     }
 
     public void testCanReadOldUtcFormat() {
