@@ -20,6 +20,8 @@ import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.visat.toolviews.placemark.AbstractPlacemarkTableModel;
 
+import java.util.Date;
+
 class CoordinateTableModel extends AbstractPlacemarkTableModel {
 
     CoordinateTableModel() {
@@ -28,7 +30,7 @@ class CoordinateTableModel extends AbstractPlacemarkTableModel {
 
     @Override
     public String[] getStandardColumnNames() {
-        return new String[]{"Name", "Latitude", "Longitude"};
+        return new String[]{"Name", "Latitude", "Longitude", "DateTime (UTC)"};
     }
 
     @Override
@@ -39,6 +41,8 @@ class CoordinateTableModel extends AbstractPlacemarkTableModel {
             case 1:
             case 2:
                 return Float.class;
+            case 3:
+                return Date.class;
             default:
                 throw new IllegalArgumentException(String.format("Invalid columnIndex = %d", columnIndex));
         }
@@ -62,10 +66,17 @@ class CoordinateTableModel extends AbstractPlacemarkTableModel {
             case 2:
                 setGeoPosLon(value, placemark);
                 break;
+            case 3:
+                setDateTime((Date) value, placemark);
+                break;
             default:
                 throw new IllegalArgumentException(String.format("Invalid columnIndex = %d", columnIndex));
         }
         fireTableCellUpdated(rowIndex, columnIndex);
+    }
+
+    protected void setDateTime(Date value, Placemark placemark) {
+        placemark.getFeature().setAttribute(Placemark.PROPERTY_NAME_DATETIME, value);
     }
 
     @Override
@@ -77,6 +88,8 @@ class CoordinateTableModel extends AbstractPlacemarkTableModel {
                 return getPlacemarkAt(rowIndex).getGeoPos().getLat();
             case 2:
                 return getPlacemarkAt(rowIndex).getGeoPos().getLon();
+            case 3:
+                return getPlacemarkAt(rowIndex).getFeature().getAttribute(Placemark.PROPERTY_NAME_DATETIME);
             default:
                 throw new IllegalArgumentException(String.format("Invalid columnIndex = %d", columnIndex));
         }

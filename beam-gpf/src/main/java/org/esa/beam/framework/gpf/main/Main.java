@@ -36,6 +36,7 @@ public class Main {
             new CommandLineTool().run(args);
         } catch (Exception e) {
             System.err.println("\nError: " + e.getMessage());
+            System.exit(1);
         }
     }
 

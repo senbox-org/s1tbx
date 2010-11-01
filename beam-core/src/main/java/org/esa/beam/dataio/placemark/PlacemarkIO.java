@@ -40,9 +40,15 @@ import java.io.PrintWriter;
 import java.io.PushbackReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 
 public class PlacemarkIO {
 
@@ -56,14 +62,24 @@ public class PlacemarkIO {
     private static final int INDEX_FOR_LAT = 2;
     private static final int INDEX_FOR_DESC = 3;
     private static final int INDEX_FOR_LABEL = 4;
+    private static final int INDEX_FOR_DATETIME = 5;
 
     private static final String LABEL_COL_NAME = "Label";
     private static final String LON_COL_NAME = "Lon";
     private static final String LAT_COL_NAME = "Lat";
     private static final String NAME_COL_NAME = "Name";
     private static final String DESC_COL_NAME = "Desc";
+    private static final String DATETIME_COL_NAME = "DateTime";
+
+    private static final String ISO8601_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(ISO8601_PATTERN, Locale.getDefault());
+
+    static {
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
 
     private PlacemarkIO() {
+
     }
 
     public static List<Placemark> readPlacemarks(Reader reader, GeoCoding geoCoding,
@@ -90,7 +106,8 @@ public class PlacemarkIO {
         BufferedReader lineReader = new BufferedReader(reader);
         try {
             int row = 0;
-            int[] columnIndexes = null;
+            List<Integer> stdColIndexes = null;
+            Map<String, Integer> additionalCols = new HashMap<String, Integer>();
             int biggestIndex = 0;
             while (true) {
                 String line = lineReader.readLine();
@@ -102,12 +119,13 @@ public class PlacemarkIO {
                     continue;
                 }
                 String[] strings = StringUtils.toStringArray(line, "\t");
-                if (columnIndexes == null) {
+                if (stdColIndexes == null) {
                     int nameIndex = StringUtils.indexOf(strings, NAME_COL_NAME);
                     int lonIndex = StringUtils.indexOf(strings, LON_COL_NAME);
                     int latIndex = StringUtils.indexOf(strings, LAT_COL_NAME);
                     int descIndex = StringUtils.indexOf(strings, DESC_COL_NAME);
                     int labelIndex = StringUtils.indexOf(strings, LABEL_COL_NAME);
+                    int dateTimeIndex = StringUtils.indexOf(strings, DATETIME_COL_NAME);
                     if (nameIndex == -1 || lonIndex == -1 || latIndex == -1) {
                         throw new IOException("Invalid placemark file format:\n" +
                                               "at least the columns 'Name', 'Lon' and 'Lat' must be given.");
@@ -115,42 +133,56 @@ public class PlacemarkIO {
                     biggestIndex = biggestIndex > nameIndex ? biggestIndex : nameIndex;
                     biggestIndex = biggestIndex > lonIndex ? biggestIndex : lonIndex;
                     biggestIndex = biggestIndex > latIndex ? biggestIndex : latIndex;
-                    columnIndexes = new int[5];
-                    columnIndexes[INDEX_FOR_NAME] = nameIndex;
-                    columnIndexes[INDEX_FOR_LON] = lonIndex;
-                    columnIndexes[INDEX_FOR_LAT] = latIndex;
-                    columnIndexes[INDEX_FOR_DESC] = descIndex;
-                    columnIndexes[INDEX_FOR_LABEL] = labelIndex;
+                    stdColIndexes = new ArrayList<Integer>(6);
+                    stdColIndexes.add(INDEX_FOR_NAME, nameIndex);
+                    stdColIndexes.add(INDEX_FOR_LON, lonIndex);
+                    stdColIndexes.add(INDEX_FOR_LAT, latIndex);
+                    stdColIndexes.add(INDEX_FOR_DESC, descIndex);
+                    stdColIndexes.add(INDEX_FOR_LABEL, labelIndex);
+                    stdColIndexes.add(INDEX_FOR_DATETIME, dateTimeIndex);
+
                 } else {
                     row++;
                     if (strings.length > biggestIndex) {
-                        String name = strings[columnIndexes[INDEX_FOR_NAME]];
+                        String name = strings[stdColIndexes.get(INDEX_FOR_NAME)];
                         float lon;
                         try {
-                            lon = Float.parseFloat(strings[columnIndexes[INDEX_FOR_LON]]);
+                            lon = Float.parseFloat(strings[stdColIndexes.get(INDEX_FOR_LON)]);
                         } catch (NumberFormatException ignored) {
                             throw new IOException("Invalid placemark file format:\n" +
                                                   "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
                         }
                         float lat;
                         try {
-                            lat = Float.parseFloat(strings[columnIndexes[INDEX_FOR_LAT]]);
+                            lat = Float.parseFloat(strings[stdColIndexes.get(INDEX_FOR_LAT)]);
                         } catch (NumberFormatException ignored) {
                             throw new IOException("Invalid placemark file format:\n" +
                                                   "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
                         }
-                        String desc = null;
-                        if (columnIndexes[INDEX_FOR_DESC] >= 0 && strings.length > columnIndexes[INDEX_FOR_DESC]) {
-                            desc = strings[columnIndexes[INDEX_FOR_DESC]];
-                        }
                         String label = name;
-                        if (columnIndexes[INDEX_FOR_LABEL] >= 0 && strings.length > columnIndexes[INDEX_FOR_LABEL]) {
-                            label = strings[columnIndexes[INDEX_FOR_LABEL]];
+                        final Integer labelIndex = stdColIndexes.get(INDEX_FOR_LABEL);
+                        if (labelIndex >= 0 && strings.length > labelIndex) {
+                            label = strings[labelIndex];
                         }
+
                         Placemark placemark = new Placemark(name, label, "", null, new GeoPos(lat, lon),
                                                             placemarkDescriptor, geoCoding);
+                        String desc = null;
+                        final Integer descIndex = stdColIndexes.get(INDEX_FOR_DESC);
+                        if (descIndex >= 0 && strings.length > descIndex) {
+                            desc = strings[descIndex];
+                        }
                         if (desc != null) {
                             placemark.setDescription(desc);
+                        }
+
+                        final Integer dateTimeIndex = stdColIndexes.get(INDEX_FOR_DATETIME);
+                        if (dateTimeIndex >= 0 && strings.length > dateTimeIndex) {
+                            try {
+                                final Date date = dateFormat.parse(strings[dateTimeIndex]);
+                                placemark.getFeature().setAttribute(Placemark.PROPERTY_NAME_DATETIME, date);
+                            } catch (ParseException ignored) {
+                            }
                         }
                         placemarks.add(placemark);
                     } else {
@@ -224,7 +256,6 @@ public class PlacemarkIO {
             pw.print(DESC_COL_NAME + "\t");
             for (String additionalColumnName : additionalColumnNames) {
                 pw.print(additionalColumnName + "\t");
-
             }
             pw.println();
 
@@ -233,11 +264,11 @@ public class PlacemarkIO {
                 Object[] values = valueList.get(i);
                 pw.print(placemark.getName() + "\t");
                 for (int col = 0; col < columnCountMin; col++) {
-                    pw.print(values[col].toString() + "\t");
+                    printValue(pw, values[col]);
                 }
                 pw.print(placemark.getDescription() + "\t");
                 for (int col = columnCountMin; col < columnCount; col++) {
-                    pw.print(values[col].toString() + "\t");
+                    printValue(pw, values[col]);
                 }
                 pw.println();
 
@@ -245,6 +276,16 @@ public class PlacemarkIO {
         } finally {
             pw.close();
         }
+    }
+
+    private static void printValue(PrintWriter pw, Object value) {
+        String stringValue;
+        if (value instanceof Date) {
+            stringValue = dateFormat.format(value);
+        } else {
+            stringValue = value.toString();
+        }
+        pw.print(stringValue + "\t");
     }
 
     public static void writePlacemarksFile(Writer writer, List<Placemark> placemarks) throws IOException {

@@ -16,7 +16,12 @@
 
 package org.esa.beam.pixex;
 
+import com.bc.ceres.binding.converters.DateFormatConverter;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class Coordinate {
 
@@ -26,16 +31,21 @@ public class Coordinate {
     private Float lat;
     @Parameter(alias = "longitude")
     private Float lon;
+    @Parameter(alias = "dateTime",
+               description = "The date time of the coordinate in ISO 8601 format.\n The format pattern is 'yyyy-MM-dd'T'HH:mm:ssZ'",
+               converter = ISO8601Converter.class)
+    private Date dateTime;
 
     @SuppressWarnings({"UnusedDeclaration"})
     public Coordinate() {
         // needed for serialize/de-serialize
     }
 
-    public Coordinate(String name, Float lat, Float lon) {
+    public Coordinate(String name, Float lat, Float lon, Date dateTime) {
         this.name = name;
         this.lat = lat;
         this.lon = lon;
+        this.dateTime = dateTime;
     }
 
     public String getName() {
@@ -49,4 +59,26 @@ public class Coordinate {
     public Float getLon() {
         return lon;
     }
+
+    public void setDateTime(Date dateTime) {
+        if (dateTime != null) {
+            this.dateTime = (Date) dateTime.clone();
+        }
+    }
+
+    public Date getDateTime() {
+        if (dateTime != null) {
+            return (Date) dateTime.clone();
+        }
+        return null;
+    }
+
+    public static class ISO8601Converter extends DateFormatConverter {
+
+        public ISO8601Converter() {
+            super(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()));
+        }
+    }
+
+
 }

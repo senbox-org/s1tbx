@@ -23,4 +23,4 @@ fi
     "-Dncsa.hdf.hdf5lib.H5.hdf5lib=$BEAM4_HOME/modules/lib-hdf-2.3/lib/linux/libjhdf5.so" \
     -jar "$BEAM4_HOME/bin/ceres-launcher.jar" "$@"
 
-exit 0
+exit $?

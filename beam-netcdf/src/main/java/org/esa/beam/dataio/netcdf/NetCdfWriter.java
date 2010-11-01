@@ -79,7 +79,7 @@ public class NetCdfWriter extends AbstractProductWriter {
      * <h3>Source buffer</h3> The first element of the source buffer corresponds to the given <code>sourceOffsetX</code>
      * and <code>sourceOffsetY</code> of the source region. These parameters are an offset within the band's raster data
      * and <b>not</b> an offset within the source buffer.<br> The number of elements in the buffer must be exactly be
-     * <code>sourceWidth * sourceHeight</code>. The pixel values to be writte are considered to be stored in
+     * <code>sourceWidth * sourceHeight</code>. The pixel values to be written are considered to be stored in
      * line-by-line order, so the raster X co-ordinate varies faster than the Y.
      * <p/>
      * <h3>Source region</h3> The given destination region specified by the <code>sourceOffsetX</code>,

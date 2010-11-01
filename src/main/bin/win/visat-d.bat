@@ -9,4 +9,4 @@ set BEAM4_HOME=${installer:sys.installationDir}
     "-Dbeam.home=%BEAM4_HOME%" ^
     -jar "%BEAM4_HOME%\bin\ceres-launcher.jar" -d %*
 
-exit /B 0
+exit /B %ERRORLEVEL%

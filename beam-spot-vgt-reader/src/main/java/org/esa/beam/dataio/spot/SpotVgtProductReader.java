@@ -129,7 +129,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
                 Variable variable = findPixelDataVariable(netcdfFile);
                 if (isPotentialPixelDataVariable(variable)) {
                     DataType netCdfDataType = variable.getDataType();
-                    int bandDataType = convertNetcdfTypeToProductDataType(netCdfDataType);
+                    int bandDataType = convertNetcdfTypeToProductDataType(netCdfDataType, variable.isUnsigned());
                     if (bandDataType != ProductData.TYPE_UNDEFINED) {
                         String bandName = getBandName(logVolFileName);
                         BandInfo bandInfo = getBandInfo(bandName);
@@ -173,20 +173,19 @@ public class SpotVgtProductReader extends AbstractProductReader {
         return product;
     }
 
-    private int convertNetcdfTypeToProductDataType(DataType netCdfDataType) {
-        int bandDataType = ProductData.TYPE_UNDEFINED;
-        if (Byte.TYPE == netCdfDataType.getPrimitiveClassType()) {
-            bandDataType = ProductData.TYPE_INT8;
-        } else if (Short.TYPE == netCdfDataType.getPrimitiveClassType()) {
-            bandDataType = ProductData.TYPE_INT16;
-        } else if (Integer.TYPE == netCdfDataType.getPrimitiveClassType()) {
-            bandDataType = ProductData.TYPE_INT32;
-        } else if (Float.TYPE == netCdfDataType.getPrimitiveClassType()) {
-            bandDataType = ProductData.TYPE_FLOAT32;
-        } else if (Double.TYPE == netCdfDataType.getPrimitiveClassType()) {
-            bandDataType = ProductData.TYPE_FLOAT64;
+    private int convertNetcdfTypeToProductDataType(DataType netCdfDataType, boolean unsigned) {
+        if (netCdfDataType == DataType.BYTE) {
+            return unsigned ? ProductData.TYPE_UINT8 : ProductData.TYPE_INT8;
+        } else if (netCdfDataType == DataType.SHORT) {
+            return unsigned ? ProductData.TYPE_UINT16 : ProductData.TYPE_INT16;
+        } else if (netCdfDataType == DataType.INT) {
+            return unsigned ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
+        } else if (netCdfDataType == DataType.FLOAT) {
+            return ProductData.TYPE_FLOAT32;
+        } else if (netCdfDataType == DataType.DOUBLE) {
+            return ProductData.TYPE_FLOAT64;
         }
-        return bandDataType;
+        return ProductData.TYPE_UNDEFINED;
     }
 
     private boolean isPotentialPixelDataVariable(Variable variable) {

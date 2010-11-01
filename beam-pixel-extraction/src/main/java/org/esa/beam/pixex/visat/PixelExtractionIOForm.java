@@ -90,9 +90,10 @@ class PixelExtractionIOForm {
         tableLayout.setTableWeightY(0.0);
         tableLayout.setColumnWeightX(1, 1.0);
         tableLayout.setCellWeightY(0, 1, 1.0);
-        tableLayout.setCellColspan(1, 0, 3);
         tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH);
-        tableLayout.setCellWeightX(2, 1, 0.0); // output dir path field
+        tableLayout.setCellColspan(1, 0, 3);
+        tableLayout.setCellColspan(2, 0, 3);
+        tableLayout.setCellWeightX(3, 1, 0.0); // output dir path field
         panel = new JPanel(tableLayout);
 
         listModel = new InputListModel(container.getProperty("inputPaths"));
@@ -110,6 +111,8 @@ class PixelExtractionIOForm {
         panel.add(addRemoveButtonPanel);
 
         panel.add(createClipboardCheckbox());
+        final JCheckBox outputDirCheckBox = createOutputCheckBox();
+        panel.add(outputDirCheckBox);
 
         outputDirLabel = new JLabel("Output directory:");
         panel.add(outputDirLabel);
@@ -126,6 +129,8 @@ class PixelExtractionIOForm {
         filePrefixField = createFilePrefixField(container.getProperty("outputFilePrefix"));
         panel.add(filePrefixLabel);
         panel.add(filePrefixField);
+
+        setOutputUiEnabled(outputDirCheckBox.isSelected());
     }
 
     JPanel getPanel() {
@@ -155,6 +160,29 @@ class PixelExtractionIOForm {
         final JCheckBox clipboardButton = new JCheckBox("Copy output to system clipboard");
         context.bind("copyToClipboard", clipboardButton);
         return clipboardButton;
+    }
+
+    private JCheckBox createOutputCheckBox() {
+        final JCheckBox exportButton = new JCheckBox("Export to output directory", true);
+
+        exportButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setOutputUiEnabled(exportButton.isSelected());
+                final File dir = exportButton.isSelected() ? new File(outputDirTextField.getText()) : null;
+                container.setValue("outputDir", dir);
+            }
+        });
+
+        return exportButton;
+    }
+
+    private void setOutputUiEnabled(boolean enable) {
+        outputDirLabel.setEnabled(enable);
+        outputDirTextField.setEnabled(enable);
+        outputDirChooserButton.setEnabled(enable);
+        filePrefixField.setEnabled(enable);
+        filePrefixLabel.setEnabled(enable);
     }
 
     private String getDefaultOutputPath(AppContext appContext) {

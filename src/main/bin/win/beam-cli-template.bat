@@ -12,4 +12,4 @@ set BEAM4_HOME=${installer:sys.installationDir}
     "-Dncsa.hdf.hdf5lib.H5.hdf5lib=%BEAM4_HOME%\modules\lib-hdf-2.3\lib\win\jhdf5.dll" ^
     -jar "%BEAM4_HOME%\bin\ceres-launcher.jar" %*
 
-exit /B 0
+exit /B %ERRORLEVEL%

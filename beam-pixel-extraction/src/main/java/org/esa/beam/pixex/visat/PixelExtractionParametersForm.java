@@ -20,6 +20,8 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.jidesoft.combobox.DefaultDateModel;
+import com.jidesoft.grid.DateCellEditor;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
@@ -32,6 +34,7 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.pixex.Coordinate;
+import org.jfree.ui.DateCellRenderer;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
@@ -39,6 +42,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -63,6 +67,10 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 class PixelExtractionParametersForm {
 
@@ -82,6 +90,8 @@ class PixelExtractionParametersForm {
     private JRadioButton exportExpressionResultButton;
     private Product activeProduct;
     private JLabel expressionNoteLabel;
+    private JSpinner timeSpinner;
+    private JComboBox timeUnitComboBox;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -99,7 +109,8 @@ class PixelExtractionParametersForm {
         for (int i = 0; i < coordinateTableModel.getRowCount(); i++) {
             final Placemark placemark = coordinateTableModel.getPlacemarkAt(i);
             GeoPos geoPos = placemark.getGeoPos();
-            coordinates[i] = new Coordinate(placemark.getName(), geoPos.lat, geoPos.lon);
+            final Date dateTime = (Date) placemark.getFeature().getAttribute(Placemark.PROPERTY_NAME_DATETIME);
+            coordinates[i] = new Coordinate(placemark.getName(), geoPos.lat, geoPos.lon, dateTime);
         }
         return coordinates;
     }
@@ -110,6 +121,10 @@ class PixelExtractionParametersForm {
         } else {
             return null;
         }
+    }
+
+    public String getAllowedTimeDifference() {
+        return String.valueOf(timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0);
     }
 
     public boolean isExportExpressionResultSelected() {
@@ -126,18 +141,22 @@ class PixelExtractionParametersForm {
         tableLayout.setColumnWeightX(1, 1.0);
         tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH); // coordinate table
         tableLayout.setCellWeightY(0, 1, 7.0);
-        tableLayout.setRowFill(2, TableLayout.Fill.BOTH); // windowSize
-        tableLayout.setCellPadding(3, 0, new Insets(8, 4, 4, 4)); //expression label
-        tableLayout.setCellFill(3, 1, TableLayout.Fill.BOTH); // expression panel
-        tableLayout.setCellPadding(3, 1, new Insets(0, 0, 0, 0));
-        tableLayout.setCellWeightX(3, 1, 1.0);
-        tableLayout.setCellWeightY(3, 1, 3.0);
+        tableLayout.setRowFill(3, TableLayout.Fill.BOTH); // windowSize
+        tableLayout.setCellPadding(4, 0, new Insets(8, 4, 4, 4)); //expression label
+        tableLayout.setCellFill(4, 1, TableLayout.Fill.BOTH); // expression panel
+        tableLayout.setCellPadding(4, 1, new Insets(0, 0, 0, 0));
+        tableLayout.setCellWeightX(4, 1, 1.0);
+        tableLayout.setCellWeightY(4, 1, 3.0);
 
         mainPanel = new JPanel(tableLayout);
         mainPanel.add(new JLabel("Coordinates:"));
         final JComponent[] coordinatesComponents = createCoordinatesComponents();
         mainPanel.add(coordinatesComponents[0]);
         mainPanel.add(coordinatesComponents[1]);
+        final JComponent[] timeDeltaComponents = createTimeDeltaComponents();
+        mainPanel.add(timeDeltaComponents[0]);
+        mainPanel.add(timeDeltaComponents[1]);
+        mainPanel.add(timeDeltaComponents[2]);
 
         final BindingContext bindingContext = new BindingContext(container);
 
@@ -162,6 +181,14 @@ class PixelExtractionParametersForm {
         mainPanel.add(new JLabel("Expression:"));
         mainPanel.add(createExpressionPanel(bindingContext));
         mainPanel.add(new JLabel());
+    }
+
+    private JComponent[] createTimeDeltaComponents() {
+        final JLabel label = new JLabel("Allowed time difference:");
+        timeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, null, 1));
+        timeUnitComboBox = new JComboBox(new String[]{"Day(s)", "Hour(s)", "Minute(s)"});
+
+        return new JComponent[]{label, timeSpinner, timeUnitComboBox};
     }
 
     private void updateUi() {
@@ -285,6 +312,18 @@ class PixelExtractionParametersForm {
         coordinateTable.setPreferredScrollableViewportSize(new Dimension(150, 100));
         coordinateTable.getColumnModel().getColumn(1).setCellEditor(new FloatCellEditor(-90, 90));
         coordinateTable.getColumnModel().getColumn(2).setCellEditor(new FloatCellEditor(-180, 180));
+        final DefaultDateModel dateModel = new DefaultDateModel();
+        final String ISO8601_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+        final SimpleDateFormat dateFormat = new SimpleDateFormat(ISO8601_PATTERN, Locale.getDefault());
+        dateModel.setDateFormat(dateFormat);
+        final DateCellEditor dateCellEditor = new DateCellEditor(dateModel, true);
+        dateCellEditor.setTimeDisplayed(true);
+        coordinateTable.getColumnModel().getColumn(3).setCellEditor(dateCellEditor);
+        coordinateTable.getColumnModel().getColumn(3).setPreferredWidth(200);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        final DateCellRenderer dateCellRenderer = new DateCellRenderer(dateFormat);
+        dateCellRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+        coordinateTable.getColumnModel().getColumn(3).setCellRenderer(dateCellRenderer);
         final JScrollPane rasterScrollPane = new JScrollPane(coordinateTable);
 
         final AbstractButton addButton = ToolButtonFactory.createButton(ADD_ICON, false);
