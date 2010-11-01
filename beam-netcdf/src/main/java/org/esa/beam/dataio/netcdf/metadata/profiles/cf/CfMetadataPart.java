@@ -32,6 +32,5 @@ public class CfMetadataPart extends ProfilePart {
 
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
-        throw new IllegalStateException();
     }
 }
