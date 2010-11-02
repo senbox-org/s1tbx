@@ -16,6 +16,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.101:<br/>
+        [BEAM-1206] - CF Profile does not write latitude longitude data when writing pixel geo-coding<br/>
         [BEAM-1171] - NetCDF file not readable if variable name contains '.' or '/'<br/>
         ]]>
     </changelog>

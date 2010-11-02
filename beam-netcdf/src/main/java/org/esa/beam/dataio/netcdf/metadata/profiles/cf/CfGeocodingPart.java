@@ -89,7 +89,7 @@ public class CfGeocodingPart extends ProfilePart {
 
     @Override
     public void write(ProfileWriteContext ctx, Product product) throws IOException {
-        if (!usePixelGeoCoding || !latLonAlreadyPresent) {
+        if (!usePixelGeoCoding && !latLonAlreadyPresent) {
             return;
         }
         try {
