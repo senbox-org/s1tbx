@@ -15,21 +15,18 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
 import org.esa.beam.dataio.netcdf.util.NetcdfMultiLevelImage;
-import org.esa.beam.dataio.netcdf.util.NetcdfOpImage;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.jai.ImageManager;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFileWriteable;
@@ -54,14 +51,7 @@ public class CfBandPart extends ProfilePart {
 
     @Override
     public void define(ProfileWriteContext ctx, Product p) throws IOException {
-        final Band[] bands = p.getBands();
-        final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
-        final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
-        for (Band band : bands) {
-            String variableName = ReaderUtils.getVariableName(band);
-            final Variable variable = ncFile.addVariable(variableName, DataTypeUtils.getNetcdfDataType(band), dimensions);
-            writeCfBandAttributes(band, variable);
-        }
+        defineRasterDataNodes(ctx, p.getBands());
     }
 
     public static void readCfBandAttributes(Variable variable, RasterDataNode rasterDataNode) {
@@ -104,6 +94,17 @@ public class CfBandPart extends ProfilePart {
         }
     }
 
+    public static void defineRasterDataNodes(ProfileWriteContext ctx, RasterDataNode[] rasterDataNodes) {
+        final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
+        final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
+        for (RasterDataNode rasterDataNode : rasterDataNodes) {
+            String variableName = ReaderUtils.getVariableName(rasterDataNode);
+            final Variable variable = ncFile.addVariable(variableName, DataTypeUtils.getNetcdfDataType(rasterDataNode),
+                                                         dimensions);
+            writeCfBandAttributes(rasterDataNode, variable);
+        }
+    }
+
     private static double getScalingFactor(Variable variable) {
         Attribute attribute = variable.findAttribute(Constants.SCALE_FACTOR_ATT_NAME);
         if (attribute == null) {
@@ -138,4 +139,5 @@ public class CfBandPart extends ProfilePart {
     private static boolean isUnsigned(DataNode dataNode) {
         return ProductData.isUIntType(dataNode.getDataType());
     }
+
 }

@@ -24,7 +24,6 @@ import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
 /**
  * A profile used for reading/writing general NetCDF/CF files.
@@ -146,7 +145,7 @@ public class CfProfileSpi extends AbstractProfileSpi {
 
     @Override
     public ProfilePart createTiePointGridPart() {
-        return null;
+        return new CfTiePointGridPart();
     }
 
     @Override
