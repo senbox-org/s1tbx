@@ -154,24 +154,9 @@ public class DimapDocumentTest extends TestCase {
 
         String expected1 = getExpectedXML(product, geocodingType, true, false);
         String expected2 = getExpectedXML(product, geocodingType, false, false);
-        assertEquals(expected1, "");
+        assertEquals(expected1, code1);
         // todo: rq/rq - make, this test run (20091130)
         // assertEquals(expected2, code2);
-
-/*        
-        <Coordinate_Reference_System>
-            <Geocoding_Ground_Control_Points>
-                <PARAM></PARAM>
-                <PARAM></PARAM>
-                <PARAM></PARAM>
-                <PARAM></PARAM>
-                <Geocoding_Tie_Point_Grids>
-                    <TIE_POINT_GRID_NAME_LAT>tpg1</TIE_POINT_GRID_NAME_LAT>
-                    <TIE_POINT_GRID_NAME_LON>tpg2</TIE_POINT_GRID_NAME_LON>
-                </Geocoding_Tie_Point_Grids>
-            </Geocoding_Ground_Control_Points>
-        </Coordinate_Reference_System>
-*/
     }
 
     public void testCanReadOldUtcFormat() {
@@ -391,7 +376,7 @@ public class DimapDocumentTest extends TestCase {
                                                              16.3f, 32.004f,
                                                              false);
         product.addTiePointGrid(tiePointGrid);
-        
+
         final BitmaskOverlayInfo overlayInfo = new BitmaskOverlayInfo();
         overlayInfo.addBitmaskDef(def1);
         overlayInfo.addBitmaskDef(def2);
@@ -576,10 +561,10 @@ public class DimapDocumentTest extends TestCase {
         pw.println("    </Production>");
 
         if (withGeocoding) {
-            pw.println("    <Coordinate_Reference_System>");
             switch (geocodingType) {
                 case MAP_GEOCODING:
                     final MapInfo mapInfo = ((MapGeoCoding) product.getGeoCoding()).getMapInfo();
+                    pw.println("    <Coordinate_Reference_System>");
                     pw.println("        <GEO_TABLES version=\"1.0\">CUSTOM</GEO_TABLES>");
                     pw.println("        <Horizontal_CS>");
                     pw.println("            <HORIZONTAL_CS_TYPE>PROJECTED</HORIZONTAL_CS_TYPE>");
@@ -667,14 +652,48 @@ public class DimapDocumentTest extends TestCase {
                     pw.println("                <RESAMPLING value=\"" + mapInfo.getResampling().getName() + "\" />");
                     pw.println("            </MAP_INFO>");
                     pw.println("        </Horizontal_CS>");
+                    pw.println("    </Coordinate_Reference_System>");
+                    break;
+                case GCP_GEOCODING:
+                    pw.println("    <Coordinate_Reference_System>");
+                    pw.println("        <Horizontal_CS>");
+                    pw.println("            <HORIZONTAL_CS_TYPE>GEOGRAPHIC</HORIZONTAL_CS_TYPE>");
+                    pw.println("            <Geographic_CS>");
+                    pw.println("                <Horizontal_Datum>");
+                    pw.println("                    <HORIZONTAL_DATUM_NAME>WGS-84</HORIZONTAL_DATUM_NAME>");
+                    pw.println("                    <Ellipsoid>");
+                    pw.println("                        <ELLIPSOID_NAME>WGS-84</ELLIPSOID_NAME>");
+                    pw.println("                        <Ellipsoid_Parameters>");
+                    pw.println("                            <ELLIPSOID_MAJ_AXIS unit=\"M\">6378137.0</ELLIPSOID_MAJ_AXIS>");
+                    pw.println("                            <ELLIPSOID_MIN_AXIS unit=\"M\">6356752.3</ELLIPSOID_MIN_AXIS>");
+                    pw.println("                        </Ellipsoid_Parameters>");
+                    pw.println("                    </Ellipsoid>");
+                    pw.println("                </Horizontal_Datum>");
+                    pw.println("            </Geographic_CS>");
+                    pw.println("        </Horizontal_CS>");
+                    pw.println("    </Coordinate_Reference_System>");
+                    pw.println("    <Geoposition>");
+                    pw.println("        <Geoposition_Points>");
+                    pw.println("            <INTERPOLATION_METHOD>POLYNOMIAL1</INTERPOLATION_METHOD>");
+                    pw.println("            <Original_Geocoding>");
+                    pw.println("                <Coordinate_Reference_System>");
+                    pw.println("                    <Geocoding_Tie_Point_Grids>");
+                    pw.println("                        <TIE_POINT_GRID_NAME_LAT>tpg1</TIE_POINT_GRID_NAME_LAT>");
+                    pw.println("                        <TIE_POINT_GRID_NAME_LON>tpg2</TIE_POINT_GRID_NAME_LON>");
+                    pw.println("                    </Geocoding_Tie_Point_Grids>");
+                    pw.println("                </Coordinate_Reference_System>");
+                    pw.println("            </Original_Geocoding>");
+                    pw.println("        </Geoposition_Points>");
+                    pw.println("    </Geoposition>");
                     break;
                 default:
+                    pw.println("    <Coordinate_Reference_System>");
                     pw.println("        <Geocoding_Tie_Point_Grids>");
                     pw.println("            <TIE_POINT_GRID_NAME_LAT>tpg1</TIE_POINT_GRID_NAME_LAT>");
                     pw.println("            <TIE_POINT_GRID_NAME_LON>tpg2</TIE_POINT_GRID_NAME_LON>");
                     pw.println("        </Geocoding_Tie_Point_Grids>");
+                    pw.println("    </Coordinate_Reference_System>");
             }
-            pw.println("    </Coordinate_Reference_System>");
         }
 
         pw.println("    <Flag_Coding name=\"FlagCoding1\">");

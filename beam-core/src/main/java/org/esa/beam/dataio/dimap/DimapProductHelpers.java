@@ -25,6 +25,7 @@ import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FXYGeoCoding;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
+import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
@@ -35,6 +36,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.datamodel.PointingFactory;
 import org.esa.beam.framework.datamodel.PointingFactoryRegistry;
 import org.esa.beam.framework.datamodel.Product;
@@ -92,6 +94,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+
+import static org.esa.beam.framework.datamodel.GcpGeoCoding.Method;
 
 /**
  * This class defines some static methods used to create and access BEAM DIMAP XML documents.
@@ -268,6 +272,14 @@ public class DimapProductHelpers {
                 } else if (geoPosElem.getChild(DimapProductConstants.TAG_SEARCH_RADIUS) != null &&
                            geoPosElem.getChild(DimapProductConstants.TAG_LATITUDE_BAND) != null) {
                     geoCodings[bandIndex] = createPixelGeoCoding(product, datum, geoPosElem);
+                } else {
+                    final Element geopositionPointsElement
+                            = geoPosElem.getChild(DimapProductConstants.TAG_GEOPOSITION_POINTS);
+                    if (geopositionPointsElement != null) {
+                        geoCodings[bandIndex] = createGeoCodingFromGeopositionPointsElement(product,
+                                                                                            datum,
+                                                                                            geopositionPointsElement);
+                    }
                 }
             }
             return geoCodings;
@@ -392,6 +404,56 @@ public class DimapProductHelpers {
 
         Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): can't find 'latitude' or 'longitude'");
         return null;
+    }
+
+    private static GeoCoding createGeoCodingFromGeopositionPointsElement(Product product,
+                                                                         Datum datum,
+                                                                         Element geopositionPointsElement) {
+        GcpGeoCoding gcpGeoCoding = null;
+        GeoCoding originalGeoCoding = null;
+
+        // 1. try creating a GCP geo-coding
+        final Element methodElement = geopositionPointsElement.getChild(DimapProductConstants.TAG_INTERPOLATION_METHOD);
+        if (methodElement != null) {
+            final String methodName = methodElement.getText();
+            final Method method = Method.valueOf(Method.class, methodName);
+            final PlacemarkGroup gcpGroup = product.getGcpGroup();
+            final Placemark[] placemarks = gcpGroup.toArray(new Placemark[gcpGroup.getNodeCount()]);
+            try {
+                gcpGeoCoding = new GcpGeoCoding(method, placemarks,
+                                                product.getSceneRasterWidth(),
+                                                product.getSceneRasterHeight(),
+                                                datum);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        // 2. try creating the original geo-coding
+        final Element originalGeoCodingElement = geopositionPointsElement.getChild(
+                DimapProductConstants.TAG_ORIGINAL_GEOCODING);
+        if (originalGeoCodingElement != null) {
+            try {
+                originalGeoCoding = createGeoCodingFromElement(product, originalGeoCodingElement);
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        // 3. return GCP geo-coding with original geo-coding set; use original geo-coding as fallback
+        if (gcpGeoCoding != null) {
+            gcpGeoCoding.setOriginalGeoCoding(originalGeoCoding);
+            return gcpGeoCoding;
+        } else {
+            return originalGeoCoding;
+        }
+    }
+
+    private static GeoCoding createGeoCodingFromElement(Product product, Element element) {
+        final Content content = element.detach();
+        final GeoCoding[] geoCodings = createGeoCoding(new Document().addContent(content), product);
+        if (geoCodings == null) {
+            return null;
+        }
+        return geoCodings[0];
     }
 
     private static GeoCoding[] createCrsGeoCoding(Product product, Element geopositionElem, Element wktElem) {
@@ -727,7 +789,7 @@ public class DimapProductHelpers {
         }
         return null;
     }
-    
+
     static void addPins(Document dom, Product product) {
         Element pinGroup = dom.getRootElement().getChild(DimapProductConstants.TAG_PIN_GROUP);
         List pinElements;
@@ -739,7 +801,8 @@ public class DimapProductHelpers {
         }
         for (Object pinElement : pinElements) {
             final Element pinElem = (Element) pinElement;
-            final Placemark placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE, product.getGeoCoding());
+            final Placemark placemark = Placemark.createPlacemark(pinElem, PinDescriptor.INSTANCE,
+                                                                  product.getGeoCoding());
             if (placemark != null) {
                 product.getPinGroup().add(placemark);
             }
@@ -762,14 +825,15 @@ public class DimapProductHelpers {
             }
         }
     }
-    
+
     static void addMaskUsages(Document dom, Product product) {
-        final List<Element> imageDisplayElems = dom.getRootElement().getChildren(DimapProductConstants.TAG_IMAGE_DISPLAY);
+        final List<Element> imageDisplayElems = dom.getRootElement().getChildren(
+                DimapProductConstants.TAG_IMAGE_DISPLAY);
         for (Element child : imageDisplayElems) {
             addMaskUsage(dom.getRootElement(), child, product);
         }
     }
-  
+
     private static void addMaskUsage(Element rootElement, Element imageDisplayElem, Product product) {
         final List<Element> maskUsages = imageDisplayElem.getChildren(DimapProductConstants.TAG_MASK_USAGE);
 
@@ -790,7 +854,7 @@ public class DimapProductHelpers {
                     roiNames = StringUtils.csvToArray(roiNamesCSV);
                 }
             }
-            
+
             final Element bandIndexElem = usageElem.getChild(DimapProductConstants.TAG_BAND_INDEX);
             if (bandIndexElem != null) {
                 final String bandName = getBandName(rootElement, bandIndexElem.getTextTrim());
@@ -817,8 +881,9 @@ public class DimapProductHelpers {
             }
         }
     }
-    
-    private static void addMasksToGroup(ProductNodeGroup<Mask> maskGroup, ProductNodeGroup<Mask> usageMaskGroup, String[] maskNames) {
+
+    private static void addMasksToGroup(ProductNodeGroup<Mask> maskGroup, ProductNodeGroup<Mask> usageMaskGroup,
+                                        String[] maskNames) {
         if (maskNames == null) {
             return;
         }
@@ -843,6 +908,7 @@ public class DimapProductHelpers {
     }
 
     // todo - move - only used in tests (nf)
+
     /**
      * Creates a parsed {@link Document} from the given {@link InputStream inputStream}.
      *
@@ -1133,7 +1199,7 @@ public class DimapProductHelpers {
                 }
             }
         }
-        
+
         private void setBitmaskOverlayInfo(RasterDataNode rasterDataNode, String[] bitmaskNames) {
             final BitmaskOverlayInfo overlayInfo = new BitmaskOverlayInfo();
             if (rasterDataNode.getBitmaskOverlayInfo() != null) {
@@ -1404,6 +1470,7 @@ public class DimapProductHelpers {
         }
 
         // needed for backward compatibility
+
         private void addBitmaskDefinitions(Product product) {
             final Element bitmaskDefs = getRootElement().getChild(DimapProductConstants.TAG_BITMASK_DEFINITIONS);
             List bitmaskDefList;

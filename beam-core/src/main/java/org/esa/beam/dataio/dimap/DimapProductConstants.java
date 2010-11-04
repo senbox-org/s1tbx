@@ -419,6 +419,9 @@ public final class DimapProductConstants {
     // BEAM-Dimap geocoding tags
     public static final String TAG_COORDINATE_REFERENCE_SYSTEM = "Coordinate_Reference_System";
     public static final String TAG_GEOCODING_TIE_POINT_GRIDS = "Geocoding_Tie_Point_Grids";
+    public static final String TAG_GEOPOSITION_POINTS = "Geoposition_Points";
+    public static final String TAG_ORIGINAL_GEOCODING = "Original_Geocoding";
+    public static final String TAG_INTERPOLATION_METHOD = "INTERPOLATION_METHOD";
     public static final String TAG_TIE_POINT_GRID_NAME_LAT = "TIE_POINT_GRID_NAME_LAT";
     public static final String TAG_TIE_POINT_GRID_NAME_LON = "TIE_POINT_GRID_NAME_LON";
     public static final String TAG_GEOCODING_MAP = "Geocoding_Map";
@@ -735,5 +738,4 @@ public final class DimapProductConstants {
     public static final String ATTRIB_ORDER = "order";
     public static final String ATTRIB_INDEX = "index";
     public static final String ATTRIB_BAND_TYPE = "bandType";
-
 }
