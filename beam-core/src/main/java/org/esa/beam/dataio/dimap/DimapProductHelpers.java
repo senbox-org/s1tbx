@@ -246,6 +246,7 @@ public class DimapProductHelpers {
         final Element rootElem = dom.getRootElement();
         final Element geopositionElem = rootElem.getChild(DimapProductConstants.TAG_GEOPOSITION);
         final Element coordRefSysElem = rootElem.getChild(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
+        final Datum datum = createDatum(dom);
         if (geopositionElem != null) {
             if (coordRefSysElem != null) {
                 final Element wktElem = coordRefSysElem.getChild(DimapProductConstants.TAG_WKT);
@@ -253,7 +254,6 @@ public class DimapProductHelpers {
                     return createCrsGeoCoding(product, geopositionElem, wktElem);
                 }
             }
-            final Datum datum = createDatum(dom);
 
             final List geoPosElems = rootElem.getChildren(DimapProductConstants.TAG_GEOPOSITION);
             final GeoCoding[] geoCodings = new GeoCoding[geoPosElems.size()];
@@ -311,10 +311,9 @@ public class DimapProductHelpers {
                     TiePointGrid tiePointGridLat = product.getTiePointGrid(tpgNameLat);
                     TiePointGrid tiePointGridLon = product.getTiePointGrid(tpgNameLon);
                     if (tiePointGridLat != null && tiePointGridLon != null) {
-                        // TODO - parse datum!!!
                         if (tiePointGridLat.hasRasterData() && tiePointGridLon.hasRasterData()) {
                             return new GeoCoding[]{
-                                    new TiePointGeoCoding(tiePointGridLat, tiePointGridLon/*, Datum.WGS_84*/)
+                                    new TiePointGeoCoding(tiePointGridLat, tiePointGridLon, datum)
                             };
                         } else {
                             Debug.trace(
@@ -398,8 +397,7 @@ public class DimapProductHelpers {
         final TiePointGrid tiePointGridLat = product.getTiePointGrid("latitude");
         final TiePointGrid tiePointGridLon = product.getTiePointGrid("longitude");
         if (tiePointGridLat != null && tiePointGridLon != null) {
-            // TODO - parse datum!!!
-            return new GeoCoding[]{new TiePointGeoCoding(tiePointGridLat, tiePointGridLon/*, Datum.WGS_84*/)};
+            return new GeoCoding[]{new TiePointGeoCoding(tiePointGridLat, tiePointGridLon, datum)};
         }
 
         Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): can't find 'latitude' or 'longitude'");
@@ -411,8 +409,31 @@ public class DimapProductHelpers {
                                                                          Element geopositionPointsElement) {
         GcpGeoCoding gcpGeoCoding = null;
         GeoCoding originalGeoCoding = null;
+        GeoCoding tiePointGeoCoding = null;
 
-        // 1. try creating a GCP geo-coding
+        // 1. try creating a tie-point geo-coding
+        final Element latElement =
+                geopositionPointsElement.getChild(DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LAT);
+        final Element lonElement =
+                geopositionPointsElement.getChild(DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LON);
+        if (latElement != null && lonElement != null) {
+            final String latName = latElement.getText();
+            final String lonName = lonElement.getText();
+            final TiePointGrid latGrid = product.getTiePointGrid(latName);
+            final TiePointGrid lonGrid = product.getTiePointGrid(lonName);
+            try {
+                if (latGrid != null && lonGrid != null) {
+                    tiePointGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, datum);
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        // 2. return tie-point geo-coding, if created successfully
+        if (tiePointGeoCoding != null) {
+            return tiePointGeoCoding;
+        }
+        // 3. try creating a GCP geo-coding
         final Element methodElement = geopositionPointsElement.getChild(DimapProductConstants.TAG_INTERPOLATION_METHOD);
         if (methodElement != null) {
             final String methodName = methodElement.getText();
@@ -428,7 +449,7 @@ public class DimapProductHelpers {
                 // ignore
             }
         }
-        // 2. try creating the original geo-coding
+        // 4. try creating the original geo-coding
         final Element originalGeoCodingElement = geopositionPointsElement.getChild(
                 DimapProductConstants.TAG_ORIGINAL_GEOCODING);
         if (originalGeoCodingElement != null) {
@@ -438,7 +459,7 @@ public class DimapProductHelpers {
                 // ignore
             }
         }
-        // 3. return GCP geo-coding with original geo-coding set; use original geo-coding as fallback
+        // 5. return GCP geo-coding with original geo-coding set; use original geo-coding as fallback
         if (gcpGeoCoding != null) {
             gcpGeoCoding.setOriginalGeoCoding(originalGeoCoding);
             return gcpGeoCoding;
@@ -556,19 +577,33 @@ public class DimapProductHelpers {
             final Element hcsElem = crsElem.getChild(DimapProductConstants.TAG_HORIZONTAL_CS);
             if (hcsElem != null) {
                 final Element gcsElem = hcsElem.getChild(DimapProductConstants.TAG_GEOGRAPHIC_CS);
-                final Element horizDatumElem = gcsElem.getChild(DimapProductConstants.TAG_HORIZONTAL_DATUM);
-                final String datumName = horizDatumElem.getChildTextTrim(
-                        DimapProductConstants.TAG_HORIZONTAL_DATUM_NAME);
-                final Element ellipsoidElem = horizDatumElem.getChild(DimapProductConstants.TAG_ELLIPSOID);
-                final String ellipsoidName = ellipsoidElem.getChildTextTrim(DimapProductConstants.TAG_ELLIPSOID_NAME);
-                final Element ellipsoidParamElem = ellipsoidElem.getChild(
-                        DimapProductConstants.TAG_ELLIPSOID_PARAMETERS);
-                final Element majorAxisElem = ellipsoidParamElem.getChild(DimapProductConstants.TAG_ELLIPSOID_MAJ_AXIS);
-                final double majorAxis = Double.parseDouble(majorAxisElem.getTextTrim());
-                final Element minorAxisElem = ellipsoidParamElem.getChild(DimapProductConstants.TAG_ELLIPSOID_MIN_AXIS);
-                final double minorAxis = Double.parseDouble(minorAxisElem.getTextTrim());
+                if (gcsElem != null) {
+                    final Element horizDatumElem = gcsElem.getChild(DimapProductConstants.TAG_HORIZONTAL_DATUM);
+                    if (horizDatumElem != null) {
+                        final Element ellipsoidElem = horizDatumElem.getChild(DimapProductConstants.TAG_ELLIPSOID);
+                        if (ellipsoidElem != null) {
+                            final Element ellipsoidParamElem = ellipsoidElem.getChild(
+                                    DimapProductConstants.TAG_ELLIPSOID_PARAMETERS);
+                            if (ellipsoidParamElem != null) {
+                                final Element majorAxisElem = ellipsoidParamElem.getChild(
+                                        DimapProductConstants.TAG_ELLIPSOID_MAJ_AXIS);
+                                final Element minorAxisElem = ellipsoidParamElem.getChild(
+                                        DimapProductConstants.TAG_ELLIPSOID_MIN_AXIS);
+                                if (majorAxisElem != null && minorAxisElem != null) {
+                                    final double majorAxis = Double.parseDouble(majorAxisElem.getTextTrim());
+                                    final double minorAxis = Double.parseDouble(minorAxisElem.getTextTrim());
 
-                return new Datum(datumName, new Ellipsoid(ellipsoidName, minorAxis, majorAxis), 0, 0, 0);
+                                    final String ellipsoidName = ellipsoidElem.getChildTextTrim(
+                                            DimapProductConstants.TAG_ELLIPSOID_NAME);
+                                    final Ellipsoid ellipsoid = new Ellipsoid(ellipsoidName, minorAxis, majorAxis);
+                                    final String datumName = horizDatumElem.getChildTextTrim(
+                                            DimapProductConstants.TAG_HORIZONTAL_DATUM_NAME);
+                                    return new Datum(datumName, ellipsoid, 0, 0, 0);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         return Datum.WGS_84;

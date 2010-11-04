@@ -377,9 +377,24 @@ public final class DimapProductConstants {
      * have been marked as deprecated and replaced with {@code Mask}s.
      * </td>
      * </tr>
+     * <tr>
+     * <td valign="top">2.9.0</td>
+     * <td> For 4.9, the element Geoposition_Points has been introduced.
+     * <pre>
+     *    &lt;Geoposition_Points&gt;
+     *        &lt;INTERPOLATION_METHOD&gt;POLYNOMIAL[1|2|3]&lt;/INTERPOLATION_METHOD&gt;
+     *        &lt;Original_Geocoding&gt;
+     *            ...
+     *        &lt;/Original_Geocoding&gt;
+     *    &lt;/Geoposition_Points&gt;
+     * </pre>
+     * In addition, the persistence of the {@code TiePointGeoCoding} is now written into the {@code Geoposition}
+     * element.
+     * </td>
+     * </tr>
      * </table>
      */
-    public static final String DIMAP_CURRENT_VERSION = "2.9.0";
+    public static final String DIMAP_CURRENT_VERSION = "2.10.0";
 
     // BEAM-Dimap default text
     public static final String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";

@@ -603,19 +603,23 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     private void writeGeoCoding(final TiePointGeoCoding tiePointGeoCoding, final int indent) {
+        final String[] crsTags = createTags(indent, DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
+        println(crsTags[0]);
+        writeDatum(tiePointGeoCoding.getDatum(), indent + 1);
+        println(crsTags[1]);
         final String latGridName = tiePointGeoCoding.getLatGrid().getName();
         final String lonGridName = tiePointGeoCoding.getLonGrid().getName();
         if (latGridName == null || lonGridName == null) {
             return;
         }
-        final String[] crsTags = createTags(indent, DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
-        println(crsTags[0]);
-        final String[] gtpgTags = createTags(indent + 1, DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS);
-        println(gtpgTags[0]);
+        final String[] geopositionTags = createTags(indent, DimapProductConstants.TAG_GEOPOSITION);
+        println(geopositionTags[0]);
+        final String[] pointsTags = createTags(indent + 1, DimapProductConstants.TAG_GEOPOSITION_POINTS);
+        println(pointsTags[0]);
         printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LAT, latGridName);
         printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LON, lonGridName);
-        println(gtpgTags[1]);
-        println(crsTags[1]);
+        println(pointsTags[1]);
+        println(geopositionTags[1]);
     }
 
     private void writeBandIndexIf(final boolean condition, final int index, final int indent) {

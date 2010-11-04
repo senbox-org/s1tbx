@@ -664,8 +664,10 @@ public class DimapDocumentTest extends TestCase {
                     pw.println("                    <Ellipsoid>");
                     pw.println("                        <ELLIPSOID_NAME>WGS-84</ELLIPSOID_NAME>");
                     pw.println("                        <Ellipsoid_Parameters>");
-                    pw.println("                            <ELLIPSOID_MAJ_AXIS unit=\"M\">6378137.0</ELLIPSOID_MAJ_AXIS>");
-                    pw.println("                            <ELLIPSOID_MIN_AXIS unit=\"M\">6356752.3</ELLIPSOID_MIN_AXIS>");
+                    pw.println(
+                            "                            <ELLIPSOID_MAJ_AXIS unit=\"M\">6378137.0</ELLIPSOID_MAJ_AXIS>");
+                    pw.println(
+                            "                            <ELLIPSOID_MIN_AXIS unit=\"M\">6356752.3</ELLIPSOID_MIN_AXIS>");
                     pw.println("                        </Ellipsoid_Parameters>");
                     pw.println("                    </Ellipsoid>");
                     pw.println("                </Horizontal_Datum>");
@@ -677,16 +679,60 @@ public class DimapDocumentTest extends TestCase {
                     pw.println("            <INTERPOLATION_METHOD>POLYNOMIAL1</INTERPOLATION_METHOD>");
                     pw.println("            <Original_Geocoding>");
                     pw.println("                <Coordinate_Reference_System>");
-                    pw.println("                    <Geocoding_Tie_Point_Grids>");
+                    pw.println("                    <Horizontal_CS>");
+                    pw.println("                        <HORIZONTAL_CS_TYPE>GEOGRAPHIC</HORIZONTAL_CS_TYPE>");
+                    pw.println("                        <Geographic_CS>");
+                    pw.println("                            <Horizontal_Datum>");
+                    pw.println("                                <HORIZONTAL_DATUM_NAME>WGS-84</HORIZONTAL_DATUM_NAME>");
+                    pw.println("                                <Ellipsoid>");
+                    pw.println("                                    <ELLIPSOID_NAME>WGS-84</ELLIPSOID_NAME>");
+                    pw.println("                                    <Ellipsoid_Parameters>");
+                    pw.println("                                        <ELLIPSOID_MAJ_AXIS unit=\"M\">6378137.0</ELLIPSOID_MAJ_AXIS>");
+                    pw.println("                                        <ELLIPSOID_MIN_AXIS unit=\"M\">6356752.3</ELLIPSOID_MIN_AXIS>");
+                    pw.println("                                    </Ellipsoid_Parameters>");
+                    pw.println("                                </Ellipsoid>");
+                    pw.println("                            </Horizontal_Datum>");
+                    pw.println("                        </Geographic_CS>");
+                    pw.println("                    </Horizontal_CS>");
+                    pw.println("                </Coordinate_Reference_System>");
+                    pw.println("                <Geoposition>");
+                    pw.println("                    <Geoposition_Points>");
                     pw.println("                        <TIE_POINT_GRID_NAME_LAT>tpg1</TIE_POINT_GRID_NAME_LAT>");
                     pw.println("                        <TIE_POINT_GRID_NAME_LON>tpg2</TIE_POINT_GRID_NAME_LON>");
-                    pw.println("                    </Geocoding_Tie_Point_Grids>");
-                    pw.println("                </Coordinate_Reference_System>");
+                    pw.println("                    </Geoposition_Points>");
+                    pw.println("                </Geoposition>");
                     pw.println("            </Original_Geocoding>");
                     pw.println("        </Geoposition_Points>");
                     pw.println("    </Geoposition>");
                     break;
-                default:
+                case TIE_POINT_GEOCODING:
+                    pw.println("    <Coordinate_Reference_System>");
+                    pw.println("        <Horizontal_CS>");
+                    pw.println("            <HORIZONTAL_CS_TYPE>GEOGRAPHIC</HORIZONTAL_CS_TYPE>");
+                    pw.println("            <Geographic_CS>");
+                    pw.println("                <Horizontal_Datum>");
+                    pw.println("                    <HORIZONTAL_DATUM_NAME>WGS-84</HORIZONTAL_DATUM_NAME>");
+                    pw.println("                    <Ellipsoid>");
+                    pw.println("                        <ELLIPSOID_NAME>WGS-84</ELLIPSOID_NAME>");
+                    pw.println("                        <Ellipsoid_Parameters>");
+                    pw.println(
+                            "                            <ELLIPSOID_MAJ_AXIS unit=\"M\">6378137.0</ELLIPSOID_MAJ_AXIS>");
+                    pw.println(
+                            "                            <ELLIPSOID_MIN_AXIS unit=\"M\">6356752.3</ELLIPSOID_MIN_AXIS>");
+                    pw.println("                        </Ellipsoid_Parameters>");
+                    pw.println("                    </Ellipsoid>");
+                    pw.println("                </Horizontal_Datum>");
+                    pw.println("            </Geographic_CS>");
+                    pw.println("        </Horizontal_CS>");
+                    pw.println("    </Coordinate_Reference_System>");
+                    pw.println("    <Geoposition>");
+                    pw.println("        <Geoposition_Points>");
+                    pw.println("            <TIE_POINT_GRID_NAME_LAT>tpg1</TIE_POINT_GRID_NAME_LAT>");
+                    pw.println("            <TIE_POINT_GRID_NAME_LON>tpg2</TIE_POINT_GRID_NAME_LON>");
+                    pw.println("        </Geoposition_Points>");
+                    pw.println("    </Geoposition>");
+                    break;
+                default: // old tie-point geo-coding XML
                     pw.println("    <Coordinate_Reference_System>");
                     pw.println("        <Geocoding_Tie_Point_Grids>");
                     pw.println("            <TIE_POINT_GRID_NAME_LAT>tpg1</TIE_POINT_GRID_NAME_LAT>");
@@ -995,14 +1041,15 @@ public class DimapDocumentTest extends TestCase {
         return sw.toString();
     }
 
-    /**
+    /*
      * Creates a DOM represenation (BEAM-DIMAP format) of the given data product.
      *
      * @param product the data product
      *
      * @return a DOM in BEAM-DIMAP format
      */
-    private final static Document createDOM(Product product, String nameDataDirectory) {
+
+    private static Document createDOM(Product product, String nameDataDirectory) {
         return new TestDOMBuilder(product, nameDataDirectory).createDOM();
     }
 
@@ -1027,7 +1074,7 @@ public class DimapDocumentTest extends TestCase {
         }
         if (shape != null) {
             final Element figureElem = new Element(DimapProductConstants.TAG_SHAPE_FIGURE);
-            String type = null;
+            String type;
             String values = null;
             if (shape instanceof Line2D.Float) {
                 Line2D.Float line = (Line2D.Float) shape;
@@ -1134,8 +1181,8 @@ public class DimapDocumentTest extends TestCase {
 
         private void addBitmaskDefinitions() { //Übernommen
             final String[] defNames = _product.getBitmaskDefNames();
-            for (int i = 0; i < defNames.length; i++) {
-                final BitmaskDef bitmaskDef = _product.getBitmaskDef(defNames[i]);
+            for (String defName : defNames) {
+                final BitmaskDef bitmaskDef = _product.getBitmaskDef(defName);
                 final Element bitmaskDefElem = new Element(DimapProductConstants.TAG_BITMASK_DEFINITION);
                 bitmaskDefElem.setAttribute(DimapProductConstants.ATTRIB_NAME, bitmaskDef.getName());
 
@@ -1176,8 +1223,7 @@ public class DimapDocumentTest extends TestCase {
                 return;
             }
             Debug.assertNotNull(mdElem);
-            for (int i = 0; i < elementes.length; i++) {
-                MetadataElement element = elementes[i];
+            for (MetadataElement element : elementes) {
                 final Element newElem = new Element(DimapProductConstants.TAG_METADATA_ELEMENT);
                 newElem.setAttribute(DimapProductConstants.ATTRIB_NAME, element.getName());
                 final String description = element.getDescription();
@@ -1198,8 +1244,7 @@ public class DimapDocumentTest extends TestCase {
                 return;
             }
             Debug.assertNotNull(mdElem);
-            for (int i = 0; i < attributes.length; i++) {
-                MetadataAttribute attribute = attributes[i];
+            for (MetadataAttribute attribute : attributes) {
                 final Element mdAttr = new Element(DimapProductConstants.TAG_METADATA_ATTRIBUTE);
                 mdAttr.setAttribute(DimapProductConstants.ATTRIB_NAME, attribute.getName());
                 final String description = attribute.getDescription();
@@ -1231,7 +1276,7 @@ public class DimapDocumentTest extends TestCase {
         }
 
         private String getProductFilename() {
-            String productFilename = null;
+            String productFilename;
             if (getProduct().getFileLocation() != null) {
                 productFilename = getProduct().getFileLocation().getName();
             } else {
@@ -1426,14 +1471,14 @@ public class DimapDocumentTest extends TestCase {
 
         private void addFlagCodingElements() { // Übernommen
             String[] codingNames = getProduct().getFlagCodingGroup().getNodeNames();
-            for (int i = 0; i < codingNames.length; i++) {
+            for (String codingName : codingNames) {
                 Element flagCodingElem = new Element(DimapProductConstants.TAG_FLAG_CODING);
-                flagCodingElem.setAttribute(DimapProductConstants.ATTRIB_NAME, codingNames[i]);
+                flagCodingElem.setAttribute(DimapProductConstants.ATTRIB_NAME, codingName);
                 _root.addContent(flagCodingElem);
-                FlagCoding flagCoding = getProduct().getFlagCodingGroup().get(codingNames[i]);
+                FlagCoding flagCoding = getProduct().getFlagCodingGroup().get(codingName);
                 String[] flagNames = flagCoding.getFlagNames();
-                for (int j = 0; j < flagNames.length; j++) {
-                    MetadataAttribute flag = flagCoding.getFlag(flagNames[j]);
+                for (String flagName : flagNames) {
+                    MetadataAttribute flag = flagCoding.getFlag(flagName);
                     Element flagElem = new Element(DimapProductConstants.TAG_FLAG);
                     JDomHelper.addElement(DimapProductConstants.TAG_FLAG_NAME, flag.getName(), flagElem);
                     JDomHelper.addElement(DimapProductConstants.TAG_FLAG_INDEX, flag.getData().getElemInt(), flagElem);
