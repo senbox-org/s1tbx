@@ -29,7 +29,10 @@ import java.io.IOException;
  * This interface is intended to be implemented by clients.
  * But its should not be implemented directly. Instead, clients are asked to
  * derive from {@link AbstractProfileSpi}.
+ *
+ * @deprecated no replacement
  */
+@Deprecated
 public interface ProfileSpi {
 
     /**

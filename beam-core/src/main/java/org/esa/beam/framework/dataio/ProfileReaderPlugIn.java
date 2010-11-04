@@ -18,7 +18,10 @@ package org.esa.beam.framework.dataio;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
+ *
+ * @deprecated no replacement
  */
+@Deprecated
 public interface ProfileReaderPlugIn {
 
     /**

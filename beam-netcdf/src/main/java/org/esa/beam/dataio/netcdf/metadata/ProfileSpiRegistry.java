@@ -30,7 +30,9 @@ import java.util.Set;
  * A registry for {@link ProfileSpi}s.
  *
  * @author Thomas Storm
+ * @deprecated no replacement
  */
+@Deprecated
 public class ProfileSpiRegistry {
 
     private ServiceRegistry<ProfileSpi> serviceRegistry;
@@ -97,7 +99,7 @@ public class ProfileSpiRegistry {
             DecodeQualification qualification = DecodeQualification.UNABLE;
             try {
                 qualification = profileSpi.getDecodeQualification(netcdfFile);
-            }catch (Exception ignore) {
+            } catch (Exception ignore) {
             }
             if (qualification == DecodeQualification.SUITABLE) {
                 bestQualification = qualification;
