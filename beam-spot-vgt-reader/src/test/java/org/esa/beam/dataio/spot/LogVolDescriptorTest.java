@@ -17,14 +17,13 @@
 package org.esa.beam.dataio.spot;
 
 import junit.framework.TestCase;
+import org.esa.beam.framework.datamodel.ProductData;
 
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 public class LogVolDescriptorTest extends TestCase {
 
@@ -36,9 +35,8 @@ public class LogVolDescriptorTest extends TestCase {
             LogVolDescriptor descriptor = new LogVolDescriptor(reader);
             assertEquals("V2KRNS10__20060721E", descriptor.getProductId());
             assertNotNull(descriptor.getGeoCoding());
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
-            assertEquals(dateFormat.parse("20060720223132"), descriptor.getStartDate());
-            assertEquals(dateFormat.parse("20060730235628"), descriptor.getEndDate());
+            assertEquals("20-JUL-2006 22:31:32.000000", ProductData.UTC.create(descriptor.getStartDate(), 0).toString());
+            assertEquals("30-JUL-2006 23:56:28.000000", ProductData.UTC.create(descriptor.getEndDate(), 0).toString());
             Rectangle bounds = descriptor.getImageBounds();
             assertNotNull( bounds);
             assertEquals(0, bounds.x);

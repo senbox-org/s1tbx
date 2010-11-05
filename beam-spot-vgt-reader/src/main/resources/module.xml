@@ -15,6 +15,7 @@
     <changelog>
         <![CDATA[
                 Changes in 1.1:<br>
+                [BEAM-1211] SPOT VGT reader parses product time using a locale timezone<br/>
                 [BEAM-1205] SPOT VGT reader down not treat unsigned bands correctly<br/>
                 [BEAM-1179] Slightly wrong listing of files in VirtualDir$Zip in beam-spot-vgt-reader<br/>
                 Changes in 1.0:<br>

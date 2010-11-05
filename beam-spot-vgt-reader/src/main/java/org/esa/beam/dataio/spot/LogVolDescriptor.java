@@ -19,6 +19,7 @@ package org.esa.beam.dataio.spot;
 import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -30,17 +31,16 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.Reader;
+import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 final class LogVolDescriptor {
     private final PropertySet propertySet;
     private final String productId;
 
     private static final double PIXEL_CENTER = 0.0;
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
+    private static final DateFormat DATE_FORMAT = ProductData.UTC.createDateFormat("yyyyMMddHHmmss");
 
     public LogVolDescriptor(Reader reader) throws IOException {
         this.propertySet = SpotVgtProductReaderPlugIn.readKeyValuePairs(reader);
