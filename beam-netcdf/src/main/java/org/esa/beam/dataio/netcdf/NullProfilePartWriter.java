@@ -13,7 +13,4 @@ class NullProfilePartWriter implements ProfilePartWriter {
     public void encode(ProfileWriteContext ctx, Product p) throws ProductIOException {
     }
 
-    @Override
-    public void postEncode(ProfileWriteContext ctx, Product p) throws ProductIOException {
-    }
 }

@@ -51,8 +51,5 @@ class NetCdfWriteProfile {
         for (ProfilePartWriter profilePart : profileParts) {
             profilePart.encode(ctx, product);
         }
-        for (ProfilePartWriter profilePart : profileParts) {
-            profilePart.postEncode(ctx, product);
-        }
     }
 }

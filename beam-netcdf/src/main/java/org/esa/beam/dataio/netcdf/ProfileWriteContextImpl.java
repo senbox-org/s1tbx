@@ -32,8 +32,8 @@ class ProfileWriteContextImpl implements ProfileWriteContext {
     }
 
     @Override
-    public void setProperty(String name, Object property) {
-        propertyMap.put(name, property);
+    public void setProperty(String name, Object value) {
+        propertyMap.put(name, value);
     }
 
     @Override

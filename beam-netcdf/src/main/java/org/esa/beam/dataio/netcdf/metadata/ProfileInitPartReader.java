@@ -21,8 +21,18 @@ import org.esa.beam.framework.datamodel.Product;
 
 import java.io.IOException;
 
+/**
+ * Implementations provide the initialisation part of a {@link Product Product}. They are provided to the framework by implementations
+ * of {@link org.esa.beam.dataio.netcdf.AbstractNetCdfReaderPlugIn AbstractNetCdfReaderPlugIn}.
+ */
 public interface ProfileInitPartReader {
-
+    /**
+     * Reads the basic product body.
+     *
+     * @param ctx Provides the context for reading the product body.
+     * @return the product
+     * @throws IOException if an IO-Error occurs
+     */
     Product readProductBody(ProfileReadContext ctx) throws IOException;
 
 }

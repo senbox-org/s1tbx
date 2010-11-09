@@ -33,14 +33,7 @@ public abstract class ProfilePartIO implements ProfilePartReader, ProfilePartWri
     }
 
     @Override
-    public void postDecode(ProfileReadContext ctx, Product p) throws IOException {
-    }
-
-    @Override
     public void encode(ProfileWriteContext ctx, Product p) throws IOException {
     }
 
-    @Override
-    public void postEncode(ProfileWriteContext ctx, Product p) throws IOException {
-    }
 }

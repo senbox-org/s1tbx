@@ -51,9 +51,6 @@ class NetCdfReadProfile {
         for (ProfilePartReader profilePart : profileParts) {
             profilePart.decode(ctx, product);
         }
-        for (ProfilePartReader profilePart : profileParts) {
-            profilePart.postDecode(ctx, product);
-        }
         return product;
     }
 }

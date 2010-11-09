@@ -46,8 +46,8 @@ class ProfileReadContextImpl implements ProfileReadContext {
     }
 
     @Override
-    public void setProperty(String name, Object property) {
-        propertyMap.put(name, property);
+    public void setProperty(String name, Object value) {
+        propertyMap.put(name, value);
     }
 
     @Override

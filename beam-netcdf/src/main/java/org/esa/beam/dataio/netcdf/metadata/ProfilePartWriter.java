@@ -21,13 +21,40 @@ import org.esa.beam.framework.datamodel.Product;
 
 import java.io.IOException;
 
+/**
+ * Implementations write a part of a {@link Product Product} to a NetCDF-file. They are provided to the framework by implementations
+ * of {@link org.esa.beam.dataio.netcdf.AbstractNetCdfWriterPlugIn AbstractNetCdfWriterPlugIn}.
+ * The methods of all {@see ProfilePartWriter} belonging to a {@link org.esa.beam.dataio.netcdf.AbstractNetCdfWriterPlugIn AbstractNetCdfWriterPlugIn}
+ * are called in the following sequence
+ * <ol>
+ * <li> {@link #preEncode(ProfileWriteContext, Product)}</li>
+ * <li> {@link #encode(ProfileWriteContext, Product)}</li>
+ * </ol>
+ * If two parts of one {@link org.esa.beam.dataio.netcdf.AbstractNetCdfWriterPlugIn AbstractNetCdfWriterPlugIn}
+ * implementation depend on each other, the twofold encoding helps two transport information from one part to the other.
+ * One part can store information in the {@link org.esa.beam.dataio.netcdf.ProfileWriteContext context} and the other can
+ * retrieve it in the successive encoding step.
+ */
 public interface ProfilePartWriter {
 
-
+    /**
+     * When called the {@link ProfileWriteContext#getNetcdfFileWriteable() ctx.getNetcdfFileWriteable()} is in define mode.
+     * Which means that variables and attributes can be added, but no data can be written.
+     *
+     * @param ctx the context for writing the product
+     * @param p the product
+     * @throws IOException if an IO-Error occurs
+     */
     void preEncode(ProfileWriteContext ctx, Product p) throws IOException;
 
+    /**
+     * When called the {@link ProfileWriteContext#getNetcdfFileWriteable() ctx.getNetcdfFileWriteable()} is in write mode.
+     * Which means that data can be written, but no variables and attributes can be added.
+     *  
+     * @param ctx the context for writing the product
+     * @param p the product
+     * @throws IOException if an IO-Error occurs
+     */
     void encode(ProfileWriteContext ctx, Product p) throws IOException;
-
-    void postEncode(ProfileWriteContext ctx, Product p) throws IOException;
 
 }

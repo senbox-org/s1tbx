@@ -30,7 +30,4 @@ class NullProfilePartReader implements ProfilePartReader {
     public void decode(ProfileReadContext ctx, Product p) throws ProductIOException {
     }
 
-    @Override
-    public void postDecode(ProfileReadContext ctx, Product p) throws ProductIOException {
-    }
 }

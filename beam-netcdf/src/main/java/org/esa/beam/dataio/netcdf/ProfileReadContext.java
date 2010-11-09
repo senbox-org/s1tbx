@@ -21,13 +21,32 @@ import ucar.nc2.NetcdfFile;
 
 /**
  * A context for reading metadata from netCDF into the BEAM product model.
+ * While reading a product this context can be used to store properties to
+ * share them between multiple {@link org.esa.beam.dataio.netcdf.metadata.ProfilePartReader ProfilePartReader}.
  */
-public interface ProfileReadContext extends ProfileContext {
+public interface ProfileReadContext extends PropertyStore {
 
+    /**
+     * Gets the {@link NetcdfFile} to be read.
+     *
+     * @return the {@link NetcdfFile}
+     */
     public NetcdfFile getNetcdfFile();
 
+    /**
+     * Sets the {@link RasterDigest}.
+     *
+     * @param rasterDigest the {@link RasterDigest}
+     *
+     * @see AbstractNetCdfReaderPlugIn#initReadContext(org.esa.beam.dataio.netcdf.ProfileReadContext)
+     */
     public void setRasterDigest(RasterDigest rasterDigest);
 
+    /**
+     * Gets the {@link RasterDigest}.
+     *
+     * @return the {@link RasterDigest}
+     */
     public RasterDigest getRasterDigest();
 
 
