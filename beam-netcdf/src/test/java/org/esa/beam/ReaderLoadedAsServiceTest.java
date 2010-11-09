@@ -19,7 +19,6 @@ import org.esa.beam.dataio.netcdf.GenericNetCdfReaderPlugIn;
 import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamNetCdfReaderPlugIn;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfNetCdfReaderPlugIn;
 import org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosNetCdfReaderPlugIn;
-import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.junit.Test;
