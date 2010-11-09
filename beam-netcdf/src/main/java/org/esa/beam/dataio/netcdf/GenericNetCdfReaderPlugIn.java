@@ -16,7 +16,6 @@
 
 package org.esa.beam.dataio.netcdf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfileInitPartReader;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
@@ -74,7 +73,7 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
             }
 
             final AbstractNetCdfReaderPlugIn[] plugIns = getAllNetCdfReaderPlugIns();
-            return getInitDecodeQualification(plugIns, netcdfFile);
+            return getDecodeQualification(plugIns, netcdfFile);
         } catch (Throwable ignored) {
         } finally {
             try {
@@ -88,24 +87,14 @@ public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    private DecodeQualification getInitDecodeQualification(AbstractNetCdfReaderPlugIn[] plugIns, NetcdfFile netcdfFile) throws IOException {
-        DecodeQualification initDecodeQualification = DecodeQualification.UNABLE;
+    private DecodeQualification getDecodeQualification(AbstractNetCdfReaderPlugIn[] plugIns, NetcdfFile netcdfFile) throws IOException {
         for (AbstractNetCdfReaderPlugIn plugIn : plugIns) {
-            ProfileReadContextImpl context = new ProfileReadContextImpl(netcdfFile);
-            plugIn.initReadContext(context);
-
-            final ProfileInitPartReader initPartReader = plugIn.createInitialisationPartReader();
-            final DecodeQualification decodeQualification = initPartReader.canDecode(context);
-            if (DecodeQualification.INTENDED.equals(decodeQualification)) {
-                initDecodeQualification = DecodeQualification.INTENDED;
-                break;
-            }
-            if (DecodeQualification.SUITABLE.equals(decodeQualification)) {
-                initDecodeQualification = DecodeQualification.SUITABLE;
-                break;
+            final DecodeQualification decodeQualification = plugIn.getDecodeQualification(netcdfFile);
+            if (DecodeQualification.INTENDED.equals(decodeQualification) || DecodeQualification.SUITABLE.equals(decodeQualification)) {
+                return DecodeQualification.SUITABLE;
             }
         }
-        return initDecodeQualification;
+        return DecodeQualification.UNABLE;
     }
 
     /**

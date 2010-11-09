@@ -18,17 +18,11 @@ package org.esa.beam.dataio.netcdf.metadata;
 
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
-import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.Product;
 
 import java.io.IOException;
 
 public abstract class ProfileInitPartIO implements ProfileInitPartReader, ProfileInitPartWriter {
-
-    @Override
-    public DecodeQualification canDecode(ProfileReadContext ctx) {
-        return DecodeQualification.SUITABLE;
-    }
 
     public abstract Product readProductBody(ProfileReadContext ctx) throws IOException;
 

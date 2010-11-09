@@ -24,8 +24,6 @@ import java.io.IOException;
 
 public interface ProfileInitPartReader {
 
-    DecodeQualification canDecode(ProfileReadContext ctx);
-
     Product readProductBody(ProfileReadContext ctx) throws IOException;
 
 }
