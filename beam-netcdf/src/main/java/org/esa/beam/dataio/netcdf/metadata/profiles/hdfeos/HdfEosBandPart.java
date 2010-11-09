@@ -16,7 +16,7 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
@@ -29,10 +29,10 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 
 
-public class HdfEosBandPart extends ProfilePart {
+public class HdfEosBandPart extends ProfilePartIO {
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         final Variable[] variables = ctx.getRasterDigest().getRasterVariables();
         for (Variable variable : variables) {
             final int rasterDataType = DataTypeUtils.getRasterDataType(variable);
@@ -43,7 +43,7 @@ public class HdfEosBandPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         throw new IllegalStateException();
     }
 }

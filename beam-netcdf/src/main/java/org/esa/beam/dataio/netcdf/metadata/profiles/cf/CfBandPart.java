@@ -15,7 +15,7 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
@@ -35,12 +35,12 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.util.List;
 
-public class CfBandPart extends ProfilePart {
+public class CfBandPart extends ProfilePartIO {
 
     private static final DataTypeWorkarounds dataTypeWorkarounds = new DataTypeWorkarounds();
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         for (Variable variable : ctx.getRasterDigest().getRasterVariables()) {
             final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
             final Band band = p.addBand(variable.getName(), rasterDataType);
@@ -50,7 +50,7 @@ public class CfBandPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         defineRasterDataNodes(ctx, p.getBands());
     }
 

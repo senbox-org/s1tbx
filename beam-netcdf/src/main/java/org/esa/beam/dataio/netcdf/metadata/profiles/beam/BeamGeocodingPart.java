@@ -48,7 +48,7 @@ public class BeamGeocodingPart extends CfGeocodingPart {
     private final int latIndex = 1;
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         NetcdfFile netcdfFile = ctx.getNetcdfFile();
         final Attribute tpCoordinatesAtt = netcdfFile.findGlobalAttribute(TIEPOINT_COORDINATES);
         GeoCoding geoCoding = null;
@@ -75,7 +75,7 @@ public class BeamGeocodingPart extends CfGeocodingPart {
         if (geoCoding != null) {
             p.setGeoCoding(geoCoding);
         } else {
-            super.read(ctx, p);
+            super.decode(ctx, p);
         }
     }
 
@@ -97,7 +97,7 @@ public class BeamGeocodingPart extends CfGeocodingPart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         final GeoCoding geoCoding = p.getGeoCoding();
         if (geoCoding instanceof TiePointGeoCoding) {
             final TiePointGeoCoding tpGC = (TiePointGeoCoding) geoCoding;
@@ -107,7 +107,7 @@ public class BeamGeocodingPart extends CfGeocodingPart {
             final String value = StringUtils.arrayToString(names, " ");
             ctx.getNetcdfFileWriteable().addAttribute(null, new Attribute(TIEPOINT_COORDINATES, value));
         } else {
-            super.define(ctx, p);
+            super.preEncode(ctx, p);
             if (geoCoding instanceof CrsGeoCoding) {
                 addWktAsVariable(ctx.getNetcdfFileWriteable(), geoCoding);
             }
@@ -115,10 +115,10 @@ public class BeamGeocodingPart extends CfGeocodingPart {
     }
 
     @Override
-    public void write(ProfileWriteContext ctx, Product p) throws IOException {
+    public void encode(ProfileWriteContext ctx, Product p) throws IOException {
         final GeoCoding geoCoding = p.getGeoCoding();
         if (!(geoCoding instanceof TiePointGeoCoding)) {
-            super.write(ctx, p);
+            super.encode(ctx, p);
         }
     }
 

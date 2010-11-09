@@ -62,6 +62,6 @@ public interface Constants {
 
     // context properties
     String Y_FLIPPED_PROPERTY_NAME = "yFlipped";
-    String PRODUCT_NAME_PROPERTY_NAME = "productName";
+    String PRODUCT_FILENAME_PROPERTY = "productName";
 
 }

@@ -16,7 +16,7 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
@@ -25,7 +25,7 @@ import ucar.nc2.Attribute;
 
 import java.io.IOException;
 
-public class CfDescriptionPart extends ProfilePart {
+public class CfDescriptionPart extends ProfilePartIO {
 
     private static final String DESCRIPTION = "description";
     private static final String TITLE = "title";
@@ -33,7 +33,7 @@ public class CfDescriptionPart extends ProfilePart {
     private static final String[] DESCRIPTION_ATTRIBUTE_NAMES = new String[]{DESCRIPTION, TITLE, COMMENT};
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         for (String attribName : DESCRIPTION_ATTRIBUTE_NAMES) {
             Attribute attribute = ctx.getNetcdfFile().getRootGroup().findAttribute(attribName);
             if (attribute != null) {
@@ -48,7 +48,7 @@ public class CfDescriptionPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         final String description = p.getDescription();
         if (description != null && description.trim().length() > 0) {
             ctx.getNetcdfFileWriteable().addAttribute(null, new Attribute(TITLE, description));

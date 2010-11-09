@@ -16,10 +16,11 @@
 
 package org.esa.beam.dataio.netcdf;
 
-import junit.framework.TestCase;
+import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfNetCdfReaderPlugIn;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,14 +28,15 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Calendar;
 
+import static org.junit.Assert.*;
+
 /**
- * Tests class {@link NetCdfReader}.
- *
  * @author Ralf Quast
  * @version $Revision: 2182 $ $Date: 2008-06-12 11:09:11 +0200 (Do, 12 Jun 2008) $
  */
-public class Nc4ReaderTest extends TestCase {
+public class Nc4ReaderTest {
 
+    @Test
     public void testGlobalAttributes() throws IOException {
 
         final URL url = Nc4ReaderTest.class.getResource("test.nc");
@@ -49,7 +51,7 @@ public class Nc4ReaderTest extends TestCase {
         assertTrue(file.exists());
         assertTrue(file.canRead());
 
-        final ProductReader reader = new NetCdfReaderPlugIn().createReaderInstance();
+        final ProductReader reader = new CfNetCdfReaderPlugIn().createReaderInstance();
         final Product product = reader.readProductNodes(file.getPath(), null);
         assertNotNull(product);
 

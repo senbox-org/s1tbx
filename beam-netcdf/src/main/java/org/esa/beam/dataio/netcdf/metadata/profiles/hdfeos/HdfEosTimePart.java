@@ -16,7 +16,7 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.TimeUtils;
@@ -27,10 +27,10 @@ import org.jdom.Element;
 import java.io.IOException;
 
 
-public class HdfEosTimePart extends ProfilePart {
+public class HdfEosTimePart extends ProfilePartIO {
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         Element element = (Element) ctx.getProperty(HdfEosUtils.CORE_METADATA);
         if (element != null) {
             p.setStartTime(readEosTime(element, "RANGEBEGINNINGDATE", "RANGEBEGINNINGTIME"));
@@ -40,9 +40,9 @@ public class HdfEosTimePart extends ProfilePart {
 
     private ProductData.UTC readEosTime(Element element, String dateElemName, String timeElemName) {
         String date = HdfEosUtils.getValue(element, "INVENTORYMETADATA", "MASTERGROUP", "RANGEDATETIME",
-                dateElemName, "VALUE");
+                                           dateElemName, "VALUE");
         String time = HdfEosUtils.getValue(element, "INVENTORYMETADATA", "MASTERGROUP", "RANGEDATETIME",
-                timeElemName, "VALUE");
+                                           timeElemName, "VALUE");
         if (date != null && !date.isEmpty() && time != null && !time.isEmpty()) {
             return TimeUtils.parseDateTime(date + " " + time);
         }
@@ -50,7 +50,7 @@ public class HdfEosTimePart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         throw new IllegalStateException();
     }
 }

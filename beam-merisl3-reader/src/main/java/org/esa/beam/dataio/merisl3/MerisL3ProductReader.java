@@ -126,18 +126,17 @@ public class MerisL3ProductReader extends AbstractProductReader {
      *
      * @param sourceOffsetX the absolute X-offset in source raster co-ordinates
      * @param sourceOffsetY the absolute Y-offset in source raster co-ordinates
-     * @param sourceWidth   the width of region providing samples to be read given in source raster co-ordinates
-     * @param sourceHeight  the height of region providing samples to be read given in source raster co-ordinates
-     * @param sourceStepX   the sub-sampling in X direction within the region providing samples to be read
-     * @param sourceStepY   the sub-sampling in Y direction within the region providing samples to be read
-     * @param destBand      the destination band which identifies the data source from which to read the sample values
-     * @param destBuffer    the destination buffer which receives the sample values to be read
+     * @param sourceWidth   the width of region providing samples to be decode given in source raster co-ordinates
+     * @param sourceHeight  the height of region providing samples to be decode given in source raster co-ordinates
+     * @param sourceStepX   the sub-sampling in X direction within the region providing samples to be decode
+     * @param sourceStepY   the sub-sampling in Y direction within the region providing samples to be decode
+     * @param destBand      the destination band which identifies the data source from which to decode the sample values
+     * @param destBuffer    the destination buffer which receives the sample values to be decode
      * @param destOffsetX   the X-offset in the band's raster co-ordinates
      * @param destOffsetY   the Y-offset in the band's raster co-ordinates
-     * @param destWidth     the width of region to be read given in the band's raster co-ordinates
-     * @param destHeight    the height of region to be read given in the band's raster co-ordinates
+     * @param destWidth     the width of region to be decode given in the band's raster co-ordinates
+     * @param destHeight    the height of region to be decode given in the band's raster co-ordinates
      * @param pm            a monitor to inform the user about progress
-     *
      * @throws java.io.IOException if  an I/O error occurs
      * @see #getSubsetDef
      */
@@ -261,7 +260,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
      */
     @Override
     public void close() throws
-                        IOException {
+            IOException {
         super.close();
 
         if (_netcdfFile != null) {
@@ -294,10 +293,10 @@ public class MerisL3ProductReader extends AbstractProductReader {
         float pixelSizeY = 180.0f / _sceneRasterHeight;
         try {
             _product.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84,
-                    _sceneRasterWidth, _sceneRasterHeight,
-                    easting, northing,
-                    pixelSizeX, pixelSizeY,
-                    pixelX, pixelY));
+                                                   _sceneRasterWidth, _sceneRasterHeight,
+                                                   easting, northing,
+                                                   pixelSizeX, pixelSizeY,
+                                                   pixelX, pixelY));
         } catch (FactoryException e) {
             throw new IOException(e);
         } catch (TransformException e) {
@@ -315,7 +314,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
     }
 
     private RowInfo[] createRowInfos() throws
-                                       IOException {
+            IOException {
         final ISINGrid grid = _grid;
         final RowInfo[] binLines = new RowInfo[_sceneRasterHeight];
         final Variable idxVariable = _netcdfFile.getRootGroup().findVariable("idx");

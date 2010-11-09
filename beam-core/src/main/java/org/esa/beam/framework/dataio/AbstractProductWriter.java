@@ -48,11 +48,10 @@ public abstract class AbstractProductWriter implements ProductWriter {
     private Object _output;
 
     /**
-     * Constructs a <code>EnviProductWriter</code>. Since no output destination is set, the <code>setOutput</code>
+     * Constructs a <code>ProductWriter</code>. Since no output destination is set, the <code>setOutput</code>
      * method must be called before data can be written.
      *
      * @param writerPlugIn the plug-in which created this writer, must not be <code>null</code>
-     *
      * @throws IllegalArgumentException
      * @see #writeProductNodes
      */
@@ -97,7 +96,6 @@ public abstract class AbstractProductWriter implements ProductWriter {
      * @param product the in-memory representation of the data product
      * @param output  an object representing a valid output for this writer, might be a <code>ImageOutputStream</code>
      *                or other <code>Object</code> to use for future decoding.
-     *
      * @throws IllegalArgumentException if <code>product</code> is <code>null</code>.
      * @throws IllegalArgumentException if <code>output</code> is <code>null</code> or it's type is none of the
      *                                  supported output types.
@@ -139,7 +137,6 @@ public abstract class AbstractProductWriter implements ProductWriter {
      * Checks if the given object is an instance of one of the valid output types for this product writer.
      *
      * @return <code>true</code> if so
-     *
      * @see org.esa.beam.framework.dataio.ProductWriterPlugIn#getOutputTypes()
      */
     protected boolean isInstanceOfValidOutputType(Object output) {
@@ -156,7 +153,6 @@ public abstract class AbstractProductWriter implements ProductWriter {
      * Returns wether the given product node is to be written.
      *
      * @param node the product node
-     *
      * @return <code>true</code> if so
      */
     public boolean shouldWrite(ProductNode node) {

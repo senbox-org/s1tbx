@@ -20,18 +20,13 @@ import org.esa.beam.framework.datamodel.Product;
 
 import java.io.IOException;
 
-/**
- * A metadata profile.
- * <p/>
- * This interface is NOT intended to be implemented by clients.
- */
-public interface Profile {
+public interface ProfilePartWriter {
 
-    void addProfilePart(ProfilePart profilePart);
 
-    void setInitialisationPart(ProfileInitPart initPart);
+    void preEncode(ProfileWriteContext ctx, Product p) throws IOException;
 
-    Product readProduct(ProfileReadContext ctx) throws IOException;
+    void encode(ProfileWriteContext ctx, Product p) throws IOException;
 
-    void writeProduct(ProfileWriteContext ctx, Product product) throws IOException;
+    void postEncode(ProfileWriteContext ctx, Product p) throws IOException;
+
 }

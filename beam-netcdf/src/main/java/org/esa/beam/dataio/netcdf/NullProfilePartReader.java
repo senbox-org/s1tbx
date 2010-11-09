@@ -14,23 +14,24 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.framework.dataio;
+package org.esa.beam.dataio.netcdf;
 
-/**
- * WARNING: This class belongs to a preliminary API and may change in future releases.
- *
- * @deprecated no replacement
- */
-@Deprecated
-public interface ProfileReaderPlugIn {
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartReader;
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.datamodel.Product;
 
-    /**
-     * Creates a ProductReaderPlugIn for a given profile. The profile is given by the fully classified class name
-     * (obtained by <code>.getClass().getName()</code>) of the profile.
-     *
-     * @param profileClassName the class name
-     *
-     * @return the ProductReaderPlugIn
-     */
-    ProductReaderPlugIn createProfileReaderPlugin(String profileClassName);
+class NullProfilePartReader implements ProfilePartReader {
+
+    @Override
+    public void preDecode(ProfileReadContext ctx, Product p) throws ProductIOException {
+    }
+
+    @Override
+    public void decode(ProfileReadContext ctx, Product p) throws ProductIOException {
+    }
+
+    @Override
+    public void postDecode(ProfileReadContext ctx, Product p) throws ProductIOException {
+    }
 }

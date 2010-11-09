@@ -16,7 +16,7 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
@@ -31,21 +31,21 @@ import ucar.ma2.InvalidRangeException;
 
 import java.io.IOException;
 
-public class CfTiePointGridPart extends ProfilePart {
+public class CfTiePointGridPart extends ProfilePartIO {
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         // do nothing
-        // tie points are read as bands by CfBandPart
+        // tie points are decode as bands by CfBandPart
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         CfBandPart.defineRasterDataNodes(ctx, p.getTiePointGrids());
     }
 
     @Override
-    public void write(ProfileWriteContext ctx, Product p) throws IOException {
+    public void encode(ProfileWriteContext ctx, Product p) throws IOException {
         final GeoPos gp0 = p.getGeoCoding().getGeoPos(new PixelPos(0.5f, 0.5f), null);
         final GeoPos gp1 = p.getGeoCoding().getGeoPos(new PixelPos(0.5f, 1.5f), null);
         boolean doFlip = false;

@@ -16,8 +16,9 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfileInitPart;
+import org.esa.beam.dataio.netcdf.metadata.ProfileInitPartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Product;
@@ -26,12 +27,12 @@ import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
 
-public class CfInitialisationPart implements ProfileInitPart {
+public class CfInitialisationPart extends ProfileInitPartIO {
 
     @Override
     public Product readProductBody(ProfileReadContext ctx) throws ProductIOException {
         return new Product(
-                (String) ctx.getProperty(Constants.PRODUCT_NAME_PROPERTY_NAME),
+                (String) ctx.getProperty(Constants.PRODUCT_FILENAME_PROPERTY),
                 readProductType(ctx),
                 ctx.getRasterDigest().getRasterDim().getDimX().getLength(),
                 ctx.getRasterDigest().getRasterDim().getDimY().getLength()
@@ -39,7 +40,8 @@ public class CfInitialisationPart implements ProfileInitPart {
     }
 
     @Override
-    public void writeProductBody(NetcdfFileWriteable writeable, Product product) throws IOException {
+    public void writeProductBody(ProfileWriteContext ctx, Product product) throws IOException {
+        NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
         if (CfGeocodingPart.isGeographicLatLon(product.getGeoCoding())) {
             writeDimensions(writeable, product, "lat", "lon");
         } else {

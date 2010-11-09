@@ -15,11 +15,10 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfFlagCodingPart;
-import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -32,14 +31,14 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-public class BeamFlagCodingPart extends ProfilePart {
+public class BeamFlagCodingPart extends ProfilePartIO {
 
     public static final String FLAG_DESCRIPTIONS = "flag_descriptions";
     public static final String FLAG_CODING_NAME = "flag_coding_name";
     public static final String DESCRIPTION_SEPARATOR = "\t";
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             String variableName = ReaderUtils.getVariableName(band);
@@ -52,7 +51,7 @@ public class BeamFlagCodingPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final Band[] bands = p.getBands();
         for (Band band : bands) {

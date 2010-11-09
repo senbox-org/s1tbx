@@ -15,26 +15,24 @@
  */
 package org.esa.beam.dataio.netcdf;
 
-import junit.framework.TestCase;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
+import org.junit.Test;
 
-public class HasValidExtensionTest extends TestCase {
+import static org.junit.Assert.*;
 
-    protected void setUp() throws Exception {
-    }
-
-    protected void tearDown() throws Exception {
-    }
-
+public class HasValidExtensionTest {
+    @Test
     public void testNumberOfExtensions() {
         assertEquals(4, Constants.FILE_EXTENSIONS.length);
     }
 
+    @Test
     public void testInvalidExtension() {
         assertFalse(ReaderUtils.hasValidExtension("AnyPathname.invalid"));
     }
 
+    @Test
     public void testValid_Netcdf_Extensions() {
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.nc"));
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.nC"));
@@ -42,6 +40,7 @@ public class HasValidExtensionTest extends TestCase {
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.NC"));
     }
 
+    @Test
     public void testValid_HDF_Extensions() {
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.hdf"));
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.HDF"));

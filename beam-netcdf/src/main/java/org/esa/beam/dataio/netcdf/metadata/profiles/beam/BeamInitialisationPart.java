@@ -17,6 +17,7 @@
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfInitialisationPart;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOException;
@@ -47,7 +48,7 @@ public class BeamInitialisationPart extends CfInitialisationPart {
             throw new ProductIOException("Illegal Dimensions: Dimensions named (x,lon) and (y,lat) expected.");
         }
         return new Product(
-                (String) ctx.getProperty(Constants.PRODUCT_NAME_PROPERTY_NAME),
+                (String) ctx.getProperty(Constants.PRODUCT_FILENAME_PROPERTY),
                 readProductType(ctx),
                 x.getLength(),
                 y.getLength()
@@ -55,8 +56,9 @@ public class BeamInitialisationPart extends CfInitialisationPart {
     }
 
     @Override
-    public void writeProductBody(NetcdfFileWriteable writeable, Product p) throws IOException {
-        super.writeProductBody(writeable, p);
+    public void writeProductBody(ProfileWriteContext ctx, Product p) throws IOException {
+        super.writeProductBody(ctx, p);
+        NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
         writeable.addAttribute(null, new Attribute(PRODUCT_TYPE, p.getProductType()));
         writeable.addAttribute(null, new Attribute("metadata_profile", "beam"));
         writeable.addAttribute(null, new Attribute("metadata_version", "0.5"));

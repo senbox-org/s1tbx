@@ -16,7 +16,7 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.MetadataUtils;
@@ -37,10 +37,10 @@ import java.util.List;
 import java.util.Map;
 
 
-public class HdfEosMetadataPart extends ProfilePart {
+public class HdfEosMetadataPart extends ProfilePartIO {
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         NetcdfFile ncFile = ctx.getNetcdfFile();
         MetadataElement root = p.getMetadataRoot();
         root.addElement(MetadataUtils.readAttributeList(ncFile.getGlobalAttributes(), "MPH"));
@@ -60,8 +60,8 @@ public class HdfEosMetadataPart extends ProfilePart {
             Variable variable = variableIterator.next();
             String varName = variable.getName();
             if (varName.startsWith(HdfEosUtils.STRUCT_METADATA) ||
-                varName.startsWith(HdfEosUtils.CORE_METADATA) ||
-                varName.startsWith(HdfEosUtils.ARCHIVE_METADATA)) {
+                    varName.startsWith(HdfEosUtils.CORE_METADATA) ||
+                    varName.startsWith(HdfEosUtils.ARCHIVE_METADATA)) {
                 variableIterator.remove();
             }
         }
@@ -131,7 +131,7 @@ public class HdfEosMetadataPart extends ProfilePart {
 
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         throw new IllegalStateException();
     }
 }

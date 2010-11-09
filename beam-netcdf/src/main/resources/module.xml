@@ -34,16 +34,24 @@
 
     <categories>Reader,NetCDF,HDF,CF,EOS</categories>
 
-    <extension point="ceres-core:serviceProviders">
-        <serviceProvider>org.esa.beam.dataio.netcdf.metadata.ProfileSpi</serviceProvider>
-    </extension>
 
     <extension point="beam-ui:actions">
+        <action>
+            <id>importNetCdfGenericProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <text>Import Generic NetCDF Product...</text>
+            <formatName>NetCDF</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>N</mnemonic>
+            <shortDescr>Import a NetCDF data product or product subset.</shortDescr>
+            <description>Import a NetCDF data product or product subset.</description>
+            <helpId>importNetCdfProduct</helpId>
+        </action>
         <action>
             <id>importNetCdfCFProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <text>Import NetCDF/CF Product...</text>
-            <formatName>NetCDF</formatName>
+            <formatName>NetCDF-CF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>H</mnemonic>
             <shortDescr>Import a NetCDF/CF data product or product subset.</shortDescr>
@@ -51,11 +59,21 @@
             <helpId>importNetCdfProduct</helpId>
         </action>
         <action>
+            <id>importNetCdfBEAMProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <text>Import NetCDF/BEAM Product...</text>
+            <formatName>NetCDF-BEAM</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>H</mnemonic>
+            <shortDescr>Import a NetCDF/BEAM data product or product subset.</shortDescr>
+            <description>Import a NetCDF/BEAM data product or product subset.</description>
+            <helpId>importNetCdfProduct</helpId>
+        </action>
+        <action>
             <id>importHdfEosProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <text>Import HDF-EOS Gridded Product...</text>
-            <formatName>NetCDF</formatName>
-            <profileClassName>org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosProfileSpi</profileClassName>
+            <formatName>HDF-EOS</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>H</mnemonic>
             <shortDescr>Import a gridded HDF-EOS data product or product subset.</shortDescr>
@@ -66,10 +84,20 @@
             <id>exportNetCdfCFProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
             <text>Export NetCDF/CF Product...</text>
-            <formatName>NetCDF</formatName>
+            <formatName>NetCDF-CF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Writes a product in NetCDF/CF format</shortDescr>
             <description>Writes a product in NetCDF/CF format</description>
+            <helpId>exportNetCdfProduct</helpId>
+        </action>
+        <action>
+            <id>exportNetCdfBEAMProduct</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <text>Export NetCDF/BEAM Product...</text>
+            <formatName>NetCDF-BEAM</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Writes a product in NetCDF/BEAM format</shortDescr>
+            <description>Writes a product in NetCDF/BEAM format</description>
             <helpId>exportNetCdfProduct</helpId>
         </action>
     </extension>

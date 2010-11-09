@@ -1,3 +1,0 @@
-org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamProfileSpi
-org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfProfileSpi
-org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosProfileSpi

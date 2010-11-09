@@ -16,8 +16,8 @@
 package org.esa.beam;
 
 import junit.framework.TestCase;
+import org.esa.beam.dataio.netcdf.GenericNetCdfReaderPlugIn;
 import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.NetCdfReaderPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 
@@ -31,9 +31,9 @@ public class ReaderLoadedAsServiceTest extends TestCase {
 
         if (readerPlugIns.hasNext()) {
             ProductReaderPlugIn plugIn = (ProductReaderPlugIn) readerPlugIns.next();
-            assertEquals(NetCdfReaderPlugIn.class, plugIn.getClass());
+            assertEquals(GenericNetCdfReaderPlugIn.class, plugIn.getClass());
         } else {
-            fail("Where is NetcdfReaderPlugIn?");
+            fail("Where is GenericNetCdfReaderPlugIn?");
         }
     }
 }

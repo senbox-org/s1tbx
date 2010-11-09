@@ -17,37 +17,28 @@
 package org.esa.beam.dataio.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.dataio.netcdf.metadata.Profile;
-import org.esa.beam.dataio.netcdf.metadata.ProfileImpl;
-import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
-import org.esa.beam.dataio.netcdf.metadata.ProfileSpi;
-import org.esa.beam.dataio.netcdf.metadata.ProfileSpiRegistry;
-import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.io.FileUtils;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;
 import java.io.IOException;
 
 /**
- * A product reader for NetCDF files following different metadata profiles.
- *
- * @author Norman Fomferra
+ * A generic product reader for NetCDF files. Trying to find the best matching metadata profile
+ * for the given input.
  */
-public class NetCdfReader extends AbstractProductReader {
+class GenericNetCdfReader extends AbstractProductReader {
 
-    private final String profileClassName;
     private NetcdfFile netcdfFile;
+    private ProductReader netCdfReader;
 
-    public NetCdfReader(ProductReaderPlugIn readerPlugIn, String profileClassName) {
+    public GenericNetCdfReader(GenericNetCdfReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
-        this.profileClassName = profileClassName;
     }
 
     /**
@@ -63,37 +54,24 @@ public class NetCdfReader extends AbstractProductReader {
 
         final File fileLocation = new File(getInput().toString());
         netcdfFile = NetcdfFile.open(fileLocation.getPath());
-
-        ProfileSpiRegistry profileSpiRegistry = ProfileSpiRegistry.getInstance();
-        ProfileSpi profileSpi;
-        if (profileClassName != null) {
-            profileSpi = profileSpiRegistry.getProfileFactory(profileClassName);
-        } else {
-            profileSpi = profileSpiRegistry.getProfileFactory(netcdfFile);
-        }
-        if (profileSpi == null) {
-            netcdfFile.close();
-            String message = "No convention factory found for netCDF ";
-            if (profileClassName != null) {
-                message += "(profile = " + profileClassName + ")";
+        AbstractNetCdfReaderPlugIn[] plugIns = GenericNetCdfReaderPlugIn.getAllNetCdfReaderPlugIns();
+        AbstractNetCdfReaderPlugIn bestPlugIn = null;
+        for (AbstractNetCdfReaderPlugIn plugIn : plugIns) {
+            DecodeQualification decodeQualification = plugIn.getDecodeQualification(netcdfFile);
+            if (DecodeQualification.INTENDED.equals(decodeQualification)) {
+                bestPlugIn = plugIn;
+                break;
             }
-            throw new IllegalFileFormatException(message);
+            if (DecodeQualification.SUITABLE.equals(decodeQualification) && bestPlugIn == null) {
+                bestPlugIn = plugIn;
+            }
         }
-        final ProfileReadContext context = profileSpi.createReadContext(netcdfFile);
-        if (context.getRasterDigest() == null) {
-            close();
-            throw new IllegalFileFormatException("No netCDF variables found which could\n" +
-                                                 "be interpreted as remote sensing bands.");  /*I18N*/
+        if (bestPlugIn == null) {
+            String msg = String.format("Not able to read %s. No suitable NetCDF reader found.", getInput());
+            throw new IOException(msg);
         }
-        Profile profile = new ProfileImpl();
-        profileSpi.configureProfile(netcdfFile, profile);
-        String productName = FileUtils.getFilenameWithoutExtension(fileLocation);
-        context.setProperty(Constants.PRODUCT_NAME_PROPERTY_NAME, productName);
-        final Product product = profile.readProduct(context);
-        product.setFileLocation(fileLocation);
-        product.setProductReader(this);
-        product.setModified(false);
-        return product;
+        netCdfReader = bestPlugIn.createReaderInstance();
+        return netCdfReader.readProductNodes(getInput(), getSubsetDef());
     }
 
     @Override
@@ -101,7 +79,7 @@ public class NetCdfReader extends AbstractProductReader {
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-        throw new IllegalStateException("Data is provided by images");
+        throw new IllegalStateException("Data is provided by different reader");
     }
 
     /**
@@ -120,6 +98,10 @@ public class NetCdfReader extends AbstractProductReader {
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
+        }
+        if (netCdfReader != null) {
+            netCdfReader.close();
+            netCdfReader = null;
         }
         super.close();
     }

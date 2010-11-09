@@ -15,7 +15,7 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-public class BeamTiePointGridPart extends ProfilePart {
+public class BeamTiePointGridPart extends ProfilePartIO {
 
     public final String OFFSET_X = "offset_x";
     public final String OFFSET_Y = "offset_y";
@@ -44,7 +44,7 @@ public class BeamTiePointGridPart extends ProfilePart {
     public final String SUBSAMPLING_Y = "subsampling_y";
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         final List<Variable> variables = ctx.getNetcdfFile().getVariables();
         for (Variable variable : variables) {
             final List<Dimension> dimensions = variable.getDimensions();
@@ -54,7 +54,7 @@ public class BeamTiePointGridPart extends ProfilePart {
             final Dimension dimensionY = dimensions.get(0);
             final Dimension dimensionX = dimensions.get(1);
             if (dimensionY.getLength() != p.getSceneRasterHeight()
-                || dimensionX.getLength() != p.getSceneRasterWidth()) {
+                    || dimensionX.getLength() != p.getSceneRasterWidth()) {
                 //maybe this is a tie point grid
                 final String tpName = ReaderUtils.getRasterName(variable);
                 final Attribute offsetX = variable.findAttributeIgnoreCase(OFFSET_X);
@@ -62,7 +62,7 @@ public class BeamTiePointGridPart extends ProfilePart {
                 final Attribute subSamplingX = variable.findAttributeIgnoreCase(SUBSAMPLING_X);
                 final Attribute subSamplingY = variable.findAttributeIgnoreCase(SUBSAMPLING_Y);
                 if (offsetX != null && offsetY != null &&
-                    subSamplingX != null && subSamplingY != null) {
+                        subSamplingX != null && subSamplingY != null) {
                     final Array array = variable.read();
                     final float[] data = new float[(int) array.getSize()];
                     for (int i = 0; i < data.length; i++) {
@@ -89,7 +89,7 @@ public class BeamTiePointGridPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         final HashMap<String, Dimension[]> dimMap = new HashMap<String, Dimension[]>();
         final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
 
@@ -102,7 +102,7 @@ public class BeamTiePointGridPart extends ProfilePart {
                 Dimension dimTpX = new Dimension("tp_x" + suffix, tiePointGrid.getRasterWidth());
                 ncFile.addDimension(null, dimTpY);
                 ncFile.addDimension(null, dimTpX);
-                dimMap.put(key, new Dimension[]{ dimTpY, dimTpX});
+                dimMap.put(key, new Dimension[]{dimTpY, dimTpX});
             }
             String variableName = ReaderUtils.getVariableName(tiePointGrid);
             final Variable variable = ncFile.addVariable(variableName, DataType.FLOAT, dimMap.get(key));
@@ -114,7 +114,7 @@ public class BeamTiePointGridPart extends ProfilePart {
     }
 
     @Override
-    public void write(ProfileWriteContext ctx, Product p) throws IOException {
+    public void encode(ProfileWriteContext ctx, Product p) throws IOException {
         for (TiePointGrid tiePointGrid : p.getTiePointGrids()) {
             try {
                 final int y = tiePointGrid.getRasterHeight();

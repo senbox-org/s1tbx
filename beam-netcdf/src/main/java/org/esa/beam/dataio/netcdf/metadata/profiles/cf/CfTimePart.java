@@ -15,7 +15,7 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
@@ -28,17 +28,17 @@ import ucar.nc2.NetcdfFileWriteable;
 
 import java.io.IOException;
 
-public class CfTimePart extends ProfilePart {
+public class CfTimePart extends ProfilePartIO {
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         NetcdfFile ncFile = ctx.getNetcdfFile();
         p.setStartTime(TimeUtils.getSceneRasterTime(ncFile, Constants.START_DATE_ATT_NAME, Constants.START_TIME_ATT_NAME));
         p.setEndTime(TimeUtils.getSceneRasterTime(ncFile, Constants.STOP_DATE_ATT_NAME, Constants.STOP_TIME_ATT_NAME));
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         ProductData.UTC utc = p.getStartTime();
         NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
         if (utc != null) {

@@ -14,29 +14,31 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
+package org.esa.beam.dataio.netcdf.metadata;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
-import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
-import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.framework.datamodel.Product;
-import org.jdom.Element;
 
 import java.io.IOException;
 
+/**
+ * An I/O part of a metadata profile.
+ */
+public abstract class ProfilePartIO implements ProfilePartReader, ProfilePartWriter {
 
-public class HdfEosDescriptionPart extends ProfilePartIO {
 
     @Override
-    public void decode(ProfileReadContext ctx, Product p) throws IOException {
-        Element element = (Element) ctx.getProperty(HdfEosUtils.ARCHIVE_METADATA);
-        if (element != null) {
-            p.setDescription(HdfEosUtils.getValue(element, "ARCHIVEDMETADATA", "MASTERGROUP", "LONGNAME", "VALUE"));
-        }
+    public void preDecode(ProfileReadContext ctx, Product p) throws IOException {
     }
 
     @Override
-    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
-        throw new IllegalStateException();
+    public void postDecode(ProfileReadContext ctx, Product p) throws IOException {
+    }
+
+    @Override
+    public void encode(ProfileWriteContext ctx, Product p) throws IOException {
+    }
+
+    @Override
+    public void postEncode(ProfileWriteContext ctx, Product p) throws IOException {
     }
 }

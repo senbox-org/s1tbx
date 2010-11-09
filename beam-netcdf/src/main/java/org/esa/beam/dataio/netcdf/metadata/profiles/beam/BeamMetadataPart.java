@@ -16,7 +16,7 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
@@ -32,9 +32,8 @@ import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
-import java.util.List;
 
-public class BeamMetadataPart extends ProfilePart {
+public class BeamMetadataPart extends ProfilePartIO {
 
     private static final String SPLITTER = ":";
     private static final String METADATA_VARIABLE = "metadata";
@@ -42,7 +41,7 @@ public class BeamMetadataPart extends ProfilePart {
     private static final String UNIT_SUFFIX = ".unit";
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         final NetcdfFile netcdfFile = ctx.getNetcdfFile();
         Variable metadata = netcdfFile.getRootGroup().findVariable(METADATA_VARIABLE);
         if (metadata != null) {
@@ -123,7 +122,7 @@ public class BeamMetadataPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         final MetadataElement root = p.getMetadataRoot();
         if (root != null) {
             final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
@@ -133,7 +132,7 @@ public class BeamMetadataPart extends ProfilePart {
     }
 
     private void writeMetadataElement(MetadataElement element, Variable var, String prefix) throws
-                                                                                            IOException {
+            IOException {
         for (int i = 0; i < element.getNumAttributes(); i++) {
             MetadataAttribute attribute = element.getAttributeAt(i);
             writeMetadataAttribute(attribute, var, prefix);
@@ -145,7 +144,7 @@ public class BeamMetadataPart extends ProfilePart {
     }
 
     private void writeMetadataAttribute(MetadataAttribute metadataAttr, Variable var, String prefix) throws
-                                                                                                     IOException {
+            IOException {
         final ProductData productData = metadataAttr.getData();
         if (productData instanceof ProductData.ASCII || productData instanceof ProductData.UTC) {
             var.addAttribute(new Attribute(prefix + SPLITTER + metadataAttr.getName(), productData.getElemString()));

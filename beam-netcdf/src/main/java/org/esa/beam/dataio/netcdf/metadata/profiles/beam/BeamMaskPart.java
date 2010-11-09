@@ -16,7 +16,7 @@
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
 import com.bc.ceres.binding.PropertyContainer;
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
@@ -36,7 +36,7 @@ import ucar.nc2.Variable;
 import java.awt.Color;
 import java.io.IOException;
 
-public class BeamMaskPart extends ProfilePart {
+public class BeamMaskPart extends ProfilePartIO {
 
     public static final String EXPRESSION = "expression";
     public static final String COLOR = "color";
@@ -51,13 +51,13 @@ public class BeamMaskPart extends ProfilePart {
     public static final String SUFFIX_MASK = "_mask";
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         readMasks(ctx, p);
         readMaskOverlays(ctx, p);
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         writeMasks(p, ncFile);
         writeMaskOverlays(p, ncFile);

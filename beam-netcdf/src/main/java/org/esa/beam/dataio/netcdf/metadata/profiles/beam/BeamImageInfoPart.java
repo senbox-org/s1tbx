@@ -15,7 +15,7 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
@@ -33,7 +33,7 @@ import ucar.nc2.Variable;
 import java.awt.Color;
 import java.io.IOException;
 
-public class BeamImageInfoPart extends ProfilePart {
+public class BeamImageInfoPart extends ProfilePartIO {
 
     public static final String COLOR_TABLE_SAMPLE_VALUES = "color_table_sample_values";
     public static final String COLOR_TABLE_RED_VALUES = "color_table_red_values";
@@ -41,7 +41,7 @@ public class BeamImageInfoPart extends ProfilePart {
     public static final String COLOR_TABLE_BLUE_VALUES = "color_table_blue_values";
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         NetcdfFile netcdfFile = ctx.getNetcdfFile();
         for (Band band : p.getBands()) {
             String variableName = ReaderUtils.getVariableName(band);
@@ -51,7 +51,7 @@ public class BeamImageInfoPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         NetcdfFileWriteable fileWriteable = ctx.getNetcdfFileWriteable();
         for (Band band : p.getBands()) {
             ImageInfo imageInfo = band.getImageInfo();

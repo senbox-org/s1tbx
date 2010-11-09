@@ -16,38 +16,37 @@
 
 package org.esa.beam.dataio.netcdf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfileSpi;
-import org.esa.beam.dataio.netcdf.metadata.ProfileSpiRegistry;
+import org.esa.beam.dataio.netcdf.metadata.ProfileInitPartReader;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataio.ProfileReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import ucar.nc2.NetcdfFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 
 /**
- * The plug-in class for the {@link NetCdfReader}.
- *
  * @author Norman Fomferra
  */
-public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlugIn {
+public class GenericNetCdfReaderPlugIn implements ProductReaderPlugIn {
 
-    private String profileClassName;
+    private static AbstractNetCdfReaderPlugIn[] netCdfReaderPlugIns;
+
 
     // needed for creation by SPI
-    public NetCdfReaderPlugIn() {
-    }
 
-    public NetCdfReaderPlugIn(String profileClassName) {
-        this.profileClassName = profileClassName;
+    public GenericNetCdfReaderPlugIn() {
     }
 
     /**
@@ -60,32 +59,22 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      */
     @Override
     public DecodeQualification getDecodeQualification(final Object input) {
-        if(input == null) {
+        if (input == null) {
             return DecodeQualification.UNABLE;
         }
         NetcdfFile netcdfFile = null;
         try {
             final String inputPath = input.toString();
             final List<String> extensionList = Arrays.asList(getDefaultFileExtensions());
-            ProfileSpiRegistry profileSpiRegistry = ProfileSpiRegistry.getInstance();
-            ProfileSpi profileFactory = null;
-            if (profileClassName != null) {
-                profileFactory = profileSpiRegistry.getProfileFactory(profileClassName);
-                if(profileFactory != null) {
-                    profileFactory.getProductFileFilter().getExtensions();
-                }
-            }
-
             if (extensionList.contains(FileUtils.getExtension(inputPath))) {
                 netcdfFile = NetcdfFile.open(inputPath);
             }
             if (netcdfFile == null) {
                 return DecodeQualification.UNABLE;
             }
-            if (profileFactory != null) {
-                return profileFactory.getDecodeQualification(netcdfFile);
-            }
-            return profileSpiRegistry.getDecodeQualification(netcdfFile);
+
+            final AbstractNetCdfReaderPlugIn[] plugIns = getAllNetCdfReaderPlugIns();
+            return getInitDecodeQualification(plugIns, netcdfFile);
         } catch (Throwable ignored) {
         } finally {
             try {
@@ -97,6 +86,26 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
             }
         }
         return DecodeQualification.UNABLE;
+    }
+
+    private DecodeQualification getInitDecodeQualification(AbstractNetCdfReaderPlugIn[] plugIns, NetcdfFile netcdfFile) throws IOException {
+        DecodeQualification initDecodeQualification = DecodeQualification.UNABLE;
+        for (AbstractNetCdfReaderPlugIn plugIn : plugIns) {
+            ProfileReadContextImpl context = new ProfileReadContextImpl(netcdfFile);
+            plugIn.initReadContext(context);
+
+            final ProfileInitPartReader initPartReader = plugIn.createInitialisationPartReader();
+            final DecodeQualification decodeQualification = initPartReader.canDecode(context);
+            if (DecodeQualification.INTENDED.equals(decodeQualification)) {
+                initDecodeQualification = DecodeQualification.INTENDED;
+                break;
+            }
+            if (DecodeQualification.SUITABLE.equals(decodeQualification)) {
+                initDecodeQualification = DecodeQualification.SUITABLE;
+                break;
+            }
+        }
+        return initDecodeQualification;
     }
 
     /**
@@ -120,21 +129,11 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      */
     @Override
     public ProductReader createReaderInstance() {
-        return new NetCdfReader(this, profileClassName);
+        return new GenericNetCdfReader(this);
     }
 
     @Override
     public BeamFileFilter getProductFileFilter() {
-        if (profileClassName != null) {
-            ProfileSpiRegistry profileSpiRegistry = ProfileSpiRegistry.getInstance();
-            ProfileSpi profileFactory = profileSpiRegistry.getProfileFactory(profileClassName);
-            if (profileFactory != null) {
-                BeamFileFilter fileFilter = profileFactory.getProductFileFilter();
-                if (fileFilter != null) {
-                    return fileFilter;
-                }
-            }
-        }
         return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
     }
 
@@ -158,7 +157,13 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      */
     @Override
     public String[] getDefaultFileExtensions() {
-        return Constants.FILE_EXTENSIONS;
+        Set<String> extensionSet = new HashSet<String>();
+        AbstractNetCdfReaderPlugIn[] abstractNetCdfReaderPlugIns = getAllNetCdfReaderPlugIns();
+        for (AbstractNetCdfReaderPlugIn plugIn : abstractNetCdfReaderPlugIns) {
+            String[] fileExtensions = plugIn.getDefaultFileExtensions();
+            extensionSet.addAll(Arrays.asList(fileExtensions));
+        }
+        return extensionSet.toArray(new String[extensionSet.size()]);
     }
 
     /**
@@ -168,22 +173,28 @@ public class NetCdfReaderPlugIn implements ProductReaderPlugIn, ProfileReaderPlu
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     @Override
     public String getDescription(final Locale locale) {
-        if (profileClassName != null) {
-            int lastDotIndex = profileClassName.lastIndexOf('.');
-            String shortName = profileClassName.substring(lastDotIndex+1);
-            return Constants.FORMAT_DESCRIPTION + " (" + shortName + ")";
-        } else {
-            return Constants.FORMAT_DESCRIPTION;
-        }
+        return "Generic NetCDF Data Product";
     }
 
-    @Override
-    public ProductReaderPlugIn createProfileReaderPlugin(String profileClassName) {
-        return new NetCdfReaderPlugIn(profileClassName);
+    static AbstractNetCdfReaderPlugIn[] getAllNetCdfReaderPlugIns() {
+        if (netCdfReaderPlugIns == null) {
+            final ProductIOPlugInManager plugInManager = ProductIOPlugInManager.getInstance();
+            final Iterator<ProductReaderPlugIn> allReaderPlugIns = plugInManager.getAllReaderPlugIns();
+            List<AbstractNetCdfReaderPlugIn> netCdfReaderPlugInList = new ArrayList<AbstractNetCdfReaderPlugIn>();
+            while (allReaderPlugIns.hasNext()) {
+                ProductReaderPlugIn readerPlugIn = allReaderPlugIns.next();
+                if (readerPlugIn instanceof AbstractNetCdfReaderPlugIn) {
+                    AbstractNetCdfReaderPlugIn netCdfReaderPlugIn = (AbstractNetCdfReaderPlugIn) readerPlugIn;
+                    netCdfReaderPlugInList.add(netCdfReaderPlugIn);
+                }
+            }
+            netCdfReaderPlugIns = netCdfReaderPlugInList.toArray(
+                    new AbstractNetCdfReaderPlugIn[netCdfReaderPlugInList.size()]);
+        }
+        return netCdfReaderPlugIns;
     }
 }

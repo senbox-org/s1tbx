@@ -14,35 +14,36 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.netcdf.metadata;
+package org.esa.beam.dataio.netcdf;
 
+import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
-import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.dataio.netcdf.util.VariableMap;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-/**
- * No API.
- */
-public class ProfileReadContextImpl implements ProfileReadContext {
+class ProfileReadContextImpl implements ProfileReadContext {
 
     private final Map<String, Object> propertyMap;
     private final NetcdfFile netcdfFile;
 
-    private final VariableMap rasterVariableMap;
-    private final RasterDigest rasterDigest;
+    private RasterDigest rasterDigest;
 
-    public ProfileReadContextImpl(NetcdfFile netcdfFile, RasterDigest rasterDigest, VariableMap variableMap) {
+    public ProfileReadContextImpl(NetcdfFile netcdfFile) {
         this.netcdfFile = netcdfFile;
         this.propertyMap = new HashMap<String, Object>();
+    }
+
+
+    @Override
+    public void setRasterDigest(RasterDigest rasterDigest) {
         this.rasterDigest = rasterDigest;
-        this.rasterVariableMap = variableMap;
+    }
+
+    @Override
+    public RasterDigest getRasterDigest() {
+        return rasterDigest;
     }
 
     @Override
@@ -60,13 +61,4 @@ public class ProfileReadContextImpl implements ProfileReadContext {
         return netcdfFile;
     }
 
-    @Override
-    public VariableMap getRasterVariableMap() {
-        return rasterVariableMap;
-    }
-
-    @Override
-    public RasterDigest getRasterDigest() {
-        return rasterDigest;
-    }
 }

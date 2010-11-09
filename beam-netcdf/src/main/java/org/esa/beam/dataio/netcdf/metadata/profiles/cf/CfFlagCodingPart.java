@@ -15,10 +15,9 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
-import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -31,13 +30,13 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-public class CfFlagCodingPart extends ProfilePart {
+public class CfFlagCodingPart extends ProfilePartIO {
 
     private static final String FLAG_MASKS = "flag_masks";
     private static final String FLAG_MEANINGS = "flag_meanings";
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             final FlagCoding flagCoding = readFlagCoding(ctx, band.getName());
@@ -49,7 +48,7 @@ public class CfFlagCodingPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             writeFlagCoding(band, ctx.getNetcdfFileWriteable());

@@ -15,7 +15,7 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
@@ -30,14 +30,14 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-public class CfIndexCodingPart extends ProfilePart {
+public class CfIndexCodingPart extends ProfilePartIO {
 
     private static final String FLAG_VALUES = "flag_values";
     private static final String FLAG_MEANINGS = "flag_meanings";
 
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             Variable variable = ctx.getNetcdfFile().findVariable(NetcdfFile.escapeName(band.getName()));
@@ -50,7 +50,7 @@ public class CfIndexCodingPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
         for (Band band : p.getBands()) {
             IndexCoding indexCoding = band.getIndexCoding();

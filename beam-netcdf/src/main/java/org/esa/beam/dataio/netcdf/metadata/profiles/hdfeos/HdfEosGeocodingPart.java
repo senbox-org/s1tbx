@@ -16,7 +16,7 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
@@ -41,12 +41,12 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class HdfEosGeocodingPart extends ProfilePart {
+public class HdfEosGeocodingPart extends ProfilePartIO {
 
     private static final double PIXEL_CENTER = 0.5;
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         Element eosElement = (Element) ctx.getProperty(HdfEosUtils.STRUCT_METADATA);
         Element gridStructure = eosElement.getChild("GridStructure");
         Element gridElem = (Element) gridStructure.getChildren().get(0);
@@ -109,9 +109,9 @@ public class HdfEosGeocodingPart extends ProfilePart {
             }
 
             CoordinateReferenceSystem modelCrs = new DefaultProjectedCRS("Sinusoidal", base, mathTransform,
-                    DefaultCartesianCS.PROJECTED);
+                                                                         DefaultCartesianCS.PROJECTED);
             try {
-                CrsGeoCoding geoCoding =new CrsGeoCoding(modelCrs, imageBounds, transform);
+                CrsGeoCoding geoCoding = new CrsGeoCoding(modelCrs, imageBounds, transform);
 
                 p.setGeoCoding(geoCoding);
             } catch (Exception ignore) {
@@ -128,7 +128,7 @@ public class HdfEosGeocodingPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         throw new IllegalStateException();
     }
 }

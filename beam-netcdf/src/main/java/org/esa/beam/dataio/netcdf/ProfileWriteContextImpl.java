@@ -14,17 +14,15 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.netcdf.metadata;
+package org.esa.beam.dataio.netcdf;
 
+import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import ucar.nc2.NetcdfFileWriteable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * No API.
- */
-public class ProfileWriteContextImpl implements ProfileWriteContext {
+class ProfileWriteContextImpl implements ProfileWriteContext {
 
     private final Map<String, Object> propertyMap;
     private final NetcdfFileWriteable netcdfWritable;

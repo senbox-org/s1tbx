@@ -15,20 +15,23 @@
  */
 package org.esa.beam.dataio.netcdf;
 
-import junit.framework.TestCase;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
+import org.junit.Before;
+import org.junit.Test;
 import ucar.nc2.Variable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class Nc4ReaderUtils_getVariablesTest extends TestCase {
+public class Nc4ReaderUtils_getVariablesTest {
 
     private ArrayList<Variable> variables;
 
-    protected void setUp() throws Exception {
+    @Before
+    public void before() throws Exception {
         variables = new ArrayList<Variable>();
         final Variable v1 = mock(Variable.class);
         when(v1.getName()).thenReturn("wasweißich");
@@ -41,9 +44,7 @@ public class Nc4ReaderUtils_getVariablesTest extends TestCase {
         variables.add(v3);
     }
 
-    protected void tearDown() throws Exception {
-    }
-
+    @Test
     public void testOK_ContainsAllVariables() {
         final String[] names = {"ade", "welcome"};
         final Variable[] result = ReaderUtils.getVariables(variables, names);
@@ -53,6 +54,7 @@ public class Nc4ReaderUtils_getVariablesTest extends TestCase {
         assertSame(variables.get(2), result[1]);
     }
 
+    @Test
     public void testOK_ContainsAllVariables_ReverseNames() {
         final String[] names = {"welcome", "ade"};
         final Variable[] result = ReaderUtils.getVariables(variables, names);
@@ -62,12 +64,14 @@ public class Nc4ReaderUtils_getVariablesTest extends TestCase {
         assertSame(variables.get(1), result[1]);
     }
 
+    @Test
     public void testNotAllVariables() {
         final String[] names = {"ade", "lsmf"};
         final Variable[] result = ReaderUtils.getVariables(variables, names);
         assertNull(result);
     }
 
+    @Test
     public void testListIsNull() {
         final String[] names = {"a", "b"};
         final List<Variable> variables = null;
@@ -75,12 +79,14 @@ public class Nc4ReaderUtils_getVariablesTest extends TestCase {
         assertNull(result);
     }
 
+    @Test
     public void testNamesAreNull() {
         final String[] names = null;
         final Variable[] result = ReaderUtils.getVariables(variables, names);
         assertNull(result);
     }
 
+    @Test
     public void testListIsSmallerThanNames() {
         final String[] names = {"ade", "welcome", "wasWeißIch", "undNochEins"};
         final Variable[] result = ReaderUtils.getVariables(variables, names);

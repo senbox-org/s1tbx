@@ -15,7 +15,7 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.Constants;
@@ -46,13 +46,13 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.util.List;
 
-public class CfGeocodingPart extends ProfilePart {
+public class CfGeocodingPart extends ProfilePartIO {
 
     private boolean usePixelGeoCoding;
     private boolean latLonAlreadyPresent;
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         GeoCoding geoCoding = readConventionBasedMapGeoCoding(ctx, p);
         if (geoCoding == null) {
             geoCoding = readPixelGeoCoding(ctx, p);
@@ -63,10 +63,10 @@ public class CfGeocodingPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product product) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product product) throws IOException {
         final GeoCoding geoCoding = product.getGeoCoding();
         if (geoCoding == null) {
-            // we don't need to write a geo coding if there is none present
+            // we don't need to encode a geo coding if there is none present
             return;
         }
         usePixelGeoCoding = !isGeographicLatLon(geoCoding);
@@ -88,7 +88,7 @@ public class CfGeocodingPart extends ProfilePart {
     }
 
     @Override
-    public void write(ProfileWriteContext ctx, Product product) throws IOException {
+    public void encode(ProfileWriteContext ctx, Product product) throws IOException {
         if (!usePixelGeoCoding && !latLonAlreadyPresent) {
             return;
         }

@@ -16,12 +16,17 @@
 
 package org.esa.beam.dataio.netcdf;
 
+import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamNetCdfWriterPlugIn;
+import org.esa.beam.framework.dataio.ProductWriter;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class Nc4BeamWriterTest {
 
     @Test
     public void testWriting() {
-        final NetCdfWriter writer = (NetCdfWriter) new NetCdfWriterPlugIn().createWriterInstance();
+        ProductWriter writerInstance = new BeamNetCdfWriterPlugIn().createWriterInstance();
+        assertNotNull(writerInstance);
     }
 }

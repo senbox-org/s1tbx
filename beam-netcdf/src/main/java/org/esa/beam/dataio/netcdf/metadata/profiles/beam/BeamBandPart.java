@@ -15,7 +15,7 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
@@ -35,17 +35,17 @@ import ucar.nc2.Variable;
 import java.io.IOException;
 import java.util.List;
 
-public class BeamBandPart extends ProfilePart {
+public class BeamBandPart extends ProfilePartIO {
 
     public static final String BANDWIDTH = "bandwidth";
     public static final String WAVELENGTH = "wavelength";
     public static final String VALID_PIXEL_EXPRESSION = "valid_pixel_expression";
     public static final String AUTO_GROUPING = "auto_grouping";
-    public static final String QUICKLOOK_BAN_DNAME = "quicklook_band_name";
+    public static final String QUICKLOOK_BAND_NAME = "quicklook_band_name";
 
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         NetcdfFile netcdfFile = ctx.getNetcdfFile();
         final List<Variable> variables = netcdfFile.getVariables();
         for (Variable variable : variables) {
@@ -56,7 +56,7 @@ public class BeamBandPart extends ProfilePart {
             final int yDimIndex = 0;
             final int xDimIndex = 1;
             if (dimensions.get(yDimIndex).getLength() == p.getSceneRasterHeight()
-                && dimensions.get(xDimIndex).getLength() == p.getSceneRasterWidth()) {
+                    && dimensions.get(xDimIndex).getLength() == p.getSceneRasterWidth()) {
                 final int rasterDataType = DataTypeUtils.getRasterDataType(variable);
                 final Band band = new Band(variable.getName(), rasterDataType, p.getSceneRasterWidth(),
                                            p.getSceneRasterHeight());
@@ -73,7 +73,7 @@ public class BeamBandPart extends ProfilePart {
                 p.setAutoGrouping(autoGrouping);
             }
         }
-        Attribute quicklookBandNameAttribute = netcdfFile.findGlobalAttribute(QUICKLOOK_BAN_DNAME);
+        Attribute quicklookBandNameAttribute = netcdfFile.findGlobalAttribute(QUICKLOOK_BAND_NAME);
         if (quicklookBandNameAttribute != null) {
             String quicklookBandName = quicklookBandNameAttribute.getStringValue();
             if (quicklookBandName != null) {
@@ -83,7 +83,7 @@ public class BeamBandPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         final NetcdfFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final List<Dimension> dimensions = ncFile.getRootGroup().getDimensions();
         for (Band band : p.getBands()) {
@@ -99,7 +99,7 @@ public class BeamBandPart extends ProfilePart {
         }
         String quicklookBandName = p.getQuicklookBandName();
         if (quicklookBandName != null && !quicklookBandName.isEmpty()) {
-            ncFile.addAttribute(null, new Attribute(QUICKLOOK_BAN_DNAME, quicklookBandName));
+            ncFile.addAttribute(null, new Attribute(QUICKLOOK_BAND_NAME, quicklookBandName));
         }
     }
 

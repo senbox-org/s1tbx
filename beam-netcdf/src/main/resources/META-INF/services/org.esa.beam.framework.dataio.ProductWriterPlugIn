@@ -1,1 +1,2 @@
-org.esa.beam.dataio.netcdf.NetCdfWriterPlugIn
+org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfNetCdfWriterPlugIn
+org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamNetCdfWriterPlugIn

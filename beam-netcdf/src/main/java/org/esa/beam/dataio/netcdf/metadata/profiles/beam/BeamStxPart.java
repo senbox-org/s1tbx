@@ -15,7 +15,7 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
@@ -28,7 +28,7 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-public class BeamStxPart extends ProfilePart {
+public class BeamStxPart extends ProfilePartIO {
 
     public final String STATISTICS = "statistics";
     public final String SAMPLE_FREQUENCIES = "sample_frequencies";
@@ -38,7 +38,7 @@ public class BeamStxPart extends ProfilePart {
     public final int INDEX_STANDARD_DEVIATION = 3;
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         for (Band band : p.getBands()) {
             String variableName = ReaderUtils.getVariableName(band);
             final Variable variable = ctx.getNetcdfFile().getRootGroup().findVariable(variableName);
@@ -75,7 +75,7 @@ public class BeamStxPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         for (Band band : p.getBands()) {
             if (band.isStxSet()) {
                 String variableName = ReaderUtils.getVariableName(band);

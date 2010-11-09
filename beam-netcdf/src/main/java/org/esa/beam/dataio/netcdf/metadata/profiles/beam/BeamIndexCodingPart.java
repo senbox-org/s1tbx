@@ -15,7 +15,7 @@
  */
 package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePart;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfIndexCodingPart;
@@ -31,14 +31,14 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-public class BeamIndexCodingPart extends ProfilePart {
+public class BeamIndexCodingPart extends ProfilePartIO {
 
     public static final String INDEX_DESCRIPTIONS = "index_descriptions";
     public static final String DESCRIPTION_SEPARATOR = "\t";
     public static final String INDEX_CODING_NAME = "index_coding_name";
 
     @Override
-    public void read(ProfileReadContext ctx, Product p) throws IOException {
+    public void decode(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
             String variableName = ReaderUtils.getVariableName(band);
@@ -52,7 +52,7 @@ public class BeamIndexCodingPart extends ProfilePart {
     }
 
     @Override
-    public void define(ProfileWriteContext ctx, Product p) throws IOException {
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         NetcdfFileWriteable writeable = ctx.getNetcdfFileWriteable();
         for (Band band : p.getBands()) {
             IndexCoding indexCoding = band.getIndexCoding();
