@@ -16,6 +16,8 @@
 
 package org.esa.beam.dataio.netcdf.metadata;
 
+import org.esa.beam.dataio.netcdf.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.Product;
 

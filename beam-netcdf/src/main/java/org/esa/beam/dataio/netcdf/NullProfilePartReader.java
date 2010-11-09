@@ -17,7 +17,6 @@
 package org.esa.beam.dataio.netcdf;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartReader;
-import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Product;
 

@@ -18,7 +18,6 @@ package org.esa.beam.dataio.netcdf;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPartWriter;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartWriter;
-import org.esa.beam.dataio.netcdf.metadata.ProfileWriteContext;
 import org.esa.beam.framework.datamodel.Product;
 
 import java.io.IOException;

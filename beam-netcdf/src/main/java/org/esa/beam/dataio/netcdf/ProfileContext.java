@@ -1,6 +1,6 @@
 package org.esa.beam.dataio.netcdf;
 
-public interface ProfileContext {
+interface ProfileContext {
     void setProperty(String name, Object property);
 
     Object getProperty(String name);

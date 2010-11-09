@@ -16,7 +16,6 @@
 
 package org.esa.beam.dataio.netcdf;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import ucar.nc2.NetcdfFile;
 
