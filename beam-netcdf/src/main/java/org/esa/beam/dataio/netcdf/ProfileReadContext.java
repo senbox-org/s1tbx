@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.netcdf.metadata;
+package org.esa.beam.dataio.netcdf;
 
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import ucar.nc2.NetcdfFile;
