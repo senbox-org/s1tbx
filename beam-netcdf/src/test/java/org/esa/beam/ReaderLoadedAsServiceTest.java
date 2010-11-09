@@ -15,7 +15,6 @@
  */
 package org.esa.beam;
 
-import junit.framework.TestCase;
 import org.esa.beam.dataio.netcdf.GenericNetCdfReaderPlugIn;
 import org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamNetCdfReaderPlugIn;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfNetCdfReaderPlugIn;
@@ -23,56 +22,31 @@ import org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosNetCdfReaderPlu
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.junit.Test;
 
 import java.util.Iterator;
 
-public class ReaderLoadedAsServiceTest extends TestCase {
+import static org.junit.Assert.*;
 
-    public void testGenericReaderIsLoaded() {
-        ProductIOPlugInManager plugInManager = ProductIOPlugInManager.getInstance();
-        Iterator readerPlugIns = plugInManager.getReaderPlugIns(Constants.FORMAT_NAME);
+public class ReaderLoadedAsServiceTest {
 
-        if (readerPlugIns.hasNext()) {
-            ProductReaderPlugIn plugIn = (ProductReaderPlugIn) readerPlugIns.next();
-            assertEquals(GenericNetCdfReaderPlugIn.class, plugIn.getClass());
-        } else {
-            fail("Where is GenericNetCdfReaderPlugIn?");
-        }
+    @Test
+    public void testNetCdfReaderPlugInsAreLoaded() {
+        testReaderPlugInLoading("NetCDF", GenericNetCdfReaderPlugIn.class);
+        testReaderPlugInLoading("NetCDF-CF", CfNetCdfReaderPlugIn.class);
+        testReaderPlugInLoading("NetCDF-BEAM", BeamNetCdfReaderPlugIn.class);
+        testReaderPlugInLoading("HDF-EOS", HdfEosNetCdfReaderPlugIn.class);
     }
 
-    public void testCfReaderIsLoaded() {
+    private void testReaderPlugInLoading(String formatName, Class<? extends ProductReaderPlugIn> readerPlugInClass) {
         ProductIOPlugInManager plugInManager = ProductIOPlugInManager.getInstance();
-        Iterator readerPlugIns = plugInManager.getReaderPlugIns("NetCDF-CF");
+        Iterator readerPlugIns = plugInManager.getReaderPlugIns(formatName);
 
         if (readerPlugIns.hasNext()) {
             ProductReaderPlugIn plugIn = (ProductReaderPlugIn) readerPlugIns.next();
-            assertEquals(CfNetCdfReaderPlugIn.class, plugIn.getClass());
+            assertEquals(readerPlugInClass, plugIn.getClass());
         } else {
-            fail("Where is CfNetCdfReaderPlugIn?");
-        }
-    }
-
-    public void testBeamReaderIsLoaded() {
-        ProductIOPlugInManager plugInManager = ProductIOPlugInManager.getInstance();
-        Iterator readerPlugIns = plugInManager.getReaderPlugIns("NetCDF-BEAM");
-
-        if (readerPlugIns.hasNext()) {
-            ProductReaderPlugIn plugIn = (ProductReaderPlugIn) readerPlugIns.next();
-            assertEquals(BeamNetCdfReaderPlugIn.class, plugIn.getClass());
-        } else {
-            fail("Where is BeamNetCdfReaderPlugIn?");
-        }
-    }
-
-    public void testHdfEosReaderIsLoaded() {
-        ProductIOPlugInManager plugInManager = ProductIOPlugInManager.getInstance();
-        Iterator readerPlugIns = plugInManager.getReaderPlugIns("HDF-EOS");
-
-        if (readerPlugIns.hasNext()) {
-            ProductReaderPlugIn plugIn = (ProductReaderPlugIn) readerPlugIns.next();
-            assertEquals(HdfEosNetCdfReaderPlugIn.class, plugIn.getClass());
-        } else {
-            fail("Where is HdfEosNetCdfReaderPlugIn?");
+            fail(String.format("Where is %s?", readerPlugInClass.getSimpleName()));
         }
     }
 }
