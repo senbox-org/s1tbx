@@ -136,14 +136,8 @@ public class ReinterpretDescriptor extends OperationDescriptorImpl {
      * @return the target image layout.
      */
     public static ImageLayout createTargetImageLayout(RenderedImage source, SampleModel sampleModel) {
-        final int w = source.getWidth();
-        final int h = source.getHeight();
-
-        final ImageLayout imageLayout = new ImageLayout();
-        imageLayout.setWidth(w);
-        imageLayout.setHeight(h);
+        final ImageLayout imageLayout = new ImageLayout(source);
         imageLayout.setSampleModel(sampleModel);
-
         return imageLayout;
     }
 
