@@ -51,7 +51,7 @@
             <text>EM Cluster Analysis...</text>
             <mnemonic>C</mnemonic>
             <operatorName>EMClusterAnalysis</operatorName>
-            <dialogTitle>K-Means Cluster Analysis</dialogTitle>
+            <dialogTitle>EM Cluster Analysis</dialogTitle>
             <targetProductNameSuffix>_em</targetProductNameSuffix>
         </action>
         <action>
