@@ -322,8 +322,8 @@ public class ReprojectionOp extends Operator {
         }
     }
 
-    private boolean mustReplaceNaN(RasterDataNode sourceRaster, int geophysicalDataType, double targetNoDataValue) {
-        final boolean isFloat = ProductData.isFloatingPointType(geophysicalDataType);
+    private boolean mustReplaceNaN(RasterDataNode sourceRaster, int targetDataType, double targetNoDataValue) {
+        final boolean isFloat = ProductData.isFloatingPointType(targetDataType);
         final boolean isNoDataGiven = sourceRaster.isNoDataValueUsed() || noDataValue != null;
         final boolean isNoDataNaN = Double.isNaN(targetNoDataValue);
         return isFloat && isNoDataGiven && !isNoDataNaN;
