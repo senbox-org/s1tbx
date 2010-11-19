@@ -63,11 +63,11 @@ public class OperatorExecutor2Test {
         Object metrics = ex.execute(handler);
 
         assertEquals("" +
-                "#bands=9, x=0, y=0, w=10, h=2\n" +
-                "#bands=9, x=0, y=2, w=10, h=2\n" +
-                "#bands=9, x=0, y=4, w=10, h=2\n" +
-                "#bands=9, x=0, y=6, w=10, h=2\n" +
-                "#bands=9, x=0, y=8, w=10, h=2\n",
+                     "#bands=9, x=0, y=0, w=10, h=2\n" +
+                     "#bands=9, x=0, y=2, w=10, h=2\n" +
+                     "#bands=9, x=0, y=4, w=10, h=2\n" +
+                     "#bands=9, x=0, y=6, w=10, h=2\n" +
+                     "#bands=9, x=0, y=8, w=10, h=2\n",
                      handler.trace.toString());
 
         assertNotNull(metrics);
@@ -93,11 +93,11 @@ public class OperatorExecutor2Test {
         Object metrics = ex.execute(handler);
 
         assertEquals("" +
-                "#bands=9, x=0, y=0, w=2, h=10\n" +
-                "#bands=9, x=2, y=0, w=2, h=10\n" +
-                "#bands=9, x=4, y=0, w=2, h=10\n" +
-                "#bands=9, x=6, y=0, w=2, h=10\n" +
-                "#bands=9, x=8, y=0, w=2, h=10\n",
+                     "#bands=9, x=0, y=0, w=2, h=10\n" +
+                     "#bands=9, x=2, y=0, w=2, h=10\n" +
+                     "#bands=9, x=4, y=0, w=2, h=10\n" +
+                     "#bands=9, x=6, y=0, w=2, h=10\n" +
+                     "#bands=9, x=8, y=0, w=2, h=10\n",
                      handler.trace.toString());
 
         assertNotNull(metrics);
@@ -123,14 +123,14 @@ public class OperatorExecutor2Test {
         Object metrics = ex.execute(handler);
 
         assertEquals("" +
-                "#bands=9, x=0, y=0, w=7, h=3\n" +
-                "#bands=9, x=7, y=0, w=3, h=3\n" +
-                "#bands=9, x=0, y=3, w=7, h=3\n" +
-                "#bands=9, x=7, y=3, w=3, h=3\n" +
-                "#bands=9, x=0, y=6, w=7, h=3\n" +
-                "#bands=9, x=7, y=6, w=3, h=3\n" +
-                "#bands=9, x=0, y=9, w=7, h=1\n" +
-                "#bands=9, x=7, y=9, w=3, h=1\n",
+                     "#bands=9, x=0, y=0, w=7, h=3\n" +
+                     "#bands=9, x=7, y=0, w=3, h=3\n" +
+                     "#bands=9, x=0, y=3, w=7, h=3\n" +
+                     "#bands=9, x=7, y=3, w=3, h=3\n" +
+                     "#bands=9, x=0, y=6, w=7, h=3\n" +
+                     "#bands=9, x=7, y=6, w=3, h=3\n" +
+                     "#bands=9, x=0, y=9, w=7, h=1\n" +
+                     "#bands=9, x=7, y=9, w=3, h=1\n",
                      handler.trace.toString());
 
         assertNotNull(metrics);
@@ -177,6 +177,7 @@ public class OperatorExecutor2Test {
     }
 
     private static class TracingHandler implements OperatorExecutor2.Handler {
+
         StringBuilder trace = new StringBuilder();
 
         @Override
@@ -193,6 +194,7 @@ public class OperatorExecutor2Test {
     }
 
     private static class TracingHandler2 implements OperatorExecutor2.Handler {
+
         ArrayList<OperatorExecutor2.Frame> trace = new ArrayList<OperatorExecutor2.Frame>();
 
         @Override
@@ -204,19 +206,23 @@ public class OperatorExecutor2Test {
     }
 
     public static class SimpleOp extends PixelOperator {
+
         @Override
-        protected void configureTargetProduct(Product product) {
-            int w = product.getSceneRasterWidth();
-            int h = product.getSceneRasterHeight();
-            product.addBand("a", ProductData.TYPE_FLOAT32);
-            product.addBand("b", ProductData.TYPE_FLOAT32);
-            product.addBand("c", ProductData.TYPE_FLOAT32);
-            product.addBand("x", ProductData.TYPE_FLOAT32).setSourceImage(ConstantDescriptor.create(1f * w, 1f * h, new Float[]{0.3f}, null));
-            product.addBand("y", ProductData.TYPE_FLOAT32).setSourceImage(ConstantDescriptor.create(1f * w, 1f * h, new Float[]{0.6f}, null));
-            product.addBand("z", ProductData.TYPE_FLOAT32).setSourceImage(ConstantDescriptor.create(1f * w, 1f * h, new Float[]{0.9f}, null));
-            product.addBand(new VirtualBand("u", ProductData.TYPE_FLOAT32, w, h, "a-x"));
-            product.addBand(new VirtualBand("v", ProductData.TYPE_FLOAT32, w, h, "b-y"));
-            product.addBand(new VirtualBand("w", ProductData.TYPE_FLOAT32, w, h, "c-z"));
+        protected void configureTargetProduct(Product targetProduct) {
+            int w = targetProduct.getSceneRasterWidth();
+            int h = targetProduct.getSceneRasterHeight();
+            targetProduct.addBand("a", ProductData.TYPE_FLOAT32);
+            targetProduct.addBand("b", ProductData.TYPE_FLOAT32);
+            targetProduct.addBand("c", ProductData.TYPE_FLOAT32);
+            targetProduct.addBand("x", ProductData.TYPE_FLOAT32).setSourceImage(
+                    ConstantDescriptor.create(1f * w, 1f * h, new Float[]{0.3f}, null));
+            targetProduct.addBand("y", ProductData.TYPE_FLOAT32).setSourceImage(
+                    ConstantDescriptor.create(1f * w, 1f * h, new Float[]{0.6f}, null));
+            targetProduct.addBand("z", ProductData.TYPE_FLOAT32).setSourceImage(
+                    ConstantDescriptor.create(1f * w, 1f * h, new Float[]{0.9f}, null));
+            targetProduct.addBand(new VirtualBand("u", ProductData.TYPE_FLOAT32, w, h, "a-x"));
+            targetProduct.addBand(new VirtualBand("v", ProductData.TYPE_FLOAT32, w, h, "b-y"));
+            targetProduct.addBand(new VirtualBand("w", ProductData.TYPE_FLOAT32, w, h, "c-z"));
         }
 
         @Override

@@ -126,9 +126,9 @@ public class PointOperatorTest extends TestCase {
     public static class NdviSampleOp extends SampleOperator {
 
         @Override
-        public void configureTargetProduct(Product product) {
-            product.addBand("ndvi", ProductData.TYPE_FLOAT32);
-            product.addBand("ndvi_flags", ProductData.TYPE_INT16);
+        public void configureTargetProduct(Product targetProduct) {
+            targetProduct.addBand("ndvi", ProductData.TYPE_FLOAT32);
+            targetProduct.addBand("ndvi_flags", ProductData.TYPE_INT16);
         }
 
         @Override
@@ -160,9 +160,9 @@ public class PointOperatorTest extends TestCase {
     public static class NdviPixelOp extends PixelOperator {
 
         @Override
-        public void configureTargetProduct(Product product) {
-            product.addBand("ndvi", ProductData.TYPE_FLOAT32);
-            product.addBand("ndvi_flags", ProductData.TYPE_INT16);
+        public void configureTargetProduct(Product targetProduct) {
+            targetProduct.addBand("ndvi", ProductData.TYPE_FLOAT32);
+            targetProduct.addBand("ndvi_flags", ProductData.TYPE_INT16);
         }
 
         @Override

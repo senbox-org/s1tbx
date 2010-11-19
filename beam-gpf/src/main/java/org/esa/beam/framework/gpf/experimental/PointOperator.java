@@ -44,7 +44,7 @@ public abstract class PointOperator extends Operator {
         return targetProduct;
     }
 
-    protected abstract void configureTargetProduct(Product product);
+    protected abstract void configureTargetProduct(Product targetProduct);
 
     protected abstract void configureSourceSamples(Configurator configurator);
 
