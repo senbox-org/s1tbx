@@ -933,8 +933,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #setValidPixelExpression(String)
      */
     public boolean isPixelValid(int x, int y) {
+        // method is synchronized because as consequence of calling ROI.contains(x, y)
+        // com.sun.media.jai.iterator.RandomIterFallback.getSample(x, y, b) is called
+        // which is not thread safe
+        // An issue has been created in the JAI issue tracker:
+        // https://jai-core.dev.java.net/issues/show_bug.cgi?id=143
         if (isValidMaskUsed()) {
-            return getValidMaskROI().contains(x, y);
+            synchronized (getClass()) { // synchronizing on the class object
+                return getValidMaskROI().contains(x, y);
+            }
         }
         return true;
     }
