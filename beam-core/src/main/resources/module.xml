@@ -31,6 +31,7 @@
         [BEAM-1196] Latitude shift for non-WGS84 datums<br/>
         [BEAM-1178] Attached GCP geo-coding is not saved<br/>
         [BEAM-1174] DIMAP stores the band grouping only if a product has a description<br/>
+        [BEAM-1125] Outer scene region is not invalid for certain reprojected products<br/>
         <p>Changes in 4.8:<br/>
         [BEAM-1168] Add Sinusoidal and Mollweide map projection<br/>
         [BEAM-1160] Auto-grouping of bands shall be controlled by data model<br/>

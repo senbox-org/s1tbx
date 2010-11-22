@@ -207,12 +207,10 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
             float lon = normalizeLon(geoPos.lon);
             // ensure that pixel is out of image (= no source position)
             if (pixelPos == null) {
-                pixelPos = new PixelPos(-1.0f, -1.0f);
-            } else {
-                pixelPos.x = -1;
-                pixelPos.y = -1;
+                pixelPos = new PixelPos();
             }
-            
+            pixelPos.setInvalid();
+
             if (!Float.isNaN(lat) && !Float.isNaN(lon)) {
                 Approximation approximation = getBestApproximation(approximations, lat, lon);
                 if (approximation == null) {
@@ -709,12 +707,12 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         final String lonGridName = getLonGrid().getName();
         final Product destProduct = destScene.getProduct();
         TiePointGrid latGrid = destProduct.getTiePointGrid(latGridName);
-        if(latGrid == null) {
+        if (latGrid == null) {
             latGrid = TiePointGrid.createSubset(getLatGrid(), subsetDef);
             destProduct.addTiePointGrid(latGrid);
         }
         TiePointGrid lonGrid = destProduct.getTiePointGrid(lonGridName);
-        if(lonGrid == null) {
+        if (lonGrid == null) {
             lonGrid = TiePointGrid.createSubset(getLonGrid(), subsetDef);
             destProduct.addTiePointGrid(lonGrid);
         }

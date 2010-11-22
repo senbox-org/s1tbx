@@ -91,6 +91,7 @@ public class FXYGeoCoding extends AbstractGeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean isCrossingMeridianAt180() {
         return false;
     }
@@ -100,6 +101,7 @@ public class FXYGeoCoding extends AbstractGeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean canGetPixelPos() {
         return true;
     }
@@ -109,6 +111,7 @@ public class FXYGeoCoding extends AbstractGeoCoding {
      *
      * @return <code>true</code>, if so
      */
+    @Override
     public boolean canGetGeoPos() {
         return true;
     }
@@ -122,10 +125,12 @@ public class FXYGeoCoding extends AbstractGeoCoding {
      *
      * @return the pixel co-ordinates as x/y
      */
+    @Override
     public PixelPos getPixelPos(final GeoPos geoPos, PixelPos pixelPos) {
         if (pixelPos == null) {
-            pixelPos = new PixelPos(0.0f, 0.0f);
+            pixelPos = new PixelPos();
         }
+        pixelPos.setInvalid();
         final double x = _pixelXFunction.computeZ(geoPos.getLat(), geoPos.getLon());
         final double y = _pixelYFunction.computeZ(geoPos.getLat(), geoPos.getLon());
         pixelPos.setLocation((x - _pixelOffsetX) / _pixelSizeX,
@@ -142,6 +147,7 @@ public class FXYGeoCoding extends AbstractGeoCoding {
      *
      * @return the geographical position as lat/lon.
      */
+    @Override
     public GeoPos getGeoPos(final PixelPos pixelPos, GeoPos geoPos) {
         if (geoPos == null) {
             geoPos = new GeoPos(0.0f, 0.0f);
@@ -160,6 +166,7 @@ public class FXYGeoCoding extends AbstractGeoCoding {
      *
      * @return the datum
      */
+    @Override
     public Datum getDatum() {
         return _datum;
     }
@@ -171,6 +178,7 @@ public class FXYGeoCoding extends AbstractGeoCoding {
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
      */
+    @Override
     public void dispose() {
     }
 

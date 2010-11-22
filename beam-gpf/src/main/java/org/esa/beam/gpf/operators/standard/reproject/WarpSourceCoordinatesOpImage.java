@@ -15,6 +15,14 @@
  */
 package org.esa.beam.gpf.operators.standard.reproject;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RasterAccessor;
+import javax.media.jai.RasterFactory;
+import javax.media.jai.RasterFormatTag;
+import javax.media.jai.SourcelessOpImage;
+import javax.media.jai.Warp;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Transparency;
@@ -26,18 +34,9 @@ import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.util.Map;
 
-import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RasterAccessor;
-import javax.media.jai.RasterFactory;
-import javax.media.jai.RasterFormatTag;
-import javax.media.jai.SourcelessOpImage;
-import javax.media.jai.Warp;
-
 /**
  * todo - add API doc
- * 
+ *
  * @author Marco Zuehlke
  * @since BEAM 4.7
  */
@@ -45,7 +44,7 @@ class WarpSourceCoordinatesOpImage extends SourcelessOpImage {
 
     private final Warp warp;
     private final RasterFormatTag rasterFormatTag;
-    
+
     private static ImageLayout createTwoBandedImageLayout(int width, int height, Dimension tileSize) {
         if (width < 0) {
             throw new IllegalArgumentException("width");
@@ -68,7 +67,7 @@ class WarpSourceCoordinatesOpImage extends SourcelessOpImage {
         }
         return new ImageLayout(0, 0, width, height, 0, 0, tileSize.width, tileSize.height, sampleModel, colorModel);
     }
-   
+
 
     /**
      * @param warp
@@ -78,7 +77,7 @@ class WarpSourceCoordinatesOpImage extends SourcelessOpImage {
      * @param configuration
      */
     WarpSourceCoordinatesOpImage(Warp warp, int width, int height, Dimension tileSize,
-                                        Map configuration) {
+                                 Map configuration) {
         this(warp, createTwoBandedImageLayout(width, height, tileSize), configuration);
     }
 
@@ -121,8 +120,17 @@ class WarpSourceCoordinatesOpImage extends SourcelessOpImage {
             int pixelOffset = lineOffset;
             lineOffset += lineStride;
             for (int w = 0; w < dstWidth; w++) {
-                data[0][pixelOffset + bandOffsets[0]] = warpData[count++];
-                data[1][pixelOffset + bandOffsets[1]] = warpData[count++];
+                float x = warpData[count++];
+                float y = warpData[count++];
+                // if x or y is NaN set them to values outside image bounds
+                // if NaN is forwarded it gets casted to an integer pixel index and
+                // the result would be zero and therefore a valid pixel.
+                if ((Float.isNaN(x) || Float.isNaN(y))) {
+                    x = (float) (getBounds().getMinX() - 1);
+                    y = (float) (getBounds().getMinY() - 1);
+                }
+                data[0][pixelOffset + bandOffsets[0]] = x;
+                data[1][pixelOffset + bandOffsets[1]] = y;
                 pixelOffset += pixelStride;
             }
         }
