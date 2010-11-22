@@ -18,20 +18,12 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
-import org.esa.beam.jai.BandOpImage;
-import org.esa.beam.jai.ImageManager;
-import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 
-import java.awt.image.RenderedImage;
 import java.io.IOException;
 
 /**
@@ -61,6 +53,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * scene's pixels.
      *
      * @return raster data covering the pixels for a complete scene
+     *
      * @see #getRasterData
      * @see org.esa.beam.framework.datamodel.RasterDataNode#getSceneRasterWidth
      * @see org.esa.beam.framework.datamodel.RasterDataNode#getSceneRasterHeight
@@ -75,6 +68,7 @@ public abstract class AbstractBand extends RasterDataNode {
      *
      * @param x The X co-ordinate of the pixel location
      * @param y The Y co-ordinate of the pixel location
+     *
      * @throws NullPointerException if this band has no raster data
      * @throws java.lang.ArrayIndexOutOfBoundsException
      *                              if the co-ordinates are not in bounds
@@ -93,6 +87,7 @@ public abstract class AbstractBand extends RasterDataNode {
      *
      * @param x The X co-ordinate of the pixel location
      * @param y The Y co-ordinate of the pixel location
+     *
      * @throws NullPointerException if this band has no raster data
      * @throws java.lang.ArrayIndexOutOfBoundsException
      *                              if the co-ordinates are not in bounds
@@ -111,6 +106,7 @@ public abstract class AbstractBand extends RasterDataNode {
      *
      * @param x The X co-ordinate of the pixel location
      * @param y The Y co-ordinate of the pixel location
+     *
      * @throws NullPointerException if this band has no raster data
      * @throws java.lang.ArrayIndexOutOfBoundsException
      *                              if the co-ordinates are not in bounds
@@ -130,6 +126,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param x          The X co-ordinate of the pixel location
      * @param y          The Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value
+     *
      * @throws NullPointerException if this band has no raster data
      */
     @Override
@@ -149,6 +146,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param x          The X co-ordinate of the pixel location
      * @param y          The Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value
+     *
      * @throws NullPointerException if this band has no raster data
      */
     @Override
@@ -168,6 +166,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param x          The X co-ordinate of the pixel location
      * @param y          The Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value
+     *
      * @throws NullPointerException if this band has no raster data
      */
     @Override
@@ -193,6 +192,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the desired data array
      * @param pixels array of integer pixels to be filled with data
      * @param pm     a monitor to inform the user about progress
+     *
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
     @Override
@@ -233,6 +233,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the desired data array
      * @param pixels array of float pixels to be filled with data.
      * @param pm     a monitor to inform the user about progress
+     *
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
     @Override
@@ -279,6 +280,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the desired data array
      * @param pixels array of double pixels to be filled with data
      * @param pm     a monitor to inform the user about progress
+     *
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
     @Override
@@ -353,7 +355,7 @@ public abstract class AbstractBand extends RasterDataNode {
      */
     @Override
     public synchronized void writePixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws
-            IOException {
+                                                                                                         IOException {
         Guardian.assertNotNull("pixels", pixels);
         final ProductData subRasterData = createCompatibleRasterData(w, h);
         final int n = w * h;
@@ -417,6 +419,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the pixel array to be read.
      * @param pixels integer array to be filled with data
      * @param pm     a monitor to inform the user about progress
+     *
      * @throws NullPointerException     if this band has no raster data
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
@@ -464,6 +467,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the pixel array to be read.
      * @param pixels float array to be filled with data
      * @param pm     a monitor to inform the user about progress
+     *
      * @throws NullPointerException     if this band has no raster data
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
@@ -511,6 +515,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the pixel array to be read.
      * @param pixels double array to be filled with data
      * @param pm     a monitor to inform the user about progress
+     *
      * @throws NullPointerException     if this band has no raster data
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
@@ -563,6 +568,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels integer array to be written
+     *
      * @throws NullPointerException if this band has no raster data
      */
     @Override
@@ -602,6 +608,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels float array to be written
+     *
      * @throws NullPointerException if this band has no raster data
      */
     @Override
@@ -641,6 +648,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels double array to be written
+     *
      * @throws NullPointerException if this band has no raster data
      */
     @Override
@@ -693,6 +701,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * if this has not already been done.
      *
      * @param pm a monitor to inform the user about progress
+     *
      * @throws java.io.IOException if an I/O error occurs
      * @see #readRasterDataFully(ProgressMonitor)
      */
@@ -723,6 +732,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * Gets an estimated raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
+     *
      * @return the size in bytes.
      */
     @Override
@@ -742,7 +752,9 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param noDataValue         the value used in place of  numerically invalid values if <code>useInvalidValue =
      *                            true</code>, ignored if  <code>checkInvalids = false</code>
      * @param pm                  a monitor to inform the user about progress
+     *
      * @return the number of invalid pixels, zero if  <code>checkInvalids = false</code>
+     *
      * @throws IOException    if an I/O error occurs
      * @throws ParseException if the expression syntax is invalid
      */
@@ -799,7 +811,7 @@ public abstract class AbstractBand extends RasterDataNode {
         final String nameLC = getName().toLowerCase();
         String viewModeId = VIEW_MODE_NADIR;
         if (nameLC.indexOf("forward") >= 0 ||
-                nameLC.indexOf("fward") >= 0) {
+            nameLC.indexOf("fward") >= 0) {
             viewModeId = VIEW_MODE_FORWARD;
         }
         return viewModeId;
@@ -872,7 +884,9 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param invalidValue    the value used in place of  numerically invalid values if <code>useInvalidValue =
      *                        true</code>, ignored if  <code>checkInvalids = false</code>
      * @param pm              a monitor to inform the user about progress
+     *
      * @return the number of invalid pixels, zero if  <code>checkInvalids = false</code>
+     *
      * @throws IOException    if an I/O error occurs
      * @throws ParseException if the expression syntax is invalid
      * @deprecated Since BEAM 4.5.1
