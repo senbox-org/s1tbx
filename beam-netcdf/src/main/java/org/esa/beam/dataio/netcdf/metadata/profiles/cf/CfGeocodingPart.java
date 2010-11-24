@@ -39,7 +39,6 @@ import ucar.ma2.Index;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Group;
-import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
@@ -78,13 +77,14 @@ public class CfGeocodingPart extends ProfilePartIO {
             if (!latLonAlreadyPresent) {
                 addLatLonBands(ncFile);
             }
+            ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME, false);
         } else {
             GeoPos ul = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
             GeoPos br = geoCoding.getGeoPos(
                     new PixelPos(product.getSceneRasterWidth() - 0.5f, product.getSceneRasterHeight() - 0.5f), null);
             addLatLonCoordVariables(ncFile, ul, br);
+            ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME, true);
         }
-        ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME, true);
     }
 
     @Override
@@ -285,21 +285,8 @@ public class CfGeocodingPart extends ProfilePartIO {
             latBand = product.getBand(Constants.LATITUDE_VAR_NAME);
         }
         if (latBand != null && lonBand != null) {
-            final NetcdfFile netcdfFile = ctx.getNetcdfFile();
-            ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME,
-                            detectFlipping(netcdfFile.getRootGroup().findVariable(latBand.getName())));
             return new PixelGeoCoding(latBand, lonBand, latBand.getValidMaskExpression(), 5);
         }
         return null;
-    }
-
-    private static boolean detectFlipping(Variable latVar) throws IOException {
-        final Array latData = latVar.read();
-        final Index j0 = latData.getIndex().set(0);
-        final Index j1 = latData.getIndex().set(1);
-        double pixelSizeY = latData.getDouble(j1) - latData.getDouble(j0);
-
-        // this should be the 'normal' case
-        return pixelSizeY >= 0;
     }
 }
