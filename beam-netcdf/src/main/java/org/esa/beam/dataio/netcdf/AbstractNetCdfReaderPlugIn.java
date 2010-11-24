@@ -47,7 +47,15 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
             return DecodeQualification.UNABLE;
         }
 
-        return getDecodeQualification(netcdfFile);
+        try {
+            return getDecodeQualification(netcdfFile);
+        } finally {
+            try {
+                netcdfFile.close();
+            } catch (IOException ignore) {
+                // OK, ignored
+            }
+        }
     }
 
     @Override
@@ -68,6 +76,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
      * When overriding this method at least the {@link RasterDigest} must be set to the context.
      *
      * @param ctx the context
+     *
      * @throws IOException if an IO-Error occurs
      */
     protected void initReadContext(ProfileReadContext ctx) throws IOException {
@@ -80,6 +89,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
      * Gets the qualification of the product reader to decode the given {@link NetcdfFile NetCDF file}.
      *
      * @param netcdfFile the NetCDF file
+     *
      * @return the decode qualification
      */
     protected abstract DecodeQualification getDecodeQualification(NetcdfFile netcdfFile);
