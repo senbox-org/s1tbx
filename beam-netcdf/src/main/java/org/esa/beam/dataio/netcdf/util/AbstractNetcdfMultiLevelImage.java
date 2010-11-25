@@ -23,6 +23,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 
+import javax.media.jai.ImageLayout;
 import javax.media.jai.PlanarImage;
 import java.awt.Shape;
 import java.awt.image.RenderedImage;
@@ -33,7 +34,7 @@ import java.awt.image.RenderedImage;
  * {@link com.bc.ceres.glevel.MultiLevelSource} interface.
  * The image data provided by this {@code PlanarImage} corresponds to the level zero image of the given
  * {@code MultiLevelSource}.
- *
+ * <p/>
  * The difference is that this {@code MultiLevelImage} computes its model lazy. when requested the first time.
  *
  * @author Marco Zuehlke
@@ -46,7 +47,8 @@ public abstract class AbstractNetcdfMultiLevelImage extends MultiLevelImage {
     private MultiLevelModel multiLevelModel;
 
     public AbstractNetcdfMultiLevelImage(RasterDataNode rasterDataNode) {
-        super(null, null, null);
+        super(new ImageLayout(0, 0, rasterDataNode.getSceneRasterWidth(), rasterDataNode.getSceneRasterHeight()), null,
+              null);
         this.rasterDataNode = rasterDataNode;
         int width = rasterDataNode.getSceneRasterWidth();
         int height = rasterDataNode.getSceneRasterHeight();
