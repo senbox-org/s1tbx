@@ -97,7 +97,8 @@ public class MergeOp extends Operator {
 
         for (Product srcProduct : allSrcProducts) {
             mergeAutoGrouping(srcProduct);
-            ProductUtils.copyBitmaskDefsAndOverlays(srcProduct, targetProduct);
+            ProductUtils.copyMasks(srcProduct, targetProduct);
+            ProductUtils.copyOverlayMasks(srcProduct, targetProduct);
         }
     }
 
