@@ -36,8 +36,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @OperatorMetadata(alias = "Merge",
-        description = "Merges an arbitrary number of source bands into the target product.",
-        internal = true)
+                  description = "Merges an arbitrary number of source bands into the target product.",
+                  internal = true)
 public class MergeOp extends Operator {
 
     @Parameter(defaultValue = "mergedProduct", description = "The name of the target product.")
@@ -46,7 +46,8 @@ public class MergeOp extends Operator {
     private String productType;
     @Parameter(alias = "baseGeoInfo", description = "The ID of the source product providing the geo-coding.")
     private String copyGeoCodingFrom;
-    @Parameter(itemAlias = "band", itemsInlined = true, description = "Defines a band to be included in the target product.")
+    @Parameter(itemAlias = "band", itemsInlined = true,
+               description = "Defines a band to be included in the target product.")
     private BandDesc[] bands;
     @TargetProduct
     private Product targetProduct;
@@ -60,7 +61,7 @@ public class MergeOp extends Operator {
             final int sceneRasterWidth = baseGeoProduct.getSceneRasterWidth();
             final int sceneRasterHeight = baseGeoProduct.getSceneRasterHeight();
             targetProduct = new Product(productName, productType,
-                    sceneRasterWidth, sceneRasterHeight);
+                                        sceneRasterWidth, sceneRasterHeight);
 
             copyGeoCoding(baseGeoProduct, targetProduct);
         } else {
@@ -69,7 +70,7 @@ public class MergeOp extends Operator {
             final int sceneRasterWidth = srcProduct.getSceneRasterWidth();
             final int sceneRasterHeight = srcProduct.getSceneRasterHeight();
             targetProduct = new Product(productName, productType,
-                    sceneRasterWidth, sceneRasterHeight);
+                                        sceneRasterWidth, sceneRasterHeight);
         }
 
         Set<Product> allSrcProducts = new HashSet<Product>();
@@ -82,8 +83,8 @@ public class MergeOp extends Operator {
                     copyBandWithFeatures(srcProduct, targetProduct, bandDesc.name);
                 }
                 allSrcProducts.add(srcProduct);
-            } else if (StringUtils.isNotNullAndNotEmpty(bandDesc.nameExp)) {
-                Pattern pattern = Pattern.compile(bandDesc.nameExp);
+            } else if (StringUtils.isNotNullAndNotEmpty(bandDesc.namePattern)) {
+                Pattern pattern = Pattern.compile(bandDesc.namePattern);
                 for (String bandName : srcProduct.getBandNames()) {
                     Matcher matcher = pattern.matcher(bandName);
                     if (matcher.matches()) {
@@ -95,7 +96,24 @@ public class MergeOp extends Operator {
         }
 
         for (Product srcProduct : allSrcProducts) {
+            mergeAutoGrouping(srcProduct);
             ProductUtils.copyBitmaskDefsAndOverlays(srcProduct, targetProduct);
+        }
+    }
+
+    private void mergeAutoGrouping(Product srcProduct) {
+        final Product.AutoGrouping srcAutoGrouping = srcProduct.getAutoGrouping();
+        if (srcAutoGrouping != null && !srcAutoGrouping.isEmpty()) {
+            final Product.AutoGrouping targetAutoGrouping = targetProduct.getAutoGrouping();
+            if (targetAutoGrouping == null) {
+                targetProduct.setAutoGrouping(srcAutoGrouping);
+            } else {
+                for (String[] grouping : srcAutoGrouping) {
+                    if (!targetAutoGrouping.contains(grouping)) {
+                        targetProduct.setAutoGrouping(targetAutoGrouping.toString() + ":" + srcAutoGrouping);
+                    }
+                }
+            }
         }
     }
 
@@ -112,7 +130,8 @@ public class MergeOp extends Operator {
         destinationProduct.setEndTime(sourceProduct.getEndTime());
     }
 
-    private void copyBandWithFeatures(Product srcProduct, Product outputProduct, String oldBandName, String newBandName) {
+    private void copyBandWithFeatures(Product srcProduct, Product outputProduct, String oldBandName,
+                                      String newBandName) {
         Band destBand = copyBandWithFeatures(srcProduct, outputProduct, oldBandName);
         destBand.setName(newBandName);
     }
@@ -144,14 +163,33 @@ public class MergeOp extends Operator {
     }
 
     public static class BandDesc {
+
         String product;
         String name;
-        String nameExp; // todo - rename to namePattern
         String newName;
+        String namePattern;
+
+        public void setProduct(String product) {
+            this.product = product;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setNewName(String newName) {
+            this.newName = newName;
+        }
+
+        public void setNamePattern(String namePattern) {
+            this.namePattern = namePattern;
+        }
+
     }
 
 
     public static class Spi extends OperatorSpi {
+
         public Spi() {
             super(MergeOp.class);
         }
