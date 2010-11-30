@@ -40,6 +40,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
     public static final String FORMAT_NAME = "NASA-OBPG";
 
     private static final String[] magicStrings = {
+            "MERIS Level-2 Data",
             "MODISA Level-2 Data",
             "MODIST Level-2 Data",
             "SeaWiFS Level-2 Data",
