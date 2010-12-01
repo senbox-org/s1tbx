@@ -16,6 +16,7 @@ import javax.media.jai.JAI;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
+import java.text.ParseException;
 import java.util.Map;
 
 public class PointOperatorTest extends TestCase {
@@ -38,11 +39,11 @@ public class PointOperatorTest extends TestCase {
             (Runtime.getRuntime().maxMemory() / M) * M
     };
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
         new PointOperatorTest().runTestsWithDifferentTileCacheCapacities();
     }
 
-    private void runTestsWithDifferentTileCacheCapacities() {
+    private void runTestsWithDifferentTileCacheCapacities() throws ParseException {
         for (long cacheSize : CACHE_SIZES) {
             testPointOp(new NdviTileOp(), cacheSize);
         }
@@ -57,15 +58,15 @@ public class PointOperatorTest extends TestCase {
         }
     }
 
-    public void testNdviSampleOp() {
+    public void testNdviSampleOp() throws ParseException {
         testPointOp(new NdviSampleOp(), 128L * M);
     }
 
-    public void testNdviPixelOp() {
+    public void testNdviPixelOp() throws ParseException {
         testPointOp(new NdviPixelOp(), 128L * M);
     }
 
-    private void testPointOp(Operator op, long cacheSize) {
+    private void testPointOp(Operator op, long cacheSize) throws ParseException {
 
         if (cacheSize <= 0L) {
             JAI.getDefaultInstance().getTileCache().setMemoryCapacity(0L);
@@ -79,7 +80,8 @@ public class PointOperatorTest extends TestCase {
 
         op.setSourceProduct(sourceProduct);
         Product targetProduct = op.getTargetProduct();
-
+        assertEquals(sourceProduct.getStartTime(), targetProduct.getStartTime());
+        assertEquals(sourceProduct.getEndTime(), targetProduct.getEndTime());
         assertNotNull(targetProduct.getTiePointGrid("latitude"));
         assertNotNull(targetProduct.getTiePointGrid("longitude"));
         assertTrue(targetProduct.getGeoCoding() instanceof TiePointGeoCoding);
@@ -107,8 +109,10 @@ public class PointOperatorTest extends TestCase {
         assertEquals(0, ndviFlagsData.getSample(1, 1, 0));
     }
 
-    private Product createSourceProduct(int w, int h) {
+    private Product createSourceProduct(int w, int h) throws ParseException {
         Product sourceProduct = new Product("TEST.N1", "MER_RR__1P", w, h);
+        sourceProduct.setStartTime(ProductData.UTC.parse("17-Jan-2008 12:13:27"));
+        sourceProduct.setEndTime(ProductData.UTC.parse("17-Jan-2008 13:16:28"));
         Band rad08 = sourceProduct.addBand("radiance_8", ProductData.TYPE_INT16);
         Band rad10 = sourceProduct.addBand("radiance_10", ProductData.TYPE_INT16);
         rad08.setSourceImage(ConstantDescriptor.create(1.0f * w, 1.0f * h, new Short[]{2000}, null));
