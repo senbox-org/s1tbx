@@ -62,15 +62,15 @@ public class NdviOp extends Operator {
     private Band _upperInputBand;
 
     @SourceProduct(alias = "input")
-    private Product inputProduct;
+    private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
     @Override
     public void initialize() throws OperatorException {
-        loadSourceBands(inputProduct);
-        int sceneWidth = inputProduct.getSceneRasterWidth();
-        int sceneHeight = inputProduct.getSceneRasterHeight();
+        loadSourceBands(sourceProduct);
+        int sceneWidth = sourceProduct.getSceneRasterWidth();
+        int sceneHeight = sourceProduct.getSceneRasterHeight();
         // create the in memory represenation of the output product
         // ---------------------------------------------------------
         // the product itself
@@ -82,12 +82,12 @@ public class NdviOp extends Operator {
         targetProduct.addBand(ndviOutputBand);
 
         // copy all tie point grids to output product
-        ProductUtils.copyTiePointGrids(inputProduct, targetProduct);
+        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
 
         // copy geo-coding and the lat/lon tiepoints to the output product
-        ProductUtils.copyGeoCoding(inputProduct, targetProduct);
+        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
 
-        ProductUtils.copyFlagBands(inputProduct, targetProduct);
+        ProductUtils.copyFlagBands(sourceProduct, targetProduct);
 
         // create and add the NDVI flags coding
         FlagCoding ndviFlagCoding = createNdviFlagCoding();
@@ -100,8 +100,8 @@ public class NdviOp extends Operator {
         ndviFlagsOutputBand.setSampleCoding(ndviFlagCoding);
         targetProduct.addBand(ndviFlagsOutputBand);
 
-        ProductUtils.copyMasks(inputProduct, targetProduct);
-        ProductUtils.copyOverlayMasks(inputProduct, targetProduct);
+        ProductUtils.copyMasks(sourceProduct, targetProduct);
+        ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
 
         final Mask arithMask = Mask.BandMathsType.create(NDVI_ARITHMETIC_FLAG_NAME, "An arithmetic exception occured.",
                                                         sceneWidth, sceneHeight, 
@@ -122,7 +122,7 @@ public class NdviOp extends Operator {
         pm.beginTask("Computing NDVI", rectangle.height + 1);
         try {
 
-            Tile l1flagsSourceTile = getSourceTile(inputProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle, pm);
+            Tile l1flagsSourceTile = getSourceTile(sourceProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle, pm);
             Tile l1flagsTargetTile = targetTiles.get(targetProduct.getBand(L1FLAGS_INPUT_BAND_NAME));
             // TODO replace copy by OpImage delegation
             final int length = rectangle.width * rectangle.height;
