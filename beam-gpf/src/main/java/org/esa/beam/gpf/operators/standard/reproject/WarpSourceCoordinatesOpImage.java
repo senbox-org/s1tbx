@@ -91,7 +91,7 @@ class WarpSourceCoordinatesOpImage extends SourcelessOpImage {
     }
 
     @Override
-    protected void computeRect(PlanarImage sources[], WritableRaster dest, Rectangle destRect) {
+    protected void computeRect(PlanarImage[] sources, WritableRaster dest, Rectangle destRect) {
 //        System.out.println("WarpSourceCoordinatesOpImage "+destRect);
 //        long t1 = System.currentTimeMillis();
         RasterAccessor dst = new RasterAccessor(dest, destRect, rasterFormatTag, getColorModel());
@@ -109,9 +109,9 @@ class WarpSourceCoordinatesOpImage extends SourcelessOpImage {
         int dstHeight = dst.getHeight();
         int lineStride = dst.getScanlineStride();
         int pixelStride = dst.getPixelStride();
-        int bandOffsets[] = dst.getBandOffsets();
-        float data[][] = dst.getFloatDataArrays();
-        float warpData[] = new float[2 * dstWidth * dstHeight];
+        int[] bandOffsets = dst.getBandOffsets();
+        float[][] data = dst.getFloatDataArrays();
+        float[] warpData = new float[2 * dstWidth * dstHeight];
         int lineOffset = 0;
 
         warp.warpRect(dst.getX(), dst.getY(), dstWidth, dstHeight, warpData);
