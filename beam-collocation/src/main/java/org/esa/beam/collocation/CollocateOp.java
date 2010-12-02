@@ -18,7 +18,14 @@ package org.esa.beam.collocation;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.gpf.Operator;
@@ -97,7 +104,8 @@ public class CollocateOp extends Operator {
 //    private boolean slaveTiePointGridsBecomeBands;
 
     @Parameter(valueSet = {NEAREST_NEIGHBOUR, BILINEAR_INTERPOLATION, CUBIC_CONVOLUTION},
-               defaultValue = NEAREST_NEIGHBOUR, description = "The method to be used when resampling the slave grid onto the master grid.")
+               defaultValue = NEAREST_NEIGHBOUR,
+               description = "The method to be used when resampling the slave grid onto the master grid.")
     private ResamplingType resamplingType;
 
     private transient Map<Band, RasterDataNode> sourceRasterMap;
@@ -178,19 +186,22 @@ public class CollocateOp extends Operator {
         }
         if (renameMasterComponents && StringUtils.isNullOrEmpty(masterComponentPattern)) {
             throw new OperatorException(
-                    MessageFormat.format("Parameter ''{0}'' must be set to a non-empty string pattern.", "masterComponentPattern"));
+                    MessageFormat.format("Parameter ''{0}'' must be set to a non-empty string pattern.",
+                                         "masterComponentPattern"));
         }
         if (renameSlaveComponents && StringUtils.isNullOrEmpty(slaveComponentPattern)) {
             throw new OperatorException(
-                    MessageFormat.format("Parameter ''{0}'' must be set to a non-empty string pattern.", "slaveComponentPattern"));
+                    MessageFormat.format("Parameter ''{0}'' must be set to a non-empty string pattern.",
+                                         "slaveComponentPattern"));
         }
 
         sourceRasterMap = new HashMap<Band, RasterDataNode>(31);
 
-        targetProduct = new Product(targetProductName != null ? targetProductName : masterProduct.getName() + "_" + slaveProduct.getName(),
-                                    targetProductType != null ? targetProductType : masterProduct.getProductType(),
-                                    masterProduct.getSceneRasterWidth(),
-                                    masterProduct.getSceneRasterHeight());
+        targetProduct = new Product(
+                targetProductName != null ? targetProductName : masterProduct.getName() + "_" + slaveProduct.getName(),
+                targetProductType != null ? targetProductType : masterProduct.getProductType(),
+                masterProduct.getSceneRasterWidth(),
+                masterProduct.getSceneRasterHeight());
 
         final ProductData.UTC utc1 = masterProduct.getStartTime();
         if (utc1 != null) {
@@ -203,7 +214,6 @@ public class CollocateOp extends Operator {
 
         ProductUtils.copyMetadata(masterProduct, targetProduct);
         ProductUtils.copyTiePointGrids(masterProduct, targetProduct);
-        ProductUtils.copyGeoCoding(masterProduct, targetProduct);
 
         for (final Band sourceBand : masterProduct.getBands()) {
             final Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct);
@@ -251,13 +261,15 @@ public class CollocateOp extends Operator {
             }
         }
 
+        ProductUtils.copyGeoCoding(masterProduct, targetProduct);
         copyBitmaskDefs(slaveProduct, renameSlaveComponents, slaveComponentPattern);
 
         // todo - slave metadata!?
     }
 
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm) throws
+                                                                                                               OperatorException {
         pm.beginTask("Collocating bands...", targetProduct.getNumBands() + 1);
         try {
             final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
@@ -281,7 +293,8 @@ public class CollocateOp extends Operator {
                     collocateSourceBand(sourceRaster, sourceRectangle, sourcePixelPositions, targetTile,
                                         SubProgressMonitor.create(pm, 1));
                 } else {
-                    targetTile.setRawSamples(getSourceTile(sourceRaster, targetTile.getRectangle(), pm).getRawSamples());
+                    targetTile.setRawSamples(
+                            getSourceTile(sourceRaster, targetTile.getRectangle(), pm).getRawSamples());
                 }
                 pm.worked(1);
             }
@@ -318,7 +331,8 @@ public class CollocateOp extends Operator {
         super.dispose();
     }
 
-    private void collocateSourceBand(RasterDataNode sourceBand, Rectangle sourceRectangle, PixelPos[] sourcePixelPositions,
+    private void collocateSourceBand(RasterDataNode sourceBand, Rectangle sourceRectangle,
+                                     PixelPos[] sourcePixelPositions,
                                      Tile targetTile, ProgressMonitor pm) throws OperatorException {
         pm.beginTask(MessageFormat.format("collocating band {0}", sourceBand.getName()), targetTile.getHeight());
         try {
