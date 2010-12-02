@@ -1216,7 +1216,7 @@ public class ProductUtils {
         if (sourceProduct.getFlagCodingGroup().getNodeCount() > 0) {
             copyFlagCodings(sourceProduct, targetProduct);
 
-// loop over bands and check if they have a flags coding attached
+            // loop over bands and check if they have a flags coding attached
             for (int i = 0; i < sourceProduct.getNumBands(); i++) {
                 Band sourceBand = sourceProduct.getBandAt(i);
                 String bandName = sourceBand.getName();
