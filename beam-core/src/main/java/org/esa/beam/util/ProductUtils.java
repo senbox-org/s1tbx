@@ -2060,6 +2060,21 @@ public class ProductUtils {
         }
     }
 
+    /**
+     * Copies the source product's preferred tile size (if any) to the target product.
+     * @param sourceProduct The source product.
+     * @param targetProduct The target product.
+     */
+    public static void copyPreferredTileSize(Product sourceProduct, Product targetProduct) {
+        final Dimension preferredTileSize = sourceProduct.getPreferredTileSize();
+        if (preferredTileSize != null) {
+            final Rectangle targetRect = new Rectangle(targetProduct.getSceneRasterWidth(), targetProduct.getSceneRasterHeight());
+            final Rectangle tileRect = new Rectangle(preferredTileSize).intersection(targetRect);
+            targetProduct.setPreferredTileSize(tileRect.width, tileRect.height);
+        }
+    }
+
+
     public static GeoTIFFMetadata createGeoTIFFMetadata(final Product product) {
         final GeoCoding geoCoding = product.getGeoCoding();
         final int w = product.getSceneRasterWidth();
