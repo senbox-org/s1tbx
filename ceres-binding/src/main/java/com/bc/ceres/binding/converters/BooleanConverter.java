@@ -30,7 +30,20 @@ public class BooleanConverter implements Converter<Boolean> {
         if (text.isEmpty()) {
             return null;
         }
-        return Boolean.parseBoolean(text);
+        if (text.equalsIgnoreCase("false")) {
+            return Boolean.FALSE;
+        }
+        if (text.equalsIgnoreCase("true")) {
+            return Boolean.TRUE;
+        }
+        if (text.equalsIgnoreCase("0")) {
+            return Boolean.FALSE;
+        }
+        try {
+            return Double.parseDouble(text) != 0.0 ? Boolean.TRUE : Boolean.FALSE;
+        } catch (NumberFormatException e) {
+            return Boolean.FALSE;
+        }
     }
 
     @Override

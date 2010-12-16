@@ -38,6 +38,12 @@ public class BooleanConverterTest extends AbstractConverterTest {
         testParseSuccess(Boolean.TRUE, "true");
         testParseSuccess(Boolean.FALSE, "false");
         testParseSuccess(Boolean.FALSE, "Raps!");
+        testParseSuccess(Boolean.TRUE, "1");
+        testParseSuccess(Boolean.TRUE, "-1");
+        testParseSuccess(Boolean.TRUE, "4");
+        testParseSuccess(Boolean.TRUE, "0.4");
+        testParseSuccess(Boolean.FALSE, "0");
+        testParseSuccess(Boolean.FALSE, "0.0");
         testParseSuccess(null, "");
 
         testFormatSuccess("true", Boolean.TRUE);
