@@ -17,15 +17,18 @@
 package org.esa.beam.framework.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.awt.Dimension;
 import java.awt.RenderingHints;
@@ -36,16 +39,86 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GPFFacadeTest extends TestCase {
+import static org.junit.Assert.*;
 
+
+public class GPFFacadeTest {
+
+    private static FooOpSpi foo = new FooOpSpi();
+    private static FoosOpSpi foos = new FoosOpSpi();
+
+    @BeforeClass
+    public static void loadSpis() {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(foo);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(foos);
+    }
+
+    @AfterClass
+    public static void unloadSpis() {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(foo);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(foos);
+    }
+
+    @Test
     public void testDefaultSettings() {
         GPF gpf = GPF.getDefaultInstance();
         assertNotNull(gpf);
         assertSame(gpf, GPF.getDefaultInstance());
     }
 
+    @Test
+    public void testAutoParameterConversion() {
+
+        // First test with no parameter values --> parameters have default values
+        HashMap<String, Object> parameters = new HashMap<String, Object>();
+        FooOp fooOp = makeFooOp(parameters);
+        assertEquals(0, fooOp.intParam);
+        assertEquals(0.0, fooOp.doubleParam, 1e-7);
+        assertEquals(null, fooOp.floatArrayParam);
+        assertEquals(null, fooOp.stringParam);
+        assertEquals(false, fooOp.booleanParam);
+
+        // Then we test with parameter values that already have the expected parameter type
+        parameters = new HashMap<String, Object>();
+        parameters.put("intParam", 44);
+        parameters.put("doubleParam", 0.441);
+        parameters.put("floatArrayParam", new float[]{0.2f, 0.4f, 0.8f});
+        parameters.put("stringParam", "Banana");
+        parameters.put("booleanParam", true);
+        fooOp = makeFooOp(parameters);
+        assertEquals(44, fooOp.intParam);
+        assertEquals(0.441, fooOp.doubleParam, 1e-7);
+        assertTrue(Arrays.equals(new float[] {0.2f, 0.4f, 0.8f}, fooOp.floatArrayParam));
+        assertEquals("Banana", fooOp.stringParam);
+        assertEquals(true, fooOp.booleanParam);
+
+        // Finally we test that values are correctly converted if provided as text
+        parameters.put("intParam", "42");
+        parameters.put("doubleParam", "0.421");
+        parameters.put("floatArrayParam", "0.1, 0.2, 0.5");
+        parameters.put("stringParam", "Mexico");
+        parameters.put("booleanParam", "1");
+        fooOp = makeFooOp(parameters);
+        assertEquals(42, fooOp.intParam);
+        assertEquals(0.421, fooOp.doubleParam, 1e-7);
+        assertTrue(Arrays.equals(new float[] {0.1f, 0.2f, 0.5f}, fooOp.floatArrayParam));
+        assertEquals("Mexico", fooOp.stringParam);
+        assertEquals(true, fooOp.booleanParam);
+    }
+
+    private FooOp makeFooOp(Map<String, Object> parameters) {
+        Product p1 = new Product("A", "B", 16, 16);
+        HashMap<String, Product> sourceProducts = new HashMap<String, Product>();
+        sourceProducts.put("sourceProduct", p1);
+        FooOp fooOp = (FooOp) GPF.getDefaultInstance().createOperator("Foo", parameters, sourceProducts, null);
+        fooOp.getTargetProduct();
+        return fooOp;
+
+    }
+
+    @Test
     public void testOperatorApi() throws IOException, OperatorException, URISyntaxException {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
 
         String filePath = GPFFacadeTest.class.getResource("test-product.dim").toURI().getPath();
 
@@ -63,7 +136,6 @@ public class GPFFacadeTest extends TestCase {
         assertNotNull(p1.getFileLocation());
         assertEquals("test-product.dim", p1.getFileLocation().getName());
 
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FooOpSpi());
 
         Product p2 = GPF.createProduct("Foo", GPF.NO_PARAMS, p1);
 
@@ -83,9 +155,8 @@ public class GPFFacadeTest extends TestCase {
         }
     }
 
+    @Test
     public void testProductName() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FooOpSpi());
 
         String filePath = GPFFacadeTest.class.getResource("test-product.dim").toURI().getPath();
 
@@ -109,10 +180,8 @@ public class GPFFacadeTest extends TestCase {
         assertTrue(sourceElement.getAttributeAt(0).getData().getElemString().endsWith("test-product.dim"));
     }
 
+    @Test
     public void testMultiProductsNames() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FooOpSpi());
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FoosOpSpi());
 
         String filePath = GPFFacadeTest.class.getResource("test-product.dim").toURI().getPath();
 
@@ -137,6 +206,7 @@ public class GPFFacadeTest extends TestCase {
 
     }
 
+    @Test
     public void testTileSizeRenderingHint() {
         final RenderingHints renderingHints = new RenderingHints(null);
 
@@ -169,6 +239,22 @@ public class GPFFacadeTest extends TestCase {
         Product targetProduct;
         @SourceProduct
         Product sourceProduct;
+
+        @Parameter
+        int intParam;
+
+        @Parameter
+        double doubleParam;
+
+        @Parameter
+        String stringParam;
+
+        @Parameter
+        boolean booleanParam;
+
+        @Parameter
+        float[] floatArrayParam;
+
 
         @Override
         public void initialize() throws OperatorException {

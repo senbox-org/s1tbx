@@ -15,6 +15,7 @@
     <changelog>
         <![CDATA[
         <p>From 4.8 to 4.9:<br/>
+            [BEAM-1219] GPF API should implicitly convert parameter values<br/>
             [BEAM-1204] Reprojection changes product type<br/>
             [BEAM-1203] Application returns with exit code zero in error case<br/>
             [BEAM-1201] GPT does use the user LOCAL instead of ENGLISH<br/>

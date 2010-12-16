@@ -68,10 +68,10 @@ public class GPF {
      * Can be used for convenience as a parameter for {@code createProduct()} if no
      * parameters are needed for the operator.
      *
-     * @see #createProduct(String,Map) createProduct(String, Map, ProgressMonitor)
-     * @see #createProduct(String,Map,Product) createProduct(String, Map, Product, ProgressMonitor)
-     * @see #createProduct(String,Map,Product[]) createProduct(String, Map, Product[], ProgressMonitor)
-     * @see #createProduct(String,Map,Map) createProduct(String, Map, Map, ProgressMonitor)
+     * @see #createProduct(String, Map) createProduct(String, Map, ProgressMonitor)
+     * @see #createProduct(String, Map, Product) createProduct(String, Map, Product, ProgressMonitor)
+     * @see #createProduct(String, Map, Product[]) createProduct(String, Map, Product[], ProgressMonitor)
+     * @see #createProduct(String, Map, Map) createProduct(String, Map, Map, ProgressMonitor)
      */
     public static final Map<String, Object> NO_PARAMS = Collections.unmodifiableMap(new TreeMap<String, Object>());
 
@@ -81,10 +81,10 @@ public class GPF {
      * Can be used for convenience as a parameter for {@code createProduct()} if no
      * source products are needed for the operator.
      *
-     * @see #createProduct(String,Map) createProduct(String, Map, ProgressMonitor)
-     * @see #createProduct(String,Map,Product) createProduct(String, Map, Product, ProgressMonitor)
-     * @see #createProduct(String,Map,Product[]) createProduct(String, Map, Product[], ProgressMonitor)
-     * @see #createProduct(String,Map,Map) createProduct(String, Map, Map, ProgressMonitor)
+     * @see #createProduct(String, Map) createProduct(String, Map, ProgressMonitor)
+     * @see #createProduct(String, Map, Product) createProduct(String, Map, Product, ProgressMonitor)
+     * @see #createProduct(String, Map, Product[]) createProduct(String, Map, Product[], ProgressMonitor)
+     * @see #createProduct(String, Map, Map) createProduct(String, Map, Map, ProgressMonitor)
      */
     public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
 
@@ -103,9 +103,7 @@ public class GPF {
      *
      * @param operatorName the name of the operator to use.
      * @param parameters   the named parameters needed by the operator.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -121,9 +119,7 @@ public class GPF {
      * @param operatorName   the name of the operator to use.
      * @param parameters     the named parameters needed by the operator.
      * @param renderingHints the rendering hints may be {@code null}.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -140,9 +136,7 @@ public class GPF {
      * @param operatorName  the name of the operator to use.
      * @param parameters    the named parameters needed by the operator.
      * @param sourceProduct a source product.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(final String operatorName,
@@ -160,9 +154,7 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProduct  the source product.
      * @param renderingHints the rendering hints may be {@code null}.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(final String operatorName,
@@ -180,14 +172,12 @@ public class GPF {
      * @param operatorName   the name of the operator to use.
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the source products.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(final String operatorName,
                                         final Map<String, Object> parameters,
-                                        final Product[] sourceProducts) throws OperatorException {
+                                        final Product... sourceProducts) throws OperatorException {
         return createProduct(operatorName, parameters, sourceProducts, null);
     }
 
@@ -200,9 +190,7 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the source products.
      * @param renderingHints the rendering hints may be {@code null}.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -248,9 +236,7 @@ public class GPF {
      * @param operatorName   the name of the operator to use.
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the map of named source products.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -268,9 +254,7 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the map of named source products.
      * @param renderingHints the rendering hints, may be {@code null}.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -287,9 +271,7 @@ public class GPF {
      * @param operatorName   the name of the operator to use.
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts a map of named source products.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     @Deprecated
@@ -311,21 +293,34 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the map of named source products.
      * @param renderingHints the rendering hints, may be {@code null}.
-     *
      * @return the product created by the operator.
-     *
      * @throws OperatorException if the product could not be created.
      */
     public Product createProductNS(String operatorName,
                                    Map<String, Object> parameters,
                                    Map<String, Product> sourceProducts,
                                    RenderingHints renderingHints) {
+        Operator operator = createOperator(operatorName, parameters, sourceProducts, renderingHints);
+        return operator.getTargetProduct();
+    }
+
+    /**
+     * Creates an operator instance by using the given operator (alias) name.
+     *
+     * @param operatorName   the name of the operator to use.
+     * @param parameters     the named parameters needed by the operator.
+     * @param sourceProducts the map of named source products.
+     * @param renderingHints the rendering hints, may be {@code null}.
+     * @return the product created by the operator.
+     * @throws OperatorException if the product could not be created.
+     * @since BEAM 4.9
+     */
+    public Operator createOperator(String operatorName, Map<String, Object> parameters, Map<String, Product> sourceProducts, RenderingHints renderingHints) {
         OperatorSpi operatorSpi = spiRegistry.getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             throw new OperatorException("No SPI found for operator '" + operatorName + "'");
         }
-        Operator operator = operatorSpi.createOperator(parameters, sourceProducts, renderingHints);
-        return operator.getTargetProduct();
+        return operatorSpi.createOperator(parameters, sourceProducts, renderingHints);
     }
 
     /**

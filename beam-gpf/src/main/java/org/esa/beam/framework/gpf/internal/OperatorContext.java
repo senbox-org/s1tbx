@@ -381,7 +381,7 @@ public class OperatorContext {
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
         while (true) {
             if (Operator.class.equals(aClass)
-                || !Operator.class.isAssignableFrom(aClass)) {
+                    || !Operator.class.isAssignableFrom(aClass)) {
                 return false;
             }
             try {
@@ -639,8 +639,8 @@ public class OperatorContext {
         Dimension tileSize = null;
         for (final Product sourceProduct : sourceProductList) {
             if (sourceProduct.getPreferredTileSize() != null &&
-                sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
+                    sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                    sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
                 tileSize = sourceProduct.getPreferredTileSize();
                 break;
             }
@@ -751,7 +751,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws
-                                                                                                       OperatorException {
+            OperatorException {
         if (declaredField.getType().equals(Product.class)) {
             String productMapName = declaredField.getName();
             Product sourceProduct = getSourceProduct(productMapName);
@@ -784,7 +784,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductsField(Field declaredField, SourceProducts sourceProductsAnnotation) throws
-                                                                                                          OperatorException {
+            OperatorException {
         if (declaredField.getType().equals(Product[].class)) {
             Product[] sourceProducts = getSourceProductsFieldValue(declaredField);
             if (sourceProducts != null) {
@@ -934,8 +934,8 @@ public class OperatorContext {
     }
 
     private void configureOperator(Operator operator, OperatorConfiguration operatorConfiguration) throws
-                                                                                                   ValidationException,
-                                                                                                   ConversionException {
+            ValidationException,
+            ConversionException {
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
         DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), parameterDescriptorFactory);
         domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), operator);
@@ -976,7 +976,12 @@ public class OperatorContext {
                         ValueSet valueSet = new ValueSet(names);
                         descriptor.setValueSet(valueSet);
                     }
-                    property.setValue(parameters.get(parameterName));
+                    Object paramValue = parameters.get(parameterName);
+                    if (paramValue instanceof String && !String.class.isAssignableFrom(property.getType())) {
+                        property.setValueFromText((String) paramValue);
+                    } else {
+                        property.setValue(paramValue);
+                    }
                 } catch (ValidationException e) {
                     throw new OperatorException(formatExceptionMessage("%s", e.getMessage()), e);
                 }
@@ -1009,7 +1014,6 @@ public class OperatorContext {
 
     /**
      * @param product The product.
-     *
      * @return The operator context for the given product, or null.
      */
     static OperatorContext getOperatorContext(Product product) {
