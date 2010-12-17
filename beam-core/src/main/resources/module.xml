@@ -26,6 +26,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.9:<br/>
+        [BEAM-1221] Need an option to configure multi-threading<br/>
         [BEAM-1212] RasterDataNode.isPixelValid(x,y) is not thread safe<br/>
         [BEAM-1208] ProductUtils.copyFlagBands doesn't copy masks<br/>
         [BEAM-1196] Latitude shift for non-WGS84 datums<br/>

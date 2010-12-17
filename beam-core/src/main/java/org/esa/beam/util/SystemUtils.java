@@ -61,7 +61,10 @@ public class SystemUtils {
     public static final String BEAM_HOME_PAGE = "http://envisat.esa.int/beam/";
 
     public static final String BEAM_HOME_PROPERTY_NAME = "beam.home";
+    public static final String BEAM_PLUGIN_PATH_PROPERTY_NAME = "beam.plugin.path";
+    public static final String BEAM_PARALLELISM_PROPERTY_NAME = "beam.parallelism";
     public static final String LAX_INSTALL_DIR_PROPERTY_NAME = "lax.root.install.dir";
+
     /**
      * SYSTEM_DEPENDENT_LINE_SEPARATOR
      */
@@ -87,14 +90,12 @@ public class SystemUtils {
      */
     public static final String AUXDATA_DIR_NAME = "auxdata";
     public static final String CACHE_DIR_NAME = "cache";
-    public static final String BEAM_PLUGIN_PATH_PROPERTY_NAME = "beam.plugin.path";
-
     private static final String _H5_CLASS_NAME = "ncsa.hdf.hdf5lib.H5";
     private static final String _H4_CLASS_NAME = "ncsa.hdf.hdflib.HDFLibrary";
     private static final String FILE_PROTOCOL_PREFIX = "file:";
     private static final String JAR_PROTOCOL_PREFIX = "jar:";
-    private static final String EPSG_DATABASE_DIR_NAME = "epsg-database";
 
+    private static final String EPSG_DATABASE_DIR_NAME = "epsg-database";
     private static final String JAI_REGISTRY_PATH = "/META-INF/javax.media.jai.registryFile.jai";
 
     /**
@@ -557,7 +558,9 @@ public class SystemUtils {
         } else {
             BeamLogManager.getSystemLogger().warning(MessageFormat.format("{0} not found", JAI_REGISTRY_PATH));
         }
-        JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
+        Integer parallelism = Integer.getInteger(BEAM_PARALLELISM_PROPERTY_NAME, Runtime.getRuntime().availableProcessors());
+        JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
+        BeamLogManager.getSystemLogger().info(MessageFormat.format("JAI tile scheduler parallelism set to {0}", parallelism));
     }
 
     /**
