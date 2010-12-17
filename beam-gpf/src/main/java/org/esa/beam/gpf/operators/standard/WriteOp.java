@@ -39,12 +39,15 @@ import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;
+import javax.xml.crypto.Data;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -191,9 +194,24 @@ public class WriteOp extends Operator {
      * @param pm A progress monitor.
      */
     public void writeProduct(ProgressMonitor pm) {
+        long startNanos = System.nanoTime();
+        getLogger().info("Start writing product " + getTargetProduct().getName() + " to " + getFile());
         OperatorExecutor operatorExecutor = OperatorExecutor.create(this);
         try {
             operatorExecutor.execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
+
+            getLogger().info("End writing product " + getTargetProduct().getName() + " to " + getFile());
+
+            double seconds = (System.nanoTime() - startNanos)/1.0E9;
+            int w = getTargetProduct().getSceneRasterWidth();
+            int h = getTargetProduct().getSceneRasterHeight();
+
+            getLogger().info(MessageFormat.format("Time: {0} sec. total, {1} sec. per line, {2} sec. per pixel",
+                                                  seconds,
+                                                  seconds / h,
+                                                  seconds / h / w));
+
+            logPerformanceAnalysis();
         } catch (OperatorException e) {
             try {
                 productWriter.deleteOutput();
@@ -202,7 +220,6 @@ public class WriteOp extends Operator {
             }
             throw e;
         } finally {
-            logPerformanceAnalysis();
             dispose();
         }
     }

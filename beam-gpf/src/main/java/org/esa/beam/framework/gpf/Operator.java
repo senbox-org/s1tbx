@@ -25,6 +25,8 @@ import org.esa.beam.framework.gpf.internal.OperatorContext;
 
 import javax.media.jai.BorderExtender;
 import java.awt.Rectangle;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -485,7 +487,6 @@ public abstract class Operator {
      *
      * @throws OperatorException if the current processing request has been canceled (e.g. by the user).
      */
-    @Deprecated
     protected final void checkForCancellation() throws OperatorException {
         context.checkForCancellation();
     }
@@ -503,7 +504,7 @@ public abstract class Operator {
      * Non-API.
      */
     public void logPerformanceAnalysis() {
-        context.logPerformanceAnalysis();
+        context.logPerformanceAnalysis(new PrintWriter(new OutputStreamWriter(System.out)));
     }
 
     /**

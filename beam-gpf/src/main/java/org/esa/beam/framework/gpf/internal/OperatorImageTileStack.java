@@ -93,7 +93,7 @@ public class OperatorImageTileStack extends OperatorImage {
     @Override
     protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
 
-        long nanos1 = System.nanoTime();
+        long startNanos = System.nanoTime();
 
         Band[] targetBands = getOperatorContext().getTargetProduct().getBands();
         Map<Band, Tile> targetTiles = new HashMap<Band, Tile>(targetBands.length * 2);
@@ -130,9 +130,7 @@ public class OperatorImageTileStack extends OperatorImage {
 
         }
 
-
-        long nanos2 = System.nanoTime();
-        updatePerformanceMetrics(nanos1, nanos2, destRect);
+        updateMetrics(destRect, startNanos);
     }
 
     private WritableRaster getWritableRaster(Band band, WritableRaster targetTileRaster) {

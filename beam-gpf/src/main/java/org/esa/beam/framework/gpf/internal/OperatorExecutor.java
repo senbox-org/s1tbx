@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Dimension;
@@ -134,6 +135,7 @@ public class OperatorExecutor {
     private void scheduleBandRowColumn(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
         for (final PlanarImage image : images) {
             for (int tileY = 0; tileY < tileCountY; tileY++) {
+                BeamLogManager.getSystemLogger().info("Scheduling tile row " + tileY + " for " + image);
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                 }
@@ -144,6 +146,7 @@ public class OperatorExecutor {
     private void scheduleRowBandColumn(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (final PlanarImage image : images) {
+                BeamLogManager.getSystemLogger().info("Scheduling tile row " + tileY + " for " + image);
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                 }
@@ -154,6 +157,7 @@ public class OperatorExecutor {
     private void scheduleRowColumnBand(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (int tileX = 0; tileX < tileCountX; tileX++) {
+                BeamLogManager.getSystemLogger().info("Scheduling tile column " + tileX + ", row " + tileY);
                 for (final PlanarImage image : images) {
                     scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                 }

@@ -57,6 +57,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -98,10 +99,8 @@ public class OperatorContext {
     private boolean disposed;
     private PropertyContainer propertyContainer;
     private RenderingHints renderingHints;
-    private PerformanceMetric performanceMetric;
     private boolean initialising;
     private boolean requiresAllBands;
-
 
     public OperatorContext(Operator operator) {
         this.operator = operator;
@@ -111,9 +110,7 @@ public class OperatorContext {
         this.sourceProductMap = new HashMap<String, Product>(3);
         this.targetPropertyMap = new HashMap<String, Object>(3);
         this.logger = BeamLogManager.getSystemLogger();
-        // Note: All OperatorImages in this context share the same TILE_CACHE_METRIC instance!
-        this.performanceMetric = new PerformanceMetric();
-        this.renderingHints = new RenderingHints(JAI.KEY_TILE_CACHE_METRIC, performanceMetric);
+        this.renderingHints = new RenderingHints(JAI.KEY_TILE_CACHE_METRIC, this);
     }
 
     public String getId() {
@@ -135,10 +132,6 @@ public class OperatorContext {
     public void setLogger(Logger logger) {
         Assert.notNull(logger, "logger");
         this.logger = logger;
-    }
-
-    public PerformanceMetric getPerformanceMetric() {
-        return performanceMetric;
     }
 
     public Product getSourceProduct(String id) {
@@ -320,7 +313,7 @@ public class OperatorContext {
     }
 
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region) {
-        return getSourceTile(rasterDataNode, region, (BorderExtender)null);
+        return getSourceTile(rasterDataNode, region, (BorderExtender) null);
     }
 
     @Deprecated
@@ -331,19 +324,19 @@ public class OperatorContext {
 
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender) {
         MultiLevelImage image = rasterDataNode.getSourceImage();
-            /////////////////////////////////////////////////////////////////////
-            //
-            // Note: GPF pull-processing is triggered here!
-            //
-            Raster awtRaster;
-            if (borderExtender != null) {
-                awtRaster = image.getExtendedData(region, borderExtender);
-            } else {
-                awtRaster = image.getData(region); // Note: copyData is NOT faster!
-            }
-            //
-            /////////////////////////////////////////////////////////////////////
-            return new TileImpl(rasterDataNode, awtRaster);
+        /////////////////////////////////////////////////////////////////////
+        //
+        // Note: GPF pull-processing is triggered here!
+        //
+        Raster awtRaster;
+        if (borderExtender != null) {
+            awtRaster = image.getExtendedData(region, borderExtender);
+        } else {
+            awtRaster = image.getData(region); // Note: copyData is NOT faster!
+        }
+        //
+        /////////////////////////////////////////////////////////////////////
+        return new TileImpl(rasterDataNode, awtRaster);
     }
 
     public OperatorImage getTargetImage(Band band) {
@@ -1011,22 +1004,6 @@ public class OperatorContext {
     }
 
     /**
-     * Sums the target nanos/pixel of all source images.
-     *
-     * @return the nanos/pixel spend in the sources of this operator.
-     */
-    double getSourceNanosPerPixel() {
-        double sourceNanosPerPixel = 0;
-        for (Product product : sourceProductList) {
-            OperatorContext operatorContext = getOperatorContext(product);
-            if (operatorContext != null) {
-                sourceNanosPerPixel += operatorContext.getPerformanceMetric().getTargetNanosPerPixel();
-            }
-        }
-        return sourceNanosPerPixel;
-    }
-
-    /**
      * @param product The product.
      * @return The operator context for the given product, or null.
      */
@@ -1039,20 +1016,40 @@ public class OperatorContext {
         return null;
     }
 
-    public void logPerformanceAnalysis() {
-        logPerformanceAnalysis("");
+    public void logPerformanceAnalysis(PrintWriter writer) {
+        logPerformanceAnalysis(writer, "");
     }
 
-    private void logPerformanceAnalysis(String indent) {
-        logger.info(indent + "Performance analysis for operator " + getOperatorSpi().getOperatorAlias() + ":");
-        logger.info(indent + "  Net: " + getPerformanceMetric().getNanosPerPixel() + " ns/pixel");
-        logger.info(indent + "  Target: " + getPerformanceMetric().getTargetNanosPerPixel() + " ns/pixel");
-        logger.info(
-                indent + "  Sources (" + sourceProductList.size() + "): " + getPerformanceMetric().getSourceNanosPerPixel() + " ns/pixel");
+    private void logPerformanceAnalysis(PrintWriter writer, String indent) {
+
+        writer.printf("%sPerformance analysis for operator %s:\n", indent, getOperatorSpi().getOperatorAlias());
+
+        for (OperatorImage operatorImage : targetImageMap.values()) {
+            Band targetBand = operatorImage.getTargetBand();
+            TileComputationStatistic[] tileComputationStatistics = operatorImage.getTileComputationStatistics();
+            for (int i = 0, tileComputationStatisticsLength = tileComputationStatistics.length; i < tileComputationStatisticsLength; i++) {
+                TileComputationStatistic tileComputationStatistic = tileComputationStatistics[i];
+                if (tileComputationStatistic != null) {
+                    writer.printf("%sBand %s: Tile %d,%d: Time for %d call(s): sum=%f, mean=%f, min=%f, max=%f sec.\n", indent,
+                                  targetBand.getName(),
+                                  tileComputationStatistic.getTileX(),
+                                  tileComputationStatistic.getTileY(),
+                                  tileComputationStatistic.getCount(),
+                                  tileComputationStatistic.getNanosSum() / 1.0E9,
+                                  tileComputationStatistic.getNanosMean() / 1.0E9,
+                                  tileComputationStatistic.getNanosMin() / 1.0E9,
+                                  tileComputationStatistic.getNanosMax() / 1.0E9
+                    );
+                } else {
+                    writer.printf("%sBand %s: Tile %d has never been computed\n", indent, targetBand.getName(), i);
+                }
+            }
+        }
+
         for (Product product : sourceProductList) {
             OperatorContext operatorContext = getOperatorContext(product);
             if (operatorContext != null) {
-                operatorContext.logPerformanceAnalysis(indent + "  ");
+                operatorContext.logPerformanceAnalysis(writer, indent + "  ");
             }
         }
     }

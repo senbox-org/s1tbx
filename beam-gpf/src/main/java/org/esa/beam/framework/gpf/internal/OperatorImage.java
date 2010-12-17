@@ -26,7 +26,6 @@ import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.SourcelessOpImage;
 import java.awt.Rectangle;
-import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 
 public class OperatorImage extends SourcelessOpImage {
@@ -36,6 +35,9 @@ public class OperatorImage extends SourcelessOpImage {
     private final OperatorContext operatorContext;
     private Band targetBand;
     private ProgressMonitor progressMonitor;
+    private final int numXTiles;
+    private final int numYTiles;
+    private TileComputationStatistic[] tileComputationStatistics;
 
     public OperatorImage(Band targetBand, OperatorContext operatorContext) {
         this(targetBand, operatorContext, ImageManager.createSingleBandedImageLayout(targetBand));
@@ -57,6 +59,9 @@ public class OperatorImage extends SourcelessOpImage {
         } else if (getTileCache() == null) {
             setTileCache(JAI.getDefaultInstance().getTileCache());
         }
+        numXTiles = getNumXTiles();
+        numYTiles = getNumYTiles();
+        tileComputationStatistics = new TileComputationStatistic[numYTiles * numXTiles];
     }
 
     protected OperatorContext getOperatorContext() {
@@ -70,8 +75,7 @@ public class OperatorImage extends SourcelessOpImage {
 
     @Override
     protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
-
-        long nanos1 = System.nanoTime();
+        long startNanos = System.nanoTime();
 
         Tile targetTile;
         if (getOperatorContext().isComputing(getTargetBand())) {
@@ -86,20 +90,27 @@ public class OperatorImage extends SourcelessOpImage {
             getOperatorContext().getOperator().computeTile(getTargetBand(), targetTile, ProgressMonitor.NULL);
         }
 
-        long nanos2 = System.nanoTime();
-        updatePerformanceMetrics(nanos1, nanos2, destRect);
+        updateMetrics(destRect, startNanos);
+    }
+
+
+    public TileComputationStatistic[] getTileComputationStatistics() {
+        return tileComputationStatistics;
+    }
+
+    protected void updateMetrics(Rectangle destRect, long startNanos) {
+        int tileX = this.XToTileX(destRect.x);
+        int tileY = this.YToTileY(destRect.y);
+        TileComputationStatistic tileComputationStatistic = tileComputationStatistics[numXTiles * tileY + tileX];
+        if (tileComputationStatistic == null) {
+            tileComputationStatistic = new TileComputationStatistic(tileX, tileY);
+            tileComputationStatistics[numXTiles * tileY + tileX] = tileComputationStatistic;
+        }
+        tileComputationStatistic.tileComputed(System.nanoTime() - startNanos);
     }
 
     protected boolean requiresAllBands() {
         return operatorContext.requiresAllBands();
-    }
-
-    protected void updatePerformanceMetrics(long nanos1, long nanos2, Rectangle destRect) {
-        double targetNanosPerPixel = (double) (nanos2 - nanos1) / (double) (destRect.width * destRect.height);
-        operatorContext.getPerformanceMetric().updateTarget(targetNanosPerPixel);
-
-        double sourceNanosPerPixel = operatorContext.getSourceNanosPerPixel();
-        operatorContext.getPerformanceMetric().updateSource(sourceNanosPerPixel);
     }
 
     @Override
@@ -125,4 +136,5 @@ public class OperatorImage extends SourcelessOpImage {
     protected static TileImpl createTargetTile(Band band, WritableRaster targetTileRaster, Rectangle targetRectangle) {
         return new TileImpl(band, targetTileRaster, targetRectangle, true);
     }
+
 }
