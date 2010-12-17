@@ -131,7 +131,7 @@ public abstract class AbstractClasspathFactory implements ClasspathFactory {
 
     private void trace(String msg) {
         if (config.isDebug()) {
-            System.out.println(String.format("[DEBUG] ceres-launcher: %s", msg));
+            config.getLogger().info(String.format("ceres-launcher: %s", msg));
         }
     }
 }

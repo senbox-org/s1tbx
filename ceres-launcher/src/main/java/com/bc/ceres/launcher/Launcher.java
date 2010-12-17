@@ -160,7 +160,7 @@ public final class Launcher {
 
     private void trace(String msg) {
         if (runtimeConfig.isDebug()) {
-            System.out.println(String.format("[DEBUG] ceres-launcher: %s", msg));
+            runtimeConfig.getLogger().info(String.format("ceres-launcher: %s", msg));
         }
     }
 

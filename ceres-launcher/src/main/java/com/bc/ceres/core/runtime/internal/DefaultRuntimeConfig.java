@@ -163,10 +163,10 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
         initLibDirs();
         if (isUsingModuleRuntime()) {
             initAppId();
-            initLogLevel();
-            initConsoleLog();
-            initLogger();
         }
+        initLogLevel();
+        initConsoleLog();
+        initLogger();
         setAutoDetectProperties();
     }
 
@@ -501,12 +501,12 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
     private void initLogger() {
         ConsoleHandler consoleHandler = null;
 
-        Logger rootlogger = LogManager.getLogManager().getLogger("");
-        Handler[] handlers = rootlogger.getHandlers();
+        Logger rootLogger = LogManager.getLogManager().getLogger("");
+        Handler[] handlers = rootLogger.getHandlers();
         for (Handler handler : handlers) {
             if (handler instanceof ConsoleHandler) {
                 consoleHandler = (ConsoleHandler) handler;
-                rootlogger.removeHandler(handler);
+                rootLogger.removeHandler(handler);
             }
         }
 

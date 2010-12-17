@@ -83,7 +83,7 @@ public class DeployMain {
     }
 
     private void run(File modulesFile, File repositoryDir) {
-        logger = Logger.getAnonymousLogger();
+        logger = Logger.getLogger(System.getProperty("ceres.context", "ceres"));
 
         File[] moduleFiles;
 

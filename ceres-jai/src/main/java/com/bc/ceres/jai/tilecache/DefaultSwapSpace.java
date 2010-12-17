@@ -31,7 +31,7 @@ public class DefaultSwapSpace implements SwapSpace {
     private final Map<Object, SwappedTile> swappedTiles;
 
     public DefaultSwapSpace(File swapDir) {
-        this(swapDir, Logger.getAnonymousLogger());
+        this(swapDir, Logger.getLogger(System.getProperty("ceres.context", "ceres")));
     }
 
     public DefaultSwapSpace(File swapDir, Logger logger) {
