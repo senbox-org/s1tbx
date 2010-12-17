@@ -169,7 +169,6 @@ public class BasicApp {
     private boolean _shuttingDown;
     private ContainerListener popupMenuListener;
     private Logger logger;
-    private Formatter logFormatter;
     private ActionListener closeHandler;
     private Map<String, CommandBar> toolBars;
     private boolean unexpectedShutdown;  // fix BEAM-712 (nf 2007.11.02)
@@ -480,13 +479,6 @@ public class BasicApp {
     }
 
     private void initLogger() {
-        if (BeamUiActivator.getInstance() != null) {
-            final Logger logger = BeamUiActivator.getInstance().getModuleContext().getLogger();
-            BeamLogManager.setSystemLoggerName(logger.getName());
-        }
-        logFormatter = BeamLogManager.createFormatter(getAppName(), getAppVersion(), getAppCopyright());
-        // todo - check logging, use Ceres logger! (nf - 05.05.2009)
-        //BeamLogManager.configureSystemLogger(logFormatter, false);
         logger = BeamLogManager.getSystemLogger();
     }
 
@@ -1601,83 +1593,6 @@ public class BasicApp {
             JOptionPane.showMessageDialog(getMainFrame(), messageMainPanel, "Warning", JOptionPane.WARNING_MESSAGE);
         } else {
             showWarningDialog(message);
-        }
-    }
-
-    /////////////////////////////////////////////////////////////////////////
-    // Logging Support
-
-    /**
-     * Writes the application specific logging file header.
-     */
-    protected final void logAppInfo() {
-    }
-
-    public final void initLogging() {
-        BeamLogManager.removeRootLoggerHandlers();
-        if (getAppSymbolicName() != null) {
-            if (!getPreferences().getProperties().containsKey(PROPERTY_KEY_APP_LOG_ENABLED)) {
-                getPreferences().setPropertyBool(PROPERTY_KEY_APP_LOG_ENABLED, false);
-            }
-            final boolean logEnabled = getPreferences().getPropertyBool(PROPERTY_KEY_APP_LOG_ENABLED);
-            if (logEnabled) {
-                final String defaultLogPrefix = FileUtils.createValidFilename(getAppName().toLowerCase());
-                String logPrefix = getPreferences().getPropertyString(PROPERTY_KEY_APP_LOG_PREFIX, defaultLogPrefix);
-                String logLevelStr = getPreferences().getPropertyString(PROPERTY_KEY_APP_LOG_LEVEL,
-                                                                        SystemUtils.LLS_INFO);
-                int logLevel = SystemUtils.getLogLevel(logLevelStr);
-                boolean echoOn = getPreferences().getPropertyBool(PROPERTY_KEY_APP_LOG_ECHO, Boolean.FALSE);
-                registerSystemLogHandler(logPrefix, logLevel, echoOn);
-                if (logLevel == SystemUtils.LL_DEBUG) {
-                    Debug.setEnabled(true);
-                    Debug.setLogging(true);
-                }
-            }
-        }
-    }
-
-    public final void registerSystemLogHandler(String logPrefix, int logLevel, boolean echoOn) {
-        if (logPrefix != null) {
-            String logPattern = BeamLogManager.getLogFilePattern(logPrefix);
-            CacheHandler cacheHandler = BeamLogManager.getRegisteredCacheHandler();
-            try {
-                BeamLogManager.ensureLogPathFromPatternExists(logPattern);
-                Handler handler = new FileHandler(logPattern);
-                handler.setFormatter(logFormatter);
-                if (cacheHandler != null) {
-                    cacheHandler.transferRecords(handler);
-                }
-                logger.addHandler(handler);
-                logger.setLevel(logLevel == SystemUtils.LL_DEBUG ? Level.FINEST :
-                                 logLevel == SystemUtils.LL_INFO ? Level.INFO :
-                                 logLevel == SystemUtils.LL_WARNING ? Level.WARNING :
-                                 logLevel == SystemUtils.LL_ERROR ? Level.SEVERE :
-                                 Level.INFO);
-                getPreferences().setPropertyString(PROPERTY_KEY_APP_LOG_PREFIX, logPrefix);
-                getPreferences().setPropertyString(PROPERTY_KEY_APP_LOG_LEVEL,
-                                                   logLevel == SystemUtils.LL_DEBUG ? SystemUtils.LLS_DEBUG :
-                                                   logLevel == SystemUtils.LL_ERROR ? SystemUtils.LLS_ERROR :
-                                                   logLevel == SystemUtils.LL_WARNING ? SystemUtils.LLS_WARNING : SystemUtils.LLS_INFO);
-                getPreferences().setPropertyBool(PROPERTY_KEY_APP_DEBUG_ENABLED, Debug.isEnabled());
-                getPreferences().setPropertyBool(PROPERTY_KEY_APP_LOG_ECHO, echoOn);
-            } catch (SecurityException e) {
-                System.err.println("error: failed to create log file " + logPattern + ": " + e.getMessage());
-                System.err.println("logging will be redirected to console...");
-                echoOn = true;
-            } catch (IOException e) {
-                System.err.println("error: failed to create log file " + logPattern + ": " + e.getMessage());
-                System.err.println("logging will be redirected to console...");
-                echoOn = true;
-            }
-            if (echoOn) {
-                final ConsoleHandler handler = new ConsoleHandler();
-                handler.setFormatter(logFormatter);
-                handler.setLevel(Level.FINE);
-                if (cacheHandler != null) {
-                    cacheHandler.transferRecords(handler);
-                }
-                logger.addHandler(handler);
-            }
         }
     }
 
