@@ -16,6 +16,7 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.jai.ImageManager;
@@ -105,12 +106,12 @@ public class OperatorImageTileStack extends OperatorImage {
                 Tile targetTile = createTargetTile(band, tileRaster, destRect);
                 targetTiles.put(band, targetTile);
             } else if (requiresAllBands()) {
-                Tile targetTile = getOperatorContext().getSourceTile(band, destRect, getProgressMonitor());
+                Tile targetTile = getOperatorContext().getSourceTile(band, destRect);
                 targetTiles.put(band, targetTile);
             }
         }
 
-        getOperatorContext().getOperator().computeTileStack(targetTiles, destRect, getProgressMonitor());
+        getOperatorContext().getOperator().computeTileStack(targetTiles, destRect, ProgressMonitor.NULL);
 
         for (Entry<Band, WritableRaster> entry : writableRasters.entrySet()) {
             Band band = entry.getKey();

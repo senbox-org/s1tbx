@@ -77,13 +77,13 @@ public class OperatorImage extends SourcelessOpImage {
         if (getOperatorContext().isComputing(getTargetBand())) {
             targetTile = createTargetTile(getTargetBand(), tile, destRect);
         } else if (requiresAllBands()) {
-            targetTile = getOperatorContext().getSourceTile(getTargetBand(), destRect, getProgressMonitor());
+            targetTile = getOperatorContext().getSourceTile(getTargetBand(), destRect);
         } else {
             targetTile = null;
         }
         // computeTile() may have been deactivated
         if (targetTile != null && getOperatorContext().isComputeTileMethodUsable()) {
-            getOperatorContext().getOperator().computeTile(getTargetBand(), targetTile, getProgressMonitor());
+            getOperatorContext().getOperator().computeTile(getTargetBand(), targetTile, ProgressMonitor.NULL);
         }
 
         long nanos2 = System.nanoTime();
@@ -100,14 +100,6 @@ public class OperatorImage extends SourcelessOpImage {
 
         double sourceNanosPerPixel = operatorContext.getSourceNanosPerPixel();
         operatorContext.getPerformanceMetric().updateSource(sourceNanosPerPixel);
-    }
-
-    protected ProgressMonitor getProgressMonitor() {
-        return progressMonitor != null ? progressMonitor : ProgressMonitor.NULL;
-    }
-
-    protected void setProgressMonitor(ProgressMonitor pm) {
-        this.progressMonitor = pm;
     }
 
     @Override
@@ -128,16 +120,6 @@ public class OperatorImage extends SourcelessOpImage {
         }
         sb.append("]");
         return sb.toString();
-    }
-
-    static ProgressMonitor setProgressMonitor(RenderedImage image, ProgressMonitor pm) {
-        ProgressMonitor oldPm = ProgressMonitor.NULL;
-        if (image instanceof OperatorImage) {
-            final OperatorImage opImage = (OperatorImage) image;
-            oldPm = opImage.getProgressMonitor();
-            opImage.setProgressMonitor(pm);
-        }
-        return oldPm;
     }
 
     protected static TileImpl createTargetTile(Band band, WritableRaster targetTileRaster, Rectangle targetRectangle) {

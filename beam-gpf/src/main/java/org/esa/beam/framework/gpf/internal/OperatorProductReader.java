@@ -28,8 +28,8 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.awt.Rectangle;
-import java.awt.image.RenderedImage;
 import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -87,22 +87,17 @@ public class OperatorProductReader implements ProductReader {
                                    ProgressMonitor pm) throws IOException {
         operatorContext.getLogger().warning("OperatorProductReader.readBandRasterData: Should not come here anymore since raster data shall only be computed by OperatorImage");
         final RenderedImage image = operatorContext.getTargetImage(destBand);
-        ProgressMonitor oldPm = OperatorImage.setProgressMonitor(image, pm);
-        try {
-            /////////////////////////////////////////////////////////////////////
-            //
-            // Note: GPF pull-processing is triggered here!!!
-            //
-            Raster data = image.getData(new Rectangle(destOffsetX,
-                                                      destOffsetY,
-                                                      destWidth,
-                                                      destHeight));
-            //
-            /////////////////////////////////////////////////////////////////////
-            data.getDataElements(destOffsetX, destOffsetY, destWidth, destHeight, destBuffer.getElems());
-        } finally {
-            OperatorImage.setProgressMonitor(image, oldPm);
-        }
+        /////////////////////////////////////////////////////////////////////
+        //
+        // Note: GPF pull-processing is triggered here!!!
+        //
+        Raster data = image.getData(new Rectangle(destOffsetX,
+                                                  destOffsetY,
+                                                  destWidth,
+                                                  destHeight));
+        //
+        /////////////////////////////////////////////////////////////////////
+        data.getDataElements(destOffsetX, destOffsetY, destWidth, destHeight, destBuffer.getElems());
     }
 
     public synchronized void close() throws IOException {

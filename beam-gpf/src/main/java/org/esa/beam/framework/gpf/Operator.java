@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  * <ld>
  * <li>{@link #initialize()}: must be implemented in order to initialise the operator and create the target
  * product.</li>
- * <li>{@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile()}: implemented to compute the tile
+ * <li>{@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile()}: implemented to compute the tile
  * for a single band.</li>
  * <li>{@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor)}: implemented to compute the tiles
  * for multiple bands.</li>
@@ -127,6 +127,8 @@ public abstract class Operator {
         context.updateOperator();
     }
 
+    // todo - remove ProgressMonitor parameter, it has never been used and wastes processing time (nf - 17.12.2010)
+
     /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
@@ -136,13 +138,14 @@ public abstract class Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     *
      * @throws OperatorException If an error occurs during computation of the target raster.
      */
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         throw new RuntimeException(
                 MessageFormat.format("{0}: ''computeTile()'' method not implemented", getClass().getSimpleName()));
     }
+
+    // todo - remove ProgressMonitor parameter, it has never been used and wastes processing time (nf - 17.12.2010)
 
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
@@ -153,11 +156,10 @@ public abstract class Operator {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     *
      * @throws OperatorException if an error occurs during computation of the target rasters.
      */
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws
-                                                                                                             OperatorException {
+            OperatorException {
         throw new RuntimeException(
                 MessageFormat.format("{0}: ''computeTileStack()'' method not implemented", getClass().getSimpleName()));
     }
@@ -170,6 +172,8 @@ public abstract class Operator {
      */
     public void dispose() {
     }
+
+    // todo - seems not very helpful, only usage in SpectralUnmixingOp (nf - 17.12.2010)
 
     /**
      * Deactivates the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile}
@@ -185,6 +189,7 @@ public abstract class Operator {
         context.setComputeTileMethodUsable(false);
     }
 
+    // todo - seems not very helpful, only usage in WriteOp (nf - 17.12.2010)
     protected final void setRequiresAllBands(boolean requiresAllBands) {
         context.setRequiresAllBands(requiresAllBands);
     }
@@ -209,7 +214,6 @@ public abstract class Operator {
      * Sets the source products.
      *
      * @param products The source products.
-     *
      * @since BEAM 4.2
      */
     public final void setSourceProducts(Product[] products) {
@@ -222,7 +226,6 @@ public abstract class Operator {
      * {@code getSourceProduct("sourceProduct")}.
      *
      * @return The source product, or {@code null} if not set.
-     *
      * @since BEAM 4.2
      */
     public Product getSourceProduct() {
@@ -239,10 +242,9 @@ public abstract class Operator {
 
     /**
      * Sets a single source product. This method is a shortcut for
-     * {@code setSourceProduct("sourceProduct",sourceProduct)}.
+     * {@code setSourceProduct("sourceProduct", sourceProduct)}.
      *
      * @param sourceProduct the source product to be set
-     *
      * @since BEAM 4.2
      */
     public void setSourceProduct(Product sourceProduct) {
@@ -253,9 +255,7 @@ public abstract class Operator {
      * Gets the source product using the specified name.
      *
      * @param id the identifier
-     *
      * @return the source product, or {@code null} if not found
-     *
      * @see #getSourceProductId(Product)
      */
     public final Product getSourceProduct(String id) {
@@ -270,7 +270,6 @@ public abstract class Operator {
      *
      * @param id      a source product identifier
      * @param product the source product to be set
-     *
      * @since BEAM 4.2
      */
     public final void setSourceProduct(String id, Product product) {
@@ -282,7 +281,6 @@ public abstract class Operator {
     /**
      * @param id      a source product identifier
      * @param product the source product to be set
-     *
      * @deprecated since BEAM 4.2, use {@link #setSourceProduct(String, org.esa.beam.framework.datamodel.Product)}
      */
     public final void addSourceProduct(String id, Product product) {
@@ -295,9 +293,7 @@ public abstract class Operator {
      * Gets the identifier for the given source product.
      *
      * @param product The source product.
-     *
      * @return The identifier, or {@code null} if no such exists.
-     *
      * @see #getSourceProduct(String)
      */
     public final String getSourceProductId(Product product) {
@@ -312,7 +308,6 @@ public abstract class Operator {
      * call to {@link #initialize()}.</p>
      *
      * @return The target product.
-     *
      * @throws OperatorException May be caused by {@link #initialize()}, if the operator is not initialised,
      *                           or if the target product is not set.
      */
@@ -338,9 +333,7 @@ public abstract class Operator {
      * call to {@link #initialize()}.</p>
      *
      * @param name the name of the property requested.
-     *
      * @return the target property requested.
-     *
      * @throws OperatorException May be caused by {@link #initialize()}, if the operator is not initialised,
      *                           or if the target product is not been set.
      */
@@ -352,9 +345,7 @@ public abstract class Operator {
      * Gets the value for the parameter with the given name.
      *
      * @param name The parameter name.
-     *
      * @return The parameter value, which may be {@code null}.
-     *
      * @since BEAM 4.7
      */
     public Object getParameter(String name) {
@@ -366,7 +357,6 @@ public abstract class Operator {
      *
      * @param name  The parameter name.
      * @param value The parameter value, which may be {@code null}.
-     *
      * @since BEAM 4.7
      */
     public void setParameter(String name, Object value) {
@@ -380,17 +370,53 @@ public abstract class Operator {
      *                       e.g. a {@link org.esa.beam.framework.datamodel.Band Band} or
      *                       {@link org.esa.beam.framework.datamodel.TiePointGrid TiePointGrid}.
      * @param region         the image region in pixel coordinates
-     * @param pm             The progress monitor passed into
-     *                       the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile} method or
-     *                       the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
-     *
      * @return a tile.
-     *
      * @throws OperatorException if the tile request cannot be processed
      */
-    public final Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, ProgressMonitor pm) throws
-                                                                                                         OperatorException {
-        return context.getSourceTile(rasterDataNode, region, pm);
+    public final Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region)
+            throws OperatorException {
+        return context.getSourceTile(rasterDataNode, region);
+    }
+
+    /**
+     * Gets a {@link Tile} for a given band and image region.
+     *
+     * @param rasterDataNode the raster data node of a data product,
+     *                       e.g. a {@link org.esa.beam.framework.datamodel.Band Band} or
+     *                       {@link org.esa.beam.framework.datamodel.TiePointGrid TiePointGrid}.
+     * @param region         the image region in pixel coordinates
+     * @param pm             The progress monitor passed into
+     *                       the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile} method or
+     *                       the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
+     * @return a tile.
+     * @throws OperatorException if the tile request cannot be processed
+     * @deprecated since BEAM 4.9, because the progress monitor is not used anymore. Please
+     *             use {@link #getSourceTile(RasterDataNode, Rectangle, BorderExtender)} instead.
+     */
+    @Deprecated
+    public final Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, ProgressMonitor pm)
+            throws OperatorException {
+        return context.getSourceTile(rasterDataNode, region);
+    }
+
+    /**
+     * Gets a {@link Tile} for a given band and image region. The region can overlap the bounds of source image.
+     * This method is particulary useful if you need to compute target pixels from an n x m region around a corresponding source pixel.
+     * In this case an extended tile will need to be read from the source.
+     *
+     * @param rasterDataNode the raster data node of a data product,
+     *                       e.g. a {@link org.esa.beam.framework.datamodel.Band Band} or
+     *                       {@link org.esa.beam.framework.datamodel.TiePointGrid TiePointGrid}.
+     * @param region         The image region in pixel coordinates
+     * @param borderExtender A strategy used to fill the raster regions that lie outside the bounds of the source image.
+     * @return A tile whose region can overlap the bounds of source image.
+     * @throws OperatorException if the tile request cannot be processed
+     * @since BEAM 4.7.1
+     */
+    public final Tile getSourceTile(RasterDataNode rasterDataNode,
+                                    Rectangle region,
+                                    BorderExtender borderExtender) throws OperatorException {
+        return context.getSourceTile(rasterDataNode, region, borderExtender);
     }
 
     /**
@@ -404,17 +430,20 @@ public abstract class Operator {
      * @param region         The image region in pixel coordinates
      * @param borderExtender A strategy used to fill the raster regions that lie outside the bounds of the source image.
      * @param pm             The progress monitor passed into
-     *                       the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile} method or
+     *                       the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile} method or
      *                       the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
-     *
      * @return A tile whose region can overlap the bounds of source image.
-     *
      * @throws OperatorException if the tile request cannot be processed
      * @since BEAM 4.7.1
+     * @deprecated since BEAM 4.9, because the progress monitor is not used anymore. Please
+     *             use {@link #getSourceTile(RasterDataNode, Rectangle, BorderExtender)} instead.
      */
-    public final Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender,
+    @Deprecated
+    public final Tile getSourceTile(RasterDataNode rasterDataNode,
+                                    Rectangle region,
+                                    BorderExtender borderExtender,
                                     ProgressMonitor pm) throws OperatorException {
-        return context.getSourceTile(rasterDataNode, region, borderExtender, pm);
+        return context.getSourceTile(rasterDataNode, region, borderExtender);
     }
 
     /**
@@ -423,15 +452,14 @@ public abstract class Operator {
      * {@link #computeTile} or {@link #computeTileStack} methods.
      *
      * @param pm The progress monitor passed into the
-     *           the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile} method or
+     *           the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile} method or
      *           the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
-     *
      * @throws OperatorException if the current processing request has been canceled (e.g. by the user).
      * @deprecated Weak "typo" in method name, use {@link #checkForCancellation(com.bc.ceres.core.ProgressMonitor)}
      */
     @Deprecated
     protected final void checkForCancelation(ProgressMonitor pm) throws OperatorException {
-        context.checkForCancellation(pm);
+        context.checkForCancellation();
     }
 
     /**
@@ -440,13 +468,26 @@ public abstract class Operator {
      * {@link #computeTile} or {@link #computeTileStack} methods.
      *
      * @param pm The progress monitor passed into the
-     *           the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile} method or
+     *           the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile} method or
      *           the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
+     * @throws OperatorException if the current processing request has been canceled (e.g. by the user).
+     * @deprecated since BEAM 4.9, because the progress monitor is not used anymore. Please
+     *             use {@link #checkForCancellation()} without parameters instead.
+     */
+    @Deprecated
+    protected final void checkForCancellation(ProgressMonitor pm) throws OperatorException {
+        context.checkForCancellation();
+    }
+
+    /**
+     * Checks for cancellation of the current processing request. Throws an exception, if the
+     * request has been canceled (e.g. by the user).
      *
      * @throws OperatorException if the current processing request has been canceled (e.g. by the user).
      */
-    protected final void checkForCancellation(ProgressMonitor pm) throws OperatorException {
-        context.checkForCancellation(pm);
+    @Deprecated
+    protected final void checkForCancellation() throws OperatorException {
+        context.checkForCancellation();
     }
 
     /**
@@ -477,7 +518,7 @@ public abstract class Operator {
 
     /**
      * Gets the SPI which was used to create this operator.
-     * If no operator has been explicitely set, the method will return an anonymous
+     * If no operator has been explicitly set, the method will return an anonymous
      * SPI.
      *
      * @return The operator SPI.

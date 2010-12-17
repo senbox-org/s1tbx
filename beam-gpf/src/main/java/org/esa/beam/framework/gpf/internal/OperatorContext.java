@@ -94,6 +94,7 @@ public class OperatorContext {
     private Map<Band, OperatorImage> targetImageMap;
     private OperatorConfiguration configuration;
     private Logger logger;
+    private boolean cancelled;
     private boolean disposed;
     private PropertyContainer propertyContainer;
     private RenderingHints renderingHints;
@@ -221,8 +222,16 @@ public class OperatorContext {
         return passThrough;
     }
 
-    public void checkForCancellation(ProgressMonitor pm) throws OperatorException {
-        if (pm.isCanceled()) {
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    public void checkForCancellation() throws OperatorException {
+        if (isCancelled()) {
             throw new OperatorException(OPERATION_CANCELED_MESSAGE);
         }
     }
@@ -305,15 +314,23 @@ public class OperatorContext {
         this.computeTileStackMethodUsable = computeTileStackMethodUsable;
     }
 
+    @Deprecated
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, ProgressMonitor pm) {
-        return getSourceTile(rasterDataNode, region, null, pm);
+        return getSourceTile(rasterDataNode, region);
     }
 
+    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region) {
+        return getSourceTile(rasterDataNode, region, (BorderExtender)null);
+    }
+
+    @Deprecated
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender,
                               ProgressMonitor pm) {
+        return getSourceTile(rasterDataNode, region, borderExtender);
+    }
+
+    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender) {
         MultiLevelImage image = rasterDataNode.getSourceImage();
-        ProgressMonitor oldPm = OperatorImage.setProgressMonitor(image, pm);
-        try {
             /////////////////////////////////////////////////////////////////////
             //
             // Note: GPF pull-processing is triggered here!
@@ -327,9 +344,6 @@ public class OperatorContext {
             //
             /////////////////////////////////////////////////////////////////////
             return new TileImpl(rasterDataNode, awtRaster);
-        } finally {
-            OperatorImage.setProgressMonitor(image, oldPm);
-        }
     }
 
     public OperatorImage getTargetImage(Band band) {
