@@ -34,7 +34,6 @@ public class OperatorImage extends SourcelessOpImage {
 
     private final OperatorContext operatorContext;
     private Band targetBand;
-    private ProgressMonitor progressMonitor;
     private final int numXTiles;
     private final int numYTiles;
     private TileComputationStatistic[] tileComputationStatistics;
@@ -99,14 +98,16 @@ public class OperatorImage extends SourcelessOpImage {
     }
 
     protected void updateMetrics(Rectangle destRect, long startNanos) {
-        int tileX = this.XToTileX(destRect.x);
-        int tileY = this.YToTileY(destRect.y);
-        TileComputationStatistic tileComputationStatistic = tileComputationStatistics[numXTiles * tileY + tileX];
-        if (tileComputationStatistic == null) {
-            tileComputationStatistic = new TileComputationStatistic(tileX, tileY);
-            tileComputationStatistics[numXTiles * tileY + tileX] = tileComputationStatistic;
+        if (getOperatorContext().isTracePerformance()) {
+            int tileX = this.XToTileX(destRect.x);
+            int tileY = this.YToTileY(destRect.y);
+            TileComputationStatistic tileComputationStatistic = tileComputationStatistics[numXTiles * tileY + tileX];
+            if (tileComputationStatistic == null) {
+                tileComputationStatistic = new TileComputationStatistic(tileX, tileY);
+                tileComputationStatistics[numXTiles * tileY + tileX] = tileComputationStatistic;
+            }
+            tileComputationStatistic.tileComputed(System.nanoTime() - startNanos);
         }
-        tileComputationStatistic.tileComputed(System.nanoTime() - startNanos);
     }
 
     protected boolean requiresAllBands() {
@@ -116,7 +117,6 @@ public class OperatorImage extends SourcelessOpImage {
     @Override
     public synchronized void dispose() {
         targetBand = null;
-        progressMonitor = null;
         super.dispose();
     }
 

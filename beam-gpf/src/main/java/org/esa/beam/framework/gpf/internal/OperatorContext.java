@@ -57,12 +57,18 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -79,6 +85,9 @@ import java.util.regex.Pattern;
  * @since 4.1
  */
 public class OperatorContext {
+
+    static final String SYS_PROP_PERFORMANCE_FILE = "beam.gpf.performance.file";
+    static final String SYS_PROP_PERFORMANCE_TRACE = "beam.gpf.performance.trace";
 
     private static final String OPERATION_CANCELED_MESSAGE = "Operation canceled.";
     private String id;
@@ -101,6 +110,7 @@ public class OperatorContext {
     private RenderingHints renderingHints;
     private boolean initialising;
     private boolean requiresAllBands;
+    private final boolean tracePerformance;
 
     public OperatorContext(Operator operator) {
         this.operator = operator;
@@ -111,6 +121,7 @@ public class OperatorContext {
         this.targetPropertyMap = new HashMap<String, Object>(3);
         this.logger = BeamLogManager.getSystemLogger();
         this.renderingHints = new RenderingHints(JAI.KEY_TILE_CACHE_METRIC, this);
+        this.tracePerformance = Boolean.getBoolean(OperatorContext.SYS_PROP_PERFORMANCE_TRACE);
     }
 
     public String getId() {
@@ -213,6 +224,10 @@ public class OperatorContext {
 
     public boolean isPassThrough() {
         return passThrough;
+    }
+
+    public boolean isTracePerformance() {
+        return tracePerformance;
     }
 
     public boolean isCancelled() {
@@ -1016,32 +1031,61 @@ public class OperatorContext {
         return null;
     }
 
-    public void logPerformanceAnalysis(PrintWriter writer) {
-        logPerformanceAnalysis(writer, "");
+    public void logPerformanceAnalysis() {
+        if (Boolean.getBoolean(SYS_PROP_PERFORMANCE_TRACE)) {
+            File file = new File(System.getProperty(SYS_PROP_PERFORMANCE_FILE, "gpf-performance.txt"));
+            try {
+                FileWriter fileWriter = new FileWriter(file);
+                try {
+                    logPerformanceAnalysis(new PrintWriter(fileWriter));
+                    getLogger().info("GPF performance analysis has been written to " + file);
+                } finally {
+                    fileWriter.close();
+                }
+            } catch (IOException e) {
+                getLogger().severe("Failed to write GPF performance analysis to " + file);
+            }
+        }
     }
 
-    private void logPerformanceAnalysis(PrintWriter writer, String indent) {
+    public void logPerformanceAnalysis(PrintWriter writer) {
+        writer.printf("Depth\tBand\tTile\tCalls\tMin(s)\tMax(s)\n");
+        logPerformanceAnalysis(writer, 0);
+    }
 
-        writer.printf("%sPerformance analysis for operator %s:\n", indent, getOperatorSpi().getOperatorAlias());
+    private void logPerformanceAnalysis(PrintWriter writer, int depth) {
 
-        for (OperatorImage operatorImage : targetImageMap.values()) {
+        String operatorName = getOperatorSpi().getOperatorAlias();
+        String productName = getTargetProduct().getName();
+
+        ArrayList<OperatorImage> operatorImages = new ArrayList<OperatorImage>(new HashSet<OperatorImage>(targetImageMap.values()));
+        Collections.sort(operatorImages, new Comparator<OperatorImage>() {
+            @Override
+            public int compare(OperatorImage o1, OperatorImage o2) {
+                return o1.getTargetBand().getName().compareTo(o2.getTargetBand().getName());
+            }
+        });
+
+        for (OperatorImage operatorImage : operatorImages) {
             Band targetBand = operatorImage.getTargetBand();
+            String imageType = String.format("%s@%s",
+                                             Integer.toHexString(System.identityHashCode(operatorImage)),
+                                             operatorImage instanceof OperatorImageTileStack ? "Stack" : "Single");
             TileComputationStatistic[] tileComputationStatistics = operatorImage.getTileComputationStatistics();
             for (int i = 0, tileComputationStatisticsLength = tileComputationStatistics.length; i < tileComputationStatisticsLength; i++) {
                 TileComputationStatistic tileComputationStatistic = tileComputationStatistics[i];
                 if (tileComputationStatistic != null) {
-                    writer.printf("%sBand %s: Tile %d,%d: Time for %d call(s): sum=%f, mean=%f, min=%f, max=%f sec.\n", indent,
+                    writer.printf("%d\t%s.%s\t%s.%s.%d.%d\t%d\t%f\t%f\n",
+                                  depth,
+                                  productName,
                                   targetBand.getName(),
+                                  operatorName,
+                                  imageType,
                                   tileComputationStatistic.getTileX(),
                                   tileComputationStatistic.getTileY(),
                                   tileComputationStatistic.getCount(),
-                                  tileComputationStatistic.getNanosSum() / 1.0E9,
-                                  tileComputationStatistic.getNanosMean() / 1.0E9,
                                   tileComputationStatistic.getNanosMin() / 1.0E9,
-                                  tileComputationStatistic.getNanosMax() / 1.0E9
-                    );
-                } else {
-                    writer.printf("%sBand %s: Tile %d has never been computed\n", indent, targetBand.getName(), i);
+                                  tileComputationStatistic.getNanosMax() / 1.0E9);
                 }
             }
         }
@@ -1049,7 +1093,7 @@ public class OperatorContext {
         for (Product product : sourceProductList) {
             OperatorContext operatorContext = getOperatorContext(product);
             if (operatorContext != null) {
-                operatorContext.logPerformanceAnalysis(writer, indent + "  ");
+                operatorContext.logPerformanceAnalysis(writer, depth + 1);
             }
         }
     }

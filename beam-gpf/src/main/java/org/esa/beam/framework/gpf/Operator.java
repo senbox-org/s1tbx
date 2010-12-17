@@ -504,7 +504,7 @@ public abstract class Operator {
      * Non-API.
      */
     public void logPerformanceAnalysis() {
-        context.logPerformanceAnalysis(new PrintWriter(new OutputStreamWriter(System.out)));
+        context.logPerformanceAnalysis();
     }
 
     /**
