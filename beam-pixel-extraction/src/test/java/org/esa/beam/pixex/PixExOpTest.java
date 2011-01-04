@@ -70,10 +70,12 @@ public class PixExOpTest {
 
     @After
     public void tearDown() throws IOException {
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(clipboardContents, null);
-        System.setOut(defaultOutStream);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(pixExOpSpi);
-
+        try {
+            GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(pixExOpSpi);
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(clipboardContents, null);
+            System.setOut(defaultOutStream);
+        } catch (HeadlessException ignore) {
+        }
     }
 
     @Test
