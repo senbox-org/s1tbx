@@ -331,7 +331,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
         _fileID = -1;
     }
 
-    private int getJH5DataType(int productDataType) {
+    private int getH5DataType(int productDataType) {
         int jh5DataType = -1;
         if (productDataType == ProductData.TYPE_INT8) {
             jh5DataType = HDF5Constants.H5T_NATIVE_INT8;
@@ -361,9 +361,8 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
 
     private int createH5TypeID(int productDataType) throws IOException {
         try {
-            final int jh5DataType = getJH5DataType(productDataType);
-            final int ch5DataType = H5.J2C(jh5DataType);
-            return H5.H5Tcopy(ch5DataType);
+            final int h5DataType = getH5DataType(productDataType);
+            return H5.H5Tcopy(h5DataType);
         } catch (HDF5LibraryException e) {
             throw new ProductIOException(createErrorMessage(e));
         }
@@ -437,12 +436,12 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
         } else if (attribute.getData().isScalar()) {
             createScalarAttribute(locationID,
                                   attribute.getName(),
-                                  getJH5DataType(productDataType),
+                                  getH5DataType(productDataType),
                                   attribute.getData().getElems());
         } else {
             createArrayAttribute(locationID,
                                  attribute.getName(),
-                                 getJH5DataType(productDataType),
+                                 getH5DataType(productDataType),
                                  attribute.getData().getNumElems(),
                                  attribute.getData().getElems());
         }
@@ -559,7 +558,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
         int attrSpaceID = -1;
         int attributeID = -1;
         try {
-            attrTypeID = H5.H5Tcopy(H5.J2C(jh5DataType));
+            attrTypeID = H5.H5Tcopy(jh5DataType);
             if (typeSize > 0) {
                 H5.H5Tset_size(attrTypeID, typeSize);
             }
@@ -586,7 +585,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
         int attrSpaceID = -1;
         int attributeID = -1;
         try {
-            attrTypeID = H5.H5Tcopy(H5.J2C(jh5DataType));
+            attrTypeID = H5.H5Tcopy(jh5DataType);
             attrSpaceID = H5.H5Screate_simple(1, new long[]{arraySize}, null);
             attributeID = H5.H5Acreate(locationID, name, attrTypeID, attrSpaceID, HDF5Constants.H5P_DEFAULT);
             H5.H5Awrite(attributeID, attrTypeID, value);

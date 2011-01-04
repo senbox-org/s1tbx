@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>lib-hdf</symbolicName>
     <name>HDF Library</name>
-    <version>2.3</version>
+    <version>2.6.1</version>
     <packaging>dir</packaging>
     <native>true</native>
     <categories>Library,HDF</categories>
@@ -11,7 +11,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2010 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
