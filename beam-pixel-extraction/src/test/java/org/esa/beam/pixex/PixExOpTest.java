@@ -348,7 +348,7 @@ public class PixExOpTest {
     @Test(expected = OperatorException.class)
     public void testFailForEvenWindowSize() throws Exception {
         if (clipboardContents == null) {
-            return;
+            throw new OperatorException("");
         }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
