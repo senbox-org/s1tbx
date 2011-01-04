@@ -23,6 +23,7 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Color;
+import java.awt.HeadlessException;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -56,11 +57,15 @@ public class PixExOpTest {
 
     @Before
     public void before() {
-        pixExOpSpi = new PixExOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(pixExOpSpi);
-        clipboardContents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-        defaultOutStream = System.out;
-        System.setOut(new PrintStream(new ByteArrayOutputStream(100))); // suppressing output to std.out
+        try {
+            pixExOpSpi = new PixExOp.Spi();
+            GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(pixExOpSpi);
+            clipboardContents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+            defaultOutStream = System.out;
+            System.setOut(new PrintStream(new ByteArrayOutputStream(100))); // suppressing output to std.out
+        } catch (HeadlessException e) {
+            System.out.println("A " + PixExOpTest.class + " test has not been performed: HeadlessException");
+        }
     }
 
     @After
@@ -73,7 +78,9 @@ public class PixExOpTest {
 
     @Test
     public void testUsingGraph() throws GraphException, IOException, UnsupportedFlavorException {
-
+        if (clipboardContents == null) {
+            return;
+        }
         String parentDir = new File(getClass().getResource("dummyProduct1.dim").getFile()).getParent();
         int windowSize = 11;
         Coordinate[] coordinates = new Coordinate[]{
@@ -130,7 +137,9 @@ public class PixExOpTest {
 
     @Test
     public void testSingleProduct() throws Exception {
-
+        if (clipboardContents == null) {
+            return;
+        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
@@ -155,7 +164,9 @@ public class PixExOpTest {
 
     @Test
     public void testTwoProductsSameType() throws Exception {
-
+        if (clipboardContents == null) {
+            return;
+        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
@@ -185,7 +196,9 @@ public class PixExOpTest {
 
     @Test
     public void testTwentyProductsSameType() throws Exception {
-
+        if (clipboardContents == null) {
+            return;
+        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
@@ -216,7 +229,9 @@ public class PixExOpTest {
 
     @Test
     public void testTwoProductsTwoDifferentTypes() throws Exception {
-
+        if (clipboardContents == null) {
+            return;
+        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
@@ -247,7 +262,9 @@ public class PixExOpTest {
 
     @Test
     public void testTwoProductsWithTimeConstraints() throws Exception {
-
+        if (clipboardContents == null) {
+            return;
+        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         final Calendar calInP1 = Calendar.getInstance();
@@ -295,7 +312,9 @@ public class PixExOpTest {
 
     @Test
     public void testTwentyProductsWithDifferentTypes() throws Exception {
-
+        if (clipboardContents == null) {
+            return;
+        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
@@ -326,7 +345,9 @@ public class PixExOpTest {
 
     @Test(expected = OperatorException.class)
     public void testFailForEvenWindowSize() throws Exception {
-
+        if (clipboardContents == null) {
+            return;
+        }
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
 
         Coordinate[] coordinates = {
@@ -347,6 +368,9 @@ public class PixExOpTest {
 
     @Test
     public void testReadMeasurement() throws TransformException, FactoryException, IOException {
+        if (clipboardContents == null) {
+            return;
+        }
         PixExOp op = new PixExOp();
         String[] bandNames = {"band_1", "band_2", "band_3"};
         Product product = createTestProduct("horst", "horse", bandNames);
@@ -389,6 +413,9 @@ public class PixExOpTest {
 
     @Test
     public void testTimeDeltaParsing() throws Exception {
+        if (clipboardContents == null) {
+            return;
+        }
         final PixExOp op = new PixExOp();
         op.parseTimeDelta("2D");
         assertEquals(2, op.getTimeDelta());
@@ -425,7 +452,7 @@ public class PixExOpTest {
         return data.split("\n");
     }
 
-    static Product createTestProduct(String name, String type, String[] bandNames) throws FactoryException,
+    private static Product createTestProduct(String name, String type, String[] bandNames) throws FactoryException,
                                                                                           TransformException {
         Rectangle bounds = new Rectangle(360, 180);
         Product product = new Product(name, type, bounds.width, bounds.height);
@@ -451,7 +478,7 @@ public class PixExOpTest {
         return floats;
     }
 
-    private void checkClipboardData(String[] lines, Product[] products, Coordinate[] coordinates, int windowSize,
+    private static void checkClipboardData(String[] lines, Product[] products, Coordinate[] coordinates, int windowSize,
                                     String expression) {
 
         List<String> productTypes = new ArrayList<String>();
