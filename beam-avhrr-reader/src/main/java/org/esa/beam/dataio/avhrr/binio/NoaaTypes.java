@@ -31,10 +31,11 @@ import java.io.IOException;
 import static com.bc.ceres.binio.TypeBuilder.*;
 
 /**
- * binio types for h NOAA AVHRR format.
+ * bin-io types for the NOAA AVHRR format.
  */
 class NoaaTypes {
 
+    ////////////////////////////////////////////////////////////////////////////////////////
     static CompoundType arsHeaderOrderIdType =
             COMPOUND("ORDER_ID",
                     STRING_MEMBER("COST_NUMBER", 6),
@@ -98,7 +99,7 @@ class NoaaTypes {
             COMPOUND_MEMBER(dataSetSummary),
             STRING_MEMBER("fill", 319)
     );
-
+    ////////////////////////////////////////////////////////////////////////////////////////
     static CompoundType date =
             COMPOUND("DATE",
                     MEMBER("daysSince1950", UINT),

@@ -19,23 +19,14 @@ package org.esa.beam.dataio.avhrr.binio;
 import com.bc.ceres.binio.CompoundData;
 import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.DataFormat;
-import com.bc.ceres.binio.util.DataPrinter;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
-/**
- * Created by IntelliJ IDEA.
- * User: marcoz
- * Date: 29.11.2010
- * Time: 17:26:15
- * To change this template use File | Settings | File Templates.
- */
 public class Main {
 
     public static void main(String[] args) throws IOException {
@@ -46,13 +37,13 @@ public class Main {
         CompoundData data = context.getData();
         HeaderWrapper wrapper = new HeaderWrapper(data);
         MetadataElement rootElem = wrapper.getAsMetadataElement();
-        print(rootElem, "");
+        printMetadataElement(rootElem, "");
 //        DataPrinter dp = new DataPrinter(System.out, false);
 //        dp.print(data);
 //        System.out.println("data = " + data);
     }
 
-    private static void print(MetadataElement metadataElement, String indent) {
+    private static void printMetadataElement(MetadataElement metadataElement, String indent) {
         System.out.println(indent + "-------------------");
         System.out.println(indent + "Element = " + metadataElement.getName());
         String description = metadataElement.getDescription();
@@ -61,16 +52,16 @@ public class Main {
         }
         MetadataAttribute[] metadataAttributes = metadataElement.getAttributes();
         for (MetadataAttribute metadataAttribute : metadataAttributes) {
-            print(metadataAttribute, indent);
+            printMetadataAttribute(metadataAttribute, indent);
         }
         MetadataElement[] metadataElements = metadataElement.getElements();
         for (MetadataElement element : metadataElements) {
-            print(element, indent + "  ");
+            printMetadataElement(element, indent + "  ");
         }
 
     }
 
-    private static void print(MetadataAttribute attribute, String indent) {
+    private static void printMetadataAttribute(MetadataAttribute attribute, String indent) {
         String name = attribute.getName();
         System.out.print(indent + "name = " + name);
         String description = attribute.getDescription();

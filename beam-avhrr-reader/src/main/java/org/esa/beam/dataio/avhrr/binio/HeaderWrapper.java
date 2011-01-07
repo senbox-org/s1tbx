@@ -48,10 +48,10 @@ public class HeaderWrapper {
         final int memberCount = type.getMemberCount();
         MetadataElement metadataElement = new MetadataElement(type.getName());
         for (int i = 0; i < memberCount; i++) {
-            String name = type.getMemberName(i);
+            String typeName = type.getMemberName(i);
             CompoundMember member = type.getMember(i);
             FormatMetadata formatMetadata = (FormatMetadata) member.getMetadata();
-            if (name.equals("fill")) {
+            if (typeName.equals("fill")) {
                 //ignore
             } else if (formatMetadata != null && formatMetadata.getType().equals("string")) {
                 String stringValue = getAsString(compoundData.getSequence(i));
@@ -60,7 +60,7 @@ public class HeaderWrapper {
                     stringValue = map.get(stringValue);
                 }
                 ProductData data = ProductData.createInstance(stringValue);
-                MetadataAttribute attribute = new MetadataAttribute(name, data, true);
+                MetadataAttribute attribute = new MetadataAttribute(typeName, data, true);
                 attribute.setDescription(getDescription(member));
                 attribute.setUnit(getUnits(member));
                 metadataElement.addAttribute(attribute);
@@ -70,7 +70,7 @@ public class HeaderWrapper {
                 int dayOfYear = dateCompound.getInt("dayOfYear");
                 int millisInDay = dateCompound.getInt("UTCmillis");
                 ProductData data = HeaderUtil.createUTCDate(year, dayOfYear, millisInDay);
-                MetadataAttribute attribute = new MetadataAttribute(name, data, true);
+                MetadataAttribute attribute = new MetadataAttribute(typeName, data, true);
                 attribute.setDescription(getDescription(member));
                 attribute.setUnit(getUnits(member));
                 metadataElement.addAttribute(attribute);
@@ -86,12 +86,12 @@ public class HeaderWrapper {
                 } else {
                     data = ProductData.createInstance(new int[]{intValue});
                 }
-                MetadataAttribute attribute = new MetadataAttribute(name, data, true);
+                MetadataAttribute attribute = new MetadataAttribute(typeName, data, true);
                 attribute.setDescription(getDescription(member));
                 attribute.setUnit(getUnits(member));
                 metadataElement.addAttribute(attribute);
             } else {
-                System.out.println("not handled: name=" + name);
+                System.out.println("not handled: name=" + typeName);
                 System.out.println("member = " + member.getType());
             }
         }

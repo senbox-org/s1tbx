@@ -31,7 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * A record of the NOAA AVHRR file base on a binio type
+ * A record of the NOAA AVHRR file base on a bin-io type
  */
 public class Record {
 
