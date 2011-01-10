@@ -98,7 +98,7 @@ public class HeaderWrapper {
         return metadataElement;
     }
 
-    private static String getAsString(SequenceData valueSequence) throws IOException {
+    static String getAsString(SequenceData valueSequence) throws IOException {
         byte[] data = new byte[valueSequence.getElementCount()];
         for (int i = 0; i < data.length; i++) {
             data[i] = valueSequence.getByte(i);

@@ -32,12 +32,19 @@ public class Main {
     public static void main(String[] args) throws IOException {
         String filename = args[0];
         System.out.println("filename = " + filename);
-        DataFormat dataFormat = new DataFormat(NoaaTypes.ALL,  ByteOrder.BIG_ENDIAN);
-        DataContext context = dataFormat.createContext(new File(filename), "r");
-        CompoundData data = context.getData();
-        HeaderWrapper wrapper = new HeaderWrapper(data);
-        MetadataElement rootElem = wrapper.getAsMetadataElement();
-        printMetadataElement(rootElem, "");
+        NoaaAvhrrFile noaaAvhrrFile = new NoaaAvhrrFile(new File(filename));
+        noaaAvhrrFile.canOpen();
+        return;
+
+
+//        DataFormat dataFormat = new DataFormat(NoaaTypes.ALL,  ByteOrder.BIG_ENDIAN);
+//        DataContext context = dataFormat.createContext(new File(filename), "r");
+//        CompoundData data = context.getData();
+//        HeaderWrapper wrapper = new HeaderWrapper(data);
+//        MetadataElement rootElem = wrapper.getAsMetadataElement();
+//        printMetadataElement(rootElem, "");
+
+
 //        DataPrinter dp = new DataPrinter(System.out, false);
 //        dp.print(data);
 //        System.out.println("data = " + data);
