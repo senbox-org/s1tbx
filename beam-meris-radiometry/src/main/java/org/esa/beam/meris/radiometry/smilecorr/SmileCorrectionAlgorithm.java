@@ -16,7 +16,6 @@
 
 package org.esa.beam.meris.radiometry.smilecorr;
 
-import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.experimental.PointOperator;
 
 import java.util.Arrays;
