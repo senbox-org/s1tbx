@@ -69,6 +69,7 @@ public class SmileCorrectionAlgorithm {
         return rc;
     }
 
+    // Todo (mp - 18.01.2011) - check if this method is needed in an other project, if not remove it
     public int[] computeRequiredBandIndexes(int bandIndex) {
         final boolean[] landShouldCorrect = auxdata.getRadCorrFlagsLand();
         final int[] landIndexes1 = auxdata.getLowerBandIndexesLand();
