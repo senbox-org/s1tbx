@@ -71,7 +71,7 @@ public class SubsetOp extends Operator {
     @Parameter(defaultValue = "false", description = "Forces the operator extend the subset region to the full swath.")
     private boolean fullSwath;
     @Parameter(converter = JtsGeometryConverter.class,
-               description = "The region to subset in WKT-format. Example: POLYGON((5 5, 25 5, 25 25, 5 25, 5 5))")
+               description = "The region to subset in WKT-format. Example: POLYGON((120.3 5.5, 145.2 5.5, 145.2 25.6, 120.3 25.6, 120.3 5.5))")
     private Geometry geoRegion;
 
     @Parameter(defaultValue = "1")
