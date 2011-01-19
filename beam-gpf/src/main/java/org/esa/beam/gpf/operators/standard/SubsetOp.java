@@ -193,7 +193,7 @@ public class SubsetOp extends Operator {
         }
     }
 
-    public static Rectangle computePixelRegion(Product product, Geometry geoRegion, int numBorderPixels) {
+    static Rectangle computePixelRegion(Product product, Geometry geoRegion, int numBorderPixels) {
         final Geometry productGeometry = computeProductGeometry(product);
         final Geometry regionIntersection = geoRegion.intersection(productGeometry);
         if (regionIntersection.isEmpty()) {
@@ -207,7 +207,7 @@ public class SubsetOp extends Operator {
                                                       product.getSceneRasterHeight()));
     }
 
-    public static Geometry computeProductGeometry(Product product) {
+    static Geometry computeProductGeometry(Product product) {
         final GeneralPath[] paths = ProductUtils.createGeoBoundaryPaths(product);
         final Polygon[] polygons = new Polygon[paths.length];
         final GeometryFactory factory = new GeometryFactory();
