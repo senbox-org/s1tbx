@@ -18,10 +18,6 @@ package org.esa.beam.meris.radiometry.smilecorr;
 
 import org.esa.beam.framework.gpf.experimental.PointOperator;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 public class SmileCorrectionAlgorithm {
 
     private final SmileCorrectionAuxdata auxdata;
@@ -68,40 +64,5 @@ public class SmileCorrectionAlgorithm {
         }
         return rc;
     }
-
-    // Todo (mp - 18.01.2011) - check if this method is needed in an other project, if not remove it
-    public int[] computeRequiredBandIndexes(int bandIndex) {
-        final boolean[] landShouldCorrect = auxdata.getRadCorrFlagsLand();
-        final int[] landIndexes1 = auxdata.getLowerBandIndexesLand();
-        final int[] landIndexes2 = auxdata.getUpperBandIndexesLand();
-        final boolean[] waterShouldCorrect = auxdata.getRadCorrFlagsWater();
-        final int[] waterIndexes1 = auxdata.getLowerBandIndexesWater();
-        final int[] waterIndexes2 = auxdata.getUpperBandIndexesWater();
-
-        final Set<Integer> bandIndexSet = new HashSet<Integer>();
-
-        bandIndexSet.add(bandIndex);
-        if (landShouldCorrect[bandIndex]) {
-            bandIndexSet.add(landIndexes1[bandIndex]);
-            bandIndexSet.add(landIndexes2[bandIndex]);
-        }
-        if (waterShouldCorrect[bandIndex]) {
-            bandIndexSet.add(waterIndexes1[bandIndex]);
-            bandIndexSet.add(waterIndexes2[bandIndex]);
-        }
-        return intSetToSortedIntArray(bandIndexSet);
-    }
-
-    private static int[] intSetToSortedIntArray(final Set<Integer> set) {
-        int[] bandIndexes = new int[set.size()];
-        Integer[] a = new Integer[bandIndexes.length];
-        a = set.toArray(a);
-        for (int i = 0; i < a.length; i++) {
-            bandIndexes[i] = a[i];
-        }
-        Arrays.sort(bandIndexes);
-        return bandIndexes;
-    }
-
 
 }
