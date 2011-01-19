@@ -54,23 +54,23 @@ public class JtsGeometryConverterTest {
     public void testType() {
         assertEquals(Geometry.class, converter.getValueType());
     }
-    
+
     @Test
     public void testParse() throws ConversionException {
         testParsing(factory.createPoint(new Coordinate(12.4567890, 0.00000001)));
-        final Coordinate[] coordinates = new Coordinate[] {
-                new Coordinate(2,0),new Coordinate(6,0),
-                new Coordinate(8,3),new Coordinate(8,9),
-                new Coordinate(6,11),new Coordinate(2,9),
-                new Coordinate(2,0),   
+        final Coordinate[] coordinates = new Coordinate[]{
+                new Coordinate(2, 0), new Coordinate(6, 0),
+                new Coordinate(8, 3), new Coordinate(8, 9),
+                new Coordinate(6, 11), new Coordinate(2, 9),
+                new Coordinate(2, 0),
         };
         testParsing(factory.createLineString(coordinates));
         final LinearRing linearRing = factory.createLinearRing(coordinates);
         testParsing(linearRing);
-        final Coordinate[] hole = new Coordinate[] {
-                new Coordinate(4,4),new Coordinate(5,4),
-                new Coordinate(5,6),new Coordinate(4,6),
-                new Coordinate(4,4),
+        final Coordinate[] hole = new Coordinate[]{
+                new Coordinate(4, 4), new Coordinate(5, 4),
+                new Coordinate(5, 6), new Coordinate(4, 6),
+                new Coordinate(4, 4),
         };
         final Polygon polygon = factory.createPolygon(linearRing, new LinearRing[]{factory.createLinearRing(hole)});
         testParsing(polygon);
@@ -79,22 +79,23 @@ public class JtsGeometryConverterTest {
     @Test
     public void testFormat() throws ConversionException, ParseException {
         testFormatting(factory.createPoint(new Coordinate(12.4567890, 0.00000001)));
-        final Coordinate[] coordinates = new Coordinate[] {
-                new Coordinate(2,0),new Coordinate(6,0),
-                new Coordinate(8,3),new Coordinate(8,9),
-                new Coordinate(6,11),new Coordinate(2,9),
-                new Coordinate(2,0),
+        final Coordinate[] coordinates = new Coordinate[]{
+                new Coordinate(2, 0), new Coordinate(6, 0),
+                new Coordinate(8, 3), new Coordinate(8, 9),
+                new Coordinate(6, 11), new Coordinate(2, 9),
+                new Coordinate(2, 0),
         };
         final LinearRing linearRing = factory.createLinearRing(coordinates);
         testFormatting(linearRing);
-        final Coordinate[] hole = new Coordinate[] {
-                new Coordinate(4,4),new Coordinate(5,4),
-                new Coordinate(5,6),new Coordinate(4,6),
-                new Coordinate(4,4),
+        final Coordinate[] hole = new Coordinate[]{
+                new Coordinate(4, 4), new Coordinate(5, 4),
+                new Coordinate(5, 6), new Coordinate(4, 6),
+                new Coordinate(4, 4),
         };
         final Polygon polygon = factory.createPolygon(linearRing, new LinearRing[]{factory.createLinearRing(hole)});
         testFormatting(polygon);
 
+        assertEquals("", converter.format(null));
     }
 
     private void testFormatting(Geometry expectedGeometry) throws ParseException {
@@ -109,5 +110,7 @@ public class JtsGeometryConverterTest {
         final String geometryWkt = wktWriter.write(expectedGeometry);
         final Geometry geometry = converter.parse(geometryWkt);
         assertTrue(expectedGeometry.equalsExact(geometry));
+
+        assertEquals(null, converter.parse(""));
     }
 }
