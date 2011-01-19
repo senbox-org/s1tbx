@@ -762,6 +762,8 @@ public class ProductUtils {
      * Converts the geographic boundary entire product into one, two or three shape objects. If the product does not
      * intersect the 180 degree meridian, a single general path is returned. Otherwise two or three shapes are created
      * and returned in the order from west to east.
+     * <p/>
+     * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
      *
      * @param product the input product
      *
@@ -782,7 +784,9 @@ public class ProductUtils {
      * shapes are created and returned in the order from west to east.
      * <p/>
      * This method delegates to {@link #createGeoBoundaryPaths(org.esa.beam.framework.datamodel.Product,java.awt.Rectangle,int,boolean) createGeoBoundaryPaths(Product, Rectangle, int, boolean)}
-     * and the aditional parameter <code>usePixelCenter</code> is <code>true</code>.
+     * and the additional parameter <code>usePixelCenter</code> is <code>true</code>.
+     * <p/>
+     * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
      *
      * @param product the input product
      * @param region  the region rectangle in product pixel coordinates, can be null for entire product
@@ -802,6 +806,9 @@ public class ProductUtils {
      * Converts the geographic boundary of the region within the given product into one, two or three shape objects. If
      * the product does not intersect the 180 degree meridian, a single general path is returned. Otherwise two or three
      * shapes are created and returned in the order from west to east.
+     * <p/>
+     * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
+     *
      *
      * @param product        the input product
      * @param region         the region rectangle in product pixel coordinates, can be null for entire product
@@ -2482,9 +2489,9 @@ public class ProductUtils {
         for (Band targetBand : targetProduct.getBands()) {
             final RasterDataNode sourceNode = sourceNodes.get(targetBand);
             if (sourceNode != null) {
-// Set the valid pixel expression to <null> if the given expression
-// is not applicable. This is e.g. the case if the flags dataset(s) are not projected as well
-//
+                // Set the valid pixel expression to <null> if the given expression
+                // is not applicable. This is e.g. the case if the flags dataset(s) are not projected as well
+                //
                 final String sourceExpression = sourceNode.getValidPixelExpression();
                 if (sourceExpression != null && !targetProduct.isCompatibleBandArithmeticExpression(sourceExpression)) {
                     targetBand.setValidPixelExpression(sourceExpression);
