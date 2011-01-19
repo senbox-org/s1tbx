@@ -84,7 +84,6 @@ public class SubsetOp extends Operator {
     private boolean copyMetadata;
 
     private ProductReader subsetReader;
-    private ProductSubsetDef subsetDef;
 
     public SubsetOp() {
         subSamplingX = 1;
@@ -139,7 +138,7 @@ public class SubsetOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         subsetReader = new ProductSubsetBuilder();
-        subsetDef = new ProductSubsetDef();
+        ProductSubsetDef subsetDef = new ProductSubsetDef();
         if (tiePointGridNames != null) {
             subsetDef.addNodeNames(tiePointGridNames);
         } else {
@@ -260,7 +259,7 @@ public class SubsetOp extends Operator {
         private int x2;
         private int y2;
 
-        public PixelRegionFinder(GeoCoding geoCoding) {
+        private PixelRegionFinder(GeoCoding geoCoding) {
             this.geoCoding = geoCoding;
             x1 = Integer.MAX_VALUE;
             x2 = Integer.MIN_VALUE;
