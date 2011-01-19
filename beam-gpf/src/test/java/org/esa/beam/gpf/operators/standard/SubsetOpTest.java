@@ -16,10 +16,13 @@
 package org.esa.beam.gpf.operators.standard;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -32,8 +35,13 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.graph.GraphException;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.junit.Test;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -112,6 +120,65 @@ public class SubsetOpTest extends TestCase {
         assertNotNull(tp.getBand("radiance_1"));
         assertNotNull(tp.getBand("radiance_3"));
     }
+
+    @Test
+    public void testComputationOfProductGeometriesAndPixelRegions() throws TransformException, FactoryException {
+        Geometry geometry;
+
+        Product product = new Product("N", "T", 360, 180);
+        AffineTransform at = AffineTransform.getTranslateInstance(-180, -90);
+        CrsGeoCoding geoCoding = new CrsGeoCoding(DefaultGeographicCRS.WGS84, new Rectangle(360, 180), at);
+        product.setGeoCoding(geoCoding);
+        geometry = SubsetOp.computeProductGeometry(product);
+        assertTrue(geometry instanceof Polygon);
+        assertEquals("POLYGON ((-179.5 -89.5, -179.5 89.5, 179.5 89.5, 179.5 -89.5, -179.5 -89.5))", geometry.toString());
+
+        Rectangle rectangle;
+
+        rectangle = SubsetOp.computePixelRegion(product, geometry, 0);
+        assertEquals(new Rectangle(360, 180), rectangle);
+
+        SubsetOp op = new SubsetOp();
+        op.setSourceProduct(product);
+        op.setRegion(new Rectangle(180 - 50, 90 - 25, 100, 50));
+        product = op.getTargetProduct();
+        geometry = SubsetOp.computeProductGeometry(product);
+        assertTrue(geometry instanceof Polygon);
+        assertEquals("POLYGON ((-49.5 -24.5, -49.5 24.5, 49.5 24.5, 49.5 -24.5, -49.5 -24.5))", geometry.toString());
+
+        // BBOX fully contained, with border=0
+        rectangle = SubsetOp.computePixelRegion(product, createBBOX(0.0, 0.0, 10.0, 10.0), 0);
+        assertEquals(new Rectangle(50, 25, 11, 11), rectangle);
+
+        // BBOX fully contained, with border=1
+        rectangle = SubsetOp.computePixelRegion(product, createBBOX(0.0, 0.0, 10.0, 10.0), 1);
+        assertEquals(new Rectangle(49, 24, 13, 13), rectangle);
+
+        // BBOX intersects product rect in upper left
+        rectangle = SubsetOp.computePixelRegion(product, createBBOX(45.5, 20.5, 100.0, 50.0), 0);
+        assertEquals(new Rectangle(95, 45, 5, 5), rectangle);
+
+        // Product bounds fully contained in BBOX
+        rectangle = SubsetOp.computePixelRegion(product, createBBOX(-180, -90, 360, 180), 0);
+        assertEquals(new Rectangle(0, 0, 100, 50), rectangle);
+
+        // BBOX not contained
+        rectangle = SubsetOp.computePixelRegion(product, createBBOX(60.0, 0.0, 10.0, 10.0), 0);
+        assertEquals(true, rectangle.isEmpty());
+    }
+
+    private static Polygon createBBOX(double x, double y, double w, double h) {
+        GeometryFactory factory = new GeometryFactory();
+        final LinearRing ring = factory.createLinearRing(new Coordinate[]{
+                new Coordinate(x, y),
+                new Coordinate(x + w, y),
+                new Coordinate(x + w, y + h),
+                new Coordinate(x, y + h),
+                new Coordinate(x, y)
+        });
+        return factory.createPolygon(ring, null);
+    }
+
 
     public void testCopyMetadata() throws Exception {
         final Product sp = createTestProduct(100, 100);
