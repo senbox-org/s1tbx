@@ -68,7 +68,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private File sourceRacFile;
 
     @Parameter(label = "Target radiometric correction file (optional)",
-               description = "The radiometric correction auxiliary file for the target product")
+               description = "The radiometric correction auxiliary file for the target product.")
     private File targetRacFile;
 
     @Parameter(defaultValue = "true",
@@ -78,7 +78,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     @Parameter(defaultValue = "true",
                label = "Perform equalization",
-               description = "Perform removal of detector-to-detector systematic radiometric differences in MERIS L1b data products")
+               description = "Perform removal of detector-to-detector systematic radiometric differences in MERIS L1b data products.")
     private boolean doEqualization;
 
     @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT", "REPROCESSING_2", "REPROCESSING_3"},
