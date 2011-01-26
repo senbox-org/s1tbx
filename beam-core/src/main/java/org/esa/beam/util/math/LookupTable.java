@@ -211,7 +211,23 @@ public class LookupTable {
         return getValue(fracIndexes, v);
     }
 
-    double getValue(final FracIndex[] fracIndexes, final double[] v) {
+    /**
+     * Returns an interpolated value for the given fractional indices.
+     *
+     * @param fracIndexes workspace array of (at least) the same length as {@code coordinates}.
+     * @param v           workspace array of (at least) length {@code 1 << coordinates.length}.
+     *
+     * @return the interpolated value.
+     *
+     * @throws ArrayIndexOutOfBoundsException if the {@code fracIndexes} and {@code v} arrays
+     *                                        do not have proper length.
+     * @throws IllegalArgumentException       if the length of the {@code coordinates} array is
+     *                                        not equal to the number of dimensions associated
+     *                                        with the lookup table.
+     * @throws NullPointerException           if any parameter is {@code null} or exhibits any
+     *                                        element, which is {@code null}.
+     */
+    public final double getValue(final FracIndex[] fracIndexes, final double[] v) {
         int origin = 0;
         for (int i = 0; i < dimensions.length; ++i) {
             origin += fracIndexes[i].i * strides[i];
@@ -250,7 +266,7 @@ public class LookupTable {
      *                   value was equal to the partition minimum (maximum).
      * @param fracIndex  the {@link FracIndex}.
      */
-    static void computeFracIndex(final IntervalPartition partition, final double coordinate,
+    public final static void computeFracIndex(final IntervalPartition partition, final double coordinate,
                                  final FracIndex fracIndex) {
         int lo = 0;
         int hi = partition.getCardinal() - 1;
