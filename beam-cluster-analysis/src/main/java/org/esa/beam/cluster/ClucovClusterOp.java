@@ -17,7 +17,11 @@ package org.esa.beam.cluster;
 import com.bc.ceres.core.ProgressMonitor;
 import de.gkss.hs.datev2004.Clucov;
 import de.gkss.hs.datev2004.DataSet;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -47,7 +51,7 @@ public class ClucovClusterOp extends Operator {
     Product targetProduct;
     @Parameter(label = "Source band names",
                description = "The names of the bands being used for the cluster analysis.",
-               sourceProductId = "source")
+               rasterDataNodeType = Band.class)
     String[] sourceBandNames;
     @Parameter
     String roiExpression;

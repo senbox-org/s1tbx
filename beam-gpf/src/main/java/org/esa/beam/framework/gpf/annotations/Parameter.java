@@ -19,11 +19,14 @@ package org.esa.beam.framework.gpf.annotations;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.dom.DomConverter;
-
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Marks a processing parameter field of an {@link org.esa.beam.framework.gpf.Operator Operator}.
@@ -160,34 +163,13 @@ public @interface Parameter {
     Class<? extends Converter> converter() default Converter.class;
 
     /**
-     * A converter to be used to convert a text to the items of parameter array value and vice versa.
-     *
-     * @return The converter class.
-     * @see #itemAlias()
-     * @see #itemsInlined()
-     * @deprecated not used anymore as of 4.1.1
-     */
-    @Deprecated
-    Class<? extends Converter> itemConverter() default Converter.class;
-
-    /**
      * A converter to be used to convert an (XML) DOM to the parameter value and vice versa.
      *
      * @return The DOM converter class.
      */
     Class<? extends DomConverter> domConverter() default DomConverter.class;
 
-    /**
-     * The band names of the product referred to by this id make up the
-     * valueSet of this parameter.
-     * 
-     * @return the source product id.
-     * @deprecated since BEAM 4.7, use {@link #rasterDataNodeType()} instead.
-     */
-    @Deprecated
-    String sourceProductId() default "";
-    
-    /**
+     /**
      * Specifies which {@code RasterDataNode} subclass of the source products is used 
      * to fill the {@link #valueSet()} for this parameter.
      * 

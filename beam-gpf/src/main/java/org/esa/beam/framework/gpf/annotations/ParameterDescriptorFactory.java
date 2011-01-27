@@ -26,7 +26,6 @@ import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.dom.DomConverter;
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.GPF;
@@ -151,9 +150,6 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         if (isSet(parameter.defaultValue())) {
             Converter converter = propertyDescriptor.getConverter();
             propertyDescriptor.setDefaultValue(converter.parse(parameter.defaultValue()));
-        }
-        if (isSet(parameter.sourceProductId())) {
-            propertyDescriptor.setAttribute(RasterDataNodeValues.ATTRIBUTE_NAME, Band.class);
         }
         if (parameter.rasterDataNodeType() != RasterDataNode.class) {
             Class<? extends RasterDataNode> rasterDataNodeType = parameter.rasterDataNodeType();
