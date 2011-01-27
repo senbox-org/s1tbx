@@ -115,23 +115,27 @@ class CommandLineTool {
         }
 
         if (lineArgs.getOperatorName() != null) {
-            Map<String, Object> parameters = getParameterMap(lineArgs);
+            // Operator name given: parameters and sources are parsed from command-line args
             Map<String, Product> sourceProducts = getSourceProductMap(lineArgs);
+            Map<String, Object> parameters = getParameterMap(lineArgs);
             String opName = lineArgs.getOperatorName();
             Product targetProduct = createOpProduct(opName, parameters, sourceProducts);
             String filePath = lineArgs.getTargetFilepath();
             String formatName = lineArgs.getTargetFormatName();
             writeProduct(targetProduct, filePath, formatName, lineArgs.isClearCacheAfterRowWrite());
         } else if (lineArgs.getGraphFilepath() != null) {
+            // Path to Graph XML given: parameters and sources are parsed from command-line args
             Map<String, String> sourceNodeIdMap = getSourceNodeIdMap(lineArgs);
-            Map<String, String> templateMap = new TreeMap<String, String>(sourceNodeIdMap);
+            Map<String, String> parameters = new TreeMap<String, String>(sourceNodeIdMap);
             if (lineArgs.getParameterFilepath() != null) {
-                templateMap.putAll(readParameterFile(lineArgs.getParameterFilepath()));
+                parameters.putAll(readParameterFile(lineArgs.getParameterFilepath()));
             }
-            templateMap.putAll(lineArgs.getParameterMap());
-            Graph graph = readGraph(lineArgs.getGraphFilepath(), templateMap);
+            parameters.putAll(lineArgs.getParameterMap());
+            Graph graph = readGraph(lineArgs.getGraphFilepath(), parameters);
             Node lastNode = graph.getNode(graph.getNodeCount() - 1);
             SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
+
+            // For each source path add a ReadOp to the graph
             String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadOp.class);
             for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
                 String sourceId = entry.getKey();
@@ -139,26 +143,28 @@ class CommandLineTool {
                 String sourceNodeId = sourceNodeIdMap.get(sourceId);
                 if (graph.getNode(sourceNodeId) == null) {
 
-                    DomElement parameters = new DefaultDomElement("parameters");
-                    parameters.createChild("file").setValue(sourceFilepath);
+                    DomElement configuration = new DefaultDomElement("parameters");
+                    configuration.createChild("file").setValue(sourceFilepath);
 
                     Node sourceNode = new Node(sourceNodeId, readOperatorAlias);
-                    sourceNode.setConfiguration(parameters);
+                    sourceNode.setConfiguration(configuration);
 
                     graph.addNode(sourceNode);
                 }
             }
+
+            // If the graph's last node isn't a WriteOp, then add one
             String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
             if (!lastNode.getOperatorName().equals(writeOperatorAlias)) {
 
-                DomElement parameters = new DefaultDomElement("parameters");
-                parameters.createChild("file").setValue(lineArgs.getTargetFilepath());
-                parameters.createChild("formatName").setValue(lineArgs.getTargetFormatName());
-                parameters.createChild("clearCacheAfterRowWrite").setValue(Boolean.toString(lineArgs.isClearCacheAfterRowWrite()));
+                DomElement configuration = new DefaultDomElement("parameters");
+                configuration.createChild("file").setValue(lineArgs.getTargetFilepath());
+                configuration.createChild("formatName").setValue(lineArgs.getTargetFormatName());
+                configuration.createChild("clearCacheAfterRowWrite").setValue(Boolean.toString(lineArgs.isClearCacheAfterRowWrite()));
 
                 Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
                 targetNode.addSource(new NodeSource("source", lastNode.getId()));
-                targetNode.setConfiguration(parameters);
+                targetNode.setConfiguration(configuration);
 
                 graph.addNode(targetNode);
             }
@@ -167,12 +173,22 @@ class CommandLineTool {
         }
     }
 
-    private Map<String, Object> getParameterMap(CommandLineArgs lineArgs) throws ValidationException {
+    private Map<String, Object> getParameterMap(CommandLineArgs lineArgs) throws ValidationException, IOException {
+        Map<String, String> parameterMap = new HashMap<String, String>();
+        if (lineArgs.getParameterFilepath() != null) {
+            parameterMap = readParameterFile(lineArgs.getParameterFilepath());
+        }
+
+        String operatorName = lineArgs.getOperatorName();
+        parameterMap.putAll(lineArgs.getParameterMap());
+        return convertParameterMap(operatorName, parameterMap);
+    }
+
+    private static Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap) throws ValidationException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
-        PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(lineArgs.getOperatorName(), parameters);
-        // explicitly set default values for putting them into the backing map 
+        PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName, parameters);
+        // explicitly set default values for putting them into the backing map
         container.setDefaultValues();
-        Map<String, String> parameterMap = lineArgs.getParameterMap();
         for (Entry<String, String> entry : parameterMap.entrySet()) {
             String paramName = entry.getKey();
             String paramValue = entry.getValue();
@@ -181,7 +197,7 @@ class CommandLineTool {
                 model.setValueFromText(paramValue);
             } else {
                 throw new RuntimeException(String.format(
-                        "Parameter '%s' is not known by operator '%s'", paramName, lineArgs.getOperatorName()));
+                        "Parameter '%s' is not known by operator '%s'", paramName, operatorName));
             }
         }
         return parameters;
