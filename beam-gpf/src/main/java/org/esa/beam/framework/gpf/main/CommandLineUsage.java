@@ -41,6 +41,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -468,7 +469,11 @@ class CommandLineUsage {
         }
     }
 
-    private static void convertSourceProductFieldToDom(Field sourceField, DomElement sourcesElem) {
+    static void convertSourceProductFieldToDom(Field sourceField, DomElement sourcesElem) {
+        final int mod = sourceField.getModifiers();
+        if (Modifier.isTransient(mod) || Modifier.isFinal(mod) || Modifier.isStatic(mod)) {
+            return;
+        }
         final SourceProduct sourceProduct = sourceField.getAnnotation(SourceProduct.class);
         String name = sourceField.getName();
         if (sourceProduct != null && !sourceProduct.alias().isEmpty()) {
@@ -478,7 +483,11 @@ class CommandLineUsage {
         child.setValue("${" + name + "}");
     }
 
-    private static void convertParameterFieldToDom(Field paramField, DomElement parametersElem) {
+    static void convertParameterFieldToDom(Field paramField, DomElement parametersElem) {
+        final int mod = paramField.getModifiers();
+        if (Modifier.isTransient(mod) || Modifier.isFinal(mod) || Modifier.isStatic(mod)) {
+            return;
+        }
         final Parameter parameter = paramField.getAnnotation(Parameter.class);
         final boolean thisIsAnOperator = Operator.class.isAssignableFrom(paramField.getDeclaringClass());
         if (thisIsAnOperator && parameter != null || !thisIsAnOperator) {
