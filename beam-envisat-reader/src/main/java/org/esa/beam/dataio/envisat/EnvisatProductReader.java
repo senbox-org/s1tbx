@@ -400,11 +400,11 @@ public class EnvisatProductReader extends AbstractProductReader {
         final boolean usePixeGeoCoding = Boolean.getBoolean(SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING);
         if (usePixeGeoCoding) {
             Band latBand = product.getBand(EnvisatConstants.LAT_DS_NAME);
-            if (latBand != null) {
+            if (latBand == null) {
                 latBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LATITUDE_BAND_NAME);
             }
             Band lonBand = product.getBand(EnvisatConstants.LON_DS_NAME);
-            if (lonBand != null) {
+            if (lonBand == null) {
                 lonBand = product.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_CORR_LONGITUDE_BAND_NAME);
             }
             if (latBand != null && lonBand != null) {
