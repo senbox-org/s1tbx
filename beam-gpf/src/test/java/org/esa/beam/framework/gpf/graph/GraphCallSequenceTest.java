@@ -17,7 +17,7 @@
 package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
-
+import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -30,14 +30,11 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
+import javax.media.jai.JAI;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.media.jai.JAI;
-
-import junit.framework.TestCase;
 
 public class GraphCallSequenceTest extends TestCase {
 
@@ -101,7 +98,7 @@ public class GraphCallSequenceTest extends TestCase {
         graph.addNode(node2);
 
         GraphProcessor processor = new GraphProcessor();
-        GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+        GraphContext graphContext = new GraphContext(graph);
         Product[] targetProducts = processor.executeGraph(graphContext, ProgressMonitor.NULL);
 
         assertNotNull(targetProducts);
@@ -109,7 +106,7 @@ public class GraphCallSequenceTest extends TestCase {
         assertNotNull(targetProducts[0]);
         assertEquals("N2", targetProducts[0].getName());
 
-        processor.disposeGraphContext(graphContext);
+        graphContext.dispose();
 
         String[] expectedRecordStrings = new String[]{
                 "N1:Operator.initialize",
@@ -154,7 +151,7 @@ public class GraphCallSequenceTest extends TestCase {
         graph.addNode(node3);
 
         GraphProcessor processor = new GraphProcessor();
-        GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+        GraphContext graphContext = new GraphContext(graph);
         Product[] targetProducts = processor.executeGraph(graphContext, ProgressMonitor.NULL);
 
         assertNotNull(targetProducts);
@@ -162,7 +159,7 @@ public class GraphCallSequenceTest extends TestCase {
         assertNotNull(targetProducts[0]);
         assertEquals("N3", targetProducts[0].getName());
 
-        processor.disposeGraphContext(graphContext);
+        graphContext.dispose();
 
         String[] expectedRecordStrings = new String[]{
                 "N1:Operator.initialize",
@@ -219,7 +216,7 @@ public class GraphCallSequenceTest extends TestCase {
         graph.addNode(node5);
 
         GraphProcessor processor = new GraphProcessor();
-        GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+        GraphContext graphContext = new GraphContext(graph);
         Product[] outputProducts = processor.executeGraph(graphContext, ProgressMonitor.NULL);
 
         assertNotNull(outputProducts);
@@ -232,7 +229,7 @@ public class GraphCallSequenceTest extends TestCase {
         assertEquals("N4", outputProducts[1].getName());
         assertEquals("N5", outputProducts[2].getName());
 
-        processor.disposeGraphContext(graphContext);
+        graphContext.dispose();
 
         String[] expectedRecords = new String[]{
                 "N1:Operator.initialize",
@@ -302,7 +299,7 @@ public class GraphCallSequenceTest extends TestCase {
         graph.addNode(node6);
 
         GraphProcessor processor = new GraphProcessor();
-        GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+        GraphContext graphContext = new GraphContext(graph);
         Product[] outputProducts = processor.executeGraph(graphContext, ProgressMonitor.NULL);
 
         assertNotNull(outputProducts);
@@ -313,7 +310,7 @@ public class GraphCallSequenceTest extends TestCase {
         assertEquals("N4", outputProducts[0].getName());
         assertEquals("N6", outputProducts[1].getName());
 
-        processor.disposeGraphContext(graphContext);
+        graphContext.dispose();
 
         String[] expectedRecords = new String[]{
                 "N1:Operator.initialize",

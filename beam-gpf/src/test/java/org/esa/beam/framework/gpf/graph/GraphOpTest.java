@@ -16,9 +16,6 @@
 
 package org.esa.beam.framework.gpf.graph;
 
-import com.bc.ceres.binding.dom.DefaultDomElement;
-import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
@@ -27,23 +24,30 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.TestOps.Op2;
 import org.esa.beam.framework.gpf.internal.OperatorProductReader;
-import org.esa.beam.util.jai.VerbousTileCache;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GraphOpTest extends TestCase {
+import static org.junit.Assert.*;
 
-    private TestOps.Op1.Spi operatorSpi1 = new TestOps.Op1.Spi();
-    private TestOps.Op2.Spi operatorSpi2 = new TestOps.Op2.Spi();
+@Ignore("Method GraphOp#setOperatorParameters(...) needs to be implemented.")
+public class GraphOpTest {
+
+    private final TestOps.Op1.Spi operatorSpi1 = new TestOps.Op1.Spi();
+    private final TestOps.Op2.Spi operatorSpi2 = new TestOps.Op2.Spi();
     private OperatorSpi graphOpSpiOneNode;
     private OperatorSpi graphOpSpiTwoNodes;
+    private OperatorSpi usesOtherGraphSpi;
 
-    private static OperatorSpi createGraphOpSpiOneNode() throws GraphException {
+    private static OperatorSpi createOp2GraphSpi() throws GraphException {
         String graphOpXml =
-                "<graph id=\"myOneNodeGraph\">\n" +
+                "<graph id=\"Op2Graph\">\n" +
                         "  <version>1.0</version>\n" +
 
                         "  <header>\n" +
@@ -65,12 +69,12 @@ public class GraphOpTest extends TestCase {
         StringReader reader = new StringReader(graphOpXml);
         Graph graph = GraphIO.read(reader);
 
-        return new GraphOp.Spi(graph);
+        return new GraphOp.Spi(graph) {};
     }
 
-    private static OperatorSpi createGraphOpSpiTwoNodes() throws GraphException {
+    private static OperatorSpi createSourcelessOp1Op2GraphSpi() throws GraphException {
         String graphOpXml =
-                "<graph id=\"myOneNodeGraph\">\n" +
+                "<graph id=\"SourcelessOp1Op2Graph\">\n" +
                         "  <version>1.0</version>\n" +
 
                         "  <header>\n" +
@@ -95,61 +99,90 @@ public class GraphOpTest extends TestCase {
         StringReader reader = new StringReader(graphOpXml);
         Graph graph = GraphIO.read(reader);
 
-        return new GraphOp.Spi(graph);
+        return new GraphOp.Spi(graph) {};
     }
 
-    @Override
+    private static OperatorSpi createUsesOtherGraphSpi() throws GraphException {
+        String graphOpXml =
+                "<graph id=\"UsesOtherGraph\">\n" +
+                        "  <version>1.0</version>\n" +
+
+                        "  <node id=\"node1\">\n" +
+                        "    <operator>SourcelessOp1Op2Graph</operator>\n" +
+                        "    <parameters>\n" +
+                        "       <THR>33</THR>\n" +
+                        "    </parameters>\n" +
+                        "  </node>\n" +
+                        "</graph>";
+        StringReader reader = new StringReader(graphOpXml);
+        Graph graph = GraphIO.read(reader);
+
+        return new GraphOp.Spi(graph) {};
+    }
+
+    @Before
     protected void setUp() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi1);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi2);
-        graphOpSpiOneNode = createGraphOpSpiOneNode();
-        graphOpSpiTwoNodes = createGraphOpSpiTwoNodes();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(graphOpSpiOneNode);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(graphOpSpiTwoNodes);
+        graphOpSpiOneNode = createOp2GraphSpi();
+        graphOpSpiTwoNodes = createSourcelessOp1Op2GraphSpi();
+        usesOtherGraphSpi = createUsesOtherGraphSpi();
+        assertTrue(GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(graphOpSpiOneNode));
+        assertTrue(GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(graphOpSpiTwoNodes));
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(usesOtherGraphSpi);
     }
 
-    @Override
+    @After
     protected void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi1);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi2);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(graphOpSpiOneNode);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(graphOpSpiTwoNodes);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(usesOtherGraphSpi);
     }
 
-    public void testOneNodeDirectCall() throws Exception {
-        Map<String, Object> parameters = new HashMap<String, Object>(1);
-        parameters.put("THR", 66.0);
+    @Test
+    public void testParameterValuesAreUsedFromHeader() throws Exception {
 
         Map<String, Product> sourceProducts = new HashMap<String, Product>(1);
         Product testProduct = new Product("p", "t", 1, 1);
         testProduct.addBand("Op1A", ProductData.TYPE_INT8);
         sourceProducts.put("toa", testProduct);
 
-        Operator op = graphOpSpiOneNode.createOperator(parameters, sourceProducts);
-
-        assertNotNull(op);
-        assertTrue(op instanceof GraphOp);
-        Product actualSourceProduct = op.getSourceProduct("toa");
-        assertNotNull(actualSourceProduct);
-        assertSame(testProduct, actualSourceProduct);
-        Product targetProduct = op.getTargetProduct();
+        Product targetProduct = GPF.createProduct("Op2Graph", new HashMap<String, Object>(), sourceProducts);
         assertNotNull(targetProduct);
         assertEquals("Op2Name", targetProduct.getName());
         OperatorProductReader operatorProductReader = (OperatorProductReader) targetProduct.getProductReader();
         Operator operator = operatorProductReader.getOperatorContext().getOperator();
         TestOps.Op2 op2 = (Op2) operator;
-        assertEquals(66.0, op2.threshold, 0.00001);
+        assertEquals(24.0, op2.threshold, 0.00001);
     }
 
+    @Test
+    public void testOneNodeDirectCall() throws Exception {
+        Map<String, Object> parameters = new HashMap<String, Object>(1);
+        parameters.put("THR", 65.0);
+
+        Map<String, Product> sourceProducts = new HashMap<String, Product>(1);
+        Product testProduct = new Product("p", "t", 1, 1);
+        testProduct.addBand("Op1A", ProductData.TYPE_INT8);
+        sourceProducts.put("toa", testProduct);
+
+        Product targetProduct = GPF.createProduct("Op2Graph", parameters, sourceProducts);
+        assertNotNull(targetProduct);
+        assertEquals("Op2Name", targetProduct.getName());
+        OperatorProductReader operatorProductReader = (OperatorProductReader) targetProduct.getProductReader();
+        Operator operator = operatorProductReader.getOperatorContext().getOperator();
+        TestOps.Op2 op2 = (Op2) operator;
+        assertEquals(65.0, op2.threshold, 0.00001);
+    }
+
+    @Test
     public void testTwoNodesDirectCall() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>(1);
         parameters.put("THR", 66.0);
 
-        Operator op = graphOpSpiTwoNodes.createOperator(parameters, Collections.EMPTY_MAP);
-
-        assertNotNull(op);
-        assertTrue(op instanceof GraphOp);
-        Product targetProduct = op.getTargetProduct();
+        Product targetProduct = GPF.createProduct("SourcelessOp1Op2Graph", parameters, Collections.EMPTY_MAP);
         assertNotNull(targetProduct);
         assertEquals("Op2Name", targetProduct.getName());
         OperatorProductReader operatorProductReader = (OperatorProductReader) targetProduct.getProductReader();
@@ -158,41 +191,19 @@ public class GraphOpTest extends TestCase {
         assertEquals(66.0, op2.threshold, 0.00001);
     }
 
-    public void notYetWorking_testGraphEmbedded() throws Exception {
+    @Test
+    public void testUsesOtherGraph() throws Exception {
 
-        VerbousTileCache.setVerbous(true);
+        Map<String, Object> parameters = new HashMap<String, Object>(1);
+        parameters.put("THR", 67.0);
 
-        Graph graph = new Graph("graph");
-        Node node1 = new Node("node1", graphOpSpiTwoNodes.getOperatorAlias());
-        DefaultDomElement config = new DefaultDomElement("parameters");
-        DefaultDomElement param = new DefaultDomElement("THR");
-        param.setValue("33");
-        config.addChild(param);
-        node1.setConfiguration(config);
-        graph.addNode(node1);
-
-        GraphProcessor processor = new GraphProcessor();
-        GraphContext graphContext = null;
-        try {
-            graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
-        } catch (GraphException e) {
-            fail(e.getMessage());
-        }
-
-        Product chainOut = graphContext.getOutputProducts()[0];
-
-        assertNotNull(chainOut);
-        assertEquals("Op2Name", chainOut.getName());
-
-        processor.executeGraph(graphContext, ProgressMonitor.NULL);
-        // - Op3 requires the two bands of Op2
-        // - Op2 computes all bands
-        // --> Op2 should only be called once
-        assertEquals("Op1;Op2;", TestOps.getCalls());
-        TestOps.clearCalls();
-
-        VerbousTileCache.setVerbous(false);
-
+        Product targetProduct = GPF.createProduct("UsesOtherGraph", parameters, Collections.EMPTY_MAP);
+        assertNotNull(targetProduct);
+        assertEquals("Op2Name", targetProduct.getName());
+        OperatorProductReader operatorProductReader = (OperatorProductReader) targetProduct.getProductReader();
+        Operator operator = operatorProductReader.getOperatorContext().getOperator();
+        TestOps.Op2 op2 = (Op2) operator;
+        assertEquals(67.0, op2.threshold, 0.00001);
     }
 
 }

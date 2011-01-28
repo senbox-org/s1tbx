@@ -21,7 +21,6 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.gpf.operators.standard.PassThroughOp;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -65,18 +64,7 @@ public class OperatorTest {
         }
     }
 
-    @Test
-    public void testPassThroughDetection() throws OperatorException, IOException {
-        Product sourceProduct = createFooProduct();
-        final Operator op = new PassThroughOp(sourceProduct);
-        assertNotNull(op.getSpi());
-        assertFalse(op.context.isPassThrough());
-        Product targetProduct = op.getTargetProduct();// force init
-        assertSame(sourceProduct, targetProduct);
-        assertTrue(op.context.isPassThrough());
-    }
-
-    @Test
+     @Test
     public void testSourceProducts() throws IOException, OperatorException {
         final Operator operator = new Operator() {
             @Override

@@ -20,7 +20,11 @@ import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 public class TargetProductAnnotationValidationTest extends TestCase {
@@ -46,7 +50,7 @@ public class TargetProductAnnotationValidationTest extends TestCase {
         Node node = new Node("OutputNotSet", notInitTargetProductOpSPI.getOperatorAlias());
         graph.addNode(node);
 
-        GraphContext graphContext = new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+        GraphContext graphContext = new GraphContext(graph);
         NodeContext nodeContext = graphContext.getNodeContext(node);
         NotInitOutputOperator notInitOutputOperator = (NotInitOutputOperator) nodeContext.getOperator();
         assertNotNull("Output of operator is null", notInitOutputOperator.output);

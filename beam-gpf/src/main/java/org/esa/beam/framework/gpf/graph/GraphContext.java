@@ -21,9 +21,11 @@ import com.bc.ceres.binding.dom.Xpp3DomElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.media.jai.JAI;
 import java.awt.Dimension;
+import java.text.MessageFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -55,13 +57,27 @@ public class GraphContext {
     /**
      * Creates a GraphContext for the given {@code graph} and a {@code logger}.
      *
-     * @param graph  the {@link Graph} to create the context for
-     * @param logger a logger
+     * @param graph the {@link org.esa.beam.framework.gpf.graph.Graph} to create the context for
      * @throws GraphException if the graph context could not be created
      */
-    public GraphContext(Graph graph, Logger logger) throws GraphException {
+    public GraphContext(Graph graph) throws GraphException {
+        this(graph, null);
+    }
+
+
+    /**
+     * Creates a GraphContext for the given {@code graph} and a {@code logger}.
+     *
+     * @param graph the {@link org.esa.beam.framework.gpf.graph.Graph} to create the context for
+     * @throws GraphException if the graph context could not be created
+     */
+    GraphContext(Graph graph, Operator graphOp) throws GraphException {
+        if (graph.getNodeCount() == 0) {
+            throw new GraphException("Empty graph.");
+        }
+
         this.graph = graph;
-        this.logger = logger;
+        this.logger = BeamLogManager.getSystemLogger();
 
         outputNodeContextList = new ArrayList<NodeContext>(graph.getNodeCount() / 2);
 
@@ -71,6 +87,126 @@ public class GraphContext {
         }
 
         initNodeContextDeque = new ArrayDeque<NodeContext>(graph.getNodeCount());
+        initNodeDependencies();
+        initOutput(graphOp);
+    }
+
+    private static boolean isSourceNodeIdInHeader(String sourceNodeId, List<HeaderSource> headerSources) {
+        for (HeaderSource headerSource : headerSources) {
+            if (sourceNodeId.equals(headerSource.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void initNodeDependencies() throws GraphException {
+        Graph graph = getGraph();
+        for (Node node : graph.getNodes()) {
+            for (NodeSource source : node.getSources()) {
+                String sourceNodeId = source.getSourceNodeId();
+                Node sourceNode = graph.getNode(sourceNodeId);
+                if (sourceNode == null) {
+                    Header header = graph.getHeader();
+                    boolean sourceDefinedInHeader = header != null && isSourceNodeIdInHeader(sourceNodeId, header.getSources());
+                    if (!sourceDefinedInHeader) {
+                        throw new GraphException(MessageFormat.format("Missing source. Node Id: ''{0}'' Source Id: ''{1}''",
+                                                                      node.getId(), source.getSourceNodeId()));
+                    }
+                }
+                if (sourceNode != null) {
+                    getNodeContext(sourceNode).incrementReferenceCount();
+                    source.setSourceNode(sourceNode);
+                }
+            }
+        }
+    }
+
+    OperatorConfiguration createOperatorConfiguration(DomElement domElement,
+                                                      Map<String, Object> parameterContext) {
+        if (domElement == null) {
+            return null;
+        }
+        DomElement resolvedElement = new Xpp3DomElement(domElement.getName());
+        Set<OperatorConfiguration.Reference> references = new HashSet<OperatorConfiguration.Reference>(17);
+        DomElement[] children = domElement.getChildren();
+
+        for (DomElement child : children) {
+            String reference = child.getAttribute("refid");
+            if (reference != null) {
+                String parameterName = child.getName();
+                if (reference.contains(".")) {
+                    String[] referenceParts = reference.split("\\.");
+                    String referenceNodeId = referenceParts[0];
+                    String propertyName = referenceParts[1];
+                    Node node = getGraph().getNode(referenceNodeId);
+                    NodeContext referredNodeContext = getNodeContext(node);
+                    Operator operator = referredNodeContext.getOperator();
+                    OperatorConfiguration.PropertyReference propertyReference = new OperatorConfiguration.PropertyReference(parameterName, propertyName, operator);
+                    references.add(propertyReference);
+                } else {
+                    OperatorConfiguration.ParameterReference parameterReference = new OperatorConfiguration.ParameterReference(parameterName, parameterContext.get(reference));
+                    references.add(parameterReference);
+                }
+            } else {
+                resolvedElement.addChild(child);
+            }
+        }
+
+        return new OperatorConfiguration(resolvedElement, references);
+    }
+
+    private void initOutput(Operator graphOp) throws GraphException {
+        for (Node node : getGraph().getNodes()) {
+            NodeContext nodeContext = getNodeContext(node);
+            if (nodeContext.isOutput()) {
+                initNodeContext(nodeContext, graphOp);
+                addOutputNodeContext(nodeContext);
+            }
+        }
+    }
+
+    private void initNodeContext(final NodeContext nodeContext, Operator graphOp) throws GraphException {
+
+        if (nodeContext.isInitialized()) {
+            return;
+        }
+
+        for (NodeSource source : nodeContext.getNode().getSources()) {
+            NodeContext sourceNodeContext = getNodeContext(source.getSourceNode());
+            Product sourceProduct = null;
+            if (sourceNodeContext != null) {
+                initNodeContext(sourceNodeContext, graphOp);
+                sourceProduct = sourceNodeContext.getTargetProduct();
+            } else {
+                if (graphOp != null) {
+                    sourceProduct = graphOp.getSourceProduct(source.getSourceNodeId());
+                }
+            }
+            if (sourceProduct == null) {
+                throw new GraphException(MessageFormat.format("Missing source. Node Id: ''{0}'' Source Id: ''{1}''",
+                                                              nodeContext.getNode().getId(), source.getSourceNodeId()));
+            }
+            nodeContext.addSourceProduct(source.getName(), sourceProduct);
+        }
+        Node node = nodeContext.getNode();
+        DomElement configuration = node.getConfiguration();
+        OperatorConfiguration opConfiguration = this.createOperatorConfiguration(configuration,
+                                                                                 new HashMap<String, Object>());
+        nodeContext.setParameters(opConfiguration);
+        nodeContext.initTargetProduct();
+        getInitNodeContextDeque().addFirst(nodeContext);
+    }
+
+    /**
+     * Disposes this {@code GraphContext}.
+     */
+    public void dispose() {
+        Deque<NodeContext> initNodeContextDeque = getInitNodeContextDeque();
+        while (!initNodeContextDeque.isEmpty()) {
+            NodeContext nodeContext = initNodeContextDeque.pop();
+            nodeContext.dispose();
+        }
     }
 
     /**
@@ -89,15 +225,6 @@ public class GraphContext {
      */
     public Logger getLogger() {
         return logger;
-    }
-
-    /**
-     * Gets the preferred tile size.
-     *
-     * @return the preferred tile size
-     */
-    public Dimension getPreferredTileSize() {
-        return JAI.getDefaultTileSize();
     }
 
     /**
@@ -124,22 +251,6 @@ public class GraphContext {
     }
 
     /**
-     * Gets the number of {@link NodeContext}s marked as output.
-     *
-     * @return the number of output {@link NodeContext}s
-     */
-    public int getOutputCount() {
-        int outputCount = 0;
-        for (Node node : graph.getNodes()) {
-            NodeContext nodeContext = getNodeContext(node);
-            if (nodeContext.isOutput()) {
-                outputCount++;
-            }
-        }
-        return outputCount;
-    }
-
-    /**
      * Gets the {@link NodeContext}s in the reverse order as they were initialized.
      *
      * @return a deque of {@link NodeContext}s
@@ -160,16 +271,6 @@ public class GraphContext {
     }
 
     /**
-     * Gets the output {@link NodeContext} at the given index.
-     *
-     * @param index the index
-     * @return the {@link NodeContext} at the given index
-     */
-    NodeContext getOutputNodeContext(int index) {
-        return outputNodeContextList.get(index);
-    }
-
-    /**
      * Gets all output {@link NodeContext}s of this {@code GraphContext}
      *
      * @return an array of all output {@link NodeContext}s
@@ -178,18 +279,6 @@ public class GraphContext {
         return outputNodeContextList.toArray(new NodeContext[outputNodeContextList.size()]);
     }
 
-    /**
-     * Gets the number of bands within all target products of the output {@link NodeContext}s.
-     *
-     * @return the count of all output bands
-     */
-    int getTotalOutputBandCount() {
-        int bandCount = 0;
-        for (NodeContext nodeContext : outputNodeContextList) {
-            bandCount += nodeContext.getTargetProduct().getNumBands();
-        }
-        return bandCount;
-    }
 
     /**
      * Adds the given {@code nodeContext} to the list of output {@link NodeContext}s.
@@ -200,38 +289,4 @@ public class GraphContext {
         outputNodeContextList.add(nodeContext);
     }
 
-    static OperatorConfiguration createOperatorConfiguration(DomElement domElement,
-                                                             GraphContext graphContext,
-                                                             Map<String, Object> map) {
-        if (domElement == null) {
-            return null;
-        }
-        DomElement resolvedElement = new Xpp3DomElement(domElement.getName());
-        Set<OperatorConfiguration.Reference> references = new HashSet<OperatorConfiguration.Reference>(17);
-        DomElement[] children = domElement.getChildren();
-
-        for (DomElement child : children) {
-            String reference = child.getAttribute("refid");
-            if (reference != null) {
-                String parameterName = child.getName();
-                if (reference.contains(".")) {
-                    String[] referenceParts = reference.split("\\.");
-                    String referenceNodeId = referenceParts[0];
-                    String propertyName = referenceParts[1];
-                    Node node = graphContext.getGraph().getNode(referenceNodeId);
-                    NodeContext referedNodeContext = graphContext.getNodeContext(node);
-                    Operator operator = referedNodeContext.getOperator();
-                    OperatorConfiguration.PropertyReference propertyReference = new OperatorConfiguration.PropertyReference(parameterName, propertyName, operator);
-                    references.add(propertyReference);
-                } else {
-                    OperatorConfiguration.ParameterReference parameterReference = new OperatorConfiguration.ParameterReference(parameterName, map.get(reference));
-                    references.add(parameterReference);
-                }
-            } else {
-                resolvedElement.addChild(child);
-            }
-        }
-
-        return new OperatorConfiguration(resolvedElement, references);
-    }
 }

@@ -68,7 +68,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
 
         graph = createTestGraph(opName);
         try {
-            new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+            new GraphContext(graph);
             fail("GraphException expected, need exactly 2 sources");
         } catch (GraphException ge) {
         }
@@ -77,7 +77,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         outputNode = graph.getNode("output");
         outputNode.addSource(new NodeSource("dummy", "input1"));
         try {
-            new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+            new GraphContext(graph);
             fail("GraphException expected, need exactly 2 sources");
         } catch (GraphException ge) {
         }
@@ -87,7 +87,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         outputNode.addSource(new NodeSource("dummy1", "input1"));
         outputNode.addSource(new NodeSource("dummy2", "input2"));
         try {
-            new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+            new GraphContext(graph);
         } catch (GraphException ge) {
             fail("GraphException not expected, exactly 2 sources given. Error: " + ge.getMessage());
         }
@@ -98,7 +98,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         outputNode.addSource(new NodeSource("dummy2", "input2"));
         outputNode.addSource(new NodeSource("dummy3", "input3"));
         try {
-            new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+            new GraphContext(graph);
             fail("GraphException expected, need exactly 2 sources");
         } catch (GraphException ge) {
         }
@@ -111,7 +111,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
 
         graph = createTestGraph(opName);
         try {
-            new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+            new GraphContext(graph);
             fail("GraphException expected, at least one source expected");
         } catch (GraphException ge) {
         }
@@ -122,7 +122,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         outputNode.addSource(new NodeSource("dummy2", "input2"));
         outputNode.addSource(new NodeSource("dummy3", "input3"));
         try {
-            new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+            new GraphContext(graph);
         } catch (GraphException ge) {
             fail("GraphException not expected, any number of sources allowed. Error: " + ge.getMessage());
         }
@@ -135,7 +135,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
 
         graph = createTestGraph(opName);
         try {
-            new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+            new GraphContext(graph);
         } catch (GraphException ge) {
             fail("GraphException not expected, sources not checked. Error: " + ge.getMessage());
         }
@@ -146,7 +146,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         outputNode.addSource(new NodeSource("dummy2", "input2"));
         outputNode.addSource(new NodeSource("dummy3", "input3"));
         try {
-            new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+            new GraphContext(graph);
         } catch (GraphException ge) {
             fail("GraphException not expected, sources not checked. Error: " + ge.getMessage());
         }

@@ -16,9 +16,7 @@
 
 package org.esa.beam.framework.gpf.graph;
 
-import com.bc.ceres.core.ProgressMonitor;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
-
 import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.TestOps;
@@ -399,7 +397,7 @@ public class GraphIOTest extends TestCase {
         GraphProcessor processor = new GraphProcessor();
         GraphContext graphContext = null;
         try {
-            graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+            graphContext = new GraphContext(graph);
         } catch (GraphException e) {
             fail(e.getMessage());
         }
@@ -451,7 +449,7 @@ public class GraphIOTest extends TestCase {
         GraphProcessor processor = new GraphProcessor();
         GraphContext graphContext = null;
         try {
-            graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+            graphContext = new GraphContext(graph);
         } catch (GraphException e) {
             fail(e.getMessage());
         }
@@ -500,7 +498,7 @@ public class GraphIOTest extends TestCase {
         GraphProcessor processor = new GraphProcessor();
         GraphContext graphContext = null;
         try {
-            graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+            graphContext = new GraphContext(graph);
         } catch (GraphException e) {
             fail(e.getMessage());
         }

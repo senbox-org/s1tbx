@@ -65,7 +65,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -96,7 +95,6 @@ public class OperatorContext {
     private Operator operator;
     private boolean computeTileMethodUsable;
     private boolean computeTileStackMethodUsable;
-    private boolean passThrough;
     private List<Product> sourceProductList;
     private Map<String, Object> parameters;
     private Map<String, Product> sourceProductMap;
@@ -222,9 +220,6 @@ public class OperatorContext {
         return targetPropertyMap.get(name);
     }
 
-    public boolean isPassThrough() {
-        return passThrough;
-    }
 
     public boolean isTracePerformance() {
         return tracePerformance;
@@ -430,9 +425,6 @@ public class OperatorContext {
             operator.initialize();
             initTargetProduct();
             initTargetProperties();
-            if (!(operator instanceof GraphOp)) {
-                initPassThrough();
-            }
             initTargetImages();
             initGraphMetadata();
 
@@ -577,17 +569,6 @@ public class OperatorContext {
             final MetadataAttribute attribute = new MetadataAttribute(name, valueME, true);
             parentME.addAttribute(attribute);
         }
-    }
-
-    private boolean initPassThrough() {
-        passThrough = false;
-        Product[] sourceProducts = getSourceProducts();
-        for (Product sourceProduct : sourceProducts) {
-            if (targetProduct == sourceProduct) {
-                passThrough = true;
-            }
-        }
-        return passThrough;
     }
 
     private void initTargetImages() {

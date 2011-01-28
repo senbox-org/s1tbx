@@ -21,8 +21,8 @@ import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
@@ -38,7 +38,6 @@ import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +66,7 @@ public class GraphProcessor {
      */
     public GraphProcessor() {
         observerList = new ArrayList<GraphProcessingObserver>(3);
-        logger = Logger.getAnonymousLogger();
+        logger = BeamLogManager.getSystemLogger();
     }
 
     /**
@@ -111,7 +110,7 @@ public class GraphProcessor {
     /**
      * Executes the graph given by {@link GraphContext}.
      * New graph context are created using the
-     * {@link #createGraphContext(Graph, com.bc.ceres.core.ProgressMonitor)} method.
+     * {@link GraphContext#create(Graph)} method.
      *
      * @param graph the {@link Graph}
      * @param pm    a progress monitor. Can be used to signal progress.
@@ -121,57 +120,18 @@ public class GraphProcessor {
         GraphContext graphContext;
         try {
             pm.beginTask("Executing processing graph", 100);
-            graphContext = createGraphContext(graph, SubProgressMonitor.create(pm, 10));
+            graphContext = new GraphContext(graph);
             executeGraph(graphContext, SubProgressMonitor.create(pm, 90));
-            disposeGraphContext(graphContext);
+            graphContext.dispose();
         } finally {
             pm.done();
-        }
-    }
-
-    /**
-     * Creates an {@link GraphContext} for the given {@link Graph}.
-     *
-     * @param graph the {@link Graph} to create the {@link GraphContext} for
-     * @param pm    a progress monitor. Can be used to signal progress.
-     * @return the created {@link GraphContext}
-     * @throws GraphException if any error occrues during creation of the context, e.g. the graph is empty
-     */
-    public GraphContext createGraphContext(Graph graph, ProgressMonitor pm) throws GraphException {
-
-        if (graph.getNodeCount() == 0) {
-            throw new GraphException("Empty graph.");
-        }
-
-        try {
-            pm.beginTask("Creating processing graph context", 100);
-            GraphContext graphContext = new GraphContext(graph, logger);
-            initNodeDependencies(graphContext);
-            pm.worked(10);
-            initOutput(graphContext, SubProgressMonitor.create(pm, 90));
-            return graphContext;
-        } finally {
-            pm.done();
-        }
-    }
-
-    /**
-     * Disposes the given {@link GraphContext}.
-     *
-     * @param graphContext the {@link GraphContext} to dispose
-     */
-    public static void disposeGraphContext(GraphContext graphContext) {
-        Deque<NodeContext> initNodeContextDeque = graphContext.getInitNodeContextDeque();
-        while (!initNodeContextDeque.isEmpty()) {
-            NodeContext nodeContext = initNodeContextDeque.pop();
-            nodeContext.dispose();
         }
     }
 
     /**
      * Executes the graph given by {@link GraphContext}.
      * New graph context are created using the
-     * {@link #createGraphContext(Graph, com.bc.ceres.core.ProgressMonitor)} method.
+     * {@link GraphContext#create(Graph)} method.
      *
      * @param graphContext the {@link GraphContext} to execute
      * @param pm           a progress monitor. Can be used to signal progress.
@@ -328,69 +288,6 @@ public class GraphProcessor {
             semaphore.acquire(permits);
         } catch (InterruptedException e) {
             throw new OperatorException(e);
-        }
-    }
-
-    private static void initNodeDependencies(GraphContext graphContext) throws GraphException {
-        Graph graph = graphContext.getGraph();
-        for (Node node : graph.getNodes()) {
-            for (NodeSource source : node.getSources()) {
-                Node sourceNode = graph.getNode(source.getSourceNodeId());
-                if (sourceNode == null) {
-                    throw new GraphException("Missing source. Node Id: '" + node.getId()
-                            + "' Source Id: '" + source.getSourceNodeId() + "'");
-                }
-                graphContext.getNodeContext(sourceNode).incrementReferenceCount();
-                source.setSourceNode(sourceNode);  // todo - use getNodeContext()
-            }
-        }
-    }
-
-    private static void initOutput(GraphContext graphContext, ProgressMonitor pm) throws GraphException {
-        final int outputCount = graphContext.getOutputCount();
-        try {
-            pm.beginTask("Creating output products", outputCount);
-            for (Node node : graphContext.getGraph().getNodes()) {
-                NodeContext nodeContext = graphContext.getNodeContext(node);
-                if (nodeContext.isOutput()) {
-                    initNodeContext(graphContext, nodeContext, SubProgressMonitor.create(pm, 1));
-                    graphContext.addOutputNodeContext(nodeContext);
-                }
-            }
-        } finally {
-            pm.done();
-        }
-    }
-
-    private static void initNodeContext(GraphContext graphContext, final NodeContext nodeContext, ProgressMonitor pm) throws
-            GraphException {
-        try {
-            NodeSource[] sources = nodeContext.getNode().getSources();
-            pm.beginTask("Creating operator", sources.length + 4);
-
-            if (nodeContext.isInitialized()) {
-                return;
-            }
-
-            for (NodeSource source : sources) {
-                NodeContext sourceNodeContext = graphContext.getNodeContext(source.getSourceNode());
-                initNodeContext(graphContext, sourceNodeContext, SubProgressMonitor.create(pm, 1));
-                nodeContext.addSourceProduct(source.getName(), sourceNodeContext.getTargetProduct());
-            }
-            Node node = nodeContext.getNode();
-            OperatorConfiguration opConfiguration = GraphContext.createOperatorConfiguration(node.getConfiguration(),
-                                                                                             graphContext,
-                                                                                             Collections.EMPTY_MAP);
-            nodeContext.setParameters(opConfiguration);
-            nodeContext.initTargetProduct();
-            graphContext.getInitNodeContextDeque().addFirst(nodeContext);
-
-        } catch (GraphException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new GraphException(e.getMessage(), e);
-        } finally {
-            pm.done();
         }
     }
 

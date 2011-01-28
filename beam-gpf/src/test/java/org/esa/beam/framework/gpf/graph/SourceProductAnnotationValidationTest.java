@@ -21,7 +21,12 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
@@ -73,7 +78,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         graph.addNode(consumerNode);
 
         try {
-            new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+            new GraphContext(graph);
             fail("GraphException expected caused by wrong type of source product");
         } catch (GraphException ge) {
         }
@@ -89,7 +94,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         graph.addNode(consumerNode);
 
         try {
-            new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+            new GraphContext(graph);
             fail("GraphException expected, caused by missing bands");
         } catch (GraphException ge) {
         }
@@ -105,7 +110,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         graph.addNode(consumerNode);
 
         try {
-            new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+            new GraphContext(graph);
             fail("GraphException expected, caused by missing bands, even if optional");
         } catch (GraphException ge) {
         }
@@ -119,7 +124,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         graph.addNode(wrongBandsNode);
         graph.addNode(consumerNode);
 
-        new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+        new GraphContext(graph);
     }
 
     public void testNotInitialzedInputResultsInException() {
@@ -131,7 +136,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         graph.addNode(consumerNode);
 
         try {
-            new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+            new GraphContext(graph);
             fail("GraphException expected, because input1 is not initialized");
         } catch (GraphException ge) {
         }
@@ -146,7 +151,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         graph.addNode(goodNode);
         graph.addNode(consumerNode);
 
-        GraphContext graphContext = new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
+        GraphContext graphContext = new GraphContext(graph);
         NodeContext consumerNodeContext = graphContext.getNodeContext(consumerNode);
         assertSame(((ConsumerWithAliasSourceOperator) consumerNodeContext.getOperator()).input1,
                    consumerNodeContext.getSourceProduct("alias"));
