@@ -53,7 +53,7 @@ import java.util.ArrayList;
 import static java.lang.Math.*;
 
 @OperatorMetadata(alias = "Subset",
-                  authors = "Marco Zuehlke",
+                  authors = "Marco Zuehlke, Norman Fomferra, Marco Peters",
                   copyright = "(c) 2010 by Brockmann Consult",
                   description = "Create a spatial and/or spectral subset of data product.",
                   internal = true)
@@ -68,10 +68,10 @@ public class SubsetOp extends Operator {
     private Rectangle region;
     @Parameter(defaultValue = "1")
     private int subSamplingX;
-    @Parameter(defaultValue = "false", description = "Forces the operator extend the subset region to the full swath.")
+    @Parameter(defaultValue = "false", description = "Forces the operator to extend the subset region to the full swath.")
     private boolean fullSwath;
     @Parameter(converter = JtsGeometryConverter.class,
-               description = "The region to subset in WKT-format. Example: POLYGON((120.3 5.5, 145.2 5.5, 145.2 25.6, 120.3 25.6, 120.3 5.5))")
+               description = "The region in geographical coordinates using WKT-format. Example: POLYGON((120.3 5.5, 145.2 5.5, 145.2 25.6, 120.3 25.6, 120.3 5.5))")
     private Geometry geoRegion;
 
     @Parameter(defaultValue = "1")
