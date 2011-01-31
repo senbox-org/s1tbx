@@ -18,6 +18,7 @@ package org.esa.beam.gpf.operators.standard;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
+import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
@@ -32,6 +33,7 @@ import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.Node;
+import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.CRS;
 
 import java.awt.Rectangle;
@@ -236,6 +238,12 @@ public class BandMathsOpTest extends TestCase {
         assertEquals("SOLAR_FLUX_13", variables[0].name);
         assertEquals("SOLAR_FLUX_14", variables[1].name);
         assertEquals("PI", variables[2].name);
+
+        InputStreamReader inputStreamReader = new InputStreamReader(getClass().getResourceAsStream("BandMathsOpParameters.xml"));
+        String expectedXML = FileUtils.readText(inputStreamReader).trim();
+        DefaultDomElement bibo = new DefaultDomElement("bibo");
+        domConverter.convertValueToDom(parameterSet, bibo);
+        assertEquals(expectedXML, bibo.toXml().trim());
     }
 
     private static BandMathsOp.BandDescriptor createBandDescription(String bandName, String expression, String type) {
