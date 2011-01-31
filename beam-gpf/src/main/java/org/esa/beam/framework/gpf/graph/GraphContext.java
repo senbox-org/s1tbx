@@ -110,8 +110,7 @@ public class GraphContext {
                     Header header = graph.getHeader();
                     boolean sourceDefinedInHeader = header != null && isSourceNodeIdInHeader(sourceNodeId, header.getSources());
                     if (!sourceDefinedInHeader) {
-                        throw new GraphException(MessageFormat.format("Missing source. Node Id: ''{0}'' Source Id: ''{1}''",
-                                                                      node.getId(), source.getSourceNodeId()));
+                        throw new GraphException(getMissingSourceMessage(node, source));
                     }
                 }
                 if (sourceNode != null) {
@@ -184,8 +183,7 @@ public class GraphContext {
                 }
             }
             if (sourceProduct == null) {
-                throw new GraphException(MessageFormat.format("Missing source. Node Id: ''{0}'' Source Id: ''{1}''",
-                                                              nodeContext.getNode().getId(), source.getSourceNodeId()));
+                throw new GraphException(getMissingSourceMessage(nodeContext.getNode(), source));
             }
             nodeContext.addSourceProduct(source.getName(), sourceProduct);
         }
@@ -193,7 +191,7 @@ public class GraphContext {
         DomElement configuration = node.getConfiguration();
         OperatorConfiguration opConfiguration = this.createOperatorConfiguration(configuration,
                                                                                  new HashMap<String, Object>());
-        nodeContext.setParameters(opConfiguration);
+        nodeContext.setOperatorConfiguration(opConfiguration);
         nodeContext.initTargetProduct();
         getInitNodeContextDeque().addFirst(nodeContext);
     }
@@ -266,7 +264,7 @@ public class GraphContext {
      * @return the {@link NodeContext} of the given {@code node} or
      *         {@code null} if it's not contained in this context
      */
-    NodeContext getNodeContext(Node node) {
+    public NodeContext getNodeContext(Node node) {
         return nodeContextMap.get(node);
     }
 
@@ -289,4 +287,9 @@ public class GraphContext {
         outputNodeContextList.add(nodeContext);
     }
 
+
+    private static String getMissingSourceMessage(Node node, NodeSource source) {
+        return MessageFormat.format("Missing source ''{0}'' in node ''{1}''",
+                                    source.getSourceNodeId(), node.getId());
+    }
 }
