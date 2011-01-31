@@ -98,7 +98,7 @@ public class OperatorImage extends SourcelessOpImage {
     }
 
     protected void updateMetrics(Rectangle destRect, long startNanos) {
-        if (getOperatorContext().isTracePerformance()) {
+        if (OperatorContext.SYS_PROP_VALUE_PERFORMANCE_TRACE) {
             int tileX = this.XToTileX(destRect.x);
             int tileY = this.YToTileY(destRect.y);
             TileComputationStatistic tileComputationStatistic = tileComputationStatistics[numXTiles * tileY + tileX];

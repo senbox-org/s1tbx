@@ -23,7 +23,7 @@ import java.util.Set;
 public class OperatorConfiguration {
 
     private final DomElement configuration;
-    private Set<Reference> referenceSet;
+    private final Set<Reference> referenceSet;
 
     public OperatorConfiguration(DomElement configuration,
                                  Set<Reference> references) {
