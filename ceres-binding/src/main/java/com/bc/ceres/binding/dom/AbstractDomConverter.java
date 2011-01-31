@@ -227,7 +227,8 @@ public abstract class AbstractDomConverter implements DomConverter {
     protected abstract PropertyContainer getPropertyContainer(Object value);
 
     /**
-     * Gets an appropriate {@link com.bc.ceres.binding.PropertyContainer PropertySet} for the given value.
+     * Gets an appropriate {@link com.bc.ceres.binding.PropertySet PropertySet} for the given value.
+     * If {@code value} is already of type {@code PropertySet}, it is returned without any other action.
      *
      * @param value The value.
      * @return The property set.
