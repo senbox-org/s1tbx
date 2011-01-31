@@ -1,0 +1,65 @@
+<graph id="g">
+    <version>1.0</version>
+
+    <node id="readNode">
+
+        <operator>Read</operator>
+
+        <parameters>
+            <file>/data/test.N1</file>
+        </parameters>
+
+    </node>
+
+    <node id="bandMathsNode">
+
+        <operator>BandMaths</operator>
+
+        <sources>
+            <sourceProducts>readNode</sourceProducts>
+        </sources>
+
+        <parameters>
+            <targetBands>
+                <targetBand>
+                    <name>reflec_13</name>
+                    <expression>radiance_13 / (PI * SOLAR_FLUX_13)</expression>
+                    <description>TOA reflectance in channel 13</description>
+                    <type>float</type>
+                    <validExpression>reflec_13 >= 0</validExpression>
+                    <noDataValue>-999</noDataValue>
+                    <spectralBandIndex>13</spectralBandIndex>
+                </targetBand>
+                <targetBand>
+                    <name>reflec_14</name>
+                    <expression>radiance_14 / (PI * SOLAR_FLUX_14)</expression>
+                    <description>TOA reflectance in channel 14</description>
+                    <type>float</type>
+                    <validExpression>reflec_14 >= 0</validExpression>
+                    <noDataValue>-999</noDataValue>
+                    <spectralBandIndex>14</spectralBandIndex>
+                </targetBand>
+            </targetBands>
+
+            <variables>
+                <variable>
+                    <name>SOLAR_FLUX_13</name>
+                    <type>float</type>
+                    <value>914.18945</value>
+                </variable>
+                <variable>
+                    <name>SOLAR_FLUX_14</name>
+                    <type>float</type>
+                    <value>882.8275</value>
+                </variable>
+                 <variable>
+                    <name>PI</name>
+                    <type>double</type>
+                    <value>3.1415</value>
+                </variable>
+            </variables>
+
+        </parameters>
+    </node>
+
+</graph>
