@@ -19,6 +19,7 @@ package com.bc.ceres.binding.dom;
 import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertySet;
 
 /**
  * {@inheritDoc}
@@ -40,11 +41,29 @@ public class DefaultDomConverter extends AbstractDomConverter {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     protected PropertyContainer getPropertyContainer(Object value) {
         if (value instanceof PropertyContainer) {
             return (PropertyContainer) value;
         }
         final PropertyContainer vc;
+        if (valueDescriptorFactory != null) {
+            vc = PropertyContainer.createObjectBacked(value, valueDescriptorFactory);
+        } else {
+            vc = PropertyContainer.createObjectBacked(value);
+        }
+        return vc;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected PropertySet getPropertySet(Object value) {
+        if (value instanceof PropertySet) {
+            return (PropertySet) value;
+        }
+        final PropertySet vc;
         if (valueDescriptorFactory != null) {
             vc = PropertyContainer.createObjectBacked(value, valueDescriptorFactory);
         } else {

@@ -19,10 +19,11 @@ package com.bc.ceres.binding.dom;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
-import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -54,8 +55,8 @@ public abstract class AbstractDomConverter implements DomConverter {
      */
     @Override
     public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
-        final PropertyContainer propertyContainer = getPropertyContainer(value);
-        final Property[] properties = propertyContainer.getProperties();
+        final PropertySet propertySet = getPropertySet(value);
+        final Property[] properties = propertySet.getProperties();
         for (Property property : properties) {
             final PropertyDescriptor descriptor = property.getDescriptor();
             if (!descriptor.isTransient()) {
@@ -74,7 +75,7 @@ public abstract class AbstractDomConverter implements DomConverter {
                     if (array != null) {
                         final int arrayLength = Array.getLength(array);
                         final PropertyDescriptor itemDescriptor = new PropertyDescriptor(descriptor.getItemAlias(),
-                                                                                   descriptor.getType().getComponentType());
+                                                                                         descriptor.getType().getComponentType());
                         final DomConverter itemDomConverter = getDomConverter(itemDescriptor);
                         for (int i = 0; i < arrayLength; i++) {
                             final Object component = Array.get(array, i);
@@ -112,7 +113,7 @@ public abstract class AbstractDomConverter implements DomConverter {
      */
     @Override
     public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                   ValidationException {
+            ValidationException {
         if (value == null) {
             Class<?> itemType = getValueType();
             final String itemClassName = parentElement.getAttribute("class");
@@ -126,12 +127,12 @@ public abstract class AbstractDomConverter implements DomConverter {
             value = createValueInstance(itemType);
         }
         final Map<String, List<Object>> inlinedArrays = new HashMap<String, List<Object>>();
-        final PropertyContainer propertyContainer = getPropertyContainer(value);
+        final PropertySet propertySet = getPropertySet(value);
 
         for (final DomElement child : parentElement.getChildren()) {
             final String childName = child.getName();
             // todo - convert Java collections (nf - 02.04.2009)
-            Property property = propertyContainer.getProperty(childName);
+            Property property = propertySet.getProperty(childName);
 
             if (property != null && property.getDescriptor().isTransient()) {
                 continue;
@@ -141,7 +142,7 @@ public abstract class AbstractDomConverter implements DomConverter {
 
             if (property == null) {
                 // try to find property as inlined array element
-                final Property[] properties = propertyContainer.getProperties();
+                final Property[] properties = propertySet.getProperties();
                 for (final Property p : properties) {
                     final boolean inlined = p.getDescriptor().getItemsInlined();
                     if (inlined) {
@@ -205,10 +206,10 @@ public abstract class AbstractDomConverter implements DomConverter {
             for (final Map.Entry<String, List<Object>> entry : inlinedArrays.entrySet()) {
                 final String valueName = entry.getKey();
                 final List<Object> valueList = entry.getValue();
-                final Class<?> componentType = propertyContainer.getDescriptor(valueName).getType().getComponentType();
+                final Class<?> componentType = propertySet.getDescriptor(valueName).getType().getComponentType();
                 final Object array = Array.newInstance(componentType, valueList.size());
 
-                propertyContainer.getProperty(valueName).setValue(valueList.toArray((Object[]) array));
+                propertySet.getProperty(valueName).setValue(valueList.toArray((Object[]) array));
             }
         }
 
@@ -219,10 +220,19 @@ public abstract class AbstractDomConverter implements DomConverter {
      * Gets an appropriate {@link com.bc.ceres.binding.PropertyContainer PropertyContainer} for the given value.
      *
      * @param value The value.
-     *
      * @return The value container.
+     * @deprecated Since Ceres 0.12, replaced by {@link #getPropertySet(Object)}.
      */
+    @Deprecated
     protected abstract PropertyContainer getPropertyContainer(Object value);
+
+    /**
+     * Gets an appropriate {@link com.bc.ceres.binding.PropertyContainer PropertySet} for the given value.
+     *
+     * @param value The value.
+     * @return The property set.
+     */
+    protected abstract PropertySet getPropertySet(Object value);
 
     /**
      * Creates a {@link DomConverter} for a child element of a given value type.
@@ -232,7 +242,6 @@ public abstract class AbstractDomConverter implements DomConverter {
      *
      * @param element   The element which requires the converter.
      * @param valueType The type of the value to be converted.
-     *
      * @return The converter.
      */
     protected abstract DomConverter createChildConverter(DomElement element, Class<?> valueType);
@@ -241,13 +250,12 @@ public abstract class AbstractDomConverter implements DomConverter {
      * Gets a {@link DomConverter} for the given descriptor.
      *
      * @param descriptor The descriptor which requires the converter.
-     *
      * @return The converter, may be {@code null}.
      */
     protected abstract DomConverter getDomConverter(PropertyDescriptor descriptor);
 
     protected void convertValueToDomImpl(Object value, Converter converter, DomElement element) throws
-                                                                                                ConversionException {
+            ConversionException {
         if (converter != null) {
             final String text = converter.format(value);
             if (text != null && !text.isEmpty()) {
@@ -255,8 +263,8 @@ public abstract class AbstractDomConverter implements DomConverter {
             }
         } else {
             if (value != null) {
-                final PropertyContainer propertyContainer = getPropertyContainer(value);
-                final Property[] properties = propertyContainer.getProperties();
+                final PropertySet propertySet = getPropertySet(value);
+                final Property[] properties = propertySet.getProperties();
                 for (Property property : properties) {
                     final PropertyDescriptor descriptor = property.getDescriptor();
                     final DomConverter domConverter = getDomConverter(descriptor);
