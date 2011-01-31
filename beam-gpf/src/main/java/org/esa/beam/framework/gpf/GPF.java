@@ -68,23 +68,19 @@ public class GPF {
      * Can be used for convenience as a parameter for {@code createProduct()} if no
      * parameters are needed for the operator.
      *
-     * @see #createProduct(String, Map) createProduct(String, Map, ProgressMonitor)
-     * @see #createProduct(String, Map, Product) createProduct(String, Map, Product, ProgressMonitor)
-     * @see #createProduct(String, Map, Product[]) createProduct(String, Map, Product[], ProgressMonitor)
-     * @see #createProduct(String, Map, Map) createProduct(String, Map, Map, ProgressMonitor)
+     * @see #createProduct(String, Map)
+     * @see #createProduct(String, Map, Product ...)
+     * @see #createProduct(String, Map, Map)
      */
     public static final Map<String, Object> NO_PARAMS = Collections.unmodifiableMap(new TreeMap<String, Object>());
 
     /**
      * An unmodifiable empty {@link Map Map}.
      * <p/>
-     * Can be used for convenience as a parameter for {@code createProduct()} if no
+     * Can be used for convenience as a parameter for {@code createProduct(String, Map, Map)} if no
      * source products are needed for the operator.
      *
-     * @see #createProduct(String, Map) createProduct(String, Map, ProgressMonitor)
-     * @see #createProduct(String, Map, Product) createProduct(String, Map, Product, ProgressMonitor)
-     * @see #createProduct(String, Map, Product[]) createProduct(String, Map, Product[], ProgressMonitor)
-     * @see #createProduct(String, Map, Map) createProduct(String, Map, Map, ProgressMonitor)
+     * @see #createProduct(String, Map, Map)
      */
     public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
 
