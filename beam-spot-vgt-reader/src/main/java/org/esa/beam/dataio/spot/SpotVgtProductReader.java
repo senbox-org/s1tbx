@@ -18,6 +18,7 @@ package org.esa.beam.dataio.spot;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -53,8 +54,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getBandName;
-import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
+import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.*;
 
 /**
  * Reader for SPOT VGT products.
@@ -95,8 +95,10 @@ public class SpotVgtProductReader extends AbstractProductReader {
     }
 
     private Product createProduct() throws IOException {
-        PhysVolDescriptor physVolDescriptor = new PhysVolDescriptor(virtualDir.getReader(SpotVgtConstants.PHYS_VOL_FILENAME));
-        LogVolDescriptor logVolDescriptor = new LogVolDescriptor(virtualDir.getReader(physVolDescriptor.getLogVolDescriptorFileName()));
+        PhysVolDescriptor physVolDescriptor = new PhysVolDescriptor(
+                virtualDir.getReader(SpotVgtConstants.PHYS_VOL_FILENAME));
+        LogVolDescriptor logVolDescriptor = new LogVolDescriptor(
+                virtualDir.getReader(physVolDescriptor.getLogVolDescriptorFileName()));
 
         Rectangle imageBounds = logVolDescriptor.getImageBounds();
 
@@ -150,7 +152,8 @@ public class SpotVgtProductReader extends AbstractProductReader {
                                 // Source raster resolution is a sub-sampling.
                                 try {
                                     ProductData data = readData(variable, bandDataType, sourceWidth, sourceHeight);
-                                    RenderedOp dstImg = createScaledImage(targetWidth, targetHeight, sourceWidth, sourceHeight, sampling, data);
+                                    RenderedOp dstImg = createScaledImage(targetWidth, targetHeight, sourceWidth,
+                                                                          sourceHeight, sampling, data);
                                     Band band = addBand(product, bandDataType, bandInfo, netcdfFile, variable);
                                     band.setSourceImage(dstImg);
                                 } catch (IOException e) {
@@ -192,28 +195,34 @@ public class SpotVgtProductReader extends AbstractProductReader {
         return variable != null && variable.getRank() == 2 && variable.getDataType().isNumeric();
     }
 
-    private static ProductData readData(Variable variable, int bandDataType, int rasterWidth, int rasterHeight) throws IOException, InvalidRangeException {
+    private static ProductData readData(Variable variable, int bandDataType, int rasterWidth, int rasterHeight) throws
+                                                                                                                IOException,
+                                                                                                                InvalidRangeException {
         ProductData data = ProductData.createInstance(bandDataType, rasterWidth * rasterHeight);
         read(variable, 0, 0, rasterWidth, rasterHeight, data);
         return data;
     }
 
-    private static RenderedOp createScaledImage(int targetWidth, int targetHeight, int sourceWidth, int sourceHeight, int sourceSampling, ProductData data) {
+    private static RenderedOp createScaledImage(int targetWidth, int targetHeight, int sourceWidth, int sourceHeight,
+                                                int sourceSampling, ProductData data) {
         int tempW = sourceWidth * sourceSampling + 1;
         int tempH = sourceHeight * sourceSampling + 1;
         float xScale = (float) tempW / (float) sourceWidth;
         float yScale = (float) tempH / (float) sourceHeight;
-        RenderingHints renderingHints = new RenderingHints(JAI.KEY_BORDER_EXTENDER, BorderExtender.createInstance(BorderExtender.BORDER_COPY));
+        RenderingHints renderingHints = new RenderingHints(JAI.KEY_BORDER_EXTENDER,
+                                                           BorderExtender.createInstance(BorderExtender.BORDER_COPY));
         RenderedImage srcImg = ImageUtils.createRenderedImage(sourceWidth, sourceHeight, data);
         RenderedOp tempImg = ScaleDescriptor.create(srcImg, xScale, yScale,
                                                     -0.5f * sourceSampling + 1,
                                                     -0.5f * sourceSampling + 1,
-                                                    Interpolation.getInstance(Interpolation.INTERP_BILINEAR), renderingHints);
+                                                    Interpolation.getInstance(Interpolation.INTERP_BILINEAR),
+                                                    renderingHints);
 
         return CropDescriptor.create(tempImg, 0f, 0f, (float) targetWidth, (float) targetHeight, null);
     }
 
-    private Band addBand(Product product, int bandDataType, BandInfo bandInfo, NetcdfFile netcdfFile, Variable variable) {
+    private Band addBand(Product product, int bandDataType, BandInfo bandInfo, NetcdfFile netcdfFile,
+                         Variable variable) {
         Band band = product.addBand(bandInfo.name, bandDataType);
         band.setScalingFactor(bandInfo.coefA);
         band.setScalingOffset(bandInfo.offsetB);
@@ -368,19 +377,23 @@ public class SpotVgtProductReader extends AbstractProductReader {
                                                                  Color.MAGENTA, 0.5));
             product.getMaskGroup().add(Mask.BandMathsType.create("CLEAR", "Clear sky.",
                                                                  product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "!SM.CLOUD_1 && !SM.CLOUD_2",
+                                                                 product.getSceneRasterHeight(),
+                                                                 "!SM.CLOUD_1 && !SM.CLOUD_2",
                                                                  Color.ORANGE, 0.5));
             product.getMaskGroup().add(Mask.BandMathsType.create("CLOUD_SHADOW", "Cloud shadow.",
                                                                  product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "SM.CLOUD_1 && !SM.CLOUD_2",
+                                                                 product.getSceneRasterHeight(),
+                                                                 "SM.CLOUD_1 && !SM.CLOUD_2",
                                                                  Color.CYAN, 0.5));
             product.getMaskGroup().add(Mask.BandMathsType.create("CLOUD_UNCERTAIN", "Cloud uncertain.",
                                                                  product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "!SM.CLOUD_1 && SM.CLOUD_2",
+                                                                 product.getSceneRasterHeight(),
+                                                                 "!SM.CLOUD_1 && SM.CLOUD_2",
                                                                  Color.ORANGE, 0.5));
             product.getMaskGroup().add(Mask.BandMathsType.create("CLOUD", "Cloud certain.",
                                                                  product.getSceneRasterWidth(),
-                                                                 product.getSceneRasterHeight(), "SM.CLOUD_1 && SM.CLOUD_2",
+                                                                 product.getSceneRasterHeight(),
+                                                                 "SM.CLOUD_1 && SM.CLOUD_2",
                                                                  Color.YELLOW, 0.5));
         }
     }
@@ -390,7 +403,8 @@ public class SpotVgtProductReader extends AbstractProductReader {
     }
 
     private boolean isSpectralBand(Band band) {
-        return band.getName().equals("B0") || band.getName().equals("B2") || band.getName().equals("B3") || band.getName().equals("MIR");
+        return band.getName().equals("B0") || band.getName().equals("B2") || band.getName().equals(
+                "B3") || band.getName().equals("MIR");
     }
 
     private void addSpectralInfo(Product product) {
@@ -467,6 +481,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
     }
 
     private static class BandInfo {
+
         private BandInfo(String name, double coefA, double offsetB, int pSampling, String unit, String description) {
             this.name = name;
             this.coefA = coefA;
@@ -485,6 +500,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
     }
 
     private static class FileVar {
+
         final NetcdfFile file;
         final Variable var;
 
