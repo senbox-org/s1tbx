@@ -41,7 +41,7 @@ public class BinStoreFactory {
 
     public BinStore createSpatialStore(File dbDir, String fileName, int width, int height, int numVarsPerBin) throws IOException {
         BinStore store = null;
-        long size = width * height * numVarsPerBin;
+        long size = ((long)width) * ((long)height) * ((long)numVarsPerBin);
         System.out.println("width = " + width);
         System.out.println("height = " + height);
         System.out.println("numVarsPerBin = " + numVarsPerBin);
