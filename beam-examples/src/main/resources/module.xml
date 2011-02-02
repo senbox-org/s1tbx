@@ -1,0 +1,64 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-examples</symbolicName>
+    <version>1.0</version>
+    <name>BEAM Examples</name>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+    </dependency>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <parent>edit</parent>
+            <id>selectionAction</id>
+            <class>org.esa.beam.examples.selection.SelectionAwareAction</class>
+            <text>Number selected placemarks...</text>
+            <placeAfter>properties</placeAfter>
+            <shortDescr>Shows number selected placemarks.</shortDescr>
+            <description>Shows the number of selected placemarks, is any.</description>
+        </action>
+    </extension>
+
+    <extension point="beam-ui:toolViews">
+        <toolView>
+            <id>org.esa.beam.examples.selection.SelectionObservingToolView</id>
+            <class>org.esa.beam.examples.selection.SelectionObservingToolView</class>
+            <title>Selection Observing View</title>
+            <tabTitle>Selection Observer</tabTitle>
+            <description>Demonstrates how to implement a selection observing tool view.</description>
+            <initState>FLOATING</initState>
+            <initSide>NORTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+        <toolView>
+            <id>org.esa.beam.examples.selection.SelectionEmittingToolView</id>
+            <class>org.esa.beam.examples.selection.SelectionEmittingToolView</class>
+            <title>Selection Emitting View</title>
+            <tabTitle>Selection Emitter</tabTitle>
+            <description>Demonstrates how to implement a selection emitting tool view.</description>
+            <initState>FLOATING</initState>
+            <initSide>NORTH</initSide>
+            <initIndex>1</initIndex>
+        </toolView>
+    </extension>
+</module>

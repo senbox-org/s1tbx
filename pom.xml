@@ -162,6 +162,7 @@
         <module>lib-netcdf</module>
         <module>blue-marble-worldmap</module>
         <module>globcover-worldmap</module>
+        <module>beam-examples</module>
 
     </modules>
 
