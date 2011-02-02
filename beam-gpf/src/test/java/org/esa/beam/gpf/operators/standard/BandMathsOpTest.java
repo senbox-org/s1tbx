@@ -205,19 +205,21 @@ public class BandMathsOpTest extends TestCase {
     }
 
     public void testGraph() throws Exception {
+        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+        Class<BandMathsOp> opType = BandMathsOp.class;
+
         Graph graph = GraphIO.read(new InputStreamReader(getClass().getResourceAsStream("BandMathsOpTest.xml")));
         Node bandMathsNode = graph.getNode("bandMathsNode");
         DomElement configurationDomElement = bandMathsNode.getConfiguration();
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
 
-        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
-        PropertySet parameterSet = PropertyContainer.createMapBacked(parameterMap, BandMathsOp.class, parameterDescriptorFactory);
+        PropertySet parameterSet = PropertyContainer.createMapBacked(parameterMap, opType, parameterDescriptorFactory);
         assertNotNull(parameterSet.getProperty("targetBands"));
         assertNull(parameterSet.getProperty("targetBands").getValue());
         assertNotNull(parameterSet.getProperty("variables"));
         assertNull(parameterSet.getProperty("variables").getValue());
 
-        DefaultDomConverter domConverter = new DefaultDomConverter(BandMathsOp.class, parameterDescriptorFactory);
+        DefaultDomConverter domConverter = new DefaultDomConverter(opType, parameterDescriptorFactory);
         domConverter.convertDomToValue(configurationDomElement, parameterSet);
         assertNotNull(parameterSet.getProperty("targetBands"));
         assertNotNull(parameterSet.getProperty("targetBands").getValue());
