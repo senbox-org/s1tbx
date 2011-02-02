@@ -18,6 +18,7 @@ import org.esa.beam.util.StringUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -45,6 +46,7 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
+@Ignore
 public class PixExOpTest {
 
     private static final String DUMMY_PRODUCT1 = "dummyProduct1.dim";
