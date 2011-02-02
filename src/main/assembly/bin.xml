@@ -90,16 +90,18 @@
     </fileSets>
 
     <moduleSets>
-		<moduleSet>
+        <moduleSet>
             <excludes>
                 <exclude>org.esa.beam:beam-bootstrap</exclude>
                 <exclude>org.esa.beam:beam-installer</exclude>
                 <exclude>org.esa.beam:beam-rtp-codec</exclude>
+                <exclude>org.esa.beam:beam-examples</exclude>
             </excludes>
             <binaries>
                 <outputDirectory>modules</outputDirectory>
-				<unpack>false</unpack>
-                <outputFileNameMapping>${module.artifactId}-${module.version}.${module.extension}</outputFileNameMapping>
+                <unpack>false</unpack>
+                <outputFileNameMapping>${module.artifactId}-${module.version}.${module.extension}
+                </outputFileNameMapping>
                 <includeDependencies>false</includeDependencies>
                 <dependencySets>
                     <dependencySet>
@@ -111,20 +113,24 @@
                     </dependencySet>
                     <dependencySet>
                         <outputDirectory>lib</outputDirectory>
-						<outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
+                        <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}
+                        </outputFileNameMapping>
                         <excludes>
                             <exclude>com.bc.ceres:ceres-*</exclude>
                             <exclude>org.esa.beam:beam-*</exclude>
                             <exclude>ncsa.hdf:*</exclude>
                             <exclude>ucar.netcdf:*</exclude>
                             <exclude>edu.ucar:netcdf:*</exclude>
-                            <exclude>org.slf4j.slf4j:*</exclude> <!--logging from netcdf -->
-                            <exclude>javax.media:*</exclude> <!--jai from geotools, we have our own -->
+                            <exclude>org.slf4j.slf4j:*</exclude>
+                            <!--logging from netcdf -->
+                            <exclude>javax.media:*</exclude>
+                            <!--jai from geotools, we have our own -->
                         </excludes>
                     </dependencySet>
                     <dependencySet>
                         <outputDirectory>modules</outputDirectory>
-						<outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
+                        <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}
+                        </outputFileNameMapping>
                         <includes>
                             <include>com.bc.ceres:*</include>
                         </includes>
@@ -135,8 +141,8 @@
                         </excludes>
                     </dependencySet>
                 </dependencySets>
-		    </binaries>
-		</moduleSet>
+            </binaries>
+        </moduleSet>
     </moduleSets>
 
 </assembly>
