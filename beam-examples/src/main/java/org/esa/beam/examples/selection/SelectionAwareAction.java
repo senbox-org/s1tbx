@@ -66,7 +66,7 @@ public class SelectionAwareAction extends AbstractVisatAction implements Selecti
 
     private SelectionManager getSelectionManager() {
         // on first access the selection manager is initialised
-        // this can not be done in the constructor, because at the time it is called the AppContext is not
+        // this can not be done in the constructor because, at the time it is called, the AppContext is not
         // fully initialised
         if (selectionManager == null) {
             selectionManager = getAppContext().getApplicationPage().getSelectionManager();
