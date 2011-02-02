@@ -32,7 +32,6 @@ import com.jidesoft.status.LabelStatusBarItem;
 import com.jidesoft.swing.FolderChooser;
 import com.jidesoft.swing.JideMenu;
 import com.jidesoft.swing.LayoutPersistence;
-import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor;
@@ -53,7 +52,6 @@ import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.FileChooserFactory;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
-import org.esa.beam.util.logging.CacheHandler;
 
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
@@ -105,10 +103,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -172,7 +166,6 @@ public class BasicApp {
     private ActionListener closeHandler;
     private Map<String, CommandBar> toolBars;
     private boolean unexpectedShutdown;  // fix BEAM-712 (nf 2007.11.02)
-
 
 
     // todo - move somewhere else
@@ -496,7 +489,7 @@ public class BasicApp {
                 // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
                 // UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
                 return true;
-            } catch (Throwable e) {
+            } catch (Throwable ignored) {
                 // ignore
             }
         }
@@ -616,7 +609,7 @@ public class BasicApp {
      *
      * @param pm a progress monitor, can be used to signal progress
      *
-     * @throws Exception if an error occures
+     * @throws Exception if an error occurs
      */
     protected void initClient(ProgressMonitor pm) throws Exception {
     }
@@ -630,7 +623,7 @@ public class BasicApp {
      *
      * @param pm a progress monitor, can be used to signal progress
      *
-     * @throws Exception if an error occures
+     * @throws Exception if an error occurs
      */
     protected void initClientUI(ProgressMonitor pm) throws Exception {
     }
@@ -953,7 +946,7 @@ public class BasicApp {
         // Note, at this point the logging file is still not open!
         try {
             getPreferences().load(preferencesFile);
-        } catch (IOException e) {
+        } catch (IOException ignored) {
             logger.warning("Failed to load user preferences from " + preferencesFile);
             logger.warning("Using application default values...");
         }
@@ -971,7 +964,7 @@ public class BasicApp {
             logger.info("Storing user preferences in '" + preferencesFile.getPath() + "'...");/*I18N*/
             getPreferences().store(preferencesFile, getAppName() + " " + getAppVersion() + " - User preferences file");
             logger.info("User preferences stored");/*I18N*/
-        } catch (IOException e) {
+        } catch (IOException ignored) {
             logger.warning("Failed to store user preferences");/*I18N*/
         }
     }
@@ -1271,7 +1264,7 @@ public class BasicApp {
             if (file == null || file.getName().equals("")) {
                 return null;
             }
-            // to replace getAbsolutPath() replaced by getPath()?
+            // to replace getAbsolutePath() replaced by getPath()?
             file = file.getAbsoluteFile();
             return file;
         }
@@ -1378,7 +1371,7 @@ public class BasicApp {
 
         int result = fileChooser.showSaveDialog(getMainFrame());
         if (fileChooser.getCurrentDirectory() != null) {
-            // to replace getAbsolutPath() replaced by getPath()?
+            // to replace getAbsolutePath() replaced by getPath()?
             String lastDirPath = fileChooser.getCurrentDirectory().getAbsolutePath();
             if (lastDirPath != null) {
                 getPreferences().setPropertyString(lastDirPropertyKey, lastDirPath);
@@ -1389,7 +1382,7 @@ public class BasicApp {
             if (file == null || file.getName().equals("")) {
                 return null;
             }
-            // to replace getAbsolutPath() replaced by getPath()?
+            // to replace getAbsolutePath() replaced by getPath()?
             String absolutePath = file.getAbsolutePath();
             if (defaultExtension != null) {
                 if (!absolutePath.toLowerCase().endsWith(defaultExtension.toLowerCase())) {
@@ -1403,7 +1396,7 @@ public class BasicApp {
     }
 
     protected void historyPush(File file) {
-        // to replace getAbsolutPath() replaced by getPath()?
+        // to replace getAbsolutePath() replaced by getPath()?
         fileHistory.push(file.getAbsolutePath());
     }
 
@@ -1503,9 +1496,9 @@ public class BasicApp {
     public final void showMessageDialog(String title, String message, int messageType, String preferencesKey) {
         if (suppressibleOptionPane != null && !StringUtils.isNullOrEmpty(preferencesKey)) {
             suppressibleOptionPane.showMessageDialog(preferencesKey, getMainFrame(),
-                                                      message,
-                                                      getAppName() + " - " + title,
-                                                      messageType);
+                                                     message,
+                                                     getAppName() + " - " + title,
+                                                     messageType);
         } else {
             JOptionPane.showMessageDialog(getMainFrame(),
                                           message,
@@ -1525,13 +1518,13 @@ public class BasicApp {
     public final int showQuestionDialog(String title, String message, boolean allowCancel, String preferencesKey) {
         if (suppressibleOptionPane != null && !StringUtils.isNullOrEmpty(preferencesKey)) {
             return suppressibleOptionPane.showConfirmDialog(preferencesKey,
-                                                             getMainFrame(),
-                                                             message,
-                                                             getAppName() + " - " + title,
-                                                             allowCancel
-                                                             ? JOptionPane.YES_NO_CANCEL_OPTION
-                                                             : JOptionPane.YES_NO_OPTION,
-                                                             JOptionPane.QUESTION_MESSAGE);
+                                                            getMainFrame(),
+                                                            message,
+                                                            getAppName() + " - " + title,
+                                                            allowCancel
+                                                            ? JOptionPane.YES_NO_CANCEL_OPTION
+                                                            : JOptionPane.YES_NO_OPTION,
+                                                            JOptionPane.QUESTION_MESSAGE);
         } else {
             return JOptionPane.showConfirmDialog(getMainFrame(),
                                                  message,
@@ -1567,6 +1560,7 @@ public class BasicApp {
             detailsButton.setText("Show Details");
             detailsButton.setMnemonic('S');
             detailsButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     details.setVisible(!details.isVisible());
                     if (details.isVisible()) {
@@ -1677,17 +1671,14 @@ public class BasicApp {
         Guardian.assertNotNullOrEmpty("helpsetResourcePath", helpsetResourcePath);
         final URL url = HelpSet.findHelpSet(classLoader, helpsetResourcePath);
         if (url == null) {
-            getLogger().log(Level.SEVERE,
-                            "Helpset not found: " + helpsetResourcePath + "");
+            getLogger().log(Level.SEVERE, "Helpset not found: " + helpsetResourcePath);
             return;
         }
         try {
             final HelpSet helpSet = new HelpSet(classLoader, url);
             HelpSys.add(helpSet);
         } catch (HelpSetException e) {
-            getLogger().log(Level.SEVERE,
-                            "Helpset could not be added: " + helpsetResourcePath + "",
-                            e);
+            getLogger().log(Level.SEVERE, "Helpset could not be added: " + helpsetResourcePath, e);
         }
     }
 
@@ -1708,7 +1699,7 @@ public class BasicApp {
     private void initResources() throws MissingResourceException {
         if (applicationDescriptor.getResourceBundleName() != null) {
             resourceBundle = ResourceBundle.getBundle(applicationDescriptor.getResourceBundleName(),
-                                                       Locale.getDefault(), getClass().getClassLoader());
+                                                      Locale.getDefault(), getClass().getClassLoader());
         } else {
             resourceBundle = null;
         }
