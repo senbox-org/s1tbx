@@ -32,9 +32,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-// todo - Currently the provided selection context gets lost if the application menu is invoked.
-// Because the active component changes.
-// todo - It is replaced by the previous selection context.
+// todo -
+// Currently the provided selection context gets lost if the application menu is invoked,
+// because the active component changes. It is replaced by the previous selection context.
 
 /**
  * This class is an example implementation and does not belong to the public API.
