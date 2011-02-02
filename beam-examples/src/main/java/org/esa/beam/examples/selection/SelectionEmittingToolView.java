@@ -63,15 +63,15 @@ public class SelectionEmittingToolView extends AbstractToolView {
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         tableLayout.setTableWeightX(1.0);
         final JPanel panel = new JPanel(tableLayout);
-        JList listOfSelectables = new JList(new String[]{"Red", "Blue", "Green", "White", "Black"});
-        listOfSelectables.setVisibleRowCount(3);
-        listOfSelectables.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        JList selectableItemList = new JList(new String[]{"Red", "Blue", "Green", "White", "Black"});
+        selectableItemList.setVisibleRowCount(3);
+        selectableItemList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         panel.add(new JLabel("Make your selection: "));
-        final JScrollPane scrollPane = new JScrollPane(listOfSelectables);
+        final JScrollPane scrollPane = new JScrollPane(selectableItemList);
         panel.add(scrollPane);
 
-        // MySelectionContext does the handling of selections
-        selectionContext = new MySelectionContext(listOfSelectables);
+        // SelectionContextImpl does the handling of selections
+        selectionContext = new SelectionContextImpl(selectableItemList);
         return panel;
     }
 
@@ -80,15 +80,15 @@ public class SelectionEmittingToolView extends AbstractToolView {
         return selectionContext;
     }
 
-    private static class MySelectionContext extends AbstractSelectionContext {
+    private static class SelectionContextImpl extends AbstractSelectionContext {
 
 
-        private JList listOfSelectables;
+        private JList list;
 
-        private MySelectionContext(JList listOfSelectables) {
-            this.listOfSelectables = listOfSelectables;
+        private SelectionContextImpl(JList list) {
+            this.list = list;
             // register a listener at the source of selections to get notified if selection changes
-            this.listOfSelectables.addListSelectionListener(new ListSelectionListener() {
+            this.list.addListSelectionListener(new ListSelectionListener() {
                 @Override
                 public void valueChanged(ListSelectionEvent e) {
                     fireSelectionChange(getSelection());
@@ -99,13 +99,13 @@ public class SelectionEmittingToolView extends AbstractToolView {
         @Override
         public void setSelection(Selection selection) {
             // Change the current selection; it is requested from an external source
-            listOfSelectables.setSelectedValue(selection.getSelectedValue(), true);
+            list.setSelectedValue(selection.getSelectedValue(), true);
         }
 
         @Override
         public Selection getSelection() {
             // Create a Selection object if there is a selection otherwise use Selection.EMPTY if there is no selected item.
-            final Object selectedValue = listOfSelectables.getSelectedValue();
+            final Object selectedValue = list.getSelectedValue();
             if (selectedValue == null) {
                 return Selection.EMPTY;
             } else {
