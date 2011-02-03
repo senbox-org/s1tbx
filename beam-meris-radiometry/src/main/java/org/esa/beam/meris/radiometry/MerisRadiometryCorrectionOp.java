@@ -300,21 +300,24 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private void validateSourceProduct() {
         Assert.state(MERIS_L1_TYPE_PATTERN.matcher(sourceProduct.getProductType()).matches(),
                      "Source product must be of type MERIS L1b.");
-        final String msgPattern = "Source product must contain '%s'.";
+        final String msgPatternMissingBand = "Source product must contain '%s'.";
         if (doSmile) {
             Assert.state(sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME),
-                         String.format(msgPattern, MERIS_DETECTOR_INDEX_DS_NAME));
+                         String.format(msgPatternMissingBand, MERIS_DETECTOR_INDEX_DS_NAME));
             Assert.state(sourceProduct.containsBand(MERIS_L1B_FLAGS_DS_NAME),
-                         String.format(msgPattern, MERIS_L1B_FLAGS_DS_NAME));
+                         String.format(msgPatternMissingBand, MERIS_L1B_FLAGS_DS_NAME));
+            final Band l1FlagsBand = sourceProduct.getBand(MERIS_L1B_FLAGS_DS_NAME);
+            Assert.state(l1FlagsBand.isFlagBand(),
+                         String.format("Flag-coding is missing for band '%s' ", MERIS_L1B_FLAGS_DS_NAME));
         }
         if (doEqualization) {
             Assert.state(sourceProduct.getStartTime() != null, "Source product must have a start time");
             Assert.state(sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME),
-                         String.format(msgPattern, MERIS_DETECTOR_INDEX_DS_NAME));
+                         String.format(msgPatternMissingBand, MERIS_DETECTOR_INDEX_DS_NAME));
         }
         if (doRadToRefl) {
             Assert.state(sourceProduct.containsRasterDataNode(MERIS_SUN_ZENITH_DS_NAME),
-                         String.format(msgPattern, MERIS_SUN_ZENITH_DS_NAME));
+                         String.format(msgPatternMissingBand, MERIS_SUN_ZENITH_DS_NAME));
         }
     }
 
