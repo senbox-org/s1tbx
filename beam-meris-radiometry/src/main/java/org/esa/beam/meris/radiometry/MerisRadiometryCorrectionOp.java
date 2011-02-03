@@ -124,8 +124,8 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     @Override
     protected void configureSourceSamples(Configurator configurator) {
-        initAlgorithms();
         validateSourceProduct();
+        initAlgorithms();
         int i = -1;
         // define samples corresponding to spectral bands, using the spectral band index as sample index
         for (final Band band : sourceProduct.getBands()) {
