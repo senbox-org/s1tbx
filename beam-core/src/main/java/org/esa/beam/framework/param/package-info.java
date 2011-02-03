@@ -6,6 +6,6 @@
  *  <li>Parameter validation {@link org.esa.beam.framework.param.validators validation}</li>
  * </ul>
  *
- * @deprecated since BEAM 4.x. Use the {{ceres-binding}} API.
+ * @deprecated Since BEAM 4.x, the {{ceres-binding}} API is used instead.
  */
 package org.esa.beam.framework.param;
