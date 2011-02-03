@@ -5,5 +5,8 @@
  *  <li>GUI support {@link org.esa.beam.framework.param.editors user interface}</li>
  *  <li>Parameter validation {@link org.esa.beam.framework.param.validators validation}</li>
  * </ul>
+ *
+ * @deprecated since BEAM 4.x. Use the {{ceres-binding}} API.
  */
+@Deprecated
 package org.esa.beam.framework.param;
