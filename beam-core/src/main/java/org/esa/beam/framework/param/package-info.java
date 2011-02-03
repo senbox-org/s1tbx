@@ -8,5 +8,4 @@
  *
  * @deprecated since BEAM 4.x. Use the {{ceres-binding}} API.
  */
-@Deprecated
 package org.esa.beam.framework.param;
