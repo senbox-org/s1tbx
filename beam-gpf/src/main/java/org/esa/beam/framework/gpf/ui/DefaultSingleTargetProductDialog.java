@@ -26,6 +26,7 @@ import com.bc.ceres.swing.binding.PropertyPane;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import com.jidesoft.action.CommandMenuBar;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -33,11 +34,12 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
 
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -105,12 +107,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
         this.form = new JTabbedPane();
         this.form.add("I/O Parameters", ioParametersPanel);
-
-        ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
         parameterMap = new HashMap<String, Object>(17);
-        final PropertyContainer propertyContainer = PropertyContainer.createMapBacked(parameterMap,
-                                                                                      operatorSpi.getOperatorClass(),
-                                                                                      parameterDescriptorFactory);
+        OperatorParametersSupport parametersSupport = new OperatorParametersSupport(operatorSpi.getOperatorClass(), parameterMap);
+        final PropertyContainer propertyContainer = parametersSupport.getParameters();
         try {
             propertyContainer.setDefaultValues();
         } catch (ValidationException e) {
@@ -134,6 +133,14 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             final JPanel parametersPanel = parametersPane.createPanel();
             parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", new JScrollPane(parametersPanel));
+
+            // todo - use this actions in a tool- or menu-bar
+            JMenu fileMenu = new JMenu("File");
+            fileMenu.add(parametersSupport.createLoadParametersAction());
+            fileMenu.add(parametersSupport.createStoreParametersAction());
+            JMenuBar menuBar = new CommandMenuBar();
+            getJDialog().setJMenuBar(menuBar);
+            getJDialog().getJMenuBar().add(fileMenu);
         }
         if (!sourceProductSelectorList.isEmpty()) {
             productChangedHandler = new ProductChangedHandler();
