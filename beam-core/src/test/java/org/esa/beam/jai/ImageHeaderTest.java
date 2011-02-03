@@ -33,19 +33,22 @@ public class ImageHeaderTest extends TestCase {
         final ImageHeader imageHeader = ImageHeader.load(new InputStreamReader(ImageHeaderTest.class.getResourceAsStream("image.properties")),
                                                          null, null);
         assertEquals("raw", imageHeader.getTileFormat());
-        assertNotNull(imageHeader.getImageLayout());
-        assertEquals(1, imageHeader.getImageLayout().getMinX(null));
-        assertEquals(-1, imageHeader.getImageLayout().getMinY(null));
-        assertEquals(1280, imageHeader.getImageLayout().getWidth(null));
-        assertEquals(1024, imageHeader.getImageLayout().getHeight(null));
-        assertEquals(0, imageHeader.getImageLayout().getTileGridXOffset(null));
-        assertEquals(6, imageHeader.getImageLayout().getTileGridYOffset(null));
-        assertEquals(512, imageHeader.getImageLayout().getTileWidth(null));
-        assertEquals(256, imageHeader.getImageLayout().getTileHeight(null));
-        assertNull(imageHeader.getImageLayout().getColorModel(null));
-        assertNotNull(imageHeader.getImageLayout().getSampleModel(null));
-        assertEquals(1, imageHeader.getImageLayout().getSampleModel(null).getNumBands());
-        assertEquals(4, imageHeader.getImageLayout().getSampleModel(null).getDataType());
+        final ImageLayout imageLayout = imageHeader.getImageLayout();
+        assertNotNull(imageLayout);
+        assertEquals(1, imageLayout.getMinX(null));
+        assertEquals(-1, imageLayout.getMinY(null));
+        assertEquals(1280, imageLayout.getWidth(null));
+        assertEquals(1024, imageLayout.getHeight(null));
+        assertEquals(0, imageLayout.getTileGridXOffset(null));
+        assertEquals(6, imageLayout.getTileGridYOffset(null));
+        assertEquals(512, imageLayout.getTileWidth(null));
+        assertEquals(256, imageLayout.getTileHeight(null));
+        assertNull(imageLayout.getColorModel(null));
+        assertNotNull(imageLayout.getSampleModel(null));
+        assertEquals(512, imageLayout.getSampleModel(null).getWidth());
+        assertEquals(256, imageLayout.getSampleModel(null).getHeight());
+        assertEquals(1, imageLayout.getSampleModel(null).getNumBands());
+        assertEquals(4, imageLayout.getSampleModel(null).getDataType());
     }
 
     public void testStoreAndLoad() throws IOException {

@@ -16,6 +16,8 @@
 
 package org.esa.beam.jai;
 
+import com.bc.ceres.core.VirtualDir;
+
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -27,17 +29,18 @@ import javax.media.jai.operator.FileLoadDescriptor;
 import java.awt.Point;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
+import java.awt.image.DataBufferDouble;
+import java.awt.image.DataBufferFloat;
+import java.awt.image.DataBufferInt;
 import java.awt.image.DataBufferShort;
 import java.awt.image.DataBufferUShort;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DataBufferFloat;
-import java.awt.image.DataBufferDouble;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -45,18 +48,24 @@ import java.util.zip.ZipFile;
 
 
 public class TiledFileOpImage extends SourcelessOpImage {
-    private File imageDir;
+
+    private VirtualDir imageDir;
     private ImageInputStreamFactory inputStreamFactory;
     private boolean disposed;
     private ImageHeader imageHeader;
 
     public static TiledFileOpImage create(File imageDir, Properties defaultImageProperties) throws IOException {
-        final ImageHeader imageHeader = ImageHeader.load(imageDir, defaultImageProperties);
-        return new TiledFileOpImage(imageHeader, null, imageDir);
+        final VirtualDir dir = VirtualDir.create(imageDir);
+        File file = new File(dir.getBasePath());
+        final ImageHeader imageHeader = ImageHeader.load(file, defaultImageProperties);
+        return new TiledFileOpImage(imageHeader, null, dir);
     }
 
+    public static TiledFileOpImage create(VirtualDir imageDir, Properties defaultImageProperties) throws IOException {
+        return create(new File(imageDir.getBasePath()), defaultImageProperties);
+    }
 
-    private TiledFileOpImage(ImageHeader imageHeader, Map configuration, File imageDir) {
+    private TiledFileOpImage(ImageHeader imageHeader, Map configuration, VirtualDir imageDir) {
         super(imageHeader.getImageLayout(),
               configuration,
               imageHeader.getImageLayout().getSampleModel(null),
@@ -70,6 +79,8 @@ public class TiledFileOpImage extends SourcelessOpImage {
             inputStreamFactory = new RawZipImageInputStreamFactory();
         } else if (this.imageHeader.getTileFormat().equalsIgnoreCase("raw")) {
             inputStreamFactory = new RawImageInputStreamFactory();
+        } else if (this.imageHeader.getTileFormat().equalsIgnoreCase("zip")) {
+            inputStreamFactory = new ZipInputStreamFactory();
         }
         if (getTileCache() == null) {
             setTileCache(JAI.getDefaultInstance().getTileCache());
@@ -109,7 +120,7 @@ public class TiledFileOpImage extends SourcelessOpImage {
     }
 
     private Raster readImageTile(int tileX, int tileY, Point location) {
-        File imageFile = new File(imageDir, getTileFilename(tileX, tileY));
+        File imageFile = new File(imageDir.getBasePath(), getTileFilename(tileX, tileY));
         final RenderedOp renderedOp = FileLoadDescriptor.create(imageFile.getPath(), null, true, null);
         final Raster data = renderedOp.getData();
         return WritableRaster.createRaster(data.getSampleModel(), data.getDataBuffer(), location);
@@ -152,7 +163,8 @@ public class TiledFileOpImage extends SourcelessOpImage {
             final double[] data = (double[]) dataObject;
             stream.readFully(data, 0, data.length);
         } else {
-            throw new IllegalArgumentException("raster: Unexpected type returned by raster.getDataBuffer().getData(): " + dataObject);
+            throw new IllegalArgumentException(
+                    "raster: Unexpected type returned by raster.getDataBuffer().getData(): " + dataObject);
         }
     }
 
@@ -184,7 +196,8 @@ public class TiledFileOpImage extends SourcelessOpImage {
             double[] data = (double[]) dataObject;
             stream.writeDoubles(data, 0, data.length);
         } else {
-            throw new IllegalArgumentException("raster: Unexpected type returned by raster.getDataBuffer().getData(): " + dataObject);
+            throw new IllegalArgumentException(
+                    "raster: Unexpected type returned by raster.getDataBuffer().getData(): " + dataObject);
         }
     }
 
@@ -195,6 +208,7 @@ public class TiledFileOpImage extends SourcelessOpImage {
      * @param raster The raster.
      *
      * @return The data array.
+     *
      * @throws IllegalArgumentException if the {@code raster}'s data arrays cannot be retrieved
      * @throws NullPointerException     if {@code raster} is null
      */
@@ -204,19 +218,19 @@ public class TiledFileOpImage extends SourcelessOpImage {
         if (dataBuffer instanceof DataBufferByte) {
             arrayObject = ((DataBufferByte) dataBuffer).getData();
         } else if (dataBuffer instanceof DataBufferShort) {
-            arrayObject =  ((DataBufferShort) dataBuffer).getData();
+            arrayObject = ((DataBufferShort) dataBuffer).getData();
         } else if (dataBuffer instanceof DataBufferUShort) {
-            arrayObject =  ((DataBufferUShort) dataBuffer).getData();
+            arrayObject = ((DataBufferUShort) dataBuffer).getData();
         } else if (dataBuffer instanceof DataBufferInt) {
-            arrayObject =  ((DataBufferInt) dataBuffer).getData();
+            arrayObject = ((DataBufferInt) dataBuffer).getData();
         } else if (dataBuffer instanceof DataBufferFloat) {
-            arrayObject =  ((DataBufferFloat) dataBuffer).getData();
+            arrayObject = ((DataBufferFloat) dataBuffer).getData();
         } else if (dataBuffer instanceof DataBufferDouble) {
-            arrayObject =  ((DataBufferDouble) dataBuffer).getData();
+            arrayObject = ((DataBufferDouble) dataBuffer).getData();
         } else if (dataBuffer instanceof javax.media.jai.DataBufferFloat) {
-            arrayObject =  ((javax.media.jai.DataBufferFloat) dataBuffer).getData();
+            arrayObject = ((javax.media.jai.DataBufferFloat) dataBuffer).getData();
         } else if (dataBuffer instanceof javax.media.jai.DataBufferDouble) {
-            arrayObject =  ((javax.media.jai.DataBufferDouble) dataBuffer).getData();
+            arrayObject = ((javax.media.jai.DataBufferDouble) dataBuffer).getData();
         } else {
             try {
                 final Method method = dataBuffer.getClass().getMethod("getData");
@@ -250,16 +264,19 @@ public class TiledFileOpImage extends SourcelessOpImage {
     }
 
     private interface ImageInputStreamFactory {
+
         ImageInputStream createImageInputStream(int tileX, int tileY) throws IOException;
     }
 
     private class RawImageInputStreamFactory implements ImageInputStreamFactory {
+
         public ImageInputStream createImageInputStream(int tileX, int tileY) throws IOException {
-            return new FileImageInputStream(new File(imageDir, getTileFilename(tileX, tileY)));
+            return new FileImageInputStream(new File(imageDir.getBasePath(), getTileFilename(tileX, tileY)));
         }
     }
 
     private class RawZipImageInputStreamFactory implements ImageInputStreamFactory {
+
         private File tmpDir;
 
         private RawZipImageInputStreamFactory() {
@@ -272,11 +289,39 @@ public class TiledFileOpImage extends SourcelessOpImage {
 
         public ImageInputStream createImageInputStream(int tileX, int tileY) throws IOException {
             final String entryName = getTileBasename(tileX, tileY) + ".raw";
-            final File file = new File(imageDir, entryName + ".zip");
+            final File file = new File(imageDir.getBasePath(), entryName + ".zip");
             final ZipFile zipFile = new ZipFile(file);
             final ZipEntry zipEntry = zipFile.getEntry(entryName);
             final InputStream inputStream = zipFile.getInputStream(zipEntry);
             return new FileCacheImageInputStream(inputStream, tmpDir);
+        }
+    }
+
+    private class ZipInputStreamFactory implements ImageInputStreamFactory {
+
+        private File tmpDir;
+
+        private ZipInputStreamFactory() {
+            tmpDir = new File(System.getProperty("java.io.tmpdir", ".temp"));
+            if (!tmpDir.exists()) {
+                tmpDir.mkdirs();
+            }
+            // System.out.println("TiledFileOpImage: Using temporary directory '" + tmpDir + "'");
+        }
+
+        public ImageInputStream createImageInputStream(int tileX, int tileY) throws IOException {
+            final String entryName = getTileBasename(tileX, tileY);
+            final File file = new File(imageDir.getBasePath());
+            final ZipFile zipFile = new ZipFile(file);
+            final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                final ZipEntry zipEntry = entries.nextElement();
+                if (zipEntry.getName().startsWith(entryName)) {
+                    final InputStream inputStream = zipFile.getInputStream(zipEntry);
+                    return new FileCacheImageInputStream(inputStream, tmpDir);
+                }
+            }
+            throw new IOException("No tile for coordinates " + tileX + ", " + tileY + ".");
         }
     }
 }

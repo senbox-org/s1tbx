@@ -75,11 +75,11 @@ public class ImageHeader {
         SampleModel sampleModel;
         ColorModel colorModel;
         if (tileFormat.startsWith("raw")) {
-            sampleModel = ImageUtils.createSingleBandedSampleModel(dataType, width, height);
+            sampleModel = ImageUtils.createSingleBandedSampleModel(dataType, tileWidth, tileHeight);
             colorModel = null;
         } else {
             RenderedOp tile00 = FileLoadDescriptor.create(new File(imageDir, "0-0." + tileFormat).getPath(), null, true, null);
-            sampleModel = tile00.getSampleModel().createCompatibleSampleModel(width, height);
+            sampleModel = tile00.getSampleModel().createCompatibleSampleModel(tileWidth, tileHeight);
             colorModel = tile00.getColorModel();
         }
         ImageLayout imageLayout = new ImageLayout(minX, minY,
