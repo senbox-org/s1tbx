@@ -88,6 +88,9 @@ public class GPF {
 
     private OperatorSpiRegistry spiRegistry;
 
+    /**
+     * Constructor.
+     */
     protected GPF() {
         spiRegistry = new OperatorSpiRegistryImpl();
     }
