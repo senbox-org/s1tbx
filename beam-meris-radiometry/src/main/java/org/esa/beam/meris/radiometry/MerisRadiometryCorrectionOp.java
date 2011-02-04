@@ -16,7 +16,6 @@
 
 package org.esa.beam.meris.radiometry;
 
-import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -84,7 +83,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT", "REPROCESSING_2", "REPROCESSING_3"},
                defaultValue = "AUTO_DETECT",
                description = "The version of the reprocessing the product comes from. Is only used if " +
-                             "equalisation is enabled.")
+                       "equalisation is enabled.")
     private ReprocessingVersion reproVersion;
 
     @Parameter(defaultValue = "true",
@@ -289,7 +288,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
         }
     }
 
-    private InputStream openStream(File racFile, String defaultRacResource) throws FileNotFoundException {
+    private static InputStream openStream(File racFile, String defaultRacResource) throws FileNotFoundException {
         if (racFile == null) {
             return CalibrationAlgorithm.class.getResourceAsStream(defaultRacResource);
         } else {
@@ -298,26 +297,33 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     }
 
     private void validateSourceProduct() {
-        Assert.state(MERIS_L1_TYPE_PATTERN.matcher(sourceProduct.getProductType()).matches(),
-                     "Source product must be of type MERIS L1b.");
+        if (!MERIS_L1_TYPE_PATTERN.matcher(sourceProduct.getProductType()).matches()) {
+            throw new OperatorException("Source product must be of type MERIS L1b.");
+        }
         final String msgPatternMissingBand = "Source product must contain '%s'.";
         if (doSmile) {
-            Assert.state(sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME),
-                         String.format(msgPatternMissingBand, MERIS_DETECTOR_INDEX_DS_NAME));
-            Assert.state(sourceProduct.containsBand(MERIS_L1B_FLAGS_DS_NAME),
-                         String.format(msgPatternMissingBand, MERIS_L1B_FLAGS_DS_NAME));
-            final Band l1FlagsBand = sourceProduct.getBand(MERIS_L1B_FLAGS_DS_NAME);
-            Assert.state(l1FlagsBand.isFlagBand(),
-                         String.format("Flag-coding is missing for band '%s' ", MERIS_L1B_FLAGS_DS_NAME));
+            if (!sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME)) {
+                throw new OperatorException(String.format(msgPatternMissingBand, MERIS_DETECTOR_INDEX_DS_NAME));
+            }
+            if (!sourceProduct.containsBand(MERIS_L1B_FLAGS_DS_NAME)) {
+                throw new OperatorException(String.format(msgPatternMissingBand, MERIS_L1B_FLAGS_DS_NAME));
+            }
+            if (!sourceProduct.getBand(MERIS_L1B_FLAGS_DS_NAME).isFlagBand()) {
+                throw new OperatorException(String.format("Flag-coding is missing for band '%s' ", MERIS_L1B_FLAGS_DS_NAME));
+            }
         }
         if (doEqualization) {
-            Assert.state(sourceProduct.getStartTime() != null, "Source product must have a start time");
-            Assert.state(sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME),
-                         String.format(msgPatternMissingBand, MERIS_DETECTOR_INDEX_DS_NAME));
+            if (!(sourceProduct.getStartTime() != null)) {
+                throw new OperatorException("Source product must have a start time");
+            }
+            if (!sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME)) {
+                throw new OperatorException(String.format(msgPatternMissingBand, MERIS_DETECTOR_INDEX_DS_NAME));
+            }
         }
         if (doRadToRefl) {
-            Assert.state(sourceProduct.containsRasterDataNode(MERIS_SUN_ZENITH_DS_NAME),
-                         String.format(msgPatternMissingBand, MERIS_SUN_ZENITH_DS_NAME));
+            if (!sourceProduct.containsRasterDataNode(MERIS_SUN_ZENITH_DS_NAME)) {
+                throw new OperatorException(String.format(msgPatternMissingBand, MERIS_SUN_ZENITH_DS_NAME));
+            }
         }
     }
 
