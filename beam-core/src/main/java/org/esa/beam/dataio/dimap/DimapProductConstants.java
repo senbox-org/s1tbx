@@ -378,7 +378,7 @@ public final class DimapProductConstants {
      * </td>
      * </tr>
      * <tr>
-     * <td valign="top">2.9.0</td>
+     * <td valign="top">2.10.0</td>
      * <td> For 4.9, the element Geoposition_Points has been introduced.
      * <pre>
      *    &lt;Geoposition_Points&gt;
