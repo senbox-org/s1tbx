@@ -306,6 +306,17 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
         if (!MERIS_L1_TYPE_PATTERN.matcher(sourceProduct.getProductType()).matches()) {
             throw new OperatorException("Source product must be of type MERIS Level 1b.");
         }
+        if (doCalibration || doEqualization) {
+            if (!(sourceProduct.getStartTime() != null)) {
+                throw new OperatorException("Source product must have a start time");
+            }
+        }
+        if (doCalibration) {
+            if (!(sourceProduct.getEndTime() != null)) {
+                throw new OperatorException("Source product must have an end time");
+            }
+        }
+
         final String msgPatternMissingBand = "Source product must contain '%s'.";
         if (doSmile) {
             if (!sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME)) {
@@ -319,9 +330,6 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             }
         }
         if (doEqualization) {
-            if (!(sourceProduct.getStartTime() != null)) {
-                throw new OperatorException("Source product must have a start time");
-            }
             if (!sourceProduct.containsBand(MERIS_DETECTOR_INDEX_DS_NAME)) {
                 throw new OperatorException(String.format(msgPatternMissingBand, MERIS_DETECTOR_INDEX_DS_NAME));
             }
