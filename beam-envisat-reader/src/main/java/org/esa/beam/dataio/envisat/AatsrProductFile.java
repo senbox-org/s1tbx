@@ -451,10 +451,7 @@ public class AatsrProductFile extends ProductFile {
     }
 
 
-    private BitmaskDef[] createL1bCloudBMDs
-            (String
-                    prefix, String
-                    dsName) {
+    private BitmaskDef[] createL1bCloudBMDs(String prefix, String dsName) {
         return new BitmaskDef[]{
                 new BitmaskDef(mkBMDNm(prefix, "LAND"), null, dsName + ".LAND", Color.green, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY"), null, dsName + ".CLOUDY", Color.cyan, 0.5F),
@@ -487,10 +484,7 @@ public class AatsrProductFile extends ProductFile {
         };
     }
 
-    private BitmaskDef[] createL1bConfidBMDs
-            (String
-                    prefix, String
-                    dsName) {
+    private BitmaskDef[] createL1bConfidBMDs (String prefix, String dsName) {
         return new BitmaskDef[]{
                 new BitmaskDef(mkBMDNm(prefix, "BLANKING"), null, dsName + ".BLANKING", Color.red, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "COSMETIC"), null, dsName + ".COSMETIC", Color.yellow, 0.5F),
@@ -505,8 +499,7 @@ public class AatsrProductFile extends ProductFile {
         };
     }
 
-    private BitmaskDef[] createL2BMDs
-            () {
+    private BitmaskDef[] createL2BMDs() {
         return new BitmaskDef[]{
                 new BitmaskDef(mkBMDNm("LAND"), null, "flags.LAND", Color.green, 0.5F),
                 new BitmaskDef(mkBMDNm("WATER"), null, "!flags.LAND AND !(flags.NADIR_CLOUD OR flags.FWARD_CLOUD)",
@@ -529,16 +522,11 @@ public class AatsrProductFile extends ProductFile {
         };
     }
 
-    private String mkBMDNm
-            (String
-                    base) {
+    private String mkBMDNm(String base) {
         return mkBMDNm("", base);
     }
 
-    private String mkBMDNm
-            (String
-                    prefix, String
-                    base) {
+    private String mkBMDNm(String prefix, String base) {
         return (prefix + base).toLowerCase();
     }
 }
