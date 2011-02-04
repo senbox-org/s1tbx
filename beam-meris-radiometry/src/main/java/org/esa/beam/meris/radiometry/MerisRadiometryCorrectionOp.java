@@ -122,9 +122,15 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private transient int landMaskSampleIndex;
 
     @Override
-    protected void configureSourceSamples(Configurator configurator) {
+    protected Product createTargetProduct() {
+        // TODO should make initialize not final in PointOperator?
         validateSourceProduct();
         initAlgorithms();
+        return super.createTargetProduct();
+    }
+
+    @Override
+    protected void configureSourceSamples(Configurator configurator) {
         int i = -1;
         // define samples corresponding to spectral bands, using the spectral band index as sample index
         for (final Band band : sourceProduct.getBands()) {
@@ -298,7 +304,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     private void validateSourceProduct() {
         if (!MERIS_L1_TYPE_PATTERN.matcher(sourceProduct.getProductType()).matches()) {
-            throw new OperatorException("Source product must be of type MERIS L1b.");
+            throw new OperatorException("Source product must be of type MERIS Level 1b.");
         }
         final String msgPatternMissingBand = "Source product must contain '%s'.";
         if (doSmile) {
