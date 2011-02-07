@@ -83,7 +83,7 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     @Parameter(label = "Reprocessing version", valueSet = {"AUTO_DETECT", "REPROCESSING_2", "REPROCESSING_3"},
                defaultValue = "AUTO_DETECT",
                description = "The version of the reprocessing the product comes from. Is only used if " +
-                       "equalisation is enabled.")
+                             "equalisation is enabled.")
     private ReprocessingVersion reproVersion;
 
     @Parameter(defaultValue = "true",
@@ -307,12 +307,12 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
             throw new OperatorException("Source product must be of type MERIS Level 1b.");
         }
         if (doCalibration || doEqualization) {
-            if (!(sourceProduct.getStartTime() != null)) {
+            if (sourceProduct.getStartTime() == null) {
                 throw new OperatorException("Source product must have a start time");
             }
         }
         if (doCalibration) {
-            if (!(sourceProduct.getEndTime() != null)) {
+            if (sourceProduct.getEndTime() == null) {
                 throw new OperatorException("Source product must have an end time");
             }
         }
@@ -326,7 +326,8 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
                 throw new OperatorException(String.format(msgPatternMissingBand, MERIS_L1B_FLAGS_DS_NAME));
             }
             if (!sourceProduct.getBand(MERIS_L1B_FLAGS_DS_NAME).isFlagBand()) {
-                throw new OperatorException(String.format("Flag-coding is missing for band '%s' ", MERIS_L1B_FLAGS_DS_NAME));
+                throw new OperatorException(
+                        String.format("Flag-coding is missing for band '%s' ", MERIS_L1B_FLAGS_DS_NAME));
             }
         }
         if (doEqualization) {
