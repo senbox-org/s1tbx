@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.9<br/>
+          [BEAM-1228] Rangefinder does not work<br/>
           [BEAM-1204] Reprojection changes product type<br/>        
           [BEAM-1203] Application returns with exit code zero in error case<br/>
           [BEAM-1192] Title in histogram does not adjust to current band<br/>

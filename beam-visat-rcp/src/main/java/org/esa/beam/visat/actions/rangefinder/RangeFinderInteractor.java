@@ -125,13 +125,18 @@ public class RangeFinderInteractor extends ViewportInteractor {
         overlay.view.getLayerCanvas().removeOverlay(overlay);
         overlay = null;
     }
-    
     private ProductSceneView getProductSceneView(MouseEvent event) {
-        if (event.getComponent() instanceof ProductSceneView) {
-            return (ProductSceneView) event.getComponent();
+        final Component eventComponent = event.getComponent();
+        if (eventComponent instanceof ProductSceneView) {
+            return (ProductSceneView) eventComponent;
         }
-        if (event.getComponent().getParent() instanceof ProductSceneView) {
-            return (ProductSceneView) event.getComponent().getParent();
+        final Container parentComponent = eventComponent.getParent();
+        if (parentComponent instanceof ProductSceneView) {
+            return (ProductSceneView) parentComponent;
+        }
+        // Case: Scroll bars are displayed
+        if (parentComponent.getParent() instanceof ProductSceneView) {
+            return (ProductSceneView) parentComponent.getParent();
         }
         return null;
     }
