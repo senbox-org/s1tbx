@@ -19,6 +19,5 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
         </dependency>
-
     </dependencies>
 </project>

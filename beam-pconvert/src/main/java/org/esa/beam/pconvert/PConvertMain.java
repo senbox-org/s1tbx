@@ -24,6 +24,7 @@ import org.esa.beam.util.BeamConstants;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.geotiff.GeoTIFF;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.esa.beam.util.io.FileUtils;
@@ -196,6 +197,7 @@ public class PConvertMain {
 
     public static void main(String[] args){
         Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
+        SystemUtils.init3rdPartyLibs(PConvertMain.class.getClassLoader());
         new PConvertMain(args).run();
     }
 
