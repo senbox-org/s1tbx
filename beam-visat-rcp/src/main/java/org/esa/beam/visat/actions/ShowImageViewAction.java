@@ -18,15 +18,11 @@ package org.esa.beam.visat.actions;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import com.bc.jexp.ParseException;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -41,7 +37,6 @@ import javax.swing.SwingWorker;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 
 /**
  * This action opens an image view of the currently selected raster.
@@ -91,7 +86,8 @@ public class ShowImageViewAction extends ExecCommand {
                 } catch (OutOfMemoryError ignored) {
                     VisatApp.getApp().showOutOfMemoryErrorDialog("Failed to open image view.");
                 } catch (Exception e) {
-                    VisatApp.getApp().showErrorDialog(MessageFormat.format("Failed to open image view.\n\n{0}", e.getMessage()));
+                    VisatApp.getApp().handleError(
+                            MessageFormat.format("Failed to open image view.\n\n{0}", e.getMessage()), e);
                 }
             }
         };
@@ -118,7 +114,7 @@ public class ShowImageViewAction extends ExecCommand {
             @Override
             public void nodeChanged(final ProductNodeEvent event1) {
                 if (event1.getSourceNode() == selectedProductNode &&
-                        event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                    event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
                     internalFrame.setTitle(createInternalFrameTitle(selectedProductNode));
                 }
             }
