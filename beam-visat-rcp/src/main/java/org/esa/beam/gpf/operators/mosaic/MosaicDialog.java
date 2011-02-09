@@ -53,8 +53,12 @@ class MosaicDialog extends SingleTargetProductDialog {
 
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi("Mosaic");
         if (operatorSpi != null) {
+            final PropertyContainer properties = PropertyContainer.createMapBacked(
+                    form.getFormModel().getParameterMap(),
+                    operatorSpi.getOperatorClass(),
+                    new ParameterDescriptorFactory());
             OperatorParametersSupport parametersSupport = new OperatorParametersSupport(operatorSpi.getOperatorClass(),
-                                                                                        PropertyContainer.createMapBacked(form.getFormModel().getParameterMap(), operatorSpi.getOperatorClass(), new ParameterDescriptorFactory()));
+                                                                                        properties);
 
             JMenu fileMenu = new JMenu("File");
             fileMenu.add(parametersSupport.createLoadParametersAction());

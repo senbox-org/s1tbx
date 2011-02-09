@@ -18,6 +18,7 @@ import java.awt.event.ActionEvent;
  * Support for operator parameters input/output.
  */
 public class OperatorParametersSupport {
+
     private final Class<? extends Operator> opType;
     private final PropertySet parameters;
     private final ParameterDescriptorFactory descriptorFactory;
@@ -33,11 +34,12 @@ public class OperatorParametersSupport {
     }
 
     public Action createStoreParametersAction() {
-        AbstractAction action = new AbstractAction("Store Parameters...") {
+        return new AbstractAction("Store Parameters...") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // todo
-                JOptionPane.showMessageDialog(null, "Not implemented yet.\n(XML output has been dumped to stdout.)", "Store Parameters", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Not implemented yet.\n(XML output has been dumped to stdout.)",
+                                              "Store Parameters", JOptionPane.WARNING_MESSAGE);
                 try {
                     System.out.println("Storing parameters...");
                     String s = toDomElement().toXml();
@@ -49,7 +51,6 @@ public class OperatorParametersSupport {
                 }
             }
         };
-        return action;
     }
 
     public Action createLoadParametersAction() {
@@ -57,7 +58,8 @@ public class OperatorParametersSupport {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // todo
-                JOptionPane.showMessageDialog(null, "Not implemented yet.", "Load Parameters", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Not implemented yet.", "Load Parameters",
+                                              JOptionPane.WARNING_MESSAGE);
             }
         };
     }

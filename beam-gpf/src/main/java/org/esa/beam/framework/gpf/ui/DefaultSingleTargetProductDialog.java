@@ -108,11 +108,12 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         this.form = new JTabbedPane();
         this.form.add("I/O Parameters", ioParametersPanel);
         parameterMap = new HashMap<String, Object>(17);
-        PropertyContainer propertyContainer = PropertyContainer.createMapBacked(parameterMap, operatorSpi.getOperatorClass(),
+        PropertyContainer propertyContainer = PropertyContainer.createMapBacked(parameterMap,
+                                                                                operatorSpi.getOperatorClass(),
                                                                                 new ParameterDescriptorFactory());
         OperatorParametersSupport parametersSupport = new OperatorParametersSupport(operatorSpi.getOperatorClass(),
                                                                                     propertyContainer);
-            propertyContainer.setDefaultValues();
+        propertyContainer.setDefaultValues();
         if (propertyContainer.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {
                 Property[] properties = propertyContainer.getProperties();
