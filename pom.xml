@@ -159,7 +159,6 @@
         <module>beam-rtp-codec</module>
 
         <module>lib-hdf</module>
-        <module>lib-netcdf</module>
         <module>blue-marble-worldmap</module>
         <module>globcover-worldmap</module>
         <module>beam-examples</module>
@@ -178,6 +177,8 @@
         <ceres.version>0.12-SNAPSHOT</ceres.version>
         <geotools.version>2.6.5</geotools.version>
         <jide.version>2.9.5</jide.version>
+        <hdf.version>2.6.1</hdf.version>
+        <netcdf.version>4.2</netcdf.version>
     </properties>
 
     <dependencyManagement>
@@ -277,13 +278,13 @@
             <dependency>
                 <groupId>ncsa.hdf</groupId>
                 <artifactId>lib-hdf</artifactId>
-                <version>2.6.1-SNAPSHOT</version>
+                <version>${hdf.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>ucar.netcdf</groupId>
-                <artifactId>lib-netcdf</artifactId>
-                <version>4.1-SNAPSHOT</version>
+                <groupId>edu.ucar</groupId>
+                <artifactId>netcdf</artifactId>
+                <version>${netcdf.version}</version>
             </dependency>
 
             <!-- GeoTools Libraries ############################################# -->

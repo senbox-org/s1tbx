@@ -23,8 +23,8 @@
             <artifactId>beam-visat</artifactId>
         </dependency>
         <dependency>
-            <groupId>ucar.netcdf</groupId>
-            <artifactId>lib-netcdf</artifactId>
+            <groupId>edu.ucar</groupId>
+            <artifactId>netcdf</artifactId>
         </dependency>
     </dependencies>
 

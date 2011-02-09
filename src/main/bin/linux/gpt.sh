@@ -18,8 +18,8 @@ fi
     -Dceres.context=beam \
     "-Dbeam.mainClass=org.esa.beam.framework.gpf.main.Main" \
     "-Dbeam.home=$BEAM4_HOME" \
-    "-Dncsa.hdf.hdflib.HDFLibrary.hdflib=$BEAM4_HOME/modules/lib-hdf-2.3/lib/linux/libjhdf.so" \
-    "-Dncsa.hdf.hdf5lib.H5.hdf5lib=$BEAM4_HOME/modules/lib-hdf-2.3/lib/linux/libjhdf5.so" \
+    "-Dncsa.hdf.hdflib.HDFLibrary.hdflib=$BEAM4_HOME/modules/lib-hdf-${pom.hdf.version}/lib/linux/libjhdf.so" \
+    "-Dncsa.hdf.hdf5lib.H5.hdf5lib=$BEAM4_HOME/modules/lib-hdf-${pom.hdf.version}/lib/linux/libjhdf5.so" \
     -jar "$BEAM4_HOME/bin/ceres-launcher.jar" "$@"
 
 exit $?

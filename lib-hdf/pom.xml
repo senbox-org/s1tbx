@@ -12,24 +12,22 @@
     <name>HDF Library</name>
     <groupId>ncsa.hdf</groupId>
     <artifactId>lib-hdf</artifactId>
-    <version>2.6.1-SNAPSHOT</version>
-
-
-    <properties>
-        <hdf.version>2.6.1</hdf.version>
-    </properties>
+    <version>${hdf.version}</version>
 
     <dependencies>
+
         <dependency>
             <groupId>ncsa.hdf</groupId>
             <artifactId>jhdf</artifactId>
             <version>${hdf.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ncsa.hdf</groupId>
             <artifactId>jhdf5</artifactId>
             <version>${hdf.version}</version>
         </dependency>
+
     </dependencies>
 
     <build>
