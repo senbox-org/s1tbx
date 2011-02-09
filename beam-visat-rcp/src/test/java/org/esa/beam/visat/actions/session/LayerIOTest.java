@@ -17,10 +17,10 @@
 package org.esa.beam.visat.actions.session;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
@@ -219,12 +219,7 @@ public class LayerIOTest extends TestCase {
             configuration.addProperty(new Property(borderWidthDescriptor, new DefaultPropertyAccessor()));
             configuration.addProperty(new Property(borderColorDescriptor, new DefaultPropertyAccessor()));
 
-            try {
-                configuration.setDefaultValues();
-            } catch (ValidationException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
-
+            configuration.setDefaultValues();
             return configuration;
         }
     }
