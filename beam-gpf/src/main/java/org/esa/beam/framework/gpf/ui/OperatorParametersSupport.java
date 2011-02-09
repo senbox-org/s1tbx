@@ -2,6 +2,7 @@ package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
@@ -20,7 +21,7 @@ import java.util.Map;
  */
 public class OperatorParametersSupport {
     private final Class<? extends Operator> opType;
-    private final PropertyContainer parameters;
+    private final PropertySet parameters;
     private final ParameterDescriptorFactory descriptorFactory;
 
     public OperatorParametersSupport(Class<? extends Operator> opType, Map<String, Object> parameters) {
@@ -29,7 +30,7 @@ public class OperatorParametersSupport {
         this.parameters = PropertyContainer.createMapBacked(parameters, opType, descriptorFactory);
     }
 
-    public PropertyContainer getParameters() {
+    public PropertySet getParameters() {
         return parameters;
     }
 

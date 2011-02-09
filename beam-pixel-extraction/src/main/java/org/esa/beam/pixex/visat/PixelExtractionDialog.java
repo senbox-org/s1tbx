@@ -17,7 +17,6 @@
 package org.esa.beam.pixex.visat;
 
 import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Product;
@@ -49,7 +48,7 @@ class PixelExtractionDialog extends ModalDialog {
     private final Map<String, Object> parameterMap;
     private final AppContext appContext;
     private final PixelExtractionIOForm ioForm;
-    private PixelExtractionParametersForm parametersForm;
+    private final PixelExtractionParametersForm parametersForm;
 
     PixelExtractionDialog(AppContext appContext, String title) {
         super(appContext.getApplicationWindow(), title, ID_OK | ID_CLOSE | ID_HELP, "pixelExtraction");
@@ -110,16 +109,11 @@ class PixelExtractionDialog extends ModalDialog {
         return super.show();
     }
 
-    private PropertyContainer createParameterMap(Map<String, Object> map) {
+    private static PropertyContainer createParameterMap(Map<String, Object> map) {
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
         final PropertyContainer container = PropertyContainer.createMapBacked(map, PixExOp.class,
                                                                               parameterDescriptorFactory);
-        try {
-            container.setDefaultValues();
-        } catch (ValidationException e) {
-            e.printStackTrace();
-            showErrorDialog(e.getMessage());
-        }
+        container.setDefaultValues();
         return container;
     }
 

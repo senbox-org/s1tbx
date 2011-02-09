@@ -17,9 +17,8 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.PropertyPane;
@@ -109,13 +108,8 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         this.form.add("I/O Parameters", ioParametersPanel);
         parameterMap = new HashMap<String, Object>(17);
         OperatorParametersSupport parametersSupport = new OperatorParametersSupport(operatorSpi.getOperatorClass(), parameterMap);
-        final PropertyContainer propertyContainer = parametersSupport.getParameters();
-        try {
+        final PropertySet propertyContainer = parametersSupport.getParameters();
             propertyContainer.setDefaultValues();
-        } catch (ValidationException e) {
-            e.printStackTrace();
-            showErrorDialog(e.getMessage());
-        }
         if (propertyContainer.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {
                 Property[] properties = propertyContainer.getProperties();

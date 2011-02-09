@@ -16,11 +16,9 @@
 
 package org.esa.beam.gpf.operators.mosaic;
 
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
-
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
@@ -32,7 +30,6 @@ import org.esa.beam.framework.ui.crs.CrsForm;
 import org.esa.beam.framework.ui.crs.CrsSelectionPanel;
 import org.esa.beam.framework.ui.crs.CustomCrsForm;
 import org.esa.beam.framework.ui.crs.PredefinedCrsForm;
-import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.CoordinateSystem;
@@ -70,7 +67,7 @@ class MosaicMapProjectionPanel extends JPanel {
     private final MosaicFormModel mosaicModel;
 
     private CrsSelectionPanel crsSelectionPanel;
-    private final BindingContext binding;
+    private final BindingContext bindingCtx;
     private String[] demValueSet;
     private JLabel pixelXUnit;
     private JLabel pixelYUnit;
@@ -79,11 +76,9 @@ class MosaicMapProjectionPanel extends JPanel {
     private JFormattedTextField pixelSizeYField;
 
     MosaicMapProjectionPanel(AppContext appContext, MosaicFormModel mosaicModel) {
-        final PropertyContainer propertyContainer = mosaicModel.getPropertyContainer();
-
         this.appContext = appContext;
         this.mosaicModel = mosaicModel;
-        binding = new BindingContext(propertyContainer);
+        bindingCtx = new BindingContext(mosaicModel.getPropertyContainer());
         unitMap = new HashMap<String, Double>();
         unitMap.put("°", 0.05);
         unitMap.put("m", 1000.0);
@@ -91,7 +86,7 @@ class MosaicMapProjectionPanel extends JPanel {
         init();
         createUI();
         updateForCrsChanged();
-        binding.adjustComponents();
+        bindingCtx.adjustComponents();
     }
 
     private void init() {
@@ -103,8 +98,7 @@ class MosaicMapProjectionPanel extends JPanel {
         if (demValueSet.length > 0) {
             mosaicModel.getPropertyContainer().setValue("elevationModelName", demValueSet[0]);
         }
-
-        mosaicModel.getPropertyContainer().addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+        bindingCtx.addPropertyChangeListener("updateMode", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final Boolean updateMode = (Boolean) evt.getNewValue();
@@ -182,17 +176,16 @@ class MosaicMapProjectionPanel extends JPanel {
         final WorldMapPaneDataModel worldMapModel = mosaicModel.getWorldMapModel();
         setMapBoundary(worldMapModel);
 
-        final WorldMapPane worlMapPanel = new WorldMapPane(worldMapModel);
-        final PropertyContainer propertyContainer = mosaicModel.getPropertyContainer();
-        propertyContainer.addPropertyChangeListener(new MapBoundsChangeListener());
-        worlMapPanel.setMinimumSize(new Dimension(250, 125));
-        worlMapPanel.setBorder(BorderFactory.createEtchedBorder());
+        final WorldMapPane worldMapPanel = new WorldMapPane(worldMapModel);
+        bindingCtx.addPropertyChangeListener(new MapBoundsChangeListener());
+        worldMapPanel.setMinimumSize(new Dimension(250, 125));
+        worldMapPanel.setBorder(BorderFactory.createEtchedBorder());
 
         final JCheckBox showSourceProductsCheckBox = new JCheckBox("Display source products");
-        binding.bind(MosaicFormModel.PROPERTY_SHOW_SOURCE_PRODUCTS, showSourceProductsCheckBox);
+        bindingCtx.bind(MosaicFormModel.PROPERTY_SHOW_SOURCE_PRODUCTS, showSourceProductsCheckBox);
 
         panel.add(createBoundsInputPanel());
-        panel.add(worlMapPanel);
+        panel.add(worldMapPanel);
         panel.add(showSourceProductsCheckBox);
 
         return panel;
@@ -224,44 +217,44 @@ class MosaicMapProjectionPanel extends JPanel {
         panel.add(new JLabel("West:"));
         final JFormattedTextField westLonField = new JFormattedTextField(doubleFormatter);
         westLonField.setHorizontalAlignment(JTextField.RIGHT);
-        binding.bind(MosaicFormModel.PROPERTY_WEST_BOUND, westLonField);
-        binding.bindEnabledState(MosaicFormModel.PROPERTY_WEST_BOUND, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
+        bindingCtx.bind(MosaicFormModel.PROPERTY_WEST_BOUND, westLonField);
+        bindingCtx.bindEnabledState(MosaicFormModel.PROPERTY_WEST_BOUND, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
         panel.add(westLonField);
         panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
         panel.add(new JLabel("East:"));
         final JFormattedTextField eastLonField = new JFormattedTextField(doubleFormatter);
         eastLonField.setHorizontalAlignment(JTextField.RIGHT);
-        binding.bind(MosaicFormModel.PROPERTY_EAST_BOUND, eastLonField);
-        binding.bindEnabledState(MosaicFormModel.PROPERTY_EAST_BOUND, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
+        bindingCtx.bind(MosaicFormModel.PROPERTY_EAST_BOUND, eastLonField);
+        bindingCtx.bindEnabledState(MosaicFormModel.PROPERTY_EAST_BOUND, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
         panel.add(eastLonField);
         panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
         panel.add(new JLabel("Pixel size X:"));
         pixelSizeXField = new JFormattedTextField(doubleFormatter);
         pixelSizeXField.setHorizontalAlignment(JTextField.RIGHT);
-        binding.bind("pixelSizeX", pixelSizeXField);
-        binding.bindEnabledState("pixelSizeX", false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
+        bindingCtx.bind("pixelSizeX", pixelSizeXField);
+        bindingCtx.bindEnabledState("pixelSizeX", false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
         panel.add(pixelSizeXField);
         panel.add(pixelXUnit);
 
         panel.add(new JLabel("North:"));
         final JFormattedTextField northLatField = new JFormattedTextField(doubleFormatter);
         northLatField.setHorizontalAlignment(JTextField.RIGHT);
-        binding.bind(MosaicFormModel.PROPERTY_NORTH_BOUND, northLatField);
-        binding.bindEnabledState(MosaicFormModel.PROPERTY_NORTH_BOUND, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
+        bindingCtx.bind(MosaicFormModel.PROPERTY_NORTH_BOUND, northLatField);
+        bindingCtx.bindEnabledState(MosaicFormModel.PROPERTY_NORTH_BOUND, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
         panel.add(northLatField);
         panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
         panel.add(new JLabel("South:"));
         final JFormattedTextField southLatField = new JFormattedTextField(doubleFormatter);
         southLatField.setHorizontalAlignment(JTextField.RIGHT);
-        binding.bind(MosaicFormModel.PROPERTY_SOUTH_BOUND, southLatField);
-        binding.bindEnabledState(MosaicFormModel.PROPERTY_SOUTH_BOUND, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
+        bindingCtx.bind(MosaicFormModel.PROPERTY_SOUTH_BOUND, southLatField);
+        bindingCtx.bindEnabledState(MosaicFormModel.PROPERTY_SOUTH_BOUND, false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
         panel.add(southLatField);
         panel.add(new JLabel(NonSI.DEGREE_ANGLE.toString()));
         panel.add(new JLabel("Pixel size Y:"));
         pixelSizeYField = new JFormattedTextField(doubleFormatter);
         pixelSizeYField.setHorizontalAlignment(JTextField.RIGHT);
-        binding.bind("pixelSizeY", pixelSizeYField);
-        binding.bindEnabledState("pixelSizeY", false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
+        bindingCtx.bind("pixelSizeY", pixelSizeYField);
+        bindingCtx.bindEnabledState("pixelSizeY", false, MosaicFormModel.PROPERTY_UPDATE_MODE, true);
         panel.add(pixelSizeYField);
         panel.add(pixelYUnit);
 
@@ -279,16 +272,16 @@ class MosaicMapProjectionPanel extends JPanel {
         panel.setBorder(BorderFactory.createTitledBorder("Orthorectification"));
 
         final JCheckBox orthoCheckBox = new JCheckBox("Orthorectify input products");
-        binding.bind("orthorectify", orthoCheckBox);
-        binding.bindEnabledState("orthorectify", false, "updateMode", true);
+        bindingCtx.bind("orthorectify", orthoCheckBox);
+        bindingCtx.bindEnabledState("orthorectify", false, "updateMode", true);
         final JComboBox demComboBox = new JComboBox(new DefaultComboBoxModel(demValueSet));
-        binding.bind("elevationModelName", demComboBox);
-        binding.addPropertyChangeListener(new PropertyChangeListener() {
+        bindingCtx.bind("elevationModelName", demComboBox);
+        bindingCtx.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if ("orthorectify".equals(evt.getPropertyName()) ||
                     "updateMode".equals(evt.getPropertyName())) {
-                    final PropertySet propertySet = binding.getPropertySet();
+                    final PropertySet propertySet = bindingCtx.getPropertySet();
                     boolean updateMode = Boolean.TRUE.equals(propertySet.getValue("updateMode"));
                     boolean orthorectify = Boolean.TRUE.equals(propertySet.getValue("orthoretify"));
                     demComboBox.setEnabled(orthorectify && !updateMode);

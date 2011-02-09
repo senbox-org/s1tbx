@@ -439,8 +439,9 @@ public class OperatorContext {
      * Updates this operator forcing it to recreate the target product.
      * <i>Warning: Experimental API added by nf (25.02.2010)</i><br/>
      *
+     * @throws org.esa.beam.framework.gpf.OperatorException
+     *          If an error occurs.
      * @since BEAM 4.8
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs.
      */
     public void updateOperator() throws OperatorException {
         targetProduct = null;
@@ -956,11 +957,7 @@ public class OperatorContext {
     }
 
     public void injectParameterDefaultValues() throws OperatorException {
-        try {
-            getOperatorPropertyContainer().setDefaultValues();
-        } catch (ValidationException e) {
-            throw new OperatorException(formatExceptionMessage("%s", e.getMessage()), e);
-        }
+        getOperatorPropertyContainer().setDefaultValues();
     }
 
     private void injectParameterValues() throws OperatorException {
@@ -968,7 +965,17 @@ public class OperatorContext {
             for (String parameterName : parameters.keySet()) {
                 final Property property = getOperatorPropertyContainer().getProperty(parameterName);
                 if (property == null) {
-                    throw new OperatorException(formatExceptionMessage("Unknown parameter '%s'.", parameterName));
+                    // Note: "Unknown parameter" exception commented out by Norman on 09.02.2011
+                    // Intention is to reuse parameter maps for multiple operators. (see OpParameterInitialisationTest)
+                    // Clients of GPF should test parameter compatibility before calling GPF.createProduct() methods.
+                    // todo - must add to OperatorSpi (nf,mp,mz,rq - 09.02.2011)
+                    //    ProductDescriptor getSourceProductDescriptors();
+                    //    PropertyDescriptor[] getParameterDescriptors();
+                    //    PropertyDescriptor[] getTargetPropertyDescriptors();
+                    //    ProductDescriptor getTargetProductDescriptor();
+
+                    //throw new OperatorException(formatExceptionMessage("Unknown parameter '%s'.", parameterName));
+                    continue;
                 }
                 try {
                     PropertyDescriptor descriptor = property.getDescriptor();

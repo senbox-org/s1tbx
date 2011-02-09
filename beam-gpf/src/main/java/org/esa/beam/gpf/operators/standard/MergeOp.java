@@ -44,6 +44,7 @@ public class MergeOp extends Operator {
     private String productName;
     @Parameter(defaultValue = "UNKNOWN", description = "The type of the target product.")
     private String productType;
+    // todo - remove alias, property name is very clear.
     @Parameter(alias = "baseGeoInfo", description = "The ID of the source product providing the geo-coding.")
     private String copyGeoCodingFrom;
     @Parameter(itemAlias = "band", itemsInlined = true,

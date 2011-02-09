@@ -33,7 +33,7 @@ import java.util.HashMap;
 
 
 @OperatorMetadata(alias = "JAI",
-                  description = "Performs a JAI operation on bands of product.",
+                  description = "Performs a JAI (Java Advanced Imaging) operation on bands of a data product.",
                   internal = true)
 public class JaiOp extends Operator {
 

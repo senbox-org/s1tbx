@@ -16,11 +16,13 @@
 
 package org.esa.beam.framework.gpf;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.junit.Test;
 
 import java.io.File;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests the default value initialisation of GPF operators.
@@ -29,36 +31,58 @@ import java.io.File;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class OpParameterDefaultValueInitialisationTest extends TestCase {
+public class OpParameterInitialisationTest {
 
+    @Test
+    public void testUnknownParameters() {
+        try {
+            final SomeOp op = new SomeOp();
+            op.setParameter("pi", 21);
+            op.getTargetProduct(); // force initialisation through framework
+            assertEquals(21, op.getParameter("pi"));
+            assertEquals(21, op.pi);
+        } catch (OperatorException e) {
+            e.printStackTrace();
+            fail("Unexpected: " + e.getMessage());
+        }
+
+        try {
+            final SomeOp op = new SomeOp();
+            op.setParameter("iamAnUnknownParameter", -1);
+            op.getTargetProduct(); // force initialisation through framework
+        } catch (OperatorException e) {
+            e.printStackTrace();
+            fail("Unexpected: " + e.getMessage());
+        }
+    }
+
+    @Test
     public void testParameterDefaultValueInitialisation() {
-        final ParameterDefaultValueOp op = new ParameterDefaultValueOp();
-        testParameterValues(op, 12345, 0.123450);
-        assertEquals(false, op.initialized);
+        final SomeOp op = new SomeOp();
+        testParameterValues(op, false);
         op.getTargetProduct(); // force initialisation through framework
-        assertEquals(true, op.initialized);
-        testParameterValues(op, 12345 + 1, 0.123450);
+        testParameterValues(op, true);
     }
 
+    @Test
     public void testDerivedParameterDefaultValueInitialisation() {
-        final DerivedParameterDefaultValueOp op = new DerivedParameterDefaultValueOp();
-        testParameterValues(op, 12345, 0.123450);
+        final SomeDerivedOp op = new SomeDerivedOp();
+        testParameterValues(op, false);
         assertEquals(new File("/usr/marco"), op.pf);
-        assertEquals(false, op.initialized);
         op.getTargetProduct(); // force initialisation through framework
-        assertEquals(true, op.initialized);
-        testParameterValues(op, 12345 + 1, 0.123450);
+        testParameterValues(op, true);
         assertEquals(new File("/usr/marco"), op.pf);
     }
 
-    private void testParameterValues(ParameterDefaultValueOp op, int pi, double pd) {
+    private void testParameterValues(SomeOp op, boolean expectedInitialiseState) {
+        assertEquals(expectedInitialiseState, op.initialized);
         assertEquals((byte) 123, op.pb);
         assertEquals('a', op.pc);
         assertEquals((short) 321, op.ph);
-        assertEquals(pi, op.pi);
+        assertEquals(12345, op.pi);
         assertEquals(1234512345L, op.pl);
         assertEquals(123.45F, op.pf, 1e-5);
-        assertEquals(pd, op.pd, 1e-10);
+        assertEquals(0.12345, op.pd, 1e-10);
         assertEquals("x", op.ps);
 
         assertNotNull(op.pab);
@@ -91,7 +115,7 @@ public class OpParameterDefaultValueInitialisationTest extends TestCase {
         assertEquals("z", op.pas[2]);
     }
 
-    public static class ParameterDefaultValueOp extends Operator {
+    public static class SomeOp extends Operator {
 
         @Parameter(defaultValue = "123")
         byte pb;
@@ -132,12 +156,11 @@ public class OpParameterDefaultValueInitialisationTest extends TestCase {
         @Override
         public void initialize() throws OperatorException {
             initialized = true;
-            pi++;
             setTargetProduct(new Product("A", "AT", 10, 10));
         }
     }
 
-    public static class DerivedParameterDefaultValueOp extends ParameterDefaultValueOp {
+    public static class SomeDerivedOp extends SomeOp {
         @Parameter(defaultValue = "/usr/marco")
         File pf;
     }

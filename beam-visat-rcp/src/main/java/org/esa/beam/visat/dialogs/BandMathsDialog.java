@@ -317,10 +317,7 @@ public class BandMathsDialog extends ModalDialog {
         descriptor = container.getDescriptor(PROPERTY_NAME_NO_DATA_VALUE);
         descriptor.setDefaultValue(Double.NaN);
 
-        try {
-            container.setDefaultValues();
-        } catch (ValidationException ignore) {
-        }
+        container.setDefaultValues();
 
         context.addPropertyChangeListener(PROPERTY_NAME_SAVE_EXPRESSION_ONLY, new PropertyChangeListener() {
             @Override

@@ -61,18 +61,13 @@ class CollocationFormModel {
     public static PropertyContainer createValueContainer(String operatorName, Object object) {
         PropertyContainer vc1 = PropertyContainer.createObjectBacked(object);
         PropertyContainer vc0 = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName);
-        try {
-            vc0.setDefaultValues();
-        } catch (ValidationException e) {
-            // todo - ok here?
-            e.printStackTrace();
-        }
+        vc0.setDefaultValues();
 
         Property[] vma0 = vc0.getProperties();
         for (Property vm0 : vma0) {
             Property vm1 = vc1.getProperty(vm0.getDescriptor().getName());
-            System.out.println("vm0 = " + vm0);
-            System.out.println("vm1 = " + vm1);
+//            System.out.println("vm0 = " + vm0);
+//            System.out.println("vm1 = " + vm1);
             if (vm1 != null) {
                 try {
                     vm1.setValue(vm0.getValue());

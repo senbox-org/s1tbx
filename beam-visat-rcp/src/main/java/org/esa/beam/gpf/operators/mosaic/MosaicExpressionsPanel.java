@@ -18,7 +18,6 @@ package org.esa.beam.gpf.operators.mosaic;
 
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
@@ -71,7 +70,7 @@ class MosaicExpressionsPanel extends JPanel {
     private static final int PREFERRED_TABLE_WIDTH = 520;
 
     private final AppContext appContext;
-    private final BindingContext bindingContext;
+    private final BindingContext bindingCtx;
 
     private JTable variablesTable;
     private JTable conditionsTable;
@@ -80,7 +79,7 @@ class MosaicExpressionsPanel extends JPanel {
     MosaicExpressionsPanel(AppContext appContext, MosaicFormModel model) {
         this.appContext = appContext;
         mosaicModel = model;
-        this.bindingContext = new BindingContext(model.getPropertyContainer());
+        this.bindingCtx = new BindingContext(model.getPropertyContainer());
         init();
     }
 
@@ -140,7 +139,7 @@ class MosaicExpressionsPanel extends JPanel {
         final Component moveVariableDownButton = createMoveVariableDownButton();
         moveVariableDownButton.setName(labelName + "moveVariableDown");
         variableButtonsPanel.add(moveVariableDownButton);
-        mosaicModel.getPropertyContainer().addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+        bindingCtx.addPropertyChangeListener("updateMode", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final boolean enabled = Boolean.FALSE.equals(evt.getNewValue());
@@ -195,7 +194,7 @@ class MosaicExpressionsPanel extends JPanel {
         moveConditionDownButton.setName(labelName + "moveConditionDown");
         conditionButtonsPanel.add(moveConditionDownButton);
 
-        mosaicModel.getPropertyContainer().addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+        bindingCtx.addPropertyChangeListener("updateMode", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final boolean enabled = Boolean.FALSE.equals(evt.getNewValue());
@@ -212,9 +211,9 @@ class MosaicExpressionsPanel extends JPanel {
     private JPanel createCombinePanel() {
         final JPanel combinePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         final JComboBox combineComboBox = new JComboBox();
-        bindingContext.bind("combine", combineComboBox);
-        bindingContext.bindEnabledState("combine", false, "updateMode", true);
-        final String displayName = bindingContext.getPropertySet().getDescriptor("combine").getDisplayName();
+        bindingCtx.bind("combine", combineComboBox);
+        bindingCtx.bindEnabledState("combine", false, "updateMode", true);
+        final String displayName = bindingCtx.getPropertySet().getDescriptor("combine").getDisplayName();
         combinePanel.add(new JLabel(displayName + ":"));
         combinePanel.add(combineComboBox);
         return combinePanel;
@@ -288,8 +287,8 @@ class MosaicExpressionsPanel extends JPanel {
         };
         conditionsTable.setName(labelName);
         conditionsTable.setRowSelectionAllowed(true);
-        bindingContext.bind("conditions", new ConditionsTableAdapter(conditionsTable));
-        bindingContext.bindEnabledState("conditions", false, "updateMode", true);
+        bindingCtx.bind("conditions", new ConditionsTableAdapter(conditionsTable));
+        bindingCtx.bindEnabledState("conditions", false, "updateMode", true);
         conditionsTable.addMouseListener(createExpressionEditorMouseListener(conditionsTable, true));
 
         final JTableHeader tableHeader = conditionsTable.getTableHeader();
@@ -309,7 +308,7 @@ class MosaicExpressionsPanel extends JPanel {
         expressionColumn.setCellRenderer(new TCR());
         final ExprEditor cellEditor = new ExprEditor(true);
         expressionColumn.setCellEditor(cellEditor);
-        mosaicModel.getPropertyContainer().addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+        bindingCtx.addPropertyChangeListener("updateMode", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final boolean enabled = Boolean.FALSE.equals(evt.getNewValue());
@@ -456,8 +455,8 @@ class MosaicExpressionsPanel extends JPanel {
         variablesTable = new JTable();
         variablesTable.setName(labelName);
         variablesTable.setRowSelectionAllowed(true);
-        bindingContext.bind("variables", new VariablesTableAdapter(variablesTable));
-        bindingContext.bindEnabledState("variables", false, "updateMode", true);
+        bindingCtx.bind("variables", new VariablesTableAdapter(variablesTable));
+        bindingCtx.bindEnabledState("variables", false, "updateMode", true);
         variablesTable.addMouseListener(createExpressionEditorMouseListener(variablesTable, false));
 
         final JTableHeader tableHeader = variablesTable.getTableHeader();
@@ -477,7 +476,7 @@ class MosaicExpressionsPanel extends JPanel {
         expressionColumn.setCellRenderer(new TCR());
         final ExprEditor exprEditor = new ExprEditor(false);
         expressionColumn.setCellEditor(exprEditor);
-        mosaicModel.getPropertyContainer().addPropertyChangeListener("updateMode", new PropertyChangeListener() {
+        bindingCtx.addPropertyChangeListener("updateMode", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 final boolean enabled = Boolean.FALSE.equals(evt.getNewValue());

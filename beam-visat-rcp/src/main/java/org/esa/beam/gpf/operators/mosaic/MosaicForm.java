@@ -29,10 +29,9 @@ import javax.swing.JTabbedPane;
 public class MosaicForm extends JTabbedPane {
 
     private final AppContext appContext;
-    private MosaicFormModel mosaicModel;
+    private final MosaicFormModel mosaicModel;
     private MosaicIOPanel ioPanel;
     private MosaicMapProjectionPanel mapProjectionPanel;
-    private MosaicExpressionsPanel expressionsPanel;
 
     public MosaicForm(TargetProductSelector targetProductSelector, AppContext appContext) {
         this.appContext = appContext;
@@ -43,8 +42,7 @@ public class MosaicForm extends JTabbedPane {
     private void createUI(TargetProductSelector selector) {
         ioPanel = new MosaicIOPanel(appContext, mosaicModel, selector);
         mapProjectionPanel = new MosaicMapProjectionPanel(appContext, mosaicModel);
-        expressionsPanel = new MosaicExpressionsPanel(appContext, mosaicModel);
-
+        MosaicExpressionsPanel expressionsPanel = new MosaicExpressionsPanel(appContext, mosaicModel);
         addTab("I/O Parameters", ioPanel); /*I18N*/
         addTab("Map Projection Definition", mapProjectionPanel); /*I18N*/
         addTab("Variables & Conditions", expressionsPanel);  /*I18N*/

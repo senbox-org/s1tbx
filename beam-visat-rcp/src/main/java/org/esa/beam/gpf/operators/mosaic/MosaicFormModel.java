@@ -19,14 +19,12 @@ package org.esa.beam.gpf.operators.mosaic;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.gpf.operators.standard.MosaicOp;
@@ -44,7 +42,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,17 +74,11 @@ class MosaicFormModel {
 
     MosaicFormModel() {
         container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer("Mosaic", parameterMap);
-        container.addProperty(new Property(new PropertyDescriptor(PROPERTY_UPDATE_PRODUCT, Product.class),
-                                           new MapEntryAccessor(parameterMap, PROPERTY_UPDATE_PRODUCT)));
-        container.addProperty(new Property(new PropertyDescriptor(PROPERTY_UPDATE_MODE, Boolean.class),
-                                           new MapEntryAccessor(parameterMap, PROPERTY_UPDATE_MODE)));
-        container.addProperty(new Property(new PropertyDescriptor(PROPERTY_SHOW_SOURCE_PRODUCTS, Boolean.class),
-                                           new MapEntryAccessor(parameterMap, PROPERTY_SHOW_SOURCE_PRODUCTS)));
+        addTransientProperty(PROPERTY_UPDATE_PRODUCT, Product.class);
+        addTransientProperty(PROPERTY_UPDATE_MODE, Boolean.class);
+        addTransientProperty(PROPERTY_SHOW_SOURCE_PRODUCTS, Boolean.class);
 
-        try {
-            container.setDefaultValues();
-        } catch (ValidationException ignore) {
-        }
+        container.setDefaultValues();
         container.setValue(PROPERTY_UPDATE_MODE, false);
         container.setValue(PROPERTY_SHOW_SOURCE_PRODUCTS, false);
         container.addPropertyChangeListener(PROPERTY_SHOW_SOURCE_PRODUCTS, new PropertyChangeListener() {
@@ -101,6 +92,13 @@ class MosaicFormModel {
                 }
             }
         });
+    }
+
+    private void addTransientProperty(String propertyName, Class<?> propertyType) {
+        PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, propertyType);
+        descriptor.setTransient(true);
+        container.addProperty(new Property(descriptor,
+                                           new MapEntryAccessor(parameterMap, propertyName)));
     }
 
     void setSourceProducts(File[] files) throws IOException {
@@ -134,18 +132,19 @@ class MosaicFormModel {
     }
 
     Map<String, Object> getParameterMap() {
-        final Map<String, Object> map = new HashMap<String, Object>(parameterMap.size());
-        for (final String key : parameterMap.keySet()) {
-            for (final Field field : MosaicOp.class.getDeclaredFields()) {
-                final Parameter annotation = field.getAnnotation(Parameter.class);
-                if (annotation != null) {
-                    if (key.equals(field.getName()) || key.equals(annotation.alias())) {
-                        map.put(key, parameterMap.get(key));
-                    }
-                }
-            }
-        }
-        return map;
+//        final Map<String, Object> map = new HashMap<String, Object>(parameterMap.size());
+//        for (final String key : parameterMap.keySet()) {
+//            for (final Field field : MosaicOp.class.getDeclaredFields()) {
+//                final Parameter annotation = field.getAnnotation(Parameter.class);
+//                if (annotation != null) {
+//                    if (key.equals(field.getName()) || key.equals(annotation.alias())) {
+//                        map.put(key, parameterMap.get(key));
+//                    }
+//                }
+//            }
+//        }
+//        return map;
+        return Collections.unmodifiableMap(parameterMap);
     }
 
     Map<String, Product> getSourceProductMap() {
