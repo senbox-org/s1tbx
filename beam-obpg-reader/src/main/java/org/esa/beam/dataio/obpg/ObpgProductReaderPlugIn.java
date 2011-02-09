@@ -71,7 +71,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
                     if (value != null) {
                         final String title = value.trim();
                         for (String magicString : magicStrings) {
-                            if(title.contains(magicString)) {
+                            if (title.contains(magicString)) {
                                 return DecodeQualification.INTENDED;
                             }
                         }
@@ -96,7 +96,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      * <p> Intances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
      * <code>ProductReader</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
      * case).
-     *                                                                         C:\Dokumente und Einstellungen\Marco Peters\Eigene Dateien\EOData\SMOS\SMOS-DPSG-V3\L1C\SM_TEST_MIR_SCLF1C_20070223T061043_20070223T061048_161_001_0
+     *
      * @return an array containing valid input types, never <code>null</code>
      */
     @Override
@@ -134,12 +134,14 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
      */
     @Override
     public String[] getDefaultFileExtensions() {
-        return new String[]{DEFAULT_FILE_EXTENSION,
+        return new String[]{
+                DEFAULT_FILE_EXTENSION,
                 DEFAULT_FILE_EXTENSION_L2_LAC,
                 DEFAULT_FILE_EXTENSION_L2_LAC_OC,
                 DEFAULT_FILE_EXTENSION_L2_LAC_SST,
                 DEFAULT_FILE_EXTENSION_L2_LAC_SST4,
-                DEFAULT_FILE_EXTENSION_L2_MLAC};
+                DEFAULT_FILE_EXTENSION_L2_MLAC
+        };
     }
 
     /**
