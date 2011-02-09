@@ -63,7 +63,10 @@ public class ImageHeader {
     public static ImageHeader load(Reader reader, Properties defaultImageProperties, File imageDir) throws IOException {
         Properties imageProperties = new Properties(defaultImageProperties);
         imageProperties.load(reader);
+        return load(imageProperties, imageDir);
+    }
 
+    public static ImageHeader load(Properties imageProperties, File imageDir) throws IOException {
         int dataType = Integer.parseInt(imageProperties.getProperty("dataType"));
         int minX = Integer.parseInt(imageProperties.getProperty("minX", "0"));
         int minY = Integer.parseInt(imageProperties.getProperty("minY", "0"));
