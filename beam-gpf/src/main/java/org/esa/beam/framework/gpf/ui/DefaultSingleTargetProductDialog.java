@@ -17,8 +17,8 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.PropertyPane;
@@ -33,6 +33,7 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
@@ -107,8 +108,10 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         this.form = new JTabbedPane();
         this.form.add("I/O Parameters", ioParametersPanel);
         parameterMap = new HashMap<String, Object>(17);
-        OperatorParametersSupport parametersSupport = new OperatorParametersSupport(operatorSpi.getOperatorClass(), parameterMap);
-        final PropertySet propertyContainer = parametersSupport.getParameters();
+        PropertyContainer propertyContainer = PropertyContainer.createMapBacked(parameterMap, operatorSpi.getOperatorClass(),
+                                                                                new ParameterDescriptorFactory());
+        OperatorParametersSupport parametersSupport = new OperatorParametersSupport(operatorSpi.getOperatorClass(),
+                                                                                    propertyContainer);
             propertyContainer.setDefaultValues();
         if (propertyContainer.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {

@@ -16,6 +16,7 @@
 
 package org.esa.beam.gpf.operators.mosaic;
 
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.impl.ParserImpl;
@@ -24,6 +25,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.ui.OperatorParametersSupport;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
@@ -52,7 +54,7 @@ class MosaicDialog extends SingleTargetProductDialog {
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi("Mosaic");
         if (operatorSpi != null) {
             OperatorParametersSupport parametersSupport = new OperatorParametersSupport(operatorSpi.getOperatorClass(),
-                                                                                        form.getFormModel().getParameterMap());
+                                                                                        PropertyContainer.createMapBacked(form.getFormModel().getParameterMap(), operatorSpi.getOperatorClass(), new ParameterDescriptorFactory()));
 
             JMenu fileMenu = new JMenu("File");
             fileMenu.add(parametersSupport.createLoadParametersAction());

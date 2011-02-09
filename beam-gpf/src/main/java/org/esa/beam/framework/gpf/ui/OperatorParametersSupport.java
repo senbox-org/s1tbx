@@ -1,7 +1,6 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
@@ -14,7 +13,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 import java.awt.event.ActionEvent;
-import java.util.Map;
 
 /**
  * Support for operator parameters input/output.
@@ -24,10 +22,10 @@ public class OperatorParametersSupport {
     private final PropertySet parameters;
     private final ParameterDescriptorFactory descriptorFactory;
 
-    public OperatorParametersSupport(Class<? extends Operator> opType, Map<String, Object> parameters) {
+    public OperatorParametersSupport(Class<? extends Operator> opType, PropertySet properties) {
         this.opType = opType;
         this.descriptorFactory = new ParameterDescriptorFactory();
-        this.parameters = PropertyContainer.createMapBacked(parameters, opType, descriptorFactory);
+        this.parameters = properties;
     }
 
     public PropertySet getParameters() {

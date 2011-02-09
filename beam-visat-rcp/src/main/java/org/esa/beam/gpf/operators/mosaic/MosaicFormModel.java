@@ -132,18 +132,6 @@ class MosaicFormModel {
     }
 
     Map<String, Object> getParameterMap() {
-//        final Map<String, Object> map = new HashMap<String, Object>(parameterMap.size());
-//        for (final String key : parameterMap.keySet()) {
-//            for (final Field field : MosaicOp.class.getDeclaredFields()) {
-//                final Parameter annotation = field.getAnnotation(Parameter.class);
-//                if (annotation != null) {
-//                    if (key.equals(field.getName()) || key.equals(annotation.alias())) {
-//                        map.put(key, parameterMap.get(key));
-//                    }
-//                }
-//            }
-//        }
-//        return map;
         return Collections.unmodifiableMap(parameterMap);
     }
 
