@@ -41,7 +41,6 @@ public interface PropertySet extends PropertyChangeEmitter {
      * always return {@code null}.
      *
      * @param name The property name  (case sensitive).
-     *
      * @return {@code true} if the property is defined.
      */
     boolean isPropertyDefined(String name);
@@ -50,9 +49,8 @@ public interface PropertySet extends PropertyChangeEmitter {
      * Gets the named property.
      *
      * @param name The property name  (case sensitive).
-     *
      * @return The property, or {@code null} if the property does not exist.
-     * @see #isPropertyDefined(String) 
+     * @see #isPropertyDefined(String)
      */
     Property getProperty(String name);
 
@@ -88,7 +86,6 @@ public interface PropertySet extends PropertyChangeEmitter {
      * Gets the value of the named property.
      *
      * @param name The property name.
-     *
      * @return The property value.
      */
     Object getValue(String name);
@@ -98,17 +95,24 @@ public interface PropertySet extends PropertyChangeEmitter {
      *
      * @param name  The property name.
      * @param value The new property value.
-     *
      * @throws IllegalArgumentException If the value is illegal.
      *                                  The cause will always be a {@link ValidationException}.
      */
     void setValue(String name, Object value) throws IllegalArgumentException;
 
     /**
+     * Sets all properties to their default values.
+     *
+     * @throws ValidationException If the validation of the default value fails.
+     * @see PropertyDescriptor#getDefaultValue()
+     * @since Ceres 0.12
+     */
+    void setDefaultValues() throws ValidationException;
+
+    /**
      * Gets the descriptor for the named property.
      *
      * @param name The property name (case sensitive).
-     *
      * @return The descriptor, or {@code null} if the property is unknown.
      */
     PropertyDescriptor getDescriptor(String name);

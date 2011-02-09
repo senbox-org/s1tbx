@@ -274,11 +274,7 @@ public class PropertyContainer implements PropertySet {
         return getProperty(name).getDescriptor();
     }
 
-    /**
-     * Utility method which sets all properties in this bundle to their default values.
-     * @throws ValidationException If the validation of the default value fails.
-     * @see PropertyDescriptor#getDefaultValue()
-     */
+    @Override
     public void setDefaultValues() throws ValidationException {
         for (final Property property : getProperties()) {
             final PropertyDescriptor descriptor = property.getDescriptor();
