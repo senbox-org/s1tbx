@@ -20,7 +20,6 @@ import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.swing.figure.FigureStyle;
@@ -388,11 +387,7 @@ public class DefaultFigureStyle extends PropertyContainer implements FigureStyle
                 }
             }
         }
-        try {
-            setDefaultValues();
-        } catch (ValidationException e) {
-            throw new IllegalStateException(e);
-        }
+        setDefaultValues();
     }
 
     private void defineProperty(PropertyDescriptor propertyDescriptor, Object value) {

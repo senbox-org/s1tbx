@@ -103,11 +103,12 @@ public interface PropertySet extends PropertyChangeEmitter {
     /**
      * Sets all properties to their default values.
      *
-     * @throws ValidationException If the validation of the default value fails.
+     * @throws IllegalStateException If at least one of the default values is illegal.
+     *                               The cause will always be a {@link ValidationException}.
      * @see PropertyDescriptor#getDefaultValue()
      * @since Ceres 0.12
      */
-    void setDefaultValues() throws ValidationException;
+    void setDefaultValues() throws IllegalStateException;
 
     /**
      * Gets the descriptor for the named property.

@@ -57,7 +57,6 @@ public class PropertyContainer implements PropertySet {
      * The factory method will not modify the object, thus not setting any default values.
      *
      * @param object the backing object
-     *
      * @return The property container.
      */
     public static PropertyContainer createObjectBacked(Object object) {
@@ -71,7 +70,6 @@ public class PropertyContainer implements PropertySet {
      *
      * @param object            the backing object
      * @param descriptorFactory a factory used to create {@link PropertyDescriptor}s of the fields of the object's type
-     *
      * @return The property container.
      */
     public static PropertyContainer createObjectBacked(Object object,
@@ -87,7 +85,6 @@ public class PropertyContainer implements PropertySet {
      * The factory method will not modify the given map, thus not setting any default values.
      *
      * @param map the map which backs the values
-     *
      * @return The property container.
      */
     public static PropertyContainer createMapBacked(Map<String, Object> map) {
@@ -107,7 +104,6 @@ public class PropertyContainer implements PropertySet {
      *
      * @param map          the map which backs the values
      * @param templateType the template type
-     *
      * @return The property container.
      */
     public static PropertyContainer createMapBacked(Map<String, Object> map,
@@ -124,7 +120,6 @@ public class PropertyContainer implements PropertySet {
      * @param map               the map which backs the values
      * @param templateType      the template type
      * @param descriptorFactory a factory used to create {@link PropertyDescriptor}s of the fields of the template type
-     *
      * @return The property container.
      */
     public static PropertyContainer createMapBacked(Map<String, Object> map,
@@ -140,7 +135,6 @@ public class PropertyContainer implements PropertySet {
      * All properties will have their values set to default values (if specified).
      *
      * @param templateType the template type
-     *
      * @return The property container.
      */
     public static PropertyContainer createValueBacked(Class<?> templateType) {
@@ -154,7 +148,6 @@ public class PropertyContainer implements PropertySet {
      *
      * @param templateClass     the template class used to derive the descriptors from
      * @param descriptorFactory a factory used to create {@link PropertyDescriptor}s of the fields of the template type
-     *
      * @return The property container.
      */
     public static PropertyContainer createValueBacked(Class<?> templateClass,
@@ -174,7 +167,6 @@ public class PropertyContainer implements PropertySet {
      * @param descriptorFactory The property descriptor factory.
      * @param accessorFactory   The property accessor factory.
      * @param initValues        If {@code true}, properties are initialised by their default values, if specified.
-     *
      * @return The property container.
      */
     public static PropertyContainer createForFields(Class<?> fieldProvider,
@@ -184,11 +176,7 @@ public class PropertyContainer implements PropertySet {
         PropertyContainer container = new PropertyContainer();
         collectProperties(container, fieldProvider, descriptorFactory, accessorFactory);
         if (initValues) {
-            try {
-                container.setDefaultValues();
-            } catch (ValidationException e) {
-                throw new IllegalStateException(e);
-            }
+            container.setDefaultValues();
         }
         return container;
     }
@@ -275,11 +263,15 @@ public class PropertyContainer implements PropertySet {
     }
 
     @Override
-    public void setDefaultValues() throws ValidationException {
+    public void setDefaultValues() throws IllegalStateException {
         for (final Property property : getProperties()) {
             final PropertyDescriptor descriptor = property.getDescriptor();
             if (descriptor.getDefaultValue() != null) {
-                property.setValue(descriptor.getDefaultValue());
+                try {
+                    property.setValue(descriptor.getDefaultValue());
+                } catch (ValidationException e) {
+                    throw new IllegalStateException(e);
+                }
             }
         }
     }
