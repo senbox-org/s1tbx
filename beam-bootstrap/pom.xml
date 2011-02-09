@@ -134,13 +134,10 @@
             <artifactId>gt-epsg-hsql</artifactId>
         </dependency>
 
-        <!--
-                <dependency>
-                    <groupId>ncsa.hdf</groupId>
-                    <artifactId>lib-hdf</artifactId>
-                    <scope>compile</scope>
-                </dependency>
-        -->
+        <dependency>
+            <groupId>edu.ucar</groupId>
+            <artifactId>netcdf</artifactId>
+        </dependency>
 
     </dependencies>
     <profiles>
