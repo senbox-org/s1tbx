@@ -64,9 +64,6 @@
         <module>beam-core</module>
     </dependency>
     <dependency>
-        <module>lib-netcdf</module>
-    </dependency>
-    <dependency>
         <module>beam-visat</module>
         <optional>true</optional>
     </dependency>
@@ -87,7 +84,7 @@
             <description>Import a CHRIS/Proba data product or product subset.</description>
         </action>
     </extension>
-          
+
     <extension point="beam-core:rgbProfiles">
         <rgbProfile>
             <name>CHRIS/Proba - Mode 0</name>

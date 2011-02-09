@@ -26,9 +26,6 @@
         <module>beam-core</module>
     </dependency>
     <dependency>
-        <module>lib-netcdf</module>
-    </dependency>
-    <dependency>
         <module>beam-visat</module>
         <optional>true</optional>
     </dependency>
