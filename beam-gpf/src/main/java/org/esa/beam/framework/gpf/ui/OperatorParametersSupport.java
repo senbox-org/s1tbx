@@ -11,7 +11,8 @@ import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JOptionPane;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 
 /**
@@ -23,10 +24,10 @@ public class OperatorParametersSupport {
     private final PropertySet parameters;
     private final ParameterDescriptorFactory descriptorFactory;
 
-    public OperatorParametersSupport(Class<? extends Operator> opType, PropertySet properties) {
+    public OperatorParametersSupport(Class<? extends Operator> opType, PropertySet parameters) {
         this.opType = opType;
         this.descriptorFactory = new ParameterDescriptorFactory();
-        this.parameters = properties;
+        this.parameters = parameters;
     }
 
     public PropertySet getParameters() {
@@ -34,34 +35,11 @@ public class OperatorParametersSupport {
     }
 
     public Action createStoreParametersAction() {
-        return new AbstractAction("Store Parameters...") {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // todo
-                JOptionPane.showMessageDialog(null, "Not implemented yet.\n(XML output has been dumped to stdout.)",
-                                              "Store Parameters", JOptionPane.WARNING_MESSAGE);
-                try {
-                    System.out.println("Storing parameters...");
-                    String s = toDomElement().toXml();
-                    System.out.println(s);
-                } catch (ValidationException e1) {
-                    e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                } catch (ConversionException e1) {
-                    e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-            }
-        };
+        return new StoreParametersAction();
     }
 
     public Action createLoadParametersAction() {
-        return new AbstractAction("Load Parameters...") {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // todo
-                JOptionPane.showMessageDialog(null, "Not implemented yet.", "Load Parameters",
-                                              JOptionPane.WARNING_MESSAGE);
-            }
-        };
+        return new LoadParametersAction();
     }
 
     void fromDomElement(DomElement parametersElement) throws ValidationException, ConversionException {
@@ -75,4 +53,49 @@ public class OperatorParametersSupport {
         domConverter.convertValueToDom(parameters, parametersElement);
         return parametersElement;
     }
-}
+
+    private  class LoadParametersAction extends AbstractAction {
+        public LoadParametersAction() {
+            super("Load Parameters...");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.addChoosableFileFilter(createParameterFileFilter());
+            fileChooser.setDialogTitle("Load Parameters");
+            fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
+            int response = fileChooser.showDialog(null, // todo
+                                                  "Load");
+        }
+
+    }
+
+    private class StoreParametersAction extends AbstractAction {
+        public StoreParametersAction() {
+            super("Store Parameters...");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.addChoosableFileFilter(createParameterFileFilter());
+            fileChooser.setDialogTitle("Store Parameters");
+            fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+            int response = fileChooser.showDialog(null, // todo
+                                                  "Store");
+            try {
+                System.out.println("Storing parameters...");
+                String s = toDomElement().toXml();
+                System.out.println(s);
+            } catch (ValidationException e1) {
+                e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (ConversionException e1) {
+                e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+    }
+    private FileNameExtensionFilter createParameterFileFilter() {
+          return new FileNameExtensionFilter("BEAM GPF Parameter Files (XML)", "xml");
+      }
+  }
