@@ -17,8 +17,8 @@ package org.esa.beam.util.io;
 
 import org.esa.beam.util.StringUtils;
 
-import javax.swing.filechooser.FileFilter;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -169,6 +169,19 @@ public class BeamFileFilter extends FileFilter {
      *         otherwise.
      */
     public boolean checkExtension(String filename) {
+        return checkExtensions(filename, extensions);
+    }
+
+    /**
+     * Utility method which checks the extension the given filename.
+     *
+     * @param filename the file name
+     *
+     * @param extensions the extension
+     * @return <code>true</code> if the given file name ends with one of the registered extensions, <code>false</code>
+     *         otherwise.
+     */
+    public static boolean checkExtensions(String filename, String[] extensions) {
         if (filename != null) {
             filename = filename.toLowerCase();
             for (String extension : extensions) {

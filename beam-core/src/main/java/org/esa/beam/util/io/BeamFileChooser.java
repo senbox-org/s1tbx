@@ -22,6 +22,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.Component;
 import java.awt.Container;
@@ -85,9 +86,7 @@ public class BeamFileChooser extends JFileChooser {
      * Overridden in order to recognize dialog size changes.
      *
      * @param parent the parent
-     *
      * @return the dialog
-     *
      * @throws HeadlessException
      */
     @Override
@@ -161,6 +160,11 @@ public class BeamFileChooser extends JFileChooser {
                     if (!filter.checkExtension(currentFilename)) {
                         currentFilename = FileUtils.exchangeExtension(currentFilename, defaultExtension);
                     }
+                } else if (fileFilter instanceof FileNameExtensionFilter) {
+                    FileNameExtensionFilter filter = (FileNameExtensionFilter) fileFilter;
+                    if (!BeamFileFilter.checkExtensions(currentFilename, filter.getExtensions())) {
+                        currentFilename = FileUtils.exchangeExtension(currentFilename, defaultExtension);
+                    }
                 }
             }
         }
@@ -199,14 +203,16 @@ public class BeamFileChooser extends JFileChooser {
      * file chooser are those, which are registered using a {@link <code>BeamFileFilter</code>}.
      *
      * @param filename the filename to be checked
-     *
      * @return <code>true</code>, if the given file has a "known" extension
-     *
      * @see BeamFileFilter
      */
     public boolean checkExtension(String filename) {
+        FileFilter[] fileFilters = getChoosableFileFilters();
+        return brrr(filename, fileFilters);
+    }
+
+    public static boolean brrr(String filename, FileFilter[] fileFilters) {
         if (filename != null) {
-            FileFilter[] fileFilters = getChoosableFileFilters();
             if (fileFilters != null) {
                 for (FileFilter filter : fileFilters) {
                     if (filter instanceof BeamFileFilter) {
@@ -290,8 +296,8 @@ public class BeamFileChooser extends JFileChooser {
         if (selectedFile != null) {
             BeamFileFilter mff = getBeamFileFilter();
             if (mff != null
-                && mff.getDefaultExtension() != null
-                && !mff.checkExtension(selectedFile)) {
+                    && mff.getDefaultExtension() != null
+                    && !mff.checkExtension(selectedFile)) {
                 selectedFile = FileUtils.exchangeExtension(selectedFile, mff.getDefaultExtension());
                 Debug.trace("mod. selected file: " + selectedFile.getPath());
                 setSelectedFile(selectedFile);
