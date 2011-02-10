@@ -27,8 +27,14 @@ import java.util.List;
 public class VirtualDirTest extends TestCase {
 
     public void testZip() throws IOException {
-        File file = get("FileNodeTest.zip");
-        testFileNode(file, VirtualDir.create(file));
+        File zipFile = get("FileNodeTest.zip");
+        final VirtualDir virtualDir = VirtualDir.create(zipFile);
+        final File file1 = virtualDir.getFile("File1");
+        assertTrue(file1.exists());
+        assertFalse("Path of File1 should not contain the parent path of the zip file.",
+                    file1.getAbsolutePath().contains(zipFile.getParent()));
+
+        testFileNode(zipFile, virtualDir);
     }
 
     public void testDir() throws IOException {
