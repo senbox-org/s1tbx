@@ -31,11 +31,14 @@ import java.util.Locale;
 public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
 
     private static final String DEFAULT_FILE_EXTENSION = ".hdf";
-    private static final String DEFAULT_FILE_EXTENSION_L2_LAC = ".L2_LAC";
+    private static final String DEFAULT_FILE_EXTENSION_L2 = ".L2";
+    private static final String DEFAULT_FILE_EXTENSION_L2_LAC = DEFAULT_FILE_EXTENSION_L2 + "_LAC";
     private static final String DEFAULT_FILE_EXTENSION_L2_LAC_OC = DEFAULT_FILE_EXTENSION_L2_LAC + "_OC";
     private static final String DEFAULT_FILE_EXTENSION_L2_LAC_SST = DEFAULT_FILE_EXTENSION_L2_LAC + "_SST";
     private static final String DEFAULT_FILE_EXTENSION_L2_LAC_SST4 = DEFAULT_FILE_EXTENSION_L2_LAC + "_SST4";
-    private static final String DEFAULT_FILE_EXTENSION_L2_MLAC = ".L2_MLAC";
+    private static final String DEFAULT_FILE_EXTENSION_L2_MLAC = DEFAULT_FILE_EXTENSION_L2 + "_MLAC";
+    private static final String DEFAULT_FILE_EXTENSION_L2_MLAC_OC = DEFAULT_FILE_EXTENSION_L2_MLAC + "_OC";
+
     public static final String READER_DESCRIPTION = "NASA Ocean Color (OBPG) Products";
     public static final String FORMAT_NAME = "NASA-OBPG";
 
@@ -136,11 +139,13 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
     public String[] getDefaultFileExtensions() {
         return new String[]{
                 DEFAULT_FILE_EXTENSION,
+                DEFAULT_FILE_EXTENSION_L2,
                 DEFAULT_FILE_EXTENSION_L2_LAC,
                 DEFAULT_FILE_EXTENSION_L2_LAC_OC,
                 DEFAULT_FILE_EXTENSION_L2_LAC_SST,
                 DEFAULT_FILE_EXTENSION_L2_LAC_SST4,
-                DEFAULT_FILE_EXTENSION_L2_MLAC
+                DEFAULT_FILE_EXTENSION_L2_MLAC,
+                DEFAULT_FILE_EXTENSION_L2_MLAC_OC
         };
     }
 

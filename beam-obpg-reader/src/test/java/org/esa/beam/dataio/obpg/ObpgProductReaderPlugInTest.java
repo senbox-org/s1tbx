@@ -15,33 +15,41 @@
  */
 package org.esa.beam.dataio.obpg;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ObpgProductReaderPlugIn_Test extends TestCase {
+import static org.junit.Assert.*;
+
+public class ObpgProductReaderPlugInTest {
 
     private ObpgProductReaderPlugIn plugIn;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void before() throws Exception {
         plugIn = new ObpgProductReaderPlugIn();
     }
 
+    @Test
     public void testDefaultFileExtensions() {
         final String[] fileExtensions = plugIn.getDefaultFileExtensions();
 
         assertNotNull(fileExtensions);
-        assertEquals(6, fileExtensions.length);
+        assertEquals(8, fileExtensions.length);
+
         assertEquals(".hdf", fileExtensions[0]);
-        assertEquals(".L2_LAC", fileExtensions[1]);
-        assertEquals(".L2_LAC_OC", fileExtensions[2]);
-        assertEquals(".L2_LAC_SST", fileExtensions[3]);
-        assertEquals(".L2_LAC_SST4", fileExtensions[4]);
-        assertEquals(".L2_MLAC", fileExtensions[5]);
+        assertEquals(".L2", fileExtensions[1]);
+        assertEquals(".L2_LAC", fileExtensions[2]);
+        assertEquals(".L2_LAC_OC", fileExtensions[3]);
+        assertEquals(".L2_LAC_SST", fileExtensions[4]);
+        assertEquals(".L2_LAC_SST4", fileExtensions[5]);
+        assertEquals(".L2_MLAC", fileExtensions[6]);
+        assertEquals(".L2_MLAC_OC", fileExtensions[7]);
     }
 
+    @Test
     public void testCreateReaderInstance() {
         final ProductReader productReader = plugIn.createReaderInstance();
 
@@ -50,6 +58,7 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
         assertTrue(productReader instanceof ObpgProductReader);
     }
 
+    @Test
     public void testGetFormatNames() {
         final String[] formatNames = plugIn.getFormatNames();
 
@@ -58,6 +67,7 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
         assertEquals("NASA-OBPG", formatNames[0]);
     }
 
+    @Test
     public void testGetInputTypes() {
         final Class[] classes = plugIn.getInputTypes();
 
@@ -67,19 +77,14 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
         assertEquals("java.io.File", classes[1].getName());
     }
 
-    public void test() {
+    @Test
+    public void testProductFileFilterExtension() {
         final BeamFileFilter beamFileFilter = plugIn.getProductFileFilter();
 
         assertNotNull(beamFileFilter);
         final String[] extensions = beamFileFilter.getExtensions();
         assertNotNull(extensions);
-        assertEquals(6, extensions.length);
-        assertEquals(".hdf", extensions[0]);
-        assertEquals(".L2_LAC", extensions[1]);
-        assertEquals(".L2_LAC_OC", extensions[2]);
-        assertEquals(".L2_LAC_SST", extensions[3]);
-        assertEquals(".L2_LAC_SST4", extensions[4]);
-        assertEquals(".L2_MLAC", extensions[5]);
+        assertArrayEquals(extensions, plugIn.getDefaultFileExtensions());
         assertEquals("NASA-OBPG", beamFileFilter.getFormatName());
     }
 
