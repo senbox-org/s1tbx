@@ -111,7 +111,8 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         PropertyContainer propertyContainer = PropertyContainer.createMapBacked(parameterMap,
                                                                                 operatorSpi.getOperatorClass(),
                                                                                 new ParameterDescriptorFactory());
-        OperatorParametersSupport parametersSupport = new OperatorParametersSupport(operatorSpi.getOperatorClass(),
+        OperatorParametersSupport parametersSupport = new OperatorParametersSupport(this.getJDialog(),
+                                                                                    operatorSpi.getOperatorClass(),
                                                                                     propertyContainer);
         propertyContainer.setDefaultValues();
         if (propertyContainer.getProperties().length > 0) {

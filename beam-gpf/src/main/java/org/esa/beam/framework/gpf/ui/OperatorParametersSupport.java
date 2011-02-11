@@ -20,6 +20,7 @@ import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,14 +36,17 @@ import java.io.StringReader;
  */
 public class OperatorParametersSupport {
 
+    private Component parentComponent;
     private final Class<? extends Operator> opType;
     private final PropertySet parameters;
     private final ParameterDescriptorFactory descriptorFactory;
 
-    public OperatorParametersSupport(Class<? extends Operator> opType, PropertySet parameters) {
+    public OperatorParametersSupport(Component parentComponent,
+                                     Class<? extends Operator> opType, PropertySet parameters) {
+        this.parentComponent = parentComponent;
         this.opType = opType;
-        this.descriptorFactory = new ParameterDescriptorFactory();
         this.parameters = parameters;
+        this.descriptorFactory = new ParameterDescriptorFactory();
     }
 
     public PropertySet getParameters() {
@@ -82,16 +86,14 @@ public class OperatorParametersSupport {
             String title = "Load Parameters";
             fileChooser.setDialogTitle(title);
             fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
-            int response = fileChooser.showDialog(null, // todo
-                                                  "Load");
+            int response = fileChooser.showDialog(parentComponent, "Load");
             if (JFileChooser.APPROVE_OPTION == response) {
                 try {
                     File selectedFile = fileChooser.getSelectedFile();
                     readFromFile(selectedFile);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    JOptionPane.showMessageDialog(null, // todo
-                                                  "Could not load parameters.\n" + e.getMessage(),
+                    JOptionPane.showMessageDialog(parentComponent, "Could not load parameters.\n" + e.getMessage(),
                                                   title, JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -145,8 +147,7 @@ public class OperatorParametersSupport {
             String title = "Store Parameters";
             fileChooser.setDialogTitle(title);
             fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
-            int response = fileChooser.showDialog(null, // todo
-                                                  "Store");
+            int response = fileChooser.showDialog(parentComponent, "Store");
             if (JFileChooser.APPROVE_OPTION == response) {
                 try {
                     File selectedFile = fileChooser.getSelectedFile();
@@ -156,8 +157,7 @@ public class OperatorParametersSupport {
                     writeToFile(xmlString, selectedFile);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    JOptionPane.showMessageDialog(null, // todo
-                                                  "Could not store parameters.\n" + e.getMessage(),
+                    JOptionPane.showMessageDialog(parentComponent, "Could not store parameters.\n" + e.getMessage(),
                                                   title, JOptionPane.ERROR_MESSAGE);
                 }
             }

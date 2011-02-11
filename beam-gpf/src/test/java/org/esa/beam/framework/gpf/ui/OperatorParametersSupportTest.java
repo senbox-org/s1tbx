@@ -60,7 +60,7 @@ public class OperatorParametersSupportTest {
         container.setValue("paramDouble", 0.42);
         container.setValue("paramString", "A String!");
         container.setValue("paramComplex", new Complex(25));
-        final OperatorParametersSupport support = new OperatorParametersSupport(TestOp.class, container);
+        final OperatorParametersSupport support = new OperatorParametersSupport(null, TestOp.class, container);
         final DomElement domElement = support.toDomElement();
 
         assertEquals("parameters", domElement.getName());
