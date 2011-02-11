@@ -149,10 +149,10 @@ public class OperatorParametersSupport {
                                                   "Store");
             if (JFileChooser.APPROVE_OPTION == response) {
                 try {
-                    String xmlString = toDomElement().toXml();
                     File selectedFile = fileChooser.getSelectedFile();
                     selectedFile = FileUtils.ensureExtension(selectedFile,
                                                              "." + parameterFileFilter.getExtensions()[0]);
+                    String xmlString = toDomElement().toXml();
                     writeToFile(xmlString, selectedFile);
                 } catch (Exception e) {
                     e.printStackTrace();
