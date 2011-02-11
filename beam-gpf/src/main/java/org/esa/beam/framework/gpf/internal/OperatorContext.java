@@ -66,11 +66,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -1023,6 +1022,32 @@ public class OperatorContext {
         return null;
     }
 
+
+    public Set<OperatorImage> collectOperatorImages() {
+        HashSet<OperatorImage> operatorImages = new HashSet<OperatorImage>();
+        collectOperatorImages(operatorImages);
+        return operatorImages;
+    }
+
+    private void collectOperatorImages(HashSet<OperatorImage> operatorImages) {
+        operatorImages.addAll(targetImageMap.values());
+        for (Product product : sourceProductList) {
+            Band[] bands = product.getBands();
+            for (Band band : bands) {
+                if (band.isSourceImageSet()) {
+                    MultiLevelImage sourceImage = band.getSourceImage();
+                    if (sourceImage.getImage(0) instanceof OperatorImage) {
+                        OperatorImage operatorImage = (OperatorImage) sourceImage.getImage(0);
+                        if (operatorImages.contains(operatorImage)) {
+                            operatorImages.add(operatorImage);
+                            operatorImage.getOperatorContext().collectOperatorImages(operatorImages);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public void logPerformanceAnalysis() {
         if (SYS_PROP_VALUE_PERFORMANCE_TRACE) {
             File file = new File(SYS_PROP_VALUE_PERFORMANCE_FILE);
@@ -1041,59 +1066,121 @@ public class OperatorContext {
     }
 
     public void logPerformanceAnalysis(PrintWriter writer) {
-        writer.printf("Depth\tBand\tTile\tCalls\tMin(s)\tMax(s)\n");
-        logPerformanceAnalysis(writer, 0);
+        writer.printf("" +
+                              /*01*/ "Depth\t" +
+                              /*02*/ "Product\t" +
+                              /*03*/ "Operator\t" +
+                              /*04*/ "Band\t" +
+                              /*05*/ "Image\t" +
+                              /*06*/ "TileX\t" +
+                              /*07*/ "TileY\t" +
+                              /*08*/ "Calls\t" +
+                              /*09*/ "Min(s)\t" +
+                              /*10*/ "Max(s)\t" +
+                              /*11*/ "Sum(s)\t" +
+                              /*12*/ "Avg(s)\t" +
+                              /*13*/ "Comment\n");
+        HashSet<OperatorImage> operatorImages = new HashSet<OperatorImage>();
+        logPerformanceAnalysis(writer, 0, operatorImages);
     }
 
-    private void logPerformanceAnalysis(PrintWriter writer, int depth) {
+    private static void logPerformanceAnalysis(PrintWriter writer, int depth, String targetProductName, OperatorImage operatorImage) {
 
-        String operatorName = getOperatorSpi().getOperatorAlias();
-        String productName = getTargetProduct().getName();
-
-        ArrayList<OperatorImage> operatorImages = new ArrayList<OperatorImage>(new HashSet<OperatorImage>(targetImageMap.values()));
-        Collections.sort(operatorImages, new Comparator<OperatorImage>() {
-            @Override
-            public int compare(OperatorImage o1, OperatorImage o2) {
-                return o1.getTargetBand().getName().compareTo(o2.getTargetBand().getName());
+        String operatorName = operatorImage.getOperatorContext().getOperatorSpi().getOperatorClass().getSimpleName();
+        Band targetBand = operatorImage.getTargetBand();
+        String imageInstance = String.format("%s@%s",
+                                             operatorImage.getClass().getSimpleName(),
+                                             Integer.toHexString(System.identityHashCode(operatorImage)));
+        TileComputationStatistic[] tileComputationStatistics = operatorImage.getTileComputationStatistics();
+        for (int i = 0, tileComputationStatisticsLength = tileComputationStatistics.length; i < tileComputationStatisticsLength; i++) {
+            TileComputationStatistic tileComputationStatistic = tileComputationStatistics[i];
+            if (tileComputationStatistic != null) {
+                String comment = "-";
+                if (tileComputationStatistic.getCount() > 1) {
+                    comment = "WARNING: same tile computed multiple times!";
+                } else if (depth > 10) {
+                    comment = "WARNING: deep nesting of operators!";
+                }
+                writer.printf(Locale.GERMANY, "%d\t%s\t%s\t%s\t%s\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%s\n",
+                              /*01*/ depth,
+                              /*02*/ targetProductName,
+                              /*03*/ operatorName,
+                              /*04*/ targetBand.getName(),
+                              /*05*/ imageInstance,
+                              /*06*/ tileComputationStatistic.getTileX(),
+                              /*07*/ tileComputationStatistic.getTileY(),
+                              /*08*/ tileComputationStatistic.getCount(),
+                              /*09*/ tileComputationStatistic.getNanosMin() / 1.0E9,
+                              /*10*/ tileComputationStatistic.getNanosMax() / 1.0E9,
+                              /*11*/ tileComputationStatistic.getNanosSum() / 1.0E9,
+                              /*12*/ tileComputationStatistic.getNanosAvg() / 1.0E9,
+                              /*13*/ comment);
             }
-        });
+        }
+    }
 
-        for (OperatorImage operatorImage : operatorImages) {
-            Band targetBand = operatorImage.getTargetBand();
-            String imageType = String.format("%s@%s",
-                                             Integer.toHexString(System.identityHashCode(operatorImage)),
-                                             operatorImage instanceof OperatorImageTileStack ? "Stack" : "Single");
-            TileComputationStatistic[] tileComputationStatistics = operatorImage.getTileComputationStatistics();
-            for (int i = 0, tileComputationStatisticsLength = tileComputationStatistics.length; i < tileComputationStatisticsLength; i++) {
-                TileComputationStatistic tileComputationStatistic = tileComputationStatistics[i];
-                if (tileComputationStatistic != null) {
-                    writer.printf("%d\t%s.%s\t%s.%s.%d.%d\t%d\t%f\t%f\n",
-                                  depth,
-                                  productName,
-                                  targetBand.getName(),
-                                  operatorName,
-                                  imageType,
-                                  tileComputationStatistic.getTileX(),
-                                  tileComputationStatistic.getTileY(),
-                                  tileComputationStatistic.getCount(),
-                                  tileComputationStatistic.getNanosMin() / 1.0E9,
-                                  tileComputationStatistic.getNanosMax() / 1.0E9);
+    private void logPerformanceAnalysis(PrintWriter writer, int depth, HashSet<OperatorImage> processedImages) {
+
+        logProductImages(writer, depth, targetProduct, processedImages);
+        for (Product product : sourceProductList) {
+            logProductImages(writer, depth + 1, product, processedImages);
+        }
+
+        ArrayList<Product> products = new ArrayList<Product>();
+        products.add(targetProduct);
+        for (Product product : sourceProductList) {
+            products.add(product);
+            for (Band band : product.getBands()) {
+                OperatorImage operatorImage = imageOf(band);
+                if (operatorImage != null) {
+                    OperatorContext operatorContext = operatorImage.getOperatorContext();
+                    if (operatorContext != this) {
+                        products.add(operatorContext.targetProduct);
+                        products.addAll(operatorContext.sourceProductList);
+                    }
                 }
             }
         }
 
-        for (Product product : sourceProductList) {
-            OperatorContext operatorContext = getOperatorContext(product);
-            if (operatorContext != null) {
-                operatorContext.logPerformanceAnalysis(writer, depth + 1);
+        for (Product product : products) {
+            for (Band band : product.getBands()) {
+                OperatorImage operatorImage = imageOf(band);
+                if (operatorImage != null && !processedImages.contains(operatorImage)) {
+                    OperatorContext operatorContext = operatorImage.getOperatorContext();
+                    if (operatorContext != this) {
+                        operatorContext.logPerformanceAnalysis(writer, depth + 1, processedImages);
+                    }
+                }
             }
         }
     }
 
-    boolean isComputing(Band band) {
+    private static void logProductImages(PrintWriter writer, int depth, Product product, HashSet<OperatorImage> processedImages) {
+        final Band[] targetBands = product.getBands();
+        for (Band band : targetBands) {
+            OperatorImage operatorImage = imageOf(band);
+            if (operatorImage != null && !processedImages.contains(operatorImage)) {
+                processedImages.add(operatorImage);
+                logPerformanceAnalysis(writer, depth, product.getName(), operatorImage);
+            }
+        }
+    }
+
+    static OperatorImage imageOf(Band band) {
+        if (band.isSourceImageSet()) {
+            MultiLevelImage sourceImage = band.getSourceImage();
+            if (sourceImage.getImage(0) instanceof OperatorImage) {
+                return (OperatorImage) sourceImage.getImage(0);
+            }
+        }
+        return null;
+    }
+
+    boolean isComputingImageOf(Band band) {
         if (band.isSourceImageSet()) {
             RenderedImage sourceImage = band.getSourceImage().getImage(0);
             OperatorImage targetImage = getTargetImage(band);
+            //noinspection ObjectEquality
             return targetImage == sourceImage;
         } else {
             return false;

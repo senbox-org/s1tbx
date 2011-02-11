@@ -77,7 +77,7 @@ public class OperatorImage extends SourcelessOpImage {
         long startNanos = System.nanoTime();
 
         Tile targetTile;
-        if (getOperatorContext().isComputing(getTargetBand())) {
+        if (getOperatorContext().isComputingImageOf(getTargetBand())) {
             targetTile = createTargetTile(getTargetBand(), tile, destRect);
         } else if (requiresAllBands()) {
             targetTile = getOperatorContext().getSourceTile(getTargetBand(), destRect);

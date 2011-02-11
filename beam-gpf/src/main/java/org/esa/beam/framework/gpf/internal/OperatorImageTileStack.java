@@ -100,7 +100,7 @@ public class OperatorImageTileStack extends OperatorImage {
         Map<Band, WritableRaster> writableRasters = new HashMap<Band, WritableRaster>(targetBands.length);
 
         for (Band band : targetBands) {
-            if (band == getTargetBand() || getOperatorContext().isComputing(band)) {
+            if (band == getTargetBand() || getOperatorContext().isComputingImageOf(band)) {
                 WritableRaster tileRaster = getWritableRaster(band, tile);
                 writableRasters.put(band, tileRaster);
                 Tile targetTile = createTargetTile(band, tileRaster, destRect);
@@ -127,10 +127,8 @@ public class OperatorImageTileStack extends OperatorImage {
             /*
             getOperatorContext().addTileToLocalCache(band, tileX, tileY, writableRaster);
             */
-
+            operatorImage.updateMetrics(destRect, startNanos);
         }
-
-        updateMetrics(destRect, startNanos);
     }
 
     private WritableRaster getWritableRaster(Band band, WritableRaster targetTileRaster) {

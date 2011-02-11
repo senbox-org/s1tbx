@@ -1,7 +1,5 @@
 package org.esa.beam.framework.gpf.internal;
 
-import java.awt.Rectangle;
-
 /**
  * Simple statistics for the pixel computations of a tile.
  *
@@ -14,6 +12,7 @@ public class TileComputationStatistic {
     private int count;
     private long nanosMin = Long.MAX_VALUE;
     private long nanosMax = Long.MIN_VALUE;
+    private long nanosSum = 0;
 
     public TileComputationStatistic(int tileX, int tileY) {
         this.tileX = tileX;
@@ -24,6 +23,7 @@ public class TileComputationStatistic {
         count++;
         nanosMin = Math.min(nanosMin, nanos);
         nanosMax = Math.max(nanosMax, nanos);
+        nanosSum += nanos;
     }
 
     public int getTileX() {
@@ -45,5 +45,13 @@ public class TileComputationStatistic {
 
     public long getNanosMax() {
         return nanosMax;
+    }
+
+    public long getNanosSum() {
+        return nanosSum;
+    }
+
+    public long getNanosAvg() {
+        return nanosSum / count;
     }
 }
