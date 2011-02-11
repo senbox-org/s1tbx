@@ -25,8 +25,10 @@ public abstract class SampleOperator extends PointOperator {
             pm.beginTask(getId(), targetTile.getHeight());
             for (int y = y1; y <= y2; y++) {
                 for (int x = x1; x <= x2; x++) {
-                    setSampleLocations(x, y, sourceSamples);
-                    setSampleLocations(x, y, targetSample);
+                    for (final DefaultSample sample : sourceSamples) {
+                        sample.setPixel(x, y);
+                    }
+                    targetSample.setPixel(x, y);
                     computeSample(x, y, sourceSamples, targetSample);
                 }
                 pm.worked(1);

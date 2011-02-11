@@ -30,8 +30,12 @@ public abstract class PixelOperator extends PointOperator {
             pm.beginTask(getId(), targetRectangle.height);
             for (int y = y1; y <= y2; y++) {
                 for (int x = x1; x <= x2; x++) {
-                    setSampleLocations(x, y, sourceSamples);
-                    setSampleLocations(x, y, targetSamples);
+                    for (final DefaultSample sourceSample : sourceSamples) {
+                        sourceSample.setPixel(x, y);
+                    }
+                    for (final DefaultSample targetSample : targetSamples) {
+                        targetSample.setPixel(x, y);
+                    }
                     computePixel(x, y, sourceSamples, targetSamples);
                 }
                 pm.worked(1);
