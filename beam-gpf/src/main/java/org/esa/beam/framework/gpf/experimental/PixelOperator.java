@@ -5,6 +5,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Map;
 
@@ -18,8 +19,9 @@ public abstract class PixelOperator extends PointOperator {
     public final void computeTileStack(Map<Band, Tile> targetTileStack, Rectangle targetRectangle,
                                        ProgressMonitor pm) throws OperatorException {
 
-        final DefaultSample[] sourceSamples = createSourceSamples(targetRectangle);
-        final DefaultSample[] targetSamples = createTargetSamples(targetTileStack);
+        final Point location = new Point();
+        final DefaultSample[] sourceSamples = createSourceSamples(targetRectangle, location);
+        final DefaultSample[] targetSamples = createTargetSamples(targetTileStack, location);
 
         final int x1 = targetRectangle.x;
         final int y1 = targetRectangle.y;
@@ -28,15 +30,9 @@ public abstract class PixelOperator extends PointOperator {
 
         try {
             pm.beginTask(getId(), targetRectangle.height);
-            for (int y = y1; y <= y2; y++) {
-                for (int x = x1; x <= x2; x++) {
-                    for (final DefaultSample sourceSample : sourceSamples) {
-                        sourceSample.setPixel(x, y);
-                    }
-                    for (final DefaultSample targetSample : targetSamples) {
-                        targetSample.setPixel(x, y);
-                    }
-                    computePixel(x, y, sourceSamples, targetSamples);
+            for (location.y = y1; location.y <= y2; location.y++) {
+                for (location.x = x1; location.x <= x2; location.x++) {
+                    computePixel(location.x, location.y, sourceSamples, targetSamples);
                 }
                 pm.worked(1);
             }

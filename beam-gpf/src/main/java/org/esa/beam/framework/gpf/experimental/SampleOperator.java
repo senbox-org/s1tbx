@@ -5,6 +5,8 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 
+import java.awt.Point;
+
 public abstract class SampleOperator extends PointOperator {
 
     protected abstract void computeSample(int x, int y,
@@ -13,8 +15,10 @@ public abstract class SampleOperator extends PointOperator {
 
     @Override
     public final void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        final DefaultSample[] sourceSamples = createSourceSamples(targetTile.getRectangle());
-        final DefaultSample targetSample = createTargetSample(targetTile);
+
+        final Point location = new Point();
+        final DefaultSample[] sourceSamples = createSourceSamples(targetTile.getRectangle(), location);
+        final DefaultSample targetSample = createTargetSample(targetTile, location);
 
         final int x1 = targetTile.getMinX();
         final int y1 = targetTile.getMinY();
@@ -23,13 +27,9 @@ public abstract class SampleOperator extends PointOperator {
 
         try {
             pm.beginTask(getId(), targetTile.getHeight());
-            for (int y = y1; y <= y2; y++) {
-                for (int x = x1; x <= x2; x++) {
-                    for (final DefaultSample sample : sourceSamples) {
-                        sample.setPixel(x, y);
-                    }
-                    targetSample.setPixel(x, y);
-                    computeSample(x, y, sourceSamples, targetSample);
+            for (location.y = y1; location.y <= y2; location.y++) {
+                for (location.x = x1; location.x <= x2; location.x++) {
+                    computeSample(location.x, location.y, sourceSamples, targetSample);
                 }
                 pm.worked(1);
             }

@@ -8,6 +8,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.ProductUtils;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,21 +52,21 @@ public abstract class PointOperator extends Operator {
 
     protected abstract void configureTargetSamples(Configurator configurator);
 
-    DefaultSample[] createSourceSamples(Rectangle targetRectangle) {
+    DefaultSample[] createSourceSamples(Rectangle targetRectangle, Point location) {
         final Tile[] sourceTiles = getSourceTiles(targetRectangle);
-        return createDefaultSamples(sourceNodes, sourceTiles);
+        return createDefaultSamples(sourceNodes, sourceTiles, location);
     }
 
-    DefaultSample[] createTargetSamples(Map<Band, Tile> targetTileStack) {
+    DefaultSample[] createTargetSamples(Map<Band, Tile> targetTileStack, Point location) {
         final Tile[] targetTiles = getTargetTiles(targetTileStack);
-        return createDefaultSamples(targetNodes, targetTiles);
+        return createDefaultSamples(targetNodes, targetTiles, location);
     }
 
-    DefaultSample createTargetSample(Tile targetTile) {
+    DefaultSample createTargetSample(Tile targetTile, Point location) {
         final RasterDataNode targetNode = targetTile.getRasterDataNode();
         for (int i = 0; i < targetNodes.length; i++) {
             if (targetNode == targetNodes[i]) {
-                return new DefaultSample(i, targetTile);
+                return new DefaultSample(i, targetTile, location);
             }
         }
         final String msgPattern = "Could not create target sample for band '%s'.";
@@ -97,11 +98,11 @@ public abstract class PointOperator extends Operator {
         return targetTiles;
     }
 
-    private static DefaultSample[] createDefaultSamples(RasterDataNode[] nodes, Tile[] tiles) {
+    private static DefaultSample[] createDefaultSamples(RasterDataNode[] nodes, Tile[] tiles, Point location) {
         DefaultSample[] samples = new DefaultSample[nodes.length];
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
-                samples[i] = new DefaultSample(i, tiles[i]);
+                samples[i] = new DefaultSample(i, tiles[i], location);
             } else {
                 samples[i] = DefaultSample.NULL;
             }
@@ -155,15 +156,14 @@ public abstract class PointOperator extends Operator {
         private final RasterDataNode node;
         private final int dataType;
         private final Tile tile;
+        private final Point location;
 
-        private int pixelX;
-        private int pixelY;
-
-        protected DefaultSample(int index, Tile tile) {
+        protected DefaultSample(int index, Tile tile, Point location) {
             this.index = index;
             this.node = tile.getRasterDataNode();
             this.dataType = this.node.getGeophysicalDataType();
             this.tile = tile;
+            this.location = location;
         }
 
         private DefaultSample() {
@@ -171,11 +171,7 @@ public abstract class PointOperator extends Operator {
             this.node = null;
             this.dataType = -1;
             this.tile = null;
-        }
-
-        void setPixel(int x, int y) {
-            pixelX = x;
-            pixelY = y;
+            this.location = null;
         }
 
         @Override
@@ -195,52 +191,52 @@ public abstract class PointOperator extends Operator {
 
         @Override
         public boolean getBit(int bitIndex) {
-            return tile.getSampleBit(pixelX, pixelY, bitIndex);
+            return tile.getSampleBit(location.x, location.y, bitIndex);
         }
 
         @Override
         public boolean getBoolean() {
-            return tile.getSampleBoolean(pixelX, pixelY);
+            return tile.getSampleBoolean(location.x, location.y);
         }
 
         @Override
         public int getInt() {
-            return tile.getSampleInt(pixelX, pixelY);
+            return tile.getSampleInt(location.x, location.y);
         }
 
         @Override
         public float getFloat() {
-            return tile.getSampleFloat(pixelX, pixelY);
+            return tile.getSampleFloat(location.x, location.y);
         }
 
         @Override
         public double getDouble() {
-            return tile.getSampleDouble(pixelX, pixelY);
+            return tile.getSampleDouble(location.x, location.y);
         }
 
         @Override
         public void set(int bitIndex, boolean v) {
-            tile.setSample(pixelX, pixelY, bitIndex, v);
+            tile.setSample(location.x, location.y, bitIndex, v);
         }
 
         @Override
         public void set(boolean v) {
-            tile.setSample(pixelX, pixelY, v);
+            tile.setSample(location.x, location.y, v);
         }
 
         @Override
         public void set(int v) {
-            tile.setSample(pixelX, pixelY, v);
+            tile.setSample(location.x, location.y, v);
         }
 
         @Override
         public void set(float v) {
-            tile.setSample(pixelX, pixelY, v);
+            tile.setSample(location.x, location.y, v);
         }
 
         @Override
         public void set(double v) {
-            tile.setSample(pixelX, pixelY, v);
+            tile.setSample(location.x, location.y, v);
         }
     }
 
