@@ -238,6 +238,8 @@ public class PointOperatorTest extends TestCase {
             final int sceneHeight = getSourceProduct().getSceneRasterHeight();
             Product targetProduct = new Product("ndvi", "NDVI_TYPE", sceneWidth, sceneHeight);
 
+            targetProduct.setStartTime(inputProduct.getStartTime());
+            targetProduct.setEndTime(inputProduct.getEndTime());
             ProductUtils.copyTiePointGrids(inputProduct, targetProduct);
             ProductUtils.copyGeoCoding(inputProduct, targetProduct);
 
