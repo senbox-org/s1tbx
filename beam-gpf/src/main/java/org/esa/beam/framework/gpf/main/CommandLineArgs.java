@@ -32,6 +32,10 @@ import java.util.TreeMap;
  */
 class CommandLineArgs {
 
+    private static final int K = 1024;
+    private static final int M = K * 1024;
+    private static final int G = M * 1024;
+
     private String[] args;
     private String operatorName;
     private String graphFilepath;
@@ -45,9 +49,8 @@ class CommandLineArgs {
     private boolean stackTraceDump;
     private boolean clearCacheAfterRowWrite;
     private long tileCacheCapacity;
-    private static final int K = 1024;
-    private static final int M = K * 1024;
-    private static final int G = M * 1024;
+
+    private int tileSchedulerParallelism;
 
     public CommandLineArgs(String[] args) {
         this.args = args.clone();
@@ -59,6 +62,7 @@ class CommandLineArgs {
         targetFilepathMap = new TreeMap<String, String>();
         parameterMap = new TreeMap<String, String>();
         tileCacheCapacity = CommandLineTool.DEFAULT_TILE_CACHE_SIZE_IN_M * M;
+        tileSchedulerParallelism = CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELSIM;
 
         // look for "-e" early do enable verbose error reports 
         for (String arg : this.args) {
@@ -96,6 +100,9 @@ class CommandLineArgs {
                     i++;
                 } else if (arg.equals("-p")) {
                     parameterFilepath = parseOptionArgument(arg, i);
+                    i++;
+                } else if (arg.equals("-q")) {
+                    tileSchedulerParallelism = parseOptionArgumentInt(arg, i);
                     i++;
                 } else if (arg.equals("-c")) {
                     tileCacheCapacity = parseOptionArgumentBytes(arg, i);
@@ -175,6 +182,10 @@ class CommandLineArgs {
         return tileCacheCapacity;
     }
 
+    public int getTileSchedulerParallelism() {
+        return tileSchedulerParallelism;
+    }
+
     public boolean isClearCacheAfterRowWrite() {
         return clearCacheAfterRowWrite;
     }
@@ -205,6 +216,11 @@ class CommandLineArgs {
         } else {
             throw error("Missing argument for option '" + arg + "'");
         }
+    }
+
+    private int parseOptionArgumentInt(String arg, int index) throws Exception {
+       String valueString = parseOptionArgument(arg, index);
+       return Integer.parseInt(valueString);
     }
 
     private long parseOptionArgumentBytes(String arg, int index) throws Exception {
@@ -259,5 +275,4 @@ class CommandLineArgs {
     private static Exception error(String m) {
         return new Exception(m);
     }
-
 }

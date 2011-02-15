@@ -54,6 +54,7 @@ class CommandLineTool {
     static final String DEFAULT_TARGET_FILEPATH = "./target.dim";
     static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
     static final int DEFAULT_TILE_CACHE_SIZE_IN_M = 512;
+    static final int DEFAULT_TILE_SCHEDULER_PARALLELSIM = Runtime.getRuntime().availableProcessors();
 
     private final CommandLineContext commandLineContext;
 
@@ -112,6 +113,10 @@ class CommandLineTool {
         } else {
             JAI.getDefaultInstance().getTileCache().setMemoryCapacity(0L);
             JAI.disableDefaultTileCache();
+        }
+        int parallelism = lineArgs.getTileSchedulerParallelism();
+        if (parallelism > 0) {
+            JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
         }
 
         if (lineArgs.getOperatorName() != null) {

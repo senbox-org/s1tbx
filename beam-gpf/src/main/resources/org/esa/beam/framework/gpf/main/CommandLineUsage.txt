@@ -35,6 +35,9 @@ Options:
                      available heap space. If equal to or less than zero, tile
                      caching will be completely disabled. The default tile
                      cache size is ''{3}M''.
+  -q <parallelism>   Sets the maximum parallelism used for the computation, i.e.
+                     the maximum number of parallel (native) threads.
+                     The default parallelism is ''{4}''.
   -x                 Clears the internal tile cache after writing a complete
                      row of tiles to the target product file. This option may
                      be useful if you run into memory problems.
@@ -51,4 +54,4 @@ Options:
                      parameter values specified by the ''-p'' option.
 
 Operators:
-{4}
+{5}

@@ -195,7 +195,7 @@ public class CommandLineArgsTest extends TestCase {
         assertEquals(true, lineArgs.isClearCacheAfterRowWrite());
     }
 
-    public void testTileCacheOption() throws Exception {
+    public void testJAIOptions() throws Exception {
         CommandLineArgs lineArgs;
 
         // test default value
@@ -205,6 +205,7 @@ public class CommandLineArgsTest extends TestCase {
         });
         lineArgs.parseArguments();
         assertEquals(512 * M, lineArgs.getTileCacheCapacity());
+        assertEquals(CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELSIM, lineArgs.getTileSchedulerParallelism());
 
         // test some valid value
         lineArgs = new CommandLineArgs(new String[]{
@@ -215,16 +216,20 @@ public class CommandLineArgsTest extends TestCase {
         });
         lineArgs.parseArguments();
         assertEquals(16 * M, lineArgs.getTileCacheCapacity());
+        assertEquals(CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELSIM, lineArgs.getTileSchedulerParallelism());
 
         // test some valid value
         lineArgs = new CommandLineArgs(new String[]{
                 "Reproject",
                 "source.dim",
+                "-q",
+                "1",
                 "-c",
                 "16000K",
         });
         lineArgs.parseArguments();
         assertEquals(16000 * K, lineArgs.getTileCacheCapacity());
+        assertEquals(1, lineArgs.getTileSchedulerParallelism());
 
         // test some valid value
         lineArgs = new CommandLineArgs(new String[]{
@@ -232,9 +237,12 @@ public class CommandLineArgsTest extends TestCase {
                 "source.dim",
                 "-c",
                 "16000002",
+                "-q",
+                "3"
         });
         lineArgs.parseArguments();
         assertEquals(16000002, lineArgs.getTileCacheCapacity());
+        assertEquals(3, lineArgs.getTileSchedulerParallelism());
 
         // test zero
         lineArgs = new CommandLineArgs(new String[]{
@@ -242,9 +250,12 @@ public class CommandLineArgsTest extends TestCase {
                 "source.dim",
                 "-c",
                 "0",
+                "-q",
+                "10"
         });
         lineArgs.parseArguments();
         assertEquals(0, lineArgs.getTileCacheCapacity());
+        assertEquals(10, lineArgs.getTileSchedulerParallelism());
 
         // test zero or less
         try {
